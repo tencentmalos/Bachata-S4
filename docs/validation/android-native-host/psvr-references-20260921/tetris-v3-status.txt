@@ -1,0 +1,78 @@
+TASK 10190:com.shadps4.android id=1593 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity 679a6e9 pid=8487
+session: none
+generation: 1
+pid: 8487
+phase: 6
+run_uuid: 2502bac5df110f5bf217107c53d7ce2f
+stage: Failed
+stop_reason: Faulted
+driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+terminal_detail: guest return=26 guest_rip=103079641101 operation=26 import=BWY-qKM5hxE#libSceHmd#1#libSceHmd#Function context=1 thread=1 generation=2 invocation=6 category=10
+production Linker/VM; owners=63 veneers=980
+HLE_STATUS android_bridge=542
+HLE_STATUS android_bridge_audio_input_no_provider=4
+HLE_STATUS android_bridge_coredump_no_provider=3
+HLE_STATUS android_bridge_guest_device_no_provider=3
+HLE_STATUS android_bridge_guest_vr_sbs_virtual=42
+HLE_STATUS desktop_stub_no_residency=1
+HLE_STATUS guest_fastpath=16
+HLE_STATUS unsupported_import=330
+UNSUPPORTED_IMPORT lBtrk+7lk14#libSceNpTus#1#libSceNpTus#Function
+UNSUPPORTED_IMPORT H3uq7x0sZOI#libSceNpTus#1#libSceNpTus#Function
+UNSUPPORTED_IMPORT 1n-dGukBgnY#libSceNpTus#1#libSceNpTus#Function
+UNSUPPORTED_IMPORT Ou3iL1abvng#libkernel#1#libkernel#Function
+UNSUPPORTED_IMPORT BWY-qKM5hxE#libSceHmd#1#libSceHmd#Function
+UNSUPPORTED_IMPORT dntZTJ7meIU#libSceHmd#1#libSceHmd#Function
+UNSUPPORTED_IMPORT q3e8+nEguyE#libSceHmd#1#libSceHmd#Function
+UNSUPPORTED_IMPORT kcldQ7zLYQQ#libSceHmd#1#libSceHmd#Function
+UNSUPPORTED_IMPORT vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function
+UNSUPPORTED_IMPORT pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT 6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function
+UNSUPPORTED_IMPORT XvA5KS56wcs#libSceInvitationDialog#1#libSceInvitationDialog#Function
+UNSUPPORTED_IMPORT sAxbHhAWMXM#libSceInvitationDialog#1#libSceInvitationDialog#Function
+UNSUPPORTED_IMPORT B6HVJtDYxEE#libSceInvitationDialog#1#libSceInvitationDialog#Function
+UNSUPPORTED_IMPORT 9+g9iOq+7kg#libSceInvitationDialog#1#libSceInvitationDialog#Function
+UNSUPPORTED_IMPORT lDqxaY1UbEo#libSceMsgDialog#1#libSceMsgDialog#Function
+UNSUPPORTED_IMPORT b06Hh0DPEaE#libSceMsgDialog#1#libSceMsgDialog#Function
+UNSUPPORTED_IMPORT ePw-kqZmelo#libSceMsgDialog#1#libSceMsgDialog#Function
+UNSUPPORTED_IMPORT 6fIC3XKt2k0#libSceMsgDialog#1#libSceMsgDialog#Function
+UNSUPPORTED_IMPORT V6KSpKv9XJE#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT 26vWrPAWJfM#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT rJNPJqDCpiI#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT n5JmImxTiZU#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT gQ6cUriNpgs#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT BD6kfx442Do#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT VqZX7POg2Mk#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT tHD5FPFXtu4#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT wUmwXZHaX1w#libSceNpMatching2#1#libSceNpMatching2#Function
+UNSUPPORTED_IMPORT Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function
+UNSUPPORTED_IMPORT Lg+NCE6pTwQ#libSceNpProfileDialog#1#libSceNpProfileDialog#Function
+UNSUPPORTED_IMPORT nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function
+UNSUPPORTED_IMPORT 0Sp9vJcB1-w#libSceNpProfileDialog#1#libSceNpProfileDialog#Function
+UNSUPPORTED_IMPORT haVZE9FgKqE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function
+UNSUPPORTED_IMPORT GWnWQNXZH5M#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT gW8qyjYrUbk#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT G0pE+RNCwfk#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT dK8-SgYf6r4#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT dRszNNyGWkw#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT m1DfNRstkSQ#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT ANJssPz3mY0#libSceNpScore#1#libSceNpScore#Function
+UNSUPPORTED_IMPORT DS2yu3Sjj1o#libSceNpTus#1#libSceNpTus#Function
+UNSUPPORTED_IMPORT 3bh2aBvvmvM#libSceNpTus#1#libSceNpTus#Function
+UNSUPPO
+snapshot_ns: 744778780301612
+guest_flip: 1 (age_ns=12643306505)
+pm4_consumed: 774 (age_ns=12643294005)
+host_draw: 16 (age_ns=12659450307)
+queue_submit: 311 (age_ns=9295921246)
+gpu_retire: unavailable
+host_present: 1 (age_ns=12629745776)
+overlay_redraw: 153 (age_ns=9313691403)
+guest_submission: 2 (age_ns=12703496818)
+

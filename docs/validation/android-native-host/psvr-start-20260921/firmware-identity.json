@@ -1,0 +1,16 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceHmd.sprx",
+  "sha256": "c5005afcb8bddeaa6de23cd581eabe080087bb45b36c8a9dc89cf6af227f0e71",
+  "analysis_sha256": "0c05f07820a93be191a1d50ccb74d16621d1a8c012128c77c45f9e8120b4c6de",
+  "module": "hmd",
+  "analysis_base": "0x0",
+  "firmware": "11.00",
+  "functions": {
+    "Start": "0x161e0",
+    "StartWithOverlay": "0x16c90",
+    "Start2dVr": "0x17690",
+    "OverlayCopy": "0xc370",
+    "2dCopy": "0xf730"
+  },
+  "reverse_study": "workspace opened, 0 indexed functions; decompile NOT_IN_FUNCTION. Used exact-byte objdump and actual guest call instead; workspace closed."
+}

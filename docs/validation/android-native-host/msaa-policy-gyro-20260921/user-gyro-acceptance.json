@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-21",
+  "serial": "9c2841a4",
+  "apk_sha256": "e727bef6762ed16e477092dc2dc8d60b0b44679d94d6a52d0bf7d375d1818119",
+  "question": "水平转向、左右侧倾和上下点头：画面的旋转轴是否已经对应正确？",
+  "answer": "三个方向都正常",
+  "source": "current conversation user reply",
+  "instrumented_physical_motion_capture": false
+}

@@ -1,0 +1,7 @@
+FAIL 48: DispatchVideoEventGetter(*space, "Mt4QHHkxkOc", address, 0) == 0x1234
+FAIL 48: DispatchVideoEventGetter(*space, "Mt4QHHkxkOc", address, 0) == 0x1234
+FAIL 45: output == value
+FAIL 48: DispatchVideoEventGetter(*space, "Mt4QHHkxkOc", address, 0) == 0x1234
+FAIL 45: output == value
+FAIL 48: DispatchVideoEventGetter(*space, "Mt4QHHkxkOc", address, 0) == 0x1234
+GRAPHICS_ADMISSION checks=45 failures=6

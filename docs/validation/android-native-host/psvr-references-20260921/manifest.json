@@ -1,0 +1,331 @@
+{
+  "schema": 1,
+  "report": "../psvr-references-20260921.md",
+  "files": [
+    {
+      "path": "apk-v5.log",
+      "size": 20733,
+      "sha256": "9ff39b73353d9bbbc936ef09eb65627095e0d2ac6da3d1b44b988a55f27b927f"
+    },
+    {
+      "path": "beat-v5-stopped.txt",
+      "size": 4912,
+      "sha256": "8201548ca8e50ae634e933f9b4699bb28123f04b2f2d4339866b0d2ba7132110"
+    },
+    {
+      "path": "beat-v5b-after-input.png",
+      "size": 2203191,
+      "sha256": "2ef7663412fe88ab5e615afbec877843bb4755b848198605754644b7efd0c70e"
+    },
+    {
+      "path": "beat-v5b-audit.json",
+      "size": 38122,
+      "sha256": "b83492790b2cf25b402fdb09fcc6ab4e87390316d2513f13976269e640f8b5aa"
+    },
+    {
+      "path": "beat-v5b-imports.json",
+      "size": 636203,
+      "sha256": "07d92ce348c2e929d767e43d521d0528aa8bc8f7d136a4f159df167dc8e211a5"
+    },
+    {
+      "path": "beat-v5b-status.txt",
+      "size": 746,
+      "sha256": "d349284e311c21f676e466d58b7eedc30045a5f3044c0718b49d0ac28006674f"
+    },
+    {
+      "path": "beat-v5b-stopped.txt",
+      "size": 4912,
+      "sha256": "430a72c1e97274caa9b695ee7344ca447f958fff6059be22022e5d840f9fa3bc"
+    },
+    {
+      "path": "build-identity-v3.json",
+      "size": 1073,
+      "sha256": "275c1f5d5a08948328ef889ea7ce5244686d5204b209a1ee8e4da4bff3931f98"
+    },
+    {
+      "path": "build-identity-v5.json",
+      "size": 638,
+      "sha256": "6c8fdea769c4f7877be310888a7b0f87cb4ab24d2814d7b8f92dee801b886790"
+    },
+    {
+      "path": "build-v1.log",
+      "size": 56,
+      "sha256": "a0b309ead5405d8add46ee60ed2a2fc68dccbf9fe58b19ad3b228c36e05c6109"
+    },
+    {
+      "path": "build-v4.log",
+      "size": 12545,
+      "sha256": "2e19ad5f7d4dd12d79773611ab281c8822b6391f17879ef6adc11ce4f7079669"
+    },
+    {
+      "path": "build-v8.log",
+      "size": 11017,
+      "sha256": "83891ea3fb2d5283cd672172230eaa3ff6023aef5e33d96b47aa20afa0f1aeaa"
+    },
+    {
+      "path": "delivery.json",
+      "size": 874,
+      "sha256": "e483b93afdbbb59611bad0ecb49c54b7b09c7d0402680a40bc3a108b76c8df62"
+    },
+    {
+      "path": "diagnostic-summary.json",
+      "size": 1033,
+      "sha256": "932586cfe1a3b36003a5201b9cbdd13d88a462ba1af6bf3c946d0d7ee99aba47"
+    },
+    {
+      "path": "files-v5.txt",
+      "size": 36,
+      "sha256": "be53fa44fa8a22010d03b8ff6f9667f04afe139a781e0ee7c3da17b9b9615078"
+    },
+    {
+      "path": "forward-after.txt",
+      "size": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "graphics-v5.txt",
+      "size": 40,
+      "sha256": "fc0abe8a087febc2224b032cbde3cf77da6632786f9286f6e9dc4ff20881845b"
+    },
+    {
+      "path": "hmd-eye-offset.asm",
+      "size": 8533,
+      "sha256": "2db358d57b1f40eed2256351f743bba833063bb17dfb21031b5d8505df4bf965"
+    },
+    {
+      "path": "hmd-identity.json",
+      "size": 255,
+      "sha256": "66878bf61440291cc7567bd6591b65672b3171c910c6513618abc74cb9f69efc"
+    },
+    {
+      "path": "install-v5.txt",
+      "size": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    {
+      "path": "library-final-status.txt",
+      "size": 155,
+      "sha256": "e0a55ff449888de57e99e35078d5636619a7722e27b36c43985e3ed97031d3c2"
+    },
+    {
+      "path": "library-final.png",
+      "size": 1199952,
+      "sha256": "21a59b9a598018c1da14ed1f1a59cb5adac2f5aed18e027fece64566c1813457"
+    },
+    {
+      "path": "logcat-app.txt",
+      "size": 1744092,
+      "sha256": "e2211cfd45e30998b570cf5a0258cd194a8f49140bfdd63523f6b991ba07ad50"
+    },
+    {
+      "path": "process-after.txt",
+      "size": 1088,
+      "sha256": "2f41fdf3ebca6813ce775b7bebca693a3b5bd05b04ecee4a82a7ee8e14423728"
+    },
+    {
+      "path": "properties-after.txt",
+      "size": 824,
+      "sha256": "a3b883014fd72bb2dc3d33bc4a8bd797deb6d7df41abcf78bca532c6353c7411"
+    },
+    {
+      "path": "psvr-v5.txt",
+      "size": 36,
+      "sha256": "4de270e32d616385655ea6f66e14cddd8c28da35be68154591d8777119a32bc5"
+    },
+    {
+      "path": "reference-identity.json",
+      "size": 674,
+      "sha256": "0e960e25df70a2acd04433e36668515c397a7f5ce753b8f283410916d50b39ef"
+    },
+    {
+      "path": "sensor-v5.txt",
+      "size": 46,
+      "sha256": "4048a3e86ba4e4c3a0923db409a97b3e93755ab6c70be6a97918422c870e891b"
+    },
+    {
+      "path": "services-after.txt",
+      "size": 66,
+      "sha256": "e9990d2b9ce9e862271712ca1ecd0c280ac8cd7a2fd48fc18fb69623521c33b0"
+    },
+    {
+      "path": "source-identity.json",
+      "size": 1942,
+      "sha256": "527ac82f1ab498cd224e8f58bc73fb3e8c9d0ef05742b28438662b94e089e549"
+    },
+    {
+      "path": "sports-v5-adb.png",
+      "size": 395275,
+      "sha256": "bce4993e8cf8cca276e3474ddf443910149535dbf54a8f020bb246f19035bcb8"
+    },
+    {
+      "path": "sports-v5-audit.json",
+      "size": 41185,
+      "sha256": "2ca37c55d99df175a594914980e7aadbdf2dc09e03ac025291944f64c6e238bd"
+    },
+    {
+      "path": "sports-v5-imports.json",
+      "size": 742499,
+      "sha256": "a0c425a1fb473accf54a470a7f9abaaf046fb1a6ea410decabed16403051e85e"
+    },
+    {
+      "path": "sports-v5-running.txt",
+      "size": 747,
+      "sha256": "aa201366518603ca820eb453929e11cc0dd6cecf108695f18512527449c676e0"
+    },
+    {
+      "path": "sports-v5-stopped.txt",
+      "size": 4906,
+      "sha256": "aa8e033f177346c198f80f1fe393d54290b66d044446ba947c1e32532edda35e"
+    },
+    {
+      "path": "tetris-mode-bp.json",
+      "size": 7940,
+      "sha256": "093ca84717462d0a5a0da2e0b8171a1bc62cffc03758b99353f42402c99c1271"
+    },
+    {
+      "path": "tetris-mode-cleanup.json",
+      "size": 7722,
+      "sha256": "18aa3d4ced2a936dbe590ed4b3ee4666e33d94f9330dd3d43aa680b4189e267e"
+    },
+    {
+      "path": "tetris-mode-data.json",
+      "size": 8136,
+      "sha256": "4985542b73a9694676df1d76ca0889670248fe148275cefa8db7af35499b81a7"
+    },
+    {
+      "path": "tetris-mode-pause.json",
+      "size": 8142,
+      "sha256": "f2ac3df401982cc3d4fc9d7be6449736f1cbb9ef490a844b7d1363146591fe43"
+    },
+    {
+      "path": "tetris-mode-regs.json",
+      "size": 8934,
+      "sha256": "83a007366b0b26923ce320c245c7b06c61596c74ee1ec2a4b0288fee416aa8ca"
+    },
+    {
+      "path": "tetris-mode-start.json",
+      "size": 8044,
+      "sha256": "0d1285264cabbc5d3f74cd5d1ba69226995eb6ed1539d153af815010625263a3"
+    },
+    {
+      "path": "tetris-mode-stop.json",
+      "size": 8372,
+      "sha256": "644b565102fed7693ec521e2ea08807cad9b0586424b8cb26817c2d8984441ba"
+    },
+    {
+      "path": "tetris-rsp-bp.json",
+      "size": 7937,
+      "sha256": "eeb48c3618e6d6e8b1e213eb9fbe43024e10008486ddb5756742d99acab08c7b"
+    },
+    {
+      "path": "tetris-rsp-cleanup.json",
+      "size": 7722,
+      "sha256": "43f8db9de5ee884cbb5313cf69a106795e1b9e70cc6bba26c7abd4f10f430a90"
+    },
+    {
+      "path": "tetris-rsp-entry.json",
+      "size": 7959,
+      "sha256": "32f9b1991319d0020672a964182057ffc579d4864f639de8299491ba8b7d2e82"
+    },
+    {
+      "path": "tetris-rsp-fatalcaller.json",
+      "size": 8052,
+      "sha256": "69efa9791571746dc1a5e4a2e2ef8fafd2dd0cf118c529d0448618043aa5f4b2"
+    },
+    {
+      "path": "tetris-rsp-fatalregs.json",
+      "size": 9069,
+      "sha256": "eb2fea76a1483f9533a50fcff77637645fa76afd5f091af021304c99ec8b6146"
+    },
+    {
+      "path": "tetris-rsp-fatalsource.json",
+      "size": 8879,
+      "sha256": "5c5027829bd33593dc222f8dcc2d991713a3b846d664b81f72c66eb79e35616e"
+    },
+    {
+      "path": "tetris-rsp-fatalstack.json",
+      "size": 10200,
+      "sha256": "f39d0fc62ee1b6293f75ee7e7b9ac9473c28392fdae26c6e9d355bcf4c77c965"
+    },
+    {
+      "path": "tetris-rsp-fatalstop.json",
+      "size": 8370,
+      "sha256": "327d5c40f7e7be00f7568a394c8e56013741c5a14a2ce70418b69f531c84e73c"
+    },
+    {
+      "path": "tetris-rsp-fataltext.json",
+      "size": 11443,
+      "sha256": "6a5bcb6320942c9871f21ed17b8185c9d1f2fc43b90c8aebce6409176eae879f"
+    },
+    {
+      "path": "tetris-rsp-modules.json",
+      "size": 15322,
+      "sha256": "1123e70b34ebe2635c77e653b6e31a3741472966c2e5939ce27efe707e60e4ae"
+    },
+    {
+      "path": "tetris-rsp-pause.json",
+      "size": 8142,
+      "sha256": "a9a08af2f1e452abbda21245eb9a71e3b844a40c4eb3e3486501b668df4dde3f"
+    },
+    {
+      "path": "tetris-v2-fault.txt",
+      "size": 964,
+      "sha256": "078f6fb98fac6a1d30c180b4c3e959b3c4f9e513948f52f7ddb546abf189461d"
+    },
+    {
+      "path": "tetris-v3-audit.json",
+      "size": 46597,
+      "sha256": "fe2f68721ba1f7188fcbe7ab3916483f569fe4afdf69e4e1d44f49395b085e9d"
+    },
+    {
+      "path": "tetris-v3-status.txt",
+      "size": 4885,
+      "sha256": "3354a9aa221586588f5a9f6e9b5890d839bdcd0935c0a40b5621f707e3ecfdc0"
+    },
+    {
+      "path": "tetris-v4-fault.asm",
+      "size": 6042,
+      "sha256": "4fdb07eaf0bd18c7d72961751ed63e9565cac0df47d2e1b392b43fa9b2551905"
+    },
+    {
+      "path": "tetris-v4-fault.txt",
+      "size": 964,
+      "sha256": "1de9b71edf1dcb2a5934df0647e37ebcb94686dd9d6433c0b7368620b859a941"
+    },
+    {
+      "path": "tetris-v5-audit.json",
+      "size": 46477,
+      "sha256": "09f9b085d132d9923074723866290de010c8c0bbf2b7f286e60bb7a95937a0bf"
+    },
+    {
+      "path": "tetris-v5-fault.txt",
+      "size": 964,
+      "sha256": "a3bfc4c6d8442286a527b8efc39b3c7c83867267ef16477e452ee303466134d0"
+    },
+    {
+      "path": "tetris-v5-imports.json",
+      "size": 805153,
+      "sha256": "8fd47734edf1a4a11cffbd479ff14de54a0282740b336a823a9a3c559aa45514"
+    },
+    {
+      "path": "tetris-v5-status.txt",
+      "size": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "video-mode-options.asm",
+      "size": 15815,
+      "sha256": "b907e65af355e00a2559f42b13c1733ea6d7cfb44f1d76bfaca23c489048ec75"
+    },
+    {
+      "path": "video-mode-validator.asm",
+      "size": 9142,
+      "sha256": "edc696ce16bc9e643b16c5313c76270d90280590648e1f5d4ab04c4ae8c6e193"
+    },
+    {
+      "path": "videoout-identity.json",
+      "size": 260,
+      "sha256": "6ada5d181a1adf12f499ed9488667bf04946c0ae04cef20dd53dd6428ca9c48b"
+    }
+  ]
+}

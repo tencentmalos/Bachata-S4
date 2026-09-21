@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "source_path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceHmd.sprx",
+  "source_sha256": "c5005afcb8bddeaa6de23cd581eabe080087bb45b36c8a9dc89cf6af227f0e71",
+  "normalized_elf": "build/validation/psvr-references-20260921/hmd-analysis.elf",
+  "normalized_sha256": "0c05f07820a93be191a1d50ccb74d16621d1a8c012128c77c45f9e8120b4c6de",
+  "base": 0,
+  "method": "llvm-objdump exact bytes; Reverse Study workspace had zero indexed functions and was closed; no decompilation accepted",
+  "entry": "0x17a50",
+  "scope": "layerCount==1 and layer kind==0 only",
+  "conversion": "0x1820f..0x182a4 -> legacy Start at 0x161e0",
+  "field_mappings": [
+    {
+      "layer_offset": "0x00,0x08",
+      "start_offset": "0x00,0x08",
+      "bytes_each": 8
+    },
+    {
+      "layer_offset": "0x20",
+      "start_offset": "0x10",
+      "bytes_each": 8
+    },
+    {
+      "layer_offset": "0x28,0x38",
+      "start_offset": "0x18,0x28",
+      "bytes_each": 16
+    }
+  ],
+  "unresolved": [
+    "high bit of flags 0x80000005",
+    "other layer kinds",
+    "multilayer2",
+    "full optical reprojection"
+  ]
+}

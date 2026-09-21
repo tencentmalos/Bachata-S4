@@ -1,0 +1,3 @@
+cf224d561b2d65dadc7616b0e2313265bbb524eb7134cf4d4e795181a9229261  /data/app/~~SQHdVcW-Z-mI8BqPadCUfA==/com.shadps4.android-Ab4XXWSW6inBcTU47ikmRg==/base.apk
+fc567f0c0098d00b35c8fd1d6279b27c81d9ee86d23aaf07a2c7025264c150b4  /data/app/~~SQHdVcW-Z-mI8BqPadCUfA==/com.shadps4.android-Ab4XXWSW6inBcTU47ikmRg==/lib/arm64/libshadps4_host.so
+6ce2dd2f5162015f3c6474cab046da6ecbfdb93c32f9f03789cf1d90908e45fb  /data/app/~~SQHdVcW-Z-mI8BqPadCUfA==/com.shadps4.android-Ab4XXWSW6inBcTU47ikmRg==/lib/arm64/libshadps4_fex_session.so

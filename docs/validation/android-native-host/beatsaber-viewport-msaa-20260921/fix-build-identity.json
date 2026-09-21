@@ -1,0 +1,8 @@
+{
+  "apk": "555f48cdbb0d8d2361fbf48dce711c4e9fd338a31eae5fe0796361c0544d2c1f",
+  "host": "b55b77ff0124c0a948697535d2f76fe822bd1fe64df48e565e11039983afe2ef",
+  "libs": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "8de50f1f151a0b51258268f69f9c4c1ea6da85be4ba913b8a16626be7aa7c181",
+    "lib/arm64-v8a/libshadps4_host.so": "b55b77ff0124c0a948697535d2f76fe822bd1fe64df48e565e11039983afe2ef"
+  }
+}

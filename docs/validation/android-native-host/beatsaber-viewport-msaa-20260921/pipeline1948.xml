@@ -1,0 +1,191 @@
+<chunk id="1022" name="vkCreateGraphicsPipelines" length="637" threadID="445385813168" timestamp="687238545612365" duration="3260677">
+			<ResourceId name="device" typename="VkDevice" width="8">12</ResourceId>
+			<ResourceId name="pipelineCache" typename="VkPipelineCache" width="8">298</ResourceId>
+			<uint name="count" typename="uint32_t" width="4">1</uint>
+			<struct name="CreateInfo" typename="VkGraphicsPipelineCreateInfo" important="true" importantchildren="true" hiddenchildren="true">
+				<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO">28</enum>
+				<enum name="pNextType" typename="VkStructureType" width="4" hidden="true" nullable="true" string="VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO">1000044002</enum>
+				<struct name="pNext" typename="VkPipelineRenderingCreateInfo" nullable="true" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO">1000044002</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="viewMask" typename="uint32_t" width="4">0</uint>
+					<uint name="colorAttachmentCount" typename="uint32_t" width="4">1</uint>
+					<array name="pColorAttachmentFormats">
+						<enum typename="VkFormat" width="4" string="VK_FORMAT_R8G8B8A8_SRGB">43</enum>
+					</array>
+					<enum name="depthAttachmentFormat" typename="VkFormat" width="4" string="VK_FORMAT_D32_SFLOAT_S8_UINT">130</enum>
+					<enum name="stencilAttachmentFormat" typename="VkFormat" width="4" string="VK_FORMAT_D32_SFLOAT_S8_UINT">130</enum>
+				</struct>
+				<enum name="flags" typename="VkPipelineCreateFlags" width="4" string="VkPipelineCreateFlagBits(0)">0</enum>
+				<uint name="stageCount" typename="uint32_t" width="4">2</uint>
+				<array name="pStages" important="true">
+					<struct typename="VkPipelineShaderStageCreateInfo" importantchildren="true">
+						<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO">18</enum>
+						<null name="pNext" typename="void *" />
+						<enum name="flags" typename="VkPipelineShaderStageCreateFlags" width="4" string="VkPipelineShaderStageCreateFlagBits(0)">0</enum>
+						<enum name="stage" typename="VkShaderStageFlagBits" width="4" string="VK_SHADER_STAGE_VERTEX_BIT">1</enum>
+						<ResourceId name="module" typename="VkShaderModule" width="8" important="true">1945</ResourceId>
+						<string name="pName" typename="string" important="true">main</string>
+						<null name="pSpecializationInfo" typename="VkSpecializationInfo" />
+					</struct>
+					<struct typename="VkPipelineShaderStageCreateInfo" importantchildren="true">
+						<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO">18</enum>
+						<null name="pNext" typename="void *" />
+						<enum name="flags" typename="VkPipelineShaderStageCreateFlags" width="4" string="VkPipelineShaderStageCreateFlagBits(0)">0</enum>
+						<enum name="stage" typename="VkShaderStageFlagBits" width="4" string="VK_SHADER_STAGE_FRAGMENT_BIT">16</enum>
+						<ResourceId name="module" typename="VkShaderModule" width="8" important="true">1944</ResourceId>
+						<string name="pName" typename="string" important="true">main</string>
+						<null name="pSpecializationInfo" typename="VkSpecializationInfo" />
+					</struct>
+				</array>
+				<null name="pVertexInputState" typename="VkPipelineVertexInputStateCreateInfo" />
+				<struct name="pInputAssemblyState" typename="VkPipelineInputAssemblyStateCreateInfo" nullable="true" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO">20</enum>
+					<null name="pNext" typename="void *" />
+					<enum name="flags" typename="VkPipelineInputAssemblyStateCreateFlags" width="4" string="0">0</enum>
+					<enum name="topology" typename="VkPrimitiveTopology" width="4" string="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST">3</enum>
+					<uint name="primitiveRestartEnable" typename="uint32_t" width="4">0</uint>
+				</struct>
+				<null name="pTessellationState" typename="VkPipelineTessellationStateCreateInfo" />
+				<struct name="pViewportState" typename="VkPipelineViewportStateCreateInfo" nullable="true" importantchildren="true" hiddenchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO">22</enum>
+					<enum name="pNextType" typename="VkStructureType" width="4" hidden="true" nullable="true" string="VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT">1000355001</enum>
+					<struct name="pNext" typename="VkPipelineViewportDepthClipControlCreateInfoEXT" nullable="true" importantchildren="true">
+						<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT">1000355001</enum>
+						<null name="pNext" typename="void *" />
+						<uint name="negativeOneToOne" typename="uint32_t" width="4">0</uint>
+					</struct>
+					<enum name="flags" typename="VkPipelineViewportStateCreateFlags" width="4" string="0">0</enum>
+					<uint name="viewportCount" typename="uint32_t" width="4">0</uint>
+					<array name="pViewports" typename="VkViewport" />
+					<uint name="scissorCount" typename="uint32_t" width="4">0</uint>
+					<array name="pScissors" typename="VkRect2D" />
+				</struct>
+				<struct name="pRasterizationState" typename="VkPipelineRasterizationStateCreateInfo" nullable="true" importantchildren="true" hiddenchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO">23</enum>
+					<enum name="pNextType" typename="VkStructureType" width="4" hidden="true" nullable="true" string="VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT">1000102001</enum>
+					<struct name="pNext" typename="VkPipelineRasterizationDepthClipStateCreateInfoEXT" nullable="true" importantchildren="true">
+						<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT">1000102001</enum>
+						<null name="pNext" typename="void *" />
+						<enum name="flags" typename="VkPipelineRasterizationDepthClipStateCreateFlagsEXT" width="4" string="0">0</enum>
+						<uint name="depthClipEnable" typename="uint32_t" width="4">1</uint>
+					</struct>
+					<enum name="flags" typename="VkPipelineRasterizationStateCreateFlags" width="4" string="0">0</enum>
+					<uint name="depthClampEnable" typename="uint32_t" width="4">1</uint>
+					<uint name="rasterizerDiscardEnable" typename="uint32_t" width="4">0</uint>
+					<enum name="polygonMode" typename="VkPolygonMode" width="4" string="VK_POLYGON_MODE_FILL">0</enum>
+					<enum name="cullMode" typename="VkCullModeFlags" width="4" string="VK_CULL_MODE_NONE">0</enum>
+					<enum name="frontFace" typename="VkFrontFace" width="4" string="VK_FRONT_FACE_COUNTER_CLOCKWISE">0</enum>
+					<uint name="depthBiasEnable" typename="uint32_t" width="4">0</uint>
+					<float name="depthBiasConstantFactor" typename="float" width="4">0</float>
+					<float name="depthBiasClamp" typename="float" width="4">0</float>
+					<float name="depthBiasSlopeFactor" typename="float" width="4">0</float>
+					<float name="lineWidth" typename="float" width="4">1</float>
+				</struct>
+				<struct name="pMultisampleState" typename="VkPipelineMultisampleStateCreateInfo" nullable="true" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO">24</enum>
+					<null name="pNext" typename="void *" />
+					<enum name="flags" typename="VkPipelineMultisampleStateCreateFlags" width="4" string="0">0</enum>
+					<enum name="rasterizationSamples" typename="VkSampleCountFlagBits" width="4" string="VK_SAMPLE_COUNT_2_BIT">2</enum>
+					<uint name="sampleShadingEnable" typename="uint32_t" width="4">0</uint>
+					<float name="minSampleShading" typename="float" width="4">0</float>
+					<null name="pSampleMask" typename="uint32_t" />
+					<uint name="alphaToCoverageEnable" typename="uint32_t" width="4">0</uint>
+					<uint name="alphaToOneEnable" typename="uint32_t" width="4">0</uint>
+				</struct>
+				<struct name="pDepthStencilState" typename="VkPipelineDepthStencilStateCreateInfo" nullable="true" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO">25</enum>
+					<null name="pNext" typename="void *" />
+					<enum name="flags" typename="VkPipelineDepthStencilStateCreateFlags" width="4" string="VkPipelineDepthStencilStateCreateFlagBits(0)">0</enum>
+					<uint name="depthTestEnable" typename="uint32_t" width="4">0</uint>
+					<uint name="depthWriteEnable" typename="uint32_t" width="4">0</uint>
+					<enum name="depthCompareOp" typename="VkCompareOp" width="4" string="VK_COMPARE_OP_NEVER">0</enum>
+					<uint name="depthBoundsTestEnable" typename="uint32_t" width="4">0</uint>
+					<uint name="stencilTestEnable" typename="uint32_t" width="4">0</uint>
+					<struct name="front" typename="VkStencilOpState">
+						<enum name="failOp" typename="VkStencilOp" width="4" string="VK_STENCIL_OP_KEEP">0</enum>
+						<enum name="passOp" typename="VkStencilOp" width="4" string="VK_STENCIL_OP_KEEP">0</enum>
+						<enum name="depthFailOp" typename="VkStencilOp" width="4" string="VK_STENCIL_OP_KEEP">0</enum>
+						<enum name="compareOp" typename="VkCompareOp" width="4" string="VK_COMPARE_OP_NEVER">0</enum>
+						<uint name="compareMask" typename="uint32_t" width="4">0</uint>
+						<uint name="writeMask" typename="uint32_t" width="4">0</uint>
+						<uint name="reference" typename="uint32_t" width="4">0</uint>
+					</struct>
+					<struct name="back" typename="VkStencilOpState">
+						<enum name="failOp" typename="VkStencilOp" width="4" string="VK_STENCIL_OP_KEEP">0</enum>
+						<enum name="passOp" typename="VkStencilOp" width="4" string="VK_STENCIL_OP_KEEP">0</enum>
+						<enum name="depthFailOp" typename="VkStencilOp" width="4" string="VK_STENCIL_OP_KEEP">0</enum>
+						<enum name="compareOp" typename="VkCompareOp" width="4" string="VK_COMPARE_OP_NEVER">0</enum>
+						<uint name="compareMask" typename="uint32_t" width="4">0</uint>
+						<uint name="writeMask" typename="uint32_t" width="4">0</uint>
+						<uint name="reference" typename="uint32_t" width="4">0</uint>
+					</struct>
+					<float name="minDepthBounds" typename="float" width="4">0</float>
+					<float name="maxDepthBounds" typename="float" width="4">0</float>
+				</struct>
+				<struct name="pColorBlendState" typename="VkPipelineColorBlendStateCreateInfo" nullable="true" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO">26</enum>
+					<null name="pNext" typename="void *" />
+					<enum name="flags" typename="VkPipelineColorBlendStateCreateFlags" width="4" string="VkPipelineColorBlendStateCreateFlagBits(0)">0</enum>
+					<uint name="logicOpEnable" typename="uint32_t" width="4">0</uint>
+					<enum name="logicOp" typename="VkLogicOp" width="4" string="VK_LOGIC_OP_COPY">3</enum>
+					<uint name="attachmentCount" typename="uint32_t" width="4">1</uint>
+					<array name="pAttachments">
+						<struct typename="VkPipelineColorBlendAttachmentState">
+							<uint name="blendEnable" typename="uint32_t" width="4">1</uint>
+							<enum name="srcColorBlendFactor" typename="VkBlendFactor" width="4" string="VK_BLEND_FACTOR_SRC_ALPHA">6</enum>
+							<enum name="dstColorBlendFactor" typename="VkBlendFactor" width="4" string="VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA">7</enum>
+							<enum name="colorBlendOp" typename="VkBlendOp" width="4" string="VK_BLEND_OP_ADD">0</enum>
+							<enum name="srcAlphaBlendFactor" typename="VkBlendFactor" width="4" string="VK_BLEND_FACTOR_ZERO">0</enum>
+							<enum name="dstAlphaBlendFactor" typename="VkBlendFactor" width="4" string="VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA">7</enum>
+							<enum name="alphaBlendOp" typename="VkBlendOp" width="4" string="VK_BLEND_OP_ADD">0</enum>
+							<enum name="colorWriteMask" typename="VkColorComponentFlags" width="4" string="VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT">15</enum>
+						</struct>
+					</array>
+					<array name="blendConstants" fixedarray="true">
+						<float typename="float" width="4">1</float>
+						<float typename="float" width="4">1</float>
+						<float typename="float" width="4">1</float>
+						<float typename="float" width="4">1</float>
+					</array>
+				</struct>
+				<struct name="pDynamicState" typename="VkPipelineDynamicStateCreateInfo" nullable="true" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO">27</enum>
+					<null name="pNext" typename="void *" />
+					<enum name="flags" typename="VkPipelineDynamicStateCreateFlags" width="4" string="0">0</enum>
+					<uint name="dynamicStateCount" typename="uint32_t" width="4">22</uint>
+					<array name="pDynamicStates">
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT">1000267003</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT">1000267004</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_BLEND_CONSTANTS">4</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE">1000267006</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE">1000267007</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_COMPARE_OP">1000267008</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE">1000377002</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_BIAS">3</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE">1000267010</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_STENCIL_REFERENCE">8</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK">6</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_STENCIL_WRITE_MASK">7</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_STENCIL_OP">1000267011</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_CULL_MODE">1000267000</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_FRONT_FACE">1000267001</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE">1000377001</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_LINE_WIDTH">2</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE">1000377004</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE">1000267009</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_DEPTH_BOUNDS">5</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_VERTEX_INPUT_EXT">1000352000</enum>
+						<enum typename="VkDynamicState" width="4" string="VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR">1000226000</enum>
+					</array>
+				</struct>
+				<ResourceId name="layout" typename="VkPipelineLayout" width="8">1947</ResourceId>
+				<ResourceId name="renderPass" typename="VkRenderPass" width="8">0</ResourceId>
+				<uint name="subpass" typename="uint32_t" width="4">0</uint>
+				<ResourceId name="basePipelineHandle" typename="VkPipeline" width="8">0</ResourceId>
+				<int name="basePipelineIndex" typename="int32_t" width="4">0</int>
+			</struct>
+			<null name="pAllocator" typename="VkAllocationCallbacks" />
+			<ResourceId name="Pipeline" typename="VkPipeline" width="8">1948</ResourceId>
+		</chunk>
+		

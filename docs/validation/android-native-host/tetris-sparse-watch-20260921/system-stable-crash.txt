@@ -1,0 +1,76 @@
+--------- beginning of crash
+09-21 17:19:09.044 17846 17846 F DEBUG   :     x8  0000001c043dbf18  x9  0000001c043dbf90  x10 0000000006a003f4  x11 0000001004419ce0
+09-21 17:19:09.044 17846 17846 F DEBUG   :     x12 0000000000000000  x13 0000000000000000  x14 0000001800010000  x15 0000000000000206
+09-21 17:19:09.044 17846 17846 F DEBUG   :     x16 0000000006e379e0  x17 0000000006e8b1e0  x18 0000005a169dc000  x19 0000000006e8b1e8
+09-21 17:19:09.044 17846 17846 F DEBUG   :     x20 0000000000000000  x21 0000000001bda1b9  x22 0000000000000000  x23 0000005a00004ce8
+09-21 17:19:09.044 17846 17846 F DEBUG   :     x24 0000006debf22520  x25 00000059c4c11fd0  x26 0000001004419ce0  x27 00000000000001c0
+09-21 17:19:09.044 17846 17846 F DEBUG   :     x28 0000005a00004140  x29 00000010001828a4
+09-21 17:19:09.044 17846 17846 F DEBUG   :     lr  0000006a586654c8  sp  0000005a6ae167a0  pc  0000000000000000  pst 0000000020001800
+09-21 17:19:09.044 17846 17846 F DEBUG   : backtrace:
+09-21 17:19:09.044 17846 17846 F DEBUG   :       #00 pc 0000000000000000  <unknown>
+09-21 17:19:09.044 17846 17846 F DEBUG   :       #01 pc 000000000193a4c4  [anon:FEXMemJIT]
+09-21 17:34:15.901 25507 25579 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0xfffffff8 in tid 25579 (Guest-1), pid 25507 (shadps4.android)
+09-21 17:34:16.235 25692 25692 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-21 17:34:16.235 25692 25692 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-21 17:34:16.235 25692 25692 F DEBUG   : Revision: '0'
+09-21 17:34:16.235 25692 25692 F DEBUG   : ABI: 'arm64'
+09-21 17:34:16.235 25692 25692 F DEBUG   : Timestamp: 2026-09-21 17:34:16.035972309+0800
+09-21 17:34:16.235 25692 25692 F DEBUG   : Process uptime: 7s
+09-21 17:34:16.235 25692 25692 F DEBUG   : Cmdline: com.shadps4.android
+09-21 17:34:16.235 25692 25692 F DEBUG   : pid: 25507, tid: 25579, name: Guest-1  >>> com.shadps4.android <<<
+09-21 17:34:16.235 25692 25692 F DEBUG   : uid: 10190
+09-21 17:34:16.235 25692 25692 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-21 17:34:16.235 25692 25692 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-21 17:34:16.235 25692 25692 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000fffffff8
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x0  b40000700f674948  x1  0000000000000001  x2  b40000700f674948  x3  0000000000000001
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x4  000000000000005c  x5  00000000000a4000  x6  0000000000000004  x7  0000000000000000
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x8  00000000fffffff8  x9  0000000000000000  x10 0000000000000000  x11 0000006de707c2b0
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x12 ffffff80ffffffd0  x13 000000007fffffff  x14 00000000153dd2f0  x15 00000d65f75ef6eb
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x16 0000000000000001  x17 00000071857e75d0  x18 0000000000000000  x19 b40000700f6721c0
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x20 b40000707f77cfa0  x21 0000000000002788  x22 b400006f2f67a920  x23 b40000707f77cfa0
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x24 0000000000000000  x25 b400006f2f67a850  x26 0000000000000000  x27 0000000002000000
+09-21 17:34:16.235 25692 25692 F DEBUG   :     x28 00000000000000a4  x29 0000006de707c2d0
+09-21 17:34:16.235 25692 25692 F DEBUG   :     lr  0000006ab45a3f14  sp  0000006de707c2d0  pc  0000006ab45a3f2c  pst 0000000080001000
+09-21 17:34:16.235 25692 25692 F DEBUG   : backtrace:
+09-21 17:34:16.235 25692 25692 F DEBUG   :       #00 pc 0000000000945f2c  /data/data/com.shadps4.android/files/native-drivers/fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09/vulkan.ad07xx.so (kgsl_bo_finish(tu_device*, tu_bo*)+100) (BuildId: c4461feaa30a380b35d39a8ff12481795837c0d5)
+09-21 17:39:11.782 27540 27734 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 27734 (shadPS4:Present), pid 27540 (shadps4.android)
+09-21 17:39:12.292 28264 28264 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-21 17:39:12.292 28264 28264 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-21 17:39:12.292 28264 28264 F DEBUG   : Revision: '0'
+09-21 17:39:12.292 28264 28264 F DEBUG   : ABI: 'arm64'
+09-21 17:39:12.292 28264 28264 F DEBUG   : Timestamp: 2026-09-21 17:39:11.960207717+0800
+09-21 17:39:12.292 28264 28264 F DEBUG   : Process uptime: 77s
+09-21 17:39:12.292 28264 28264 F DEBUG   : Cmdline: com.shadps4.android
+09-21 17:39:12.292 28264 28264 F DEBUG   : pid: 27540, tid: 27734, name: shadPS4:Present  >>> com.shadps4.android <<<
+09-21 17:39:12.292 28264 28264 F DEBUG   : uid: 10190
+09-21 17:39:12.292 28264 28264 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-21 17:39:12.292 28264 28264 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-21 17:39:12.292 28264 28264 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-21 17:39:12.292 28264 28264 F DEBUG   : Abort message: 'Assertion failed: editable == nullptr'
+09-21 17:39:12.292 28264 28264 F DEBUG   :     x0  0000000000000000  x1  0000000000006c56  x2  0000000000000006  x3  0000006e5dbc43e0
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x4  746d1f3c3c1f646b  x5  746d1f3c3c1f646b  x6  746d1f3c3c1f646b  x7  7f7f7f7f7f7f7f7f
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x8  00000000000000f0  x9  000000718574db28  x10 0000000000000001  x11 000000718578d84c
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x12 0000006e5dbc3290  x13 0000000000000026  x14 0000006e5dbc4620  x15 00000d6749fb3f21
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x16 00000071857f5d68  x17 00000071857d14e0  x18 0000005c234a2000  x19 0000000000006b94
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x20 0000000000006c56  x21 00000000ffffffff  x22 0000000000000001  x23 0000000000000001
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x24 0000006e78416000  x25 b400006edf66beb8  x26 0000006e5dbc4c88  x27 0000000000000002
+09-21 17:39:12.293 28264 28264 F DEBUG   :     x28 0000000000000000  x29 0000006e5dbc4460
+09-21 17:39:12.293 28264 28264 F DEBUG   :     lr  000000718577e788  sp  0000006e5dbc43c0  pc  000000718577e7b4  pst 0000000000001000
+09-21 17:39:12.293 28264 28264 F DEBUG   : backtrace:
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #01 pc 00000000006182f4  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+120) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #02 pc 0000000000017114  /system/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_3::__invoke(char const*)+84) (BuildId: ef369bfbad96b532c6d8e0b144a68b96)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #03 pc 0000000000006f60  /system/lib64/liblog.so (__android_log_assert+312) (BuildId: a7d65e6f6782b4b13384777bd315ba53)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #04 pc 0000000000014bc0  /system/lib64/libutils.so (android::VectorImpl::editArrayImpl()+264) (BuildId: ff20dc59f94e7e2a3984a431c354f4cd)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #05 pc 0000000000014ed4  /system/lib64/libutils.so (android::VectorImpl::_grow(unsigned long, unsigned long)+188) (BuildId: ff20dc59f94e7e2a3984a431c354f4cd)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #06 pc 00000000000152a0  /system/lib64/libutils.so (android::VectorImpl::insertAt(void const*, unsigned long, unsigned long)+64) (BuildId: ff20dc59f94e7e2a3984a431c354f4cd)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #07 pc 0000000000093ca4  /system/lib64/libgui.so (android::BufferQueueProducer::queueBuffer(int, android::IGraphicBufferProducer::QueueBufferInput const&, android::IGraphicBufferProducer::QueueBufferOutput*)+2476) (BuildId: c6c7db82d326f4fed13507e8d618aa82)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #08 pc 00000000000fbacc  /system/lib64/libgui.so (android::Surface::queueBuffer(ANativeWindowBuffer*, int)+596) (BuildId: c6c7db82d326f4fed13507e8d618aa82)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #09 pc 0000000000026cf0  /system/lib64/libvulkan.so (vulkan::driver::QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)+1460) (BuildId: 459c9edbdbdaf2d5d3a4100946cbc044)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #10 pc 0000000000b99d74  /data/app/~~5phyjcrw8fs6a6hEiSQlmg==/com.picoxr.renderdoccmd.arm64-Yoz88xx3qNLs7MYgGJa0zA==/lib/arm64/libVkLayer_GLES_RenderDoc.so (WrappedVulkan::vkQueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)+1612) (BuildId: 40e649bf4ec61258)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #11 pc 00000000034b829c  /data/app/~~aJIbb-q6oX3i8Hyb7RUZyA==/com.shadps4.android--dTx_ceU5aDJz5jizyl1Pg==/lib/arm64/libshadps4_host.so (Vulkan::Swapchain::Present()+124) (BuildId: 415a5e28e8dd274e8b6fb521043df3499712dfba)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #12 pc 0000000003490050  /data/app/~~aJIbb-q6oX3i8Hyb7RUZyA==/com.shadps4.android--dTx_ceU5aDJz5jizyl1Pg==/lib/arm64/libshadps4_host.so (Vulkan::Presenter::Present(Vulkan::Frame*, bool)+3176) (BuildId: 415a5e28e8dd274e8b6fb521043df3499712dfba)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #13 pc 0000000003013384  /data/app/~~aJIbb-q6oX3i8Hyb7RUZyA==/com.shadps4.android--dTx_ceU5aDJz5jizyl1Pg==/lib/arm64/libshadps4_host.so (Libraries::VideoOut::VideoOutDriver::PresentThread(std::__ndk1::stop_token)+1252) (BuildId: 415a5e28e8dd274e8b6fb521043df3499712dfba)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #14 pc 00000000030138c0  /data/app/~~aJIbb-q6oX3i8Hyb7RUZyA==/com.shadps4.android--dTx_ceU5aDJz5jizyl1Pg==/lib/arm64/libshadps4_host.so (void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct> >, Libraries::VideoOut::VideoOutDriver::VideoOutDriver(unsigned int, unsigned int, std::__ndk1::function<unsigned long ()>, std::__ndk1::function<unsigned long ()>, unsigned long*, std::__ndk1::function<void (std::exception_ptr)>)::$_0, std::__ndk1::stop_token> >(void*)+100) (BuildId: 415a5e28e8dd274e8b6fb521043df3499712dfba)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #15 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-21 17:39:12.293 28264 28264 F DEBUG   :       #16 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)

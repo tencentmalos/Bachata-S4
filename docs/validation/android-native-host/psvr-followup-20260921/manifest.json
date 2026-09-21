@@ -1,0 +1,318 @@
+{
+  "branch": "feature/malos/beat_saber_fix",
+  "head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "state": "uncommitted, preserves earlier work",
+  "device": "9c2841a4",
+  "local_evidence_root": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-followup-20260920",
+  "files": [
+    {
+      "path": "beat-v3-capture-launch-logcat.txt",
+      "bytes": 244888,
+      "sha256": "208a44ba8ac123e346f067032a6aa577787943d077525dd0dd86c47533f5e237"
+    },
+    {
+      "path": "beat-v3-family-audit.json",
+      "bytes": 87998,
+      "sha256": "dd87fa3553d5a272a3073e076cd0526cdc5631c1fbec0d737497a59b99d9b958"
+    },
+    {
+      "path": "beat-v3-imports.json",
+      "bytes": 643091,
+      "sha256": "9514abdd03ac3a2e38bac1d01fa176b28ee84f32d50d3ff42f04af91eeb17e54"
+    },
+    {
+      "path": "beat-v3-logcat.txt",
+      "bytes": 186239,
+      "sha256": "5ff06b4b5ddbefab84e0f2b1dcd832f2aebecfec404094cf492ef9ec79d957a0"
+    },
+    {
+      "path": "beat-v3-renderdoc.txt",
+      "bytes": 156,
+      "sha256": "76f3d9f9702cef90b9545ed055583c478f0ba54dd45ca018ec3f173e07809117"
+    },
+    {
+      "path": "beat-v3-screen.png",
+      "bytes": 2181804,
+      "sha256": "d3de4d26899ae757ac25fc7701b8fe9913c38ddb826287e7cc59d6c41d16675d"
+    },
+    {
+      "path": "beat-v3-status.txt",
+      "bytes": 790,
+      "sha256": "f922327a5015242bf0cc7743f3d9b11244b5982d145c51c6d82ad59dc85a08cd"
+    },
+    {
+      "path": "beat-v3-system-logcat.txt",
+      "bytes": 214195,
+      "sha256": "eb2c9739e166f90958f40c436c203104863f71979c58cbe01b94f4de138c369b"
+    },
+    {
+      "path": "beat-v3-system.rdc.json",
+      "bytes": 462,
+      "sha256": "15e38a5ae16264b8571e42b3744263ee0035155110bcf4a500ed8428b3b4df0e"
+    },
+    {
+      "path": "beat-v4-imports.json",
+      "bytes": 643091,
+      "sha256": "e03c11fafb9b715cca622e4d19304c772fa230dcab1e7dd8bc6389be685acf2a"
+    },
+    {
+      "path": "beat-v4-logcat.txt",
+      "bytes": 188769,
+      "sha256": "ce64fe78d7de67b9f6d0e07f6ccf557f37a18c554d98e4e808a3d683cf1825a5"
+    },
+    {
+      "path": "beat-v4-pid.txt",
+      "bytes": 6,
+      "sha256": "a04a91f487cf6a5625df5b70f49203e2fbe41481ee2d9f2ad4678c7ba51c163a"
+    },
+    {
+      "path": "beat-v4-screen.png",
+      "bytes": 2200314,
+      "sha256": "d1ab832cb4ac6caabfe71d3e88e512c14d5c59d8994acf4cf3c4cd400e7adcab"
+    },
+    {
+      "path": "beat-v4-status.txt",
+      "bytes": 793,
+      "sha256": "8506ba9c6f9dbd699f1548f0e188e0e3228a35b71cb2b594c142a2924ff07487"
+    },
+    {
+      "path": "binaries-v3-device.txt",
+      "bytes": 518,
+      "sha256": "20308ce4919e209bb6ac3e00b92b5403cdb39cae7f9b2a3a070a72a98c146c46"
+    },
+    {
+      "path": "binaries-v3.json",
+      "bytes": 234,
+      "sha256": "caf8c4dcd62ee69c43c3b739d57d1ebf5f7e533057540d545ee3c470dfdb9e52"
+    },
+    {
+      "path": "binaries-v4-device.txt",
+      "bytes": 518,
+      "sha256": "7f288d13db3d0a8fd46492e2f87d44f66d0c31b565e7cbbc8223372cc228ed24"
+    },
+    {
+      "path": "binaries-v4.json",
+      "bytes": 952,
+      "sha256": "ca19d24bb62928191edd31d1649260944049584783007aa273cf065f248d5e18"
+    },
+    {
+      "path": "cleanup-v4.json",
+      "bytes": 636,
+      "sha256": "9689dd5b232d04835ffffc4cb9989f8a97340e9f617b2bcd496a5d854bcc03f9"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 883,
+      "sha256": "f3860d78b8531cea1ed3e214d2269c9ccc84b00b27a21293ab43e13a852bf0c2"
+    },
+    {
+      "path": "final-input.txt",
+      "bytes": 608,
+      "sha256": "2bf770329941667b846905c09067bc8e28200017077a3b5922b232baa361ce5e"
+    },
+    {
+      "path": "final-logcat.txt",
+      "bytes": 189274,
+      "sha256": "c2e6b6c10b2e78b51ad1324ca32acfc07b9f7b069d7b9a7b08aec3049692b8ce"
+    },
+    {
+      "path": "final-process.txt",
+      "bytes": 1092,
+      "sha256": "318ccb775aa3ab70f4c94cdc1b37fda3576611dc2b36eb55aab6c0a94ea45132"
+    },
+    {
+      "path": "final-status.txt",
+      "bytes": 5198,
+      "sha256": "1abe1c09df8483abfa8f1cc469a2ec2fb00b43cf0ee9d7032bc0de7a33ce979b"
+    },
+    {
+      "path": "final-v4-debug_status.txt",
+      "bytes": 5198,
+      "sha256": "926bdd0bb7e2a4659561b9b6a1530c8ff717d034fcecb969b86650ace0ac9a61"
+    },
+    {
+      "path": "final-v4-input_status.txt",
+      "bytes": 608,
+      "sha256": "1f685a5cbefcfeaca49f6fcb99855c36c4878cb6455bd97a473c2a15434a941a"
+    },
+    {
+      "path": "final-v4-process.txt",
+      "bytes": 1092,
+      "sha256": "b9b618224b5fb0dd9766f37ed8456eebfc341b3e660732da512987a6211dbacf"
+    },
+    {
+      "path": "final-v4-profiler.txt",
+      "bytes": 444,
+      "sha256": "700c27f08af1c45ed5a3f86d43aaf30c8fafc5ae13a0777e269cd9bd5475740e"
+    },
+    {
+      "path": "final-v4-renderdoc_status.txt",
+      "bytes": 156,
+      "sha256": "52a22b2837fba555515f4e43ed2aaf52106b9ad9adbf2cb077b907bc561bbf73"
+    },
+    {
+      "path": "install-v4.txt",
+      "bytes": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    {
+      "path": "process-services-v2b.txt",
+      "bytes": 38,
+      "sha256": "06428c8aedb601d7135cc5bd3e2f2b24ba50898eaa5612bd4ba8c383a4e27060"
+    },
+    {
+      "path": "rdc-bindings-final.json",
+      "bytes": 2051,
+      "sha256": "22e89233549a6bdcfa7792be6f61636111d760d256b5fbc55c164622bc669177"
+    },
+    {
+      "path": "rdc-eye-before-final2.png",
+      "bytes": 335571,
+      "sha256": "832f8ab6730ec7dcc87edc4e311a51d257cf17071e5140279500a2d968568b1a"
+    },
+    {
+      "path": "rdc-eye-before-resolve2.png",
+      "bytes": 335028,
+      "sha256": "a2d694d018aabbc12a6d172dc65778dbba21648549e4d340361a523116948898"
+    },
+    {
+      "path": "rdc-eye-first2.png",
+      "bytes": 158425,
+      "sha256": "6ddf068747eb16d372458b3a66891b4bc8abb71099bfa689a95c21b606fc427e"
+    },
+    {
+      "path": "rdc-guest-eye2.png",
+      "bytes": 357065,
+      "sha256": "a82bf428bce536b0fb8952b14328533066761b249d421a546676127a2fd03d0c"
+    },
+    {
+      "path": "rdc-host-final2.png",
+      "bytes": 355033,
+      "sha256": "00d31f469e2998539fee4fc55e55c48aa1263748abf904bdcf566c3bc7cd43f2"
+    },
+    {
+      "path": "rdc-open-messages.json",
+      "bytes": 2125,
+      "sha256": "fbb168c8b2375fc9c1eb8dcca93cdef971f4ee0b40681c16c966584eb748580d"
+    },
+    {
+      "path": "rdc-open-system.json",
+      "bytes": 642,
+      "sha256": "da066ffc31d49c3594ec01a509bf7f46e49dc1d80769a65c60749f5280506cf5"
+    },
+    {
+      "path": "rdc-open.json",
+      "bytes": 1394,
+      "sha256": "b2ce8afa21baba7f7f353098af395d62a3b6515c8346858fcf2eb56059c8f1d0"
+    },
+    {
+      "path": "rdc-resolve-constants2.json",
+      "bytes": 2202,
+      "sha256": "427bb1e2f11b1b4d9bce85a8e7eb185bbd728818e7d73a07511a7cca399cf11b"
+    },
+    {
+      "path": "rdc-structure.json",
+      "bytes": 4419,
+      "sha256": "0c162b43fdf3966b824cfcd51f2c2c5e6723bde3af734c9dfdc8c3fc7a823d92"
+    },
+    {
+      "path": "rdc-usage-final.json",
+      "bytes": 1314,
+      "sha256": "652e17dd53f6febbf6ebdd36ff75127c4ede31916265d912c497b0ca23ea8835"
+    },
+    {
+      "path": "rdc-usage-mid.json",
+      "bytes": 1561,
+      "sha256": "e71ae56ff2004a8bf835b52a613e634bf3f39ae9ee0c19ff587bbe54a5b9996f"
+    },
+    {
+      "path": "rdc-usage-rendered.json",
+      "bytes": 4547,
+      "sha256": "515c6e79c86ad9c7a5e801b549fca1972e509c36a6c61e80d690c1a440e2e907"
+    },
+    {
+      "path": "rdc-vertex-constants2.json",
+      "bytes": 2215,
+      "sha256": "ec22d95d9720bfed9479cce70a8d3303626a50756c2593a31aab2f228e2034ea"
+    },
+    {
+      "path": "sports-v2.png",
+      "bytes": 196498,
+      "sha256": "3003dd609ca256258775d1e1da83ca1c689ba3e8b5dc538a4ba3e5c436c1e9b0"
+    },
+    {
+      "path": "sports-v3-family-audit.json",
+      "bytes": 99452,
+      "sha256": "31d108a175b898262614d76ea13889afe31c439189adb36f25ee3873292ca25d"
+    },
+    {
+      "path": "sports-v3-imports.json",
+      "bytes": 749777,
+      "sha256": "69d6def53c5b6da6a2923313a5e90c8d7a1175f5527719a2c2777bbad6a94607"
+    },
+    {
+      "path": "sports-v3-logcat.txt",
+      "bytes": 198655,
+      "sha256": "89a2a24c6398ed6b175006ac0389c8fb09f10252eec7913d61489f9541293da0"
+    },
+    {
+      "path": "tests-v2.txt",
+      "bytes": 259,
+      "sha256": "c29cebbcd420f4b080266407b779e48f35f1f7f764cdeab10047dc6b2e23fae0"
+    },
+    {
+      "path": "tests-v3.txt",
+      "bytes": 105,
+      "sha256": "66a209fe9b8e1e6bbd5532c4975156a39c05be7a6d4d5aaa341e2c7d91344260"
+    },
+    {
+      "path": "tests-v4.txt",
+      "bytes": 105,
+      "sha256": "66a209fe9b8e1e6bbd5532c4975156a39c05be7a6d4d5aaa341e2c7d91344260"
+    },
+    {
+      "path": "tetris-fatal-guest.json",
+      "bytes": 6635,
+      "sha256": "79fb90c13b3053f6f6cd3ee2273eb4f215303deeae20cdbfbffcb38126a23140"
+    },
+    {
+      "path": "tetris-v2-fex-fault.txt",
+      "bytes": 964,
+      "sha256": "b2c929a068dd3082df035292e7b1270c913e0e4bdb1439ce35938500f5d255fb"
+    },
+    {
+      "path": "tetris-v3-family-audit.json",
+      "bytes": 123703,
+      "sha256": "cb2e78dc159e1afd31bc7451505601a54f956b7b529a472a61880711405f82c8"
+    },
+    {
+      "path": "tetris-v3-imports.json",
+      "bytes": 811976,
+      "sha256": "d2d84d78bad818fea7dc2c182d1c50431945f7cb1dcb8b6a8c1a6d5b8935e2d7"
+    },
+    {
+      "path": "tetris-v3-logcat.txt",
+      "bytes": 160812,
+      "sha256": "b491ba009ff3815f836a7198d73ef23e1c09c05165066145dbb7ad9e9967fdd1"
+    }
+  ],
+  "binary_identity_v3_analysis": {
+    "apk": "d60532c4c27c55ca50424c8af3ba562f180546daca401fd71c05767d4028bbc6",
+    "host": "95ab17bd1bf506b48604249d7a9be9a1c9897a66dbdd861330e45a21bcebef64",
+    "jni": "6ce2dd2f5162015f3c6474cab046da6ecbfdb93c32f9f03789cf1d90908e45fb"
+  },
+  "binary_identity_final_v4": {
+    "apk": "cf224d561b2d65dadc7616b0e2313265bbb524eb7134cf4d4e795181a9229261",
+    "host": "fc567f0c0098d00b35c8fd1d6279b27c81d9ee86d23aaf07a2c7025264c150b4",
+    "jni": "6ce2dd2f5162015f3c6474cab046da6ecbfdb93c32f9f03789cf1d90908e45fb",
+    "sources": {
+      "src/core/host_runtime/guest_aio.h": "6d2455cc73f33986a99320faa9e8be3d76f264846b1cbdef7d999ba617967666",
+      "src/core/host_runtime/guest_process_services.h": "69161ea4b93f72abbc4079513d8bf9b3d704e3f6b27702e70a1fea3c308c805a",
+      "src/core/host_runtime/guest_audio_input.h": "4c74d6949e7f7a85adb093639564fa06298078baffbaf33be1245aabcc25ebc2",
+      "src/core/host_runtime/guest_runtime.cpp": "e8bbaa4db44e5ffe6d5248063dcfda394a790442c3961cfefca6bf75b82e434e",
+      "src/core/host_runtime/guest_storage.cpp": "e9f211760e2812ca7fe62bff0f6dc72f349fbb1528e9b1d9eca100a911530b56",
+      "src/core/libraries/vr_tracker/vr_tracker.cpp": "07c9e062acb876404ec971beec84e96a207d5610f95456991258d9afda8d27fc"
+    }
+  },
+  "validation_boundary": "V3: all three game runs/import inventories and Qualcomm capture. V4: AIO admission OOM rollback, 653/0 device checks, APK identity, normal Turnip Beat launch/Stop; Sports and Tetris not repeated after v4."
+}

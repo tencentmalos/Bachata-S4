@@ -1,0 +1,65 @@
+--- vk_rasterizer.before.cpp
++++ viewport-diagnostic.cpp
+@@ -3,6 +3,9 @@
+ 
+ #include <atomic>
+ #include <cmath>
++#if defined(__ANDROID__)
++#include <sys/system_properties.h>
++#endif
+ 
+ #include "common/debug.h"
+ #include "video_core/renderdoc.h"
+@@ -28,6 +31,36 @@
+ 
+ namespace Vulkan {
+ 
++// Temporary bounded A/B diagnostic; see beatsaber-viewport-20260921.
++static void ProbeViewportBinding(const DynamicState& state, vk::CommandBuffer cmdbuf,
++                                 const AmdGpu::Regs& regs) {
++#if defined(__ANDROID__)
++    static const int mode = [] {
++        char value[PROP_VALUE_MAX]{};
++        __system_property_get("debug.shadps4.viewport_probe", value);
++        return value[0] == '2' ? 2 : value[0] == '1' ? 1 : 0;
++    }();
++    if (!mode) return;
++    if (mode == 2) {
++        cmdbuf.setViewportWithCount(state.viewports);
++        cmdbuf.setScissorWithCount(state.scissors);
++    }
++    if (state.viewports.empty() || state.scissors.empty()) return;
++    const auto& raw = regs.viewports[0];
++    if (raw.xscale != 672.f && raw.xscale != 336.f) return;
++    static std::atomic<u32> samples{};
++    const u32 n = samples.fetch_add(1, std::memory_order_relaxed) + 1;
++    if (n > 32 && (n & (n - 1)) != 0) return;
++    const auto& vp = state.viewports[0];
++    const auto& sc = state.scissors[0];
++    LOG_INFO(Render_Vulkan,
++             "ViewportProbe mode={} n={} mrt0={:#x} raw=({},{},{},{}) count={} vk=({},{},{},{}) scissor=({},{},{},{})",
++             mode, n, regs.color_buffers[0].Address(), raw.xscale, raw.xoffset,
++             raw.yscale, raw.yoffset, state.viewports.size(), vp.x, vp.y, vp.width,
++             vp.height, sc.offset.x, sc.offset.y, sc.extent.width, sc.extent.height);
++#endif
++}
++
+ static Shader::PushData MakeUserData(const AmdGpu::Regs& regs) {
+     // TODO(roamic): Add support for multiple viewports and geometry shaders when ViewportIndex
+     // is encountered and implemented in the recompiler.
+@@ -245,6 +278,7 @@
+ 
+     const auto cmdbuf = scheduler.CommandBuffer();
+     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
++    ProbeViewportBinding(scheduler.GetDynamicState(), cmdbuf, liverpool->regs);
+     pipeline->ApplyFragmentShadingRate(cmdbuf, shading_settings->GetGuestShadingQuality());
+     // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
+     if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
+@@ -326,6 +360,7 @@
+ 
+     const auto cmdbuf = scheduler.CommandBuffer();
+     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
++    ProbeViewportBinding(scheduler.GetDynamicState(), cmdbuf, liverpool->regs);
+     pipeline->ApplyFragmentShadingRate(cmdbuf, shading_settings->GetGuestShadingQuality());
+     // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
+     if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {

@@ -1,0 +1,6 @@
+stage TCP pair
+FAIL 50: sc("hoOAofhhRvE",{listener,addr,len})==0
+FAIL 51: read.operator()<u32>(len)==(ipv6?28:16)
+FAIL 52: address[0]==(ipv6?28:16)
+FAIL 52: address[2]||address[3]
+FAIL 54: call("XVL8So3QJUk",{client,addr,ipv6?28ull:16ull})==0

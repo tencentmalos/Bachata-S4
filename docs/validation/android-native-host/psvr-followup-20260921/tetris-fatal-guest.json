@@ -1,0 +1,247 @@
+{
+  "session": "gdbg_46ec4b45c0c74625a5175094c8d0cb32",
+  "hostPid": 18159,
+  "generation": 1,
+  "runUuid": "69f8bd4f38796f628128f212701a174c",
+  "apkSha": "d60532c4c27c55ca50424c8af3ba562f180546daca401fd71c05767d4028bbc6",
+  "guestElfSha": "157845ba4297a000ac9cfeb26b7b78925d7d903a2ee34575c74d0f5ede6e9677",
+  "identityLimits": "RSP module list provides base/name but no build ID; exact 32 entry bytes matched local ELF. APK/storage inventory supplies separate artifact provenance.",
+  "stopEpoch": 2,
+  "entry": "0x15395a0",
+  "relativeEntry": "0x11395a0",
+  "registers": [
+    {
+      "number": 5,
+      "name": "rdi",
+      "bitSize": 64,
+      "rawHex": "b463f10400000000",
+      "numericHex": "0x4f163b4",
+      "available": true
+    },
+    {
+      "number": 4,
+      "name": "rsi",
+      "bitSize": 64,
+      "rawHex": "3b04e20400000000",
+      "numericHex": "0x4e2043b",
+      "available": true
+    },
+    {
+      "number": 3,
+      "name": "rdx",
+      "bitSize": 64,
+      "rawHex": "f302000000000000",
+      "numericHex": "0x2f3",
+      "available": true
+    },
+    {
+      "number": 2,
+      "name": "rcx",
+      "bitSize": 64,
+      "rawHex": "108d20001c000000",
+      "numericHex": "0x1c00208d10",
+      "available": true
+    },
+    {
+      "number": 8,
+      "name": "r8",
+      "bitSize": 64,
+      "rawHex": "0000000000000000",
+      "numericHex": "0x0",
+      "available": true
+    },
+    {
+      "number": 9,
+      "name": "r9",
+      "bitSize": 64,
+      "rawHex": "0100000000000000",
+      "numericHex": "0x1",
+      "available": true
+    },
+    {
+      "number": 6,
+      "name": "rbp",
+      "bitSize": 64,
+      "rawHex": "40ad20001c000000",
+      "numericHex": "0x1c0020ad40",
+      "available": true
+    },
+    {
+      "number": 7,
+      "name": "rsp",
+      "bitSize": 64,
+      "rawHex": "288c20001c000000",
+      "numericHex": "0x1c00208c28",
+      "available": true
+    },
+    {
+      "number": 16,
+      "name": "rip",
+      "bitSize": 64,
+      "rawHex": "a095530100000000",
+      "numericHex": "0x15395a0",
+      "available": true
+    }
+  ],
+  "mixedStack": {
+    "schemaVersion": 1,
+    "contextId": 1,
+    "threadId": 1,
+    "generation": 2,
+    "stopEpoch": 9,
+    "phase": "parked",
+    "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+    "frames": [
+      {
+        "kind": "guest",
+        "provenance": "safe-point",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x15395a0",
+        "sp": "0x1c00208c28",
+        "fp": "0x1c0020ad40",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x9d92be",
+        "sp": "0x1c0020ad50",
+        "fp": "0x1c0020ae00",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0xa1ea50",
+        "sp": "0x1c0020ae10",
+        "fp": "0x1c0020ae40",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x8f832c",
+        "sp": "0x1c0020ae50",
+        "fp": "0x1c0020aed0",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x1080aac",
+        "sp": "0x1c0020aee0",
+        "fp": "0x1c0020af80",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x15b1f8f",
+        "sp": "0x1c0020af90",
+        "fp": "0x1c0020aff0",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x15b1bc4",
+        "sp": "0x1c0020b000",
+        "fp": "0x1c0020b040",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x63c21a",
+        "sp": "0x1c0020b050",
+        "fp": "0x1c0020b0b0",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x85b3da",
+        "sp": "0x1c0020b0c0",
+        "fp": "0x1c0020b300",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x15b1f8f",
+        "sp": "0x1c0020b310",
+        "fp": "0x1c0020b370",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x15b1bc4",
+        "sp": "0x1c0020b380",
+        "fp": "0x1c0020b3c0",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x8f714f",
+        "sp": "0x1c0020b3d0",
+        "fp": "0x1c0020b410",
+        "invocation": 6,
+        "operation": 0
+      },
+      {
+        "kind": "guest",
+        "provenance": "verified-rbp-return-address",
+        "module": "eboot.bin",
+        "symbol": "",
+        "pc": "0x8f6ff3",
+        "sp": "0x1c0020b420",
+        "fp": "0x1c0020b460",
+        "invocation": 6,
+        "operation": 0
+      }
+    ]
+  },
+  "message": "PSN: Failed to initialize the np toolkit",
+  "messageAddress": "0x1c00208d10",
+  "messageUtf16leHex": "500053004e003a0020004600610069006c0065006400200074006f00200069006e0069007400690061006c0069007a006500200074006800650020006e007000200074006f006f006c006b00",
+  "expression": "LowLevelFatalError",
+  "file": "Unknown",
+  "line": 755,
+  "cleanup": "stop_session succeeded; ownershipReleased true; breakpoints empty; transport closed; guest continued; properties reset to 0"
+}

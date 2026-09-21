@@ -1,0 +1,48 @@
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:314 sceKernelMapNamedFlexibleMemory: in_addr = 0x0, len = 0x600000, prot = 0x2, flags = 0x0, name = 'SceNpToolkit2Json'
+[Lib.NpManager] <Error> (Guest-1) np_manager.cpp:1053 sceNpRegisterStateCallbackForToolkit: (STUBBED) called
+[Lib.NpManager] <Info> (Guest-26) guest_runtime.cpp:3328 lambda: Session offline NP nid=eQH7nWPcAgc result=0x0
+[Lib.SysModule] <Info> (Guest-25) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xe4 name=libSceSigninDialog result=0x0
+[Lib.NpManager] <Info> (Guest-25) guest_runtime.cpp:3328 lambda: Session offline NP nid=Ec63y59l9tw result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xa8 name=libSceNpCommerce result=0x805a10ff
+[Lib.Http] <Info> (Guest-1) http.cpp:2110 sceHttpTerm: called libhttpCtxId=2
+[Lib.Http] <Info> (Guest-1) http.cpp:2154 sceHttpTerm: ctxId=2 terminated, 1 contexts still active
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=3, libsslCtxId=3, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=3 (active contexts: 2)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=3, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=2
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xba name=libSceRandom result=0x0
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4704 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x85 name=libSceVideoRecording result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xd3 name=libSceSharePlay result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x81 name=libSceGameLiveStreaming result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0x19 name=libSceNpUtility result=0x0
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=2, libsslCtxId=2, poolSize=65536
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=2 (active contexts: 2)
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:314 sceKernelMapNamedFlexibleMemory: in_addr = 0x0, len = 0x1000000, prot = 0x2, flags = 0x0, name = 'SceNpToolkit2Lib'
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:314 sceKernelMapNamedFlexibleMemory: in_addr = 0x0, len = 0x600000, prot = 0x2, flags = 0x0, name = 'SceNpToolkit2Json'
+[Lib.NpManager] <Error> (Guest-1) np_manager.cpp:1053 sceNpRegisterStateCallbackForToolkit: (STUBBED) called
+[Lib.NpManager] <Info> (Guest-27) guest_runtime.cpp:3328 lambda: Session offline NP nid=eQH7nWPcAgc result=0x0
+[Lib.SysModule] <Info> (Guest-25) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xe4 name=libSceSigninDialog result=0x0
+[Lib.NpManager] <Info> (Guest-25) guest_runtime.cpp:3328 lambda: Session offline NP nid=Ec63y59l9tw result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xa8 name=libSceNpCommerce result=0x805a10ff
+[Lib.Http] <Info> (Guest-1) http.cpp:2110 sceHttpTerm: called libhttpCtxId=2
+[Lib.Http] <Info> (Guest-1) http.cpp:2154 sceHttpTerm: ctxId=2 terminated, 1 contexts still active
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=3, libsslCtxId=3, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=3 (active contexts: 2)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=3, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=2
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1674 SysmoduleLoad: session sysmodule id=0xba name=libSceRandom result=0x0
+[Lib.Http] <Info> (Guest-1) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=1
+[Lib.Http] <Info> (Guest-1) http.cpp:2110 sceHttpTerm: called libhttpCtxId=1
+[Lib.Http] <Info> (Guest-1) http.cpp:2154 sceHttpTerm: ctxId=1 terminated, 1 co

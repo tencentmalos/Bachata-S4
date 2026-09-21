@@ -1,0 +1,52 @@
+Name:	shadps4.android
+Umask:	0077
+State:	S (sleeping)
+Tgid:	22493
+Ngid:	0
+Pid:	22493
+PPid:	29156
+TracerPid:	0
+Uid:	10190	10190	10190	10190
+Gid:	10190	10190	10190	10190
+FDSize:	256
+Groups:	1015 1078 1079 3003 9997 20190 50190 
+VmPeak:	16695360 kB
+VmSize:	16499112 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	  259292 kB
+VmRSS:	  208760 kB
+RssAnon:	   75040 kB
+RssFile:	  132564 kB
+RssShmem:	    1156 kB
+VmData:	 1336508 kB
+VmStk:	    8192 kB
+VmExe:	       8 kB
+VmLib:	  174656 kB
+VmPTE:	    1416 kB
+VmSwap:	      44 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	22
+SigQ:	0/41981
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000080001204
+SigIgn:	0000000000000001
+SigCgt:	0000006e400084f8
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	0000000000000000
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	unknown
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	1
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	196
+nonvoluntary_ctxt_switches:	35

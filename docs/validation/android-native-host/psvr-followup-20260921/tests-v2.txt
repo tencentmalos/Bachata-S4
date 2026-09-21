@@ -1,0 +1,4 @@
+FAIL 72: space->Protect({{base+0x1000}, 0x1000}, GuestPermission::Read | GuestPermission::Execute)
+FAIL 73: ClassifyGuestSignalReturn(*space, base+0x1000) == 1
+FAIL 74: ClassifyGuestSignalReturn(*space, base+0x1025) == 2
+PROCESS_SERVICES checks=68 failures=3

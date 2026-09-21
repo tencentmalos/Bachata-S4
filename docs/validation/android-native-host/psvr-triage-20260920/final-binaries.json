@@ -1,0 +1,23 @@
+[
+  {
+    "name": "apk",
+    "local_sha256": "1d939bc3b141209f6a4c8953101c9d3d6f6d1d48618269b5de0167c37aaa8314",
+    "device_sha256": "1d939bc3b141209f6a4c8953101c9d3d6f6d1d48618269b5de0167c37aaa8314",
+    "path": "/data/app/~~r7uHtL00W4f7NHJZrwYnMA==/com.shadps4.android-nOiekBREkfoWuikPTrIB8w==/base.apk",
+    "match": true
+  },
+  {
+    "name": "libshadps4_host.so",
+    "local_sha256": "0c520ad8ea50eba8ee99a62218e008faffccdfd72b32fbf7d558d56f8871d188",
+    "device_sha256": "0c520ad8ea50eba8ee99a62218e008faffccdfd72b32fbf7d558d56f8871d188",
+    "path": "/data/app/~~r7uHtL00W4f7NHJZrwYnMA==/com.shadps4.android-nOiekBREkfoWuikPTrIB8w==/lib/arm64/libshadps4_host.so",
+    "match": true
+  },
+  {
+    "name": "libshadps4_fex_session.so",
+    "local_sha256": "bd04d9778fec88c7da82e4a7a76e4b4dc07f744495e1988b859c584263278b78",
+    "device_sha256": "bd04d9778fec88c7da82e4a7a76e4b4dc07f744495e1988b859c584263278b78",
+    "path": "/data/app/~~r7uHtL00W4f7NHJZrwYnMA==/com.shadps4.android-nOiekBREkfoWuikPTrIB8w==/lib/arm64/libshadps4_fex_session.so",
+    "match": true
+  }
+]

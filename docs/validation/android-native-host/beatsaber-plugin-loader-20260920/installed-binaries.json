@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/data/app/~~F1A5uONnLTVWId2HD1s8bg==/com.shadps4.android-A7PeVAAknX22IXZCjUOqzA==/base.apk",
+    "sha256": "c0e8e6d32312fa622b52375a03492b13708b442a47a59c19cfcda9b2c5065125"
+  },
+  {
+    "path": "/data/app/~~F1A5uONnLTVWId2HD1s8bg==/com.shadps4.android-A7PeVAAknX22IXZCjUOqzA==/lib/arm64/libshadps4_host.so",
+    "sha256": "5b0de1ac338e42cda01da1a5b730ae955258ac0a6ff329b63c880123cecc9b26"
+  },
+  {
+    "path": "/data/app/~~F1A5uONnLTVWId2HD1s8bg==/com.shadps4.android-A7PeVAAknX22IXZCjUOqzA==/lib/arm64/libshadps4_fex_session.so",
+    "sha256": "30e5ec0178a531a2a93d3b915813851c7f859819d8ae8287e90ca1eb662056f7"
+  }
+]

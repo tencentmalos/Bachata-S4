@@ -1,0 +1,223 @@
+{
+  "schema": "shadps4.beatsaber-sbs-evidence.v1",
+  "base_commit": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "device": "9c2841a4",
+  "model": "AYN Thor",
+  "artifacts": [
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/baseline-status.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/baseline-stop-status.txt",
+      "bytes": 847,
+      "sha256": "a1c8e0641f20495e9c0a10635ea54e3176e5c5793bda9c51db1a04d83ca75fef"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/direct-eye-stop.txt",
+      "bytes": 851,
+      "sha256": "5676f4e8deec94374333fced0dde648e0110cd4c6631cfbc8a8f984f41c3407c"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/event-stop-status.txt",
+      "bytes": 5198,
+      "sha256": "ecc9d869fcb9ab0d9fd1755e20f07d443567bbeae2a26b77bad19060451ac7df"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/direct-eye-capture.rdc",
+      "bytes": 33274956,
+      "sha256": "7385441befb2108c2aa6e5c8a049734598a0f871a810884c4de124c57ad71614"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/direct-eye-capture.rdc.json",
+      "bytes": 463,
+      "sha256": "f43f6275fc79e04a472eb5fbca59b904c39bc9c0a301bd3f2966f648fc43ca08"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/final-guest.rdc",
+      "bytes": 26011464,
+      "sha256": "bee2e79a54724f072d0715fea4cfc7dbd37dcf7e3d56dfef7ab43682fd726abb"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/final-guest.rdc.json",
+      "bytes": 459,
+      "sha256": "f8f30a703faac517096615681708e24c64cecfaf7074f1fb740e6418a67a6674"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/final-normal-screen.png",
+      "bytes": 190526,
+      "sha256": "a4143c344fc8f42de16c62ecff08ea4ed145b15a87c0a3f116754b62903636c4"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/final-capture-screen.png",
+      "bytes": 235094,
+      "sha256": "a4265b979631148b662c36d7d267cdbe793f5b29f979918b8b730439954972d1"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/sbs-host-build.log",
+      "bytes": 814,
+      "sha256": "376c0adcb394de50ca2bff8f4362b44f1c13367cc14911634180077d561329f4"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/sbs-apk-build.log",
+      "bytes": 20733,
+      "sha256": "51aa4c71dd442e7ae472fe72d5a9790d91c5bc96d2c46fbcbbc5aafac8baee9e"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/sbs-probe-build.log",
+      "bytes": 5928,
+      "sha256": "3d05636f82605339162a1774a0cae5f40a1c95e8639e5a8dc6da038c8e356266"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/sbs-gpu-system.txt",
+      "bytes": 16334,
+      "sha256": "a37dd97ca7486b5b36da6509b7c1639b3165db266390c71036662354056efcd8"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/sbs-gpu-turnip.txt",
+      "bytes": 18149,
+      "sha256": "175f1bfe22b59240d4e248eb79be09a2f5f8e2ee1041ceabea874b1bfce648fa"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/baseline-stop-debug/session-manifest.json",
+      "bytes": 395,
+      "sha256": "be9bdb4ea63f0d5c51ddb1d517defa22d081a21dd03b0fba4e116434a39a77c3"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/replay/bindings120.json",
+      "bytes": 1258,
+      "sha256": "4fa964eb7a27328069c2f2fb226eed9849dea70be65ba15ee55e4027dd6c3732"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/replay/bindings109.json",
+      "bytes": 1804,
+      "sha256": "da5d8563be0a9394bd3dccf5f868c7ffc5aa53d26d8605764482de74fe5702b1"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/replay/usage516.json",
+      "bytes": 1268,
+      "sha256": "15eb2e509c0b5c6dd5b1bf7242bb6007dd3c7cfd6bc4d8566509ae75636201ee"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/replay/eye109.json",
+      "bytes": 18290,
+      "sha256": "fca4377e03fbc159aedb32ac95738241e171a809395548a343379d478fdd27f1"
+    },
+    {
+      "path": "build/validation/beatsaber-sbs-20260920/replay/eye120.json",
+      "bytes": 18290,
+      "sha256": "f7fc74652706ed5a96005d08120d37d0ea9482d58f771de65f7a534602d472ba"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-reprojection-host.txt",
+      "bytes": 49,
+      "sha256": "29e826bcec3cc713d71dd02b1a3fce346e26a09a7b6d7bbb855cd5353bf01945"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-event-android.txt",
+      "bytes": 49,
+      "sha256": "f3c2f98b6ceddab9545ea3f019cec71eebcd6afe29ef569cfc65fedd68dd5521"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-normal-running.txt",
+      "bytes": 789,
+      "sha256": "fec604c836ab457e06839096032c7fd522aa37995c84d737bbe65b80ade239d8"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/batch-evidence.json",
+      "bytes": 38857,
+      "sha256": "e95f2dd0db846b6ffc6d72f7dd22d6c0b9d81a9f3d63e4755e4d308bf0bae541"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-binaries.json",
+      "bytes": 772,
+      "sha256": "50b656c33f467cbec290d8b9216c3222e5d92c1ff3ac1d843cc41811f88625bb"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-normal-renderdoc.txt",
+      "bytes": 155,
+      "sha256": "8770c2e4a86172ea8428834a82fc8a840d239152ba01be5aabc680969ff2117c"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-normal-stop.txt",
+      "bytes": 5182,
+      "sha256": "5702c04cb39213ea82f843153dabc71ba6a21da3a12360918f4a132c559f185c"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-guest-capture-status.txt",
+      "bytes": 862,
+      "sha256": "f1b9c3735d47bf1854ecc3c1d5f60df241a03a0b5de5bc281cba54fa527101f9"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/cleanup.json",
+      "bytes": 545,
+      "sha256": "d603829d2624acefc7712e187aa16891f34282c267ba4acffedbf60fe88bdda7"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/family-audit.json",
+      "bytes": 21343,
+      "sha256": "20cb9863bfd61690886f0cb73bea4f491613a4fee5f33aa420dc7f817d532268"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-normal-input.txt",
+      "bytes": 318,
+      "sha256": "d4c5a34941d12cccd75631e541bf2b12a8e2e386747e94619a53f550809a239b"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-event-host.txt",
+      "bytes": 49,
+      "sha256": "f3c2f98b6ceddab9545ea3f019cec71eebcd6afe29ef569cfc65fedd68dd5521"
+    },
+    {
+      "path": "docs/validation/android-native-host/beatsaber-sbs-20260920/final-imports.json",
+      "bytes": 358437,
+      "sha256": "297d4dc390e4c8e7ce1bd8b44d78795b92c458f31d8a253bcf385c5b9083c30b"
+    },
+    {
+      "path": "guest/games/CUSA12878/01.00/symbols/index.json",
+      "bytes": 1381,
+      "sha256": "09d8f8517fdcddc46c879c2f1c0d1081bba5927d6a65b5ac8f6089107a3d4fa3"
+    },
+    {
+      "path": "guest/games/CUSA12878/01.00/symbols/vr-render.symbols.json",
+      "bytes": 1796,
+      "sha256": "ce8bcb7b56f7179dfcc43fbf03009be265061df3f75780151bb9c1fdd6bb7dd8"
+    },
+    {
+      "path": "src/core/libraries/kernel/threads/event_flag_state.h",
+      "bytes": 6662,
+      "sha256": "1e82f7137a46b9170d396b13b0b1cd6620bc7e36854f9a7d50895037fc3a98f6"
+    },
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "bytes": 240121,
+      "sha256": "b6a8df3342380c3a2ff67c19f249cebb3069894e218be54d63f6ba7edba4c74f"
+    },
+    {
+      "path": "src/core/libraries/videoout/driver.cpp",
+      "bytes": 23734,
+      "sha256": "973f68b231235599fa1823332d6a17f1f5720018affa3ed7eb022746873019a8"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_presenter.cpp",
+      "bytes": 64076,
+      "sha256": "e9909e31990454e806ac3b15bcd3fa86de9b5a4f55e501ba11685af1ff051b38"
+    },
+    {
+      "path": "src/video_core/host_shaders/post_process.frag",
+      "bytes": 2327,
+      "sha256": "11cb01073e31a5522405a7ee3c43efa12ed6ac04a5d5a8b02058a39689907744"
+    },
+    {
+      "path": "tests/video_core/android_sbs_compositor_probe.cpp",
+      "bytes": 8546,
+      "sha256": "0e26c2c56d268d5381384ef2187616b92eade4c8bb830852038da96478ae60ff"
+    }
+  ],
+  "limits": [
+    "Black guest eye and host output; no gameplay acceptance",
+    "No complete PSVR/Move/tracking or cross-module semantic graph acceptance",
+    "No performance claim or complete regression"
+  ]
+}

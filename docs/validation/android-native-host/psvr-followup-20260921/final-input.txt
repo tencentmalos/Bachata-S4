@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService 5a8be04 pid=19776 user=0
+  Client:
+    input: generation=0 token=0 windowFocused=true focused=null uiCaptured=null stopping=null overlayEvents=0 overlayResult=null nativeToken=0 connected=false buttons=0
+    managed_state: Stopped(exitCode=0, generation=1, termination=ProcessTerminationInfo(processRole=BACKEND, terminationKind=CANCELLED_BY_USER, exitCode=0, rawWaitStatus=null, signalNumber=null, signalName=null, coreDumped=null, userRequestedStop=true, runtimeErrorCode=null, processStartUtc=null, processEndUtc=null, pid=null), reportContext=null)

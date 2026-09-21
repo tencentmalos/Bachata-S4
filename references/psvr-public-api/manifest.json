@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "collection_date": "2026-09-21",
+  "sources": [
+    {
+      "file": "snapshots/20260921/unity-2018.4-single-pass-stereo.html",
+      "url": "https://docs.unity3d.com/2018.4/Documentation/Manual/SinglePassStereoRendering.html",
+      "kind": "official_unity",
+      "scope": "PS4-capable double-wide rendering; eye-dependent sampling; not Sony HMD ABI",
+      "retrieved_at_utc": "2026-09-21T11:36:29.917004+00:00",
+      "resolved_url": "https://docs.unity3d.com/2018.4/Documentation/Manual/SinglePassStereoRendering.html",
+      "content_type": "text/html,text/html; charset=utf-8",
+      "status": "saved",
+      "bytes": 32843,
+      "sha256": "52cba8dcecb39a791b92d1a5de4a8bf533e41fe13948284d0d8b31c2a386438b"
+    },
+    {
+      "file": "snapshots/20260921/unity-xr-support-packages.html",
+      "url": "https://docs.unity.com/en-us/engine/6000.6/manual/xr/support/support-packages",
+      "kind": "official_unity",
+      "scope": "PSVR access route for registered PlayStation developers; modern documentation, not target-era ABI",
+      "retrieved_at_utc": "2026-09-21T11:36:29.917539+00:00",
+      "resolved_url": "https://docs.unity.com/en-us/engine/6000.6/manual/xr/support/support-packages",
+      "content_type": "text/html; charset=utf-8",
+      "status": "saved",
+      "bytes": 1103577,
+      "sha256": "fd04ce047a2baf4d62d62b793ee40cc506060d9dbbf01e6f2ca33fcb1fe6f15f"
+    },
+    {
+      "file": "snapshots/20260921/sony-stef2022-reprojection.html",
+      "url": "https://www.sony.com/en/SonyInfo/technology/activities/STEF2022/exhibition_0302/02/",
+      "kind": "official_sony",
+      "scope": "PSVR2 overview comparing rotational PSVR reprojection; not PS4 API definitions",
+      "retrieved_at_utc": "2026-09-21T11:36:29.917695+00:00",
+      "status": "failed",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "file": "snapshots/20260921/orbital-db-types.json",
+      "url": "https://raw.githubusercontent.com/AlexAltea/orbital/cc408367da6a6ebbf5ac1ac559fefeadc73b2831/tools/ida/db_types.json",
+      "kind": "community_source",
+      "scope": "VrTraceHook prototypes; no structure members or target firmware identity",
+      "retrieved_at_utc": "2026-09-21T11:36:29.917866+00:00",
+      "resolved_url": "https://raw.githubusercontent.com/AlexAltea/orbital/cc408367da6a6ebbf5ac1ac559fefeadc73b2831/tools/ida/db_types.json",
+      "content_type": "text/plain; charset=utf-8",
+      "status": "saved",
+      "bytes": 291042,
+      "sha256": "6d961df11ec8a7079dce5cbaf32f2979405422a884c37d061dc69ebd047f8e6b"
+    },
+    {
+      "file": "snapshots/20260921/orbital-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/AlexAltea/orbital/cc408367da6a6ebbf5ac1ac559fefeadc73b2831/LICENSE",
+      "kind": "license",
+      "scope": "License accompanying the pinned Orbital source",
+      "retrieved_at_utc": "2026-09-21T11:36:30.597468+00:00",
+      "resolved_url": "https://raw.githubusercontent.com/AlexAltea/orbital/cc408367da6a6ebbf5ac1ac559fefeadc73b2831/LICENSE",
+      "content_type": "text/plain; charset=utf-8",
+      "status": "saved",
+      "bytes": 1074,
+      "sha256": "615747f6405a1c2317ddd8c6613f526c28d9ecd29f3cb83531891a68fe9294e7"
+    },
+    {
+      "file": "snapshots/20260921/openorbis-Hmd.h",
+      "url": "https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/0a1aaf9dd4a92695538bdeb09fb056d06dd11725/include/orbis/Hmd.h",
+      "kind": "community_source",
+      "scope": "Export names and TODO placeholders; not valid argument-count evidence",
+      "retrieved_at_utc": "2026-09-21T11:36:30.906702+00:00",
+      "resolved_url": "https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/0a1aaf9dd4a92695538bdeb09fb056d06dd11725/include/orbis/Hmd.h",
+      "content_type": "text/plain; charset=utf-8",
+      "status": "saved",
+      "bytes": 4036,
+      "sha256": "f98b2bfcaaa26b6aad2b415e617f2e12f9bb874ec4967eac39125965584d6a76"
+    },
+    {
+      "file": "snapshots/20260921/openorbis-LICENSE",
+      "url": "https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/0a1aaf9dd4a92695538bdeb09fb056d06dd11725/LICENSE",
+      "kind": "license",
+      "scope": "License accompanying the pinned OpenOrbis source",
+      "retrieved_at_utc": "2026-09-21T11:36:31.424339+00:00",
+      "resolved_url": "https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/0a1aaf9dd4a92695538bdeb09fb056d06dd11725/LICENSE",
+      "content_type": "text/plain; charset=utf-8",
+      "status": "saved",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    }
+  ],
+  "not_retrieved": [
+    {
+      "url": "https://partners.playstation.net/",
+      "reason": "Public entry only; no sceHmd API reference acquired."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3RNbZpcfAhE",
+      "reason": "Unity official Unite 2015 talk located; metadata only, no transcript or video downloaded; not used to infer ABI."
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "branch": "feature/malos/beat_saber_fix",
+  "base_commit": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "device_serial": "9c2841a4",
+  "status": "safety-warning SBS corrected; Continue/gameplay not verified",
+  "files": [
+    {
+      "path": "caps-turnip-v2.txt",
+      "bytes": 17969,
+      "sha256": "07e47ebedaf2385461de4203273fe761f884340ebeda19275b2ffb03e3cd7c6b"
+    },
+    {
+      "path": "config-after.json",
+      "bytes": 40,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    },
+    {
+      "path": "config-before.json",
+      "bytes": 40,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    },
+    {
+      "path": "draw-buffer-ranges.json",
+      "bytes": 4004,
+      "sha256": "3e57bc4e48130e17fce89bb7748cd13dca2b01e6ead4e5440209f9a4a1a58bcd"
+    },
+    {
+      "path": "final-forwards.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "final-library.png",
+      "bytes": 1200212,
+      "sha256": "53694d622b82f691dfb3cf99e14956b633c56a3e12eaa210a3f38cbbba016b52"
+    },
+    {
+      "path": "final-process.txt",
+      "bytes": 66,
+      "sha256": "7a616ac4c12510284278de4cb1aae6e4033ed3ae7345c541a8ad875d379c454a"
+    },
+    {
+      "path": "final-properties.txt",
+      "bytes": 126,
+      "sha256": "a50ec430b71423da63ee0c2210b33e734e78dc40b40902434724871fd85db27d"
+    },
+    {
+      "path": "final-services.txt",
+      "bytes": 66,
+      "sha256": "e9990d2b9ce9e862271712ca1ecd0c280ac8cd7a2fd48fc18fb69623521c33b0"
+    },
+    {
+      "path": "final-status.txt",
+      "bytes": 155,
+      "sha256": "4aa897c5ff9edcdae27e2a269ad05f24bf47aff2cffb42bc6453bc53752cada7"
+    },
+    {
+      "path": "fix-build-identity.json",
+      "bytes": 396,
+      "sha256": "6c87c1f8864ad8041ae1545e5d6f4ddca6392297615f37a9d8c2ae01f3bb10ab"
+    },
+    {
+      "path": "fix-imports.json",
+      "bytes": 633522,
+      "sha256": "b220c6d329d133367f426d8c354d26bf42d6b088daa5049bf34a4026e43442e3"
+    },
+    {
+      "path": "fix-installed-sha.txt",
+      "bytes": 157,
+      "sha256": "0977cffd4f3637ca884bc22b6b021ce7698e8696d6a20f64b9e2912ea8332a05"
+    },
+    {
+      "path": "fix-scene1.png",
+      "bytes": 2207951,
+      "sha256": "cb91528da31f2f014592d7402acc044dbbc4705252b58a9a41a7ab8e239dfa0b"
+    },
+    {
+      "path": "fix-scene2.png",
+      "bytes": 2194209,
+      "sha256": "398871a2825939ac480d7f20ec41f9337c19e74a6ff45ef5dc8a2b1afe2f4f92"
+    },
+    {
+      "path": "fix-status1.txt",
+      "bytes": 743,
+      "sha256": "e81168f4c6a7796d95a80454ce9e1f3940b06cef1d1b087a16ac7034ed04fb39"
+    },
+    {
+      "path": "fix-status2.txt",
+      "bytes": 752,
+      "sha256": "c03a0648e1f63365c06cdf38167bfd65ac79eda06b3746371a71213e8c94f077"
+    },
+    {
+      "path": "fix-stopped.txt",
+      "bytes": 4913,
+      "sha256": "c9d2ecbe00d002220732b46a83d248db3f1fa6ee273fd2e40037dd907d79f88d"
+    },
+    {
+      "path": "history-right-v2.json",
+      "bytes": 2587,
+      "sha256": "0be53db6cd6f6b3791cd97e15e6708b6197f7665c59352f92d5555673a170ed3"
+    },
+    {
+      "path": "import-audit.json",
+      "bytes": 153,
+      "sha256": "4f98c8964c9a2cf55b86d6d08091a66490e525b8d0074ed61f4e77a99b12bc8b"
+    },
+    {
+      "path": "outputs346.json",
+      "bytes": 477,
+      "sha256": "257d078fdae108813fc7603b9bc1915f75afb1ecbf0ae7bc9a71bf65a2c226db"
+    },
+    {
+      "path": "pick346-right.json",
+      "bytes": 729,
+      "sha256": "97704aa5c76b4a60191f5eddc658b81f2fcad184b8bb4d6095b5d5f23fab7a78"
+    },
+    {
+      "path": "pipeline1948.xml",
+      "bytes": 16239,
+      "sha256": "e5c692b7a28c032545cd4c6f4dcc30debe5522a2b7d13653833acd19c6bc7570"
+    },
+    {
+      "path": "probe-build-identity.json",
+      "bytes": 396,
+      "sha256": "e33585a94d4f73bd6d8b06ebaca7298fe3b9b9fbe5027d0a576e54759b7d1f34"
+    },
+    {
+      "path": "probe1-scene.png",
+      "bytes": 2197828,
+      "sha256": "0d453ffbe9488aef3ee0820f0efe5c24853010de7d186a6a23efb307a73fd086"
+    },
+    {
+      "path": "probe1-status.txt",
+      "bytes": 755,
+      "sha256": "6e45a28b3a1e74f379460ab536c61ce920c00eb0c4fe2cd459d1311562daf294"
+    },
+    {
+      "path": "probe1-stopped.txt",
+      "bytes": 4913,
+      "sha256": "63424b1b475e43d41865eec1cd7b8a01a86059761209bffeb4c43aa406936432"
+    },
+    {
+      "path": "probe1-viewport.txt",
+      "bytes": 8991,
+      "sha256": "36e95491b6bb6e125175f2feb8d09e1b9adb224c0f66bf549ceff3f0a7e96303"
+    },
+    {
+      "path": "probe2-scene.png",
+      "bytes": 2195216,
+      "sha256": "c31cb6c87f48dd0c3a876667cba09c3391cea66dfb50ff787aed0d152c69e021"
+    },
+    {
+      "path": "probe2-status.txt",
+      "bytes": 753,
+      "sha256": "8f8a63d64d6ab821fc1caa91a627b82a40dc4c8fb11fddeb61c9d7ae911ff580"
+    },
+    {
+      "path": "probe2-stopped.txt",
+      "bytes": 4917,
+      "sha256": "fd4366d68c5d41b09e616faa718357a8d9030107a0387478dc2bed077abeff80"
+    },
+    {
+      "path": "probe2-viewport.txt",
+      "bytes": 8852,
+      "sha256": "d4a9d3ee3b434c07b60524acdcb5c3dc277a095de5916abc15a5932147df6c64"
+    },
+    {
+      "path": "rdc-viewport-samples.json",
+      "bytes": 2315,
+      "sha256": "8ba42a2335b06f018e31cbcec8ddf657fbef8ff4eb96f881c794563f1ca0b3b2"
+    },
+    {
+      "path": "regression-after-system.txt",
+      "bytes": 15941,
+      "sha256": "5b97f44bb323cbe6ad8b248f2238f6ac4944a1e13fc84d3aae21fddfaaf59189"
+    },
+    {
+      "path": "regression-after-turnip.txt",
+      "bytes": 17721,
+      "sha256": "6860c281bbd474046387a36a4bcef2f9229c881175ba1e889ad8906759956072"
+    },
+    {
+      "path": "regression-before.txt",
+      "bytes": 17722,
+      "sha256": "1a4deb6441dc102ca2258576c1bd0cf9e22bc0b82c336e767683784bbdae97c0"
+    },
+    {
+      "path": "right-text-command-order.xml",
+      "bytes": 37258,
+      "sha256": "e09b8d5bf76d0de0910d867d47bd7850778f29a2198fe7e36ff3af364055d00b"
+    },
+    {
+      "path": "settings-after.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "path": "settings-before.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "path": "usage1825.json",
+      "bytes": 4534,
+      "sha256": "d8437bb8b50749102efd6b7edd7a542dd38789e80973366cba3f5500b2805cb7"
+    },
+    {
+      "path": "viewport-experiment.patch",
+      "bytes": 2945,
+      "sha256": "8883ad2ad10653a6563dc6a6807392c9f32bf0a50e3672804340b5ef34535c65"
+    },
+    {
+      "path": "vk-draw-viewports.json",
+      "bytes": 35919,
+      "sha256": "0c083c072db37ce5d447697adaeb3c8de465d768180a0292bab7b7184f894fe9"
+    }
+  ]
+}

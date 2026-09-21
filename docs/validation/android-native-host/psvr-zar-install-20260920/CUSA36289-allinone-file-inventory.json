@@ -1,0 +1,1002 @@
+[
+  {
+    "path": "app/Media/Metadata/global-metadata.dat",
+    "bytes": 8511956
+  },
+  {
+    "path": "app/Media/Modules/Il2CppUserAssemblies.prx",
+    "bytes": 53655334
+  },
+  {
+    "path": "app/Media/Modules/PS4Util.prx",
+    "bytes": 6032
+  },
+  {
+    "path": "app/Media/Plugins/CommonDialog.prx",
+    "bytes": 33680
+  },
+  {
+    "path": "app/Media/Plugins/PSVRXRSDKPlugin.prx",
+    "bytes": 21668
+  },
+  {
+    "path": "app/Media/Plugins/PhotonVoiceAudioOutputPlugin.prx",
+    "bytes": 6627
+  },
+  {
+    "path": "app/Media/Plugins/SaveData.prx",
+    "bytes": 31556
+  },
+  {
+    "path": "app/Media/Plugins/UnityNpToolkit2.prx",
+    "bytes": 202781
+  },
+  {
+    "path": "app/Media/Plugins/lib_burst_generated.prx",
+    "bytes": 32421
+  },
+  {
+    "path": "app/Media/Plugins/opus_egpv.prx",
+    "bytes": 407553
+  },
+  {
+    "path": "app/Media/Resources/mscorlib.dll-resources.dat",
+    "bytes": 337563
+  },
+  {
+    "path": "app/Media/Resources/unity default resources",
+    "bytes": 3387880
+  },
+  {
+    "path": "app/Media/Resources/unity_builtin_extra",
+    "bytes": 976460
+  },
+  {
+    "path": "app/Media/RuntimeInitializeOnLoads.json",
+    "bytes": 2701
+  },
+  {
+    "path": "app/Media/ScriptingAssemblies.json",
+    "bytes": 3632
+  },
+  {
+    "path": "app/Media/StreamingAssets/PS4SessionImage.jpg",
+    "bytes": 49063
+  },
+  {
+    "path": "app/Media/StreamingAssets/SaveIcon.png",
+    "bytes": 28555
+  },
+  {
+    "path": "app/Media/UnitySubsystems/PSVRXRSDKPlugin/UnitySubsystemsManifest.json",
+    "bytes": 261
+  },
+  {
+    "path": "app/Media/boot.config",
+    "bytes": 193
+  },
+  {
+    "path": "app/Media/globalgamemanagers",
+    "bytes": 790824
+  },
+  {
+    "path": "app/Media/globalgamemanagers.assets",
+    "bytes": 4648808
+  },
+  {
+    "path": "app/Media/globalgamemanagers.assets.resS",
+    "bytes": 2989056
+  },
+  {
+    "path": "app/Media/level0",
+    "bytes": 935544
+  },
+  {
+    "path": "app/Media/level0.resS",
+    "bytes": 3298832
+  },
+  {
+    "path": "app/Media/level1",
+    "bytes": 181792
+  },
+  {
+    "path": "app/Media/level1.resS",
+    "bytes": 405024
+  },
+  {
+    "path": "app/Media/level10",
+    "bytes": 5532836
+  },
+  {
+    "path": "app/Media/level11",
+    "bytes": 14465208
+  },
+  {
+    "path": "app/Media/level12",
+    "bytes": 4196692
+  },
+  {
+    "path": "app/Media/level13",
+    "bytes": 4103092
+  },
+  {
+    "path": "app/Media/level14",
+    "bytes": 5286876
+  },
+  {
+    "path": "app/Media/level15",
+    "bytes": 7256380
+  },
+  {
+    "path": "app/Media/level16",
+    "bytes": 4170852
+  },
+  {
+    "path": "app/Media/level17",
+    "bytes": 11213284
+  },
+  {
+    "path": "app/Media/level18",
+    "bytes": 8227324
+  },
+  {
+    "path": "app/Media/level18.resS",
+    "bytes": 191168
+  },
+  {
+    "path": "app/Media/level19",
+    "bytes": 23438396
+  },
+  {
+    "path": "app/Media/level2",
+    "bytes": 4928
+  },
+  {
+    "path": "app/Media/level2.resS",
+    "bytes": 131232
+  },
+  {
+    "path": "app/Media/level20",
+    "bytes": 587696
+  },
+  {
+    "path": "app/Media/level21",
+    "bytes": 5696324
+  },
+  {
+    "path": "app/Media/level21.resS",
+    "bytes": 327968
+  },
+  {
+    "path": "app/Media/level22",
+    "bytes": 10391104
+  },
+  {
+    "path": "app/Media/level22.resS",
+    "bytes": 167184
+  },
+  {
+    "path": "app/Media/level23",
+    "bytes": 10705000
+  },
+  {
+    "path": "app/Media/level24",
+    "bytes": 3401272
+  },
+  {
+    "path": "app/Media/level24.resS",
+    "bytes": 147888
+  },
+  {
+    "path": "app/Media/level25",
+    "bytes": 1515432
+  },
+  {
+    "path": "app/Media/level26",
+    "bytes": 823300
+  },
+  {
+    "path": "app/Media/level26.resS",
+    "bytes": 580640
+  },
+  {
+    "path": "app/Media/level3",
+    "bytes": 1030936
+  },
+  {
+    "path": "app/Media/level3.resS",
+    "bytes": 131232
+  },
+  {
+    "path": "app/Media/level4",
+    "bytes": 816408
+  },
+  {
+    "path": "app/Media/level5",
+    "bytes": 4155552
+  },
+  {
+    "path": "app/Media/level5.resS",
+    "bytes": 604928
+  },
+  {
+    "path": "app/Media/level6",
+    "bytes": 2408744
+  },
+  {
+    "path": "app/Media/level7",
+    "bytes": 2179304
+  },
+  {
+    "path": "app/Media/level8",
+    "bytes": 4666096
+  },
+  {
+    "path": "app/Media/level8.resS",
+    "bytes": 549888
+  },
+  {
+    "path": "app/Media/level9",
+    "bytes": 4662440
+  },
+  {
+    "path": "app/Media/level9.resS",
+    "bytes": 549888
+  },
+  {
+    "path": "app/Media/platform_native_link.xml",
+    "bytes": 678
+  },
+  {
+    "path": "app/Media/resources.assets",
+    "bytes": 30961616
+  },
+  {
+    "path": "app/Media/resources.assets.resS",
+    "bytes": 155476976
+  },
+  {
+    "path": "app/Media/resources.resource",
+    "bytes": 5238458
+  },
+  {
+    "path": "app/Media/sharedassets0.assets",
+    "bytes": 59372496
+  },
+  {
+    "path": "app/Media/sharedassets0.assets.resS",
+    "bytes": 43421152
+  },
+  {
+    "path": "app/Media/sharedassets0.resource",
+    "bytes": 1870496
+  },
+  {
+    "path": "app/Media/sharedassets1.assets",
+    "bytes": 379952
+  },
+  {
+    "path": "app/Media/sharedassets1.assets.resS",
+    "bytes": 9792032
+  },
+  {
+    "path": "app/Media/sharedassets1.resource",
+    "bytes": 871488
+  },
+  {
+    "path": "app/Media/sharedassets10.assets",
+    "bytes": 4444056
+  },
+  {
+    "path": "app/Media/sharedassets10.assets.resS",
+    "bytes": 126988368
+  },
+  {
+    "path": "app/Media/sharedassets11.assets",
+    "bytes": 1692168
+  },
+  {
+    "path": "app/Media/sharedassets11.assets.resS",
+    "bytes": 38554256
+  },
+  {
+    "path": "app/Media/sharedassets12.assets",
+    "bytes": 2004060
+  },
+  {
+    "path": "app/Media/sharedassets12.assets.resS",
+    "bytes": 34977600
+  },
+  {
+    "path": "app/Media/sharedassets13.assets",
+    "bytes": 2752012
+  },
+  {
+    "path": "app/Media/sharedassets13.assets.resS",
+    "bytes": 16630960
+  },
+  {
+    "path": "app/Media/sharedassets14.assets",
+    "bytes": 2684816
+  },
+  {
+    "path": "app/Media/sharedassets14.assets.resS",
+    "bytes": 111936432
+  },
+  {
+    "path": "app/Media/sharedassets15.assets",
+    "bytes": 2919276
+  },
+  {
+    "path": "app/Media/sharedassets15.assets.resS",
+    "bytes": 47189952
+  },
+  {
+    "path": "app/Media/sharedassets16.assets",
+    "bytes": 2667696
+  },
+  {
+    "path": "app/Media/sharedassets16.assets.resS",
+    "bytes": 19039552
+  },
+  {
+    "path": "app/Media/sharedassets17.assets",
+    "bytes": 3626544
+  },
+  {
+    "path": "app/Media/sharedassets17.assets.resS",
+    "bytes": 90443472
+  },
+  {
+    "path": "app/Media/sharedassets18.assets",
+    "bytes": 2296312
+  },
+  {
+    "path": "app/Media/sharedassets18.assets.resS",
+    "bytes": 33791328
+  },
+  {
+    "path": "app/Media/sharedassets19.assets",
+    "bytes": 3631888
+  },
+  {
+    "path": "app/Media/sharedassets19.assets.resS",
+    "bytes": 44241216
+  },
+  {
+    "path": "app/Media/sharedassets2.assets",
+    "bytes": 18192
+  },
+  {
+    "path": "app/Media/sharedassets20.assets",
+    "bytes": 258290
+  },
+  {
+    "path": "app/Media/sharedassets20.assets.resS",
+    "bytes": 9504768
+  },
+  {
+    "path": "app/Media/sharedassets20.resource",
+    "bytes": 13428839
+  },
+  {
+    "path": "app/Media/sharedassets21.assets",
+    "bytes": 2734708
+  },
+  {
+    "path": "app/Media/sharedassets21.assets.resS",
+    "bytes": 92894736
+  },
+  {
+    "path": "app/Media/sharedassets21.resource",
+    "bytes": 29154221
+  },
+  {
+    "path": "app/Media/sharedassets22.assets",
+    "bytes": 1561052
+  },
+  {
+    "path": "app/Media/sharedassets22.assets.resS",
+    "bytes": 118222400
+  },
+  {
+    "path": "app/Media/sharedassets22.resource",
+    "bytes": 3533945
+  },
+  {
+    "path": "app/Media/sharedassets23.assets",
+    "bytes": 7658396
+  },
+  {
+    "path": "app/Media/sharedassets23.assets.resS",
+    "bytes": 139156544
+  },
+  {
+    "path": "app/Media/sharedassets23.resource",
+    "bytes": 4441547
+  },
+  {
+    "path": "app/Media/sharedassets24.assets",
+    "bytes": 4142400
+  },
+  {
+    "path": "app/Media/sharedassets24.assets.resS",
+    "bytes": 14565968
+  },
+  {
+    "path": "app/Media/sharedassets24.resource",
+    "bytes": 2908000
+  },
+  {
+    "path": "app/Media/sharedassets25.assets",
+    "bytes": 1069784
+  },
+  {
+    "path": "app/Media/sharedassets25.assets.resS",
+    "bytes": 48155200
+  },
+  {
+    "path": "app/Media/sharedassets25.resource",
+    "bytes": 1257824
+  },
+  {
+    "path": "app/Media/sharedassets26.assets",
+    "bytes": 1031592
+  },
+  {
+    "path": "app/Media/sharedassets26.assets.resS",
+    "bytes": 76578192
+  },
+  {
+    "path": "app/Media/sharedassets26.resource",
+    "bytes": 1385280
+  },
+  {
+    "path": "app/Media/sharedassets3.assets",
+    "bytes": 3138292
+  },
+  {
+    "path": "app/Media/sharedassets3.assets.resS",
+    "bytes": 23636528
+  },
+  {
+    "path": "app/Media/sharedassets3.resource",
+    "bytes": 3897646
+  },
+  {
+    "path": "app/Media/sharedassets4.assets",
+    "bytes": 1675204
+  },
+  {
+    "path": "app/Media/sharedassets4.assets.resS",
+    "bytes": 119130752
+  },
+  {
+    "path": "app/Media/sharedassets4.resource",
+    "bytes": 6923630
+  },
+  {
+    "path": "app/Media/sharedassets5.assets",
+    "bytes": 11003344
+  },
+  {
+    "path": "app/Media/sharedassets5.assets.resS",
+    "bytes": 182425328
+  },
+  {
+    "path": "app/Media/sharedassets5.resource",
+    "bytes": 1373728
+  },
+  {
+    "path": "app/Media/sharedassets6.assets",
+    "bytes": 1225920
+  },
+  {
+    "path": "app/Media/sharedassets6.assets.resS",
+    "bytes": 24045472
+  },
+  {
+    "path": "app/Media/sharedassets6.resource",
+    "bytes": 7714963
+  },
+  {
+    "path": "app/Media/sharedassets7.assets",
+    "bytes": 1261216
+  },
+  {
+    "path": "app/Media/sharedassets7.assets.resS",
+    "bytes": 25582752
+  },
+  {
+    "path": "app/Media/sharedassets7.resource",
+    "bytes": 1412747
+  },
+  {
+    "path": "app/Media/sharedassets8.assets",
+    "bytes": 7272760
+  },
+  {
+    "path": "app/Media/sharedassets8.assets.resS",
+    "bytes": 167837392
+  },
+  {
+    "path": "app/Media/sharedassets8.resource",
+    "bytes": 3181152
+  },
+  {
+    "path": "app/Media/sharedassets9.assets",
+    "bytes": 26988
+  },
+  {
+    "path": "app/Media/sharedassets9.assets.resS",
+    "bytes": 5597184
+  },
+  {
+    "path": "app/eboot.bin",
+    "bytes": 29612374
+  },
+  {
+    "path": "app/sce_discmap.plt",
+    "bytes": 3288792
+  },
+  {
+    "path": "app/sce_module/libSceAudioLatencyEstimation.prx",
+    "bytes": 22442
+  },
+  {
+    "path": "app/sce_module/libSceFace.prx",
+    "bytes": 302128
+  },
+  {
+    "path": "app/sce_module/libSceFaceTracker.prx",
+    "bytes": 2611551
+  },
+  {
+    "path": "app/sce_module/libSceFios2.prx",
+    "bytes": 457105
+  },
+  {
+    "path": "app/sce_module/libSceHand.prx",
+    "bytes": 23976
+  },
+  {
+    "path": "app/sce_module/libSceHandTracker.prx",
+    "bytes": 54503
+  },
+  {
+    "path": "app/sce_module/libSceHeadTracker.prx",
+    "bytes": 1348767
+  },
+  {
+    "path": "app/sce_module/libSceJobManager.prx",
+    "bytes": 68406
+  },
+  {
+    "path": "app/sce_module/libSceNpToolkit2.prx",
+    "bytes": 834190
+  },
+  {
+    "path": "app/sce_module/libSceS3DConversion.prx",
+    "bytes": 352641
+  },
+  {
+    "path": "app/sce_module/libc.prx",
+    "bytes": 1374546
+  },
+  {
+    "path": "app/sce_sys/about/right.sprx",
+    "bytes": 16025
+  },
+  {
+    "path": "app/sce_sys/changeinfo/changeinfo.xml",
+    "bytes": 220
+  },
+  {
+    "path": "app/sce_sys/digests",
+    "bytes": 832
+  },
+  {
+    "path": "app/sce_sys/entry_keys",
+    "bytes": 2048
+  },
+  {
+    "path": "app/sce_sys/entry_names",
+    "bytes": 217
+  },
+  {
+    "path": "app/sce_sys/general_digests",
+    "bytes": 384
+  },
+  {
+    "path": "app/sce_sys/icon0.dds",
+    "bytes": 131200
+  },
+  {
+    "path": "app/sce_sys/icon0.png",
+    "bytes": 366361
+  },
+  {
+    "path": "app/sce_sys/image_key",
+    "bytes": 256
+  },
+  {
+    "path": "app/sce_sys/keystone",
+    "bytes": 96
+  },
+  {
+    "path": "app/sce_sys/license.dat",
+    "bytes": 1024
+  },
+  {
+    "path": "app/sce_sys/license.info",
+    "bytes": 512
+  },
+  {
+    "path": "app/sce_sys/metas",
+    "bytes": 832
+  },
+  {
+    "path": "app/sce_sys/npbind.dat",
+    "bytes": 532
+  },
+  {
+    "path": "app/sce_sys/nptitle.dat",
+    "bytes": 160
+  },
+  {
+    "path": "app/sce_sys/param.sfo",
+    "bytes": 1868
+  },
+  {
+    "path": "app/sce_sys/pic0.dds",
+    "bytes": 1036928
+  },
+  {
+    "path": "app/sce_sys/pic0.png",
+    "bytes": 2968473
+  },
+  {
+    "path": "app/sce_sys/pic1.dds",
+    "bytes": 1036928
+  },
+  {
+    "path": "app/sce_sys/pic1.png",
+    "bytes": 2968473
+  },
+  {
+    "path": "app/sce_sys/playgo-chunk.dat",
+    "bytes": 416
+  },
+  {
+    "path": "app/sce_sys/playgo-chunk.sha",
+    "bytes": 62916
+  },
+  {
+    "path": "app/sce_sys/playgo-manifest.xml",
+    "bytes": 368
+  },
+  {
+    "path": "app/sce_sys/pronunciation.sig",
+    "bytes": 20
+  },
+  {
+    "path": "app/sce_sys/pronunciation.xml",
+    "bytes": 3453
+  },
+  {
+    "path": "app/sce_sys/psreserved.dat",
+    "bytes": 8192
+  },
+  {
+    "path": "app/sce_sys/save_data.png",
+    "bytes": 65782
+  },
+  {
+    "path": "app/sce_sys/trophy/trophy00.trp",
+    "bytes": 1213840
+  },
+  {
+    "path": "update/Media/Metadata/global-metadata.dat",
+    "bytes": 8381588
+  },
+  {
+    "path": "update/Media/Modules/Il2CppUserAssemblies.prx",
+    "bytes": 52704934
+  },
+  {
+    "path": "update/Media/Modules/PS4Util.prx",
+    "bytes": 6032
+  },
+  {
+    "path": "update/Media/Plugins/CommonDialog.prx",
+    "bytes": 33680
+  },
+  {
+    "path": "update/Media/Plugins/PSVRXRSDKPlugin.prx",
+    "bytes": 21668
+  },
+  {
+    "path": "update/Media/Plugins/PhotonVoiceAudioOutputPlugin.prx",
+    "bytes": 6627
+  },
+  {
+    "path": "update/Media/Plugins/SaveData.prx",
+    "bytes": 31556
+  },
+  {
+    "path": "update/Media/Plugins/UnityNpToolkit2.prx",
+    "bytes": 202781
+  },
+  {
+    "path": "update/Media/Plugins/lib_burst_generated.prx",
+    "bytes": 32421
+  },
+  {
+    "path": "update/Media/Plugins/opus_egpv.prx",
+    "bytes": 407553
+  },
+  {
+    "path": "update/Media/globalgamemanagers",
+    "bytes": 790824
+  },
+  {
+    "path": "update/Media/globalgamemanagers.assets",
+    "bytes": 4648808
+  },
+  {
+    "path": "update/Media/resources.assets",
+    "bytes": 30961664
+  },
+  {
+    "path": "update/Media/resources.assets.resS",
+    "bytes": 155476976
+  },
+  {
+    "path": "update/Media/sharedassets0.assets",
+    "bytes": 59373432
+  },
+  {
+    "path": "update/Media/sharedassets0.assets.resS",
+    "bytes": 43421152
+  },
+  {
+    "path": "update/Media/sharedassets1.assets.resS",
+    "bytes": 9792032
+  },
+  {
+    "path": "update/Media/sharedassets10.assets.resS",
+    "bytes": 126988368
+  },
+  {
+    "path": "update/Media/sharedassets11.assets.resS",
+    "bytes": 38554256
+  },
+  {
+    "path": "update/Media/sharedassets12.assets.resS",
+    "bytes": 34977600
+  },
+  {
+    "path": "update/Media/sharedassets13.assets.resS",
+    "bytes": 16630960
+  },
+  {
+    "path": "update/Media/sharedassets14.assets.resS",
+    "bytes": 111936432
+  },
+  {
+    "path": "update/Media/sharedassets17.assets.resS",
+    "bytes": 90443472
+  },
+  {
+    "path": "update/Media/sharedassets20.assets.resS",
+    "bytes": 9504768
+  },
+  {
+    "path": "update/Media/sharedassets21.assets.resS",
+    "bytes": 92894736
+  },
+  {
+    "path": "update/Media/sharedassets22.assets.resS",
+    "bytes": 118222400
+  },
+  {
+    "path": "update/Media/sharedassets23.assets.resS",
+    "bytes": 139156544
+  },
+  {
+    "path": "update/Media/sharedassets24.assets.resS",
+    "bytes": 14565968
+  },
+  {
+    "path": "update/Media/sharedassets25.assets.resS",
+    "bytes": 48155200
+  },
+  {
+    "path": "update/Media/sharedassets26.assets.resS",
+    "bytes": 76578192
+  },
+  {
+    "path": "update/Media/sharedassets3.assets.resS",
+    "bytes": 23636528
+  },
+  {
+    "path": "update/Media/sharedassets4.assets.resS",
+    "bytes": 119130752
+  },
+  {
+    "path": "update/Media/sharedassets5.assets.resS",
+    "bytes": 182425328
+  },
+  {
+    "path": "update/Media/sharedassets6.assets.resS",
+    "bytes": 24045472
+  },
+  {
+    "path": "update/Media/sharedassets8.assets.resS",
+    "bytes": 167837392
+  },
+  {
+    "path": "update/eboot.bin",
+    "bytes": 29612406
+  },
+  {
+    "path": "update/sce_discmap.plt",
+    "bytes": 3288792
+  },
+  {
+    "path": "update/sce_discmap_patch.plt",
+    "bytes": 3288792
+  },
+  {
+    "path": "update/sce_module/libSceAudioLatencyEstimation.prx",
+    "bytes": 22442
+  },
+  {
+    "path": "update/sce_module/libSceFace.prx",
+    "bytes": 302128
+  },
+  {
+    "path": "update/sce_module/libSceFaceTracker.prx",
+    "bytes": 2611551
+  },
+  {
+    "path": "update/sce_module/libSceFios2.prx",
+    "bytes": 457105
+  },
+  {
+    "path": "update/sce_module/libSceHand.prx",
+    "bytes": 23976
+  },
+  {
+    "path": "update/sce_module/libSceHandTracker.prx",
+    "bytes": 54503
+  },
+  {
+    "path": "update/sce_module/libSceHeadTracker.prx",
+    "bytes": 1348767
+  },
+  {
+    "path": "update/sce_module/libSceJobManager.prx",
+    "bytes": 68406
+  },
+  {
+    "path": "update/sce_module/libSceNpToolkit2.prx",
+    "bytes": 834190
+  },
+  {
+    "path": "update/sce_module/libSceS3DConversion.prx",
+    "bytes": 352641
+  },
+  {
+    "path": "update/sce_module/libc.prx",
+    "bytes": 1374546
+  },
+  {
+    "path": "update/sce_sys/about/right.sprx",
+    "bytes": 16025
+  },
+  {
+    "path": "update/sce_sys/app/playgo-chunk.dat",
+    "bytes": 416
+  },
+  {
+    "path": "update/sce_sys/changeinfo/changeinfo.xml",
+    "bytes": 400
+  },
+  {
+    "path": "update/sce_sys/digests",
+    "bytes": 832
+  },
+  {
+    "path": "update/sce_sys/entry_keys",
+    "bytes": 2048
+  },
+  {
+    "path": "update/sce_sys/entry_names",
+    "bytes": 238
+  },
+  {
+    "path": "update/sce_sys/general_digests",
+    "bytes": 448
+  },
+  {
+    "path": "update/sce_sys/icon0.dds",
+    "bytes": 131200
+  },
+  {
+    "path": "update/sce_sys/icon0.png",
+    "bytes": 366361
+  },
+  {
+    "path": "update/sce_sys/image_key",
+    "bytes": 256
+  },
+  {
+    "path": "update/sce_sys/metas",
+    "bytes": 832
+  },
+  {
+    "path": "update/sce_sys/npbind.dat",
+    "bytes": 532
+  },
+  {
+    "path": "update/sce_sys/nptitle.dat",
+    "bytes": 160
+  },
+  {
+    "path": "update/sce_sys/origin-deltainfo.dat",
+    "bytes": 90400
+  },
+  {
+    "path": "update/sce_sys/param.sfo",
+    "bytes": 1868
+  },
+  {
+    "path": "update/sce_sys/pic0.dds",
+    "bytes": 1036928
+  },
+  {
+    "path": "update/sce_sys/pic0.png",
+    "bytes": 2968473
+  },
+  {
+    "path": "update/sce_sys/pic1.dds",
+    "bytes": 1036928
+  },
+  {
+    "path": "update/sce_sys/pic1.png",
+    "bytes": 2968473
+  },
+  {
+    "path": "update/sce_sys/playgo-chunk.dat",
+    "bytes": 416
+  },
+  {
+    "path": "update/sce_sys/playgo-chunk.sha",
+    "bytes": 45292
+  },
+  {
+    "path": "update/sce_sys/playgo-manifest.xml",
+    "bytes": 368
+  },
+  {
+    "path": "update/sce_sys/pronunciation.sig",
+    "bytes": 20
+  },
+  {
+    "path": "update/sce_sys/pronunciation.xml",
+    "bytes": 3453
+  },
+  {
+    "path": "update/sce_sys/psreserved.dat",
+    "bytes": 8192
+  },
+  {
+    "path": "update/sce_sys/save_data.png",
+    "bytes": 65782
+  },
+  {
+    "path": "update/sce_sys/trophy/trophy00.trp",
+    "bytes": 1213840
+  }
+]

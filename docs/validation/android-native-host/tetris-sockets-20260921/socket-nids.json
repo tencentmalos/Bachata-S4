@@ -1,0 +1,152 @@
+[
+  {
+    "operation": "Socket",
+    "posix_nid": "TU-d9PfIHPM",
+    "sce_net_nid": "Q4qBuN-c0ZM",
+    "desktop_net_symbol": "sceNetSocket"
+  },
+  {
+    "operation": "Bind",
+    "posix_nid": "KuOmgKoqCdY",
+    "sce_net_nid": "bErx49PgxyY",
+    "desktop_net_symbol": "sceNetBind"
+  },
+  {
+    "operation": "Listen",
+    "posix_nid": "pxnCmagrtao",
+    "sce_net_nid": "kOj1HiAGE54",
+    "desktop_net_symbol": "sceNetListen"
+  },
+  {
+    "operation": "Connect",
+    "posix_nid": "XVL8So3QJUk",
+    "sce_net_nid": "OXXX4mUk3uk",
+    "desktop_net_symbol": "sceNetConnect"
+  },
+  {
+    "operation": "Accept",
+    "posix_nid": "3e+4Iv7IJ8U",
+    "sce_net_nid": "PIWqhn9oSxc",
+    "desktop_net_symbol": "sceNetAccept"
+  },
+  {
+    "operation": "Close",
+    "posix_nid": "socket.close",
+    "sce_net_nid": "45ggEzakPJQ",
+    "desktop_net_symbol": "sceNetSocketClose"
+  },
+  {
+    "operation": "Shutdown",
+    "posix_nid": "TUuiYS2kE8s",
+    "sce_net_nid": "TSM6whtekok",
+    "desktop_net_symbol": "sceNetShutdown"
+  },
+  {
+    "operation": "Name",
+    "posix_nid": "RenI1lL1WFk",
+    "sce_net_nid": "hoOAofhhRvE",
+    "desktop_net_symbol": "sceNetGetsockname"
+  },
+  {
+    "operation": "Peer",
+    "posix_nid": "TXFFFiNldU8",
+    "sce_net_nid": "TCkRD0DWNLg",
+    "desktop_net_symbol": "sceNetGetpeername"
+  },
+  {
+    "operation": "Set",
+    "posix_nid": "fFxGkxF2bVo",
+    "sce_net_nid": "2mKX2Spso7I",
+    "desktop_net_symbol": "sceNetSetsockopt"
+  },
+  {
+    "operation": "Get",
+    "posix_nid": "6O8EwYOgH9Y",
+    "sce_net_nid": "xphrZusl78E",
+    "desktop_net_symbol": "sceNetGetsockopt"
+  },
+  {
+    "operation": "Send",
+    "posix_nid": "fZOeZIOEmLw",
+    "sce_net_nid": "beRjXBn-z+o",
+    "desktop_net_symbol": "sceNetSend"
+  },
+  {
+    "operation": "Receive",
+    "posix_nid": "Ez8xjo9UF4E",
+    "sce_net_nid": "9wO9XrMsNhc",
+    "desktop_net_symbol": "sceNetRecv"
+  },
+  {
+    "operation": "SendTo",
+    "posix_nid": "oBr313PppNE",
+    "sce_net_nid": "gvD1greCu0A",
+    "desktop_net_symbol": "sceNetSendto"
+  },
+  {
+    "operation": "ReceiveFrom",
+    "posix_nid": "lUk6wrGXyMw",
+    "sce_net_nid": "304ooNZxWDY",
+    "desktop_net_symbol": "sceNetRecvfrom"
+  },
+  {
+    "operation": "SendMsg",
+    "posix_nid": "aNeavPDNKzA",
+    "sce_net_nid": "2eKbgcboJso",
+    "desktop_net_symbol": "sceNetSendmsg"
+  },
+  {
+    "operation": "ReceiveMsg",
+    "posix_nid": "hI7oVeOluPM",
+    "sce_net_nid": "wvuUDv0jrMI",
+    "desktop_net_symbol": "sceNetRecvmsg"
+  },
+  {
+    "operation": "Fcntl",
+    "posix_nid": "8nY19bKoiZk",
+    "sce_net_nid": "",
+    "desktop_net_symbol": null
+  },
+  {
+    "operation": "Select",
+    "posix_nid": "T8fER+tIGgk",
+    "sce_net_nid": "",
+    "desktop_net_symbol": null
+  },
+  {
+    "operation": "EpollCreate",
+    "posix_nid": "",
+    "sce_net_nid": "SF47kB2MNTo",
+    "desktop_net_symbol": "sceNetEpollCreate"
+  },
+  {
+    "operation": "EpollControl",
+    "posix_nid": "",
+    "sce_net_nid": "ZVw46bsasAk",
+    "desktop_net_symbol": "sceNetEpollControl"
+  },
+  {
+    "operation": "EpollWait",
+    "posix_nid": "",
+    "sce_net_nid": "drjIbDbA7UQ",
+    "desktop_net_symbol": "sceNetEpollWait"
+  },
+  {
+    "operation": "EpollDestroy",
+    "posix_nid": "",
+    "sce_net_nid": "Inp1lfL+Jdw",
+    "desktop_net_symbol": "sceNetEpollDestroy"
+  },
+  {
+    "operation": "EpollAbort",
+    "posix_nid": "",
+    "sce_net_nid": "w21YgGGNtBk",
+    "desktop_net_symbol": "sceNetEpollAbort"
+  },
+  {
+    "operation": "Abort",
+    "posix_nid": "",
+    "sce_net_nid": "zJGf8xjFnQE",
+    "desktop_net_symbol": "sceNetSocketAbort"
+  }
+]

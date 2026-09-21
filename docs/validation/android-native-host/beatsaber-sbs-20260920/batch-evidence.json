@@ -1,0 +1,828 @@
+{
+  "schema": "shadps4.reverse-study-batch-evidence.v1",
+  "project": {
+    "schema": "spatial.guest-analysis-project.v1",
+    "project_id": "beatsaber-sbs-20260920-elf",
+    "description": "AYN SBS initialization, eye allocation, reprojection submit and shutdown",
+    "modules": [
+      {
+        "module_id": "eboot.bin",
+        "title": "CUSA12878",
+        "version": "01.00",
+        "role": "guest",
+        "origin": "base",
+        "analysis_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-beatsaber-20260919/beatsaber-analysis-etdyn.elf",
+        "runtime_sha256": "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf",
+        "source_sha256": "71278f9c85ef93a9b2e8703299d6875020eb4d8f7b821bf98eb36ec73340592b",
+        "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+        "architecture": "x86_64",
+        "byte_order": "little",
+        "pointer_bits": 64,
+        "imagebase": "0x0",
+        "base_evidence": "ELF64 PT_LOAD lowest p_vaddr=0; e_entry=0x80. Runtime relocation base 0x400000 is independent.",
+        "loader": "ELF",
+        "semantic_revision": "beatsaber-symbols-v2-rev1-ddd48ac3",
+        "source_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-beatsaber-20260919/eboot.elf",
+        "transformation": {
+          "recipe": "Patch ELF e_type from SCE_DYNEXEC 0xfe10 to ET_DYN 3, unchanged other bytes",
+          "tool_version": "python3 struct identity-verified 20260919",
+          "changed_ranges": [
+            {
+              "offset": "0x10",
+              "length": 2
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "requests": {
+    "request-f2.json": {
+      "schema": "spatial.guest-analysis-request.v1",
+      "question": "Identify Unity PSVR device choice, eye representation, reprojection submission and stop dependencies for AYN SBS adaptation.",
+      "level": "F2",
+      "depth": 0,
+      "shard_size": 32,
+      "seeds": [
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd6c400"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd6ae40"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd6f690"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0x9bf8e0"
+        }
+      ],
+      "budgets": {
+        "max_functions": 160,
+        "max_edges": 6000,
+        "artifact_bytes": 134217728,
+        "native_seconds": 600,
+        "call_timeout_seconds": 120
+      }
+    },
+    "request-f1.json": {
+      "schema": "spatial.guest-analysis-request.v1",
+      "question": "Identify Unity PSVR device choice, eye representation, reprojection submission and stop dependencies for AYN SBS adaptation.",
+      "level": "F1",
+      "depth": 1,
+      "shard_size": 32,
+      "seeds": [
+        {
+          "module_id": "eboot.bin",
+          "offset": "0x9bf490"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0x9bf8e0"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0x9c1330"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0x9cf0c0"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd6f690"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd6c400"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd75e40"
+        },
+        {
+          "module_id": "eboot.bin",
+          "offset": "0xd6ae40"
+        }
+      ],
+      "budgets": {
+        "max_functions": 160,
+        "max_edges": 6000,
+        "artifact_bytes": 134217728,
+        "native_seconds": 600,
+        "call_timeout_seconds": 120
+      }
+    }
+  },
+  "jobs": [
+    {
+      "cache": {
+        "miss": 40,
+        "unqueried": 57
+      },
+      "cache_reasons": {
+        "hit": "verified artifact SHA and exact cache key",
+        "miss": "no artifact for this identity/tool/level/semantic revision",
+        "stale": "cached artifact missing or its SHA differs"
+      },
+      "counts": {
+        "blocked": 0,
+        "cancelled": 0,
+        "completed": 40,
+        "failed": 57,
+        "pending": 0
+      },
+      "coverage": "requested_workset_only; static absence is not proof of unreachability",
+      "errors": [
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1245ce0"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1245d00"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1245d50"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x12460b0"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246510"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246520"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246530"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246550"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246580"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x12465a0"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x12465c0"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x12465e0"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246600"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246610"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246630"
+        },
+        {
+          "error": "FUNCTION_CHUNKS_UNSUPPORTED: Non-contiguous function requires a chunk-aware contract",
+          "module": "eboot.bin",
+          "offset": "0x1246640"
+        }
+      ],
+      "frontier_count": 237,
+      "input_sha256": "a92061b63823ebedebf13676c620c497dc957f09dea6594af7677db82bd8d624",
+      "job_id": "06a3f97fa147492592a6a121c3a287d2",
+      "native_export_attempts": 97,
+      "ok": true,
+      "output_directory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/beatsaber-sbs-20260920/batch",
+      "requested": 97,
+      "revision": 198,
+      "shard_count": 4,
+      "snapshot_revision": 40,
+      "state": "partial",
+      "worker_heartbeat": 1789903147.377412
+    },
+    {
+      "cache": {
+        "miss": 4
+      },
+      "cache_reasons": {
+        "hit": "verified artifact SHA and exact cache key",
+        "miss": "no artifact for this identity/tool/level/semantic revision",
+        "stale": "cached artifact missing or its SHA differs"
+      },
+      "counts": {
+        "blocked": 0,
+        "cancelled": 0,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0
+      },
+      "coverage": "requested_workset_only; static absence is not proof of unreachability",
+      "errors": [],
+      "frontier_count": 273,
+      "input_sha256": "fdda735908cc8b1f8bf89a8324807b01da4033b49361686bea5f782a55af0722",
+      "job_id": "e7df351ad40d437c90cd516a1bc333b0",
+      "native_export_attempts": 4,
+      "ok": true,
+      "output_directory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/beatsaber-sbs-20260920/batch",
+      "requested": 4,
+      "revision": 12,
+      "shard_count": 1,
+      "snapshot_revision": 44,
+      "state": "partial",
+      "worker_heartbeat": 1789903251.10236
+    },
+    {
+      "cache": {
+        "hit": 4
+      },
+      "cache_reasons": {
+        "hit": "verified artifact SHA and exact cache key",
+        "miss": "no artifact for this identity/tool/level/semantic revision",
+        "stale": "cached artifact missing or its SHA differs"
+      },
+      "counts": {
+        "blocked": 0,
+        "cancelled": 0,
+        "completed": 4,
+        "failed": 0,
+        "pending": 0
+      },
+      "coverage": "requested_workset_only; static absence is not proof of unreachability",
+      "errors": [],
+      "frontier_count": 273,
+      "input_sha256": "fdda735908cc8b1f8bf89a8324807b01da4033b49361686bea5f782a55af0722",
+      "job_id": "ece15018d2e7422e8b1d566e4fde3042",
+      "native_export_attempts": 0,
+      "ok": true,
+      "output_directory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/beatsaber-sbs-20260920/batch",
+      "requested": 4,
+      "revision": 12,
+      "shard_count": 1,
+      "snapshot_revision": 48,
+      "state": "partial",
+      "worker_heartbeat": 1789904044.482379
+    }
+  ],
+  "facts": [
+    {
+      "offset": "0x9bf8e0",
+      "end_offset": "0x9c0260",
+      "level": "F1",
+      "name": "sub_9BF8E0",
+      "bytes_sha256": "e60a5829a58245cb37f34d30af983f3135aaa8049dafc018c54f02d7c17f8ac9",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "7e6148eb63619777835ed402c2adcdabfc1042b085f5a30824749e2e9677138b",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/7e6148eb63619777835ed402c2adcdabfc1042b085f5a30824749e2e9677138b/facts.json"
+    },
+    {
+      "offset": "0xd6c400",
+      "end_offset": "0xd6e0a0",
+      "level": "F1",
+      "name": "sub_D6C400",
+      "bytes_sha256": "59f64bbdc0f7a29ee5e06d78e34ad9ac629a1c536741d5af656341165c0b7aca",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "21a68bae7096b017e3c496e0d5c61207b5b27d03bd5f61dcd9e7e547d3a24c30",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/21a68bae7096b017e3c496e0d5c61207b5b27d03bd5f61dcd9e7e547d3a24c30/facts.json"
+    },
+    {
+      "offset": "0xd75e40",
+      "end_offset": "0xd763ac",
+      "level": "F1",
+      "name": "sub_D75E40",
+      "bytes_sha256": "a14e0a9174067acd213455a7112ded7efb123e977845f07afc4e05fa5b7ca4ac",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "c89f55f3b8b1116b45056c2857256d61b444f79ab493a95ca3f35a407f26f2bf",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/c89f55f3b8b1116b45056c2857256d61b444f79ab493a95ca3f35a407f26f2bf/facts.json"
+    },
+    {
+      "offset": "0xd6ae40",
+      "end_offset": "0xd6b590",
+      "level": "F2",
+      "name": "sub_D6AE40",
+      "bytes_sha256": "5b39b65a3fd7ba2086a5d0d2c85e3070393e0325ebe63d05f7a9400fbf753924",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "76dcc8761c30b87743fa7705dd9473a7111effb0dbb9e5a866b98990a65b98de",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/76dcc8761c30b87743fa7705dd9473a7111effb0dbb9e5a866b98990a65b98de/facts.json"
+    },
+    {
+      "offset": "0xd6f690",
+      "end_offset": "0xd70cc0",
+      "level": "F2",
+      "name": "sub_D6F690",
+      "bytes_sha256": "2f4b6be2dcabf2ab0fe297f4e2d6445dd2dc3c82f4e0e807f851d75f893555e2",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "13e6dac1973a770ad2f9308ef87bc229f92428a1d6ebec21f88626a417136705",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/13e6dac1973a770ad2f9308ef87bc229f92428a1d6ebec21f88626a417136705/facts.json"
+    },
+    {
+      "offset": "0x157a20",
+      "end_offset": "0x157c9b",
+      "level": "F1",
+      "name": "sub_157A20",
+      "bytes_sha256": "f7fc6fdc95f7ac73cbda71804ed7db405101d6bc3259d6f0355caf133f9b0ec7",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "e701804eca96ca65682c57b89bdb50f0623d88d8d5cf09a878717d874fddd068",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/e701804eca96ca65682c57b89bdb50f0623d88d8d5cf09a878717d874fddd068/facts.json"
+    },
+    {
+      "offset": "0x9c1330",
+      "end_offset": "0x9c17c0",
+      "level": "F1",
+      "name": "sub_9C1330",
+      "bytes_sha256": "08856c09806b93a03710e1ebc246b3ec5ccb26b2146671a9ee456c5f0bd07311",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "6c5ee9bba865d2d7f42046b6ff0bc99b2e8758d04f071a95230eae094d1e85f5",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/6c5ee9bba865d2d7f42046b6ff0bc99b2e8758d04f071a95230eae094d1e85f5/facts.json"
+    },
+    {
+      "offset": "0xd6c400",
+      "end_offset": "0xd6e0a0",
+      "level": "F2",
+      "name": "sub_D6C400",
+      "bytes_sha256": "59f64bbdc0f7a29ee5e06d78e34ad9ac629a1c536741d5af656341165c0b7aca",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "b02b2d1dc0efbc79930f9e280335cd64cfbf6c0946d3b8e3d1268dae41c6c627",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/b02b2d1dc0efbc79930f9e280335cd64cfbf6c0946d3b8e3d1268dae41c6c627/facts.json"
+    },
+    {
+      "offset": "0x2abaf0",
+      "end_offset": "0x2abde8",
+      "level": "F1",
+      "name": "sub_2ABAF0",
+      "bytes_sha256": "8f3a83d6f1b3773ba9733c6328cdd6cf5c56637a4166e19c15e432a617211a6f",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "e5ab85a7e904a51b1fdbd704724691ba608bdb57a31950b3aee4d43435f84998",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/e5ab85a7e904a51b1fdbd704724691ba608bdb57a31950b3aee4d43435f84998/facts.json"
+    },
+    {
+      "offset": "0x42a210",
+      "end_offset": "0x42b880",
+      "level": "F1",
+      "name": "sub_42A210",
+      "bytes_sha256": "c72df843a6879559db28337c83dcb147698ff6c37352e22c8c721c77da4debc7",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "7a8c508968ec2ab70cf5d7ec0e86d3723b47d9a97e12ef42a04c35e6fb581d72",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/7a8c508968ec2ab70cf5d7ec0e86d3723b47d9a97e12ef42a04c35e6fb581d72/facts.json"
+    },
+    {
+      "offset": "0x42c000",
+      "end_offset": "0x42c190",
+      "level": "F1",
+      "name": "sub_42C000",
+      "bytes_sha256": "67c7b1e7e4142366417ea60c7f3c93bfa5f12f9e46dd78f0e36a271e36ae2ffe",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "3a145f9bff8861028f07e06d9403482ba13c473252d5f97414dd271fe8a7364e",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/3a145f9bff8861028f07e06d9403482ba13c473252d5f97414dd271fe8a7364e/facts.json"
+    },
+    {
+      "offset": "0xd6c260",
+      "end_offset": "0xd6c400",
+      "level": "F1",
+      "name": "sub_D6C260",
+      "bytes_sha256": "05871a79b7b3f530e535906547905e992204b2d76c672bdc4d025c31ed6040a4",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "c93ab33ca9b011985d882f5394f9cfba0d8b495d07f3a034022de4a3cbb0bfd0",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/c93ab33ca9b011985d882f5394f9cfba0d8b495d07f3a034022de4a3cbb0bfd0/facts.json"
+    },
+    {
+      "offset": "0xd6ae40",
+      "end_offset": "0xd6b590",
+      "level": "F1",
+      "name": "sub_D6AE40",
+      "bytes_sha256": "5b39b65a3fd7ba2086a5d0d2c85e3070393e0325ebe63d05f7a9400fbf753924",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "b6193771e79490f1ad801e7f99bfe3e77cf4289a0ca2bfdf6ca6d93966858c1b",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/b6193771e79490f1ad801e7f99bfe3e77cf4289a0ca2bfdf6ca6d93966858c1b/facts.json"
+    },
+    {
+      "offset": "0x9cf800",
+      "end_offset": "0x9cfb20",
+      "level": "F1",
+      "name": "sub_9CF800",
+      "bytes_sha256": "adf14988413c51cf2a60ad6355275fbf41cdda0f1b84185b51fb5fec6cf1eaa6",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "6471ddbfb8e522d33535cb2e204c98f81ebcfdc42946621e3c3e106db08c2325",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/6471ddbfb8e522d33535cb2e204c98f81ebcfdc42946621e3c3e106db08c2325/facts.json"
+    },
+    {
+      "offset": "0x2b0e70",
+      "end_offset": "0x2b0f25",
+      "level": "F1",
+      "name": "sub_2B0E70",
+      "bytes_sha256": "a17e8218b25be0c3435d04afecb755989c74f99db6215cd32ec516d374dd694c",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "bce8bcbd7265a7d6826d33931706b2ca5f14d7c1ef3353d8a9d846d6a2de9dd8",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/bce8bcbd7265a7d6826d33931706b2ca5f14d7c1ef3353d8a9d846d6a2de9dd8/facts.json"
+    },
+    {
+      "offset": "0x9cef40",
+      "end_offset": "0x9cf0c0",
+      "level": "F1",
+      "name": "sub_9CEF40",
+      "bytes_sha256": "70db1cc9e2c2ad895933644930e8dbe0280c6b471d645ac789f786c0b2815e63",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "3deaba358a89cc964d04e5d6558668b40f2b843d9de4e1f15648ab26420989f0",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/3deaba358a89cc964d04e5d6558668b40f2b843d9de4e1f15648ab26420989f0/facts.json"
+    },
+    {
+      "offset": "0xd6e0a0",
+      "end_offset": "0xd6ed50",
+      "level": "F1",
+      "name": "sub_D6E0A0",
+      "bytes_sha256": "8641512614644e1542d7818d7cee994141d551ae59121c8aec6ba4c83934b750",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "7c0f95207096b0f2f325426f194544531407d1f7978d68f82b97722efce962db",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/7c0f95207096b0f2f325426f194544531407d1f7978d68f82b97722efce962db/facts.json"
+    },
+    {
+      "offset": "0x2abdf0",
+      "end_offset": "0x2ac140",
+      "level": "F1",
+      "name": "sub_2ABDF0",
+      "bytes_sha256": "18bf830bdad964c10a1161ef0bf978364eb45ed3bbbb3716101b9d55d2ede7d7",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "a144c18e5e78c7925191c480395970057626269f64573081fcc4306627a115d9",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/a144c18e5e78c7925191c480395970057626269f64573081fcc4306627a115d9/facts.json"
+    },
+    {
+      "offset": "0x94bc0",
+      "end_offset": "0x94d5b",
+      "level": "F1",
+      "name": "sub_94BC0",
+      "bytes_sha256": "36262afc37c8105d80900c77175969c7bd9c8dd4612163c271ac09587413000c",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "24f9ca460514d051ab07c867c22c1e2eb299191c7496f1fbb70e075b8de22637",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/24f9ca460514d051ab07c867c22c1e2eb299191c7496f1fbb70e075b8de22637/facts.json"
+    },
+    {
+      "offset": "0xd6be30",
+      "end_offset": "0xd6c1b6",
+      "level": "F1",
+      "name": "sub_D6BE30",
+      "bytes_sha256": "ce791e851243e320311272efd27eab74e9ca968ec8b0d584b59c9244943554c7",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "41e7c4f8ab64756d2f7fb4042b109eaba8e4363cf566d81b0ad4f9c717839a5c",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/41e7c4f8ab64756d2f7fb4042b109eaba8e4363cf566d81b0ad4f9c717839a5c/facts.json"
+    },
+    {
+      "offset": "0x42c8c0",
+      "end_offset": "0x42ca00",
+      "level": "F1",
+      "name": "sub_42C8C0",
+      "bytes_sha256": "a0e50af53f70a7d8a8db039d3cd1979a5850d4a36d6d34ae4d5fe0dfad0adb93",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "4ad9dbabf6163568b7401c436c513c0e1177e9a819ac105118c29ee25f1ef5c8",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/4ad9dbabf6163568b7401c436c513c0e1177e9a819ac105118c29ee25f1ef5c8/facts.json"
+    },
+    {
+      "offset": "0x49a780",
+      "end_offset": "0x49a911",
+      "level": "F1",
+      "name": "sub_49A780",
+      "bytes_sha256": "523f02b0d1039413b9bae1b2eaa4bcdea6818167ca48837c65324708f0ed9cca",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "049a4098efe5ff757e1cecfe5d3addd9746beacc318798548d25510612e82c18",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/049a4098efe5ff757e1cecfe5d3addd9746beacc318798548d25510612e82c18/facts.json"
+    },
+    {
+      "offset": "0x4d6090",
+      "end_offset": "0x4d6540",
+      "level": "F1",
+      "name": "sub_4D6090",
+      "bytes_sha256": "1220e16799eecb1300c4b7542c5a33bbd92ffffb440289882e6e971c80c234b4",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "c3ca88a8a2eec15abae59f53b222c9b3159fd361545261bb0c13753d646c0876",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/c3ca88a8a2eec15abae59f53b222c9b3159fd361545261bb0c13753d646c0876/facts.json"
+    },
+    {
+      "offset": "0x9c0260",
+      "end_offset": "0x9c0d60",
+      "level": "F1",
+      "name": "sub_9C0260",
+      "bytes_sha256": "bb3f764c8e9ad7ed25fb90a649b9722f379dc273f9beb3df1edfdfb827921415",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "338468c7432a250e503bac0ff99239956a3ed4a857b94de7b58f585c6a18c9e9",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/338468c7432a250e503bac0ff99239956a3ed4a857b94de7b58f585c6a18c9e9/facts.json"
+    },
+    {
+      "offset": "0x9bf8e0",
+      "end_offset": "0x9c0260",
+      "level": "F2",
+      "name": "sub_9BF8E0",
+      "bytes_sha256": "e60a5829a58245cb37f34d30af983f3135aaa8049dafc018c54f02d7c17f8ac9",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "9b52e2b94007fa2a9dd4ea8f63d59dec4fb17f18a691f2da282e854a054b5a16",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/9b52e2b94007fa2a9dd4ea8f63d59dec4fb17f18a691f2da282e854a054b5a16/facts.json"
+    },
+    {
+      "offset": "0xd6f690",
+      "end_offset": "0xd70cc0",
+      "level": "F1",
+      "name": "sub_D6F690",
+      "bytes_sha256": "2f4b6be2dcabf2ab0fe297f4e2d6445dd2dc3c82f4e0e807f851d75f893555e2",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "411d4ef559efa4357fe0ed4f38cade69dace9aafb8a3c8d8421196531f0f765a",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/411d4ef559efa4357fe0ed4f38cade69dace9aafb8a3c8d8421196531f0f765a/facts.json"
+    },
+    {
+      "offset": "0x5aceb0",
+      "end_offset": "0x5acfc0",
+      "level": "F1",
+      "name": "sub_5ACEB0",
+      "bytes_sha256": "533bc58ed2e1cce629cc67f4ce70bbc1b3ff303852817a1924d354ffc72dd8f6",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "f7c1f5e46c176f7cd98885a30828b845675b362ba26cbdbbfb737facbe5b5b62",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/f7c1f5e46c176f7cd98885a30828b845675b362ba26cbdbbfb737facbe5b5b62/facts.json"
+    },
+    {
+      "offset": "0x438c60",
+      "end_offset": "0x438d5c",
+      "level": "F1",
+      "name": "sub_438C60",
+      "bytes_sha256": "e78578eeeb9b25a4943fc64dae2c4d58c5dac65b3a3e492cab34540cbfe8a818",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "4b1396c08ebf867fca4a2bf9964e62db5c9714088829e609f114078fe3850e43",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/4b1396c08ebf867fca4a2bf9964e62db5c9714088829e609f114078fe3850e43/facts.json"
+    },
+    {
+      "offset": "0x9cf0c0",
+      "end_offset": "0x9cf800",
+      "level": "F1",
+      "name": "sub_9CF0C0",
+      "bytes_sha256": "493bcba1bcb2cc0f455cc62a9ce1ddc6039755ecd6d8edf072f59f61dbe78070",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "327ebfe9b179b4720fc2928c2b77ca0399b0bbfa3dc546d8e9693a6a720481c4",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/327ebfe9b179b4720fc2928c2b77ca0399b0bbfa3dc546d8e9693a6a720481c4/facts.json"
+    },
+    {
+      "offset": "0x9cbf20",
+      "end_offset": "0x9cc0c0",
+      "level": "F1",
+      "name": "sub_9CBF20",
+      "bytes_sha256": "79e5764cc8a48afbff1dd0ea2716c604e43ac22e44745ec4b633477c217c8d70",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "5920e9a099e785c87f407add9805d0f0a8c31ee1c1790e6baa1ece3a6f0ac742",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/5920e9a099e785c87f407add9805d0f0a8c31ee1c1790e6baa1ece3a6f0ac742/facts.json"
+    },
+    {
+      "offset": "0x9d26c0",
+      "end_offset": "0x9d2820",
+      "level": "F1",
+      "name": "sub_9D26C0",
+      "bytes_sha256": "36871ba92921d38083e6432458dbdbd2675f86c037d2f0e38ab1a6627971c4bf",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "9731a95da27e6682263516c9a2f70b15b8bfefd5ea1b0dd0b72a35193de3451d",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/9731a95da27e6682263516c9a2f70b15b8bfefd5ea1b0dd0b72a35193de3451d/facts.json"
+    },
+    {
+      "offset": "0xe13ef0",
+      "end_offset": "0xe14012",
+      "level": "F1",
+      "name": "sub_E13EF0",
+      "bytes_sha256": "7016ae8bcd63dd8f77ce39824d638fe529395afda888a887f3361046846f3a05",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "2d3040dd946cd28fe72f49f072aa0445f169e4930d37280921a3959fadf214a3",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/2d3040dd946cd28fe72f49f072aa0445f169e4930d37280921a3959fadf214a3/facts.json"
+    },
+    {
+      "offset": "0x2ac140",
+      "end_offset": "0x2ac27e",
+      "level": "F1",
+      "name": "sub_2AC140",
+      "bytes_sha256": "9cfcc787db7f2c7c1f55c68541f8c0f5ed7acb3b0c66fb433aa67b8b442c546a",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "ce870a088dd8d60de536bccae9804d7f5d92476de9c926facb694b87c5cfe91d",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/ce870a088dd8d60de536bccae9804d7f5d92476de9c926facb694b87c5cfe91d/facts.json"
+    },
+    {
+      "offset": "0x4d6080",
+      "end_offset": "0x4d6081",
+      "level": "F1",
+      "name": "nullsub_40",
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "630e00ce354b0bc05196b2a907c6468a9019cd5e94afd1cca46c06a87b0dbf7d",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/630e00ce354b0bc05196b2a907c6468a9019cd5e94afd1cca46c06a87b0dbf7d/facts.json"
+    },
+    {
+      "offset": "0x9cfb20",
+      "end_offset": "0x9cfbfb",
+      "level": "F1",
+      "name": "sub_9CFB20",
+      "bytes_sha256": "f7192385d1927b5e65676524ca7d1baa15f1e595a6460f751260b3669168049c",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "c909ef24f31bdfab4377b9513d01b2507134ad3562267c3c7741049784cbabe0",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/c909ef24f31bdfab4377b9513d01b2507134ad3562267c3c7741049784cbabe0/facts.json"
+    },
+    {
+      "offset": "0x9d3460",
+      "end_offset": "0x9d3e90",
+      "level": "F1",
+      "name": "sub_9D3460",
+      "bytes_sha256": "b6eef27f37b5b54ecbdc22f0175b7f5fc1e2004a4de69f9678a5351b1274065c",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "fa8275f2ed10cf7a24c625fb31cd0175518b0f886f3f4f1a23e159c5b548d026",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/fa8275f2ed10cf7a24c625fb31cd0175518b0f886f3f4f1a23e159c5b548d026/facts.json"
+    },
+    {
+      "offset": "0x5b4090",
+      "end_offset": "0x5b4361",
+      "level": "F1",
+      "name": "sub_5B4090",
+      "bytes_sha256": "1e448c346a6f4102fd0db4859693073e1ed0e560894a6f3714b6bbbb0b1e87f4",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "3d88743fb6f8049c965bc9c9b53b5178241a3412a3d277117047fa5f448298ef",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/3d88743fb6f8049c965bc9c9b53b5178241a3412a3d277117047fa5f448298ef/facts.json"
+    },
+    {
+      "offset": "0x9e1d30",
+      "end_offset": "0x9e1f90",
+      "level": "F1",
+      "name": "sub_9E1D30",
+      "bytes_sha256": "b4b8c27ecab3eebba224dc593b01b8e075c9512d1524406970c7712c5acc1776",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "906b418ea75e2351a251108c0360b7a07228b7f8b9571851289a55f097926b3c",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/906b418ea75e2351a251108c0360b7a07228b7f8b9571851289a55f097926b3c/facts.json"
+    },
+    {
+      "offset": "0x5b34f0",
+      "end_offset": "0x5b36a0",
+      "level": "F1",
+      "name": "sub_5B34F0",
+      "bytes_sha256": "c999ebc3c3b166d6a89e71bd66233333422080a22229a5ebfc156f27397e0247",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "caf93aa9d529e565fec6b35f23160eaf5b5aab88c97c7d7ba87e590daf75d455",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/caf93aa9d529e565fec6b35f23160eaf5b5aab88c97c7d7ba87e590daf75d455/facts.json"
+    },
+    {
+      "offset": "0x5ad260",
+      "end_offset": "0x5ad5d7",
+      "level": "F1",
+      "name": "sub_5AD260",
+      "bytes_sha256": "2411fafb2b44c181d1b277c503f6bc264f7003b08c05a685aee1fedf8ee327c6",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "5102234b134aff4ffa2e84fdbf4c797f311be51a643077c4c4582ba79c4fe71e",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/5102234b134aff4ffa2e84fdbf4c797f311be51a643077c4c4582ba79c4fe71e/facts.json"
+    },
+    {
+      "offset": "0x9bf490",
+      "end_offset": "0x9bf6c3",
+      "level": "F1",
+      "name": "sub_9BF490",
+      "bytes_sha256": "b5e84a849087d6e77e1450bf1d42d25d617b85188493c0bb70e4816523a23e46",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "8da6d100f74dbbfeacb881b6d01f60f40c4a6be69fbc6af53478e19ec8e5b0cc",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/8da6d100f74dbbfeacb881b6d01f60f40c4a6be69fbc6af53478e19ec8e5b0cc/facts.json"
+    },
+    {
+      "offset": "0xb20a0",
+      "end_offset": "0xb2404",
+      "level": "F1",
+      "name": "sub_B20A0",
+      "bytes_sha256": "e2e37a98dfb04f7a7919220bc25ea98797c258ad15357009fcd5df830684bf98",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "4ec22948f2d65c1ccd4eb2dc526c0aeaf28750eea1531ddd94b55fe011a15b79",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/4ec22948f2d65c1ccd4eb2dc526c0aeaf28750eea1531ddd94b55fe011a15b79/facts.json"
+    },
+    {
+      "offset": "0xd46d60",
+      "end_offset": "0xd47120",
+      "level": "F1",
+      "name": "sub_D46D60",
+      "bytes_sha256": "ff477a66f550b14db0f9cf6caa4b1e5454fe57e2f8f1ce417cd64fd36013a120",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "fb5fe8b3b83af98f1ea6aa49ef87c517ec02e8abe921deeee9e86092cc76c6cc",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/fb5fe8b3b83af98f1ea6aa49ef87c517ec02e8abe921deeee9e86092cc76c6cc/facts.json"
+    },
+    {
+      "offset": "0x2e53c0",
+      "end_offset": "0x2e54ca",
+      "level": "F1",
+      "name": "sub_2E53C0",
+      "bytes_sha256": "0ba1efe78c11e1b4a1c6951ae10af4577a1e74f30c562f2db68aa2c3b4a4e679",
+      "analysis_sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a",
+      "coverage": "static_exact_function; indirect targets unresolved",
+      "deployable": false,
+      "artifact_sha256": "d52276bc1913381ac4247cd6ac2ac8388e1ade03b63151f1481733bf12f9ad2c",
+      "artifact_path": "build/validation/beatsaber-sbs-20260920/batch/artifacts/d52276bc1913381ac4247cd6ac2ac8388e1ade03b63151f1481733bf12f9ad2c/facts.json"
+    }
+  ]
+}

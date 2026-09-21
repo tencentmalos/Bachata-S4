@@ -1,0 +1,49 @@
+--------- beginning of main
+09-20 23:05:28.509 18684 18684 I Zygote  : seccomp disabled by setenforce 0
+09-20 23:05:28.513 18684 18684 I shadps4.android: Late-enabling -Xcheck:jni
+09-20 23:05:28.542 18684 18684 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10190; state: ENABLED
+09-20 23:05:28.545 18684 18684 W ziparchive: Unable to open '/data/app/~~2s4WoLXLnnz3rzpfvOfqpw==/com.shadps4.android-R-jDrlDFdo07nQSKfErwyg==/base.dm': No such file or directory
+09-20 23:05:28.545 18684 18684 W ziparchive: Unable to open '/data/app/~~2s4WoLXLnnz3rzpfvOfqpw==/com.shadps4.android-R-jDrlDFdo07nQSKfErwyg==/base.dm': No such file or directory
+09-20 23:05:28.605 18684 18684 I Perf    : Connecting to perf service.
+09-20 23:05:28.606 18684 18684 V GraphicsEnvironment: ANGLE Developer option for 'com.shadps4.android' set to: 'default'
+09-20 23:05:28.606 18684 18684 V GraphicsEnvironment: ANGLE GameManagerService for com.shadps4.android: false
+09-20 23:05:28.607 18684 18684 V GraphicsEnvironment: Updatable production driver is not supported on the device.
+09-20 23:05:28.607 18684 18684 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-20 23:05:28.608 18684 18684 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-20 23:05:28.629 18684 18684 I ActivityThread: performLaunchActivity com.shadps4.android displayId 0
+09-20 23:05:28.630 18684 18684 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-20 23:05:28.661 18684 18684 I ActivityThread: performResumeActivity com.shadps4.android displayId 0
+09-20 23:05:28.661 18684 18684 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-20 23:05:28.663 18684 18684 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10190; state: DISABLED
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Local Branch                     : 
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Remote Branch                    : NONE
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-20 23:05:28.875 18684 18712 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-20 23:05:28.878 18684 18712 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-20 23:05:28.882 18684 18712 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-20 23:05:28.886 18684 18712 E OpenGLRenderer: Unable to match the desired swap behavior.
+09-20 23:05:29.353 18684 18684 I InsetsSourceConsumer: setControl gSourceControl control InsetsSourceControl: {type=ITYPE_IME, mSurfacePosition=Point(591, 969), mInsetsHint=Insets{left=0, top=0, right=0, bottom=111}}
+09-20 23:05:34.094 18684 18788 D ProfileInstaller: Installing profile for com.shadps4.android
+09-20 23:06:19.957 18684 18684 W OnBackInvokedCallback: OnBackInvokedCallback is not enabled for the application.
+09-20 23:06:19.957 18684 18684 W OnBackInvokedCallback: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+09-20 23:06:19.968 18684 18684 I shadps4.android: type=1400 audit(0.0:584533): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-20 23:06:19.968 18684 18684 I shadps4.android: type=1400 audit(0.0:584534): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-20 23:06:19.968 18684 18684 I shadps4.android: type=1400 audit(0.0:584535): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-20 23:06:20.040 18684 18698 I shadps4.android: Compiler allocated 4413KB to compile void android.view.ViewRootImpl.performTraversals()
+09-20 23:06:20.056 18684 18684 I FexSessionService: Guest console language=11
+09-20 23:06:20.057 18684 18684 I FexSessionService: Guest texture quality=0
+09-20 23:06:20.057 18684 18684 I FexSessionService: Guest internal scale=50.0 percent
+09-20 23:06:20.057 18684 18684 I FexSessionService: Guest shading quality=2; FDM disabled
+09-20 23:06:20.085 18684 19211 I ProductionRuntime: prepare: reserve guest VA
+09-20 23:06:20.085 18684 19211 I ProductionRuntime: prepare: create FEX context
+09-20 23:06:20.086 18684 19211 I ProductionRuntime: prepare: create production VM/Linker
+09-20 23:06:20.086 18684 18684 I OrbisPad: vrSbs enabled=1
+09-20 23:06:20.087 18684 19211 I ProductionRuntime: prepare: failed: guest backing mmap errno=12
+09-20 23:06:20.099 18684 18684 I FexSessionService: native: page_size=4096 pid=18684 uid=10190 gen=1
+09-20 23:06:20.122 18684 18684 I OrbisPad: vrSbs enabled=0

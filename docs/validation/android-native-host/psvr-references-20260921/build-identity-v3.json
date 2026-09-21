@@ -1,0 +1,18 @@
+{
+  "apk": {
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "1caf16df285fd97b55fcecdf530f799fbb5ee96e61ecd2fd56ad562532e8849b"
+  },
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "6f7d9f27d1ac8a35377d578fc9bae8add4c111f73c2e841f9329a961704ff668",
+    "lib/arm64-v8a/libshadps4_host.so": "87c7379968c94ea1c9476c8187a94765238daab151abb880f0df7bb134698db3"
+  },
+  "tested_host_sha256": "87c7379968c94ea1c9476c8187a94765238daab151abb880f0df7bb134698db3",
+  "references": {
+    "/Users/bytedance/Downloads/PS4_Unity_PSVR_Analysis.md": "e17cdabc7812f52ab13af294499945592ff7df87b616187370dcf206941a98b4",
+    "/Users/bytedance/Downloads/libpsvr-0.1.zip": "76bba0f23e3f3bffc4cb36ded74045621530bf41c6ca7f44b500d29e5c9bd925",
+    "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceVideoOut.sprx": "33a6f16349f07637e168db0d6338f0b2ae8aea626b86bc3d28325ecb5155e2c1"
+  },
+  "installed_apk_sha256": "1caf16df285fd97b55fcecdf530f799fbb5ee96e61ecd2fd56ad562532e8849b",
+  "installed_matches": true
+}

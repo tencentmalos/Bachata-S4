@@ -1,0 +1,40 @@
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=0 count=2 L=0x22f2c89 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x22f2c89 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=30 guest=0x22f2c8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=30 guest=0x22f2c8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=1 count=2 L=0x2317409 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x2317409 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=31 guest=0x231740900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=31 guest=0x231740900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=2 count=2 L=0x233bb89 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x233bb89 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=32 guest=0x233bb8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=32 guest=0x233bb8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=3 count=2 L=0x22f2c89 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x22f2c89 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=30 guest=0x22f2c8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=30 guest=0x22f2c8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=4 count=2 L=0x2317409 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x2317409 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=31 guest=0x231740900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=31 guest=0x231740900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=5 count=2 L=0x233bb89 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x233bb89 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=32 guest=0x233bb8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=32 guest=0x233bb8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=6 count=2 L=0x22f2c89 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x22f2c89 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=30 guest=0x22f2c8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=30 guest=0x22f2c8900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:824 PrepareVrFrame: SBS VR eye sample=7 count=2 L=0x2317409 2688x1512 pitch=2688 type=9 fmt=10/9 R=0x2317409 2688x1512 pitch=2688 type=9 fmt=10/9
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=0 id=31 guest=0x231740900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=0 uv=0.5,-1,1.356875e-08,1 sampler=0xfff00000000049/0x4000000005500000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:843 PrepareVrFrame: SBS VR texture i=1 id=31 guest=0x231740900/0xf81000 image=2688x1512 pitch=2688 flags=0x48 usage_rt=1 usage_vo=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:846 PrepareVrFrame: SBS VR source i=1 uv=0.5,-1,0.5,1 sampler=0xfff00000000049/0x4000000005500000

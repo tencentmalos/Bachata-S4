@@ -1,0 +1,547 @@
+{
+  "schema": "shadps4.beatsaber.family-audit.v1",
+  "pid": 2598,
+  "title_id": "CUSA12878",
+  "binding_counts": {
+    "guest_export": 347,
+    "runtime_bound": 636,
+    "refused": 167,
+    "not_relocated": 14
+  },
+  "families": [
+    {
+      "library": "Il2CppUserAssemblies",
+      "binding_counts": {
+        "guest_export": 25
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "PS4Util",
+      "binding_counts": {
+        "guest_export": 3
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceAjm",
+      "binding_counts": {
+        "runtime_bound": 9,
+        "refused": 3
+      },
+      "remaining_imports": [
+        "WfAiBW8Wcek#libSceAjm#1#libSceAjm#Function",
+        "MHur6qCsUus#libSceAjm#1#libSceAjm#Function",
+        "Wi7DtlLV+KI#libSceAjm#1#libSceAjm#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceAppContent",
+      "binding_counts": {
+        "runtime_bound": 7,
+        "refused": 2
+      },
+      "remaining_imports": [
+        "bcolXMmp6qQ#libSceAppContent#1#libSceAppContentUtil#Function",
+        "3rHWaV-1KC4#libSceAppContent#1#libSceAppContentUtil#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceAudio3d",
+      "binding_counts": {
+        "refused": 7
+      },
+      "remaining_imports": [
+        "UmCvjSmuZIw#libSceAudio3d#1#libSceAudio3d#Function",
+        "jO2tec4dJ2M#libSceAudio3d#1#libSceAudio3d#Function",
+        "4uyHN9q4ZeU#libSceAudio3d#1#libSceAudio3d#Function",
+        "OyVqOeVNtSk#libSceAudio3d#1#libSceAudio3d#Function",
+        "ZOGrxWLgQzE#libSceAudio3d#1#libSceAudio3d#Function",
+        "XeDDK0xJWQA#libSceAudio3d#1#libSceAudio3d#Function",
+        "WW1TS2iz5yc#libSceAudio3d#1#libSceAudio3d#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceAudioIn",
+      "binding_counts": {
+        "refused": 3
+      },
+      "remaining_imports": [
+        "LozEOU8+anM#libSceAudioIn#1#libSceAudioIn#Function",
+        "Jh6WbHhnI68#libSceAudioIn#1#libSceAudioIn#Function",
+        "5NE8Sjc7VC8#libSceAudioIn#1#libSceAudioIn#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceAudioOut",
+      "binding_counts": {
+        "runtime_bound": 6,
+        "refused": 1
+      },
+      "remaining_imports": [
+        "wVwPU50pS1c#libSceAudioOut#1#libSceAudioOut#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceAvPlayer",
+      "binding_counts": {
+        "runtime_bound": 18,
+        "refused": 2
+      },
+      "remaining_imports": [
+        "XC9wM+xULz8#libSceAvPlayer#1#libSceAvPlayer#Function",
+        "av8Z++94rs0#libSceAvPlayer#1#libSceAvPlayer#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceCamera",
+      "binding_counts": {
+        "runtime_bound": 8
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceCommonDialog",
+      "binding_counts": {
+        "runtime_bound": 1
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceDiscMap",
+      "binding_counts": {
+        "runtime_bound": 2
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceFios2",
+      "binding_counts": {
+        "guest_export": 45
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceGnmDriver",
+      "binding_counts": {
+        "runtime_bound": 75,
+        "refused": 38
+      },
+      "remaining_imports": [
+        "cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "URDgJcXhQOs#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "Q7t4VEYLafI#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "hsZPf1lON7E#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "rTIV11nMQuM#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "qGP74T5OWJc#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "BgM3t3LvcNk#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "SXw4dZEkgpA#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "RX7XCNSaL6I#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "MBMa6EFu4Ko#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "HzMN7ANqYEc#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "5SHGNwLXBV4#libSceGnmDriver#1#libSceGnmDriver#Function",
+        "EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceHmd",
+      "binding_counts": {
+        "runtime_bound": 21
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceHmdSetupDialog",
+      "binding_counts": {
+        "runtime_bound": 6
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceHttp",
+      "binding_counts": {
+        "refused": 5,
+        "runtime_bound": 20
+      },
+      "remaining_imports": [
+        "h9wmFZX4i-4#libSceHttp#1#libSceHttp#Function",
+        "Kiwv9r4IZCc#libSceHttp#1#libSceHttp#Function",
+        "aCYPMSUIaP8#libSceHttp#1#libSceHttp#Function",
+        "IWalAn-guFs#libSceHttp#1#libSceHttp#Function",
+        "htyBOoWeS58#libSceHttp#1#libSceHttp#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceIme",
+      "binding_counts": {
+        "refused": 3
+      },
+      "remaining_imports": [
+        "PMVehSlfZ94#libSceIme#1#libSceIme#Function",
+        "eaFXjfJv3xs#libSceIme#1#libSceIme#Function",
+        "-4GCfYdNF1s#libSceIme#1#libSceIme#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceLibcInternal",
+      "binding_counts": {
+        "runtime_bound": 16
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceLibcInternalExt",
+      "binding_counts": {
+        "runtime_bound": 1
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceMouse",
+      "binding_counts": {
+        "runtime_bound": 4
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceMove",
+      "binding_counts": {
+        "runtime_bound": 7
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceNet",
+      "binding_counts": {
+        "runtime_bound": 43,
+        "refused": 3
+      },
+      "remaining_imports": [
+        "Apb4YDxKsRI#libSceNet#1#libSceNet#Function",
+        "Apb4YDxKsRI#libSceNet#1#libSceNet#Function",
+        "hLuXdjHnhiI#libSceNet#1#libSceNet#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceNetCtl",
+      "binding_counts": {
+        "runtime_bound": 3
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceNpManager",
+      "binding_counts": {
+        "runtime_bound": 1
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceNpWebApi",
+      "binding_counts": {
+        "refused": 6
+      },
+      "remaining_imports": [
+        "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function",
+        "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function",
+        "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function",
+        "G3AnLNdRBjE#libSceNpWebApi#1#libSceNpWebApi#Function",
+        "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function",
+        "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libScePad",
+      "binding_counts": {
+        "runtime_bound": 14
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libScePosix",
+      "binding_counts": {
+        "refused": 34,
+        "runtime_bound": 80
+      },
+      "remaining_imports": [
+        "Ez8xjo9UF4E#libScePosix#1#libkernel#Function",
+        "KuOmgKoqCdY#libScePosix#1#libkernel#Function",
+        "TU-d9PfIHPM#libScePosix#1#libkernel#Function",
+        "XVL8So3QJUk#libScePosix#1#libkernel#Function",
+        "fFxGkxF2bVo#libScePosix#1#libkernel#Function",
+        "RenI1lL1WFk#libScePosix#1#libkernel#Function",
+        "fZOeZIOEmLw#libScePosix#1#libkernel#Function",
+        "3e+4Iv7IJ8U#libScePosix#1#libkernel#Function",
+        "T8fER+tIGgk#libScePosix#1#libkernel#Function",
+        "oBr313PppNE#libScePosix#1#libkernel#Function",
+        "lUk6wrGXyMw#libScePosix#1#libkernel#Function",
+        "5jRCs2axtr4#libScePosix#1#libkernel#Function",
+        "8nY19bKoiZk#libScePosix#1#libkernel#Function",
+        "0D4-FVvEikw#libScePosix#1#libkernel#Function",
+        "CBNtXOoef-E#libScePosix#1#libkernel#Function",
+        "m0iS6jNsXds#libScePosix#1#libkernel#Function",
+        "6O8EwYOgH9Y#libScePosix#1#libkernel#Function",
+        "oBr313PppNE#libScePosix#1#libkernel#Function",
+        "fFxGkxF2bVo#libScePosix#1#libkernel#Function",
+        "4n51s0zEf0c#libScePosix#1#libkernel#Function",
+        "fZOeZIOEmLw#libScePosix#1#libkernel#Function",
+        "pxnCmagrtao#libScePosix#1#libkernel#Function",
+        "RenI1lL1WFk#libScePosix#1#libkernel#Function",
+        "TUuiYS2kE8s#libScePosix#1#libkernel#Function",
+        "KuOmgKoqCdY#libScePosix#1#libkernel#Function",
+        "lUk6wrGXyMw#libScePosix#1#libkernel#Function",
+        "TU-d9PfIHPM#libScePosix#1#libkernel#Function",
+        "XVL8So3QJUk#libScePosix#1#libkernel#Function",
+        "TXFFFiNldU8#libScePosix#1#libkernel#Function",
+        "3e+4Iv7IJ8U#libScePosix#1#libkernel#Function",
+        "aNeavPDNKzA#libScePosix#1#libkernel#Function",
+        "hI7oVeOluPM#libScePosix#1#libkernel#Function",
+        "z0dtnPxYgtg#libScePosix#1#libkernel#Function",
+        "8nY19bKoiZk#libScePosix#1#libkernel#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceRemoteplay",
+      "binding_counts": {
+        "refused": 5
+      },
+      "remaining_imports": [
+        "xQeIryTX7dY#libSceRemoteplay#1#libSceRemoteplay#Function",
+        "7QLrixwVHcU#libSceRemoteplay#1#libSceRemoteplay#Function",
+        "mrNh78tBpmg#libSceRemoteplay#1#libSceRemoteplay#Function",
+        "g3PNjYKWqnQ#libSceRemoteplay#1#libSceRemoteplay#Function",
+        "k1SwgkMSOM8#libSceRemoteplay#1#libSceRemoteplay#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceRtc",
+      "binding_counts": {
+        "runtime_bound": 1
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceSaveData",
+      "binding_counts": {
+        "refused": 3,
+        "runtime_bound": 2
+      },
+      "remaining_imports": [
+        "oQySEUfgXRA#libSceSaveData#1#libSceSaveData#Function",
+        "wiT9jeC7xPw#libSceSaveData#1#libSceSaveData#Function",
+        "cduy9v4YmT4#libSceSaveData#1#libSceSaveData#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceSocialScreen",
+      "binding_counts": {
+        "refused": 7
+      },
+      "remaining_imports": [
+        "VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function",
+        "6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function",
+        "SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function",
+        "vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function",
+        "pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function",
+        "OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function",
+        "IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceSocialScreenDialog",
+      "binding_counts": {
+        "refused": 6
+      },
+      "remaining_imports": [
+        "WjHT5TmV0TQ#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+        "BEhMn+TyoGA#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+        "PEe0R7gBHbc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+        "eL54zY-B+-Y#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+        "4ej3RtYH320#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+        "A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceSsl",
+      "binding_counts": {
+        "runtime_bound": 2
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceSysmodule",
+      "binding_counts": {
+        "runtime_bound": 5
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceSystemService",
+      "binding_counts": {
+        "refused": 5,
+        "runtime_bound": 5
+      },
+      "remaining_imports": [
+        "Mr1IgQaRff0#libSceSystemService#1#libSceSystemService#Function",
+        "O3irWUQ2s-g#libSceSystemService#1#libSceSystemService#Function",
+        "1n37q1Bvc5Y#libSceSystemService#1#libSceSystemService#Function",
+        "3s8cHiCBKBE#libSceSystemService#1#libSceSystemService#Function",
+        "JoBqSQt1yyA#libSceSystemService#1#libSceSystemService#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libSceUserService",
+      "binding_counts": {
+        "runtime_bound": 7
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceVideoOut",
+      "binding_counts": {
+        "runtime_bound": 15
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceVrTracker",
+      "binding_counts": {
+        "runtime_bound": 13
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libSceWebBrowserDialog",
+      "binding_counts": {
+        "refused": 4
+      },
+      "remaining_imports": [
+        "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+        "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+        "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+        "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libc",
+      "binding_counts": {
+        "guest_export": 274,
+        "not_relocated": 14
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    },
+    {
+      "library": "libkernel",
+      "binding_counts": {
+        "runtime_bound": 242,
+        "refused": 30
+      },
+      "remaining_imports": [
+        "ca7v6Cxulzs#libkernel#1#libkernel#Function",
+        "Xjoosiw+XPI#libkernel#1#libkernel#Function",
+        "Ou3iL1abvng#libkernel#1#libkernel#Function",
+        "Ou3iL1abvng#libkernel#1#libkernel#Function",
+        "naInUjYt3so#libkernel#1#libkernel#Function",
+        "WlyEA-sLDf0#libkernel#1#libkernel#Function",
+        "naInUjYt3so#libkernel#1#libkernel#Function",
+        "QKd0qM58Qes#libkernel#1#libkernel#Function",
+        "Xjoosiw+XPI#libkernel#1#libkernel#Function",
+        "0Cq8ipKr9n0#libkernel#1#libkernel#Function",
+        "iWsFlYMf3Kw#libkernel#1#libkernel#Function",
+        "1xvtUVx1-Sg#libkernel#1#libkernel#Function",
+        "Ou3iL1abvng#libkernel#1#libkernel#Function",
+        "Ou3iL1abvng#libkernel#1#libkernel#Function",
+        "-o5uEDpN+oY#libkernel#1#libkernel#Function",
+        "0NTHN1NKONI#libkernel#1#libkernel#Function",
+        "VADc3MNQ3cM#libkernel#1#libkernel#Function",
+        "IafI2PxcPnQ#libkernel#1#libkernel#Function",
+        "-YTW+qXc3CQ#libkernel#1#libkernel#Function",
+        "Wl2o5hOVZdw#libkernel#1#libkernel#Function",
+        "OMDRKKAZ8I4#libkernel#1#libkernel#Function",
+        "zE-wXIZjLoM#libkernel#1#libkernel#Function",
+        "Fjc4-n1+y2g#libkernel#1#libkernel#Function",
+        "kbw4UHHSYy0#libkernel#1#libkernel#Function",
+        "f7KBOafysXo#libkernel#1#libkernel#Function",
+        "6Z83sYWFlA8#libkernel#1#libkernel#Function",
+        "hHlZQUnlxSM#libkernel#1#libkernel#Function",
+        "8OnWXlgQlvo#libkernel#1#libkernel#Function",
+        "Tz4RNUCBbGI#libkernel#1#libkernel#Function",
+        "crb5j7mkk1c#libkernel#1#libkernel#Function"
+      ],
+      "acceptance": "unresolved: not exercised in the observed startup/reprojection interval; later reachability unknown"
+    },
+    {
+      "library": "libkernel_unity",
+      "binding_counts": {
+        "runtime_bound": 2
+      },
+      "remaining_imports": [],
+      "acceptance": "binding only; semantic and gameplay coverage must be checked separately"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "stop_observed_seconds": 0.5223140839952976,
+  "settings": {
+    "enable_gpu_debug_layers": "null",
+    "gpu_debug_app": "null",
+    "gpu_debug_layers": "null",
+    "gpu_debug_layer_app": "null"
+  },
+  "properties": {
+    "debug.rdoc.vulkan_loader": "",
+    "debug.shadps4.guest_patch": "",
+    "debug.shadps4.guest_auto_tag": "",
+    "debug.shadps4.vulkan_driver": "turnip",
+    "debug.shadps4.profile_sync": ""
+  },
+  "TracerPid": "TracerPid:\t0",
+  "normal_pid": 2598,
+  "generation": 1,
+  "run_uuid": "d7d73c9320509b49dbfb983ba08b59c1"
+}

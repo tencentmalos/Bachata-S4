@@ -1,0 +1,56 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceMsgDialog.sprx",
+  "sha256": "3547ef4492509f8fb91af5e2a6dc8cc2d13dab4b9221a99b74d7b413cf3829aa",
+  "exports": [
+    {
+      "name": "sceMsgDialogClose",
+      "va": "0xd10",
+      "size": 172
+    },
+    {
+      "name": "sceMsgDialogGetResult",
+      "va": "0xa90",
+      "size": 522
+    },
+    {
+      "name": "sceMsgDialogGetStatus",
+      "va": "0xa30",
+      "size": 87
+    },
+    {
+      "name": "sceMsgDialogInitialize",
+      "va": "0x5b0",
+      "size": 156
+    },
+    {
+      "name": "sceMsgDialogOpen",
+      "va": "0x650",
+      "size": 855
+    },
+    {
+      "name": "sceMsgDialogProgressBarInc",
+      "va": "0xe30",
+      "size": 195
+    },
+    {
+      "name": "sceMsgDialogProgressBarSetMsg",
+      "va": "0xfc0",
+      "size": 370
+    },
+    {
+      "name": "sceMsgDialogProgressBarSetValue",
+      "va": "0xf00",
+      "size": 179
+    },
+    {
+      "name": "sceMsgDialogTerminate",
+      "va": "0xdc0",
+      "size": 111
+    },
+    {
+      "name": "sceMsgDialogUpdateStatus",
+      "va": "0x9b0",
+      "size": 120
+    }
+  ]
+}

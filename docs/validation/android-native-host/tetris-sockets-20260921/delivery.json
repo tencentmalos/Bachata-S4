@@ -1,0 +1,52 @@
+{
+  "device": "AYN Thor 9c2841a4",
+  "tests": {
+    "socket_posix_random": 326,
+    "network_control": 299,
+    "file_zar_io": 508,
+    "total": 1133,
+    "failures": 0
+  },
+  "runtime": {
+    "pid": 7667,
+    "generation": 1,
+    "run_uuid": "4db1303821b0c015dd0510cb36523267",
+    "outcome": "Failed/Faulted",
+    "reason": "Unsupported import sceSystemServiceGetDisplaySafeAreaInfo",
+    "guest_return": 419,
+    "playable": false,
+    "commerce_provider": "unimplemented"
+  },
+  "cleanup": {
+    "app_pid": 8989,
+    "session": "none",
+    "tracer_pid": 0,
+    "adb_forwards": "",
+    "properties": {
+      "guest_debug_port": "0",
+      "guest_debug_wait": "0",
+      "guest_patch": "",
+      "guest_auto_tag": ""
+    },
+    "settings_byte_identical": {
+      "global": true,
+      "config": true
+    },
+    "native_debugger_used": false,
+    "guest_debugger_used": false,
+    "force_stop_only_after_session_none": true,
+    "scrcpy_owned_session_stopped": "3c70d850271844739b48690b5f898890"
+  },
+  "git": {
+    "commit_push": false,
+    "existing_changes_preserved": true
+  },
+  "build": {
+    "apk_sha256": "5bb981ffb0415859cc06828ff458e36f638a9ab8b80b217ccaedb48177e10d8e",
+    "installed_apk_sha256": "5bb981ffb0415859cc06828ff458e36f638a9ab8b80b217ccaedb48177e10d8e",
+    "installed_package_path": "/data/app/~~YY_CHPZl9EGeOgPWd9qwOw==/com.shadps4.android-iGvdjRFPMRBkDfALHLd6Ww==/base.apk",
+    "host_build_sha256": "7db2bf5a5fef4232cfe9db0c9f99587fe67d62171ffbd1f92735e59b2ad817fc",
+    "packaged_host_sha256": "7db2bf5a5fef4232cfe9db0c9f99587fe67d62171ffbd1f92735e59b2ad817fc",
+    "jni_sha256": "0cc8d22ec2d7abe3dd75620a7aa926e289b86c912222dc0079d0d45a8cf162b0"
+  }
+}

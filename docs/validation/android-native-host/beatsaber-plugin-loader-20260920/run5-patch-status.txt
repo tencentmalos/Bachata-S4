@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService b4e7c37 pid=5577 user=0
+  Client:
+    status: disabled_at_startup
+

@@ -1,0 +1,171 @@
+{
+  "schema": "shadps4.reverse-study-planning-audit.v1",
+  "date": "2026-09-20",
+  "scope": "Source and historical-evidence review only; proposed APIs are not implemented; no new binary analysis or device execution.",
+  "repositories": [
+    {
+      "name": "shadps4",
+      "local_root": "/Users/bytedance/workspace/emulations/ps4/shadps4",
+      "commit": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+      "branch": "feature/malos/beat_saber_fix",
+      "files": [
+        {
+          "path": "src/video_core/renderer_vulkan/vk_presenter.cpp",
+          "sha256": "8c6eb934ec0044a3f02a01f36c83859e942cc2cf1a8037ad2731ad409bfb10de",
+          "bytes": 63933
+        },
+        {
+          "path": "src/core/host_runtime/guest_graphics.cpp",
+          "sha256": "c31d442fd61cf11e369ef09f4eedc160ff0b826b03440dcbab6c8ddaa96d0b96",
+          "bytes": 12285
+        },
+        {
+          "path": "src/core/host_runtime/guest_reprojection.h",
+          "sha256": "762ee6fff4a2a806e0b01906226e3e1bf3dd8cdefbb7b2fb975708269798b7cb",
+          "bytes": 10120
+        },
+        {
+          "path": "src/core/host_runtime/guest_vr_session.h",
+          "sha256": "b5944258efa75d350be914ee562e7db834ab6413e91521371504385f6441449c",
+          "bytes": 2666
+        },
+        {
+          "path": "src/core/host_runtime/guest_runtime.cpp",
+          "sha256": "ce8b568186d1e330b77de544cf1948659add5d19019a05cc17fa97cfd4bc23c6",
+          "bytes": 239713
+        },
+        {
+          "path": "guest/games/CUSA12878/01.00/symbols/index.json",
+          "sha256": "ddd48ac30bf19ea1a62837e1fcd9353d31837be5f86b875652ce2b3538a07f04",
+          "bytes": 1202
+        },
+        {
+          "path": "guest/games/CUSA12878/01.00/symbols/vr-init.symbols.json",
+          "sha256": "4f81aac3be6da377450c43bbc43d6ac4b6079725c74693e99412a9807cee055d",
+          "bytes": 8349
+        },
+        {
+          "path": "guest/games/CUSA12878/01.00/README.md",
+          "sha256": "23cef44d7d399769e77a57a2b564c85755d0ce6399079f1c49f76fc70476e4cd",
+          "bytes": 2268
+        },
+        {
+          "path": "docs/validation/psvr-sbs-20260918/beat-saber-static-import-inventory.json",
+          "sha256": "1567addf338abecda498e79b24e2bfd79332df40ae8369f14a501f9bfa6f11c1",
+          "bytes": 915281
+        },
+        {
+          "path": "docs/validation/psvr-sbs-20260918/beat-saber-psvr-static-call-map.json",
+          "sha256": "baed442dec095e76aae767bcfdfec8f51e4902f505f2cd0fa7a3b3aa3e2192c6",
+          "bytes": 6744
+        },
+        {
+          "path": "docs/validation/psvr-sbs-20260918/beat-saber-device-startup-20260918.md",
+          "sha256": "dc4b14991ccb763d967fd1517cb3f08fb13da52095e02f942633602d2deb72c1",
+          "bytes": 5593
+        },
+        {
+          "path": "docs/validation/android-native-host/beatsaber-vr-init-20260919.md",
+          "sha256": "158cb1fe41c653e2cdceb899208718ae3c70bfa91344db9a72a3c70a2d63f307",
+          "bytes": 6003
+        }
+      ]
+    },
+    {
+      "name": "dev_tools",
+      "local_root": "/Users/bytedance/workspace/spatial_mcp_publish/dev_tools",
+      "commit": "7f9da023075cbf545974cbff2a6925f5c1ec9c2d",
+      "files": [
+        {
+          "path": "mcp/ida/McpServer/IdaWorkspaceRegistry.cs",
+          "sha256": "72a4eea176a377a05650823689bff2bd8bbdba0da6ef5fb14dff4a12cef63cfd",
+          "bytes": 25940
+        },
+        {
+          "path": "mcp/ida/Ida.Interop/Kernel/IdaKernelThread.cs",
+          "sha256": "423744ef0fe392611265a5e41fcbf8a378a20fa5520ed93ea36e2ba83556f2e6",
+          "bytes": 5589
+        },
+        {
+          "path": "mcp/ida/McpServer/Tools/GuestRecompileTools.cs",
+          "sha256": "7bccd840a7a47ff663e735e37baf340008a48c11624f89927413386b98ec1dfb",
+          "bytes": 15076
+        },
+        {
+          "path": "mcp/ida/McpServer/Tools/GuestProfilingTools.cs",
+          "sha256": "0ec15ffd6534c64331078238441b6950912bf0530ec552f91631736c3e75a820",
+          "bytes": 18698
+        },
+        {
+          "path": "mcp/ida/McpServer/Tools/IdaEditTools.cs",
+          "sha256": "b7c9c50c61f17e7d3808645de8d87877af6bfd4fdc1da6c2b65a865f85d6584e",
+          "bytes": 14723
+        },
+        {
+          "path": "mcp/ida/McpServer/Tools/IdaAnalysisTools.cs",
+          "sha256": "0570cd1ed6ac56d8a6506d1d88b1e96597c82df127562bc12132ef82cf7f60dc",
+          "bytes": 14330
+        },
+        {
+          "path": "mcp/ida/docs/multi-module-guest-analysis.md",
+          "sha256": "da4146debc8e8959741d1e915d70fe21a301ca616d63b11269c4606c1d4ae7b8",
+          "bytes": 9436
+        },
+        {
+          "path": "mcp/guest_profiling/reconstructed_symbols.py",
+          "sha256": "808c6073718a0fea604a0531e273669864fce61dc2e2c3e421c90213ae386aab",
+          "bytes": 5180
+        },
+        {
+          "path": "mcp/guest_profiling/frame_workset.py",
+          "sha256": "e525da1b1f432d318f48e67b748e3a8eafeefaab77d803b1bc200ea0b467d56e",
+          "bytes": 16406
+        },
+        {
+          "path": "spatial_debug_tool/Docs/Reference/GuestReconstructedSymbols.md",
+          "sha256": "9b53b559b4228d30df1f2d435737acb60c1256f78040685084dd4599ce674ee5",
+          "bytes": 12057
+        }
+      ]
+    }
+  ],
+  "mcp_readonly_observations": {
+    "backends": {
+      "ok": true,
+      "defaultBackend": "study0",
+      "backends": [
+        {
+          "name": "study0",
+          "available": true
+        },
+        {
+          "name": "study1",
+          "available": false
+        }
+      ],
+      "automaticCallPairs": [
+        "x86_64",
+        "aarch64"
+      ]
+    },
+    "externals_status": {
+      "ok": true,
+      "libraryPath": "",
+      "searchedPaths": [
+        "/Applications/IDA Professional 9.4.app/Contents/MacOS/libidalib.dylib",
+        "/Applications/IDA Professional 9.4.app/Contents/MacOS/libidalib.dylib",
+        "/Applications/IDA Professional 9.1.app/Contents/MacOS/libidalib.dylib"
+      ],
+      "installPathVariable": "IDA_INSTALL_DIR",
+      "openWorkspaces": []
+    },
+    "interpretation": "Backend registry is available, but loaded IDA/Hex-Rays capability was not established. No workspace was opened."
+  },
+  "historical_thread": {
+    "id": "01a0b2ad-4653-73e1-b3c5-850c118b624f",
+    "title": "分析 shadps4 VR 支持准备",
+    "relevant_delivery_commit": "20179024",
+    "delivery_boundary": "SBS orientation and HMD/VideoOut timing remained open."
+  },
+  "symbol_index_integrity": "Existing v2 index SHA pins were checked successfully; 11 symbols, no modifications."
+}

@@ -1,0 +1,4 @@
+[G46a  ] 100 low/high blocks with identical 36-bit lookup index retain full guest tags PASS
+[G46b  ] retiring/remapping high VA preserves low block and executes only new high code PASS
+[G46c  ] high VA owner destroyed on its native owner                PASS
+FOCUSED_HIGH_ADDRESS checks=3 failures=0

@@ -1,0 +1,5 @@
+SERVICE com.shadps4.android/.service.FexSessionService 7fcb58c pid=2598 user=0
+  Client:
+    renderdoc_api_loaded: false
+    capture_backend: coordinator
+

@@ -1,0 +1,561 @@
+<chunk id="1098" name="vkCmdPushDescriptorSetKHR" length="729" threadID="445385813168" timestamp="687324449814311" duration="625">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<enum name="pipelineBindPoint" typename="VkPipelineBindPoint" width="4" string="VK_PIPELINE_BIND_POINT_GRAPHICS">0</enum>
+			<ResourceId name="layout" typename="VkPipelineLayout" width="8">1947</ResourceId>
+			<uint name="set" typename="uint32_t" width="4" important="true">0</uint>
+			<uint name="descriptorWriteCount" typename="uint32_t" width="4">9</uint>
+			<array name="pDescriptorWrites" important="true">
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">0</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7615680</uint>
+							<uint name="range" typename="uint64_t" width="8">32</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">1</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7615712</uint>
+							<uint name="range" typename="uint64_t" width="8">64</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">2</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE">2</enum>
+					<array name="pImageInfo">
+						<struct typename="VkDescriptorImageInfo">
+							<ResourceId name="sampler" typename="VkSampler" width="8">0</ResourceId>
+							<ResourceId name="imageView" typename="VkImageView" width="8">1951</ResourceId>
+							<enum name="imageLayout" typename="VkImageLayout" width="4" string="VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL">5</enum>
+						</struct>
+					</array>
+					<array name="pBufferInfo" typename="VkDescriptorBufferInfo" />
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">3</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_SAMPLER">0</enum>
+					<array name="pImageInfo">
+						<struct typename="VkDescriptorImageInfo">
+							<ResourceId name="sampler" typename="VkSampler" width="8">937</ResourceId>
+							<ResourceId name="imageView" typename="VkImageView" width="8">0</ResourceId>
+							<enum name="imageLayout" typename="VkImageLayout" width="4" string="VK_IMAGE_LAYOUT_GENERAL">1</enum>
+						</struct>
+					</array>
+					<array name="pBufferInfo" typename="VkDescriptorBufferInfo" />
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">4</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7615808</uint>
+							<uint name="range" typename="uint64_t" width="8">160</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">5</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7616000</uint>
+							<uint name="range" typename="uint64_t" width="8">16</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">6</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7616064</uint>
+							<uint name="range" typename="uint64_t" width="8">16</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">7</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7616128</uint>
+							<uint name="range" typename="uint64_t" width="8">1088</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">8</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">0</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">0</uint>
+							<uint name="range" typename="uint64_t" width="8">18446744073709551615</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1049" name="vkCmdBindPipeline" length="28" threadID="445385813168" timestamp="687324449817853" duration="1979">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<enum name="pipelineBindPoint" typename="VkPipelineBindPoint" width="4" string="VK_PIPELINE_BIND_POINT_GRAPHICS">0</enum>
+			<ResourceId name="pipeline" typename="VkPipeline" width="8" important="true">1948</ResourceId>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1175" name="vkCmdSetFragmentShadingRateKHR" length="49" threadID="445385813168" timestamp="687324449820405" duration="52">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<struct name="pFragmentSize" typename="VkExtent2D" nullable="true" important="true">
+				<uint name="width" typename="uint32_t" width="4">1</uint>
+				<uint name="height" typename="uint32_t" width="4">1</uint>
+			</struct>
+			<array name="combinerOps" important="true">
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR">0</enum>
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR">0</enum>
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VkFragmentShadingRateCombinerOpKHR(1063803888)">1063803888</enum>
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VkFragmentShadingRateCombinerOpKHR(3019898991)">3019898991</enum>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1085" name="vkCmdDrawIndexed" length="36" threadID="445385813168" timestamp="687324449820926" duration="1510">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<uint name="indexCount" typename="uint32_t" width="4" important="true">102</uint>
+			<uint name="instanceCount" typename="uint32_t" width="4" important="true">1</uint>
+			<uint name="firstIndex" typename="uint32_t" width="4">0</uint>
+			<int name="vertexOffset" typename="int32_t" width="4">0</int>
+			<uint name="firstInstance" typename="uint32_t" width="4">0</uint>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1110" name="vkCmdEndDebugUtilsLabelEXT" length="8" threadID="445385813168" timestamp="687324449823009" duration="156">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+		</chunk>
+		
+<chunk id="1109" name="vkCmdBeginDebugUtilsLabelEXT" length="170" threadID="445385813168" timestamp="687324449825353" duration="156">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<struct name="Label" typename="VkDebugUtilsLabelEXT" important="true" importantchildren="true">
+				<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT">1000128002</enum>
+				<null name="pNext" typename="void *" />
+				<string name="pLabelName" typename="string" important="true">shadps4.pm4 gfx:0xb40000707fa23f78:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326cce8</string>
+				<array name="color" fixedarray="true">
+					<float typename="float" width="4">0</float>
+					<float typename="float" width="4">0</float>
+					<float typename="float" width="4">0</float>
+					<float typename="float" width="4">0</float>
+				</array>
+			</struct>
+		</chunk>
+		
+<chunk id="1172" name="vkCmdSetVertexInputEXT" length="166" threadID="445385813168" timestamp="687324449834155" duration="104">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<uint name="vertexBindingDescriptionCount" typename="uint32_t" width="4" important="true">3</uint>
+			<array name="pVertexBindingDescriptions">
+				<struct typename="VkVertexInputBindingDescription2EXT" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT">1000352001</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="binding" typename="uint32_t" width="4">0</uint>
+					<uint name="stride" typename="uint32_t" width="4">60</uint>
+					<enum name="inputRate" typename="VkVertexInputRate" width="4" string="VK_VERTEX_INPUT_RATE_VERTEX">0</enum>
+					<uint name="divisor" typename="uint32_t" width="4">1</uint>
+				</struct>
+				<struct typename="VkVertexInputBindingDescription2EXT" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT">1000352001</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="binding" typename="uint32_t" width="4">1</uint>
+					<uint name="stride" typename="uint32_t" width="4">60</uint>
+					<enum name="inputRate" typename="VkVertexInputRate" width="4" string="VK_VERTEX_INPUT_RATE_VERTEX">0</enum>
+					<uint name="divisor" typename="uint32_t" width="4">1</uint>
+				</struct>
+				<struct typename="VkVertexInputBindingDescription2EXT" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT">1000352001</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="binding" typename="uint32_t" width="4">2</uint>
+					<uint name="stride" typename="uint32_t" width="4">60</uint>
+					<enum name="inputRate" typename="VkVertexInputRate" width="4" string="VK_VERTEX_INPUT_RATE_VERTEX">0</enum>
+					<uint name="divisor" typename="uint32_t" width="4">1</uint>
+				</struct>
+			</array>
+			<uint name="vertexAttributeDescriptionCount" typename="uint32_t" width="4" important="true">3</uint>
+			<array name="pVertexAttributeDescriptions">
+				<struct typename="VkVertexInputAttributeDescription2EXT" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT">1000352002</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="location" typename="uint32_t" width="4">0</uint>
+					<uint name="binding" typename="uint32_t" width="4">0</uint>
+					<enum name="format" typename="VkFormat" width="4" string="VK_FORMAT_R32G32B32_SFLOAT">106</enum>
+					<uint name="offset" typename="uint32_t" width="4">0</uint>
+				</struct>
+				<struct typename="VkVertexInputAttributeDescription2EXT" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT">1000352002</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="location" typename="uint32_t" width="4">1</uint>
+					<uint name="binding" typename="uint32_t" width="4">1</uint>
+					<enum name="format" typename="VkFormat" width="4" string="VK_FORMAT_R8G8B8A8_UNORM">37</enum>
+					<uint name="offset" typename="uint32_t" width="4">0</uint>
+				</struct>
+				<struct typename="VkVertexInputAttributeDescription2EXT" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT">1000352002</enum>
+					<null name="pNext" typename="void *" />
+					<uint name="location" typename="uint32_t" width="4">2</uint>
+					<uint name="binding" typename="uint32_t" width="4">2</uint>
+					<enum name="format" typename="VkFormat" width="4" string="VK_FORMAT_R32G32_SFLOAT">103</enum>
+					<uint name="offset" typename="uint32_t" width="4">0</uint>
+				</struct>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1060" name="vkCmdBindVertexBuffers" length="88" threadID="445385813168" timestamp="687324449836082" duration="417">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<uint name="firstBinding" typename="uint32_t" width="4" important="true">0</uint>
+			<uint name="bindingCount" typename="uint32_t" width="4">3</uint>
+			<array name="pBuffers" important="true">
+				<ResourceId typename="VkBuffer" width="8">277</ResourceId>
+				<ResourceId typename="VkBuffer" width="8">277</ResourceId>
+				<ResourceId typename="VkBuffer" width="8">277</ResourceId>
+			</array>
+			<array name="pOffsets">
+				<uint typename="uint64_t" width="8">7623168</uint>
+				<uint typename="uint64_t" width="8">7623208</uint>
+				<uint typename="uint64_t" width="8">7623212</uint>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1061" name="vkCmdBindIndexBuffer" length="36" threadID="445385813168" timestamp="687324449838217" duration="105">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<ResourceId name="buffer" typename="VkBuffer" width="8" important="true">277</ResourceId>
+			<uint name="offset" typename="uint64_t" width="8">7627328</uint>
+			<enum name="indexType" typename="VkIndexType" width="4" important="true" string="VK_INDEX_TYPE_UINT16">0</enum>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1070" name="vkCmdPushConstants" length="232" threadID="445385813168" timestamp="687324449840770" duration="104">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<ResourceId name="layout" typename="VkPipelineLayout" width="8">1947</ResourceId>
+			<enum name="stageFlags" typename="VkShaderStageFlags" width="4" important="true" string="VK_SHADER_STAGE_ALL_GRAPHICS">31</enum>
+			<uint name="start" typename="uint32_t" width="4">0</uint>
+			<uint name="length" typename="uint32_t" width="4">128</uint>
+			<buffer name="values" typename="Byte Buffer" important="true" byteLength="128">237</buffer>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1098" name="vkCmdPushDescriptorSetKHR" length="729" threadID="445385813168" timestamp="687324449841290" duration="573">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<enum name="pipelineBindPoint" typename="VkPipelineBindPoint" width="4" string="VK_PIPELINE_BIND_POINT_GRAPHICS">0</enum>
+			<ResourceId name="layout" typename="VkPipelineLayout" width="8">1947</ResourceId>
+			<uint name="set" typename="uint32_t" width="4" important="true">0</uint>
+			<uint name="descriptorWriteCount" typename="uint32_t" width="4">9</uint>
+			<array name="pDescriptorWrites" important="true">
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">0</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7621632</uint>
+							<uint name="range" typename="uint64_t" width="8">32</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">1</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7621664</uint>
+							<uint name="range" typename="uint64_t" width="8">64</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">2</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE">2</enum>
+					<array name="pImageInfo">
+						<struct typename="VkDescriptorImageInfo">
+							<ResourceId name="sampler" typename="VkSampler" width="8">0</ResourceId>
+							<ResourceId name="imageView" typename="VkImageView" width="8">1951</ResourceId>
+							<enum name="imageLayout" typename="VkImageLayout" width="4" string="VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL">5</enum>
+						</struct>
+					</array>
+					<array name="pBufferInfo" typename="VkDescriptorBufferInfo" />
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">3</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_SAMPLER">0</enum>
+					<array name="pImageInfo">
+						<struct typename="VkDescriptorImageInfo">
+							<ResourceId name="sampler" typename="VkSampler" width="8">937</ResourceId>
+							<ResourceId name="imageView" typename="VkImageView" width="8">0</ResourceId>
+							<enum name="imageLayout" typename="VkImageLayout" width="4" string="VK_IMAGE_LAYOUT_GENERAL">1</enum>
+						</struct>
+					</array>
+					<array name="pBufferInfo" typename="VkDescriptorBufferInfo" />
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">4</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7621760</uint>
+							<uint name="range" typename="uint64_t" width="8">160</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">5</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7621952</uint>
+							<uint name="range" typename="uint64_t" width="8">16</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">6</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7622016</uint>
+							<uint name="range" typename="uint64_t" width="8">16</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">7</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">277</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">7622080</uint>
+							<uint name="range" typename="uint64_t" width="8">1088</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+				<struct typename="VkWriteDescriptorSet" importantchildren="true">
+					<enum name="sType" typename="VkStructureType" width="4" string="VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET">35</enum>
+					<null name="pNext" typename="void *" />
+					<ResourceId name="dstSet" typename="VkDescriptorSet" width="8" important="true">0</ResourceId>
+					<uint name="dstBinding" typename="uint32_t" width="4" important="true">8</uint>
+					<uint name="dstArrayElement" typename="uint32_t" width="4">0</uint>
+					<uint name="descriptorCount" typename="uint32_t" width="4">1</uint>
+					<enum name="descriptorType" typename="VkDescriptorType" width="4" important="true" string="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER">7</enum>
+					<array name="pImageInfo" typename="VkDescriptorImageInfo" />
+					<array name="pBufferInfo">
+						<struct typename="VkDescriptorBufferInfo">
+							<ResourceId name="buffer" typename="VkBuffer" width="8">0</ResourceId>
+							<uint name="offset" typename="uint64_t" width="8">0</uint>
+							<uint name="range" typename="uint64_t" width="8">18446744073709551615</uint>
+						</struct>
+					</array>
+					<array name="pTexelBufferView" typename="VkBufferView" />
+				</struct>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1143" name="vkCmdSetViewportWithCount" length="52" threadID="445385813168" timestamp="687324449844415" duration="52">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<uint name="viewportCount" typename="uint32_t" width="4">1</uint>
+			<array name="pViewports" important="true">
+				<struct typename="VkViewport" importantchildren="true">
+					<float name="x" typename="float" width="4" important="true">1344</float>
+					<float name="y" typename="float" width="4" important="true">1512</float>
+					<float name="width" typename="float" width="4" important="true">1344</float>
+					<float name="height" typename="float" width="4" important="true">-1512</float>
+					<float name="minDepth" typename="float" width="4">0</float>
+					<float name="maxDepth" typename="float" width="4">1</float>
+				</struct>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1144" name="vkCmdSetScissorWithCount" length="44" threadID="445385813168" timestamp="687324449844780" duration="52">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<uint name="scissorCount" typename="uint32_t" width="4">1</uint>
+			<array name="pScissors" important="true">
+				<struct typename="VkRect2D">
+					<struct name="offset" typename="VkOffset2D">
+						<int name="x" typename="int32_t" width="4">1344</int>
+						<int name="y" typename="int32_t" width="4">0</int>
+					</struct>
+					<struct name="extent" typename="VkExtent2D">
+						<uint name="width" typename="uint32_t" width="4">1344</uint>
+						<uint name="height" typename="uint32_t" width="4">1512</uint>
+					</struct>
+				</struct>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1049" name="vkCmdBindPipeline" length="28" threadID="445385813168" timestamp="687324449845613" duration="1042">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<enum name="pipelineBindPoint" typename="VkPipelineBindPoint" width="4" string="VK_PIPELINE_BIND_POINT_GRAPHICS">0</enum>
+			<ResourceId name="pipeline" typename="VkPipeline" width="8" important="true">1948</ResourceId>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1175" name="vkCmdSetFragmentShadingRateKHR" length="49" threadID="445385813168" timestamp="687324449847020" duration="104">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<struct name="pFragmentSize" typename="VkExtent2D" nullable="true" important="true">
+				<uint name="width" typename="uint32_t" width="4">1</uint>
+				<uint name="height" typename="uint32_t" width="4">1</uint>
+			</struct>
+			<array name="combinerOps" important="true">
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR">0</enum>
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR">0</enum>
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VkFragmentShadingRateCombinerOpKHR(1063803888)">1063803888</enum>
+				<enum typename="VkFragmentShadingRateCombinerOpKHR" width="4" string="VkFragmentShadingRateCombinerOpKHR(3019898991)">3019898991</enum>
+			</array>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1085" name="vkCmdDrawIndexed" length="36" threadID="445385813168" timestamp="687324449847645" duration="1458">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+			<uint name="indexCount" typename="uint32_t" width="4" important="true">102</uint>
+			<uint name="instanceCount" typename="uint32_t" width="4" important="true">1</uint>
+			<uint name="firstIndex" typename="uint32_t" width="4">0</uint>
+			<int name="vertexOffset" typename="int32_t" width="4">0</int>
+			<uint name="firstInstance" typename="uint32_t" width="4">0</uint>
+			<array name="DebugMessages" typename="DebugMessage" hidden="true" />
+		</chunk>
+		
+<chunk id="1110" name="vkCmdEndDebugUtilsLabelEXT" length="8" threadID="445385813168" timestamp="687324449849728" duration="208">
+			<ResourceId name="commandBuffer" typename="VkCommandBuffer" width="8">2336</ResourceId>
+		</chunk>
+		

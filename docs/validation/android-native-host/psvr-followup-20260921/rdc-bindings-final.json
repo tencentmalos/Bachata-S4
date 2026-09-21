@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"6dc52567-0d0b-40df-8320-5fafe9b62a83\",\"captureRevision\":{\"value\":15},\"currentEventId\":\"1341\"},\"data\":{\"dataset\":\"shader_binding\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"kind\",\"declaredType\":\"TEXT\"},{\"name\":\"space\",\"declaredType\":\"INTEGER\"},{\"name\":\"binding\",\"declaredType\":\"INTEGER\"},{\"name\":\"array_index\",\"declaredType\":\"INTEGER\"},{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"view_format\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"1750\",\"pixel\",\"read_only_image\",0,2,0,\"2142\",\"type=0;component=9;count=4;width=1;flags=0x0000\"],[\"1750\",\"pixel\",\"read_only_image\",0,3,0,\"2002\",\"type=0;component=9;count=4;width=1;flags=0x0000\"],[\"1750\",\"pixel\",\"read_write_buffer\",0,0,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"pixel\",\"read_write_buffer\",0,1,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"pixel\",\"sampler\",0,4,0,\"531\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"pixel\",\"sampler\",0,5,0,\"531\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"vertex\",\"read_write_buffer\",0,6,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"vertex\",\"read_write_buffer\",0,7,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"vertex\",\"read_write_buffer\",0,8,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"vertex\",\"read_write_buffer\",0,9,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"1750\",\"vertex\",\"read_write_buffer\",0,10,0,null,\"type=0;component=0;count=0;width=0;flags=0x0000\"]],\"truncated\":false,\"executionMs\":0.0535},\"warnings\":[]}}"
+      }
+    ]
+  },
+  "id": 28,
+  "jsonrpc": "2.0"
+}

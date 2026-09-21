@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "package": {
+    "status": "FAIL",
+    "coverage": "package",
+    "reason": "lib/arm64-v8a/libandroidx.graphics.path.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libbachata_pkg.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libc++_shared.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libdatastore_shared_counter.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libfile_redirect_hook.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libgsl_alloc_hook.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libhook_impl.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libmain_hook.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libshadps4_fex_session.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libshadps4_host.so is compressed; it cannot be mapped from the APK",
+    "apk": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "apk_sha256": "5e4e9f252efb1fb3184b7a1819d0b4a3bd575b2a6532c305267388d930cf9c8a",
+    "libraries": [
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libandroidx.graphics.path.so",
+        "name": "libandroidx.graphics.path.so",
+        "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "soname": "libandroidx.graphics.path.so",
+        "version_needed_from": [
+          "libc.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libandroidx.graphics.path.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libc++_shared.so",
+        "name": "libc++_shared.so",
+        "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "soname": "libc++_shared.so",
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libc++_shared.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libdatastore_shared_counter.so",
+        "name": "libdatastore_shared_counter.so",
+        "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "soname": "libdatastore_shared_counter.so",
+        "version_needed_from": [
+          "libc.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libdatastore_shared_counter.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libbachata_pkg.so",
+        "name": "libbachata_pkg.so",
+        "sha256": "6f0a942da50073257aafc66d6e74c981d8c92f8956ea43a38e71db7bb0145e83",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so",
+          "libz.so"
+        ],
+        "soname": "libbachata_pkg.so",
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libbachata_pkg.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libfile_redirect_hook.so",
+        "name": "libfile_redirect_hook.so",
+        "sha256": "cd72356d85a50aa9faac29a95f74c5ead1c2d4e014f4340075027516b3782624",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "libhook_impl.so",
+          "liblog.so",
+          "libm.so"
+        ],
+        "soname": "libfile_redirect_hook.so",
+        "version_needed_from": [
+          "libc.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libfile_redirect_hook.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libgsl_alloc_hook.so",
+        "name": "libgsl_alloc_hook.so",
+        "sha256": "22a7309ba4cdcb8da5e168dada6d44369d6a02fae8344972a9536f549f301502",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "libhook_impl.so",
+          "liblog.so",
+          "libm.so"
+        ],
+        "soname": "libgsl_alloc_hook.so",
+        "version_needed_from": [
+          "libc.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libgsl_alloc_hook.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libhook_impl.so",
+        "name": "libhook_impl.so",
+        "sha256": "b96a86085e9d6adda00f9d8385269a646033e832857348ba19f4d800e39d6b3f",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so"
+        ],
+        "soname": "libhook_impl.so",
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libhook_impl.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libmain_hook.so",
+        "name": "libmain_hook.so",
+        "sha256": "6f07f902085159abbab1430a5100453c62293c16f54a4d9ca5df7dda9c61ebf0",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "libhook_impl.so",
+          "liblog.so",
+          "libm.so"
+        ],
+        "soname": "libmain_hook.so",
+        "version_needed_from": [
+          "libc.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libmain_hook.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libshadps4_fex_session.so",
+        "name": "libshadps4_fex_session.so",
+        "sha256": "6de7a2ee4fe25ffa4e30fa9ce6454f512d5ecc60f729d5d6ad60cb09513ae0da",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so",
+          "libshadps4_host.so"
+        ],
+        "soname": "libshadps4_fex_session.so",
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libshadps4_fex_session.so",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpdvdm5x6g/libshadps4_host.so",
+        "name": "libshadps4_host.so",
+        "sha256": "e08863f6f0a065e2ee008a830faea8d3b24dd38438fcc5eb900fbe819a0e99d5",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libOpenSLES.so",
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so",
+          "libz.so"
+        ],
+        "soname": "libshadps4_host.so",
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": [],
+        "apk_entry": "lib/arm64-v8a/libshadps4_host.so",
+        "abi": "arm64-v8a"
+      }
+    ],
+    "checked_count": 10
+  },
+  "standalone": {
+    "status": "PASS",
+    "coverage": "auxiliary",
+    "reason": null,
+    "inspected": [
+      {
+        "path": "build/android-host-api33/native/libshadps4_host.so",
+        "name": "libshadps4_host.so",
+        "sha256": "e08863f6f0a065e2ee008a830faea8d3b24dd38438fcc5eb900fbe819a0e99d5",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libOpenSLES.so",
+          "libandroid.so",
+          "libc++_shared.so",
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so",
+          "libz.so"
+        ],
+        "soname": "libshadps4_host.so",
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": []
+      }
+    ],
+    "checked_count": 1
+  },
+  "status": "FAIL",
+  "coverage": "package",
+  "reason": "lib/arm64-v8a/libandroidx.graphics.path.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libbachata_pkg.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libc++_shared.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libdatastore_shared_counter.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libfile_redirect_hook.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libgsl_alloc_hook.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libhook_impl.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libmain_hook.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libshadps4_fex_session.so is compressed; it cannot be mapped from the APK; lib/arm64-v8a/libshadps4_host.so is compressed; it cannot be mapped from the APK"
+}

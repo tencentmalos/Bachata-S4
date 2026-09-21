@@ -1,0 +1,10 @@
+{
+  "apk_sha256": "c7ee68f3549f74f352d4c677d8709ec5c0f6b0666bd73e6828464d5c52ae3b8c",
+  "host_build_sha256": "ff62888e10f23edb535f68aefcbc496544c98400eb8d4c2292297648539e131f",
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "41f72000887388913373c7f0a883864dbd0f4eae73bf251f79e3e706cd7f362b",
+    "lib/arm64-v8a/libshadps4_host.so": "ff62888e10f23edb535f68aefcbc496544c98400eb8d4c2292297648539e131f"
+  },
+  "installed_apk_sha256": "c7ee68f3549f74f352d4c677d8709ec5c0f6b0666bd73e6828464d5c52ae3b8c",
+  "installed_apk_path": "/data/app/~~DFyD5mEH9IxaFobu25pMHw==/com.shadps4.android-HkbU9AjlOuNoTzJ1OBT6nQ==/base.apk"
+}

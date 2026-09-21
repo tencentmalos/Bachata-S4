@@ -1,0 +1,29 @@
+{
+  "branch": "feature/malos/beat_saber_fix",
+  "head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "device": "AYN Thor 9c2841a4",
+  "final_apk": "1d939bc3b141209f6a4c8953101c9d3d6f6d1d48618269b5de0167c37aaa8314",
+  "games": [
+    {
+      "title": "CUSA36289",
+      "pid": 8079,
+      "result": "SIGSEGV before first frame: exact guest fread+0x54, VA=1; old SaveData init boundary bypassed"
+    },
+    {
+      "title": "CUSA13427",
+      "pid": 8895,
+      "generation": 2,
+      "result": "Prepare ready, Run named unsupported sceKernelAllocateMainDirectMemory"
+    },
+    {
+      "title": "CUSA12878",
+      "pid": 9732,
+      "generation": 1,
+      "uuid": "ec24731fa951dbd0b2f0abb3eb50d769",
+      "result": "visible upright safety scene with stereo overlap; no Continue interaction completion"
+    }
+  ],
+  "final_state": "SERVICE com.shadps4.android/.service.FexSessionService fc1109e pid=9732 user=0\n  Client:\n    session: none\n    generation: 1\n    pid: 9732\n    phase: 5\n    run_uuid: ec24731fa951dbd0b2f0abb3eb50d769\n    stage: Stopped\n    stop_reason: user_stop\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    terminal_detail: guest return=2147614724\n    production Linker/VM; owners=41 veneers=903\n    ",
+  "recommendation": "Beat Saber: per-eye render targets/viewports and Move pointing first",
+  "commit_push": false
+}

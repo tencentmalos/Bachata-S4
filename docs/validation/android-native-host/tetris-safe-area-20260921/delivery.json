@@ -1,0 +1,50 @@
+{
+  "device": "AYN Thor 9c2841a4",
+  "tests": {
+    "psvr_services": 176,
+    "new_safe_area_checks": 22,
+    "failures": 0
+  },
+  "runtime": {
+    "pid": 25633,
+    "generation": 1,
+    "run_uuid": "b3123303d01b40ad4d9f4d328c8afe71",
+    "outcome": "Failed/Faulted",
+    "reason": "Unsupported import sceKernelRmdir",
+    "guest_return": 677,
+    "safe_area_binding": "runtime_bound",
+    "playable": false
+  },
+  "cleanup": {
+    "app_pid": 26455,
+    "session": "none",
+    "tracer_pid": 0,
+    "settings_byte_identical": {
+      "global": true,
+      "config": true
+    },
+    "properties": {
+      "guest_debug_port": "0",
+      "guest_debug_wait": "0",
+      "guest_patch": "",
+      "guest_auto_tag": ""
+    },
+    "adb_forwards": "",
+    "force_stop_only_after_session_none": true,
+    "scrcpy_session": "0439433cfa474cc68829c260aa5e392f",
+    "scrcpy_state": "stopped",
+    "scrcpy_native_exit": 0,
+    "library_visually_verified": true
+  },
+  "build": {
+    "apk_sha256": "5b575ffbc0dd4fd7b93bf4901e4cbfabe6ec003cf097bad79e6749ccc1a0833a",
+    "host_sha256": "3867a3f2ebfba52b8b0aad3112827bcae0516fb7ae5fa8c76479a5cc0c98d6e6",
+    "packaged_libraries": {
+      "lib/arm64-v8a/libshadps4_fex_session.so": "0cc8d22ec2d7abe3dd75620a7aa926e289b86c912222dc0079d0d45a8cf162b0",
+      "lib/arm64-v8a/libshadps4_host.so": "3867a3f2ebfba52b8b0aad3112827bcae0516fb7ae5fa8c76479a5cc0c98d6e6"
+    },
+    "installed_apk_sha256": "5b575ffbc0dd4fd7b93bf4901e4cbfabe6ec003cf097bad79e6749ccc1a0833a",
+    "installed_package_path": "/data/app/~~9RUE47voudnhfrUHCfDgDw==/com.shadps4.android-od591xEndWA8hMZTjyW6DA==/base.apk"
+  },
+  "commit_push": false
+}

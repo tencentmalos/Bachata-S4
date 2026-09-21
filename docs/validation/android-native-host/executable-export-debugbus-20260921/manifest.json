@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "status": "local uncommitted",
+  "base": "63b6d560",
+  "device": "AYN Thor 9c2841a4",
+  "scope": "DebugBus export only; no full game regression",
+  "files": [
+    {
+      "path": "beat-export-helper.txt",
+      "bytes": 291,
+      "sha256": "d75eccb846638022812c78a5a811b5a9b5f1fb6225d85697166c4386b961601f"
+    },
+    {
+      "path": "beat-final-helper.txt",
+      "bytes": 358,
+      "sha256": "724843e1dd450655bf4971d5fa9fbea62a0c298fefb975186d98ae98637fdf13"
+    },
+    {
+      "path": "beat-final-manifest.json",
+      "bytes": 31000,
+      "sha256": "941b30ed0b50b4d5d2e88aa303d4af5f19356e332046608bc977865ae29922df"
+    },
+    {
+      "path": "beat-final-receipt.json",
+      "bytes": 611,
+      "sha256": "2bc34353704d6f093bc03d187e2c639e89cba8717d245b0da3a00072a36b33ec"
+    },
+    {
+      "path": "binaries-final.json",
+      "bytes": 377,
+      "sha256": "c745a64b7e80c820da0452fe6dac2ca8baf58bd4a392bb438b218d7bbc725704"
+    },
+    {
+      "path": "gradle-final.txt",
+      "bytes": 20733,
+      "sha256": "7909e6d4eca2332ebb9e799c5c043b3635cb1b9477e05cb9e80bc194426ec2d3"
+    },
+    {
+      "path": "installed-final.json",
+      "bytes": 222,
+      "sha256": "4944e97d4582bea44bedaff890a1861cd9ca223af30b8663e8b6ce000186a6a8"
+    },
+    {
+      "path": "native-tests-final.txt",
+      "bytes": 42,
+      "sha256": "33a8dce97b8f1e670b56171765696eaed1efb9db201674874b889488be79d9c7"
+    },
+    {
+      "path": "native-tests-first.txt",
+      "bytes": 42,
+      "sha256": "2c9ab2184f5be8dd36ffe7356a41b5c3d3ee1228b249d7d590e84a03886ebd9b"
+    },
+    {
+      "path": "tetris-export-helper.txt",
+      "bytes": 288,
+      "sha256": "b22e961fd686a5762526c7902c881f30b1b9c41fbb460bc3a61674ce7c5b63eb"
+    },
+    {
+      "path": "tetris-final-manifest.json",
+      "bytes": 74185,
+      "sha256": "b0b6ed764115f0f864daa081f18e1e0f414228f506e08a6ad22a336422c9b97d"
+    },
+    {
+      "path": "tetris-final-receipt.json",
+      "bytes": 625,
+      "sha256": "22cb2e835b76a81e759217017cc3ce4554d347d7f3b3773d58094d632ba5534f"
+    }
+  ]
+}

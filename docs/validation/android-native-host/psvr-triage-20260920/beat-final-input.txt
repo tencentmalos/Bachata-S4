@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService fc1109e pid=9732 user=0
+  Client:
+    input: generation=1 token=1 windowFocused=true focused=true uiCaptured=false stopping=false overlayEvents=4 overlayResult=0 nativeToken=1 connected=true buttons=0
+    managed_state: Running(gameId=CUSA12878, generation=1)

@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"6dc52567-0d0b-40df-8320-5fafe9b62a83\",\"captureRevision\":{\"value\":16},\"currentEventId\":\"1341\"},\"data\":{\"dataset\":\"resource_usage\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"usage\",\"declaredType\":\"TEXT\"},{\"name\":\"access\",\"declaredType\":\"TEXT\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"view_resource_id\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"1567\",\"1723\",\"Barrier\",\"none\",\"synchronization\",null],[\"1567\",\"1736\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000587\"],[\"1567\",\"1750\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000587\"],[\"1567\",\"1753\",\"Barrier\",\"none\",\"synchronization\",null],[\"1567\",\"1761\",\"PS_Resource\",\"read\",\"pixel\",null],[\"1567\",\"1761\",\"PS_Resource\",\"read\",\"pixel\",null],[\"1567\",\"1761\",\"PS_Resource\",\"read\",\"pixel\",null],[\"1567\",\"1761\",\"PS_Resource\",\"read\",\"pixel\",null]],\"truncated\":false,\"executionMs\":0.027},\"warnings\":[]}}"
+      }
+    ]
+  },
+  "id": 29,
+  "jsonrpc": "2.0"
+}

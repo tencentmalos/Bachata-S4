@@ -1,0 +1,5 @@
+TASK 10190:com.shadps4.android id=1624 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity 4c7b96a pid=19927
+session: none
+snapshot_ns: 760015896177206
+

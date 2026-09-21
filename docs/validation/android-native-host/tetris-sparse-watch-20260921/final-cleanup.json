@@ -1,0 +1,26 @@
+{
+  "global": {
+    "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+    "byte_identical": true
+  },
+  "config": {
+    "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+    "byte_identical": true
+  },
+  "properties": {
+    "debug.shadps4.vulkan_driver": "turnip",
+    "debug.rdoc.vulkan_loader": "",
+    "debug.shadps4.guest_debug_port": "0",
+    "debug.shadps4.guest_debug_wait": "0"
+  },
+  "layers": {
+    "enable_gpu_debug_layers": "null",
+    "gpu_debug_app": "null",
+    "gpu_debug_layers": "null",
+    "gpu_debug_layer_app": "null"
+  },
+  "forwards": "\n",
+  "pid": 25666,
+  "tracer_pid": "TracerPid:\t0",
+  "root_bridge_present": "no"
+}

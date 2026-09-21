@@ -1,0 +1,55 @@
+{
+  "rdc_sha256": "5bfe8050da75d0dedef655aa832b32df68d89a898b8e4f074951893a6ab71c85",
+  "pid": 14211,
+  "generation": 1,
+  "run_uuid": "ef25a4b9d0523ea6ff07295ea1c0e1c2",
+  "guest_flip_begin": 3177,
+  "guest_flip_end": 3178,
+  "apk_sha256": "c0e8e6d32312fa622b52375a03492b13708b442a47a59c19cfcda9b2c5065125",
+  "store_id": "5d927689-27e8-4ca5-866f-cb6ae5114885",
+  "observations": [
+    {
+      "event": 1497,
+      "resource": "346",
+      "resource_name": "Frame image #1",
+      "extent": [
+        1920,
+        1080,
+        1
+      ],
+      "png_sha256": "39c2914ae625799faa74673354de4d743ec28526efbf76daea64577b6e62682c",
+      "actual_role": "host post-process frame, NOT guest eye; auto guest_target label rejected",
+      "rgb": "background, safety panel and sabers visible; upside down and overlapped",
+      "alpha": "99.19% nonopaque; black across most scene"
+    },
+    {
+      "event": 1522,
+      "resource": "195",
+      "resource_name": "Swapchain Image 3",
+      "png_sha256": "9441c2145a5bdd1bda9668f47d03594491275176bc692b95b9a2d0ca529b6b5d",
+      "rgb": "mostly black except source-alpha-visible areas and host overlay"
+    },
+    {
+      "resource": "1535",
+      "resource_name": "Image 2688x1512x1 Thin1DThin R8G8B8A8Srgb 0x233bb8900:0xf81000 L:1 M:1 S:1",
+      "host_extent": [
+        1344,
+        756,
+        1
+      ],
+      "writer_events": [
+        1475,
+        1486
+      ],
+      "status": "guest output candidate, array_size=1; per-eye layout unverified"
+    }
+  ],
+  "mechanism": "PrepareVrFrame preserved base alpha through post-process; Presenter displays Frame as ImGui::Image; ImGui Vulkan blends SrcAlpha/OneMinusSrcAlpha. Ordinary VideoOut already forces alpha=1 in image-view swizzle.",
+  "validation": "VR-only opaque-output bit restores visible scene in ordinary AYN run PID5953. Separate Y flip verified in final run; no game/driver patch.",
+  "limits": [
+    "Not a complete rendering fix",
+    "Stereo origin/viewport/eye separation remains unresolved",
+    "No exact HDR/presentation equivalence claim",
+    "Offline deep_pipeline and pixel_history pending, not treated as empty"
+  ]
+}

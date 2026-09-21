@@ -1,0 +1,25 @@
+{
+  "apk": {
+    "local_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "device_path": "/data/app/~~lJLQizNK5UBYrHpCb_hITQ==/com.shadps4.android-LuyEXoIGlWSBbHJ_onO7ww==/base.apk",
+    "local_sha256": "01b73f3763fc9a0fed42b54d2c16a17e73179f1a76819161c859105af3c833e3",
+    "device_sha256": "01b73f3763fc9a0fed42b54d2c16a17e73179f1a76819161c859105af3c833e3",
+    "match": true
+  },
+  "libs": {
+    "libshadps4_host.so": {
+      "local_sha256": "08c98bbae3df3005312d56460d649409d594a4d71f44ff335cf45a97912c8ac5",
+      "device_sha256": "08c98bbae3df3005312d56460d649409d594a4d71f44ff335cf45a97912c8ac5",
+      "device_path": "/data/app/~~lJLQizNK5UBYrHpCb_hITQ==/com.shadps4.android-LuyEXoIGlWSBbHJ_onO7ww==/lib/arm64/libshadps4_host.so",
+      "bytes": 485317624,
+      "match": true
+    },
+    "libshadps4_fex_session.so": {
+      "local_sha256": "382eebb6adb1c4a59fbd5401236b96f29da5e00472503b9681159f1da6e41284",
+      "device_sha256": "382eebb6adb1c4a59fbd5401236b96f29da5e00472503b9681159f1da6e41284",
+      "device_path": "/data/app/~~lJLQizNK5UBYrHpCb_hITQ==/com.shadps4.android-LuyEXoIGlWSBbHJ_onO7ww==/lib/arm64/libshadps4_fex_session.so",
+      "bytes": 35546920,
+      "match": true
+    }
+  }
+}

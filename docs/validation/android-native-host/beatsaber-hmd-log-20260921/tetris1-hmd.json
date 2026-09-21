@@ -1,0 +1,924 @@
+{
+  "pid": 16271,
+  "source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/beatsaber-eyes-20260921/tetris1-host-tail.txt",
+  "scope": "sampled call boundaries; last_sampled_call is not total calls",
+  "malformed_source_lines": [],
+  "entries": {
+    "sceHmdInitialize315": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdGetDeviceInformation": {
+      "samples": 5,
+      "last_sampled_call": 5,
+      "results": {
+        "0x0": 5
+      }
+    },
+    "sceHmdSetupDialogInitialize": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdSetupDialogOpen": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdSetupDialogUpdateStatus": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x3": 1
+      }
+    },
+    "sceHmdSetupDialogGetResult": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdSetupDialogTerminate": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdOpen": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0xf000000": 1
+      }
+    },
+    "sceHmdGet2DEyeOffset": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdGetFieldOfView": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdGetDeviceInformationByHandle": {
+      "samples": 4,
+      "last_sampled_call": 4,
+      "results": {
+        "0x0": 4
+      }
+    }
+  },
+  "records": [
+    {
+      "context": 1,
+      "phase": "enabled",
+      "pid": 16271,
+      "sampling": "first16_then_powers_of_two_through65536_per_entry",
+      "source_line": 24409
+    },
+    {
+      "api": "sceHmdInitialize315",
+      "args": [
+        120261228192,
+        81888732,
+        0,
+        103079591951,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261228192,
+          "field": "initialize",
+          "le_hex": "00000000000000000000000000000000",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 28121
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdInitialize315",
+      "args": [
+        120261228192,
+        81888732,
+        0,
+        103079591951,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 0,
+      "source_line": 28123
+    },
+    {
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228160,
+        68833892736,
+        480,
+        103210112,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28125
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228160,
+        68833892736,
+        480,
+        103210112,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261228160,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 28127
+    },
+    {
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228160,
+        68833892736,
+        111299728,
+        0,
+        120261226780,
+        31
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28128
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228160,
+        68833892736,
+        111299728,
+        0,
+        120261226780,
+        31
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261228160,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 28130
+    },
+    {
+      "api": "sceHmdSetupDialogInitialize",
+      "args": [
+        68869841056,
+        1,
+        111299607,
+        68870647888,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28131
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogInitialize",
+      "args": [
+        68869841056,
+        1,
+        111299607,
+        68870647888,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 0,
+      "source_line": 28132
+    },
+    {
+      "api": "sceHmdSetupDialogOpen",
+      "args": [
+        120261228000,
+        1,
+        111299607,
+        103080263695,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28133
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogOpen",
+      "args": [
+        120261228000,
+        1,
+        111299607,
+        103080263695,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 0,
+      "source_line": 28134
+    },
+    {
+      "api": "sceHmdSetupDialogUpdateStatus",
+      "args": [
+        68869841056,
+        68724916256,
+        4294967297,
+        4720631056619233280,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28135
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogUpdateStatus",
+      "args": [
+        68869841056,
+        68724916256,
+        4294967297,
+        4720631056619233280,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 3,
+      "source_line": 28136
+    },
+    {
+      "api": "sceHmdSetupDialogGetResult",
+      "args": [
+        120261228032,
+        68724916256,
+        4294967297,
+        103080017935,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28137
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogGetResult",
+      "args": [
+        120261228032,
+        68724916256,
+        4294967297,
+        103080017935,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 0,
+      "source_line": 28138
+    },
+    {
+      "api": "sceHmdSetupDialogTerminate",
+      "args": [
+        120261228032,
+        68724916256,
+        4294967297,
+        103079952399,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28139
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogTerminate",
+      "args": [
+        120261228032,
+        68724916256,
+        4294967297,
+        103079952399,
+        120261226780,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 0,
+      "source_line": 28140
+    },
+    {
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228160,
+        32,
+        384,
+        68724916256,
+        68724916264,
+        31
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28141
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228160,
+        32,
+        384,
+        68724916256,
+        68724916264,
+        31
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261228160,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 28143
+    },
+    {
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228000,
+        32,
+        384,
+        103079657487,
+        68724916264,
+        31
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28144
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261228000,
+        32,
+        384,
+        103079657487,
+        68724916264,
+        31
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261228000,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 28146
+    },
+    {
+      "api": "sceHmdOpen",
+      "args": [
+        1000,
+        0,
+        0,
+        0,
+        68724916264,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28147
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdOpen",
+      "args": [
+        1000,
+        0,
+        0,
+        0,
+        68724916264,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [],
+      "result": 251658240,
+      "source_line": 28149
+    },
+    {
+      "api": "sceHmdGet2DEyeOffset",
+      "args": [
+        251658240,
+        68869842044,
+        68869842076,
+        103079723023,
+        68724916264,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28150
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGet2DEyeOffset",
+      "args": [
+        251658240,
+        68869842044,
+        68869842076,
+        103079723023,
+        68724916264,
+        31
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 68869842044,
+          "field": "eye_offset0",
+          "le_hex": "250601bd0000000000000000",
+          "readable": true,
+          "size": 12,
+          "xyz": [
+            -0.03150000050663948,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "address": 68869842076,
+          "field": "eye_offset1",
+          "le_hex": "2506013d0000000000000000",
+          "readable": true,
+          "size": 12,
+          "xyz": [
+            0.03150000050663948,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "result": 0,
+      "source_line": 28152
+    },
+    {
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261227872,
+        1,
+        0,
+        103079280655,
+        0,
+        1
+      ],
+      "call": 5,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28167
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        120261227872,
+        1,
+        0,
+        103079280655,
+        0,
+        1
+      ],
+      "call": 5,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261227872,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 28169
+    },
+    {
+      "api": "sceHmdGetFieldOfView",
+      "args": [
+        251658240,
+        120261227984,
+        16666,
+        103079280655,
+        0,
+        1
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 28170
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetFieldOfView",
+      "args": [
+        251658240,
+        120261227984,
+        16666,
+        103079280655,
+        0,
+        1
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261227984,
+          "field": "fov",
+          "le_hex": "118d9a3f5936973fcaa5a13fcaa5a13f",
+          "readable": true,
+          "size": 16,
+          "tan_out_in_top_bottom": [
+            1.2074300050735474,
+            1.18134605884552,
+            1.2628719806671143,
+            1.2628719806671143
+          ]
+        }
+      ],
+      "result": 0,
+      "source_line": 28172
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120359532336,
+        68870855728,
+        120259084288,
+        0,
+        0
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 39563
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120359532336,
+        68870855728,
+        120259084288,
+        0,
+        0
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120359532336,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 39565
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120261226480,
+        120261228288,
+        120259084288,
+        1,
+        1
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 39567
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120261226480,
+        120261228288,
+        120259084288,
+        1,
+        1
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261226480,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 39569
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120261228672,
+        126342,
+        103079280655,
+        1,
+        1
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 39570
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120261228672,
+        126342,
+        103079280655,
+        1,
+        1
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120261228672,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 39572
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120359532336,
+        68870855728,
+        120259084288,
+        0,
+        0
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "in",
+      "pid": 16271,
+      "records": [],
+      "source_line": 39938
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        120359532336,
+        68870855728,
+        120259084288,
+        0,
+        0
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "out",
+      "pid": 16271,
+      "records": [
+        {
+          "address": 120359532336,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 39940
+    }
+  ]
+}

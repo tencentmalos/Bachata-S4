@@ -1,0 +1,120 @@
+{
+  "status": "warning",
+  "identity": {
+    "serial": "9c2841a4",
+    "packageName": "com.shadps4.android",
+    "processName": "com.shadps4.android",
+    "pid": 29912,
+    "startTimeTicks": 74353960,
+    "commandLine": "com.shadps4.android",
+    "packageUid": 10190,
+    "processUid": 10190,
+    "abi": "arm64-v8a",
+    "executablePath": "/system/bin/app_process64",
+    "targetToken": "ca966db930bdae8c9ee834076206622c9d0956cf20ad0c8724f7725fc6f04450"
+  },
+  "modules": [
+    {
+      "devicePath": "/data/app/~~DFyD5mEH9IxaFobu25pMHw==/com.shadps4.android-HkbU9AjlOuNoTzJ1OBT6nQ==/lib/arm64/libshadps4_host.so",
+      "fileName": "libshadps4_host.so",
+      "loadStart": 472096239616,
+      "loadEnd": 472173367296,
+      "hasExecutableMapping": true,
+      "wasDeleted": false,
+      "mappings": [
+        {
+          "start": 472096239616,
+          "end": 472139624448,
+          "permissions": "r--p",
+          "fileOffset": 0,
+          "device": "fe:0e",
+          "inode": 203976
+        },
+        {
+          "start": 472139636736,
+          "end": 472170135552,
+          "permissions": "r-xp",
+          "fileOffset": 43380736,
+          "device": "fe:0e",
+          "inode": 203976
+        },
+        {
+          "start": 472170147840,
+          "end": 472173047808,
+          "permissions": "r--p",
+          "fileOffset": 73875456,
+          "device": "fe:0e",
+          "inode": 203976
+        },
+        {
+          "start": 472173060096,
+          "end": 472173367296,
+          "permissions": "rw-p",
+          "fileOffset": 76771328,
+          "device": "fe:0e",
+          "inode": 203976
+        }
+      ],
+      "deviceBuildId": "eefc26e87c63a3aab8e6ae0fd657ae11fde64cea",
+      "deviceAbi": "arm64-v8a",
+      "symbolReadiness": {
+        "level": "exact-debug",
+        "reason": "exact_build_id",
+        "candidate": {
+          "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+          "buildId": "eefc26e87c63a3aab8e6ae0fd657ae11fde64cea",
+          "abi": "arm64-v8a",
+          "hasDebugInfo": true,
+          "hasSymbolTable": true,
+          "loadSegments": [
+            {
+              "fileOffset": 0,
+              "virtualAddress": 0,
+              "fileSize": 43382896,
+              "memorySize": 43382896,
+              "alignment": 16384
+            },
+            {
+              "fileOffset": 43382912,
+              "virtualAddress": 43399296,
+              "fileSize": 30493216,
+              "memorySize": 30493216,
+              "alignment": 16384
+            },
+            {
+              "fileOffset": 73876160,
+              "virtualAddress": 73908928,
+              "fileSize": 2896400,
+              "memorySize": 2899264,
+              "alignment": 16384
+            },
+            {
+              "fileOffset": 76772560,
+              "virtualAddress": 76821712,
+              "fileSize": 303832,
+              "memorySize": 23168368,
+              "alignment": 16384
+            }
+          ]
+        },
+        "eligible": true
+      },
+      "captureAttempts": [
+        {
+          "source": "proc_root",
+          "location": "/data/app/~~DFyD5mEH9IxaFobu25pMHw==/com.shadps4.android-HkbU9AjlOuNoTzJ1OBT6nQ==/lib/arm64/libshadps4_host.so",
+          "status": "selected",
+          "errorCode": "",
+          "errorMessage": "",
+          "firstBytesHex": "7f454c46020101000000000000000000",
+          "abi": "arm64-v8a",
+          "buildId": "eefc26e87c63a3aab8e6ae0fd657ae11fde64cea"
+        }
+      ],
+      "captureSource": "proc_root"
+    }
+  ],
+  "warnings": [
+    "Read-only device probe failed (getenforce): The shell command has become unresponsive"
+  ]
+}

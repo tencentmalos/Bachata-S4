@@ -1,0 +1,964 @@
+{
+  "succeeded": true,
+  "dryRun": false,
+  "session": {
+    "sessionId": "gdbg_6aa0cd9630b74643b832f929b23e8092",
+    "revision": 3,
+    "state": "stopped",
+    "sessionState": "active",
+    "hostProcessState": "unknown",
+    "nativeTargetState": "unbound",
+    "guestTargetState": "stopped",
+    "guestTransportState": "connected",
+    "controlOwner": "guest",
+    "emulator": "shadps4",
+    "transport": "adb_forward_tcp",
+    "host": "127.0.0.1",
+    "port": 24681,
+    "serial": "9c2841a4",
+    "remotePort": 24680,
+    "ownsAdbForward": true,
+    "ownershipReleased": false,
+    "nativeSessionId": "",
+    "hostPid": 0,
+    "hostStartTimeTicks": 0,
+    "emulatedProcessId": "",
+    "programId": "",
+    "mainBuildId": "",
+    "gdbServerInstanceId": "",
+    "registryGeneration": 0,
+    "preAttachState": "unknown",
+    "transientAttachStop": false,
+    "attachStopEpoch": 0,
+    "resumedAfterAttach": false,
+    "preAttachPausePreserved": false,
+    "architecture": "i386:x86-64",
+    "byteOrder": "little",
+    "supportedFeatures": [
+      "PacketSize=2000",
+      "qXfer:features:read+",
+      "qXfer:threads:read+",
+      "qXfer:libraries:read+",
+      "QStartNoAckMode+",
+      "swbreak+",
+      "qXfer:shadps4-mixed-stack:read+"
+    ],
+    "registerDefinitions": [
+      {
+        "number": 0,
+        "name": "rax",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 1,
+        "name": "rbx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 2,
+        "name": "rcx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 3,
+        "name": "rdx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 4,
+        "name": "rsi",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 5,
+        "name": "rdi",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 6,
+        "name": "rbp",
+        "bitSize": 64,
+        "type": "data_ptr",
+        "group": "general",
+        "generic": "fp"
+      },
+      {
+        "number": 7,
+        "name": "rsp",
+        "bitSize": 64,
+        "type": "data_ptr",
+        "group": "general",
+        "generic": "sp"
+      },
+      {
+        "number": 8,
+        "name": "r8",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 9,
+        "name": "r9",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 10,
+        "name": "r10",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 11,
+        "name": "r11",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 12,
+        "name": "r12",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 13,
+        "name": "r13",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 14,
+        "name": "r14",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 15,
+        "name": "r15",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 16,
+        "name": "rip",
+        "bitSize": 64,
+        "type": "code_ptr",
+        "group": "general",
+        "generic": "pc"
+      },
+      {
+        "number": 17,
+        "name": "eflags",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 18,
+        "name": "cs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 19,
+        "name": "ss",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 20,
+        "name": "ds",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 21,
+        "name": "es",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 22,
+        "name": "fs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 23,
+        "name": "gs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 24,
+        "name": "st0",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 25,
+        "name": "st1",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 26,
+        "name": "st2",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 27,
+        "name": "st3",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 28,
+        "name": "st4",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 29,
+        "name": "st5",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 30,
+        "name": "st6",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 31,
+        "name": "st7",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 32,
+        "name": "fctrl",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 33,
+        "name": "fstat",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 34,
+        "name": "ftag",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 35,
+        "name": "fiseg",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 36,
+        "name": "fioff",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 37,
+        "name": "foseg",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 38,
+        "name": "fooff",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 39,
+        "name": "fop",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 40,
+        "name": "xmm0",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 41,
+        "name": "xmm1",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 42,
+        "name": "xmm2",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 43,
+        "name": "xmm3",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 44,
+        "name": "xmm4",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 45,
+        "name": "xmm5",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 46,
+        "name": "xmm6",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 47,
+        "name": "xmm7",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 48,
+        "name": "xmm8",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 49,
+        "name": "xmm9",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 50,
+        "name": "xmm10",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 51,
+        "name": "xmm11",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 52,
+        "name": "xmm12",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 53,
+        "name": "xmm13",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 54,
+        "name": "xmm14",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 55,
+        "name": "xmm15",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 56,
+        "name": "mxcsr",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 57,
+        "name": "fs_base",
+        "bitSize": 64,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 58,
+        "name": "gs_base",
+        "bitSize": 64,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      }
+    ],
+    "stopEpoch": 1,
+    "stopReason": "signal_05",
+    "stoppedThreadId": "1",
+    "latestEventCursor": 2,
+    "stopLeaseMs": 300000,
+    "stopLeaseDeadlineUtc": "2026-09-21T07:47:46.077441+00:00",
+    "breakpoints": [],
+    "createdUtc": "2026-09-21T07:42:11.37392+00:00",
+    "updatedUtc": "2026-09-21T07:42:23.956978+00:00",
+    "errorCode": "",
+    "errorMessage": ""
+  },
+  "events": [],
+  "threads": [],
+  "modules": [
+    {
+      "name": "eboot.bin",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x400000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "libSceFios2.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x100000000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "libSceNpToolkit2.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x100990000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "eossdk-ps4-shipping.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10124c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "libc.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x1032dc000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akaudioinput.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x103c00000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akcompressor.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x104804000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akdelay.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x105408000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akexpander.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10600c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akflanger.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x106c10000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akgain.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x107814000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akguitardistortion.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x108418000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akharmonizer.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10901c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akmatrixreverb.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x109c20000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akmotion.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10a824000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akparametriceq.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10b428000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akpeaklimiter.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10c02c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akpitchshifter.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10cc30000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akrecorder.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10d834000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akreflect.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10e438000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akroomverb.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10f03c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aksilencegenerator.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x10fc40000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aksinetone.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x110844000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aksoundseedair.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x111448000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aksoundseedimpact.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x11204c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "akstereodelay.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x112c50000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aksynthone.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x113854000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aktimestretch.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x114458000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aktonegen.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x11505c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "aktremolo.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x115c60000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "auro.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x116864000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "izotope.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x117620000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "masteringsuite.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x118224000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "mcdsp.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x118e28000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    },
+    {
+      "name": "sceaudio3d.prx",
+      "kind": "",
+      "buildId": "",
+      "moduleId": "",
+      "guestTextBase": "0x119a2c000",
+      "guestLoadBase": "",
+      "mappedSize": 0,
+      "registryGeneration": 0,
+      "loadGeneration": 0,
+      "segments": []
+    }
+  ],
+  "registers": [],
+  "addressProofs": [],
+  "timedOut": false,
+  "ownershipReleased": false,
+  "alreadyCleaned": false,
+  "warnings": [],
+  "errorCode": "",
+  "errorMessage": ""
+}

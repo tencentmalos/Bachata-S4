@@ -1,0 +1,12 @@
+{
+  "base_head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "branch": "feature/malos/beat_saber_fix",
+  "files": {
+    "src/core/libraries/system/systemservice.h": "a8ee4d5656a790c7115f7728f18334cf0d5e449d46c69a972098364ee9a0af16",
+    "src/core/libraries/system/systemservice.cpp": "9383423c2229da9606ffb64b76b485b40d23b921859cc153b2143a557e4fd96e",
+    "src/core/host_runtime/guest_system_service.h": "3993c90f97be25964730147d288ff9165ba37f247652e83f836a80df8cb9f255",
+    "src/core/host_runtime/guest_runtime.cpp": "72a67268c45e15b5c14c850f8d710df185abf14bcb19cc675466641255297696",
+    "tests/host_runtime/guest_psvr_services_tests.cpp": "475d6a62542cffc3ca0eabdc6841f52aa7b62481e21d57acba12e241724fe082"
+  },
+  "note": "Full current file hashes include pre-existing changes; no commit or clean-tree claim."
+}

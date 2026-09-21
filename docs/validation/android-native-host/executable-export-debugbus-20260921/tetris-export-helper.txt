@@ -1,0 +1,7 @@
+Export request: 3a48e719124a309a5ba7de659ea90484
+{
+  "directory": "/Users/bytedance/Downloads/Tetris-debugbus-20260921",
+  "exported_files": 45,
+  "warnings": 2,
+  "device_directory": "/data/user/0/com.shadps4.android/files/host/log/executable-exports/3a48e719124a309a5ba7de659ea90484"
+}

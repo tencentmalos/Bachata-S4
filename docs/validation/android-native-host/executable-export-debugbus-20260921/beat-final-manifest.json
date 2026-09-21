@@ -1,0 +1,1073 @@
+{
+  "app_version": "01.00",
+  "content_roots": [
+    {
+      "backend_roots_priority_order": [
+        "/data/data/com.shadps4.android/files/games/CUSA12878"
+      ],
+      "install_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "namespace": "app0"
+    }
+  ],
+  "context_id": 0,
+  "exported_files": 18,
+  "files": [
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 36710940,
+      "content": "app0",
+      "elf": {
+        "bytes": 36669244,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 37,
+          "entry_size": 64,
+          "offset": 250675344,
+          "string_index": 34
+        },
+        "path": "app0/elf/Media/Modules/Il2CppUserAssemblies.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 26845604,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 2089136,
+            "index": 1,
+            "offset": 26869760,
+            "type": 1627389968,
+            "va": 26853376
+          },
+          {
+            "bytes": 1016080,
+            "index": 2,
+            "offset": 28966912,
+            "type": 1,
+            "va": 28950528
+          },
+          {
+            "bytes": 6685792,
+            "index": 7,
+            "offset": 29983040,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 140,
+            "index": 8,
+            "offset": 36668832,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "d61e29cf0dd3002edc5e0e6a60623049ffd5d1b80db91757e564b293b45a3a46",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/Media/Modules/Il2CppUserAssemblies.prx",
+      "original": "app0/original/Media/Modules/Il2CppUserAssemblies.prx",
+      "path": "Media/Modules/Il2CppUserAssemblies.prx",
+      "sha256": "fa256eb8e8bf9f1ec1e61e775944445a8f0ba6242c52fa5eccefb4d1bb259c00",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 6076,
+      "content": "app0",
+      "elf": {
+        "bytes": 51292,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 27,
+          "entry_size": 64,
+          "offset": 56596,
+          "string_index": 24
+        },
+        "path": "app0/elf/Media/Modules/PS4Util.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 1420,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 120,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 16384
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 32768
+          },
+          {
+            "bytes": 1840,
+            "index": 7,
+            "offset": 49248,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 51088,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "d04c7a55b126e7854ee034ad12e3a532d3e7307d3c97e909f35e69e7ece499e0",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/Media/Modules/PS4Util.prx",
+      "original": "app0/original/Media/Modules/PS4Util.prx",
+      "path": "Media/Modules/PS4Util.prx",
+      "sha256": "d4839eb90e65c603d08f08857819b664e07524ca513e51c050fe5f11720018e4",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 8215,
+      "content": "app0",
+      "elf": {
+        "bytes": 52327,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 27,
+          "entry_size": 64,
+          "offset": 58636,
+          "string_index": 24
+        },
+        "path": "app0/elf/Media/Plugins/PS4NativeUserSwitchPlugin.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 2492,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 160,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 16384
+          },
+          {
+            "bytes": 96,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 32768
+          },
+          {
+            "bytes": 2720,
+            "index": 7,
+            "offset": 49248,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 100,
+            "index": 8,
+            "offset": 51968,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "dde0f1bb2f1e796689b3d876f3ae86d7c0ef7edc083fdc1f24ca693ae9c20966",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/Media/Plugins/PS4NativeUserSwitchPlugin.prx",
+      "original": "app0/original/Media/Plugins/PS4NativeUserSwitchPlugin.prx",
+      "path": "Media/Plugins/PS4NativeUserSwitchPlugin.prx",
+      "sha256": "8baee5d5c5de4738cd23f418116aae4ccaa534d5e7b60072bcec3a28213999dd",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 188393,
+      "content": "app0",
+      "elf": {
+        "bytes": 224873,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 28,
+          "entry_size": 64,
+          "offset": 457712,
+          "string_index": 25
+        },
+        "path": "app0/elf/Media/Plugins/UnityNpToolkit2.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 135020,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 6016,
+            "index": 1,
+            "offset": 163840,
+            "type": 1627389968,
+            "va": 147456
+          },
+          {
+            "bytes": 520,
+            "index": 2,
+            "offset": 180224,
+            "type": 1,
+            "va": 163840
+          },
+          {
+            "bytes": 43488,
+            "index": 7,
+            "offset": 180752,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 92,
+            "index": 8,
+            "offset": 224240,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "adfdf502e31b2a36977139b2d0e183e469113ce5b0f51b5761e81a804e4a8ed0",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/Media/Plugins/UnityNpToolkit2.prx",
+      "original": "app0/original/Media/Plugins/UnityNpToolkit2.prx",
+      "path": "Media/Plugins/UnityNpToolkit2.prx",
+      "sha256": "1f01e2fcaa048bf3a794200ceb0ab1d4f58842e78eacc71a45752a7400f208d6",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 22832885,
+      "content": "app0",
+      "elf": {
+        "bytes": 22822773,
+        "elf_type": 65040,
+        "entry": 128,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 37,
+          "entry_size": 64,
+          "offset": 135916516,
+          "string_index": 34
+        },
+        "path": "app0/elf/eboot.bin.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 21616048,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 236224,
+            "index": 1,
+            "offset": 21643264,
+            "type": 1627389968,
+            "va": 21626880
+          },
+          {
+            "bytes": 204000,
+            "index": 2,
+            "offset": 21889024,
+            "type": 1,
+            "va": 21872640
+          },
+          {
+            "bytes": 727280,
+            "index": 8,
+            "offset": 22093056,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 112,
+            "index": 9,
+            "offset": 22820336,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "179d4f673c497ab9815f9218e5a0cdcb1e3e8375fb59ba87198c8651a303f2d7",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/eboot.bin",
+      "original": "app0/original/eboot.bin",
+      "path": "eboot.bin",
+      "sha256": "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 22602,
+      "content": "app0",
+      "elf": {
+        "bytes": 67458,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceAudioLatencyEstimation.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 18456,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 112,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 32768
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 49152
+          },
+          {
+            "bytes": 1784,
+            "index": 7,
+            "offset": 65632,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "9231e7d8ee4e4955b013685758bc99693a01028c587944dffc7c105388a46319",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceAudioLatencyEstimation.prx",
+      "original": "app0/original/sce_module/libSceAudioLatencyEstimation.prx",
+      "path": "sce_module/libSceAudioLatencyEstimation.prx",
+      "sha256": "91ab168447706319253ea7bfe82698661633f9a0af20697ab5889cf9927d5fd0",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 309424,
+      "content": "app0",
+      "elf": {
+        "bytes": 342000,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceFace.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 287968,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 4504,
+            "index": 1,
+            "offset": 311296,
+            "type": 1627389968,
+            "va": 294912
+          },
+          {
+            "bytes": 272,
+            "index": 2,
+            "offset": 327680,
+            "type": 1,
+            "va": 311296
+          },
+          {
+            "bytes": 14032,
+            "index": 7,
+            "offset": 327952,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "8c3f5cc8ceabc2614cb778986b9bb80312e89229148a8fd6d448224eeab70e15",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceFace.prx",
+      "original": "app0/original/sce_module/libSceFace.prx",
+      "path": "sce_module/libSceFace.prx",
+      "sha256": "1d2143254eff681e8b5b642523f8ef5ee4ae06b3238d56659bd2ad8f4b787c56",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 2608247,
+      "content": "app0",
+      "elf": {
+        "bytes": 2644119,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceFaceTracker.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 38640,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 272,
+            "index": 1,
+            "offset": 65536,
+            "type": 1627389968,
+            "va": 49152
+          },
+          {
+            "bytes": 2558112,
+            "index": 2,
+            "offset": 81920,
+            "type": 1,
+            "va": 65536
+          },
+          {
+            "bytes": 4064,
+            "index": 7,
+            "offset": 2640032,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "de00420623bbe35fddecbdb2af31db20e3a0f91ad64fe0d4bb159a1a0098908b",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceFaceTracker.prx",
+      "original": "app0/original/sce_module/libSceFaceTracker.prx",
+      "path": "sce_module/libSceFaceTracker.prx",
+      "sha256": "b8e2d74b5ec32490a50d05f62c5fb542bd3b3a6b78cdcd32162578e1bc2a935d",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 456561,
+      "content": "app0",
+      "elf": {
+        "bytes": 500705,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceFios2.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 377168,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 1728,
+            "index": 1,
+            "offset": 409600,
+            "type": 1627389968,
+            "va": 393216
+          },
+          {
+            "bytes": 54480,
+            "index": 2,
+            "offset": 425984,
+            "type": 1,
+            "va": 409600
+          },
+          {
+            "bytes": 20224,
+            "index": 7,
+            "offset": 480464,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "e5671f3717973d0b66db4fb4a7c45f56ede23fc2ac5fbd08f0ca96454347b131",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceFios2.prx",
+      "original": "app0/original/sce_module/libSceFios2.prx",
+      "path": "sce_module/libSceFios2.prx",
+      "sha256": "fc738742255a798d12854e8d960f7f4cef115515c5d17f27537e241a16b825bd",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 24808,
+      "content": "app0",
+      "elf": {
+        "bytes": 67312,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceHand.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 20824,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 96,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 32768
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 49152
+          },
+          {
+            "bytes": 1656,
+            "index": 7,
+            "offset": 65632,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "123468c0c457de1eca393281a580dca315cefb13e5174e23e1b49a9693ae9f93",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceHand.prx",
+      "original": "app0/original/sce_module/libSceHand.prx",
+      "path": "sce_module/libSceHand.prx",
+      "sha256": "a391cb3ba5cc0bb85ea2a8c3ed68bc9d9aa1e1b2178de5f6fc0d3d2828955a84",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 53279,
+      "content": "app0",
+      "elf": {
+        "bytes": 84439,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceHandTracker.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 48364,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 248,
+            "index": 1,
+            "offset": 65536,
+            "type": 1627389968,
+            "va": 49152
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 81920,
+            "type": 1,
+            "va": 65536
+          },
+          {
+            "bytes": 2392,
+            "index": 7,
+            "offset": 82016,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "e9b802a460423ee74b0ce428b9baddc3b99b5dbb6c7aba3e8c34dba93d5e7f87",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceHandTracker.prx",
+      "original": "app0/original/sce_module/libSceHandTracker.prx",
+      "path": "sce_module/libSceHandTracker.prx",
+      "sha256": "395d06dd572ae5c2fe2d509129a5af25c93495d5ac60f7e5d946a669ad068317",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 1350927,
+      "content": "app0",
+      "elf": {
+        "bytes": 1386359,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceHeadTracker.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 316588,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 3792,
+            "index": 1,
+            "offset": 344064,
+            "type": 1627389968,
+            "va": 327680
+          },
+          {
+            "bytes": 1013232,
+            "index": 2,
+            "offset": 360448,
+            "type": 1,
+            "va": 344064
+          },
+          {
+            "bytes": 12648,
+            "index": 7,
+            "offset": 1373680,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "7f5c6ea5f7d1282c7e8aaec0dfd065bd9b9f5f72b2029dd23a016272854e9aca",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceHeadTracker.prx",
+      "original": "app0/original/sce_module/libSceHeadTracker.prx",
+      "path": "sce_module/libSceHeadTracker.prx",
+      "sha256": "9319b97df2f02c5024f92e0d59a6c960c6b537443df2832fd73fa615f73b7d6d",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 70526,
+      "content": "app0",
+      "elf": {
+        "bytes": 109830,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceJobManager.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 55476,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 1336,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 65536
+          },
+          {
+            "bytes": 552,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 81920
+          },
+          {
+            "bytes": 10936,
+            "index": 7,
+            "offset": 98864,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "8018ffbf5e28c65ad25782454bb414c1a0e2e7fd17f777a983539ccb70258cd7",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceJobManager.prx",
+      "original": "app0/original/sce_module/libSceJobManager.prx",
+      "path": "sce_module/libSceJobManager.prx",
+      "sha256": "d3fca2da27342db5eabd76f52830b1587b510ae32d776881ef3976ecd36ab472",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 885350,
+      "content": "app0",
+      "elf": {
+        "bytes": 914214,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceNpToolkit2.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 716848,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 4200,
+            "index": 1,
+            "offset": 737280,
+            "type": 1627389968,
+            "va": 720896
+          },
+          {
+            "bytes": 96,
+            "index": 2,
+            "offset": 753664,
+            "type": 1,
+            "va": 737280
+          },
+          {
+            "bytes": 160432,
+            "index": 7,
+            "offset": 753760,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "e85c5c3899fefddd2ea27b177c1619aa63498923590efbac531aa05e06cf57f5",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceNpToolkit2.prx",
+      "original": "app0/original/sce_module/libSceNpToolkit2.prx",
+      "path": "sce_module/libSceNpToolkit2.prx",
+      "sha256": "418c13070aab5ca1b94d7692a592dbf42a05d4bdcb88002342a74112fd6e1115",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 371593,
+      "content": "app0",
+      "elf": {
+        "bytes": 408121,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceS3DConversion.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 350408,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 3520,
+            "index": 1,
+            "offset": 376832,
+            "type": 1627389968,
+            "va": 360448
+          },
+          {
+            "bytes": 3056,
+            "index": 2,
+            "offset": 393216,
+            "type": 1,
+            "va": 376832
+          },
+          {
+            "bytes": 11824,
+            "index": 7,
+            "offset": 396272,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "fb219f0132d6ebf92bb1ed4cb3860165727396804155c77165794f9d7a8da570",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceS3DConversion.prx",
+      "original": "app0/original/sce_module/libSceS3DConversion.prx",
+      "path": "sce_module/libSceS3DConversion.prx",
+      "sha256": "464432efe669dc7d429371a199a344935cb65ef88fe4e086cb07360f5ed68813",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 1449897,
+      "content": "app0",
+      "elf": {
+        "bytes": 1485729,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceSmart.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 907504,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 2072,
+            "index": 1,
+            "offset": 933888,
+            "type": 1627389968,
+            "va": 917504
+          },
+          {
+            "bytes": 525352,
+            "index": 2,
+            "offset": 950272,
+            "type": 1,
+            "va": 933888
+          },
+          {
+            "bytes": 10072,
+            "index": 7,
+            "offset": 1475632,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "28861c40260b4677e297efb09595da95a7e396937f99648bc4165fcd12e623b4",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libSceSmart.prx",
+      "original": "app0/original/sce_module/libSceSmart.prx",
+      "path": "sce_module/libSceSmart.prx",
+      "sha256": "3d53bb71e15b3096db60138aed9c3ae7af6d23bc8019edba375b4d853c1cb6cc",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 1162994,
+      "content": "app0",
+      "elf": {
+        "bytes": 1671962,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 31,
+          "entry_size": 64,
+          "offset": 1669964,
+          "string_index": 28
+        },
+        "path": "app0/elf/sce_module/libc.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 966564,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 16456,
+            "index": 1,
+            "offset": 983040,
+            "type": 1627389968,
+            "va": 966656
+          },
+          {
+            "bytes": 16496,
+            "index": 2,
+            "offset": 1015808,
+            "type": 1,
+            "va": 999424
+          },
+          {
+            "bytes": 158768,
+            "index": 7,
+            "offset": 1032304,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 1191072,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "41ddaf743b0b698ac5465821127099d0cfc1f8006640eb219cff8fb95ba5567f",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_module/libc.prx",
+      "original": "app0/original/sce_module/libc.prx",
+      "path": "sce_module/libc.prx",
+      "sha256": "4b097538887ed3d9af753914468e084823777486f9e99367bcd347844a27b108",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA12878",
+      "bytes": 16025,
+      "content": "app0",
+      "format": "SELF",
+      "host_path": "/data/data/com.shadps4.android/files/games/CUSA12878/sce_sys/about/right.sprx",
+      "original": "app0/original/sce_sys/about/right.sprx",
+      "path": "sce_sys/about/right.sprx",
+      "sha256": "7ac46af09bedc1ff31a51977e52c959080e1213cede37d9794315a3986c72de7",
+      "status": "encrypted_SELF_original_only"
+    }
+  ],
+  "inventory_sha256": "63947dac14a31e6ef28b5331da5b58005627a1f9bbd237d6980f2ad4bfedba96",
+  "kind": "shadps4.executable_export",
+  "limits": {
+    "max_depth": 64,
+    "max_entries": 200000,
+    "max_executables": 4096,
+    "max_file_bytes": 1073741824,
+    "max_output_bytes": 8589934592
+  },
+  "output_bytes": 138033367,
+  "request_id": "9aa52924fa90c1bd34e3433e4fe5bdc6",
+  "scanned_files": 139,
+  "schema": 1,
+  "scope": "disk files, not relocated guest memory",
+  "state": "ready",
+  "title_id": "CUSA12878",
+  "warnings": 1
+}

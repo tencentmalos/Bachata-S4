@@ -1,0 +1,105 @@
+[1/31] Building CXX object CMakeFiles/guest_vr_sensor_tests.dir/tests/host_runtime/guest_vr_sensor_tests.cpp.o
+[2/31] Building CXX object CMakeFiles/guest_vr_sensor_tests.dir/src/core/host_runtime/guest_vr_sensor.cpp.o
+[3/31] Linking CXX executable guest_vr_sensor_tests
+[4/31] Performing build step for 'ffmpeg_android_build'
+[5/31] No install step for 'ffmpeg_android_build'
+[6/31] Completed 'ffmpeg_android_build'
+[7/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_file_streamer.cpp.o
+[8/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_handle_streamer.cpp.o
+[9/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/video_utils.cpp.o
+[10/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_instance.cpp.o
+[11/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_mp3.cpp.o
+[12/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_context.cpp.o
+[13/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/move/move.cpp.o
+[14/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2_impl.cpp.o
+[15/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm.cpp.o
+[16/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec_impl.cpp.o
+[17/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/hmd/hmd_setup_dialog.cpp.o
+[18/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec.cpp.o
+[19/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2.cpp.o
+[20/31] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_vr_sensor.cpp.o
+[21/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/vr_tracker/vr_tracker.cpp.o
+[22/31] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/hmd/hmd.cpp.o
+[23/31] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_ajm.cpp.o
+[24/31] Building CXX object CMakeFiles/guest_psvr_services_tests.dir/tests/host_runtime/guest_psvr_services_tests.cpp.o
+[25/31] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_graphics.cpp.o
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/core/host_runtime/guest_graphics.cpp:17:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_presenter.h:14:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_instance.h:18:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/vulkan/FragmentDensityMap.h:13:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/Foveation.h:11:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:8:
+/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/Half.hpp:202:64: warning: 'denorm_absent' is deprecated [-Wdeprecated-declarations]
+  202 |         static constexpr const float_denorm_style has_denorm = denorm_absent;
+      |                                                                ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/limits:131:6: note: 'float_denorm_style' has been explicitly marked deprecated here
+  131 | enum _LIBCPP_DEPRECATED_IN_CXX23 float_denorm_style {
+      |      ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:737:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX23'
+  737 | #    define _LIBCPP_DEPRECATED_IN_CXX23 _LIBCPP_DEPRECATED
+      |                                         ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:698:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  698 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/core/host_runtime/guest_graphics.cpp:17:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_presenter.h:14:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_instance.h:18:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/vulkan/FragmentDensityMap.h:13:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/Foveation.h:11:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:8:
+/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/Half.hpp:202:32: warning: 'float_denorm_style' is deprecated [-Wdeprecated-declarations]
+  202 |         static constexpr const float_denorm_style has_denorm = denorm_absent;
+      |                                ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/limits:131:6: note: 'float_denorm_style' has been explicitly marked deprecated here
+  131 | enum _LIBCPP_DEPRECATED_IN_CXX23 float_denorm_style {
+      |      ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:737:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX23'
+  737 | #    define _LIBCPP_DEPRECATED_IN_CXX23 _LIBCPP_DEPRECATED
+      |                                         ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:698:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  698 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+2 warnings generated.
+[26/31] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_presenter.cpp.o
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_presenter.cpp:20:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/imgui/renderer/imgui_core.h:8:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_instance.h:18:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/vulkan/FragmentDensityMap.h:13:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/Foveation.h:11:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:8:
+/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/Half.hpp:202:64: warning: 'denorm_absent' is deprecated [-Wdeprecated-declarations]
+  202 |         static constexpr const float_denorm_style has_denorm = denorm_absent;
+      |                                                                ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/limits:131:6: note: 'float_denorm_style' has been explicitly marked deprecated here
+  131 | enum _LIBCPP_DEPRECATED_IN_CXX23 float_denorm_style {
+      |      ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:737:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX23'
+  737 | #    define _LIBCPP_DEPRECATED_IN_CXX23 _LIBCPP_DEPRECATED
+      |                                         ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:698:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  698 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_presenter.cpp:20:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/imgui/renderer/imgui_core.h:8:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_instance.h:18:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/vulkan/FragmentDensityMap.h:13:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/Foveation.h:11:
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:8:
+/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/basic/underlying/math/public/spatial/math/Half.hpp:202:32: warning: 'float_denorm_style' is deprecated [-Wdeprecated-declarations]
+  202 |         static constexpr const float_denorm_style has_denorm = denorm_absent;
+      |                                ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/limits:131:6: note: 'float_denorm_style' has been explicitly marked deprecated here
+  131 | enum _LIBCPP_DEPRECATED_IN_CXX23 float_denorm_style {
+      |      ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:737:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX23'
+  737 | #    define _LIBCPP_DEPRECATED_IN_CXX23 _LIBCPP_DEPRECATED
+      |                                         ^
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:698:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  698 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+2 warnings generated.
+[27/31] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_runtime.cpp.o
+[28/31] Linking CXX shared library libshadps4_host.so
+[29/31] Linking CXX executable guest_graphics_admission_tests
+[30/31] Linking CXX executable guest_psvr_services_tests
+[31/31] Linking CXX executable guest_file_io_tests

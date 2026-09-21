@@ -1,4 +1,12 @@
+> 2026-09-20 插件加载续项：[修复与实测](validation/android-native-host/beatsaber-plugin-loader-20260920.md)。两处 DllNotFound 已消失，原始选择顺序也会在 HMD 设置完成后进入 PlayStationVR；无 patch 普通启动已出现双眼局部元素，但画面异常、菜单不可验收，SBS 仍未完成。下方“仍全零/插件未修复”保留为此前证据。
+
+> 2026-09-20 guest log 续项：用户要求 SBS 始终固定正前方，已停止陀螺仪积分并修正 camera 零四元数。位姿回报有效后仍黑屏；真实插件加载因动态模块拒绝返回 ENOENT，尚未修复。见 [实测报告](validation/android-native-host/beatsaber-guest-log-20260920.md)。下文历史陀螺仪规划不覆盖当前用户约定。
+
 # shadPS4 PSVR 适配调整规划：先做 SBS，再落地 Swan OpenXR
+
+> 2026-09-20 AYN 实施更新：[验证报告](validation/android-native-host/beatsaber-sbs-20260920.md)。已接直接眼图和独立/共享视图合成，修复 EventFlag Stop 阻塞，双驱动 GPU 定向检查通过；真实游戏眼图仍全零，尚未达到本规划的双眼场景与菜单验收。新批处理已实跑并保留 partial/frontier。
+
+> 2026-09-20 续项：SBS 尚未完成。先按 [Reverse Study 批量调用链标定与 HLE 重建 spec](specs/reverse-study-batch-hle-reconstruction-20260920.md) 补齐分析工作流，再推进眼图表示、提交/释放和停止闭环。该 spec §2 区分历史 AYN 证据与当前源码；旧缓存启动画面不能作为真实双眼或 Swan 验收。本文件保留原两阶段目标，后文“当前”实现状态按历史记录日期理解。
 
 本文把 PSVR 适配拆成两个有明确边界的阶段：第一阶段在普通 Android 设备上让 Beat Saber 产生可检查的左右眼 SBS 输出；第二阶段在 Swan 上把同一条双眼图像链路接入 OpenXR。第一阶段不要求头显、OpenXR 运行时或 Move 6DoF，因此可以先验证渲染、缓冲、尺寸、呈现和输入框架。
 

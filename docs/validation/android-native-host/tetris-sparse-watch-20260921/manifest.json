@@ -1,0 +1,335 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-09-21T10:37:29.600484+00:00",
+  "branch": "feature/malos/beat_saber_fix",
+  "head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "dirty": true,
+  "serial": "9c2841a4",
+  "apk": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "ce60440a4673f0f4b20d0934a93f7c76bde5c03115d2cd0ca32ecb868ab99f3d",
+    "lib/arm64-v8a/libshadps4_host.so": "f4870e3cab078b7cf23d3ba7b9d8a9a0790e4efc2e88d0748704eac44979f089",
+    "apk": "905b84f8052a690e3e81dc88a0c153c660fe1a9ebd6fee629128c741c96f7bd0"
+  },
+  "sources": [
+    {
+      "path": "src/core/memory.cpp",
+      "bytes": 70830,
+      "sha256": "3bd8f6d5f6fe5f62175d093dedbec41740071c6ff2fb35f05af5dce676989bdf"
+    },
+    {
+      "path": "src/core/memory.h",
+      "bytes": 12787,
+      "sha256": "0358e2d43e09c739cc1af0e21b6500804d24aaee37fae6b0c557a05565097f28"
+    },
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "bytes": 264023,
+      "sha256": "d28af9ccf0f8a6926e41739cbe8034930fd982467d505e45f8bb8573f02999ea"
+    },
+    {
+      "path": "src/video_core/page_manager.cpp",
+      "bytes": 15003,
+      "sha256": "9a0e0f7c5d37f9cd3a1da1cc9497aaad3c9470adbd65e158c525a96a080b5d52"
+    },
+    {
+      "path": "src/video_core/buffer_cache/buffer_cache.cpp",
+      "bytes": 42421,
+      "sha256": "e2af25ba6249421bbcc3a22b481888ae625eec822b34b0a58f684bda14ceea0a"
+    },
+    {
+      "path": "src/video_core/buffer_cache/buffer_cache.h",
+      "bytes": 7946,
+      "sha256": "20b12e177e9069a8a5d8fcb1fbdff59bf3678b5eca2f0ee6a36a6728020a03a6"
+    },
+    {
+      "path": "src/video_core/buffer_cache/memory_tracker.h",
+      "bytes": 13041,
+      "sha256": "f4eb653f28037b1d6dafdaaf13c3b4c53b845acb07c47a3ddb588eb10b3bbf59"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_rasterizer.cpp",
+      "bytes": 73325,
+      "sha256": "302b2c88955c243fec81dc3c044bc36f31e5e4908814ccbb87b3d14ffd8d54ca"
+    },
+    {
+      "path": "src/video_core/texture_cache/texture_cache.cpp",
+      "bytes": 59496,
+      "sha256": "4b7674b76db55670fdc7ae26c0f0b5104bcbf5dd1fe1e8018f841431fb6368ab"
+    },
+    {
+      "path": "tests/video_core/texture_cache_gpu_checks.h",
+      "bytes": 12440,
+      "sha256": "e04200cd723c4eeede6f7637c365a75a2714199725684231e48928fcf583f998"
+    },
+    {
+      "path": "tests/common/memory_tracker_concurrency_tests.cpp",
+      "bytes": 11881,
+      "sha256": "7485eb7bc7c1c777523f8d06d66c023a8a5eee3c2c101f16f1d2788de3e0f770"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/bindings.tsv",
+      "bytes": 356626,
+      "sha256": "7b54f287c42859c34360b91fa752f07c11b05c40b59e2a40b3fe9ad19f0804cd"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/diagnostic-failure-host.txt",
+      "bytes": 472712,
+      "sha256": "4d77800cb7cf2a84d94b72f5bfd9c4d40f7803a10891b16903ec2876ce799be8"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/diagnostic-identity.txt",
+      "bytes": 749,
+      "sha256": "9c706bd2d14f3cbb840f792a2d28efb56f1d45f17244941cbfd61b4abb50bcc3"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/family-audit.json",
+      "bytes": 66107,
+      "sha256": "4097fdefeae0c9436af95c1becde3efb3d28703a852b83cb59876e901d7cb3c1"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fatal-end-host.txt",
+      "bytes": 27601,
+      "sha256": "45f352e9512326152f51efe795bae795bb65a0ec01123837b00fe502c7dc006a"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fatal-format.c",
+      "bytes": 48126,
+      "sha256": "e2d985f6e4f74f270d2e5e0565ce557a5b498b4d9f5dc5097019cf204a20903d"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fatal-identity.txt",
+      "bytes": 750,
+      "sha256": "7e57f210ab98ffce742b7b0995bac17068aa137240230bd02f6b63a465ddee1e"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fatal-pre-cross.png",
+      "bytes": 321504,
+      "sha256": "e100848740d8a71ca44f9ede393a0523f9b935473742b9020945d1f78e336fe7"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fatal2-end-host.txt",
+      "bytes": 41142,
+      "sha256": "04a16c94232f30c3b5afb3f88e1708a6dbe814d1568cf713cce63355f261339a"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fatal2-map-excerpts.txt",
+      "bytes": 217071,
+      "sha256": "c693d288fc676f19af556a4fce1d8f076b735ff36bd242fc90eefd2fe7b644a7"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-apk-build.log",
+      "bytes": 20733,
+      "sha256": "5e5351ba5bcabf2d6bb07cef6b933af5daa8b7cb8d99cdd08b133d1932bb7563"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-build-identity.json",
+      "bytes": 299,
+      "sha256": "625aa880810276c78ead0bb0a0ca31ffc3f886798bd33cc2bc58ece93ca034e3"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-cleanup.json",
+      "bytes": 701,
+      "sha256": "768b2cd4237bdc67e4b64eb6a1b6d52fce84ac4a160d27e1871f3638ef13f4f8"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-native-build.log",
+      "bytes": 4244,
+      "sha256": "64fc4940d7233839519305451fd869849d1225481c57c26941b27ddba4cb53ec"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-services.txt",
+      "bytes": 66,
+      "sha256": "e9990d2b9ce9e862271712ca1ecd0c280ac8cd7a2fd48fc18fb69623521c33b0"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-sparse-system.txt",
+      "bytes": 18364,
+      "sha256": "788fec3e6cce8a2aa13240e20dd113da166b1a0f35ed036fa81124231f471f06"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-sparse-turnip.txt",
+      "bytes": 20018,
+      "sha256": "61fa992c5b1870b1ddc9d422551974df822f4332b1b7a758d7d1504ad9073278"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-status.txt",
+      "bytes": 155,
+      "sha256": "09824c66025ec1ceb8ac1b154f31d92d383c0bc23b155aa33f82b702bfa1c492"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-before-stop-host.txt",
+      "bytes": 884541,
+      "sha256": "0f62fdf5a5682a84aa270f3525476e387bf0b822b34fa697d69e5d4cfb85d65d"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-before-stop.png",
+      "bytes": 204148,
+      "sha256": "b1cbc153c8e116c3ff6cb90ed4161725ddbc20d8607b8e8a5c04716dfdb4bb3f"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-identity.txt",
+      "bytes": 743,
+      "sha256": "1f086cf69a1a2bb7eb6f8512e952f9ca9597551fd3c4c9cb765a2f6ca544cbe1"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-imports.json",
+      "bytes": 800515,
+      "sha256": "3912fce0660534c64c7b7e355d9f7307770c30b1b1046329f1a318ea25ace1db"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-installed-sha.txt",
+      "bytes": 157,
+      "sha256": "e2d76240da09917e617c354e4451df50de5845a59c042b190030076a9f522b27"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-sparse-events.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-stop-logcat.txt",
+      "bytes": 178031,
+      "sha256": "f6c6905f6939e1a94cfae3183ede0a865bcc2536490247812cca432fc285d800"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/fixed-stop-status.txt",
+      "bytes": 4913,
+      "sha256": "57faea4f0a9b4b118085b9f218f7d5e471fd2e8aa732e60f23c982cc42194a4b"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/guest-null-call.asm",
+      "bytes": 2038,
+      "sha256": "216aea17f3905d6882f124faec8f12796b014f46b05e866a596c0ab41d167b58"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/mm-tests.txt",
+      "bytes": 63,
+      "sha256": "57f1e5d7742be080f418373b2689f1a6f1798a7de833c8da95b3809a4fbe2fac"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/ordinary-end-host.txt",
+      "bytes": 62257,
+      "sha256": "60ff53e266b5ec3cc3fbf120a39b07ad65a8a4340c58f64b690a1065faea0fc7"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/ordinary-null-call.txt",
+      "bytes": 1650,
+      "sha256": "587134cf9a7b61f6424bc6fcdb2392313f71dd339f1d12ff22dfaf60e380a563"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/ordinary-tombstone-excerpt.txt",
+      "bytes": 29453,
+      "sha256": "50993961c0e31234e6eceebefffe2701c2d642bdb819dfdcaeb0c6334ed0067d"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/rsp-fixed.json",
+      "bytes": 65672,
+      "sha256": "d11391e8ac4357f3984ddd3a2b10c5634317363373c8a757d8a28fd7a78670a6"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/rsp-rounds.json",
+      "bytes": 215049,
+      "sha256": "7ac4b10c2aed5e3f39f9baf478e52a29bb3162fa93d0db02863781faaa75422d"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/stackwalk.c",
+      "bytes": 2760,
+      "sha256": "856c5f6cb629f372dc5f0a5fe44d7ffdb4ce5da0a4b7dc69e31e75d0e643271c"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/system-first.rdc.json",
+      "bytes": 456,
+      "sha256": "7af5abfdb4d38a58f0e6825664b0324dc1b10372e710471c9c751e4ba1431e69"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/system-run-crash.txt",
+      "bytes": 7579,
+      "sha256": "041457412599498b0b17739327bd44fa45096532ffadb43b4f900ab5e20f4a2b"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/system-stable-crash.txt",
+      "bytes": 10918,
+      "sha256": "e5a0272d21e92a3cba86b557235684cbfc2d45a82ea3494443655726bd09bb62"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/tracking-tests.log",
+      "bytes": 554,
+      "sha256": "1937e55ed270919480cd968d9d1f958a4ca506467d02a14b17b2738c55801489"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/turnip-after-hold.png",
+      "bytes": 194900,
+      "sha256": "4f90e055f53d091855225d7e7dad5dc58d3e56364cd406e67a39e18c3a85c82c"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/turnip-baseline-status.txt",
+      "bytes": 746,
+      "sha256": "04f2ea8cf99c23674e4f68d75882243e8086bf10e6ce0193ae74e6d04acf6a41"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/turnip-baseline.png",
+      "bytes": 338707,
+      "sha256": "126d69390692a3025b4e6e3f24a978e5e54843f319f818b6307092e159a9b3e4"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/turnip-capture-start-crash.txt",
+      "bytes": 4081,
+      "sha256": "d86117eda382a39f4c164d18220c4ad694b70b67a684cf1d5fdecd46a53a4561"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/turnip-hold-status.txt",
+      "bytes": 749,
+      "sha256": "5adfd6e857fe822d9b8fe2db698e98ea246d03ebf3ece9edcd9bb8a4cc92eb1e"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/turnip-va8-fex-fault.txt",
+      "bytes": 1928,
+      "sha256": "78fd57a6bbbb3339f79d305819792491d62546b4011eededc4dfba09dfd56cd9"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/watch-old-counterexample.txt",
+      "bytes": 18031,
+      "sha256": "c811459de951f816e679f64d5f8cdc03d0f942562d493bcf40942c74fcdeebbd"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-sparse-watch-20260921/final-library.png",
+      "bytes": 1200255,
+      "sha256": "4984fce3e3178156f2bb8fa004e11bafc789bd60fddb06ee4440e1cace6790ec"
+    }
+  ],
+  "large_local_only": [
+    {
+      "path": "build/validation/tetris-render-20260921/system-first.rdc",
+      "bytes": 673788331,
+      "sha256": "95bc8fbbee7475d054b39b49b86b22346eba8830d00b85169d4afa94ef3a6d39"
+    },
+    {
+      "path": "build/validation/tetris-render-20260921/system-stable-incomplete.rdc",
+      "bytes": 173360756,
+      "sha256": "40ae74594c79f24a5181caa171f534386d1c9b524d3fa058bc2973c469f3f1c1"
+    },
+    {
+      "path": "build/validation/tetris-render-20260921/tetris.rdc.db",
+      "bytes": 2883584,
+      "sha256": "eb751d06bc6a1ec6d3b20458bb0a3082c0ff1ab180cca948e22fa9d3002c125e"
+    },
+    {
+      "path": "build/validation/tetris-render-20260921/ordinary-tombstone.txt",
+      "bytes": 1574190,
+      "sha256": "62ea4011b39ecdbace819381a69dc74f8facdbf6754215aa296cfa098cb552a8"
+    }
+  ],
+  "guest_elf": {
+    "path": "build/validation/psvr-followup-20260920/tetris-main.elf",
+    "bytes": 122205359,
+    "sha256": "b8da0a334a866e5d124488d23ff3ae66a187cb731e3f80626e549a3f98de70b6"
+  },
+  "limits": [
+    "Tetris menu not reached; black screen remains",
+    "ordinary final APK startup PC0 remains",
+    "no full game regression, performance A/B, or commit/push",
+    "first RDC is early system-driver frame, not post-confirmation Turnip frame"
+  ]
+}

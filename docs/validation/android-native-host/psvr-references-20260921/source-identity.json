@@ -1,0 +1,22 @@
+{
+  "head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "branch": "feature/malos/beat_saber_fix",
+  "dirty": true,
+  "note": "Full files include earlier uncommitted PSVR work; hashes identify tested state, not a claim that all changes in these files belong to this increment.",
+  "files": {
+    "src/core/host_runtime/guest_storage.h": "01a5d4d66c2649c5237e49a96f630c13a9411278cce3028025530c91e610fd3a",
+    "src/core/host_runtime/guest_storage.cpp": "5f1812d02992987a074142fadbd149f2b2c2f3f65f214ad72dac8be6dca599f9",
+    "src/core/host_runtime/guest_storage_hle.h": "e63540292133a4294b3af78107aea743014274561f336d1576b742187c2fabec",
+    "src/core/host_runtime/guest_storage_hle.cpp": "e6cfd027f46e9ebac18227845de7917d605b8822b45c14f01988a1e5b5c0747e",
+    "src/core/host_runtime/guest_runtime.cpp": "88342f6a9859a3735256e045c56782b0303f58ac7a4b01b7f74030050d796683",
+    "src/core/host_runtime/guest_video_mode.h": "0841e1bcdbe49c60a71b36de05a70c34ee1525185090c6f9e82dd8f9b0a5176f",
+    "src/core/host_runtime/guest_hmd_geometry.h": "0061d2519447a1178df2eace30715067de2aba5108ef876ca1526b9d07e7dfdb",
+    "src/core/host_runtime/guest_vr_sensor.h": "923c07e7618fc54933d08cb15be1b6f40018d2d85e712bb753afe6a00692a0d2",
+    "src/core/host_runtime/guest_vr_sensor.cpp": "dd1974a8aea2b9b22a6c377116b5cf22d925d242f0c607fcc6a27e430bd5b905",
+    "src/core/libraries/move/move.cpp": "97e62944cf8355f76033d0429f0e00ecc2893394025d44fe8a445fbed94b0d33",
+    "tests/host_runtime/guest_file_io_tests.cpp": "fe29b60bd46cb2ed0271fbe1099a8a9381a84090c38f177b812aec89ba3c421a",
+    "tests/host_runtime/guest_graphics_admission_tests.cpp": "8a1a8fd1f69865e661cb4cced96335ca264e135ce1e701915fd04b606bae7533",
+    "tests/host_runtime/guest_psvr_services_tests.cpp": "77df3a0a33665302a710bf36d4698757cc8e5300e108cd28ee306514cce9f128",
+    "tests/host_runtime/guest_vr_sensor_tests.cpp": "3e97abfe286269841b786eee211945c7952a45285c4f5b69f9bd22c9257f2dbf"
+  }
+}

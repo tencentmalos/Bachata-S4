@@ -1,0 +1,2275 @@
+{
+  "pid": 18733,
+  "total": 2603,
+  "bindings": {
+    "guest_export": 1146,
+    "refused": 358,
+    "runtime_bound": 1082,
+    "not_relocated": 17
+  },
+  "unique_refused": 290,
+  "families": {
+    "EOSSDK-PS4-Shipping": {
+      "bindings": {
+        "guest_export": 305
+      },
+      "refused": {}
+    },
+    "libSceAjm": {
+      "bindings": {
+        "refused": 4,
+        "runtime_bound": 9
+      },
+      "refused": {
+        "WfAiBW8Wcek#libSceAjm#1#libSceAjm#Function": {
+          "name": "sceAjmBatchErrorDump",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "MHur6qCsUus#libSceAjm#1#libSceAjm#Function": {
+          "name": "sceAjmFinalize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "Wi7DtlLV+KI#libSceAjm#1#libSceAjm#Function": {
+          "name": "sceAjmModuleUnregister",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "AxhcqVv5AYU#libSceAjm#1#libSceAjm#Function": {
+          "name": "sceAjmStrError",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceAppContent": {
+      "bindings": {
+        "runtime_bound": 4
+      },
+      "refused": {}
+    },
+    "libSceAudioOut": {
+      "bindings": {
+        "runtime_bound": 12
+      },
+      "refused": {}
+    },
+    "libSceAvPlayer": {
+      "bindings": {
+        "runtime_bound": 19,
+        "refused": 3
+      },
+      "refused": {
+        "BOVKAzRmuTQ#libSceAvPlayer#1#libSceAvPlayer#Function": {
+          "name": "sceAvPlayerDisableStream",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "XC9wM+xULz8#libSceAvPlayer#1#libSceAvPlayer#Function": {
+          "name": "sceAvPlayerJumpToTime",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "av8Z++94rs0#libSceAvPlayer#1#libSceAvPlayer#Function": {
+          "name": "sceAvPlayerSetTrickSpeed",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceCamera": {
+      "bindings": {
+        "runtime_bound": 7
+      },
+      "refused": {}
+    },
+    "libSceCommonDialog": {
+      "bindings": {
+        "runtime_bound": 3
+      },
+      "refused": {}
+    },
+    "libSceContentExport": {
+      "bindings": {
+        "refused": 5
+      },
+      "refused": {
+        "tb3cZTCl8Ps#libSceContentExport#1#libSceContentExport#Function": {
+          "name": "sceContentExportFinish",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "OWCJUmrWH1g#libSceContentExport#1#libSceContentExport#Function": {
+          "name": "sceContentExportFromFile",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "0GnN4QCgIfs#libSceContentExport#1#libSceContentExport#Function": {
+          "name": "sceContentExportInit2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "FCygF4Ec4so#libSceContentExport#1#libSceContentExport#Function": {
+          "name": "sceContentExportStart",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "+KDWny9Y-6k#libSceContentExport#1#libSceContentExport#Function": {
+          "name": "sceContentExportTerm",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceErrorDialog": {
+      "bindings": {
+        "runtime_bound": 4
+      },
+      "refused": {}
+    },
+    "libSceFios2": {
+      "bindings": {
+        "guest_export": 55
+      },
+      "refused": {}
+    },
+    "libSceGameLiveStreaming": {
+      "bindings": {
+        "refused": 5
+      },
+      "refused": {
+        "dWM80AX39o4#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function": {
+          "name": "sceGameLiveStreamingEnableLiveStreaming",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "lK8dLBNp9OE#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function": {
+          "name": "sceGameLiveStreamingGetCurrentStatus2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "OIIm19xu+NM#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function": {
+          "name": "sceGameLiveStreamingGetProgramInfo",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "kvYEw2lBndk#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function": {
+          "name": "sceGameLiveStreamingInitialize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "9yK6Fk8mKOQ#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function": {
+          "name": "sceGameLiveStreamingTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceGnmDriver": {
+      "bindings": {
+        "runtime_bound": 76,
+        "refused": 37
+      },
+      "refused": {
+        "EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmComputeWaitSemaphore",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmDestroyWorkloadStream",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmDrawIndexMultiInstanced",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmDrawIndirectCountMulti",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmDrawOpaqueAuto",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmFindResourcesPublic",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetGpuBlockStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetGpuInfoStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetLastWaitedAddress",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetNumTcaUnits",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetOwnerName",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetPhysicalCounterFromVirtualized",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetProtectionFaultTimeStamp",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetResourceBaseAddressAndSizeInBytes",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetResourceName",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetResourceShaderGuid",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetResourceType",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetResourceUserData",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetShaderProgramBaseAddress",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmGetShaderStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmLogicalTcaUnitToPhysical",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmRequestFlipAndSubmitDoneForWorkload",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmSetResourceRegistrationUserMemory",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmSetResourceUserData",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmSetWaveLimitMultipliers",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "SXw4dZEkgpA#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateDisableDiagnostics",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "BgM3t3LvcNk#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateDisableDiagnostics2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "qGP74T5OWJc#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateDispatchCommandBuffers",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "hsZPf1lON7E#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateDrawCommandBuffers",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "RX7XCNSaL6I#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateGetDiagnosticInfo",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "5SHGNwLXBV4#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateGetDiagnostics",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "HzMN7ANqYEc#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateGetVersion",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "rTIV11nMQuM#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateOnSubmitEnabled",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "MBMa6EFu4Ko#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidateResetState",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "Q7t4VEYLafI#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceGnmValidationRegisterMemoryCheckCallback",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceRazorCaptureImmediate",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function": {
+          "name": "sceRazorIsLoaded",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceHmd": {
+      "bindings": {
+        "runtime_bound": 20
+      },
+      "refused": {}
+    },
+    "libSceHmdSetupDialog": {
+      "bindings": {
+        "runtime_bound": 6
+      },
+      "refused": {}
+    },
+    "libSceHttp": {
+      "bindings": {
+        "runtime_bound": 50,
+        "refused": 1
+      },
+      "refused": {
+        "16sMmVuOvgU#libSceHttp#1#libSceHttp#Function": {
+          "name": "sceHttpGetMemoryPoolStats",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceIme": {
+      "bindings": {
+        "runtime_bound": 5
+      },
+      "refused": {}
+    },
+    "libSceImeDialog": {
+      "bindings": {
+        "runtime_bound": 6
+      },
+      "refused": {}
+    },
+    "libSceInvitationDialog": {
+      "bindings": {
+        "refused": 9
+      },
+      "refused": {
+        "XvA5KS56wcs#libSceInvitationDialog#1#libSceInvitationDialog#Function": {
+          "name": "sceInvitationDialogInitialize",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "sAxbHhAWMXM#libSceInvitationDialog#1#libSceInvitationDialog#Function": {
+          "name": "sceInvitationDialogOpenA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "B6HVJtDYxEE#libSceInvitationDialog#1#libSceInvitationDialog#Function": {
+          "name": "sceInvitationDialogTerminate",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "9+g9iOq+7kg#libSceInvitationDialog#1#libSceInvitationDialog#Function": {
+          "name": "sceInvitationDialogUpdateStatus",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "WuuUhuKOxwQ#libSceInvitationDialog#1#libSceInvitationDialog#Function": {
+          "name": "sceInvitationDialogGetResultA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceMouse": {
+      "bindings": {
+        "runtime_bound": 4
+      },
+      "refused": {}
+    },
+    "libSceMsgDialog": {
+      "bindings": {
+        "runtime_bound": 10
+      },
+      "refused": {}
+    },
+    "libSceNet": {
+      "bindings": {
+        "runtime_bound": 48,
+        "refused": 8
+      },
+      "refused": {
+        "6Oc0bLsIYe0#libSceNet#1#libSceNet#Function": {
+          "name": "sceNetGetMacAddress",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "hLuXdjHnhiI#libSceNet#1#libSceNet#Function": {
+          "name": "sceNetGetSockInfo",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "RCCY01Xd+58#libSceNet#1#libSceNet#Function": {
+          "name": "sceNetResolverStartNtoaMultipleRecords",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "rMyh97BU5pY#libSceNet#1#libSceNet#Function": {
+          "name": "sceNetGetMemoryPoolStats",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Apb4YDxKsRI#libSceNet#1#libSceNet#Function": {
+          "name": "sceNetResolverStartAton",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      }
+    },
+    "libSceNetCtl": {
+      "bindings": {
+        "runtime_bound": 11
+      },
+      "refused": {}
+    },
+    "libSceNgs2": {
+      "bindings": {
+        "refused": 13
+      },
+      "refused": {
+        "3pCNbVM11UA#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2CalcWaveformBlock",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "gbMKV+8Enuo#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2PanGetVolumeMatrix",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "xa8oL9dmXkM#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2PanInit",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "hyVLT2VlOYk#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2ParseWaveformData",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "U546k6orxQo#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2RackCreateWithAllocator",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "lCqD7oycmIM#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2RackDestroy",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "MwmHz8pAdAo#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2RackGetVoiceHandle",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "mPYgU4oYpuY#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2SystemCreateWithAllocator",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "u-WrYDaJA3k#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2SystemDestroy",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "i0VnXM-C9fc#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2SystemRender",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "uu94irFOGpA#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2VoiceControl",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "-TOuuAQ-buE#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2VoiceGetState",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "rEh728kXk3w#libSceNgs2#1#libSceNgs2#Function": {
+          "name": "sceNgs2VoiceGetStateFlags",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceNpCommerce": {
+      "bindings": {
+        "runtime_bound": 14
+      },
+      "refused": {}
+    },
+    "libSceNpManager": {
+      "bindings": {
+        "runtime_bound": 22,
+        "refused": 9
+      },
+      "refused": {
+        "JT+t00a3TxA#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpGetAccountCountryA",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpNotifyPlusFeature",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "s4UEa5iBJdc#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessageCreateHandle",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "+anuSx2avHQ#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessageDeleteHandle",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Ubv+fP58W1U#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessageGetMemoryPoolStatistics",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "GFhVUpRmbHE#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessageInitialize",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "IkL62FMpIpo#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessagePrepareA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "PQDFxcnqxtw#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessageSendDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "bMG3cVmUmuk#libSceNpManager#1#libSceNpManager#Function": {
+          "name": "sceNpInGameMessageTerminate",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceNpMatching2": {
+      "bindings": {
+        "runtime_bound": 22,
+        "refused": 33
+      },
+      "refused": {
+        "V6KSpKv9XJE#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2CreateJoinRoomA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "26vWrPAWJfM#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetRoomDataExternalList",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "rJNPJqDCpiI#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetWorldInfoList",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "n5JmImxTiZU#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2JoinLobby",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "gQ6cUriNpgs#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2JoinRoomA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "BD6kfx442Do#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2LeaveRoom",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "VqZX7POg2Mk#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SearchRoom",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "tHD5FPFXtu4#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SignalingGetConnectionStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "wUmwXZHaX1w#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SignalingGetPingInfo",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "gpSAvdheZ0Q#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetMemoryInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Jraxifmoet4#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetRoomDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "5lhvOqheFBA#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetRoomMemberDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "KC+GnHzrK2o#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetRoomMemberIdListLocal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "vbtWT3lZBOM#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetRoomPasswordLocal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "cgQhq3E0eGo#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetSignalingOptParamLocal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "8btynvj0KNA#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetSslMemoryInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "GyI2f9yDUXM#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2GetUserInfoListA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "AUVfU6byg3c#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2KickoutRoomMember",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "opDpl74pi2E#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SendRoomChatMessage",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Iw2h0Jrrb5U#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SendRoomMessage",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "q7GK98-nYSE#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SetRoomDataExternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "S9D8JSYIrjE#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SetRoomDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "HoqTrkS9c5Q#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SetRoomMemberDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "ES3UMUWWj9U#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SetSignalingOptParam",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "meEjIdbjAA0#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SetUserInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "nNeC3F8-g+4#libSceNpMatching2#1#libSceNpMatching2#Function": {
+          "name": "sceNpMatching2SignalingGetConnectionInfoA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceNpProfileDialog": {
+      "bindings": {
+        "refused": 9
+      },
+      "refused": {
+        "Lg+NCE6pTwQ#libSceNpProfileDialog#1#libSceNpProfileDialog#Function": {
+          "name": "sceNpProfileDialogInitialize",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function": {
+          "name": "sceNpProfileDialogOpenA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "0Sp9vJcB1-w#libSceNpProfileDialog#1#libSceNpProfileDialog#Function": {
+          "name": "sceNpProfileDialogTerminate",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "haVZE9FgKqE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function": {
+          "name": "sceNpProfileDialogUpdateStatus",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "8rhLl1-0W-o#libSceNpProfileDialog#1#libSceNpProfileDialog#Function": {
+          "name": "sceNpProfileDialogGetResult",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceNpScore": {
+      "bindings": {
+        "runtime_bound": 11,
+        "refused": 16
+      },
+      "refused": {
+        "6-G9OxL5DKg#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetFriendsRankingAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "dRszNNyGWkw#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByAccountIdAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "y5ja7WI05rs#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByRangeAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "ANJssPz3mY0#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreRecordScoreAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "LoVMVrijVOk#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetBoardInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "gMbOn+-6eXA#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetFriendsRankingA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "AgcxgceaH8k#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetFriendsRankingForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Lmtc9GljeUA#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetGameDataByAccountId",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "K9tlODTQx3c#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByAccountId",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "3Ybj4E1qNtY#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByAccountIdForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "wJPWycVGzrs#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByAccountIdPcId",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "oXjVieH6ZGQ#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByAccountIdPcIdForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "MA9vSt7JImY#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByRangeA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "nRoYV2yeUuw#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreGetRankingByRangeForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "bcoVwcBjQ9E#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreRecordGameData",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "zT0XBtgtOSI#libSceNpScore#1#libSceNpScore#Function": {
+          "name": "sceNpScoreRecordScore",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceNpToolkit2": {
+      "bindings": {
+        "guest_export": 116
+      },
+      "refused": {}
+    },
+    "libSceNpTus": {
+      "bindings": {
+        "runtime_bound": 12,
+        "refused": 43
+      },
+      "refused": {
+        "DS2yu3Sjj1o#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTssGetDataAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "GjlEgLCh4DY#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusAddAndGetVariableAVUserAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "6-+Yqc-NppQ#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusDeleteMultiSlotDataAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "xzG8mG9YlKY#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetDataAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "7uLPqiNvNLc#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiSlotDataStatusAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "y-DJK+d+leg#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiSlotVariableAVUserAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "4u58d6g6uwU#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusSetDataAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "oGIcxlUabSA#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusTryAndSetVariableAVUser",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "-SUR+UoLS6c#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTssGetData",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "wPFah4-5Xec#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusAddAndGetVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Nt1runsPVJc#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusAddAndGetVariableAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "EPeq43CQKxY#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusAddAndGetVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "4VLlu7EIjzk#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusAddAndGetVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "iXzUOM9sXU0#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusDeleteMultiSlotDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "xutwCvsydkk#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusDeleteMultiSlotDataVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "yWEHUFkY1qI#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "iaH+Sxlw32k#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetDataAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "1TE3OvH61qo#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetDataForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "-LxFGYCJwww#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetDataForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "yixh7HDKWfk#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetFriendsDataStatusA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "TDoqRD+CE+M#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetFriendsDataStatusForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "C8TY-UnQoXg#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetFriendsVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "mD6s8HtMdpk#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetFriendsVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "GDXlRTxgd+M#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiSlotVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "AsziNQ9X2uk#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiSlotVariableAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "m9XZnxw9AmE#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiSlotVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "wTuuw4-6HI8#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiSlotVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "lxNDPDnWfMc#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserDataStatusA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "fJU2TZId210#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserDataStatusAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "cVeBif6zdZ4#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserDataStatusForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "w-c7U0MW2KY#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserDataStatusForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Gjixv5hqRVY#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "fVvocpq4mG4#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserVariableAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Q5uQeScvTPE#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "Djuj2+1VNL0#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusGetMultiUserVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "VzxN3tOouj8#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusSetDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "kbWqOt3QjKU#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusSetDataAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "cf-WMA0jYCc#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusSetMultiSlotVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "1Cz0hTJFyh4#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusSetMultiSlotVariableVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "0up4MP1wNtc#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusTryAndSetVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "MGvSJEHwyL8#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusTryAndSetVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "fcCwKpi4CbU#libSceNpTus#1#libSceNpTus#Function": {
+          "name": "sceNpTusTryAndSetVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceNpUtility": {
+      "bindings": {
+        "runtime_bound": 13
+      },
+      "refused": {}
+    },
+    "libSceNpWebApi": {
+      "bindings": {
+        "refused": 26,
+        "runtime_bound": 10
+      },
+      "refused": {
+        "joRjtRXTFoc#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiAddHttpRequestHeader",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "19KgfJXgM+U#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiAddMultipartPart",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiCreateContextA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "KBxgeNpoRIQ#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiCreateMultipartRequest",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiCreateRequest",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "XUjdsSTTZ3U#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiDeleteContext",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiDeleteRequest",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "VwJ5L0Higg0#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiGetHttpResponseHeaderValue",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "743ZzEBzlV8#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiGetHttpResponseHeaderValueLength",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiReadData",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "DsPOTEvSe7M#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiSendMultipartRequest2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiSendRequest2",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "qWcbJkBj1Lg#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiSetRequestTimeout",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "JzhYTP2fG18#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiAbortRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "3OnubUs02UM#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiGetMemoryPoolStats",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "jhXKGQJ4egI#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiRegisterExtdPushEventCallbackA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "PqCY25FMzPs#libSceNpWebApi#1#libSceNpWebApi#Function": {
+          "name": "sceNpWebApiUnregisterExtdPushEventCallback",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libScePad": {
+      "bindings": {
+        "runtime_bound": 11
+      },
+      "refused": {}
+    },
+    "libScePlayGo": {
+      "bindings": {
+        "runtime_bound": 26
+      },
+      "refused": {}
+    },
+    "libSceRandom": {
+      "bindings": {
+        "runtime_bound": 2
+      },
+      "refused": {}
+    },
+    "libSceRtc": {
+      "bindings": {
+        "runtime_bound": 15
+      },
+      "refused": {}
+    },
+    "libSceSaveData": {
+      "bindings": {
+        "runtime_bound": 8
+      },
+      "refused": {}
+    },
+    "libSceSaveDataDialog": {
+      "bindings": {
+        "runtime_bound": 5
+      },
+      "refused": {}
+    },
+    "libSceScreenShot": {
+      "bindings": {
+        "refused": 2
+      },
+      "refused": {
+        "tIYf0W5VTi8#libSceScreenShot#1#libSceScreenShot#Function": {
+          "name": "sceScreenShotDisable",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "2xxUtuC-RzE#libSceScreenShot#1#libSceScreenShot#Function": {
+          "name": "sceScreenShotEnable",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceSharePlay": {
+      "bindings": {
+        "refused": 3
+      },
+      "refused": {
+        "isruqthpYcw#libSceSharePlay#1#libSceSharePlay#Function": {
+          "name": "sceSharePlayInitialize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "co2NCj--pnc#libSceSharePlay#1#libSceSharePlay#Function": {
+          "name": "sceSharePlaySetProhibition",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "UaLjloJinow#libSceSharePlay#1#libSceSharePlay#Function": {
+          "name": "sceSharePlayTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceSigninDialog": {
+      "bindings": {
+        "runtime_bound": 9
+      },
+      "refused": {}
+    },
+    "libSceSocialScreen": {
+      "bindings": {
+        "refused": 7
+      },
+      "refused": {
+        "vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenCloseSeparateMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenConfigureSeparateMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenInitialize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenInitializeSeparateModeParameter",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenOpenSeparateMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenSetMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function": {
+          "name": "sceSocialScreenTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceSocialScreenDialog": {
+      "bindings": {
+        "refused": 1
+      },
+      "refused": {
+        "A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function": {
+          "name": "sceSocialScreenDialogTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceSsl": {
+      "bindings": {
+        "runtime_bound": 9
+      },
+      "refused": {}
+    },
+    "libSceSysmodule": {
+      "bindings": {
+        "runtime_bound": 14
+      },
+      "refused": {}
+    },
+    "libSceSystemService": {
+      "bindings": {
+        "runtime_bound": 8,
+        "refused": 4
+      },
+      "refused": {
+        "-+3hY+y8bNo#libSceSystemService#1#libSceSystemService#Function": {
+          "name": "sceSystemServiceLaunchWebBrowser",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "JoBqSQt1yyA#libSceSystemService#1#libSceSystemService#Function": {
+          "name": "sceSystemServiceLoadExec",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      }
+    },
+    "libSceUserService": {
+      "bindings": {
+        "runtime_bound": 11
+      },
+      "refused": {}
+    },
+    "libSceVideoOut": {
+      "bindings": {
+        "runtime_bound": 17,
+        "refused": 1
+      },
+      "refused": {
+        "MTxxrOCeSig#libSceVideoOut#1#libSceVideoOut#Function": {
+          "name": "sceVideoOutSetWindowModeMargins",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceVideoRecording": {
+      "bindings": {
+        "refused": 7
+      },
+      "refused": {
+        "KHvkPQJDMLk#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingClose",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "fZJQzFK4Gv4#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingGetStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "s28dalBwp2g#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingOpen2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "bGYkY6q3bIw#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingQueryMemSize2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "Fc8qxlKINYQ#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingSetInfo",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "tWoe9IlGAhs#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingStart",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "OOFxrMY+mfI#libSceVideoRecording#1#libSceVideoRecording#Function": {
+          "name": "sceVideoRecordingStop",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceVoiceQoS": {
+      "bindings": {
+        "refused": 12
+      },
+      "refused": {
+        "kLU6hhXsa2A#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSConnect",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "lvNClhNHzxI#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSCreateLocalEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "iqQQW2cBmWU#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSCreateRemoteEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "kE0kdvcHTiY#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSDeleteLocalEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "H4zqFaDhHW4#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSDeleteRemoteEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "j9Xt85krooc#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSDisconnect",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "ATRGkmbolVM#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSEnd",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "eZu2RP0Ma3w#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSGetLocalEndpointAttribute",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "U8IfNl6-Css#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSInit",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "PWokFqab5q4#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSReadPacket",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "F7wS7FbfumQ#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSSetLocalEndpointAttribute",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "SpxLratrO1Q#libSceVoiceQoS#1#libSceVoiceQoS#Function": {
+          "name": "sceVoiceQoSWritePacket",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      }
+    },
+    "libSceVrTracker": {
+      "bindings": {
+        "runtime_bound": 11
+      },
+      "refused": {}
+    },
+    "libSceWebBrowserDialog": {
+      "bindings": {
+        "refused": 14
+      },
+      "refused": {
+        "PSK+Eik919Q#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogClose",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "vCaW0fgVQmc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogGetResult",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogInitialize",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogOpen",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "O7dIZQrwVFY#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogOpenForPredeterminedContent",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "Cya+jvTtPqg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogResetCookie",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogTerminate",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function": {
+          "name": "sceWebBrowserDialogUpdateStatus",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      }
+    },
+    "libc": {
+      "bindings": {
+        "guest_export": 670,
+        "not_relocated": 17
+      },
+      "refused": {}
+    },
+    "libSceCoredump": {
+      "bindings": {
+        "runtime_bound": 6
+      },
+      "refused": {}
+    },
+    "libScePosix": {
+      "bindings": {
+        "runtime_bound": 130,
+        "refused": 5
+      },
+      "refused": {
+        "0D4-FVvEikw#libScePosix#1#libkernel#Function": {
+          "name": "pthread_cancel",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "CBNtXOoef-E#libScePosix#1#libkernel#Function": {
+          "name": "sched_get_priority_max",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "m0iS6jNsXds#libScePosix#1#libkernel#Function": {
+          "name": "sched_get_priority_min",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      }
+    },
+    "libkernel": {
+      "bindings": {
+        "runtime_bound": 327,
+        "refused": 50
+      },
+      "refused": {
+        "Ou3iL1abvng#libkernel#1#libkernel#Function": {
+          "name": "__stack_chk_fail",
+          "importers": [
+            "eboot.bin",
+            "libSceFios2.prx",
+            "libSceNpToolkit2.prx",
+            "eossdk-ps4-shipping.prx",
+            "libc.prx",
+            "akaudioinput.prx",
+            "akexpander.prx",
+            "akflanger.prx",
+            "akharmonizer.prx",
+            "akmatrixreverb.prx",
+            "akmotion.prx",
+            "akpeaklimiter.prx",
+            "akrecorder.prx",
+            "akreflect.prx",
+            "akroomverb.prx",
+            "aksilencegenerator.prx",
+            "aksoundseedair.prx",
+            "akstereodelay.prx",
+            "aktimestretch.prx",
+            "aktremolo.prx",
+            "auro.prx",
+            "izotope.prx",
+            "masteringsuite.prx",
+            "mcdsp.prx",
+            "sceaudio3d.prx"
+          ]
+        },
+        "fgIsQ10xYVA#libkernel#1#libkernel#Function": {
+          "name": "sceKernelChmod",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx",
+            "libc.prx"
+          ]
+        },
+        "L0v2Go5jOuM#libkernel#1#libkernel#Function": {
+          "name": "sceKernelGetPrtAperture",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        "QKd0qM58Qes#libkernel#1#libkernel#Function": {
+          "name": "sceKernelStopUnloadModule",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "0Cq8ipKr9n0#libkernel#1#libkernel#Function": {
+          "name": "sceKernelUtimes",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx",
+            "libc.prx"
+          ]
+        },
+        "WlyEA-sLDf0#libkernel#1#libkernel#Function": {
+          "name": "sceKernelTruncate",
+          "importers": [
+            "libSceFios2.prx",
+            "libc.prx"
+          ]
+        },
+        "Fjc4-n1+y2g#libkernel#1#libkernel#Function": {
+          "name": "__elf_phdr_match_addr",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "kbw4UHHSYy0#libkernel#1#libkernel#Function": {
+          "name": "__pthread_cxa_finalize",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "6Z83sYWFlA8#libkernel#1#libkernel#Function": {
+          "name": "_exit",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "8OnWXlgQlvo#libkernel#1#libkernel#Function": {
+          "name": "_sceKernelRtldThreadAtexitDecrement",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "Tz4RNUCBbGI#libkernel#1#libkernel#Function": {
+          "name": "_sceKernelRtldThreadAtexitIncrement",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "hHlZQUnlxSM#libkernel#1#libkernel#Function": {
+          "name": "getrusage",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "0NTHN1NKONI#libkernel#1#libkernel#Function": {
+          "name": "sceKernelConvertLocaltimeToUtc",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "-o5uEDpN+oY#libkernel#1#libkernel#Function": {
+          "name": "sceKernelConvertUtcToLocaltime",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "OMDRKKAZ8I4#libkernel#1#libkernel#Function": {
+          "name": "sceKernelDebugRaiseException",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "zE-wXIZjLoM#libkernel#1#libkernel#Function": {
+          "name": "sceKernelDebugRaiseExceptionOnReleaseMode",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "-YTW+qXc3CQ#libkernel#1#libkernel#Function": {
+          "name": "sceKernelInternalMemoryGetModuleSegmentInfo",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "Wl2o5hOVZdw#libkernel#1#libkernel#Function": {
+          "name": "sceKernelPrintBacktraceWithModuleInfo",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "IafI2PxcPnQ#libkernel#1#libkernel#Function": {
+          "name": "scePthreadMutexTimedlock",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        "VADc3MNQ3cM#libkernel#1#libkernel#Function": {
+          "name": "signal",
+          "importers": [
+            "libc.prx"
+          ]
+        }
+      }
+    },
+    "libSceDiscMap": {
+      "bindings": {
+        "runtime_bound": 2
+      },
+      "refused": {}
+    },
+    "libSceLibcInternal": {
+      "bindings": {
+        "runtime_bound": 47
+      },
+      "refused": {}
+    },
+    "libSceNetCtlForNpToolkit": {
+      "bindings": {
+        "runtime_bound": 3
+      },
+      "refused": {}
+    },
+    "libSceNpAuth": {
+      "bindings": {
+        "refused": 5
+      },
+      "refused": {
+        "cE7wIsqXdZ8#libSceNpAuth#1#libSceNpAuth#Function": {
+          "name": "sceNpAuthAbortRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "6bwFkosYRQg#libSceNpAuth#1#libSceNpAuth#Function": {
+          "name": "sceNpAuthCreateRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "H8wG9Bk-nPc#libSceNpAuth#1#libSceNpAuth#Function": {
+          "name": "sceNpAuthDeleteRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "qAUXQ9GdWp8#libSceNpAuth#1#libSceNpAuth#Function": {
+          "name": "sceNpAuthGetAuthorizationCodeA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "CocbHVIKPE8#libSceNpAuth#1#libSceNpAuth#Function": {
+          "name": "sceNpAuthGetIdTokenA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceNpManagerForToolkit": {
+      "bindings": {
+        "runtime_bound": 3
+      },
+      "refused": {}
+    },
+    "libSceNpTrophy": {
+      "bindings": {
+        "runtime_bound": 11,
+        "refused": 5
+      },
+      "refused": {
+        "cqGkYAN-gRw#libSceNpTrophy#1#libSceNpTrophy#Function": {
+          "name": "sceNpTrophyCaptureScreenshot",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "HLwz1fRIycA#libSceNpTrophy#1#libSceNpTrophy#Function": {
+          "name": "sceNpTrophyGetGameIcon",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "w4uMPmErD4I#libSceNpTrophy#1#libSceNpTrophy#Function": {
+          "name": "sceNpTrophyGetGroupIcon",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "eBL+l6HG9xk#libSceNpTrophy#1#libSceNpTrophy#Function": {
+          "name": "sceNpTrophyGetTrophyIcon",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        "d9jpdPz5f-8#libSceNpTrophy#1#libSceNpTrophy#Function": {
+          "name": "sceNpTrophyShowTrophyList",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      }
+    },
+    "libSceUserServiceForNpToolkit": {
+      "bindings": {
+        "runtime_bound": 2
+      },
+      "refused": {}
+    },
+    "libSceAudioIn": {
+      "bindings": {
+        "runtime_bound": 4
+      },
+      "refused": {}
+    },
+    "libSceVideodec2": {
+      "bindings": {
+        "refused": 9
+      },
+      "refused": {
+        "eD+X2SmxUt4#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2AllocateComputeQueue",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "CNNRoRYd8XI#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2CreateDecoder",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "852F5+q6+iM#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2Decode",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "jwImxXRGSKA#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2DeleteDecoder",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "NtXRa3dRzU0#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2GetPictureInfo",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "RnDibcGCPKw#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2QueryComputeMemoryInfo",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "qqMCwlULR+E#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2QueryDecoderMemoryInfo",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "UvtA3FAiF4Y#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2ReleaseComputeQueue",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        "wJXikG6QFN8#libSceVideodec2#1#libSceVideodec2#Function": {
+          "name": "sceVideodec2Reset",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      }
+    },
+    "libSceLibcInternalExt": {
+      "bindings": {
+        "runtime_bound": 1
+      },
+      "refused": {}
+    },
+    "libSceMove": {
+      "bindings": {
+        "runtime_bound": 2
+      },
+      "refused": {}
+    },
+    "libSceAudio3d": {
+      "bindings": {
+        "refused": 12
+      },
+      "refused": {
+        "9tEwE0GV0qo#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dBedWrite",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "UmCvjSmuZIw#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dInitialize",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "jO2tec4dJ2M#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dObjectReserve",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "4uyHN9q4ZeU#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dObjectSetAttributes",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "1HXxo-+1qCw#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dObjectUnreserve",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "lw0qrdSjZt8#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dPortAdvance",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "OyVqOeVNtSk#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dPortClose",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "YaaDbDwKpFM#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dPortGetQueueLevel",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "XeDDK0xJWQA#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dPortOpen",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "VEVhZ9qd4ZY#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dPortPush",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "Yq9bfUQ0uJg#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dPortSetAttribute",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        "WW1TS2iz5yc#libSceAudio3d#1#libSceAudio3d#Function": {
+          "name": "sceAudio3dTerminate",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        }
+      }
+    }
+  }
+}

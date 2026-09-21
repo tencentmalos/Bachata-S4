@@ -1,0 +1,83 @@
+[
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-zar-install-20260920/containers/sports-base/CUSA36289 1.00/AllInOneSports_CUSA36289_v1.00_[11.00]_OPOISSO893.pkg",
+    "title_id": "CUSA36289",
+    "content_id": "UP2564-CUSA36289_00-9430196387295720",
+    "category": "gd",
+    "title": "AllInOneSports",
+    "version": "01.00",
+    "kind": "base",
+    "entitlement": "9430196387295720",
+    "system_ver": "0x10508000",
+    "app_type": 1,
+    "content_flags": [
+      "GD_AC",
+      "UNKNOWN_0x8000000"
+    ],
+    "sha256": "a6084f55eb638941c220baf78f75e51e1d9f91e96518ec8744916ce558c63c1a",
+    "selected_for_final_archive": true
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-zar-install-20260920/containers/sports-update/CUSA36289 1.02/AllInOneSports_CUSA36289_v1.02_BACKPORT_[5.05-6.72-7.xx-9.00-11.00]_OPOISSO893.pkg",
+    "title_id": "CUSA36289",
+    "content_id": "UP2564-CUSA36289_00-9430196387295720",
+    "category": "gp",
+    "title": "AllInOneSports",
+    "version": "01.02",
+    "kind": "update",
+    "entitlement": "9430196387295720",
+    "system_ver": "0x10508000",
+    "app_type": 1,
+    "content_flags": [
+      "FIRST_PATCH",
+      "PATCHGO",
+      "GD_AC",
+      "SUBSEQUENT_PATCH",
+      "DELTA_PATCH",
+      "CUMULATIVE_PATCH"
+    ],
+    "sha256": "f2c69b92c56913095473def8921fc62e8435ff8868ad1ff03692c3ee6fc4d0b7",
+    "selected_for_final_archive": true
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-zar-install-20260920/containers/tetris-backport/V2.05 降级补丁 5.05-7.55/HP0797-CUSA13427_00-TETRISEFFECT0000-A0205-V0100-FAKE-5.05-7.55-Opoisso893.pkg",
+    "title_id": "CUSA13427",
+    "content_id": "HP0797-CUSA13427_00-TETRISEFFECT0000",
+    "category": "gp",
+    "title": "Tetris® Effect: Connected",
+    "version": "02.05",
+    "kind": "update",
+    "entitlement": "TETRISEFFECT0000",
+    "system_ver": "0x9008000",
+    "app_type": 1,
+    "content_flags": [
+      "FIRST_PATCH",
+      "PATCHGO",
+      "GD_AC",
+      "SUBSEQUENT_PATCH",
+      "DELTA_PATCH",
+      "CUMULATIVE_PATCH"
+    ],
+    "sha256": "ecf91f659383681bebce65ce5a26f403ead15d0d6c3488a0bfee5f3c5c9a2526",
+    "selected_for_final_archive": false
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-zar-install-20260920/containers/tetris-base/V2.05 整合版 9.00/HP0797-CUSA13427_00-TETRISEFFECT0000-A0100-V0205.pkg",
+    "title_id": "CUSA13427",
+    "content_id": "HP0797-CUSA13427_00-TETRISEFFECT0000",
+    "category": "gd",
+    "title": "Tetris® Effect: Connected",
+    "version": "01.00",
+    "kind": "base",
+    "entitlement": "TETRISEFFECT0000",
+    "system_ver": "0x9008000",
+    "app_type": 1,
+    "content_flags": [
+      "GD_AC",
+      "UNKNOWN_0x8000000"
+    ],
+    "sha256": "b2bb71d3a6ae8a392289caee1312855dd1322178b9c123552eee157af2c7f660",
+    "selected_for_final_archive": true,
+    "master_version": "02.05"
+  }
+]

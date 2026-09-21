@@ -1,0 +1,16 @@
+{
+  "uncompressed_bytes": 9739675926,
+  "archive_bytes": 5246330525,
+  "files": 166,
+  "directories": 33,
+  "compared_source": true,
+  "sha256": "5896a510691c5d15d8b1d330ffddb4aa86f98bc6ec06a50155cb83a36478c4ce",
+  "name": "CUSA13427.zar",
+  "title_id": "CUSA13427",
+  "title": "Tetris Effect: Connected",
+  "effective_version": "02.05 integrated (SFO VERSION=02.05, APP_VER=01.00)",
+  "layout": "single integrated game root; no backport overlay",
+  "archive": "/Users/bytedance/game/ps4/zar/CUSA13427.zar",
+  "source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-zar-install-20260920/extracted/CUSA13427",
+  "saving_percent": 46.13444466879072
+}

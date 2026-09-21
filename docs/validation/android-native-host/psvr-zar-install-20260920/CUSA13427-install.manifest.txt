@@ -1,0 +1,10 @@
+version=1
+status=INSTALLED
+gameId=CUSA13427
+contentId=
+mode=folder
+sourceUri=
+installedAtMs=1789910857295
+requiredFiles=eboot.bin,sce_sys/param.sfo
+bytesTotal=5246883750
+overlays=

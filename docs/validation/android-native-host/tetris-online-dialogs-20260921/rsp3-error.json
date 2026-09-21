@@ -1,0 +1,557 @@
+{
+  "succeeded": true,
+  "dryRun": false,
+  "session": {
+    "sessionId": "gdbg_6aa0cd9630b74643b832f929b23e8092",
+    "revision": 5,
+    "state": "stopped",
+    "sessionState": "active",
+    "hostProcessState": "unknown",
+    "nativeTargetState": "unbound",
+    "guestTargetState": "stopped",
+    "guestTransportState": "connected",
+    "controlOwner": "guest",
+    "emulator": "shadps4",
+    "transport": "adb_forward_tcp",
+    "host": "127.0.0.1",
+    "port": 24681,
+    "serial": "9c2841a4",
+    "remotePort": 24680,
+    "ownsAdbForward": true,
+    "ownershipReleased": false,
+    "nativeSessionId": "",
+    "hostPid": 0,
+    "hostStartTimeTicks": 0,
+    "emulatedProcessId": "",
+    "programId": "",
+    "mainBuildId": "",
+    "gdbServerInstanceId": "",
+    "registryGeneration": 0,
+    "preAttachState": "unknown",
+    "transientAttachStop": false,
+    "attachStopEpoch": 0,
+    "resumedAfterAttach": false,
+    "preAttachPausePreserved": false,
+    "architecture": "i386:x86-64",
+    "byteOrder": "little",
+    "supportedFeatures": [
+      "PacketSize=2000",
+      "qXfer:features:read+",
+      "qXfer:threads:read+",
+      "qXfer:libraries:read+",
+      "QStartNoAckMode+",
+      "swbreak+",
+      "qXfer:shadps4-mixed-stack:read+"
+    ],
+    "registerDefinitions": [
+      {
+        "number": 0,
+        "name": "rax",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 1,
+        "name": "rbx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 2,
+        "name": "rcx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 3,
+        "name": "rdx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 4,
+        "name": "rsi",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 5,
+        "name": "rdi",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 6,
+        "name": "rbp",
+        "bitSize": 64,
+        "type": "data_ptr",
+        "group": "general",
+        "generic": "fp"
+      },
+      {
+        "number": 7,
+        "name": "rsp",
+        "bitSize": 64,
+        "type": "data_ptr",
+        "group": "general",
+        "generic": "sp"
+      },
+      {
+        "number": 8,
+        "name": "r8",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 9,
+        "name": "r9",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 10,
+        "name": "r10",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 11,
+        "name": "r11",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 12,
+        "name": "r12",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 13,
+        "name": "r13",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 14,
+        "name": "r14",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 15,
+        "name": "r15",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 16,
+        "name": "rip",
+        "bitSize": 64,
+        "type": "code_ptr",
+        "group": "general",
+        "generic": "pc"
+      },
+      {
+        "number": 17,
+        "name": "eflags",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 18,
+        "name": "cs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 19,
+        "name": "ss",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 20,
+        "name": "ds",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 21,
+        "name": "es",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 22,
+        "name": "fs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 23,
+        "name": "gs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 24,
+        "name": "st0",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 25,
+        "name": "st1",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 26,
+        "name": "st2",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 27,
+        "name": "st3",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 28,
+        "name": "st4",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 29,
+        "name": "st5",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 30,
+        "name": "st6",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 31,
+        "name": "st7",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 32,
+        "name": "fctrl",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 33,
+        "name": "fstat",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 34,
+        "name": "ftag",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 35,
+        "name": "fiseg",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 36,
+        "name": "fioff",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 37,
+        "name": "foseg",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 38,
+        "name": "fooff",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 39,
+        "name": "fop",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 40,
+        "name": "xmm0",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 41,
+        "name": "xmm1",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 42,
+        "name": "xmm2",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 43,
+        "name": "xmm3",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 44,
+        "name": "xmm4",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 45,
+        "name": "xmm5",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 46,
+        "name": "xmm6",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 47,
+        "name": "xmm7",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 48,
+        "name": "xmm8",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 49,
+        "name": "xmm9",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 50,
+        "name": "xmm10",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 51,
+        "name": "xmm11",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 52,
+        "name": "xmm12",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 53,
+        "name": "xmm13",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 54,
+        "name": "xmm14",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 55,
+        "name": "xmm15",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 56,
+        "name": "mxcsr",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 57,
+        "name": "fs_base",
+        "bitSize": 64,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 58,
+        "name": "gs_base",
+        "bitSize": 64,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      }
+    ],
+    "stopEpoch": 2,
+    "stopReason": "swbreak",
+    "stoppedThreadId": "45",
+    "latestEventCursor": 3,
+    "stopLeaseMs": 300000,
+    "stopLeaseDeadlineUtc": "2026-09-21T07:49:18.978991+00:00",
+    "breakpoints": [
+      {
+        "breakpointId": "gbp_846967adbd7640c4be9924f0cb8a401a",
+        "type": "software",
+        "address": "0x15395a0",
+        "length": 1,
+        "createdUtc": "2026-09-21T07:43:11.068201+00:00"
+      }
+    ],
+    "createdUtc": "2026-09-21T07:42:11.37392+00:00",
+    "updatedUtc": "2026-09-21T07:43:51.067177+00:00",
+    "errorCode": "",
+    "errorMessage": ""
+  },
+  "events": [],
+  "threads": [],
+  "modules": [],
+  "registers": [],
+  "memory": {
+    "address": "0x1c05fc99b0",
+    "length": 1024,
+    "hex": "73006300650048006d00640052006500700072006f006a0065006300740069006f006e0049006e0069007400690061006c0069007a0065002800260043006f006e006600690067002c0020005300430045005f0048004d0044005f0052004500500052004f004a0045004300540049004f004e005f0054005900500045005f0042004f0052004400450052005f0046004f0052005f00530049004e0047004c0045002c0020006e0075006c006c00700074007200290020006600610069006c00650064002000770069007400680020006500720072006f007200200063006f00640065003a00200030007800380031003100310030003000300039000000ffff0000fc051c0000000100000000000000000000000000000000000000ffffffff0000f60810000000000000000000000000000000ffffffff0000bc0100000000000000000000000000000000ffffffff0000000000000000000000000000000000000000ffffffff0000380100000000000000000000000000000000ffffffff0000e70600000000000000000000000000000000ffffffff0000400100000000000000000000000000000000ffffffff0000000000000000000000000000000000000000ffffffff0000df0600000000000500a83600000008000000000000007801a40210000000d0affc051c000000001ba1f4502453c088b1fc051c000000d09bfc051c00000062e9ee0000000000e09bfc051c000000775a9203000000008001a40210000000101e3c001000000008c7e70600000000d0affc051c000000009dfc051c00000000003c0010000000209cfc051c000000298b91030000000000000000000000000200000000000000f0adfc051c000000dec980020000000000000000000000009029bd1510000000000900001005000008c7e706000000000300000000000000d0affc051c00000008c7e7060000803f000900001005000000000000000000000000000000000000b01eac2810000000000000000000000000000000000000008004000000000000000900001005000040dea02110000000000000001c000000500e000018000000b01eac28100000000000000000000000000000000000000000d0931520000000500e0000500e000040dea02110000000000000001c000000500e00000000000000000000000000004097840210000000110000001c000000e020ac28100000007020ac281000000000000000000000000000000000000000000000000000000000000000000000009029bd151000000010b2fc051c000000eb7f70020000000030e732bc00000000000000000000803ff155563f000000000000000000000000000000006ab64a3f00000000000000000000000000000000000020410000000030e732bc00000000000000000000803f",
+    "dataBase64": "cwBjAGUASABtAGQAUgBlAHAAcgBvAGoAZQBjAHQAaQBvAG4ASQBuAGkAdABpAGEAbABpAHoAZQAoACYAQwBvAG4AZgBpAGcALAAgAFMAQwBFAF8ASABNAEQAXwBSAEUAUABSAE8ASgBFAEMAVABJAE8ATgBfAFQAWQBQAEUAXwBCAE8AUgBEAEUAUgBfAEYATwBSAF8AUwBJAE4ARwBMAEUALAAgAG4AdQBsAGwAcAB0AHIAKQAgAGYAYQBpAGwAZQBkACAAdwBpAHQAaAAgAGUAcgByAG8AcgAgAGMAbwBkAGUAOgAgADAAeAA4ADEAMQAxADAAMAAwADkAAAD//wAA/AUcAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAD/////AAD2CBAAAAAAAAAAAAAAAAAAAAD/////AAC8AQAAAAAAAAAAAAAAAAAAAAD/////AAAAAAAAAAAAAAAAAAAAAAAAAAD/////AAA4AQAAAAAAAAAAAAAAAAAAAAD/////AADnBgAAAAAAAAAAAAAAAAAAAAD/////AABAAQAAAAAAAAAAAAAAAAAAAAD/////AAAAAAAAAAAAAAAAAAAAAAAAAAD/////AADfBgAAAAAABQCoNgAAAAgAAAAAAAAAeAGkAhAAAADQr/wFHAAAAAAbofRQJFPAiLH8BRwAAADQm/wFHAAAAGLp7gAAAAAA4Jv8BRwAAAB3WpIDAAAAAIABpAIQAAAAEB48ABAAAAAIx+cGAAAAANCv/AUcAAAAAJ38BRwAAAAAADwAEAAAACCc/AUcAAAAKYuRAwAAAAAAAAAAAAAAAAIAAAAAAAAA8K38BRwAAADeyYACAAAAAAAAAAAAAAAAkCm9FRAAAAAACQAAEAUAAAjH5wYAAAAAAwAAAAAAAADQr/wFHAAAAAjH5wYAAIA/AAkAABAFAAAAAAAAAAAAAAAAAAAAAAAAsB6sKBAAAAAAAAAAAAAAAAAAAAAAAAAAgAQAAAAAAAAACQAAEAUAAEDeoCEQAAAAAAAAABwAAABQDgAAGAAAALAerCgQAAAAAAAAAAAAAAAAAAAAAAAAAADQkxUgAAAAUA4AAFAOAABA3qAhEAAAAAAAAAAcAAAAUA4AAAAAAAAAAAAAAAAAAECXhAIQAAAAEQAAABwAAADgIKwoEAAAAHAgrCgQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACQKb0VEAAAABCy/AUcAAAA639wAgAAAAAw5zK8AAAAAAAAAAAAAIA/8VVWPwAAAAAAAAAAAAAAAAAAAABqtko/AAAAAAAAAAAAAAAAAAAAAAAAIEEAAAAAMOcyvAAAAAAAAAAAAACAPw=="
+  },
+  "addressProofs": [],
+  "timedOut": false,
+  "ownershipReleased": false,
+  "alreadyCleaned": false,
+  "warnings": [],
+  "errorCode": "",
+  "errorMessage": ""
+}

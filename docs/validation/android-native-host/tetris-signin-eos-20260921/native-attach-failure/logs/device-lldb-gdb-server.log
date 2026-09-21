@@ -1,0 +1,334 @@
+1789959844.524085045 GDBRemoteCommunication.cpp:CheckForPacket                    <   1> read packet: +
+1789959844.524260998 GDBRemoteCommunication.cpp:ReadPacket                        discarding spurious `+` packet
+1789959844.524326086 GDBRemoteCommunication.cpp:CheckForPacket                    <  19> read packet: $QStartNoAckMode#b0
+1789959844.524434090 GDBRemoteCommunication.cpp:SendAck                           <   1> send packet: +
+1789959844.524497986 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.527812004 GDBRemoteCommunication.cpp:CheckForPacket                    <   1> read packet: +
+1789959844.527858019 GDBRemoteCommunication.cpp:CheckForPacket                    <  77> read packet: $qSupported:xmlRegisters=i386,arm,mips,arc;multiprocess+;swbreak+;hwbreak+#a3
+1789959844.527940989 GDBRemoteCommunication.cpp:SendRawPacketNoLock               < 233> send packet: $PacketSize=131072;QStartNoAckMode+;qEcho+;native-signals+;QThreadSuffixSupported+;QListThreadsInStopReply+;qXfer:features:read+;QNonStop+;QPassSignals+;qXfer:auxv:read+;qXfer:libraries-svr4:read+;qXfer:siginfo:read+;multiprocess+#58
+1789959844.528861046 GDBRemoteCommunication.cpp:CheckForPacket                    <  26> read packet: $QThreadSuffixSupported#e4
+1789959844.529026985 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.529907942 GDBRemoteCommunication.cpp:CheckForPacket                    <  27> read packet: $QListThreadsInStopReply#21
+1789959844.529978037 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.530884027 GDBRemoteCommunication.cpp:CheckForPacket                    <  13> read packet: $qHostInfo#9b
+1789959844.531122923 GDBRemoteCommunication.cpp:SendRawPacketNoLock               < 365> send packet: $triple:616172636836342d2d6c696e75782d616e64726f6964;ptrsize:8;watchpoint_exceptions_received:before;endian:little;os_version:5.15.123;os_build:352e31352e3132332d616e64726f696431332d382d67616664383537373439643166;os_kernel:233120534d5020505245454d5054205468752046656220352030373a35393a3033205554432032303236;hostname:6c6f63616c686f7374;default_packet_timeout:20;#59
+1789959844.531980038 GDBRemoteCommunication.cpp:CheckForPacket                    <  10> read packet: $vCont?#49
+1789959844.532063007 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <  19> send packet: $vCont;c;C;s;S;t#11
+1789959844.532886028 GDBRemoteCommunication.cpp:CheckForPacket                    <  27> read packet: $qVAttachOrWaitSupported#38
+1789959844.532963991 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.533809900 GDBRemoteCommunication.cpp:CheckForPacket                    <  23> read packet: $QEnableErrorStrings#8c
+1789959844.533879042 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.534887075 GDBRemoteCommunication.cpp:CheckForPacket                    <  16> read packet: $qProcessInfo#dc
+1789959844.534948111 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   7> send packet: $E44#ad
+1789959844.535739899 GDBRemoteCommunication.cpp:CheckForPacket                    <   6> read packet: $qC#b4
+1789959844.535806894 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   7> send packet: $E44#ad
+1789959844.536855936 GDBRemoteCommunication.cpp:CheckForPacket                    <  16> read packet: $qfThreadInfo#bb
+1789959844.536989927 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.537916899 GDBRemoteCommunication.cpp:CheckForPacket                    <  16> read packet: $qProcessInfo#dc
+1789959844.538000107 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   7> send packet: $E44#ad
+1789959844.538855076 GDBRemoteCommunication.cpp:CheckForPacket                    <  23> read packet: $QSetDetachOnError:1#f8
+1789959844.538945913 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   6> send packet: $OK#9a
+1789959844.539772034 GDBRemoteCommunication.cpp:CheckForPacket                    <  16> read packet: $vAttach;74d8#0d
+1789959844.539840937 GDBRemoteCommunicationServerLLGS.cpp:Handle_vAttach          GDBRemoteCommunicationServerLLGS::Handle_vAttach attempting to attach to pid 29912
+1789959844.539865017 GDBRemoteCommunicationServerLLGS.cpp:AttachToProcess         GDBRemoteCommunicationServerLLGS::AttachToProcess pid 29912
+1789959844.546330929 GDBRemoteCommunicationServerLLGS.cpp:InitializeDelegate      GDBRemoteCommunicationServerLLGS::InitializeDelegate called with NativeProcessProtocol pid 29912, current state: invalid
+1789959844.550718069 GDBRemoteCommunicationServerLLGS.cpp:AttachToProcess         ProcessGDBRemoteCommunicationServerLLGS::AttachToProcess ignoring inferior STDIO since terminal fd reported as -1
+1789959844.550748110 GDBRemoteCommunicationServerLLGS.cpp:PrepareStopReplyPacketF preparing packet for pid 29912 tid 29912
+1789959844.550796986 GDBRemoteCommunicationServerLLGS.cpp:PrepareStopReplyPacketF pid 29912, tid 29912, got signal signo = 19, reason = 5, exc_type = 0
+1789959844.550920010 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29912 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.550976992 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29955 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551043987 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29956 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551105976 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29957 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551162958 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29958 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551218033 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29960 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551281929 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29961 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551359892 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29963 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551413059 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29964 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551465988 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29971 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551531076 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29980 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551592112 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29998 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551649094 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 29999 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551702023 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30011 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551772118 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30015 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551853895 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30022 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551911116 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30023 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.551966906 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30025 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552062035 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30033 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552119970 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30048 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552184105 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30050 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552236080 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30058 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552297115 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30684 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552355051 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30688 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552409887 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30690 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552470922 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30691 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552531958 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30692 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552597046 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30694 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552650928 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30696 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552704096 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30702 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552763939 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30703 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552825928 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30704 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552882910 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30705 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.552966118 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30708 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553030968 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30714 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553092003 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30732 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553195953 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30738 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553256989 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30742 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553329945 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30746 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553395033 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30749 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553447962 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30761 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553498983 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30762 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553561926 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30763 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553618908 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30764 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553677082 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30765 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553730011 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30766 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553795099 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30767 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553858042 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30768 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553916931 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30769 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.553970098 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30770 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554030895 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30771 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554088116 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30772 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554145098 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30773 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554197073 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30775 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554261923 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30777 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554320097 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30779 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554389000 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30780 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554481983 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30782 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554553986 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30783 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554621935 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30786 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554696083 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30788 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554764032 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30823 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554824114 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30835 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554889917 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30843 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.554944038 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30855 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.555018902 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30857 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.555073023 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30858 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.555124998 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30868 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.555186033 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30872 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.555265903 GDBRemoteCommunicationServerLLGS.cpp:GetJSONThreadsInfo      GDBRemoteCommunicationServerLLGS::GetJSONThreadsInfo pid 29912 tid 30876 got signal signo = 19, reason = 5, exc_type = 0
+1789959844.556658983 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <11492> send packet: $T13thread:p74d8.74d8;name:shadps4.android;threads:74d8,7503,7504,7505,7506,7508,7509,750b,750c,7513,751c,752e,752f,753b,753f,7546,7547,7549,7551,7560,7562,756a,77dc,77e0,77e2,77e3,77e4,77e6,77e8,77ee,77ef,77f0,77f1,77f4,77fa,780c,7812,7816,781a,781d,7829,782a,782b,782c,782d,782e,782f,7830,7831,7832,7833,7834,7835,7837,7839,783b,783c,783e,783f,7842,7844,7867,7873,787b,7887,7889,788a,7894,7898,789c;jstopinfo:5b7b226e616d65223a22736861647073342e616e64726f6964222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393931327d2c7b226e616d65223a225369676e616c2043617463686572222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393935357d2c7b226e616d65223a22706572666574746f5f6870726f665f222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393935367d2c7b226e616d65223a224144422d4a44575020436f6e6e6563222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393935377d2c7b226e616d65223a224a69742074687265616420706f6f6c222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393935387d2c7b226e616d65223a22486561705461736b4461656d6f6e222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393936307d2c7b226e616d65223a225265666572656e6365517565756544222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393936317d2c7b226e616d65223a2246696e616c697a65724461656d6f6e222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393936337d2c7b226e616d65223a2246696e616c697a6572576174636864222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393936347d2c7b226e616d65223a2262696e6465723a32393931325f31222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393937317d2c7b226e616d65223a2262696e6465723a32393931325f32222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393938307d2c7b226e616d65223a2262696e6465723a32393931325f33222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393939387d2c7b226e616d65223a2262696e6465723a32393931325f34222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a32393939397d2c7b226e616d65223a2250726f66696c65205361766572222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303031317d2c7b226e616d65223a2252656e646572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303031357d2c7b226e616d65223a22687775695461736b30222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303032327d2c7b226e616d65223a22687775695461736b31222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303032337d2c7b226e616d65223a225673796e635265636569766572222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303032357d2c7b226e616d65223a22617263685f6469736b5f696f5f30222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303033337d2c7b226e616d65223a22617263685f6469736b5f696f5f31222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303034387d2c7b226e616d65223a22617263685f6469736b5f696f5f32222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303035307d2c7b226e616d65223a2262696e6465723a32393931325f31222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303035387d2c7b226e616d65223a2244656661756c744578656375746f72222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303638347d2c7b226e616d65223a2252656e646572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303638387d2c7b226e616d65223a2252656e646572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303639307d2c7b226e616d65223a2252656e646572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303639317d2c7b226e616d65223a2252656e646572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303639327d2c7b226e616d65223a2252656e646572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303639347d2c7b226e616d65223a22617263685f6469736b5f696f5f33222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303639367d2c7b226e616d65223a2244656661756c744469737061746368222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303730327d2c7b226e616d65223a2244656661756c744469737061746368222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303730337d2c7b226e616d65223a227175657565642d776f726b2d6c6f6f222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303730347d2c7b226e616d65223a2244656661756c744469737061746368222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303730357d2c7b226e616d65223a2247756573742d31222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303730387d2c7b226e616d65223a226665782d73657373696f6e2d776174222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303731347d2c7b226e616d65223a22736861645053343a5a417263686976222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303733327d2c7b226e616d65223a22736861645053343a5a417263686976222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303733387d2c7b226e616d65223a22736861647073342e616e64726f6964222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303734327d2c7b226e616d65223a22736861647073342e616e64726f6964222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303734367d2c7b226e616d65223a22736861647073342e616e64726f6964222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303734397d2c7b226e616d65223a2247756573742d32222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736317d2c7b226e616d65223a2247756573742d33222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736327d2c7b226e616d65223a2247756573742d34222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736337d2c7b226e616d65223a2247756573742d35222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736347d2c7b226e616d65223a2247756573742d36222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736357d2c7b226e616d65223a2247756573742d37222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736367d2c7b226e616d65223a2247756573742d38222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736377d2c7b226e616d65223a2247756573742d39222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736387d2c7b226e616d65223a2247756573742d3130222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303736397d2c7b226e616d65223a2247756573742d3131222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737307d2c7b226e616d65223a2247756573742d3132222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737317d2c7b226e616d65223a2247756573742d3133222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737327d2c7b226e616d65223a2247756573742d3134222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737337d2c7b226e616d65223a2247756573742d3135222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737357d2c7b226e616d65223a2247756573742d3136222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737377d2c7b226e616d65223a2247756573742d3137222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303737397d2c7b226e616d65223a2247756573742d3138222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303738307d2c7b226e616d65223a2247756573742d3139222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303738327d2c7b226e616d65223a2247756573742d3230222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303738337d2c7b226e616d65223a2247756573742d3231222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303738367d2c7b226e616d65223a2247756573742d3232222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303738387d2c7b226e616d65223a2247756573742d3233222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303832337d2c7b226e616d65223a2247756573742d3237222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303833357d2c7b226e616d65223a2247756573742d3239222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303834337d2c7b226e616d65223a2247756573742d3330222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303835357d2c7b226e616d65223a225274634e6574776f726b5468726561222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303835377d2c7b226e616d65223a22527463576f726b6572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303835387d2c7b226e616d65223a225274635369676e616c696e67546872222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303836387d2c7b226e616d65223a225274634e6574776f726b5468726561222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303837327d2c7b226e616d65223a22527463576f726b6572546872656164222c22726561736f6e223a227369676e616c222c227369676e616c223a31392c22746964223a33303837367d5d;thread-pcs:00000071857d2c2c,00000071857d264c,00000071857d1968,00000071857d2d28,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,00000071857d1c4c,00000071857d1c4c,00000071857d1c4c,00000071857d1c4c,000000718577ab30,00000071857d2c2c,000000718577ab30,000000718577ab30,00000071857d2c2c,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,00000071857d2c2c,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30,000000718577ab30;00:fcffffffffffffff;01:8043a1c07f000000;02:1000000000000000;03:1000000000000000;04:0000000000000000;05:0800000000000000;06:7017000000000000;07:1800000000000000;08:1600000000000000;09:d0a5000000000000;0a:2001000000000000;0b:1200000000000000;0c:b889000000000000;0d:ffffff7f00000000;0e:98d79b1400000000;0f:ddd6af4cfd0c0000;10:c0bc878671000000;11:e400798571000000;12:0060bf8c71000000;13:b0a0632f6f0000b4;14:80a1632f6f0000b4;15:1000000000000000;16:8043a1c07f000000;17:b0a0632f6f0000b4;18:3000000000000000;19:ffffff7f00000000;1a:00a0398c71000000;1b:500765bf6e0000b4;1c:0000000000000000;1d:a044a1c07f000000;1e:c07c878671000000;1f:3043a1c07f000000;20:2c2c7d8571000000;21:00100060;reason:signal;#5c
+1789959844.557884932 GDBRemoteCommunication.cpp:CheckForPacket                    <  16> read packet: $qProcessInfo#dc
+1789959844.558393955 GDBRemoteCommunication.cpp:SendRawPacketNoLock               < 184> send packet: $pid:74d8;parent-pid:71e4;real-uid:27ce;real-gid:27ce;effective-uid:27ce;effective-gid:27ce;triple:616172636836342d2d6c696e75782d616e64726f6964;ostype:linux;endian:little;ptrsize:8;#eb
+1789959844.559319019 GDBRemoteCommunication.cpp:CheckForPacket                    <  43> read packet: $qXfer:features:read:target.xml:0,131071#78
+1789959844.562412024 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <27918> send packet: $l<?xml version="1.0"?>
+<target version="1.0">
+  <architecture>aarch64</architecture>
+  <feature>
+    <reg name="x0" bitsize="64" regnum="0" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="0" dwarf_regnum="0" generic="arg1" />
+    <reg name="x1" bitsize="64" regnum="1" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="1" dwarf_regnum="1" generic="arg2" />
+    <reg name="x2" bitsize="64" regnum="2" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="2" dwarf_regnum="2" generic="arg3" />
+    <reg name="x3" bitsize="64" regnum="3" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="3" dwarf_regnum="3" generic="arg4" />
+    <reg name="x4" bitsize="64" regnum="4" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="4" dwarf_regnum="4" generic="arg5" />
+    <reg name="x5" bitsize="64" regnum="5" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="5" dwarf_regnum="5" generic="arg6" />
+    <reg name="x6" bitsize="64" regnum="6" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="6" dwarf_regnum="6" generic="arg7" />
+    <reg name="x7" bitsize="64" regnum="7" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="7" dwarf_regnum="7" generic="arg8" />
+    <reg name="x8" bitsize="64" regnum="8" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="8" dwarf_regnum="8" />
+    <reg name="x9" bitsize="64" regnum="9" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="9" dwarf_regnum="9" />
+    <reg name="x10" bitsize="64" regnum="10" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="10" dwarf_regnum="10" />
+    <reg name="x11" bitsize="64" regnum="11" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="11" dwarf_regnum="11" />
+    <reg name="x12" bitsize="64" regnum="12" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="12" dwarf_regnum="12" />
+    <reg name="x13" bitsize="64" regnum="13" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="13" dwarf_regnum="13" />
+    <reg name="x14" bitsize="64" regnum="14" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="14" dwarf_regnum="14" />
+    <reg name="x15" bitsize="64" regnum="15" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="15" dwarf_regnum="15" />
+    <reg name="x16" bitsize="64" regnum="16" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="16" dwarf_regnum="16" />
+    <reg name="x17" bitsize="64" regnum="17" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="17" dwarf_regnum="17" />
+    <reg name="x18" bitsize="64" regnum="18" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="18" dwarf_regnum="18" />
+    <reg name="x19" bitsize="64" regnum="19" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="19" dwarf_regnum="19" />
+    <reg name="x20" bitsize="64" regnum="20" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="20" dwarf_regnum="20" />
+    <reg name="x21" bitsize="64" regnum="21" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="21" dwarf_regnum="21" />
+    <reg name="x22" bitsize="64" regnum="22" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="22" dwarf_regnum="22" />
+    <reg name="x23" bitsize="64" regnum="23" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="23" dwarf_regnum="23" />
+    <reg name="x24" bitsize="64" regnum="24" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="24" dwarf_regnum="24" />
+    <reg name="x25" bitsize="64" regnum="25" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="25" dwarf_regnum="25" />
+    <reg name="x26" bitsize="64" regnum="26" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="26" dwarf_regnum="26" />
+    <reg name="x27" bitsize="64" regnum="27" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="27" dwarf_regnum="27" />
+    <reg name="x28" bitsize="64" regnum="28" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="28" dwarf_regnum="28" />
+    <reg name="fp" bitsize="64" regnum="29" altname="x29" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="29" dwarf_regnum="29" generic="fp" />
+    <reg name="lr" bitsize="64" regnum="30" altname="x30" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="30" dwarf_regnum="30" generic="ra" />
+    <reg name="sp" bitsize="64" regnum="31" altname="x31" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="31" dwarf_regnum="31" generic="sp" />
+    <reg name="pc" bitsize="64" regnum="32" encoding="uint" format="hex" group="General Purpose Registers" ehframe_regnum="32" dwarf_regnum="32" generic="pc" />
+      <flags id="cpsr_flags" size="4">
+        <field name="N" start="31" end="31"/>
+        <field name="Z" start="30" end="30"/>
+        <field name="C" start="29" end="29"/>
+        <field name="V" start="28" end="28"/>
+        <field name="DIT" start="24" end="24"/>
+        <field name="SS" start="21" end="21"/>
+        <field name="IL" start="20" end="20"/>
+        <field name="SSBS" start="12" end="12"/>
+        <field name="BTYPE" start="10" end="11"/>
+        <field name="D" start="9" end="9"/>
+        <field name="A" start="8" end="8"/>
+        <field name="I" start="7" end="7"/>
+        <field name="F" start="6" end="6"/>
+        <field name="nRW" start="4" end="4"/>
+        <field name="EL" start="2" end="3"/>
+        <field name="SP" start="0" end="0"/>
+      </flags>
+    <reg name="cpsr" bitsize="32" regnum="33" encoding="uint" format="hex" type="cpsr_flags" group="General Purpose Registers" ehframe_regnum="33" dwarf_regnum="33" generic="flags" />
+    <reg name="w0" bitsize="32" regnum="34" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="0" />
+    <reg name="w1" bitsize="32" regnum="35" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="1" invalidate_regnums="1" />
+    <reg name="w2" bitsize="32" regnum="36" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="2" invalidate_regnums="2" />
+    <reg name="w3" bitsize="32" regnum="37" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="3" invalidate_regnums="3" />
+    <reg name="w4" bitsize="32" regnum="38" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="4" invalidate_regnums="4" />
+    <reg name="w5" bitsize="32" regnum="39" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="5" invalidate_regnums="5" />
+    <reg name="w6" bitsize="32" regnum="40" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="6" invalidate_regnums="6" />
+    <reg name="w7" bitsize="32" regnum="41" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="7" invalidate_regnums="7" />
+    <reg name="w8" bitsize="32" regnum="42" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="8" invalidate_regnums="8" />
+    <reg name="w9" bitsize="32" regnum="43" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="9" invalidate_regnums="9" />
+    <reg name="w10" bitsize="32" regnum="44" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="10" invalidate_regnums="10" />
+    <reg name="w11" bitsize="32" regnum="45" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="11" invalidate_regnums="11" />
+    <reg name="w12" bitsize="32" regnum="46" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="12" invalidate_regnums="12" />
+    <reg name="w13" bitsize="32" regnum="47" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="13" invalidate_regnums="13" />
+    <reg name="w14" bitsize="32" regnum="48" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="14" invalidate_regnums="14" />
+    <reg name="w15" bitsize="32" regnum="49" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="15" invalidate_regnums="15" />
+    <reg name="w16" bitsize="32" regnum="50" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="16" invalidate_regnums="16" />
+    <reg name="w17" bitsize="32" regnum="51" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="17" invalidate_regnums="17" />
+    <reg name="w18" bitsize="32" regnum="52" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="18" invalidate_regnums="18" />
+    <reg name="w19" bitsize="32" regnum="53" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="19" invalidate_regnums="19" />
+    <reg name="w20" bitsize="32" regnum="54" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="20" invalidate_regnums="20" />
+    <reg name="w21" bitsize="32" regnum="55" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="21" invalidate_regnums="21" />
+    <reg name="w22" bitsize="32" regnum="56" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="22" invalidate_regnums="22" />
+    <reg name="w23" bitsize="32" regnum="57" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="23" invalidate_regnums="23" />
+    <reg name="w24" bitsize="32" regnum="58" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="24" invalidate_regnums="24" />
+    <reg name="w25" bitsize="32" regnum="59" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="25" invalidate_regnums="25" />
+    <reg name="w26" bitsize="32" regnum="60" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="26" invalidate_regnums="26" />
+    <reg name="w27" bitsize="32" regnum="61" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="27" invalidate_regnums="27" />
+    <reg name="w28" bitsize="32" regnum="62" encoding="uint" format="hex" group="General Purpose Registers" value_regnums="28" invalidate_regnums="28" />
+    <reg name="v0" bitsize="128" regnum="63" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="64" dwarf_regnum="64" />
+    <reg name="v1" bitsize="128" regnum="64" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="65" dwarf_regnum="65" />
+    <reg name="v2" bitsize="128" regnum="65" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="66" dwarf_regnum="66" />
+    <reg name="v3" bitsize="128" regnum="66" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="67" dwarf_regnum="67" />
+    <reg name="v4" bitsize="128" regnum="67" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="68" dwarf_regnum="68" />
+    <reg name="v5" bitsize="128" regnum="68" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="69" dwarf_regnum="69" />
+    <reg name="v6" bitsize="128" regnum="69" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="70" dwarf_regnum="70" />
+    <reg name="v7" bitsize="128" regnum="70" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="71" dwarf_regnum="71" />
+    <reg name="v8" bitsize="128" regnum="71" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="72" dwarf_regnum="72" />
+    <reg name="v9" bitsize="128" regnum="72" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="73" dwarf_regnum="73" />
+    <reg name="v10" bitsize="128" regnum="73" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="74" dwarf_regnum="74" />
+    <reg name="v11" bitsize="128" regnum="74" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="75" dwarf_regnum="75" />
+    <reg name="v12" bitsize="128" regnum="75" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="76" dwarf_regnum="76" />
+    <reg name="v13" bitsize="128" regnum="76" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="77" dwarf_regnum="77" />
+    <reg name="v14" bitsize="128" regnum="77" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="78" dwarf_regnum="78" />
+    <reg name="v15" bitsize="128" regnum="78" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="79" dwarf_regnum="79" />
+    <reg name="v16" bitsize="128" regnum="79" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="80" dwarf_regnum="80" />
+    <reg name="v17" bitsize="128" regnum="80" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="81" dwarf_regnum="81" />
+    <reg name="v18" bitsize="128" regnum="81" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="82" dwarf_regnum="82" />
+    <reg name="v19" bitsize="128" regnum="82" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="83" dwarf_regnum="83" />
+    <reg name="v20" bitsize="128" regnum="83" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="84" dwarf_regnum="84" />
+    <reg name="v21" bitsize="128" regnum="84" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="85" dwarf_regnum="85" />
+    <reg name="v22" bitsize="128" regnum="85" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="86" dwarf_regnum="86" />
+    <reg name="v23" bitsize="128" regnum="86" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="87" dwarf_regnum="87" />
+    <reg name="v24" bitsize="128" regnum="87" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="88" dwarf_regnum="88" />
+    <reg name="v25" bitsize="128" regnum="88" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="89" dwarf_regnum="89" />
+    <reg name="v26" bitsize="128" regnum="89" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="90" dwarf_regnum="90" />
+    <reg name="v27" bitsize="128" regnum="90" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="91" dwarf_regnum="91" />
+    <reg name="v28" bitsize="128" regnum="91" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="92" dwarf_regnum="92" />
+    <reg name="v29" bitsize="128" regnum="92" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="93" dwarf_regnum="93" />
+    <reg name="v30" bitsize="128" regnum="93" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="94" dwarf_regnum="94" />
+    <reg name="v31" bitsize="128" regnum="94" encoding="vector" format="vector-uint8" group="Floating Point Registers" ehframe_regnum="95" dwarf_regnum="95" />
+    <reg name="s0" bitsize="32" regnum="95" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="63" invalidate_regnums="63,127" />
+    <reg name="s1" bitsize="32" regnum="96" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="64" invalidate_regnums="64,128" />
+    <reg name="s2" bitsize="32" regnum="97" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="65" invalidate_regnums="65,129" />
+    <reg name="s3" bitsize="32" regnum="98" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="66" invalidate_regnums="66,130" />
+    <reg name="s4" bitsize="32" regnum="99" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="67" invalidate_regnums="67,131" />
+    <reg name="s5" bitsize="32" regnum="100" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="68" invalidate_regnums="68,132" />
+    <reg name="s6" bitsize="32" regnum="101" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="69" invalidate_regnums="69,133" />
+    <reg name="s7" bitsize="32" regnum="102" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="70" invalidate_regnums="70,134" />
+    <reg name="s8" bitsize="32" regnum="103" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="71" invalidate_regnums="71,135" />
+    <reg name="s9" bitsize="32" regnum="104" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="72" invalidate_regnums="72,136" />
+    <reg name="s10" bitsize="32" regnum="105" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="73" invalidate_regnums="73,137" />
+    <reg name="s11" bitsize="32" regnum="106" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="74" invalidate_regnums="74,138" />
+    <reg name="s12" bitsize="32" regnum="107" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="75" invalidate_regnums="75,139" />
+    <reg name="s13" bitsize="32" regnum="108" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="76" invalidate_regnums="76,140" />
+    <reg name="s14" bitsize="32" regnum="109" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="77" invalidate_regnums="77,141" />
+    <reg name="s15" bitsize="32" regnum="110" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="78" invalidate_regnums="78,142" />
+    <reg name="s16" bitsize="32" regnum="111" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="79" invalidate_regnums="79,143" />
+    <reg name="s17" bitsize="32" regnum="112" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="80" invalidate_regnums="80,144" />
+    <reg name="s18" bitsize="32" regnum="113" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="81" invalidate_regnums="81,145" />
+    <reg name="s19" bitsize="32" regnum="114" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="82" invalidate_regnums="82,146" />
+    <reg name="s20" bitsize="32" regnum="115" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="83" invalidate_regnums="83,147" />
+    <reg name="s21" bitsize="32" regnum="116" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="84" invalidate_regnums="84,148" />
+    <reg name="s22" bitsize="32" regnum="117" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="85" invalidate_regnums="85,149" />
+    <reg name="s23" bitsize="32" regnum="118" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="86" invalidate_regnums="86,150" />
+    <reg name="s24" bitsize="32" regnum="119" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="87" invalidate_regnums="87,151" />
+    <reg name="s25" bitsize="32" regnum="120" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="88" invalidate_regnums="88,152" />
+    <reg name="s26" bitsize="32" regnum="121" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="89" invalidate_regnums="89,153" />
+    <reg name="s27" bitsize="32" regnum="122" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="90" invalidate_regnums="90,154" />
+    <reg name="s28" bitsize="32" regnum="123" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="91" invalidate_regnums="91,155" />
+    <reg name="s29" bitsize="32" regnum="124" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="92" invalidate_regnums="92,156" />
+    <reg name="s30" bitsize="32" regnum="125" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="93" invalidate_regnums="93,157" />
+    <reg name="s31" bitsize="32" regnum="126" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="94" invalidate_regnums="94,158" />
+    <reg name="d0" bitsize="64" regnum="127" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="63" invalidate_regnums="63,95" />
+    <reg name="d1" bitsize="64" regnum="128" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="64" invalidate_regnums="64,96" />
+    <reg name="d2" bitsize="64" regnum="129" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="65" invalidate_regnums="65,97" />
+    <reg name="d3" bitsize="64" regnum="130" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="66" invalidate_regnums="66,98" />
+    <reg name="d4" bitsize="64" regnum="131" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="67" invalidate_regnums="67,99" />
+    <reg name="d5" bitsize="64" regnum="132" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="68" invalidate_regnums="68,100" />
+    <reg name="d6" bitsize="64" regnum="133" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="69" invalidate_regnums="69,101" />
+    <reg name="d7" bitsize="64" regnum="134" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="70" invalidate_regnums="70,102" />
+    <reg name="d8" bitsize="64" regnum="135" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="71" invalidate_regnums="71,103" />
+    <reg name="d9" bitsize="64" regnum="136" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="72" invalidate_regnums="72,104" />
+    <reg name="d10" bitsize="64" regnum="137" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="73" invalidate_regnums="73,105" />
+    <reg name="d11" bitsize="64" regnum="138" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="74" invalidate_regnums="74,106" />
+    <reg name="d12" bitsize="64" regnum="139" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="75" invalidate_regnums="75,107" />
+    <reg name="d13" bitsize="64" regnum="140" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="76" invalidate_regnums="76,108" />
+    <reg name="d14" bitsize="64" regnum="141" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="77" invalidate_regnums="77,109" />
+    <reg name="d15" bitsize="64" regnum="142" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="78" invalidate_regnums="78,110" />
+    <reg name="d16" bitsize="64" regnum="143" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="79" invalidate_regnums="79,111" />
+    <reg name="d17" bitsize="64" regnum="144" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="80" invalidate_regnums="80,112" />
+    <reg name="d18" bitsize="64" regnum="145" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="81" invalidate_regnums="81,113" />
+    <reg name="d19" bitsize="64" regnum="146" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="82" invalidate_regnums="82,114" />
+    <reg name="d20" bitsize="64" regnum="147" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="83" invalidate_regnums="83,115" />
+    <reg name="d21" bitsize="64" regnum="148" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="84" invalidate_regnums="84,116" />
+    <reg name="d22" bitsize="64" regnum="149" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="85" invalidate_regnums="85,117" />
+    <reg name="d23" bitsize="64" regnum="150" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="86" invalidate_regnums="86,118" />
+    <reg name="d24" bitsize="64" regnum="151" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="87" invalidate_regnums="87,119" />
+    <reg name="d25" bitsize="64" regnum="152" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="88" invalidate_regnums="88,120" />
+    <reg name="d26" bitsize="64" regnum="153" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="89" invalidate_regnums="89,121" />
+    <reg name="d27" bitsize="64" regnum="154" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="90" invalidate_regnums="90,122" />
+    <reg name="d28" bitsize="64" regnum="155" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="91" invalidate_regnums="91,123" />
+    <reg name="d29" bitsize="64" regnum="156" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="92" invalidate_regnums="92,124" />
+    <reg name="d30" bitsize="64" regnum="157" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="93" invalidate_regnums="93,125" />
+    <reg name="d31" bitsize="64" regnum="158" encoding="ieee754" format="float" group="Floating Point Registers" value_regnums="94" invalidate_regnums="94,126" />
+      <flags id="fpsr_flags" size="4">
+        <field name="QC" start="27" end="27"/>
+        <field name="IDC" start="7" end="7"/>
+        <field name="IXC" start="4" end="4"/>
+        <field name="UFC" start="3" end="3"/>
+        <field name="OFC" start="2" end="2"/>
+        <field name="DZC" start="1" end="1"/>
+        <field name="IOC" start="0" end="0"/>
+      </flags>
+    <reg name="fpsr" bitsize="32" regnum="159" encoding="uint" format="hex" type="fpsr_flags" group="Floating Point Registers" />
+      <enum id="rmode_enum" size="4">
+        <evalue name="RN" value="0"/>
+        <evalue name="RP" value="1"/>
+        <evalue name="RM" value="2"/>
+        <evalue name="RZ" value="3"/>
+      </enum>
+      <flags id="fpcr_flags" size="4">
+        <field name="AHP" start="26" end="26"/>
+        <field name="DN" start="25" end="25"/>
+        <field name="FZ" start="24" end="24"/>
+        <field name="RMode" start="22" end="23" type="rmode_enum"/>
+        <field name="FZ16" start="19" end="19"/>
+        <field name="IDE" start="15" end="15"/>
+        <field name="IXE" start="12" end="12"/>
+        <field name="UFE" start="11" end="11"/>
+        <field name="OFE" start="10" end="10"/>
+        <field name="DZE" start="9" end="9"/>
+        <field name="IOE" start="8" end="8"/>
+      </flags>
+    <reg name="fpcr" bitsize="32" regnum="160" encoding="uint" format="hex" type="fpcr_flags" group="Floating Point Registers" />
+    <reg name="data_mask" bitsize="64" regnum="161" encoding="uint" format="hex" group="Pointer Authentication Registers" />
+    <reg name="code_mask" bitsize="64" regnum="162" encoding="uint" format="hex" group="Pointer Authentication Registers" />
+    <reg name="tpidr" bitsize="64" regnum="163" encoding="uint" format="hex" group="Thread Local Storage Registers" />
+  </feature>
+</target>
+#c0
+1789959844.751315117 GDBRemoteCommunication.cpp:CheckForPacket                    <  19> read packet: $p0;thread:74d8;#cf
+1789959844.751471043 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <  20> send packet: $fcffffffffffffff#5d
+1789959844.752918959 GDBRemoteCommunication.cpp:CheckForPacket                    <  26> read packet: $qStructuredDataPlugins#02
+1789959844.753026962 GDBRemoteCommunication.cpp:SendRawPacketNoLock               <   4> send packet: $#00
+1789959844.757991076 GDBRemoteCommunication.cpp:CheckForPacket                    <  29> read packet: $qXfer:auxv:read::0,131071#d7
+1789959844.758234978 GDBRemoteCommunication.cpp:SendRawPacketNoLock               < 341> send packet: $l!

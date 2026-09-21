@@ -1,0 +1,12 @@
+stage TCP pair
+stage Both set bits count
+stage WAITALL accumulates
+stage epoll preserves
+stage Short receive
+stage Orbis integer
+stage Individual cancellation
+stage IPv6 conversion
+stage Datagram boundaries
+stage Select cancellation
+FAIL 173: reused==last[1]
+socket/posix/random: 261 checks, 1 failures

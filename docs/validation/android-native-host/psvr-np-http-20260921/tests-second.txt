@@ -1,0 +1,4 @@
+guest_http_tests: 357 checks, 0 failures
+guest_http_tests exit=0
+guest_psvr_services_tests exit=134
+guest_avplayer_tests exit=2

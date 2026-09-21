@@ -1,0 +1,16 @@
+{
+    "schemaVersion": 1,
+    "values": {
+        "gpu.internal_scale": "0.5",
+        "gpu.shading_quality": "High (1/1)",
+        "gpu.direct_memory_access_enabled": true,
+        "gpu.fsr_enabled": true,
+        "general.console_language": "简体中文"
+    },
+    "unknownShadPs4": {},
+    "guestBackend": null,
+    "driverId": null,
+    "maliGpuOptimizations": null,
+    "controllerSlots": [],
+    "touchLayoutId": null
+}

@@ -1,0 +1,11 @@
+{
+  "host_sha256": "5bf11adee4716ce9022157e80b112b836ef9923eb79ed5639ac9d8d2da34ac12",
+  "tests": [
+    "guest_reprojection_tests",
+    "guest_np_tests",
+    "guest_commerce_dialog_tests",
+    "guest_msg_dialog_tests",
+    "guest_psvr_services_tests",
+    "host_library_smoke"
+  ]
+}

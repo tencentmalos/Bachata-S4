@@ -1,0 +1,428 @@
+{
+  "beat": {
+    "source": "beat-v4-imports.json",
+    "rows": 1939,
+    "bindings": {
+      "guest_export": 780,
+      "runtime_bound": 889,
+      "refused": 256,
+      "not_relocated": 14
+    },
+    "unique_refused": 243,
+    "reprojection": [
+      {
+        "binding": "guest_export",
+        "guest_address": 4333945232,
+        "hle_status": "guest_export",
+        "importer": "eboot.bin",
+        "name": "g_VideoOutReprojectionRate",
+        "provider": "guest_export",
+        "symbol": "8HhxNMSnlT4#Il2CppUserAssemblies#1#Il2CppUserAssemblies#Object"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080230912,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetUserEventEnd",
+        "provider": "runtime_fallback",
+        "symbol": "knyIhlkpLgE#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080312832,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetDisplayBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "E+dPfjeQLHI#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080378368,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetOutputMinColor",
+        "provider": "runtime_fallback",
+        "symbol": "LjdLRysHU6Y#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080427520,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "OuygGEWkins#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080460288,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStartMultilayer",
+        "provider": "runtime_fallback",
+        "symbol": "8gH1aLgty5I#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080886272,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionFinalize",
+        "provider": "runtime_fallback",
+        "symbol": "ZrV5YIqD09I#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080968192,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryGarlicBuffSize",
+        "provider": "runtime_fallback",
+        "symbol": "z0KtN1vqF2E#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081050112,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryOnionBuffSize",
+        "provider": "runtime_fallback",
+        "symbol": "kLUAkN6a1e8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081115648,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStop",
+        "provider": "runtime_fallback",
+        "symbol": "vzMEkwBQciM#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081197568,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryGarlicBuffAlign",
+        "provider": "runtime_fallback",
+        "symbol": "TkcANcGM0s8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081213952,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionClearUserEventStart",
+        "provider": "runtime_fallback",
+        "symbol": "mdyFbaJj66M#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081230336,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetUserEventStart",
+        "provider": "runtime_fallback",
+        "symbol": "7as0CjXW1B8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081492480,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryOnionBuffAlign",
+        "provider": "runtime_fallback",
+        "symbol": "IWybWbR-xvA#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081574400,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionUnsetDisplayBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "iGNNpDDjcwo#libSceHmd#1#libSceHmd#Function"
+      }
+    ]
+  },
+  "sports": {
+    "source": "sports-v4-imports.json",
+    "rows": 2303,
+    "bindings": {
+      "guest_export": 969,
+      "runtime_bound": 1045,
+      "refused": 278,
+      "not_relocated": 11
+    },
+    "unique_refused": 253,
+    "reprojection": [
+      {
+        "binding": "guest_export",
+        "guest_address": 4342801496,
+        "hle_status": "guest_export",
+        "importer": "eboot.bin",
+        "name": "g_VideoOutReprojectionRate",
+        "provider": "guest_export",
+        "symbol": "8HhxNMSnlT4#Il2CppUserAssemblies#1#Il2CppUserAssemblies#Object"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080050688,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionClearUserEventStart",
+        "provider": "runtime_fallback",
+        "symbol": "mdyFbaJj66M#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079903232,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionFinalize",
+        "provider": "runtime_fallback",
+        "symbol": "ZrV5YIqD09I#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080361984,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "OuygGEWkins#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080820736,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryGarlicBuffAlign",
+        "provider": "runtime_fallback",
+        "symbol": "TkcANcGM0s8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080673280,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryGarlicBuffSize",
+        "provider": "runtime_fallback",
+        "symbol": "z0KtN1vqF2E#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081033728,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryOnionBuffAlign",
+        "provider": "runtime_fallback",
+        "symbol": "IWybWbR-xvA#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080722432,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryOnionBuffSize",
+        "provider": "runtime_fallback",
+        "symbol": "kLUAkN6a1e8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079624704,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetDisplayBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "E+dPfjeQLHI#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079673856,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetOutputMinColor",
+        "provider": "runtime_fallback",
+        "symbol": "LjdLRysHU6Y#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079575552,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetUserEventEnd",
+        "provider": "runtime_fallback",
+        "symbol": "knyIhlkpLgE#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080067072,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetUserEventStart",
+        "provider": "runtime_fallback",
+        "symbol": "7as0CjXW1B8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080591360,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStart2dVr",
+        "provider": "runtime_fallback",
+        "symbol": "q3e8+nEguyE#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079706624,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStartMultilayer",
+        "provider": "runtime_fallback",
+        "symbol": "8gH1aLgty5I#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103080787968,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStop",
+        "provider": "runtime_fallback",
+        "symbol": "vzMEkwBQciM#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103081050112,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionUnsetDisplayBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "iGNNpDDjcwo#libSceHmd#1#libSceHmd#Function"
+      }
+    ]
+  },
+  "tetris": {
+    "source": "tetris-v4b-imports.json",
+    "rows": 2603,
+    "bindings": {
+      "guest_export": 1146,
+      "refused": 358,
+      "runtime_bound": 1082,
+      "not_relocated": 17
+    },
+    "unique_refused": 290,
+    "reprojection": [
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079739392,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionFinalize",
+        "provider": "runtime_fallback",
+        "symbol": "ZrV5YIqD09I#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079755776,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "OuygGEWkins#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079772160,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryGarlicBuffAlign",
+        "provider": "runtime_fallback",
+        "symbol": "TkcANcGM0s8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079788544,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryGarlicBuffSize",
+        "provider": "runtime_fallback",
+        "symbol": "z0KtN1vqF2E#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079804928,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryOnionBuffAlign",
+        "provider": "runtime_fallback",
+        "symbol": "IWybWbR-xvA#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079821312,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionQueryOnionBuffSize",
+        "provider": "runtime_fallback",
+        "symbol": "kLUAkN6a1e8#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079837696,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetDisplayBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "E+dPfjeQLHI#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079854080,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionSetOutputMinColor",
+        "provider": "runtime_fallback",
+        "symbol": "LjdLRysHU6Y#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079870464,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStart",
+        "provider": "runtime_fallback",
+        "symbol": "dntZTJ7meIU#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079886848,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStart2dVr",
+        "provider": "runtime_fallback",
+        "symbol": "q3e8+nEguyE#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079903232,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStartWithOverlay",
+        "provider": "runtime_fallback",
+        "symbol": "kcldQ7zLYQQ#libSceHmd#1#libSceHmd#Function"
+      },
+      {
+        "binding": "runtime_bound",
+        "guest_address": 103079919616,
+        "hle_status": "android_bridge_guest_vr_sbs_virtual",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionUnsetDisplayBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "iGNNpDDjcwo#libSceHmd#1#libSceHmd#Function"
+      }
+    ]
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "local_uncommitted": true,
+  "no_game_binaries": true,
+  "files": [
+    {
+      "path": "apk-v3.log.txt",
+      "size": 20733,
+      "sha256": "f33180d85cc375b4a0f9d487ff74b61278d38cffeaeb1dfc5e04cd3e619a2c7f"
+    },
+    {
+      "path": "audit.json",
+      "size": 46974,
+      "sha256": "98ee0cd7bc8e3cae33b744355c54f5da5fb0b4e1d373079b3ff98777ccf2d5bb"
+    },
+    {
+      "path": "build-final.log.txt",
+      "size": 667,
+      "sha256": "6cb29a6eb58468c6aaa34c43f93207dffe71dd6d1b92ae42022f5799c20e6a2f"
+    },
+    {
+      "path": "build-identity-v1.json",
+      "size": 572,
+      "sha256": "702904b6f853e99244bd3d01bb222826bf6cf9a066143072cc58146c8a61554c"
+    },
+    {
+      "path": "build-identity.json",
+      "size": 572,
+      "sha256": "64f88ee37c3f5042deb01c450be738f94a59db52d8ec7bba9f6933eefb8c982c"
+    },
+    {
+      "path": "build-v2.log.txt",
+      "size": 1715,
+      "sha256": "b8d67286eff57d3eca6cd7ec138f26e8de66fc5841e6deec76835d3e1a19af03"
+    },
+    {
+      "path": "build-v3.log.txt",
+      "size": 667,
+      "sha256": "e68be92dd5a4889293a5a9645b938630acaee3f7424f3db978310cb58f9ac4d9"
+    },
+    {
+      "path": "delivery.json",
+      "size": 1682,
+      "sha256": "efd8a2c6577a6c8e075447b303d6df8afd493d21b81bdbd505f596272cf048f5"
+    },
+    {
+      "path": "desktop-source-identity.json",
+      "size": 1481,
+      "sha256": "3a4e486d08028eb40c8915009df90c34787e9f318bb4e8ad8e76517aee965e97"
+    },
+    {
+      "path": "host-tail-final.txt",
+      "size": 130000,
+      "sha256": "ea80079ca3d387186fba4a3f09a5ced64db9935e144af11a4db9b0d04bd9a856"
+    },
+    {
+      "path": "host-v2.txt",
+      "size": 130000,
+      "sha256": "a1790b26bbf997af5efc61b5e31e9ae6acda1ef37ba4799f79d07922a874dcf1"
+    },
+    {
+      "path": "host-v3.txt",
+      "size": 120000,
+      "sha256": "21771a1b769d28301f9ce99b9b4769c9ffc6a8791661dcbbc51d0ef667dae947"
+    },
+    {
+      "path": "imports.json",
+      "size": 805588,
+      "sha256": "8f0e06d0bff28f4003707767a7105abd6c862c6d6f802f4af52dc54349c131fb"
+    },
+    {
+      "path": "library-final.png",
+      "size": 3689434,
+      "sha256": "8d18d4298d9e2c7733dad0880339e0898c7b2c9a0058043b0c9df22e1b277f1d"
+    },
+    {
+      "path": "logcat-live.txt",
+      "size": 158215,
+      "sha256": "47e36b7c15838a5eff63128a7d2fe7364d061e50db25bdc386da7966b0f34556"
+    },
+    {
+      "path": "logcat-v2.txt",
+      "size": 155154,
+      "sha256": "529422257adc9ba21c357480693c1d3e350695014d7370c337d607d3986e95da"
+    },
+    {
+      "path": "logcat-v3.txt",
+      "size": 157328,
+      "sha256": "71b82ea621a9b570c99003b563781a91cf727ff030ea4fb4b07e0c57f82580af"
+    },
+    {
+      "path": "socket-nids.json",
+      "size": 3545,
+      "sha256": "5cee837c60d9657c43e2b82a6ed5821c977385ea6e5fdea32c396849ef5ea48e"
+    },
+    {
+      "path": "status-cleanup.txt",
+      "size": 154,
+      "sha256": "efb1aceb3d7916a0d347a4eba103dc0142eda2df9fcc23d672ee1628eb329053"
+    },
+    {
+      "path": "status-final-run.txt",
+      "size": 4608,
+      "sha256": "98c4e4404910dd8dd202955734514aa782cefe4a62326be99494bedee4d190f5"
+    },
+    {
+      "path": "status-v2.txt",
+      "size": 4605,
+      "sha256": "97f9ba4a57dde1935ad3142c3e57ab78215f997b47699ddcbbaf1d99f5a7ce50"
+    },
+    {
+      "path": "status-v3.txt",
+      "size": 4606,
+      "sha256": "0c71a46fd81f602a192d291ca80e1314557301ce4e96f559f103c5700bc3d937"
+    },
+    {
+      "path": "tests-control-first.txt",
+      "size": 197,
+      "sha256": "58c30a48bd0f441dbc58381ef148921c03638703b98301b2e4541af902e454ce"
+    },
+    {
+      "path": "tests-final.txt",
+      "size": 434,
+      "sha256": "7f55066a4daac825a5ffa98737c126d0c73d9edaf22e8a571b16be14299d23d4"
+    },
+    {
+      "path": "tests-socket-second.txt",
+      "size": 590,
+      "sha256": "ba8928372496a36c34809b7b3e2804fb8bb64e3f33709561770ce1e93671a361"
+    },
+    {
+      "path": "tests-socket-trace.txt",
+      "size": 243,
+      "sha256": "4e48f5b53a70f35740bceda3510086e6120b52ea16cd21a58d0d7d191a1604f7"
+    },
+    {
+      "path": "tests-third.txt",
+      "size": 303,
+      "sha256": "2aac7b5e4164a81b52e40b2bb33ff122a83dd877f909a3baaa56a8bc8eba9d71"
+    },
+    {
+      "path": "tests-v1.txt",
+      "size": 434,
+      "sha256": "1c0a893fcb46c8cfe4d4bb04c0630495d3ce2aefb3c9fa8e087fa0bf9451cb27"
+    },
+    {
+      "path": "tests-v2.txt",
+      "size": 434,
+      "sha256": "edb60de64e0a0fb62a0b31a2c92b4247eaca4ee5c0b8992611faa9c381aca162"
+    },
+    {
+      "path": "tetris-v3.png",
+      "size": 775631,
+      "sha256": "66a24d16ca2ab1d162e163406358fb51e3d2eddbceff9fc02e4f467056a28c04"
+    }
+  ]
+}
