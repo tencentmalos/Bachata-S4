@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "common/interval_set.h"
 #include "common/unique_function.h"
 #include "video_core/renderer_vulkan/render_break.h"
 #include "video_core/renderer_vulkan/render_pass_stats.h"
@@ -22,8 +23,8 @@
 #include "video_core/renderer_vulkan/vk_gpu_profiler.h"
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_primitive.h"
-#include "video_core/renderer_vulkan/vk_master_semaphore.h"
 #include "video_core/renderer_vulkan/vk_resource_pool.h"
+#include "video_core/renderer_vulkan/vk_semaphore.h"
 
 namespace tracy {
 class VkCtxScope;
@@ -64,11 +65,11 @@ struct RenderState {
 static_assert(std::has_unique_object_representations_v<RenderState>);
 
 struct SubmitInfo {
-    std::array<vk::Semaphore, 3> wait_semas;
-    std::array<u64, 3> wait_ticks;
-    std::array<vk::PipelineStageFlags, 3> wait_stages;
-    std::array<vk::Semaphore, 3> signal_semas;
-    std::array<u64, 3> signal_ticks;
+    std::array<vk::Semaphore, 4> wait_semas;
+    std::array<u64, 4> wait_ticks;
+    std::array<vk::PipelineStageFlags, 4> wait_stages;
+    std::array<vk::Semaphore, 4> signal_semas;
+    std::array<u64, 4> signal_ticks;
     vk::Fence fence;
     u32 num_wait_semas;
     u32 num_signal_semas;
@@ -359,6 +360,8 @@ struct DynamicState {
     }
 };
 
+using SubmitFunc = Common::UniqueFunction<void, SubmitInfo&>;
+
 class Scheduler {
 public:
     explicit Scheduler(const Instance& instance, GpuProfiler::Stage stage = GpuProfiler::Stage::DrawBatch);
@@ -435,38 +438,6 @@ public:
         ClearStagedAccess();
     }
 
-    /// Buffer barrier hoisting. A draw that continues the open pass and needs a barrier on
-    /// a buffer no draw of this pass has written (or, for a write, accessed) depends only on
-    /// work recorded before the pass: the barrier goes in the pre-pass slot instead of
-    /// ending the pass. ClassifyBarrier is called per barrier with the buffer's whole guest
-    /// range (its access state covers the whole buffer); PrepareBarrierHoist once the
-    /// draw's render state is known; TakeBarrierHoist when the barriers are recorded.
-    void ClassifyBarrier(VAddr address, u64 size, bool write_access) {
-        ++barriers_classified;
-        if (!is_rendering || !pass_trackable) {
-            barrier_conflict = true;
-            return;
-        }
-        const AccessRange r{address, address + size};
-        const auto overlaps = [&r](const std::vector<AccessRange>& set) {
-            for (const auto& [begin, end] : set)
-                if (begin < r.second && r.first < end)
-                    return true;
-            return false;
-        };
-        if (overlaps(pass_writes) || (write_access && overlaps(pass_reads)))
-            barrier_conflict = true;
-    }
-    void PrepareBarrierHoist(const RenderState& state) noexcept {
-        barrier_pass_continues = is_rendering && render_state == state;
-    }
-    bool TakeBarrierHoist(const vk::DependencyInfo& dependencies);
-    void ResetBarrierHoist() noexcept {
-        barrier_conflict = false;
-        barrier_pass_continues = false;
-        barriers_classified = 0;
-    }
-
     /// Guest memory accessed by the draw being prepared; joins the pass the draw lands in.
     void StageAccess(VAddr address, u64 size, bool write) {
         if (hoisting || !size || !(recorder && recorder->Deferring()))
@@ -519,9 +490,21 @@ public:
     bool BeginHoist(std::span<const AccessRange> reads, std::span<const AccessRange> writes,
                     bool reads_written);
     void EndHoist();
+    /// Ends the held pass under a hoisted operation that needs a batched barrier: the barrier
+    /// covers every access tracked so far, including draws of the held pass, so it must follow
+    /// the pass. Commands already hoisted stay before the pass.
+    void BreakHoist() {
+        if (hoisting)
+            InterruptHoist();
+    }
 
     /// Ends current rendering scope.
     void EndRendering(RenderBreak cause = RenderBreak::Other);
+
+    /// Sets a function to be called on every scheduler submission.
+    void SetSubmitCallback(SubmitFunc&& on_submit) {
+        this->on_submit = std::move(on_submit);
+    }
 
     /// Returns the current render state.
     const RenderState& GetRenderState() const {
@@ -556,26 +539,26 @@ public:
 
     /// Returns the current command buffer tick.
     [[nodiscard]] u64 CurrentTick() const noexcept {
-        return master_semaphore.CurrentTick();
+        return work_semaphore.CurrentTick();
     }
 
     /// Returns true when a tick has been triggered by the GPU.
     [[nodiscard]] bool IsFree(u64 tick) noexcept {
-        if (master_semaphore.IsFree(tick)) {
+        if (work_semaphore.IsFree(tick)) {
             return true;
         }
-        master_semaphore.Refresh();
-        return master_semaphore.IsFree(tick);
+        work_semaphore.Refresh();
+        return work_semaphore.IsFree(tick);
     }
 
-    /// Returns the master timeline semaphore.
     // Host passes normally push descriptors. Diagnostic mode uses ordinary sets
     // with the existing timeline-owned heap so SDK instrumentation sees real bindings.
     void BindHostDescriptors(vk::PipelineBindPoint point, vk::PipelineLayout layout,
         vk::DescriptorSetLayout set_layout, vk::ArrayProxy<const vk::WriteDescriptorSet> writes);
 
-    [[nodiscard]] MasterSemaphore* GetMasterSemaphore() noexcept {
-        return &master_semaphore;
+    /// Returns the scheduler timeline semaphore.
+    [[nodiscard]] Semaphore* GetWorkSemaphore() noexcept {
+        return &work_semaphore;
     }
 
     /// Defers an operation until the gpu has reached the current cpu tick.
@@ -604,11 +587,12 @@ private:
 
 private:
     const Instance& instance;
-    MasterSemaphore master_semaphore;
+    Semaphore work_semaphore;
     CommandPool command_pool;
     GpuProfiler gpu_profiler;
     std::unique_ptr<DescriptorHeap> diagnostic_descriptors;
     DynamicState dynamic_state;
+    SubmitFunc on_submit{};
     vk::CommandBuffer current_cmdbuf;
     std::unique_ptr<CommandRecorder> recorder;
     std::vector<std::string> marker_stack;
@@ -643,8 +627,6 @@ private:
     void InterruptHoist();
     // Pass description / log of the open pass.
     std::string pending_pass_description, pass_description, break_detail;
-    bool barrier_conflict{}, barrier_pass_continues{};
-    u32 barriers_classified{}; // barriers without a classification are never hoisted
     bool pending_pass_marker{};
     u32 pass_loads{}, pass_clears{}, pass_hoists{};
     u64 pass_load_pixels{};

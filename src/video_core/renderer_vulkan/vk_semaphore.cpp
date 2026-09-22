@@ -3,7 +3,7 @@
 
 #include <limits>
 #include "video_core/renderer_vulkan/vk_instance.h"
-#include "video_core/renderer_vulkan/vk_master_semaphore.h"
+#include "video_core/renderer_vulkan/vk_semaphore.h"
 #include "video_core/renderer_vulkan/timeline_completion.h"
 
 #include "common/assert.h"
@@ -15,7 +15,7 @@ namespace Vulkan {
 
 constexpr u64 WAIT_TIMEOUT = 50'000'000;
 
-MasterSemaphore::MasterSemaphore(const Instance& instance_)
+Semaphore::Semaphore(const Instance& instance_)
     : instance{instance_}, diagnostic_id{Core::Diagnostics::Handoff::NextId()} {
     const vk::StructureChain semaphore_chain = {
         vk::SemaphoreCreateInfo{},
@@ -54,9 +54,9 @@ MasterSemaphore::MasterSemaphore(const Instance& instance_)
 #endif
 }
 
-MasterSemaphore::~MasterSemaphore() = default;
+Semaphore::~Semaphore() = default;
 
-u64 MasterSemaphore::KnownGpuTick() const noexcept {
+u64 Semaphore::KnownGpuTick() const noexcept {
 #ifdef __ANDROID__
     return completion->ReusableTick();
 #else
@@ -64,7 +64,7 @@ u64 MasterSemaphore::KnownGpuTick() const noexcept {
 #endif
 }
 
-void MasterSemaphore::Refresh() {
+void Semaphore::Refresh() {
     instance.CheckSubmissionHealth();
 #ifdef __ANDROID__
     completion->CheckHealth();
@@ -86,7 +86,7 @@ void MasterSemaphore::Refresh() {
 #endif
 }
 
-void MasterSemaphore::Submitted(u64 tick) {
+void Semaphore::Submitted(u64 tick) {
 #ifdef __ANDROID__
     completion->Submitted(tick);
 #else
@@ -94,11 +94,11 @@ void MasterSemaphore::Submitted(u64 tick) {
 #endif
 }
 
-void MasterSemaphore::Wait(u64 tick) {
+void Semaphore::Wait(u64 tick) {
     (void)Wait(tick, {});
 }
 
-bool MasterSemaphore::Wait(u64 tick, std::stop_token stop) {
+bool Semaphore::Wait(u64 tick, std::stop_token stop) {
     // No need to wait if the GPU is ahead of the tick
     if (IsFree(tick)) {
         return true;

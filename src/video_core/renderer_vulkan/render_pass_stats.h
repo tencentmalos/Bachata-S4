@@ -22,22 +22,18 @@ struct RenderPassStats {
     // of a dependency on the pass so far or because no pass was held, and hoists cut by
     // a submission or raw command buffer access (split around the pass end).
     std::atomic<u64> hoisted{}, hoist_conflicts{}, hoist_unavailable{}, hoist_interrupted{};
-    // Buffer barriers placed before the open pass instead of ending it.
-    std::atomic<u64> hoisted_barriers{};
     std::atomic<bool> hoist_off{};
 
     struct Snapshot {
         u64 passes, loads, clears, stores, load_pixels, store_pixels, empty, single, few, many;
         u64 hoisted, hoist_conflicts, hoist_unavailable, hoist_interrupted;
-        u64 hoisted_barriers;
     };
     Snapshot Read() const noexcept {
         constexpr auto o = std::memory_order_relaxed;
         return {passes.load(o),      loads.load(o),        clears.load(o), stores.load(o),
                 load_pixels.load(o), store_pixels.load(o), empty.load(o),  single.load(o),
                 few.load(o),         many.load(o),         hoisted.load(o), hoist_conflicts.load(o),
-                hoist_unavailable.load(o), hoist_interrupted.load(o),
-                hoisted_barriers.load(o)};
+                hoist_unavailable.load(o), hoist_interrupted.load(o)};
     }
 };
 

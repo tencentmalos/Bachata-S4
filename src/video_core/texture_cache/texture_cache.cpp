@@ -22,6 +22,7 @@
 #include "video_core/page_manager.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/host_compatibility.h"
@@ -37,11 +38,11 @@ static constexpr u64 PageShift = 12;
 static constexpr u64 NumFramesBeforeRemoval = 32;
 
 TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
-                           AmdGpu::Liverpool* liverpool_, BufferCache& buffer_cache_,
-                           PageManager& tracker_)
-    : instance{instance_}, scheduler{scheduler_}, liverpool{liverpool_},
+                           Vulkan::Runtime& runtime_, AmdGpu::Liverpool* liverpool_,
+                           BufferCache& buffer_cache_, PageManager& tracker_)
+    : instance{instance_}, scheduler{scheduler_}, runtime{runtime_}, liverpool{liverpool_},
       buffer_cache{buffer_cache_}, tracker{tracker_}, blit_helper{instance, scheduler},
-      tile_manager{instance, scheduler, buffer_cache.GetUtilityBuffer(MemoryUsage::Stream)},
+      tile_manager{instance, scheduler, buffer_cache.GetStreamBuffer()},
       readback_linear_images{EmulatorSettings.IsReadbackLinearImagesEnabled()} {
 
     memory_diagnostics_epoch = MemoryDiagnostics::Begin(instance.ScalePolicy());
@@ -170,8 +171,7 @@ void TextureCache::PublishMemoryDiagnostics() {
             << " few=" << tiles.few << " many=" << tiles.many << '\n';
         out << "pass_hoist hoisted=" << tiles.hoisted << " conflicts=" << tiles.hoist_conflicts
             << " unavailable=" << tiles.hoist_unavailable
-            << " interrupted=" << tiles.hoist_interrupted
-            << " barriers=" << tiles.hoisted_barriers << '\n';
+            << " interrupted=" << tiles.hoist_interrupted << '\n';
         // Re-arm the bounded pass-break/resume log so the next frames after a request
         // describe which images and transitions split passes in the current scene.
         scheduler.ArmPassBreakLog(400);
@@ -287,22 +287,10 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
     // A readback no longer promotes the identity to native: a scaled backing is
     // transferred through a temporary native-extent copy inside Image::Download and
     // the plan keeps its scale (see scale_plan->upscaled_readback).
-    auto& download_buffer = buffer_cache.GetUtilityBuffer(MemoryUsage::Download);
     const u32 download_size = image.info.guest_size;
-    auto [download, offset] = download_buffer.Map(download_size);
-    std::shared_ptr<Buffer> oversized;
-    Buffer* target = &download_buffer;
-    if (!download) {
-        oversized = std::make_shared<Buffer>(instance, scheduler, MemoryUsage::Download, 0,
-            vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer,
-            download_size);
-        target = oversized.get();
-        download = target->mapped_data.data();
-        VmaDiagnostics::Tag(instance.GetAllocator(), target->buffer.allocation,
-                            "buffer/image-readback-oversize", true);
-    } else {
-        download_buffer.Commit();
-    }
+    // Held until the write-back below ran, which may be deferred past later requests.
+    const auto staging = runtime.GetStagingPool().Request(download_size, MemoryType::HostCached,
+                                                          16, /*deferred=*/true);
     std::vector<vk::BufferImageCopy> copies;
     for (u32 mip = 0; mip < image.info.resources.levels; ++mip) {
         const auto& part = image.info.mips_layout[mip];
@@ -316,7 +304,8 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
     }
     // Preserve the guest layout, including tiled surfaces and retained mip history.
     // A plain VkImageToBuffer copy would write linear pixels into tiled guest RAM.
-    tile_manager.TileImage(image, copies, target->Handle(), offset, download_size);
+    tile_manager.TileImage(image, copies, staging.buffer->Handle(), staging.offset,
+                           download_size);
     const vk::MemoryBarrier2 host_barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
         .srcAccessMask = vk::AccessFlagBits2::eMemoryWrite,
@@ -325,12 +314,12 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
     scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
         .memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
     const u64 skip = write_begin - image_begin;
-    return [allocator = instance.GetAllocator(), allocation = target->buffer.allocation,
-            write_begin, write_size = write_end - write_begin, source = download + skip, offset,
-            download_size, oversized] {
-        vmaInvalidateAllocation(allocator, allocation, offset, download_size);
+    return [this, staging, write_begin, write_size = write_end - write_begin,
+            source = staging.mapped + skip] {
+        staging.Invalidate();
         Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(write_begin), source,
                                                   write_size);
+        runtime.GetStagingPool().FreeDeferred(staging);
     };
 }
 
@@ -719,29 +708,7 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
         // When creating a depth buffer through overlap resolution don't clear it on first use.
         new_image.info.meta_info.htile_clear_mask = 0;
 
-        if (source_image.info.num_samples == 1 && new_info.num_samples == 1) {
-            // Perform depth<->color copy using the intermediate copy buffer.
-            if (instance.IsMaintenance8Supported()) {
-                new_image.CopyImage(source_image);
-            } else {
-                const auto& copy_buffer = buffer_cache.GetUtilityBuffer(MemoryUsage::DeviceLocal);
-                new_image.CopyImageWithBuffer(source_image, copy_buffer.Handle(), 0);
-            }
-        } else if (source_image.info.num_samples == 1 && new_info.props.is_depth &&
-                   new_info.num_samples > 1) {
-            // Perform a rendering pass to transfer the channels of source as samples in dest.
-            source_image.ForceNative("multisample reinterpretation");
-            source_image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
-                                vk::AccessFlagBits2::eShaderRead, {});
-            new_image.Transit(vk::ImageLayout::eDepthAttachmentOptimal,
-                              vk::AccessFlagBits2::eDepthStencilAttachmentWrite, {});
-            blit_helper.ReinterpretColorAsMsDepth(
-                new_info.size.width, new_info.size.height, new_image.backing->num_samples,
-                source_image.info.pixel_format, new_info.pixel_format, source_image.GetImage(),
-                new_image.GetImage());
-        } else {
-            LOG_WARNING(Render_Vulkan, "Unimplemented depth overlap copy");
-        }
+        runtime.CopyColorAndDepth(&source_image, &new_image);
 
         // Free the cache image.
         FreeImage(cache_image_id);
@@ -1340,13 +1307,8 @@ void TextureCache::RefreshImage(Image& image) {
         return buffer_cache.ObtainBufferForImage(upload_info.guest_address,
                                                  upload_info.guest_size);
     }();
-    if (auto barrier = in_buffer->GetBarrier(vk::AccessFlagBits2::eTransferRead,
-                                             vk::PipelineStageFlagBits2::eTransfer)) {
-        scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
-            .dependencyFlags = vk::DependencyFlagBits::eByRegion,
-            .bufferMemoryBarrierCount = 1,
-            .pBufferMemoryBarriers = &barrier.value(),
-        });
+    if (runtime.IsBufferAccessed(in_buffer, in_offset, upload_info.guest_size)) {
+        runtime.FlushBarriers();
     }
 
     const auto [buffer, offset] = [&] {
@@ -1359,6 +1321,9 @@ void TextureCache::RefreshImage(Image& image) {
 
     Common::Profiler::Scope upload_scope{"Texture.Upload"};
     image.Upload(image_copies, buffer, offset, upload_info.guest_size);
+    runtime.AccessBuffer(in_buffer, in_offset, upload_info.guest_size,
+                         vk::PipelineStageFlagBits2::eAllCommands,
+                         vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead);
 }
 
 void TextureCache::NoteUploadDiagnostics(const Image& image,

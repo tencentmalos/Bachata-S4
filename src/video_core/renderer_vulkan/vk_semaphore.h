@@ -17,10 +17,10 @@ class Instance;
 class Scheduler;
 class TimelineCompletion;
 
-class MasterSemaphore {
+class Semaphore {
 public:
-    explicit MasterSemaphore(const Instance& instance_);
-    ~MasterSemaphore();
+    explicit Semaphore(const Instance& instance_);
+    ~Semaphore();
 
     [[nodiscard]] u64 CurrentTick() const noexcept {
         return current_tick.load(std::memory_order_acquire);

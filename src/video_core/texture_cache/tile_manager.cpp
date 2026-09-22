@@ -401,7 +401,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
 }
 
 void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buffer_copies,
-                            vk::Buffer out_buffer, u32 out_offset, u32 copy_size) {
+                            vk::Buffer out_buffer, u64 out_offset, u32 copy_size) {
     const auto& info = in_image.info;
     if (!info.props.is_tiled) {
         for (auto& copy : buffer_copies) {
@@ -527,7 +527,7 @@ vk::Pipeline TileManager::GetImageTilingPipeline(const ImageInfo& info, const Re
 }
 
 bool TileManager::TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer out_buffer,
-                                      u32 out_offset) {
+                                      u64 out_offset) {
     const auto& info = in_image.info;
     if (!fused_readback || !in_image.IsScaled() || in_image.DroppedMips() ||
         in_image.IsReencoded() || !info.props.is_tiled || info.props.is_block ||

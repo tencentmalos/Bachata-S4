@@ -19,7 +19,7 @@
 namespace Vulkan {
 
 Scheduler::Scheduler(const Instance& instance, GpuProfiler::Stage stage)
-    : instance{instance}, master_semaphore{instance}, command_pool{instance, &master_semaphore}, gpu_profiler{instance, stage} {
+    : instance{instance}, work_semaphore{instance}, command_pool{instance, &work_semaphore}, gpu_profiler{instance, stage} {
 #if TRACY_GPU_ENABLED
     profiler_scope = reinterpret_cast<tracy::VkCtxScope*>(std::malloc(sizeof(tracy::VkCtxScope)));
 #endif
@@ -32,7 +32,7 @@ Scheduler::Scheduler(const Instance& instance, GpuProfiler::Stage stage)
             {vk::DescriptorType::eCombinedImageSampler, 4096},
             {vk::DescriptorType::eSampler, 4096},
         };
-        diagnostic_descriptors = std::make_unique<DescriptorHeap>(instance, &master_semaphore, sizes);
+        diagnostic_descriptors = std::make_unique<DescriptorHeap>(instance, &work_semaphore, sizes);
     }
     // Only the guest command stream is recorded on a separate thread.
     if (stage == GpuProfiler::Stage::DrawBatch)
@@ -352,27 +352,6 @@ bool Scheduler::BeginHoist(std::span<const AccessRange> reads, std::span<const A
     return true;
 }
 
-bool Scheduler::TakeBarrierHoist(const vk::DependencyInfo& dependencies) {
-    const bool ok = barrier_pass_continues && !barrier_conflict &&
-                    barriers_classified == dependencies.bufferMemoryBarrierCount &&
-                    dependencies.memoryBarrierCount == 0 && dependencies.imageMemoryBarrierCount == 0 &&
-                    is_rendering && !hoisting &&
-                    pass_trackable && recorder && recorder->Holding() &&
-                    !render_pass_stats.hoist_off.load(std::memory_order_relaxed);
-    ResetBarrierHoist();
-    if (!ok)
-        return false;
-    recorder->BeginPrePass();
-    CommandBuffer().pipelineBarrier2(dependencies);
-    recorder->EndPrePass();
-    ++pass_hoists;
-    render_pass_stats.hoisted_barriers.fetch_add(1, std::memory_order_relaxed);
-    if (AmdGpu::Pm4Trace::Active())
-        AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::BarrierHoisted, render_begins,
-                                   dependencies.bufferMemoryBarrierCount, 0, 0);
-    return true;
-}
-
 void Scheduler::EndHoist() {
     if (!hoisting)
         return;
@@ -447,7 +426,7 @@ void Scheduler::Finish() {
     SubmitExecution(info);
     Wait(presubmit_tick);
     WaitSubmitted();
-    gpu_profiler.Collect(master_semaphore.KnownGpuTick());
+    gpu_profiler.Collect(work_semaphore.KnownGpuTick());
 }
 
 void Scheduler::WaitSubmitted() {
@@ -458,12 +437,12 @@ void Scheduler::WaitSubmitted() {
 }
 
 void Scheduler::Wait(u64 tick) {
-    if (tick >= master_semaphore.CurrentTick()) {
+    if (tick >= work_semaphore.CurrentTick()) {
         // Make sure we are not waiting for the current tick without signalling
         SubmitInfo info{};
         Flush(info);
     }
-    master_semaphore.Wait(tick);
+    work_semaphore.Wait(tick);
 }
 
 void Scheduler::PopPendingOperations() {
@@ -471,12 +450,12 @@ void Scheduler::PopPendingOperations() {
         std::lock_guard lock{priority_pending_ops_mutex};
         if (priority_error) std::rethrow_exception(priority_error);
     }
-    master_semaphore.Refresh();
+    work_semaphore.Refresh();
     while (true) {
         Common::UniqueFunction<void> callback;
         {
             std::unique_lock lk(pending_ops_mutex);
-            if (pending_ops.empty() || !master_semaphore.IsFree(pending_ops.front().gpu_tick)) break;
+            if (pending_ops.empty() || !work_semaphore.IsFree(pending_ops.front().gpu_tick)) break;
             callback = std::move(pending_ops.front().callback);
             pending_ops.pop(); // Retire before invoking a callback which can enqueue more work.
         }
@@ -505,7 +484,7 @@ void Scheduler::AllocateWorkerCommandBuffers() {
 
     current_cmdbuf = command_pool.Commit();
     Check(current_cmdbuf.begin(begin_info));
-    gpu_profiler.BeginBatch(current_cmdbuf, master_semaphore.KnownGpuTick());
+    gpu_profiler.BeginBatch(current_cmdbuf, work_semaphore.KnownGpuTick());
     for (const auto& label : marker_stack) {
         current_cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
             .pLabelName = label.c_str(),
@@ -539,19 +518,25 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         InterruptHoist();
     // Let the recording thread work on queued chunks while this thread waits below.
     EndRendering(RenderBreak::Flush);
+    if (on_submit) {
+        // Records the final barriers and queues pending sparse binds ahead of this command
+        // buffer, which waits on them. Runs before the recorder drain so its commands land.
+        Common::Profiler::Scope scope{"Vulkan.SubmitCallback"};
+        on_submit(info);
+    }
     if (recorder)
         recorder->Dispatch();
     if (instance.Submissions() && CurrentTick() > 8) {
         // Also bound work already accepted by Vulkan, not just the host FIFO.
         // Tick reservation alone must never make a command buffer reusable.
         Common::Profiler::Scope scope{"Vulkan.InflightBudget"};
-        master_semaphore.Wait(CurrentTick() - 8);
+        work_semaphore.Wait(CurrentTick() - 8);
     }
     if (recorder) {
         Common::Profiler::Scope scope{"Vulkan.RecorderDrain"};
         recorder->Sync(); // the command buffer is ended and submitted by this thread
     }
-    const u64 signal_value = master_semaphore.NextTick();
+    const u64 signal_value = work_semaphore.NextTick();
 
 #if TRACY_GPU_ENABLED
     auto* profiler_ctx = instance.GetProfilerContext();
@@ -570,7 +555,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         Check(current_cmdbuf.end());
     }
 
-    const vk::Semaphore timeline = master_semaphore.Handle();
+    const vk::Semaphore timeline = work_semaphore.Handle();
     info.AddSignal(timeline, signal_value);
 
     {
@@ -580,7 +565,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     // No pointers to the caller's SubmitInfo, current_cmdbuf, or stack arrays
     // escape. The scheduler owns the command pool and drains before destruction.
     const auto flow = Common::Profiler::Post("Vulkan.PostSubmission");
-    auto submit = [instance_ptr = &instance, master = &master_semaphore, generation, flow,
+    auto submit = [instance_ptr = &instance, master = &work_semaphore, generation, flow,
                    signal_value, buffer = current_cmdbuf, packet = info]
                   (SubmissionReceipt& receipt) {
         Common::Profiler::Scope execution{"Vulkan.WorkerSubmit", flow};
@@ -644,7 +629,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         Common::Profiler::Scope scope{"Vulkan.EnqueueSubmission"};
         auto receipt = worker->Enqueue(std::move(submit));
         last_submission = receipt->serial;
-        SHAD_HANDOFF(generation, "submit_accepted", master_semaphore.DiagnosticId(),
+        SHAD_HANDOFF(generation, "submit_accepted", work_semaphore.DiagnosticId(),
                      signal_value, last_submission);
         gpu_profiler.Queued(signal_value, std::move(receipt));
     } else {
@@ -660,7 +645,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     }
     {
         Common::Profiler::Scope scope{"Vulkan.RefreshTimeline"};
-        master_semaphore.Refresh();
+        work_semaphore.Refresh();
     }
     {
         Common::Profiler::Scope scope{"Vulkan.NextCommandBuffer"};
@@ -691,7 +676,7 @@ void Scheduler::PriorityPendingOpsThread(std::stop_token stoken) {
             priority_pending_ops.pop();
         }
 
-        if (!master_semaphore.Wait(op.gpu_tick, stoken) || stoken.stop_requested()) {
+        if (!work_semaphore.Wait(op.gpu_tick, stoken) || stoken.stop_requested()) {
             break;
         }
 

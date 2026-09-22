@@ -26,7 +26,7 @@ public:
     ~TileManager();
 
     void TileImage(Image& in_image, std::span<vk::BufferImageCopy> buffer_copies,
-                   vk::Buffer out_buffer, u32 out_offset, u32 copy_size);
+                   vk::Buffer out_buffer, u64 out_offset, u32 copy_size);
 
     Result DetileImage(vk::Buffer in_buffer, u32 in_offset, const ImageInfo& info);
 
@@ -44,7 +44,7 @@ private:
     // Tiles `num_mips` levels of a scaled image straight into guest layout by sampling
     // the scaled backing. Returns false when the image/format is outside the fused path.
     bool TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer out_buffer,
-                             u32 out_offset);
+                             u64 out_offset);
     ScratchBuffer GetScratchBuffer(u32 size);
 
 private:

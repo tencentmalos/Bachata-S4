@@ -11,7 +11,7 @@
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
-#include "video_core/renderer_vulkan/vk_scheduler.h"
+#include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/amdgpu/pm4_trace.h"
 
@@ -42,6 +42,7 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
                                  Rasterizer& rasterizer) {
     Common::Profiler::Scope profile_scope{"HLE.CopyShader"};
     auto& scheduler = rasterizer.GetScheduler();
+    auto& runtime = rasterizer.GetRuntime();
     auto& buffer_cache = rasterizer.GetBufferCache();
 
     // Copy shader defines three formatted buffers as inputs: control, source, and destination.
@@ -207,29 +208,14 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
             commit_bytes += c.size;
         }
     }
-    auto* download = commit ? &buffer_cache.GetUtilityBuffer(VideoCore::MemoryUsage::Download)
-                            : nullptr;
-    u8* download_data = nullptr;
-    u64 download_offset = 0;
-    u64 download_used = 0;
-    if (download) {
-        std::tie(download_data, download_offset) = download->Map(commit_bytes);
-        if (download_data) {
-            download->Commit();
-        }
+    // Held until the deferred write-back below has read it.
+    StagingBufferRef download{};
+    if (commit && commit_bytes) {
+        download = runtime.GetStagingPool().Request(commit_bytes, VideoCore::MemoryType::HostCached,
+                                                    0, /*deferred=*/true);
     }
-
-    static constexpr vk::MemoryBarrier READ_BARRIER{
-        .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,
-        .dstAccessMask = vk::AccessFlagBits::eTransferRead | vk::AccessFlagBits::eTransferWrite,
-    };
-    static constexpr vk::MemoryBarrier WRITE_BARRIER{
-        .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
-        .dstAccessMask = vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
-    };
-    scheduler.CommandBuffer().pipelineBarrier(
-        vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eTransfer,
-        vk::DependencyFlagBits::eByRegion, READ_BARRIER, {}, {});
+    u8* const download_data = download.mapped;
+    u64 download_used = 0;
 
     static constexpr vk::DeviceSize MaxDistanceForMerge = 64_MB;
     u32 batch_start = 0;
@@ -281,12 +267,13 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         // Execute buffer copies.
         LOG_TRACE(Render_Vulkan, "HLE buffer copy: src_size = {}, dst_size = {}",
                   src_offset_max - src_offset_min, dst_offset_max - dst_offset_min);
-        scheduler.CommandBuffer().copyBuffer(src_buf->Handle(), dst_buf->Handle(), vk_copies);
+        runtime.CopyBuffer(src_buf, dst_buf, vk_copies);
         if (download_data) {
-            // Read back what this batch wrote, in the order of commit_targets.
+            // Read back what this batch wrote, in the order of commit_targets. Recorded with its
+            // own transfer barrier so a hoisted copy stays ahead of the held pass.
             commits.clear();
             for (const auto& copy : vk_copies) {
-                commits.push_back({copy.dstOffset, download_offset + download_used, copy.size});
+                commits.push_back({copy.dstOffset, download.offset + download_used, copy.size});
                 download_used += copy.size;
             }
             static constexpr vk::MemoryBarrier COPY_TO_DOWNLOAD{
@@ -296,14 +283,17 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
             scheduler.CommandBuffer().pipelineBarrier(
                 vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer,
                 vk::DependencyFlagBits::eByRegion, COPY_TO_DOWNLOAD, {}, {});
-            scheduler.CommandBuffer().copyBuffer(dst_buf->Handle(), download->Handle(), commits);
+            scheduler.CommandBuffer().copyBuffer(dst_buf->Handle(), download.buffer->Handle(),
+                                                 commits);
+            for (const auto& copy : commits) {
+                runtime.AccessBuffer(dst_buf, copy.srcOffset, copy.size,
+                                     vk::PipelineStageFlagBits2::eCopy,
+                                     vk::AccessFlagBits2::eTransferRead);
+            }
         }
         batch_start = batch_end;
     }
 
-    scheduler.CommandBuffer().pipelineBarrier(
-        vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eAllCommands,
-        vk::DependencyFlagBits::eByRegion, WRITE_BARRIER, {}, {});
     if (download_data) {
         static constexpr vk::MemoryBarrier HOST_BARRIER{
             .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
@@ -314,26 +304,25 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
                                                   HOST_BARRIER, {}, {});
         // Written in submission order once the copy has completed, like image downloads.
         scheduler.DeferPriorityOperation(
-            [allocator = download->instance->GetAllocator(),
-             allocation = download->buffer.allocation, data = download_data,
-             offset = download_offset, size = commit_bytes,
+            [&pool = runtime.GetStagingPool(), download,
              targets = std::vector<std::pair<VAddr, u32>>(commit_targets)] {
-                vmaInvalidateAllocation(allocator, allocation, offset, size);
+                download.Invalidate();
                 auto* memory = Core::Memory::Instance();
                 auto& watch = Core::gpu_watch_counters;
                 u64 at = 0;
                 for (const auto& [address, bytes] : targets) {
-                    if (memory->TryWriteBacking(std::bit_cast<void*>(address), data + at, bytes)) {
+                    if (memory->TryWriteBacking(std::bit_cast<void*>(address), download.mapped + at,
+                                                bytes)) {
                         watch.hle_commit_regions.fetch_add(1, std::memory_order_relaxed);
                         watch.hle_commit_bytes.fetch_add(bytes, std::memory_order_relaxed);
                     }
                     at += bytes;
                 }
+                pool.FreeDeferred(download);
             });
     }
     if (hoisted)
         scheduler.EndHoist();
-
     return true;
 }
 

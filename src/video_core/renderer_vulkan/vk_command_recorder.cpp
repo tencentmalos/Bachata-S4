@@ -380,6 +380,19 @@ void RecordingCommandBuffer::pushConstants(vk::PipelineLayout layout, vk::Shader
     });
 }
 
+void RecordingCommandBuffer::updateBuffer(vk::Buffer buffer, vk::DeviceSize offset,
+                                          vk::DeviceSize size, const void* data) const {
+    CommandRecorder* const recorder = Active();
+    if (!recorder) {
+        raw.updateBuffer(buffer, offset, size, data);
+        return;
+    }
+    recorder->Record(Bytes<u8>(size), [&](CommandChunk& chunk) {
+        const auto bytes = Copy(chunk, static_cast<const u8*>(data), size);
+        return [=](vk::CommandBuffer c) { c.updateBuffer(buffer, offset, size, bytes.data()); };
+    });
+}
+
 void RecordingCommandBuffer::pushDescriptorSetKHR(
     vk::PipelineBindPoint bp, vk::PipelineLayout layout, u32 set,
     vk::ArrayProxy<const vk::WriteDescriptorSet> const& writes) const {

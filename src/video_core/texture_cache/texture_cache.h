@@ -29,6 +29,10 @@ namespace AmdGpu {
 struct Liverpool;
 }
 
+namespace Vulkan {
+class Runtime;
+}
+
 namespace VideoCore {
 
 class BufferCache;
@@ -75,7 +79,8 @@ public:
 
 public:
     TextureCache(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler,
-                 AmdGpu::Liverpool* liverpool, BufferCache& buffer_cache, PageManager& tracker);
+                 Vulkan::Runtime& runtime, AmdGpu::Liverpool* liverpool, BufferCache& buffer_cache,
+                 PageManager& tracker);
     ~TextureCache();
 
     TileManager& GetTileManager() noexcept {
@@ -406,6 +411,7 @@ private:
 private:
     const Vulkan::Instance& instance;
     Vulkan::Scheduler& scheduler;
+    Vulkan::Runtime& runtime;
     AmdGpu::Liverpool* liverpool;
     BufferCache& buffer_cache;
     PageManager& tracker;

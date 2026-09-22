@@ -205,7 +205,6 @@ AcquireStatus Swapchain::AcquireNextImage() {
 }
 
 bool Swapchain::Present() {
-
     const vk::PresentInfoKHR present_info = {
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &present_ready[image_index],

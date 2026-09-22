@@ -362,6 +362,8 @@ public:
                          vk::ArrayProxy<const vk::ImageSubresourceRange> const& ranges) const;
     void pushConstants(vk::PipelineLayout layout, vk::ShaderStageFlags stages, u32 offset, u32 size,
                        const void* data) const;
+    void updateBuffer(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize size,
+                      const void* data) const;
     void pushDescriptorSetKHR(vk::PipelineBindPoint bp, vk::PipelineLayout layout, u32 set,
                               vk::ArrayProxy<const vk::WriteDescriptorSet> const& writes) const;
     void bindDescriptorSets(vk::PipelineBindPoint bp, vk::PipelineLayout layout, u32 first,

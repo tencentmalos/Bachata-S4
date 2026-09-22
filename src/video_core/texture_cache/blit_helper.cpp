@@ -67,8 +67,8 @@ void BlitHelper::EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format sou
     const auto& encoder = *slot;
     const AstcRequest request{width, height, layers, u32(srgb), block_dim};
     ASSERT(request.Valid());
-    auto blocks = std::make_shared<Buffer>(instance, scheduler, MemoryUsage::DeviceLocal, 0,
-        vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc, request.Bytes());
+    auto blocks = std::make_shared<Buffer>(instance, 0, request.Bytes(), MemoryType::DeviceLocal,
+                                           "BlitHelper:BlockEncode");
     const vk::ImageViewUsageCreateInfo usage{.usage = vk::ImageUsageFlagBits::eSampled};
     const auto [result, view] = instance.GetDevice().createImageView({
         .pNext = &usage, .image = source, .viewType = vk::ImageViewType::e2DArray,

@@ -19,25 +19,12 @@ Pipeline::Pipeline(const Instance& instance_, Scheduler& scheduler_, DescriptorH
 
 Pipeline::~Pipeline() = default;
 
-void Pipeline::BindResources(DescriptorWrites& set_writes, const BufferBarriers& buffer_barriers,
+void Pipeline::BindResources(DescriptorWrites& set_writes,
                              const Shader::PushData& push_data) const {
     const auto cmdbuf = scheduler.CommandBuffer();
     const auto bind_point =
         IsCompute() ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics;
 
-    if (!buffer_barriers.empty()) {
-        const auto dependencies = vk::DependencyInfo{
-            .dependencyFlags = vk::DependencyFlagBits::eByRegion,
-            .bufferMemoryBarrierCount = u32(buffer_barriers.size()),
-            .pBufferMemoryBarriers = buffer_barriers.data(),
-        };
-        if (!scheduler.TakeBarrierHoist(dependencies)) {
-            scheduler.EndRendering(Vulkan::RenderBreak::Barrier);
-            cmdbuf.pipelineBarrier2(dependencies);
-        }
-    } else {
-        scheduler.ResetBarrierHoist();
-    }
     scheduler.ClearBreakDetail();
 
     const auto stage_flags = IsCompute() ? vk::ShaderStageFlagBits::eCompute : AllGraphicsStageBits;

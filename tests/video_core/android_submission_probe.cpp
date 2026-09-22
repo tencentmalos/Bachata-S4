@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
         // Hold that acknowledgement deterministically; neither Wait nor pool
         // retirement may pass the command-buffer ownership boundary early.
         {
-            Vulkan::MasterSemaphore master(instance);
+            Vulkan::Semaphore master(instance);
             auto pool = Vulkan::Check(device.createCommandPoolUnique({
                 .queueFamilyIndex = instance.GetGraphicsQueueFamilyIndex()}));
             auto cmds = Vulkan::Check(device.allocateCommandBuffersUnique({
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
         draw.CommandBuffer().fillBuffer(buffer.buffer, 0, 4096, 0x12340000 + generation);
         Vulkan::SubmitInfo a{};
         Vulkan::SubmitInfo b{};
-        b.AddWait(draw.GetMasterSemaphore()->Handle(), draw_tick);
+        b.AddWait(draw.GetWorkSemaphore()->Handle(), draw_tick);
         b.AddSignal(*signal);
         b.AddSignal(*fence);
         present.CommandBuffer().copyBuffer(buffer.buffer, buffer.buffer,
@@ -129,8 +129,8 @@ int main(int argc, char** argv) {
         if (!accepted_while_present_blocked) queue_owner.unlock();
         produce.get();
         if (accepted_while_present_blocked) {
-            CHECK(!draw.GetMasterSemaphore()->IsFree(draw_tick));
-            CHECK(!present.GetMasterSemaphore()->IsFree(present_tick));
+            CHECK(!draw.GetWorkSemaphore()->IsFree(draw_tick));
+            CHECK(!present.GetWorkSemaphore()->IsFree(present_tick));
             CHECK(device.getFenceStatus(*fence) == vk::Result::eNotReady);
             // Destroy caller-owned submit arrays before the worker can read them.
             a = {}; b = {};
@@ -144,8 +144,8 @@ int main(int argc, char** argv) {
         present.Flush(consume);
         present.Finish(); draw.Finish();
         CHECK(device.getFenceStatus(*fence) == vk::Result::eSuccess);
-        CHECK(draw.GetMasterSemaphore()->IsFree(draw_tick));
-        CHECK(present.GetMasterSemaphore()->IsFree(present_tick));
+        CHECK(draw.GetWorkSemaphore()->IsFree(draw_tick));
+        CHECK(present.GetWorkSemaphore()->IsFree(present_tick));
         bool correct = true;
         for (unsigned i = 1024; i < 2048; ++i) correct &= buffer.data[i] == 0x12340000 + generation;
         CHECK(correct);
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
             try { instance.Submissions()->Wait(failed->serial); CHECK(false); }
             catch (const std::runtime_error&) { CHECK(true); }
             const auto start = std::chrono::steady_clock::now();
-            try { draw.GetMasterSemaphore()->Wait(draw.CurrentTick()); CHECK(false); }
+            try { draw.GetWorkSemaphore()->Wait(draw.CurrentTick()); CHECK(false); }
             catch (const std::runtime_error&) { CHECK(true); }
             CHECK(std::chrono::steady_clock::now() - start < 200ms);
             CHECK(!failed->submitted.load());

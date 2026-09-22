@@ -795,6 +795,8 @@ set(DEV_TOOLS src/core/devtools/layer.cpp
               src/core/devtools/widget/frame_dump.h
               src/core/devtools/widget/frame_graph.cpp
               src/core/devtools/widget/frame_graph.h
+              src/core/devtools/widget/gpu_memory.cpp
+              src/core/devtools/widget/gpu_memory.h
               src/core/devtools/widget/imgui_memory_editor.h
               src/core/devtools/widget/memory_map.cpp
               src/core/devtools/widget/memory_map.h
@@ -836,6 +838,7 @@ set(COMMON src/common/logging/classes.cpp
            src/common/endian.h
            src/common/enum.h
            src/common/incremental_id.h
+           src/common/interval_set.h
            src/common/io_file.cpp
            src/common/io_file.h
            src/common/lru_cache.h
@@ -1178,6 +1181,8 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/buffer_cache/region_manager.h
                src/video_core/renderer_vulkan/liverpool_to_vk.cpp
                src/video_core/renderer_vulkan/liverpool_to_vk.h
+               src/video_core/renderer_vulkan/vk_barrier_tracker.cpp
+               src/video_core/renderer_vulkan/vk_barrier_tracker.h
                src/video_core/renderer_vulkan/vk_command_recorder.cpp
                src/video_core/renderer_vulkan/vk_command_recorder.h
                src/video_core/renderer_vulkan/vk_common.cpp
@@ -1189,8 +1194,6 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/renderer_vulkan/vk_instance.cpp
                src/video_core/renderer_vulkan/vk_gpu_reshape.cpp
                src/video_core/renderer_vulkan/vk_instance.h
-               src/video_core/renderer_vulkan/vk_master_semaphore.cpp
-               src/video_core/renderer_vulkan/vk_master_semaphore.h
                src/video_core/renderer_vulkan/vk_pipeline_cache.cpp
                src/video_core/renderer_vulkan/vk_pipeline_cache.h
                src/video_core/renderer_vulkan/vk_pipeline_common.cpp
@@ -1206,12 +1209,18 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/renderer_vulkan/vk_resource_pool.cpp
                src/video_core/renderer_vulkan/vk_resource_pool.h
                src/video_core/renderer_vulkan/vk_gpu_profiler.cpp
+               src/video_core/renderer_vulkan/vk_runtime.cpp
+               src/video_core/renderer_vulkan/vk_runtime.h
                src/video_core/renderer_vulkan/vk_scheduler.cpp
                src/video_core/renderer_vulkan/vk_scheduler.h
+               src/video_core/renderer_vulkan/vk_semaphore.cpp
+               src/video_core/renderer_vulkan/vk_semaphore.h
                src/video_core/renderer_vulkan/vk_shader_hle.cpp
                src/video_core/renderer_vulkan/vk_shader_hle.h
                src/video_core/renderer_vulkan/vk_shader_util.cpp
                src/video_core/renderer_vulkan/vk_shader_util.h
+               src/video_core/renderer_vulkan/vk_staging_buffer_pool.cpp
+               src/video_core/renderer_vulkan/vk_staging_buffer_pool.h
                src/video_core/renderer_vulkan/vk_swapchain.cpp
                src/video_core/renderer_vulkan/vk_swapchain.h
                src/video_core/renderer_vulkan/swapchain_acquire.h
