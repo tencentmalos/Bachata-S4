@@ -52,7 +52,7 @@
 | FPS 3×10 s（锁频） | **14.252 / 14.291 / 14.392**（锁频前 StatusLayer 15.0） |
 | 484 帧差分 | 1484 draws/帧（scaled 1235）；pass 实例 255.5/帧 = 天然 221.3 + 重开 33.2（hle 23.0、sampled_image 6.0、buffer_upload 2.2、image_copy 1.0、download 1.0、buffer_barrier 1.0） |
 | PROF（289 帧，detail 开着，14.5 FPS） | 帧 69.0 ms（p90 75.1） |
-| GPU / 帧 | GuestCommands 48.6、RenderPass 33.4（≥5 ms 2.0 个 = 14.2；<200 µs 180 个 = 7.5）、HostReadback 5.3（4.0 个）、Dispatch 3.0、Transfer 2.8、Present 1.4、Overlay 1.3 |
+| GPU / 帧 | GuestCommands 48.6、RenderPass 33.4（≥5 ms 2.0 个 = 14.2；<200 µs 180 个 = 7.5）、HostReadback 5.3（4.0 个 zone；`fused_readbacks` 5.0/帧、39.1 MB/帧，比 R 多两张）、Dispatch 3.0、Transfer 2.8、Present 1.4、Overlay 1.3 |
 | Guest-1 / 帧 | HLE 23.8 ms、862 次：CondWait 6（16.1 ms）、WaitSema 31（2.1）、SetPs/Vs/Cs 126+91+26（2.5）、SignalSema 42（1.0）、cond_broadcast 48（0.6）、shadSyncWait 11.6（0.46）、shadSyncWake 27.6（0.10）、IsUserPaEnabled 204（0.17）、rwlock 61+61（0.14）；未注解 45.2 ms |
 | Guest-19 / 帧 | `GNM.SubmissionGate` 55.1 ms（11.9 次）；HLE 6.2 ms |
 | GpuComm / 帧 | `PM4.Resume` **67.9 ms**（72 段，子 scope 仅 0.3 ms） |
@@ -68,3 +68,25 @@
 - 没有做 `debug.shadps4.sync_fastpath=0` 的同版本 A/B（需要重启会话再走一次存档加载），修复前数据取自 run R 与历史 L。
 - PROF 是在 `gpu_timing detail` 与 `hle_sync` 开启下采的，FPS 比裸跑低 1–2；分解比例可用，绝对值以 fps.txt 为准。
 - 未做全游戏回归、其它标题验证；启动地址依赖崩溃只验证了"挪开窗口就不崩"。
+
+## 复核（2026-09-23，只用已有 PROF/源码，未跑实机）
+
+问题：run S 里"GpuComm `PM4.Resume` 67.9 ms/帧"是 elapsed，不能直接等同 on-CPU；"Guest-19 `GNM.SubmissionGate` 55 ms"也可能是等 GPU。用 s1（R）/ s2（S）两份 PROF 做逐帧相关性，并核对源码：
+
+1. **`GNM.SubmissionGate` 等的是 GpuComm，不是 GPU。** `gnmdriver.cpp`：每个 `sceGnmSubmitCommandBuffers*`/`DingDong`/`SubmitDone` 先 `WaitGpuIdle()`（等 `submission_lock==0`）；`sceGnmSubmitDone` 在 Liverpool 仍有排队提交时置 `submission_lock=1`；`liverpool.cpp` 的处理线程把队列全部翻译完（`num_submits==0 && num_commands==0`）才 `Signal(GpuIdle)` → `ResetSubmissionLock`。Vulkan 侧的 GPU 完成不参与这个门。所以帧 = 串行的"guest 组帧 + GpuComm 翻译"，Guest-19 每帧一次 ≥20 ms 的门等待（285/289 帧，均值 55.8 ms，最长 95 ms）就是在等上一帧翻译完。
+2. **逐帧相关性（以 Guest-19 的 `sceGnmSubmitAndFlipCommandBuffers` 为帧界，各量按帧裁剪求和）：**
+
+| | run R（inert 快路径） | run S（快路径生效） |
+|---|---|---|
+| 帧长 | 122.2 ms | 69.0 ms |
+| GpuComm `PM4.Resume` 覆盖 | 70.5 ms，r=0.53 | **67.9 ms，r=0.92** |
+| Guest-1 活跃（帧长 − CondWait/WaitSema/shadSyncWait/Usleep） | **115.7 ms，r=0.84** | 50.4 ms，r=0.63 |
+| `GPU.GuestCommands` 覆盖（GPU 时钟未校准，仅量级） | 51.5 ms，r=0.21 | 48.8 ms，r=0.35 |
+| 帧 owner 等待 | CondWait 99.3 ms | Gate 55.1 ms，r=0.25 |
+
+   R 由 Guest-1 限速，S 由 GpuComm 翻译限速；S 里 GPU 利用率约 70%。
+3. **GpuComm 从不空闲、也没有可见等待。** s2 里 20 909 段 `PM4.Resume`，段间空隙合计 325.9 ms（1.6%，最长 78 ms 一次）；每帧 72 段：24 段 <0.1 ms（0.6 ms，是 label 等待的 yield/resume）、25 段 0.1–1 ms（10.9 ms）、11 段 1–2 ms（16.3 ms）、10.5 段 2–5 ms（30.9 ms）、1.5 段 5–10 ms（9.2 ms）；子 scope 只有 0.3 ms，`PM4.WaitVideoOutLabel` 0 次。PROF 没有 sched sidecar，仍不能把 68 ms 拆成 on-CPU 与被阻塞（BufferCache/TextureCache 锁、staging、`vkQueueSubmit` 锁都无 scope）；Thor 上 Tier B 同窗 KGSL+sched 曾测得 GpuComm on-CPU 70.7%，本机 `ps` 三次采样两条最忙线程 PCPU 70%/59%，倾向于以 on-CPU 为主，但未证实。
+4. **GpuComm 每帧时间与 draw 数不成比例**：R 1083 draws/帧 → 70.5 ms，S 1484 draws/帧 → 67.9 ms。要么 S 多出的 ~400 个是廉价的阴影 draw，要么 GpuComm 里有可观的每帧固定成本（S：`buffer_upload` 2.2/帧、HLE 拷贝 42/帧、pass begin 255/帧、融合回读 **5.0/帧 39 MB**（R 3.0/帧 34.7 MB）、VMA 分配/退休 11 次/帧 22 MB）。"≈46 µs/draw"只是平均数，不是成本模型；P1 的采样必须把固定项和随 draw 项分开。
+5. **修一处后，下一位限速者**：Guest-1 活跃 50.4 ms（其中非等待 HLE ≈ 7 ms、其余是 JIT/off-CPU），GPU 48.8 ms + present/overlay 2.7 ms。GpuComm 降到 35 ms 时帧约 52 ms（≈19 FPS），再往上要同时压 Guest-1 与 GPU。
+
+`docs/validation/android-native-host/evidence/swan-bloodborne-baseline-20260921/tools/frame_limiter.sql` 是这次用的逐帧相关性查询（Litep `query_sql`，按 tid 替换）。
