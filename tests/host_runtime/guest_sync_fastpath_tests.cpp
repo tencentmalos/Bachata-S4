@@ -66,6 +66,10 @@ struct Import final : HleCallAdapter {
     Status Invoke(HleCallFrame& frame) const override;
 };
 
+// The harness's own arena window; the payload learns it through the window table.
+constexpr uint64_t kArenaBase = 0x1000000000ull;
+constexpr uint64_t kArenaLimit = kArenaBase + SHAD_SYNC_ARENA_WINDOW_SIZE;
+
 struct Harness {
     std::unique_ptr<GuestAddressSpace> space;
     std::unique_ptr<CpuContext> cpu;
@@ -85,11 +89,11 @@ struct Harness {
     }
     Harness() {
         AddressSpaceConfig cfg{};
-        // Place the reservation so the production arena window
-        // [SHAD_SYNC_ARENA_BASE, LIMIT) lies inside it: the payload only takes
-        // its fast path for objects inside that window.
+        // Place the reservation so the arena window [kArenaBase, kArenaLimit)
+        // lies inside it: the payload only takes its fast path for objects
+        // inside the window the host publishes.
         cfg.reservation_size = 0x20000000;
-        cfg.preferred_base = SHAD_SYNC_ARENA_BASE - 0x10000000;
+        cfg.preferred_base = kArenaBase - 0x10000000;
         cfg.max_address = QueryBackendCapabilities().max_guest_address;
         space = Must(GuestAddressSpace::Create(cfg));
         base = space->ReservationBase().value;
@@ -99,7 +103,7 @@ struct Harness {
         data = base + 0x20000;
         tcb = base + 0x30000;
         stacks = base + 0x40000;
-        arena_next = SHAD_SYNC_ARENA_BASE;
+        arena_next = kArenaBase;
         for (auto va : {code, data, tcb})
             Must(space->Map({GuestAddress{va}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
         Must(space->Map({GuestAddress{stacks}, 0x10000 * Slots},
@@ -130,6 +134,10 @@ struct Harness {
         const auto table = Offset(SHAD_SYNC_IMPORT_TABLE);
         for (unsigned i = 0; i < ShadSyncImportCount; ++i)
             std::memcpy(image.data() + table + 8 * i, &veneers[i], 8);
+        const auto window = Offset(SHAD_SYNC_WINDOW_TABLE);
+        const uint64_t bounds[ShadSyncWindowCount] = {kArenaBase, kArenaLimit};
+        for (unsigned i = 0; i < ShadSyncWindowCount; ++i)
+            std::memcpy(image.data() + window + 8 * i, &bounds[i], 8);
         Must(space->Write(GuestAddress{code}, image));
         Must(space->Protect({GuestAddress{code}, 0x4000}, GuestPermission::Read | GuestPermission::Execute));
     }
@@ -244,7 +252,7 @@ int main() {
         auto& d = *h.domain;
         std::printf("payload image=%zu entry=%llu code=%llx arena=%llx\n",
                     sizeof(SyncFastPathGuest::Image), (unsigned long long)SyncFastPathGuest::EntryOffset,
-                    (unsigned long long)h.code, (unsigned long long)SHAD_SYNC_ARENA_BASE);
+                    (unsigned long long)h.code, (unsigned long long)kArenaBase);
         // Slots start as static initializers (0): the first lock goes through
         // the HLE fallback, which creates the arena object, and everything
         // afterwards stays inside the guest.
@@ -258,8 +266,8 @@ int main() {
         const auto object = h.Read<uint64_t>(h.Slot(0));
         Check("static initializer takes one HLE lock that creates the object",
               first.reason == StopReason::Returned && first.return_value == 0 &&
-                  h.imports[ShadSyncImportMutexLock]->calls == 1 && object >= SHAD_SYNC_ARENA_BASE &&
-                  object < SHAD_SYNC_ARENA_LIMIT && h.Read<uint64_t>(h.Counter(0)) == 1);
+                  h.imports[ShadSyncImportMutexLock]->calls == 1 && object >= kArenaBase &&
+                  object < kArenaLimit && h.Read<uint64_t>(h.Counter(0)) == 1);
         const auto before = h.HleCalls();
         h.Request(0, ModePosixLoop, 10000);
         const auto begin = std::chrono::steady_clock::now();

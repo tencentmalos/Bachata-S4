@@ -33,6 +33,10 @@ _Static_assert(sizeof(struct Mutex) == SHAD_SYNC_MUTEX_PREFIX_SIZE, "prefix");
  * initializer is never constant-folded. Read-only at run time. */
 __attribute__((section(".shad_imports"), used, visibility("default")))
 const volatile u64 shad_sync_imports[ShadSyncImportCount];
+/* Host-filled arena window [base, limit) of real mutex objects; both zero until
+ * the host reserved a window, which sends every object to the HLE path. */
+__attribute__((section(".shad_imports"), used, visibility("default")))
+const volatile u64 shad_sync_window[ShadSyncWindowCount];
 
 typedef u64 (*WaitFn)(u64 address, u64 expected, u64 width);
 typedef u64 (*WakeFn)(u64 address, u64 count);
@@ -45,9 +49,11 @@ static inline u64 Self(void) {
     return value;
 }
 static inline struct Mutex* Object(u64 address) {
-    /* Static initializers (0/1), destroyed (2) and anything outside the arena
-     * take the checked HLE path, which also performs lazy initialization. */
-    if (address - SHAD_SYNC_ARENA_BASE >= SHAD_SYNC_ARENA_LIMIT - SHAD_SYNC_ARENA_BASE)
+    /* Static initializers (0/1), destroyed (2) and anything outside the
+     * host-published arena window take the checked HLE path, which also
+     * performs lazy initialization. Two RIP-relative loads; no HLE crossing. */
+    const u64 base = shad_sync_window[ShadSyncWindowBase];
+    if (address - base >= shad_sync_window[ShadSyncWindowLimit] - base)
         return 0;
     return (struct Mutex*)address;
 }

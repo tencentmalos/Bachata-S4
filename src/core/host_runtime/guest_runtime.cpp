@@ -490,6 +490,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 sync_fastpath_base{}, sync_fastpath_size{};
     std::string sync_fastpath_status{"not_installed"};
     std::atomic<unsigned> sync_arena_outside{};
+    // Arena object window [base, limit): one reservation carved into 16 KiB
+    // blocks; its bounds are what the payload's `shad_sync_window` table gets.
+    u64 sync_window_base{}, sync_window_limit{}, sync_window_next{};
     void InstallSyncFastPath();
     u64 stack_guard{}, progname_object{}, environ_object{}, heap_trace{};
     std::once_flag heap_trace_once;
@@ -1841,6 +1844,17 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
         if (slot) throw std::runtime_error("guest sync payload import slot is not empty");
         std::memcpy(reinterpret_cast<void*>(sync_fastpath_base + table.offset + 8 * i), &imports[i], 8);
     }
+    // Arena window bounds: the payload's only notion of "real object" addresses.
+    const auto window = symbol(SHAD_SYNC_WINDOW_TABLE);
+    if (window.size != ShadSyncWindowCount * sizeof(u64) || window.offset % 8)
+        throw std::runtime_error("guest sync payload window table mismatch");
+    const std::array<u64, ShadSyncWindowCount> bounds{sync_window_base, sync_window_limit};
+    for (unsigned i = 0; i < ShadSyncWindowCount; ++i) {
+        u64 slot{};
+        std::memcpy(&slot, reinterpret_cast<void*>(sync_fastpath_base + window.offset + 8 * i), 8);
+        if (slot) throw std::runtime_error("guest sync payload window slot is not empty");
+        std::memcpy(reinterpret_cast<void*>(sync_fastpath_base + window.offset + 8 * i), &bounds[i], 8);
+    }
     if (memory->Protect(sync_fastpath_base, sync_fastpath_size, MemoryProt::CpuRead | MemoryProt::CpuExec))
         throw std::runtime_error("guest sync payload publication failed");
     // Game-visible entries: both library spellings each NID is imported under.
@@ -1859,9 +1873,12 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
             hle_status[name] = "guest_fastpath";
         }
     }
-    sync_fastpath_status = "installed";
-    LOG_INFO(Core_Linker, "Guest sync fast path installed: base={:#x} bytes={} image_sha256={}",
-             sync_fastpath_base, sizeof(Image), ImageSha256);
+    // "installed" only when objects can actually be reached from the guest.
+    sync_fastpath_status = sync_window_base ? "installed" : "installed_no_arena_window";
+    LOG_INFO(Core_Linker,
+             "Guest sync fast path {}: base={:#x} bytes={} image_sha256={} arena_window=[{:#x}, {:#x})",
+             sync_fastpath_status, sync_fastpath_base, sizeof(Image), ImageSha256, sync_window_base,
+             sync_window_limit);
 #endif
 }
 
@@ -2287,7 +2304,32 @@ void GuestRuntime::Impl::InstallHandlers() {
     pthread_bind("XhWHn6P5R7U", "bIHoZCTomsI", [rw_lock](const auto& a) { return rw_lock(a, true, true, false); });
     pthread_bind("lb8lnYo-o7k", "iPtZRWICjrM", [rw_lock](const auto& a) { return rw_lock(a, false, false, true); });
     pthread_bind("9zklzAl9CGM", "adh--6nIqTk", [rw_lock](const auto& a) { return rw_lock(a, true, false, true); });
+    // The guest fast path only touches objects inside one arena window whose
+    // bounds it learns at publication (InstallSyncFastPath). Reserve that window
+    // here, before any object exists: address space only, pages are committed as
+    // objects are created, and its placement follows the memory manager rather
+    // than a hard-coded address (the service base already moved 64 -> 112 GiB
+    // once and silently parked every mutex on the HLE path).
+    try {
+        // Placed 4 GiB above the other service allocations so their layout does not
+        // move: reserving the window at the base itself shifted the first stacks/TLS
+        // by 256 MiB and Bloodborne then faulted at a null pointer within seconds of
+        // start, with or without the fast path (Swan run S, 2026-09-22; the
+        // address-dependent consumer is not localized yet).
+        sync_window_base = Allocate(SHAD_SYNC_ARENA_WINDOW_SIZE, "GuestSyncObjects",
+                                    GuestRuntime::ServiceAllocationBase + 0x100000000ULL);
+        sync_window_limit = sync_window_base + SHAD_SYNC_ARENA_WINDOW_SIZE;
+        sync_window_next = sync_window_base;
+    } catch (const std::exception& e) {
+        LOG_WARNING(Core_Linker, "GuestSyncObjects window unavailable ({}); mutex fast path stays on HLE",
+                    e.what());
+    }
     sync_arena = std::make_unique<GuestSyncArena>([this] {
+        if (sync_window_base && sync_window_next + GuestSyncArena::BlockSize <= sync_window_limit) {
+            const auto block = sync_window_next; // fresh zero pages of the reservation
+            sync_window_next += GuestSyncArena::BlockSize;
+            return block;
+        }
         void* address{};
         const auto result = memory->MapMemory(
             &address, GuestRuntime::ServiceAllocationBase, GuestSyncArena::BlockSize, MemoryProt::CpuReadWrite,
@@ -2295,12 +2337,13 @@ void GuestRuntime::Impl::InstallHandlers() {
         if (result == ORBIS_KERNEL_ERROR_ENOMEM) return u64{0};
         if (result) throw std::runtime_error("GuestSyncObjects mapping failed");
         const auto block = reinterpret_cast<u64>(address);
-        // The guest fast path only touches objects inside the declared arena
-        // window; a block placed elsewhere stays correct on the HLE path.
-        if (block < SHAD_SYNC_ARENA_BASE || block + GuestSyncArena::BlockSize > SHAD_SYNC_ARENA_LIMIT)
-            if (sync_arena_outside.fetch_add(1, std::memory_order_relaxed) == 0)
-                LOG_WARNING(Core_Linker, "GuestSyncObjects block {:#x} is outside the fast-path arena window",
-                            block);
+        // Outside the published window: still correct on the HLE path, but every
+        // operation on these objects pays a crossing again.
+        if (sync_arena_outside.fetch_add(1, std::memory_order_relaxed) == 0)
+            LOG_WARNING(Core_Linker,
+                        "GuestSyncObjects block {:#x} is outside the fast-path arena window [{:#x}, {:#x}): {}",
+                        block, sync_window_base, sync_window_limit,
+                        sync_window_base ? "window exhausted" : "no window reserved");
         return block;
     });
     mutex_domain = std::make_unique<GuestMutexDomain>(

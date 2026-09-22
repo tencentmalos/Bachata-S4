@@ -256,3 +256,4 @@ GPU 侧回读只省 0.6 ms/帧：按提交顺序看单次 zone，R8G8B8A8（8.4 
 - render pass 实例 260/帧 = guest 天然 223 + emulator 重开 37（hle 24、sampled_image 6、buffer_upload 4）；面板 ~1000/500 ms 的 86% 是游戏自身的目标切换，GPU 时间 88% 的实例只占 13%。
 - 每帧 3 张 1080p 渲染目标（R8G8B8A8 / D32S8 / R16G16B16A16）被 guest 的 compute 后处理以 formatted buffer 读取，emulator 需写回 guest 布局（34 MB/帧）；融合回读省掉 native 临时图 + blit + copy（约 100 MB/帧的 VMA 分配流），同阶段 +9–12% FPS，`fused_readbacks` = 100%。
 - 未做：重阶段的融合回读 A/B（脚本停在的过场阶段不受控）、回读依赖排空的规避（需要重排 guest 的 compute 与 draw，或让后处理直接读 image）、大 pass 的 hle/sampled_image 重开消除。
+- **2026-09-22 补记**：J–Q 全部轮次都是在 Tier B mutex 快路径静默失效的状态下测的（`ServiceAllocationBase` 挪到 112 GiB 后 arena 落在写死的 64 GiB 窗口外，每帧 ~5.3k 次 mutex HLE 仍在），本节的 FPS 绝对值因此偏低；根因、修复与修复后的 14.3 FPS 见[复测报告](swan-clinic-remeasure-20260922.md)。
