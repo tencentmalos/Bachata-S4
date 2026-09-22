@@ -142,3 +142,117 @@ detail 模式新增 `GPU.GuestDispatch`（compute dispatch）、`GPU.HostTransfe
 结论：**GPU 时间 70% 在 render pass 里，但每个"天然"pass 平均被切成 12 个实例**（313 / 26）；tiler 上每个实例都要重新 bin + 把附件 load/store 一遍，这部分固定开销与分辩率无关，是 0.5 倍率省下像素后 GPU 仍 99% busy 的直接原因。三个最大的碎片化来源都在 host 侧：懒 barrier（读侧在 draw 前插 barrier，而非写侧在 dispatch/copy 之后、pass 之外插）、copy-shader HLE 走 transfer、compute 与 draw 交错。下一轮的候选：(1) 把 buffer/image barrier 拆开计数并按"写侧提前发射"改造 `Buffer::GetBarrier`/`Image::Transit` 的时机；(2) copy-shader HLE 在 pass 内改为延后到 pass 结束或用 compute 保持 pass；(3) `HostTransfer` 14 ms/帧中每帧 ≈2 次放大回读 blit+copy 可改为 `Download` 直接从 scaled 后备回读再由 CPU 侧放大（避免 GPU 放大）。这些都需要新的 A/B，本文不作提速声明。
 
 GPU 时间戳的 CPU 对齐仍是估计（`gpu_cpu_alignment=unknown`，Turnip 无 calibrated timestamps），只用批内相对时长，不做跨设备帧归属。同窗 KGSL/sched 仍被 Litep 1.5 GiB 守卫挡住。
+
+### run J：只读→只读 barrier 消除（APK e6b386da / host 1ce1d3d3，pid 19041 gen1）
+
+`Buffer::GetBarrier` 与 `Image::GetBarriers` 对"纯读 → 纯读"（无 write/attachment-write 位）不再发 barrier，只把读者的 access/stage 并进当前状态，留给后面的 WAR barrier。同法 FPS 8.68 / 8.96 / 9.29；`bb-clinic-J-rar/breaks-delta.txt`：每帧 render pass 实例 313 → **233**，`buffer_barrier` 198 → 1.8/帧，剩余 `image_barrier` 127/帧、hle 38、dispatch 24、state_change 24。GPU busy 94–96%。
+
+PROF `f9fb1b58…`（20 s，181 帧，51,582 GPU zone，0 skipped；pftrace 导出只含 31,429 个有 GPU 时间的 `GuestRenderPass` zone，其余 ~15k 无 GPU 时间戳未导出，下面的分布只对导出部分成立）：
+
+| `GPU.GuestRenderPass` 时长 | 数量（每帧） | 合计 | 占导出 pass 时间 |
+|---|---|---|---|
+| < 200 µs | 27,737（**153**，88% 的实例） | 1.11 s | **13%** |
+| 200 µs – 5 ms | 2,988（16.5） | 1.86 s | 22% |
+| ≥ 5 ms | 704（**3.9**，均值 7.6 ms，最大 16.5 ms） | 5.35 s | **64%** |
+
+按时长排序：最长 500 个（2.8/帧）占 47%，最长 1,000 个（5.5/帧）占 71%。`GPU.HostTransfer` 里 ≥ 5 ms 的 124 个（0.7/帧，均值 7.6 ms）占 transfer 时间 57%；`GPU.GuestDispatch` ≥ 5 ms 69 个（0.38/帧）占 60%。GpuComm 线程没有同步等待（`Prepare.Flush` 每帧 1 次 0.24 ms，无 `Finish`）；`GpuDone` 的 `Vulkan.CompletionWait` 764 次 p50 96 ms。
+
+### run K：`Image::Transit` 来源归因（APK 83ecf426 / host 758d347b，pid 31365 gen1）
+
+`Image::Transit(..., RenderBreak cause)`，rasterizer 附件转换记 `attachment`、`BindTextures` 记 `sampled_image`，并对真正打断 pass 的转换加 ≤400 行的有界日志。23.3 s / 218 帧差分（`bb-clinic-K-transitcause/breaks-delta.txt`）：每帧 256 个实例 = state_change 26.7 + dispatch 27.0 + attachment 50.4 + sampled_image 93.0 + hle 43.0 + image_upload 6 + image_copy 6 + download 2 + buffer_barrier 1 + present 1。首触发归因有两处系统性偏差：附件切换前的 layout 转换先于 `BeginRendering` 发生，天然切换被记到 `attachment`；`DispatchDirect` 先 `BindResources` 再 `EndRendering(Dispatch)`，compute 的 storage image 转换被记到 `sampled_image`。所以 K 的按原因计数不能直接回答"多出了多少"。FPS 9.56 / 9.45 / 9.48（锁频 J1 在窗口内到期，K 只用于归因）。
+
+### run L：guest 天然 pass 与 emulator 重开（APK b78b74fc / host b7a8bdc1，pid 8xxx gen1，`bb-clinic-L-resume/`）
+
+`Scheduler::BeginRendering` 在 `!is_rendering` 且新状态与上一个实例完全相同（`RenderState` memcmp）时记 **resumed**（按打断它的 `last_break` 归因），否则记 **natural**；`RecordAttachmentDraw` 把 resumed 透传到覆盖率计数，StatusLayer 新增一行 `passes: guest N  +M split`。分组表改为每次 `gpu_memory request` 之间的窗口（上限 512 组），日志预算随 request 重置。FPS 8.49 / 8.45 / 8.77。23 s / 201 帧差分（`breaks-delta.txt`）：
+
+| 每帧 | 数值 |
+|---|---|
+| render pass 实例（begins） | **260.4**（draw 发起 247.8，其中 scaled 154.8） |
+| **natural**（guest 自己换了目标/区域） | **223.1（86%）** |
+| **resumed**（同目标被 emulator 切断后重开） | **36.3（14%）**：hle 24.2、sampled_image 6.0、buffer_upload 4.0、buffer_barrier 1.0、image_copy 1.0、download 1.0 |
+| draws | 1,491（scaled 1,257，84%） |
+
+按目标分组（窗口内，每帧）：
+
+| 组 | 逻辑尺寸 / 附件 | draws | 实例 | resumed | 说明 |
+|---|---|---|---|---|---|
+| G-buffer（fragment 3138446400） | 1920×1080 ×0.5，6 色 + 深度 | 271 | 8 | **6** | 天然只有 2 段，被 copy-shader HLE / storage 转换切成 8 |
+| 光照/合成（1909024152） | 1920×1080 ×0.5，2 色 + 深度 | 65 | 15.8 | **9.3** | 同上 |
+| 7 附件（473519046） | 1920×1080 ×0.5 | 75 | 3 | 3 | |
+| 6 组 64²/32² R16G16 单 draw pass | native（SizeProtect） | 12 每组 | 12 每组 ≈ 72 | 0 | 点光源阴影 cube（6 面 × 2）等，天然 |
+| 450903413 64²/32²（2 附件） | native | 88 / 66 | 12 / 11 | 0 | 天然 |
+| 256² R16G16 ×3 组、bloom mip 链（314×265 → 5×5，B10G11R11）、深度只读切换 | | | 6 / 6 / 5 / 每级 1 | 0 | 天然 |
+
+结论：面板上 500 ms 窗口里 ~1000 个 pass（≈5 帧 × 250）**86% 是游戏自己表达的目标切换**，其中约 100 个/帧是 64²/32² 单 draw 的阴影/探针 pass；同步类打断只多出 14%（37/帧），但集中在两个最贵的 pass 上：G-buffer 2 → 8 段、光照 6.5 → 15.8 段，其中 24/帧来自 copy-shader HLE 的 `vkCmdCopyBuffer`（guest 在 draw 之间插入的 compute 拷贝）、6 来自采样刚渲染/刚上传图像的 layout 转换、4 来自 pass 中途发现 CPU 改写的 buffer 上传。按 run J 的时长分布，这些小实例本身只占 pass GPU 时间的 13%，所以"pass 数异常高"不是 GPU 100 ms/帧的主因；可回收的是两个大 pass 的 ~15 次多余 GMEM load/store（每次 6–7 个 960×540 附件）和每帧 ~37 次 begin/end 的 CPU 开销。
+
+日志抽样（首 400 行来自加载阶段：217 次 `attachment TransferDst→ColorAttachment 1920×1080 R8G8B8A8`、182 次 `sampled_image ShaderReadOnly→General 1025×1 R32Sfloat`；诊所窗口重置后：小 R16G16 cube 面 ColorAttachment→ShaderReadOnly、bloom mip 链各级、D32S8 只读/可写往返、1920×1080 R16G16B16A16 ColorAttachment→ShaderReadOnly 等，均属 natural）。
+
+### run M：Internal Scale 0.25 对照（结果不可比，保留）
+
+设备 `settings/global.json` 临时改 `gpu.internal_scale=0.25`（原文件已逐字节恢复，SHA `7ab5f46b…`）。同脚本 FPS **13.69 / 13.41 / 13.39**，但窗口内每帧只有 **662 次 draw**（0.5 的 K/L 均 ~1,490），64²/32² 阴影 cube 组全部消失，G-buffer 组 271 → 39 draws，多出一个 3 附件 135 draws 的组；截图相机为正面远景（L 为背面近景），8 分钟后再采仍 665 draws/帧。脚本按固定时序按键，不同帧率下停在了不同的过场阶段，**这组 FPS 不能当作像素缩放的对照**。M PROF `c55e5206…`（20 s，262 帧）：`GuestRenderPass` 38.6 ms/帧（J 69.6），`HostTransfer` **13.1 ms/帧（J 13.4，与倍率和场景都无关）**，其中 ≥ 5 ms 的 221 个（0.84/帧，均值 8.4 ms，最大 16.8 ms）。
+
+同窗计数指向每帧 ~1.3 次"放大回读"（`upscaled_readbacks` 6,092 / ~4,800 presents）：`BufferCache::SynchronizeBufferFromImage` 在 shader 以 formatted buffer 读 GPU 改写过的图像时，把 scaled 备份 blit 放大到 native 临时图、`copyImageToBuffer`、再用 tiling compute 写回 guest 布局。下一轮（run N）新增 `GPU.HostReadback` lane、`image_buffer_syncs` 计数和有界身份日志（readback / texel buffer sync / hle copy）定位具体图像。
+
+### run N：回读身份与 `GPU.HostReadback` lane（APK e689e8cd / host 623167ce，pid 15194 gen1，`bb-clinic-N-readback/`）
+
+同脚本、Internal Scale 0.5，但这次落在和 run M 相同的"轻"阶段（窗口内 666 draws/帧、无 64²/32² 阴影 cube 组、G-buffer 39 draws）：**同一脚本在不同轮次会停在不同的过场阶段**，与倍率无关；FPS 12.25 / 12.09 / 12.31（轻阶段 0.5）对 run M 13.69 / 13.41 / 13.39（轻阶段 0.25），0.5→0.25 只有 +10%。以后按窗口内 draws/帧（~1490 重 / ~665 轻）判定阶段再比较。
+
+23 s / 283 帧差分：实例 148/帧 = natural 131 + resumed 16（hle 9.7、buffer_barrier 2.1、sampled_image 2.0、buffer_upload 1.2、image_copy 1.0、download 1.0）。`image_buffer_syncs` 6,421 → 7,273（**3.0 次/帧**），`image_buffer_sync_bytes` +9.8 GB（**34.6 MB/帧**）。有界日志给出的三张图每帧各回读一次，全部是 scaled、tiled 的渲染目标：
+
+| 图像 | guest 布局 | 回读字节 | 触发 |
+|---|---|---|---|
+| 1920×1080 R8G8B8A8Unorm `0x26e890000` | tiled，×0.5 备份 | 8.36 MB | formatted buffer 读（`request=8355840`） |
+| 1920×1080 D32SfloatS8Uint `0x24f3f0000` | tiled，×0.5 | 9.4 MB（depth 面） | formatted buffer 读（`request=11993088`） |
+| 1920×1080 R16G16B16A16Sfloat `0x26ab40000` | tiled，×0.5 | 16.7 MB | formatted buffer 读（`request=16711680`） |
+
+触发链：guest 的 compute 后处理以 **formatted buffer（V#）而不是 T# 读取整张渲染目标**，`BufferCache::SynchronizeBuffer(is_texel_buffer && !is_written)` → `SynchronizeBufferFromImage` → `TileManager::TileImage` → `Image::Download`：分配 1920×1080 的 native 临时图（每帧 16–33 MiB VMA 分配/退休）、`vkCmdBlitImage` 放大、`copyImageToBuffer` 到线性暂存、再由 tiling compute 写回 guest 布局。桌面版走同一条链；它既让这三张图的后处理**始终以 1080p 运行（绕过 Render Scale）**，也是 `HostTransfer` 里每帧固定的 ≥5 ms 项。`hle copy` 日志（335 行）全是 `stride=4` 的小段 `vkCmdCopyBuffer`（两组 15.5 MB / 59 次），与这三张图地址不重叠，不是回读来源。
+
+PROF `fd95a6f0…`（20 s，238 帧，43,427 GPU zone，0 skipped；pftrace 导出）：
+
+| lane | 每帧 | 数量/帧 | ≥ 5 ms |
+|---|---|---|---|
+| `GPU.GuestCommands`（guest 批总时长） | 57.2 ms | 1.5 | — |
+| `GPU.GuestRenderPass` | 36.6 ms | 110 | 733 个（3.1/帧）6.34 s |
+| **`GPU.HostReadback`**（blit + copyImageToBuffer + tiling） | **6.74 ms** | 6.7 | 123 个（0.52/帧，均值 8.2 ms）1.01 s |
+| `GPU.GuestDispatch` | 4.43 ms | 23 | 84 个 0.70 s |
+| `GPU.HostTransfer`（其余拷贝/detile） | 2.87 ms | 23 | 58 个 0.47 s |
+| `GPU.Present` / `PostProcess` / `BufferUpload` | 1.9 / 0.72 / 0.35 ms | | |
+
+轻阶段 GPU 每帧只有 57 ms（帧 83 ms），此时是 CPU 侧（Guest-1）限速；`HostReadback` 6.74 ms/帧占 GPU 时间 12%，在重阶段按 J 的 HostTransfer ≥5 ms 分布估计 8–9 ms/帧。
+
+下一步（已实现待验证）：`TileManager::TileImageFromScaled` 融合回读——tiling shader 的 `FROM_IMAGE` 变体直接 `textureLod` 采样 ×0.5 备份（颜色双线性、深度最近）并按 backing 格式打包原始位（unorm8×4/bgra、half×2/×4、float×1/2/4、unorm16、B10G11R11、8bpp 原子字节路径），一次 dispatch 写出 guest 布局；省掉 native 临时图、blit 与 `copyImageToBuffer`，`debug.shadps4.fused_readback_off=1` 可回退。sRGB 备份经 UNORM 同族 view 采样，1D/3D/MSAA/block/mip-drop/ASTC 与未覆盖格式仍走旧链。
+
+### run O：融合回读（APK 1102edc2 / host 20788cd7，pid 16355 gen1，`bb-clinic-O-fused/`）
+
+`TileManager::TileImageFromScaled`：tiling shader 的 `FROM_IMAGE` 变体用 `sampler2DArray` 直接采样 ×0.5 备份（颜色双线性 / 深度最近，`textureLod` 按 mip），按 backing 格式在编译期选打包（`PACK_KIND` 1–13，sRGB 经 UNORM 同族 view），一次 dispatch 写出 guest 布局；不再分配 native 临时图、不再 blit、不再 `copyImageToBuffer`。1D/3D/MSAA/block/mip-drop/ASTC/未覆盖格式回退旧链；`debug.shadps4.fused_readback_off=1` 关闭。
+
+同脚本再次落在轻阶段（663 draws/帧，与 N 相同指纹），**FPS 12.82 / 13.72 / 13.84（N 同阶段 12.25 / 12.09 / 12.31，+9–12%）**。23 s / 321 帧差分：`fused_readbacks` 6,523 → 7,483 = `image_buffer_syncs` 增量（**100% 走融合路径**，3.0 次/帧，34.4 MB/帧 guest 布局输出）；日志三张图与 N 相同（R8G8B8A8 pack1、D32S8 pack3、R16G16B16A16 pack2）。Pico DumpLayer 左眼抓帧（`dumplayer-O-left.bmp`，面板裁切 `dumplayer-O-panel.png`）：诊所人物/货架/HUD 正常，StatusLayer `Scale x0.5 draws 4138/4270 passes 728/854 · passes: guest 754 +100 split · upscaled readbacks +20`，无色调/条带异常；`guest_screenshot` 命令在本构建为 not-implemented，未做像素级 A/B。
+
+PROF `ef91f71e…`（20 s，269 帧，50,104 GPU zone，0 skipped）：
+
+| lane | N（旧链） | O（融合） |
+|---|---|---|
+| `GPU.GuestCommands` / 帧 | 57.2 ms | 49.6 ms |
+| `GPU.GuestRenderPass` / 帧 | 36.6 ms | 30.8 ms |
+| `GPU.HostReadback` / 帧 | 6.74 ms（6.7 zone） | **6.17 ms（2.3 zone）** |
+| `GPU.HostTransfer` / 帧 | 2.87 ms | 2.57 ms |
+| `GPU.GuestDispatch` / 帧 | 4.43 ms | 4.05 ms |
+
+GPU 侧回读只省 0.6 ms/帧：按提交顺序看单次 zone，R8G8B8A8（8.4 MB）0.88 ms、D32S8 depth（9.4 MB）0.98 ms、**R16G16B16A16Sfloat（16.7 MB）7.7 ms**——N 的旧链里同一张图的 tiling dispatch 也是 7.95 ms（blit 0.3 + copy 0.64 之外），即 **64bpp tiler 每字节比 32bpp 慢 ~8×**，与是否融合无关。帧时间的 7 ms 收益主要来自 CPU/内存侧：每帧不再创建并退休 3 张 16–33 MiB 的 VMA 临时图（约 100 MB/帧的分配流），也少了 blit/copy 的 barrier 与 pass 打断（轻阶段本就是 CPU 限速）。
+
+下一步（run P）：把 64bpp 块改为两次 32 位 SSBO 存取（`WIDE_BLOCK`，tiler/detiler/融合三条路径同改），验证 7.7 ms 是否为 Turnip 上 8 字节 scalar-layout 访问的慢路径。
+
+### run P：64bpp 拆成两次 32 位存取（APK 7214f464 / host 0ec5c607，pid 13774 gen1，`bb-clinic-P-wide/`，已撤回）
+
+假设 O 里 R16G16B16A16 回读的 7.7 ms 是 Turnip 上 8 字节 scalar-layout SSBO 存取的慢路径，把 64bpp 的 tiler/detiler/融合三条路径改成两次 `uint32_t`。同阶段（667 draws/帧）FPS 13.63 / 13.64 / 13.59（O 12.82 / 13.72 / 13.84，无差别）；DumpLayer 面板正常。PROF `a853e342…`（257 帧）：`HostReadback` 6.23 ms/帧（O 6.17），≥5 ms 152 个（O 153）。按提交顺序看，三张图的 zone 现在是 0.88 / 0.98 / 0.85 ms，**但 7.7 ms 的 zone 仍在，且在 O 和 P 里都随机落在第 1/2/3 张图上**（例：`… 881, 977, 7730 | 7876, 979, 7737 | 882 …`），每秒 6–13 个。因此 7.7 ms 不是某个格式的 tiler 开销，而是 **zone 吸收了前一个 render pass 的排空**：`Transit` 发出的 image barrier 被 Turnip 延迟到下一条 dispatch 才真正 `WAIT_FOR_IDLE`/flush，落在 begin 时间戳之后；回读读的正是刚渲染完的目标，这个依赖在 PS4 上同样存在。`HostReadback` 6.2 ms/帧 ≈ 1.7 ms 真正 tiling + ~4.5 ms 依赖排空；拆分存取无收益，已按原样撤回（O 的 shader 即最终版）。
+
+### 本轮小结（J–P）
+
+| | 重阶段 0.5（~1490 draws/帧） | 轻阶段 0.5（~665 draws/帧） |
+|---|---|---|
+| 修复前（L / N） | 8.49 / 8.45 / 8.77 | 12.25 / 12.09 / 12.31 |
+| 融合回读（O） | 未在同阶段复测 | **12.82 / 13.72 / 13.84** |
+
+- render pass 实例 260/帧 = guest 天然 223 + emulator 重开 37（hle 24、sampled_image 6、buffer_upload 4）；面板 ~1000/500 ms 的 86% 是游戏自身的目标切换，GPU 时间 88% 的实例只占 13%。
+- 每帧 3 张 1080p 渲染目标（R8G8B8A8 / D32S8 / R16G16B16A16）被 guest 的 compute 后处理以 formatted buffer 读取，emulator 需写回 guest 布局（34 MB/帧）；融合回读省掉 native 临时图 + blit + copy（约 100 MB/帧的 VMA 分配流），同阶段 +9–12% FPS，`fused_readbacks` = 100%。
+- 未做：重阶段的融合回读 A/B（脚本停在的过场阶段不受控）、回读依赖排空的规避（需要重排 guest 的 compute 与 draw，或让后处理直接读 image）、大 pass 的 hle/sampled_image 重开消除。

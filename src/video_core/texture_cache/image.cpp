@@ -376,7 +376,8 @@ void Image::BlitBacking(BackingImage& source, BackingImage& dest,
         }
     }
     if (!regions.empty()) {
-        Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
+        Vulkan::GpuZoneScope gpu_zone{*scheduler, in_readback ? Vulkan::GpuProfiler::Stage::Readback
+                                                              : Vulkan::GpuProfiler::Stage::Transfer};
         scheduler->CommandBuffer().blitImage(source.image, vk::ImageLayout::eTransferSrcOptimal,
             dest.image, vk::ImageLayout::eTransferDstOptimal, regions,
             info.props.is_depth ? vk::Filter::eNearest : vk::Filter::eLinear);
@@ -588,7 +589,17 @@ Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 
                 constexpr auto write_flags = vk::AccessFlagBits2::eTransferWrite |
                                              vk::AccessFlagBits2::eShaderWrite |
                                              vk::AccessFlagBits2::eMemoryWrite;
+                constexpr auto attachment_flags = vk::AccessFlagBits2::eColorAttachmentWrite |
+                                                  vk::AccessFlagBits2::eDepthStencilAttachmentWrite;
                 const bool is_write = static_cast<bool>(state.access_mask & write_flags);
+                // Same layout, pure read after pure read: no hazard, only widen the reader set.
+                if (state.layout == dst_layout &&
+                    !(state.access_mask & (write_flags | attachment_flags)) &&
+                    !(dst_mask & (write_flags | attachment_flags))) {
+                    state.access_mask |= dst_mask;
+                    state.pl_stage |= dst_stage;
+                    continue;
+                }
                 if (state.layout != dst_layout || state.access_mask != dst_mask || is_write) {
                     barriers.emplace_back(vk::ImageMemoryBarrier2{
                         .srcStageMask = state.pl_stage,
@@ -622,8 +633,19 @@ Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 
         constexpr auto write_flags = vk::AccessFlagBits2::eTransferWrite |
                                      vk::AccessFlagBits2::eShaderWrite |
                                      vk::AccessFlagBits2::eMemoryWrite;
+        constexpr auto attachment_flags = vk::AccessFlagBits2::eColorAttachmentWrite |
+                                          vk::AccessFlagBits2::eDepthStencilAttachmentWrite;
         const bool is_write = static_cast<bool>(last_state.access_mask & write_flags);
         if (last_state.layout == dst_layout && last_state.access_mask == dst_mask && !is_write) {
+            return {};
+        }
+        // Same layout, pure read after pure read (e.g. shader read after shader+transfer
+        // read): no hazard, so keep the pass open and only widen the tracked reader set.
+        if (last_state.layout == dst_layout &&
+            !(last_state.access_mask & (write_flags | attachment_flags)) &&
+            !(dst_mask & (write_flags | attachment_flags))) {
+            last_state.access_mask |= dst_mask;
+            last_state.pl_stage |= dst_stage;
             return {};
         }
 
@@ -655,7 +677,9 @@ Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 
 }
 
 void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
-                    std::optional<SubresourceRange> range, vk::CommandBuffer cmdbuf /*= {}*/) {
+                    std::optional<SubresourceRange> range, vk::CommandBuffer cmdbuf /*= {}*/,
+                    Vulkan::RenderBreak cause) {
+    const auto previous = backing->state;
     // Adjust pipeline stage
     const vk::PipelineStageFlags2 dst_pl_stage =
         (dst_mask == vk::AccessFlagBits2::eTransferRead ||
@@ -670,7 +694,21 @@ void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
 
     if (!cmdbuf) {
         // When using external cmdbuf you are responsible for ending rp.
-        scheduler->EndRendering(Vulkan::RenderBreak::Barrier);
+        if (scheduler->IsRendering()) {
+            // Bounded attribution of pass-breaking transitions: which image, from which
+            // layout/access, requested by whom. Only real breaks; gpu_memory request re-arms.
+            if (scheduler->TakePassBreakLog())
+                LOG_INFO(Render_Vulkan,
+                         "Internal scale: pass break {} {}x{} {} L:{} M:{} {:#x} layout {}->{} access {:#x}->{:#x} range={}",
+                         Vulkan::RenderBreakNames[size_t(cause)], info.size.width,
+                         info.size.height, vk::to_string(info.pixel_format), info.resources.layers,
+                         info.resources.levels, info.guest_address, vk::to_string(previous.layout),
+                         vk::to_string(dst_layout), u64(previous.access_mask), u64(dst_mask),
+                         range ? fmt::format("{}+{}/{}+{}", range->base.level, range->extent.levels,
+                                             range->base.layer, range->extent.layers)
+                               : std::string{"full"});
+        }
+        scheduler->EndRendering(cause);
         cmdbuf = scheduler->CommandBuffer();
     }
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
@@ -806,6 +844,11 @@ void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk
     flags &= ~ImageFlagBits::Dirty;
 }
 
+void Image::RecordFusedReadback() {
+    scale_plan->upscaled_readback = true;
+    if (owner) owner->RecordFusedReadback();
+}
+
 void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::Buffer buffer,
                      u64 offset, u64 download_size) {
     // A readback keeps the plan's scale. A scaled backing is transferred through a
@@ -814,6 +857,16 @@ void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::B
     // of the session. The copy retires with the scheduler tick like other backings.
     std::shared_ptr<BackingImage> native_copy;
     BackingImage* saved_backing = nullptr;
+    in_readback = true;
+    SCOPE_EXIT { in_readback = false; };
+    // Bounded identity of guest-layout readbacks (texel-buffer aliasing, CPU readback,
+    // retirement); gpu_memory request re-arms the budget.
+    if (scheduler->TakePassBreakLog())
+        LOG_INFO(Render_Vulkan,
+                 "Internal scale: readback {}x{} {} L:{} M:{} {:#x} bytes={} scaled={} tiled={}",
+                 info.size.width, info.size.height, vk::to_string(info.pixel_format),
+                 info.resources.layers, info.resources.levels, info.guest_address, download_size,
+                 IsScaled(), bool(info.props.is_tiled));
     if (IsScaled()) {
         if (mip_skip || astc_encoded) {
             // Dropped-mip / recompressed assets cannot be blitted back to the guest
@@ -877,7 +930,7 @@ void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::B
         .imageMemoryBarrierCount = static_cast<u32>(image_barriers.size()),
         .pImageMemoryBarriers = image_barriers.data(),
     });
-    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
+    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Readback};
     cmdbuf.copyImageToBuffer(GetImage(), vk::ImageLayout::eTransferSrcOptimal, buffer,
                              download_copies);
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{

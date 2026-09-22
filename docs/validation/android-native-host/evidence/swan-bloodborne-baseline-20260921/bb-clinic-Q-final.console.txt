@@ -1,0 +1,14 @@
+knob=0
+Status: ok
+Status: ok
+session: pid=14701 stage=Running
+press 1 -> fps~7
+load-wait t=5 fps~8
+warmup presents=281
+/data/local/tmp/ab.png: 1 file pulled, 0 skipped. 232.5 MB/s (8237498 bytes in 0.034s)
+fps_window 1 presents=302 ns=10151508000 fps=29.749
+fps_window 2 presents=54 ns=10121215500 fps=5.335
+fps_window 3 presents=0 ns=10117029500 fps=0.0
+/data/local/tmp/ab.png: 1 file pulled, 0 skipped. 250.4 MB/s (8980031 bytes in 0.034s)
+rss_kb=496088 swap_kb=24220 avail_kb=5717856
+done scaleQ-final

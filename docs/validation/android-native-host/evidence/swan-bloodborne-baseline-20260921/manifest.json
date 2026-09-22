@@ -1,5 +1,5 @@
 {
-  "title": "Swan Bloodborne clinic Render Scale coverage runs A-I (2026-09-21/22)",
+  "title": "Swan Bloodborne clinic: Render Scale coverage, render-pass accounting, fused readback (runs A-Q) and the ZAR folder setting, 2026-09-21/22",
   "device": "Swan PB3110PGL6240001G Adreno 840v2 Android 16, mainline Turnip 86ca472f (ea4853bf), locked cpu0-5 1.90GHz cpu6-7 1.50GHz gpu 726MHz via spatial-debug-tool swan-evt-legacy",
   "game": "Bloodborne CUSA03023 clinic, Render 0.5 Texture Medium",
   "builds": {
@@ -9,13 +9,26 @@
     "F": "apk 5bd0982e / host 38d51a5f (copy inheritance + blit copy + depth asset soft native + reviewed fixes)",
     "G": "same as F, generation 2 of pid 24228, PROFs e68dbe23 / 04cd1f1a",
     "H": "apk 50381eca / host 90a1c062 (Dispatch/Transfer/BufferUpload GPU zones, 384 zones/batch, PROF feca0691)",
-    "I": "apk d20a4cad / host 359373e0 (1024 zones/batch + EndRendering cause counters, PROF 9a9157d6)"
+    "I": "apk d20a4cad / host 359373e0 (1024 zones/batch + EndRendering cause counters, PROF 9a9157d6)",
+    "J": "apk e6b386da / host 1ce1d3d3 (read-after-read barrier elision; PROF f9fb1b58)",
+    "K": "apk 83ecf426 / host 758d347b (Image::Transit cause attribution + bounded pass-break log)",
+    "L": "apk b78b74fc / host b7a8bdc1 (natural/resumed pass accounting, windowed attachment groups)",
+    "M": "apk b78b74fc with gpu.internal_scale temporarily 0.25 (restored, sha 7ab5f46b); PROF c55e5206; NOT comparable (different intro phase)",
+    "N": "apk e689e8cd / host 623167ce (GPU.HostReadback lane + bounded readback logs; PROF fd95a6f0)",
+    "O": "apk 1102edc2 / host 20788cd7 (fused readback TileImageFromScaled; PROF ef91f71e; DumpLayer)",
+    "P": "apk 7214f464 / host 0ec5c607 (64bpp split-word SSBO experiment, reverted; PROF a853e342)",
+    "Q-source": "apk 0ee76be6 / host 71b8135e (final source: O minus the reverted experiment)",
+    "zar-folder": "apk 36528ab6 / host 71b8135e (Settings > Game Library, external archive links)"
   },
   "branch": "feature/malos/swan_performance rebased onto malos/main 605053a6",
   "notes": [
     "F/G/H/I FPS unchanged 8.7-9.6 despite scaled draws 11.5%->83.7%; GPU 97-99% busy; run I: 313 render pass instances/frame, 198 barrier-induced, 70% of GPU time inside render passes",
     "stray zombie-script console lines documented in the report; large PROF/PNG files listed with SHA only",
-    "Litep capture_kgsl blocked on Swan by the 1.5 GiB MemAvailable guard"
+    "Litep capture_kgsl blocked on Swan by the 1.5 GiB MemAvailable guard",
+    "Runs K/L: ~1490 draws/frame heavy phase; M/N/O/P: ~665 draws/frame light phase. The intro script does not stop at the same phase every run, so compare FPS only within one fingerprint.",
+    "Frequency locks J1..Q1 (swan-evt-legacy, 600 s each) recorded already-locked sysfs values as baseline, so device_frequency_stop leaves the profile frequencies applied.",
+    "PROF captures, DumpLayer BMPs and files over 3 MiB are listed with SHA-256 and size only.",
+    "zar-folder/: device link state and screenshots for the Settings > Game Library fix."
   ],
   "files": {
     "bb-clinic-A-failed-kgsl-guard-2/identity-before.json": "576123806836ad3a57aa5de39c6251829aaf3c6a46e119386c0a4351a3767545",
@@ -38,6 +51,7 @@
     "bb-clinic-D-knob0/session-after.txt": "09175c0e655ebc6be7fba2bda85844952c9343eb8cc3ad34efc94dbcd30011b3",
     "bb-clinic-D-knob0/session-start.txt": "fd945542aea59f091504f9a8d79dcf0c764ddd1b9f0d390c5b18760f45636b6b",
     "bb-clinic-D-knob0/warmup.txt": "8f503494e80199f48b91378587e1275c5127fa2b049f9de2c36cb4588cb012ab",
+    "bb-clinic-E-promolog.console.txt": "4d99299452460367f4a12ace2104191cf4ca281c2ba07cab78cd68d0f88dfad6",
     "bb-clinic-E-promolog/fps.txt": "fa822b7bef6f667b4cb3e19869d953dd145750f230fdaa7199047c981482c3b3",
     "bb-clinic-E-promolog/gpu-memory.txt": "cbd7c61435daa39d2e3cc4b19775ff0850bb386840eb6b09014a7548a5df1a0e",
     "bb-clinic-E-promolog/memory.txt": "bb08f0c0a0868e97babd75f0490247ce438024ade197f06d200e51817a05df48",
@@ -48,10 +62,12 @@
     "bb-clinic-E-promolog/session-after.txt": "2c61d4433171501373ee454fb0ae81540598a2766ec1a40d8ce05bbcfc19ef4c",
     "bb-clinic-E-promolog/session-start.txt": "68373e45756924050aa470d79f7640591023893ea9517dccf1111cd5fc80332a",
     "bb-clinic-E-promolog/warmup.txt": "ec1675516f0174cf1c35e82a2d45d5b359b5f5f266bad4fd4b33d6ef309fadfc",
+    "bb-clinic-F-copyinherit-interrupted.console.txt": "0a2dafa041984c52871ede73ad6e0fe43c7a47e8b13a2b6d874bcb30f3dcb5ae",
     "bb-clinic-F-copyinherit-interrupted/promotion-summary.txt": "f1c95d6260cd326c0630b13d985af6c9865e69093453c8f5171bc25158e0caff",
     "bb-clinic-F-copyinherit-interrupted/property.txt": "b05052c98feb322e2918dc0b05a7489befa11131560db0e3348f3d4eb3383cb9",
     "bb-clinic-F-copyinherit-interrupted/scale-log.txt": "6865e57a2c40733a4cccab0b9c37e7cabd54f0eb812934127c496fb6e002f7c0",
     "bb-clinic-F-copyinherit-interrupted/session-start.txt": "86d93a629f3f255e5a1c987205f489f0463996a27da6e1f75ecdbe5b0e05362d",
+    "bb-clinic-F-copyinherit.console.txt": "3ede253195db8443fba3dc16b628c9693c3d33f5a0e05aa2a0696d6f54bdc280",
     "bb-clinic-F-copyinherit/fps.txt": "9389987ca7af1bacdd2da2737a58ed0073142e797e94dfe99342ce8323a70f1e",
     "bb-clinic-F-copyinherit/gpu-memory.txt": "e363fc3b8743ee6f080d7148aae213df55b75d1c3835f60cfc5e4b7068849574",
     "bb-clinic-F-copyinherit/gpubusy-clinic-stale-3h5-swapped.txt": "127f22a02bd43110df6b67c704e1fecb1b24830fd18fb63342d754ab82cbff49",
@@ -81,6 +97,7 @@
     "bb-clinic-F-copyinherit/startup-mem/meminfo-8s.txt": "70fba3ee6a4df89e1188cc24afee96da432706ff2a7370ce8d4e2c59e138e77b",
     "bb-clinic-F-copyinherit/startup-mem/sampler.log": "e9549e4f2d99d014064ea62a00b5f9a0edc519ab2237d8f7b57b659b93de4e61",
     "bb-clinic-F-copyinherit/warmup.txt": "d0d54daf0765a5f6c0c3ecbd5fae2c096a2fac04a28d4af806ff6bc7f3d4b135",
+    "bb-clinic-G-copyinherit-prof.console.txt": "e42bbd1e882a216a1598a7e355c2f86ba39a0c1f9fa364dc4a72b66f267c2a1a",
     "bb-clinic-G-copyinherit-prof/PB3110PGL6240001G-24228-file-1789994509333373-1.prof.json": "06d33966cca3c9275dfeeec5406e2dfa75c8024df956ffb017c24c897d73dcdf",
     "bb-clinic-G-copyinherit-prof/PB3110PGL6240001G-24228-file-1789994892268758-2.prof.json": "a992325b423f1927bc51623a71430e70fc54c0588902edf51a8d78b14a1559d4",
     "bb-clinic-G-copyinherit-prof/fps.txt": "1309c1eb7a6653a68c20f97391c723698e12266a101cf74e521cf273486002f5",
@@ -93,6 +110,7 @@
     "bb-clinic-G-copyinherit-prof/session-after.txt": "abb40326e163c351c9cf2ace9529c8dd9f76a45c7d374f1b0aa3c71973153f02",
     "bb-clinic-G-copyinherit-prof/session-start.txt": "0718178eb4fd1c8728b37e9bc5c6deae690ce97b45e95167c11a424513b904d2",
     "bb-clinic-G-copyinherit-prof/warmup.txt": "89957b3a5b1ae72c8e0c641ba0889003b061e7aa5a41dfc70653f73121a038c6",
+    "bb-clinic-H-gpuzones.console.txt": "1da3e177582cc74b5ce11f148f61bb3e75abfd782addfb0a272a61b293180aa6",
     "bb-clinic-H-gpuzones/PB3110PGL6240001G-13673-file-1789995762342766-1.prof.json": "342ad651481ff39ca725c17d894dad940013417e723a2bef9085a6a5356fc451",
     "bb-clinic-H-gpuzones/fps.txt": "4979c5a89d751dec7f95120d33bfef3e028cf6f5e6c844777354de7f9a7fdf33",
     "bb-clinic-H-gpuzones/gpu-memory.txt": "8165bf5df87cae89dce3e7f024f74eab3c1a404b7f97a5641162aeb079688b56",
@@ -103,6 +121,7 @@
     "bb-clinic-H-gpuzones/session-after.txt": "ff0d209933e0c6f807ba518511ce760e2d79b865c8c916c4b2549522b6a1c809",
     "bb-clinic-H-gpuzones/session-start.txt": "72b07f092617af87afc4c8825e063bc284690a54e8e6bf88e8e4367ce5693330",
     "bb-clinic-H-gpuzones/warmup.txt": "5fc88751c8e68b01a0e74bd025fc8ff8791be86d6969a04e7405130d8d2d31cc",
+    "bb-clinic-I-breaks.console.txt": "4186aa9ff8319737abaec0ec3d7229a04d6ecb9b61d198544d2c1a2c835eba3a",
     "bb-clinic-I-breaks/PB3110PGL6240001G-30668-file-1789996383881130-1.prof.json": "d5acb69e29ae0844103f05f3c241ae3710e9452e9eda9a0838e27e154f8b14cc",
     "bb-clinic-I-breaks/breaks-delta.txt": "b65ef9186690b5383769ae4301ad7cd23f7165f0b9bb864d98d813e248fd6e48",
     "bb-clinic-I-breaks/fps.txt": "26712af203fe3c3531bea3d4fc76fea59387d69d31756baacf738a881aad7882",
@@ -114,19 +133,127 @@
     "bb-clinic-I-breaks/session-after.txt": "37563832c13a29b275411c8157aaafd331fab6a6a9ebab03ef42eb8e2b47436c",
     "bb-clinic-I-breaks/session-start.txt": "c5ab3485e94b62665e1a53d67a3053d8081edbda30cb89b07989c1428dd1f941",
     "bb-clinic-I-breaks/warmup.txt": "e2d16993366cc54db09bb9f5df72993ba994226641f1f3d0ced6c94bbc91eb4e",
+    "bb-clinic-J-rar.console.txt": "fef2e16459eb76c777f66d1e17bf5a8e6f3625c17391633de0b6bde6fcbeb23a",
+    "bb-clinic-J-rar/PB3110PGL6240001G-19041-file-1790000431699831-1.prof.json": "7265d2084cedacb57393f380e297a099f089b44259ad39493aace3c08a994a7e",
+    "bb-clinic-J-rar/breaks-delta.txt": "7a09b3e978633121ecfca783986e90c518e23d85bf0fe02f9029e5e0fee3695f",
+    "bb-clinic-J-rar/fps.txt": "ef292bdf2a895635aa15822eddc8b1f6f3f5141c287af5d7d5df4ac196b04023",
+    "bb-clinic-J-rar/gpu-memory.txt": "d607a20af89147c2c3a7a54f7f653eb57261e2911f8194e3ebd63647ada294d2",
+    "bb-clinic-J-rar/memory.txt": "c4a38f8939c6d80590e7803ccb6cacae354da15740ea4c20a5d84a44df4857dc",
+    "bb-clinic-J-rar/property.txt": "5e97cfeb60245d92cd2576473a56756d39a81927772fe84064b018ec99c0a2a7",
+    "bb-clinic-J-rar/scale-log.txt": "f3648d3352dc94a33ba202241d430108d478a9d9a04a9f58487896c614c02094",
+    "bb-clinic-J-rar/session-after.txt": "fb0282b3c3a8929d089680dfccadce7202f8c227bba1fe49829b96218d6c6490",
+    "bb-clinic-J-rar/session-start.txt": "3dff1ecc12d596a3097c8c949b92f1b72b92515119e9e910ec3d39b6d719448a",
+    "bb-clinic-J-rar/warmup.txt": "ec7e7e89196c32f02caf65b7485f84630f80b6f1e7f85951263eb2fac7b6d853",
+    "bb-clinic-K-transitcause.console.txt": "0b14ff668e12f0ad09b67b29be8c6dd1a307c4c0860cfbec9f6d92986f876c90",
+    "bb-clinic-K-transitcause/breaks-delta.txt": "ed57a5fcca468ea86bf2fe77810b0dc13c9bb0d045bc4085756d048910c66e5b",
+    "bb-clinic-K-transitcause/fps.txt": "975c9d88fb2c42c1e3a31ff2d0d10188989b0456ce11e7a61d33031220374270",
+    "bb-clinic-K-transitcause/gpu-memory.txt": "5381a3afeea1d1f5058d11f73748dfb0ad9d92ee2a1f857099be7d4aecda47c6",
+    "bb-clinic-K-transitcause/memory.txt": "f4af01755b1ed8541075413b0444dcbc19a715e5f04009e7c162daf74531e5b5",
+    "bb-clinic-K-transitcause/property.txt": "5be439d8fb0a09e9741692c1895c1c139ea21f7ad6672a5ae346575e19ce423e",
+    "bb-clinic-K-transitcause/scale-log.txt": "960e25a1856c698e1f5969ca46264e36470b3fe94a0eba7e0c98118805574c63",
+    "bb-clinic-K-transitcause/session-after.txt": "7781ff4a7b769033628857a603c983d26ce48352976eadced520e9ba211d8bce",
+    "bb-clinic-K-transitcause/session-start.txt": "d184a2fb2373cd628ea5b20f3dd9715d59e367c58c2cf942934d2f56c3805c99",
+    "bb-clinic-K-transitcause/snap0.txt": "7efc18860ddd4e5e63081d340558de19df30bbc6b8d46333ddb3105b31a1a7cb",
+    "bb-clinic-K-transitcause/snap1.txt": "ca7e1baafc7d42bf46d5f8fc439b5f0624ca894a4bcd673541930bb800f888af",
+    "bb-clinic-K-transitcause/warmup.txt": "e17be8e27d3c1a4b4a2f875d435e1a2d3c80954f63361789359ff93844655054",
+    "bb-clinic-L-resume.console.txt": "71d04a146edc83869de5d95cf6603c01d051980f6eae352e9dafdba5b6b5c305",
+    "bb-clinic-L-resume/breaks-delta.txt": "27cd0510c9a730ef1763f312451d3419d5d3dbeefcc90246d7efaa9ba1bb31eb",
+    "bb-clinic-L-resume/fps.txt": "28c817f9ba5f3568ec92fb4f0f548cdf14c683e147b1de1e72cd3d4da2f52505",
+    "bb-clinic-L-resume/gpu-memory.txt": "4a756aced21404efea15cdc0215710a84582365deafaaecfb03dee68b1ad3948",
+    "bb-clinic-L-resume/memory.txt": "48eb729b763e474f65dd421349a9aa7a7b0d421161e4cb95317b3c2cad5a7050",
+    "bb-clinic-L-resume/property.txt": "821e3c53f1106856459e53f2adf069b6480072823c8ca2f8323a4a6b2796da39",
+    "bb-clinic-L-resume/scale-log.txt": "a3bb9b2073a6ff74369c2dba6a1d4635fcc1510aa7a8c12339870d7b5f5a6324",
+    "bb-clinic-L-resume/session-after.txt": "8056be1614cee3c27c8269971fc82f64c3a9c4b633a353393a2c4256ff739b81",
+    "bb-clinic-L-resume/session-start.txt": "9fadf874607f6630390dc962a1b642bc653dab6987f82afdc348bf827db8720f",
+    "bb-clinic-L-resume/snap0.txt": "52d3a21d638b839d79a6b7545458f1e414eb43afd104213da1aca34949da7531",
+    "bb-clinic-L-resume/snap1.txt": "e3c7a98f4da3e19fa30af7954d860e3d15a7f17be12cd182aea638f438754343",
+    "bb-clinic-L-resume/warmup.txt": "17141df1c8770c2443b406d830edb007be53af3ee2fc1b19c28ea3f14be04c68",
+    "bb-clinic-M-quarter.console.txt": "08bdb68edc91f6e99f4c55c65605bb4fae09ac2e8676187525f2d2cbe3391570",
+    "bb-clinic-M-quarter/PB3110PGL6240001G-17645-file-1790003636015527-1.prof.json": "fe6ea513c34df80ae388a396ef70a550228b6ee55c9ea685366d7a974c02434b",
+    "bb-clinic-M-quarter/breaks-delta.txt": "f678a78eb8789c3f23c49ab38339f813acb2a4dd349cdcc9181001f5a7c3415d",
+    "bb-clinic-M-quarter/fps.txt": "c5d63788267c47c63c3f1453c167dacde8fcf5e87a5eb8487d12d0d4f6f4ceb5",
+    "bb-clinic-M-quarter/gpu-memory.txt": "5ebae9d13e5c637238d17caa1885ab589675fa806a92bfe80e13bd858a754710",
+    "bb-clinic-M-quarter/memory.txt": "aac4d870b45295c9c4a3499ca4f14dd5dd41088be2823092504b86cb50cf804d",
+    "bb-clinic-M-quarter/property.txt": "02f2c2fff885f2357fff8a737f6301fc0def448f84aee821701e15ef8a29cf72",
+    "bb-clinic-M-quarter/scale-log.txt": "2b90be844385348d6d36572456e5efd6b41c1296af76c770bb6e81a324da82cd",
+    "bb-clinic-M-quarter/scene-L-left.png": "3df299f76978593dd630b9634bd5aff1a8c561786f22614d878c97917a56499e",
+    "bb-clinic-M-quarter/scene-later-left.png": "2a7c0284ad7542a7286cdf532f45b5230e361dc2218c12b366d6004dfb66b7ab",
+    "bb-clinic-M-quarter/session-after.txt": "f65cbe525780a41bb24bae455e3f0834885341d9d0a488deb231666aadaad3af",
+    "bb-clinic-M-quarter/session-start.txt": "adf065eec8fad7da2fb7f86c3a46885397acf8da219d01973e824a568ea92308",
+    "bb-clinic-M-quarter/snap0.txt": "d9ff81da0409e29cb3ae2cb19f325172fd00f85b429028b5979c97466050b3ae",
+    "bb-clinic-M-quarter/snap1.txt": "1b2b4e9cb9bda1d5bb9585851ac876fd7b1ac63130fa991bf3cdd231c859dff7",
+    "bb-clinic-M-quarter/snap2.txt": "6f626d3b223df6640ddc031639de8fa7d18427a652c840fa8a78c692d6480424",
+    "bb-clinic-M-quarter/snap3.txt": "548574b60d1b452152ab13fb1be45f4af71a33e8e7ce84e4eff430b0243d243d",
+    "bb-clinic-M-quarter/warmup.txt": "6d8e8effbd27cdc739ff359d2fc2cc7a5362299baa97a0a7ae7de47e88166a4b",
+    "bb-clinic-N-readback.console.txt": "8ad8140e59eac48b9d3280bf5050f9efc76c28ab061b04976d674497af055c47",
+    "bb-clinic-N-readback/PB3110PGL6240001G-15194-file-1790005006791614-1.prof.json": "a9aa24b010ace85c2b794915ea12e4e7ead74f19d328967ca9bab2eae395b510",
+    "bb-clinic-N-readback/fps.txt": "2d163d17e63ee0eb0ec040fcb44ab76965f52535c9dbcfa4a7fadcee6701a5e4",
+    "bb-clinic-N-readback/gpu-memory.txt": "f8f8bcd82262df317c78ab91c7d6a7324fefeecbf41625468191b14c045cb7ff",
+    "bb-clinic-N-readback/memory.txt": "93d898f9a51b477a38ff3906067a6b46f41e92b57f6bfaf5da12b68fef4b5799",
+    "bb-clinic-N-readback/property.txt": "5933178fce964960ddf0c56652770349cb345bf96647bc1b8d6d2b4f3229e676",
+    "bb-clinic-N-readback/scale-log.txt": "99fe5a44c629e7438ee1dcc56f0f82cffd7133cfaeba24371a03f67e6013f7b5",
+    "bb-clinic-N-readback/session-after.txt": "031057365c44030838fc94d0660d2553a0e00d10edfab30e1114c63eaaf9ee9e",
+    "bb-clinic-N-readback/session-start.txt": "e8435de4f7b058324335e7bbb69f4fa935c81b9358d5d003dde6fe5d9e87851c",
+    "bb-clinic-N-readback/snap0.txt": "b5f9a826023d883746398567714c4960e2d86955d21f5d8e90a03d079cd615b6",
+    "bb-clinic-N-readback/snap1.txt": "b1cddba64d1876df8a3cfbf218b2298cdf2065d48cafe7d69072a25cf59e1353",
+    "bb-clinic-N-readback/warmup.txt": "9272b5fe83f15e3b29f749d62dca049e9576724a2d32cfc5993c7ee4bb83facd",
+    "bb-clinic-O-fused.console.txt": "6fc8e7167514e468a084cca9c77e5b2bc70bff8b59ab10adcc446cec03b218e5",
+    "bb-clinic-O-fused/PB3110PGL6240001G-16355-file-1790006074372104-1.prof.json": "81bf347508f1e2a34161a54354a9660bbea4d6f128c21442b89496f2547ee083",
+    "bb-clinic-O-fused/artifact_manifest.bb60f546e60749aaa9389f5b61598a23.json": "09e594cb1b1bf9bba4aad79774a2a76f22e59781b74f298ba4a42c151ea28f1c",
+    "bb-clinic-O-fused/compare-N-readback-left.png": "b89ff369b5cf7e89b7066638c87b4bdbb1176940f46217d71aef2e08efbf90e5",
+    "bb-clinic-O-fused/compare-O-fused-left.png": "5430840f24ff8768e2bf21fde8ff7d0c51cbe9eda51bd23f12ef3b32eadeb1a5",
+    "bb-clinic-O-fused/dumplayer-O-left-small.png": "2e9eff64f94ce901a614e1d7767c9ac546459294a3460130998194cb463ba2d4",
+    "bb-clinic-O-fused/dumplayer-O-panel.png": "006e1e49521b5751c1b82b9e66108cf80669d7ed17179b097712500a752c082e",
+    "bb-clinic-O-fused/fps.txt": "0a82c345f8949121e357ffe5a48f48a4052779c0b0ac61f610fad953d582901a",
+    "bb-clinic-O-fused/gpu-memory.txt": "c3a0e0dcc9ad5b6334d02c6587dd7a223f595d806e3e5f32e10d99e6a5773f3f",
+    "bb-clinic-O-fused/memory.txt": "27ed10454da49d487c27a5a79e08200ae439aa5f6e2204d0f4eb5ab830dda5cf",
+    "bb-clinic-O-fused/property.txt": "d8034867ef0e292136b0df5eb846bcf0eed3387759a29efd04a3d3391803590e",
+    "bb-clinic-O-fused/scale-log.txt": "862ecc30cda4daa7dd7b7a1e58d151fa2d11bd9ce11a5948bb647868dd235e33",
+    "bb-clinic-O-fused/scene-later-left.png": "65fb09d4d269d3184f8ae89cf13d07e79367fbefa8104b5af2a13d44c971618d",
+    "bb-clinic-O-fused/session-after.txt": "41f766a87a87d20118e610e77b9e3ca2754345f54aaf05b2d0f673ae7d2ae885",
+    "bb-clinic-O-fused/session-start.txt": "fbb24629fa306f2074d627fe1ec8c2cd21ab4809bdd9a0c1d3c72eb76023f296",
+    "bb-clinic-O-fused/snap0.txt": "63208eb41648e102344f58ecbe7748466c583193c18bb3c471e8321748dc7440",
+    "bb-clinic-O-fused/snap1.txt": "47563f247ed7782cc382825d7e15aaec72c03278d515b44c1909004250cc45b6",
+    "bb-clinic-O-fused/warmup.txt": "a4e2af020d88df08ca5262ae5249ed2b1f6570c92a4653d81d2dbea52b7f1f38",
+    "bb-clinic-P-wide.console.txt": "dff6948620130a9e34c79e644bb35ecf7ad095f40c23129125f507e41a8e0dfe",
+    "bb-clinic-P-wide/PB3110PGL6240001G-13774-file-1790006949716779-1.prof.json": "25ecd2aeeef9dd817130565becca59f9cf55074d4fa0661d6efb76c431ec4b55",
+    "bb-clinic-P-wide/artifact_manifest.c05f75e1b33143feae48d5551d8d781f.json": "052dd7286ab79555999923050dfd625c0eeb51d3803a70f57cb00aadce889a8f",
+    "bb-clinic-P-wide/dumplayer-P-left-small.png": "7b66f0b1a64e047f085e03aaf44c94a5777f15ece47aebf0c3784eb576add822",
+    "bb-clinic-P-wide/dumplayer-P-panel.png": "e2c71ade4f653212d8c7682735dbdae5ed8576f91dc2a1111e6a902097f12c08",
+    "bb-clinic-P-wide/fps.txt": "5141afb34aada518d4e3e07baa44fc81c7601e78496c81b34fdbeaac0ad262c3",
+    "bb-clinic-P-wide/gpu-memory.txt": "0670aa444d7fae8d889a81b25b3b86902a6c12753472aa71f4821cdf0cbc8b02",
+    "bb-clinic-P-wide/memory.txt": "284278d652b0969ccf3b7ba62153559e12856f25357e09e6576d5ef7214dddff",
+    "bb-clinic-P-wide/property.txt": "27a363558b170eb0315ce5a1ce6ad56c1e3ecb3b090272684d4e87cb598c79a9",
+    "bb-clinic-P-wide/scale-log.txt": "84cfa8631fd66aacc8cbf9c2d2bee21a3f1af0d7baf3cf98df39f6066d066604",
+    "bb-clinic-P-wide/session-after.txt": "fe7352e03f9b0d0443ed7c9e97a9fb33e0ea38daaa65f2ce09e4c82c0d2d6708",
+    "bb-clinic-P-wide/session-start.txt": "5d55a51edf7690acc501f5f0a3cb70ca5ace2a1d55f4e13a5ce711fc0c3e2f18",
+    "bb-clinic-P-wide/snap0.txt": "5f505cff95d7fbb747912df79e222fd4850a7d73f67785955229aaf57b8167dd",
+    "bb-clinic-P-wide/snap1.txt": "c0fa13182bd72429fb9dad1688efdeb39c9231a3f4f0a7e8a925417461f529b3",
+    "bb-clinic-P-wide/warmup.txt": "8f503494e80199f48b91378587e1275c5127fa2b049f9de2c36cb4588cb012ab",
+    "bb-clinic-Q-final.console.txt": "df7c4134e8e6a95a249d88f732939c6adca6f3d9393618375ec9cf1693443e76",
+    "bb-clinic-Q-final/fps.txt": "50eda96874596b478dfa1561cbb14b2ac6482ed279fe19c0e477f6587c055327",
+    "bb-clinic-Q-final/gpu-memory.txt": "b821d860ddb53bd883a4636f962fac8ee48483a366dc7b9ea3004c39014754c8",
+    "bb-clinic-Q-final/memory.txt": "18e97917822e8c00c81a0fc43a9331dffa679be79016a05828bce4b1b5198385",
+    "bb-clinic-Q-final/property.txt": "ce51dc2ea8c5d5079737064d8bc9677d054124807d758ac61d5a3377bd365251",
+    "bb-clinic-Q-final/scale-log.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bb-clinic-Q-final/session-after.txt": "1995753742f5423c112dd7c45ddb5c800f490be8084787efed1619ba5605dbd4",
+    "bb-clinic-Q-final/session-start.txt": "c06e78a850ac1e70d6c5e4afb8f4e613c35d44ef44c128d55b8ddb0f99fee70b",
+    "bb-clinic-Q-final/warmup.txt": "1d8ccc47dc44fa73f373c7fe6c2fb069449740f928d6d19189da31b2f21f6a3d",
+    "config-backup/global.json.orig": "7ab5f46b0b85c6dbd825d01c2255991bafd55979fb4f3d122d0f9c72bed34302",
+    "config-backup/global.json.orig.sha": "9a461cbdb802ce44145dc004aaf971e1276c0dcc85b26dc6b650e8cb0a3b393b",
+    "config-backup/global.json.quarter": "64666f4cb0cabe841004d8b96eb47d802236c39e8d4b77f720a49a47d8fa188c",
     "tools/ab_scale.sh": "a138e09805ae3bf57809e0848ceb91cebd5831ffddeb4c6bde2495fd62eec8a7",
-    "tools/collect_swan.py": "98e7f9cba410a7eb3149ddd39c65e96943b1e770332e92938b1dd291196e3153",
+    "tools/break_delta.py": "4c001758005b313b6e5b5dbd2f77861bddc9bb269aca20e1bbd37e9ce624872a",
+    "tools/collect_swan.py": "d8e0338d9e4bf0d9a9b2163d86fb1a7dd40bab919ea67e2781f88c47894eaa2f",
     "tools/memwatch.sh": "160fc4aa15a50e15632ef4492a815e633790ed3678f0adaf2289b9a70e9c0dab",
     "tools/promo_analyze.py": "49745f28a3e50013a43fd2e7a7b4e7fa8567625681330f62e91d00494a797ee0",
     "tools/rc.sh": "047e215410fc54e0f0a0850af511a3fe1a3b9c4cd0e47be485a9a5ab40fd0180",
     "tools/reach_clinic.sh": "e8d4d388d5aaebaa5d28c07405749666024aaceb477f4039d7d5e18cd1dcdd26",
+    "tools/readback_analyze.py": "98d31e3c1e4134db18dc668835dffbe7a27c0133a95d787ca4e13373a0be473d",
+    "tools/startup_mem.sh": "1fb275af2e67f06554b8d6f572305e1e05b05c13541aef2539e8b76b53f2d480",
     "tools/watch.sh": "44fe8256f37ee8a415bc90e6dab8b57b85cec7b3b160ac2f0ebbf5dc66038b85",
-    "bb-clinic-E-promolog.console.txt": "4d99299452460367f4a12ace2104191cf4ca281c2ba07cab78cd68d0f88dfad6",
-    "bb-clinic-F-copyinherit-interrupted.console.txt": "0a2dafa041984c52871ede73ad6e0fe43c7a47e8b13a2b6d874bcb30f3dcb5ae",
-    "bb-clinic-F-copyinherit.console.txt": "3ede253195db8443fba3dc16b628c9693c3d33f5a0e05aa2a0696d6f54bdc280",
-    "bb-clinic-G-copyinherit-prof.console.txt": "e42bbd1e882a216a1598a7e355c2f86ba39a0c1f9fa364dc4a72b66f267c2a1a",
-    "bb-clinic-H-gpuzones.console.txt": "1da3e177582cc74b5ce11f148f61bb3e75abfd782addfb0a272a61b293180aa6",
-    "bb-clinic-I-breaks.console.txt": "4186aa9ff8319737abaec0ec3d7229a04d6ecb9b61d198544d2c1a2c835eba3a"
+    "zar-folder-setting/device-state.txt": "c71ef6547670f967adf62a3c7f734b91585799d485b235dd17501d5cd2215ac1",
+    "zar-folder-setting/library-left.png": "3630a1926068659f2053ece7176f58b04348c5851a59868d9714952b9342f1d5"
   },
   "large_files_not_committed": {
     "bb-clinic-A-failed-kgsl-guard-2/scene-before.png": {
@@ -212,6 +339,114 @@
     "bb-clinic-I-breaks/scene-before.png": {
       "sha256": "d76a9c21c994b447a91d15fb3435559b3413cb7a6800b777e0c9bb16dd7fa70a",
       "bytes": 8780718
+    },
+    "bb-clinic-J-rar/PB3110PGL6240001G-19041-file-1790000431699831-1.prof": {
+      "sha256": "f9fb1b587e1904b5bbc100bfbb60378d9f51dd5e3fcd113ca84e640490e3c80b",
+      "bytes": 58421024
+    },
+    "bb-clinic-J-rar/scene-after.png": {
+      "sha256": "364721a030682e29a7e3d667f082532b2486e46b543b8a65ccfcc53c9e8b850f",
+      "bytes": 8812758
+    },
+    "bb-clinic-J-rar/scene-before.png": {
+      "sha256": "2486dc2808c14a43f5339e00686b04eee80aa798d9bca281a94fbda0f642fddb",
+      "bytes": 8799590
+    },
+    "bb-clinic-K-transitcause/scene-after.png": {
+      "sha256": "52532b063771271d1828e8a6df8392d2cb39e4f8572792af7f3af31a093edfb4",
+      "bytes": 8798739
+    },
+    "bb-clinic-K-transitcause/scene-before.png": {
+      "sha256": "5be853394c9471c8ea17a33417c689298c265a7cfb77c3ce60af3201f470d5e7",
+      "bytes": 8804278
+    },
+    "bb-clinic-L-resume/scene-after.png": {
+      "sha256": "8e58375dc1e88651a15e26e27acf64271bc509c915b024d49150787a264dce37",
+      "bytes": 7135982
+    },
+    "bb-clinic-L-resume/scene-before.png": {
+      "sha256": "efc8a23dde63eed2498fa5d46f0f3c9763008b1498ded7cc0200e538b105857a",
+      "bytes": 7141723
+    },
+    "bb-clinic-M-quarter/PB3110PGL6240001G-17645-file-1790003636015527-1.prof": {
+      "sha256": "c55e5206b4aab8f2a786fbda5620e6740c16114a1f4aadac753dcd791d6af3d8",
+      "bytes": 65213241
+    },
+    "bb-clinic-M-quarter/scene-after.png": {
+      "sha256": "e6c92c9bc3eaaa030dd17eceb1de7e6bd9bdce066688b0fb7f99bf0472705103",
+      "bytes": 6954836
+    },
+    "bb-clinic-M-quarter/scene-before.png": {
+      "sha256": "2a0c2c857e44d0dfb0116ff1109b57f2274041c905d74c6510d5217101b719d0",
+      "bytes": 6974622
+    },
+    "bb-clinic-M-quarter/scene-later.png": {
+      "sha256": "bbf3bd9f5b1854188d589079dee94b2ec998e3d15c4e3e7b02037426f29900e4",
+      "bytes": 7008883
+    },
+    "bb-clinic-N-readback/PB3110PGL6240001G-15194-file-1790005006791614-1.prof": {
+      "sha256": "fd95a6f090d7d6102aabb09b7053898aab6a7746d532fa3641ed220543980845",
+      "bytes": 59608725
+    },
+    "bb-clinic-N-readback/scene-after.png": {
+      "sha256": "6c7ed786635163bc39fa017f7b56d9e318d9f5c1bdb93d5c51f994a3af1d7b0c",
+      "bytes": 7098872
+    },
+    "bb-clinic-N-readback/scene-before.png": {
+      "sha256": "6ce5895c680f1f46d1c19344a7a859e2a5b60a75f630e0201a6177104520208e",
+      "bytes": 7087913
+    },
+    "bb-clinic-O-fused/PB3110PGL6240001G-16355-file-1790006074372104-1.prof": {
+      "sha256": "ef91f71eeaf792a28134e41d3f5413d6bb5b33bfe3eedad399be6d185f5504e7",
+      "bytes": 67032412
+    },
+    "bb-clinic-O-fused/dumplayer-O-left.bmp": {
+      "sha256": "8d0dcac24d31da9db893a9826cc4258bc482f1b3c5fc15fca3813f77249e9610",
+      "bytes": 78962742
+    },
+    "bb-clinic-O-fused/scene-after.png": {
+      "sha256": "141d52eb933862a5cb214ed44bb7e17690ebe13352a6a0e0bdfcdad066ea934b",
+      "bytes": 7238532
+    },
+    "bb-clinic-O-fused/scene-before.png": {
+      "sha256": "d416ee003ac9ea39551f67ee4ac54b651b4f274a4b59cc7d39892e807795fde3",
+      "bytes": 8428123
+    },
+    "bb-clinic-O-fused/scene-later.png": {
+      "sha256": "c631b5dc3917a6cd013ec8056ec256e116b544deeb291c41e234d3fb2799f312",
+      "bytes": 7235848
+    },
+    "bb-clinic-P-wide/PB3110PGL6240001G-13774-file-1790006949716779-1.prof": {
+      "sha256": "a853e342460e7eb279d24c9b16932bc053e004b05d749ea3ee516d4506bf6b46",
+      "bytes": 64287215
+    },
+    "bb-clinic-P-wide/dumplayer-P-left.bmp": {
+      "sha256": "30cb1c0a2cb7ba93ce19e1a83168b7a566ce9672a012aa47bcedcb74ef9b046f",
+      "bytes": 78962742
+    },
+    "bb-clinic-P-wide/scene-after.png": {
+      "sha256": "5e5f018ad613c5856c7a5a3f4acb0b77deb2bf59b1e7fe3056a826376c49b94a",
+      "bytes": 7176610
+    },
+    "bb-clinic-P-wide/scene-before.png": {
+      "sha256": "971438d66832d3e1b4f3b1dfeb6fdfe6c22e475f65e419b1c1f02f1013228dc3",
+      "bytes": 7161009
+    },
+    "bb-clinic-Q-final/scene-after.png": {
+      "sha256": "d5bdb8e2817c843c6211dabe55f257d1b50c45ac3ebff038d3cd07cc70309584",
+      "bytes": 8980031
+    },
+    "bb-clinic-Q-final/scene-before.png": {
+      "sha256": "374f03e2e96b3d21b516d8005cffd7e9eacbfdab918f95c5ce233e5211d6df4b",
+      "bytes": 8237498
+    },
+    "zar-folder-setting/library.png": {
+      "sha256": "b4134b1b8dd6665b3a641e734010f0f6cfcd2d3d33c698746dc0c73e4082ca62",
+      "bytes": 8850899
+    },
+    "zar-folder-setting/settings-game-library.png": {
+      "sha256": "fd50c0eb515fa1771d1f3a66e133f7a719d1267a0033e5afd3edf8c9309a5f68",
+      "bytes": 8352671
     }
   }
 }

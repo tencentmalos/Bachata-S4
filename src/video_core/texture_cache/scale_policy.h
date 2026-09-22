@@ -26,6 +26,10 @@ struct ScalePolicySnapshot {
     // image writes, MSAA and native attachments still do. Fragment-count-dependent
     // buffer contents then differ from native; that is the measured trade-off.
     bool scale_side_effect_passes = false;
+    // Guest-layout readbacks of scaled images sample the scaled backing inside the tiling
+    // shader (no native temporary, blit or linear copy). debug.shadps4.fused_readback_off=1
+    // restores the old chain for A/B.
+    bool fused_readback = true;
     bool ShaderMapping() const {
         return render_eighths != 8 || texture != TextureQuality::High;
     }

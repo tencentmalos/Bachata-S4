@@ -816,6 +816,17 @@ bool BufferCache::SynchronizeBufferFromImage(Buffer& buffer, VAddr device_addr, 
     ASSERT_MSG(device_addr == image.info.guest_address,
                "Texel buffer aliases image subresources {:x} : {:x}", device_addr,
                image.info.guest_address);
+    // Bounded: which GPU image is being read through a formatted buffer view and how
+    // large the guest-layout tiling it forces is. gpu_memory request re-arms the budget.
+    if (scheduler.TakePassBreakLog())
+        LOG_INFO(Render_Vulkan,
+                 "Internal scale: texel buffer sync from image {}x{} {} L:{} M:{} {:#x} request={} "
+                 "guest_size={} scaled={} tiled={}",
+                 image.info.size.width, image.info.size.height,
+                 vk::to_string(image.info.pixel_format), image.info.resources.layers,
+                 image.info.resources.levels, image.info.guest_address, size,
+                 image.info.guest_size, image.IsScaled(), bool(image.info.props.is_tiled));
+    texture_cache.RecordImageBufferSync(image.info.guest_size);
     const u32 buf_offset = buffer.Offset(image.info.guest_address);
     boost::container::small_vector<vk::BufferImageCopy, 8> buffer_copies;
     u32 copy_size = 0;

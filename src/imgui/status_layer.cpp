@@ -30,6 +30,7 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                 window_scaled_draws = cov.scaled_draws - last_coverage.scaled_draws;
                 window_passes = cov.passes - last_coverage.passes;
                 window_scaled_passes = cov.scaled_passes - last_coverage.scaled_passes;
+                window_resumed_passes = cov.resumed_passes - last_coverage.resumed_passes;
                 window_promotions = cov.native_promotions - last_coverage.native_promotions;
                 window_readbacks = cov.upscaled_readbacks - last_coverage.upscaled_readbacks;
                 coverage_sampled = true;
@@ -110,6 +111,15 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                             static_cast<unsigned long long>(window_scaled_passes),
                             static_cast<unsigned long long>(window_passes));
             } else TextDisabled("Scale x%s coverage: sampling", scale_label);
+            if (coverage_sampled && window_passes) {
+                // Pass instances the guest expressed (target changes) vs. fragments that
+                // re-opened the same targets after an emulator-imposed break.
+                const auto guest = window_passes - std::min(window_passes, window_resumed_passes);
+                const bool split = window_resumed_passes > guest;
+                TextColored(split ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
+                            "passes: guest %llu  +%llu split", static_cast<unsigned long long>(guest),
+                            static_cast<unsigned long long>(window_resumed_passes));
+            }
             if (window_promotions || window_readbacks)
                 TextDisabled("native promotions +%llu | upscaled readbacks +%llu",
                              static_cast<unsigned long long>(window_promotions),

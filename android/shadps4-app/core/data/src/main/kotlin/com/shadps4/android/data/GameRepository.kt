@@ -14,6 +14,11 @@ class GameRepository @Inject constructor(
     private val gameDao: GameDao,
     @ApplicationContext private val context: Context,
 ) {
+    /** Result of the last external-archive link pass; surfaced by Settings. */
+    @Volatile
+    var externalArchiveSync: ExternalArchiveLibrary.SyncResult = ExternalArchiveLibrary.SyncResult()
+        private set
+
     fun observeGames(): Flow<List<Game>> =
         gameDao.observeAll().map { games -> games.map { it.toModel() } }
 
@@ -48,6 +53,11 @@ class GameRepository @Inject constructor(
      * as PKG/folder install. Incomplete trees are never registered.
      */
     suspend fun syncLibrary() {
+        // Archives kept in the user's ZAR folder are linked, not copied, before the
+        // normal folder reconciliation runs; a missing or unreadable folder links nothing.
+        externalArchiveSync = runCatching {
+            ExternalArchiveLibrary.sync(context.filesDir, ZarLibraryFolder.readFolder(context))
+        }.getOrElse { ExternalArchiveLibrary.SyncResult() }
         val gamesRoot = context.filesDir.resolve("games")
         if (!gamesRoot.isDirectory) return
 

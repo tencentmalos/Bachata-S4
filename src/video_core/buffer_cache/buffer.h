@@ -126,8 +126,20 @@ public:
     }
 
     std::optional<vk::BufferMemoryBarrier2> GetBarrier(vk::AccessFlags2 dst_acess_mask,
-                                                       vk::PipelineStageFlagBits2 dst_stage,
+                                                       vk::PipelineStageFlags2 dst_stage,
                                                        u32 offset = 0) {
+        // Read-after-read is not a hazard: index, vertex-attribute and shader reads of
+        // the same buffer alternate between draws and used to end the render pass for
+        // a barrier each time. Remember every reader instead, so the next write orders
+        // after all of them (WAR) and the next read after a write still gets its barrier.
+        constexpr vk::AccessFlags2 write_flags =
+            vk::AccessFlagBits2::eMemoryWrite | vk::AccessFlagBits2::eShaderWrite |
+            vk::AccessFlagBits2::eTransferWrite | vk::AccessFlagBits2::eHostWrite;
+        if (!(access_mask & write_flags) && !(dst_acess_mask & write_flags)) {
+            access_mask |= dst_acess_mask;
+            stage |= dst_stage;
+            return {};
+        }
         if (dst_acess_mask == access_mask && stage == dst_stage) {
             return {};
         }
@@ -166,7 +178,7 @@ public:
     vk::Flags<vk::AccessFlagBits2> access_mask{
         vk::AccessFlagBits2::eMemoryRead | vk::AccessFlagBits2::eMemoryWrite |
         vk::AccessFlagBits2::eTransferRead | vk::AccessFlagBits2::eTransferWrite};
-    vk::PipelineStageFlagBits2 stage{vk::PipelineStageFlagBits2::eAllCommands};
+    vk::PipelineStageFlags2 stage{vk::PipelineStageFlagBits2::eAllCommands};
 };
 
 class StreamBuffer : public Buffer {

@@ -468,7 +468,8 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
         if (stage && stage->l_stage == Shader::LogicalStage::Fragment)
             fragment_hash = stage->pgm_hash;
     texture_cache.RecordAttachmentDraw(attachments, fragment_hash, render_scale_eighths != 8,
-                                      began_rendering);
+                                      began_rendering,
+                                      began_rendering && scheduler.LastBeginResumed());
 }
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
@@ -983,19 +984,19 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
                                        ? vk::AccessFlagBits2::eDepthStencilAttachmentWrite
                                        : vk::AccessFlagBits2::eColorAttachmentWrite |
                                              vk::AccessFlagBits2::eColorAttachmentRead),
-                              {});
+                              {}, {}, RenderBreak::SampledImage);
             } else {
                 if (is_storage) {
                     image.Transit(vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits2::eShaderRead |
                                       vk::AccessFlagBits2::eShaderWrite,
-                                  desc.view_info.range);
+                                  desc.view_info.range, {}, RenderBreak::SampledImage);
                 } else {
                     const auto new_layout = image.info.props.is_depth
                                                 ? vk::ImageLayout::eDepthStencilReadOnlyOptimal
                                                 : vk::ImageLayout::eShaderReadOnlyOptimal;
                     image.Transit(new_layout, vk::AccessFlagBits2::eShaderRead,
-                                  desc.view_info.range);
+                                  desc.view_info.range, {}, RenderBreak::SampledImage);
                 }
             }
             image.usage.storage |= is_storage;
@@ -1081,13 +1082,13 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
             image->Transit(instance.IsAttachmentFeedbackLoopLayoutSupported()
                                ? vk::ImageLayout::eAttachmentFeedbackLoopOptimalEXT
                                : vk::ImageLayout::eGeneral,
-                           vk::AccessFlagBits2::eColorAttachmentWrite, {});
+                           vk::AccessFlagBits2::eColorAttachmentWrite, {}, {}, RenderBreak::Attachment);
             attachment_feedback_loop = true;
         } else {
             image->Transit(vk::ImageLayout::eColorAttachmentOptimal,
                            vk::AccessFlagBits2::eColorAttachmentWrite |
                                vk::AccessFlagBits2::eColorAttachmentRead,
-                           desc.view_info.range);
+                           desc.view_info.range, {}, RenderBreak::Attachment);
         }
 
         state.width = std::min<u32>(state.width, image->HostExtent(mip).width);
@@ -1138,7 +1139,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         image.Transit(new_layout,
                       vk::AccessFlagBits2::eDepthStencilAttachmentWrite |
                           vk::AccessFlagBits2::eDepthStencilAttachmentRead,
-                      desc.view_info.range);
+                      desc.view_info.range, {}, RenderBreak::Attachment);
 
         state.width = std::min<u32>(state.width, image.HostExtent().width);
         state.height = std::min<u32>(state.height, image.HostExtent().height);

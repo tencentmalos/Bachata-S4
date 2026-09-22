@@ -3,6 +3,7 @@
 
 #pragma once
 #include <array>
+#include <atomic>
 
 #include <condition_variable>
 #include <mutex>
@@ -12,6 +13,7 @@
 #include <vector>
 
 #include "common/unique_function.h"
+#include "video_core/renderer_vulkan/render_break.h"
 #include "video_core/renderer_vulkan/vk_gpu_profiler.h"
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_primitive.h"
@@ -381,16 +383,26 @@ public:
 
     /// Starts a new rendering scope with provided state.
     /// Returns true only when a new Vulkan rendering scope was started.
-    // Why a dynamic-rendering instance was ended. Only real breaks (is_rendering)
-    // are counted; StateChange is the natural attachment/area switch, the others
-    // split a guest pass and cost a tile load/store round trip on a tiler.
-    enum class RenderBreak : uint8_t { StateChange, Dispatch, Barrier, BufferUpload, ImageUpload,
-        Detile, ImageCopy, Download, Flush, CpSync, Hle, Present, Other, Count };
-    static constexpr std::array<const char*, size_t(RenderBreak::Count)> RenderBreakNames{
-        "state_change", "dispatch", "barrier", "buffer_upload", "image_upload", "detile",
-        "image_copy", "download", "flush", "cp_sync", "hle", "present", "other"};
+    // See render_break.h: only real breaks (a pass was open) are counted.
+    using RenderBreak = Vulkan::RenderBreak;
+    static constexpr const auto& RenderBreakNames = Vulkan::RenderBreakNames;
+    bool IsRendering() const { return is_rendering; }
     const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderBreaks() const { return render_breaks; }
     uint64_t RenderBegins() const { return render_begins; }
+    /// Pass instances whose attachments/area differ from the previous instance: the
+    /// boundaries the guest itself expressed by changing render targets.
+    uint64_t RenderNatural() const { return render_natural; }
+    /// Instances that re-opened the previous state after a break, keyed by what broke
+    /// it: these are the tile load/store round trips the guest never asked for.
+    const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderResumes() const { return render_resumes; }
+    bool LastBeginResumed() const { return last_begin_resumed; }
+    /// Bounded diagnostics for pass-breaking transitions/resumes; gpu_memory request re-arms.
+    bool TakePassBreakLog() {
+        auto n = pass_break_log_budget.load(std::memory_order_relaxed);
+        while (n && !pass_break_log_budget.compare_exchange_weak(n, n - 1, std::memory_order_relaxed)) {}
+        return n != 0;
+    }
+    void ArmPassBreakLog(uint32_t lines) { pass_break_log_budget.store(lines, std::memory_order_relaxed); }
     bool BeginRendering(const RenderState& new_state);
 
     /// Ends current rendering scope.
@@ -490,7 +502,11 @@ private:
     bool is_rendering = false;
     uint32_t gpu_render_zone = GpuProfiler::Invalid;
     std::array<uint64_t, size_t(RenderBreak::Count)> render_breaks{};
-    uint64_t render_begins{};
+    std::array<uint64_t, size_t(RenderBreak::Count)> render_resumes{};
+    uint64_t render_begins{}, render_natural{};
+    RenderBreak last_break{RenderBreak::Other};
+    bool last_begin_resumed{};
+    std::atomic<uint32_t> pass_break_log_budget{400};
     tracy::VkCtxScope* profiler_scope{};
 };
 
@@ -516,7 +532,5 @@ private:
     uint64_t serial{};
     uint32_t zone{GpuProfiler::Invalid};
 };
-
-using RenderBreak = Scheduler::RenderBreak;
 
 } // namespace Vulkan

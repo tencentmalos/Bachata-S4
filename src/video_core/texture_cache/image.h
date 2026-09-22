@@ -6,6 +6,7 @@
 #include "common/enum.h"
 #include "common/incremental_id.h"
 #include "common/types.h"
+#include "video_core/renderer_vulkan/render_break.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/texture_cache/image_info.h"
 #include "video_core/texture_cache/scale_policy.h"
@@ -130,7 +131,8 @@ struct Image {
                          vk::PipelineStageFlags2 dst_stage,
                          std::optional<SubresourceRange> subres_range);
     void Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
-                 std::optional<SubresourceRange> range, vk::CommandBuffer cmdbuf = {});
+                 std::optional<SubresourceRange> range, vk::CommandBuffer cmdbuf = {},
+                 Vulkan::RenderBreak cause = Vulkan::RenderBreak::ImageBarrier);
     void Upload(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer, u64 offset, u64 buffer_size = 0);
     void Download(std::span<const vk::BufferImageCopy> download_copies, vk::Buffer buffer,
                   u64 offset, u64 download_size);
@@ -140,6 +142,12 @@ struct Image {
     // executed as a blit so that neither side changes its plan. False when the
     // pair is not eligible (format/type/extent mismatch, compressed, multisampled).
     bool BlitCopy(Image& src_image);
+    // A guest-layout readback served by sampling the scaled backing (TileManager fused
+    // path): keeps the plan scaled and counts like an upscaled readback.
+    void RecordFusedReadback();
+    // Set while Image::Download runs so the blit/copy/tiling zones it issues are
+    // attributed to GPU.HostReadback instead of the generic transfer lane.
+    bool in_readback{};
     void CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset);
     void CopyMip(Image& src_image, u32 mip, u32 slice);
 

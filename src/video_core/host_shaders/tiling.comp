@@ -98,9 +98,16 @@ layout (set = 0, binding = 0, scalar) buffer InputBuf {
     BLOCK_TYPE tiled_data[];
 };
 
+#ifdef FROM_IMAGE
+// Fused readback: the tiler samples the (scaled) host image directly at the guest's
+// native texel centres and packs the raw format bits, instead of blitting to a
+// native-size temporary, copying it to a linear buffer and tiling that.
+layout (set = 0, binding = 1) uniform sampler2DArray src_image;
+#else
 layout (set = 0, binding = 1, scalar) buffer OutputBuf {
     BLOCK_TYPE linear_data[];
 };
+#endif
 
 layout (set = 0, binding = 2, scalar) uniform TilingInfo {
     uint bank_swizzle;
@@ -108,6 +115,10 @@ layout (set = 0, binding = 2, scalar) uniform TilingInfo {
     uint num_mips;
     uint micro_mip_mask;
     MipInfo mips[16];
+    uint native_width;   // FROM_IMAGE: guest (native) extent of mip 0
+    uint native_height;
+    uint pack_kind;      // informational; the pack is selected at compile time
+    uint reserved;
 } info;
 
 uint32_t ComputePixelIndexWithinMicroTile(uint32_t x, uint32_t y, uint32_t z) {
@@ -444,6 +455,74 @@ uint GetTiledOffset(uint texel) {
     return tiled_offset;
 }
 
+#ifdef FROM_IMAGE
+#ifndef SWZ
+#define SWZ rgba
+#endif
+// half (5e/10m, bias 15) -> unsigned 11-bit (5e/6m) / 10-bit (5e/5m) float by truncating
+// mantissa bits; negative values clamp to zero like the hardware conversion.
+uint PackUfloat11(float v) {
+    uint h = packHalf2x16(vec2(v, 0.0)) & 0xffffu;
+    if ((h & 0x8000u) != 0u) return 0u;
+    return (h >> 4u) & 0x7ffu;
+}
+uint PackUfloat10(float v) {
+    uint h = packHalf2x16(vec2(v, 0.0)) & 0xffffu;
+    if ((h & 0x8000u) != 0u) return 0u;
+    return (h >> 5u) & 0x3ffu;
+}
+BLOCK_TYPE PackSample(vec4 c) {
+#if PACK_KIND == 1      // unorm8 x4 (rgba / bgra memory order)
+    return packUnorm4x8(c.SWZ);
+#elif PACK_KIND == 2    // sfloat16 x4
+    return u32vec2(packHalf2x16(c.rg), packHalf2x16(c.ba));
+#elif PACK_KIND == 3    // sfloat32 x1 (also D32)
+    return floatBitsToUint(c.r);
+#elif PACK_KIND == 4    // sfloat16 x2
+    return packHalf2x16(c.rg);
+#elif PACK_KIND == 5    // unorm8 x2
+    return uint16_t(packUnorm4x8(vec4(c.rg, 0.0, 0.0)) & 0xffffu);
+#elif PACK_KIND == 6    // unorm8 x1 (byte lane, written with atomics below)
+    return uint32_t(clamp(c.r, 0.0, 1.0) * 255.0 + 0.5);
+#elif PACK_KIND == 7    // sfloat32 x2
+    return u32vec2(floatBitsToUint(c.r), floatBitsToUint(c.g));
+#elif PACK_KIND == 8    // sfloat32 x4
+    return u32vec4(floatBitsToUint(c.r), floatBitsToUint(c.g), floatBitsToUint(c.b),
+                   floatBitsToUint(c.a));
+#elif PACK_KIND == 9    // sfloat16 x1
+    return uint16_t(packHalf2x16(vec2(c.r, 0.0)) & 0xffffu);
+#elif PACK_KIND == 10   // unorm16 x1 (also D16)
+    return uint16_t(packUnorm2x16(vec2(c.r, 0.0)) & 0xffffu);
+#elif PACK_KIND == 11   // unorm16 x2
+    return packUnorm2x16(c.rg);
+#elif PACK_KIND == 12   // unorm16 x4
+    return u32vec2(packUnorm2x16(c.rg), packUnorm2x16(c.ba));
+#elif PACK_KIND == 13   // B10G11R11 ufloat
+    return PackUfloat11(c.r) | (PackUfloat11(c.g) << 11u) | (PackUfloat10(c.b) << 22u);
+#else
+#error "unsupported PACK_KIND"
+#endif
+}
+vec4 FetchSample(uint mip, uint x, uint y, uint slice) {
+    // Normalised coordinates of the guest texel centre; the sampler maps them onto the
+    // scaled backing, so a x0.5 image is upscaled bilinearly (nearest for depth).
+    vec2 extent = vec2(float(max(info.native_width >> mip, 1u)),
+                       float(max(info.native_height >> mip, 1u)));
+    vec2 uv = (vec2(float(x), float(y)) + 0.5) / extent;
+    return textureLod(src_image, vec3(uv, float(slice)), float(mip));
+}
+bool DecodeTexel(uint texel, out uint mip, out uint x, out uint y, out uint slice) {
+    mip = GetMipLevel(texel);
+    if (mip >= min(info.num_mips, 16u)) return false;
+    uint pitch = info.mips[mip].pitch;
+    uint height = info.mips[mip].height;
+    x = texel % pitch;
+    y = (texel / pitch) % height;
+    slice = texel / (pitch * height);
+    return true;
+}
+#endif
+
 void main() {
 #if BITS_PER_PIXEL == 8 && !defined(IS_TILER)
     // One invocation owns an entire output word. Byte stores emulated with
@@ -465,7 +544,19 @@ void main() {
     if (tiled_offset == 0xffffffffu) return;
 
 #ifdef IS_TILER
+#ifdef FROM_IMAGE
+    uint s_mip, s_x, s_y, s_slice;
+    if (!DecodeTexel(gl_GlobalInvocationID.x, s_mip, s_x, s_y, s_slice)) return;
+    vec4 sample_value = FetchSample(s_mip, s_x, s_y, s_slice);
 #if BITS_PER_PIXEL == 8
+    uint value = PackSample(sample_value);
+    uint shift = (tiled_offset & 3u) * 8u;
+    atomicAnd(tiled_data[tiled_offset >> 2u], ~(0xffu << shift));
+    atomicOr(tiled_data[tiled_offset >> 2u], value << shift);
+#else
+    tiled_data[tiled_offset / BYTES_PER_PIXEL] = PackSample(sample_value);
+#endif
+#elif BITS_PER_PIXEL == 8
     uint linear_index = gl_GlobalInvocationID.x;
     uint value = bitfieldExtract(linear_data[linear_index >> 2u], int((linear_index & 3u) * 8u), 8);
     uint shift = (tiled_offset & 3u) * 8u;

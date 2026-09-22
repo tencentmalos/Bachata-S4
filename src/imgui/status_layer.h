@@ -36,7 +36,7 @@ private:
     // Last 500 ms window: attachment draws / render-pass instances and how many of
     // them rendered at the scaled resolution; shown as fractions, not percentages.
     uint64_t window_draws{}, window_scaled_draws{}, window_passes{}, window_scaled_passes{};
-    uint64_t window_promotions{}, window_readbacks{};
+    uint64_t window_resumed_passes{}, window_promotions{}, window_readbacks{};
     bool coverage_sampled{};
     uint64_t sample_ns{}, last_flips{}, last_draws{};
     double guest_flip_fps{}, draws_per_second{};

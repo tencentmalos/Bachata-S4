@@ -13,11 +13,18 @@ namespace VideoCore {
 // the reader from deltas, so a plain snapshot never blocks the producer.
 struct ScaleCoverageCounters {
     // Attachment draws/passes and how many of them rendered at the scaled resolution.
-    std::atomic<u64> draws{}, scaled_draws{}, passes{}, scaled_passes{};
+    // resumed_passes: instances that re-opened the same attachments after a break, i.e.
+    // pass fragments the guest did not express (passes - resumed_passes = guest passes).
+    std::atomic<u64> draws{}, scaled_draws{}, passes{}, scaled_passes{}, resumed_passes{};
     // One-way scaled->native promotions (any reason), readbacks served from a
     // temporary upscaled copy, and same-format copies between backings of different
     // scale executed as blits; the latter two keep both plans unchanged.
     std::atomic<u64> native_promotions{}, upscaled_readbacks{}, scaled_blit_copies{};
+    // Formatted-buffer reads served by tiling a GPU-modified image back into guest layout
+    // (BufferCache::SynchronizeBufferFromImage), and the bytes they moved.
+    std::atomic<u64> image_buffer_syncs{}, image_buffer_sync_bytes{};
+    // Readbacks that sampled the scaled backing directly (no native temporary/blit/copy).
+    std::atomic<u64> fused_readbacks{};
     // Why a render pass was forced native while at least one attachment was scaled.
     std::atomic<u64> native_pass_side_effects{}, native_pass_msaa{}, native_pass_attachment{},
         native_pass_mismatch{};
@@ -26,15 +33,18 @@ struct ScaleCoverageCounters {
     std::atomic<u64> gc_downloads{}, gc_frees{}, gc_pressured_ticks{};
 
     struct Snapshot {
-        u64 draws, scaled_draws, passes, scaled_passes, native_promotions, upscaled_readbacks,
-            scaled_blit_copies, native_pass_side_effects, native_pass_msaa,
+        u64 draws, scaled_draws, passes, scaled_passes, resumed_passes, native_promotions,
+            upscaled_readbacks,
+            scaled_blit_copies, image_buffer_syncs, image_buffer_sync_bytes, fused_readbacks,
+            native_pass_side_effects, native_pass_msaa,
             native_pass_attachment, native_pass_mismatch, gc_downloads, gc_frees,
             gc_pressured_ticks;
     };
     Snapshot Read() const noexcept {
         constexpr auto o = std::memory_order_relaxed;
         return {draws.load(o), scaled_draws.load(o), passes.load(o), scaled_passes.load(o),
-                native_promotions.load(o), upscaled_readbacks.load(o), scaled_blit_copies.load(o),
+                resumed_passes.load(o), native_promotions.load(o), upscaled_readbacks.load(o), scaled_blit_copies.load(o),
+                image_buffer_syncs.load(o), image_buffer_sync_bytes.load(o), fused_readbacks.load(o),
                 native_pass_side_effects.load(o), native_pass_msaa.load(o),
                 native_pass_attachment.load(o), native_pass_mismatch.load(o), gc_downloads.load(o),
                 gc_frees.load(o), gc_pressured_ticks.load(o)};

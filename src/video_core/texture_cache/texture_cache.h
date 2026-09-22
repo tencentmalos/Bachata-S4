@@ -139,7 +139,7 @@ public:
 
     std::shared_ptr<ResourceScalePlan> AcquireScalePlan(const ImageInfo& info, ScaleUse use);
     void RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
-                              bool scaled, bool began_rendering);
+                              bool scaled, bool began_rendering, bool resumed);
     void RecordNativeFallback(ScaleReason reason) {
         ++native_fallbacks[u32(reason)];
         coverage->native_promotions.fetch_add(1, std::memory_order_relaxed);
@@ -154,6 +154,14 @@ public:
         if (causes & NativePassMismatch) coverage->native_pass_mismatch.fetch_add(1, o);
     }
     void RecordUpscaledReadback() { coverage->upscaled_readbacks.fetch_add(1, std::memory_order_relaxed); }
+    void RecordFusedReadback() {
+        coverage->upscaled_readbacks.fetch_add(1, std::memory_order_relaxed);
+        coverage->fused_readbacks.fetch_add(1, std::memory_order_relaxed);
+    }
+    void RecordImageBufferSync(u64 bytes) {
+        coverage->image_buffer_syncs.fetch_add(1, std::memory_order_relaxed);
+        coverage->image_buffer_sync_bytes.fetch_add(bytes, std::memory_order_relaxed);
+    }
     void RecordScaledBlitCopy() { coverage->scaled_blit_copies.fetch_add(1, std::memory_order_relaxed); }
     const std::shared_ptr<ScaleCoverageCounters>& Coverage() const { return coverage; }
 
@@ -361,8 +369,9 @@ private:
     std::array<u64, u32(ScaleReason::Count)> native_fallbacks{};
     // Last logged garbage-collector state (0 idle, 1 pressured, 2 aggressive).
     u32 gc_logged_state{};
-    struct AttachmentCounts { u64 draws{}, passes{}; };
-    // Bounded aggregate by shader, dimensions, reason mask, scale and attachment count.
+    struct AttachmentCounts { u64 draws{}, passes{}, resumed{}; };
+    // Bounded aggregate by shader, dimensions, reason mask, scale and attachment count;
+    // windowed: cleared each time gpu_memory diagnostics are published.
     std::map<std::array<u64, 7>, AttachmentCounts> attachment_groups;
     u64 attachment_group_overflow{};
     u64 idle_asset_evictions{}, idle_asset_retired_bytes{};

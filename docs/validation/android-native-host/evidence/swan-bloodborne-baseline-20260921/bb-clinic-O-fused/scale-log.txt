@@ -1,0 +1,800 @@
+[Render.Vulkan] <Info> (Guest-1) image.cpp:322 Image: Internal scale allocation: 1920x1080 R8G8B8A8Srgb -> 960x540 R8G8B8A8Srgb levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (Guest-1) image.cpp:322 Image: Internal scale allocation: 1920x1080 R8G8B8A8Srgb -> 960x540 R8G8B8A8Srgb levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (Guest-1) image.cpp:322 Image: Internal scale allocation: 1920x1080 R8G8B8A8Srgb -> 960x540 R8G8B8A8Srgb levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x24ebf8000:0x7f8000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243420040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after image_upload 960x540 colors=1 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1024x1024 R8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x313ae2100:0x100000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after image_upload 960x540 colors=1 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37d030 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243410040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x24ebf8000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3c0040 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243430040 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote copy alias (alias) 1x1x1 D16Unorm L:2 M:1 S:1 0x2d1d50000:0x20000 scaled=false gpu_modified=false history=0x101 origin=0 mask=0x10
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote copy alias (alias) 1x1x1 D16Unorm L:1 M:1 S:1 0x2d1d50000:0x10000 scaled=false gpu_modified=true history=0x90 origin=2 mask=0x12
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote copy alias (alias) 1x1x1 D16Unorm L:3 M:1 S:1 0x2d1d50000:0x30000 scaled=false gpu_modified=false history=0x101 origin=0 mask=0x10
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote copy alias (alias) 1x1x1 D16Unorm L:4 M:1 S:1 0x2d1d50000:0x40000 scaled=false gpu_modified=false history=0x101 origin=0 mask=0x10
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote copy alias (alias) 1x1x1 D16Unorm L:5 M:1 S:1 0x2d1d50000:0x50000 scaled=false gpu_modified=false history=0x101 origin=0 mask=0x10
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote copy alias (alias) 1x1x1 D16Unorm L:6 M:1 S:1 0x2d1d50000:0x60000 scaled=false gpu_modified=false history=0x101 origin=0 mask=0x10
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R8G8B8A8Unorm -> 960x540 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R8G8B8A8Unorm -> 960x540 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 960x540 R32Sfloat -> 480x270 R32Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R32Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x269fd0000:0x900000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 960x540 R8G8B8A8Unorm -> 480x270 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R8G8B8A8Unorm -> 960x540 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 4096x4096 D32Sfloat use=1 domain=asset reason=semantic-native mask=0x0 0x27cda0000:0x4000000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 B10G11R11UfloatPack32 -> 960x540 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x26f890000:0x7f8000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R16G16B16A16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x274ae0000:0xff0000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x2732f0000:0x7f8000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R8G8B8A8Srgb use=1 domain=asset reason=insufficient-mips mask=0x0 0x26f090000:0x7f8000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R16G16B16A16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x271310000:0xff0000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 960x540 D32SfloatS8Uint -> 480x270 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 480x270 D32SfloatS8Uint -> 240x135 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 256x256 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f15a00:0x40000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 128x128 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f55b00:0x10000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 960x540 R16G16B16A16Sfloat -> 480x270 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 960x540 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x269b50000:0x240000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:467 ForceNative: Internal scale: promote storage (semantic-native) 2048x2x1 R32Sfloat L:1 M:1 S:1 0x2d326f600:0x10000 scaled=false gpu_modified=false history=0x6 origin=1 mask=0x6
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 960x540 R8G8B8A8Unorm -> 480x270 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 588x221 R16G16B16A16Sfloat -> 294x110 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 588x221 R16G16B16A16Sfloat -> 294x110 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 960x540 R16G16B16A16Sfloat -> 480x270 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1024x1024 Bc7UnormBlock -> 768x768 Astc4x4UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 256x256 Bc1RgbaUnormBlock -> 192x192 Astc6x6UnormBlock levels 9 -> 8 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 512x512 Bc7UnormBlock -> 384x384 Astc4x4UnormBlock levels 10 -> 9 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 128x128 Bc7UnormBlock -> 96x96 Astc4x4UnormBlock levels 8 -> 7 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1024x512 Bc7UnormBlock -> 768x384 Astc4x4UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x272300000:0x7f8000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 512x512 R8G8B8A8Unorm -> 256x256 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 256x256 D32Sfloat -> 128x128 D32Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:333 Image: Internal scale: native allocation 256x256 R16G16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x255080000:0x180000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 512x512 R8G8B8A8Unorm -> 256x256 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1024x1024 Bc7SrgbBlock -> 768x768 Astc4x4SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1024x1024 Bc7SrgbBlock -> 768x768 Astc4x4SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 256x1024 Bc7SrgbBlock -> 192x768 Astc4x4SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 2048x1024 Bc1RgbaSrgbBlock -> 1536x768 Astc6x6SrgbBlock levels 12 -> 11 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1024x1024 Bc1RgbaUnormBlock -> 768x768 Astc6x6UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 128x128 Bc7UnormBlock -> 96x96 Astc4x4UnormBlock levels 8 -> 7 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 512x512 Bc4UnormBlock -> 384x384 Astc6x6UnormBlock levels 10 -> 9 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 256x256 Bc1RgbaSrgbBlock -> 192x192 Astc6x6SrgbBlock levels 9 -> 8 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 1024x1024 Bc1RgbaSrgbBlock -> 768x768 Astc6x6SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 4096x2048 Bc1RgbaUnormBlock -> 3072x1536 Astc6x6UnormBlock levels 13 -> 12 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 2048x1024 Bc4UnormBlock -> 1536x768 Astc6x6UnormBlock levels 12 -> 11 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 2048x1024 Bc1RgbaSrgbBlock -> 1536x768 Astc6x6SrgbBlock levels 12 -> 11 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 4096x2048 Bc1RgbaSrgbBlock -> 3072x1536 Astc6x6SrgbBlock levels 13 -> 12 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 256x256 Bc1RgbaSrgbBlock -> 192x192 Astc6x6SrgbBlock levels 9 -> 8 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:322 Image: Internal scale allocation: 128x128 Bc4UnormBlock -> 96x96 Astc6x6UnormBlock levels 8 -> 7 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243445670 dst=0x24ffe53b0 stride=4 copies=104 bytes=25920
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243400040 dst=0x2e1072ce0 stride=4 copies=98 bytes=24620
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243455670 dst=0x24ffda910 stride=4 copies=89 bytes=22224
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243404030 dst=0x2e126ebd0 stride=4 copies=85 bytes=21320
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243435670 dst=0x24ffe63d0 stride=4 copies=260 bytes=64320
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243402020 dst=0x2e1074e20 stride=4 copies=100 bytes=25300
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243485670 dst=0x24ffed600 stride=4 copies=154 bytes=37392
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243406170 dst=0x2e1067b80 stride=4 copies=178 bytes=45400
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243465670 dst=0x2d23e5a40 stride=4 copies=60 bytes=14016
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434112d0 dst=0x2e1534fa0 stride=4 copies=80 bytes=20300
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243475670 dst=0x2500021e0 stride=4 copies=71 bytes=18096
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243416220 dst=0x2e1284e90 stride=4 copies=64 bytes=16120
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434a74d0 dst=0x2d1ce3b40 stride=4 copies=9 bytes=1792
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2442cc6b0 dst=0x24ffce170 stride=4 copies=20 bytes=4000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 2048x2048 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2442dc6b0 dst=0x24ffc64b0 stride=4 copies=23 bytes=4624
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/1+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/1+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/2+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/2+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/3+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/3+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/4+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/4+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/5+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/5+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2443b0b00 dst=0x24ffc7990 stride=4 copies=43 bytes=9120
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24435cad0 dst=0x24ff60e00 stride=4 copies=1112 bytes=283840
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435dbda0 dst=0x24ffc7990 stride=4 copies=34 bytes=6864
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after buffer_barrier 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435abda0 dst=0x24ffc7990 stride=4 copies=33 bytes=6656
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24357bda0 dst=0x24ffc64b0 stride=4 copies=27 bytes=5328
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435cbda0 dst=0x24ffc7990 stride=4 copies=24 bytes=4688
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24430c6b0 dst=0x24ffc57d0 stride=4 copies=34 bytes=6768
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x271310000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) buffer_cache.cpp:828 SynchronizeBufferFromImage: Internal scale: texel buffer sync from image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x26e890000 request=8355840 guest_size=8355840 scaled=true tiled=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:641 TileImageFromScaled: Internal scale: fused readback 1920x1080 R8G8B8A8Unorm L:1 M:1 0x26e890000 bytes=8355840 pack=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) buffer_cache.cpp:828 SynchronizeBufferFromImage: Internal scale: texel buffer sync from image 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 request=11993088 guest_size=9437184 scaled=true tiled=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break download 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x20 range=full
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:641 TileImageFromScaled: Internal scale: fused readback 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 bytes=9437184 pack=3
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after download 16384x16384 colors=0 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R32Sfloat L:1 M:1 0x277180000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 4096x4096 D32Sfloat L:1 M:1 0x27cda0000 layout DepthAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x277840000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x2773c0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243ebe400 dst=0x24ffc69d0 stride=4 copies=28 bytes=5168
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+6
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after sampled_image 960x540 colors=2 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24355c520 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=2 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24358bda0 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=2 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435bbda0 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 B10G11R11UfloatPack32 L:1 M:1 0x273ae8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x280ea0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24437cbf0 dst=0x24ffae930 stride=4 copies=118 bytes=29856
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x275ad0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24432c6b0 dst=0x2d1ce3b40 stride=4 copies=7 bytes=1568
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 960x540 D32SfloatS8Uint L:1 M:1 0x269820000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 D32SfloatS8Uint L:1 M:1 0x269820000 layout DepthStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434fac10 dst=0x2d1ce3b40 stride=4 copies=6 bytes=1312
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24351b520 dst=0x24ffccef0 stride=4 copies=17 bytes=2736
+[Render.Vulkan] <Info> (shadPS4:GpuComm) buffer_cache.cpp:828 SynchronizeBufferFromImage: Internal scale: texel buffer sync from image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x26ab40000 request=16711680 guest_size=16711680 scaled=true tiled=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:641 TileImageFromScaled: Internal scale: fused readback 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x26ab40000 bytes=16711680 pack=2
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24350b520 dst=0x24ffc5a60 stride=4 copies=19 bytes=3296
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after buffer_upload 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthStencilReadOnlyOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24354b520 dst=0x24ffc7c20 stride=4 copies=24 bytes=4096
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after buffer_upload 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after buffer_barrier 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24353b520 dst=0x2d1ce3b40 stride=4 copies=6 bytes=1104
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24352b520 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24363be90 dst=0x24ffce170 stride=4 copies=29 bytes=6080
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 480x270 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 960x540 D32SfloatS8Uint L:1 M:1 0x269820000 layout DepthStencilAttachmentOptimal->DepthReadOnlyStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 960x540 D32SfloatS8Uint L:1 M:1 0x269820000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x269b50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x269d90000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24360cf00 dst=0x24ffce170 stride=4 copies=23 bytes=4768
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 2048x2 R32Sfloat L:1 M:1 0x2d326f600 layout General->ShaderReadOnlyOptimal access 0x60->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after sampled_image 1920x1080 colors=1 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x263e80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1176x441 R16G16B16A16Sfloat L:1 M:1 0x25a830000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1176x441 R16G16B16A16Sfloat L:1 M:1 0x25aed0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x269b50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x257010000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x258010000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x263e80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x257010000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R16G16B16A16Sfloat L:1 M:1 0x25db30000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 480x270 R16G16B16A16Sfloat L:1 M:1 0x25e450000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 R16G16B16A16Sfloat L:1 M:1 0x2651c0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259b80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259b00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259c80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259c00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 157x133 B10G11R11UfloatPack32 L:1 M:1 0x259d00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 157x133 B10G11R11UfloatPack32 L:1 M:1 0x256fa8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 157x133 B10G11R11UfloatPack32 L:1 M:1 0x2653b8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 79x67 B10G11R11UfloatPack32 L:1 M:1 0x259d68000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 79x67 B10G11R11UfloatPack32 L:1 M:1 0x259d50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 79x67 B10G11R11UfloatPack32 L:1 M:1 0x259d38000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 40x34 B10G11R11UfloatPack32 L:1 M:1 0x259dc8000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 40x34 B10G11R11UfloatPack32 L:1 M:1 0x259dc8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 40x34 B10G11R11UfloatPack32 L:1 M:1 0x259db8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 40x34 B10G11R11UfloatPack32 L:1 M:1 0x2653f0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259e10000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259e10000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259e00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259df0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e50000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e40000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e30000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e90000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e90000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e70000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 158x134 B10G11R11UfloatPack32 L:1 M:1 0x259d80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259eb0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x265338000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 628x530 B10G11R11UfloatPack32 L:1 M:1 0x259910000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after image_copy 960x540 colors=1 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 2048x2 R32Sfloat L:1 M:1 0x2d326f600 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x244befb90 dst=0x2d23affc0 stride=4 copies=34 bytes=8272
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2442ec6b0 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x2508e0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x2508e0000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x2508e0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x250460000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x2506a0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x250460000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x2506a0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2442fc6b0 dst=0x2d1ce3b40 stride=4 copies=10 bytes=1792
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x244bdfb90 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d37cce0 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x244bffb90 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243475670 dst=0x24ffe53b0 stride=4 copies=104 bytes=25920
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243400040 dst=0x2e135d010 stride=4 copies=64 bytes=15920
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243445670 dst=0x24ffdcf20 stride=4 copies=89 bytes=22224
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243401f60 dst=0x2e1284e90 stride=4 copies=99 bytes=24860
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243465670 dst=0x2d29b5fe0 stride=4 copies=39 bytes=9408
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434040a0 dst=0x2e1067b80 stride=4 copies=178 bytes=45400
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243435670 dst=0x250013a90 stride=4 copies=82 bytes=18816
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24340f200 dst=0x2e1072ce0 stride=4 copies=149 bytes=37740
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243455670 dst=0x24ffe63d0 stride=4 copies=182 bytes=45024
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243414150 dst=0x2e1074e20 stride=4 copies=64 bytes=16320
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243485670 dst=0x24ffeaff0 stride=4 copies=242 bytes=60576
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243416130 dst=0x2e126ebd0 stride=4 copies=51 bytes=12820
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243497cd0 dst=0x2d1ce3b40 stride=4 copies=9 bytes=1792
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24365be90 dst=0x24ffd3e20 stride=4 copies=20 bytes=3968
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 2048x2048 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243ebbfd0 dst=0x24ffc64b0 stride=4 copies=23 bytes=4656
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/1+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/1+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/2+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/2+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/3+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/3+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/4+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/4+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/5+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/5+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243e80420 dst=0x24ffc7990 stride=4 copies=43 bytes=9120
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24431cad0 dst=0x24ff60e00 stride=4 copies=1112 bytes=283840
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435ebda0 dst=0x24ffc7990 stride=4 copies=37 bytes=7536
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after buffer_barrier 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24359b520 dst=0x24ffc7990 stride=4 copies=24 bytes=4672
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435dbda0 dst=0x24ffc64b0 stride=4 copies=27 bytes=5328
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2442cc560 dst=0x24ffc7990 stride=4 copies=24 bytes=4688
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=6 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435fbda0 dst=0x24ffc57d0 stride=4 copies=34 bytes=6768
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x271310000 layout TransferDstOptimal->ColorAttachmentOptimal access 0x1000->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) buffer_cache.cpp:828 SynchronizeBufferFromImage: Internal scale: texel buffer sync from image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x26e890000 request=8355840 guest_size=8355840 scaled=true tiled=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:641 TileImageFromScaled: Internal scale: fused readback 1920x1080 R8G8B8A8Unorm L:1 M:1 0x26e890000 bytes=8355840 pack=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) buffer_cache.cpp:828 SynchronizeBufferFromImage: Internal scale: texel buffer sync from image 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 request=11993088 guest_size=9437184 scaled=true tiled=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break download 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x20 range=full
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:641 TileImageFromScaled: Internal scale: fused readback 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 bytes=9437184 pack=3
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after download 16384x16384 colors=0 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R32Sfloat L:1 M:1 0x277180000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 4096x4096 D32Sfloat L:1 M:1 0x27cda0000 layout DepthAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x277840000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x2773c0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243e6e400 dst=0x24ffc69d0 stride=4 copies=28 bytes=5168
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+6
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after sampled_image 960x540 colors=2 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24358c520 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=2 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24357b520 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=2 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435cbda0 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 B10G11R11UfloatPack32 L:1 M:1 0x273ae8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x280ea0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24430cbf0 dst=0x24ffae930 stride=4 copies=118 bytes=29856
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x275ad0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2447bc6b0 dst=0x2d1ce3b40 stride=4 copies=7 bytes=1568
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 D32SfloatS8Uint L:1 M:1 0x269820000 layout DepthStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24356b520 dst=0x2d1ce3b40 stride=4 copies=6 bytes=1312
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434dabc0 dst=0x24ffccef0 stride=4 copies=17 bytes=2736
+[Render.Vulkan] <Info> (shadPS4:GpuComm) buffer_cache.cpp:828 SynchronizeBufferFromImage: Internal scale: texel buffer sync from image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x26ab40000 request=16711680 guest_size=16711680 scaled=true tiled=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:641 TileImageFromScaled: Internal scale: fused readback 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x26ab40000 bytes=16711680 pack=2
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434babc0 dst=0x24ffcd8a0 stride=4 copies=16 bytes=2640
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434cabc0 dst=0x24ffc5a60 stride=4 copies=24 bytes=4096
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthStencilReadOnlyOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthStencilAttachmentOptimal->DepthStencilReadOnlyOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434eabc0 dst=0x24ffc7c20 stride=4 copies=24 bytes=4096
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 960x540 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24355b520 dst=0x2d1ce3b40 stride=4 copies=6 bytes=1104
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2435ab520 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24364be90 dst=0x24ffce170 stride=4 copies=32 bytes=6736
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 480x270 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 960x540 D32SfloatS8Uint L:1 M:1 0x269820000 layout DepthStencilAttachmentOptimal->DepthReadOnlyStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x269b50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x269d90000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2447ae6c0 dst=0x24ffce170 stride=4 copies=20 bytes=4112
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 2048x2 R32Sfloat L:1 M:1 0x2d326f600 layout General->ShaderReadOnlyOptimal access 0x60->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after sampled_image 1920x1080 colors=1 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x263e80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1176x441 R16G16B16A16Sfloat L:1 M:1 0x25a830000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1176x441 R16G16B16A16Sfloat L:1 M:1 0x25aed0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x269b50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x257010000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x258010000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x263e80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R16G16B16A16Sfloat L:1 M:1 0x257010000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R16G16B16A16Sfloat L:1 M:1 0x25db30000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 480x270 R16G16B16A16Sfloat L:1 M:1 0x25e450000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 R16G16B16A16Sfloat L:1 M:1 0x2651c0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259b80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259b00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259c80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259c00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 157x133 B10G11R11UfloatPack32 L:1 M:1 0x259d00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 157x133 B10G11R11UfloatPack32 L:1 M:1 0x256fa8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 157x133 B10G11R11UfloatPack32 L:1 M:1 0x2653b8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 79x67 B10G11R11UfloatPack32 L:1 M:1 0x259d68000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 79x67 B10G11R11UfloatPack32 L:1 M:1 0x259d50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 79x67 B10G11R11UfloatPack32 L:1 M:1 0x259d38000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 40x34 B10G11R11UfloatPack32 L:1 M:1 0x259dc8000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 40x34 B10G11R11UfloatPack32 L:1 M:1 0x259dc8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 40x34 B10G11R11UfloatPack32 L:1 M:1 0x259db8000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 40x34 B10G11R11UfloatPack32 L:1 M:1 0x2653f0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259e10000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259e10000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259e00000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 20x17 B10G11R11UfloatPack32 L:1 M:1 0x259df0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e50000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e50000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e40000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 10x9 B10G11R11UfloatPack32 L:1 M:1 0x259e30000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e90000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e90000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 5x5 B10G11R11UfloatPack32 L:1 M:1 0x259e70000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 158x134 B10G11R11UfloatPack32 L:1 M:1 0x259d80000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x259eb0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 314x265 B10G11R11UfloatPack32 L:1 M:1 0x265338000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 628x530 B10G11R11UfloatPack32 L:1 M:1 0x259910000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after image_copy 960x540 colors=1 depth=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 2048x2 R32Sfloat L:1 M:1 0x2d326f600 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2447ec6b0 dst=0x2d23affc0 stride=4 copies=34 bytes=8272
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24434c6b0 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x2508e0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 R8G8B8A8Unorm L:1 M:1 0x2508e0000 layout ShaderReadOnlyOptimal->ColorAttachmentOptimal access 0x20->0x180 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1920x1080 R8G8B8A8Unorm L:1 M:1 0x2508e0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x250460000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x2506a0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x250460000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 960x540 R8G8B8A8Unorm L:1 M:1 0x2506a0000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2447cc6b0 dst=0x2d1ce3b40 stride=4 copies=10 bytes=1792
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2447dc6b0 dst=0x2d1ce3b40 stride=4 copies=5 bytes=1056
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 1920x1080 D32SfloatS8Uint L:1 M:1 0x24f3f0000 layout DepthReadOnlyStencilAttachmentOptimal->DepthStencilAttachmentOptimal access 0x600->0x600 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24d3bcce0 dst=0x2d1b3bd00 stride=4 copies=1024 bytes=262144
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2447fc6b0 dst=0x2d1c3c1f0 stride=4 copies=1 bytes=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 1025x1 R32Sfloat L:3 M:1 0x2d1b01000 layout ShaderReadOnlyOptimal->General access 0x20->0x60 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243485670 dst=0x24ffe53b0 stride=4 copies=104 bytes=25920
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243400040 dst=0x2e1067b80 stride=4 copies=178 bytes=45400
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243465670 dst=0x24ffda910 stride=4 copies=89 bytes=22224
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24340b1a0 dst=0x2e1074e20 stride=4 copies=112 bytes=28460
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243475670 dst=0x24ffe63d0 stride=4 copies=237 bytes=58848
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434100f0 dst=0x2e126ebd0 stride=4 copies=118 bytes=29720
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243455670 dst=0x2d25ec780 stride=4 copies=37 bytes=8160
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434123e0 dst=0x2e153c1e0 stride=4 copies=66 bytes=16460
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243435670 dst=0x2d25ec840 stride=4 copies=4 bytes=576
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243414520 dst=0x2e1284e90 stride=4 copies=97 bytes=24520
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243445670 dst=0x24ffed600 stride=4 copies=267 bytes=66240
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243418420 dst=0x2e1072ce0 stride=4 copies=34 bytes=8500
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2434fac40 dst=0x2d1ce3b40 stride=4 copies=9 bytes=1792
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x243eabe90 dst=0x24ffd3e20 stride=4 copies=20 bytes=3968
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_scheduler.cpp:87 BeginRendering: Internal scale: pass resume after hle 2048x2048 colors=1 depth=true
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x24431c6b0 dst=0x24ffc64b0 stride=4 copies=23 bytes=4656
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/0+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/1+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/1+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/2+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/2+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/3+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/3+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/4+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/4+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break attachment 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ColorAttachmentOptimal access 0x180->0x180 range=0+1/5+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:709 Transit: Internal scale: pass break sampled_image 256x256 R16G16Sfloat L:6 M:1 0x255080000 layout ColorAttachmentOptimal->ShaderReadOnlyOptimal access 0x180->0x20 range=0+1/5+1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_shader_hle.cpp:53 ExecuteCopyShaderHLE: Internal scale: hle copy src=0x2442d09b0 dst=0x24ffc7990 stride=4 copies=43 bytes=9120

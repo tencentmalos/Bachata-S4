@@ -165,7 +165,11 @@ class FexSessionService : Service() {
                     require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "content is not installed" }
                     val root = File(filesDir, relativePath).canonicalFile
                     val entry = GameInstallVerifier.executableFile(root).canonicalFile
-                    require(entry.toPath().startsWith(root.toPath())) { "entry escapes install directory" }
+                    // Either inside the install directory or the archive it links to in the
+                    // configured ZAR folder; nothing else is opened.
+                    require(GameInstallVerifier.executableAdmitted(root, entry)) {
+                        "entry escapes install directory"
+                    }
                     entry.absolutePath
                 }.getOrElse {
                     Log.e(TAG, "Invalid installed game path", it)

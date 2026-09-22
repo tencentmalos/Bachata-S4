@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/logging/log.h"
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/thread.h"
@@ -72,8 +73,21 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
     if (is_rendering && render_state == new_state) {
         return false;
     }
+    // Same state as the instance that was broken: the guest did not change targets,
+    // the break (and this re-open) is emulator-imposed. Attribute it to that break.
+    const bool resumed = !is_rendering && render_begins != 0 && render_state == new_state;
     EndRendering(RenderBreak::StateChange);
     ++render_begins;
+    last_begin_resumed = resumed;
+    if (resumed) {
+        ++render_resumes[size_t(last_break)];
+        if (TakePassBreakLog())
+            LOG_INFO(Render_Vulkan, "Internal scale: pass resume after {} {}x{} colors={} depth={}",
+                     RenderBreakNames[size_t(last_break)], new_state.width, new_state.height,
+                     new_state.num_color_attachments, new_state.depth_stencil_attachment.has_depth);
+    } else {
+        ++render_natural;
+    }
     is_rendering = true;
     render_state = new_state;
 
@@ -132,6 +146,7 @@ void Scheduler::EndRendering(RenderBreak cause) {
         return;
     }
     ++render_breaks[size_t(cause)];
+    last_break = cause;
     is_rendering = false;
     current_cmdbuf.endRendering();
     gpu_profiler.End(current_cmdbuf, gpu_render_zone);

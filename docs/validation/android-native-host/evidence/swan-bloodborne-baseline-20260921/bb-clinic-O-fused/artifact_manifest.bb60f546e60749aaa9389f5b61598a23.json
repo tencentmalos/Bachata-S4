@@ -1,0 +1,28 @@
+{
+  "Contract": "spatial.artifact-manifest.v1",
+  "ArtifactId": "495441b7cf004661b7304b0c853a15c7",
+  "ArtifactType": "pico-dump-layer",
+  "Producer": "spatial-debug-tool",
+  "ToolVersion": "0.1.0.0",
+  "Provenance": {
+    "TransportSerial": "PB3110PGL6240001G",
+    "StableId": "PB3110PGL6240001G",
+    "BootId": "cc95bb12-7568-4789-9e8b-08d136ef33a0",
+    "Product": "swan",
+    "SessionId": "73fd0a8ad8b445cb81ed7127eb83945c",
+    "OperationId": "bb60f546e60749aaa9389f5b61598a23",
+    "ProductOwner": "spatial-debug-tool"
+  },
+  "StartedAtUtc": "2026-09-22T09:54:26.7738009+00:00",
+  "EndedAtUtc": "2026-09-22T09:54:30.4072263+00:00",
+  "RootPath": "C:\\workspace\\emulations\\shadps4\\build\\validation\\swan-baseline-20260921\\bb-clinic-O-fused",
+  "Files": [
+    {
+      "RelativePath": "dumplayer-O-left.bmp",
+      "SizeBytes": 78962742,
+      "Sha256": "8d0dcac24d31da9db893a9826cc4258bc482f1b3c5fc15fca3813f77249e9610"
+    }
+  ],
+  "Missing": [],
+  "Notes": []
+}

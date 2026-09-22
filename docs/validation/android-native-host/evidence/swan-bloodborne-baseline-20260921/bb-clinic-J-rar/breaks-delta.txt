@@ -1,0 +1,10 @@
+--- t0
+status=sampled sample_ns=285651657927333 render_scale_percent=50 texture_quality=medium legacy=0 attachment_counter_version=2 attachment_draws=1591451 scaled_attachment_draws=1352727 attachment_passes=271751 scaled_attachment_passes=175128 plan_entries=1139 budget_native=0
+render_pass begins=287658 breaks: state_change=28521 dispatch=28318 buffer_barrier=2197 image_barrier=157083 buffer_upload=5059 image_upload=6486 detile=0 image_copy=7324 download=2226 flush=0 cp_sync=0 hle=47762 present=2682 other=0
+guest_flip: 2688 (age_ns=42733802)
+94 %
+--- t1 (+~23 s)
+status=sampled sample_ns=285672669050294 render_scale_percent=50 texture_quality=medium legacy=0 attachment_counter_version=2 attachment_draws=1870378 scaled_attachment_draws=1588644 attachment_passes=318174 scaled_attachment_passes=204160 plan_entries=1139 budget_native=0
+render_pass begins=336454 breaks: state_change=33512 dispatch=33367 buffer_barrier=2571 image_barrier=183602 buffer_upload=6076 image_upload=7608 detile=0 image_copy=8446 download=2600 flush=0 cp_sync=0 hle=55803 present=2869 other=0
+guest_flip: 2897 (age_ns=9243437)
+96 %

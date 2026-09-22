@@ -36,7 +36,7 @@ def main():
             files[rel] = sha(target)
     tools = EV / "tools"
     tools.mkdir(exist_ok=True)
-    for name in ("ab_scale.sh", "reach_clinic.sh", "rc.sh", "watch.sh", "collect_swan.py", "promo_analyze.py", "memwatch.sh"):
+    for name in ("ab_scale.sh", "reach_clinic.sh", "rc.sh", "watch.sh", "collect_swan.py", "promo_analyze.py", "memwatch.sh", "break_delta.py", "readback_analyze.py", "startup_mem.sh", "edit_pass_resume.py", "edit_group_window.py", "edit_readback_diag.py", "edit_fused_readback.py", "edit_wide_block.py", "revert_wide_block.py", "edit_transit_cause.py", "edit_render_break_header.py"):
         src = SCRATCH / name
         if src.exists():
             shutil.copy2(src, tools / name)

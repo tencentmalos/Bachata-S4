@@ -1,0 +1,24 @@
+frames=218 begins/frame=256.2 draw-passes/frame=243.5 scaled=150.5 draws/frame=1490 scaled_draws=1260
+breaks/frame: state_change=26.7  dispatch=27.0  buffer_barrier=1.0  attachment=50.4  sampled_image=93.0  buffer_upload=0.0  image_upload=6.0  image_copy=6.0  download=2.0  hle=43.0  present=1.0
+
+top attachment groups by pass instances/frame (fragment logical scaled att depth reasons : draws passes resumed per frame, passes/draw):
+
+top attachment groups by pass instances/frame (fragment logical scaled att depth reasons : draws passes resumed per frame, passes/draw):
+  1909024152 1920x1080 s=1 att=2 d=1 r=   1 :    66.3   12.2    0.0  0.18
+   450903413     64x64 s=0 att=2 d=1 r=   2 :    84.0   12.0    0.0  0.14
+   258080039     64x64 s=0 att=1 d=0 r=   2 :    12.0   12.0    0.0  1.00
+   258080039     32x32 s=0 att=1 d=0 r=   2 :    12.0   12.0    0.0  1.00
+           0     64x64 s=0 att=1 d=1 r=   2 :    12.0   12.0    0.0  1.00
+           0     32x32 s=0 att=1 d=1 r=   2 :    12.0   12.0    0.0  1.00
+   450903413     32x32 s=0 att=2 d=1 r=   2 :    66.0   11.0    0.0  0.17
+  1339611904 1920x1080 s=1 att=1 d=1 r=   1 :    16.0    8.0    0.0  0.50
+  3138446400 1920x1080 s=1 att=7 d=1 r=   1 :   274.0    6.0    0.0  0.02
+  3132990285 1920x1080 s=1 att=2 d=1 r=   1 :     6.0    6.0    0.0  1.00
+   258080039   256x256 s=1 att=1 d=0 r=   1 :     6.0    6.0    0.0  1.00
+           0   256x256 s=1 att=1 d=1 r=   1 :     6.0    6.0    0.0  1.00
+   450903413   256x256 s=1 att=2 d=1 r=   1 :    42.0    5.1    0.0  0.12
+  3132990285 1920x1080 s=1 att=1 d=0 r=   1 :    13.0    4.0    0.0  0.31
+   473519046 1920x1080 s=1 att=7 d=1 r=   1 :    75.0    2.7    0.0  0.04
+  2699595606 4096x4096 s=1 att=1 d=1 r=   1 :    28.0    2.1    0.0  0.07
+  3915663299 1920x1080 s=1 att=3 d=1 r=   1 :    61.0    2.0    0.0  0.03
+  2720825201 1920x1080 s=1 att=3 d=1 r=   1 :    45.0    2.0    0.0  0.04

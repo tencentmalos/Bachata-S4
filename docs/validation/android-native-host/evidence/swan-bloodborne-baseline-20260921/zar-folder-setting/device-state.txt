@@ -1,0 +1,52 @@
+# ZAR folder setting, Swan PB3110PGL6240001G, 2026-09-22
+apk 36528ab6 host 71b8135e
+
+## device links
+== /data/data/com.shadps4.android/files/games/CUSA03023/
+archive.link
+install.manifest
+sce_sys
+path=/storage/emulated/0/game/ps4/roms/CUSA03023.zar
+bytes=31148441550
+modifiedAtMs=1789877512000
+version=1
+status=INSTALLED
+gameId=CUSA03023
+contentId=
+mode=external-archive
+sourceUri=file:///storage/emulated/0/game/ps4/roms/CUSA03023.zar
+== /data/data/com.shadps4.android/files/games/CUSA12878/
+archive.link
+install.manifest
+sce_sys
+path=/storage/emulated/0/game/ps4/roms/CUSA12878.zar
+bytes=201993063
+modifiedAtMs=1788667068000
+version=1
+status=INSTALLED
+gameId=CUSA12878
+contentId=
+mode=external-archive
+sourceUri=file:///storage/emulated/0/game/ps4/roms/CUSA12878.zar
+== /data/data/com.shadps4.android/files/games/CUSA50828/
+archive.link
+install.manifest
+sce_sys
+path=/storage/emulated/0/game/ps4/roms/CUSA50828.zar
+bytes=1736455004
+modifiedAtMs=1789876513000
+version=1
+status=INSTALLED
+gameId=CUSA50828
+contentId=
+mode=external-archive
+sourceUri=file:///storage/emulated/0/game/ps4/roms/CUSA50828.zar
+
+## roms folder
+total 38839908
+-rw-rw---- 1 u0_a140 media_rw 31148441550 2026-09-20 12:11 CUSA03023.zar
+-rw-rw---- 1 u0_a140 media_rw    71619825 2026-09-06 11:58 CUSA12878-DLC.zar
+-rw-rw---- 1 u0_a140 media_rw  4745107509 2026-09-06 11:58 CUSA12878-UPD.zar
+-rw-rw---- 1 u0_a140 media_rw   201993063 2026-09-06 11:57 CUSA12878.zar
+-rw-rw---- 1 u0_a140 media_rw  1829353619 2026-09-20 11:55 CUSA50828-UPD.zar
+-rw-rw---- 1 u0_a140 media_rw  1736455004 2026-09-20 11:55 CUSA50828.zar
