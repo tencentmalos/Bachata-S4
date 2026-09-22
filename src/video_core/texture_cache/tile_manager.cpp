@@ -197,7 +197,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
         VideoCore::VmaDiagnostics::DestroyBuffer(instance.GetAllocator(), out_buffer, out_allocation);
     });
 
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Detile);
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, GetTilingPipeline(info, false));
@@ -245,6 +245,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
     const u32 texels_per_invocation = info.num_bits == 8 ? 4 : 1;
     const auto dim_x = Common::DivCeil(info.guest_size / (info.num_bits / 8),
                                       64U * texels_per_invocation);
+    Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.dispatch(dim_x, 1, 1);
     return {out_buffer, 0};
 }
@@ -331,6 +332,7 @@ void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buff
     scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, *pl_layout, *desc_layout, set_writes);
 
     const auto dim_x = (info.guest_size / (info.num_bits / 8)) / 64;
+    Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.dispatch(dim_x, 1, 1);
 }
 

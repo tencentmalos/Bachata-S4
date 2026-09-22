@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
+#include <array>
 
 #include <condition_variable>
 #include <mutex>
@@ -380,10 +381,20 @@ public:
 
     /// Starts a new rendering scope with provided state.
     /// Returns true only when a new Vulkan rendering scope was started.
+    // Why a dynamic-rendering instance was ended. Only real breaks (is_rendering)
+    // are counted; StateChange is the natural attachment/area switch, the others
+    // split a guest pass and cost a tile load/store round trip on a tiler.
+    enum class RenderBreak : uint8_t { StateChange, Dispatch, Barrier, BufferUpload, ImageUpload,
+        Detile, ImageCopy, Download, Flush, CpSync, Hle, Present, Other, Count };
+    static constexpr std::array<const char*, size_t(RenderBreak::Count)> RenderBreakNames{
+        "state_change", "dispatch", "barrier", "buffer_upload", "image_upload", "detile",
+        "image_copy", "download", "flush", "cp_sync", "hle", "present", "other"};
+    const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderBreaks() const { return render_breaks; }
+    uint64_t RenderBegins() const { return render_begins; }
     bool BeginRendering(const RenderState& new_state);
 
     /// Ends current rendering scope.
-    void EndRendering();
+    void EndRendering(RenderBreak cause = RenderBreak::Other);
 
     /// Returns the current render state.
     const RenderState& GetRenderState() const {
@@ -478,7 +489,34 @@ private:
     RenderState render_state;
     bool is_rendering = false;
     uint32_t gpu_render_zone = GpuProfiler::Invalid;
+    std::array<uint64_t, size_t(RenderBreak::Count)> render_breaks{};
+    uint64_t render_begins{};
     tracy::VkCtxScope* profiler_scope{};
 };
+
+// Detail-mode GPU zone around one host-issued GPU operation (dispatch, transfer,
+// buffer upload). Records nothing unless gpu_timing detail is on. If the scheduler
+// flushed in between, EndBatch already closed the zone in the old command buffer and
+// the destructor skips the end timestamp instead of writing into the new batch.
+class GpuZoneScope {
+public:
+    GpuZoneScope(Scheduler& scheduler_, GpuProfiler::Stage stage) : scheduler{scheduler_} {
+        if (!Common::Profiler::GpuTimingDetailed()) return;
+        serial = scheduler.GpuProfile().BatchSerial();
+        zone = scheduler.GpuProfile().Begin(scheduler.CommandBuffer(), stage);
+    }
+    ~GpuZoneScope() {
+        if (zone != GpuProfiler::Invalid && scheduler.GpuProfile().BatchSerial() == serial)
+            scheduler.GpuProfile().End(scheduler.CommandBuffer(), zone);
+    }
+    GpuZoneScope(const GpuZoneScope&) = delete;
+    GpuZoneScope& operator=(const GpuZoneScope&) = delete;
+private:
+    Scheduler& scheduler;
+    uint64_t serial{};
+    uint32_t zone{GpuProfiler::Invalid};
+};
+
+using RenderBreak = Scheduler::RenderBreak;
 
 } // namespace Vulkan

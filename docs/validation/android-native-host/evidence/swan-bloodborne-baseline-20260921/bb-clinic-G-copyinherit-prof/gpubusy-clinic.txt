@@ -1,0 +1,22 @@
+t=2 busy=98 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1419076
+t=4 busy=97 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1440320
+t=6 busy=98 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1422580
+t=8 busy=98 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1414672
+t=10 busy=97 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1433776
+t=12 busy=98 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1425972
+t=14 busy=97 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1408268
+t=16 busy=97 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1441868
+t=18 busy=97 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1417200
+t=20 busy=98 % clk=726000000 cpu0=1900800 cpu7=1497600 avail=1413568
+presents_20s=194
+800%cpu 517%user   7%nice 155%sys  86%idle   0%iow  31%irq   3%sirq   0%host
+  TID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ THREAD          PROCESS
+23786 u0_a153      10 -10 408G 1.3G 1.0G R 58.6   8.9   2:55.80 Guest-1         com.shadps4.android
+23830 u0_a153      10 -10 408G 1.3G 1.0G R 51.7   8.9   2:08.08 shadPS4:GpuComm com.shadps4.android
+23864 u0_a153      10 -10 408G 1.3G 1.0G S 20.6   8.9   0:35.60 Guest-20        com.shadps4.android
+23865 u0_a153      10 -10 408G 1.3G 1.0G S 20.6   8.9   0:35.96 Guest-21        com.shadps4.android
+23866 u0_a153      10 -10 408G 1.3G 1.0G S 20.6   8.9   0:35.67 Guest-22        com.shadps4.android
+23867 u0_a153      10 -10 408G 1.3G 1.0G S 20.6   8.9   0:36.45 Guest-23        com.shadps4.android
+23868 u0_a153      10 -10 408G 1.3G 1.0G S 20.6   8.9   0:35.97 Guest-24        com.shadps4.android
+23829 u0_a153      10 -10 408G 1.3G 1.0G S 13.7   8.9   0:38.31 Guest-19        com.shadps4.android
+23825 u0_a153      10 -10 408G 1.3G 1.0G S 10.3   8.9   0:34.15 Guest-16        com.shadps4.android

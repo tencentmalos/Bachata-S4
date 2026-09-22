@@ -489,7 +489,8 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
       texture_cache{rasterizer->GetTextureCache()} {
     const auto& diag = instance.Diagnostics();
-    status_layer = std::make_unique<ImGui::StatusLayer>(diag, instance.GpuTiming(), instance.ScalePolicy());
+    status_layer = std::make_unique<ImGui::StatusLayer>(diag, instance.GpuTiming(), instance.ScalePolicy(),
+                                                        texture_cache.Coverage());
     const u64 generation = diag ? diag->Generation() : 1;
     capture_binding.Bind(generation, static_cast<VkInstance>(instance.GetInstance()),
                          window->GetWindowInfo().render_surface, instance.GetDriverVersionName());
@@ -745,7 +746,7 @@ Frame* Presenter::PrepareLastFrame() {
     }
 
     auto& scheduler = flip_scheduler;
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Present);
     const auto cmdbuf = scheduler.CommandBuffer();
 
     const auto frame_subresources = vk::ImageSubresourceRange{
@@ -823,7 +824,7 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
                  eyes[1].width + 1, eyes[1].height + 1, eyes[1].Pitch(),
                  static_cast<u32>(eyes[1].GetType()), eyes[1].data_format, eyes[1].num_format);
     }
-    draw_scheduler.EndRendering();
+    draw_scheduler.EndRendering(Vulkan::RenderBreak::Present);
     draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
     for (u32 i = 0; i < image_count; ++i) {
         VideoCore::TextureCache::ImageDesc desc{eyes[i], Shader::ImageResource{}};
@@ -937,7 +938,7 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
 
     {
         Common::Profiler::Scope scope{"Prepare.EndRendering"};
-        draw_scheduler.EndRendering();
+        draw_scheduler.EndRendering(Vulkan::RenderBreak::Present);
     }
     draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
     const auto cmdbuf = draw_scheduler.CommandBuffer();
@@ -1051,7 +1052,7 @@ Frame* Presenter::PrepareBlankFrame(bool present_thread) {
         return nullptr;
 
     auto& scheduler = present_thread ? present_scheduler : draw_scheduler;
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Present);
 
     const auto cmdbuf = scheduler.CommandBuffer();
 

@@ -72,7 +72,8 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
     if (is_rendering && render_state == new_state) {
         return false;
     }
-    EndRendering();
+    EndRendering(RenderBreak::StateChange);
+    ++render_begins;
     is_rendering = true;
     render_state = new_state;
 
@@ -126,10 +127,11 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
     return true;
 }
 
-void Scheduler::EndRendering() {
+void Scheduler::EndRendering(RenderBreak cause) {
     if (!is_rendering) {
         return;
     }
+    ++render_breaks[size_t(cause)];
     is_rendering = false;
     current_cmdbuf.endRendering();
     gpu_profiler.End(current_cmdbuf, gpu_render_zone);
@@ -254,7 +256,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
 
     {
         Common::Profiler::Scope scope{"Vulkan.EndCommandBuffer"};
-        EndRendering();
+        EndRendering(RenderBreak::Flush);
         gpu_profiler.EndBatch(current_cmdbuf);
         for (size_t i = 0; i < marker_stack.size(); ++i)
             current_cmdbuf.endDebugUtilsLabelEXT();

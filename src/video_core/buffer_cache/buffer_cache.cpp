@@ -160,7 +160,7 @@ void BufferCache::DownloadBufferMemory(Buffer& buffer, VAddr device_addr, u64 si
         copy.dstOffset += offset;
     }
     download_buffer.Commit();
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Download);
     const auto cmdbuf = scheduler.CommandBuffer();
     // Synchronize prior GPU writes to this buffer before the transfer read
     const vk::BufferMemoryBarrier2 pre_barrier = {
@@ -177,6 +177,7 @@ void BufferCache::DownloadBufferMemory(Buffer& buffer, VAddr device_addr, u64 si
         .bufferMemoryBarrierCount = 1,
         .pBufferMemoryBarriers = &pre_barrier,
     });
+    Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyBuffer(buffer.buffer, download_buffer.Handle(), copies);
     const auto write_data = [&]() {
         auto* memory = Core::Memory::Instance();
@@ -403,13 +404,14 @@ void BufferCache::CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, 
             .size = num_bytes,
         },
     };
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::ImageCopy);
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .dependencyFlags = vk::DependencyFlagBits::eByRegion,
         .bufferMemoryBarrierCount = 2,
         .pBufferMemoryBarriers = buf_barriers_before,
     });
+    Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyBuffer(src_buffer.Handle(), dst_buffer.Handle(), region);
     const vk::BufferMemoryBarrier2 buf_barriers_after[2] = {
         {
@@ -600,7 +602,7 @@ void BufferCache::JoinOverlap(BufferId new_buffer_id, BufferId overlap_id,
         .dstOffset = dst_base_offset,
         .size = overlap.SizeBytes(),
     };
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::ImageCopy);
     const auto cmdbuf = scheduler.CommandBuffer();
 
     boost::container::static_vector<vk::BufferMemoryBarrier2, 2> pre_barriers{};
@@ -619,6 +621,7 @@ void BufferCache::JoinOverlap(BufferId new_buffer_id, BufferId overlap_id,
         .pBufferMemoryBarriers = pre_barriers.data(),
     });
 
+    Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyBuffer(overlap.Handle(), new_buffer.Handle(), copy);
 
     boost::container::static_vector<vk::BufferMemoryBarrier2, 2> post_barriers{};
@@ -753,7 +756,7 @@ bool BufferCache::SynchronizeBuffer(Buffer& buffer, VAddr device_addr, u32 size,
     }
 
     if (src_buffer) {
-        scheduler.EndRendering();
+        scheduler.EndRendering(Vulkan::RenderBreak::BufferUpload);
         const auto cmdbuf = scheduler.CommandBuffer();
         const vk::BufferMemoryBarrier2 pre_barrier = {
             .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
@@ -780,6 +783,7 @@ bool BufferCache::SynchronizeBuffer(Buffer& buffer, VAddr device_addr, u32 size,
             .bufferMemoryBarrierCount = 1,
             .pBufferMemoryBarriers = &pre_barrier,
         });
+        Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::BufferUpload};
         cmdbuf.copyBuffer(src_buffer, buffer.buffer, copies);
         cmdbuf.pipelineBarrier2(vk::DependencyInfo{
             .dependencyFlags = vk::DependencyFlagBits::eByRegion,
@@ -882,7 +886,7 @@ void BufferCache::WriteDataBuffer(Buffer& buffer, VAddr address, const void* val
         VmaDiagnostics::Tag(instance.GetAllocator(), temp_buffer.buffer.allocation, "buffer/upload-temporary", true);
         scheduler.DeferOperation([buffer = std::move(temp_buffer)]() mutable {});
     }
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::BufferUpload);
     const auto cmdbuf = scheduler.CommandBuffer();
     const vk::BufferMemoryBarrier2 pre_barrier = {
         .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
@@ -907,6 +911,7 @@ void BufferCache::WriteDataBuffer(Buffer& buffer, VAddr address, const void* val
         .bufferMemoryBarrierCount = 1,
         .pBufferMemoryBarriers = &pre_barrier,
     });
+    Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::BufferUpload};
     cmdbuf.copyBuffer(src_buffer, buffer.Handle(), copy);
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .dependencyFlags = vk::DependencyFlagBits::eByRegion,

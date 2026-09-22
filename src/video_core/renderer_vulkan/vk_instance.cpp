@@ -107,15 +107,20 @@ static std::unique_lock<std::mutex> AcquireDispatcher() {
 }
 
 static VideoCore::ScalePolicySnapshot CaptureScalePolicy() {
-    const char* legacy = std::getenv("SHADPS4_LEGACY_RESOURCE_SCALE");
-    bool legacy_enabled = legacy && std::string_view(legacy) == "1";
+    const auto flag = [](const char* env, [[maybe_unused]] const char* property) {
+        const char* value = std::getenv(env);
+        bool enabled = value && std::string_view(value) == "1";
 #ifdef __ANDROID__
-    char value[PROP_VALUE_MAX]{};
-    __system_property_get("debug.shadps4.legacy_resource_scale", value);
-    legacy_enabled |= std::string_view(value) == "1";
+        char prop[PROP_VALUE_MAX]{};
+        __system_property_get(property, prop);
+        enabled |= std::string_view(prop) == "1";
 #endif
+        return enabled;
+    };
     return {VideoCore::InternalScale::FromPercent(EmulatorSettings.GetInternalScalePercent()).eighths,
-            static_cast<VideoCore::TextureQuality>(EmulatorSettings.GetTextureQuality()), legacy_enabled};
+            static_cast<VideoCore::TextureQuality>(EmulatorSettings.GetTextureQuality()),
+            flag("SHADPS4_LEGACY_RESOURCE_SCALE", "debug.shadps4.legacy_resource_scale"),
+            flag("SHADPS4_SCALE_SIDE_EFFECT_PASSES", "debug.shadps4.scale_side_effect_passes")};
 }
 
 Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverLease driver_)

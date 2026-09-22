@@ -315,11 +315,15 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativePhase(JNIEnv*, j
 // Keep the loader in the native host DSO; JNI owns neither a second Vulkan
 // dispatcher nor an adrenotools namespace.
 #include "video_core/renderer_vulkan/vk_driver.h"
-extern "C" JNIEXPORT jboolean JNICALL
-Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeUseMainline(JNIEnv*, jobject) {
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeSystemProperty(JNIEnv *env, jobject, jstring name) {
+  const char *chars = name ? env->GetStringUTFChars(name, nullptr) : nullptr;
+  if (!chars)
+    return env->NewStringUTF("");
   char value[PROP_VALUE_MAX]{};
-  __system_property_get("debug.shadps4.vulkan_driver", value);
-  return std::string_view(value) == "turnip-mainline";
+  __system_property_get(chars, value);
+  env->ReleaseStringUTFChars(name, chars);
+  return env->NewStringUTF(value);
 }
 
 extern "C" JNIEXPORT jstring JNICALL

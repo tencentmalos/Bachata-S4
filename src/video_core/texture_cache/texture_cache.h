@@ -19,6 +19,7 @@
 #include "video_core/texture_cache/image.h"
 #include "video_core/texture_cache/image_view.h"
 #include "video_core/texture_cache/sampler.h"
+#include "video_core/texture_cache/scale_coverage.h"
 #include "video_core/texture_cache/tile_manager.h"
 
 namespace AmdGpu {
@@ -139,7 +140,22 @@ public:
     std::shared_ptr<ResourceScalePlan> AcquireScalePlan(const ImageInfo& info, ScaleUse use);
     void RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
                               bool scaled, bool began_rendering);
-    void RecordNativeFallback(ScaleReason reason) { ++native_fallbacks[u32(reason)]; }
+    void RecordNativeFallback(ScaleReason reason) {
+        ++native_fallbacks[u32(reason)];
+        coverage->native_promotions.fetch_add(1, std::memory_order_relaxed);
+    }
+    /// A pass with at least one scaled attachment was forced native; cause bits from
+    /// NativePassCause. Called once per such pass, never on the scaled fast path.
+    void RecordNativePassCause(u32 causes) {
+        constexpr auto o = std::memory_order_relaxed;
+        if (causes & NativePassSideEffects) coverage->native_pass_side_effects.fetch_add(1, o);
+        if (causes & NativePassMsaa) coverage->native_pass_msaa.fetch_add(1, o);
+        if (causes & NativePassAttachment) coverage->native_pass_attachment.fetch_add(1, o);
+        if (causes & NativePassMismatch) coverage->native_pass_mismatch.fetch_add(1, o);
+    }
+    void RecordUpscaledReadback() { coverage->upscaled_readbacks.fetch_add(1, std::memory_order_relaxed); }
+    void RecordScaledBlitCopy() { coverage->scaled_blit_copies.fetch_add(1, std::memory_order_relaxed); }
+    const std::shared_ptr<ScaleCoverageCounters>& Coverage() const { return coverage; }
 
     /// Reuploads image contents.
     void RefreshImage(Image& image);
@@ -340,9 +356,11 @@ private:
     BlitHelper blit_helper;
     TileManager tile_manager;
     ScalePlanTable scale_plans;
-    u64 attachment_draws{}, scaled_attachment_draws{};
-    u64 attachment_passes{}, scaled_attachment_passes{};
+    // Shared with the StatusLayer; producer increments are relaxed atomics.
+    std::shared_ptr<ScaleCoverageCounters> coverage = std::make_shared<ScaleCoverageCounters>();
     std::array<u64, u32(ScaleReason::Count)> native_fallbacks{};
+    // Last logged garbage-collector state (0 idle, 1 pressured, 2 aggressive).
+    u32 gc_logged_state{};
     struct AttachmentCounts { u64 draws{}, passes{}; };
     // Bounded aggregate by shader, dimensions, reason mask, scale and attachment count.
     std::map<std::array<u64, 7>, AttachmentCounts> attachment_groups;

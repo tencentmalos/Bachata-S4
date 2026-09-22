@@ -1,0 +1,131 @@
+{
+  "schema": "litep.evidence.v1",
+  "target_id": "swan-shadps4",
+  "created_utc": "2026-09-21T11:38:09Z",
+  "requested": {
+    "seconds": 20,
+    "kgsl": {
+      "total_mib": 384,
+      "thermal_sample_seconds": 5
+    },
+    "sched": true,
+    "preconditions": [
+      {
+        "counter": "host_present",
+        "min_rate": 2,
+        "max_rate": 15,
+        "hold_seconds": 20,
+        "sample_seconds": 5,
+        "timeout_seconds": 300
+      }
+    ],
+    "properties": null,
+    "screenshots": true,
+    "properties_watchdog_seconds": null
+  },
+  "device": {
+    "serial": "PB3110PGL6240001G",
+    "model": "B3110",
+    "fingerprint": "Pico/swan/swan:16/BQ2A.260122.002-BP2A.250705.008/105:user/test-keys",
+    "android": "16",
+    "sdk": "36",
+    "kernel": "Linux localhost 6.12.58-android16-6-maybe-dirty-4k #1 SMP PREEMPT Mon Sep  7 19:00:20 UTC 2026 aarch64 Toybox",
+    "gpu_model": "Adreno840v2",
+    "boot_id": "cc95bb12-7568-4789-9e8b-08d136ef33a0"
+  },
+  "apk": {
+    "package": "com.shadps4.android",
+    "sha256": "abba940bd7536d2f186fdf51f7059c213be3a7c327e408f7e10cce142edef117",
+    "versionName": "0.1.8",
+    "versionCode": "26081400 minSdk",
+    "lastUpdateTime": "2026-09-19 23:55:54"
+  },
+  "conditions": {
+    "properties_set": {},
+    "properties_previous": {},
+    "properties_restored": {}
+  },
+  "steps": [
+    "device_info",
+    "build_ids",
+    "set_properties",
+    "restore_properties",
+    "stop_session"
+  ],
+  "failed_steps": [
+    {
+      "step": "preconditions",
+      "error": "counter host_present not present in dumpsys output"
+    }
+  ],
+  "files": {},
+  "large_files_not_committed": {},
+  "build_ids": {
+    "apk_path": "/data/app/~~Ig0RY8w7pgZyzHig6_1O0w==/com.shadps4.android-aCpm3ymKFOAfY9IGoHli7A==/base.apk",
+    "apk_sha256": "abba940bd7536d2f186fdf51f7059c213be3a7c327e408f7e10cce142edef117",
+    "apk_bytes": 355402644,
+    "abi": "arm64-v8a",
+    "libraries": {
+      "libandroidx.graphics.path.so": {
+        "build_id": "a7846ae06d6bf6cf63fa7c5e056b5de493c71567",
+        "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "bytes": 10096
+      },
+      "libbachata_pkg.so": {
+        "build_id": "35b8fb00607ab88c84d8994294691c69e0452836",
+        "sha256": "308f82e1caadd52ab70bd2a1d5bc32c37264ee5d59a6e7dc8b114fcd519c7eb4",
+        "bytes": 1116312
+      },
+      "libc\u002B\u002B_shared.so": {
+        "build_id": "ba615e4ff75bc2d8ba1eee93f983e02bc427c433",
+        "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+        "bytes": 9290184
+      },
+      "libdatastore_shared_counter.so": {
+        "build_id": "17db37bd6770ac00dd2d1d2828839fd23a7959a3",
+        "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1",
+        "bytes": 7112
+      },
+      "libfile_redirect_hook.so": {
+        "build_id": "31b43daa856e0baeee442c176b1b68ea6fd4d982",
+        "sha256": "d3956501e1937fb2bef0b9f86a4d070d22c918711e4533a5e953c4a7aea024fb",
+        "bytes": 7128
+      },
+      "libgsl_alloc_hook.so": {
+        "build_id": "c50fe436b75e643a9e848ce59d5ca32848e00ff3",
+        "sha256": "b6f38ccc30973ba4c90c13d489de16982ef9d3347f594d49d0e4e13ce98a983d",
+        "bytes": 8448
+      },
+      "libhook_impl.so": {
+        "build_id": "8a0a2a7284d9e0347e27e21daace73aa43727c96",
+        "sha256": "b58cc472e3d7866af5ffdfe1f4ce59c862fd46805a84afd4fda98ce917e41a0e",
+        "bytes": 151416
+      },
+      "libmain_hook.so": {
+        "build_id": "6708e60b2571b56e95d77971b877d02dcd4571cd",
+        "sha256": "fdd75da175ca042458b191512b5614bb454a7678b103f25087adc8a573af1528",
+        "bytes": 8720
+      },
+      "libshadps4_host.so": {
+        "build_id": "6857f47b8c88be0281a38b99718a1af24793fb13",
+        "sha256": "8c605a85a7061815ef5a840008a80378e67586326aaac7f5560d6ce30738e3a4",
+        "bytes": 477805552
+      },
+      "libshadps4_fex_session.so": {
+        "build_id": "9c6e1170fbe6a51419984fe21f264cc8623c2427",
+        "sha256": "1b134ac66dc5f447d5a413905a09498457d571f7fc149fe69dc135dcc6db8713",
+        "bytes": 35065904
+      }
+    },
+    "versionName": "0.1.8",
+    "versionCode": "26081400 minSdk",
+    "lastUpdateTime": "2026-09-19 23:55:54",
+    "codePath": "/data/app/~~Ig0RY8w7pgZyzHig6_1O0w==/com.shadps4.android-aCpm3ymKFOAfY9IGoHli7A==",
+    "primaryCpuAbi": "arm64-v8a",
+    "roles": {
+      "host": null,
+      "jni": null
+    }
+  },
+  "complete": false
+}

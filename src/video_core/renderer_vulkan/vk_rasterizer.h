@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <unordered_set>
 #include "common/recursive_lock.h"
 #include "common/shared_first_mutex.h"
 #include "core/rasterizer_hooks.h"
@@ -151,6 +152,9 @@ private:
     Pipeline::BufferBarriers buffer_barriers;
     Shader::PushData push_data;
     u32 render_scale_eighths = 8;
+    // Pipelines whose native-pass cause has been logged once; consulted only when a
+    // pass with scaled attachments is being forced native, never on the fast path.
+    std::unordered_set<const GraphicsPipeline*> native_pass_logged;
 
     using BufferBindingInfo = std::tuple<VideoCore::BufferId, AmdGpu::Buffer, u64>;
     boost::container::static_vector<BufferBindingInfo, Shader::NUM_BUFFERS> buffer_bindings;

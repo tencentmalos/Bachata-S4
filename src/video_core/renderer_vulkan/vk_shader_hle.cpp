@@ -45,7 +45,7 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         copies.emplace_back(local_src_offset, local_dst_offset, local_size);
     }
 
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Hle);
 
     static constexpr vk::MemoryBarrier READ_BARRIER{
         .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,

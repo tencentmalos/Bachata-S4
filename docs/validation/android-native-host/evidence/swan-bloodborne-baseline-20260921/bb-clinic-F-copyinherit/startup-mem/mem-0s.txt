@@ -1,0 +1,50 @@
+# t=0s
+VmHWM:	  316232 kB
+VmRSS:	  307892 kB
+RssAnon:	   76928 kB
+RssFile:	  219348 kB
+RssShmem:	   11616 kB
+VmSwap:	   30600 kB
+MemAvailable:    6028452 kB
+SwapFree:       18048060 kB
+# smaps by mapping (kB rss, top 40)
+     83884          0 /apex/com.pico.spatial.runtime_service/priv-app/SpatialRuntimeService@BQ2A.260122.002-BP2A.250705.008/SpatialRuntimeService.apk
+     33232          0 /system/framework/framework.jar
+     27444          0 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/base.apk
+     16980       5204 [anon:dalvik-/data/misc/apexdata/com.android.art/dalvik-cache/boot.art]
+     15284       2656 [anon:scudo:primary]
+      9496          0 /vendor/lib64/libllvm-qgl.so
+      9068       1040 [anon:.bss]
+      8908         36 /apex/com.android.art/lib64/libart.so
+      7332        192 /system/lib64/libhwui.so
+      6992          0 /memfd:jit-cache (deleted)
+      6468       3364 [anon]
+      5776       1080 [anon:scudo:secondary]
+      5452       3084 [anon:dalvik-main space]
+      4660          0 /apex/com.android.art/javalib/core-oj.jar
+      3520          0 [anon:dalvik-LinearAlloc]
+      3120          0 [anon_shmem:dalvik-jit-code-cache]
+      3092          0 [anon:dalvik-CompilerMetadata]
+      3032          0 [anon:mimalloc]
+      2468         36 /vendor/lib64/hw/vulkan.adreno.so
+      2196          0 /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat
+      2180         64 /system/lib64/libandroid_runtime.so
+      1844          0 /system/framework/framework-res.apk
+      1600          0 /apex/com.android.i18n/javalib/core-icu4j.jar
+      1536          0 /dev/ashmem/spatial_image_shm (deleted)
+      1392         44 /apex/com.android.i18n/lib64/libicuuc.so
+      1220          0 /apex/com.android.tethering/javalib/framework-connectivity.jar
+      1208         12 /system/lib64/libspatial_pack_loader_fwk.so
+      1148         56 /system/lib64/libgui.so
+      1132        248 [anon:dalvik-Pre-zygote-LinearAlloc]
+      1048          0 /system/lib64/libsqlite.so
+      1032         40 /system/lib64/libc++.so
+      1000         24 /vendor/lib64/libllvm-glnext.so
+       960          0 /system/lib64/libandroidfw.so
+       948          0 /vendor/lib64/libgsl.so
+       948          0 /system/lib64/libharfbuzz_ng.so
+       880          0 /apex/com.android.runtime/lib64/bionic/libc.so
+       848          8 /vendor/lib64/libc++.so
+       824         28 /system/lib64/libbinder.so
+       824          0 /system/framework/sysmonitor-framework.jar
+       788          0 /vendor/lib64/libadreno_app_profiles.so

@@ -4,6 +4,7 @@
 #include <ranges>
 #include "common/assert.h"
 #include "common/div_ceil.h"
+#include "common/scope_exit.h"
 #include "core/emulator_settings.h"
 #include "video_core/texture_cache/internal_scale.h"
 #include "video_core/memory_diagnostics.h"
@@ -254,7 +255,9 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
             if (std::min(info.size.width, info.size.height) > 64) selected = policy.render_eighths;
             else scale_plan->reason = ScaleReason::SizeProtect;
         } else if (scale_plan->domain == ScaleDomain::Asset) {
-            if (info.props.is_depth) scale_plan->RequireNative(ScaleReason::SemanticNative);
+            // A sampled depth image keeps exact texels while it is only an asset; the
+            // first depth-target use re-plans it with the render scale (ObserveUsage).
+            if (info.props.is_depth) scale_plan->reason = ScaleReason::SemanticNative;
             else if (std::min(info.size.width, info.size.height) < 128) scale_plan->reason = ScaleReason::SizeProtect;
             else if (info.resources.levels < 2) scale_plan->reason = ScaleReason::InsufficientMips;
             else if (policy.texture == TextureQuality::Medium) selected = 6;
@@ -317,6 +320,17 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
                 info.size.width, info.size.height, vk::to_string(info.pixel_format),
                 image_ci.extent.width, image_ci.extent.height, vk::to_string(image_ci.format),
                 info.resources.levels, image_ci.mipLevels, mip_skip ? "mip-drop" : astc_encoded ? "ASTC" : "resample");
+    } else if (policy.render_eighths != 8 && (render || use == ScaleUse::Texture) &&
+               std::min(info.size.width, info.size.height) > 64 && info.num_samples == 1 &&
+               !info.props.is_block && info.resources.levels < 2) {
+        // A native allocation of a probable render target (large, single level,
+        // uncompressed) is the other way an attachment seeds a native pass.
+        static std::atomic<u32> reports{};
+        if (reports.fetch_add(1, std::memory_order_relaxed) < 64)
+            LOG_INFO(Render_Vulkan, "Internal scale: native allocation {}x{} {} use={} domain={} reason={} mask={:#x} {:#x}:{:#x}",
+                info.size.width, info.size.height, vk::to_string(info.pixel_format), u32(use),
+                ScaleDomainName(scale_plan->domain), ScaleReasonName(scale_plan->reason),
+                scale_plan->native_reason_mask, info.guest_address, info.guest_size);
     }
 
     Vulkan::SetObjectName(instance->GetDevice(), GetImage(),
@@ -362,6 +376,7 @@ void Image::BlitBacking(BackingImage& source, BackingImage& dest,
         }
     }
     if (!regions.empty()) {
+        Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
         scheduler->CommandBuffer().blitImage(source.image, vk::ImageLayout::eTransferSrcOptimal,
             dest.image, vk::ImageLayout::eTransferDstOptimal, regions,
             info.props.is_depth ? vk::Filter::eNearest : vk::Filter::eLinear);
@@ -381,9 +396,9 @@ void Image::PublishScalePlan() {
     VmaDiagnostics::Tag(instance->GetAllocator(), backing->image.allocation, category.c_str());
 }
 
-void Image::ReallocateScale(u32 eighths) {
+void Image::ReallocateScale(u32 eighths, bool preserve_contents) {
     if (eighths == scale_eighths && !mip_skip && !astc_encoded) return;
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
     auto ci = backing->image.image_ci;
     const InternalScale scale{eighths};
     ci.extent = vk::Extent3D{scale.Size(info.size.width), scale.Size(info.size.height), info.size.depth};
@@ -400,7 +415,7 @@ void Image::ReallocateScale(u32 eighths) {
     scale_eighths = eighths;
     mip_skip = 0;
     astc_encoded = false;
-    if (!reload && source->state.layout != vk::ImageLayout::eUndefined) {
+    if (!reload && preserve_contents && source->state.layout != vk::ImageLayout::eUndefined) {
         BlitBacking(*source, *backing);
     }
     auto* views = slot_image_views;
@@ -437,6 +452,18 @@ void Image::ForceNative(const char* reason) {
     if (changed) {
         scale_plan->RequireNative(code);
         if (owner) owner->RecordNativeFallback(code);
+        // One-way promotions are rare (tens per session); a bounded log attributes each
+        // native attachment that later seeds a mixed-pass cascade to its first cause.
+        static std::atomic<u32> reports{};
+        if (reports.fetch_add(1, std::memory_order_relaxed) < 256)
+            LOG_INFO(Render_Vulkan,
+                     "Internal scale: promote {} ({}) {}x{}x{} {} L:{} M:{} S:{} {:#x}:{:#x} "
+                     "scaled={} gpu_modified={} history={:#x} origin={} mask={:#x}",
+                     reason, ScaleReasonName(code), info.size.width, info.size.height,
+                     info.size.depth, vk::to_string(info.pixel_format), info.resources.layers,
+                     info.resources.levels, info.num_samples, info.guest_address, info.guest_size,
+                     IsScaled(), True(flags & ImageFlagBits::GpuModified), scale_plan->history,
+                     u32(scale_plan->origin), scale_plan->native_reason_mask);
     }
     if (IsScaled()) ReallocateScale(8);
     else if (changed) PublishScalePlan();
@@ -467,19 +494,29 @@ void Image::ObserveUsage(ScaleUse use) {
     ReallocateScale(eighths);
 }
 
-bool Image::InheritCopyPlan(Image& source) {
+bool Image::InheritCopyPlan(Image& source, bool whole_image) {
     scale_plan->history |= 1u << 8;
     source.scale_plan->history |= 1u << 7;
-    const bool replan = scale_eighths != source.scale_eighths;
     if (scale_plan->domain == ScaleDomain::NativeRequired ||
-        (replan && (scale_plan->sampled ||
-         (scale_plan->origin != ScaleOrigin::Unknown && scale_plan->origin != ScaleOrigin::Copy))) ||
         source.mip_skip || source.astc_encoded || mip_skip || astc_encoded ||
         info.size != source.info.size || info.num_bits != source.info.num_bits ||
         info.props.is_block != source.info.props.is_block || info.type != source.info.type ||
         info.resources.layers != source.info.resources.layers) return false;
     if (source.IsScaled() && info.props.is_block) return false;
-    ReallocateScale(source.scale_eighths);
+    // A whole-image copy replaces every level it covers, so the destination's earlier
+    // sampling/upload/render history does not constrain inheriting a *scaled* plan (a
+    // render target copied into a previously sampled 1-mip texture otherwise promoted
+    // both to native and seeded a mixed-pass cascade). The reverse direction never
+    // re-plans an established scaled destination up to a native source: that would undo
+    // its render transition and ping-pong with the next attachment use. The caller blits
+    // such copies when the formats match, otherwise both sides promote as before.
+    const bool replan = scale_eighths != source.scale_eighths;
+    const bool fresh = scale_plan->origin == ScaleOrigin::Unknown && !scale_plan->sampled;
+    if (replan && !fresh && !source.IsScaled()) return false;
+    // Sub-range copies and levels the copy leaves untouched still carry their contents
+    // across the reallocation.
+    ReallocateScale(source.scale_eighths,
+                    !whole_image || info.resources.levels > source.info.resources.levels);
     scale_plan->domain = source.scale_plan->domain;
     scale_plan->origin = ScaleOrigin::Copy;
     scale_plan->source_generation = source.scale_plan->mapping_generation;
@@ -633,7 +670,7 @@ void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
 
     if (!cmdbuf) {
         // When using external cmdbuf you are responsible for ending rp.
-        scheduler->EndRendering();
+        scheduler->EndRendering(Vulkan::RenderBreak::Barrier);
         cmdbuf = scheduler->CommandBuffer();
     }
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
@@ -725,7 +762,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
 void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer,
                    u64 offset, u64 buffer_size) {
     SetBackingSamples(info.num_samples, false);
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageUpload);
 
     const vk::BufferMemoryBarrier2 pre_barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
@@ -756,6 +793,7 @@ void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk
         .imageMemoryBarrierCount = static_cast<u32>(image_barriers.size()),
         .pImageMemoryBarriers = image_barriers.data(),
     });
+    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyBufferToImage(buffer, GetImage(), vk::ImageLayout::eTransferDstOptimal,
                              upload_copies);
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
@@ -770,9 +808,45 @@ void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk
 
 void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::Buffer buffer,
                      u64 offset, u64 download_size) {
-    ForceNative("guest readback");
+    // A readback keeps the plan's scale. A scaled backing is transferred through a
+    // temporary native-extent copy (linear resample, nearest for depth) so the guest
+    // receives upscaled pixels instead of the identity turning native for the rest
+    // of the session. The copy retires with the scheduler tick like other backings.
+    std::shared_ptr<BackingImage> native_copy;
+    BackingImage* saved_backing = nullptr;
+    if (IsScaled()) {
+        if (mip_skip || astc_encoded) {
+            // Dropped-mip / recompressed assets cannot be blitted back to the guest
+            // layout; they are CPU-reconstructible uploads, so keep the old promotion.
+            ForceNative("guest readback");
+        } else {
+            scheduler->EndRendering(Vulkan::RenderBreak::Download);
+            native_copy = std::make_shared<BackingImage>();
+            native_copy->num_samples = backing->num_samples;
+            auto ci = backing->image.image_ci;
+            ci.extent = vk::Extent3D{info.size.width, info.size.height, info.size.depth};
+            ci.mipLevels = static_cast<u32>(info.resources.levels);
+            ci.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst;
+            native_copy->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
+            native_copy->image.Create(ci);
+            VmaDiagnostics::Tag(instance->GetAllocator(), native_copy->image.allocation,
+                                "image/readback-upscale");
+            BlitBacking(*backing, *native_copy);
+            scale_plan->upscaled_readback = true;
+            if (owner) owner->RecordUpscaledReadback();
+            saved_backing = backing;
+            backing = native_copy.get();
+        }
+    }
+    SCOPE_EXIT {
+        if (saved_backing) {
+            backing = saved_backing;
+            // Destroyed once the GPU has passed this tick; the copy captured by value.
+            scheduler->DeferOperation([native_copy] {});
+        }
+    };
     SetBackingSamples(info.num_samples);
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::Download);
 
     const vk::BufferMemoryBarrier2 pre_barrier = {
         .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
@@ -803,6 +877,7 @@ void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::B
         .imageMemoryBarrierCount = static_cast<u32>(image_barriers.size()),
         .pImageMemoryBarriers = image_barriers.data(),
     });
+    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyImageToBuffer(GetImage(), vk::ImageLayout::eTransferSrcOptimal, buffer,
                              download_copies);
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
@@ -860,7 +935,8 @@ static std::pair<u32, u32> SanitizeCopyLayers(const ImageInfo& src_info, const I
 }
 
 void Image::CopyImage(Image& src_image) {
-    if (!InheritCopyPlan(src_image)) {
+    if (!InheritCopyPlan(src_image, true)) {
+        if (BlitCopy(src_image)) return;
         ForceNative("copy alias");
         src_image.ForceNative("copy alias");
     }
@@ -955,7 +1031,7 @@ void Image::CopyImage(Image& src_image) {
         regions.push_back(region);
     }
 
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
 
     src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
 
@@ -964,6 +1040,7 @@ void Image::CopyImage(Image& src_image) {
     auto cmdbuf = scheduler->CommandBuffer();
 
     if (!regions.empty()) {
+        Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
         cmdbuf.copyImage(src_image.GetImage(), src_image.backing->state.layout, GetImage(),
                          backing->state.layout, regions);
     }
@@ -971,8 +1048,55 @@ void Image::CopyImage(Image& src_image) {
     Transit(vk::ImageLayout::eGeneral,
             vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
 }
+bool Image::BlitCopy(Image& src_image) {
+    const auto& src = src_image.info;
+    if (scale_eighths == src_image.scale_eighths || info.pixel_format != src.pixel_format ||
+        info.size != src.size || info.type != src.type || info.resources.layers != src.resources.layers ||
+        info.num_samples != 1 || src.num_samples != 1 || info.props.is_block || mip_skip || astc_encoded ||
+        src_image.mip_skip || src_image.astc_encoded || ConvertImageType(info.type) != vk::ImageType::e2D)
+        return false;
+    const auto format = backing->image.image_ci.format;
+    if (format != src_image.backing->image.image_ci.format ||
+        !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eBlitSrc | vk::FormatFeatureFlagBits2::eBlitDst))
+        return false;
+    // Same aspect policy as CopyImage: guest depth copies move the depth plane only.
+    const auto aspects = aspect_mask & ~vk::ImageAspectFlagBits::eStencil;
+    if (aspects != (src_image.aspect_mask & ~vk::ImageAspectFlagBits::eStencil)) return false;
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
+    src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
+    Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
+    const u32 num_mips = std::min(src_image.backing->image.image_ci.mipLevels, backing->image.image_ci.mipLevels);
+    boost::container::small_vector<vk::ImageBlit, 8> regions;
+    for (u32 mip = 0; mip < num_mips; ++mip) {
+        const auto s = src_image.HostExtent(mip);
+        const auto d = HostExtent(mip);
+        regions.push_back(vk::ImageBlit{
+            .srcSubresource = {aspects, mip, 0, u32(info.resources.layers)},
+            .srcOffsets = std::array{vk::Offset3D{}, vk::Offset3D{s32(s.width), s32(s.height), 1}},
+            .dstSubresource = {aspects, mip, 0, u32(info.resources.layers)},
+            .dstOffsets = std::array{vk::Offset3D{}, vk::Offset3D{s32(d.width), s32(d.height), 1}},
+        });
+    }
+    // Depth and integer formats cannot be filtered (format_features holds the usage
+    // requirements, not the format's capabilities); everything else resamples linearly.
+    const bool exact = info.props.is_depth ||
+        !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear);
+    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
+    scheduler->CommandBuffer().blitImage(src_image.GetImage(), vk::ImageLayout::eTransferSrcOptimal, GetImage(),
+                                         vk::ImageLayout::eTransferDstOptimal, regions,
+                                         exact ? vk::Filter::eNearest : vk::Filter::eLinear);
+    Transit(vk::ImageLayout::eGeneral,
+            vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
+    ++scale_plan->content_version;
+    scale_plan->history |= 1u << 8;
+    src_image.scale_plan->history |= 1u << 7;
+    if (owner) owner->RecordScaledBlitCopy();
+    return true;
+}
+
 void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset) {
-    if (!InheritCopyPlan(src_image)) {
+    if (!InheritCopyPlan(src_image, true)) {
+        if (BlitCopy(src_image)) return;
         ForceNative("copy alias");
         src_image.ForceNative("copy alias");
     }
@@ -1038,7 +1162,7 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
         .size = VK_WHOLE_SIZE,
     };
 
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
     src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
     Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
 
@@ -1049,6 +1173,7 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
         .pBufferMemoryBarriers = &pre_copy_barrier,
     });
 
+    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyImageToBuffer(src_image.GetImage(), vk::ImageLayout::eTransferSrcOptimal, buffer,
                              buffer_copies);
 
@@ -1104,11 +1229,12 @@ void Image::CopyMip(Image& src_image, u32 mip, u32 slice) {
     SetBackingSamples(info.num_samples);
     src_image.SetBackingSamples(src_info.num_samples);
 
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
     Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
     src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
 
     const auto cmdbuf = scheduler->CommandBuffer();
+    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.copyImage(src_image.GetImage(), src_image.backing->state.layout, GetImage(),
                      backing->state.layout, image_copy);
     Transit(vk::ImageLayout::eGeneral,
@@ -1126,7 +1252,7 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
         src_image.ForceNative("resolve mismatch");
     }
     SetBackingSamples(1, false);
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
 
     src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead,
                       mrt0_range);
@@ -1151,6 +1277,7 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
             .dstOffset = {0, 0, 0},
             .extent = HostExtent(),
         };
+        Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
         scheduler->CommandBuffer().copyImage(src_image.GetImage(),
                                              vk::ImageLayout::eTransferSrcOptimal, GetImage(),
                                              vk::ImageLayout::eTransferDstOptimal, region);
@@ -1190,7 +1317,7 @@ void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::Subresourc
         .baseArrayLayer = range.base.layer,
         .layerCount = range.extent.layers,
     };
-    scheduler->EndRendering();
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
     Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
     const auto cmdbuf = scheduler->CommandBuffer();
     cmdbuf.clearColorImage(GetImage(), vk::ImageLayout::eTransferDstOptimal, clear_value.color,
@@ -1229,7 +1356,7 @@ void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
     }
 
     if (copy_backing) {
-        scheduler->EndRendering();
+        scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
         ASSERT(info.resources.levels == 1 && info.resources.layers == 1);
 
         // Transition current backing to shader read layout

@@ -1,0 +1,60 @@
+{
+  "session": {
+    "Client": "",
+    "session": "active",
+    "generation": "1",
+    "pid": "18100",
+    "phase": "3",
+    "run_uuid": "9233c5f0fcd6630185da50b988638b19",
+    "stage": "Running",
+    "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+    "snapshot_ns": "211864887699335",
+    "guest_flip": "6839 (age_ns=35915312)",
+    "pm4_consumed": "212273791 (age_ns=0)",
+    "host_draw": "6967614 (age_ns=573)",
+    "queue_submit": "27508 (age_ns=37126771)",
+    "gpu_retire": "unavailable",
+    "host_present": "6837 (age_ns=38215052)",
+    "overlay_redraw": "10334 (age_ns=38067500)",
+    "guest_submission": "67305 (age_ns=20047187)"
+  },
+  "pid": 18100,
+  "process_start_ticks": "20713694",
+  "properties": {
+    "debug.shadps4.legacy_resource_scale": "",
+    "debug.shadps4.profile_sync": "",
+    "debug.shadps4.sync_fastpath": "",
+    "debug.shadps4.vulkan_driver": ""
+  },
+  "emulator_status": {
+    "hle_sync status": {
+      "schema": 1,
+      "session": 1,
+      "context": 1,
+      "timestamp_ns": 211864987226679,
+      "enabled": false,
+      "detail": false,
+      "shards": 0,
+      "untracked_calls": 0,
+      "emission_failures": 0,
+      "fast_path": "installed",
+      "semantics": "session cumulative; rolling snapshot; completed inclusive elapsed includes waits, not CPU or critical path; start/stop does not reset; in-flight calls finish in their original sample",
+      "histogram_upper_ns": [
+        1000,
+        10000,
+        100000,
+        1000000,
+        16000000,
+        null
+      ],
+      "operations": []
+    },
+    "gpu_timing status": {
+      "error": "hle_sync sample contains no JSON object"
+    },
+    "gpu_memory status": {
+      "error": "hle_sync sample contains no JSON object"
+    }
+  },
+  "fast_path": "installed"
+}

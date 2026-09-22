@@ -1,0 +1,9 @@
+knob=0
+Status: ok
+Status: ok
+session: pid=14754 stage=Running
+press 1 -> fps~30
+press 2 -> fps~30
+press 3 -> fps~7
+load-wait t=5 fps~4
+/c/Users/Admin/AppData/Local/Temp/claude/C--workspace-emulations-shadps4/eb61724d-810d-4431-a1e0-50dbc27fcf2d/scratchpad/swan/ab_scale.sh: line 44: unavailable: unbound variable

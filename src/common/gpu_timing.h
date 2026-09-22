@@ -10,10 +10,14 @@
 #include <vector>
 
 namespace Common::Profiler {
-enum class GpuStage : uint8_t { DrawBatch, Guest, Prepare, Fsr, PostProcess, Present, Redraw, Flip, GuestFrame, RenderPass, Count };
+// Detail stages (RenderPass and later) exist only while gpu_timing detail is on: guest
+// render passes, guest compute dispatches, host image/copy transfers and per-draw
+// buffer uploads. Batch time minus their union is barrier/wait/unattributed residue.
+enum class GpuStage : uint8_t { DrawBatch, Guest, Prepare, Fsr, PostProcess, Present, Redraw, Flip, GuestFrame, RenderPass, Dispatch, Transfer, BufferUpload, Count };
 inline constexpr std::array<const char*, size_t(GpuStage::Count)> GpuNames{
     "GPU.DrawBatch", "GPU.GuestCommands", "GPU.HostPrepare", "GPU.FSR", "GPU.PostProcess",
-    "GPU.Present", "GPU.OverlayRedraw", "GPU.BlankFlip", "GPU.GuestFrame", "GPU.GuestRenderPass"};
+    "GPU.Present", "GPU.OverlayRedraw", "GPU.BlankFlip", "GPU.GuestFrame", "GPU.GuestRenderPass",
+    "GPU.GuestDispatch", "GPU.HostTransfer", "GPU.BufferUpload"};
 // Elapsed device-clock interval, not GPU utilization. Reject ambiguous half-wraps.
 inline std::optional<double> GpuElapsedNs(uint64_t begin, uint64_t end, uint8_t bits, double period) {
     if (!bits || bits > 64 || !std::isfinite(period) || period <= 0) return {};

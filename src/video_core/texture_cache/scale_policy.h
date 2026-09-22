@@ -21,6 +21,11 @@ struct ScalePolicySnapshot {
     u32 render_eighths = 8;
     TextureQuality texture = TextureQuality::High;
     bool legacy = false; // Diagnostic comparison only; never a public preset.
+    // Diagnostic A/B knob (debug.shadps4.scale_side_effect_passes=1): a fragment shader
+    // that writes storage *buffers* no longer forces the whole pass native. Storage
+    // image writes, MSAA and native attachments still do. Fragment-count-dependent
+    // buffer contents then differ from native; that is the measured trade-off.
+    bool scale_side_effect_passes = false;
     bool ShaderMapping() const {
         return render_eighths != 8 || texture != TextureQuality::High;
     }

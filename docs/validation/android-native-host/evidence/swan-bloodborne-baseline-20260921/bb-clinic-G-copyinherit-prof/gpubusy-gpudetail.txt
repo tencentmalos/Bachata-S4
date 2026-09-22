@@ -1,0 +1,11 @@
+t=2 busy=97 % clk=726000000 avail=1097028
+t=4 busy=97 % clk=726000000 avail=1091640
+t=6 busy=97 % clk=726000000 avail=1145956
+t=8 busy=98 % clk=726000000 avail=1123112
+t=10 busy=98 % clk=726000000 avail=1117992
+t=12 busy=98 % clk=726000000 avail=1105156
+t=14 busy=98 % clk=726000000 avail=1096352
+t=16 busy=98 % clk=726000000 avail=1086552
+t=18 busy=98 % clk=726000000 avail=1100684
+t=20 busy=98 % clk=726000000 avail=1107380
+presents_20s=189
