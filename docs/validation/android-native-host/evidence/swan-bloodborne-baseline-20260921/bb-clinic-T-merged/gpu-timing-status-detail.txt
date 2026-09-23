@@ -1,0 +1,35 @@
+SERVICE com.shadps4.android/.service.FexSessionService c577747 pid=26213 user=0
+  Client:
+    gpu_timing: enabled
+    detailed: 1
+    requested: 1
+    ring_enabled: 1
+    coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+    generation: 1
+    supported: 1
+    calibrated: 0
+    estimated_alignment: 1
+    calibration_deviation_ns: 34816693
+    timestamp_valid_bits: 48
+    timestamp_period_ns: 52.0833
+    retired_batches: 2536
+    pending: 4
+    dropped_batches: 0
+    dropped_zones: 0
+    discarded: 14
+    errors: 0
+    GPU.DrawBatch: count=913 last_ms=0.003125 total_ms=28861.7 max_ms=75.8912 observed_ns=53206979907411
+    GPU.GuestCommands: count=913 last_ms=0.00104167 total_ms=28598.1 max_ms=71.2583 observed_ns=53206979907411
+    GPU.HostPrepare: count=455 last_ms=0.385365 total_ms=254.618 max_ms=7.07234 observed_ns=53206979874181
+    GPU.FSR: count=455 last_ms=0.00104167 total_ms=2.0587 max_ms=1.58599 observed_ns=53206979874181
+    GPU.PostProcess: count=455 last_ms=0.381198 total_ms=251.123 max_ms=6.71062 observed_ns=53206979874181
+    GPU.Present: count=459 last_ms=1.40812 total_ms=1072.1 max_ms=8.31167 observed_ns=53207061768609
+    GPU.OverlayRedraw: count=576 last_ms=7.72 total_ms=1003.78 max_ms=7.94474 observed_ns=53207061772827
+    GPU.BlankFlip: count=574 last_ms=0.00104167 total_ms=0.60026 max_ms=0.00109375 observed_ns=53207060463661
+    GPU.GuestFrame: count=452 last_ms=66.0992 total_ms=28418.1 max_ms=71.2593 observed_ns=53206979874181
+    GPU.GuestRenderPass: count=117464 last_ms=0.0820312 total_ms=19326.9 max_ms=8.46766 observed_ns=53206979874181
+    GPU.GuestDispatch: count=35510 last_ms=0.00473958 total_ms=1551.86 max_ms=7.19354 observed_ns=53206979874181
+    GPU.HostTransfer: count=15015 last_ms=0.0644792 total_ms=1256.01 max_ms=7.30599 observed_ns=53206979874181
+    GPU.BufferUpload: count=11569 last_ms=0.00390625 total_ms=208.529 max_ms=6.90443 observed_ns=53206979874181
+    GPU.HostReadback: count=2275 last_ms=0.251875 total_ms=3858.85 max_ms=8.05339 observed_ns=53206979874181
+

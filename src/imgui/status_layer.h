@@ -37,6 +37,10 @@ private:
     // them rendered at the scaled resolution; shown as fractions, not percentages.
     uint64_t window_draws{}, window_scaled_draws{}, window_passes{}, window_scaled_passes{};
     uint64_t window_resumed_passes{}, window_promotions{}, window_readbacks{};
+    // Same window: texture re-uploads (count, guest bytes), compute fills turned into
+    // image clears, and guest flips to express both per frame.
+    uint64_t window_uploads{}, window_upload_bytes{}, window_fill_clears{}, window_flips{};
+    double window_seconds{};
     bool coverage_sampled{};
     uint64_t sample_ns{}, last_flips{}, last_draws{};
     double guest_flip_fps{}, draws_per_second{};

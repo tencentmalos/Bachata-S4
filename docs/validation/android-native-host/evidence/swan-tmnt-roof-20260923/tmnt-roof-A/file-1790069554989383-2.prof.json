@@ -1,0 +1,16 @@
+{
+  "capture_complete": true,
+  "capture_error": "",
+  "capture_id": 2,
+  "gpu_cpu_alignment": "unknown",
+  "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+  "max_mib": 64,
+  "max_seconds": 20,
+  "mode": "file",
+  "process": "shadPS4",
+  "process_id": 31682,
+  "schema": "foundation.profiler-capture.v1",
+  "sdk_revision": "e00321ea40c4c608aff74a787200bc59493eea19",
+  "streaming_backpressure_timeout_ns": 0,
+  "wire_layout": "PROF-v3-track-id"
+}

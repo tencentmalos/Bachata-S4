@@ -111,6 +111,13 @@ private:
                      Shader::PushData& push_data);
     void BindTextures(const Shader::Info& stage, Shader::Backend::Bindings& binding);
     bool BindResources(const Pipeline* pipeline);
+    // Replaces a known pattern-fill compute kernel (Gnmx-style clear) by image clears
+    // when it fills whole cached images with a uniform texel. True when the dispatch is done.
+    bool TryComputeImageFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
+    // Upload diagnostics only (called while armed): logs dispatches that write a formatted
+    // storage buffer starting at a cached image, with every buffer binding's range and head.
+    void NoteDispatchDiagnostics(const Shader::Info& cs, const AmdGpu::ComputeProgram& program,
+                                 bool indirect);
     void RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering);
 
     void ResetBindings() {

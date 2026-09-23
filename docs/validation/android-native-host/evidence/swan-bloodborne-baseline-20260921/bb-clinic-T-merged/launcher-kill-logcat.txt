@@ -1,0 +1,114 @@
+09-22 16:39:19.644  1466  1466 I KERNEL  : [53004.521194] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:19.703  1466  1466 I KERNEL  : [53004.580074] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:19.762  1466  1466 I KERNEL  : [53004.639603] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:19.822  1466  1466 I KERNEL  : [53004.699195] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:19.882  1466  1466 I KERNEL  : [53004.758743] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:19.941  1466  1466 I KERNEL  : [53004.818411] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:20.001  1466  1466 I KERNEL  : [53004.877912] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:20.060  1466  1466 I KERNEL  : [53004.937481] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:20.120  1466  1466 I KERNEL  : [53004.997056] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:20.179  1466  1466 I KERNEL  : [53005.056619] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:20.246 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned true
+09-22 16:39:20.239  1466  1466 I KERNEL  : [53005.116257] T1466] [08:39:19](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.299  1466  1466 I KERNEL  : [53005.175778] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.362  1466  1466 I KERNEL  : [53005.239160] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.420  1466  1466 I KERNEL  : [53005.296946] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.479  1466  1466 I KERNEL  : [53005.356519] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.539  1466  1466 I KERNEL  : [53005.416256] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.598  1466  1466 I KERNEL  : [53005.475680] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.666 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned false
+09-22 16:39:20.658  1466  1466 I KERNEL  : [53005.535555] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.718  1466  1466 I KERNEL  : [53005.594859] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.777  1466  1466 I KERNEL  : [53005.654421] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.837  1466  1466 I KERNEL  : [53005.713979] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:20.898  1466  1466 I KERNEL  : [53005.775605] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:20.958  1466  1466 I KERNEL  : [53005.835128] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.017  1466  1466 I KERNEL  : [53005.894705] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.077  1466  1466 I KERNEL  : [53005.954269] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.139  1466  1466 I KERNEL  : [53006.015854] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.218 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned true
+09-22 16:39:21.198  1466  1466 I KERNEL  : [53006.075442] T1466] [08:39:20](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.258  1466  1466 I KERNEL  : [53006.134994] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.318  1466  1466 I KERNEL  : [53006.194862] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.378  1466  1466 I KERNEL  : [53006.255219] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.437  1466  1466 I KERNEL  : [53006.314716] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.497  1466  1466 I KERNEL  : [53006.374332] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.557  1466  1466 I KERNEL  : [53006.433875] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.616  1466  1466 I KERNEL  : [53006.493455] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.676  1466  1466 I KERNEL  : [53006.553065] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:21.735  1466  1466 I KERNEL  : [53006.612638] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.795  1466  1466 I KERNEL  : [53006.672191] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.855  1466  1466 I KERNEL  : [53006.731807] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.914  1466  1466 I KERNEL  : [53006.791380] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:21.974  1466  1466 I KERNEL  : [53006.850937] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:22.034  1466  1466 I KERNEL  : [53006.911503] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:22.094  1466  1466 I KERNEL  : [53006.971020] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:22.153  1466  1466 I KERNEL  : [53007.030436] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:22.213  1466  1466 I KERNEL  : [53007.089992] T1466] [08:39:21](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:22.272  1466  1466 I KERNEL  : [53007.148851] T1466] [08:39:22](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1167] HMD Psensor report near
+09-22 16:39:25.759  3878  4203 I ActivityManager: Process com.pico.spatial.spatialavatarservice:spatial_avatar_service (pid 29613) has died: svcb SVC 
+09-22 16:39:25.766  3878  5022 I ActivityManager: Process com.pico.spatial.spatialavatarservice:hyper_avatar_asset_service (pid 32039) has died: svc SVC 
+09-22 16:39:25.796  3878  5023 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:25.857  3878  5023 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.067  3878  5023 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.138  3878  7808 I ActivityManager: Process com.pico.assistant (pid 29737) has died: prcp FGS 
+09-22 16:39:26.189  3878  4517 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.267  3878  6945 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.322  3878  7478 I ActivityManager: Process com.bytedance.pico.inputmethod (pid 29757) has died: prcp IMPB
+09-22 16:39:26.367  3878  6945 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.445  3878  7752 I ActivityManager: Process com.picovr.firmwareupdate (pid 29782) has died: prcp FGS 
+09-22 16:39:26.469  3878  4203 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.516  3878  7478 I ActivityManager: Process com.picovr.updatesystem (pid 29765) has died: prcp FGS 
+09-22 16:39:26.557  3878  7752 I ActivityManager: Process com.pvr.picocast:sink (pid 29820) has died: vis+49 IMPB
+09-22 16:39:26.564  3878  7478 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.580  3878  5022 I ActivityManager: Process com.picoxr.launcher (pid 25160) has died: vis+2 TOP 
+09-22 16:39:26.601  3878  5022 W ActivityTaskManager: Force removing ActivityRecord{63982378 u0 com.picoxr.launcher/.MainActivity t69}: app died, no saved state
+09-22 16:39:26.628  3878  5022 I ContainerManager: onTaskCreated: Task{20b4e4f #72 type=home}, startActivity: ActivityRecord{162460969 u0 com.picoxr.launcher/.MainActivity t-1}, existContainer: null, com.android.server.wm.SpaceTaskImpl.onTaskCreated:148 com.android.server.wm.SpaceTaskDisplayAreaImpl.getOrCreateRootTaskExt:75 com.android.server.wm.TaskDisplayArea.getOrCreateRootTask:945 com.android
+09-22 16:39:26.663  3878  5022 I ContainerManager: onTaskCreated: Task{20b4e4f #72 type=home}, startActivity: ActivityRecord{162460969 u0 com.picoxr.launcher/.MainActivity t-1}, existContainer: id=38, pkg=com.picoxr.launcher, name=Launcher, v=false, f=false, t=stage, c=home, life=create, size(2560, 1440, 1280), entityId=11383110738379813, contentId=11383110738379812, useSystemEnvironment=false, us
+09-22 16:39:26.673  3878  4932 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.707  3878  7466 I ActivityManager: Process com.picovr.mdm (pid 20962) has died: vis FGS 
+09-22 16:39:26.726  3878  7706 I ActivityManager: Process com.pvr.picocast (pid 29802) has died: vis+49 IMPB
+09-22 16:39:26.752  3878  7723 I ResManagerKillPolicy: onPolicyDemand multiWindowLmkdHook
+09-22 16:39:26.755  3878  5023 I ActivityManager: Process com.picovr.picostreamassistant:deviceservice (pid 20619) has died: vis FGS 
+09-22 16:39:26.862 28628 28628 I LifeCycle: dispatch container create, info: Info{id=38, pkg=com.picoxr.launcher, name=Launcher, visible=false, focus=false, type=stage, cat=home, life=create, size(2560, 1440, 1280), min size(640, 360, 1280), max size(5400, 3600, 1280), density=320, entityId=11383110738379813, contentId=11383110738379812, stageStyle=1, immersion=50, immersion range[0, 100], brightn
+09-22 16:39:26.890 28628 28628 I LifeCycle: dispatch container foreground, info: Info{id=38, pkg=com.picoxr.launcher, name=Launcher, visible=false, focus=false, type=stage, cat=home, life=foreground, size(2560, 1440, 1280), min size(640, 360, 1280), max size(5400, 3600, 1280), density=320, entityId=11383110738379813, contentId=11383110738379812, stageStyle=1, immersion=50, immersion range[0, 100],
+09-22 16:39:26.913  3878  5023 I ActivityManager: Process android.ext.services (pid 20992) has died: vis BFGS
+09-22 16:39:26.982  3878  4333 I SmartService: [FEAT_MONITOR_KTOP][10] get running thread:[97  kswapd0  1096  97  0  kswapd0  1852  0.591792656587473, 3657  tail  934  3657  0  tail  1852  0.5043196544276458, 31774  shadPS4:GpuComm  636  26213  10152  shadps4.android  1852  0.3434125269978402]
+09-22 16:39:26.982  3878  4333 I SwTeardownKtop: [FEAT_POWER_TEARDOWN][0] fill ktop0, pid: 97, proc: kswapd0, thread: kswapd0, load: 59.179265658747305
+09-22 16:39:27.011 26213 26213 I LifeCycle: dispatch container info changed, 37, com.shadps4.android, Changed info: , focus false
+09-22 16:39:27.014  3878  7648 I ActivityManager: Process com.picovr.picostreamassistant (pid 20451) has died: pers PER 
+09-22 16:39:27.024 28628 28628 I LifeCycle: dispatch container info changed, 38, com.picoxr.launcher, Changed info: , focus true
+09-22 16:39:27.110 28628 28628 I LifeCycle: dispatch container info changed, 38, com.picoxr.launcher, Changed info: , immersion (59, min 0, max 100)
+09-22 16:39:27.132 28628 28628 I LifeCycle: dispatch container info changed, 38, com.picoxr.launcher, Changed info: , immersion (59, min 0, max 100)
+09-22 16:39:28.901  3878  3690 I ActivityManager:   ntv   ??    2542: lmkd (pid 1195) native
+09-22 16:39:31.758 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned false
+09-22 16:39:32.212 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned true
+09-22 16:39:32.642 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned false
+09-22 16:39:32.864 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned true
+09-22 16:39:33.351  1466  1466 I KERNEL  : [53018.228372] T1466] [08:39:32](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.411  1466  1466 I KERNEL  : [53018.287751] T1466] [08:39:32](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.471  1466  1466 I KERNEL  : [53018.348355] T1466] [08:39:32](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.531  1466  1466 I KERNEL  : [53018.407947] T1466] [08:39:32](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.589  1466  1466 I KERNEL  : [53018.465772] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.648  1466  1466 I KERNEL  : [53018.525354] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.708  1466  1466 I KERNEL  : [53018.584961] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.767  1466  1466 I KERNEL  : [53018.644560] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.827  1466  1466 I KERNEL  : [53018.704122] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.886  1466  1466 I KERNEL  : [53018.763715] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:33.946  1466  1466 I KERNEL  : [53018.823337] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.006  1466  1466 I KERNEL  : [53018.882844] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.065  1466  1466 I KERNEL  : [53018.942499] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.125  1466  1466 I KERNEL  : [53019.002027] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.184  1466  1466 I KERNEL  : [53019.061586] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.197 25739 25739 I LifeCycle: dispatch container info changed, 20, com.picoxr.systemui, Changed info: , onSigned false
+09-22 16:39:34.244  1466  1466 I KERNEL  : [53019.121165] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.304  1466  1466 I KERNEL  : [53019.180789] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.363  1466  1466 I KERNEL  : [53019.240346] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.423  1466  1466 I KERNEL  : [53019.299924] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:34.482  1466  1466 I KERNEL  : [53019.359538] T1466] [08:39:33](6)[1466|sta_host_rx][STA_HOST] INFO:sta_host_handle_psensor_data[1173] HMD Psensor report far
+09-22 16:39:35.204  3878  7749 I ActivityManager: Process com.pico.spatial.spatialavatarservice:hyper_avatar_asset_service (pid 3701) has died: svcb SVC 
+09-22 16:39:35.214  4613  4613 E KERNEL  : [53020.091170] T4613] [08:39:34](1)[4613|lmkd][HYPERHOLD]LRU write zram begin, memcg[id=12, name=10152]:
+09-22 16:39:35.216  3878  4833 I ActivityManager: Process com.pico.spatial.spatialavatarservice:spatial_avatar_service (pid 3693) has died: svc SVC 
+09-22 16:39:37.061  3878  4333 I SmartService: [FEAT_MONITOR_KTOP][10] get running thread:[4613  lmkd  1488  1195  1069  lmkd  1698  0.8763250883392226, 97  kswapd0  1418  97  0  kswapd0  1698  0.8351001177856302, 25861  Spatial_Main  565  25622  1000  spatial.runtime  1698  0.3327444051825677]
+09-22 16:39:37.061  3878  4333 I SwTeardownKtop: [FEAT_POWER_TEARDOWN][0] fill ktop0, pid: 1195, proc: lmkd, thread: lmkd, load: 87.63250883392226
+09-22 16:39:37.061  3878  4333 I SwTeardownKtop: [FEAT_POWER_TEARDOWN][0] fill ktop1, pid: 97, proc: kswapd0, thread: kswapd0, load: 83.51001177856303

@@ -1,0 +1,2 @@
+cpuset=/top-app
+  mFocusedApp=ActivityRecord{116036134 u0 com.shadps4.android/.MainActivity t93}

@@ -1,0 +1,117 @@
+		...
+       8: 021b9a8d     	<unknown>
+       c: 00000001     	udf	#0x1
+      10: ffffffd4     	<unknown>
+      14: ffffffff     	<unknown>
+      18: fac5d124     	<unknown>
+      1c: 00000074     	udf	#0x74
+      20: 000000b0     	udf	#0xb0
+      24: 00000000     	udf	#0x0
+      28: 021b995a     	<unknown>
+      2c: 00000001     	udf	#0x1
+      30: 0000000d     	udf	#0xd
+      34: 00000000     	udf	#0x0
+      38: 00000003     	udf	#0x3
+      3c: 00000028     	udf	#0x28
+		...
+      48: 03800180     	<unknown>
+      4c: 00000062     	udf	#0x62
+      50: 00000058     	udf	#0x58
+      54: 10ffffe0     	adr	x0, 0x50 <_binary_jit_64905ace00_bin_start+0x50>
+      58: f9000380     	str	x0, [x28]
+      5c: f91f639f     	str	xzr, [x28, #0x3ec0]
+      60: 9a9f37f4     	cset	x20, hs
+      64: 7100061a     	subs	w26, w16, #0x1
+      68: ba1f8682     	rmif	x20, #0x3f, #0x2
+      6c: aa1003fb     	mov	x27, x16
+      70: aa1a03f0     	mov	x16, x26
+      74: 1400001c     	b	0xe4 <_binary_jit_64905ace00_bin_start+0xe4>
+      78: 14000002     	b	0x80 <_binary_jit_64905ace00_bin_start+0x80>
+      7c: d61f0000     	br	x0
+      80: 58000100     	ldr	x0, 0xa0 <_binary_jit_64905ace00_bin_start+0xa0>
+      84: d63f0000     	blr	x0
+		...
+      90: 021b99b0     	<unknown>
+      94: 00000001     	udf	#0x1
+      98: fffffffc     	<unknown>
+      9c: ffffffff     	<unknown>
+      a0: fac5d124     	<unknown>
+      a4: 00000074     	udf	#0x74
+      a8: 00000090     	udf	#0x90
+      ac: 00000000     	udf	#0x0
+      b0: 021b9967     	<unknown>
+      b4: 00000001     	udf	#0x1
+      b8: 00000005     	udf	#0x5
+      bc: 00000000     	udf	#0x0
+      c0: 00000002     	udf	#0x2
+      c4: 00000028     	udf	#0x28
+		...
+      d0: 00270180     	<unknown>
+		...
+      e0: 00000088     	udf	#0x88
+      e4: 10ffffe0     	adr	x0, 0xe0 <_binary_jit_64905ace00_bin_start+0xe0>
+      e8: f9000380     	str	x0, [x28]
+      ec: f91f639f     	str	xzr, [x28, #0x3ec0]
+      f0: 994003b4     	ldapur	w20, [x29]
+      f4: d503201f     	nop
+      f8: ca14021b     	eor	x27, x16, x20
+      fc: 6b14021a     	subs	w26, w16, w20
+     100: 5400004d     	b.le	0x108 <_binary_jit_64905ace00_bin_start+0x108>
+     104: 14000028     	b	0x1a4 <_binary_jit_64905ace00_bin_start+0x1a4>
+     108: 1400a223     	b	0x28994 <_binary_jit_64905ace00_bin_end+0x28794>
+     10c: 00000000     	udf	#0x0
+     110: 14000002     	b	0x118 <_binary_jit_64905ace00_bin_start+0x118>
+     114: d61f0000     	br	x0
+     118: 58000240     	ldr	x0, 0x160 <_binary_jit_64905ace00_bin_start+0x160>
+     11c: d63f0000     	blr	x0
+		...
+     128: 021b99b9     	<unknown>
+     12c: 00000001     	udf	#0x1
+     130: fffffff4     	<unknown>
+     134: ffffffff     	<unknown>
+     138: 14000002     	b	0x140 <_binary_jit_64905ace00_bin_start+0x140>
+     13c: d61f0000     	br	x0
+     140: 58000100     	ldr	x0, 0x160 <_binary_jit_64905ace00_bin_start+0x160>
+     144: d63f0000     	blr	x0
+		...
+     150: 021b9a50     	<unknown>
+     154: 00000001     	udf	#0x1
+     158: ffffffd0     	<unknown>
+     15c: ffffffff     	<unknown>
+     160: fac5d124     	<unknown>
+     164: 00000074     	udf	#0x74
+     168: 000000c0     	udf	#0xc0
+     16c: 00000000     	udf	#0x0
+     170: 021b99b0     	<unknown>
+     174: 00000001     	udf	#0x1
+     178: 00000009     	udf	#0x9
+     17c: 00000000     	udf	#0x0
+     180: 00000003     	udf	#0x3
+     184: 00000028     	udf	#0x28
+		...
+     190: 03800180     	<unknown>
+     194: 00000023     	udf	#0x23
+		...
+     1a0: 00000098     	udf	#0x98
+     1a4: 10ffffe0     	adr	x0, 0x1a0 <_binary_jit_64905ace00_bin_start+0x1a0>
+     1a8: f9000380     	str	x0, [x28]
+     1ac: f91f639f     	str	xzr, [x28, #0x3ec0]
+     1b0: 52800014     	mov	w20, #0x0               // =0
+     1b4: d28d7e35     	mov	x21, #0x6bf1            // =27633
+     1b8: f2a0ad55     	movk	x21, #0x56a, lsl #16
+     1bc: f2c00035     	movk	x21, #0x1, lsl #32
+     1c0: 194002bb     	ldapurb	w27, [x21]
+     1c4: 53081f60     	lsl	w0, w27, #24
+     1c8: 6b14601f     	cmp	w0, w20, lsl #24
+     1cc: 5100037a     	sub	w26, w27, #0x0
+     1d0: 54000040     	b.eq	0x1d8 <_binary_jit_64905ace00_bin_start+0x1d8>
+     1d4: 14079a3c     	b	0x1e6ac4 <_binary_jit_64905ace00_bin_end+0x1e68c4>
+     1d8: 17ffffc3     	b	0xe4 <_binary_jit_64905ace00_bin_start+0xe4>
+     1dc: 00000000     	udf	#0x0
+     1e0: 14000002     	b	0x1e8 <_binary_jit_64905ace00_bin_start+0x1e8>
+     1e4: d61f0000     	br	x0
+     1e8: 58000240     	ldr	x0, 0x230 <_binary_jit_64905ace00_bin_end+0x30>
+     1ec: d63f0000     	blr	x0
+		...
+     1f8: 021b99c2     	<unknown>
+     1fc: 00000001     	udf	#0x1

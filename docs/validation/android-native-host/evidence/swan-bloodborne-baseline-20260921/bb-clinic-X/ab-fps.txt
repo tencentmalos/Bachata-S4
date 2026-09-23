@@ -1,0 +1,8 @@
+A srt_batch=on fps=14.721 draws/frame=1501.3 uploads/frame=0.0 cpuset=/top-app
+B srt_batch=off fps=14.744 draws/frame=1516.8 uploads/frame=0.0 cpuset=/top-app
+C srt_batch=on fps=15.624 draws/frame=1502.0 uploads/frame=0.0 cpuset=/top-app
+D srt_batch=off fps=14.404 draws/frame=1516.4 uploads/frame=0.0 cpuset=/top-app
+E srt_batch=off fps=14.771 draws/frame=1476.2 uploads/frame=0.0 cpuset=/top-app
+F srt_batch=on fps=15.281 draws/frame=1509.4 uploads/frame=0.0 cpuset=/top-app
+G srt_batch=off fps=14.647 draws/frame=1534.2 uploads/frame=0.0 cpuset=/top-app
+H srt_batch=on fps=15.125 draws/frame=1509.4 uploads/frame=0.0 cpuset=/top-app

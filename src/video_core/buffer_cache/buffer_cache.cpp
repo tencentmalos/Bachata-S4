@@ -359,7 +359,7 @@ void BufferCache::CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, 
         // Without a readback there's nothing we can do with this
         // Fallback to creating dst buffer on GPU to at least have this data there
     }
-    texture_cache.InvalidateMemoryFromGPU(dst, num_bytes);
+    texture_cache.InvalidateMemoryFromGPU(dst, num_bytes, UploadDiagnostics::DirtySource::GpuCopy);
     auto& src_buffer = [&] -> const Buffer& {
         if (src_gds) {
             return gds_buffer;

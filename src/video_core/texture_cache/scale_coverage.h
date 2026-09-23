@@ -31,6 +31,10 @@ struct ScaleCoverageCounters {
     // Garbage collector activity: GPU-modified images written back before eviction and
     // images freed under pressure.
     std::atomic<u64> gc_downloads{}, gc_frees{}, gc_pressured_ticks{};
+    // Dirty images re-uploaded from guest memory / the buffer cache (TextureCache::
+    // RefreshImage, counted once per upload with the guest bytes of the uploaded mips), and
+    // images cleared directly instead of re-uploaded after a compute pattern fill.
+    std::atomic<u64> image_uploads{}, image_upload_bytes{}, fill_clears{};
 
     struct Snapshot {
         u64 draws, scaled_draws, passes, scaled_passes, resumed_passes, native_promotions,
@@ -38,7 +42,7 @@ struct ScaleCoverageCounters {
             scaled_blit_copies, image_buffer_syncs, image_buffer_sync_bytes, fused_readbacks,
             native_pass_side_effects, native_pass_msaa,
             native_pass_attachment, native_pass_mismatch, gc_downloads, gc_frees,
-            gc_pressured_ticks;
+            gc_pressured_ticks, image_uploads, image_upload_bytes, fill_clears;
     };
     Snapshot Read() const noexcept {
         constexpr auto o = std::memory_order_relaxed;
@@ -47,7 +51,8 @@ struct ScaleCoverageCounters {
                 image_buffer_syncs.load(o), image_buffer_sync_bytes.load(o), fused_readbacks.load(o),
                 native_pass_side_effects.load(o), native_pass_msaa.load(o),
                 native_pass_attachment.load(o), native_pass_mismatch.load(o), gc_downloads.load(o),
-                gc_frees.load(o), gc_pressured_ticks.load(o)};
+                gc_frees.load(o), gc_pressured_ticks.load(o), image_uploads.load(o),
+                image_upload_bytes.load(o), fill_clears.load(o)};
     }
 };
 

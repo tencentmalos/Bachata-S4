@@ -1,0 +1,5 @@
+09-22 16:49:57.845 26213 26213 W Activity: onPause com.shadps4.android.MainActivity@d6c9e31
+09-22 16:49:57.886 26213 26213 W Activity: onCreate com.shadps4.android.MainActivity@c654987
+09-22 16:49:57.890 26213 26213 W Activity: onResume com.shadps4.android.MainActivity@c654987
+09-22 16:49:57.971 26213 26213 W Activity: onStop com.shadps4.android.MainActivity@d6c9e31
+09-22 16:49:57.911 26213 31733 I ProductionRuntime: run: terminal outcome=Cancelled reason=Cancelled detail=guest return=0   (copied from the same logcat read at 03:15 UTC; the ring had rolled before this file was written)

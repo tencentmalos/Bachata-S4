@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <xxhash.h>
+#include <algorithm>
+#include <bit>
 #include <chrono>
 #include <map>
+#include <optional>
 #include <sstream>
 
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/div_ceil.h"
 #include "common/scope_exit.h"
+#include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "core/memory.h"
 #include "video_core/buffer_cache/buffer_cache.h"
@@ -136,6 +140,8 @@ void TextureCache::PublishMemoryDiagnostics() {
         << " image_buffer_syncs=" << cov.image_buffer_syncs
         << " image_buffer_sync_bytes=" << cov.image_buffer_sync_bytes
         << " fused_readbacks=" << cov.fused_readbacks << '\n';
+    out << "texture_uploads count=" << cov.image_uploads << " bytes=" << cov.image_upload_bytes
+        << " fill_clears=" << cov.fill_clears << '\n';
     out << "gc downloads=" << cov.gc_downloads << " frees=" << cov.gc_frees
         << " pressured_ticks=" << cov.gc_pressured_ticks << " used_mib=" << (total_used_memory >> 20)
         << " trigger_mib=" << (trigger_gc_memory >> 20) << " pressure_mib=" << (pressure_gc_memory >> 20)
@@ -307,6 +313,7 @@ void TextureCache::InvalidateMemory(VAddr addr, size_t size) {
     std::scoped_lock lock{mutex};
     const auto pages_start = PageManager::GetPageAddr(addr);
     const auto pages_end = PageManager::GetNextPageAddr(addr + size - 1);
+    const bool upload_diag = UploadDiagnostics::armed.load(std::memory_order_relaxed);
     ForEachImageInRegion(pages_start, pages_end - pages_start, [&](ImageId image_id, Image& image) {
         const auto image_begin = image.info.guest_address;
         const auto image_end = image.info.guest_address + image.info.guest_size;
@@ -315,6 +322,12 @@ void TextureCache::InvalidateMemory(VAddr addr, size_t size) {
             // Untrack the image, so that the range is unprotected and the guest can write freely.
             image.flags |= ImageFlagBits::CpuDirty;
             UntrackImage(image_id);
+            if (upload_diag) {
+                // Page-fault probes report 1 or 8 bytes; HLE/host writes report their range.
+                NoteUploadDirty(image, size <= 8 ? UploadDiagnostics::DirtySource::CpuFault
+                                                 : UploadDiagnostics::DirtySource::HostWrite,
+                                addr, size);
+            }
         } else if (pages_end < image_end) {
             // This page access may or may not modify the image.
             // We should not mark it as dirty now. If it really was modified
@@ -330,21 +343,272 @@ void TextureCache::InvalidateMemory(VAddr addr, size_t size) {
             // Image begins and ends on this page so it can not receive any more invalidations.
             // We will check it's hash later to see if it really was modified.
             MarkAsMaybeDirty(image_id, image);
+            if (upload_diag) {
+                NoteUploadDirty(image, UploadDiagnostics::DirtySource::CpuPageShared, addr, size);
+            }
         }
     });
 }
 
-void TextureCache::InvalidateMemoryFromGPU(VAddr address, size_t max_size) {
+void TextureCache::InvalidateMemoryFromGPU(VAddr address, size_t max_size,
+                                           UploadDiagnostics::DirtySource source, u64 writer) {
     std::scoped_lock lock{mutex};
+    const bool upload_diag = UploadDiagnostics::armed.load(std::memory_order_relaxed);
+    const bool keep_rendered = source == UploadDiagnostics::DirtySource::GpuStorageWrite &&
+        UploadDiagnostics::ignore_storage_dirty.load(std::memory_order_relaxed);
     ForEachImageInRegion(address, max_size, [&](ImageId image_id, Image& image) {
         // Only consider images that match base address.
         // TODO: Maybe also consider subresources
         if (image.info.guest_address != address) {
             return;
         }
+        if (keep_rendered && True(image.flags & ImageFlagBits::GpuModified)) {
+            // Diagnostic A/B: the rendered image stays authoritative.
+            UploadDiagnostics::ignored_storage_dirty.fetch_add(1, std::memory_order_relaxed);
+            return;
+        }
         // Ensure image is reuploaded when accessed again.
         image.flags |= ImageFlagBits::GpuDirty;
+        if (upload_diag) {
+            NoteUploadDirty(image, source, address, max_size, writer);
+        }
     });
+}
+
+namespace {
+
+float HalfToFloat(u16 h) {
+    const u32 sign = u32(h & 0x8000) << 16;
+    const u32 exponent = (h >> 10) & 0x1f;
+    u32 mantissa = h & 0x3ff;
+    if (exponent == 31) return std::bit_cast<float>(sign | 0x7f800000u | mantissa << 13);
+    if (exponent != 0) return std::bit_cast<float>(sign | (exponent + 112) << 23 | mantissa << 13);
+    if (mantissa == 0) return std::bit_cast<float>(sign);
+    u32 shift = 0; // subnormal half: normalize into a float
+    do {
+        mantissa <<= 1;
+        ++shift;
+    } while (!(mantissa & 0x400));
+    return std::bit_cast<float>(sign | (113 - shift) << 23 | (mantissa & 0x3ff) << 13);
+}
+
+// Clear value that makes vkCmdClearColorImage write exactly `texel` (guest byte order) into a
+// `format` image, or nullopt when no exact clear value is known for this format/texel.
+std::optional<vk::ClearColorValue> ExactClearValue(vk::Format format, std::span<const u8> texel) {
+    vk::ClearColorValue value{};
+    const auto size_is = [&](size_t bytes) { return texel.size() == bytes; };
+    const auto unorm8 = [&](u32 channels, bool bgra, bool srgb) -> bool {
+        if (!size_is(channels)) return false;
+        for (u32 c = 0; c < channels; ++c) {
+            const u8 byte = texel[c];
+            // sRGB clears are linear and re-encoded by the driver; only 0 and 1 round-trip
+            // exactly. Alpha is always linear.
+            if (srgb && c < 3 && byte != 0 && byte != 0xff) return false;
+            const u32 dst = bgra && c < 3 ? 2 - c : c;
+            value.float32[dst] = byte / 255.0f;
+        }
+        return true;
+    };
+    const auto unorm16 = [&](u32 channels) -> bool {
+        if (!size_is(channels * 2)) return false;
+        for (u32 c = 0; c < channels; ++c)
+            value.float32[c] = (texel[c * 2] | texel[c * 2 + 1] << 8) / 65535.0f;
+        return true;
+    };
+    const auto sfloat16 = [&](u32 channels) -> bool {
+        if (!size_is(channels * 2)) return false;
+        for (u32 c = 0; c < channels; ++c)
+            value.float32[c] = HalfToFloat(u16(texel[c * 2] | texel[c * 2 + 1] << 8));
+        return true;
+    };
+    const auto raw32 = [&](u32 channels) -> bool {
+        if (!size_is(channels * 4)) return false;
+        std::memcpy(value.uint32.data(), texel.data(), channels * 4);
+        return true;
+    };
+    const auto uint_n = [&](u32 channels, u32 bytes) -> bool {
+        if (!size_is(channels * bytes)) return false;
+        for (u32 c = 0; c < channels; ++c) {
+            u32 v = 0;
+            std::memcpy(&v, texel.data() + c * bytes, bytes);
+            value.uint32[c] = v;
+        }
+        return true;
+    };
+    bool exact = false;
+    switch (format) {
+    case vk::Format::eR8Unorm: exact = unorm8(1, false, false); break;
+    case vk::Format::eR8G8Unorm: exact = unorm8(2, false, false); break;
+    case vk::Format::eR8G8B8A8Unorm: exact = unorm8(4, false, false); break;
+    case vk::Format::eB8G8R8A8Unorm: exact = unorm8(4, true, false); break;
+    case vk::Format::eR8Srgb: exact = unorm8(1, false, true); break;
+    case vk::Format::eR8G8Srgb: exact = unorm8(2, false, true); break;
+    case vk::Format::eR8G8B8A8Srgb: exact = unorm8(4, false, true); break;
+    case vk::Format::eB8G8R8A8Srgb: exact = unorm8(4, true, true); break;
+    case vk::Format::eR16Unorm: exact = unorm16(1); break;
+    case vk::Format::eR16G16Unorm: exact = unorm16(2); break;
+    case vk::Format::eR16G16B16A16Unorm: exact = unorm16(4); break;
+    case vk::Format::eR16Sfloat: exact = sfloat16(1); break;
+    case vk::Format::eR16G16Sfloat: exact = sfloat16(2); break;
+    case vk::Format::eR16G16B16A16Sfloat: exact = sfloat16(4); break;
+    // 32-bit float/integer clear values are stored as-is: copy the bits.
+    case vk::Format::eR32Sfloat:
+    case vk::Format::eR32Uint:
+    case vk::Format::eR32Sint: exact = raw32(1); break;
+    case vk::Format::eR32G32Sfloat:
+    case vk::Format::eR32G32Uint:
+    case vk::Format::eR32G32Sint: exact = raw32(2); break;
+    case vk::Format::eR32G32B32A32Sfloat:
+    case vk::Format::eR32G32B32A32Uint:
+    case vk::Format::eR32G32B32A32Sint: exact = raw32(4); break;
+    case vk::Format::eR8Uint: exact = uint_n(1, 1); break;
+    case vk::Format::eR8G8Uint: exact = uint_n(2, 1); break;
+    case vk::Format::eR8G8B8A8Uint: exact = uint_n(4, 1); break;
+    case vk::Format::eR16Uint: exact = uint_n(1, 2); break;
+    case vk::Format::eR16G16Uint: exact = uint_n(2, 2); break;
+    case vk::Format::eR16G16B16A16Uint: exact = uint_n(4, 2); break;
+    default:
+        // All-zero bits read as zero in every other non-depth, uncompressed color format.
+        exact = std::ranges::all_of(texel, [](u8 byte) { return byte == 0; });
+        break;
+    }
+    return exact ? std::optional{value} : std::nullopt;
+}
+
+} // namespace
+
+UploadDiagnostics::FillOutcome TextureCache::ClearImagesForFill(VAddr address, u64 size,
+                                                                std::span<const u32> pattern,
+                                                                u32& images_cleared) {
+    using UploadDiagnostics::FillOutcome;
+    images_cleared = 0;
+    const u64 period = pattern.size_bytes();
+    if (!size || !period || period > 64) return FillOutcome::Pattern;
+    std::array<u8, 64> bytes{};
+    std::memcpy(bytes.data(), pattern.data(), period);
+
+    std::scoped_lock lock{mutex};
+    struct Target {
+        Image* image;
+        vk::ClearColorValue value;
+    };
+    boost::container::small_vector<Target, 4> targets;
+    FillOutcome outcome = FillOutcome::Cleared;
+    ForEachImageInRegion(address, size, [&](ImageId, Image& image) {
+        if (outcome != FillOutcome::Cleared) return;
+        const auto& info = image.info;
+        const u64 offset = info.guest_address - address;
+        if (info.guest_address < address || offset + info.guest_size > size ||
+            offset % period != 0) {
+            outcome = FillOutcome::Partial;
+            return;
+        }
+        const u32 texel_bytes = info.num_bits / 8;
+        if (info.props.is_depth || info.props.is_block || info.num_samples > 1 ||
+            image.IsAstcEncoded() || !texel_bytes || info.num_bits % 8 != 0 ||
+            (period % texel_bytes != 0 && texel_bytes % period != 0)) {
+            outcome = FillOutcome::Format;
+            return;
+        }
+        // Every texel starts at a multiple of its size from the image base in any tiling, so
+        // a byte stream with period `period` gives each texel the same bytes iff all texel-sized
+        // chunks of the pattern are equal (or the texel spans whole periods).
+        std::array<u8, 16> texel{};
+        if (texel_bytes > texel.size()) {
+            outcome = FillOutcome::Format;
+            return;
+        }
+        for (u32 b = 0; b < texel_bytes; ++b) texel[b] = bytes[b % period];
+        for (u64 at = texel_bytes; at < period; ++at) {
+            if (bytes[at] != texel[at % texel_bytes]) {
+                outcome = FillOutcome::Format;
+                return;
+            }
+        }
+        const auto value = ExactClearValue(image.backing->image.image_ci.format,
+                                           std::span{texel.data(), texel_bytes});
+        if (!value) {
+            outcome = FillOutcome::Format;
+            return;
+        }
+        targets.push_back({&image, *value});
+    });
+    if (outcome != FillOutcome::Cleared) return outcome;
+    if (targets.empty()) return FillOutcome::NoImage;
+
+    for (auto& [image, value] : targets) {
+        const SubresourceRange range{.base = {.level = 0, .layer = 0},
+                                     .extent = image->info.resources};
+        image->Clear(vk::ClearValue{.color = value}, range);
+        // Same state as after a draw into the image: the GPU copy is authoritative and the
+        // fill replaces any pending CPU/GPU-side update of its whole range.
+        image->flags |= ImageFlagBits::GpuModified;
+        image->flags &= ~ImageFlagBits::Dirty;
+    }
+    images_cleared = static_cast<u32>(targets.size());
+    coverage->fill_clears.fetch_add(images_cleared, std::memory_order_relaxed);
+    return FillOutcome::Cleared;
+}
+
+std::optional<TextureCache::ImageSlice> TextureCache::FindImageSlice(VAddr address, u64 size) {
+    std::scoped_lock lock{mutex};
+    std::optional<ImageSlice> slice;
+    u32 overlaps = 0;
+    ForEachImageInRegion(address, size, [&](ImageId id, Image& image) {
+        if (++overlaps > 1) return;
+        const auto& info = image.info;
+        const u32 layers = info.resources.layers;
+        if (info.props.is_volume || !layers || address < info.guest_address) return;
+        const u64 offset = address - info.guest_address;
+        for (u32 level = 0; level < info.resources.levels; ++level) {
+            // A mip level stores its layers back to back (ImageInfo::UpdateSize).
+            const auto& mip = info.mips_layout[level];
+            if (offset < mip.offset || offset - mip.offset >= mip.size) continue;
+            const u64 layer_size = mip.size / layers;
+            if (mip.size % layers || size != layer_size || (offset - mip.offset) % layer_size)
+                return;
+            slice = ImageSlice{id, level, u32((offset - mip.offset) / layer_size)};
+            return;
+        }
+    });
+    return overlaps == 1 ? slice : std::nullopt;
+}
+
+bool TextureCache::HasImageInRange(VAddr address, u64 size) {
+    std::scoped_lock lock{mutex};
+    bool found = false;
+    ForEachImageInRegion(address, size, [&](ImageId, Image&) { found = true; });
+    return found;
+}
+
+std::string TextureCache::DescribeImagesForDiagnostics(VAddr address, u64 size,
+                                                       bool& base_match) {
+    std::scoped_lock lock{mutex};
+    std::string out;
+    u32 count = 0;
+    ForEachImageInRegion(address, size, [&](ImageId, Image& image) {
+        base_match |= image.info.guest_address == address;
+        if (++count > 4) return;
+        out += fmt::format("[{:#x}+{:#x} {} {}x{} L{} M{} tile{} {}{}{}{}{}]",
+                           image.info.guest_address, image.info.guest_size,
+                           vk::to_string(image.info.pixel_format), image.info.size.width,
+                           image.info.size.height, image.info.resources.layers,
+                           image.info.resources.levels, static_cast<u32>(image.info.tile_mode),
+                           image.IsScaled() ? "scaled" : "native",
+                           True(image.flags & ImageFlagBits::GpuModified) ? " R" : "",
+                           True(image.flags & ImageFlagBits::GpuDirty) ? " G" : "",
+                           True(image.flags & ImageFlagBits::CpuDirty) ? " C" : "",
+                           image.info.guest_address == address ? " base" : "");
+    });
+    if (count > 4) out += fmt::format("(+{} more)", count - 4);
+    return out;
+}
+
+void TextureCache::NoteUploadDirty(const Image& image, UploadDiagnostics::DirtySource source,
+                                   VAddr address, u64 size, u64 writer) {
+    UploadDiagnostics::NoteDirty({image.info.guest_address, image.info.guest_size,
+                                  static_cast<u32>(image.info.pixel_format)},
+                                 source, address, size, writer);
 }
 
 void TextureCache::UnmapMemory(VAddr cpu_addr, size_t size) {
@@ -1008,6 +1272,15 @@ void TextureCache::RefreshImage(Image& image) {
         return;
     }
 
+    if (UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
+        NoteUploadDiagnostics(image, image_copies);
+    }
+    u64 upload_bytes = 0;
+    for (const auto& copy : image_copies)
+        upload_bytes += image.info.mips_layout[copy.imageSubresource.mipLevel].size;
+    coverage->image_uploads.fetch_add(1, std::memory_order_relaxed);
+    coverage->image_upload_bytes.fetch_add(upload_bytes, std::memory_order_relaxed);
+
     scheduler.EndRendering(Vulkan::RenderBreak::ImageUpload);
 
     // Crop the upload source before staging and detiling. A low-quality backing
@@ -1033,6 +1306,45 @@ void TextureCache::RefreshImage(Image& image) {
     }
 
     image.Upload(image_copies, buffer, offset, upload_info.guest_size);
+}
+
+void TextureCache::NoteUploadDiagnostics(const Image& image,
+                                         std::span<const vk::BufferImageCopy> copies) {
+    // Diagnostics only: the buffer cache holds newer bytes than guest memory when a GPU write
+    // aliases the image, so guest hashes would not describe the uploaded content.
+    const bool gpu_resident =
+        buffer_cache.IsRegionGpuModified(image.info.guest_address, image.info.guest_size);
+    boost::container::small_vector<u32, 16> mips;
+    boost::container::small_vector<u64, 16> hashes;
+    const u8* base = std::bit_cast<const u8*>(image.info.guest_address);
+    for (const auto& copy : copies) {
+        const u32 mip = copy.imageSubresource.mipLevel;
+        mips.push_back(mip);
+        if (!gpu_resident) {
+            const auto& layout = image.info.mips_layout[mip];
+            hashes.push_back(XXH3_64bits(base + layout.offset, layout.size));
+        }
+    }
+    UploadDiagnostics::NoteUpload({
+        .key = {image.info.guest_address, image.info.guest_size,
+                static_cast<u32>(image.info.pixel_format)},
+        .width = image.info.size.width,
+        .height = image.info.size.height,
+        .depth = image.info.size.depth,
+        .layers = image.info.resources.layers,
+        .levels = image.info.resources.levels,
+        .tile_mode = static_cast<u32>(image.info.tile_mode),
+        .tiled = bool(image.info.props.is_tiled),
+        .scaled = image.IsScaled(),
+        .cpu_dirty = True(image.flags & ImageFlagBits::CpuDirty),
+        .maybe_cpu_dirty = True(image.flags & ImageFlagBits::MaybeCpuDirty),
+        .gpu_dirty = True(image.flags & ImageFlagBits::GpuDirty),
+        .gpu_modified = True(image.flags & ImageFlagBits::GpuModified),
+        .gpu_resident = gpu_resident,
+        .frame = DebugState.GetFrameNum(),
+        .mips = mips,
+        .hashes = hashes,
+    });
 }
 
 vk::Sampler TextureCache::GetSampler(const AmdGpu::Sampler& sampler,

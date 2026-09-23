@@ -1,0 +1,1 @@
+detail-window fps=13.155

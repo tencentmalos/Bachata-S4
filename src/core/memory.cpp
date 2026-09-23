@@ -224,6 +224,127 @@ bool MemoryManager::TryReadSrtMemory(VAddr address, void* data, u64 size) {
     if (!data || !size || size > 8 || address > UINT64_MAX - size)
         return false;
     std::shared_lock lock(mutex);
+    return TryReadSrtMemoryLocked(address, data, size);
+}
+
+bool MemoryManager::ResolveSrtWindow(VAddr address, u64 size, VAddr& begin, VAddr& end,
+                                     const u8*& host) {
+    // Descriptor tables are small; a 64 KiB window around the first read covers the rest of
+    // the table without validating ownership of a whole (possibly huge) backing segment.
+    constexpr u64 WindowSize = 64_KB;
+    if (!IsValidMapping(address, size))
+        return false;
+    const auto& vma = FindVMA(address)->second;
+    if (!vma.IsMapped() || !True(vma.prot & (MemoryProt::CpuRead | MemoryProt::GpuRead)) ||
+        !HasPhysicalBacking(vma))
+        return false;
+    const u64 offset = address - vma.base;
+    auto phys = vma.phys_areas.upper_bound(offset);
+    if (phys == vma.phys_areas.begin())
+        return false;
+    --phys;
+    if (offset - phys->first >= phys->second.size || phys->first >= vma.size)
+        return false;
+    const VAddr segment_begin = vma.base + phys->first;
+    const VAddr segment_end = segment_begin + std::min(phys->second.size, vma.size - phys->first);
+    if (size > segment_end - address)
+        return false; // crosses into another backing segment: per-read path
+    begin = std::max(segment_begin, Common::AlignDown(address, WindowSize));
+    end = std::min(segment_end, Common::AlignUp(address + size, WindowSize));
+    if (guest_backend && !impl.OwnsGuestRange(begin, end - begin)) {
+        // Ownership only proven for the read itself (IsValidMapping above).
+        begin = address;
+        end = address + size;
+    }
+    host = impl.BackingBase() + phys->second.base + (begin - segment_begin);
+    return true;
+}
+
+MemoryManager::SrtReadBatch::~SrtReadBatch() {
+    constexpr auto o = std::memory_order_relaxed;
+    stats.batches.fetch_add(1, o);
+    stats.reads.fetch_add(reads, o);
+    stats.hits.fetch_add(hits, o);
+    stats.resolves.fetch_add(resolves, o);
+    stats.fallbacks.fetch_add(fallbacks, o);
+    if (verified) {
+        stats.verified.fetch_add(verified, o);
+        stats.mismatches.fetch_add(mismatches, o);
+    }
+}
+
+bool MemoryManager::SrtReadBatch::Read(VAddr address, void* data, u64 size) {
+    if (!data || !size || size > 8 || address > UINT64_MAX - size)
+        return false;
+    ++reads;
+    // Consecutive reads mostly stay in the same table: try the last window first.
+    const auto contains = [&](const Window& window) {
+        return window.host && address >= window.begin && address < window.end &&
+               size <= window.end - address;
+    };
+    const u8* source = nullptr;
+    if (contains(windows[last])) {
+        source = windows[last].host + (address - windows[last].begin);
+        ++hits;
+    } else {
+        for (u32 i = 0; i < windows.size(); ++i) {
+            if (contains(windows[i])) {
+                last = i;
+                source = windows[i].host + (address - windows[i].begin);
+                ++hits;
+                break;
+            }
+        }
+    }
+    if (!source) {
+        Window window;
+        if (!memory.ResolveSrtWindow(address, size, window.begin, window.end, window.host)) {
+            ++fallbacks;
+            return memory.TryReadSrtMemoryLocked(address, data, size);
+        }
+        last = next++ % windows.size();
+        windows[last] = window;
+        source = window.host + (address - window.begin);
+        ++resolves;
+    }
+    if (verify.load(std::memory_order_relaxed)) [[unlikely]] {
+        std::array<u8, 8> expected{};
+        const bool ok = memory.TryReadSrtMemoryLocked(address, expected.data(), size);
+        ++verified;
+        if (!ok || std::memcmp(expected.data(), source, size) != 0) {
+            if (mismatches++ < 4) {
+                LOG_WARNING(Core, "SRT batch read mismatch at {:#x} size {} (per-read {})",
+                            address, size, ok ? "ok" : "failed");
+            }
+            if (!ok)
+                return false;
+            std::memcpy(data, expected.data(), size);
+            return true;
+        }
+    }
+    std::memcpy(data, source, size);
+    return true;
+}
+
+std::string MemoryManager::SrtReadBatch::Command(const std::vector<std::string>& args) {
+    const std::string sub = args.empty() ? "status" : args[0];
+    if ((sub == "on" || sub == "off") && args.size() == 1) {
+        enabled.store(sub == "on");
+    } else if (sub == "verify" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        verify.store(args[1] == "on");
+    } else if (sub != "status" || args.size() > 1) {
+        return "status=bad_arguments usage: status | on | off | verify on|off\n";
+    }
+    constexpr auto o = std::memory_order_relaxed;
+    return fmt::format("srt_batch enabled={} verify={} batches={} reads={} hits={} resolves={} "
+                       "fallbacks={} verified={} mismatches={}\n",
+                       enabled.load(o) ? 1 : 0, verify.load(o) ? 1 : 0, stats.batches.load(o),
+                       stats.reads.load(o), stats.hits.load(o), stats.resolves.load(o),
+                       stats.fallbacks.load(o), stats.verified.load(o),
+                       stats.mismatches.load(o));
+}
+
+bool MemoryManager::TryReadSrtMemoryLocked(VAddr address, void* data, u64 size) {
     if (!IsValidMapping(address, size))
         return false;
     auto* out = static_cast<u8*>(data);

@@ -1,0 +1,4 @@
+03:57:51 pre-measure cpuset=/top-app focus=.android/.MainActivity t75
+03:58:43 post-measure cpuset=/top-app focus=.android/.MainActivity t75
+03:59:25 post-capture cpuset=/top-app
+04:00:38 end cpuset=/top-app

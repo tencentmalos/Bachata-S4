@@ -1,0 +1,4 @@
+post-detail light window 1 presents=125 fps=12.255
+post-detail light window 2 presents=127 fps=12.496
+late light window 1 03:12:19 presents=129 fps=12.675
+late light window 2 03:12:29 presents=121 fps=11.886

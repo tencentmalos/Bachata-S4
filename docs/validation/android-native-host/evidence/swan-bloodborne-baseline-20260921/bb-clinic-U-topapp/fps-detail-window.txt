@@ -1,0 +1,2 @@
+detail window presents=293 fps=14.496
+presents_at_end=7043 start_presents=6746

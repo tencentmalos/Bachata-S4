@@ -1,0 +1,14 @@
+Run X (2026-09-23 evening): APK 5b170ae1 / host edf0e10d (SRT batch read + compute clear/copy generalization, uncommitted), pid 28012 gen 1, clinic ~1500 draws/frame, cpuset /top-app throughout, locked swan-evt-legacy (ops 38d5507c, 47c235d3).
+Same-session A/B, 10 s each (ab_srt.sh), texture re-uploads 0.0/frame in every phase (run V: 8.0/frame):
+  A on 14.721 | B off 14.744 | C on 15.624 | D off 14.404 | E off 14.771 | F on 15.281 | G off 14.647 | H on 15.125
+  mean off 14.64, on 15.19 (+3.7%); phase-to-phase spread about +-0.5 FPS.
+frame_limiter.sql (owner Guest-20 3935, GpuComm 3942, Guest-1 3819):
+  off (PROF capture 1, 15 s, 219 frames): frame 68.31 ms, PM4.Resume 67.56 ms r=0.998, owner wait 56.79, Guest-1 active 47.93 r=0.134
+  on  (PROF capture 2, 15 s, 232 frames): frame 64.16 ms, PM4.Resume 56.44 ms r=0.884, owner wait 28.94, Guest-1 active 50.64 r=0.877
+  PROF-window FPS: off 14.56, on 15.52 (+6.6%).
+simpleperf 15 s 2000 Hz fp (0 lost), per presented frame:
+  off (258 presents): GpuComm 54.6 ms on-CPU, RefreshFlatBuf 25.0% = 13.7 ms
+  on  (282 presents): GpuComm 45.3 ms on-CPU, RefreshFlatBuf 7.7% = 3.5 ms; ObtainBuffer 23.1%, copy HLE 16.2%, BindResources 27.4%
+Correctness: srt_batch verify on during Bloodborne load + clinic: 88,350,696 reads compared, 0 mismatches; TMNT rooftop (run G): 204,769,592 compared, 0 mismatches, 60 FPS.
+Batch stats (clinic): hits 97.3%, resolves 2.7%, fallbacks 0.
+Earlier unlocked /foreground run W (launcher killed during loading): verify-on A/B invalid (verify stayed on); verify-off A/B off 16.36/16.65 on 16.87/17.33.

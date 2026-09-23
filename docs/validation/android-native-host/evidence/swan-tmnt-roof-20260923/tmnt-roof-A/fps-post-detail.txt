@@ -1,0 +1,2 @@
+post-detail light window 1 04:00:27 presents=201 fps=19.763
+post-detail light window 2 04:00:38 presents=200 fps=19.676

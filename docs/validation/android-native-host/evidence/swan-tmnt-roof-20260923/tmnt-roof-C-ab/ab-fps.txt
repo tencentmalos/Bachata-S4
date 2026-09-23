@@ -1,0 +1,3 @@
+A ignore=off fps=21.66 presents=220 snap_presents=271 cpuset=/top-app
+B ignore=on fps=52.715 presents=537 snap_presents=662 cpuset=/top-app
+C ignore=off fps=21.736 presents=221 snap_presents=273 cpuset=/top-app

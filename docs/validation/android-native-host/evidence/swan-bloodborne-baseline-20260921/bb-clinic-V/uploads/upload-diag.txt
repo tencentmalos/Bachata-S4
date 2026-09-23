@@ -1,0 +1,22 @@
+    status=stopped
+    armed=0 uploads=712 images=8 frames=89 uploads_per_frame=8.00 dirty_notes=714 log_left=0
+    ignore_storage_dirty=0 ignored_storage_dirty=0
+    compute_fill: off=0 images_cleared=0 bytes_cleared=0 cleared=0 no_image=0 partial=0 pattern=0 format=0 gpu_resident=0 disabled=0
+    image-writing dispatches=1691 dispatch_log_left=0 (pgm_hash dispatches):
+      0x000000008b355b5a 1246
+      0x000000003d5ebf4e 445
+    uploads by writing shader (pgm_hash uploads):
+      0x000000008b355b5a 445
+      0x000000003d5ebf4e 267
+    outcome_by_source (unchanged changed partial first gpu_resident):
+      gpu_storage_write  0 0 0 0 712
+    top images (addr size format WxHxD layers mips tile scaled | uploads unchanged changed partial first gpu_resident | dominant source last_writer):
+      0x2d2900000 196608 R16G16Sfloat 32x32x1 L6 M1 tile14 native | 89 0 0 0 0 89 | gpu_storage_write 0x8b355b5a
+      0x2d28a8000 196608 R16G16Sfloat 64x64x1 L6 M1 tile14 native | 89 0 0 0 0 89 | gpu_storage_write 0x8b355b5a
+      0x2d2930000 196608 R16G16Sfloat 32x32x1 L6 M1 tile14 native | 89 0 0 0 0 89 | gpu_storage_write 0x8b355b5a
+      0x2d2878000 196608 R16G16Sfloat 64x64x1 L6 M1 tile14 native | 89 0 0 0 0 89 | gpu_storage_write 0x8b355b5a
+      0x27c910000 2359296 R8G8B8A8Unorm 960x540x1 L1 M1 tile14 scaled | 89 0 0 0 0 89 | gpu_storage_write 0x3d5ebf4e
+      0x27cb58000 2359296 R8G8B8A8Unorm 960x540x1 L1 M1 tile14 scaled | 89 0 0 0 0 89 | gpu_storage_write 0x3d5ebf4e
+      0x255080000 1572864 R16G16Sfloat 256x256x1 L6 M1 tile14 scaled | 89 0 0 0 0 89 | gpu_storage_write 0x8b355b5a
+      0x269fd0000 9437184 R32Sfloat 1920x1080x1 L1 M1 tile0 native | 89 0 0 0 0 89 | gpu_storage_write 0x3d5ebf4e
+

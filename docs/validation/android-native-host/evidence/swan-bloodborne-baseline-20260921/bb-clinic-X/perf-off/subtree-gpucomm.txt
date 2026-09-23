@@ -1,0 +1,154 @@
+
+### Info::RefreshFlatBuf: 7054 samples = 25.0% of thread
+-- direct children
+   70.0%  Core::MemoryManager::TryReadSrtMemory
+   10.4%  std::__ndk1::mutex::lock
+    4.7%  <self>
+    3.8%  Common::Singleton<Core::MemoryManager>::Instance
+    3.2%  @plt
+    2.3%  std::__ndk1::condition_variable::notify_all
+    1.8%  Shader::PortableSrt::Compute
+    1.0%  std::__ndk1::mutex::unlock
+    0.9%  std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int>>::assign
+    0.9%  [linker]tlsdesc_resolver_dynamic
+    0.7%  Core::MemoryManager::TryReadSrtMemoryLocked
+    0.2%  Shader::SrtGuestReader::SrtGuestReader
+    0.0%  el0t_64_irq
+    0.0%  std::__ndk1::mutex::~mutex
+-- leaves
+   23.7%  Core::MemoryManager::TryReadSrtMemoryLocked
+   14.9%  Core::MemoryManager::IsValidMapping
+   10.7%  std::__ndk1::mutex::lock
+    6.9%  pthread_mutex_lock
+    6.1%  @plt
+    5.4%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    4.9%  Core::MemoryManager::TryReadSrtMemory
+    4.1%  pthread_mutex_unlock
+    4.1%  void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf
+    3.8%  Common::Singleton<Core::MemoryManager>::Instance
+    2.5%  std::__ndk1::condition_variable::notify_all
+    1.8%  Shader::PortableSrt::Compute
+    1.7%  __memcpy_aarch64_nt
+    1.6%  __aarch64_swp2_rel
+
+### BufferCache::ObtainBuffer: 5181 samples = 18.4% of thread
+-- direct children
+   62.1%  VideoCore::BufferCache::SynchronizeBuffer
+   30.0%  unsigned long VideoCore::StreamBuffer::Copy<unsigned long>
+    3.9%  VideoCore::MemoryTracker::IsRegionGpuModified
+    1.4%  <self>
+    0.6%  @plt
+    0.5%  boost::icl::interval_base_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::discrete_interval<u
+    0.5%  __aarch64_cas4_acq
+    0.2%  Core::MemoryManager::CopySparseMemory
+    0.1%  VideoCore::BufferCache::FindBuffer
+    0.1%  Common::Singleton<Core::MemoryManager>::Instance
+    0.1%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    0.1%  VideoCore::StreamBuffer::Commit
+    0.1%  Core::HostRuntime::GuestRuntime::Impl::OwnsRange
+    0.1%  detail::ScopeGuard<unsigned long VideoCore::MemoryTracker::SnapshotForUpload<VideoCore::BufferCache::SynchronizeBuffer
+-- leaves
+   13.4%  change_protection
+   13.2%  __memcpy_aarch64_nt
+    5.9%  VideoCore::BufferCache::SynchronizeBuffer
+    3.6%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    3.5%  _raw_spin_unlock_irqrestore
+    2.9%  Core::MemoryManager::CopySparseMemory
+    2.7%  VideoCore::MemoryTracker::IsRegionGpuModified
+    2.2%  pthread_mutex_lock
+    2.0%  @plt
+    1.9%  rwsem_spin_on_owner
+    1.9%  local_daif_restore
+    1.6%  __rb_insert_augmented
+    1.6%  __aarch64_cas4_acq
+    1.4%  perf_output_copy
+
+### ExecuteShaderHLE: 3668 samples = 13.0% of thread
+-- direct children
+   74.6%  VideoCore::BufferCache::ObtainBuffer
+   21.4%  vk_common_CmdCopyBuffer
+    2.3%  Vulkan::Scheduler::EndRendering
+    0.9%  <self>
+    0.4%  vk_common_CmdPipelineBarrier
+    0.1%  @plt
+    0.1%  VideoCore::BufferCache::FindBuffer
+    0.1%  boost::icl::interval_base_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::discrete_interval<u
+    0.0%  void tu_CmdCopyBuffer2<
+    0.0%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate
+    0.0%  vk_common_CmdEndRendering
+-- leaves
+   18.3%  change_protection
+   14.1%  void r2d_setup_common<
+    5.8%  __memcpy_aarch64_nt
+    4.1%  _raw_spin_unlock_irqrestore
+    2.6%  local_daif_restore
+    2.4%  rwsem_spin_on_owner
+    2.2%  __rb_insert_augmented
+    2.0%  perf_output_copy
+    1.5%  mas_find
+    1.5%  memset
+    1.4%  __rcu_read_unlock
+    1.2%  VideoCore::BufferCache::SynchronizeBuffer
+    1.1%  mas_spanning_rebalance
+    1.0%  __memcpy
+
+### GetGraphicsPipeline: 9594 samples = 34.0% of thread
+-- direct children
+   98.5%  Vulkan::PipelineCache::RefreshGraphicsKey
+    0.4%  __memcmp_aarch64
+    0.3%  XXH3_hashLong_64b_default
+    0.3%  AmdGpu::DepthRangeEmulation AmdGpu::BuildDepthRangeEmulation<AmdGpu::Regs>
+    0.1%  <self>
+    0.1%  AmdGpu::ColorBuffer::Swizzle
+    0.1%  std::__ndk1::pair<tsl::detail_robin_hash::robin_hash<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_
+    0.1%  XXH3_64bits
+    0.0%  @plt
+    0.0%  AmdGpu::MapNumberConversion
+    0.0%  Vulkan::PipelineCache::RefreshGraphicsStages
+-- leaves
+   17.4%  Core::MemoryManager::TryReadSrtMemoryLocked
+   10.9%  Core::MemoryManager::IsValidMapping
+    7.8%  std::__ndk1::mutex::lock
+    5.6%  @plt
+    5.0%  pthread_mutex_lock
+    4.0%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    3.6%  Core::MemoryManager::TryReadSrtMemory
+    3.3%  __memcpy_aarch64_nt
+    3.0%  pthread_mutex_unlock
+    3.0%  void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf
+    2.8%  Common::Singleton<Core::MemoryManager>::Instance
+    2.0%  Shader::StageSpecialization::operator==
+    1.8%  std::__ndk1::condition_variable::notify_all
+    1.8%  Shader::Gcn::GcnDecodeContext::decodeInstruction
+
+### BindResources: 6342 samples = 22.5% of thread
+-- direct children
+   37.8%  Vulkan::Rasterizer::BindTextures
+   35.4%  Vulkan::Rasterizer::BindBuffers
+   15.3%  vk_common_CmdPushDescriptorSetKHR
+    1.8%  <self>
+    1.0%  AmdGpu::Image Shader::ImageResource::GetSharp<Shader::Info>
+    1.0%  bool Shader::SharpFetch<AmdGpu::Image>::Fetch<8u>
+    1.0%  Vulkan::Rasterizer::IsComputeImageClear
+    0.9%  @plt
+    0.8%  Shader::Info::PushUd
+    0.7%  Vulkan::Rasterizer::IsComputeImageCopy
+    0.6%  AmdGpu::Buffer Shader::BufferResource::GetSharp<Shader::Info>
+    0.5%  VideoCore::TextureCache::TouchImage
+    0.4%  std::__ndk1::vector<vk::WriteDescriptorSet, std::__ndk1::allocator<vk::WriteDescriptorSet>>::__append
+    0.4%  VideoCore::TextureCache::FindImage
+-- leaves
+    9.2%  Vulkan::Rasterizer::BindBuffers
+    5.6%  __memcpy_aarch64_nt
+    5.6%  VideoCore::TextureCache::FindImage
+    5.6%  Vulkan::Rasterizer::BindTextures
+    4.8%  void tu_update_descriptor_sets<
+    3.4%  @plt
+    3.3%  VideoCore::ImageInfo::UpdateSize
+    3.3%  AmdGpu::Image Shader::ImageResource::GetSharp<Shader::Info>
+    2.4%  VideoCore::Image::Transit
+    2.4%  pthread_mutex_lock
+    2.3%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    2.0%  Core::MemoryManager::CopySparseMemory
+    2.0%  bool Shader::SharpFetch<AmdGpu::Image>::Fetch<8u>
+    1.9%  VideoCore::MemoryTracker::IsRegionGpuModified

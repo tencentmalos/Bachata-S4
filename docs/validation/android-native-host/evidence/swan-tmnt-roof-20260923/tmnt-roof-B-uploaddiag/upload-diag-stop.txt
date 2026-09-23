@@ -1,0 +1,38 @@
+    status=stopped
+    armed=0 uploads=8852 images=32 frames=277 uploads_per_frame=31.96 dirty_notes=8853 log_left=0
+    outcome_by_source (unchanged changed partial first gpu_resident):
+      gpu_storage_write  0 0 0 0 8852
+    top images (addr size format WxHxD layers mips tile scaled | uploads unchanged changed partial first gpu_resident | dominant source):
+      0x246248000 8355840 R8G8B8A8Unorm 1920x1080x1 L1 M1 tile14 scaled | 828 0 0 0 0 828 | gpu_storage_write
+      0x2485a0000 16711680 R16G16B16A16Sfloat 1920x1080x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x257328000 262144 R8Unorm 512x512x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x2495a0000 16711680 R16G16B16A16Sfloat 1920x1080x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x256da8000 262144 R8Unorm 512x512x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x2569e0000 32768 R8Unorm 128x128x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x256c90000 32768 R8Unorm 128x128x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x24ad98000 8355840 R8G8B8A8Unorm 1920x1080x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x2672d8000 32768 R8Unorm 16x16x1 L1 M1 tile14 native | 277 0 0 0 0 277 | gpu_storage_write
+      0x24a598000 8355840 R8G8B8A8Unorm 1920x1080x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x256df0000 32768 R8Unorm 128x128x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x2672c8000 32768 R8Unorm 64x64x1 L1 M1 tile14 native | 277 0 0 0 0 277 | gpu_storage_write
+      0x258468000 262144 R8Unorm 512x512x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x2672b0000 65536 R8Unorm 256x256x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x258b88000 32768 R8Unorm 32x32x1 L1 M1 tile14 native | 277 0 0 0 0 277 | gpu_storage_write
+      0x2584b0000 32768 R8Unorm 32x32x1 L1 M1 tile14 native | 277 0 0 0 0 277 | gpu_storage_write
+      0x258b78000 32768 R8Unorm 128x128x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x24b598000 4423680 R16Sfloat 1920x1080x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x256ca0000 32768 R8Unorm 32x32x1 L1 M1 tile14 native | 277 0 0 0 0 277 | gpu_storage_write
+      0x25e4b8000 4194304 R8Unorm 2048x2048x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x265db0000 262144 R8Unorm 512x512x1 L1 M1 tile14 scaled | 277 0 0 0 0 277 | gpu_storage_write
+      0x25c940000 8355840 R8G8B8A8Unorm 1920x1080x1 L1 M1 tile14 native | 276 0 0 0 0 276 | gpu_storage_write
+      0x247598000 8355840 R8G8B8A8Unorm 1920x1080x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x247d98000 8355840 R32Sfloat 1920x1080x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x2563c0000 655360 R8Unorm 960x540x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x256680000 655360 R8Unorm 960x540x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x25c6f8000 2359296 R8Unorm 1920x1080x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x256520000 655360 R8Unorm 960x540x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x25c4b0000 2359296 R8G8B8A8Unorm 960x540x1 L1 M1 tile14 scaled | 276 0 0 0 0 276 | gpu_storage_write
+      0x238c08000 8355840 R8G8B8A8Srgb 1920x1080x1 L1 M1 tile10 scaled | 92 0 0 0 0 92 | gpu_storage_write
+      0x238408000 8355840 R8G8B8A8Srgb 1920x1080x1 L1 M1 tile10 scaled | 92 0 0 0 0 92 | gpu_storage_write
+      0x239408000 8355840 R8G8B8A8Srgb 1920x1080x1 L1 M1 tile10 scaled | 92 0 0 0 0 92 | gpu_storage_write
+

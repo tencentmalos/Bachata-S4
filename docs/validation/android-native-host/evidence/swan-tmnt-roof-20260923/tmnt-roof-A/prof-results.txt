@@ -1,0 +1,26 @@
+TMNT rooftop detail PROF (capture 2, cd8690d2; 385 frames / 20.0 s; gpu_timing detail + hle_sync on; dropped_zones 0)
+
+GPU zones per frame:
+  GPU.GuestCommands 40.46 ms (1.7 batches)
+    GPU.HostTransfer 24.21 ms (75.5 per frame, max 8.40 ms)
+    GPU.GuestRenderPass 9.62 ms (44.5 instances)
+    GPU.GuestDispatch 6.15 ms (28.5)
+    GPU.BufferUpload 0.06 ms
+  GPU.Present 1.49 ms, GPU.HostPrepare 0.64 ms, GPU.PostProcess 0.62 ms
+
+Top-level thread scopes per frame:
+  Guest-1 18264: HLE.sceGnmSubmitAndFlipCommandBuffers 40.45 ms (child GNM.SubmissionGate 40.17 ms), sceGnmDrawIndex 336 calls 1.64 ms
+  GpuComm 18287: PM4.Resume 51.43 ms (child PM4.WaitVideoOutLabel 35.36 ms)
+  VkSubmit 18289: Vulkan.WorkerSubmit 35.99 ms (child Vulkan.SubmitLock 35.86 ms)
+  Present 18311: VideoOut.Flip 51.79 ms -> Present.Frame 51.76 -> Present.DriverCall 50.60 ms
+  workers Guest-3..6: HLE.sem_wait ~49.8 ms each (idle)
+
+Off-CPU (simpleperf --trace-offcpu, 10 s, offcpu-stacks.txt / offcpu-present-stack.txt):
+  Present: 96.5% in sync_wait <- android::Fence::waitForever <- BufferQueueProducer::queueBuffer <- Surface::queueBuffer <- (libvulkan) <- Swapchain::Present
+  VkSubmit: 60.3% futex in mutex::lock <- Scheduler::SubmitExecution (queue mutex), 39.2% idle cond wait
+  GpuComm: 59.5% futex in VideoOutPort::WaitVoLabel
+
+Sched (sched-states.txt, 22 s, 0 overrun): process 0.85 cores; GpuComm 31.0% running / 68.6% sleep; Guest-1 20.5% / 79.0%
+Wakers (sched_waking): Present <- kgsl_hwsched 431, VkSubmit 424; VkSubmit <- Present 862, GpuComm 429
+GPU busy (sysfs, unlocked, 10 x 1 s after the locked runs): 98-99% at 902 MHz
+gpu_memory deltas per frame: scale_upload_created 25.96 images / 115.5 MB; tracked_created 57.9 / 240.7 MB (and freed); image_upload breaks 6.0; dispatch breaks 28.0

@@ -33,6 +33,11 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                 window_resumed_passes = cov.resumed_passes - last_coverage.resumed_passes;
                 window_promotions = cov.native_promotions - last_coverage.native_promotions;
                 window_readbacks = cov.upscaled_readbacks - last_coverage.upscaled_readbacks;
+                window_uploads = cov.image_uploads - last_coverage.image_uploads;
+                window_upload_bytes = cov.image_upload_bytes - last_coverage.image_upload_bytes;
+                window_fill_clears = cov.fill_clears - last_coverage.fill_clears;
+                window_flips = flips >= last_flips ? flips - last_flips : 0;
+                window_seconds = now > sample_ns ? (now - sample_ns) / 1e9 : 0.0;
                 coverage_sampled = true;
             }
             last_coverage = cov;
@@ -124,6 +129,17 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                 TextDisabled("native promotions +%llu | upscaled readbacks +%llu",
                              static_cast<unsigned long long>(window_promotions),
                              static_cast<unsigned long long>(window_readbacks));
+        }
+        if (coverage && coverage_sampled) {
+            // Texture re-uploads of the last window per guest frame (per second without
+            // flips); orange from 4 per frame. Fill clears: compute fills replaced by clears.
+            const bool per_frame = window_flips != 0;
+            const double divisor = per_frame ? double(window_flips) : std::max(window_seconds, 1e-3);
+            const double uploads = window_uploads / divisor;
+            TextColored(per_frame && uploads >= 4 ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
+                        "Re-uploads %.1f/%s (%.1f MB)  fill clears %.1f", uploads,
+                        per_frame ? "frame" : "s", window_upload_bytes / divisor / (1024.0 * 1024.0),
+                        window_fill_clears / divisor);
         }
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
         if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");

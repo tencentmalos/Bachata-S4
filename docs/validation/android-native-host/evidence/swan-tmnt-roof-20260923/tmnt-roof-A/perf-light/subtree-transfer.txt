@@ -1,0 +1,113 @@
+
+### Image::UploadRegions: 54 samples = 0.4% of thread
+-- direct children
+   63.0%  vk_common_CmdCopyBufferToImage
+    9.3%  vk2tu_access
+    9.3%  tu_barrier
+    5.6%  <self>
+    5.6%  VideoCore::Image::GetBarriers
+    3.7%  VideoCore::Image::Transit
+    1.9%  void tu_CmdCopyBufferToImage2<
+    1.9%  @plt
+-- leaves
+   14.8%  void fdl6_view_init<
+   11.1%  void tu_CmdCopyBufferToImage2<
+    9.3%  vk2tu_access
+    9.3%  tu_barrier
+    7.4%  VideoCore::Image::GetBarriers
+    5.6%  copy_format
+    5.6%  VideoCore::Image::UploadRegions
+    3.7%  format_to_ifmt
+    3.7%  r2d_run
+    3.7%  util_format_description
+    3.7%  void r2d_setup_common<
+    3.7%  unsigned int fdl6_texswiz<
+    3.7%  vk_common_CmdCopyBufferToImage
+    3.7%  void tu6_emit_flushes<
+
+### Image::CopyImage\b|Image::CopyImage\(: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### Image::BlitCopy: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### Image::CopyImageWithBuffer: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### Image::CopyMip: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### Image::Resolve: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### Image::BlitBacking: 40 samples = 0.3% of thread
+-- direct children
+   67.5%  vk_common_CmdBlitImage
+   17.5%  VideoCore::Image::Transit
+   15.0%  <self>
+-- leaves
+   17.5%  void fdl6_view_init<
+   15.0%  VideoCore::Image::BlitBacking
+   12.5%  void tu6_blit_image<
+   10.0%  vk2tu_access
+    7.5%  void tu6_emit_flushes<
+    7.5%  fdl6_format_swiz
+    5.0%  void r2d_setup_common<
+    5.0%  tu_barrier
+    2.5%  void tu_flush_for_access<
+    2.5%  util_format_is_alpha
+    2.5%  util_format_compose_swizzles
+    2.5%  fd6_texture_format
+    2.5%  void tu_CmdBlitImage2<
+    2.5%  util_format_is_pure_integer
+
+### BufferCache::CopyBuffer: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### DownloadBufferMemory: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### JoinOverlap: 0 samples = 0.0% of thread
+-- direct children
+-- leaves
+
+### TileManager::: 359 samples = 2.9% of thread
+-- direct children
+   79.9%  VideoCore::VmaDiagnostics::CreateBuffer
+    5.6%  Vulkan::Scheduler::BindHostDescriptors
+    5.3%  void tu_CmdDispatchBase<
+    5.0%  VideoCore::VmaDiagnostics::Tag
+    2.8%  <self>
+    0.3%  tu_CmdBindPipeline
+    0.3%  operator new
+    0.3%  vmaCreateBuffer
+    0.3%  VideoCore::VmaDiagnostics::Begin
+    0.3%  VideoCore::StreamBuffer::Map
+-- leaves
+   25.9%  dma_buf_total_size
+    7.0%  VideoCore::VmaDiagnostics::Created
+    5.3%  nr_blockdev_pages
+    3.6%  VmaBlockVector::AllocatePage
+    1.9%  void tu_CmdPushDescriptorSet2KHR<
+    1.9%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate
+    1.9%  VmaBlockMetadata_TLSF::CreateAllocationRequest
+    1.7%  VmaBlockMetadata_TLSF::Alloc
+    1.7%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk
+    1.7%  @plt
+    1.4%  void fdl6_buffer_view_init<
+    1.4%  std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::append
+    1.4%  pthread_mutex_lock
+    1.4%  vmaCreateBuffer
+
+### WaitVideoOutLabel|WaitRegMem|Liverpool::.*Wait: 1 samples = 0.0% of thread
+-- direct children
+  100.0%  <self>
+-- leaves
+  100.0%  AmdGpu::PM4CmdWaitRegMem::Test

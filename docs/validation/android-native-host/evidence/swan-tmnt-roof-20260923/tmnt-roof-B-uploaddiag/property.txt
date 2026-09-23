@@ -1,0 +1,2 @@
+hostlog_offset=1604943872
+presents_in_window=269

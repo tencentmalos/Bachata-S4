@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cstring>
 #include <span>
 #include <stdexcept>
@@ -173,8 +174,18 @@ public:
         std::array<u64, MaxDepth> stack{};
         u32 depth{};
         u64 pointer{};
-        std::vector<Memo> memo(expressions.size());
-        u32 epoch{};
+        // Runs once per shader stage per draw: reuse one memo buffer per thread. Epochs keep
+        // increasing across runs, so entries left by an earlier run never match; the buffer is
+        // only cleared when the epoch counter would wrap.
+        thread_local std::vector<Memo> memo_buffer;
+        thread_local u32 epoch = 0;
+        if (memo_buffer.size() < expressions.size())
+            memo_buffer.resize(expressions.size());
+        if (epoch > UINT32_MAX - static_cast<u32>(commands.size()) - 1) {
+            std::fill(memo_buffer.begin(), memo_buffer.end(), Memo{});
+            epoch = 0;
+        }
+        const std::span<Memo> memo{memo_buffer.data(), expressions.size()};
         for (auto command : commands) {
             if (command.kind == Kind::Pop) {
                 pointer = stack[--depth];
@@ -206,4 +217,22 @@ public:
 };
 // Uses the current MemoryManager's mapped ranges, never an arbitrary host pointer.
 bool ReadSrtGuestMemory(u64 address, void* data, size_t size);
+
+// One batch of guest reads for a flattening run: the mapping lock is taken once and each
+// touched table is resolved once (MemoryManager::SrtReadBatch, held in place without a heap
+// allocation). Pass it to PortableSrt::Run as the reader; keep it alive only around the run,
+// never across work that may block. When batching is switched off it forwards every read to
+// ReadSrtGuestMemory.
+class SrtGuestReader {
+public:
+    SrtGuestReader();
+    ~SrtGuestReader();
+    SrtGuestReader(const SrtGuestReader&) = delete;
+    SrtGuestReader& operator=(const SrtGuestReader&) = delete;
+    bool operator()(u64 address, void* data, size_t size);
+
+private:
+    alignas(16) unsigned char storage[256];
+    bool active{};
+};
 } // namespace Shader

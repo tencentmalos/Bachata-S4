@@ -1,0 +1,7 @@
+A fill_clear=off fps=19.694 presents=200 cpuset=/top-app focus=com.shadps4.android/.MainActivity
+B fill_clear=on fps=59.635 presents=607 cpuset=/top-app focus=com.shadps4.android/.MainActivity
+C fill_clear=off fps=20.005 presents=203 cpuset=/top-app focus=com.shadps4.android/.MainActivity
+D fill_clear=on fps=59.574 presents=605 cpuset=/top-app focus=com.shadps4.android/.MainActivity
+G fill_clear=on fps=59.595 presents=605 cpuset=/top-app focus=com.shadps4.android/.MainActivity
+H fill_clear=off fps=20.587 presents=209 cpuset=/top-app focus=com.shadps4.android/.MainActivity
+I fill_clear=on fps=59.656 presents=607 cpuset=/top-app focus=com.shadps4.android/.MainActivity

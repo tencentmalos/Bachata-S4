@@ -198,7 +198,11 @@ struct Info : InfoPersistent {
         ASSERT(user_data.size() <= NUM_USER_DATA_REGS);
         std::memcpy(flattened_ud_buf.data(), user_data.data(), user_data.size_bytes());
 #ifndef ARCH_X86_64
-        srt_info.portable.Run(user_data, flattened_ud_buf, ReadSrtGuestMemory);
+        SrtGuestReader reader; // one mapping lock, each table resolved once
+        srt_info.portable.Run(user_data, flattened_ud_buf,
+                              [&reader](u64 address, void* data, size_t size) {
+                                  return reader(address, data, size);
+                              });
 #else
         if (srt_info.walker_func) {
             srt_info.walker_func(user_data.data(), flattened_ud_buf.data());

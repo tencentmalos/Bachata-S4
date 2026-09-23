@@ -1,0 +1,10 @@
+    status=stopped
+    armed=0 uploads=0 images=0 frames=0 uploads_per_frame=0.00 dirty_notes=0 log_left=0
+    ignore_storage_dirty=0 ignored_storage_dirty=0
+    compute_fill: off=0 images_cleared=394362 bytes_cleared=1565632266240 cleared=394362 no_image=24406 partial=2 pattern=0 format=0 gpu_resident=0 disabled=13137
+    image-writing dispatches=6017 dispatch_log_left=0 (pgm_hash dispatches):
+      0x000000000934eeac 6017
+    uploads by writing shader (pgm_hash uploads):
+    outcome_by_source (unchanged changed partial first gpu_resident):
+    top images (addr size format WxHxD layers mips tile scaled | uploads unchanged changed partial first gpu_resident | dominant source last_writer):
+

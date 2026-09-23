@@ -5,6 +5,7 @@
 
 #include <condition_variable>
 #include <mutex>
+#include <optional>
 #include <thread>
 #include <unordered_set>
 #include <boost/container/small_vector.hpp>
@@ -21,6 +22,7 @@
 #include "video_core/texture_cache/sampler.h"
 #include "video_core/texture_cache/scale_coverage.h"
 #include "video_core/texture_cache/tile_manager.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 
 namespace AmdGpu {
 struct Liverpool;
@@ -86,8 +88,40 @@ public:
     /// Invalidates any image in the logical page range.
     void InvalidateMemory(VAddr addr, size_t size);
 
-    /// Marks an image as dirty if it exists at the provided address.
-    void InvalidateMemoryFromGPU(VAddr address, size_t max_size);
+    /// Marks an image as dirty if it exists at the provided address. `source` only labels
+    /// upload diagnostics (storage-buffer shader write vs CP/DMA copy).
+    void InvalidateMemoryFromGPU(VAddr address, size_t max_size,
+                                 UploadDiagnostics::DirtySource source =
+                                     UploadDiagnostics::DirtySource::GpuStorageWrite,
+                                 u64 writer = 0);
+
+    /// A GPU kernel fills [address, address + size) with `pattern` repeated from `address`.
+    /// When every cached image overlapping the range lies fully inside it, starts on a pattern
+    /// boundary and sees one uniform texel, clears those images to that texel (they become the
+    /// authoritative GPU copy, like render targets) and returns Cleared: the caller skips the
+    /// dispatch. Otherwise nothing is recorded and the caller dispatches as before.
+    [[nodiscard]] UploadDiagnostics::FillOutcome ClearImagesForFill(VAddr address, u64 size,
+                                                                    std::span<const u32> pattern,
+                                                                    u32& images_cleared);
+
+    /// One (level, layer) subresource of a non-volume cached image.
+    struct ImageSlice {
+        ImageId id;
+        u32 level{};
+        u32 layer{};
+    };
+    /// The single cached image whose one subresource occupies exactly [address, address + size),
+    /// e.g. a cube face cleared on its own. nullopt when no or several cached images overlap the
+    /// range, or the range is not one whole subresource.
+    [[nodiscard]] std::optional<ImageSlice> FindImageSlice(VAddr address, u64 size);
+
+    /// True when any cached image overlaps [address, address + size).
+    [[nodiscard]] bool HasImageInRange(VAddr address, u64 size);
+
+    /// Upload diagnostics only: describes cached images overlapping a range; `base_match` is
+    /// set when one of them starts exactly at `address` (the case InvalidateMemoryFromGPU marks).
+    [[nodiscard]] std::string DescribeImagesForDiagnostics(VAddr address, u64 size,
+                                                           bool& base_match);
 
     /// Evicts any images that overlap the unmapped range.
     void UnmapMemory(VAddr cpu_addr, size_t size);
@@ -167,6 +201,12 @@ public:
 
     /// Reuploads image contents.
     void RefreshImage(Image& image);
+
+    /// Upload diagnostics (default off): record which write dirtied an image and hash the
+    /// guest bytes of the mips about to be uploaded. Called only while armed.
+    void NoteUploadDirty(const Image& image, UploadDiagnostics::DirtySource source, VAddr address,
+                         u64 size, u64 writer = 0);
+    void NoteUploadDiagnostics(const Image& image, std::span<const vk::BufferImageCopy> copies);
 
     /// Retrieves the sampler that matches the provided S# descriptor.
     [[nodiscard]] vk::Sampler GetSampler(const AmdGpu::Sampler& sampler,

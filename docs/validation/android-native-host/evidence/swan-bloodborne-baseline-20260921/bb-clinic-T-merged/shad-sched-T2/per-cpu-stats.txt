@@ -1,0 +1,72 @@
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu0/stats]
+entries: 566053
+overrun: 0
+commit overrun: 0
+bytes: 28923596
+oldest event ts: 53132.162999
+now ts: 53152.187923
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu1/stats]
+entries: 414025
+overrun: 0
+commit overrun: 0
+bytes: 21148492
+oldest event ts: 53132.162943
+now ts: 53152.196201
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu2/stats]
+entries: 290600
+overrun: 0
+commit overrun: 0
+bytes: 15273656
+oldest event ts: 53132.162983
+now ts: 53152.206671
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu3/stats]
+entries: 324889
+overrun: 0
+commit overrun: 0
+bytes: 16926504
+oldest event ts: 53132.162939
+now ts: 53152.220404
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu4/stats]
+entries: 270065
+overrun: 0
+commit overrun: 0
+bytes: 14899648
+oldest event ts: 53132.163055
+now ts: 53152.228304
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu5/stats]
+entries: 282082
+overrun: 0
+commit overrun: 0
+bytes: 15878348
+oldest event ts: 53132.162939
+now ts: 53152.236890
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu6/stats]
+entries: 235240
+overrun: 0
+commit overrun: 0
+bytes: 13051012
+oldest event ts: 53132.163208
+now ts: 53152.246049
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/shad_sched_7547/per_cpu/cpu7/stats]
+entries: 223240
+overrun: 0
+commit overrun: 0
+bytes: 12324756
+oldest event ts: 53132.163346
+now ts: 53152.253287
+dropped events: 0
+read events: 0
