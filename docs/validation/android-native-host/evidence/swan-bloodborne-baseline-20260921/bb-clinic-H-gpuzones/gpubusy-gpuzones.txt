@@ -1,0 +1,16 @@
+t=2 busy=99 % clk=726000000 avail=796948
+t=4 busy=99 % clk=726000000 avail=693844
+t=6 busy=98 % clk=726000000 avail=696216
+t=8 busy=99 % clk=726000000 avail=831648
+t=10 busy=99 % clk=726000000 avail=840736
+t=12 busy=98 % clk=726000000 avail=827092
+t=14 busy=99 % clk=726000000 avail=679924
+t=16 busy=98 % clk=726000000 avail=810464
+t=18 busy=99 % clk=726000000 avail=812056
+t=20 busy=99 % clk=726000000 avail=665916
+t=22 busy=98 % clk=726000000 avail=672992
+presents_22s=212
+    pending: 7
+    dropped_batches: 0
+    dropped_zones: 53792
+    errors: 0

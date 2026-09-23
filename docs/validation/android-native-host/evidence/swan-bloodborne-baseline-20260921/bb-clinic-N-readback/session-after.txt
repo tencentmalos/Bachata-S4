@@ -1,0 +1,19 @@
+SERVICE com.shadps4.android/.service.FexSessionService 5a70df4 pid=15194 user=0
+  Client:
+    session: active
+    generation: 1
+    pid: 15194
+    phase: 3
+    run_uuid: 1c2006df93bcfeaff231207a6f20ee07
+    stage: Running
+    driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1 
+    snapshot_ns: 290237906615792
+    guest_flip: 3101 (age_ns=64966718)
+    pm4_consumed: 37961987 (age_ns=17656)
+    host_draw: 1084822 (age_ns=19687)
+    queue_submit: 15801 (age_ns=90029635)
+    gpu_retire: unavailable
+    host_present: 3099 (age_ns=94351093)
+    overlay_redraw: 6350 (age_ns=94109010)
+    guest_submission: 25974 (age_ns=5652083)
+

@@ -1,0 +1,1 @@
+rss_kb=1155952 swap_kb=926896 avail_kb=1492448

@@ -1,6 +1,11 @@
 package com.shadps4.android.feature.settings
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings as AndroidSettings
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -31,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shadps4.android.designsystem.BachataPanel
@@ -45,7 +51,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import com.shadps4.android.runtime.settings.SettingKind
 
 private enum class SettingsPage(val title: String) {
-    System("System"), Graphics("Graphics"), Controllers("Controller Buttons"), Touch("Touch Layout"),
+    System("System"), Graphics("Graphics"), Library("Game Library"),
+    Controllers("Controller Buttons"), Touch("Touch Layout"),
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -187,8 +194,105 @@ fun SettingsScreen(
                     }
                     state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
+                SettingsPage.Library -> ZarLibraryPage(state.library, viewModel)
                 SettingsPage.Controllers -> ControllerMappingScreen(scope = state.scope, onBack = back)
                 SettingsPage.Touch -> TouchLayoutEditorScreen(scope = state.scope, onBack = back)
+            }
+        }
+    }
+}
+
+/**
+ * Folder of `.zar` archives outside app storage. Archives are linked, never copied, so
+ * the library shows them without a multi-gigabyte import and the runtime opens each one
+ * where it lies, next to its `-UPD` / `-DLC` siblings.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ZarLibraryPage(state: ZarLibraryUiState, viewModel: SettingsViewModel) {
+    val context = LocalContext.current
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            viewModel.setLibraryFolder(com.shadps4.android.data.ZarLibraryFolder.fromTreeUri(uri.toString()))
+        }
+    }
+    LaunchedEffect(Unit) { viewModel.refreshLibraryFolder() }
+
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        BachataPanel(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("ZAR folder", style = MaterialTheme.typography.titleMedium, color = BachataPalette.Primary)
+                Text(
+                    "Games kept as .zar archives in this folder appear in the library without " +
+                        "being copied. Update and DLC archives next to a game are picked up with it.",
+                    color = BachataPalette.Secondary,
+                )
+                Text(state.folder ?: "Not set", color = BachataPalette.Primary)
+                val status = when (state.access) {
+                    ZarFolderAccess.Unset -> "No folder selected."
+                    ZarFolderAccess.Readable -> "Folder is readable."
+                    ZarFolderAccess.NeedsPermission ->
+                        "Cannot read this folder. Grant all-files access, or move the archives " +
+                            "into the app folder below."
+                    ZarFolderAccess.Unavailable ->
+                        "Cannot read this folder. Check that it still exists on this device."
+                }
+                Text(status, color = BachataPalette.Secondary)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { picker.launch(null) }) { Text("Choose folder") }
+                    state.appFolder?.let { path ->
+                        TextButton(onClick = { viewModel.setLibraryFolder(path) }) { Text("Use app folder") }
+                    }
+                    if (state.folder != null) {
+                        TextButton(onClick = { viewModel.setLibraryFolder(null) }) { Text("Clear") }
+                        TextButton(onClick = { viewModel.rescanLibrary() }) {
+                            Text(if (state.scanning) "Scanning…" else "Rescan")
+                        }
+                    }
+                }
+                if (state.allFilesAccessDeclared && !state.allFilesAccessGranted) {
+                    TextButton(onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(
+                                    AndroidSettings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                                    Uri.parse("package:" + context.packageName),
+                                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            )
+                        }.onFailure {
+                            context.startActivity(
+                                Intent(AndroidSettings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            )
+                        }
+                    }) { Text("Grant all-files access") }
+                }
+                state.appFolder?.let { path ->
+                    Text(
+                        "App folder (always readable): " + path,
+                        color = BachataPalette.Secondary,
+                    )
+                }
+            }
+        }
+        BachataPanel(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Linked archives", style = MaterialTheme.typography.titleMedium, color = BachataPalette.Primary)
+                if (state.linkedTitles.isEmpty()) {
+                    Text("None linked yet.", color = BachataPalette.Secondary)
+                } else {
+                    Text(state.linkedTitles.joinToString(", "), color = BachataPalette.Primary)
+                }
+                if (state.removedTitles.isNotEmpty()) {
+                    Text("Removed: " + state.removedTitles.joinToString(", "), color = BachataPalette.Secondary)
+                }
+                state.rejected.forEach { line ->
+                    Text(line, color = MaterialTheme.colorScheme.error)
+                }
+                state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         }
     }

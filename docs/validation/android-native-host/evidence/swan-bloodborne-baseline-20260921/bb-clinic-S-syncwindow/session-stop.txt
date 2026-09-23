@@ -1,0 +1,5 @@
+    stage: Stopped
+    stop_reason: user_stop
+    terminal_detail: guest return=8757845664
+    guest_flip: 14961 (age_ns=2149382551)
+    host_present: 14961 (age_ns=2099915416)

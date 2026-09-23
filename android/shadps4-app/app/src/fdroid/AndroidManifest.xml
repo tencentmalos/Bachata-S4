@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Reads .zar game archives from a user-chosen folder (Settings > Game Library).
+         Scoped storage has no path-based read for non-media files and the native loader
+         opens archives by path, so an all-files grant is the only way to keep a multi-
+         gigabyte archive outside app storage. The Play build omits this and uses the
+         app-external folder instead. -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+</manifest>

@@ -12,7 +12,9 @@ class Instance;
 class GpuProfiler {
 public:
     using Stage = Common::Profiler::GpuStage;
-    static constexpr uint32_t Invalid = UINT32_MAX, BatchCount = 32, ZonesPerBatch = 96;
+    // ZonesPerBatch bounds detail zones per command buffer (render passes, dispatches,
+    // transfers and buffer uploads); overflow is counted in dropped_zones, never blocks.
+    static constexpr uint32_t Invalid = UINT32_MAX, BatchCount = 32, ZonesPerBatch = 1024;
     GpuProfiler(const Instance& instance, Stage stage);
     void BeginBatch(vk::CommandBuffer cmd, uint64_t completed);
     uint32_t Begin(vk::CommandBuffer cmd, Stage stage);
@@ -25,6 +27,8 @@ public:
     void Submitted(uint64_t tick);
     void Queued(uint64_t tick, std::shared_ptr<SubmissionReceipt> receipt);
     void Collect(uint64_t completed);
+    // Increments at every BeginBatch; a zone may only be ended inside the batch that began it.
+    uint64_t BatchSerial() const { return batch_serial; }
 private:
     struct Zone { Stage stage{}; bool ended{}; };
     struct Batch {
@@ -45,7 +49,7 @@ private:
     uint8_t bits{}, context{};
     double period{}, guest_frame_ns{};
     uint64_t frame_generation{}, last_retired_tick{};
-    uint64_t context_generation{};
+    uint64_t context_generation{}, batch_serial{};
     uint64_t best_bound{UINT64_MAX}, anchor_cpu{}, anchor_gpu{};
     uint32_t calibration_samples{};
     bool attempted{}, calibration_attempted{}, disabled{}, frame_incomplete{true};

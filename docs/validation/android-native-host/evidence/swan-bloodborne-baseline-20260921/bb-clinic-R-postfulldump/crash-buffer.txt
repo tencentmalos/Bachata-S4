@@ -1,0 +1,2 @@
+--------- beginning of crash
+09-22 03:40:50.243 F/libc    (15279): Fatal signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x24d3c0040 in tid 24816 (Guest-19), pid 15279 (shadps4.android)

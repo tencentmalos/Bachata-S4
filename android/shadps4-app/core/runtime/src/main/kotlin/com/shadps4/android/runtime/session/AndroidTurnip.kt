@@ -1,6 +1,7 @@
 package com.shadps4.android.runtime.session
 
 import android.content.Context
+import android.util.Log
 import java.io.File
 import java.security.MessageDigest
 
@@ -14,8 +15,20 @@ object AndroidTurnip {
 
     data class Paths(val hooks: String, val driver: String)
 
+    /**
+     * Profile selection: the bundled mainline Turnip is the default everywhere.
+     * `debug.shadps4.vulkan_driver=turnip` keeps the historical R8 pin for comparison;
+     * `system` does not use these files, so the R8 directory is prepared only for identity checks.
+     */
+    fun useMainline(): Boolean {
+        val property = nativeSystemProperty("debug.shadps4.vulkan_driver")
+        val mainline = property != "turnip" && property != "system"
+        Log.i("AndroidTurnip", "Turnip profile: " + (if (mainline) "mainline" else "r8") + " (property='" + property + "')")
+        return mainline
+    }
+
     @Synchronized fun prepare(context: Context): Paths {
-        val mainline = nativeUseMainline()
+        val mainline = useMainline()
         val expectedSha = if (mainline) MAINLINE_SHA else SHA
         val assetRoot = if (mainline) "native-turnip-mainline" else "native-turnip"
         val root = File(context.filesDir, "native-drivers/$expectedSha").apply { mkdirs() }
@@ -52,8 +65,8 @@ object AndroidTurnip {
     /** Returns verified physical-device identity; failure is a Java exception. */
     external fun nativeLoad(hooks: String, driver: String): String
 
-    /** Explicit next-process diagnostic profile; the pinned default is unchanged. */
-    private external fun nativeUseMainline(): Boolean
+    /** Reads one Android system property; empty when unset. */
+    private external fun nativeSystemProperty(name: String): String
 
     /** Runs the production Vulkan Instance/Swapchain constructors on this Surface. */
     external fun nativeInspectSurface(hooks: String, driver: String, surface: android.view.Surface): String

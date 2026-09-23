@@ -22,6 +22,21 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
             guest_flip_fps = (flips - last_flips) * scale;
             draws_per_second = (draws - last_draws) * scale;
         }
+        if (coverage) {
+            // Relaxed snapshot of producer counters; shares are window deltas.
+            const auto cov = coverage->Read();
+            if (sample_ns) {
+                window_draws = cov.draws - last_coverage.draws;
+                window_scaled_draws = cov.scaled_draws - last_coverage.scaled_draws;
+                window_passes = cov.passes - last_coverage.passes;
+                window_scaled_passes = cov.scaled_passes - last_coverage.scaled_passes;
+                window_resumed_passes = cov.resumed_passes - last_coverage.resumed_passes;
+                window_promotions = cov.native_promotions - last_coverage.native_promotions;
+                window_readbacks = cov.upscaled_readbacks - last_coverage.upscaled_readbacks;
+                coverage_sampled = true;
+            }
+            last_coverage = cov;
+        }
         last_flips = flips; last_draws = draws; sample_ns = now;
     }
     const float panel_width = std::min(480.f, std::max(260.f, width * .32f));
@@ -84,6 +99,32 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
         Text("Surface %u x %u (x%s)    Generation %llu", width, height, scale_label,
              static_cast<unsigned long long>(snapshot.generation));
         Text("Texture %s%s", VideoCore::TextureQualityName(scale_policy.texture).data(), scale_policy.legacy ? " (legacy)" : "");
+        if (coverage && scale_policy.render_eighths != 8) {
+            // Attachment draws and render-pass instances of the last 500 ms window that
+            // actually rendered at x<scale>, as scaled/total; orange below half.
+            if (coverage_sampled && window_draws) {
+                const bool low = window_scaled_draws * 2 < window_draws;
+                TextColored(low ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
+                            "Scale x%s  draws %llu/%llu  passes %llu/%llu", scale_label,
+                            static_cast<unsigned long long>(window_scaled_draws),
+                            static_cast<unsigned long long>(window_draws),
+                            static_cast<unsigned long long>(window_scaled_passes),
+                            static_cast<unsigned long long>(window_passes));
+            } else TextDisabled("Scale x%s coverage: sampling", scale_label);
+            if (coverage_sampled && window_passes) {
+                // Pass instances the guest expressed (target changes) vs. fragments that
+                // re-opened the same targets after an emulator-imposed break.
+                const auto guest = window_passes - std::min(window_passes, window_resumed_passes);
+                const bool split = window_resumed_passes > guest;
+                TextColored(split ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
+                            "passes: guest %llu  +%llu split", static_cast<unsigned long long>(guest),
+                            static_cast<unsigned long long>(window_resumed_passes));
+            }
+            if (window_promotions || window_readbacks)
+                TextDisabled("native promotions +%llu | upscaled readbacks +%llu",
+                             static_cast<unsigned long long>(window_promotions),
+                             static_cast<unsigned long long>(window_readbacks));
+        }
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
         if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");
         else if (gpu) {

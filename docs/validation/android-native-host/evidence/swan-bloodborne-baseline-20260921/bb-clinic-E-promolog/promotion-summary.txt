@@ -1,0 +1,81 @@
+== promotions by (reason text, code):
+    38  'mixed attachment pass'                  mixed-pass
+     8  'copy alias'                             alias
+     1  'storage'                                semantic-native
+
+== promotion lines (order of occurrence):
+  mixed attachment pass mixed-pass 1x1 D16Unorm L1 M1 S1 0x2d1d40000 0x10000 false false 0x10 0 0x42
+  mixed attachment pass mixed-pass 1x1 D16Unorm L1 M1 S1 0x2d1d50000 0x10000 false false 0x10 0 0x42
+  copy alias alias 1x1 D16Unorm L2 M1 S1 0x2d1d50000 0x20000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L3 M1 S1 0x2d1d50000 0x30000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L4 M1 S1 0x2d1d50000 0x40000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L5 M1 S1 0x2d1d50000 0x50000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L6 M1 S1 0x2d1d50000 0x60000 false false 0x101 0 0x10
+  storage semantic-native 2048x2 R32Sfloat L1 M1 S1 0x2d326f600 0x10000 false false 0x6 1 0x6
+  copy alias alias 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x272300000 0x7f8000 false false 0x102 1 0x30
+  copy alias alias 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x26e090000 0x7f8000 true true 0x8a 2 0x10
+  mixed attachment pass mixed-pass 64x64 D32Sfloat L1 M1 S1 0x2d2850000 0x20000 false false 0x10 0 0x42
+  mixed attachment pass mixed-pass 64x64 R16G16Sfloat L6 M1 S1 0x2d2878000 0x30000 false false 0xa 1 0x42
+  mixed attachment pass mixed-pass 64x64 R16G16Sfloat L6 M1 S1 0x2d28a8000 0x30000 false false 0xa 1 0x42
+  mixed attachment pass mixed-pass 32x32 D32Sfloat L1 M1 S1 0x2d28d8000 0x20000 false false 0x10 0 0x42
+  mixed attachment pass mixed-pass 32x32 R16G16Sfloat L6 M1 S1 0x2d2900000 0x30000 false false 0xa 1 0x42
+  mixed attachment pass mixed-pass 32x32 R16G16Sfloat L6 M1 S1 0x2d2930000 0x30000 false false 0xa 1 0x42
+  mixed attachment pass mixed-pass 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x26e890000 0x7f8000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R8G8B8A8Srgb L1 M1 S1 0x26f090000 0x7f8000 true false 0xa 1 0x40
+  mixed attachment pass mixed-pass 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x26f890000 0x7f8000 true false 0xa 1 0x40
+  mixed attachment pass mixed-pass 1920x1080 B10G11R11UfloatPack32 L1 M1 S1 0x2732f0000 0x7f8000 true true 0xa 1 0x40
+  mixed attachment pass mixed-pass 1920x1080 R16G16B16A16Sfloat L1 M1 S1 0x274ae0000 0xff0000 true true 0xa 1 0x40
+  mixed attachment pass mixed-pass 1920x1080 D32SfloatS8Uint L1 M1 S1 0x24f3f0000 0x900000 true true 0x10 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R16G16B16A16Sfloat L1 M1 S1 0x271310000 0xff0000 true true 0xa 1 0x40
+  mixed attachment pass mixed-pass 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x277840000 0x7f8000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 B10G11R11UfloatPack32 L1 M1 S1 0x273ae8000 0x7f8000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 B10G11R11UfloatPack32 L1 M1 S1 0x2742e0000 0x7f8000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R16G16B16A16Sfloat L1 M1 S1 0x280ea0000 0xff0000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R16G16B16A16Sfloat L1 M1 S1 0x275ad0000 0xff0000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R16G16B16A16Sfloat L1 M1 S1 0x26ab40000 0xff0000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x24ebf8000 0x7f8000 true true 0xa 2 0x40
+  mixed attachment pass mixed-pass 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x278038000 0x7f8000 true true 0x8 2 0x40
+  mixed attachment pass mixed-pass 49x42 B10G11R11UfloatPack32 L1 M1 S1 0x25b818000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 49x42 B10G11R11UfloatPack32 L1 M1 S1 0x25b808000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 49x42 B10G11R11UfloatPack32 L1 M1 S1 0x25b7f8000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 25x21 B10G11R11UfloatPack32 L1 M1 S1 0x25b860000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 25x21 B10G11R11UfloatPack32 L1 M1 S1 0x25b850000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 25x21 B10G11R11UfloatPack32 L1 M1 S1 0x25b840000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 50x42 B10G11R11UfloatPack32 L1 M1 S1 0x25b870000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 13x11 B10G11R11UfloatPack32 L1 M1 S1 0x25b8a0000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 13x11 B10G11R11UfloatPack32 L1 M1 S1 0x25b890000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 13x11 B10G11R11UfloatPack32 L1 M1 S1 0x25b880000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 26x22 B10G11R11UfloatPack32 L1 M1 S1 0x25b8b0000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 7x6 B10G11R11UfloatPack32 L1 M1 S1 0x25b8e0000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 7x6 B10G11R11UfloatPack32 L1 M1 S1 0x25b8d0000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 7x6 B10G11R11UfloatPack32 L1 M1 S1 0x25b8c0000 0x8000 false false 0x8 0 0x42
+  mixed attachment pass mixed-pass 14x12 B10G11R11UfloatPack32 L1 M1 S1 0x25b8f0000 0x8000 false false 0x8 0 0x42
+  copy alias alias 1920x1080 R8G8B8A8Unorm L1 M1 S1 0x2508e0000 0x7f8000 true true 0x10a 2 0x10
+
+== native allocations (probable render targets):
+  1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x24ebf8000:0x7f8000
+  1024x1024 R8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x313ae2100:0x100000
+  1920x1080 R32Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x269fd0000:0x900000
+  4096x4096 D32Sfloat use=1 domain=native-required reason=semantic-native mask=0x4 0x27cda0000:0x4000000
+  1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x26f890000:0x7f8000
+  1920x1080 R16G16B16A16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x274ae0000:0xff0000
+  1920x1080 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x2732f0000:0x7f8000
+  1920x1080 R8G8B8A8Srgb use=1 domain=asset reason=insufficient-mips mask=0x0 0x26f090000:0x7f8000
+  1920x1080 R16G16B16A16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x271310000:0xff0000
+  256x256 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f15a00:0x40000
+  128x128 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f55b00:0x10000
+  960x540 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x269b50000:0x240000
+  1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x272300000:0x7f8000
+  256x256 R16G16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x255080000:0x180000
+  256x256 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x263e34000:0x40000
+  128x128 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f3e100:0x10000
+
+== native passes:
+  fs=0xbb10e440 attachments=7 causes=native-attachment scale-mismatch native_attachment=alias[0] 1920x1080 R8G8B8A8Unorm 0x26e090000 mask=0x10 buffer_writes=false image_writes=false
+  fs=0x2390c887 attachments=8 causes=native-attachment scale-mismatch native_attachment=alias[0] 1920x1080 R8G8B8A8Unorm 0x26e090000 mask=0x10 buffer_writes=false image_writes=false
+  fs=0xa291c498 attachments=2 causes=native-attachment scale-mismatch native_attachment=mixed-pass[depth] 1920x1080 D32SfloatS8Uint 0x24f3f0000 mask=0x40 buffer_writes=false image_writes=false
+  fs=0xd92266b9 attachments=3 causes=native-attachment scale-mismatch native_attachment=mixed-pass[depth] 1920x1080 D32SfloatS8Uint 0x24f3f0000 mask=0x40 buffer_writes=false image_writes=false
+  fs=0x2eacb983 attachments=2 causes=native-attachment scale-mismatch native_attachment=mixed-pass[depth] 1920x1080 D32SfloatS8Uint 0x24f3f0000 mask=0x40 buffer_writes=false image_writes=false
+  fs=0x8c13b984 attachments=2 causes=native-attachment scale-mismatch native_attachment=mixed-pass[depth] 1920x1080 D32SfloatS8Uint 0x24f3f0000 mask=0x40 buffer_writes=false image_writes=false
+  fs=0x9eb30215 attachments=2 causes=native-attachment scale-mismatch native_attachment=mixed-pass[depth] 1920x1080 D32SfloatS8Uint 0x24f3f0000 mask=0x40 buffer_writes=false image_writes=false
+  fs=0xb7de74d9 attachments=2 causes=native-attachment scale-mismatch native_attachment=mixed-pass[depth] 1920x1080 D32SfloatS8Uint 0x24f3f0000 mask=0x40 buffer_writes=false image_writes=false

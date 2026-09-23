@@ -102,6 +102,7 @@ void GpuProfiler::BeginBatch(vk::CommandBuffer cmd, uint64_t completed) {
         std::lock_guard lock{stats->mutex}; ++stats->snapshot.dropped_batches; return;
     }
     batches[current] = {.generation = Generation(), .used = true};
+    ++batch_serial;
     // Reset outside any rendering scope, only after the previous lease retired.
     cmd.resetQueryPool(*pool, current * ZonesPerBatch * 2, ZonesPerBatch * 2);
     Begin(cmd, stage); // Outer command-buffer interval; nested phases are non-additive.
@@ -110,7 +111,9 @@ void GpuProfiler::BeginBatch(vk::CommandBuffer cmd, uint64_t completed) {
 uint32_t GpuProfiler::Begin(vk::CommandBuffer cmd, Stage kind) {
     if (current == Invalid) return Invalid;
     auto& b = batches[current];
-    if (b.count == ZonesPerBatch || (kind == Stage::RenderPass && b.count >= ZonesPerBatch - 4)) {
+    // Detail zones leave four slots for the outer batch/guest/prepare intervals.
+    const bool detail = kind >= Stage::RenderPass;
+    if (b.count == ZonesPerBatch || (detail && b.count >= ZonesPerBatch - 4)) {
         std::lock_guard lock{stats->mutex}; ++stats->snapshot.dropped_zones; return Invalid;
     }
     const auto index = b.count++;

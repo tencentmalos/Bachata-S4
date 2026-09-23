@@ -1,0 +1,61 @@
+[Render.Vulkan] <Info> (Guest-1) image.cpp:302 Image: Internal scale allocation: 1920x1080 R8G8B8A8Srgb -> 960x540 R8G8B8A8Srgb levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (Guest-1) image.cpp:302 Image: Internal scale allocation: 1920x1080 R8G8B8A8Srgb -> 960x540 R8G8B8A8Srgb levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (Guest-1) image.cpp:302 Image: Internal scale allocation: 1920x1080 R8G8B8A8Srgb -> 960x540 R8G8B8A8Srgb levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R8G8B8A8Unorm -> 960x540 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R8G8B8A8Unorm -> 960x540 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 960x540 R32Sfloat -> 480x270 R32Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 960x540 R8G8B8A8Unorm -> 480x270 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R8G8B8A8Unorm -> 960x540 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 B10G11R11UfloatPack32 -> 960x540 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 960x540 D32SfloatS8Uint -> 480x270 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 480x270 D32SfloatS8Uint -> 240x135 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 960x540 R16G16B16A16Sfloat -> 480x270 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 960x540 R8G8B8A8Unorm -> 480x270 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 588x221 R16G16B16A16Sfloat -> 294x110 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1176x441 R16G16B16A16Sfloat -> 588x220 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 588x221 R16G16B16A16Sfloat -> 294x110 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 960x540 R16G16B16A16Sfloat -> 480x270 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc7UnormBlock -> 768x768 Astc4x4UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 256x256 Bc1RgbaUnormBlock -> 192x192 Astc6x6UnormBlock levels 9 -> 8 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 512x512 Bc7UnormBlock -> 384x384 Astc4x4UnormBlock levels 10 -> 9 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 128x128 Bc7UnormBlock -> 96x96 Astc4x4UnormBlock levels 8 -> 7 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x512 Bc7UnormBlock -> 768x384 Astc4x4UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 512x512 R8G8B8A8Unorm -> 256x256 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 256x256 D32Sfloat -> 128x128 D32Sfloat levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 512x512 R8G8B8A8Unorm -> 256x256 R8G8B8A8Unorm levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc7SrgbBlock -> 768x768 Astc4x4SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc1RgbaSrgbBlock -> 768x768 Astc6x6SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 256x256 Bc1RgbaSrgbBlock -> 192x192 Astc6x6SrgbBlock levels 9 -> 8 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc1RgbaSrgbBlock -> 768x768 Astc6x6SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 2048x1024 Bc1RgbaSrgbBlock -> 1536x768 Astc6x6SrgbBlock levels 12 -> 11 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc7SrgbBlock -> 768x768 Astc4x4SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 256x1024 Bc7SrgbBlock -> 192x768 Astc4x4SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0xbb10e440 attachments=7 causes=native-attachment scale-mismatch native_attachment_reason=alias buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc1RgbaUnormBlock -> 768x768 Astc6x6UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 512x512 Bc4UnormBlock -> 384x384 Astc6x6UnormBlock levels 10 -> 9 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 256x256 Bc1RgbaSrgbBlock -> 192x192 Astc6x6SrgbBlock levels 9 -> 8 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc1RgbaSrgbBlock -> 768x768 Astc6x6SrgbBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 1024x1024 Bc1RgbaUnormBlock -> 768x768 Astc6x6UnormBlock levels 11 -> 10 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:302 Image: Internal scale allocation: 512x512 Bc4UnormBlock -> 384x384 Astc6x6UnormBlock levels 10 -> 9 mode ASTC
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0x2390c887 attachments=8 causes=native-attachment scale-mismatch native_attachment_reason=alias buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0xa291c498 attachments=2 causes=native-attachment scale-mismatch native_attachment_reason=mixed-pass buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0xd92266b9 attachments=3 causes=native-attachment scale-mismatch native_attachment_reason=mixed-pass buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0x2eacb983 attachments=2 causes=native-attachment scale-mismatch native_attachment_reason=mixed-pass buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0x8c13b984 attachments=2 causes=native-attachment scale-mismatch native_attachment_reason=mixed-pass buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0x9eb30215 attachments=2 causes=native-attachment scale-mismatch native_attachment_reason=mixed-pass buffer_writes=false image_writes=false
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:568 BindResources: Internal scale: native pass fs=0xb7de74d9 attachments=2 causes=native-attachment scale-mismatch native_attachment_reason=mixed-pass buffer_writes=false image_writes=false

@@ -1,0 +1,3 @@
+fps_window 1 presents=97 ns=10149680800 fps=9.557
+fps_window 2 presents=96 ns=10162846700 fps=9.446
+fps_window 3 presents=96 ns=10129928800 fps=9.477

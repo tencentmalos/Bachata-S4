@@ -1,0 +1,34 @@
+payload image=1440 entry=1008 code=ff0010000 arena=1000000000
+[SF01] PASS pthread_self returns the fs:[0x10] handle without HLE
+[SF02] PASS static initializer takes one HLE lock that creates the object
+[SF03] PASS 10000 uncontended lock/unlock pairs make zero HLE calls
+BENCH uncontended pairs=10000 elapsed_ns=665469
+[SF04] PASS guest release leaves the ABI prefix free
+[SF05] PASS scePthread entries share the same object and protocol
+[SF06] PASS guest lock is visible to host IsOwned
+[SF07] PASS host trylock sees the guest-held object busy
+[SF08] PASS host unlock by a non-owner is refused
+[SF09] PASS guest trylock from another thread is busy
+[SF10] PASS guest unlock from a non-owner is refused
+[SF11] PASS host contender parks on the guest-held word
+[SF12] PASS guest unlock wakes the host contender through the wake import
+[SF13] FAIL guest contender parks on the host-held word
+[SF14] PASS host unlock hands the object to the parked guest
+[SF15] PASS guest releases after host handoff
+[SF16] PASS four real FEX owners preserve 100000 protected increments
+[SF17] PASS contended path used host wait/wake and no other HLE
+contended waits=1016 wakes=1676
+[SF18] PASS recursive attribute init
+[SF19] PASS recursive lock twice/unlock twice stays in the guest
+[SF20] PASS errorcheck first lock
+[SF21] PASS errorcheck self-lock returns EDEADLK without HLE
+[SF22] PASS sce trylock on own errorcheck object reports SCE EBUSY
+[SF23] PASS errorcheck release
+[SF24] PASS destroyed handle falls back to HLE and reports EINVAL
+[SF25] PASS host takes object for cancellation scenario
+[SF26] PASS guest parked in the cancellable wait import
+[SF27] PASS cancellation ends the guest wait
+[SF28] PASS host still owns and can release after the cancelled contender
+[SF29] PASS fresh owner uses the object normally after cancellation
+GUEST_SYNC_FASTPATH checks=29 failures=1
+EXIT=1

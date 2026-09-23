@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
+#include <array>
+#include <atomic>
 
 #include <condition_variable>
 #include <mutex>
@@ -11,6 +13,7 @@
 #include <vector>
 
 #include "common/unique_function.h"
+#include "video_core/renderer_vulkan/render_break.h"
 #include "video_core/renderer_vulkan/vk_gpu_profiler.h"
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_primitive.h"
@@ -380,10 +383,30 @@ public:
 
     /// Starts a new rendering scope with provided state.
     /// Returns true only when a new Vulkan rendering scope was started.
+    // See render_break.h: only real breaks (a pass was open) are counted.
+    using RenderBreak = Vulkan::RenderBreak;
+    static constexpr const auto& RenderBreakNames = Vulkan::RenderBreakNames;
+    bool IsRendering() const { return is_rendering; }
+    const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderBreaks() const { return render_breaks; }
+    uint64_t RenderBegins() const { return render_begins; }
+    /// Pass instances whose attachments/area differ from the previous instance: the
+    /// boundaries the guest itself expressed by changing render targets.
+    uint64_t RenderNatural() const { return render_natural; }
+    /// Instances that re-opened the previous state after a break, keyed by what broke
+    /// it: these are the tile load/store round trips the guest never asked for.
+    const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderResumes() const { return render_resumes; }
+    bool LastBeginResumed() const { return last_begin_resumed; }
+    /// Bounded diagnostics for pass-breaking transitions/resumes; gpu_memory request re-arms.
+    bool TakePassBreakLog() {
+        auto n = pass_break_log_budget.load(std::memory_order_relaxed);
+        while (n && !pass_break_log_budget.compare_exchange_weak(n, n - 1, std::memory_order_relaxed)) {}
+        return n != 0;
+    }
+    void ArmPassBreakLog(uint32_t lines) { pass_break_log_budget.store(lines, std::memory_order_relaxed); }
     bool BeginRendering(const RenderState& new_state);
 
     /// Ends current rendering scope.
-    void EndRendering();
+    void EndRendering(RenderBreak cause = RenderBreak::Other);
 
     /// Returns the current render state.
     const RenderState& GetRenderState() const {
@@ -478,7 +501,36 @@ private:
     RenderState render_state;
     bool is_rendering = false;
     uint32_t gpu_render_zone = GpuProfiler::Invalid;
+    std::array<uint64_t, size_t(RenderBreak::Count)> render_breaks{};
+    std::array<uint64_t, size_t(RenderBreak::Count)> render_resumes{};
+    uint64_t render_begins{}, render_natural{};
+    RenderBreak last_break{RenderBreak::Other};
+    bool last_begin_resumed{};
+    std::atomic<uint32_t> pass_break_log_budget{400};
     tracy::VkCtxScope* profiler_scope{};
+};
+
+// Detail-mode GPU zone around one host-issued GPU operation (dispatch, transfer,
+// buffer upload). Records nothing unless gpu_timing detail is on. If the scheduler
+// flushed in between, EndBatch already closed the zone in the old command buffer and
+// the destructor skips the end timestamp instead of writing into the new batch.
+class GpuZoneScope {
+public:
+    GpuZoneScope(Scheduler& scheduler_, GpuProfiler::Stage stage) : scheduler{scheduler_} {
+        if (!Common::Profiler::GpuTimingDetailed()) return;
+        serial = scheduler.GpuProfile().BatchSerial();
+        zone = scheduler.GpuProfile().Begin(scheduler.CommandBuffer(), stage);
+    }
+    ~GpuZoneScope() {
+        if (zone != GpuProfiler::Invalid && scheduler.GpuProfile().BatchSerial() == serial)
+            scheduler.GpuProfile().End(scheduler.CommandBuffer(), zone);
+    }
+    GpuZoneScope(const GpuZoneScope&) = delete;
+    GpuZoneScope& operator=(const GpuZoneScope&) = delete;
+private:
+    Scheduler& scheduler;
+    uint64_t serial{};
+    uint32_t zone{GpuProfiler::Invalid};
 };
 
 } // namespace Vulkan

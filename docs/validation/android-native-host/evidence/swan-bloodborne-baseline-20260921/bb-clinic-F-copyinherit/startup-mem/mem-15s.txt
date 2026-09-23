@@ -1,0 +1,50 @@
+# t=15s
+VmHWM:	 1807040 kB
+VmRSS:	 1805488 kB
+RssAnon:	  820284 kB
+RssFile:	  292840 kB
+RssShmem:	  692364 kB
+VmSwap:	   18236 kB
+MemAvailable:    3191184 kB
+SwapFree:       18049860 kB
+# smaps by mapping (kB rss, top 40)
+    622668          0 /memfd:shadps4-guest-backing (deleted)
+    622632       1080 [anon:scudo:secondary]
+     83716          0 /apex/com.pico.spatial.runtime_service/priv-app/SpatialRuntimeService@BQ2A.260122.002-BP2A.250705.008/SpatialRuntimeService.apk
+     52652          0 /kgsl-3d0 (deleted)
+     50700          0 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/lib/arm64/libshadps4_host.so
+     44556       2508 [anon:scudo:primary]
+     33688          0 /system/framework/framework.jar
+     31632          0 [anon:FEXMemJIT]
+     27468          0 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/base.apk
+     21652          0 [anon:FEXAllocator]
+     18700       3484 [anon:dalvik-/data/misc/apexdata/com.android.art/dalvik-cache/boot.art]
+     17416       2600 [anon]
+     10244          0 /memfd:jit-cache (deleted)
+     10184       1020 [anon:.bss]
+      9496          0 /vendor/lib64/libllvm-qgl.so
+      8912         32 /apex/com.android.art/lib64/libart.so
+      8732          0 /data/data/com.shadps4.android/files/native-drivers/ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1/vulkan.ad07xx.so
+      7332        192 /system/lib64/libhwui.so
+      6944          0 [anon:FEXMem_BlockLinks]
+      6564          0 [anon:FEXMem_Lookup_L1]
+      6504        184 [anon:dalvik-zygote space]
+      5192          0 [anon_shmem:dalvik-jit-code-cache]
+      4724          0 /apex/com.android.art/javalib/core-oj.jar
+      3972          0 [anon:dalvik-LinearAlloc]
+      3404          0 [anon:dalvik-main space]
+      3248          0 [anon:mimalloc]
+      2584          0 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/lib/arm64/libshadps4_fex_session.so
+      2468         36 /vendor/lib64/hw/vulkan.adreno.so
+      2196          0 /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat
+      2180         64 /system/lib64/libandroid_runtime.so
+      2056          0 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/lib/arm64/libc++_shared.so
+      1844          0 /system/framework/framework-res.apk
+      1600          0 /apex/com.android.i18n/javalib/core-icu4j.jar
+      1420         44 /apex/com.android.i18n/lib64/libicuuc.so
+      1376          0 [anon:FEXMem_ThreadState]
+      1220          0 /apex/com.android.tethering/javalib/framework-connectivity.jar
+      1208         12 /system/lib64/libspatial_pack_loader_fwk.so
+      1164         56 /system/lib64/libgui.so
+      1136        244 [anon:dalvik-Pre-zygote-LinearAlloc]
+      1120          0 [anon:FEXMem_OpDispatcher]

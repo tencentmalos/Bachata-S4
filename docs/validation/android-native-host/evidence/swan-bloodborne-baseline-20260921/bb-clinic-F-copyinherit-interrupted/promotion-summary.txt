@@ -1,0 +1,32 @@
+== promotions by (reason text, code):
+     6  'copy alias'                             alias
+     1  'storage'                                semantic-native
+
+== promotion lines (order of occurrence):
+  copy alias alias 1x1 D16Unorm L2 M1 S1 0x2d1d50000 0x20000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L1 M1 S1 0x2d1d50000 0x10000 false true 0x90 2 0x12
+  copy alias alias 1x1 D16Unorm L3 M1 S1 0x2d1d50000 0x30000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L4 M1 S1 0x2d1d50000 0x40000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L5 M1 S1 0x2d1d50000 0x50000 false false 0x101 0 0x10
+  copy alias alias 1x1 D16Unorm L6 M1 S1 0x2d1d50000 0x60000 false false 0x101 0 0x10
+  storage semantic-native 2048x2 R32Sfloat L1 M1 S1 0x2d326f600 0x10000 false false 0x6 1 0x6
+
+== native allocations (probable render targets):
+  1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x24ebf8000:0x7f8000
+  1024x1024 R8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x313ae2100:0x100000
+  1920x1080 R32Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x269fd0000:0x900000
+  4096x4096 D32Sfloat use=1 domain=asset reason=semantic-native mask=0x0 0x27cda0000:0x4000000
+  1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x26f890000:0x7f8000
+  1920x1080 R16G16B16A16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x274ae0000:0xff0000
+  1920x1080 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x2732f0000:0x7f8000
+  1920x1080 R8G8B8A8Srgb use=1 domain=asset reason=insufficient-mips mask=0x0 0x26f090000:0x7f8000
+  1920x1080 R16G16B16A16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x271310000:0xff0000
+  256x256 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f15a00:0x40000
+  128x128 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f55b00:0x10000
+  960x540 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x269b50000:0x240000
+  1920x1080 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x272300000:0x7f8000
+  256x256 R16G16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x255080000:0x180000
+  256x256 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x263e34000:0x40000
+  128x128 R8G8B8A8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x256f3e100:0x10000
+
+== native passes:

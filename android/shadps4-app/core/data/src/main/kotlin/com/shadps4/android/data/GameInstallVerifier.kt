@@ -11,9 +11,21 @@ object GameInstallVerifier {
         data class Fail(val code: InstallErrorCode, val message: String) : VerifyResult()
     }
 
+    /**
+     * Entry the runtime opens: an archive linked from a user folder, an archive copied
+     * into the game directory, or a plain `eboot.bin` tree.
+     */
     fun executableFile(gameDir: File): File {
+        ArchiveLinkIo.target(gameDir)?.let { return it }
         val archive = File(gameDir, "${gameDir.name}.zar")
         return if (archive.isFile) archive else File(gameDir, "eboot.bin")
+    }
+
+    /** True when [executable] is inside [root] or is the archive [root] links to. */
+    fun executableAdmitted(root: File, executable: File): Boolean {
+        if (executable.canonicalFile.toPath().startsWith(root.canonicalFile.toPath())) return true
+        val linked = ArchiveLinkIo.target(root)?.canonicalFile ?: return false
+        return linked == executable.canonicalFile
     }
 
     fun requiredFilesPresent(gameDir: File): Boolean {
@@ -30,7 +42,7 @@ object GameInstallVerifier {
         val manifest = InstallManifestIo.read(root) ?: return false
         if (manifest.status != InstallManifestIo.STATUS_INSTALLED) return false
         val eboot = executableFile(root).canonicalFile
-        return eboot.toPath().startsWith(root.toPath()) && eboot.isFile && eboot.length() > 0L
+        return executableAdmitted(root, eboot) && eboot.isFile && eboot.length() > 0L
     }
 
     fun verifyTreeForRegistration(
@@ -54,6 +66,9 @@ object GameInstallVerifier {
             val id = runCatching { ParamSfoReader.parse(metadata[0]).titleId }.getOrNull()
             if (id == null || id != gameDir.name || (expectedGameId != null && id != expectedGameId)) {
                 return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "archive title id mismatch")
+            }
+            if (!executableAdmitted(gameDir, eboot)) {
+                return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "archive escapes game directory")
             }
             // Only UI metadata is cached. eboot and all game data remain packed.
             val sceSys = File(gameDir, "sce_sys")

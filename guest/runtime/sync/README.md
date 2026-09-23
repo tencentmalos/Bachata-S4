@@ -22,7 +22,7 @@ operations never leave the guest. This is runtime code, not a per-game patch
 | File | Role |
 |---|---|
 | `mutex.c` | Guest payload: `pthread_mutex_lock/trylock/unlock`, `scePthreadMutexLock/Trylock/Unlock`, `pthread_self`/`scePthreadSelf`. |
-| `src/core/host_runtime/guest_sync_abi.h` | Shared layout: prefix offsets, states, types, arena window, import slot order, symbol names. |
+| `src/core/host_runtime/guest_sync_abi.h` | Shared layout: prefix offsets, states, types, window/import table slot order, symbol names. |
 | `src/core/host_runtime/guest_mutex.h` | Host HLE on the same word protocol (slow paths, cond wait, destroy). |
 | `scripts/android/build-guest-payload` | Compiles/links the payload with the NDK clang x86 backend, emits `guest_sync_payload.h` (image + symbol table). |
 | `tests/host_runtime/guest_sync_fastpath_tests.cpp` | Real FEX execution of this payload against the production domain. |
@@ -36,9 +36,17 @@ unlock: owner!=self ? EPERM : count>1 ? --count : count=0,owner=0, xchg(state,0)
 ```
 
 `self` is `fs:[0x10]` (`Tcb::tcb_thread`, the runtime thread handle, also what
-`pthread_self` returns). Slot values below the arena window (0/1 static
-initializers, 2 destroyed) or outside it take the HLE fallback imports, which
-initialize lazily or report EINVAL exactly as before.
+`pthread_self` returns). Slot values outside the arena window (0/1 static
+initializers and 2 destroyed always are) take the HLE fallback imports, which
+initialize lazily or report EINVAL exactly as before. The window is not a
+compile-time address: the host reserves 256 MiB (`GuestSyncObjects`,
+`SHAD_SYNC_ARENA_WINDOW_SIZE`) next to its other service allocations, carves the
+16 KiB arena blocks out of it, and writes `[base, limit)` into the payload's
+`shad_sync_window` table before the image becomes executable. A payload that
+hard-coded the window went inert when the service base moved from 64 GiB to
+112 GiB (every mutex silently returned to HLE, ~2600 lock/unlock crossings per
+frame in Bloodborne); `hle_sync status` reports `installed_no_arena_window` if
+the reservation failed.
 
 ## Loading
 

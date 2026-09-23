@@ -33,10 +33,18 @@
 #define SHAD_SYNC_TYPE_NORMAL 3u
 #define SHAD_SYNC_TYPE_ADAPTIVE 4u
 
-/* Slot values below this are static initializers (0/1) or destroyed (2); real
- * objects live inside [ARENA_BASE, ARENA_LIMIT). Anything else goes to HLE. */
-#define SHAD_SYNC_ARENA_BASE 0x1000000000ull
-#define SHAD_SYNC_ARENA_LIMIT 0x1010000000ull
+/* Slot values 0/1 are static initializers and 2 is destroyed; real objects live
+ * inside the arena window [base, limit) that the host reserves and writes into
+ * the payload's `shad_sync_window` table at publication. The window is NOT a
+ * compile-time address: the service allocation base already moved once
+ * (64 GiB -> 112 GiB) and silently sent every mutex back to HLE. base == limit
+ * == 0 means no window: every object takes the HLE path. */
+#define SHAD_SYNC_ARENA_WINDOW_SIZE 0x10000000ull /* 256 MiB reserved by the host */
+enum ShadSyncWindow {
+    ShadSyncWindowBase = 0,  /* u64: first arena object address */
+    ShadSyncWindowLimit = 1, /* u64: one past the last arena object address */
+    ShadSyncWindowCount = 2
+};
 
 /* Host-filled 8-byte slots in the payload's .shad_imports table, in order. */
 enum ShadSyncImport {
@@ -50,6 +58,7 @@ enum ShadSyncImport {
 
 /* Symbol names the host resolves in the payload image. */
 #define SHAD_SYNC_IMPORT_TABLE "shad_sync_imports"
+#define SHAD_SYNC_WINDOW_TABLE "shad_sync_window"
 #define SHAD_SYNC_EXPORT_POSIX_LOCK "shad_pthread_mutex_lock"
 #define SHAD_SYNC_EXPORT_POSIX_TRYLOCK "shad_pthread_mutex_trylock"
 #define SHAD_SYNC_EXPORT_POSIX_UNLOCK "shad_pthread_mutex_unlock"

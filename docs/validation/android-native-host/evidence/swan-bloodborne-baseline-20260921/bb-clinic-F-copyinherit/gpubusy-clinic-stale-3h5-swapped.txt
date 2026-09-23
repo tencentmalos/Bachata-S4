@@ -1,0 +1,33 @@
+t=1 busy=80 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=2 busy=79 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=3 busy=79 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=4 busy=81 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=5 busy=82 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=6 busy=76 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=7 busy=80 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=8 busy=79 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=9 busy=79 % clk=726000000 cpu0=1900800 cpu7=1497600
+t=10 busy=79 % clk=726000000 cpu0=1900800 cpu7=1497600
+presents_20s=90
+cpu  39475746 392021 19266519 152835928 39343 5804211 122686 0 0 0
+cpu  39485944 392119 19269568 152838270 39345 5804805 122697 0 0 0
+Threads: 138 total,   4 running, 134 sleeping,   0 stopped,   0 zombie
+  Mem:    15400M total,    14870M used,      530M free,        1M buffers
+ Swap:    20479M total,     7934M used,    12545M free,     5686M cached
+800%cpu 510%user   0%nice 145%sys 114%idle   0%iow  31%irq   0%sirq   0%host
+  TID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ THREAD          PROCESS
+27997 u0_a153      10 -10 404G 1.7G 999M R 65.5  11.5 136:08.60 Guest-1         com.shadps4.android
+28044 u0_a153      10 -10 404G 1.7G 998M R 41.3  11.5  88:13.14 shadPS4:GpuComm com.shadps4.android
+28145 u0_a153      10 -10 404G 1.7G 998M S 17.2  11.5  23:30.56 Guest-47        com.shadps4.android
+28043 u0_a153      10 -10 404G 1.7G 998M R 17.2  11.5  30:24.32 Guest-19        com.shadps4.android
+28077 u0_a153      10 -10 404G 1.7G 998M S 13.7  11.5  34:48.39 Guest-21        com.shadps4.android
+28076 u0_a153      10 -10 404G 1.7G 998M S 13.7  11.5  34:39.71 Guest-20        com.shadps4.android
+28040 u0_a153      10 -10 404G 1.7G 998M S 13.7  11.5  29:54.46 Guest-16        com.shadps4.android
+28078 u0_a153      10 -10 404G 1.7G 998M S 10.3  11.5  34:37.66 Guest-22        com.shadps4.android
+28079 u0_a153      10 -10 404G 1.7G 998M S 10.3  11.5  34:37.93 Guest-23        com.shadps4.android
+28080 u0_a153      10 -10 404G 1.7G 998M S 10.3  11.5  34:13.55 Guest-24        com.shadps4.android
+28042 u0_a153      10 -10 404G 1.7G 998M S 10.3  11.5  13:33.02 Guest-18        com.shadps4.android
+28036 u0_a153      10 -10 404G 1.7G 998M S 10.3  11.5  12:30.47 Guest-15        com.shadps4.android
+28074 u0_a153      10 -10 404G 1.7G 998M R  6.8  11.5   8:11.97 shadPS4:Present com.shadps4.android
+28908 u0_a153      10 -10 404G 1.7G 998M S  3.4  11.5   2:16.62 Guest-65        com.shadps4.android
+28608 u0_a153      10 -10 404G 1.7G 998M S  3.4  11.5   2:01.38 Guest-52        com.shadps4.android

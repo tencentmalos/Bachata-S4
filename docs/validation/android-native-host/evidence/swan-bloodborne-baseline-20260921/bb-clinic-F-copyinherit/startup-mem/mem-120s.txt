@@ -1,0 +1,50 @@
+# t=120s
+VmHWM:	 3865872 kB
+VmRSS:	 3364596 kB
+RssAnon:	  650540 kB
+RssFile:	  170632 kB
+RssShmem:	 2543424 kB
+VmSwap:	  530612 kB
+MemAvailable:     487840 kB
+SwapFree:       16210980 kB
+# smaps by mapping (kB rss, top 40)
+   2164376    1678992 /memfd:shadps4-guest-backing (deleted)
+    364740          0 /kgsl-3d0 (deleted)
+    347608     355572 [anon:scudo:secondary]
+     94372       2728 [anon:FEXMem_Lookup_L1]
+     71436      24140 [anon:scudo:primary]
+     39592      22044 [anon:FEXAllocator]
+     34844      46868 [anon:FEXMemJIT]
+     33536          0 /system/framework/framework.jar
+     31052       4576 /apex/com.pico.spatial.runtime_service/priv-app/SpatialRuntimeService@BQ2A.260122.002-BP2A.250705.008/SpatialRuntimeService.apk
+     15124      21116 [anon]
+     13556       8628 [anon:dalvik-/data/misc/apexdata/com.android.art/dalvik-cache/boot.art]
+     11192          0 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/base.apk
+     11180       2204 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/lib/arm64/libshadps4_host.so
+     10840        168 /memfd:jit-cache (deleted)
+      9140        356 /vendor/lib64/libllvm-qgl.so
+      8856         32 /apex/com.android.art/lib64/libart.so
+      8568      11768 [anon:FEXMem_BlockLinks]
+      8052        152 /data/data/com.shadps4.android/files/native-drivers/ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1/vulkan.ad07xx.so
+      7332        192 /system/lib64/libhwui.so
+      6128        804 [anon:dalvik-main space]
+      5548          0 [anon_shmem:dalvik-jit-code-cache]
+      2892          0 /apex/com.android.art/javalib/core-oj.jar
+      2756       3932 [anon:dalvik-zygote space]
+      2524       1460 [anon:dalvik-LinearAlloc]
+      2420         36 /vendor/lib64/hw/vulkan.adreno.so
+      2196          0 /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat
+      1988        256 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/lib/arm64/libshadps4_fex_session.so
+      1828         64 /system/lib64/libandroid_runtime.so
+      1740        308 [anon:FEXMem_ThreadState]
+      1320       9984 [anon:.bss]
+      1148         56 /system/lib64/libgui.so
+      1096         12 /system/lib64/libspatial_pack_loader_fwk.so
+      1088         40 /system/lib64/libc++.so
+      1060         28 /data/app/~~TYorTJUb7O3mZ6bpdDGwNA==/com.shadps4.android-1y9OOoZH3Yd5PGltJ938Vw==/lib/arm64/libc++_shared.so
+      1052         44 /apex/com.android.i18n/lib64/libicuuc.so
+       996         28 /vendor/lib64/libllvm-glnext.so
+       896        152 [anon:bionic_alloc_lob]
+       848          0 /vendor/lib64/libgsl.so
+       844          0 /system/lib64/libsqlite.so
+       844          0 /apex/com.android.tethering/javalib/framework-connectivity.jar

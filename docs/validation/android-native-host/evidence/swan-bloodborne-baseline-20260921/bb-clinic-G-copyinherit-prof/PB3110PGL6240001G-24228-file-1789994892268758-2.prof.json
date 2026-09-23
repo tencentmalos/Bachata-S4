@@ -1,0 +1,23 @@
+{
+  "capture_complete": true,
+  "capture_error": "",
+  "capture_id": 2,
+  "gpu_cpu_alignment": "unknown",
+  "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+  "max_mib": 512,
+  "max_seconds": 20,
+  "mode": "file",
+  "process": "shadPS4",
+  "process_id": 24228,
+  "schema": "foundation.profiler-capture.v1",
+  "sdk_revision": "e00321ea40c4c608aff74a787200bc59493eea19",
+  "streaming_backpressure_timeout_ns": 0,
+  "wire_layout": "PROF-v3-track-id",
+  "capture_identity": {
+    "serial": "PB3110PGL6240001G",
+    "package": "com.shadps4.android",
+    "pid": "24228",
+    "capture_id": "2"
+  },
+  "sha256": "04cd1f1a2c3c118be7c9b266dc42d655da9b990b56aa616dd2e5048f4fdc1d40"
+}

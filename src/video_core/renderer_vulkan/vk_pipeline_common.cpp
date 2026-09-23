@@ -31,7 +31,7 @@ void Pipeline::BindResources(DescriptorWrites& set_writes, const BufferBarriers&
             .bufferMemoryBarrierCount = u32(buffer_barriers.size()),
             .pBufferMemoryBarriers = buffer_barriers.data(),
         };
-        scheduler.EndRendering();
+        scheduler.EndRendering(Vulkan::RenderBreak::Barrier);
         cmdbuf.pipelineBarrier2(dependencies);
     }
 

@@ -1,0 +1,16 @@
+knob=0
+Status: ok
+Status: ok
+session: pid=19041 stage=Running
+press 1 -> fps~30
+press 2 -> fps~30
+press 3 -> fps~4
+load-wait t=5 fps~6
+warmup presents=270
+/data/local/tmp/ab.png: 1 file pulled, 0 skipped. 135.9 MB/s (8799590 bytes in 0.062s)
+fps_window 1 presents=88 ns=10142185700 fps=8.677
+fps_window 2 presents=91 ns=10155552400 fps=8.961
+fps_window 3 presents=94 ns=10124198600 fps=9.285
+/data/local/tmp/ab.png: 1 file pulled, 0 skipped. 141.9 MB/s (8812758 bytes in 0.059s)
+rss_kb=1466716 swap_kb=902408 avail_kb=1436616
+done scaleJ-rar

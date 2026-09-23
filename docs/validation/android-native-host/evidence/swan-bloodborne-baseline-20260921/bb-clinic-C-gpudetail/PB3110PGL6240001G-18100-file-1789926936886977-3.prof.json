@@ -1,0 +1,52 @@
+{
+  "capture_complete": true,
+  "capture_error": "",
+  "capture_id": 3,
+  "gpu_cpu_alignment": "unknown",
+  "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+  "max_mib": 512,
+  "max_seconds": 15,
+  "mode": "file",
+  "process": "shadPS4",
+  "process_id": 18100,
+  "schema": "foundation.profiler-capture.v1",
+  "sdk_revision": "e00321ea40c4c608aff74a787200bc59493eea19",
+  "streaming_backpressure_timeout_ns": 0,
+  "wire_layout": "PROF-v3-track-id",
+  "capture_identity": {
+    "serial": "PB3110PGL6240001G",
+    "package": "com.shadps4.android",
+    "pid": "18100",
+    "capture_id": "3",
+    "errors": {
+      "gpu_timing status": "hle_sync sample contains no JSON object"
+    },
+    "session": {
+      "Client": "",
+      "session": "active",
+      "generation": "1",
+      "pid": "18100",
+      "phase": "3",
+      "run_uuid": "9233c5f0fcd6630185da50b988638b19",
+      "stage": "Running",
+      "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+      "snapshot_ns": "212332930963011",
+      "guest_flip": "9973 (age_ns=155451615)",
+      "pm4_consumed": "362255571 (age_ns=85191250)",
+      "host_draw": "11928765 (age_ns=85199219)",
+      "queue_submit": "37886 (age_ns=156471146)",
+      "gpu_retire": "unavailable",
+      "host_present": "9971 (age_ns=157502032)",
+      "overlay_redraw": "13956 (age_ns=157401354)",
+      "guest_submission": "102376 (age_ns=142576459)"
+    },
+    "properties": {
+      "debug.shadps4.legacy_resource_scale": "",
+      "debug.shadps4.profile_sync": "",
+      "debug.shadps4.sync_fastpath": "",
+      "debug.shadps4.vulkan_driver": ""
+    },
+    "emulator_status_json": {}
+  },
+  "sha256": "22c7c44a76a6c8611eb570baf2e19c975337408c933d87f0f1a3053c6bc245b5"
+}

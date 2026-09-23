@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <numeric>
 #include "shader_recompiler/info.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -45,7 +46,12 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         copies.emplace_back(local_src_offset, local_dst_offset, local_size);
     }
 
-    scheduler.EndRendering();
+    if (scheduler.TakePassBreakLog())
+        LOG_INFO(Render_Vulkan, "Internal scale: hle copy src={:#x} dst={:#x} stride={} copies={} bytes={}",
+                 src_buf_sharp.base_address, dst_buf_sharp.base_address, buf_stride, copies.size(),
+                 std::accumulate(copies.begin(), copies.end(), u64{0},
+                                 [](u64 acc, const vk::BufferCopy& c) { return acc + c.size; }));
+    scheduler.EndRendering(Vulkan::RenderBreak::Hle);
 
     static constexpr vk::MemoryBarrier READ_BARRIER{
         .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,

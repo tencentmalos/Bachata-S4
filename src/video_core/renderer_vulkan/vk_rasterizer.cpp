@@ -58,7 +58,7 @@ Rasterizer::~Rasterizer() {
 }
 
 void Rasterizer::CpSync() {
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::CpSync);
     auto cmdbuf = scheduler.CommandBuffer();
 
     const vk::MemoryBarrier ib_barrier{
@@ -387,7 +387,8 @@ void Rasterizer::DispatchDirect() {
         return;
     }
 
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Dispatch);
+    GpuZoneScope gpu_zone{scheduler, GpuProfiler::Stage::Dispatch};
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
 
     const auto cmdbuf = scheduler.CommandBuffer();
@@ -422,7 +423,8 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
         buffer_barriers.emplace_back(*barrier);
     }
 
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::Dispatch);
+    GpuZoneScope gpu_zone{scheduler, GpuProfiler::Stage::Dispatch};
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
 
     const auto cmdbuf = scheduler.CommandBuffer();
@@ -466,7 +468,8 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
         if (stage && stage->l_stage == Shader::LogicalStage::Fragment)
             fragment_hash = stage->pgm_hash;
     texture_cache.RecordAttachmentDraw(attachments, fragment_hash, render_scale_eighths != 8,
-                                      began_rendering);
+                                      began_rendering,
+                                      began_rendering && scheduler.LastBeginResumed());
 }
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
@@ -487,14 +490,14 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
         // Resolve unsafe uses before producing any descriptor. This includes uses
         // in a later shader stage of the same draw, not only the first binding.
         u32 descriptor = 0;
-        bool fragment_side_effects = false;
+        bool fragment_buffer_writes = false, fragment_image_writes = false;
         for (const auto* stage : pipeline->GetStages()) {
             if (!stage) continue;
             descriptor += stage->buffers.size();
             if (stage->l_stage == Shader::LogicalStage::Fragment) {
-                fragment_side_effects |= std::ranges::any_of(stage->buffers,
+                fragment_buffer_writes |= std::ranges::any_of(stage->buffers,
                     [](const auto& buffer) { return buffer.is_written && !buffer.IsSpecial(); });
-                fragment_side_effects |= std::ranges::any_of(stage->images,
+                fragment_image_writes |= std::ranges::any_of(stage->images,
                     [](const auto& image) { return image.is_written; });
             }
             for (const auto& resource : stage->images) {
@@ -517,24 +520,73 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
         if (!pipeline->IsCompute()) {
             const auto* graphics = static_cast<const GraphicsPipeline*>(pipeline);
             const auto count = std::bit_width(graphics->GetGraphicsKey().mrt_mask);
-            bool native_pass = fragment_side_effects;
+            // Storage-image writes always pin the pass native. Storage-buffer writes do
+            // too unless the diagnostic knob accepts fragment-count-dependent contents.
+            const bool side_effects = fragment_image_writes ||
+                (fragment_buffer_writes && !instance.ScalePolicy().scale_side_effect_passes);
+            u32 causes = side_effects ? VideoCore::NativePassSideEffects : 0u;
             for (u32 i = 0; i < count; ++i)
-                native_pass |= graphics->GetGraphicsKey().color_samples[i] > 1;
-            bool has_attachment = false;
+                if (graphics->GetGraphicsKey().color_samples[i] > 1) causes |= VideoCore::NativePassMsaa;
+            bool has_attachment = false, any_scaled = false;
             u32 attachment_scale = 0;
+            VideoCore::ImageId native_attachment{};
+            u32 native_index = 0, index = 0;
             const auto inspect = [&](const auto& target) {
+                ++index;
                 if (!target.first) return;
                 has_attachment = true;
                 const auto actual = texture_cache.GetImage(target.first).ScaleEighths();
-                native_pass |= actual == 8 || (attachment_scale && attachment_scale != actual);
+                if (actual == 8) {
+                    causes |= VideoCore::NativePassAttachment;
+                    if (!native_attachment) { native_attachment = target.first; native_index = index; }
+                } else {
+                    any_scaled = true;
+                }
+                if (attachment_scale && attachment_scale != actual) causes |= VideoCore::NativePassMismatch;
                 attachment_scale = actual;
             };
             for (u32 i = 0; i < count; ++i) inspect(cb_descs[i]);
             inspect(db_desc);
-            if (native_pass) {
-                for (u32 i = 0; i < count; ++i)
-                    if (cb_descs[i].first) texture_cache.GetImage(cb_descs[i].first).ForceNative("mixed attachment pass");
-                if (db_desc.first) texture_cache.GetImage(db_desc.first).ForceNative("mixed attachment pass");
+            if (causes) {
+                if (any_scaled) {
+                    // A scaled attachment is about to be promoted: attribute the cause.
+                    // This branch is rare (one-way promotions), so the set lookup and
+                    // the once-per-pipeline log stay off the per-draw fast path.
+                    texture_cache.RecordNativePassCause(causes);
+                    if (native_pass_logged.insert(graphics).second) {
+                        u64 fragment_hash{};
+                        for (const auto* stage : pipeline->GetStages())
+                            if (stage && stage->l_stage == Shader::LogicalStage::Fragment)
+                                fragment_hash = stage->pgm_hash;
+                        std::string native_desc = "none";
+                        if (native_attachment) {
+                            const auto& native = texture_cache.GetImage(native_attachment);
+                            native_desc = fmt::format(
+                                "{}[{}] {}x{} {} {:#x} mask={:#x}",
+                                VideoCore::ScaleReasonName(native.ScalePlan().reason),
+                                native_index > count ? "depth" : std::to_string(native_index - 1),
+                                native.info.size.width, native.info.size.height,
+                                vk::to_string(native.info.pixel_format), native.info.guest_address,
+                                native.ScalePlan().native_reason_mask);
+                        }
+                        LOG_INFO(Render_Vulkan,
+                                 "Internal scale: native pass fs={:#x} attachments={} causes={}{}{}{} "
+                                 "native_attachment={} buffer_writes={} image_writes={}",
+                                 fragment_hash, count + (db_desc.first ? 1u : 0u),
+                                 (causes & VideoCore::NativePassSideEffects) ? "side-effects " : "",
+                                 (causes & VideoCore::NativePassMsaa) ? "msaa " : "",
+                                 (causes & VideoCore::NativePassAttachment) ? "native-attachment " : "",
+                                 (causes & VideoCore::NativePassMismatch) ? "scale-mismatch" : "",
+                                 native_desc, fragment_buffer_writes, fragment_image_writes);
+                    }
+                }
+                // Promote only when a scaled attachment must follow its native peers; an
+                // all-native pass (size-protected or already promoted) keeps each plan as is.
+                if (any_scaled) {
+                    for (u32 i = 0; i < count; ++i)
+                        if (cb_descs[i].first) texture_cache.GetImage(cb_descs[i].first).ForceNative("mixed attachment pass");
+                    if (db_desc.first) texture_cache.GetImage(db_desc.first).ForceNative("mixed attachment pass");
+                }
             } else if (has_attachment) {
                 render_scale_eighths = attachment_scale;
             }
@@ -932,19 +984,19 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
                                        ? vk::AccessFlagBits2::eDepthStencilAttachmentWrite
                                        : vk::AccessFlagBits2::eColorAttachmentWrite |
                                              vk::AccessFlagBits2::eColorAttachmentRead),
-                              {});
+                              {}, {}, RenderBreak::SampledImage);
             } else {
                 if (is_storage) {
                     image.Transit(vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits2::eShaderRead |
                                       vk::AccessFlagBits2::eShaderWrite,
-                                  desc.view_info.range);
+                                  desc.view_info.range, {}, RenderBreak::SampledImage);
                 } else {
                     const auto new_layout = image.info.props.is_depth
                                                 ? vk::ImageLayout::eDepthStencilReadOnlyOptimal
                                                 : vk::ImageLayout::eShaderReadOnlyOptimal;
                     image.Transit(new_layout, vk::AccessFlagBits2::eShaderRead,
-                                  desc.view_info.range);
+                                  desc.view_info.range, {}, RenderBreak::SampledImage);
                 }
             }
             image.usage.storage |= is_storage;
@@ -1030,13 +1082,13 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
             image->Transit(instance.IsAttachmentFeedbackLoopLayoutSupported()
                                ? vk::ImageLayout::eAttachmentFeedbackLoopOptimalEXT
                                : vk::ImageLayout::eGeneral,
-                           vk::AccessFlagBits2::eColorAttachmentWrite, {});
+                           vk::AccessFlagBits2::eColorAttachmentWrite, {}, {}, RenderBreak::Attachment);
             attachment_feedback_loop = true;
         } else {
             image->Transit(vk::ImageLayout::eColorAttachmentOptimal,
                            vk::AccessFlagBits2::eColorAttachmentWrite |
                                vk::AccessFlagBits2::eColorAttachmentRead,
-                           desc.view_info.range);
+                           desc.view_info.range, {}, RenderBreak::Attachment);
         }
 
         state.width = std::min<u32>(state.width, image->HostExtent(mip).width);
@@ -1087,7 +1139,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         image.Transit(new_layout,
                       vk::AccessFlagBits2::eDepthStencilAttachmentWrite |
                           vk::AccessFlagBits2::eDepthStencilAttachmentRead,
-                      desc.view_info.range);
+                      desc.view_info.range, {}, RenderBreak::Attachment);
 
         state.width = std::min<u32>(state.width, image.HostExtent().width);
         state.height = std::min<u32>(state.height, image.HostExtent().height);

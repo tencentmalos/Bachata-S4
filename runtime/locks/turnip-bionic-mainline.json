@@ -9,5 +9,5 @@
   "library_sha256": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
   "build_id": "5a27ad743d3e5541d89aafeeba255d9814e13ce2",
   "abi": "android-arm64-bionic",
-  "scope": "Explicit turnip-mainline debug profile; KGSL poll fix and QCOM Mapper 5 metadata; preserves R8 default"
+  "scope": "Default Turnip profile for every device (KGSL poll fix, QCOM Mapper 5); debug.shadps4.vulkan_driver=turnip selects the historical R8 pin, system the vendor driver."
 }

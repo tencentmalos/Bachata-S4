@@ -1,0 +1,60 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 266663951 Realtime: 266663951
+
+** MEMINFO in pid 24228 [com.shadps4.android] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    37732    37644       24       66    38756    40012    30902     5163
+  Dalvik Heap     8755     3256     5180       35     9660    29100     4524    24576
+ Dalvik Other     9386     4676       52        2    14432                           
+        Stack     1808     1808        0        0     1816                           
+       Ashmem     7660     5380        4        0    10332                           
+      Gfx dev      216      216        0        0      220                           
+    Other dev       32        4       24        0      504                           
+     .so mmap    25685     4244    16996       26    85024                           
+    .jar mmap     4407        0     1060        0    48652                           
+    .apk mmap    44787     5228    27132        0   113012                           
+    .ttf mmap       31        0        0        0      228                           
+    .dex mmap       55       20        0        0      932                           
+    .oat mmap       49        0        0        0     2292                           
+    .art mmap     9495     7168     1640       77    18876                           
+   Other mmap     2518       36       44        0     5776                           
+    GL mtrack      384      384        0        0      384                           
+GPUMEM mapped     1960        0        0        0     1960                           
+      Unknown    18456    15428     2492       64    21812                           
+        TOTAL   173470    85492    54648      270   374452    69112    35426    29739
+ 
+** GPUMEM mapped include Gfx dev, Pss/Rss Total = others items(exclude Gfx dev) + GPUMEM mapped **
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    12064                          28536
+         Native Heap:    37644                          38756
+                Code:    54796                         259552
+               Stack:     1808                           1816
+            Graphics:     2344                           2348
+       Private Other:    33228
+              System:    31586
+             Unknown:                                   43444
+ 
+           TOTAL PSS:   173470            TOTAL RSS:   374452       TOTAL SWAP PSS:      270
+ 
+** GPUMEM mapped include Gfx dev, Graphics = EGL mtrack + GL mtrack + GPUMEM mapped **
+ 
+ Spatial app memory occupied on spatial server(KB): 
+                 AHB:    24442
+              ASHMEM:   412376
+              VKIMAG:        0
+              3DVMEM:        0
+               TOTAL:   436818
+ 
+ Objects
+               Views:        9         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       10        AssetManagers:        0
+       Local Binders:       21        Proxy Binders:       61
+       Parcel memory:       10         Parcel count:       43
+    Death Recipients:        2             WebViews:        0
+ 

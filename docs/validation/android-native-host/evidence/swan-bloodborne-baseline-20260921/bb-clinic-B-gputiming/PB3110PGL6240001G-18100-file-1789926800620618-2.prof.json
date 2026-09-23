@@ -1,0 +1,76 @@
+{
+  "capture_complete": true,
+  "capture_error": "",
+  "capture_id": 2,
+  "gpu_cpu_alignment": "unknown",
+  "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+  "max_mib": 512,
+  "max_seconds": 20,
+  "mode": "file",
+  "process": "shadPS4",
+  "process_id": 18100,
+  "schema": "foundation.profiler-capture.v1",
+  "sdk_revision": "e00321ea40c4c608aff74a787200bc59493eea19",
+  "streaming_backpressure_timeout_ns": 0,
+  "wire_layout": "PROF-v3-track-id",
+  "capture_identity": {
+    "serial": "PB3110PGL6240001G",
+    "package": "com.shadps4.android",
+    "pid": "18100",
+    "capture_id": "2",
+    "errors": {
+      "gpu_timing status": "hle_sync sample contains no JSON object"
+    },
+    "session": {
+      "Client": "",
+      "session": "active",
+      "generation": "1",
+      "pid": "18100",
+      "phase": "3",
+      "run_uuid": "9233c5f0fcd6630185da50b988638b19",
+      "stage": "Running",
+      "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+      "snapshot_ns": "212204122440351",
+      "guest_flip": "9118 (age_ns=63344270)",
+      "pm4_consumed": "321349797 (age_ns=2968)",
+      "host_draw": "10575623 (age_ns=26510)",
+      "queue_submit": "35061 (age_ns=71010416)",
+      "gpu_retire": "unavailable",
+      "host_present": "9116 (age_ns=71998854)",
+      "overlay_redraw": "12971 (age_ns=71902708)",
+      "guest_submission": "92881 (age_ns=46172760)"
+    },
+    "properties": {
+      "debug.shadps4.legacy_resource_scale": "",
+      "debug.shadps4.profile_sync": "",
+      "debug.shadps4.sync_fastpath": "",
+      "debug.shadps4.vulkan_driver": ""
+    },
+    "emulator_status_json": {
+      "hle_sync status": {
+        "schema": 1,
+        "session": 1,
+        "context": 1,
+        "timestamp_ns": 212204192246237,
+        "enabled": false,
+        "detail": false,
+        "shards": 0,
+        "untracked_calls": 0,
+        "emission_failures": 0,
+        "fast_path": "installed",
+        "semantics": "session cumulative; rolling snapshot; completed inclusive elapsed includes waits, not CPU or critical path; start/stop does not reset; in-flight calls finish in their original sample",
+        "histogram_upper_ns": [
+          1000,
+          10000,
+          100000,
+          1000000,
+          16000000,
+          null
+        ],
+        "operations": []
+      }
+    },
+    "fast_path": "installed"
+  },
+  "sha256": "e6dfbe5a3e27e4f3451fb9b10c97a78908592bf2e7ad8ca861f1832263622cb8"
+}

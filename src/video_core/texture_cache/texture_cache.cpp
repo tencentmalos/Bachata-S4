@@ -80,12 +80,18 @@ TextureCache::~TextureCache() {
 }
 
 void TextureCache::RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
-                                        bool scaled, bool began_rendering) {
+                                        bool scaled, bool began_rendering, bool resumed) {
     if (attachments.empty()) return;
-    ++attachment_draws;
-    scaled_attachment_draws += scaled;
-    attachment_passes += began_rendering;
-    scaled_attachment_passes += began_rendering && scaled;
+    {
+        constexpr auto o = std::memory_order_relaxed;
+        coverage->draws.fetch_add(1, o);
+        if (scaled) coverage->scaled_draws.fetch_add(1, o);
+        if (began_rendering) {
+            coverage->passes.fetch_add(1, o);
+            if (scaled) coverage->scaled_passes.fetch_add(1, o);
+            if (resumed) coverage->resumed_passes.fetch_add(1, o);
+        }
+    }
     u32 reasons{}, width{}, height{}, depth{};
     for (const auto id : attachments) {
         const auto& image = slot_images[id];
@@ -99,26 +105,59 @@ void TextureCache::RecordAttachmentDraw(std::span<const ImageId> attachments, u6
                                attachments.size(), depth};
     auto it = attachment_groups.find(key);
     if (it == attachment_groups.end()) {
-        if (attachment_groups.size() == 128) { ++attachment_group_overflow; return; }
+        if (attachment_groups.size() == 512) { ++attachment_group_overflow; return; }
         it = attachment_groups.emplace(key, AttachmentCounts{}).first;
     }
     ++it->second.draws;
     it->second.passes += began_rendering;
+    it->second.resumed += began_rendering && resumed;
 }
 
 void TextureCache::PublishMemoryDiagnostics() {
     const auto request = MemoryDiagnostics::requested.load(std::memory_order_acquire);
     if (request == MemoryDiagnostics::completed.load(std::memory_order_acquire)) return;
+    const auto cov = coverage->Read();
     std::ostringstream out;
     out << "status=sampled sample_ns=" << std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count()
         << " render_scale_percent=" << instance.ScalePolicy().render_eighths * 12.5f
         << " texture_quality=" << TextureQualityName(instance.ScalePolicy().texture)
         << " legacy=" << instance.ScalePolicy().legacy
-        << " attachment_counter_version=2 attachment_draws=" << attachment_draws
-        << " scaled_attachment_draws=" << scaled_attachment_draws
-        << " attachment_passes=" << attachment_passes << " scaled_attachment_passes=" << scaled_attachment_passes
+        << " attachment_counter_version=2 attachment_draws=" << cov.draws
+        << " scaled_attachment_draws=" << cov.scaled_draws
+        << " attachment_passes=" << cov.passes << " scaled_attachment_passes=" << cov.scaled_passes
+        << " resumed_attachment_passes=" << cov.resumed_passes
         << " plan_entries=" << scale_plans.Size() << " budget_native=" << scale_plans.BudgetNative() << "\n";
+    out << "native_pass_causes side_effects=" << cov.native_pass_side_effects
+        << " msaa=" << cov.native_pass_msaa << " attachment=" << cov.native_pass_attachment
+        << " mismatch=" << cov.native_pass_mismatch << " promotions=" << cov.native_promotions
+        << " upscaled_readbacks=" << cov.upscaled_readbacks
+        << " scaled_blit_copies=" << cov.scaled_blit_copies
+        << " image_buffer_syncs=" << cov.image_buffer_syncs
+        << " image_buffer_sync_bytes=" << cov.image_buffer_sync_bytes
+        << " fused_readbacks=" << cov.fused_readbacks << '\n';
+    out << "gc downloads=" << cov.gc_downloads << " frees=" << cov.gc_frees
+        << " pressured_ticks=" << cov.gc_pressured_ticks << " used_mib=" << (total_used_memory >> 20)
+        << " trigger_mib=" << (trigger_gc_memory >> 20) << " pressure_mib=" << (pressure_gc_memory >> 20)
+        << " critical_mib=" << (critical_gc_memory >> 20)
+        << " budget_reported=" << instance.CanReportMemoryUsage() << '\n';
+    {
+        const auto& breaks = scheduler.RenderBreaks();
+        out << "render_pass begins=" << scheduler.RenderBegins() << " breaks:";
+        for (size_t i = 0; i < breaks.size(); ++i)
+            out << ' ' << Vulkan::Scheduler::RenderBreakNames[i] << '=' << breaks[i];
+        out << '\n';
+        // natural = guest-expressed target changes; resumed = same targets re-opened
+        // after a break, keyed by the break that split them (emulator-imposed fragments).
+        const auto& resumes = scheduler.RenderResumes();
+        out << "render_pass natural=" << scheduler.RenderNatural() << " resumed:";
+        for (size_t i = 0; i < resumes.size(); ++i)
+            out << ' ' << Vulkan::Scheduler::RenderBreakNames[i] << '=' << resumes[i];
+        out << '\n';
+        // Re-arm the bounded pass-break/resume log so the next frames after a request
+        // describe which images and transitions split passes in the current scene.
+        scheduler.ArmPassBreakLog(400);
+    }
     out << "idle_asset_evictions=" << idle_asset_evictions
         << " idle_asset_retired_allocation_bytes=" << idle_asset_retired_bytes << '\n';
     out << "attachment_group_overflow_draws=" << attachment_group_overflow << '\n';
@@ -128,7 +167,13 @@ void TextureCache::PublishMemoryDiagnostics() {
     for (const auto& [key, counts] : attachment_groups)
         out << "attachment_group fragment=" << key[0] << " logical=" << key[1] << 'x' << key[2]
             << " reasons=" << key[3] << " scaled=" << key[4] << " attachments=" << key[5]
-            << " depth=" << key[6] << " draws=" << counts.draws << " passes=" << counts.passes << '\n';
+            << " depth=" << key[6] << " draws=" << counts.draws << " passes=" << counts.passes
+            << " resumed=" << counts.resumed << '\n';
+    // The group table is a window between requests, so a scene sampled after a long
+    // loading phase is not hidden behind groups that overflowed the table earlier.
+    out << "attachment_groups_window=1 groups=" << attachment_groups.size() << '\n';
+    attachment_groups.clear();
+    attachment_group_overflow = 0;
     VmaDiagnostics::Append(instance.GetAllocator(), instance.GetMemoryProperties(), instance.CanReportMemoryUsage(), out);
     struct Group { u64 images{}, backings{}, allocation_bytes{}, guest_layout_bytes{}; };
     std::map<std::string, Group> groups;
@@ -194,7 +239,9 @@ void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
     if (False(image.flags & ImageFlagBits::GpuModified)) {
         return;
     }
-    image.ForceNative("readback");
+    // A readback no longer promotes the identity to native: a scaled backing is
+    // transferred through a temporary native-extent copy inside Image::Download and
+    // the plan keeps its scale (see scale_plan->upscaled_readback).
     auto& download_buffer = buffer_cache.GetUtilityBuffer(MemoryUsage::Download);
     const u32 download_size = image.info.guest_size;
     auto [download, offset] = download_buffer.Map(download_size);
@@ -961,7 +1008,7 @@ void TextureCache::RefreshImage(Image& image) {
         return;
     }
 
-    scheduler.EndRendering();
+    scheduler.EndRendering(Vulkan::RenderBreak::ImageUpload);
 
     // Crop the upload source before staging and detiling. A low-quality backing
     // never reserves or transfers guest mip0, including on later dirty updates.
@@ -1198,6 +1245,18 @@ void TextureCache::GarbageCollectImages() {
         ticks_to_destroy = aggresive ? 160 : pressured ? 80 : 16;
         ticks_to_destroy = std::min(ticks_to_destroy, gc_tick);
         num_deletions = aggresive ? 40 : pressured ? 20 : 10;
+        const u32 state = aggresive ? 2 : pressured ? 1 : 0;
+        if (state != gc_logged_state) {
+            // Once per transition: pressure decisions evict GPU-modified images and
+            // are otherwise invisible in the trace.
+            LOG_INFO(Render_Vulkan,
+                     "Texture GC {}: used {} MiB (trigger {} / pressure {} / critical {} MiB, budget {})",
+                     state == 2 ? "aggressive" : state == 1 ? "pressured" : "idle",
+                     total_used_memory >> 20, trigger_gc_memory >> 20, pressure_gc_memory >> 20,
+                     critical_gc_memory >> 20, instance.CanReportMemoryUsage() ? "driver" : "default");
+            gc_logged_state = state;
+        }
+        if (pressured) coverage->gc_pressured_ticks.fetch_add(1, std::memory_order_relaxed);
     };
     const auto clean_up = [&](ImageId image_id) {
         if (num_deletions == 0) {
@@ -1216,7 +1275,9 @@ void TextureCache::GarbageCollectImages() {
         }
         if (download) {
             DownloadImageMemory(image_id);
+            coverage->gc_downloads.fetch_add(1, std::memory_order_relaxed);
         }
+        coverage->gc_frees.fetch_add(1, std::memory_order_relaxed);
         FreeImage(image_id);
         if (total_used_memory < critical_gc_memory) {
             if (aggresive) {
