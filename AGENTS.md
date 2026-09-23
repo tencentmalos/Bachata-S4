@@ -1,6 +1,6 @@
 ## 当前仓库主分支（用户指定，2026-09-20）
 
-- **2026-09-23 集成状态：** 本节所列 2026-09-21～22 的主仓源码、测试、文档与验证证据已由当前 feature 分支集成到 `malos/main`；各条目中的“本地未提交”或“无 commit/push”只描述对应验证采集时点，不代表当前 Git 状态。独立 checkout `externals/dear_imgui` 与 `references/mesa-turnip-xr-fdm2` 仍按各自仓库管理，不纳入主仓提交。
+- **2026-09-23 集成状态：** 本节所列 2026-09-21～22 的主仓源码、测试、文档与验证证据已由当前 feature 分支集成到 `malos/main`；各条目中的“本地未提交”或“无 commit/push”只描述对应验证采集时点，不代表当前 Git 状态。`externals/dear_imgui` 与 `references/mesa-turnip-xr-fdm2` 已作为正式 submodule 纳入主仓，分别跟踪 `docking` 与 `codex/turnip-xr-fdm2`；Turnip 改动先提交并推送到 `tencentmalos/mesa-mirror`，主仓只记录可复现的 gitlink。
 
 - **GPU 跨物理段回写（2026-09-22，本地未提交）：** [修复、旧新对照和 MHW 新失败现场](docs/validation/android-native-host/backing-write-20260922.md)。TryWriteBacking 源偏移未推进导致跨 Direct/Pooled 段重复前缀，且后段无 backing 会部分写后假成功；改整批验证再按偏移复制。AYN同exe旧host18/6失败，新host18/0、完整VM186/0；APK4758939e/hosta1d24cae/JNI232f0c06安装核SHA。TMNT先正常UIStop/return0，战斗后堆错误未复现归因。MHW PID31129/gen1有用户手动操作，自动存档提示后约一分钟GPU超时，scheduler2/tick5499/serial14838与KGSL ctx17/ts14838匹配，仍BackendFailed/exit33。旧Cemu/PID11848快照排除，继续获取匹配现场；非可玩/完整回归/commit/push。
 

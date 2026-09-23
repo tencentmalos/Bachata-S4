@@ -213,3 +213,11 @@
 	path = references/mesa-turnip
 	url = https://github.com/tencentmalos/mesa-mirror.git
 	branch = codex/kgsl-nonblocking-poll
+[submodule "externals/dear_imgui"]
+	path = externals/dear_imgui
+	url = https://github.com/shadps4-emu/ext-imgui.git
+	branch = docking
+[submodule "references/mesa-turnip-xr-fdm2"]
+	path = references/mesa-turnip-xr-fdm2
+	url = git@github.com:tencentmalos/mesa-mirror.git
+	branch = codex/turnip-xr-fdm2
