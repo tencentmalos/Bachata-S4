@@ -1,0 +1,60 @@
+
+### Core::SignalDispatch::DispatchAccessViolation: 8072 samples = 9.6% of thread
+-- direct children
+   99.1%  Vulkan::Rasterizer::InvalidateMemory
+    0.2%  @plt
+    0.2%  VideoCore::PageManager::Impl::GuestFaultSignalHandler
+    0.1%  Common::IsWriteError
+    0.1%  Core::HostRuntime::GuestRuntime::Impl::IsGpuWatchFault
+    0.1%  <self>
+    0.1%  Common::Singleton<Core::MemoryManager>::Instance
+    0.1%  VideoCore::BufferCache::InvalidateMemory
+    0.0%  VideoCore::TextureCache::InvalidateMemory
+    0.0%  Vulkan::Rasterizer::IsMapped
+-- leaves
+   19.8%  _raw_spin_unlock_irqrestore
+   15.5%  change_protection
+    6.8%  rwsem_spin_on_owner
+    2.2%  vma_interval_tree_insert
+    2.1%  local_daif_restore
+    1.8%  __rcu_read_unlock
+    1.6%  @plt
+    1.5%  Core::MemoryManager::IsValidMapping
+    1.4%  Core::MemoryManager::ProtectGpu
+    1.3%  boost::enable_if<boost::icl::is_interval_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::disc
+    1.3%  memset
+    1.3%  __rb_insert_augmented
+    1.2%  perf_output_copy
+    1.1%  simple_dname
+
+### Vulkan::Rasterizer::InvalidateMemory: 8013 samples = 9.5% of thread
+-- direct children
+   73.8%  VideoCore::BufferCache::InvalidateMemory
+   17.7%  syscall
+    6.1%  Vulkan::Rasterizer::IsMapped
+    1.2%  VideoCore::TextureCache::InvalidateMemory
+    0.3%  @plt
+    0.2%  <self>
+    0.1%  boost::enable_if<boost::icl::is_interval_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::disc
+    0.1%  EmulatorSettingsImpl::GetInstance
+    0.1%  void VideoCore::PageManager::Impl::UpdatePageWatchers<false, false>
+    0.1%  std::__ndk1::mutex::unlock
+    0.1%  void VideoCore::PageManager::UpdatePageWatchersForRegion<false, false>
+    0.0%  __errno
+    0.0%  std::__ndk1::shared_lock<Common::SharedFirstMutex>& std::__ndk1::optional<std::__ndk1::shared_lock<Common::SharedFirstMu
+    0.0%  __aarch64_cas4_acq
+-- leaves
+   20.0%  _raw_spin_unlock_irqrestore
+   15.6%  change_protection
+    6.8%  rwsem_spin_on_owner
+    2.2%  vma_interval_tree_insert
+    2.1%  local_daif_restore
+    1.8%  __rcu_read_unlock
+    1.5%  Core::MemoryManager::IsValidMapping
+    1.4%  @plt
+    1.4%  Core::MemoryManager::ProtectGpu
+    1.3%  boost::enable_if<boost::icl::is_interval_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::disc
+    1.3%  memset
+    1.3%  __rb_insert_augmented
+    1.2%  perf_output_copy
+    1.1%  simple_dname

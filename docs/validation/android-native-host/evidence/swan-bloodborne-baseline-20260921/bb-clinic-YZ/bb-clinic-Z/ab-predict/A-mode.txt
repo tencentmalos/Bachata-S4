@@ -1,0 +1,2 @@
+    watch_predict=on (write faults also release pages rewritten last cycle)
+

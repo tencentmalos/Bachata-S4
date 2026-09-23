@@ -1,0 +1,2 @@
+    watch_coalesce=off (GPU write-watch mprotect per 4 KiB page)
+

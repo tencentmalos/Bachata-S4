@@ -1,0 +1,9 @@
+Guest-N                      on-cpu  32233.0 ms  fault-path  5091.5 ms (15.8%)  user_handler=3896.5 signal_setup=758.0 abort_entry=736.5 sigreturn=139.5
+Guest-1                      on-cpu   9835.5 ms  fault-path   862.0 ms ( 8.8%)  user_handler=674.5 abort_entry=111.5 signal_setup=136.5 sigreturn=22.0
+shadPS4:Present              on-cpu    601.0 ms  fault-path   232.0 ms (38.6%)  abort_entry=229.0 signal_setup=3.5
+shadPS4:GpuComm              on-cpu  12939.5 ms  fault-path    39.0 ms ( 0.3%)  signal_setup=39.0
+AudioTrack                   on-cpu    132.5 ms  fault-path    26.5 ms (20.0%)  abort_entry=18.5 signal_setup=8.0
+com.shadps4.android          on-cpu    383.5 ms  fault-path     5.5 ms ( 1.4%)  abort_entry=1.0 signal_setup=4.5
+LOG                          on-cpu     33.5 ms  fault-path     2.5 ms ( 7.5%)  signal_setup=2.5
+DefaultExecutor              on-cpu     40.0 ms  fault-path     2.5 ms ( 6.2%)  signal_setup=2.5
+ALL fault-path 6264.0 ms of 56457.0 ms
