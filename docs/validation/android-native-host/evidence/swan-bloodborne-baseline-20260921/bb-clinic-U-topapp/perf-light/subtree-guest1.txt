@@ -1,0 +1,91 @@
+
+### DispatchAccessViolation: 1634 samples = 7.7% of thread
+-- direct children
+   98.8%  Vulkan::Rasterizer::InvalidateMemory
+    0.4%  Core::HostRuntime::GuestRuntime::Impl::IsGpuWatchFault
+    0.3%  @plt
+    0.2%  VideoCore::PageManager::Impl::GuestFaultSignalHandler
+    0.1%  Common::IsWriteError
+    0.1%  <self>
+    0.1%  VideoCore::TextureCache::InvalidateMemory
+    0.1%  Common::Singleton<Core::MemoryManager>::Instance
+    0.1%  VideoCore::BufferCache::InvalidateMemory
+-- leaves
+   20.4%  _raw_spin_unlock_irqrestore
+   17.1%  change_protection
+    7.1%  rwsem_spin_on_owner
+    2.3%  local_daif_restore
+    2.1%  vma_interval_tree_insert
+    2.0%  @plt
+    1.8%  osq_lock
+    1.3%  Core::MemoryManager::ProtectGpu
+    1.2%  finish_task_switch
+    1.2%  __rb_insert_augmented
+    1.1%  __rcu_read_unlock
+    1.1%  mas_find
+    1.0%  VideoCore::BufferCache::InvalidateMemory
+    1.0%  Core::MemoryManager::IsValidMapping
+
+### InstallGraphicsHandlers: 1000 samples = 4.7% of thread
+-- direct children
+   65.9%  <self>
+   11.6%  Core::GuestCpu::GuestAddressSpace::ReadData
+    7.4%  Core::HostRuntime::AcquireGraphicsCommandBuffer
+    2.7%  operator new
+    2.5%  Core::GuestCpu::PinnedSpan::~PinnedSpan
+    2.2%  Core::HostRuntime::GuestRuntime::Impl::Graphics
+    1.7%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate
+    0.9%  @plt
+    0.9%  Core::HostRuntime::AcquireGraphicsAdmission
+    0.6%  Core::GuestCpu::ExecutionLease::~ExecutionLease
+    0.5%  el0t_64_irq
+    0.4%  std::__ndk1::chrono::steady_clock::now
+    0.3%  Core::HostRuntime::GuestGraphics::CheckHealth
+    0.3%  decltype
+-- leaves
+   65.5%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_tra
+    4.8%  _raw_spin_unlock_irqrestore
+    2.1%  @plt
+    2.1%  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked
+    1.9%  Core::GuestCpu::GuestAddressSpace::CheckDataRequestsLocked
+    1.6%  Core::GuestCpu::GuestAddressSpace::WaitDataAdmissionLocked
+    1.4%  scudo::HybridMutex::tryLock
+    1.2%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate
+    1.2%  local_daif_restore
+    0.9%  pthread_mutex_lock
+    0.6%  scudo::HybridMutex::unlock
+    0.6%  Core::GuestCpu::GuestAddressSpace::AcquireDataBatch
+    0.6%  Core::GuestCpu::PinnedSpan::Release
+    0.6%  __aarch64_ldadd8_acq_rel
+
+### GuestKernelSemaphore::Dispatch: 598 samples = 2.8% of thread
+-- direct children
+   88.6%  Core::HostRuntime::GuestKernelSemaphore::DeferredWakes::~DeferredWakes
+    3.7%  Core::HostRuntime::GuestKernelSemaphore::Wake
+    2.3%  std::__ndk1::condition_variable::wait
+    1.0%  <self>
+    1.0%  std::__ndk1::__shared_ptr_emplace<Core::HostRuntime::GuestKernelSemaphore::Waiter, std::__ndk1::allocator<Core::HostRunt
+    0.7%  std::__ndk1::mutex::unlock
+    0.7%  std::__ndk1::mutex::lock
+    0.5%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate
+    0.5%  @plt
+    0.3%  std::__ndk1::shared_ptr<Core::HostRuntime::GuestKernelSemaphore::Waiter> std::__ndk1::allocate_shared[abi:ne210000]<Core
+    0.2%  std::__ndk1::chrono::steady_clock::now
+    0.2%  operator delete
+    0.2%  std::__ndk1::__shared_weak_count::__release_weak
+    0.2%  clock_gettime
+-- leaves
+   77.1%  _raw_spin_unlock_irqrestore
+    1.8%  futex_wake
+    1.7%  local_daif_restore
+    1.5%  _raw_spin_lock_irqsave
+    1.3%  scudo::HybridMutex::tryLock
+    1.0%  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.8%  __arm64_sys_futex
+    0.8%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk
+    0.8%  futex_wake_mark
+    0.7%  try_to_wake_up
+    0.7%  malloc
+    0.7%  wake_q_add_safe
+    0.7%  pthread_mutex_lock
+    0.5%  @plt

@@ -1,0 +1,2 @@
+detail window presents=254 fps=12.578
+presents_at_hle_dump=13184

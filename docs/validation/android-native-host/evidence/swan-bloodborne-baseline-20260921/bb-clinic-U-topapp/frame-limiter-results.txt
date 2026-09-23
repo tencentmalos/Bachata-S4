@@ -1,0 +1,16 @@
+frame_limiter.sql (tools/frame_limiter.sql with tids replaced), Litep query_sql on the loaded PROF sessions.
+Frames = frame owner's HLE.sceGnmSubmitAndFlipCommandBuffers; lanes clipped per frame and averaged; r = Pearson vs frame length.
+
+U-topapp light (PROF 73f3261b, capture 4; owner Guest-20 11288, GpuComm 11289, Guest-1 11249; cpuset /top-app):
+  n=285 frame_ms=69.71 pm4_ms=68.90 owner_wait_ms=57.73 guest1_active_ms=52.44 corr_pm4=0.995 corr_guest1_active=0.379 corr_owner_wait=0.948
+U-topapp detail (PROF 95fe364c, capture 5; gpu_timing detail + hle_sync on):
+  n=288 frame_ms=69.15 pm4_ms=67.31 owner_wait_ms=50.21 guest1_active_ms=48.45 gpu_ms=50.89 corr_pm4=0.943 corr_guest1_active=0.834 corr_gpu=0.383 corr_owner_wait=0.679
+T light2 (PROF 06cd77ca, capture 2; owner 31773, GpuComm 31774, Guest-1 31733; cpuset /foreground 0-3 after the launcher restart):
+  n=244 frame_ms=81.21 pm4_ms=79.06 owner_wait_ms=56.44 guest1_active_ms=70.12 corr_pm4=0.964 corr_guest1_active=0.750 corr_owner_wait=0.580
+
+GPU zones, U-topapp detail (288 frames, dropped_zones 0; per frame):
+  GPU.GuestCommands 50.89 ms (1.6 batches), GuestRenderPass 35.30 ms (203.1 instances), HostReadback 4.77 ms (4.0),
+  GuestDispatch 3.28 ms (61.8), HostTransfer 2.45 ms (26.1), Present 1.32 ms, OverlayRedraw 0.76 ms, BufferUpload 0.31 ms (17.5)
+
+Owner thread (U light, 19.95 s): HLE.sceGnmSubmitCommandBuffers 2840 calls 15814.5 ms, of which GNM.SubmissionGate 3413 x 15630.9 ms;
+GpuComm PM4.Resume 20683 x 19718.3 ms. Present thread: Present.DriverCall 557 x 8883.8 ms, VideoOut.Flip 286 x 9600.1 ms.

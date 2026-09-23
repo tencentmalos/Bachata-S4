@@ -1,0 +1,1044 @@
+total samples 87532 = 43766 ms on-CPU at 2000 Hz
+
+## threads (on-CPU ms over the window)
+  11018.5 ms  shadPS4:GpuComm/31386
+   8039.0 ms  Guest-1/31346
+   2841.5 ms  Guest-24/31421
+   2813.0 ms  Guest-25/31422
+   2804.0 ms  Guest-22/31419
+   2785.0 ms  Guest-21/31418
+   2770.0 ms  Guest-23/31420
+   2475.5 ms  Guest-20/31385
+   1465.0 ms  Guest-17/31381
+    891.0 ms  shadPS4:Present/31414
+    501.0 ms  Guest-19/31383
+    465.5 ms  com.shadps4.android/18652
+    312.0 ms  Guest-36/31434
+    283.0 ms  Guest-13/31375
+    272.0 ms  Guest-59/32035
+    264.5 ms  Guest-35/31433
+    248.0 ms  Guest-12/31374
+    237.5 ms  Guest-58/32034
+    233.5 ms  Guest-34/31432
+    233.5 ms  Guest-11/31373
+    225.0 ms  Guest-18/31382
+    223.0 ms  Guest-56/32032
+    221.0 ms  Guest-55/32031
+    214.0 ms  Guest-48/31447
+    213.5 ms  Guest-57/32033
+    212.5 ms  Guest-33/31431
+    207.5 ms  Guest-54/32030
+    204.0 ms  Guest-32/31430
+    203.0 ms  Guest-16/31378
+    116.0 ms  AudioTrack/31379
+     96.5 ms  shadPS4:VkSubmi/31388
+     93.0 ms  Guest-46/31445
+     53.5 ms  Guest-4/31366
+     45.0 ms  Guest-47/31446
+     41.5 ms  Guest-53/31616
+     35.5 ms  DefaultExecutor/31348
+     33.0 ms  binder:18652_3/31161
+     33.0 ms  Guest-66/32042
+     28.5 ms  Guest-3/31365
+     26.5 ms  Guest-65/32041
+
+## shadPS4:GpuComm/31386: 22037 samples = 11018.5 ms
+### buckets (innermost match)
+  28.2%    3105.0 ms  pipeline_cache
+  24.9%    2743.0 ms  buffer_cache
+  13.6%    1495.5 ms  rasterizer_draw
+  11.9%    1315.0 ms  texture_cache
+   9.6%    1054.5 ms  pm4_decode
+   6.4%     701.0 ms  bind_resources
+   4.6%     504.0 ms  render_state
+   0.5%      60.5 ms  scheduler_submit
+   0.2%      19.5 ms  profiler
+   0.1%      12.0 ms  tile_readback
+   0.1%       8.5 ms  diagnostics
+### self by dso
+  51.3%  libshadps4_host.so
+  16.7%  vulkan.ad07xx.so
+  13.1%  libc.so
+  12.9%  [kernel.kallsyms]
+   3.1%  libc++_shared.so
+   1.9%  linker64
+   0.8%  [vdso]
+   0.2%  byted_evalock.ko
+   0.0%  libm.so
+   0.0%  msm_kgsl.ko
+   0.0%  bytegpu.ko
+   0.0%  byted_locking_sched_opt.ko
+### self by symbol (top 45)
+   6.4%  __memcpy_aarch64_nt  [libc.so]
+   4.9%  change_protection  [[kernel.kallsyms]]
+   3.0%  Vulkan::Rasterizer::BindBuffers(Shader::Info const&, Shader::Backend::Bindings&, Shader::PushData&)  [libshadps4_host.so]
+   2.9%  @plt  [libshadps4_host.so]
+   2.5%  void r2d_setup_common<(chip)8>(tu_cmd_buffer*, tu_cs*, pipe_format, pipe_format, unsigned int, unsigned int, b  [vulkan.ad07xx.so]
+   2.5%  VideoCore::TextureCache::FindImage(VideoCore::TextureCache::ImageDesc&, bool)  [libshadps4_host.so]
+   2.1%  Core::MemoryManager::SrtReadBatch::Read(unsigned long, void*, unsigned long)  [libshadps4_host.so]
+   1.9%  [linker]tlsdesc_resolver_dynamic  [linker64]
+   1.8%  Vulkan::Rasterizer::BindTextures(Shader::Info const&, Shader::Backend::Bindings&)  [libshadps4_host.so]
+   1.6%  AmdGpu::Liverpool::ProcessGraphics(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1:  [libshadps4_host.so]
+   1.4%  pthread_mutex_lock  [libc.so]
+   1.4%  void Shader::PortableSrt::Run<bool (*)(unsigned long, void*, unsigned long)>(std::__ndk1::span<unsigned int co  [libshadps4_host.so]
+   1.3%  tu_cs_reserve_space(tu_cs*, unsigned int)  [vulkan.ad07xx.so]
+   1.3%  AmdGpu::Image Shader::ImageResource::GetSharp<Shader::Info>(Shader::Info const&) const  [libshadps4_host.so]
+   1.3%  void tu_update_descriptor_sets<(chip)8>(tu_device const*, VkDescriptorSet_T*, unsigned int, VkWriteDescriptorS  [vulkan.ad07xx.so]
+   1.3%  VideoCore::BufferCache::SynchronizeBuffer(VideoCore::Buffer&, unsigned long, unsigned int, bool, bool)  [libshadps4_host.so]
+   1.2%  __aarch64_ldadd8_relax  [libshadps4_host.so]
+   1.2%  std::__ndk1::chrono::steady_clock::now()  [libc++_shared.so]
+   1.0%  Core::GuestCpu::GuestAddressSpace::OwnsRange(Core::GuestCpu::GuestRange) const  [libshadps4_host.so]
+   0.9%  VideoCore::TextureCache::TouchImage(VideoCore::Image const&)  [libshadps4_host.so]
+   0.9%  pthread_mutex_unlock  [libc.so]
+   0.8%  Shader::StageSpecialization::operator==(Shader::StageSpecialization const&) const  [libshadps4_host.so]
+   0.8%  VideoCore::Image::Transit(vk::ImageLayout, vk::Flags<vk::AccessFlagBits2>, std::__ndk1::optional<VideoCore::Su  [libshadps4_host.so]
+   0.8%  __kernel_clock_gettime  [[vdso]]
+   0.8%  AmdGpu::NextPacket(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, unsigned long)  [libshadps4_host.so]
+   0.8%  bool Shader::SharpFetch<AmdGpu::Image>::Fetch<8u>(unsigned int const*, AmdGpu::Image*) const  [libshadps4_host.so]
+   0.7%  VideoCore::ImageInfo::UpdateSize()  [libshadps4_host.so]
+   0.7%  Shader::RuntimeInfo::operator==(Shader::RuntimeInfo const&) const  [libshadps4_host.so]
+   0.7%  std::__ndk1::mutex::lock()  [libc++_shared.so]
+   0.7%  Shader::ReadSrtGuestMemory(unsigned long, void*, unsigned long)  [libshadps4_host.so]
+   0.7%  Shader::PortableSrt::Compute(unsigned int, std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std:  [libshadps4_host.so]
+   0.7%  clock_gettime  [libc.so]
+   0.6%  std::__ndk1::__tree_iterator<std::__ndk1::__value_type<std::__ndk1::array<unsigned long, 7ul>, VideoCore::Text  [libshadps4_host.so]
+   0.6%  vk_dynamic_graphics_state_copy  [vulkan.ad07xx.so]
+   0.6%  Shader::Gcn::GcnDecodeContext::decodeInstruction(Shader::Gcn::GcnCodeSlice&)  [libshadps4_host.so]
+   0.6%  tu_cs_begin_sub_stream_aligned(tu_cs*, unsigned int, unsigned int, tu_cs*)  [vulkan.ad07xx.so]
+   0.6%  Core::MemoryManager::CopySparseMemory(unsigned long, unsigned char*, unsigned long)  [libshadps4_host.so]
+   0.6%  VideoCore::Image::GetBarriers(vk::ImageLayout, vk::Flags<vk::AccessFlagBits2>, vk::Flags<vk::PipelineStageFlag  [libshadps4_host.so]
+   0.6%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   0.6%  local_daif_restore  [[kernel.kallsyms]]
+   0.5%  auto Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profil  [libshadps4_host.so]
+   0.5%  VideoCore::MemoryTracker::IsRegionGpuModified(unsigned long, unsigned long)::'lambda'(VideoCore::RegionManager  [libshadps4_host.so]
+   0.5%  void fdl6_buffer_view_init<(chip)8>(unsigned int*, pipe_format, unsigned char const (&) [4], unsigned long, un  [vulkan.ad07xx.so]
+   0.5%  dma_buf_total_size  [[kernel.kallsyms]]
+   0.5%  Vulkan::Rasterizer::BeginRendering(Vulkan::GraphicsPipeline const*)  [libshadps4_host.so]
+### inclusive by function (top 70)
+ 100.0%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+ 100.0%  __pthread_start
+ 100.0%  __start_thread
+ 100.0%  AmdGpu::Liverpool::Process
+  99.0%  AmdGpu::Liverpool::ProcessOwnedGraphics
+  95.8%  AmdGpu::Liverpool::ProcessGraphics
+  69.3%  Vulkan::Rasterizer::Draw
+  23.1%  VideoCore::BufferCache::ObtainBuffer
+  22.7%  Vulkan::Rasterizer::BindResources
+  19.8%  Vulkan::PipelineCache::GetGraphicsPipeline
+  19.3%  Vulkan::Rasterizer::DispatchDirect
+  19.2%  Vulkan::PipelineCache::RefreshGraphicsKey
+  18.7%  Vulkan::PipelineCache::RefreshGraphicsStages
+  18.0%  Vulkan::PipelineCache::GetProgram
+  17.4%  Vulkan::ExecuteShaderHLE
+  15.2%  VideoCore::BufferCache::SynchronizeBuffer
+  12.5%  el0t_64_sync_handler
+  12.5%  el0t_64_sync
+  11.9%  el0_svc
+  11.9%  do_el0_svc
+  11.8%  invoke_syscall
+  11.4%  VideoCore::PageManager::Impl::Protect
+  11.4%  Core::MemoryManager::ProtectGpu
+  11.3%  mprotect
+  10.6%  __arm64_sys_mprotect
+  10.4%  do_mprotect_pkey
+  10.1%  Vulkan::Rasterizer::BindTextures
+   9.6%  Vulkan::Rasterizer::BindBuffers
+   9.5%  Shader::Info::RefreshFlatBuf
+   7.1%  void Shader::PortableSrt::Run<bool 
+   6.5%  __memcpy_aarch64_nt
+   6.3%  unsigned long VideoCore::StreamBuffer::Copy<unsigned long>
+   6.1%  void VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<true, false>
+   5.5%  void VideoCore::PageManager::Impl::UpdatePageWatchers<true, false>
+   5.3%  Shader::StageSpecialization::StageSpecialization
+   5.0%  change_protection
+   4.2%  Vulkan::Pipeline::BindResources
+   4.1%  VkResult tu6_draw_common<
+   4.0%  vk_common_CmdPushDescriptorSetKHR
+   3.8%  void tu_push_descriptor_set<
+   3.7%  vk_common_CmdCopyBuffer
+   3.7%  void tu_CmdCopyBuffer2<
+   3.5%  void copy_buffer<
+   3.4%  VideoCore::TextureCache::FindImage
+   3.3%  @plt
+   3.3%  void tu_update_descriptor_sets<
+   3.1%  VideoCore::BufferCache::BindVertexBuffers
+   3.0%  Core::MemoryManager::SrtReadBatch::Read
+   3.0%  Shader::Gcn::ParseFetchShader
+   2.9%  void tu_CmdDrawIndexed<
+   2.8%  Vulkan::Rasterizer::PrepareRenderState
+   2.7%  void r2d_setup_common<
+   2.7%  VideoCore::BufferCache::BindIndexBuffer
+   2.4%  Vulkan::Rasterizer::BeginRendering
+   2.3%  vma_modify_flags
+   2.2%  Core::MemoryManager::CopySparseMemory
+   2.1%  vma_modify
+   2.1%  VideoCore::Image::Transit
+   2.1%  VideoCore::ImageInfo::ImageInfo
+   2.1%  std::__ndk1::chrono::steady_clock::now
+   2.0%  unsigned int tu_emit_draw_state<
+   1.9%  [linker]tlsdesc_resolver_dynamic
+   1.8%  void tu_CmdDraw<
+   1.8%  void fdl6_buffer_view_init<
+   1.6%  Shader::Gcn::GcnDecodeContext::decodeInstruction
+   1.6%  std::__ndk1::mutex::lock
+   1.6%  VideoCore::MemoryTracker::IsRegionGpuModified
+   1.4%  Vulkan::Scheduler::BeginRendering
+   1.4%  pthread_mutex_lock
+   1.4%  tu_cs_begin_sub_stream_aligned
+
+## Guest-1/31346: 16078 samples = 8039.0 ms
+### buckets (innermost match)
+  86.8%    6980.5 ms  other
+   7.2%     580.5 ms  kernel
+   5.6%     452.5 ms  buffer_cache
+   0.3%      22.0 ms  profiler
+   0.0%       3.5 ms  texture_cache
+### self by dso
+  75.7%  unknown
+  12.1%  [kernel.kallsyms]
+   6.3%  libshadps4_host.so
+   2.5%  libc.so
+   1.9%  libshadps4_fex_session.so
+   0.5%  libc++_shared.so
+   0.3%  libm.so
+   0.2%  linker64
+   0.1%  libsigchain.so
+   0.1%  byted_locking_sched_opt.ko
+   0.1%  [vdso]
+   0.0%  byted_evalock.ko
+### self by symbol (top 45)
+   4.2%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   3.0%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_  [libshadps4_host.so]
+   1.6%  change_protection  [[kernel.kallsyms]]
+   1.2%  unknown[+5caa564c74]  [unknown]
+   1.1%  unknown[+5caa564d34]  [unknown]
+   1.1%  unknown[+5caa564c8c]  [unknown]
+   1.1%  unknown[+5caa564c94]  [unknown]
+   1.0%  unknown[+5caa564c90]  [unknown]
+   1.0%  unknown[+5caa564d38]  [unknown]
+   0.9%  unknown[+5caa564d54]  [unknown]
+   0.9%  unknown[+5caa564d50]  [unknown]
+   0.9%  unknown[+5caa564c84]  [unknown]
+   0.9%  unknown[+5caa564d58]  [unknown]
+   0.9%  unknown[+5caa564c88]  [unknown]
+   0.9%  unknown[+5caa564d60]  [unknown]
+   0.8%  unknown[+5caa564d44]  [unknown]
+   0.8%  unknown[+5caa564d4c]  [unknown]
+   0.8%  unknown[+5caa564d40]  [unknown]
+   0.8%  unknown[+5caa564d68]  [unknown]
+   0.8%  unknown[+5caa564c7c]  [unknown]
+   0.8%  local_daif_restore  [[kernel.kallsyms]]
+   0.8%  unknown[+5caa564c80]  [unknown]
+   0.8%  unknown[+5caa564d48]  [unknown]
+   0.8%  unknown[+5caa564d5c]  [unknown]
+   0.7%  unknown[+5caa564c78]  [unknown]
+   0.7%  unknown[+5caa564d3c]  [unknown]
+   0.5%  std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dens  [libshadps4_fex_session.so]
+   0.5%  rwsem_spin_on_owner  [[kernel.kallsyms]]
+   0.4%  Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::Gue  [libshadps4_fex_session.so]
+   0.4%  do_notify_resume  [[kernel.kallsyms]]
+   0.4%  pthread_mutex_lock  [libc.so]
+   0.3%  unknown[+74f82fd290]  [unknown]
+   0.3%  @plt  [libshadps4_host.so]
+   0.3%  fesetenv  [libm.so]
+   0.3%  unknown[+5caa42c724]  [unknown]
+   0.3%  __memcpy_aarch64_nt  [libc.so]
+   0.3%  pthread_mutex_unlock  [libc.so]
+   0.3%  finish_task_switch  [[kernel.kallsyms]]
+   0.3%  unknown[+5cac007cec]  [unknown]
+   0.2%  unknown[+5caa5c9318]  [unknown]
+   0.2%  do_signal  [[kernel.kallsyms]]
+   0.2%  futex_wake  [[kernel.kallsyms]]
+   0.2%  __rcu_read_unlock  [[kernel.kallsyms]]
+   0.2%  _raw_spin_unlock_irq  [[kernel.kallsyms]]
+   0.2%  [linker]tlsdesc_resolver_dynamic  [linker64]
+### inclusive by function (top 70)
+  20.1%  Core::GuestCpu::Fex::
+  19.8%  unknown[+2280df83e]
+  13.1%  Core::HostRuntime::GuestRuntime::Run
+  13.1%  Core::HostRuntime::FexSessionBackend::Run
+  13.1%  Core::HostRuntime::SessionCore::OwnerBody
+  13.1%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+  13.1%  __pthread_start
+  13.1%  __start_thread
+  11.5%  el0t_64_sync_handler
+  11.5%  el0t_64_sync
+   9.9%  Core::HostRuntime::
+   9.5%  el0_svc
+   9.4%  do_el0_svc
+   9.2%  invoke_syscall
+   7.7%  [vdso][+872]
+   7.6%  art::SignalChain::Handler
+   6.8%  Core::HostRuntime::GuestGraphics::GuestGraphics
+   6.8%  Core::SignalDispatch::DispatchAccessViolation
+   6.7%  Vulkan::Rasterizer::InvalidateMemory
+   5.6%  VideoCore::BufferCache::InvalidateMemory
+   5.6%  void VideoCore::PageManager::Impl::UpdatePageWatchers<false, false>
+   5.3%  VideoCore::PageManager::Impl::Protect
+   5.2%  Core::MemoryManager::ProtectGpu
+   4.9%  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+   4.9%  mprotect
+   4.7%  __arm64_sys_mprotect
+   4.7%  do_mprotect_pkey
+   4.5%  syscall
+   4.2%  _raw_spin_unlock_irqrestore
+   4.1%  __arm64_sys_futex
+   3.9%  wake_up_q
+   3.9%  try_to_wake_up
+   3.7%  futex_wake
+   2.9%  std::__ndk1::condition_variable::notify_one
+   2.1%  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+   2.1%  unknown[+5caa404e36]
+   2.1%  unknown[+105699e26]
+   2.0%  unknown[+5cac02b65e]
+   1.9%  Core::HostRuntime::GuestKernelSemaphore::DeferredWakes::~DeferredWakes
+   1.7%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocator
+   1.7%  change_protection
+   1.6%  unknown[+fd]
+   1.6%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocator
+   1.4%  unknown[+100000000]
+   1.4%  Core::HostRuntime::GuestMutexDomain::CondNotify
+   1.2%  do_notify_resume
+   1.2%  unknown[+5caa564c74]
+   1.2%  unknown[+13d088887]
+   1.1%  el0_da
+   1.1%  unknown[+5caa564d34]
+   1.1%  unknown[+5caa564c8c]
+   1.1%  unknown[+5caa564c94]
+   1.0%  unknown[+5caa564c90]
+   1.0%  unknown[+5caa564d38]
+   0.9%  unknown[+5caa564d54]
+   0.9%  unknown[+74f82fd272]
+   0.9%  unknown[+5caa564d50]
+   0.9%  unknown[+5caa564c84]
+   0.9%  unknown[+5caa564d58]
+   0.9%  vma_modify_flags
+   0.9%  unknown[+5caa564c88]
+   0.9%  unknown[+5caa564d60]
+   0.9%  down_write_killable
+   0.8%  unknown[+5caa564d44]
+   0.8%  unknown[+5caa564d4c]
+   0.8%  unknown[+5caa564d40]
+   0.8%  unknown[+5caa564d68]
+   0.8%  unknown[+5cac044256]
+   0.8%  unknown[+5caa564c7c]
+   0.8%  local_daif_restore
+
+## shadPS4:Present/31414: 1782 samples = 891.0 ms
+### buckets (innermost match)
+  64.1%     571.5 ms  kernel
+  23.5%     209.5 ms  other
+   8.1%      72.5 ms  driver
+   3.4%      30.0 ms  scheduler_submit
+   0.8%       7.5 ms  profiler
+### self by dso
+  65.7%  [kernel.kallsyms]
+  11.2%  libshadps4_host.so
+   9.3%  vulkan.ad07xx.so
+   3.1%  libc.so
+   2.5%  byted_evalock.ko
+   2.2%  libgui.so
+   2.0%  msm_kgsl.ko
+   1.0%  kmem_indicators.ko
+   0.6%  vendor.qti.hardware.display.snapalloc-impl.so
+   0.6%  libui.so
+   0.4%  libpenguin_impl.so
+   0.3%  libgrallocutils.so
+### self by symbol (top 45)
+  12.9%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   9.7%  local_daif_restore  [[kernel.kallsyms]]
+   5.6%  util_flush_range  [vulkan.ad07xx.so]
+   5.3%  contpte_convert  [[kernel.kallsyms]]
+   3.6%  pte_offset_map_rw_nolock  [[kernel.kallsyms]]
+   2.0%  __rcu_read_unlock  [[kernel.kallsyms]]
+   1.8%  count_memcg_event_mm  [[kernel.kallsyms]]
+   1.3%  evalock_update  [byted_evalock.ko]
+   1.2%  __memcpy_aarch64_nt  [libc.so]
+   1.2%  mas_walk  [[kernel.kallsyms]]
+   1.2%  ImGui::NewFrame()  [libshadps4_host.so]
+   1.1%  __handle_mm_fault  [[kernel.kallsyms]]
+   1.1%  handle_mm_fault  [[kernel.kallsyms]]
+   1.0%  __tp_pgfault  [kmem_indicators.ko]
+   1.0%  mt_find  [[kernel.kallsyms]]
+   0.9%  ImDrawList::AddPolyline(ImVec2 const*, int, unsigned int, float, int)  [libshadps4_host.so]
+   0.9%  do_page_fault  [[kernel.kallsyms]]
+   0.9%  kgsl_paged_vmfault  [msm_kgsl.ko]
+   0.8%  _raw_spin_unlock_irq  [[kernel.kallsyms]]
+   0.8%  ImGui::Begin(char const*, bool*, int)  [libshadps4_host.so]
+   0.8%  __traceiter_android_vh_kmemind_pgfault  [[kernel.kallsyms]]
+   0.8%  _raw_spin_lock_irq  [[kernel.kallsyms]]
+   0.8%  ImFont::RenderText(ImDrawList*, float, ImVec2 const&, unsigned int, ImVec4 const&, char const*, char const*, f  [libshadps4_host.so]
+   0.8%  cgroup_rstat_updated  [[kernel.kallsyms]]
+   0.8%  arch_local_irq_disable  [[kernel.kallsyms]]
+   0.7%  vm_insert_page  [[kernel.kallsyms]]
+   0.7%  percpu_counter_add_batch  [[kernel.kallsyms]]
+   0.7%  __vfprintf  [libc.so]
+   0.7%  android_vh_record_mutex_lock_starttime_handler  [byted_evalock.ko]
+   0.7%  __lruvec_stat_mod_folio  [[kernel.kallsyms]]
+   0.7%  sched_clock_noinstr  [[kernel.kallsyms]]
+   0.7%  _raw_spin_lock_irqsave  [[kernel.kallsyms]]
+   0.6%  ImGui::StatusLayer::Draw(unsigned long, unsigned int, unsigned int)  [libshadps4_host.so]
+   0.6%  __traceiter_android_vh_record_rwsem_lock_starttime_ext  [[kernel.kallsyms]]
+   0.6%  __traceiter_android_vh_record_mutex_lock_starttime  [[kernel.kallsyms]]
+   0.6%  finish_task_switch  [[kernel.kallsyms]]
+   0.6%  sched_clock  [[kernel.kallsyms]]
+   0.5%  __traceiter_android_vh_record_rwsem_lock_starttime  [[kernel.kallsyms]]
+   0.5%  do_pte_missing  [[kernel.kallsyms]]
+   0.4%  _raw_spin_lock  [[kernel.kallsyms]]
+   0.4%  up_read  [[kernel.kallsyms]]
+   0.4%  @plt  [libgui.so]
+   0.4%  lock_vma_under_rcu  [[kernel.kallsyms]]
+   0.4%  android_vh_record_rwsem_lock_starttime_ext_handler  [byted_evalock.ko]
+   0.4%  tlb_flush_mmu_tlbonly  [[kernel.kallsyms]]
+### inclusive by function (top 70)
+ 100.0%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+ 100.0%  __pthread_start
+ 100.0%  __start_thread
+  99.9%  Libraries::VideoOut::VideoOutDriver::PresentThread
+  95.8%  Vulkan::Presenter::Present
+  75.0%  ImGui::Core::Render
+  71.0%  el0t_64_sync_handler
+  71.0%  el0t_64_sync
+  69.1%  ImGui::Vulkan::RenderDrawData
+  62.5%  util_flush_range
+  50.4%  el0_da
+  50.0%  do_translation_fault
+  49.9%  do_mem_abort
+  49.2%  do_page_fault
+  33.6%  Libraries::VideoOut::VideoOutDriver::Flip
+  23.7%  handle_mm_fault
+  17.5%  __handle_mm_fault
+  15.7%  do_pte_missing
+  14.8%  kgsl_gpumem_vm_fault
+  14.3%  kgsl_paged_vmfault
+  13.4%  mmap_read_unlock
+  12.9%  _raw_spin_unlock_irqrestore
+  12.6%  up_read
+  11.7%  wake_up_q
+  11.5%  try_to_wake_up
+  10.7%  vm_insert_page
+  10.1%  el0_svc
+  10.0%  do_el0_svc
+   9.8%  invoke_syscall
+   9.7%  local_daif_restore
+   8.9%  insert_page_into_pte_locked
+   6.8%  Vulkan::Swapchain::Present
+   5.8%  lock_mm_and_find_vma
+   5.5%  __contpte_try_fold
+   5.3%  contpte_convert
+   5.2%  ImGui::Core::NewFrame
+   4.9%  unknown[+72368b51f6]
+   4.8%  __memcpy_aarch64_nt
+   4.6%  android::Surface::queueBuffer
+   3.7%  Vulkan::Scheduler::SubmitExecution
+   3.6%  pte_offset_map_rw_nolock
+   3.5%  ImGui::NewFrame
+   3.5%  munmap
+   3.5%  vk_common_UnmapMemory
+   3.4%  ImGui::StatusLayer::Draw
+   3.4%  __arm64_sys_munmap
+   3.3%  handle_mm_fault.cold
+   3.1%  do_vmi_munmap
+   3.1%  mmap_read_lock_killable
+   3.0%  down_read_killable
+   2.8%  Vulkan::Presenter::PrepareLastFrame
+   2.7%  rwsem_down_read_slowpath
+   2.6%  ImGui::Begin
+   2.4%  android::BufferQueueProducer::queueBuffer
+   2.4%  folio_add_file_rmap_ptes
+   2.4%  __traceiter_android_vh_kmemind_pgfault
+   2.2%  vk_common_MapMemory
+   2.1%  mmap64
+   2.1%  tu_MapMemory2KHR
+   2.1%  __tp_pgfault
+   2.1%  vm_mmap_pgoff
+   2.1%  ksys_mmap_pgoff
+   2.1%  __arm64_sys_mmap
+   2.0%  __rcu_read_unlock
+   1.8%  do_mmap
+   1.8%  count_memcg_event_mm
+   1.7%  __ioctl
+   1.6%  kgsl_ioctl
+   1.6%  Vulkan::SubmissionWorker::Enqueue
+   1.5%  __traceiter_android_vh_record_rwsem_lock_starttime_ext
+
+## Guest-19/31383: 1002 samples = 501.0 ms
+### buckets (innermost match)
+  97.2%     487.0 ms  other
+   2.3%      11.5 ms  kernel
+   0.5%       2.5 ms  profiler
+### self by dso
+  92.2%  unknown
+   2.3%  [kernel.kallsyms]
+   1.9%  libshadps4_host.so
+   1.7%  libc.so
+   1.3%  libshadps4_fex_session.so
+   0.3%  libc++_shared.so
+   0.2%  [vdso]
+   0.1%  libm.so
+### self by symbol (top 45)
+   2.7%  unknown[+5cabf33a24]  [unknown]
+   2.4%  unknown[+5cabf32b04]  [unknown]
+   1.8%  unknown[+5cabf32b94]  [unknown]
+   1.6%  unknown[+5cabf2cfa4]  [unknown]
+   1.4%  unknown[+5cabf2d1e4]  [unknown]
+   1.1%  unknown[+5cabf2d08c]  [unknown]
+   1.1%  unknown[+5cabf2dd30]  [unknown]
+   1.0%  unknown[+5cabf40fa0]  [unknown]
+   0.9%  unknown[+5cabf419e8]  [unknown]
+   0.8%  unknown[+5cabf2d264]  [unknown]
+   0.8%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   0.8%  do_notify_resume  [[kernel.kallsyms]]
+   0.6%  unknown[+5cabf419d8]  [unknown]
+   0.6%  unknown[+5cabf2d9a4]  [unknown]
+   0.5%  unknown[+5cabf32a68]  [unknown]
+   0.5%  unknown[+5cabec5bf4]  [unknown]
+   0.5%  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermis  [libshadps4_host.so]
+   0.5%  unknown[+5cabf3c494]  [unknown]
+   0.4%  unknown[+5cabf2d090]  [unknown]
+   0.4%  unknown[+5cabec97d4]  [unknown]
+   0.4%  unknown[+5cabf33fe0]  [unknown]
+   0.4%  unknown[+5cabf2dd34]  [unknown]
+   0.4%  unknown[+74f82fd290]  [unknown]
+   0.4%  unknown[+5cabf3f8e4]  [unknown]
+   0.4%  unknown[+5cac033f64]  [unknown]
+   0.4%  unknown[+5cabf2e424]  [unknown]
+   0.4%  unknown[+5cabf37db8]  [unknown]
+   0.4%  unknown[+5caad98fc4]  [unknown]
+   0.4%  unknown[+5cabf41a9c]  [unknown]
+   0.3%  __set_errno_internal  [libc.so]
+   0.3%  unknown[+5cabecd2c8]  [unknown]
+   0.3%  unknown[+5caad96ae8]  [unknown]
+   0.3%  unknown[+5cabf418f4]  [unknown]
+   0.3%  unknown[+5cabf419e0]  [unknown]
+   0.3%  unknown[+5cac00b8f0]  [unknown]
+   0.3%  unknown[+5cab2bf354]  [unknown]
+   0.3%  unknown[+5cabf31244]  [unknown]
+   0.3%  unknown[+5cabec9a98]  [unknown]
+   0.3%  unknown[+5cabf47590]  [unknown]
+   0.3%  unknown[+5cabf344d4]  [unknown]
+   0.3%  unknown[+5cabf2e450]  [unknown]
+   0.3%  unknown[+5cabf3c0e8]  [unknown]
+   0.3%  unknown[+5cabf2d314]  [unknown]
+   0.3%  unknown[+5cabf40fb0]  [unknown]
+   0.3%  unknown[+5cabf40f98]  [unknown]
+### inclusive by function (top 70)
+   6.6%  Core::GuestCpu::Fex::
+   6.2%  Core::HostRuntime::GuestRuntime::Impl::Call
+   6.2%  _ZNSt6__ndk114__thread_proxyB8ne210000INS_5tupleIJNS_10unique_ptrINS_15__thread_structENS_14default_deleteIS3_EEEEZZN4Core11HostRuntime12Gue
+   6.2%  __pthread_start
+   6.2%  __start_thread
+   5.5%  unknown[+ac42]
+   4.2%  unknown[+221aac67e]
+   3.1%  Core::HostRuntime::
+   2.9%  unknown[+221aab3de]
+   2.7%  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+   2.7%  unknown[+5cabf33a24]
+   2.5%  unknown[+10549c536]
+   2.4%  unknown[+5cabf32b04]
+   2.4%  unknown[+7d0000311600061e]
+   1.8%  unknown[+5cabf32b94]
+   1.8%  unknown[+221ab81ee]
+   1.7%  unknown[+221aad82e]
+   1.6%  unknown[+5cabf2cfa4]
+   1.6%  unknown[+221aab57e]
+   1.6%  std::__ndk1::mutex::unlock
+   1.6%  unknown[+221ac1c9e]
+   1.4%  unknown[+221aab23e]
+   1.4%  el0t_64_sync_handler
+   1.4%  el0t_64_sync
+   1.4%  syscall
+   1.4%  unknown[+5cabf2d1e4]
+   1.2%  Core::GuestCpu::Hle::HleScope::WaitFor
+   1.2%  unknown[+221aad9ce]
+   1.1%  el0_svc
+   1.1%  unknown[+5cabf2d08c]
+   1.1%  unknown[+5cabf2dd30]
+   1.0%  wake_up_q
+   1.0%  __arm64_sys_futex
+   1.0%  invoke_syscall
+   1.0%  do_el0_svc
+   1.0%  unknown[+5cabf40fa0]
+   0.9%  try_to_wake_up
+   0.9%  futex_wake
+   0.9%  do_notify_resume
+   0.9%  el0_interrupt
+   0.9%  __el0_irq_handler_common
+   0.9%  el0t_64_irq_handler
+   0.9%  el0t_64_irq
+   0.9%  unknown[+5cabf419e8]
+   0.9%  unknown[+221aaed6e]
+   0.8%  unknown[+221aa9e7e]
+   0.8%  unknown[+5cabf2d264]
+   0.8%  _raw_spin_unlock_irqrestore
+   0.6%  unknown[+5cabf419d8]
+   0.6%  unknown[+5cabf2d9a4]
+   0.6%  unknown[+221aade0e]
+   0.6%  Core::GuestCpu::GuestAddressSpace::ValidateRange
+   0.5%  unknown[+5cabf32a68]
+   0.5%  unknown[+5cabec5bf4]
+   0.5%  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked
+   0.5%  unknown[+5cabf3c494]
+   0.4%  pthread_cond_clockwait
+   0.4%  unknown[+5cabf2d090]
+   0.4%  unknown[+5cabec97d4]
+   0.4%  unknown[+5cabf33fe0]
+   0.4%  unknown[+5cabf2dd34]
+   0.4%  unknown[+74f82fd290]
+   0.4%  unknown[+5cabf3f8e4]
+   0.4%  FexSyscallWrapper
+   0.4%  unknown[+5caae3cf6e]
+   0.4%  unknown[+5cac033f64]
+   0.4%  spatial::LiteTrace::begin
+   0.4%  Common::Profiler::Scope::Scope
+   0.4%  unknown[+5cabf2e424]
+   0.4%  unknown[+5cabf37db8]
+
+## shadPS4:VkSubmi/31388: 193 samples = 96.5 ms
+### buckets (innermost match)
+  90.2%      87.0 ms  scheduler_submit
+   3.6%       3.5 ms  other
+   3.1%       3.0 ms  profiler
+   2.6%       2.5 ms  kernel
+   0.5%       0.5 ms  diagnostics
+### self by dso
+  47.2%  [kernel.kallsyms]
+  21.2%  vulkan.ad07xx.so
+  10.9%  libc.so
+   6.2%  msm_kgsl.ko
+   5.7%  libshadps4_host.so
+   3.6%  unknown
+   1.0%  bytegpu.ko
+   1.0%  libc++_shared.so
+   1.0%  byted_sched_dyndl.ko
+   0.5%  libsync.so
+   0.5%  libc++.so
+   0.5%  byted_locking_sched_opt.ko
+### self by symbol (top 45)
+  31.6%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   2.1%  local_daif_restore  [[kernel.kallsyms]]
+   1.6%  std::__ndk1::__function::__func<Vulkan::Scheduler::SubmitExecution(Vulkan::SubmitInfo&)::$_0, std::__ndk1::all  [libshadps4_host.so]
+   1.6%  queue_submit(vk_queue*, vk_queue_submit*)  [vulkan.ad07xx.so]
+   1.6%  vk_queue_submit_create  [vulkan.ad07xx.so]
+   1.6%  pthread_mutex_lock  [libc.so]
+   1.6%  scudo::SizeClassAllocator64<scudo::PrimaryConfig<scudo::AndroidNormalConfig>>::pushBlocksImpl(scudo::SizeClass  [libc.so]
+   1.6%  vk_queue_submit_alloc  [vulkan.ad07xx.so]
+   1.6%  vk_common_GetQueueCheckpointDataNV  [vulkan.ad07xx.so]
+   1.0%  vk_queue_merge_submit  [vulkan.ad07xx.so]
+   1.0%  profiler::sdk::detail::encode_span_begin_flow_dyn(char const*, unsigned short, unsigned long, unsigned long, p  [libshadps4_host.so]
+   1.0%  futex_wake  [[kernel.kallsyms]]
+   1.0%  std::__ndk1::vector<std::__ndk1::unique_ptr<tu_autotune::rp_entry, std::__ndk1::default_delete<tu_autotune::rp  [vulkan.ad07xx.so]
+   1.0%  posix_lock_inode  [[kernel.kallsyms]]
+   1.0%  __futex_unqueue  [[kernel.kallsyms]]
+   1.0%  _raw_spin_lock_irqsave  [[kernel.kallsyms]]
+   1.0%  unknown[+72368b7200]  [unknown]
+   1.0%  kgsl_drawobj_cmd_create  [msm_kgsl.ko]
+   1.0%  tu_debug_bos_print_stats(tu_device*)  [vulkan.ad07xx.so]
+   1.0%  kgsl_queue_submit(tu_queue*, void*, vk_sync_wait*, unsigned int, vk_sync_signal*, unsigned int, tu_u_trace_sub  [vulkan.ad07xx.so]
+   1.0%  android_vh_record_pcpu_rwsem_starttime  [byted_sched_dyndl.ko]
+   1.0%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate(void*, scudo::Chunk::Origin,   [libc.so]
+   1.0%  kgsl_bo_finish(tu_device*, tu_bo*)  [vulkan.ad07xx.so]
+   1.0%  vk_kgsl_sync_reset(vk_device*, vk_sync*)  [vulkan.ad07xx.so]
+   1.0%  vk_queue_flush  [vulkan.ad07xx.so]
+   1.0%  profiler::sdk::detail::TlsBuffer::ensure(unsigned int, profiler::sdk::detail::TraceStatus)  [libshadps4_host.so]
+   0.5%  __aarch64_cas8_relax  [vulkan.ad07xx.so]
+   0.5%  kgsl_drawobj_sync_add_synclist  [msm_kgsl.ko]
+   0.5%  scudo::HybridMutex::lock()  [libc.so]
+   0.5%  __system_property_serial  [libc.so]
+   0.5%  vk_sync_timeline_alloc_point  [vulkan.ad07xx.so]
+   0.5%  @plt  [libshadps4_host.so]
+   0.5%  hook_file_alloc_security  [[kernel.kallsyms]]
+   0.5%  resolve_vis_stream_patchpoints(tu_queue*, void*, util_dynarray*, tu_cmd_buffer**, unsigned int)  [vulkan.ad07xx.so]
+   0.5%  Core::Diagnostics::Handoff::Scope::Scope(char const*, unsigned long, unsigned long, unsigned long, bool)  [libshadps4_host.so]
+   0.5%  tu_autotune::on_submit(tu_cmd_buffer**, unsigned int)  [vulkan.ad07xx.so]
+   0.5%  locks_remove_posix  [[kernel.kallsyms]]
+   0.5%  unknown[+72368b6d74]  [unknown]
+   0.5%  gpu_mem_validate  [bytegpu.ko]
+   0.5%  __traceiter_android_rvh_gpu_mem_validate  [[kernel.kallsyms]]
+   0.5%  tu_autotune::rp_history::process(tu_autotune::rp_entry&, tu_autotune&)  [vulkan.ad07xx.so]
+   0.5%  clock_gettime  [libc.so]
+   0.5%  kgsl_add_fence_event  [msm_kgsl.ko]
+   0.5%  unknown[+72368b7720]  [unknown]
+   0.5%  free  [libc.so]
+### inclusive by function (top 70)
+ 100.0%  Vulkan::SubmissionWorker::SubmissionWorker
+ 100.0%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+ 100.0%  __pthread_start
+ 100.0%  __start_thread
+  97.4%  Vulkan::SubmissionWorker::Run
+  91.7%  Vulkan::Scheduler::SubmitExecution
+  68.9%  vk_common_GetQueueCheckpointDataNV
+  67.9%  unknown[+72368aa36a]
+  67.4%  vk_common_QueueSubmit2
+  61.1%  vk_queue_flush
+  61.1%  vk_device_flush
+  58.5%  vk_queue_submit_final
+  55.4%  el0t_64_sync_handler
+  55.4%  el0t_64_sync
+  53.9%  queue_submit
+  53.4%  do_el0_svc
+  53.4%  el0_svc
+  52.8%  invoke_syscall
+  41.5%  kgsl_queue_submit
+  32.6%  __ioctl
+  31.6%  _raw_spin_unlock_irqrestore
+  30.6%  __arm64_sys_ioctl
+  29.5%  kgsl_ioctl
+  29.0%  kgsl_ioctl_helper
+  25.9%  kgsl_ioctl_gpu_command
+  20.7%  adreno_hwsched_queue_cmds
+  20.7%  adreno_queue_cmds
+  18.1%  kthread_queue_work
+  17.6%  __arm64_sys_futex
+  17.6%  syscall
+  17.6%  std::__ndk1::condition_variable::notify_all
+  17.1%  futex_wake
+  14.5%  try_to_wake_up
+  14.5%  wake_up_q
+   9.8%  tu_autotune::on_submit
+   9.3%  tu_autotune::process_entries
+   8.3%  tu_autotune::rp_entry_batch::~rp_entry_batch
+   6.7%  kgsl_syncobj_merge
+   5.7%  std::__ndk1::vector<std::__ndk1::unique_ptr<tu_autotune::rp_entry, std::__ndk1::default_delete<tu_autotune::rp_entry>>, std::__ndk1::allocat
+   4.7%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate
+   4.1%  __close
+   4.1%  close
+   3.1%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk
+   3.1%  vk_queue_submit_create
+   3.1%  locks_remove_posix
+   2.6%  kgsl_add_fence_event
+   2.6%  kgsl_ioctl_timestamp_event
+   2.6%  Common::Profiler::Scope::Scope
+   2.6%  unknown[+72368aa34e]
+   2.6%  __arm64_sys_close
+   2.1%  @plt
+   2.1%  local_daif_restore
+   2.1%  scudo::SizeClassAllocator64<scudo::PrimaryConfig<scudo::AndroidNormalConfig>>::pushBlocks
+   2.1%  scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::PrimaryConfig<scudo::AndroidNormalConfig>>>::drain
+   2.1%  posix_lock_inode
+   2.1%  os_dupfd_cloexec
+   2.1%  vk_sync_signal_unwrap
+   1.6%  std::__ndk1::__function::__func<Vulkan::Scheduler::SubmitExecution
+   1.6%  kgsl_drawobj_sync_add_synclist
+   1.6%  Core::Diagnostics::Handoff::Scope::Scope
+   1.6%  pthread_mutex_lock
+   1.6%  profiler::sdk::detail::encode_span_begin_flow_dyn
+   1.6%  spatial::LiteTrace::beginFlow
+   1.6%  scudo::SizeClassAllocator64<scudo::PrimaryConfig<scudo::AndroidNormalConfig>>::pushBlocksImpl
+   1.6%  vk_queue_submit_alloc
+   1.6%  adreno_verify_cmdobj
+   1.6%  __fcntl
+   1.6%  _trace_android_vh_record_pcpu_rwsem_starttime
+   1.6%  kgsl_drawobj_cmd_create
+   1.0%  vk_sync_timeline_alloc_point
+
+## shadPS4:GpuDone/31391: 42 samples = 21.0 ms
+### buckets (innermost match)
+  66.7%      14.0 ms  scheduler_submit
+  23.8%       5.0 ms  other
+   7.1%       1.5 ms  kernel
+   2.4%       0.5 ms  profiler
+### self by dso
+  35.7%  [kernel.kallsyms]
+  19.0%  libc.so
+  16.7%  msm_kgsl.ko
+  14.3%  libshadps4_host.so
+  14.3%  vulkan.ad07xx.so
+### self by symbol (top 45)
+   7.1%  finish_task_switch  [[kernel.kallsyms]]
+   7.1%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   7.1%  __futex_wait_ex(void volatile*, bool, int, bool, timespec const*)  [libc.so]
+   4.8%  kgsl_device_check_status(tu_device*)  [vulkan.ad07xx.so]
+   4.8%  adreno_drawctxt_wait  [msm_kgsl.ko]
+   4.8%  do_notify_resume  [[kernel.kallsyms]]
+   4.8%  _raw_spin_lock_irqsave  [[kernel.kallsyms]]
+   4.8%  adreno_readtimestamp  [msm_kgsl.ko]
+   2.4%  @plt  [libshadps4_host.so]
+   2.4%  vk_sync_timeline_wait  [vulkan.ad07xx.so]
+   2.4%  __rcu_read_unlock  [[kernel.kallsyms]]
+   2.4%  bool std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock_impl[abi:ne210000]<std::__ndk1::__stop_state:  [libshadps4_host.so]
+   2.4%  __aarch64_cas4_acq  [libshadps4_host.so]
+   2.4%  __ioctl  [libc.so]
+   2.4%  ioctl  [libc.so]
+   2.4%  schedule_timeout  [[kernel.kallsyms]]
+   2.4%  kgsl_ioctl_helper  [msm_kgsl.ko]
+   2.4%  __vk_sync_wait_many  [vulkan.ad07xx.so]
+   2.4%  arch_local_irq_disable  [[kernel.kallsyms]]
+   2.4%  __aarch64_cas8_rel  [libshadps4_host.so]
+   2.4%  os_time_get_absolute_timeout  [vulkan.ad07xx.so]
+   2.4%  std::__ndk1::__stop_state::__remove_callback[abi:ne210000](std::__ndk1::__stop_callback_base*)  [libshadps4_host.so]
+   2.4%  radix_tree_lookup  [[kernel.kallsyms]]
+   2.4%  syscall  [libc.so]
+   2.4%  vk_sync_wait_many  [vulkan.ad07xx.so]
+   2.4%  pthread_mutex_lock  [libc.so]
+   2.4%  __aarch64_ldadd8_relax  [libshadps4_host.so]
+   2.4%  mtx_lock  [libc.so]
+   2.4%  kgsl_prop_gpu_reset_stat  [msm_kgsl.ko]
+   2.4%  _inline_copy_from_user  [msm_kgsl.ko]
+   2.4%  arch_counter_get_cntvct  [[kernel.kallsyms]]
+### inclusive by function (top 70)
+ 100.0%  Vulkan::TimelineCompletion::TimelineCompletion
+ 100.0%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+ 100.0%  __pthread_start
+ 100.0%  __start_thread
+  97.6%  Vulkan::TimelineCompletion::Run
+  69.0%  std::__ndk1::__function::__func<Vulkan::MasterSemaphore::MasterSemaphore
+  57.1%  vk_common_WaitSemaphores
+  47.6%  el0t_64_sync_handler
+  47.6%  el0t_64_sync
+  45.2%  invoke_syscall
+  45.2%  do_el0_svc
+  45.2%  el0_svc
+  45.2%  vk_sync_timeline_wait
+  42.9%  __ioctl
+  40.5%  kgsl_syncobj_wait
+  38.1%  __arm64_sys_ioctl
+  38.1%  wait_timestamp_safe
+  35.7%  kgsl_ioctl_helper
+  35.7%  kgsl_ioctl
+  26.2%  adreno_drawctxt_wait
+  26.2%  kgsl_ioctl_device_waittimestamp_ctxtid
+  23.8%  adreno_waittimestamp
+  21.4%  bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Vulkan::TimelineCompletion::Run
+  16.7%  std::__ndk1::condition_variable::wait
+   9.5%  syscall
+   9.5%  pthread_cond_wait
+   9.5%  prepare_to_wait_event
+   9.5%  kgsl_device_check_status
+   7.1%  finish_task_switch
+   7.1%  __schedule
+   7.1%  schedule
+   7.1%  __arm64_sys_futex
+   7.1%  vk_sync_timeline_gc_locked
+   7.1%  schedule_timeout
+   7.1%  _raw_spin_unlock_irqrestore
+   7.1%  __futex_wait_ex
+   4.8%  futex_wait.cold
+   4.8%  std::__ndk1::__stop_state::__remove_callback[abi:ne210000]
+   4.8%  do_notify_resume
+   4.8%  el0_interrupt
+   4.8%  __el0_irq_handler_common
+   4.8%  el0t_64_irq_handler
+   4.8%  el0t_64_irq
+   4.8%  _raw_spin_lock_irqsave
+   4.8%  adreno_readtimestamp
+   4.8%  kgsl_prop_gpu_reset_stat
+   4.8%  kgsl_ioctl_device_getproperty
+   2.4%  @plt
+   2.4%  __rcu_read_unlock
+   2.4%  bool std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock_impl[abi:ne210000]<std::__ndk1::__stop_state::__add_callback[abi:ne210000]
+   2.4%  std::__ndk1::stop_callback<bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Vulkan
+   2.4%  __aarch64_cas4_acq
+   2.4%  bool std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock_impl[abi:ne210000]<std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__l
+   2.4%  ioctl
+   2.4%  __vk_sync_wait_many
+   2.4%  arch_local_irq_disable
+   2.4%  __aarch64_cas8_rel
+   2.4%  os_time_get_absolute_timeout
+   2.4%  profiler::sdk::detail::TlsBuffer::ensure
+   2.4%  profiler::sdk::detail::encode_span_begin_dyn
+   2.4%  spatial::LiteTrace::begin
+   2.4%  Common::Profiler::Scope::Scope
+   2.4%  Core::Diagnostics::Handoff::Scope::Scope
+   2.4%  radix_tree_lookup
+   2.4%  kgsl_context_get_owner
+   2.4%  kgsl_ioctl_cmdstream_readtimestamp_ctxtid
+   2.4%  kgsl_add_event
+   2.4%  vk_sync_wait_many
+   2.4%  pthread_mutex_lock
+   2.4%  __aarch64_ldadd8_relax
+
+## shadPS4:GpuDone/31389: 25 samples = 12.5 ms
+### buckets (innermost match)
+  72.0%       9.0 ms  scheduler_submit
+  12.0%       1.5 ms  other
+   8.0%       1.0 ms  kernel
+   4.0%       0.5 ms  diagnostics
+   4.0%       0.5 ms  profiler
+### self by dso
+  32.0%  [kernel.kallsyms]
+  24.0%  msm_kgsl.ko
+  20.0%  vulkan.ad07xx.so
+   8.0%  libshadps4_host.so
+   8.0%  libc.so
+   4.0%  byted_locking_sched_opt.ko
+   4.0%  libc++_shared.so
+### self by symbol (top 45)
+  16.0%  _raw_spin_unlock_irqrestore  [[kernel.kallsyms]]
+   8.0%  kgsl_ioctl_device_getproperty  [msm_kgsl.ko]
+   4.0%  vk_kgsl_sync_wait(vk_device*, vk_sync*, unsigned long, vk_sync_wait_flags, unsigned long)  [vulkan.ad07xx.so]
+   4.0%  test_task_svp [byted_sched_opt]  [[kernel.kallsyms]]
+   4.0%  vk_sync_wait_many  [vulkan.ad07xx.so]
+   4.0%  std::__ndk1::__function::__func<Vulkan::MasterSemaphore::MasterSemaphore(Vulkan::Instance const&)::$_0, std::_  [libshadps4_host.so]
+   4.0%  Core::Diagnostics::Handoff::Scope::Scope(char const*, unsigned long, unsigned long, unsigned long, bool)  [libshadps4_host.so]
+   4.0%  __rcu_read_unlock  [[kernel.kallsyms]]
+   4.0%  kgsl_ioctl_copy_out  [msm_kgsl.ko]
+   4.0%  kgsl_ioctl_helper  [msm_kgsl.ko]
+   4.0%  zcomp_stream_get [zram]  [[kernel.kallsyms]]
+   4.0%  android_vh_do_futex_handler  [byted_locking_sched_opt.ko]
+   4.0%  ioctl  [libc.so]
+   4.0%  vk_sync_wait  [vulkan.ad07xx.so]
+   4.0%  std::__ndk1::__cxx_atomic_notify_all(void const volatile*)  [libc++_shared.so]
+   4.0%  vk_sync_timeline_gc_locked  [vulkan.ad07xx.so]
+   4.0%  _inline_copy_from_user  [msm_kgsl.ko]
+   4.0%  kgsl_syncobj_wait(tu_device*, kgsl_syncobj*, unsigned long)  [vulkan.ad07xx.so]
+   4.0%  __futex_wait_ex(void volatile*, bool, int, bool, timespec const*)  [libc.so]
+   4.0%  adreno_readtimestamp  [msm_kgsl.ko]
+   4.0%  local_daif_restore  [[kernel.kallsyms]]
+### inclusive by function (top 70)
+ 100.0%  Vulkan::TimelineCompletion::Run
+ 100.0%  Vulkan::TimelineCompletion::TimelineCompletion
+ 100.0%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+ 100.0%  __pthread_start
+ 100.0%  __start_thread
+  80.0%  std::__ndk1::__function::__func<Vulkan::MasterSemaphore::MasterSemaphore
+  68.0%  vk_common_WaitSemaphores
+  60.0%  el0t_64_sync_handler
+  60.0%  el0t_64_sync
+  52.0%  invoke_syscall
+  52.0%  do_el0_svc
+  52.0%  el0_svc
+  48.0%  vk_sync_timeline_wait
+  44.0%  __ioctl
+  40.0%  __arm64_sys_ioctl
+  36.0%  kgsl_ioctl
+  36.0%  kgsl_syncobj_wait
+  32.0%  kgsl_ioctl_helper
+  32.0%  wait_timestamp_safe
+  20.0%  bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Vulkan::TimelineCompletion::Run
+  16.0%  std::__ndk1::condition_variable::wait
+  16.0%  _raw_spin_unlock_irqrestore
+  16.0%  vk_sync_timeline_gc_locked
+  16.0%  kgsl_device_check_status
+  12.0%  __arm64_sys_futex
+  12.0%  syscall
+  12.0%  pthread_cond_wait
+  12.0%  adreno_drawctxt_wait
+  12.0%  adreno_waittimestamp
+  12.0%  kgsl_ioctl_device_waittimestamp_ctxtid
+  12.0%  kgsl_ioctl_device_getproperty
+   8.0%  Core::Diagnostics::Handoff::Scope::Scope
+   4.0%  vk_kgsl_sync_wait
+   4.0%  test_task_svp [byted_sched_opt]
+   4.0%  android_vh_alter_futex_plist_add_handler
+   4.0%  __traceiter_android_vh_alter_futex_plist_add
+   4.0%  __futex_queue
+   4.0%  futex_wait
+   4.0%  vk_sync_wait_many
+   4.0%  prepare_to_wait_event
+   4.0%  __rcu_read_unlock
+   4.0%  kgsl_ioctl_copy_out
+   4.0%  zcomp_stream_get [zram]
+   4.0%  __submit_bio
+   4.0%  __submit_bio_noacct
+   4.0%  submit_bio
+   4.0%  swap_read_folio_bdev_async
+   4.0%  swap_read_folio.cold
+   4.0%  swapin_readahead
+   4.0%  do_swap_page
+   4.0%  __handle_mm_fault
+   4.0%  handle_mm_fault
+   4.0%  do_page_fault
+   4.0%  do_translation_fault
+   4.0%  do_mem_abort
+   4.0%  el0_da
+   4.0%  profiler::sdk::detail::encode_span_begin_dyn
+   4.0%  spatial::LiteTrace::begin
+   4.0%  Common::Profiler::Scope::Scope
+   4.0%  __irq_put_desc_unlock
+   4.0%  enable_irq
+   4.0%  pld_srng_enable_irq
+   4.0%  hif_ce_srng_msi_irq_enable
+   4.0%  hif_irq_enable
+   4.0%  ce_tasklet
+   4.0%  tasklet_action_common
+   4.0%  tasklet_action
+   4.0%  __do_softirq
+   4.0%  ____do_softirq
+   4.0%  call_on_irq_stack
+
+## shadPS4:GpuDone/31393: 18 samples = 9.0 ms
+### buckets (innermost match)
+  77.8%       7.0 ms  scheduler_submit
+  11.1%       1.0 ms  kernel
+   5.6%       0.5 ms  other
+   5.6%       0.5 ms  profiler
+### self by dso
+  50.0%  [kernel.kallsyms]
+  16.7%  vulkan.ad07xx.so
+  16.7%  msm_kgsl.ko
+  11.1%  libc.so
+   5.6%  libshadps4_host.so
+### self by symbol (top 45)
+  11.1%  local_daif_restore  [[kernel.kallsyms]]
+   5.6%  kgsl_device_check_status(tu_device*)  [vulkan.ad07xx.so]
+   5.6%  fput  [[kernel.kallsyms]]
+   5.6%  avc_has_extended_perms  [[kernel.kallsyms]]
+   5.6%  __futex_wait_ex(void volatile*, bool, int, bool, timespec const*)  [libc.so]
+   5.6%  fpsimd_load_state  [[kernel.kallsyms]]
+   5.6%  __arm64_sys_ioctl  [[kernel.kallsyms]]
+   5.6%  profiler::sdk::detail::encode_span_end()  [libshadps4_host.so]
+   5.6%  ioctl  [libc.so]
+   5.6%  test_task_svp [byted_sched_opt]  [[kernel.kallsyms]]
+   5.6%  kgsl_sharedmem_readl  [msm_kgsl.ko]
+   5.6%  finish_task_switch  [[kernel.kallsyms]]
+   5.6%  __rcu_read_unlock  [[kernel.kallsyms]]
+   5.6%  tu_device_check_status(vk_device*)  [vulkan.ad07xx.so]
+   5.6%  adreno_drawctxt_wait  [msm_kgsl.ko]
+   5.6%  vk_common_WaitSemaphores  [vulkan.ad07xx.so]
+   5.6%  kgsl_check_timestamp  [msm_kgsl.ko]
+### inclusive by function (top 70)
+ 100.0%  Vulkan::TimelineCompletion::Run
+ 100.0%  Vulkan::TimelineCompletion::TimelineCompletion
+ 100.0%  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::defaul
+ 100.0%  __pthread_start
+ 100.0%  __start_thread
+  83.3%  std::__ndk1::__function::__func<Vulkan::MasterSemaphore::MasterSemaphore
+  66.7%  el0t_64_sync_handler
+  66.7%  el0t_64_sync
+  66.7%  vk_common_WaitSemaphores
+  55.6%  el0_svc
+  55.6%  __ioctl
+  55.6%  kgsl_syncobj_wait
+  55.6%  vk_sync_timeline_wait
+  50.0%  do_el0_svc
+  50.0%  wait_timestamp_safe
+  44.4%  invoke_syscall
+  33.3%  __arm64_sys_ioctl
+  27.8%  vk_sync_timeline_gc_locked
+  16.7%  std::__ndk1::condition_variable::wait
+  16.7%  bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Vulkan::TimelineCompletion::Run
+  16.7%  adreno_drawctxt_wait
+  16.7%  adreno_waittimestamp
+  16.7%  kgsl_ioctl_device_waittimestamp_ctxtid
+  16.7%  kgsl_ioctl_helper
+  16.7%  kgsl_ioctl
+  11.1%  kgsl_device_check_status
+  11.1%  local_daif_restore
+  11.1%  __arm64_sys_futex
+  11.1%  syscall
+  11.1%  pthread_cond_wait
+  11.1%  kgsl_check_timestamp
+   5.6%  fput
+   5.6%  avc_has_extended_perms
+   5.6%  ioctl_has_perm
+   5.6%  selinux_file_ioctl
+   5.6%  security_file_ioctl
+   5.6%  __futex_wait_ex
+   5.6%  fpsimd_load_state
+   5.6%  do_notify_resume
+   5.6%  profiler::sdk::detail::encode_span_end
+   5.6%  spatial::LiteTrace::end
+   5.6%  ioctl
+   5.6%  test_task_svp [byted_sched_opt]
+   5.6%  android_vh_alter_futex_plist_add_handler
+   5.6%  __traceiter_android_vh_alter_futex_plist_add
+   5.6%  __futex_queue
+   5.6%  futex_wait
+   5.6%  kgsl_sharedmem_readl
+   5.6%  finish_task_switch
+   5.6%  __schedule
+   5.6%  schedule
+   5.6%  futex_wait.cold
+   5.6%  __rcu_read_unlock
+   5.6%  tu_device_check_status

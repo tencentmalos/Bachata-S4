@@ -1,0 +1,238 @@
+{
+  "title": "Swan TMNT (CUSA50828 v1.11.0) tutorial rooftop baseline, GPU-bound attribution and compute-fill image clear fix, 2026-09-23",
+  "report": "../../swan-tmnt-roof-baseline-20260923.md",
+  "device": "Swan PB3110PGL6240001G, boot 0af47cd3-09dc-45ea-b47d-b223e120d3c5",
+  "builds": {
+    "A": "merge 3f0c47ea; apk 307333860ea793ce; libshadps4_host.so 93464ad4ce986a6c (Build ID d9618178); Turnip 86ca472f; Render 0.5 / Texture medium; pid 31682 generation 1",
+    "B": "3f0c47ea + upload_diag (uncommitted); apk bdc171b10723c744; libshadps4_host.so 9c5feea7d5152583; pid 15819 generation 1; not frequency locked (attribution only)",
+    "C": "3f0c47ea + upload_diag with writer tracking and ignore_storage_dirty A/B (uncommitted); apk 7b21d9f4; libshadps4_host.so 4e7c5415; pid 18160; frequency locked (op 6d76b798)",
+    "D": "C + per-dispatch diagnostics (uncommitted); apk 373b8f22; libshadps4_host.so caaaa8bd; pid 19235; not locked (attribution only)",
+    "E": "D + Rasterizer::TryComputeImageFill / TextureCache::ClearImagesForFill (uncommitted); apk c937a218; libshadps4_host.so 11f4b27b; pid 25840 generation 1; frequency locked (session 9251e684, op 268ea736)",
+    "F": "E + StatusLayer re-upload/fill-clear counters (uncommitted); apk cd795a87; libshadps4_host.so 781b9693; pid 32548; not locked (display check only)"
+  },
+  "frequency_lock": "spatial-debug-tool swan-evt-legacy, operation 1d3957f57e504f23893e7ed32fb9e24c (recorded policy0 max baseline 1900800)",
+  "notes": [
+    "Terms of use dialog on first boot after the reflash was accepted by the user in the headset.",
+    "While loading the rooftop a Pico Settings panel (About) took focus; the game showed 'controller disconnected' and ran in /foreground until the user closed the panel. All measurements are /top-app (cpuset-log.txt).",
+    "GPU busy 98-99% was sampled after unlocking (GPU 902 MHz); locked FPS 19.6 vs unlocked ~25 matches the 902/726 ratio.",
+    "PROF captures pulled with `adb exec-out cat`; collect_capture only serves the latest capture id.",
+    "Run B (upload_diag): 8768 re-uploads in 274 frames = 32/frame, all dirtied by gpu_storage_write and gpu_resident; every logged write covers the whole image. Not a CPU page-tracking false positive.",
+    "Run C: ignore_storage_dirty on (diagnostic only) gave 52.7 FPS but a hard-edged bright block (B-panel.png): the storage writes are consumed, they cannot simply be dropped.",
+    "The only writer is compute kernel pgm 0x934eeac, the Gnmx toolkit fill kernel: dst[i] = src[ctl[1] & i] for i < min(ctl[0], dst.num_records). GCN binary, SPIR-V and decompiled GLSL under tmnt-roof-C-ab/shaders (debug.shadps4.shader_dump=1, reset afterwards).",
+    "Run D: 400/400 logged dispatches fill a whole render target with a 1-2 dword colour (count*4 == guest_size).",
+    "Run E: fill_clear off/on/off/on 19.69/59.64/20.01/59.57 FPS, after moving 59.60/20.59/59.66; re-uploads 32.5/frame -> 0. 60 FPS is the present cap; GPU busy ~90% unlocked afterwards.",
+    "Stopping lock 268ea736: first stop read gpu_max_clock back as 826 after writing 902 (Failed, not forced; likely thermal); a second stop ~5 min later read 902 and the operation is Cleaned.",
+    "Run F: StatusLayer shows \"Re-uploads 0.0/frame (0.0 MB)  fill clears 32.8\" with fill_clear on (59 FPS) and orange \"Re-uploads 30.5/frame (115.1 MB)  fill clears 0.0\" with it off (23 FPS, unlocked); fill_clear restored on."
+  ],
+  "files": {
+    "after-terms-panel.png": "f7be04152569ee6028a4f7c737102f97b6e1c1ec5de5849c99af48f5e4c35801",
+    "boot-60s-panel.png": "70110f754505c3819ad9b4e31456ca68247d1952d83614af24b0b4c7a8beb66b",
+    "step1-panel.png": "06cef7560974d9d6010b608cb3e375b56d6deeaf0305b15848b1ed2e974b109b",
+    "step2-panel.png": "ff28fcf76bad70323009f2f838386b874f7188966ed26397665057a55242211e",
+    "step3-panel.png": "42bc695eddb9a305004ff0e79ffe3e1986d21c2e5e0a195cea09097e7c5f52a8",
+    "tmnt-roof-A/cpuset-log.txt": "77f49f2f98b721827497ce1d210656457b8ee38469eb50b8c21267f36d09bec6",
+    "tmnt-roof-A/file-1790069504968417-1.prof.json": "89990c649521e650890a58a8108e32acae839626889ed3de378be5c02a9d037a",
+    "tmnt-roof-A/file-1790069554989383-2.prof.json": "9b1401f574723a315281c56141d0594de9160a4e625dcafd97c0779409271005",
+    "tmnt-roof-A/fps-detail-window.txt": "7d74ffa5c4a3a059bf527472d536855d1c279dfc793ee754db983e650d764068",
+    "tmnt-roof-A/fps-post-detail.txt": "b1f7c9fe8261f189d71ab584ce533aa9e35a6196b7e19d506a7c3ec3ff0fa12c",
+    "tmnt-roof-A/fps.txt": "e1d1aa367cca022dcb557c2b681189910719a9b8c670428769cb832441f39cd6",
+    "tmnt-roof-A/gpu-memory.txt": "2d85ec68d8076bb75bfc5b3c082f6a76f71a4bcc09c35d5cb245d0d0781d0ef7",
+    "tmnt-roof-A/gpu-timing-status-detail.txt": "325db20a9cb90fc46a2765a3b7fee7008ec3e9d6fe34a2b60700a13b6b62e636",
+    "tmnt-roof-A/hle-context.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "tmnt-roof-A/hle-sync-detail-end.txt": "fd604d7bb5cb8d2368ed1fa8e21da28bf08074c7025b8181b502f9e6dc56ffcd",
+    "tmnt-roof-A/hle-sync-detail-start.txt": "8ec07bb1cb2d23b4c7f02d9a68c2a5ddf83954a187341c19815913cbbbb2d7ce",
+    "tmnt-roof-A/hle-sync.txt": "abe9222ea610f4e1cd0fedc2de067bfbb0a438d1a2586cdf177d495e249320b7",
+    "tmnt-roof-A/memory.txt": "739d8f74282d3b5f20c6a11d925e12bdcc02d40fc0b249988b9f901d978c6d0f",
+    "tmnt-roof-A/perf-light/offcpu-present-stack.txt": "8e1dc527865baea3aeb6ee6704adea988a3baad1880aef693bc47c9111eb93bf",
+    "tmnt-roof-A/perf-light/offcpu-stacks.txt": "a0ea8a2b55fe5316fb6ba6f520fbd21f73c255d3291a5d5c714303c285eee276",
+    "tmnt-roof-A/perf-light/perf-buckets.txt": "c664004422e7471ab946367cdadc6752bc626b4ea563a09e8017fa67964fb0e0",
+    "tmnt-roof-A/perf-light/perf-end-uptime.txt": "d90e65b39bff6d37d9d1b40dce862e1c973b81be267e85b105a712221b0e5a99",
+    "tmnt-roof-A/perf-light/perf-record.log": "8bd8b00c66457d5c51004da41173c612a861447f013117519851de8f6220a1b2",
+    "tmnt-roof-A/perf-light/perf-start-host-ns.txt": "af344602bb95284813a81ca128fc1204e3208a7c59f81e3a38917cb9eb5b767c",
+    "tmnt-roof-A/perf-light/perf-start-uptime.txt": "3d58d466faf011aa0b293f98f286d36f0da74538f8525c19b5817df6e595b5ca",
+    "tmnt-roof-A/perf-light/perf.data.sha256": "ae1a394aa5a19242180d0700e68ebc10f1553f9d22edfa8c55f4b522ed840a38",
+    "tmnt-roof-A/perf-light/subtree-transfer.txt": "45d324c9e1f16d8e80322ffbd913df6e357a0a25f2bd7f6c8b96f12ef5c80ce9",
+    "tmnt-roof-A/perf-light/threads.txt": "0a9305c92bdf98b0e49e0d088fc9e7d7ebcec81d06244b552abff137b16fd0a6",
+    "tmnt-roof-A/prof-results.txt": "37b9e90d45b05e79fd301fda33c2194b1e54f5a48c2eaa2d181bcfab4294c6aa",
+    "tmnt-roof-A/property.txt": "625ac39f75d15c96cae29b49d136da5f8479a21d0ad2204f90900a6875f9bda4",
+    "tmnt-roof-A/scale-log.txt": "b8c7445791a864c85884b9a91460afb4d7958e45b228dd834736b46df20420a4",
+    "tmnt-roof-A/sched-states.txt": "44701fac1961e77a929cf73de9cf4689cc4c6e516b8e89bdccc6dd1108285922",
+    "tmnt-roof-A/session-after.txt": "b55fe372c0d5001ec71a128b856d5219dad554870b2e3852fc4c84a8ed752ca5",
+    "tmnt-roof-A/session-start.txt": "9e8d4e0dc31b8e4d178937bb54bb5ada079ff809c4de47a79daae3bba5839d20",
+    "tmnt-roof-A/shad-sched/boot-id.txt": "1d205957599ba679861e44fcb81bfa640144f2aca517fc690c6f443c52fee696",
+    "tmnt-roof-A/shad-sched/control.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tmnt-roof-A/shad-sched/per-cpu-stats.txt": "02c294f0ce4fbbd09ba64674900fb8f41edd90d8edad27aca528c3e758e5b2ba",
+    "tmnt-roof-A/shad-sched/process-after.txt": "8f4868f8a554aedcf21a71e607ec3070628405e1cc13b75d62771fb8a5fd5bf7",
+    "tmnt-roof-A/shad-sched/process-before.txt": "69847752c7263dfe2a19586f41ab0e64cd9394f64275c8261522ed79693db3d1",
+    "tmnt-roof-A/shad-sched/status": "d258b55a34e124f541578aa423b782c4db90a80e230dedcb2e5ee54b698346b7",
+    "tmnt-roof-A/shad-sched/thread-names.txt": "7a0272b6924d00889ab00a180b6581cd2c6efb477523b3a8092838d0a873cb84",
+    "tmnt-roof-A/shad-sched/uptime-end.txt": "6b61341ffbf31f2f2d0a8796007e2792f1dbc2d5bc56f80859164bfc44f4f6e4",
+    "tmnt-roof-A/shad-sched/uptime-start.txt": "6e9bcab64fd985c83dc64e20c172011aa52c72d270b30af8e02e8d48bc64b6dc",
+    "tmnt-roof-A/shad-sched/wall-start-ns.txt": "48b714f0ec2f8d2429cf3dd84e09a79d264f6a39d7ccb9a772b026f03bd6947c",
+    "tmnt-roof-A/snap0.txt": "50e71068af118698141abce5c3845beb5b5cca8c5d7a2faf60b7a786d303ae17",
+    "tmnt-roof-A/snap1.txt": "2d85ec68d8076bb75bfc5b3c082f6a76f71a4bcc09c35d5cb245d0d0781d0ef7",
+    "tmnt-roof-A/warmup.txt": "56cd2cca96cf017c3af6d5f46d8385354fb6bf14bd765c22fd669795d3dd7954",
+    "tmnt-roof-B-uploaddiag/menu-panel.png": "2c897562bd12f5795ddaa3cd562bd41981ec24bce4286a7a74535f7eca11a616",
+    "tmnt-roof-B-uploaddiag/property.txt": "02dd2cca5871fb7c08ce75defeedb1a0c8490d781cc7e346311d0597569b1fe1",
+    "tmnt-roof-B-uploaddiag/roof-panel.png": "f1d061db8fd2500fb05aa351aa59b9b6e102e8e34c5938389269986cf039bc34",
+    "tmnt-roof-B-uploaddiag/upload-diag-log.txt": "49753da07fef22e8d04cfbdb2c4442d0255ccc7886e03fba715bcbd678c39a43",
+    "tmnt-roof-B-uploaddiag/upload-diag-status.txt": "4e568b937125b8953c010169dadda2b380382ad1b8aafa32d43ea8643915399b",
+    "tmnt-roof-B-uploaddiag/upload-diag-stop.txt": "7906ee2b14cf90c08e470e6a25eb310329485964fbf408d71faefa47044e494e",
+    "tools/break_delta.py": "4c001758005b313b6e5b5dbd2f77861bddc9bb269aca20e1bbd37e9ce624872a",
+    "tools/collect_evidence_tmnt.py": "45dc4f6c2874a984ac3b80ed021571d6b34f429f0cdac823992c483a4a15bd3e",
+    "tools/measure_clinic.sh": "7e8d827fd020d652b97266900e0109f5417afb22b0975e2a15c8e2de76f360b3",
+    "tools/pad.sh": "193fcf84c62bb2443ba034f6bb51a9741cf5d7bc861e9f83ab17dcc1bb322757",
+    "tools/panel_auto.py": "8dc5ffba0a8af53fb1afe2876e1203e720880e6b1b54e0797faf93f8698a2df0",
+    "tools/perf_buckets.py": "7f4e05f27da6ac01fe6dfed4730cf8877815888c78352bf81ec3d8837f1f577d",
+    "tools/perf_record.sh": "0c4059856f0d0c5b76e416b427846e3600e8ad406f20d9dce62ec5aa76ae2e27",
+    "tools/perf_subtree.py": "28c1d8934b2b476322ce8eacbe81ea8731e5874e9267f5de99b52c2bc9fb7f18",
+    "tools/sched-only-capture.sh": "6a6d145be6177d0c4065df482e955d369048889e7cc2763fd3b3e62039b65597",
+    "tools/sched_states.py": "d7c8c6aca19cd1cfb78bf448a20b41024b627abf80b810cf7c7c028a2c7b7871",
+    "tmnt-roof-C-ab/A-over-B.png": "96aeb8263b63608c47580b90336be0ac8f656ecd0dadd6a78038638c0e54dee6",
+    "tmnt-roof-C-ab/A-panel.png": "5e4974c92db9b1efa6724941fa2554d66f32c8074d60c2bf3bfb3f1c73b266fb",
+    "tmnt-roof-C-ab/A-snap0.txt": "3064305d08e640c12c69896688ee8a4f03f046daeccc87f257acf60f47fb639b",
+    "tmnt-roof-C-ab/A-snap1.txt": "b5556818246f2ba050ae8ec9faa036c9adc94064999c06719fd5d56ccfce61be",
+    "tmnt-roof-C-ab/A-upload-diag.txt": "25039bb0341ef71861f777b9daf1fc8c744f3e6df9cd01ea261c4f0baa819ec8",
+    "tmnt-roof-C-ab/ab-fps.txt": "c75c1d327864c3c18bf23c5fc39e8149ac65afc7dfa2b51f69f8541cb9813ccf",
+    "tmnt-roof-C-ab/B-panel.png": "1559d308929999efb354db3241856c1e2de99cd5a69054238e98518e0ddee3af",
+    "tmnt-roof-C-ab/B-snap0.txt": "8a7933bb9457ff94c3b2505d6e6af0079b27b5a7994e7a986682d31e4d9e4aaf",
+    "tmnt-roof-C-ab/B-snap1.txt": "b5ceb086799e1216eece806739e424b6b9ee62f798130e70c738e49deab2745f",
+    "tmnt-roof-C-ab/B-upload-diag.txt": "943e9ff3b117dbdcd41f7b78d1ca64a2c731b9a4e37e8816231b8ef7a80c6fd2",
+    "tmnt-roof-C-ab/C-panel.png": "549d1ad5edb9cc9020a2004e043fe47926e1752281fc48e050e151708db222ae",
+    "tmnt-roof-C-ab/C-snap0.txt": "b8a783a6d8a622f3e19d9b22d6c37c367595cb70342a2e70d0f39a2670520503",
+    "tmnt-roof-C-ab/C-snap1.txt": "f4069f6a2b6c0b286153dfc5620b810e546dfaeb0bd4d0b2bff6808442019d68",
+    "tmnt-roof-C-ab/C-upload-diag.txt": "f4d1cf419e5053dc38f798378af88d27e358ed6683395feb2ddfae94823b832b",
+    "tmnt-roof-C-ab/shaders/cs_0x000000000934eeac_0.bin": "fd38ead5fa398a8d41d94dcadfa1188d0bc6be5b5171771655ee95de80a90c14",
+    "tmnt-roof-C-ab/shaders/cs_0x000000000934eeac_0.spv": "85a62bfb85ee89d0da9d98092f872d8fb6c88f59a1f3efaefb10b27067ed3e1d",
+    "tmnt-roof-C-ab/shaders/cs_0x934eeac.glsl": "da00e6cf7b063f24c43afda67b98dfa95c7159073ca990bf4f7d16887b61c0ca",
+    "tmnt-roof-D-dispatch/run-lines.txt": "57ebd797b8cdca3a7cb36f96ba43588e148edd16c870c5700dd9e6c7554c5f1d",
+    "tmnt-roof-D-dispatch/upload-diag.txt": "00dc44ecd3492e1512593e20fda10e9957746c922936d102b4fdc236be2d0187",
+    "tmnt-roof-E-fill/A-fill-after.txt": "5a50d32de70a4286cb820067522aca85f23db280b8a36ee161a745dbb06ac079",
+    "tmnt-roof-E-fill/A-fill-before.txt": "171da9ddb9fdce385b5dd22a34b2ad49fa1a7b6d2482f426cf4edc7d60b7ff8b",
+    "tmnt-roof-E-fill/A-gpu-memory.txt": "59571ec4f0ac713301d77584d5a667b10f94dbdb902ba6d1a7ff31f80b203db0",
+    "tmnt-roof-E-fill/A-upload-diag.txt": "1f348272ba304d67cd9ecb8f61daf30afd29e13adfedab71a7bc0835165fe296",
+    "tmnt-roof-E-fill/ab-fps.txt": "2e0e61eb24d841007372378ebfee4887bc1219667ccc9f254736f8fa39ea4d9a",
+    "tmnt-roof-E-fill/B-fill-after.txt": "58932c932835faec22b5dfee92ec2f9ace466d5c1b9a22939bb17f1198fb8846",
+    "tmnt-roof-E-fill/B-fill-before.txt": "601154eb346254f132c1c157608f4a8d1a346597851d8c6349889a2fea264caf",
+    "tmnt-roof-E-fill/B-gpu-memory.txt": "f81c1045399be2b53684d60905ab194873137e15f209b0207f636a8f23da482d",
+    "tmnt-roof-E-fill/B-upload-diag.txt": "8e0a6a38453760161b6a5cc39cc29e659a4a2514075cc7cfeffbf3a73550edd6",
+    "tmnt-roof-E-fill/C-fill-after.txt": "66f54baca1549f9f4906d6adc8e976a57c6c93e42256d2c74bbfb944084526e0",
+    "tmnt-roof-E-fill/C-fill-before.txt": "e9327acef5c23e6661236c44815187af2c79ef5c8303c979a7129fa0e00f6b0a",
+    "tmnt-roof-E-fill/C-gpu-memory.txt": "2727127565cba5d6c342ae1cf02107ab95e4f0422ce27cf46e2cd65afde6460b",
+    "tmnt-roof-E-fill/C-upload-diag.txt": "ae2a2ba7f8f1c80599d3ad242a4f14953acc0f94b69cf482e8b88f67fcd33872",
+    "tmnt-roof-E-fill/D-fill-after.txt": "242ceb335fd5362483596c328b077944f4d7f1a17cf309cfdd829f8c2ef857e6",
+    "tmnt-roof-E-fill/D-fill-before.txt": "e182a524d55fae6a0b612b8d5a662e095400b5588a52e1ae78bcd5aabd1f7ffb",
+    "tmnt-roof-E-fill/D-gpu-memory.txt": "f0fa62728c5071e1c59e683216d5673a83c2b6f6cc79813bd2a1e45cc8f33070",
+    "tmnt-roof-E-fill/D-on.png": "7944e28fa3a8a1bdb49a9ed6f6b859ce48009279436faa8614d1ce7ce039b4da",
+    "tmnt-roof-E-fill/D-upload-diag.txt": "4d86a478ded84803eed74b1267dd217a5bd90f1ce660304b0ab56c1e64ea1498",
+    "tmnt-roof-E-fill/E-off.png": "480944f5024740539e24d033b7903ceb89fb87a264ea7ed9d5b3001fab242d2c",
+    "tmnt-roof-E-fill/F-on-moved-wide.png": "8b81d2ec91bfd67431a226ebf29a501842f41735e16347f3904125cbbfb0c410",
+    "tmnt-roof-E-fill/G-fill-after.txt": "a97388f30bb47bbb7a14f08af680b8e85cfc4713f3a874dfe8362a06bbee6aee",
+    "tmnt-roof-E-fill/G-fill-before.txt": "9ee1612851aaaf1699beebe83881439999dd41fb7e4c40e6f8b5c74bd52d2e61",
+    "tmnt-roof-E-fill/G-gpu-memory.txt": "b7187861bd6fdaa1adf7dc413436004d95302f89a7abc1e35aebb86fde8e8f62",
+    "tmnt-roof-E-fill/G-upload-diag.txt": "976c1bf8de5474061128a57569583998ea2872416d3914fc9cbd98c4a569150f",
+    "tmnt-roof-E-fill/H-fill-after.txt": "a708bbe2715ed839ecefdb28e9b63ec382a196905f8676e703938f57f7374985",
+    "tmnt-roof-E-fill/H-fill-before.txt": "ad0fc6b07bec65f7e6c33e36ff564230a22da937d94e4c309067a49c24769760",
+    "tmnt-roof-E-fill/H-gpu-memory.txt": "c9e783e7df0fe7804eafcd60de664dade142db67b81c5b33be813260b9e0b701",
+    "tmnt-roof-E-fill/H-upload-diag.txt": "3bd2afb804d20f5293511a4e27b3d5875e72915f84ab5ebc9fadaba807f94e06",
+    "tmnt-roof-E-fill/I-fill-after.txt": "9cc7163600cdf9e1ac9f08f614a83545957ed256196c658842cdbbcbb59b7ceb",
+    "tmnt-roof-E-fill/I-fill-before.txt": "7dec015614e25f575b81df67338563a75e04df5cb72fd882454086ff19aef0cf",
+    "tmnt-roof-E-fill/I-gpu-memory.txt": "b41eb548b8d85830e5cd562d7762a5a8c9991e1741271714dfdb4638c800902f",
+    "tmnt-roof-E-fill/I-upload-diag.txt": "bf83d4e9876cf1375e611afe1c260b126bb1500105e5742ad88ea647cb2921f9",
+    "tmnt-roof-E-fill/on-vs-off.png": "98d6a10b8f360aedddf2bc91ccee0d60e02d7547d396eda3fd600413bef85ba6",
+    "tools/ab_fill.sh": "a5c23c1891215a79e3b46c5d7f3fc45972296afc3ea3a83292f84886f80dbb15",
+    "tools/ab_phase.sh": "1490ccdf2bcf65f6d0433c4ee65db5d904a7a4f3e72765caf3e00c2f6110a070",
+    "tmnt-roof-F-statuslayer/off-status.png": "20d72e32a8c635df5b0a6a4f708f5f48c036b315269190873c13e89a0e067c97",
+    "tmnt-roof-F-statuslayer/on-status.png": "716b4b19042e8f74e98716460ddf74d8c2a0ebe61cea069c97f418b92395dc28"
+  },
+  "large_files_not_committed": {
+    "after-terms.bmp": {
+      "sha256": "224ffd0b53cc6e6dc6393401d4372162dacfb09fe57c81bf0f8efb93b035efe8",
+      "bytes": 66355254
+    },
+    "boot-60s.bmp": {
+      "sha256": "86819c593ca69e499870cb9ec618d7fa643b6e0531d947c092e5cfcd8c985f6b",
+      "bytes": 66355254
+    },
+    "step1.bmp": {
+      "sha256": "6ab8caed2c5038be4adb0fef3159f74736b95b548571019ce5f8653289552bc8",
+      "bytes": 66355254
+    },
+    "step2.bmp": {
+      "sha256": "abb540664f749a75cfac284297546b4f2b37ca925a67617ebbc0153b14939845",
+      "bytes": 66355254
+    },
+    "step3.bmp": {
+      "sha256": "199be30e5495836361bb22c724e725d60a1989abeddcf830c67d91d305d0cb26",
+      "bytes": 66355254
+    },
+    "tmnt-roof-A/file-1790069504968417-1.prof": {
+      "sha256": "48713bc0b8f2ebe2a6ad0cfc67d1b8d4e74a3b7bcf16a32b03f05f42ceba91a8",
+      "bytes": 7747260
+    },
+    "tmnt-roof-A/file-1790069554989383-2.prof": {
+      "sha256": "cd8690d201b0c3853e48d02bb114ce2f4e70ee57a3d2cece0d5d6ef4bb12464d",
+      "bytes": 11093002
+    },
+    "tmnt-roof-A/perf-light/offcpu.data": {
+      "sha256": "d674184f72f2f66cc0a4c2a28babe9edb967af12e9e1e626abb7190a36001dcb",
+      "bytes": 4909682
+    },
+    "tmnt-roof-A/perf-light/perf.data": {
+      "sha256": "d6fa104c50c485c136af9fd2ae4d3c04cae5bcf461cb5ab4a695c85cc2636186",
+      "bytes": 7851852
+    },
+    "tmnt-roof-A/shad-sched/sched_trace.txt.gz": {
+      "sha256": "1ec9f9b2375bbb46fcacb0d4c8b27ac900782f7e0069a8ed05cff863f406691e",
+      "bytes": 59871915
+    },
+    "tmnt-roof-B-uploaddiag/menu.bmp": {
+      "sha256": "8962c1d5b761fa8ee97db83ea5b8086a8944e6fae6eee0be6b938ed3486fb6c1",
+      "bytes": 66355254
+    },
+    "tmnt-roof-B-uploaddiag/roof.bmp": {
+      "sha256": "ef5c004616f86871af95b20adb95a86b1dc174f8faf758258380b023af36ba44",
+      "bytes": 66355254
+    },
+    "tmnt-roof-C-ab/A.bmp": {
+      "sha256": "fad638521565f2651fad299906e903ea9110f555a159568442d5482156bd0ab9",
+      "bytes": 66355254
+    },
+    "tmnt-roof-C-ab/B.bmp": {
+      "sha256": "4b54c26064e2b3171d7c4fbed08722f7bd6eabdad04fa84efbea3ce90e34cc56",
+      "bytes": 66355254
+    },
+    "tmnt-roof-C-ab/C.bmp": {
+      "sha256": "e1355601e346cb1dd49a543a4a34ddcd39f836f79bf53af75eac2f05c36ce982",
+      "bytes": 66355254
+    },
+    "tmnt-roof-D-dispatch/diag-lines.txt": {
+      "sha256": "b2f0be1bbffdd5bb98f003a0151ecb6b13a44134d0abbcd50ae01ad68c2acac9",
+      "bytes": 669366
+    },
+    "tmnt-roof-E-fill/D-on_1.bmp": {
+      "sha256": "38d41322afda91db0a2da7f39aa2db0d5c45080a737c8121455a8ac13c6e3bd9",
+      "bytes": 66355254
+    },
+    "tmnt-roof-E-fill/D-on_2.bmp": {
+      "sha256": "32f78948c27483c7889afeb7833afed396017c4049c15c15bc0bd3a4c5c8f801",
+      "bytes": 66355254
+    },
+    "tmnt-roof-E-fill/E-off_1.bmp": {
+      "sha256": "32b7a62f736772b765fd69342eca1f4f07e7f93dd0cfb54245258c2800b5205c",
+      "bytes": 66355254
+    },
+    "tmnt-roof-E-fill/E-off_2.bmp": {
+      "sha256": "15b053059ffa6d6f10bf386234fac35ae44462222e549c52242efcfd2631a06f",
+      "bytes": 66355254
+    },
+    "tmnt-roof-E-fill/F-on-moved_1.bmp": {
+      "sha256": "5c1246e7143cea8a6083554fbbbd9351a7994a6a190d0fd2357ccaea257ba614",
+      "bytes": 66355254
+    },
+    "tmnt-roof-E-fill/F-on-moved_2.bmp": {
+      "sha256": "c84c9aaa4188166216742f948ce9449eac1f359b7403f46e7f23adfb65a1f15e",
+      "bytes": 66355254
+    }
+  }
+}

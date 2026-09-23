@@ -1,0 +1,2 @@
+    srt_batch enabled=1 verify=0 batches=32327060 reads=771608400 hits=750457508 resolves=21150892 fallbacks=0 verified=0 mismatches=0
+

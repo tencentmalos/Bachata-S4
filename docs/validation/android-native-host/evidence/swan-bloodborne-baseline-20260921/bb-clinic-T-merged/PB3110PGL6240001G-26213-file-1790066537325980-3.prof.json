@@ -1,0 +1,927 @@
+{
+  "capture_complete": true,
+  "capture_error": "",
+  "capture_id": 3,
+  "gpu_cpu_alignment": "unknown",
+  "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+  "max_mib": 64,
+  "max_seconds": 20,
+  "mode": "file",
+  "process": "shadPS4",
+  "process_id": 26213,
+  "schema": "foundation.profiler-capture.v1",
+  "sdk_revision": "e00321ea40c4c608aff74a787200bc59493eea19",
+  "streaming_backpressure_timeout_ns": 0,
+  "wire_layout": "PROF-v3-track-id",
+  "capture_identity": {
+    "serial": "PB3110PGL6240001G",
+    "package": "com.shadps4.android",
+    "pid": "26213",
+    "capture_id": "3",
+    "errors": {
+      "gpu_timing status": "hle_sync sample contains no JSON object",
+      "gpu_memory status": "hle_sync sample contains no JSON object",
+      "gpu_memory request": "hle_sync sample contains no JSON object",
+      "profiler_ring status": "hle_sync sample contains no JSON object",
+      "profiler_capture status": "hle_sync sample contains no JSON object"
+    },
+    "session": {
+      "Client": "",
+      "session": "active",
+      "generation": "1",
+      "pid": "26213",
+      "phase": "3",
+      "run_uuid": "118387014740840e87e7921fb99416c0",
+      "stage": "Running",
+      "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+      "snapshot_ns": "53402842672336",
+      "guest_flip": "15717 (age_ns=22867760)",
+      "pm4_consumed": "660489717 (age_ns=79115)",
+      "host_draw": "21831448 (age_ns=80625)",
+      "queue_submit": "80391 (age_ns=16273854)",
+      "gpu_retire": "unavailable",
+      "host_present": "15717 (age_ns=14112656)",
+      "overlay_redraw": "32336 (age_ns=20120938)",
+      "guest_submission": "162043 (age_ns=820000)"
+    },
+    "properties": {
+      "debug.shadps4.profile_sync": "",
+      "debug.shadps4.scale_side_effect_passes": "0",
+      "debug.shadps4.sync_fastpath": ""
+    },
+    "emulator_status_json": {
+      "hle_sync status": {
+        "schema": 1,
+        "session": 1,
+        "context": 1,
+        "timestamp_ns": 53402907245721,
+        "enabled": false,
+        "detail": false,
+        "shards": 46,
+        "untracked_calls": 0,
+        "emission_failures": 0,
+        "fast_path": "installed",
+        "semantics": "session cumulative; rolling snapshot; completed inclusive elapsed includes waits, not CPU or critical path; start/stop does not reset; in-flight calls finish in their original sample",
+        "histogram_upper_ns": [
+          1000,
+          10000,
+          100000,
+          1000000,
+          16000000,
+          null
+        ],
+        "operations": [
+          {
+            "kind": 0,
+            "operation": "Mutex.Init",
+            "calls": 18446,
+            "completed": 18446,
+            "elapsed_ns": 197704725,
+            "max_ns": 5906771,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              0,
+              16336,
+              1930,
+              157,
+              23,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 1,
+            "operation": "Mutex.Destroy",
+            "calls": 18446,
+            "completed": 18446,
+            "elapsed_ns": 126148811,
+            "max_ns": 4832760,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              446,
+              17153,
+              726,
+              106,
+              15,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 6,
+            "operation": "Mutex.Config",
+            "calls": 51576,
+            "completed": 51576,
+            "elapsed_ns": 263377658,
+            "max_ns": 4526823,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              31517,
+              17681,
+              2112,
+              223,
+              43,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 7,
+            "operation": "Cond.Init",
+            "calls": 5022,
+            "completed": 5022,
+            "elapsed_ns": 15660678,
+            "max_ns": 671979,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              77,
+              4837,
+              100,
+              8,
+              0,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 8,
+            "operation": "Cond.Destroy",
+            "calls": 5022,
+            "completed": 5022,
+            "elapsed_ns": 21458726,
+            "max_ns": 909271,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              1,
+              4809,
+              199,
+              13,
+              0,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 9,
+            "operation": "Cond.Wait",
+            "calls": 33853,
+            "completed": 33853,
+            "elapsed_ns": 1044738451073,
+            "max_ns": 1419700104,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 20,
+            "inflight": 0,
+            "histogram": [
+              0,
+              0,
+              1865,
+              8271,
+              10780,
+              12937
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 12,
+            "operation": "Cond.Broadcast",
+            "calls": 33857,
+            "completed": 33857,
+            "elapsed_ns": 481963772,
+            "max_ns": 1651615,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              0,
+              18586,
+              14884,
+              381,
+              6,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 16,
+            "operation": "Rwlock.Read",
+            "calls": 215995,
+            "completed": 215995,
+            "elapsed_ns": 854454709,
+            "max_ns": 5950625,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 6,
+            "inflight": 0,
+            "histogram": [
+              166334,
+              46805,
+              1639,
+              1087,
+              130,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 22,
+            "operation": "Rwlock.Unlock",
+            "calls": 215995,
+            "completed": 215995,
+            "elapsed_ns": 458279560,
+            "max_ns": 6041354,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 2,
+            "inflight": 0,
+            "histogram": [
+              192846,
+              21255,
+              1227,
+              626,
+              41,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 33,
+            "operation": "Sema.Wait",
+            "calls": 96610,
+            "completed": 96610,
+            "elapsed_ns": 454837125551,
+            "max_ns": 9963025777,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 6,
+            "inflight": 0,
+            "histogram": [
+              9603,
+              1110,
+              10881,
+              40567,
+              28124,
+              6325
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 35,
+            "operation": "Sema.Signal",
+            "calls": 68411,
+            "completed": 68411,
+            "elapsed_ns": 2459794815,
+            "max_ns": 7731250,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 2,
+            "inflight": 0,
+            "histogram": [
+              7967,
+              32120,
+              24625,
+              3344,
+              355,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 52,
+            "operation": "Thread.Usleep",
+            "calls": 26958,
+            "completed": 26958,
+            "elapsed_ns": 439594995177,
+            "max_ns": 73799843,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              0,
+              0,
+              0,
+              0,
+              14487,
+              12471
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 54,
+            "operation": "Net.EpollWait",
+            "calls": 1483,
+            "completed": 1483,
+            "elapsed_ns": 49849543958,
+            "max_ns": 40989739,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 0,
+            "inflight": 0,
+            "histogram": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1483
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 55,
+            "operation": "Sync.AddrWait",
+            "calls": 27466,
+            "completed": 27466,
+            "elapsed_ns": 3225308681,
+            "max_ns": 7408698,
+            "nonzero": 0,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 6,
+            "inflight": 0,
+            "histogram": [
+              4193,
+              7661,
+              9344,
+              5697,
+              571,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          },
+          {
+            "kind": 56,
+            "operation": "Sync.AddrWake",
+            "calls": 83592,
+            "completed": 83592,
+            "elapsed_ns": 604869177,
+            "max_ns": 5365417,
+            "nonzero": 17763,
+            "timeouts": 0,
+            "busy": 0,
+            "interrupted": 0,
+            "host_errors": 0,
+            "exceptions": 0,
+            "locator_dropped": 0,
+            "phase_mask": 2,
+            "inflight": 0,
+            "histogram": [
+              62620,
+              14705,
+              5287,
+              924,
+              56,
+              0
+            ],
+            "phases": [
+              {
+                "name": "HLE.Sync.Lookup",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Guard",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Park",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Publish",
+                "calls": 0,
+                "elapsed_ns": 0
+              },
+              {
+                "name": "HLE.Sync.Reacquire",
+                "calls": 0,
+                "elapsed_ns": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "fast_path": "installed",
+    "build_ids": {
+      "apk_path": "/data/app/~~AvnDdiP9ajFanw0LZm5AvQ==/com.shadps4.android-CsUY-SGDd_H7iDAuifQ_6A==/base.apk",
+      "apk_sha256": "307333860ea793ce51d80d1ac6d4b4f5b8b137212f1eae3c40fec7b143627b2a",
+      "apk_bytes": 359577384,
+      "abi": "arm64-v8a",
+      "libraries": {
+        "libandroidx.graphics.path.so": {
+          "build_id": "a7846ae06d6bf6cf63fa7c5e056b5de493c71567",
+          "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+          "bytes": 10096
+        },
+        "libbachata_pkg.so": {
+          "build_id": "35b8fb00607ab88c84d8994294691c69e0452836",
+          "sha256": "308f82e1caadd52ab70bd2a1d5bc32c37264ee5d59a6e7dc8b114fcd519c7eb4",
+          "bytes": 1116312
+        },
+        "libc\u002B\u002B_shared.so": {
+          "build_id": "ba615e4ff75bc2d8ba1eee93f983e02bc427c433",
+          "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+          "bytes": 9290184
+        },
+        "libdatastore_shared_counter.so": {
+          "build_id": "17db37bd6770ac00dd2d1d2828839fd23a7959a3",
+          "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1",
+          "bytes": 7112
+        },
+        "libfile_redirect_hook.so": {
+          "build_id": "31b43daa856e0baeee442c176b1b68ea6fd4d982",
+          "sha256": "d3956501e1937fb2bef0b9f86a4d070d22c918711e4533a5e953c4a7aea024fb",
+          "bytes": 7128
+        },
+        "libgsl_alloc_hook.so": {
+          "build_id": "c50fe436b75e643a9e848ce59d5ca32848e00ff3",
+          "sha256": "b6f38ccc30973ba4c90c13d489de16982ef9d3347f594d49d0e4e13ce98a983d",
+          "bytes": 8448
+        },
+        "libhook_impl.so": {
+          "build_id": "8a0a2a7284d9e0347e27e21daace73aa43727c96",
+          "sha256": "b58cc472e3d7866af5ffdfe1f4ce59c862fd46805a84afd4fda98ce917e41a0e",
+          "bytes": 151416
+        },
+        "libmain_hook.so": {
+          "build_id": "6708e60b2571b56e95d77971b877d02dcd4571cd",
+          "sha256": "fdd75da175ca042458b191512b5614bb454a7678b103f25087adc8a573af1528",
+          "bytes": 8720
+        },
+        "libshadps4_fex_session.so": {
+          "build_id": "8569e0707e27d092c27aaf0f2a6f447c0b470146",
+          "sha256": "a9890bc96161865f86cd3f41eee9746cdf53389dffbbaee621085592a3148835",
+          "bytes": 35077360
+        },
+        "libshadps4_host.so": {
+          "build_id": "d9618178fc2c30fed373be84352a2d524b0f973f",
+          "sha256": "93464ad4ce986a6cc5c1d0fbd5d28f07b89aaad8e9ea3634c19f51b8da6a27fc",
+          "bytes": 493104808
+        }
+      },
+      "versionName": "0.1.8",
+      "versionCode": "26081400 minSdk",
+      "lastUpdateTime": "2026-09-22 15:59:41",
+      "codePath": "/data/app/~~AvnDdiP9ajFanw0LZm5AvQ==/com.shadps4.android-CsUY-SGDd_H7iDAuifQ_6A==",
+      "primaryCpuAbi": "arm64-v8a",
+      "roles": {
+        "host": null,
+        "jni": null
+      }
+    }
+  },
+  "sha256": "8345dc4e6fdbb64e715d9db93f7a62018e76cd097a8e640925625902a4c6ab1a"
+}

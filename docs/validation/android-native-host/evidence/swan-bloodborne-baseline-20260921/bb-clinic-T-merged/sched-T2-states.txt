@@ -1,0 +1,98 @@
+window 20.008 s  (53132.163 .. 53152.171)
+process 26213: on-CPU 56.38 s = 2.82 cores; runnable 86.06 s
+
+## top threads of the process by on-CPU
+    tid name               run% rnbl-pre% rnbl-wake%  sleep%    D%  cpus
+  31774 shadPS4:GpuComm    79.0      16.5        2.2     1.5   0.8  c0:3750 c1:5734 c2:6950 c3:4868
+  31733 Guest-1            47.3      21.8       11.6    17.0   2.3  c0:8794 c1:9024 c2:8945 c3:9366
+  31815 Guest-24           17.7      16.1       15.1    48.7   2.4  c0:5687 c1:5066 c2:4445 c3:4631
+  31812 Guest-21           17.4      16.0       15.0    49.3   2.3  c0:5418 c1:4680 c2:4627 c3:5066
+  31814 Guest-23           17.3      16.2       15.2    48.9   2.5  c0:5671 c1:4909 c2:4451 c3:4798
+  31816 Guest-25           17.2      15.9       15.4    49.1   2.4  c0:5646 c1:4814 c2:4425 c3:4761
+  31813 Guest-22           17.1      16.2       15.1    49.3   2.4  c0:5653 c1:4629 c2:4366 c3:4707
+  31773 Guest-20           14.3      11.0        4.3    70.3   0.2  c0:2426 c1:2493 c2:2600 c3:2649
+  31770 Guest-17           11.0      11.1        8.5    69.4   0.0  c0:4569 c1:2357 c2:1889 c3:2048
+  31811 shadPS4:Present     4.9       7.4        4.9    77.2   5.6  c0:5976 c1:2461 c2:2223 c3:2515
+  31772 Guest-19            3.8       4.6        5.3    86.2   0.0  c0:2280 c1:954 c2:809 c3:901
+   6509 Guest-20            2.4       2.2       20.1    73.6   0.0  c0:7449 c1:3103 c2:2488 c3:2867
+  31829 Guest-36            2.1       1.7        2.0    94.2   0.0  c0:1410 c1:1303 c2:1045 c3:1269
+  26213 shadps4.android     2.1       4.9        8.3    84.6   0.0  c0:1416 c1:913 c2:757 c3:751
+  31763 Guest-13            1.8       1.3        0.8    96.1   0.0  c0:750 c1:768 c2:428 c3:523
+  31986 Guest-59            1.8       1.5        1.3    95.4   0.0  c0:895 c1:951 c2:681 c3:994
+  31771 Guest-18            1.6       1.8       18.6    78.0   0.0  c0:7738 c1:3316 c2:2675 c3:2752
+  31828 Guest-35            1.6       1.2        2.5    94.7   0.0  c0:1411 c1:1291 c2:1037 c3:1099
+  31842 Guest-48            1.5       1.8        5.1    91.5   0.0  c0:1980 c1:821 c2:636 c3:789
+  31985 Guest-58            1.4       1.1        1.6    95.8   0.0  c0:831 c1:829 c2:729 c3:855
+  31762 Guest-12            1.4       1.0        1.0    96.6   0.0  c0:628 c1:558 c2:462 c3:368
+  31827 Guest-34            1.3       1.1        2.7    94.8   0.0  c0:1266 c1:1320 c2:1015 c3:1078
+  31766 Guest-16            1.3       1.9        2.0    94.6   0.0  c0:957 c1:387 c2:297 c3:349
+  31984 Guest-57            1.3       1.0        2.0    95.8   0.0  c0:856 c1:743 c2:584 c3:820
+
+## preempted Guest-20/31773 by (switch-outs in state R):
+     427  binder:2502_2/2824
+     360  low_latency_out/3846
+     321  fast_raw_input_/7474
+     314  Guest-18/31771
+     261  AudioTrack/31767
+     233  FastMixer/3847
+     228  Guest-20/6509
+     195  Guest-23/31814
+     194  Guest-24/31815
+     187  Guest-22/31813
+     175  Guest-21/31812
+     170  Guest-1/31733
+
+## preempted Guest-1/31733 by (switch-outs in state R):
+    1279  low_latency_out/3846
+    1069  binder:2502_2/2824
+    1036  fast_raw_input_/7474
+     865  AudioTrack/31767
+     541  FastMixer/3847
+     541  Guest-18/31771
+     456  FastCapture/7475
+     423  Network/25883
+     407  Guest-20/6509
+     397  kgsl_hwsched/1445
+     345  Guest-21/31812
+     341  Guest-23/31814
+
+## preempted shadPS4:GpuComm/31774 by (switch-outs in state R):
+    1268  low_latency_out/3846
+    1001  fast_raw_input_/7474
+     917  AudioTrack/31767
+     849  Network/25883
+     844  binder:2502_2/2824
+     613  ec_ref_input_90/7531
+     547  SDM_EventThread/2805
+     517  FastMixer/3847
+     456  Guest-18/31771
+     415  binder:25754_4/25754
+     361  Guest-20/6509
+     351  FastCapture/7475
+
+## per-CPU busy share (top occupants)
+cpu0: idle    4%  | shadPS4:GpuComm/31774* 11%, Guest-1/31733* 10%, Guest-24/31815* 5%, Guest-25/31816* 5%, Guest-22/31813* 5%
+cpu1: idle    4%  | shadPS4:GpuComm/31774* 19%, Guest-1/31733* 12%, Guest-24/31815* 5%, Guest-23/31814* 4%, Guest-25/31816* 4%
+cpu2: idle    3%  | shadPS4:GpuComm/31774* 31%, Guest-1/31733* 12%, Spatial_Main/25861 5%, Guest-21/31812* 4%, Guest-24/31815* 4%
+cpu3: idle    3%  | shadPS4:GpuComm/31774* 19%, Spatial_Main/25861 14%, Guest-1/31733* 13%, Guest-21/31812* 4%, Guest-22/31813* 4%
+cpu4: idle   63%  | Spatial_Main/25861 9%, compositor/5700 4%, Eng-Render/26063 4%, crtc_commit:206/1939 2%, binder:7204_2/7459 1%
+cpu5: idle   67%  | Eng-Render/26063 4%, compositor/5700 4%, crtc_commit:206/1939 2%, binder:7204_2/7459 2%, Spatial_Main/25861 2%
+cpu6: idle   84%  | depth_fusion/59/5917 2%, vst_depthmap/59/5924 2%, vst/5925/5925 2%, stereo_depth/59/5923 1%, common/5911/5911 1%
+cpu7: idle   78%  | binder:2593_6/6163 8%, depth_fusion/59/5917 2%, vst/5925/5925 2%, vst_depthmap/59/5924 2%, sta_host_tx/1465 1%
+
+## other threads by on-CPU (top 15)
+   0.30 cores  25622:Spatial_Main
+   0.11 cores  25622:Eng-Render
+   0.09 cores  5585:compositor
+   0.08 cores  2593:binder:2593_6
+   0.05 cores  2588:surfaceflinger
+   0.05 cores  25754:binder:25754_4
+   0.04 cores  1939:crtc_commit:206
+   0.04 cores  2593:handpose/29729
+   0.04 cores  1445:kgsl_hwsched
+   0.04 cores  25721:icoxr.systemenv
+   0.04 cores  7204:binder:7204_2
+   0.04 cores  2605:depth_fusion/59
+   0.04 cores  2605:vst/5925
+   0.03 cores  2605:vst_depthmap/59
+   0.03 cores  25622:XR_Wait

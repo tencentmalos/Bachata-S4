@@ -1,0 +1,8 @@
+Status: ok
+session: pid=26213 stage=Running
+press 1 -> fps~30
+press 2 -> fps~30
+press 3 -> fps~13
+load-wait t=5 fps~4
+settling 45 s
+arrived: fps~18 stage=Running pid=26213

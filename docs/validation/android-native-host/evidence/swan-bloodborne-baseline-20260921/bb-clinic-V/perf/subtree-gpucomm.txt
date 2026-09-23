@@ -1,0 +1,127 @@
+
+### ExecuteShaderHLE: 5066 samples = 13.7% of thread
+-- direct children
+   76.6%  VideoCore::BufferCache::ObtainBuffer
+   19.8%  vk_common_CmdCopyBuffer
+    2.0%  Vulkan::Scheduler::EndRendering
+    0.9%  <self>
+    0.3%  vk_common_CmdPipelineBarrier
+    0.1%  @plt
+    0.0%  void tu_flush_for_stage<
+    0.0%  VideoCore::BufferCache::FindBuffer
+    0.0%  void tu_CmdCopyBuffer2<
+    0.0%  vk_common_CmdEndRendering
+    0.0%  tu_CmdPipelineBarrier2
+    0.0%  VideoCore::MemoryTracker::IsRegionGpuModified
+    0.0%  boost::icl::interval_base_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::discrete_interval<u
+    0.0%  malloc
+-- leaves
+   18.6%  change_protection
+   13.6%  void r2d_setup_common<
+    5.6%  _raw_spin_unlock_irqrestore
+    5.5%  __memcpy_aarch64_nt
+    4.0%  rwsem_spin_on_owner
+    2.4%  local_daif_restore
+    1.8%  perf_output_copy
+    1.7%  __rb_insert_augmented
+    1.3%  perf_output_begin
+    1.3%  VideoCore::BufferCache::SynchronizeBuffer
+    1.2%  mas_find
+    1.2%  memset
+    1.1%  rwsem_down_write_slowpath
+    1.0%  vma_interval_tree_remove
+
+### BufferCache::ObtainBuffer: 7156 samples = 19.4% of thread
+-- direct children
+   64.2%  VideoCore::BufferCache::SynchronizeBuffer
+   28.9%  unsigned long VideoCore::StreamBuffer::Copy<unsigned long>
+    3.7%  VideoCore::MemoryTracker::IsRegionGpuModified
+    1.1%  <self>
+    0.3%  @plt
+    0.3%  boost::icl::interval_base_set<boost::icl::interval_set<unsigned long, std::__ndk1::less, boost::icl::discrete_interval<u
+    0.3%  Core::MemoryManager::CopySparseMemory
+    0.3%  __aarch64_cas4_acq
+    0.1%  VideoCore::BufferCache::FindBuffer
+    0.1%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    0.1%  VideoCore::StreamBuffer::Map
+    0.1%  Common::Singleton<Core::MemoryManager>::Instance
+    0.1%  Core::HostRuntime::GuestRuntime::Impl::OwnsRange
+    0.0%  void VideoCore::RegionManager::ChangeRegionState<
+-- leaves
+   13.6%  change_protection
+   12.6%  __memcpy_aarch64_nt
+    6.1%  VideoCore::BufferCache::SynchronizeBuffer
+    4.2%  _raw_spin_unlock_irqrestore
+    3.5%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    3.2%  Core::MemoryManager::CopySparseMemory
+    3.0%  rwsem_spin_on_owner
+    2.1%  VideoCore::MemoryTracker::IsRegionGpuModified
+    2.0%  @plt
+    2.0%  pthread_mutex_lock
+    1.8%  local_daif_restore
+    1.6%  __aarch64_cas4_acq
+    1.5%  unsigned long VideoCore::StreamBuffer::Copy<unsigned long>
+    1.5%  VideoCore::StreamBuffer::WaitPendingOperations
+
+### Info::RefreshFlatBuf: 8651 samples = 23.5% of thread
+-- direct children
+   93.1%  void Shader::PortableSrt::Run<bool 
+    2.7%  @plt
+    1.0%  std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int>>::assign
+    0.9%  Core::MemoryManager::TryReadSrtMemory
+    0.7%  Shader::PortableSrt::Compute
+    0.6%  <self>
+    0.5%  Shader::ReadSrtGuestMemory
+    0.2%  __memset_aarch64_nt
+    0.2%  operator new
+    0.1%  scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate
+    0.0%  free
+    0.0%  scudo_free
+-- leaves
+   27.2%  Core::MemoryManager::TryReadSrtMemory
+   14.3%  Core::MemoryManager::IsValidMapping
+   11.2%  std::__ndk1::mutex::lock
+    7.9%  @plt
+    5.4%  pthread_mutex_lock
+    5.2%  Core::GuestCpu::GuestAddressSpace::OwnsRange
+    4.8%  pthread_mutex_unlock
+    4.6%  void Shader::PortableSrt::Run<bool 
+    2.3%  Shader::PortableSrt::Compute
+    2.0%  __aarch64_cas2_acq
+    1.7%  __memcpy_aarch64_nt
+    1.7%  Core::GuestCpu::GuestRange::Checked
+    1.5%  std::__ndk1::mutex::unlock
+    1.3%  Shader::ReadSrtGuestMemory
+
+### TextureCache::RefreshImage: 298 samples = 0.8% of thread
+-- direct children
+   36.2%  VideoCore::TileManager::DetileImage
+   32.6%  <self>
+   23.8%  VideoCore::Image::Upload
+    2.7%  Vulkan::Scheduler::EndRendering
+    2.7%  VideoCore::Image::UploadRegions
+    0.7%  VideoCore::BufferCache::ObtainBufferForImage
+    0.7%  VideoCore::Image::BlitBacking
+    0.3%  operator new
+    0.3%  std::__ndk1::recursive_mutex::unlock
+-- leaves
+   32.6%  VideoCore::TextureCache::RefreshImage
+   13.4%  dma_buf_total_size
+    6.4%  VideoCore::VmaDiagnostics::Created
+    4.0%  nr_blockdev_pages
+    2.3%  VmaBlockMetadata_TLSF::CreateAllocationRequest
+    1.3%  tu_barrier
+    1.3%  __memcpy_aarch64_nt
+    1.3%  VmaBlockVector::CommitAllocationRequest
+    1.0%  kmem_cache_free
+    1.0%  void tu6_emit_descriptor_sets<
+    1.0%  VideoCore::Image::Upload
+    1.0%  VmaBlockMetadata_TLSF::Alloc
+    1.0%  fdl6_layout_image
+    1.0%  vk2tu_access
+
+### TryComputeImageFill|NoteDispatchDiagnostics: 2 samples = 0.0% of thread
+-- direct children
+  100.0%  <self>
+-- leaves
+  100.0%  Vulkan::Rasterizer::TryComputeImageFill

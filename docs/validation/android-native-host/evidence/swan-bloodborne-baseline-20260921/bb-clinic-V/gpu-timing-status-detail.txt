@@ -1,0 +1,33 @@
+    gpu_timing: enabled
+    detailed: 1
+    requested: 1
+    ring_enabled: 1
+    coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+    generation: 1
+    supported: 1
+    calibrated: 0
+    estimated_alignment: 1
+    calibration_deviation_ns: 36662110
+    timestamp_valid_bits: 48
+    timestamp_period_ns: 52.0833
+    retired_batches: 3694
+    pending: 6
+    dropped_batches: 0
+    dropped_zones: 0
+    discarded: 19
+    errors: 0
+    GPU.DrawBatch: count=1951 last_ms=0.003125 total_ms=68005.9 max_ms=80.554 observed_ns=68106021960946
+    GPU.GuestCommands: count=1951 last_ms=0.00104167 total_ms=67461.5 max_ms=80.1791 observed_ns=68106021960946
+    GPU.HostPrepare: count=974 last_ms=0.37375 total_ms=539.355 max_ms=7.61141 observed_ns=68106021834175
+    GPU.FSR: count=974 last_ms=0.00104167 total_ms=1.01427 max_ms=0.00109375 observed_ns=68106021834175
+    GPU.PostProcess: count=974 last_ms=0.369583 total_ms=535.263 max_ms=7.60594 observed_ns=68106021834175
+    GPU.Present: count=977 last_ms=1.45505 total_ms=2114.12 max_ms=8.83401 observed_ns=68105984388081
+    GPU.OverlayRedraw: count=376 last_ms=1.20521 total_ms=853.772 max_ms=8.84807 observed_ns=68105984383758
+    GPU.BlankFlip: count=371 last_ms=0.00104167 total_ms=0.386406 max_ms=0.00109375 observed_ns=68105912095842
+    GPU.GuestFrame: count=971 last_ms=68.6146 total_ms=67253.4 max_ms=80.1802 observed_ns=68106021834175
+    GPU.GuestRenderPass: count=250188 last_ms=0.0827083 total_ms=46133.9 max_ms=9.48589 observed_ns=68106021834175
+    GPU.GuestDispatch: count=76021 last_ms=0.00510417 total_ms=4270.02 max_ms=7.91505 observed_ns=68106021834175
+    GPU.HostTransfer: count=32142 last_ms=0.0617187 total_ms=3496.91 max_ms=8.09427 observed_ns=68106021834175
+    GPU.BufferUpload: count=26254 last_ms=0.00390625 total_ms=479.525 max_ms=7.40984 observed_ns=68106021834175
+    GPU.HostReadback: count=4870 last_ms=0.250781 total_ms=6795.94 max_ms=8.49552 observed_ns=68106021834175
+

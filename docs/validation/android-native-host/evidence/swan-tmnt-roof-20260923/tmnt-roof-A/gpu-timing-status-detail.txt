@@ -1,0 +1,35 @@
+SERVICE com.shadps4.android/.service.FexSessionService 44dce86 pid=31682 user=0
+  Client:
+    gpu_timing: enabled
+    detailed: 1
+    requested: 1
+    ring_enabled: 1
+    coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+    generation: 1
+    supported: 1
+    calibrated: 0
+    estimated_alignment: 1
+    calibration_deviation_ns: 57411719
+    timestamp_valid_bits: 48
+    timestamp_period_ns: 52.0833
+    retired_batches: 2258
+    pending: 8
+    dropped_batches: 0
+    dropped_zones: 0
+    discarded: 20
+    errors: 0
+    GPU.DrawBatch: count=1491 last_ms=0.003125 total_ms=36802.1 max_ms=55.9358 observed_ns=56227416559904
+    GPU.GuestCommands: count=1491 last_ms=0.00104167 total_ms=36238.4 max_ms=55.5174 observed_ns=56227416559904
+    GPU.HostPrepare: count=744 last_ms=0.375 total_ms=559.856 max_ms=7.32948 observed_ns=56227416506050
+    GPU.FSR: count=744 last_ms=0.00104167 total_ms=0.774792 max_ms=0.00104167 observed_ns=56227416506050
+    GPU.PostProcess: count=744 last_ms=0.370833 total_ms=550.268 max_ms=7.32521 observed_ns=56227416506050
+    GPU.Present: count=747 last_ms=1.06969 total_ms=1588.41 max_ms=9.07495 observed_ns=56227455426935
+    GPU.OverlayRedraw: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.BlankFlip: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.GuestFrame: count=741 last_ms=51.5396 total_ms=36097.2 max_ms=55.5185 observed_ns=56227416506050
+    GPU.GuestRenderPass: count=39432 last_ms=0.205312 total_ms=8657.12 max_ms=8.28552 observed_ns=56227416506050
+    GPU.GuestDispatch: count=25296 last_ms=0.226979 total_ms=5325.93 max_ms=7.49901 observed_ns=56227416506050
+    GPU.HostTransfer: count=66960 last_ms=0.241771 total_ms=21806.1 max_ms=8.64927 observed_ns=56227416506050
+    GPU.BufferUpload: count=1488 last_ms=0.00401042 total_ms=28.8507 max_ms=6.52005 observed_ns=56227416506050
+    GPU.HostReadback: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+

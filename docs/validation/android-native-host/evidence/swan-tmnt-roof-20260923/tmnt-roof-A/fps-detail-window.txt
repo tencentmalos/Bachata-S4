@@ -1,0 +1,1 @@
+detail window presents=388 fps=19.238

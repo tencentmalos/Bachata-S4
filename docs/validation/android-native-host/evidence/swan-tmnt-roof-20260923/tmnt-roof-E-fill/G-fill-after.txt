@@ -1,0 +1,1 @@
+    compute_fill: off=0 images_cleared=644078 bytes_cleared=2543701721088 cleared=644078 no_image=40015 partial=2 pattern=0 format=0 gpu_resident=0 disabled=43410

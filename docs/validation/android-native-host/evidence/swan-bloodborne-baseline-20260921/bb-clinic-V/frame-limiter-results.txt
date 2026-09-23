@@ -1,0 +1,9 @@
+frame_limiter.sql (evidence tools/frame_limiter.sql, tids: owner Guest-20 19878, GpuComm 19879, Guest-1 19840) on PROF capture 1 (light, 20 s).
+V light: n=280 frame_ms=71.32 pm4_ms=67.46 owner_wait_ms=33.85 guest1_active_ms=50.49 corr_pm4=0.917 corr_guest1_active=0.859 corr_owner_wait=0.52
+GPU zones, PROF capture 2 (gpu_timing detail, 15 s, 203 frames, 57943 zones, 0 skipped chunks), ms per frame:
+  GPU.GuestCommands 48.71 (1.4 batches) | GuestRenderPass 32.92 (179.3) | HostReadback 4.95 (3.5) | GuestDispatch 3.04 (54.6)
+  HostTransfer 2.74 (23.1) | Present 1.23 | HostPrepare 0.34 | PostProcess 0.33 | BufferUpload 0.31 (19.3) | OverlayRedraw 0.24
+gpu_busy_percentage while locked (726 MHz): 99 99 99 99 99 (whole GPU, includes the Pico compositor)
+simpleperf 20 s 2000 Hz fp, 132027 samples, 0 lost; ~278 frames in window:
+  GpuComm on-CPU 18437 ms (66.3 ms/frame): RefreshFlatBuf 23.5% (15.6 ms), ObtainBuffer 19.4% (12.9), ExecuteShaderHLE 13.7% (9.1, 77% of it ObtainBuffer, 20% vkCmdCopyBuffer), BindResources 18.8%, RefreshImage 0.8% (0.5), TryComputeImageFill 2 samples
+  Guest-1 on-CPU 10317 ms (37.1 ms/frame): JIT 72.9%; two JIT pages 0x5e42f64e00/0x5e42f64d00 = 20.4% (~7.5 ms/frame, the game spin loop seen in U)

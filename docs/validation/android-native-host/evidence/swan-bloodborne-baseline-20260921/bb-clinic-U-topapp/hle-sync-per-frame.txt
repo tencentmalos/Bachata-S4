@@ -1,0 +1,17 @@
+hle_sync delta between hle-sync-detail-start.txt and -end.txt: 38.55 s, fast_path=installed, normalised by the detail-window FPS 14.496
+   344.1/frame       1.47 ms/frame elapsed (includes waits)  Rwlock.Read
+   344.1/frame       1.13 ms/frame elapsed (includes waits)  Rwlock.Unlock
+   161.9/frame       0.63 ms/frame elapsed (includes waits)  Sync.AddrWake
+   157.8/frame     640.76 ms/frame elapsed (includes waits)  Sema.Wait
+   108.0/frame       2.15 ms/frame elapsed (includes waits)  Sema.Signal
+    76.0/frame       0.40 ms/frame elapsed (includes waits)  Mutex.Config
+    65.2/frame       3.74 ms/frame elapsed (includes waits)  Sync.AddrWait
+    53.8/frame    1450.31 ms/frame elapsed (includes waits)  Cond.Wait
+    53.8/frame       0.71 ms/frame elapsed (includes waits)  Cond.Broadcast
+    37.8/frame     606.51 ms/frame elapsed (includes waits)  Thread.Usleep
+    27.3/frame       0.26 ms/frame elapsed (includes waits)  Mutex.Init
+    27.3/frame       0.24 ms/frame elapsed (includes waits)  Mutex.Destroy
+     8.0/frame       0.04 ms/frame elapsed (includes waits)  Cond.Destroy
+     8.0/frame       0.02 ms/frame elapsed (includes waits)  Cond.Init
+     2.1/frame      68.68 ms/frame elapsed (includes waits)  Net.EpollWait
+total 1475/frame

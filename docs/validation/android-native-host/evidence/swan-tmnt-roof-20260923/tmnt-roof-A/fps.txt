@@ -1,0 +1,4 @@
+fps_window 1 presents=200 ns=10175616100 fps=19.655
+fps_window 2 presents=200 ns=10173860300 fps=19.658
+fps_window 3 presents=198 ns=10153830800 fps=19.5
+snap_presents_delta=673
