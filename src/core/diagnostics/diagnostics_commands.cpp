@@ -26,6 +26,8 @@
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "video_core/renderdoc.h"
 #include "video_core/gpu_reshape_status.h"
+#include "core/memory.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/renderdoc_capture.h"
 
@@ -164,6 +166,13 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
             return VideoCore::MemoryDiagnostics::PolicyStatus();
         });
+
+    registry.Register("srt_batch",
+        "Batched SRT (shader user-data) guest reads: status | on | off | verify on|off",
+        [](const std::vector<std::string>& args) { return Core::MemoryManager::SrtReadBatch::Command(args); });
+    registry.Register("upload_diag",
+        "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off",
+        [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
 
     registry.Register("gpu_memory", "GPU allocation snapshot: request | status (no GPU waits)",
         [](const std::vector<std::string>& args) {

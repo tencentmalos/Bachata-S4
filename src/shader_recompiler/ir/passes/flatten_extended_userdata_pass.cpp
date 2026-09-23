@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <new>
+#include <optional>
 #include <unordered_map>
 #include <boost/container/flat_map.hpp>
 #include <queue>
@@ -1024,6 +1026,27 @@ void FlattenExtendedUserdataPass(IR::Program& program) {
 
 #ifndef ARCH_X86_64
 namespace Shader {
+using SrtReadBatch = Core::MemoryManager::SrtReadBatch;
+
+SrtGuestReader::SrtGuestReader() {
+    static_assert(sizeof(SrtReadBatch) <= sizeof(storage) && alignof(SrtReadBatch) <= 16);
+    if (SrtReadBatch::enabled.load(std::memory_order_relaxed)) {
+        new (storage) SrtReadBatch(*Core::Memory::Instance());
+        active = true;
+    }
+}
+
+SrtGuestReader::~SrtGuestReader() {
+    if (active)
+        std::launder(reinterpret_cast<SrtReadBatch*>(storage))->~SrtReadBatch();
+}
+
+bool SrtGuestReader::operator()(u64 address, void* data, size_t size) {
+    if (active)
+        return std::launder(reinterpret_cast<SrtReadBatch*>(storage))->Read(address, data, size);
+    return ReadSrtGuestMemory(address, data, size);
+}
+
 bool ReadSrtGuestMemory(u64 address, void* data, size_t size) {
     return Core::Memory::Instance()->TryReadSrtMemory(address, data, size);
 }

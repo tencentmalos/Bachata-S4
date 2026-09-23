@@ -3,11 +3,15 @@
 
 #pragma once
 
+#include <array>
+#include <atomic>
 #include <map>
 #include <mutex>
 #include <optional>
+#include <shared_mutex>
 #include <string>
 #include <string_view>
+#include <vector>
 #include "common/enum.h"
 #include "common/shared_first_mutex.h"
 #include "common/singleton.h"
@@ -284,6 +288,40 @@ public:
     bool TryWriteBacking(void* address, const void* data, u64 size);
     bool TryReadSrtMemory(VAddr address, void* data, u64 size);
 
+    /// Batched reads for shader user-data (SRT) flattening. Holds the mapping lock shared for
+    /// its lifetime and resolves each touched table once into a window of host backing, so a
+    /// 4/8-byte read is a range compare and a memcpy instead of lock + mapping lookup per read.
+    /// Reads it cannot serve from one window (areas without physical backing, reads crossing a
+    /// backing segment) take the per-read TryReadSrtMemory path under the same lock.
+    class SrtReadBatch {
+    public:
+        explicit SrtReadBatch(MemoryManager& memory_) : memory{memory_}, lock{memory_.mutex} {}
+        ~SrtReadBatch();
+        bool Read(VAddr address, void* data, u64 size);
+
+        // Runtime A/B switch (off: every read takes the per-read path) and a verification mode
+        // that re-reads each batched value through the per-read path, counts mismatches and
+        // returns the per-read result. Counters are folded in once per batch.
+        static inline std::atomic<bool> enabled{true};
+        static inline std::atomic<bool> verify{false};
+        struct Stats { // static storage: zero-initialized
+            std::atomic<u64> batches, reads, hits, resolves, fallbacks, verified, mismatches;
+        };
+        static inline Stats stats;
+        static std::string Command(const std::vector<std::string>& args);
+
+    private:
+        struct Window {
+            VAddr begin{}, end{};
+            const u8* host{};
+        };
+        MemoryManager& memory;
+        std::shared_lock<Common::SharedFirstMutex> lock;
+        std::array<Window, 4> windows{};
+        u32 next{}, last{};
+        u64 reads{}, hits{}, resolves{}, fallbacks{}, verified{}, mismatches{};
+    };
+
     void SetupMemoryRegions(u64 flexible_size, bool use_extended_mem1, bool use_extended_mem2);
 
     PAddr PoolExpand(PAddr search_start, PAddr search_end, u64 size, u64 alignment);
@@ -336,6 +374,10 @@ public:
 
 private:
     void SetDirectMemoryTypeLocked(VAddr addr, u64 size, s32 memory_type);
+
+    // Callers hold `mutex` (at least shared).
+    bool TryReadSrtMemoryLocked(VAddr address, void* data, u64 size);
+    bool ResolveSrtWindow(VAddr address, u64 size, VAddr& begin, VAddr& end, const u8*& host);
 
     VMAHandle FindVMA(VAddr target) {
         return std::prev(vma_map.upper_bound(target));

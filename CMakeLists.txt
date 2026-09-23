@@ -1216,6 +1216,8 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/texture_cache/tile_manager.cpp
                src/video_core/texture_cache/tile_manager.h
                src/video_core/texture_cache/types.h
+               src/video_core/texture_cache/upload_diagnostics.cpp
+               src/video_core/texture_cache/upload_diagnostics.h
                src/video_core/cache_storage.cpp
                src/video_core/cache_storage.h
                src/video_core/page_manager.cpp

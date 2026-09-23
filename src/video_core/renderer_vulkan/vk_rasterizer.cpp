@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <atomic>
+#include <bit>
+#include <cstring>
 #include <cmath>
 
 #include "common/debug.h"
@@ -379,7 +381,13 @@ void Rasterizer::DispatchDirect() {
     }
 
     const auto& cs = pipeline->GetStage(Shader::LogicalStage::Compute);
+    if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
+        NoteDispatchDiagnostics(cs, cs_program, false);
+    }
     if (ExecuteShaderHLE(cs, liverpool->regs, cs_program, *this)) {
+        return;
+    }
+    if (TryComputeImageFill(cs, cs_program)) {
         return;
     }
 
@@ -412,6 +420,10 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
         return;
     }
 
+    if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
+        NoteDispatchDiagnostics(pipeline->GetStage(Shader::LogicalStage::Compute), cs_program,
+                                true);
+    }
     if (!BindResources(pipeline)) {
         return;
     }
@@ -697,9 +709,20 @@ bool Rasterizer::IsComputeImageCopy(const Pipeline* pipeline) {
     // Image copy must be valid
     VideoCore::Image& image0 = texture_cache.GetImage(image0_id);
     VideoCore::Image& image1 = texture_cache.GetImage(image1_id);
-    if (image0.info.guest_size != image1.info.guest_size ||
-        image0.info.pitch != image1.info.pitch || image0.info.guest_size != buf0.GetSize() ||
-        image0.info.num_bits != image1.info.num_bits) {
+    const u64 copy_size = buf0.GetSize();
+    const u64 image_size = image0.info.guest_size;
+    if (image_size != image1.info.guest_size || image0.info.pitch != image1.info.pitch ||
+        image_size > copy_size || image0.info.num_bits != image1.info.num_bits) {
+        return false;
+    }
+
+    // The copy may run past the images: allocation padding, or a stencil plane stored behind a
+    // depth plane. That tail is copied as plain memory below, which is only equivalent when no
+    // cached image lives there on the destination side.
+    const AmdGpu::Buffer& src_buf = desc0.is_written ? buf1 : buf0;
+    const AmdGpu::Buffer& dst_buf = desc0.is_written ? buf0 : buf1;
+    const u64 tail_size = copy_size - image_size;
+    if (tail_size && texture_cache.HasImageInRange(dst_buf.base_address + image_size, tail_size)) {
         return false;
     }
 
@@ -716,6 +739,29 @@ bool Rasterizer::IsComputeImageCopy(const Pipeline* pipeline) {
     }
     dst_image.flags |= VideoCore::ImageFlagBits::GpuModified;
     dst_image.flags &= ~VideoCore::ImageFlagBits::Dirty;
+
+    if (tail_size) {
+        const auto [src_buffer, src_offset] = buffer_cache.ObtainBuffer(
+            src_buf.base_address + image_size, static_cast<u32>(tail_size), false);
+        const auto [dst_buffer, dst_offset] = buffer_cache.ObtainBuffer(
+            dst_buf.base_address + image_size, static_cast<u32>(tail_size), true);
+        scheduler.EndRendering(Vulkan::RenderBreak::ImageCopy);
+        const auto cmdbuf = scheduler.CommandBuffer();
+        cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                               vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlagBits::eByRegion,
+                               vk::MemoryBarrier{.srcAccessMask = vk::AccessFlagBits::eMemoryWrite,
+                                                 .dstAccessMask = vk::AccessFlagBits::eTransferRead |
+                                                                  vk::AccessFlagBits::eTransferWrite},
+                               {}, {});
+        cmdbuf.copyBuffer(src_buffer->Handle(), dst_buffer->Handle(),
+                          vk::BufferCopy{src_offset, dst_offset, tail_size});
+        cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                               vk::PipelineStageFlagBits::eAllCommands, vk::DependencyFlagBits::eByRegion,
+                               vk::MemoryBarrier{.srcAccessMask = vk::AccessFlagBits::eTransferWrite,
+                                                 .dstAccessMask = vk::AccessFlagBits::eMemoryRead |
+                                                                  vk::AccessFlagBits::eMemoryWrite},
+                               {}, {});
+    }
     return true;
 }
 
@@ -746,25 +792,44 @@ bool Rasterizer::IsComputeImageClear(const Pipeline* pipeline) {
         return false;
     }
 
+    const auto clear_value = [&] {
+        const float* values = reinterpret_cast<float*>(buf0.base_address);
+        return vk::ClearValue{
+            .color = {.float32 = std::array<float, 4>{values[0], values[1], values[2], values[3]}},
+        };
+    };
+
     // Find image the buffer alias
     const auto image1_id =
         texture_cache.FindImageFromRange(buf1.base_address, buf1.GetSize(), false);
-    if (!image1_id) {
-        return false;
-    }
 
     // Image clear must be valid
-    VideoCore::Image& image1 = texture_cache.GetImage(image1_id);
-    if (image1.info.guest_size != buf1.GetSize() || image1.info.num_bits != buf1_bpp ||
-        image1.info.props.is_depth) {
-        return false;
+    if (!image1_id || texture_cache.GetImage(image1_id).info.guest_size != buf1.GetSize() ||
+        texture_cache.GetImage(image1_id).info.num_bits != buf1_bpp ||
+        texture_cache.GetImage(image1_id).info.props.is_depth) {
+        // Arrays and cube maps are often cleared one layer (or mip) per dispatch: clear exactly
+        // that subresource. Other subresources keep their contents, so pending uploads of the
+        // image are applied first instead of being dropped.
+        const auto slice = texture_cache.FindImageSlice(buf1.base_address, buf1.GetSize());
+        if (!slice) {
+            return false;
+        }
+        VideoCore::Image& image = texture_cache.GetImage(slice->id);
+        if (image.info.num_bits != buf1_bpp || image.info.props.is_depth ||
+            image.info.num_samples > 1) {
+            return false;
+        }
+        if (True(image.flags & VideoCore::ImageFlagBits::Dirty)) {
+            texture_cache.UpdateImage(slice->id);
+        }
+        image.Clear(clear_value(), {.base = {.level = slice->level, .layer = slice->layer},
+                            .extent = {.levels = 1, .layers = 1}});
+        image.flags |= VideoCore::ImageFlagBits::GpuModified;
+        return true;
     }
+    VideoCore::Image& image1 = texture_cache.GetImage(image1_id);
 
     // Perform image clear
-    const float* values = reinterpret_cast<float*>(buf0.base_address);
-    const vk::ClearValue clear = {
-        .color = {.float32 = std::array<float, 4>{values[0], values[1], values[2], values[3]}},
-    };
     const VideoCore::SubresourceRange range = {
         .base =
             {
@@ -773,7 +838,7 @@ bool Rasterizer::IsComputeImageClear(const Pipeline* pipeline) {
             },
         .extent = image1.info.resources,
     };
-    image1.Clear(clear, range);
+    image1.Clear(clear_value(), range);
     image1.flags |= VideoCore::ImageFlagBits::GpuModified;
     image1.flags &= ~VideoCore::ImageFlagBits::Dirty;
     return true;
@@ -867,7 +932,9 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 buffer_barriers.emplace_back(*barrier);
             }
             if (desc.is_written && desc.is_formatted) {
-                texture_cache.InvalidateMemoryFromGPU(vsharp.base_address, size);
+                texture_cache.InvalidateMemoryFromGPU(
+                    vsharp.base_address, size,
+                    VideoCore::UploadDiagnostics::DirtySource::GpuStorageWrite, stage.pgm_hash);
             }
         }
 
@@ -879,6 +946,148 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
         set_write.descriptorType = vk::DescriptorType::eStorageBuffer;
         set_write.pBufferInfo = &buffer_infos.back();
         ++binding.buffer;
+    }
+}
+
+// Pattern-fill kernel (shaped like the Gnmx toolkit clear), GCN CI encoding. Matching the
+// whole program pins its exact semantics; for i = tgid.x * 64 + tid.x:
+//   if (i < ctl[0] && i < dst.num_records) dst[i] = src[ctl[1] & i]   (src[k] = 0 past its end)
+static constexpr std::array<u32, 19> GnmxFillCode{
+    0xbeeb03ff, 0x0000000d, // s_mov_b32 vcc_hi, 13 (binary info marker)
+    0x8f6a860c,             // s_lshl_b32 vcc_lo, s12, 6
+    0xc2060900,             // s_buffer_load_dword s12, s[8:11], 0      count = ctl[0]
+    0x4a00006a,             // v_add_i32 v0, vcc, vcc_lo, v0           i
+    0xbf8c007f,             // s_waitcnt lgkmcnt(0)
+    0x7da8000c,             // v_cmpx_gt_u32 vcc, s12, v0              i < count
+    0xbf88000a,             // s_cbranch_execz end
+    0xc2040901,             // s_buffer_load_dword s8, s[8:11], 1      mask = ctl[1]
+    0xbf8c007f,             // s_waitcnt lgkmcnt(0)
+    0x36020008,             // v_and_b32 v1, s8, v0
+    0xe0002000, 0x80000101, // buffer_load_format_x v1, v1, s[0:3] idxen
+    0xd1a80000, 0x00020006, // v_cmpx_gt_u32 s[0:1], s6, v0             i < dst.num_records
+    0xbf8c0f70,             // s_waitcnt vmcnt(0)
+    0xe0102000, 0x80010100, // buffer_store_format_x v1, v0, s[4:7] idxen
+    0xbf810000,             // s_endpgm
+};
+
+bool Rasterizer::TryComputeImageFill(const Shader::Info& cs,
+                                     const AmdGpu::ComputeProgram& program) {
+    using VideoCore::UploadDiagnostics::FillOutcome;
+    // Cheap rejects first: this runs for every direct dispatch.
+    if (cs.buffers.size() != 3 || !cs.images.empty() || program.num_thread_x.full != 64 ||
+        program.start_x != 0 || program.dim_x == 0) {
+        return false;
+    }
+    const auto& ctl_desc = cs.buffers[0];
+    const auto& src_desc = cs.buffers[1];
+    const auto& dst_desc = cs.buffers[2];
+    if (ctl_desc.is_formatted || ctl_desc.is_written || !src_desc.is_formatted ||
+        src_desc.is_written || !dst_desc.is_formatted || !dst_desc.is_written ||
+        std::memcmp(program.Address<const u32*>(), GnmxFillCode.data(), sizeof(GnmxFillCode))) {
+        return false;
+    }
+    const auto fallback = [](FillOutcome outcome) {
+        VideoCore::UploadDiagnostics::NoteFill(outcome, 0, 0);
+        return false;
+    };
+    if (VideoCore::UploadDiagnostics::fill_clear_off.load(std::memory_order_relaxed)) {
+        return fallback(FillOutcome::Disabled);
+    }
+
+    // Element layout must be one plain dword per index on both sides for a bit-exact fill.
+    const AmdGpu::Buffer ctl = ctl_desc.GetSharp(cs);
+    const AmdGpu::Buffer src = src_desc.GetSharp(cs);
+    const AmdGpu::Buffer dst = dst_desc.GetSharp(cs);
+    const auto plain_dwords = [](const AmdGpu::Buffer& buffer) {
+        const auto nfmt = buffer.GetNumberFmt();
+        return buffer.GetDataFmt() == AmdGpu::DataFormat::Format32 &&
+               (nfmt == AmdGpu::NumberFormat::Uint || nfmt == AmdGpu::NumberFormat::Sint) &&
+               buffer.GetStride() == 4 && !buffer.swizzle_enable && !buffer.add_tid_enable;
+    };
+    if (!plain_dwords(dst) || (src.num_records && !plain_dwords(src)) || ctl.GetSize() < 8 ||
+        !dst.base_address) {
+        return fallback(FillOutcome::Pattern);
+    }
+    if (buffer_cache.IsRegionGpuModified(ctl.base_address, 8)) {
+        return fallback(FillOutcome::GpuResident);
+    }
+    std::array<u32, 2> control{};
+    if (!memory->TryReadSrtMemory(ctl.base_address, control.data(), sizeof(control))) {
+        return fallback(FillOutcome::Pattern);
+    }
+    const auto [count, mask] = control;
+    const u64 threads = program.num_thread_x.partial
+                            ? u64(program.dim_x - 1) * 64 + program.num_thread_x.partial
+                            : u64(program.dim_x) * 64;
+    const u64 elements = std::min<u64>({count, dst.num_records, threads});
+    if (!elements) {
+        return fallback(FillOutcome::NoImage);
+    }
+
+    // The written values repeat with period mask + 1 when that is a small power of two;
+    // with an empty source every load returns 0 whatever the mask.
+    std::array<u32, 16> pattern{};
+    u32 period = 1;
+    if (src.num_records) {
+        if (mask >= pattern.size() || !std::has_single_bit(mask + 1)) {
+            return fallback(FillOutcome::Pattern); // index follows i: a copy, not a fill
+        }
+        period = mask + 1;
+        const u32 loaded = std::min(period, src.num_records);
+        if (buffer_cache.IsRegionGpuModified(src.base_address, loaded * 4)) {
+            return fallback(FillOutcome::GpuResident);
+        }
+        for (u32 at = 0; at < loaded * 4; at += 8) {
+            if (!memory->TryReadSrtMemory(src.base_address + at,
+                                          reinterpret_cast<u8*>(pattern.data()) + at,
+                                          std::min(8u, loaded * 4 - at))) {
+                return fallback(FillOutcome::Pattern);
+            }
+        }
+    }
+
+    u32 images = 0;
+    const u64 bytes = elements * 4;
+    const auto outcome = texture_cache.ClearImagesForFill(
+        dst.base_address, bytes, std::span{pattern.data(), period}, images);
+    VideoCore::UploadDiagnostics::NoteFill(outcome, images, bytes);
+    return outcome == FillOutcome::Cleared;
+}
+
+void Rasterizer::NoteDispatchDiagnostics(const Shader::Info& cs,
+                                         const AmdGpu::ComputeProgram& program, bool indirect) {
+    boost::container::small_vector<VideoCore::UploadDiagnostics::DispatchBinding, 8> bindings;
+    bool writes_image = false;
+    for (const auto& desc : cs.buffers) {
+        if (desc.IsSpecial()) continue;
+        const auto vsharp = desc.GetSharp(cs);
+        auto& b = bindings.emplace_back();
+        b.address = vsharp.base_address;
+        b.size = vsharp.GetSize();
+        b.stride = vsharp.GetStride();
+        b.num_records = vsharp.num_records;
+        b.data_format = static_cast<u8>(vsharp.GetDataFmt());
+        b.num_format = static_cast<u8>(vsharp.GetNumberFmt());
+        b.written = desc.is_written;
+        b.formatted = desc.is_formatted;
+        if (!b.address || !b.size) continue;
+        const u64 head_size = std::min<u64>(b.size, sizeof(b.head));
+        b.gpu_resident = buffer_cache.IsRegionGpuModified(b.address, head_size);
+        if (!b.gpu_resident) {
+            b.head_valid = true;
+            for (u64 at = 0; at < head_size && b.head_valid; at += 8) {
+                b.head_valid = memory->TryReadSrtMemory(
+                    b.address + at, reinterpret_cast<u8*>(b.head.data()) + at,
+                    std::min<u64>(8, head_size - at));
+            }
+        }
+        bool base_match = false;
+        b.images = texture_cache.DescribeImagesForDiagnostics(b.address, b.size, base_match);
+        writes_image |= desc.is_written && desc.is_formatted && base_match;
+    }
+    if (writes_image) {
+        VideoCore::UploadDiagnostics::NoteDispatch(cs.pgm_hash, program.dim_x, program.dim_y,
+                                                   program.dim_z, indirect, bindings);
     }
 }
 
