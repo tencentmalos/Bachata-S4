@@ -110,6 +110,10 @@ public:
     /// Invalidates any buffer in the logical page range.
     void InvalidateMemory(VAddr device_addr, u64 size);
 
+    /// A guest write faulted on a watched page: invalidate it and release the pages the CPU is
+    /// predicted to rewrite (MemoryTracker::InvalidateRegionFromWriteFault).
+    void InvalidateMemoryFromWriteFault(VAddr device_addr, u64 size);
+
     // New backing replaces cached sparse zeros and discards writes to old holes.
     // No readback into the newly mapped allocation is permitted.
     void InvalidateMapping(VAddr device_addr, u64 size);

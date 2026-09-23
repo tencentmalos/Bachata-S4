@@ -1,0 +1,6 @@
+    status=sampled sample_ns=79705581442302 render_scale_percent=50 texture_quality=medium legacy=0 attachment_counter_version=2 attachment_draws=6018824 scaled_attachment_draws=5644060 attachment_passes=1257776 scaled_attachment_passes=891921 resumed_attachment_passes=144286 plan_entries=855 budget_native=0
+    native_pass_causes side_effects=0 msaa=0 attachment=0 mismatch=0 promotions=7 upscaled_readbacks=18417 scaled_blit_copies=0 image_buffer_syncs=18417 image_buffer_sync_bytes=230814449664 fused_readbacks=18417
+    texture_uploads count=863 bytes=891737856 fill_clears=0
+    guest_buffer_count=625 guest_buffer_allocation_bytes=498761728
+    staging_requested_bytes=268435456 stream_requested_bytes=67108864 download_requested_bytes=33554432 device_requested_bytes=134217728 bda_page_table_requested_bytes=536870912
+    gpu_watch watch_calls=274511 watch_pages=5465042 release_calls=3472136 release_pages=3528529 syscalls=4507366

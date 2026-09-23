@@ -1,0 +1,8 @@
+A watch_coalesce=on fps=23.457 draws/frame=658.1 watch_calls=29.3 watch_pages=563.8 release_calls=375.6 syscalls=404.9 cpuset=/top-app
+B watch_coalesce=off fps=23.694 draws/frame=676.1 watch_calls=30.7 watch_pages=597.9 release_calls=393.5 syscalls=991.4 cpuset=/top-app
+C watch_coalesce=on fps=23.921 draws/frame=658.2 watch_calls=29.6 watch_pages=585.7 release_calls=387.7 syscalls=417.3 cpuset=/top-app
+D watch_coalesce=off fps=23.616 draws/frame=669.4 watch_calls=30.4 watch_pages=611.5 release_calls=397.7 syscalls=1009.2 cpuset=/top-app
+E watch_coalesce=off fps=24.039 draws/frame=658.2 watch_calls=29.7 watch_pages=592.5 release_calls=388.0 syscalls=980.6 cpuset=/top-app
+F watch_coalesce=on fps=23.838 draws/frame=667.1 watch_calls=30.3 watch_pages=606.6 release_calls=394.9 syscalls=425.2 cpuset=/top-app
+G watch_coalesce=off fps=23.165 draws/frame=667.1 watch_calls=29.8 watch_pages=586.4 release_calls=386.7 syscalls=973.1 cpuset=/top-app
+H watch_coalesce=on fps=23.836 draws/frame=668.9 watch_calls=29.8 watch_pages=610.9 release_calls=398.8 syscalls=428.6 cpuset=/top-app

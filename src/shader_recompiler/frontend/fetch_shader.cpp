@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <array>
+#include <cstring>
+#include <mutex>
 #include "common/assert.h"
 #include "shader_recompiler/frontend/decode.h"
 #include "shader_recompiler/frontend/fetch_shader.h"
@@ -45,12 +48,7 @@ const u32* GetFetchShaderCode(const Info& info, u32 sgpr_base) {
     return code;
 }
 
-std::optional<FetchShaderData> ParseFetchShader(const Shader::Info& info) {
-    if (!info.has_fetch_shader) {
-        return std::nullopt;
-    }
-
-    const auto* code = GetFetchShaderCode(info, info.fetch_shader_sgpr_base);
+static FetchShaderData DecodeFetchShader(const u32* code) {
     FetchShaderData data{};
     GcnCodeSlice code_slice(code, code + std::numeric_limits<u32>::max());
     GcnDecodeContext decoder;
@@ -108,6 +106,47 @@ std::optional<FetchShaderData> ParseFetchShader(const Shader::Info& info) {
         }
     }
 
+    return data;
+}
+
+namespace {
+// Every draw rebuilds its stage specialization, which parses the vertex fetch shader, while a
+// game uses only a handful of fetch shaders. Memoize the parse per code address; an entry is
+// reused only while the guest code words it was decoded from are unchanged.
+struct FetchShaderMemo {
+    const u32* code{};
+    std::vector<u32> words;
+    FetchShaderData data;
+};
+constexpr size_t FetchShaderMemoBits = 6;
+std::mutex fetch_shader_memo_mutex;
+std::array<FetchShaderMemo, size_t{1} << FetchShaderMemoBits> fetch_shader_memo;
+
+size_t FetchShaderMemoSlot(const u32* code) {
+    return static_cast<size_t>((reinterpret_cast<uintptr_t>(code) >> 2) *
+                               0x9E3779B97F4A7C15ULL >> (64 - FetchShaderMemoBits));
+}
+} // namespace
+
+std::optional<FetchShaderData> ParseFetchShader(const Shader::Info& info) {
+    if (!info.has_fetch_shader) {
+        return std::nullopt;
+    }
+
+    const auto* code = GetFetchShaderCode(info, info.fetch_shader_sgpr_base);
+    auto& slot = fetch_shader_memo[FetchShaderMemoSlot(code)];
+    {
+        std::scoped_lock lock{fetch_shader_memo_mutex};
+        if (slot.code == code &&
+            std::memcmp(code, slot.words.data(), slot.words.size() * sizeof(u32)) == 0) {
+            return slot.data;
+        }
+    }
+    FetchShaderData data = DecodeFetchShader(code);
+    std::scoped_lock lock{fetch_shader_memo_mutex};
+    slot.code = code;
+    slot.words.assign(code, code + data.size / sizeof(u32));
+    slot.data = data;
     return data;
 }
 

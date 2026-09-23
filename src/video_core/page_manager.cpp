@@ -212,7 +212,7 @@ struct PageManager::Impl {
         if (space.IsGuestBackend() && !space.IsGpuWatchFault(addr, write))
             return false;
         if (write) {
-            return rasterizer->InvalidateMemory(addr, 8);
+            return rasterizer->InvalidateMemoryFromWriteFault(addr, 8);
         } else {
             return rasterizer->ReadMemory(addr, 8);
         }

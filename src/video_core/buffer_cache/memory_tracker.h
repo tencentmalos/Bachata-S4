@@ -110,6 +110,30 @@ public:
             });
     }
 
+    /// A guest CPU write faulted on a watched page: InvalidateRegion plus write-fault prediction
+    /// (see RegionManager::MarkWriteFault). Returns the number of pages released ahead.
+    size_t InvalidateRegionFromWriteFault(VAddr cpu_addr, u64 size, auto&& on_flush) noexcept {
+        const bool predict = predict_write_faults.load(std::memory_order_relaxed);
+        size_t predicted = 0;
+        IteratePages<false>(
+            cpu_addr, size, [&](RegionManager* manager, u64 offset, size_t bytes) {
+                const bool should_flush = [&] {
+                    std::scoped_lock lk{manager->lock};
+                    if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled &&
+                        manager->template IsRegionModified<Type::GPU>(offset, bytes)) {
+                        return true;
+                    }
+                    predicted +=
+                        manager->MarkWriteFault(manager->GetCpuAddr() + offset, bytes, predict);
+                    return false;
+                }();
+                if (should_flush) {
+                    on_flush();
+                }
+            });
+        return predicted;
+    }
+
     // Reserve staging outside ALL tracking locks, then recheck CPU dirtiness.
     // copy_range may only copy to that reservation; allocation, GPU commands,
     // waits and retirement callbacks belong in prepare or after this returns.

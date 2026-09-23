@@ -142,3 +142,51 @@ GpuComm 每帧少了约 11 ms，但帧长只少约 4 ms：批量读关闭时帧�
 - 锁频操作 38d5507c、47c235d3 第一次收尾时系统已把 `policy0/scaling_max_freq` 改为 2112000，工具判冲突未覆盖；稍后再次收尾均读回基线、状态 Cleaned（policy0 上限 2611200）。
 
 证据：`evidence/swan-bloodborne-baseline-20260921/bb-clinic-X/`（`results.txt`、`ab-fps.txt`、各轮 `*-snap1.txt` 与 `*-srt-*.txt`、`perf-off/`、`perf-on/`、`perf-fg-on/`）。
+
+## 9. 写跟踪来回：mprotect 合并、写缺页预放、fetch shader 缓存（2026-09-23 夜，run Y/Z）
+
+### 场景
+
+存档的复活点已变为诊所门口：用 DebugBus 手柄"继续"后镜头朝门，约 665 draws/帧，锁频 23.7 FPS，这时 **GPU 受限**（`gpubusy` 99%；`gpu_timing detail` 下每帧 `GPU.GuestCommands` 30.6 ms，其中 render pass 21.3 ms/115 个，每帧有一个 6.3–8 ms 的大 pass，`HostReadback` 2.4 ms、dispatch 2.1 ms）。右摇杆 +1 保持 1.5 s 转向诊所内部，即回到 CPU 受限的重指纹（1540–1600 draws/帧）。脚本：`tools/launch_bb_pad.sh` 后 `pad.sh none 1500 0 0 1 0`。下面除特别注明外都是诊所内部视角、锁频 `swan-evt-legacy`、同会话交替 A/B（10 s/轮，8 轮）。
+
+### 发现
+
+- Android guest runtime 的 `ProtectGpu`（`guest_runtime.cpp`）对每个 4 KiB 页单独调一次 `mprotect`，PageManager 已经合并好的连续段在这里又被拆开。诊所每帧 watch 约 1600 页、只有约 70 次调用，加上缺页释放，合计约 3140 次 `mprotect`/帧。
+- guest 线程每帧约 **1250 次写缺页**，每次只放 1 页，而同一批页 79% 下一帧又被写。simpleperf（15 s）显示缺页路径占其它 guest 线程 on-CPU 的 **15.8%**、Guest-1 的 8.8%；用户态处理里 74% 是 `BufferCache::InvalidateMemory → mprotect`（`change_protection`、`vma_interval_tree_insert` 即单页解保护把 VMA 劈成三段、`rwsem_spin_on_owner` 6.8% 即 mmap_lock 争用）。
+- GpuComm 每个 draw 都通过 `StageSpecialization` 重新解码 fetch shader 的 GCN 指令（`ParseFetchShader` 占 `StageSpecialization` 的 54%）。
+
+### 实现
+
+1. **按段 `mprotect`**：`ProtectGpu` 对同一结果权限的连续页一次调用；每页仍先发布状态再保护，遇到被拒的页先保护之前已发布的段再抛出，与逐页版本的可见状态一致。`upload_diag watch_coalesce off` 回到逐页，`gpu_memory status` 新增 `gpu_watch watch_calls/watch_pages/release_calls/release_pages/syscalls/predicted_pages`。
+2. **写缺页预放**：`RegionManager` 每页 2 位写置信度（真实缺页置 3；被预放的一轮无法观察是否真的写过，减 1；因其它原因变脏置 0），缺页时从缺页页往后、在 64 页窗口内放开连续的"有置信度、仍被 watch、未被 GPU 写"的页（已脏页跳过，碰到 GPU 写过或无置信度的页停止），与缺页页一起一次解保护。预测错的代价只是把未变的 guest 内存多传一次；GPU 写过的页绝不预放。只作用于信号处理的写缺页（`Rasterizer::InvalidateMemoryFromWriteFault`），HLE/文件写入仍走原 `InvalidateMemory`。`upload_diag watch_predict off` 关闭。
+3. **fetch shader 解析缓存**：按代码地址直映射 64 项，命中前逐字节比对当初解码的原始代码字（含结尾 `s_setpc`），内容一变就重新解析；结果与原路径一致。
+
+### 结果
+
+| 改动 | 开 | 关 | 计数 |
+|---|---|---|---|
+| 按段 mprotect（诊所） | 17.19/17.04/17.06/16.98，均值 **17.07** | 16.32/16.37/16.34/16.08，均值 16.28 | syscall 3140→1330/帧，+4.9%，每轮开均高于关 |
+| 按段 mprotect（门口，GPU 受限） | 23.76 | 23.63 | 在噪声内；simpleperf GpuComm `ProtectGpu` 8.6%→2.4%，on-CPU −6.8% |
+| 预放 v1：整窗口、写过即永久预测 | 17.10 | 16.89 | 缺页 1255→50/帧，但预放 2500 页/帧，watch 1620→2600 页/帧（多传 ~4 MB/帧），+1.2% |
+| 预放 v2：2 位置信度、整窗口（该轮全程 `/foreground`） | 14.40 | 13.64 | 缺页 1210→690，watch 1620→2520，+5.6%（只有 4 个核时省下工作线程时间有用） |
+| **预放 v3（采用）**：2 位置信度、只向前连续段（`/top-app`） | 16.62/17.13/17.28/17.18，均值 17.05 | 17.09/17.09/17.02/17.08，均值 17.07 | 缺页 1250→430（−66%），watch 1630→1760（+8%）；**FPS 无差异** |
+| fetch shader 缓存（无开关） | 17.14/17.31/17.34 | — | `StageSpecialization` 6.2%→3.4%、`GetProgram` 18.6%→15.8%，GpuComm on-CPU −2.3% |
+
+缺页路径的 CPU 占用（simpleperf）：v3 前其它 guest 线程 339 ms/s、Guest-1 57 ms/s；v3 后 163 ms/s、24 ms/s。
+
+PROF（v3，fetch 缓存前，15 s）逐帧：帧长 **57.6 ms**、GpuComm `PM4.Resume` 53.4 ms（r=0.86）、Guest-1 活跃 45.7 ms（r=0.83）、owner 等待 23.1 ms；run X 为 64.2 / 56.4 / 50.6 ms。
+
+### 结论与下一步
+
+- 按段 `mprotect` 是本轮唯一在 `/top-app` 下稳定提帧的改动（+4.9%）。写缺页预放在 `/top-app` 下不提帧——省下的是工作线程的时间，不在关键路径上——但把缺页与 mmap_lock 争用降了三分之二，在只有 4 个核的 `/foreground` 状态下有益，保留默认开启。
+- GpuComm 仍约 49 ms/帧 on-CPU、占帧长 93%，成本已经很分散：`GetProgram` 15.8%（SRT 扁平化 8.5%、`StageSpecialization` 3.4%）、`BindResources` 24%（`BindTextures` 11%：每个 draw 从 sharp 重建 `ImageInfo`（`UpdateSize`）再 `FindImage`、`Transit`；`BindBuffers` 10%：小 UBO 每个 draw 走 stream buffer memcpy）、`ObtainBuffer` 15%、PM4 解码 11.5%、Turnip 约 18%。
+- 下一步候选：按 sharp 缓存纹理绑定（需要与纹理失效/销毁联动）、小 UBO 按内容去重、门口视角那个 6–8 ms 的大 render pass（需 RenderDoc 定位）。
+
+### 过程记录
+
+- 第一次安装后误把 run Y 放在 `swan-baseline-20260921/` 下，已移到 `swan-bloodborne-20260923/`。
+- Z2 轮 launcher 被杀，全程 `/foreground`；同会话对比有效，绝对值不能与其它轮比。
+- 多次锁频收尾时系统把 `policy0/scaling_max_freq` 改成 1996800/2112000/2227200，工具判冲突未覆盖；稍后重试均读回基线、Cleaned。
+- 快照文件只保留计数行（`status=sampled`、`texture_uploads`、`gpu_watch` 等）。
+
+证据：`evidence/swan-bloodborne-baseline-20260921/bb-clinic-YZ/`（`bb-clinic-Y/ab-watch*`、`perf-watch-on|off`、`perf-clinic-on/fault-path.txt`、`subtree-fault.txt`；`bb-clinic-Z*/ab-predict/ab-fps.txt`；`bb-clinic-Z3/perf-on/`；`bb-clinic-Z4/`），脚本 `tools/ab_watch.sh`、`ab_knob.sh`、`perf_faults.py`、`launch_bb_pad.sh`。

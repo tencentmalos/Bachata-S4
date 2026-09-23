@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <atomic>
 #include "common/bit_array.h"
 #include "common/types.h"
 
@@ -28,5 +29,10 @@ enum class Type {
 };
 
 using RegionBits = Common::BitArray<NUM_PAGES_PER_REGION>;
+
+// A CPU write fault also releases the following watched pages of its 64-page window that the CPU
+// is expected to rewrite (streaming data is rewritten every frame). Diagnostic switch.
+constexpr u64 WRITE_FAULT_WINDOW_PAGES = 64;
+inline std::atomic<bool> predict_write_faults{true};
 
 } // namespace VideoCore

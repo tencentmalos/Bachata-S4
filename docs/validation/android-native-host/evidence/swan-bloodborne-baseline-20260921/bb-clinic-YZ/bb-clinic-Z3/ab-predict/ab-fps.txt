@@ -1,0 +1,8 @@
+A watch_predict=on fps=16.62 draws/frame=1561.5 watch_calls=76.1 watch_pages=1701.6 release_calls=420.5 syscalls=496.6 predicted=990.8 cpuset=/top-app
+B watch_predict=off fps=17.091 draws/frame=1560.7 watch_calls=70.3 watch_pages=1635.2 release_calls=1250.5 syscalls=1320.8 predicted=0.0 cpuset=/top-app
+C watch_predict=on fps=17.128 draws/frame=1575.4 watch_calls=75.0 watch_pages=1792.9 release_calls=437.6 syscalls=512.6 predicted=1074.7 cpuset=/top-app
+D watch_predict=off fps=17.089 draws/frame=1553.5 watch_calls=69.9 watch_pages=1626.4 release_calls=1250.4 syscalls=1320.2 predicted=0.0 cpuset=/top-app
+E watch_predict=off fps=17.022 draws/frame=1574.8 watch_calls=71.2 watch_pages=1630.1 release_calls=1258.4 syscalls=1329.7 predicted=0.0 cpuset=/top-app
+F watch_predict=on fps=17.278 draws/frame=1566.6 watch_calls=75.2 watch_pages=1783.0 release_calls=432.0 syscalls=507.2 predicted=1086.0 cpuset=/top-app
+G watch_predict=off fps=17.079 draws/frame=1560.5 watch_calls=69.7 watch_pages=1607.6 release_calls=1245.4 syscalls=1315.0 predicted=0.0 cpuset=/top-app
+H watch_predict=on fps=17.176 draws/frame=1545.5 watch_calls=75.1 watch_pages=1775.3 release_calls=427.7 syscalls=502.8 predicted=1073.6 cpuset=/top-app

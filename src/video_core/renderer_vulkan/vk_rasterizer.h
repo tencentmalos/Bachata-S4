@@ -67,6 +67,8 @@ public:
     void CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, bool src_gds);
     u32 ReadDataFromGds(u32 gsd_offset);
     bool InvalidateMemory(VAddr addr, u64 size) override;
+    /// Guest write fault on a GPU-watched page (PageManager signal handler).
+    bool InvalidateMemoryFromWriteFault(VAddr addr, u64 size);
     bool ReadMemory(VAddr addr, u64 size);
     void ProcessDownloadImages();
     bool IsMapped(VAddr addr, u64 size);

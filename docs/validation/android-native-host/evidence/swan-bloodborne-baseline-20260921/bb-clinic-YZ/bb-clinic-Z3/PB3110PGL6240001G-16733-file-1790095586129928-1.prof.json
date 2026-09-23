@@ -1,0 +1,147 @@
+{
+  "capture_complete": true,
+  "capture_error": "",
+  "capture_id": 1,
+  "gpu_cpu_alignment": "unknown",
+  "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+  "max_mib": 64,
+  "max_seconds": 15,
+  "mode": "file",
+  "process": "shadPS4",
+  "process_id": 16733,
+  "schema": "foundation.profiler-capture.v1",
+  "sdk_revision": "e00321ea40c4c608aff74a787200bc59493eea19",
+  "streaming_backpressure_timeout_ns": 0,
+  "wire_layout": "PROF-v3-track-id",
+  "capture_identity": {
+    "serial": "PB3110PGL6240001G",
+    "package": "com.shadps4.android",
+    "pid": "16733",
+    "capture_id": "1",
+    "errors": {
+      "gpu_timing status": "hle_sync sample contains no JSON object",
+      "gpu_memory status": "hle_sync sample contains no JSON object",
+      "gpu_memory request": "hle_sync sample contains no JSON object",
+      "profiler_ring status": "hle_sync sample contains no JSON object",
+      "profiler_capture status": "hle_sync sample contains no JSON object"
+    },
+    "session": {
+      "Client": "",
+      "session": "active",
+      "generation": "1",
+      "pid": "16733",
+      "phase": "3",
+      "run_uuid": "6e9e5cdcf4e68ea6e48f8bb3175e767a",
+      "stage": "Running",
+      "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+      "snapshot_ns": "82264041951743",
+      "guest_flip": "7577 (age_ns=55171719)",
+      "pm4_consumed": "225171323 (age_ns=8125)",
+      "host_draw": "7181154 (age_ns=10573)",
+      "queue_submit": "32448 (age_ns=47844844)",
+      "gpu_retire": "unavailable",
+      "host_present": "7577 (age_ns=47571354)",
+      "overlay_redraw": "12435 (age_ns=48962448)",
+      "guest_submission": "72337 (age_ns=43744479)"
+    },
+    "properties": {
+      "debug.shadps4.profile_sync": "",
+      "debug.shadps4.scale_side_effect_passes": "0",
+      "debug.shadps4.shader_dump": "",
+      "debug.shadps4.sync_fastpath": ""
+    },
+    "emulator_status_json": {
+      "hle_sync status": {
+        "schema": 1,
+        "session": 1,
+        "context": 1,
+        "timestamp_ns": 82264125562472,
+        "enabled": false,
+        "detail": false,
+        "shards": 0,
+        "untracked_calls": 0,
+        "emission_failures": 0,
+        "fast_path": "installed",
+        "semantics": "session cumulative; rolling snapshot; completed inclusive elapsed includes waits, not CPU or critical path; start/stop does not reset; in-flight calls finish in their original sample",
+        "histogram_upper_ns": [
+          1000,
+          10000,
+          100000,
+          1000000,
+          16000000,
+          null
+        ],
+        "operations": []
+      }
+    },
+    "fast_path": "installed",
+    "build_ids": {
+      "apk_path": "/data/app/~~KpZog9MEzysCgawI9IHzrw==/com.shadps4.android-7u6bOd82sEaT8MxuGczc9w==/base.apk",
+      "apk_sha256": "67861a1ed6980c25eefca29881ba3a9fcc87d4d98046b73c8d3ad6e0075160f2",
+      "apk_bytes": 360061247,
+      "abi": "arm64-v8a",
+      "libraries": {
+        "libandroidx.graphics.path.so": {
+          "build_id": "a7846ae06d6bf6cf63fa7c5e056b5de493c71567",
+          "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+          "bytes": 10096
+        },
+        "libbachata_pkg.so": {
+          "build_id": "35b8fb00607ab88c84d8994294691c69e0452836",
+          "sha256": "308f82e1caadd52ab70bd2a1d5bc32c37264ee5d59a6e7dc8b114fcd519c7eb4",
+          "bytes": 1116312
+        },
+        "libc\u002B\u002B_shared.so": {
+          "build_id": "ba615e4ff75bc2d8ba1eee93f983e02bc427c433",
+          "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+          "bytes": 9290184
+        },
+        "libdatastore_shared_counter.so": {
+          "build_id": "17db37bd6770ac00dd2d1d2828839fd23a7959a3",
+          "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1",
+          "bytes": 7112
+        },
+        "libfile_redirect_hook.so": {
+          "build_id": "31b43daa856e0baeee442c176b1b68ea6fd4d982",
+          "sha256": "d3956501e1937fb2bef0b9f86a4d070d22c918711e4533a5e953c4a7aea024fb",
+          "bytes": 7128
+        },
+        "libgsl_alloc_hook.so": {
+          "build_id": "c50fe436b75e643a9e848ce59d5ca32848e00ff3",
+          "sha256": "b6f38ccc30973ba4c90c13d489de16982ef9d3347f594d49d0e4e13ce98a983d",
+          "bytes": 8448
+        },
+        "libhook_impl.so": {
+          "build_id": "8a0a2a7284d9e0347e27e21daace73aa43727c96",
+          "sha256": "b58cc472e3d7866af5ffdfe1f4ce59c862fd46805a84afd4fda98ce917e41a0e",
+          "bytes": 151416
+        },
+        "libmain_hook.so": {
+          "build_id": "6708e60b2571b56e95d77971b877d02dcd4571cd",
+          "sha256": "fdd75da175ca042458b191512b5614bb454a7678b103f25087adc8a573af1528",
+          "bytes": 8720
+        },
+        "libshadps4_fex_session.so": {
+          "build_id": "e2fcfeeafefa388af936fe22fc2b68d87b3c0e27",
+          "sha256": "932782f4382c852a1784310a370178be5649c0ed47d79ed212dfba05025461e0",
+          "bytes": 35077360
+        },
+        "libshadps4_host.so": {
+          "build_id": "92bfea725f5b603f8bfd1ebbdc53e70739510342",
+          "sha256": "d1bf6b8846b7d469280a74279fde06dacb472e871aa454d227ba5ec99bbd9c7b",
+          "bytes": 494830872
+        }
+      },
+      "versionName": "0.1.8",
+      "versionCode": "26081400 minSdk",
+      "lastUpdateTime": "2026-09-23 00:40:32",
+      "codePath": "/data/app/~~KpZog9MEzysCgawI9IHzrw==/com.shadps4.android-7u6bOd82sEaT8MxuGczc9w==",
+      "primaryCpuAbi": "arm64-v8a",
+      "roles": {
+        "host": null,
+        "jni": null
+      }
+    }
+  },
+  "sha256": "0e17e08d3e58f9635fcbb61289a06a3bcd9af84143fffc777953f271f276ab9f"
+}

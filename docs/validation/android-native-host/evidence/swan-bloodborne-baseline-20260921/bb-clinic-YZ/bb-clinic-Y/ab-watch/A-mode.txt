@@ -1,0 +1,2 @@
+    watch_coalesce=on (GPU write-watch mprotect per run of pages)
+
