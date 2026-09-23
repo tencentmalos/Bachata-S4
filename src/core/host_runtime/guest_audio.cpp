@@ -259,7 +259,8 @@ struct GuestAudio::Impl {
             port.native.last_output_time = clock.ticks.GetTimeUS(clock.origin);
         }
     }
-    u64 Output(std::string_view nid, const std::array<u64, 6>& a, std::stop_token stop) {
+    u64 Output(std::string_view nid, const std::array<u64, 6>& a, std::stop_token stop,
+               std::optional<std::span<const u8>> host = {}, bool nonblocking = false) {
         struct Request { u32 handle, padding; u64 address; };
         std::array<Request, 25> requests{};
         std::array<std::shared_ptr<Port>, 25> selected{};
@@ -270,7 +271,7 @@ struct GuestAudio::Impl {
         if (multi) {
 
             Read(a[0], std::span<u8>(reinterpret_cast<u8*>(requests.data()), count * sizeof(Request)));
-        } else requests[0] = {u32(a[0]), 0, a[1]};
+        } else requests[0] = {u32(a[0]), 0, host ? !host->empty() : a[1]};
         bool callback{};
         PortBackend* publication{};
         {
@@ -292,11 +293,13 @@ struct GuestAudio::Impl {
                 selected[i] = std::move(port);
             }
         }
+        if (host) Require(host->empty() || host->size() == selected[0]->native.BufferSize(),
+                          ORBIS_AUDIO_OUT_ERROR_INVALID_SIZE);
         // Fail bad pointers before any queue wait, then release the pins. The
         // input is pinned again at acceptance so no lease/VM gate spans a wait.
         {
 
-            for (u32 i = 0; i < count; ++i) if (requests[i].address) {
+            for (u32 i = 0; i < count; ++i) if (!host && requests[i].address) {
                     auto pin = space.AcquireDataSpan(
                         {GuestAddress{requests[i].address}, selected[i]->native.BufferSize()},
                         false);
@@ -318,6 +321,7 @@ struct GuestAudio::Impl {
         for (;;) {
             {
                 std::unique_lock lock(mutex);
+                Require(!nonblocking || ready(), ORBIS_AUDIO_OUT_ERROR_BUSY);
                 Common::Profiler::Scope profile{"Audio.QueueWait"};
                 // Realtime consumer never locks/notifies this condition. Poll
                 // its release counters only while a guest producer is waiting.
@@ -339,7 +343,7 @@ struct GuestAudio::Impl {
             std::array<std::optional<PinnedSpan>, 25> pins;
             std::vector<GuestAddressSpace::DataRequest> inputs;
             for (u32 i = 0; i < count; ++i)
-                if (requests[i].address)
+                if (!host && requests[i].address)
                     inputs.push_back(
                         {{GuestAddress{requests[i].address}, selected[i]->native.BufferSize()},
                          GuestPermission::Read});
@@ -347,16 +351,16 @@ struct GuestAudio::Impl {
             Require(bool(pinned), ORBIS_AUDIO_OUT_ERROR_INVALID_POINTER);
             size_t pin_index{};
             for (u32 i = 0; i < count; ++i)
-                if (requests[i].address)
+                if (!host && requests[i].address)
                     pins[i].emplace(std::move(pinned.Value()[pin_index++]));
-            for (u32 i = 0; i < count; ++i) if (pins[i]) {
+            for (u32 i = 0; i < count; ++i) if (requests[i].address) {
                 auto& port = *selected[i];
                 if (port.callback) {
                     auto& block = port.prepared[port.accepted % port.prepared.size()];
-                    port.native.impl->Prepare(pins[i]->Bytes().data(), port.native.volume, block);
+                    port.native.impl->Prepare((host ? host->data() : reinterpret_cast<const u8*>(pins[i]->Bytes().data())), port.native.volume, block);
                 } else {
                     auto& block = port.pending[(port.head + port.queued) % Port::Capacity];
-                    std::memcpy(block.data(), pins[i]->Bytes().data(), block.size());
+                    std::memcpy(block.data(), (host ? host->data() : reinterpret_cast<const u8*>(pins[i]->Bytes().data())), block.size());
                 }
             }
             struct PublishBatch {
@@ -366,7 +370,7 @@ struct GuestAudio::Impl {
             } batch{publication, publication ? publication->BeginQueueBatch() : 0};
             // From here no fallible guest memory operation remains. Closing is
             // serialized here; callback consumption can only increase credits.
-            for (u32 i = 0; i < count; ++i) if (pins[i]) {
+            for (u32 i = 0; i < count; ++i) if (requests[i].address) {
                 auto& port = *selected[i];
                 if (port.callback) {
                     auto& block = port.prepared[port.accepted % port.prepared.size()];
@@ -466,6 +470,12 @@ GuestAudio::GuestAudio(GuestAddressSpace& space, GuestClock& clock, Factory fact
 GuestAudio::~GuestAudio() = default;
 u64 GuestAudio::Dispatch(std::string_view nid, const std::array<u64, 6>& a, std::stop_token stop) {
     return impl->Dispatch(nid, a, stop);
+}
+u64 GuestAudio::OutputHost(u32 handle, std::span<const u8> pcm, std::stop_token stop, bool nonblocking) {
+    try { return impl->Output("QOQtbeDqsT4", {handle}, stop, pcm, nonblocking); }
+    catch (AudioFailure e) { return u32(e.error); }
+    catch (const std::bad_alloc&) { return u32(ORBIS_AUDIO_OUT_ERROR_OUT_OF_MEMORY); }
+    catch (const std::exception&) { return u32(ORBIS_AUDIO_OUT_ERROR_TRANS_EVENT); }
 }
 void GuestAudio::RequestStop() {
     impl->Stop();

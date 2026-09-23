@@ -131,6 +131,17 @@ class FexSessionService : Service() {
                 Log.w(TAG, "Invalid texture profile, using high quality", it)
                 com.shadps4.android.runtime.settings.TextureQuality.DEFAULT
             }
+            val silentDialogs = runCatching {
+                com.shadps4.android.runtime.settings.SilentDialogs.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid silent dialog profile, preserving interactive prompts", it)
+                false
+            }
+            NativeFexSession.nativeSetSilentDialogs(silentDialogs)
+            Log.i(TAG, "Guest silent dialogs=$silentDialogs")
             val disableMsaa = runCatching {
                 com.shadps4.android.runtime.settings.ForceDisableMsaa.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),

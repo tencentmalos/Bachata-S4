@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "uncommitted": true,
+  "installed_rwlock_fix": {
+    "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/mhr-device-20260922/shadps4-mhr-rwlock-fixed.apk",
+    "bytes": 205112048,
+    "sha256": "f91cdcf00349f984e27bb36aa1e75de01b2b4d3a68f5445d54813d05d4a45edd",
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_fex_session.so": "fdeeb724da01084d04ab8ce5ed9ed370c59fe1a5733b98d351ab3a98f9d4fee9",
+      "lib/arm64-v8a/libshadps4_host.so": "daf83da7b3df606d34afd0c0d02d9690bd460acfc3c6db1134c7e7ce1cc49678"
+    }
+  },
+  "tls_fix_implemented": false,
+  "playable": false,
+  "final_device_state": "See ../mhw-dlc-silent-20260922/manifest.json; device leased to OCR task",
+  "evidence": [
+    {
+      "path": "build/validation/mhr-device-20260922/allocator-entry.asm",
+      "bytes": 22638,
+      "sha256": "a7a332968d7c88e17f9798ce1da95a84dd4e35d3547dff43b51eeedf6424ae35"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/allocator-spin.asm",
+      "bytes": 5918,
+      "sha256": "f9b997ce0c55621c34db399d27e9de9be9d2fb1cd4ce6a80186c42dab3d2c665"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/before-config.tar",
+      "bytes": 8192,
+      "sha256": "2a1df4d17a7595bfb14435b7a2ec0cb9f9b005ccb4566a0502b207a9b2bda84b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/before-savedata.tar",
+      "bytes": 32147456,
+      "sha256": "0b6b253c5bf6050772ef833a748da58390ff8309667a5ec0bdf621a79f51bf7a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/guest-tls-evidence.json",
+      "bytes": 853595,
+      "sha256": "e96405f3093217e8b24cfd122a06a931b6522888b6d5d8727b159e964edc709b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/import-summary.json",
+      "bytes": 18903,
+      "sha256": "7b61a81f76d2c7c19b01bc84c26a7536bd7ca3221c5b748a82dabc935f294988"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/installed-fixed.json",
+      "bytes": 477,
+      "sha256": "640440fa9d7f4d7d085adac101f821295d7638e245f53876f1e06f862bd0e49e"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/installed.json",
+      "bytes": 274,
+      "sha256": "2d659e11254fc5720fa0d4d892b51b658306fd3b76c9c4176fae7dce78e9030b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/json2.json",
+      "bytes": 222,
+      "sha256": "8feadf3ebe0fcfef9a483c5324189a75b48deb456fcd43f5a3617421333dd2d5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/mhw-quiet-msg.json",
+      "bytes": 741,
+      "sha256": "4f81cd848f0dfe43cf2206b085cd505db60c2f003b847505f69048845cbe5f8a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/mhw-webapi.json",
+      "bytes": 744,
+      "sha256": "a722e8481bec22339dd1d6c1b4915b269157e4b7f7a590a4864f240e18e30e28"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/rwlock-diagnostics-fixed.json",
+      "bytes": 749,
+      "sha256": "28e10c4464357e33b4ac4c2e7a01c5b6be0d084d6e443478f7c9eaf96e7e0548"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/rwlock-fixed.json",
+      "bytes": 737,
+      "sha256": "5a32cdf6b965ef368c520dba245de630f0181b5b6a4ca5a732035078c68b81cb"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/rwlock-negative.json",
+      "bytes": 737,
+      "sha256": "40993cb8af0455d016dea628f2aa53ad731e50f150796993744e13ba8abd6e18"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/rwlock-slot-summary.json",
+      "bytes": 41082,
+      "sha256": "00687e5944907a72d3bc53696a7e6c2bcb68ed7eb05a49512499315a9f80618b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/shadps4-mhr-rwlock-fixed.apk",
+      "bytes": 205112048,
+      "sha256": "f91cdcf00349f984e27bb36aa1e75de01b2b4d3a68f5445d54813d05d4a45edd"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/tests.json",
+      "bytes": 802,
+      "sha256": "da458b6e6c36cf30b077aea3c3907ea8b9648adee394ed32ad6b618640b778d5"
+    }
+  ]
+}

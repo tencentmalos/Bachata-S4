@@ -1,0 +1,23 @@
+{
+  "results": {
+    "old-backing": {
+      "returncode": 1,
+      "command": "cd /data/local/tmp/backing-write-1790076045301211000/old && LD_LIBRARY_PATH=. ./guest_memory_manager_concurrency_tests --backing-only"
+    },
+    "new-backing": {
+      "returncode": 0,
+      "command": "cd /data/local/tmp/backing-write-1790076045301211000/new && LD_LIBRARY_PATH=. ./guest_memory_manager_concurrency_tests --backing-only"
+    },
+    "new-full": {
+      "returncode": 0,
+      "command": "cd /data/local/tmp/backing-write-1790076045301211000/new && LD_LIBRARY_PATH=. ./guest_memory_manager_concurrency_tests"
+    }
+  },
+  "files": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33-sbs-20260919-r29/native/guest_memory_manager_concurrency_tests": "f7d8e5dfc867921f7b6a39e2fd75f50c6c21507961923fb9f88233ce87ee2429",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/backing-write-20260922/old-host.so": "33825d4e9163bc57d8e8e61d966a6465aa94d9c12d0063be70ec8eef26d6ffae",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33-sbs-20260919-r29/native/libshadps4_host.so": "a1d24cae5317381cafba0d9330b603ff4a7796eaa00c4f026f69a36a3eb58e25",
+    "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "remote": "/data/local/tmp/backing-write-1790076045301211000"
+}

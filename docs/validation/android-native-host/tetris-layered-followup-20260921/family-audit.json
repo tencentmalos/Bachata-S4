@@ -1,0 +1,2740 @@
+{
+  "libSceAjm": [
+    {
+      "symbol": "WfAiBW8Wcek#libSceAjm#1#libSceAjm#Function",
+      "name": "sceAjmBatchErrorDump",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "MHur6qCsUus#libSceAjm#1#libSceAjm#Function",
+      "name": "sceAjmFinalize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "Wi7DtlLV+KI#libSceAjm#1#libSceAjm#Function",
+      "name": "sceAjmModuleUnregister",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "AxhcqVv5AYU#libSceAjm#1#libSceAjm#Function",
+      "name": "sceAjmStrError",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceAudio3d": [
+    {
+      "symbol": "9tEwE0GV0qo#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dBedWrite",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "UmCvjSmuZIw#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "jO2tec4dJ2M#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dObjectReserve",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "4uyHN9q4ZeU#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dObjectSetAttributes",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "1HXxo-+1qCw#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dObjectUnreserve",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "lw0qrdSjZt8#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dPortAdvance",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "OyVqOeVNtSk#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dPortClose",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "YaaDbDwKpFM#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dPortGetQueueLevel",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "XeDDK0xJWQA#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dPortOpen",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "VEVhZ9qd4ZY#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dPortPush",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "Yq9bfUQ0uJg#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dPortSetAttribute",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "WW1TS2iz5yc#libSceAudio3d#1#libSceAudio3d#Function",
+      "name": "sceAudio3dTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "sceaudio3d.prx"
+      ]
+    }
+  ],
+  "libSceAvPlayer": [
+    {
+      "symbol": "BOVKAzRmuTQ#libSceAvPlayer#1#libSceAvPlayer#Function",
+      "name": "sceAvPlayerDisableStream",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "XC9wM+xULz8#libSceAvPlayer#1#libSceAvPlayer#Function",
+      "name": "sceAvPlayerJumpToTime",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "av8Z++94rs0#libSceAvPlayer#1#libSceAvPlayer#Function",
+      "name": "sceAvPlayerSetTrickSpeed",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceContentExport": [
+    {
+      "symbol": "tb3cZTCl8Ps#libSceContentExport#1#libSceContentExport#Function",
+      "name": "sceContentExportFinish",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "OWCJUmrWH1g#libSceContentExport#1#libSceContentExport#Function",
+      "name": "sceContentExportFromFile",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "0GnN4QCgIfs#libSceContentExport#1#libSceContentExport#Function",
+      "name": "sceContentExportInit2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "FCygF4Ec4so#libSceContentExport#1#libSceContentExport#Function",
+      "name": "sceContentExportStart",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "+KDWny9Y-6k#libSceContentExport#1#libSceContentExport#Function",
+      "name": "sceContentExportTerm",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceGameLiveStreaming": [
+    {
+      "symbol": "dWM80AX39o4#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+      "name": "sceGameLiveStreamingEnableLiveStreaming",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "lK8dLBNp9OE#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+      "name": "sceGameLiveStreamingGetCurrentStatus2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "OIIm19xu+NM#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+      "name": "sceGameLiveStreamingGetProgramInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "kvYEw2lBndk#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+      "name": "sceGameLiveStreamingInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "9yK6Fk8mKOQ#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+      "name": "sceGameLiveStreamingTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceGnmDriver": [
+    {
+      "symbol": "EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmComputeWaitSemaphore",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmDestroyWorkloadStream",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmDrawIndexMultiInstanced",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmDrawIndirectCountMulti",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmDrawOpaqueAuto",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmFindResourcesPublic",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetGpuBlockStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetGpuInfoStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetLastWaitedAddress",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetNumTcaUnits",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetOwnerName",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetPhysicalCounterFromVirtualized",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetProtectionFaultTimeStamp",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetResourceBaseAddressAndSizeInBytes",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetResourceName",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetResourceShaderGuid",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetResourceType",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetResourceUserData",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetShaderProgramBaseAddress",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmGetShaderStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmLogicalTcaUnitToPhysical",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmRequestFlipAndSubmitDoneForWorkload",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmSetResourceRegistrationUserMemory",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmSetResourceUserData",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmSetWaveLimitMultipliers",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "SXw4dZEkgpA#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateDisableDiagnostics",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "BgM3t3LvcNk#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateDisableDiagnostics2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "qGP74T5OWJc#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateDispatchCommandBuffers",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "hsZPf1lON7E#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateDrawCommandBuffers",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "RX7XCNSaL6I#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateGetDiagnosticInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "5SHGNwLXBV4#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateGetDiagnostics",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "HzMN7ANqYEc#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateGetVersion",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "rTIV11nMQuM#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateOnSubmitEnabled",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "MBMa6EFu4Ko#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidateResetState",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "Q7t4VEYLafI#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceGnmValidationRegisterMemoryCheckCallback",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceRazorCaptureImmediate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function",
+      "name": "sceRazorIsLoaded",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceHttp": [
+    {
+      "symbol": "16sMmVuOvgU#libSceHttp#1#libSceHttp#Function",
+      "name": "sceHttpGetMemoryPoolStats",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceInvitationDialog": [
+    {
+      "symbol": "XvA5KS56wcs#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+      "name": "sceInvitationDialogInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "sAxbHhAWMXM#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+      "name": "sceInvitationDialogOpenA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "B6HVJtDYxEE#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+      "name": "sceInvitationDialogTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "9+g9iOq+7kg#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+      "name": "sceInvitationDialogUpdateStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "WuuUhuKOxwQ#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+      "name": "sceInvitationDialogGetResultA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNet": [
+    {
+      "symbol": "6Oc0bLsIYe0#libSceNet#1#libSceNet#Function",
+      "name": "sceNetGetMacAddress",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "hLuXdjHnhiI#libSceNet#1#libSceNet#Function",
+      "name": "sceNetGetSockInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "RCCY01Xd+58#libSceNet#1#libSceNet#Function",
+      "name": "sceNetResolverStartNtoaMultipleRecords",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "rMyh97BU5pY#libSceNet#1#libSceNet#Function",
+      "name": "sceNetGetMemoryPoolStats",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Apb4YDxKsRI#libSceNet#1#libSceNet#Function",
+      "name": "sceNetResolverStartAton",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    }
+  ],
+  "libSceNgs2": [
+    {
+      "symbol": "3pCNbVM11UA#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2CalcWaveformBlock",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "gbMKV+8Enuo#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2PanGetVolumeMatrix",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "xa8oL9dmXkM#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2PanInit",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "hyVLT2VlOYk#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2ParseWaveformData",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "U546k6orxQo#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2RackCreateWithAllocator",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "lCqD7oycmIM#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2RackDestroy",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "MwmHz8pAdAo#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2RackGetVoiceHandle",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "mPYgU4oYpuY#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2SystemCreateWithAllocator",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "u-WrYDaJA3k#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2SystemDestroy",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "i0VnXM-C9fc#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2SystemRender",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "uu94irFOGpA#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2VoiceControl",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "-TOuuAQ-buE#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2VoiceGetState",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "rEh728kXk3w#libSceNgs2#1#libSceNgs2#Function",
+      "name": "sceNgs2VoiceGetStateFlags",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceNpAuth": [
+    {
+      "symbol": "cE7wIsqXdZ8#libSceNpAuth#1#libSceNpAuth#Function",
+      "name": "sceNpAuthAbortRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "6bwFkosYRQg#libSceNpAuth#1#libSceNpAuth#Function",
+      "name": "sceNpAuthCreateRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "H8wG9Bk-nPc#libSceNpAuth#1#libSceNpAuth#Function",
+      "name": "sceNpAuthDeleteRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "qAUXQ9GdWp8#libSceNpAuth#1#libSceNpAuth#Function",
+      "name": "sceNpAuthGetAuthorizationCodeA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "CocbHVIKPE8#libSceNpAuth#1#libSceNpAuth#Function",
+      "name": "sceNpAuthGetIdTokenA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpManager": [
+    {
+      "symbol": "JT+t00a3TxA#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpGetAccountCountryA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpNotifyPlusFeature",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "s4UEa5iBJdc#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessageCreateHandle",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "+anuSx2avHQ#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessageDeleteHandle",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Ubv+fP58W1U#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessageGetMemoryPoolStatistics",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "GFhVUpRmbHE#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessageInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "IkL62FMpIpo#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessagePrepareA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "PQDFxcnqxtw#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessageSendDataA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "bMG3cVmUmuk#libSceNpManager#1#libSceNpManager#Function",
+      "name": "sceNpInGameMessageTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpMatching2": [
+    {
+      "symbol": "V6KSpKv9XJE#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2CreateJoinRoomA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "26vWrPAWJfM#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetRoomDataExternalList",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "rJNPJqDCpiI#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetWorldInfoList",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "n5JmImxTiZU#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2JoinLobby",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "gQ6cUriNpgs#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2JoinRoomA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "BD6kfx442Do#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2LeaveRoom",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "VqZX7POg2Mk#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SearchRoom",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "tHD5FPFXtu4#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SignalingGetConnectionStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "wUmwXZHaX1w#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SignalingGetPingInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "gpSAvdheZ0Q#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetMemoryInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Jraxifmoet4#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetRoomDataInternal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "5lhvOqheFBA#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetRoomMemberDataInternal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "KC+GnHzrK2o#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetRoomMemberIdListLocal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "vbtWT3lZBOM#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetRoomPasswordLocal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "cgQhq3E0eGo#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetSignalingOptParamLocal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "8btynvj0KNA#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetSslMemoryInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "GyI2f9yDUXM#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2GetUserInfoListA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "AUVfU6byg3c#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2KickoutRoomMember",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "opDpl74pi2E#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SendRoomChatMessage",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Iw2h0Jrrb5U#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SendRoomMessage",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "q7GK98-nYSE#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SetRoomDataExternal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "S9D8JSYIrjE#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SetRoomDataInternal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "HoqTrkS9c5Q#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SetRoomMemberDataInternal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "ES3UMUWWj9U#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SetSignalingOptParam",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "meEjIdbjAA0#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SetUserInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "nNeC3F8-g+4#libSceNpMatching2#1#libSceNpMatching2#Function",
+      "name": "sceNpMatching2SignalingGetConnectionInfoA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpProfileDialog": [
+    {
+      "symbol": "Lg+NCE6pTwQ#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+      "name": "sceNpProfileDialogInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+      "name": "sceNpProfileDialogOpenA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "0Sp9vJcB1-w#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+      "name": "sceNpProfileDialogTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "haVZE9FgKqE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+      "name": "sceNpProfileDialogUpdateStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "8rhLl1-0W-o#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+      "name": "sceNpProfileDialogGetResult",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpScore": [
+    {
+      "symbol": "6-G9OxL5DKg#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetFriendsRankingAAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "dRszNNyGWkw#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByAccountIdAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "y5ja7WI05rs#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByRangeAAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "ANJssPz3mY0#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreRecordScoreAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "LoVMVrijVOk#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetBoardInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "gMbOn+-6eXA#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetFriendsRankingA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "AgcxgceaH8k#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetFriendsRankingForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Lmtc9GljeUA#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetGameDataByAccountId",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "K9tlODTQx3c#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByAccountId",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "3Ybj4E1qNtY#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByAccountIdForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "wJPWycVGzrs#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByAccountIdPcId",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "oXjVieH6ZGQ#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByAccountIdPcIdForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "MA9vSt7JImY#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByRangeA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "nRoYV2yeUuw#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreGetRankingByRangeForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "bcoVwcBjQ9E#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreRecordGameData",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "zT0XBtgtOSI#libSceNpScore#1#libSceNpScore#Function",
+      "name": "sceNpScoreRecordScore",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpTrophy": [
+    {
+      "symbol": "cqGkYAN-gRw#libSceNpTrophy#1#libSceNpTrophy#Function",
+      "name": "sceNpTrophyCaptureScreenshot",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "HLwz1fRIycA#libSceNpTrophy#1#libSceNpTrophy#Function",
+      "name": "sceNpTrophyGetGameIcon",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "w4uMPmErD4I#libSceNpTrophy#1#libSceNpTrophy#Function",
+      "name": "sceNpTrophyGetGroupIcon",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "eBL+l6HG9xk#libSceNpTrophy#1#libSceNpTrophy#Function",
+      "name": "sceNpTrophyGetTrophyIcon",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "d9jpdPz5f-8#libSceNpTrophy#1#libSceNpTrophy#Function",
+      "name": "sceNpTrophyShowTrophyList",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpTus": [
+    {
+      "symbol": "DS2yu3Sjj1o#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTssGetDataAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "GjlEgLCh4DY#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusAddAndGetVariableAVUserAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "6-+Yqc-NppQ#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusDeleteMultiSlotDataAAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "xzG8mG9YlKY#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetDataAAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "7uLPqiNvNLc#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiSlotDataStatusAAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "y-DJK+d+leg#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiSlotVariableAVUserAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "4u58d6g6uwU#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusSetDataAAsync",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "oGIcxlUabSA#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusTryAndSetVariableAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "-SUR+UoLS6c#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTssGetData",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "wPFah4-5Xec#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusAddAndGetVariableA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Nt1runsPVJc#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusAddAndGetVariableAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "EPeq43CQKxY#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusAddAndGetVariableForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "4VLlu7EIjzk#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusAddAndGetVariableForCrossSaveVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "iXzUOM9sXU0#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusDeleteMultiSlotDataA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "xutwCvsydkk#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusDeleteMultiSlotDataVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "yWEHUFkY1qI#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetDataA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "iaH+Sxlw32k#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetDataAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "1TE3OvH61qo#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetDataForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "-LxFGYCJwww#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetDataForCrossSaveVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "yixh7HDKWfk#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetFriendsDataStatusA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "TDoqRD+CE+M#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetFriendsDataStatusForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "C8TY-UnQoXg#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetFriendsVariableA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "mD6s8HtMdpk#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetFriendsVariableForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "GDXlRTxgd+M#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiSlotVariableA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "AsziNQ9X2uk#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiSlotVariableAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "m9XZnxw9AmE#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiSlotVariableForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "wTuuw4-6HI8#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiSlotVariableForCrossSaveVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "lxNDPDnWfMc#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserDataStatusA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "fJU2TZId210#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserDataStatusAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "cVeBif6zdZ4#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserDataStatusForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "w-c7U0MW2KY#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserDataStatusForCrossSaveVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Gjixv5hqRVY#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserVariableA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "fVvocpq4mG4#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserVariableAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Q5uQeScvTPE#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserVariableForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "Djuj2+1VNL0#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusGetMultiUserVariableForCrossSaveVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "VzxN3tOouj8#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusSetDataA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "kbWqOt3QjKU#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusSetDataAVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "cf-WMA0jYCc#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusSetMultiSlotVariableA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "1Cz0hTJFyh4#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusSetMultiSlotVariableVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "0up4MP1wNtc#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusTryAndSetVariableA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "MGvSJEHwyL8#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusTryAndSetVariableForCrossSave",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "fcCwKpi4CbU#libSceNpTus#1#libSceNpTus#Function",
+      "name": "sceNpTusTryAndSetVariableForCrossSaveVUser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libSceNpWebApi": [
+    {
+      "symbol": "joRjtRXTFoc#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiAddHttpRequestHeader",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "19KgfJXgM+U#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiAddMultipartPart",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiCreateContextA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "KBxgeNpoRIQ#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiCreateMultipartRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiCreateRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "XUjdsSTTZ3U#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiDeleteContext",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiDeleteRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "VwJ5L0Higg0#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiGetHttpResponseHeaderValue",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "743ZzEBzlV8#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiGetHttpResponseHeaderValueLength",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiReadData",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "DsPOTEvSe7M#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiSendMultipartRequest2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiSendRequest2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "qWcbJkBj1Lg#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiSetRequestTimeout",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "JzhYTP2fG18#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiAbortRequest",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "3OnubUs02UM#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiGetMemoryPoolStats",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "jhXKGQJ4egI#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiRegisterExtdPushEventCallbackA",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    },
+    {
+      "symbol": "PqCY25FMzPs#libSceNpWebApi#1#libSceNpWebApi#Function",
+      "name": "sceNpWebApiUnregisterExtdPushEventCallback",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceNpToolkit2.prx"
+      ]
+    }
+  ],
+  "libScePosix": [
+    {
+      "symbol": "0D4-FVvEikw#libScePosix#1#libkernel#Function",
+      "name": "pthread_cancel",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "CBNtXOoef-E#libScePosix#1#libkernel#Function",
+      "name": "sched_get_priority_max",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "m0iS6jNsXds#libScePosix#1#libkernel#Function",
+      "name": "sched_get_priority_min",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    }
+  ],
+  "libSceScreenShot": [
+    {
+      "symbol": "tIYf0W5VTi8#libSceScreenShot#1#libSceScreenShot#Function",
+      "name": "sceScreenShotDisable",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "2xxUtuC-RzE#libSceScreenShot#1#libSceScreenShot#Function",
+      "name": "sceScreenShotEnable",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceSharePlay": [
+    {
+      "symbol": "isruqthpYcw#libSceSharePlay#1#libSceSharePlay#Function",
+      "name": "sceSharePlayInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "co2NCj--pnc#libSceSharePlay#1#libSceSharePlay#Function",
+      "name": "sceSharePlaySetProhibition",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "UaLjloJinow#libSceSharePlay#1#libSceSharePlay#Function",
+      "name": "sceSharePlayTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceSocialScreen": [
+    {
+      "symbol": "vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenCloseSeparateMode",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenConfigureSeparateMode",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenInitializeSeparateModeParameter",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenOpenSeparateMode",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenSetMode",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function",
+      "name": "sceSocialScreenTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceSocialScreenDialog": [
+    {
+      "symbol": "A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+      "name": "sceSocialScreenDialogTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceSystemService": [
+    {
+      "symbol": "-+3hY+y8bNo#libSceSystemService#1#libSceSystemService#Function",
+      "name": "sceSystemServiceLaunchWebBrowser",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "JoBqSQt1yyA#libSceSystemService#1#libSceSystemService#Function",
+      "name": "sceSystemServiceLoadExec",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    }
+  ],
+  "libSceVideoOut": [
+    {
+      "symbol": "MTxxrOCeSig#libSceVideoOut#1#libSceVideoOut#Function",
+      "name": "sceVideoOutSetWindowModeMargins",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceVideoRecording": [
+    {
+      "symbol": "KHvkPQJDMLk#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingClose",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "fZJQzFK4Gv4#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingGetStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "s28dalBwp2g#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingOpen2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "bGYkY6q3bIw#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingQueryMemSize2",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "Fc8qxlKINYQ#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingSetInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "tWoe9IlGAhs#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingStart",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "OOFxrMY+mfI#libSceVideoRecording#1#libSceVideoRecording#Function",
+      "name": "sceVideoRecordingStop",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceVideodec2": [
+    {
+      "symbol": "eD+X2SmxUt4#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2AllocateComputeQueue",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "CNNRoRYd8XI#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2CreateDecoder",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "852F5+q6+iM#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2Decode",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "jwImxXRGSKA#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2DeleteDecoder",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "NtXRa3dRzU0#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2GetPictureInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "RnDibcGCPKw#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2QueryComputeMemoryInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "qqMCwlULR+E#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2QueryDecoderMemoryInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "UvtA3FAiF4Y#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2ReleaseComputeQueue",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "wJXikG6QFN8#libSceVideodec2#1#libSceVideodec2#Function",
+      "name": "sceVideodec2Reset",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eossdk-ps4-shipping.prx"
+      ]
+    }
+  ],
+  "libSceVoiceQoS": [
+    {
+      "symbol": "kLU6hhXsa2A#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSConnect",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "lvNClhNHzxI#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSCreateLocalEndpoint",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "iqQQW2cBmWU#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSCreateRemoteEndpoint",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "kE0kdvcHTiY#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSDeleteLocalEndpoint",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "H4zqFaDhHW4#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSDeleteRemoteEndpoint",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "j9Xt85krooc#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSDisconnect",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "ATRGkmbolVM#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSEnd",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "eZu2RP0Ma3w#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSGetLocalEndpointAttribute",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "U8IfNl6-Css#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSInit",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "PWokFqab5q4#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSReadPacket",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "F7wS7FbfumQ#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSSetLocalEndpointAttribute",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "SpxLratrO1Q#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+      "name": "sceVoiceQoSWritePacket",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    }
+  ],
+  "libSceWebBrowserDialog": [
+    {
+      "symbol": "PSK+Eik919Q#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogClose",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "vCaW0fgVQmc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogGetResult",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogInitialize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogOpen",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "O7dIZQrwVFY#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogOpenForPredeterminedContent",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "Cya+jvTtPqg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogResetCookie",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogTerminate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+      "name": "sceWebBrowserDialogUpdateStatus",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    }
+  ],
+  "libkernel": [
+    {
+      "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function",
+      "name": "__stack_chk_fail",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "libSceFios2.prx",
+        "libSceNpToolkit2.prx",
+        "eossdk-ps4-shipping.prx",
+        "libc.prx",
+        "akaudioinput.prx",
+        "akexpander.prx",
+        "akflanger.prx",
+        "akharmonizer.prx",
+        "akmatrixreverb.prx",
+        "akmotion.prx",
+        "akpeaklimiter.prx",
+        "akrecorder.prx",
+        "akreflect.prx",
+        "akroomverb.prx",
+        "aksilencegenerator.prx",
+        "aksoundseedair.prx",
+        "akstereodelay.prx",
+        "aktimestretch.prx",
+        "aktremolo.prx",
+        "auro.prx",
+        "izotope.prx",
+        "masteringsuite.prx",
+        "mcdsp.prx",
+        "sceaudio3d.prx"
+      ]
+    },
+    {
+      "symbol": "fgIsQ10xYVA#libkernel#1#libkernel#Function",
+      "name": "sceKernelChmod",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx",
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "L0v2Go5jOuM#libkernel#1#libkernel#Function",
+      "name": "sceKernelGetPrtAperture",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin"
+      ]
+    },
+    {
+      "symbol": "QKd0qM58Qes#libkernel#1#libkernel#Function",
+      "name": "sceKernelStopUnloadModule",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx"
+      ]
+    },
+    {
+      "symbol": "0Cq8ipKr9n0#libkernel#1#libkernel#Function",
+      "name": "sceKernelUtimes",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "eboot.bin",
+        "eossdk-ps4-shipping.prx",
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "WlyEA-sLDf0#libkernel#1#libkernel#Function",
+      "name": "sceKernelTruncate",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libSceFios2.prx",
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "Fjc4-n1+y2g#libkernel#1#libkernel#Function",
+      "name": "__elf_phdr_match_addr",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "kbw4UHHSYy0#libkernel#1#libkernel#Function",
+      "name": "__pthread_cxa_finalize",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "6Z83sYWFlA8#libkernel#1#libkernel#Function",
+      "name": "_exit",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "8OnWXlgQlvo#libkernel#1#libkernel#Function",
+      "name": "_sceKernelRtldThreadAtexitDecrement",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "Tz4RNUCBbGI#libkernel#1#libkernel#Function",
+      "name": "_sceKernelRtldThreadAtexitIncrement",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "hHlZQUnlxSM#libkernel#1#libkernel#Function",
+      "name": "getrusage",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "0NTHN1NKONI#libkernel#1#libkernel#Function",
+      "name": "sceKernelConvertLocaltimeToUtc",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "-o5uEDpN+oY#libkernel#1#libkernel#Function",
+      "name": "sceKernelConvertUtcToLocaltime",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "OMDRKKAZ8I4#libkernel#1#libkernel#Function",
+      "name": "sceKernelDebugRaiseException",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "zE-wXIZjLoM#libkernel#1#libkernel#Function",
+      "name": "sceKernelDebugRaiseExceptionOnReleaseMode",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "-YTW+qXc3CQ#libkernel#1#libkernel#Function",
+      "name": "sceKernelInternalMemoryGetModuleSegmentInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "Wl2o5hOVZdw#libkernel#1#libkernel#Function",
+      "name": "sceKernelPrintBacktraceWithModuleInfo",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "IafI2PxcPnQ#libkernel#1#libkernel#Function",
+      "name": "scePthreadMutexTimedlock",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    },
+    {
+      "symbol": "VADc3MNQ3cM#libkernel#1#libkernel#Function",
+      "name": "signal",
+      "hle_status": "unsupported_import",
+      "provider": "runtime_fallback",
+      "importers": [
+        "libc.prx"
+      ]
+    }
+  ]
+}

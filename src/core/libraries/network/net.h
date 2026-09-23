@@ -6,6 +6,7 @@
 #include "common/assert.h"
 #include "common/types.h"
 #include "netctl.h"
+#include <string_view>
 
 namespace Core::Loader {
 class SymbolsResolver;
@@ -327,6 +328,10 @@ struct OrbisNetSockInfo {
     s32 tx_wait;
     s32 reserved[2];
 };
+static_assert(sizeof(OrbisNetSockInfo) == 160);
+// Shared native observation; callers own the socket lifetime and guest output.
+void FillNativeSockInfo(OrbisNetSockInfo& info, OrbisNetId id, std::intptr_t native,
+                       int type, std::string_view name, bool guest_nonblock);
 
 int PS4_SYSV_ABI in6addr_any();
 int PS4_SYSV_ABI in6addr_loopback();

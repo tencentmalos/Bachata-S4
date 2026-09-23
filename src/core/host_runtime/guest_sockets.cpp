@@ -51,7 +51,8 @@ enum class Op {
     EpollWait,
     EpollDestroy,
     EpollAbort,
-    Abort
+    Abort,
+    Info
 };
 struct Entry {
     std::string_view posix, net;
@@ -81,7 +82,8 @@ constexpr Entry Entries[]{{"TU-d9PfIHPM", "Q4qBuN-c0ZM", Op::Socket},
                           {"", "drjIbDbA7UQ", Op::EpollWait},
                           {"", "Inp1lfL+Jdw", Op::EpollDestroy},
                           {"", "w21YgGGNtBk", Op::EpollAbort},
-                          {"", "zJGf8xjFnQE", Op::Abort}};
+                          {"", "zJGf8xjFnQE", Op::Abort},
+                          {"", "hLuXdjHnhiI", Op::Info}};
 Op Find(std::string_view nid) {
     for (const auto& e : Entries)
         if ((!e.posix.empty() && e.posix == nid) || (!e.net.empty() && e.net == nid))
@@ -255,6 +257,7 @@ int Duration(Timeval t, std::optional<nanoseconds>& duration) {
 struct GuestSockets::Impl {
     struct Socket {
         int fd{-1}, type{}, family{};
+        std::string name;
         std::mutex mutex;
         bool nonblock{}, cloexec{};
         std::atomic<bool> closed{};
@@ -316,7 +319,7 @@ struct GuestSockets::Impl {
         }
         return id;
     }
-    int Create(int family, int type, int protocol) {
+    int Create(int family, int type, int protocol, std::string name = {}) {
         if (family != 2 && family != 28)
             return -POSIX_EAFNOSUPPORT;
         if (type != 1 && type != 2)
@@ -326,6 +329,7 @@ struct GuestSockets::Impl {
         auto s = std::make_shared<Socket>();
         s->type = type;
         s->family = family;
+        s->name = std::move(name);
         s->fd = ::socket(family == 2 ? AF_INET : AF_INET6, type == 1 ? SOCK_STREAM : SOCK_DGRAM,
                          protocol);
         if (s->fd < 0)
@@ -1083,7 +1087,48 @@ u64 GuestSockets::Dispatch(Space& space, std::string_view nid, const Args& origi
             return impl->Select(space, a, fail, files, stop);
         if (op >= Op::EpollCreate && op <= Op::EpollAbort)
             return impl->EpollCall(space, op, a, fail, stop);
+        if (op == Op::Info) {
+            using namespace Libraries::Net;
+            // Firmware rejects these bits before entering its syscall. Other
+            // special/global enumeration modes have no session-local provider.
+            if (u32(a[3]) & 0x31000) return fail(POSIX_EINVAL);
+            if (u32(a[3])) return fail(POSIX_EOPNOTSUPP);
+            if (s32(a[0]) >= 0 && !a[1]) return fail(POSIX_EINVAL);
+            if (a[1] && s32(a[2]) <= 0) return fail(POSIX_EINVAL);
+            std::vector<std::pair<int, Impl::Lease>> snapshot;
+            int lookup_error{};
+            {
+                std::lock_guard lock(impl->mutex);
+                if (s32(a[0]) >= 0) {
+                    auto it = impl->sockets.find(s32(a[0]));
+                    if (it == impl->sockets.end()) lookup_error = POSIX_EBADF;
+                    else if (it->second->family != 2) lookup_error = POSIX_EAFNOSUPPORT;
+                    else snapshot.push_back(*it);
+                } else {
+                    for (const auto& item : impl->sockets)
+                        if (item.second->family == 2) snapshot.push_back(item);
+                }
+            }
+            if (lookup_error) return fail(lookup_error);
+            if (!a[1]) return snapshot.size();
+            snapshot.resize(std::min(snapshot.size(), size_t(s32(a[2]))));
+            if (snapshot.empty()) return 0;
+            std::vector<OrbisNetSockInfo> infos(snapshot.size());
+            // Use an output identity snapshot while host queries run; no pin
+            // or descriptor-map lock spans a host socket operation.
+            Outputs output{space};
+            if (!output.Add(a[1], infos.size() * sizeof(OrbisNetSockInfo))) return fail(POSIX_EFAULT);
+            for (size_t i = 0; i < snapshot.size(); ++i) {
+                const auto& [id, s] = snapshot[i];
+                std::lock_guard lock(s->mutex);
+                FillNativeSockInfo(infos[i], id, s->fd, s->type, s->name, s->nonblock);
+            }
+            if (impl->stopping.stop_requested() || stop.stop_requested()) return fail(POSIX_EINTR);
+            std::memcpy(output.bytes[0].data(), infos.data(), output.bytes[0].size());
+            return output.Publish() ? infos.size() : fail(POSIX_EFAULT);
+        }
         if (op == Op::Socket) {
+            std::string name;
             if (nid == "Q4qBuN-c0ZM") {
                 if (a[0]) {
                     bool end{};
@@ -1095,13 +1140,14 @@ u64 GuestSockets::Dispatch(Space& space, std::string_view nid, const Args& origi
                             end = true;
                             break;
                         }
+                        name += c;
                     }
                     if (!end)
                         return fail(POSIX_ENAMETOOLONG);
                 }
                 a = {a[1], a[2], a[3]};
             }
-            int rc = impl->Create(s32(a[0]), s32(a[1]), s32(a[2]));
+            int rc = impl->Create(s32(a[0]), s32(a[1]), s32(a[2]), std::move(name));
             impl->Trace(nid, -1, rc);
             return rc < 0 ? fail(-rc) : u64(rc);
         }

@@ -1,0 +1,413 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceGameLiveStreaming.sprx",
+  "sha256": "d02e49dd6b03325b8da0e9ea822b07daf1d1b91a75d7a5106eca8711934ff9e5",
+  "analysis_sha256": "39f46b1693cdb981c391dac1ff58d0e8cb27efb9807c3ed76c0d635e8f111fbe",
+  "plt": {
+    "0xb8": {
+      "name": "Ou3iL1abvng#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__stack_chk_fail"
+    },
+    "0xc8": {
+      "name": "O1lQ2+do5r4#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6ConfigC1Ev"
+    },
+    "0xd8": {
+      "name": "0zsTiDhM0nU#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6createEPPS0_PKNS0_6ConfigEPvS6_"
+    },
+    "0xe8": {
+      "name": "s9-RaxukuzQ#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelCloseEventFlag"
+    },
+    "0xf8": {
+      "name": "1vDaenmJtyA#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelOpenEventFlag"
+    },
+    "0x108": {
+      "name": "9lvj5DjHZiA#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelPollEventFlag"
+    },
+    "0x118": {
+      "name": "F8bUHwAG284#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrInit"
+    },
+    "0x128": {
+      "name": "iMp8QpE+XO4#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrSettype"
+    },
+    "0x138": {
+      "name": "cmo1RIYva9o#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexInit"
+    },
+    "0x148": {
+      "name": "smWEktiyyG0#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrDestroy"
+    },
+    "0x158": {
+      "name": "2Of0f+3mhhE#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexDestroy"
+    },
+    "0x168": {
+      "name": "9UK1vLZQft4#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexLock"
+    },
+    "0x178": {
+      "name": "tn3VlD0hG60#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexUnlock"
+    },
+    "0x188": {
+      "name": "upoVrzMHFeE#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexTrylock"
+    },
+    "0x198": {
+      "name": "39iV5E1HoCk#D#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceSysmoduleLoadModuleInternal"
+    },
+    "0x1a8": {
+      "name": "vXZhrtJxkGc#D#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceSysmoduleUnloadModuleInternal"
+    },
+    "0x1b8": {
+      "name": "IOnSvHzqu6A#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelSetEventFlag"
+    },
+    "0x1c8": {
+      "name": "7uhBFWRAS60#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelClearEventFlag"
+    },
+    "0x1d8": {
+      "name": "tIhsqj0qsFE#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "free"
+    },
+    "0x1e8": {
+      "name": "gQX+4GDQjpM#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "malloc"
+    },
+    "0x1f8": {
+      "name": "KyQY2KfMxKw#C#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceShellCoreUtilIsGameLiveStreamingOnAir"
+    },
+    "0x208": {
+      "name": "8zTFvBIAIN8#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "memset"
+    },
+    "0x218": {
+      "name": "Q3VBxCXhUHs#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "memcpy"
+    },
+    "0x228": {
+      "name": "5jNubw4vlAA#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strnlen"
+    },
+    "0x238": {
+      "name": "SfQIZcqvvms#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strlcpy"
+    },
+    "0x248": {
+      "name": "rNRtm1uioyY#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelHasNeoMode"
+    },
+    "0x258": {
+      "name": "eLdDw6l0-bU#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "snprintf"
+    },
+    "0x268": {
+      "name": "eV9wAD2riIA#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelStat"
+    },
+    "0x278": {
+      "name": "JGfTMBOdUJo#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelGetFsSandboxRandomWord"
+    },
+    "0x288": {
+      "name": "1G3lF1Gg1k8#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelOpen"
+    },
+    "0x298": {
+      "name": "Cg4srZ6TKbU#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelRead"
+    },
+    "0x2a8": {
+      "name": "oib76F-12fk#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelLseek"
+    },
+    "0x2b8": {
+      "name": "UK2Tl2DWUns#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelClose"
+    },
+    "0x2c8": {
+      "name": "6sJWiWSRuqk#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strncpy"
+    },
+    "0x2d8": {
+      "name": "j4ViWNHEgww#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strlen"
+    },
+    "0x2e8": {
+      "name": "rPo6tV8D9bM#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceSystemServiceGetStatus"
+    },
+    "0x2f8": {
+      "name": "9yDWMxEFdJU#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strrchr"
+    },
+    "0x308": {
+      "name": "Ovb2dSJOAuE#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strcmp"
+    },
+    "0x318": {
+      "name": "AUXVxWeJU-A#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelUnlink"
+    },
+    "0x328": {
+      "name": "4wSze92BhLI#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelWrite"
+    },
+    "0x338": {
+      "name": "fgIsQ10xYVA#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelChmod"
+    },
+    "0x348": {
+      "name": "z+P+xCnWLBk#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZdlPv"
+    },
+    "0x358": {
+      "name": "tsvEmnenz48#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_atexit"
+    },
+    "0x368": {
+      "name": "H2e8t5ScQGc#G#G",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_finalize"
+    },
+    "0x378": {
+      "name": "JTvBflhYazQ#F#F",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelWaitEventFlag"
+    }
+  },
+  "init": "0x0"
+}

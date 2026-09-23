@@ -75,6 +75,16 @@ s32 PS4_SYSV_ABI sceKernelGetCpumode() {
     return 0;
 }
 
+s32 PS4_SYSV_ABI sceKernelSetFsstParam(s32 priority, u64 cpu_mask) {
+    // libkernel 11.00 forwards {u64 mask, s32 priority, padding} to the
+    // kern.fsst_param sysctl. There is no equivalent kernel service in our
+    // host backend. Report that capability honestly, without changing the
+    // caller's scheduling or claiming to have applied the PS4 service policy.
+    LOG_INFO(Lib_Kernel, "FSST service scheduling unavailable: priority={} mask={:#x}", priority,
+             cpu_mask);
+    return ORBIS_KERNEL_ERROR_ENOTSUP;
+}
+
 s32 PS4_SYSV_ABI sceKernelGetCurrentCpu() {
     LOG_DEBUG(Lib_Kernel, "called");
     return 0;
@@ -308,6 +318,7 @@ void RegisterProcess(Core::Loader::SymbolsResolver* sym) {
     LIB_FUNCTION("8aCOCGoRkUI", "libkernel", 1, "libkernel", sceKernelIsCEX);
     LIB_FUNCTION("0vTn5IDMU9A", "libkernel", 1, "libkernel", sceKernelGetMainSocId);
     LIB_FUNCTION("VOx8NGmHXTs", "libkernel", 1, "libkernel", sceKernelGetCpumode);
+    LIB_FUNCTION("VjBtg5Btl94", "libkernel", 1, "libkernel", sceKernelSetFsstParam);
     LIB_FUNCTION("g0VTBxfJyu0", "libkernel", 1, "libkernel", sceKernelGetCurrentCpu);
     LIB_FUNCTION("959qrazPIrg", "libkernel", 1, "libkernel", sceKernelGetProcParam);
     LIB_FUNCTION("wzvqT4UqKX8", "libkernel", 1, "libkernel", sceKernelLoadStartModule);

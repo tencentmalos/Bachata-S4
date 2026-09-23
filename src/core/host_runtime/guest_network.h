@@ -20,6 +20,7 @@
 #include "core/libraries/network/net_error.h"
 #include "core/libraries/network/netctl.h"
 #include "core/libraries/network/net.h"
+#include "core/libraries/network/net_util.h"
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view NetNids[]{
@@ -31,7 +32,7 @@ inline constexpr std::string_view NetNids[]{
     "Q4qBuN-c0ZM", "45ggEzakPJQ", "OXXX4mUk3uk", "bErx49PgxyY", "kOj1HiAGE54",
     "9wO9XrMsNhc", "beRjXBn-z+o", "PIWqhn9oSxc", "2mKX2Spso7I", "TSM6whtekok",
     "gvD1greCu0A", "hoOAofhhRvE", "304ooNZxWDY", "xphrZusl78E", "zJGf8xjFnQE",
-    "TCkRD0DWNLg", "wvuUDv0jrMI", "2eKbgcboJso"};
+    "TCkRD0DWNLg", "wvuUDv0jrMI", "2eKbgcboJso", "6Oc0bLsIYe0", "hLuXdjHnhiI"};
 inline constexpr std::string_view NetCtlNids[]{"gky0+oaNM4k", "Z4wwCFiBELQ", "uBPlr0lbuiI",
                                                "obuxdTiwkF8", "JO4yuTuMoKI", "0cBgduPRR+M",
                                                "UJ+Z7Q+4ck0", "Rqm2OnZMCz0", "iQw3iQPhvUQ",
@@ -49,9 +50,29 @@ inline bool IsNetCtlNid(std::string_view nid) {
 class GuestNetwork {
     GuestSockets sockets;
 public:
-    explicit GuestNetwork(bool online_requested, std::shared_ptr<GuestDescriptorIds> ids = std::make_shared<GuestDescriptorIds>())
-        : sockets(std::move(ids), online_requested), online_requested(online_requested) {}
+    using MacAddress = std::array<u8, 6>;
+    using MacProvider = std::function<std::optional<MacAddress>()>;
+    static std::optional<MacAddress> HostMacAddress() {
+        NetUtil::NetUtilInternal info;
+        if (!info.RetrieveEthernetAddr()) return {};
+        const auto address = info.GetEthernetAddr();
+        if ((address[0] & 1) || std::ranges::all_of(address, [](u8 c) { return c == 0; })) return {};
+        return address;
+    }
+    explicit GuestNetwork(bool online_requested,
+                          std::shared_ptr<GuestDescriptorIds> ids = std::make_shared<GuestDescriptorIds>(),
+                          MacProvider mac_provider = HostMacAddress)
+        : sockets(std::move(ids), online_requested), mac_provider(std::move(mac_provider)),
+          online_requested(online_requested) {}
     GuestSockets& Sockets() { return sockets; }
+    // libSceNet's module constructor initializes its local resource domain.
+    // The HLE provider must do the same before publication, even when the game
+    // never calls sceNetInit explicitly. This does not sign into PSN or connect.
+    u32 Initialize() {
+        std::lock_guard lock(mutex);
+        const int error = InitializeLocked();
+        return error ? u32(ORBIS_NET_ERROR_BASE | error) : 0;
+    }
     // Runtime providers are published after their local control plane starts.
     // NetCtl is independent of the application's Net pool/socket initializer.
     u32 InitializeControl() {
@@ -134,6 +155,36 @@ public:
         };
         if (nid == "HQOwnfMGipQ")
             return errno_address;
+        if (nid == "6Oc0bLsIYe0") {
+            int state_error{};
+            { std::lock_guard lock(mutex);
+              if (!initialized) state_error = ORBIS_NET_ENOTINIT;
+              else if (stopping) state_error = ORBIS_NET_ECANCELED; }
+            if (state_error) return failure(state_error);
+            // Firmware checks initialization, then null/flags, and copies only
+            // six bytes on success. A host without an accessible MAC has no
+            // provider; do not substitute all-zero or invented hardware data.
+            if (!a[0] || u32(a[1])) return failure(ORBIS_NET_EINVAL);
+            const GuestAddressSpace::DataRequest request{
+                {GuestAddress{a[0]}, 6}, GuestPermission::Write};
+            auto pin = space.AcquireDataBatch(std::span{&request, 1}, stop);
+            if (!pin) return failure(ORBIS_NET_EFAULT);
+            const auto address = mac_provider ? mac_provider() : std::nullopt;
+            { std::lock_guard lock(mutex);
+              if (stopping || stop.stop_requested()) state_error = ORBIS_NET_ECANCELED; }
+            if (state_error) {
+                pin.Value().clear();
+                return failure(state_error);
+            }
+            if (!address) {
+                pin.Value().clear();
+                return failure(ORBIS_NET_ENODEV);
+            }
+            std::memcpy(pin.Value()[0].WritableBytes().data(), address->data(), address->size());
+            return 0;
+        }
+        if (nid == "hLuXdjHnhiI" && (u32(a[3]) & 0x31000))
+            return u32(ORBIS_NET_ERROR_EINVAL); // firmware wrapper leaves errno untouched
         if (nid == "9T2pDF2Ryqg" || nid == "pQGpHYopAIY")
             return std::byteswap(u32(a[0]));
         if (nid == "3CHi1K1wsCQ" || nid == "tOrRi-v3AOM")
@@ -193,10 +244,8 @@ public:
         }
         std::lock_guard lock(mutex);
         if (nid == "Nlev7Lg8k3A") {
-            if (online_requested)
-                return failure(ORBIS_NET_ENETDOWN);
-            initialized = true;
-            return 0;
+            const int error = InitializeLocked();
+            return error ? failure(error) : 0;
         }
         if (nid == "cTGkc6-TBlI") {
             if (!initialized)
@@ -353,7 +402,16 @@ public:
     }
 
 private:
+    MacProvider mac_provider;
     std::mutex mutex;
+    int InitializeLocked() {
+        if (stopping)
+            return ORBIS_NET_ECANCELED;
+        if (online_requested)
+            return ORBIS_NET_ENETDOWN;
+        initialized = true;
+        return 0;
+    }
     u32 InitializeControlLocked() {
         if (online_requested || stopping)
             return u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL);

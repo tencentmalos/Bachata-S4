@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include "common/assert.h"
 #include "common/div_ceil.h"
+#include "shader_recompiler/backend/spirv/emit_spirv_quad_rect.h"
 #include "shader_recompiler/backend/spirv/spirv_emit_context.h"
 #include "shader_recompiler/frontend/fetch_shader.h"
 #include "shader_recompiler/ir/microinstruction.h"
@@ -612,12 +613,18 @@ void EmitContext::DefineVertexBlock() {
         output_point_size =
             DefineVariable(F32[1], spv::BuiltIn::PointSize, spv::StorageClass::Output);
     }
+    const auto aux = stage == Stage::Vertex && runtime_info.vs_info.tess_emulated_primitive
+                         ? AuxiliaryBuiltinLocations(info, profile)
+                         : AuxiliaryTessBuiltins{};
     if (info.stores.GetAny(IR::Attribute::RenderTargetIndex)) {
-        output_layer = DefineVariable(U32[1], spv::BuiltIn::Layer, spv::StorageClass::Output);
+        output_layer = aux.layer
+                           ? DefineOutput(U32[1], *aux.layer)
+                           : DefineVariable(U32[1], spv::BuiltIn::Layer, spv::StorageClass::Output);
     }
     if (info.stores.GetAny(IR::Attribute::ViewportIndex)) {
-        output_viewport_index =
-            DefineVariable(U32[1], spv::BuiltIn::ViewportIndex, spv::StorageClass::Output);
+        output_viewport_index = aux.viewport ? DefineOutput(U32[1], *aux.viewport)
+                                             : DefineVariable(U32[1], spv::BuiltIn::ViewportIndex,
+                                                              spv::StorageClass::Output);
     }
 }
 

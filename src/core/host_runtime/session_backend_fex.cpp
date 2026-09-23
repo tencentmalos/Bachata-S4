@@ -30,6 +30,9 @@
 #include "core/guest_cpu/api/result.h"
 #include "core/guest_cpu/api/status.h"
 #include "core/host_runtime/session_backend_fex.h"
+#if defined(SHADPS4_TYPED_HLE_HOST)
+#include "core/host_runtime/orbis_pad_adapter.h"
+#endif
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/diagnostics/pipeline_handoff.h"
@@ -411,6 +414,10 @@ void FexSessionBackend::PublishLifecycle(std::uint64_t generation, std::uint32_t
                                         std::string_view stage, std::string_view reason,
                                         std::string_view detail) noexcept {
     try {
+#if defined(SHADPS4_TYPED_HLE_HOST)
+        GlobalPadAdapter().DebugLifecycle(::getpid(), generation,
+            Diagnostics::ProcessRunUuid(), phase);
+#endif
         auto& hub = Diagnostics::DiagnosticsHub::Instance();
         auto publisher = hub.Acquire(generation);
         if (!publisher && phase == 1) {

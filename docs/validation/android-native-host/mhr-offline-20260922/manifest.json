@@ -1,0 +1,282 @@
+{
+  "created_utc": "2026-09-22T05:32:45.388727+00:00",
+  "scope": "MHR offline crash investigation and default-off rwlock diagnostics; no first corrupting writer identified",
+  "head": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "branch": "codex/tetris-runtime-fix",
+  "sources": [
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "bytes": 277590,
+      "sha256": "54531a6a490e4e5ab23657e2a3278b7c10ee38db57b5ed9ec7e9116be2e63fc9"
+    },
+    {
+      "path": "src/core/host_runtime/guest_rwlock_diagnostics.h",
+      "bytes": 3049,
+      "sha256": "588f56c37b091ccc972cf19432c57901b6f5209bb72dc1471124ab97ad0af3c0"
+    },
+    {
+      "path": "tests/host_runtime/guest_rwlock_diagnostics_tests.cpp",
+      "bytes": 6839,
+      "sha256": "806006e754e4c84bd5d80eb8c8ac7d158187c7e00751dfa153adc176004fd9c8"
+    },
+    {
+      "path": "cmake/fex/CMakeLists.txt",
+      "bytes": 25460,
+      "sha256": "ef0bdb14b58d68534d3bc6284da8d97a9d223e179096dfe55e79af3a03c8fada"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 106046,
+      "sha256": "f2585aeac35976509098b984b63c6fb21385c0a8ebca50949aa2ac74b506b17d"
+    }
+  ],
+  "apk": {
+    "path": "build/validation/mhr-offline-20260922/shadps4-mhr-offline-rwlock.apk",
+    "bytes": 205101542,
+    "sha256": "3330298e794755f7d1751f35d64f4f67e5e1a7fd47b73ce0a920eb64c1b166a4",
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_host.so": {
+        "bytes": 495299752,
+        "sha256": "144ba72326d9f3a6b719ccb1f7f9e4720f59a96a025da407e8fed29b8ea19090"
+      },
+      "lib/arm64-v8a/libshadps4_fex_session.so": {
+        "bytes": 35569544,
+        "sha256": "fdeeb724da01084d04ab8ce5ed9ed370c59fe1a5733b98d351ab3a98f9d4fee9"
+      }
+    },
+    "installed": false
+  },
+  "validation": {
+    "macos_rwlock_checks": 60,
+    "macos_rwlock_failures": 0,
+    "macos_diagnostics_checks": 1233,
+    "macos_diagnostics_failures": 0,
+    "macos_contention_iterations": 6000,
+    "macos_contention_lock_operations": 24000,
+    "macos_contention_errors": 0,
+    "llvm_tsan": "same 1233 checks and 6000 contention iterations passed, no reports",
+    "android_host_and_two_test_binaries": "built; not executed",
+    "android_apk": "built; packaged host SHA matches native build",
+    "gameplay": "not run; device explicitly unavailable",
+    "first_writer": "not identified",
+    "full_regression": false,
+    "commit_push": false
+  },
+  "artifacts": [
+    {
+      "path": "build/validation/mhr-offline-20260922/audit-result.log",
+      "bytes": 157,
+      "sha256": "981af21533f876f8b6852ab2fce6a7d4242f44794f1a8550b8e37e63f056747a"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/audit.py",
+      "bytes": 4295,
+      "sha256": "67aa6afa661872bcdbdbe36641f973ac90211cbfbfdfc1df4a3dabe6cb74f0ce"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/build-android.log",
+      "bytes": 220027,
+      "sha256": "c5d6843e0ea1ae3fe8c28238c9ae6dc3ff94ad727eaee9af8f2bdf1fc742c2ab"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/build-apk.log",
+      "bytes": 25620,
+      "sha256": "0bc2545730d152256e276ac30e3e4dbe0ee92244e21dd0e5f6bf2bb11be6d383"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/build-host-tests-final.log",
+      "bytes": 237,
+      "sha256": "1c83638973c457a433b8d1f00aa3ce3e652683b3adf23e662ec28fa7f91ade5d"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/build-host-tests.log",
+      "bytes": 237,
+      "sha256": "1c83638973c457a433b8d1f00aa3ce3e652683b3adf23e662ec28fa7f91ade5d"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/build-tsan-final.log",
+      "bytes": 237,
+      "sha256": "1c83638973c457a433b8d1f00aa3ce3e652683b3adf23e662ec28fa7f91ade5d"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/build-tsan.log",
+      "bytes": 728,
+      "sha256": "e52e3ad84b97a94ae8d6125e676f0be5940dd1b60430579a04e35c47156575ff"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/cache3.asm",
+      "bytes": 10172,
+      "sha256": "aa17b811f26e2130002ea296b5a7fce5f9ef935b2b630aceab4b2e19c21e8986"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/caller1.asm",
+      "bytes": 8305,
+      "sha256": "69079cef2843df345666c5e071fa03d7dd6abc5ee3b269ea10279b1ed8fd26ba"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/caller2.asm",
+      "bytes": 5873,
+      "sha256": "72b3718c4758dd3a34411a393c2e9fc3564b287887fbbee9c8941a7e6d1b3f6e"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/configure-host.log",
+      "bytes": 861,
+      "sha256": "bc13a6924549e4c696825b2c3b8b4fc079da924bec4239a7ae44d6a1555c4300"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/configure-tsan.log",
+      "bytes": 859,
+      "sha256": "91ccd69e1ab3b3c5c4c1d5b592dc3f7f1e727377e12826ce37beb692b39f878e"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/crash-registers.json",
+      "bytes": 4564,
+      "sha256": "a8471ad8daac57ca9d68a3144a119d78a9a188540a67bcba2d811865d10fe733"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/fault3.asm",
+      "bytes": 5955,
+      "sha256": "78b7cff318b6bc920674bc5fd2fc202445585a5b1d983c9178803480db048c59"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/finalize.py",
+      "bytes": 3208,
+      "sha256": "241547a407d31a752124305afb0adf89d2754ebba9b03f950f36d7cea9a4a4f1"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/guest_rwlock_diagnostics_tests-android",
+      "bytes": 789000,
+      "sha256": "08e67100f9c905233b58bd4ad32edffdd31f8949c47a8e820a4342093cafee15"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/guest_rwlock_tests-android",
+      "bytes": 1343936,
+      "sha256": "deb649c2ec0d24de4247e6a14f98ec3db8543a0b602e085f827fcb979057dc97"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/host-test-results.log",
+      "bytes": 179,
+      "sha256": "8e4a04e26dde196c2e8ecbc20e70ea4302b640238ddfef281e444f9ae62a0d30"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/mhr-family-audit.json",
+      "bytes": 13500,
+      "sha256": "55206bc29a17ae2743be57d78fcc877e5029fcdf3d49d7338e85169dd8826f04"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/pointer-findings.json",
+      "bytes": 1026,
+      "sha256": "505f5e4e76808c2c21c121038f557a0a0165c3121406f631017791ce4f8bb95e"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/ref2.asm",
+      "bytes": 22742,
+      "sha256": "f8721d1656aba0e99d4db4cc1fcc42e0c4320219e249fdfeaea9c8f05fa194f6"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/reverse-close-result.json",
+      "bytes": 236,
+      "sha256": "44c0d48c6927a04ecc9208b65c1383180355e693e623b258a41c56cfcb696720"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/reverse-close-retry.json",
+      "bytes": 135,
+      "sha256": "b1aa9b8ca1b0bdf19f612120a7812ca4beadcba6e4e0e4526f408f8f83bda12e"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/reverse-status-final.json",
+      "bytes": 260,
+      "sha256": "e49111bbb97979197aad00fba00411db4ff17283f5caecd9c595882af310741f"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/reverse-study-status.json",
+      "bytes": 433,
+      "sha256": "18961df6852aa3c66f5f2507091a339bdf4fad7ba60ace2257abfd5d719f7084"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/shadps4-mhr-offline-rwlock.apk",
+      "bytes": 205101542,
+      "sha256": "3330298e794755f7d1751f35d64f4f67e5e1a7fd47b73ce0a920eb64c1b166a4"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/source-checkpoint.json",
+      "bytes": 1022,
+      "sha256": "cc2017eee95038e076fb2518c289713534c8b5f68337963a067443ef3d38808d"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/test-host-final.log",
+      "bytes": 78,
+      "sha256": "833ff45a720baca69e778960d9bb239a91aa97b89a830780e6adeae64f181379"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/test-tsan-final.log",
+      "bytes": 78,
+      "sha256": "833ff45a720baca69e778960d9bb239a91aa97b89a830780e6adeae64f181379"
+    },
+    {
+      "path": "build/validation/mhr-offline-20260922/test-tsan.log",
+      "bytes": 78,
+      "sha256": "833ff45a720baca69e778960d9bb239a91aa97b89a830780e6adeae64f181379"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/mhr-analysis.elf",
+      "bytes": 297153569,
+      "sha256": "37f764009917f151df72a6b46fe8ed050fc9c305a39913e09102c8402fdc1e03"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/mhr-analysis.json",
+      "bytes": 159876,
+      "sha256": "49a5473ddd2a8d858059d52bc22d7faba33fd98823ef55ef777711617a11bdcf"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/mhr-fault1.asm",
+      "bytes": 10913,
+      "sha256": "8758101fa9dc2732daae20da533c0b6f13838a72c29f5ec9bdf6a0618405112f"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/mhr-fault2.asm",
+      "bytes": 6723,
+      "sha256": "a21c3b27eef30ab5cc0492791766bd772bad917696fd2229504e234ae8534360"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/mhr-v2-jit.asm",
+      "bytes": 2295,
+      "sha256": "347c50cb48e4db86f5dedd968afb36dcb7fcc40fd8f6fd3e4a76412faa0c251a"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/mhr-v2-rsp-jit.asm",
+      "bytes": 2407,
+      "sha256": "1fe7d417adbf73b41a19036c3b6e2f6b556e2b848642c73784beeb9a2150229c"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/runs/mhr-v2/dropbox-own-tombstone.txt",
+      "bytes": 66160,
+      "sha256": "7ca780d80e777ea8b9980bc32d2c6e530153f6dacf2e39ffbdb1549d08e893f1"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/runs/mhr-v2/imports.json",
+      "bytes": 400512,
+      "sha256": "f944c88b633c55a4ddded5afa3dd35217610966c10f2c447b334e2709ab96977"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/runs/mhr-v2-rsp/dropbox-own-tombstone.txt",
+      "bytes": 66161,
+      "sha256": "dcb4b879fe5c7cca8b49f125a68d83250e4f73f86f36bcad457bb95a5cccd16b"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/runs/mhr-v2-rsp/imports.json",
+      "bytes": 400512,
+      "sha256": "675f3d48d49309a1c9a4337613969ebe92ae1e058163624e9d24c9186f42fcb6"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/runs/mhr-v2-sync-off/dropbox-own-tombstone.txt",
+      "bytes": 66161,
+      "sha256": "9f9dbd26b8a82f564ed40b1c0c8896921438b9e8d34caf6c11843dd62e03bd1a"
+    },
+    {
+      "path": "build/validation/monster-hunter-network-gesture-20260922/runs/mhr-v2-sync-off/imports.json",
+      "bytes": 400512,
+      "sha256": "b1bb3ec5b9c65d64c14a23c95a89b3a8da74b180c06cc3637215a627409e90fa"
+    }
+  ]
+}

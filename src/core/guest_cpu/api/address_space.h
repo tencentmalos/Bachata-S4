@@ -203,6 +203,11 @@ public:
         GuestRange range;
         GuestPermission permission{GuestPermission::Read};
         std::span<const MappingIdentity> identities{};
+        // File/DMA buffers may span adjacent virtual mappings. Opt in only for
+        // byte buffers; the default scalar/ABI-record contract stays strict.
+        // Every segment's permission and supplied identity is checked while
+        // holding the same gate, before any pin in the batch is published.
+        bool allow_adjacent_mappings{};
     };
     // Ordinary native data access. Admission is atomic for the WHOLE batch;
     // no caller-supplied gate, and no metadata lock spans the returned views.

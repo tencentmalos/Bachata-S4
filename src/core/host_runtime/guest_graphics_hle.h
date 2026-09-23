@@ -15,6 +15,10 @@ class GuestGraphics;
 GuestCpu::Result<GuestCpu::ExecutionLease> AcquireGraphicsAdmission(
     GuestCpu::GuestAddressSpace& space, std::stop_token cancel,
     std::chrono::steady_clock::time_point deadline, const std::function<void()>& wait);
+// Command streams are byte buffers and may cross adjacent VM allocations.
+GuestCpu::Result<GuestCpu::PinnedSpan> AcquireGraphicsCommandBuffer(
+    GuestCpu::GuestAddressSpace& space, GuestCpu::GuestRange range, bool writable,
+    std::stop_token stop = {});
 void InstallGraphicsHandlers(
     std::map<std::string, std::function<GuestCpu::Status(GuestCpu::Hle::HleCallFrame&)>>& handlers,
     std::set<std::string>& gnm, std::set<std::string>& video, GuestCpu::GuestAddressSpace& space,

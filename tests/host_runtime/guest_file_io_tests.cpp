@@ -61,6 +61,98 @@ static std::string Sfo(std::string id, std::string version) {
     auto bytes = psf.Encode();
     return {reinterpret_cast<const char*>(bytes.data()), bytes.size()};
 }
+static void Reachability(GuestStorage& storage,
+                         const std::vector<std::pair<std::string, int>>& paths) {
+    AddressSpaceConfig cfg{};
+    cfg.reservation_size = 16 << 20;
+    auto made = GuestAddressSpace::Create(cfg);
+    CHECK(made);
+    if (!made) return;
+    auto space = std::move(made).Value();
+    const auto base = space->ReservationBase().value;
+    CHECK(space->Map({GuestAddress{base}, 0x4000},
+                     GuestPermission::Read | GuestPermission::Write));
+    const auto entry = std::find_if(std::begin(StorageEntries), std::end(StorageEntries),
+        [](const auto& e) { return e.nid == "uWyW3v98sU4"; });
+    CHECK(entry != std::end(StorageEntries));
+    if (entry == std::end(StorageEntries)) return;
+    auto invoke = [&](u64 address) {
+        return s32(DispatchStorage(storage, *space, *entry, {address}, [](int) {
+            CHECK(false); // Orbis query must not mutate guest POSIX errno.
+            return UINT64_MAX;
+        }));
+    };
+    for (const auto& [path, expected] : paths) {
+        CHECK(space->WriteData({base}, std::as_bytes(std::span{path.c_str(), path.size() + 1})));
+        CHECK(invoke(base) == (expected ? Libraries::Kernel::ErrnoToSceKernelError(expected) : 0));
+        CHECK(space->Counts().live_pins == 0);
+    }
+    CHECK(invoke(0) == Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT));
+    CHECK(invoke(UINT64_MAX - 1) == Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT));
+    const std::array<char, 2> tail{'x', 0};
+    CHECK(space->WriteData({base + 0x3ffe}, std::as_bytes(std::span{tail})));
+    // Missing path with a terminator at the last mapped byte is still readable.
+    CHECK(invoke(base + 0x3ffe) != Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT));
+    CHECK(space->WriteData({base + 0x3fff}, std::as_bytes(std::span{tail.data(), 1})));
+    CHECK(invoke(base + 0x3fff) == Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT));
+}
+static void SegmentedFileBuffers(GuestStorage& storage, std::string_view path, std::string_view data) {
+    AddressSpaceConfig cfg{}; cfg.reservation_size = 16 << 20;
+    auto made = GuestAddressSpace::Create(cfg); CHECK(made);
+    if (!made) return;
+    auto space = std::move(made).Value(); const u64 base = space->ReservationBase().value;
+    const auto rw = GuestPermission::Read | GuestPermission::Write;
+    CHECK(space->Map({{base}, 0x4000}, rw));
+    CHECK(space->Map({{base + 0x4000}, 0x4000}, rw));
+    const u64 at = base + 0x3ffb;
+    auto fd = storage.Open(path, 0, 0); CHECK(!fd.error);
+    auto invoke = [&](StorageOp op, u64 offset = 0, u64 size = 0) {
+        auto entry = std::find_if(std::begin(StorageEntries), std::end(StorageEntries),
+            [&](const auto& e) { return e.op == op && !e.posix; });
+        CHECK(entry != std::end(StorageEntries));
+        return s64(DispatchStorage(storage, *space, *entry, {u64(fd.value), at, size ? size : data.size(), offset},
+            [](int) { CHECK(false); return UINT64_MAX; }));
+    };
+    auto bytes = [&] {
+        std::string out(data.size(), '\0');
+        CHECK(space->ReadData({at}, std::as_writable_bytes(std::span{out.data(), size_t(5)})));
+        CHECK(space->ReadData({base+0x4000}, std::as_writable_bytes(std::span{out.data()+5, out.size()-5})));
+        return out;
+    };
+    CHECK(!space->AcquireDataSpan({{at}, data.size()}, true)); // legacy record rule
+    CHECK(storage.Seek(fd.value, 3, 0).value == 3);
+    CHECK(invoke(StorageOp::Pread) == s64(data.size()));
+    CHECK(bytes() == data);
+    CHECK(storage.Seek(fd.value, 0, 1).value == 3); // positioned I/O preserves cursor
+    CHECK(storage.Seek(fd.value, 0, 0).value == 0);
+    CHECK(invoke(StorageOp::Read) == s64(data.size()));
+    CHECK(bytes() == data);
+    CHECK(storage.Seek(fd.value, 0, 1).value == s64(data.size()));
+    CHECK(space->Counts().live_pins == 0);
+    const std::array<char,5> canary{'!','!','!','!','!'};
+    CHECK(space->WriteData({at}, std::as_bytes(std::span{canary})));
+    CHECK(space->Protect({{base+0x4000},0x4000}, GuestPermission::Read));
+    CHECK(invoke(StorageOp::Pread) == s64(Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT)));
+    CHECK(bytes().substr(0,5) == "!!!!!"); // no partial publication before tail validation
+    CHECK(space->Unmap({{base+0x4000},0x4000}));
+    CHECK(invoke(StorageOp::Pread) == s64(Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT)));
+    CHECK(space->Counts().live_pins == 0);
+    CHECK(space->Map({{base+0x4000},0x4000}, rw));
+    // Identity checks still cover each segment under one atomic gate.
+    std::array<GuestAddressSpace::MappingIdentity,2> ids{{
+        {at, base+0x4000, space->Query({at}).Value().mapping_generation},
+        {base+0x4000, at+data.size(), space->Query({base+0x4000}).Value().mapping_generation}}};
+    GuestAddressSpace::DataRequest request{{{at},data.size()}, GuestPermission::Write, ids, true};
+    {
+        auto pins = space->AcquireDataBatch(std::span{&request,1}); CHECK(pins);
+        CHECK(!space->Unmap({{base+0x4000},0x4000})); // whole buffer retained
+    }
+    CHECK(space->Unmap({{base+0x4000},0x4000}));
+    CHECK(space->Map({{base+0x4000},0x4000}, rw));
+    CHECK(!space->AcquireDataBatch(std::span{&request,1})); // same VA, new backing
+    CHECK(space->Counts().live_pins == 0);
+    CHECK(storage.Close(fd.value).value == 0);
+}
 static void Archives(const std::filesystem::path& root) {
     using namespace Core::FileSys;
     const auto base = root / "CUSA99991.zar";
@@ -80,6 +172,10 @@ static void Archives(const std::filesystem::path& root) {
     mounts.Mount(base, "/app0", true);
     mounts.Mount(base, "/hostapp", true);
     GuestStorage storage(mounts, root / "users", "CUSA99991", 1000);
+    SegmentedFileBuffers(storage, "/app0/shared", "UPDATED");
+    Reachability(storage, {{"/app0", 0}, {"/app0/shared", 0}, {"/app0/base-only", 0},
+                          {"/app0/dir/update", 0}, {"/app0/missing", POSIX_ENOENT},
+                          {"/app0/../shared", POSIX_EACCES}, {"/hostapp/shared", 0}});
     auto fd = storage.Open("/app0/shared", 0, 0);
     CHECK(!fd.error);
     CHECK(storage.PollReady(fd.value).value == 3);
@@ -181,6 +277,7 @@ int main(int argc, char** argv) {
         Core::FileSys::MntPoints mounts;
         mounts.Mount(root / "content", "/app0");
         GuestStorage storage(mounts, root / "users", "CUSA99991", 1000);
+        SegmentedFileBuffers(storage, "/app0/asset", "ABCDEFGH");
         using Stat = Libraries::Kernel::OrbisKernelStat;
         Stat st{};
         CHECK(storage.Stat("/app0", st).value == 0 && st.st_mode == 0040777 && st.st_size == 65536);
@@ -189,6 +286,11 @@ int main(int argc, char** argv) {
         CHECK(storage.Stat("/app0/../asset", st).error == EACCES);
         std::filesystem::create_symlink(root / "content/asset", root / "content/link");
         CHECK(storage.Stat("/app0/link", st).error == EACCES);
+        Reachability(storage, {{"/app0", 0}, {"/app0/asset", 0},
+                              {"/app0/missing", POSIX_ENOENT}, {"/app0/link", POSIX_EACCES},
+                              {"/app0/../asset", POSIX_EACCES}, {"/dev/urandom", 0},
+                              {"/app0/" + std::string(249, 'a'), POSIX_ENOENT},
+                              {"/app0/" + std::string(250, 'a'), POSIX_ENAMETOOLONG}});
         for (const auto path : {"/dev/urandom", "/dev/random", "/dev/srandom", "/dev/zero", "/dev/null"}) {
             const auto device = storage.Open(path, 0, 0);
             CHECK(!device.error);
@@ -525,6 +627,8 @@ int main(int argc, char** argv) {
                 CHECK(IsAppContentNid(nid));
                 return content.Dispatch(*space, nid, a, &storage);
             };
+            for (const auto nid : {"7bOLX66Iz-U", "buYbeLOGWmA", "a5N7lAG0y2Q", "bcolXMmp6qQ", "SaKib2Ug0yI"})
+                CHECK(dispatch(nid, {}) == u32(ORBIS_APP_CONTENT_ERROR_NOT_INITIALIZED));
             CHECK(dispatch("R9lA82OraNs", {1, 0}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
             CHECK(dispatch("R9lA82OraNs", {0, 1}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
             CHECK(dispatch("R9lA82OraNs", {}) == u32(ORBIS_APP_CONTENT_ERROR_BUSY));
@@ -607,6 +711,8 @@ int main(int argc, char** argv) {
             CHECK(storage.Rmdir("/temp0/sub").error == ENOTEMPTY);
             CHECK(storage.Write(temp_fd.value, initial).value == 4);
             CHECK(storage.UnmountTemporary() == EBUSY);
+            CHECK(dispatch("a5N7lAG0y2Q", {base + 1024}) == u32(ORBIS_APP_CONTENT_ERROR_BUSY));
+            CHECK(dispatch("bcolXMmp6qQ", {base + 1024}) == u32(ORBIS_APP_CONTENT_ERROR_BUSY));
             CHECK(dispatch("buYbeLOGWmA", {1, base + 1536}) == u32(ORBIS_APP_CONTENT_ERROR_BUSY));
             CHECK(storage.Truncate(temp_fd.value, 4 << 20).value == 0); // no savedata quota
             CHECK(storage.Truncate(temp_fd.value, 4).value == 0);
@@ -646,11 +752,50 @@ int main(int argc, char** argv) {
             CHECK(!open_dir.error);
             CHECK(storage.Rmdir("/temp0/open-dir/").value == 0);
             CHECK(storage.Close(open_dir.value).value == 0);
-            CHECK(storage.UnmountTemporary() == 0);
+            for (const auto nid : {"a5N7lAG0y2Q", "bcolXMmp6qQ"}) {
+                CHECK(dispatch(nid, {}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
+                CHECK(dispatch(nid, {1}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
+                std::array<char, 16> invalid;
+                invalid.fill('x');
+                CHECK(space->WriteData({base + 1536}, std::as_bytes(std::span{invalid})));
+                CHECK(dispatch(nid, {base + 1536}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
+                const std::array<char, 16> savedata_point{'/', 's', 'a', 'v', 'e', 'd', 'a', 't', 'a', '0'};
+                CHECK(space->WriteData({base + 1536}, std::as_bytes(std::span{savedata_point})));
+                CHECK(dispatch(nid, {base + 1536}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
+            }
+            CHECK(storage.Mkdir("/temp0/nested", 0700).value == 0);
+            const auto format_file = storage.Open("/temp0/nested/file", 0x202, 0600);
+            CHECK(!format_file.error);
+            CHECK(storage.Write(format_file.value, initial).value == initial.size());
+            auto format_lease = storage.AcquirePositioned(format_file.value);
+            CHECK(storage.Close(format_file.value).value == 0);
+            CHECK(dispatch("a5N7lAG0y2Q", {base + 1024}) == u32(ORBIS_APP_CONTENT_ERROR_BUSY));
+            CHECK(std::filesystem::exists(temporary / "nested/file"));
+            format_lease = {};
+            // A foreign directory and a real mounted save must survive Format.
+            const auto foreign = temporary.parent_path() / "format-foreign-test";
+            std::filesystem::create_directory(foreign);
+            std::ofstream(foreign / "sentinel") << "keep";
+            std::filesystem::create_directory_symlink(foreign, temporary / "foreign-link");
+            CHECK(dispatch("a5N7lAG0y2Q", {base + 1024}) == 0);
+            CHECK(mounts.GetMountSnapshot("/temp0")->host_path == temporary);
+            CHECK(std::filesystem::is_empty(temporary));
+            CHECK(std::filesystem::file_size(foreign / "sentinel") == 4);
+            CHECK(std::filesystem::file_size(root / "content/asset") == 8);
+            CHECK(storage.Stat("/savedata0/data", st).error == 0 && st.st_size == 7);
+            std::filesystem::remove_all(foreign);
+            CHECK(dispatch("SaKib2Ug0yI", {base + 1024, base + 1280}) == 0);
+            CHECK(dispatch("a5N7lAG0y2Q", {base + 1024}) == 0); // empty format is valid
+            CHECK(dispatch("bcolXMmp6qQ", {base + 1024}) == 0);
             CHECK(!mounts.GetMountSnapshot("/temp0") && !std::filesystem::exists(temporary));
             CHECK(std::filesystem::file_size(root / "content/asset") == 8);
             CHECK(dispatch("SaKib2Ug0yI", {base + 1024, base + 1280}) ==
                   u32(ORBIS_APP_CONTENT_ERROR_NOT_FOUND));
+            CHECK(dispatch("a5N7lAG0y2Q", {base + 1024}) == u32(ORBIS_APP_CONTENT_ERROR_NOT_FOUND));
+            CHECK(dispatch("bcolXMmp6qQ", {base + 1024}) == u32(ORBIS_APP_CONTENT_ERROR_NOT_FOUND));
+            CHECK(dispatch("7bOLX66Iz-U", {1}) == u32(ORBIS_APP_CONTENT_ERROR_PARAMETER));
+            CHECK(dispatch("7bOLX66Iz-U", {base + 1024}) == 0);
+            CHECK(dispatch("bcolXMmp6qQ", {base + 1024}) == 0);
             CHECK(dispatch("buYbeLOGWmA", {0, base + 1024}) == 0);
             CHECK(std::filesystem::is_empty(mounts.GetMountSnapshot("/temp0")->host_path));
             CHECK(storage.UnmountTemporary() == 0);
@@ -680,6 +825,16 @@ int main(int argc, char** argv) {
             CHECK(!fd.error);
         }
         CHECK(!temporary_mounts.GetMountSnapshot("/temp0") && !std::filesystem::exists(previous));
+    }
+    {
+        GuestStorage storage(temporary_mounts, root / "users", "CUSA99991", 1000);
+        std::array<char, 16> point{};
+        CHECK(storage.MountTemporary(0, point) == 0);
+        const auto current = temporary_mounts.GetMountSnapshot("/temp0")->host_path;
+        std::ofstream(current / "cancel-sentinel") << "keep";
+        storage.Cancel();
+        CHECK(storage.FormatTemporary("/temp0") == EINTR);
+        CHECK(std::filesystem::file_size(current / "cancel-sentinel") == 4);
     }
     Archives(root);
     std::printf("GUEST_FILE_IO checks=%u failures=%u\n", checks, failures);

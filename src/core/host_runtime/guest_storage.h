@@ -84,6 +84,14 @@ public:
     Error SetParam(std::string_view point, u32 type, std::span<const u8> in);
     Error SetupMemory(int uid, u64 size, const Libraries::SaveData::OrbisSaveDataParam* param);
     Error Memory(int uid, std::span<u8> bytes, s64 offset, bool write);
+    struct MemoryPart { s64 offset{}; std::vector<u8> bytes; };
+    Error SetupMemory2(int uid, u32 slot, u64 size, u32 option,
+                       const Libraries::SaveData::OrbisSaveDataParam* param,
+                       const std::vector<u8>* icon, u64 icon_capacity, u64& existed);
+    Error AccessMemory2(int uid, u32 slot, std::vector<MemoryPart>& parts,
+                        Libraries::SaveData::OrbisSaveDataParam* param,
+                        std::vector<u8>* icon, bool write);
+    Error SyncMemory(int uid, u32 slot, u32 option);
     Error SaveIcon(std::string_view point, std::span<const u8> bytes);
     Error Search(const Libraries::SaveData::OrbisSaveDataDirNameSearchCond& condition,
                  Libraries::SaveData::OrbisSaveDataDirNameSearchResult& result);
@@ -124,6 +132,8 @@ public:
     // return host errno; the AppContent adapter translates to its own errors.
     int MountTemporary(u32 option, std::array<char, 16>& point);
     int TemporarySpace(std::string_view point, u64& available_kib);
+    int FormatTemporary(std::string_view point);
+    int UnmountTemporary(std::string_view point);
     int UnmountTemporary();
     static bool ValidTitle(std::string_view title);
 
@@ -174,6 +184,8 @@ private:
     std::atomic<bool> cancelled{};
     std::deque<Event> events;
     std::unique_ptr<Libraries::SaveData::SaveMemory::Store> save_memory;
+    struct MemoryPolicy { u32 option{}; u64 charged_bytes{}, icon_capacity{}; };
+    std::map<u32, MemoryPolicy> memory_policies;
     void CopyTree(const std::filesystem::path& from, const std::filesystem::path& to);
     Error CheckIdentity(int uid, std::string_view tid, std::string_view directory);
     std::array<std::unique_ptr<Save>, 16> slots;
@@ -195,6 +207,7 @@ private:
     int CheckGrowth(const File& file, u64 old_size, u64 end);
     Error UnmountLocked(std::string_view point);
     int UnmountTemporaryLocked();
+    int ValidateTemporaryLocked(std::string_view point);
     static u64 Used(const std::filesystem::path& root);
 };
 static_assert(sizeof(GuestStorage::MountResult) == 64);

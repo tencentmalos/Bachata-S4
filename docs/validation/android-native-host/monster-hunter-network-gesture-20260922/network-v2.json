@@ -1,0 +1,19 @@
+{
+  "remote": "/data/local/tmp/mh-temp-1790039315027965000",
+  "artifacts": [
+    {
+      "path": "build/android-host-api33/native/guest_network_tests",
+      "sha256": "6fe955873b88cafae378ed64cc3831a40be2b9f8cf4b819fe44237aa8a7419db"
+    },
+    {
+      "path": "build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "ce0c7ff83c1859096a0b7f60d73efd78647e93c40b242cffa5665e6a45433965"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    }
+  ],
+  "exit": 0,
+  "cleanup": ""
+}

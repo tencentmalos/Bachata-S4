@@ -7,13 +7,32 @@
 #include <string_view>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/kernel/orbis_error.h"
+#include "core/libraries/kernel/kernel.h"
 #include "core/memory.h"
 #include "core/host_runtime/guest_storage.h"
 
 namespace Core::HostRuntime {
 
-inline constexpr std::array<std::string_view, 5> MemoryServiceNids{
-    "DGMG3JshrZU", "BHouLQzh0X0", "BPE9s9vQQXo", "UqDGjXA5yUM", "3k6kx-zOOSQ"};
+inline constexpr std::array<std::string_view, 6> MemoryServiceNids{
+    "DGMG3JshrZU", "BHouLQzh0X0", "BPE9s9vQQXo", "UqDGjXA5yUM", "3k6kx-zOOSQ", "yDBwVAolDgg"};
+
+inline u32 GuestQueryStack(GuestCpu::GuestAddressSpace& space, MemoryManager& memory,
+                           u64 address, u64 start, u64 end) {
+    using namespace GuestCpu;
+    std::vector<GuestAddressSpace::DataRequest> requests;
+    for (const u64 out : {start, end})
+        if (out) requests.push_back({{{out}, 8}, GuestPermission::Write});
+    auto pins = space.AcquireDataBatch(requests);
+    if (!pins) return u32(ORBIS_KERNEL_ERROR_EFAULT);
+    void *first{}, *last{};
+    const auto result = memory.IsStack(address, &first, &last);
+    if (!result) {
+        size_t i = 0;
+        if (start) std::memcpy(pins.Value()[i++].WritableBytes().data(), &first, 8);
+        if (end) std::memcpy(pins.Value()[i].WritableBytes().data(), &last, 8);
+    }
+    return u32(result);
+}
 
 inline std::string_view MemoryServiceStatus(std::string_view nid) {
     if (nid == "3k6kx-zOOSQ") return "desktop_stub_no_residency";
@@ -28,6 +47,8 @@ inline GuestCpu::Result<u64> DispatchMemoryService(
     std::string_view nid,
     const std::array<u64, 6>& a, const std::function<u64(int)>& posix_failure) {
     using namespace GuestCpu;
+    if (nid == "yDBwVAolDgg")
+        return u64(GuestQueryStack(space, memory, a[0], a[1], a[2]));
     if (nid == "DGMG3JshrZU") {
         std::string name;
         for (u64 i = 0; i < Libraries::Kernel::ORBIS_KERNEL_MAXIMUM_NAME_LENGTH; ++i) {

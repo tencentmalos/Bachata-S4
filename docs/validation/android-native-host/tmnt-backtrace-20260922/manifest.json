@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "installed": {
+    "apk": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tmnt-backtrace-20260922/shadps4-tmnt-backtrace.apk",
+      "bytes": 205374346,
+      "sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0"
+    },
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_host.so": "75b7a709d1459db85e2971f40b233b3111feba5405b4e32d5592603599cf2bb5",
+      "lib/arm64-v8a/libshadps4_fex_session.so": "a58e6d461810d73fd0d770961442d4714d02e427d992f3fb5d78ef2ab6ba48f6"
+    },
+    "installed": true,
+    "installed_path": "/data/app/~~YByy1C8i-2-36j_JfXbSlg==/com.shadps4.android-YQow1dEfNWL7SlCr3y2N4g==/base.apk",
+    "verified_device_sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0",
+    "installed_unix_time": 1790070684.427917
+  },
+  "tests": {
+    "remote": "/data/local/tmp/tmnt-backtrace-1790070614218196000",
+    "files": {
+      "build/validation/monster-hunter-20260921/runtime-tests/out/runtime/production_runtime_runner": "1b9b584f7c4fde68853603aad0643381a664c59ca0030546f195a0860a6190fc",
+      "build/android-host-api33-sbs-20260919-r29/native/libshadps4_host.so": "75b7a709d1459db85e2971f40b233b3111feba5405b4e32d5592603599cf2bb5",
+      "build/android-host-api33-sbs-20260919-r29/native/guest_process_services_tests": "fe2a88fd0b936ecafe9dfd09e8d0b4851d9776459e6dafbecd4c093bee9b15f1",
+      "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+      "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tmnt-backtrace-20260922/backtrace.elf": "0140c1a9c6a5e8d62ebe9b1f2940a69f2542850d2ab70e19af47cf79373e41e9"
+    },
+    "results": {
+      "process": 0,
+      "positive": 0,
+      "negative": 0
+    }
+  },
+  "state": "TMNT diagnostic repaired; original heap error pending reproduction; device explicitly handed back to OCR task",
+  "evidence": [
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/after-install.png",
+      "bytes": 2304661,
+      "sha256": "0f6897dc964bedd8d5eea611b8adb836685306d6596f4691b389b04ffd25e076"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/backtrace.disasm.txt",
+      "bytes": 2593,
+      "sha256": "6c851720db542c4710679ed670e688cb5fe49318bec10b4359d78e107ed80cdc"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/backtrace.elf",
+      "bytes": 82152,
+      "sha256": "0140c1a9c6a5e8d62ebe9b1f2940a69f2542850d2ab70e19af47cf79373e41e9"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/backtrace.json",
+      "bytes": 800,
+      "sha256": "a1bda61fcd51de5769df35a203b0ffd442678e728f75b7700d41da8d62f354b2"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/before-userdata.tar",
+      "bytes": 32150528,
+      "sha256": "fdd03f10691d3230bdc5ecb1ec6a691bb6fb7d09714eb8141704b06ce7a5e574"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/build-final.log",
+      "bytes": 1723,
+      "sha256": "cce3a6851bbd2c63e6881a300db5193114810c632aeb890e3128f4536edcd229"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/build-runner.log",
+      "bytes": 590,
+      "sha256": "e870756dad5812a3265811348ad46cc897a948383bd30304c97048e7275612ca"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/build.log",
+      "bytes": 468,
+      "sha256": "603bf74eccc038f67d189822b3b32ef2d45d2635617fe290928de170c95831ce"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/built.json",
+      "bytes": 523,
+      "sha256": "27a58c20e94c05993bff6198170faeaee4afa0884ae7a5f22f45d99d8e88881d"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/gradle-final.log",
+      "bytes": 21271,
+      "sha256": "720eb9eecb63d30d81c00e0fe11f872b07024645ecf2ac082c9a997c71cf6706"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/gradle-validity.log",
+      "bytes": 21271,
+      "sha256": "5a52d8b6adac911b6ccb77b472ed02963c62f79b6c38d8551f8617b783ed02ed"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/gradle.log",
+      "bytes": 21271,
+      "sha256": "0a5bf3373019da17080b0310e3035a0feb53c53ddb5b3f2c15c5e3e1fc018dd4"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/guest-tty.txt",
+      "bytes": 209375,
+      "sha256": "231f09439ad1698ea6e14865b330e3ce96166256a0219831cbdfa309e04f8efe"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/heap-failure-context.txt",
+      "bytes": 8502,
+      "sha256": "86936378dfef5cedc9a58f32e4eecb8bdef9e95192ab227f150465a603d3f0e2"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/host-errors.txt",
+      "bytes": 12,
+      "sha256": "e7050295bbc75e5e00ea589ef52653993dc18120066ddc61c82f996da0ef8598"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/install.log",
+      "bytes": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/install.py",
+      "bytes": 1200,
+      "sha256": "bd6a986f54098990bb286644eea7eaddf5b33183ac621e73d787bc253d7d9bb8"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/installed.json",
+      "bytes": 776,
+      "sha256": "09943114d47b36881181f0146d4273a67fc881407edb836db3bbadb8f735f76e"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/negative.log",
+      "bytes": 12733,
+      "sha256": "9fd79c37c94b7625414653ce7988f7e422528a98f02bd77948b6423346c6170a"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/old-host.so",
+      "bytes": 496007032,
+      "sha256": "27df8016dc2e9f09e2f14f3a85cb6f5c3f968c2032696fa23f444f49f6196e2b"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/positive-missing-validity.log",
+      "bytes": 13703,
+      "sha256": "540fe14683f26bf0a9d653b427b03c80135b399f0706755bb1f5555c03e756eb"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/positive.log",
+      "bytes": 16493,
+      "sha256": "2409707f865f86640be07d7e85c3a5a42e623473af635270c2a25c5c930338cc"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/post-install-userdata.tar",
+      "bytes": 32150016,
+      "sha256": "f1d25f0a440486d541c3026fdf57b03da632efd970c18b4f49eca469404b035d"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/pre-cleanup-properties.json",
+      "bytes": 89,
+      "sha256": "188d2283124173d586f3595443c112fb5f8c102f2b239b0db7e0c1d6e31a31f0"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/pre-install-status.txt",
+      "bytes": 4933,
+      "sha256": "8972a6a2bda7280250a43bc18b78206734128d0871f8485945354e879768ad2c"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/process-v1.log",
+      "bytes": 383,
+      "sha256": "db75801f8f9e550bc898d045e2b34adb111cada81ebe7ef4bbe266977996eaae"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/process.log",
+      "bytes": 39,
+      "sha256": "22f79e232354495fd7a09fed98938b5fad618321a6e632f5a3c5e73de6728340"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/run-tests.py",
+      "bytes": 2423,
+      "sha256": "c6eef7635e8553ef178c372e2d7a463d687ef124ed39f41eb1d2a1507d60b724"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/shadps4-tmnt-backtrace.apk",
+      "bytes": 205374346,
+      "sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/tests-missing-validity.json",
+      "bytes": 1029,
+      "sha256": "fcb2716886e998c2aa27425d3e2aa63ac308d7e93afbe409ef538b22b2088ed3"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/tests-v1.json",
+      "bytes": 991,
+      "sha256": "aae4f69d38d0ecb7be8f6172c3761f4a35b16c6365f07254d5f8674f6816a73d"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/tests.json",
+      "bytes": 1029,
+      "sha256": "07eff0f490c037d0e196701504fe647592936c504161d54d13a7cfda2be65d23"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/tmnt-running.png",
+      "bytes": 4150571,
+      "sha256": "ab265bf7c2776663c885ba1c1c1e8b7b4217f274b27e03d77aad06222c79e574"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/tmnt-title.png",
+      "bytes": 2381057,
+      "sha256": "719b9146f14e1c64b00e2729d1388fb55438639a036634e80920ade5eaaaa4ef"
+    },
+    {
+      "path": "build/validation/tmnt-backtrace-20260922/userdata-check.json",
+      "bytes": 12738,
+      "sha256": "d4bef0896d141aada0156585a98be509dc98b30cb041a8c2bb94ac6086fcb9b3"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/captured.json",
+      "bytes": 90,
+      "sha256": "11e7ec41790505c9cb783a6d765bf18011efdcaac0dac10e1887446fa5ac1cd5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "dcfe3011b735cccda124d210dd0eb80a274151ac3c356277bc211b21be3d0ca1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/imports.json",
+      "bytes": 433856,
+      "sha256": "5afaedb72aad67efde189b33f6de59924177a691c38daf10742b04c7d5d105d1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/logcat-tail.txt",
+      "bytes": 207942,
+      "sha256": "7e45424546ac8fee160f99c146ecd466f636b7f1e5ca751bf25d196bddbef1c4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/pids.txt",
+      "bytes": 6,
+      "sha256": "58009f4df78d0807c19a40552edfa4ef788bf4611898e8fa6b21f0c8b3cde1c7"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/screen.png",
+      "bytes": 2432485,
+      "sha256": "4e1ebe32bf6680c7140465b25c1baccf4d39dfcecbefa25f28f693d4806689ca"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/tmnt-backtrace-running/status.txt",
+      "bytes": 753,
+      "sha256": "67402452c5f08e4f31746f53332deebbdf23c928280086d92a3a7e2340d4e08e"
+    }
+  ]
+}

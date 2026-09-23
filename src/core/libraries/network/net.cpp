@@ -205,30 +205,19 @@ static s32 GetSocketState(net_socket sock, int socket_type) {
     return ORBIS_NET_SOCKINFO_STATE_CLOSED;
 }
 
-static void FillSockInfo(OrbisNetId id, Core::FileSys::File* file, OrbisNetSockInfo* info) {
+void FillNativeSockInfo(OrbisNetSockInfo& value, OrbisNetId id, std::intptr_t native,
+                       int type, std::string_view name, bool guest_nonblock) {
+    auto* info = &value;
     memset(info, 0, sizeof(OrbisNetSockInfo));
-
-    file->m_guest_name.copy(info->name, ORBIS_NET_DEBUG_NAME_LEN_MAX);
+    name.copy(info->name, ORBIS_NET_DEBUG_NAME_LEN_MAX);
     info->s = id;
-    if (!file->socket) {
-        return;
-    }
-    info->socket_type = static_cast<s8>(file->socket->socket_type);
+    info->socket_type = static_cast<s8>(type);
     info->flags = ORBIS_NET_SOCKINFO_F_SELF;
     info->state = ORBIS_NET_SOCKINFO_STATE_UNKNOWN;
-
-    const auto native = file->socket->Native();
-    if (!native.has_value()) {
-        info->state = ORBIS_NET_SOCKINFO_STATE_OPENED;
-        return;
-    }
-    const net_socket sock = *native;
-#ifndef _WIN32
-    const int socket_flags = ::fcntl(sock, F_GETFL, 0);
-    if (socket_flags != -1 && (socket_flags & O_NONBLOCK) != 0) {
+    const net_socket sock = static_cast<net_socket>(native);
+    if (guest_nonblock) {
         info->flags |= ORBIS_NET_SOCKINFO_F_NONBLOCK;
     }
-#endif
     sockaddr_in local{};
     socklen_t local_len = sizeof(local);
     if (::getsockname(sock, reinterpret_cast<sockaddr*>(&local), &local_len) == 0 &&
@@ -247,7 +236,7 @@ static void FillSockInfo(OrbisNetId id, Core::FileSys::File* file, OrbisNetSockI
 
     info->recv_queue_length = GetQueueLength(sock, false);
     info->send_queue_length = GetQueueLength(sock, true);
-    info->state = GetSocketState(sock, file->socket->socket_type);
+    info->state = GetSocketState(sock, type);
 
     int buffer_size = 0;
     socklen_t buffer_size_len = sizeof(buffer_size);
@@ -263,6 +252,27 @@ static void FillSockInfo(OrbisNetId id, Core::FileSys::File* file, OrbisNetSockI
 
     // The remaining fields (v ports, bandwidth counters and network emulation drop counters) have
     // no equivalent on the host and are left zeroed.
+}
+
+static void FillSockInfo(OrbisNetId id, Core::FileSys::File* file, OrbisNetSockInfo* info) {
+    *info = {};
+    file->m_guest_name.copy(info->name, ORBIS_NET_DEBUG_NAME_LEN_MAX);
+    info->s = id;
+    if (!file->socket) return;
+    info->socket_type = static_cast<s8>(file->socket->socket_type);
+    info->flags = ORBIS_NET_SOCKINFO_F_SELF;
+    const auto native = file->socket->Native();
+    if (!native) {
+        info->state = ORBIS_NET_SOCKINFO_STATE_OPENED;
+        return;
+    }
+    bool nonblock{};
+#ifndef _WIN32
+    const int flags = ::fcntl(*native, F_GETFL, 0);
+    nonblock = flags >= 0 && (flags & O_NONBLOCK);
+#endif
+    FillNativeSockInfo(*info, id, static_cast<std::intptr_t>(*native), file->socket->socket_type,
+                       file->m_guest_name, nonblock);
 }
 
 int PS4_SYSV_ABI in6addr_any() {

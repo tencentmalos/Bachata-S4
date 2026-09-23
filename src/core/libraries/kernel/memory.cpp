@@ -431,6 +431,8 @@ s32 PS4_SYSV_ABI sceKernelMtypeprotect(const void* addr, u64 size, s32 mtype, s3
     // Align addr and size to the nearest page boundary.
     const VAddr in_addr = reinterpret_cast<VAddr>(addr);
     auto aligned_addr = Common::AlignDown(in_addr, 16_KB);
+    if (size > UINT64_MAX - in_addr || size + in_addr - aligned_addr > UINT64_MAX - 0x3fff)
+        return ORBIS_KERNEL_ERROR_EINVAL;
     auto aligned_size = Common::AlignUp(size + in_addr - aligned_addr, 16_KB);
 
     if (aligned_size == 0) {
@@ -441,9 +443,8 @@ s32 PS4_SYSV_ABI sceKernelMtypeprotect(const void* addr, u64 size, s32 mtype, s3
     Core::MemoryManager* memory_manager = Core::Memory::Instance();
     Core::MemoryProt protection_flags = static_cast<Core::MemoryProt>(prot);
 
-    s32 result = memory_manager->Protect(aligned_addr, aligned_size, protection_flags);
+    s32 result = memory_manager->Protect(aligned_addr, aligned_size, protection_flags, mtype);
     if (result == ORBIS_OK) {
-        memory_manager->SetDirectMemoryType(aligned_addr, aligned_size, mtype);
         memory_manager->InvalidateMemory(aligned_addr, aligned_size);
     }
     return result;

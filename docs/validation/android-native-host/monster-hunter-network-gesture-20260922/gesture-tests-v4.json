@@ -1,0 +1,68 @@
+{
+  "remote": "/data/local/tmp/mh-gesture-1790039277465624000",
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/out/runtime/production_runtime_runner",
+      "sha256": "875cbf5a15ef40e3443d9b9334207b828bd449bce9ac18e5e86482b7003e860f"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "ce0c7ff83c1859096a0b7f60d73efd78647e93c40b242cffa5665e6a45433965"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-network-gesture-20260922/gesture-main.elf",
+      "sha256": "a0271bbdbc4850772b1845ab4c13289da04dfbae5b0a7289f30d13687ef4cee7"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-network-gesture-20260922/gesture-game-provider.elf",
+      "sha256": "8824425b9203358769e285282d92a7060b642f77ca39fd34882d069d7908e79f"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-network-gesture-20260922/gesture-libc-main.elf",
+      "sha256": "875ce287278a6580147841098675ab8cdf2637c894401fe4b0c4ce93b3afafb8"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/modules/CUSA34119/sce_module/libc.prx",
+      "sha256": "aa64cc353e8b11cf37e0b94b25c51e2660a2b3c97f38762d33921b19354e765b"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceLibcInternal.sprx",
+      "sha256": "f7e625743963dcc5c028014aa70d0975530e6904277143f9e7409a3889b558d1"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSystemGesture.sprx",
+      "sha256": "98425066e5c44346fc849931f62e369cad70e358e89ccadfa75eca2c5b1425f8"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/system.sprx",
+      "sha256": "6d451ff7c0e7d402978ebf9acf927e7159bd29c853807deeed8998761c3ea567"
+    }
+  ],
+  "results": [
+    {
+      "case": "missing",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "case": "wrong-identity",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "case": "firmware-game-libc",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "case": "game-precedence",
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "cleanup": ""
+}

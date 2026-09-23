@@ -1,0 +1,1181 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "git_head": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "uncommitted": true,
+  "device": {
+    "model": "AYN Thor",
+    "serial": "9c2841a4",
+    "android_api": 33,
+    "gpu": "Adreno 740"
+  },
+  "installed": {
+    "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/mhw-dlc-20260922/shadps4-mhw-dlc-v4.apk",
+    "bytes": 205339462,
+    "sha256": "14158e657134d80c41435e17c1ef88197159d712f9c9fae4b4aa37b8668e3b62",
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_fex_session.so": "02058818f989f09f454d433cedeaf9a2b9ede6a9a0c88089d7b17b4e47c4bbb9",
+      "lib/arm64-v8a/libshadps4_host.so": "27df8016dc2e9f09e2f14f3a85cb6f5c3f968c2032696fa23f444f49f6196e2b"
+    }
+  },
+  "v4_run": {
+    "pid": 10586,
+    "generation": 1,
+    "run_uuid": "7bb3eb688186084dd5114ea2bb06b68a",
+    "outcome": "BackendFailed",
+    "error": "vkQueueSubmit failed: ErrorDeviceLost",
+    "terminal_local_time": "2026-09-22 15:45:23.023 +08:00",
+    "process_exit_local_time": "2026-09-22 15:45:23.418 +08:00",
+    "process_exit_code": 33,
+    "last_snapshot_counters": {
+      "guest_flip": 8733,
+      "host_present": 8731,
+      "host_draw": 830930,
+      "queue_submit": 29105
+    },
+    "entered_gameplay": false,
+    "overlap": "Other task reports one unverified settings reset tap at 15:43:33.524 then Guest guard rejected inputs at 15:43:34.257; last screenshot 15:43:51.301. No other-task device operations during 15:45:14–23 fault window; no install, driver/reset/replay/graphics setting changes. Input interference is not attributed as GPU root cause; repeat independently."
+  },
+  "shader_validation": {
+    "production_shader": "fs_15e44dcc-v4.spv",
+    "target": "vulkan1.3",
+    "exit": 0,
+    "gpu_probe_spirv_count": 10,
+    "gpu_probe_target": "vulkan1.2"
+  },
+  "cleanup": {
+    "device_operations": "paused for user-authorized exclusive OCR task; no further device operations after handoff",
+    "last_app_state": "process exited; snapshot has no app PID or Activity",
+    "diagnostic_properties_pending_restore": {
+      "debug.shadps4.shader_dump": "",
+      "debug.shadps4.network_log": "",
+      "debug.shadps4.rwlock_log": "",
+      "debug.shadps4.rwlock_slot": ""
+    },
+    "guest_debug_port_wait": "0 baseline",
+    "scrcpy_session_pending_review": null,
+    "saves_and_settings_final_comparison": "pending device handback; before archives retained; no save formatting called",
+    "previous_scrcpy_session": {
+      "id": "aefe101c07a34d238a02a84be8ca2b58",
+      "state": "TTL expired, graceful exit0",
+      "evidence": "OCR task handoff report; no new device query by this task"
+    }
+  },
+  "evidence": [
+    {
+      "path": "build/validation/mhr-device-20260922/before-properties.txt",
+      "bytes": 66428,
+      "sha256": "437c722699375bca3276b8bf15407314dbc9d1d69046ed4901c3d704f5c48070"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/mhw-quiet-msg.json",
+      "bytes": 741,
+      "sha256": "4f81cd848f0dfe43cf2206b085cd505db60c2f003b847505f69048845cbe5f8a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/mhw-quiet-msg.log",
+      "bytes": 33,
+      "sha256": "cc4838e2e6d911232fbb3713b475a61a0dc083f6a5166c5c6e89de6fc3a4cff7"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/mhw-webapi.json",
+      "bytes": 744,
+      "sha256": "a722e8481bec22339dd1d6c1b4915b269157e4b7f7a590a4864f240e18e30e28"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/mhw-webapi.log",
+      "bytes": 36,
+      "sha256": "280a7d9e441fc777103359f02faeae21fdf6a6cf2701196fea69318c4546f724"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/captured.json",
+      "bytes": 85,
+      "sha256": "48808a7316614e1bae54b3a942a634b701e0309dc7ee3cdea3bb95cd815a5303"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/host-tail.txt",
+      "bytes": 2028672,
+      "sha256": "371868b88faccc6bdce5c9c1d1964f15c2a6b0982f3f41a9ee11020aa0f8b825"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/imports.json",
+      "bytes": 319464,
+      "sha256": "f1841d01995c61d6d92821179bb4775b61c3d5741c62bd2c62fdbc9669ba0182"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/logcat-tail.txt",
+      "bytes": 174181,
+      "sha256": "89786ce56c72331b129652224250d9a3c204d4e5b983599d2b38ed5ec6e1fdf4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/pids.txt",
+      "bytes": 6,
+      "sha256": "06b7b2ddc6b8657104c2eebaf4ad49daa23d3359cc0686191684dd4d341cdb7d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/screen.png",
+      "bytes": 263592,
+      "sha256": "6a7fc92d5e80e8c684f07d4740bc36a5ba432f5d26fa5d9380d249fdb6ea5b24"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-90s/status.txt",
+      "bytes": 750,
+      "sha256": "c829a8c5a20e56934a049b9217f4f8f33308d4be5dc7db115c48f5de369a851d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/captured.json",
+      "bytes": 85,
+      "sha256": "ec06778b42f91e7f657f8aa381416b2490c6ae542db9b0dd9ed51a49cf3fd82d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/host-tail.txt",
+      "bytes": 2020480,
+      "sha256": "620345180e4d6613b4a0aa5004b0e029ea43ffac4efe5eced044b94a1835bac7"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/imports.json",
+      "bytes": 319464,
+      "sha256": "f1841d01995c61d6d92821179bb4775b61c3d5741c62bd2c62fdbc9669ba0182"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/logcat-tail.txt",
+      "bytes": 177049,
+      "sha256": "0459f06a102e705001e9807ac36366c7cc45ee336f08982d7174816ce59cbb8e"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/pids.txt",
+      "bytes": 6,
+      "sha256": "06b7b2ddc6b8657104c2eebaf4ad49daa23d3359cc0686191684dd4d341cdb7d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/screen.png",
+      "bytes": 260482,
+      "sha256": "2717030f46a0899b897cc4b8af8a9e7af8834591747681e3da4bf46413e6a004"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack/status.txt",
+      "bytes": 751,
+      "sha256": "92be92805397cd4aa143e166f269103dc8c8904c5065c78553adc8cb1c877a1b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/captured.json",
+      "bytes": 86,
+      "sha256": "0a9ca70f79a28e433ec0b44da40720627dc48852ac22e72fa175a79e1373cd07"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/host-tail.txt",
+      "bytes": 2020480,
+      "sha256": "34705ce183d66f55078355dd4bb9621920550d1a95deaf9878a09fd1ba0216af"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/imports.json",
+      "bytes": 319464,
+      "sha256": "f1841d01995c61d6d92821179bb4775b61c3d5741c62bd2c62fdbc9669ba0182"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/logcat-tail.txt",
+      "bytes": 178496,
+      "sha256": "2586cf09c2bb031c35b6af1f7b2f7dbe65dfcccbd7b1056238e7eac1d667532c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/pids.txt",
+      "bytes": 6,
+      "sha256": "06b7b2ddc6b8657104c2eebaf4ad49daa23d3359cc0686191684dd4d341cdb7d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/screen.png",
+      "bytes": 226022,
+      "sha256": "72ab63a7573c2447984e8d51cbe1fdae23d410c7f43d2d31cb43197c49e06254"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-ack2/status.txt",
+      "bytes": 745,
+      "sha256": "5fb242b98fdf479e334214d0ea75426604bacf5d7b509cdcdb4d976612960233"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/captured.json",
+      "bytes": 89,
+      "sha256": "b8d055860232fd65dbfbaa74117aba35c4b6a385ade66fda2864b413885f99e8"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/host-tail.txt",
+      "bytes": 2016384,
+      "sha256": "0ae6b5a03e0ea27f7900526576bbad6c3f088b92522ebf06ccaee910212477d9"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/imports.json",
+      "bytes": 319464,
+      "sha256": "f1841d01995c61d6d92821179bb4775b61c3d5741c62bd2c62fdbc9669ba0182"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/logcat-tail.txt",
+      "bytes": 180543,
+      "sha256": "5fca4fd9f115ef4e62ae4dbb2acafae6ddb2880f18e3e2d7571cf953aaae4c78"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/pids.txt",
+      "bytes": 12,
+      "sha256": "ab1d9ec3615615d35d7e18a45f3468b83cf552524592bda21e9251f15f2cb92f"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/screen.png",
+      "bytes": 191923,
+      "sha256": "4a5932c31ab2f8b4411c69b429564fa82c1d27146ec0ad78a4d6c705ec9edd12"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-outcome/status.txt",
+      "bytes": 760,
+      "sha256": "e29f3fa76ed9cc4f3d1a0eeb552f9f6bb7d03e3cf74edb003fbb90020efc4e39"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/captured.json",
+      "bytes": 90,
+      "sha256": "c0f80365498cd10c9400349a834263a50b884cf1aacb50fdd552679f0776c3f0"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/host-tail.txt",
+      "bytes": 2049152,
+      "sha256": "df5780c3fd0faba2fcc9a269e9ddf0b55d19fd578b90a22559ef02d504f246db"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/imports.json",
+      "bytes": 319464,
+      "sha256": "f1841d01995c61d6d92821179bb4775b61c3d5741c62bd2c62fdbc9669ba0182"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/logcat-tail.txt",
+      "bytes": 193732,
+      "sha256": "3f08b5d0a725d867fe39b28b210848fc73b0222923d101a9b5e7630764e6beb7"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/pids.txt",
+      "bytes": 6,
+      "sha256": "06b7b2ddc6b8657104c2eebaf4ad49daa23d3359cc0686191684dd4d341cdb7d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/screen.png",
+      "bytes": 199477,
+      "sha256": "e194a48e6b34d6584019a72e1f29b36ba35be5c8ee90fa61b91e811c8376890f"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-diag3-progress/status.txt",
+      "bytes": 743,
+      "sha256": "25be01586fed5becb3293fe790bc091748647b618a6c0afadb710f38f8228580"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/captured.json",
+      "bytes": 83,
+      "sha256": "5c6bc1e2c61f74b16af0171059acbc6034e84afbcea79f4d24d2de02ac53aca4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "08d930b20d72781664704de03e5532608efcd24484897678533aeb56278b6e39"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/imports.json",
+      "bytes": 320611,
+      "sha256": "560e343aaa64d34cee71076da753081006b7aa32518f3563e9652028356b38ad"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/logcat-tail.txt",
+      "bytes": 182995,
+      "sha256": "8f614e26cbcea1d00e8b5324dbbd0a2625e354685e914dde5a81a37bdd8153d3"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/pids.txt",
+      "bytes": 6,
+      "sha256": "6a5235f656d298fe27b5d429adf05e56e9fefc2a0edd918dce57bdbfb5934ea6"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/screen.png",
+      "bytes": 229857,
+      "sha256": "5ed8f84eebfaf5177dd944ccfabcfbbe534b51b9e8f75c9636e2030c585957c5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-failure/status.txt",
+      "bytes": 4909,
+      "sha256": "840a681fe4bee7022b12e8f0735f82aeeabe1d894de507251ddb1baefbaa0f12"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/captured.json",
+      "bytes": 91,
+      "sha256": "9eea6d15ef6a3d89ae8673ea4e276e7caee10e6407ca025b892ede48c34f101f"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/host-tail.txt",
+      "bytes": 2024576,
+      "sha256": "2c10b313f2155671599d3aa6193529dbf6e93323e3c86bf2036981cb493ac593"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/imports.json",
+      "bytes": 320611,
+      "sha256": "5e3cc67d272ac5ffa3a26d51fbf1910aad26b0d49286bcce275fae893f9cdd76"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/logcat-tail.txt",
+      "bytes": 170998,
+      "sha256": "fa041b40c02e4a9dbf639bb358ea8b033a8ee4bebcddde21f11a7d9591d26655"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/pids.txt",
+      "bytes": 6,
+      "sha256": "1b59b0a0323ac8f4619aa2d3563b5edfe1890ba2613a1787ddb6f0a5c4d81f1d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/screen.png",
+      "bytes": 289269,
+      "sha256": "435004b88b5b84151130319a2745fd3e769b9fc320838fc79828806a754b71c8"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-after-error/status.txt",
+      "bytes": 744,
+      "sha256": "0ff6cbe91535461927cefbf359810a8da9a709f5a325e1905523baa2cd451ee5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/captured.json",
+      "bytes": 87,
+      "sha256": "58e48a7fdd530e380bf7950d9194beabc68e841438837dbf3919e585f227044b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/host-tail.txt",
+      "bytes": 2020480,
+      "sha256": "c1a2623db20c19272d14a49baad957bad4b471041a7be930bce86f2cd5c03084"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/imports.json",
+      "bytes": 320611,
+      "sha256": "5e3cc67d272ac5ffa3a26d51fbf1910aad26b0d49286bcce275fae893f9cdd76"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/logcat-tail.txt",
+      "bytes": 175916,
+      "sha256": "2f98cf60d92f18a9516d1bac8c99ea78f5dc78712c13e4fdf5a0506650ba9f2e"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/pids.txt",
+      "bytes": 6,
+      "sha256": "1b59b0a0323ac8f4619aa2d3563b5edfe1890ba2613a1787ddb6f0a5c4d81f1d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/screen.png",
+      "bytes": 290538,
+      "sha256": "f672e48f1234e586042aa1e099ba4fe9fd51434bdac2b9399e6c781c8e08a707"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-loading/status.txt",
+      "bytes": 750,
+      "sha256": "481cd597f8e13756af0a04efe04b1b118e316e98c8a2bcb1a92dedfcd256304b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/captured.json",
+      "bytes": 88,
+      "sha256": "ce6dc141023a29dd23ec2ea597d5ec5ffeedb9731e5e3419eda62ece19f6bfbf"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/host-tail.txt",
+      "bytes": 2077824,
+      "sha256": "3817cc0ade1ab435d8274438d9ae3b0969cd49bc12adb33929dd37e15e152a74"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/imports.json",
+      "bytes": 320611,
+      "sha256": "5e3cc67d272ac5ffa3a26d51fbf1910aad26b0d49286bcce275fae893f9cdd76"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/logcat-tail.txt",
+      "bytes": 175425,
+      "sha256": "76ada8876fbbb158795e28e9acfbcd49b29157439203ca86ddda466b4b1f9b2a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/pids.txt",
+      "bytes": 6,
+      "sha256": "1b59b0a0323ac8f4619aa2d3563b5edfe1890ba2613a1787ddb6f0a5c4d81f1d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/screen.png",
+      "bytes": 246954,
+      "sha256": "152e21bb2021ebfe26bd3ea26e26edb442e329136a5d2156866a79ba615d3f0b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-progress/status.txt",
+      "bytes": 747,
+      "sha256": "441509523e925c4a77c575bae20af3ca8d54fa604f73655c2087d481025b9ff8"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/captured.json",
+      "bytes": 85,
+      "sha256": "0da966239323446ed71189b5ac3110707bacbb85d35ce28007ae10b4577d788a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/host-tail.txt",
+      "bytes": 2053248,
+      "sha256": "ba73b33f24ced8c1178db9c345e039d7d399ff24dedc1524bd07aaac971cabeb"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/imports.json",
+      "bytes": 320611,
+      "sha256": "5e3cc67d272ac5ffa3a26d51fbf1910aad26b0d49286bcce275fae893f9cdd76"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/logcat-tail.txt",
+      "bytes": 209586,
+      "sha256": "2042422cb083a9e97975e7f2d3a039abeaeb904867e06714eab20d5fbf4086ae"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/pids.txt",
+      "bytes": 6,
+      "sha256": "1b59b0a0323ac8f4619aa2d3563b5edfe1890ba2613a1787ddb6f0a5c4d81f1d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/screen.png",
+      "bytes": 311028,
+      "sha256": "0f69bc28d452a435ab0a40d81d51de4fbe555fa4bf3337dea033a72c8ad1aab7"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-rsp-start/status.txt",
+      "bytes": 738,
+      "sha256": "8adf25168144af71b873685da7f3b729c0db284a48c69d9b630f8084d7aa6219"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/captured.json",
+      "bytes": 87,
+      "sha256": "2189e4c3596e33e9ad08d66a886edabd9f77d902891bf52c8aeaff685227d678"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/host-tail.txt",
+      "bytes": 2073728,
+      "sha256": "829a7a1348b0dacbfaf6c9fe298848b2c8cd894418c0cf78e87f9d23de264c5d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/imports.json",
+      "bytes": 319464,
+      "sha256": "0b12bae4566cbd00c374b57356cadbfc8c1eb124706d42caeb5d6ce08601ce54"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/logcat-tail.txt",
+      "bytes": 185281,
+      "sha256": "2737fa9b67ecb654af073116d6e64bb10c43d753f8d085feecee9e2a0898f0fe"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/pids.txt",
+      "bytes": 6,
+      "sha256": "6c85362a681ef6df79c51d4f364f112d00ecf4583f05e33a9b66da4b454c4556"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/screen.png",
+      "bytes": 200414,
+      "sha256": "cbba6b608c38275824913bd467444b19275bf7399f2b92685a4fd408422f450c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-ready/status.txt",
+      "bytes": 747,
+      "sha256": "9b1fdc772a237f7841e1fc87d7c06f1d90f2567892788c7af707eb2b41199956"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/captured.json",
+      "bytes": 88,
+      "sha256": "2f1471d9d4ccc9a3b5f00003cf97fa20a1961fd986483acdf0b3af18ebac4f42"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/host-tail.txt",
+      "bytes": 2004096,
+      "sha256": "bd08bfd65cdeb3e4ccefa29374d4b2d3195189866b78fb2bb516f2fe253b1900"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/imports.json",
+      "bytes": 319464,
+      "sha256": "0b12bae4566cbd00c374b57356cadbfc8c1eb124706d42caeb5d6ce08601ce54"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/logcat-tail.txt",
+      "bytes": 203825,
+      "sha256": "438fc3020929c7a40766d54c8db97d69b0be8657b420177d8462677ff5200276"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/pids.txt",
+      "bytes": 6,
+      "sha256": "6c85362a681ef6df79c51d4f364f112d00ecf4583f05e33a9b66da4b454c4556"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/screen.png",
+      "bytes": 199690,
+      "sha256": "313197aae236356d86b9ad0de4f9d581a0ab32771c19005228519497057bd7e5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-start/status.txt",
+      "bytes": 683,
+      "sha256": "c56216ffb6e3e754796c20427af8a8b2a2cb586178b673da45d39af5efb5e8aa"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/captured.json",
+      "bytes": 87,
+      "sha256": "31ad55296be38b351ef426ce8bd21e7ddf56b2ef274919658a45a2860b85bfc0"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "29fb1774eca017f21000b26f1600affb02410dd30964740ebd4b8b622805678e"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/imports.json",
+      "bytes": 319464,
+      "sha256": "0b12bae4566cbd00c374b57356cadbfc8c1eb124706d42caeb5d6ce08601ce54"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/logcat-tail.txt",
+      "bytes": 191942,
+      "sha256": "c02760ee4e363336cb1d2d7a390545d9a53be24e8467bfc4c5224f85e5cfcb7c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/pids.txt.error",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/screen.png",
+      "bytes": 770786,
+      "sha256": "aa1c79d7ecd350cb4216ba980dd0027ab95746eeb1ca4c7bd1d4b236c7dd1606"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-shader-stop/status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/captured.json",
+      "bytes": 86,
+      "sha256": "c8ee216545947f5e61f63ac07f339e7b8e8b7c46b72c31a23336b442be71240f"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "0064db1b40da0e4b407a91bbe6dec55e882d442a83a2690091d6230254b38dbe"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/imports.json",
+      "bytes": 320611,
+      "sha256": "5e3cc67d272ac5ffa3a26d51fbf1910aad26b0d49286bcce275fae893f9cdd76"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/logcat-tail.txt",
+      "bytes": 171536,
+      "sha256": "8ade610eafec227571f7c61f310fc10582ab7f63325b159965ced0a1f64e6850"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/pids.txt",
+      "bytes": 6,
+      "sha256": "1b59b0a0323ac8f4619aa2d3563b5edfe1890ba2613a1787ddb6f0a5c4d81f1d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/screen.png",
+      "bytes": 122029,
+      "sha256": "ee36b55d38acd58f64c17816d27054b1a826981977edf749dcd8391eadedb531"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-stop-menu/status.txt",
+      "bytes": 4912,
+      "sha256": "c7531f94960fccafa60b444ce02f711ccbec63efcdbe5b36ea6c482643453b91"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/captured.json",
+      "bytes": 89,
+      "sha256": "8eff399e712a156735dc6ce3b46339f65f90034236d02502cf09e359d3b7e02b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "fb25eae63e137b60825dcb1db1000884520bea7eaf6338ded62bec3a4e8f9e26"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/imports.json",
+      "bytes": 319464,
+      "sha256": "af579c3ce3a85f5ff65edcf08567381f6bd3ddd800e24bda1e84988156dc3fd4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/logcat-tail.txt",
+      "bytes": 187933,
+      "sha256": "c0827cc8e2e6bf714767e0f77843a44d6729d93dcc2829f3a706d99d5a4be00b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/pids.txt.error",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/screen.png",
+      "bytes": 770671,
+      "sha256": "169cc159a65f1628f09c39fd0e4ee4215368503dbcc19452e6bf7bfeff1a5429"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-after-list/status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/captured.json",
+      "bytes": 83,
+      "sha256": "dc3dce8f53acf8e278dae174cf152c7533675572ae329f3d0cb3d3b075096302"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/host-tail.txt",
+      "bytes": 2045056,
+      "sha256": "ecf4fb4bdd24e8878df571ccf87c691928b453d24ba5f5d0f59a120a36f0bd07"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/imports.json",
+      "bytes": 319464,
+      "sha256": "af579c3ce3a85f5ff65edcf08567381f6bd3ddd800e24bda1e84988156dc3fd4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/logcat-tail.txt",
+      "bytes": 163784,
+      "sha256": "d47f8ccd34744fcd6d44af8f70080449143d728e2c43027a47d0c4d9a64a9f69"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/pids.txt",
+      "bytes": 6,
+      "sha256": "bfbd76f6eb2244df498dfb47faf135d8f0caf5b0a6581b3d4fd1c4a7c5bba18c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/screen.png",
+      "bytes": 272137,
+      "sha256": "ab5c8934ae4eed7f1dfeeae91413dbe9adfb6b53d00c4195e69bdf6a8a103f8a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-close/status.txt",
+      "bytes": 751,
+      "sha256": "a8aedc2883e099814a965fcc1f953a65a74820f06ac8c7f1f51c390a64f98285"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/captured.json",
+      "bytes": 83,
+      "sha256": "947ad58a389c99b93a85027f6551422ddac62590e9b514696783ca9b58a5ab0d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/host-tail.txt",
+      "bytes": 2036864,
+      "sha256": "cf853228b6cbdc2db5f259017cd946607b3fba27b7c77bd6f3be7dc81f53f101"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/imports.json",
+      "bytes": 319464,
+      "sha256": "af579c3ce3a85f5ff65edcf08567381f6bd3ddd800e24bda1e84988156dc3fd4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/logcat-tail.txt",
+      "bytes": 168020,
+      "sha256": "d766d02424fee5164276cceec4fa5e5c43095275cb8c186c64b4b78070ad29fb"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/pids.txt",
+      "bytes": 6,
+      "sha256": "bfbd76f6eb2244df498dfb47faf135d8f0caf5b0a6581b3d4fd1c4a7c5bba18c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/screen.png",
+      "bytes": 191664,
+      "sha256": "cf0b4916d3e7b57f43b6754903b5474523d9435644cadd4039fdef813a0b1e4c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-next/status.txt",
+      "bytes": 761,
+      "sha256": "683bc8347b0ddddedf745bebc3f400a78789999763c70845583791981d8e3ace"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/captured.json",
+      "bytes": 87,
+      "sha256": "df0b5485cfff64552b967da9ea9958199ed397abbb909061c8a2ebe557141d9d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/host-tail.txt",
+      "bytes": 2045056,
+      "sha256": "5ea47815a39fe49e84d11baffa97d1247166d11ffc02cc302dc7649fbf35258f"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/imports.json",
+      "bytes": 319464,
+      "sha256": "af579c3ce3a85f5ff65edcf08567381f6bd3ddd800e24bda1e84988156dc3fd4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/logcat-tail.txt",
+      "bytes": 174217,
+      "sha256": "26d51a52db4062302a942fa508514f40b44e1ca0c4fcbddce12aab4fe26b4cbb"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/pids.txt",
+      "bytes": 6,
+      "sha256": "bfbd76f6eb2244df498dfb47faf135d8f0caf5b0a6581b3d4fd1c4a7c5bba18c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/screen.png",
+      "bytes": 258025,
+      "sha256": "4a243c2cc2b39433df8f3e212f17ae0fc4b6670723b33c057f4f15694309834c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-progress/status.txt",
+      "bytes": 749,
+      "sha256": "6f686e5fc392131d4cf5e1994f64fbcaf197750b3d66e154b44eec51291008a5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/captured.json",
+      "bytes": 84,
+      "sha256": "f4f80720bf3452d662d15fffc59cb1e5a4aff5ec01865075df340c290a870048"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/host-tail.txt",
+      "bytes": 2020480,
+      "sha256": "8db782b8e1579f0d9e858b9a8a215adca62fce7865f56291ef1d0911e58a96a3"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/imports.json",
+      "bytes": 319464,
+      "sha256": "af579c3ce3a85f5ff65edcf08567381f6bd3ddd800e24bda1e84988156dc3fd4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/logcat-tail.txt",
+      "bytes": 173715,
+      "sha256": "9604151b6e66087e7ccf9451962e486449095524549ab270500ee907ff9a846d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/pids.txt",
+      "bytes": 6,
+      "sha256": "bfbd76f6eb2244df498dfb47faf135d8f0caf5b0a6581b3d4fd1c4a7c5bba18c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/screen.png",
+      "bytes": 351495,
+      "sha256": "7919b6e6378e1e03f46f67e3f052b90c1c7baa0e2a08d6b1460f31444a9efe3d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-result/status.txt",
+      "bytes": 749,
+      "sha256": "a7a29819e913e2fb8e8d55cbb105209606db9c0a44b85bd8512c464c8277fd1b"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/captured.json",
+      "bytes": 84,
+      "sha256": "e513bd56607ae78fe66ad329bf95415c3121b9d698d91fd2ce11784046944bf9"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/host-tail.txt",
+      "bytes": 2053248,
+      "sha256": "e0192661231044f4c3b6c33222047cdbaadafc65533386f1be474031fea53ffa"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/imports.json",
+      "bytes": 319464,
+      "sha256": "af579c3ce3a85f5ff65edcf08567381f6bd3ddd800e24bda1e84988156dc3fd4"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/logcat-tail.txt",
+      "bytes": 206249,
+      "sha256": "3058d746e97e6c45e652faaec790837e6e6824d5c168e90d089b20b00e90c33d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/pids.txt",
+      "bytes": 6,
+      "sha256": "bfbd76f6eb2244df498dfb47faf135d8f0caf5b0a6581b3d4fd1c4a7c5bba18c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/screen.png",
+      "bytes": 295225,
+      "sha256": "015444c28aa351b0fb25ae0c41853c1f952122382d80972bb713c6479802d181"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v1-start/status.txt",
+      "bytes": 742,
+      "sha256": "c4dda2dd3350f6cace453e0fa035438883c80ff855c94bbbe66bf72c446bb7a2"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/captured.json",
+      "bytes": 83,
+      "sha256": "01cccec7a80a84b9e33f1cfd26c2eb0142b656e885f2afb0d43d9ed6dbd42c6c"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/host-tail.txt",
+      "bytes": 2036864,
+      "sha256": "48d38f0657df18ecc626dd361359dccc77cc6a3133eb953e970b6eaa03239ffa"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/imports.json",
+      "bytes": 319464,
+      "sha256": "7c186ee440e00bd1773c29e3df05722ac218948089b6139ad6c0237a08ea4fd1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/logcat-tail.txt",
+      "bytes": 177876,
+      "sha256": "7fea55b396e287128e3beb5363ff6c6d195694ab4b9c858bee83dd2aa5c1de0d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/pids.txt",
+      "bytes": 6,
+      "sha256": "f02c7bdf32d2ac34d3a457f118a35088c37a7d40b54459b20408bf7de7d5c6db"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/screen.png",
+      "bytes": 228025,
+      "sha256": "04c3b77751060dd4736cc226d8c3bdc1478b8b9869be8058e8ded0e9cdc8ae32"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-ack1/status.txt",
+      "bytes": 746,
+      "sha256": "87eb6ef6524a951fceaba2ba7f2bb9b9f607b2593da7c1e45cec05d09d3a93af"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/captured.json",
+      "bytes": 90,
+      "sha256": "8601665dbe846932564411ebad903ff56052258e9d19a0ccfd3e93b5f33e3888"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "063c45cc2ce71be1f81b0941332f8baae509edf4821d617f2a19545a4f74f500"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/imports.json",
+      "bytes": 319464,
+      "sha256": "7c186ee440e00bd1773c29e3df05722ac218948089b6139ad6c0237a08ea4fd1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/logcat-tail.txt",
+      "bytes": 208590,
+      "sha256": "063a8a52c734502d66ec4f5702e161fe51f1933a4fc7ad67d92f4f8d6c57cfd5"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/pids.txt.error",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/screen.png",
+      "bytes": 771008,
+      "sha256": "1c176b49810bb44e23e390d8f40f9d8f9181d2e84e19a8233ffc7544e487aba6"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-device-lost/status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/captured.json",
+      "bytes": 86,
+      "sha256": "26a29155421e99370e3bbc3092b4a5728e8b4af24583e6fa7ce0c90c936ce1ba"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/host-tail.txt",
+      "bytes": 2032768,
+      "sha256": "16b5f38ae55aa27df4eb47ebca2882592b137b53233cae311876aef11a3a5eda"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/imports.json",
+      "bytes": 319464,
+      "sha256": "7c186ee440e00bd1773c29e3df05722ac218948089b6139ad6c0237a08ea4fd1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/logcat-tail.txt",
+      "bytes": 174796,
+      "sha256": "8de845f4cbafd3c0a7a39506d824514132f5ad5e1902a41556ea5394c997a864"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/pids.txt",
+      "bytes": 6,
+      "sha256": "f02c7bdf32d2ac34d3a457f118a35088c37a7d40b54459b20408bf7de7d5c6db"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/screen.png",
+      "bytes": 261517,
+      "sha256": "360cb5145220ed50aa3dffd83ffc79c0bbf3010560d8bc784413b061e84fecf6"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-loading/status.txt",
+      "bytes": 751,
+      "sha256": "f63332286c49cc3798c12d51996068cb8616ee2587f17b997f419c083c2a4da6"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/captured.json",
+      "bytes": 87,
+      "sha256": "bd1604bf86d07d5f3bcfbf32d05990e7deccb80fee75839454a4b94fd6fa7694"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/host-tail.txt",
+      "bytes": 2000000,
+      "sha256": "063c45cc2ce71be1f81b0941332f8baae509edf4821d617f2a19545a4f74f500"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/imports.json",
+      "bytes": 319464,
+      "sha256": "7c186ee440e00bd1773c29e3df05722ac218948089b6139ad6c0237a08ea4fd1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/logcat-tail.txt",
+      "bytes": 174047,
+      "sha256": "a3fccd09b4a3f75d7a5b98579518989e48ce4e56a74d76e4b53970fb8396ccda"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/pids.txt.error",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/screen.png",
+      "bytes": 192268,
+      "sha256": "a96274e9003c854764bdbc4e8193814f3c5b6839cf6d856aeaa610e49514b56e"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-postcheck/status.txt",
+      "bytes": 766,
+      "sha256": "9d23d3ab9fa7c9c6f0242b8a09c95f049810b64f404ee35e064d29d74fad8b9a"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/captured.json",
+      "bytes": 85,
+      "sha256": "082446c4f532de1cfff36b903990eccd105e23046a002211ede58557ae706e79"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/host-tail.txt",
+      "bytes": 2024576,
+      "sha256": "a38a08d4af3a347e32e38e697b09f9beae410aa6a010c780de55a476803e173d"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/imports.json",
+      "bytes": 319464,
+      "sha256": "7c186ee440e00bd1773c29e3df05722ac218948089b6139ad6c0237a08ea4fd1"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/logcat-tail.txt",
+      "bytes": 174243,
+      "sha256": "ef1637c14d2ab27ba2473d1e64b830301ea92fc3345472de1bd2e2c91cf6d1ee"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/pids.txt",
+      "bytes": 6,
+      "sha256": "f02c7bdf32d2ac34d3a457f118a35088c37a7d40b54459b20408bf7de7d5c6db"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/screen.png",
+      "bytes": 259325,
+      "sha256": "14a9d13d3bc414e7df0d090f12c9ae7eba33748891d8686e5397e34f19622fef"
+    },
+    {
+      "path": "build/validation/mhr-device-20260922/runs/mhw-dlc-v4-start/status.txt",
+      "bytes": 751,
+      "sha256": "928d733647a58e2836785557a4a560e833d0fd19a478ab3667e88a95b8fff48f"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/before-config.tar",
+      "bytes": 8192,
+      "sha256": "2a1df4d17a7595bfb14435b7a2ec0cb9f9b005ccb4566a0502b207a9b2bda84b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/before-imports-summary.json",
+      "bytes": 18497,
+      "sha256": "1fca4c1598c78be3aae43d8b84668767ce23876b299b6ead1a753e99d78a93d3"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/before-savedata.tar",
+      "bytes": 32147456,
+      "sha256": "0b6b253c5bf6050772ef833a748da58390ff8309667a5ec0bdf621a79f51bf7a"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/context-call.asm",
+      "bytes": 6679,
+      "sha256": "55c258ddf36ce44f2f2881c9864a59e9f132916b71b897f85d317d74d38c2e39"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/fs_15e44dcc-decoded.txt",
+      "bytes": 119140,
+      "sha256": "5d62b2f530cdb820dd01adb6c029a329580f07017008dc69e174909fc1a2886c"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/fs_15e44dcc-v4.spv",
+      "bytes": 111796,
+      "sha256": "7ce2f3d8f5e1e4047e3c2e4e797bb088d5a0e529367337a4612dc3bc927c438d"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/fs_15e44dcc.bin",
+      "bytes": 9240,
+      "sha256": "aef5ca5a3ebfae5d70c517da6abb9573776ba2fd0fc072295f5f77cc2cac7ab0"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/installed-diag3.json",
+      "bytes": 471,
+      "sha256": "b5171c714b8bdd6a0d374a14c716911f58c9f400b2568d50414d1766ff21c45a"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/installed-v1.json",
+      "bytes": 468,
+      "sha256": "272bb4ec9d40a74eac84431eacffdd90eea58672541ef0efc2db57cfd44149e1"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/installed-v4.json",
+      "bytes": 468,
+      "sha256": "892ac5966cd20500abe06a18f55427dd2a046015b51da3fdd529d8f32dfb940b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-0-0.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-0-1.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-1-0.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-1-1.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-2-0.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-2-1.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-3-0.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-3-1.spv",
+      "bytes": 2576,
+      "sha256": "5c39b18b8381e9fb2daab0c5ae46da6c44ad036762c4812dc6b5e05942b5ea0b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-4-0.spv",
+      "bytes": 2508,
+      "sha256": "b920c80c7c08d3eab38edbc08cb063016aba4c771cf48fc08f832542c0c6090c"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-4-1.spv",
+      "bytes": 2508,
+      "sha256": "b920c80c7c08d3eab38edbc08cb063016aba4c771cf48fc08f832542c0c6090c"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-gpu-system.log",
+      "bytes": 16884,
+      "sha256": "149a3019f0401351ed607907c2338adcec8b92673c9099893e551ca3504eabb3"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-gpu-turnip.log",
+      "bytes": 18699,
+      "sha256": "f8df2ead550f28189cc5430fa2cb2378161d15c42aa1c719eba2e2c552555904"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-gpu.json",
+      "bytes": 775,
+      "sha256": "c95892c87796be51179e474f49f6d91151ddce28ff0d69a3640615cf83879201"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-tests-incomplete-fixture.json",
+      "bytes": 381,
+      "sha256": "ea7c7f99e75ec7d6a9dfe1936f0db42be7d6b2f20d136398e27997d242b6a782"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-tests.json",
+      "bytes": 379,
+      "sha256": "eb923fcef9d907c6314c2c7a5e0e1d14b802aa229ea7f751db84c71618dda4ef"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/lds-tests.log",
+      "bytes": 73,
+      "sha256": "f8f2099e0074cca9aa3c82b475954b16593c0814cecabc73766cb7295adab89c"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/preformat-lds-gpu.json",
+      "bytes": 775,
+      "sha256": "528cb685d38a9a34e9f3696bb337e60c608a92ec611cc0d6530f8db3e1aa6f33"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/preformat-lds-tests.json",
+      "bytes": 379,
+      "sha256": "b3e2dff22c6bd15faf2037db97ce2fbb98ad5271994eb0b1fce208c1ddd45b5f"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/quiet-apk.json",
+      "bytes": 394,
+      "sha256": "3f4b7dfae5b7be6d37f448c9192add56a31db2ffc343c8a27da0d3cb982b747b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/request-call.asm",
+      "bytes": 9937,
+      "sha256": "449f71feb65b7f3b535796feea87d7df672897a4d37c71d4c0b23a6e5f6adc43"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/rsp-evidence.json",
+      "bytes": 201838,
+      "sha256": "8348577959d2ac341835eab123e2fc73baced9cba1f4b56c95e56162b56fa55d"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/shader-before-config.json",
+      "bytes": 40,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/shader-dumps-diag3.tar",
+      "bytes": 5253632,
+      "sha256": "0d058b85352b878a0aec94c0e211b15acf6281e6aaa9ac07bd0f81e83fc7bcb7"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/shadps4-mhw-dlc-diag3.apk",
+      "bytes": 205251939,
+      "sha256": "6c2fd875eba8bdc94006a20f729a6b03d43eda0980a1258e8049f4a2775d975b"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/shadps4-mhw-dlc-v1.apk",
+      "bytes": 205250393,
+      "sha256": "0668768fcf684790b4f867cb2ec8ce4cda9d0af4d163800b11cfa77f683765a8"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/shadps4-mhw-dlc-v4.apk",
+      "bytes": 205339462,
+      "sha256": "14158e657134d80c41435e17c1ef88197159d712f9c9fae4b4aa37b8668e3b62"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/shadps4-mhw-quiet.apk",
+      "bytes": 205209076,
+      "sha256": "014c99db468955e97142fd6a2a85d7ca55d7250ae7963044feef596c9aa65368"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/v1-trace.txt",
+      "bytes": 38203,
+      "sha256": "2a6f05710da8660c3662a763e63f81473521d9a0c1c29e22b9fa87b7cb72e59c"
+    },
+    {
+      "path": "build/validation/mhw-dlc-20260922/v4-dmesg.txt",
+      "bytes": 83,
+      "sha256": "cef2c8e1c6faf11737010e0b881fe87cfa82553afbadfa11cafbe1cd2ad26b34"
+    }
+  ]
+}

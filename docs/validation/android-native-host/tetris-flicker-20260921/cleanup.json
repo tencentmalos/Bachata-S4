@@ -1,0 +1,16 @@
+{
+  "installed_apk_sha256": "e727bef6762ed16e477092dc2dc8d60b0b44679d94d6a52d0bf7d375d1818119",
+  "pid": 1630,
+  "tracer_pid": 0,
+  "settings_identical": true,
+  "driver": "turnip",
+  "hmd_log": "",
+  "vr_probe": "",
+  "gpu_layer_settings": {
+    "enable_gpu_debug_layers": "null",
+    "gpu_debug_app": "null",
+    "gpu_debug_layer_app": "null",
+    "gpu_debug_layers": "null"
+  },
+  "adb_forwards": ""
+}

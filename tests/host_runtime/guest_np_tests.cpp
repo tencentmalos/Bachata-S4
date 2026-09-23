@@ -83,7 +83,7 @@ int main() {
     CHECK(current.Dispatch(*space, "Ec63y59l9tw", {base, base + 1024}) == 0);
     CHECK(current.Dispatch(*space, "Ec63y59l9tw", {base, 1}) == bad);
     CHECK(current.Dispatch(*space, "Ec63y59l9tw", {0, base}) == bad);
-    CHECK(!IsNpOfflineNid("qQJfO8HAiaY")); // no callbacks, online requests or fabricated success
+    CHECK(IsNpOfflineNid("qQJfO8HAiaY")); // translated local callback registration
     CHECK(IsNpOfflineNid("8Z2Jc5GvGDI")); // desktop offline request family now admitted
     CHECK(
         !AdmitsNpOffline("rbknaUjpqWo", "#libSceNpManagerCompat#1#libSceNpManager#Function", true));
@@ -229,13 +229,72 @@ int main() {
     callbacks=control.BeginCallbacks(); CHECK(callbacks && callbacks->size()==1);
     if (callbacks && callbacks->size()==1) {
         const auto cb=callbacks->front();
-        CHECK(cb.toolkit && cb.argument==321 && cb.user==1001 && cb.state==u32(OrbisNpState::SignedOut));
+        CHECK(cb.kind == GuestNpControl::CallbackKind::Toolkit && cb.argument==321 && cb.user==1001 && cb.state==u32(OrbisNpState::SignedOut));
         CHECK(control.IsCurrent(cb));
         CHECK(ctl("YIvqqvJyjEc")==0);
         CHECK(!control.IsCurrent(cb));
     }
     control.EndCallbacks();
     CHECK(ctl("YIvqqvJyjEc")==u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    // Multiple StateA registrations retain native ids, distinct guest userdata,
+    // and revision checks when an id/function is reused during callback dispatch.
+    CHECK(ctl("qQJfO8HAiaY", {base, 1}) == bad);
+    CHECK(ctl("hw5KNqAAels", {0, 1}) == bad);
+    std::array<u64, 8> state_ids{};
+    for (size_t i = 0; i < state_ids.size(); ++i) {
+        state_ids[i] = ctl("qQJfO8HAiaY", {base + 0x8000 + i, 200 + i});
+        CHECK(s32(state_ids[i]) > 0);
+    }
+    CHECK(ctl("qQJfO8HAiaY", {base + 0x8000, 999}) == u32(ORBIS_NP_ERROR_CALLBACK_ALREADY_REGISTERED));
+    CHECK(ctl("qQJfO8HAiaY", {base + 0x8100, 999}) == u32(ORBIS_NP_ERROR_CALLBACK_MAX));
+    CHECK(ctl("hw5KNqAAels", {base + 0x8200, 333}) == 0);
+    CHECK(ctl("hw5KNqAAels", {base + 0x8201, 444}) == u32(ORBIS_NP_ERROR_CALLBACK_ALREADY_REGISTERED));
+    CHECK(other.Dispatch(*space, "M3wFXbYQtAA", {state_ids[0]}) == u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    CHECK(other.Dispatch(*space, "cRILAEvn+9M", {}) == u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    NotifyNpStateFromUserServiceEvent(Libraries::UserService::OrbisUserServiceEventType::Login, 1002);
+    callbacks = control.BeginCallbacks();
+    CHECK(callbacks && callbacks->size() == 9);
+    if (callbacks && callbacks->size() == 9) {
+        for (size_t i = 0; i < 8; ++i) {
+            const auto& cb = (*callbacks)[i];
+            CHECK(cb.kind == GuestNpControl::CallbackKind::StateA && cb.index == i &&
+                  cb.user == 1002 && cb.state == u32(OrbisNpState::SignedOut) &&
+                  cb.function == base + 0x8000 + i && cb.argument == 200 + i && control.IsCurrent(cb));
+        }
+        const auto& reach = callbacks->back();
+        CHECK(reach.kind == GuestNpControl::CallbackKind::Reachability && reach.argument == 333 &&
+              reach.state == u32(OrbisNpReachabilityState::Unavailable) && control.IsCurrent(reach));
+        CHECK(ctl("M3wFXbYQtAA", {state_ids[0]}) == 0);
+        CHECK(ctl("qQJfO8HAiaY", {base + 0x8000, 900}) == state_ids[0]);
+        CHECK(!control.IsCurrent(callbacks->front()));
+        CHECK(ctl("cRILAEvn+9M") == 0);
+        CHECK(ctl("hw5KNqAAels", {base + 0x8200, 555}) == 0);
+        CHECK(!control.IsCurrent(reach));
+    }
+    control.EndCallbacks();
+    // First edge after re-registration is delivered; repeated offline states
+    // thereafter do not fabricate a reachability transition.
+    for (size_t repeat = 0; repeat < 2; ++repeat) {
+        NotifyNpStateFromUserServiceEvent(Libraries::UserService::OrbisUserServiceEventType::Login, 1002);
+        callbacks = control.BeginCallbacks();
+        CHECK(callbacks && callbacks->size() == (repeat == 0 ? 9 : 8));
+        control.EndCallbacks();
+    }
+    CHECK(ctl("M3wFXbYQtAA", {0}) == bad);
+    CHECK(ctl("M3wFXbYQtAA", {9}) == bad);
+    for (auto id : state_ids) CHECK(ctl("M3wFXbYQtAA", {id}) == 0);
+    CHECK(ctl("M3wFXbYQtAA", {state_ids[0]}) == u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    CHECK(ctl("cRILAEvn+9M") == 0);
+    CHECK(ctl("cRILAEvn+9M") == u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    {
+        GuestNpControl temporary;
+        CHECK(s32(temporary.Dispatch(*space, "qQJfO8HAiaY", {base + 0x8000, 123})) > 0);
+        CHECK(temporary.Dispatch(*space, "hw5KNqAAels", {base + 0x8200, 333}) == 0);
+    }
+    CHECK(ctl("qQJfO8HAiaY", {base + 0x8000, 123}) == state_ids[0]);
+    CHECK(ctl("M3wFXbYQtAA", {state_ids[0]}) == 0);
+    CHECK(ctl("hw5KNqAAels", {base + 0x8200, 333}) == 0);
+    CHECK(ctl("cRILAEvn+9M") == 0);
     // Compare the offline subset with desktop, including error precedence and
     // untouched Poll/Wait output. No successful creator is exposed by this family.
     using namespace Libraries::Np::NpScore;

@@ -1,0 +1,89 @@
+{
+  "game": "Bloodborne™ The Old Hunters Edition / 血源诅咒：老猎人",
+  "title_id": "CUSA03023",
+  "source_rars": [
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part1.rar",
+      "bytes": 4294967296,
+      "sha256": "f3f9d91ee6b2881b5093356bf47db07c33193bce0f2e7c0e1a847e15a59bfcb3"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part2.rar",
+      "bytes": 4294967296,
+      "sha256": "8bf17e39893d5d2e280807d71854243f6fc0566f8b3d7657e7cb0eb32dc64e2e"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part3.rar",
+      "bytes": 4294967296,
+      "sha256": "c926422a145df97807aee753505937ab029058f9ba2eb20f0a137c829b850fc5"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part4.rar",
+      "bytes": 4294967296,
+      "sha256": "86c3da26f6db13041c0b58e83b7bed625fe521b98a298c869f5cac2fedc9a051"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part5.rar",
+      "bytes": 4294967296,
+      "sha256": "d125af98d2d7e849a26716f6b7d5fc5e12ef9ab50812c1bcbf8eb1542e2d7d81"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part6.rar",
+      "bytes": 4294967296,
+      "sha256": "abc47f8e67f52157b3a060fc8efc2236873a536c0c0304b817c87aedcf37ed96"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part7.rar",
+      "bytes": 4294967296,
+      "sha256": "b376d8896a1655d7074b5ce18165f1e9a33c80f9ad879d2257d457cad2a92072"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part8.rar",
+      "bytes": 1315830191,
+      "sha256": "b5559dded976911213561517f711e3e869c63f8762cf366eddede5ac2c8ee164"
+    }
+  ],
+  "source_tree": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/swan-zar-20260920/bloodborne-extracted/CUSA03023",
+  "archive": "/Users/bytedance/game/ps4/zar/CUSA03023.zar",
+  "content": "The Old Hunters Edition base, APP_VER 01.00; no separate 1.09 CHEAT update or localization patch",
+  "expected_sha256": "911be85bac3f2a23f391068da65e67d3098e715985a789ef498e7cf55599817c",
+  "state": "completed",
+  "verified_sha256": "911be85bac3f2a23f391068da65e67d3098e715985a789ef498e7cf55599817c",
+  "source_bytes": 31514360207,
+  "verified_at": 1790005853.0438411,
+  "kept_extra_files": [
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/ZAR-来源保留/2468c.com.txt",
+      "bytes": 200
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/ZAR-来源保留/更多资源请访问 2468c.com.url",
+      "bytes": 192
+    }
+  ],
+  "source_file_inventory": "bloodborne-source-files.json.gz",
+  "planned_deleted_bytes": 62894961470,
+  "disk_before": {
+    "total": 4000577273856,
+    "used": 3961591328768,
+    "free": 38985945088
+  },
+  "deleted": [
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part1.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part2.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part3.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part4.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part5.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part6.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part7.rar",
+    "/Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part8.rar",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/swan-zar-20260920/bloodborne-extracted/CUSA03023"
+  ],
+  "completed_at": "2026-09-21T23:56:49.136969+08:00",
+  "disk_after": {
+    "total": 4000577273856,
+    "used": 3899120234496,
+    "free": 101457039360
+  },
+  "free_bytes_delta": 62471094272
+}

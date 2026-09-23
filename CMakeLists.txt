@@ -328,6 +328,7 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
               src/core/libraries/ngs2/ngs2.cpp
               src/core/libraries/ngs2/ngs2.h
               src/core/libraries/audio3d/audio3d.cpp
+              src/core/libraries/audio3d/audio3d_mixer.cpp
               src/core/libraries/audio3d/audio3d_openal.cpp
               src/core/libraries/audio3d/audio3d_openal.h
               src/core/libraries/audio3d/audio3d.h
@@ -518,6 +519,7 @@ set(SYSTEM_LIBS src/core/libraries/system/commondialog.cpp
                 src/core/libraries/ngs2/ngs2_submixer.h
                 src/core/libraries/ajm/ajm_error.h
                 src/core/libraries/audio3d/audio3d.cpp
+              src/core/libraries/audio3d/audio3d_mixer.cpp
                 src/core/libraries/audio3d/audio3d.h
                 src/core/libraries/audio3d/audio3d_error.h
                 src/core/libraries/game_live_streaming/gamelivestreaming.cpp
@@ -1086,6 +1088,7 @@ set(SHADER_RECOMPILER src/shader_recompiler/profile.h
                       src/shader_recompiler/ir/passes/shader_info_collection_pass.cpp
                       src/shader_recompiler/ir/passes/shared_memory_barrier_pass.cpp
                       src/shader_recompiler/ir/passes/shared_memory_simplify_pass.cpp
+                      src/shader_recompiler/ir/passes/fragment_lds_pass.cpp
                       src/shader_recompiler/ir/passes/shared_memory_to_storage_pass.cpp
                       src/shader_recompiler/ir/passes/lower_phis_to_regs_pass.cpp
                       src/shader_recompiler/ir/passes/ssa_repair_pass.cpp
@@ -1623,6 +1626,7 @@ if(BUILD_HOST_CORE)
     target_compile_definitions(shadps4 PRIVATE SHADPS4_TYPED_HLE_HOST=1)
     add_subdirectory(foundation/modules/input foundation/input EXCLUDE_FROM_ALL)
     target_sources(shadps4 PRIVATE src/core/host_runtime/orbis_pad_adapter.cpp
+        src/core/host_runtime/orbis_pad_debug.cpp
         src/core/host_runtime/guest_save_dialog.cpp
         src/core/host_runtime/guest_msg_dialog.cpp
         src/core/host_runtime/guest_commerce_dialog.cpp
@@ -1636,6 +1640,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_auto_tag.cpp
         src/core/host_runtime/guest_patch.cpp
         src/core/host_runtime/guest_patch_relocator.cpp
+        src/core/host_runtime/guest_audio3d.cpp
         src/core/host_runtime/guest_audio.cpp
         src/core/host_runtime/guest_avplayer.cpp
         src/core/host_runtime/guest_ajm.cpp
@@ -1717,6 +1722,22 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_auxiliary_interface_probe PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(android_auxiliary_interface_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_auxiliary_interface_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_fragment_lds_probe tests/video_core/android_fragment_lds_probe.cpp)
+        target_link_libraries(android_fragment_lds_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_fragment_lds_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_fragment_lds_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_swizzle_probe tests/video_core/android_swizzle_probe.cpp)
+        target_link_libraries(android_swizzle_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_swizzle_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_swizzle_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(fragment_lds_tests tests/gcn/fragment_lds_tests.cpp)
+        target_link_libraries(fragment_lds_tests PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(fragment_lds_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(fragment_lds_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_layered_primitive_probe tests/video_core/android_layered_primitive_probe.cpp)
+        target_link_libraries(android_layered_primitive_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_layered_primitive_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_layered_primitive_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(android_internal_scale_probe tests/video_core/android_internal_scale_probe.cpp)
         target_link_libraries(android_internal_scale_probe PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1747,7 +1768,7 @@ if(BUILD_HOST_CORE)
         target_compile_definitions(gpu_async_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
         target_link_libraries(host_dlopen_smoke PRIVATE dl)
-        foreach(probe guest_native_mutex_tests guest_rwlock_tests)
+        foreach(probe guest_native_mutex_tests guest_rwlock_tests guest_rwlock_diagnostics_tests)
             add_executable(${probe} tests/host_runtime/${probe}.cpp)
             target_link_libraries(${probe} PRIVATE shadps4_host)
             target_include_directories(${probe} PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1788,6 +1809,10 @@ if(BUILD_HOST_CORE)
         target_link_libraries(srt_tests PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_audio3d_tests tests/host_runtime/guest_audio3d_tests.cpp)
+        target_link_libraries(guest_audio3d_tests PRIVATE shadps4_host)
+        target_include_directories(guest_audio3d_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_audio3d_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_audio_tests tests/host_runtime/guest_audio_tests.cpp)
         target_link_libraries(guest_audio_tests PRIVATE shadps4_host)
         target_include_directories(guest_audio_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1796,6 +1821,10 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_ajm_tests PRIVATE shadps4_host)
         target_include_directories(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(debug_pad_tests tests/host_runtime/debug_pad_tests.cpp)
+        target_link_libraries(debug_pad_tests PRIVATE shadps4_host spatial::foundation_input)
+        target_include_directories(debug_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(debug_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_pad_tests tests/host_runtime/guest_pad_tests.cpp)
         target_link_libraries(guest_pad_tests PRIVATE shadps4_host spatial::foundation_input)
         target_include_directories(guest_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1860,6 +1889,10 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_http2_tests PRIVATE shadps4_host)
         target_include_directories(guest_http2_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_http2_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_broadcast_tests tests/host_runtime/guest_broadcast_tests.cpp)
+        target_link_libraries(guest_broadcast_tests PRIVATE shadps4_host)
+        target_include_directories(guest_broadcast_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_broadcast_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_network_tests tests/host_runtime/guest_network_tests.cpp)
         target_link_libraries(guest_network_tests PRIVATE shadps4_host)
         target_include_directories(guest_network_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

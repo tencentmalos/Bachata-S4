@@ -1,0 +1,10 @@
+{
+  "apk": "android/shadps4-app/app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk",
+  "apk_sha256": "9a887952de79c392b6b3bcac6121c6773d0dfbbd381df11a0243049862e3b94b",
+  "device_apk": "/data/app/~~jK1P-0WvMGyr8RgNx9hFSw==/com.shadps4.android-zwMI6zsdw18lSwtxgNiuWQ==/base.apk",
+  "device_sha256": "9a887952de79c392b6b3bcac6121c6773d0dfbbd381df11a0243049862e3b94b",
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "67d9dad35449799618ff0758d6d73de815eb27f32cb2b4b88a0f00a21989ced3",
+    "lib/arm64-v8a/libshadps4_host.so": "390f40190f98ec927499164f2133f52bccf08ce66cf0131768c0fc01ba8469d4"
+  }
+}

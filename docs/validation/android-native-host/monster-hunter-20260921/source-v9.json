@@ -1,0 +1,16 @@
+{
+  "branch": "codex/tetris-runtime-fix",
+  "base_commit": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "dirty_files_sha256": {
+    "src/core/guest_cpu/api/address_space.cpp": "794c0731ea2f55746f609e5a411ba7b235ca2bae861b8185f1d3fe15bc5c53e0",
+    "src/core/guest_cpu/api/address_space.h": "b93be3c2ab2c835e69aed275e7a3bba886b5f7aaeed65e3505187a085a3c2d0f",
+    "src/core/host_runtime/guest_storage_hle.cpp": "e71eeeacab4a5fe8a6df2805c26875d2b4244d4721b43d136698bcae6adcc033",
+    "src/core/host_runtime/guest_runtime.cpp": "40160cd9d2ea0d8b56a03131e06c5b195805a55830d48613cd10e871922e7c4d",
+    "src/core/host_runtime/guest_live_streaming.h": "84b535f28c8693541af7cf2b12151cff0b43ce3c3cbb6ac34c09092fe204aae1",
+    "src/core/host_runtime/guest_remote_services.h": "e057abe1e99a57dc6f2ffa06e1d6b30de26add984fe4e7f3e23049a7d94fa154",
+    "tests/host_runtime/guest_file_io_tests.cpp": "294c9bb2bd16bd6b641b7d949c3db5424924e47fd8c708df351259f2c36c728f",
+    "tests/host_runtime/guest_data_mapping_tests.cpp": "514df35891f3944abdd80455132a5426da9e0fb2c742cc32378478105c23b3c8",
+    "tests/host_runtime/guest_broadcast_tests.cpp": "54ffdfaf55087bcf602e25b362a53682023db4eeaa1451db3139f57ac6f407f8",
+    "CMakeLists.txt": "c6462662bd749be07739d24d798656a32140aba0b648d5a08b9d5d03269d2a43"
+  }
+}

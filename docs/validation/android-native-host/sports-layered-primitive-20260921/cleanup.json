@@ -1,0 +1,10 @@
+{
+  "global_byte_equal": true,
+  "host_config_byte_equal": true,
+  "library_pid": 29089,
+  "session": "none",
+  "owned_scrcpy_sessions": "stopped",
+  "hmd_log": "cleared",
+  "turnip": "preserved",
+  "owned_device_probe_directory": "removed"
+}

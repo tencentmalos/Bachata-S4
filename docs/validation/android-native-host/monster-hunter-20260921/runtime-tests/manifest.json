@@ -1,0 +1,163 @@
+{
+  "remote": "/data/local/tmp/mh-libc-bootstrap-20260921",
+  "serial": "9c2841a4",
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/out/runtime/production_runtime_runner",
+      "sha256": "85fcd9f18ec418856d2c538e41f395c5a4e62659aac640574704b9c57f4338ad"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "a5fbf13fdeb20ee6e37e4a60cd5494a097a6d86b6055369b4f3b542af6eaa338"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bad-system.disasm.txt",
+      "sha256": "915b96b11bc9d5d5501fd528e612743e10de91ec2f52767c47d5b265b3b53d51"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap-wait.disasm.txt",
+      "sha256": "d2e18ac0fd024f974f15281b3d971e850213a99932144565058376819682815b"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/libc.prx",
+      "sha256": "a094c54b00e93e367f802c0345f8850abb1cd62cefc174c623859291062246f7"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bad-game.prx",
+      "sha256": "a97164af8f57131c283f16ef4f5208134f33ef3d95bbd5b7eee120c1fcf5bf2f"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/policy-system-main.elf",
+      "sha256": "3d5a5cb51712c8fb2f9097aec7af2d9a40636f0e3dd7bb72cbb0ab359e8bdeec"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/policy-main.elf",
+      "sha256": "3d5a5cb51712c8fb2f9097aec7af2d9a40636f0e3dd7bb72cbb0ab359e8bdeec"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap.disasm.txt",
+      "sha256": "597a6d4a6df57d557f8cfa10e803b123303e67d7ee3a1653658ede51bdfe3b0a"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/policy-main.disasm.txt",
+      "sha256": "3ed8d09fc61dbfac16fd2aa7bbc7e3e582c0a784022938095e8a9b4ad964fdc6"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/policy-system-main.json",
+      "sha256": "718039f57e3199fbe96bada87af3b9f42db58ffaa3affbd58eea8fc5f64ff08a"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/libc.json",
+      "sha256": "47dbf1776f1fa86a5b38f40bac0b175416aefd4b13a841eca43167e6e7bc52cd"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/policy-system-main.disasm.txt",
+      "sha256": "b396d9b47514709a285784815f9af24884aebfbf45fd8efa63995c9ade0f65db"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bad-game.disasm.txt",
+      "sha256": "f6ec25abd84e55e80aecdc6874f42e717c71e5c9303d5adb66e8305133271290"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/system.disasm.txt",
+      "sha256": "dac3005fe7cb7e65bd4a5501ab392f0eb47b9a6862c1757aaa25c73da58614bb"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/system.sprx",
+      "sha256": "6d451ff7c0e7d402978ebf9acf927e7159bd29c853807deeed8998761c3ea567"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap-wait.prx",
+      "sha256": "c14d95a6f1ff5f90b11c627f452049b6f7c5db02181f975bd64136e014ad63d5"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bad-system.sprx",
+      "sha256": "b5c7fc4281c619f7939dbe655b40cdeddc16f9593a752d8eb2a40db36d6e8af8"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap.prx",
+      "sha256": "c75d5ba1f93271bf031ae856451673eb941d2913e26e3175aabfa6a225027db3"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bad-game.json",
+      "sha256": "88145dcc3a964e6664aecbb80a4a445cdf532a593e9e4f6a2151740e23fa6d42"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/policy-main.json",
+      "sha256": "a2072db9fff808b4bbae4017633d49afb670795c13ec192a247d0eddfa98ae4a"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap-wait.json",
+      "sha256": "2648ccb75796e2c2fca7e6361e8c422225050698f0a5a645d9fa81c2737a8d27"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/libc.disasm.txt",
+      "sha256": "e0ca8160b26c66f8b2cdf7395b1ba78560f916fbf6c579c38da1997468f412e0"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap.elf",
+      "sha256": "74cfeaec62ddac1199e7fb5a6d81664c8db9e74322bc59041fe6ba1b7fd109d6"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/system.json",
+      "sha256": "c0f50fb27785259c60f1a7fd6631f551e9dec0350ea5e9d3351dd2b4d7773483"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bootstrap.json",
+      "sha256": "84990ec4fa3b3c5549f968585ac207d70ecb81f6217071421736b111822e95d3"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/bad-system.json",
+      "sha256": "802e5bbcea1b36120ee9c5050130bab56cda3c134b6187abcba3173f46de074f"
+    }
+  ],
+  "results": [
+    {
+      "case": "fallback",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    },
+    {
+      "case": "system-priority",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    },
+    {
+      "case": "system-fail-closed",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    },
+    {
+      "case": "fallback-restored",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    },
+    {
+      "case": "game-constructor-fail",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    },
+    {
+      "case": "bootstrap-tls",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    },
+    {
+      "case": "bootstrap-cancel",
+      "exit": 0,
+      "passed": true,
+      "rounds": 3
+    }
+  ],
+  "cleanup": ""
+}

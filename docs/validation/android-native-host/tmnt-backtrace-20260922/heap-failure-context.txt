@@ -1,0 +1,76 @@
+[Lib.AudioOut] <Info> (Guest-1) oboe_audio_out.cpp:35 Observe: Oboe gen=1 api=2 perf=10 share=1 rate=48000 ch=2 burst=960 capacity=2886 size=1920 sources=1 callbacks=144552 frames=113861760 consumed=114542528 starved=1792 xruns=0 timestamp_result=0 presented=113856336 reconnects=0 error=0
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2292 sceGnmSubmitAndFlipCommandBuffersForWorkload: called [buf = 2]
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Lib.NpManager] <Debug> (Guest-1) np_manager.cpp:967 sceNpCheckCallback: called
+[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1437 GetRenderFrame: Got render frame, remaining 5
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2292 sceGnmSubmitAndFlipCommandBuffersForWorkload: called [buf = 0]
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1437 GetRenderFrame: Got render frame, remaining 4
+[Lib.NpManager] <Debug> (Guest-1) np_manager.cpp:967 sceNpCheckCallback: called
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+Skipped 1 duplicate messages..
+[Lib.AudioOut] <Info> (Guest-1) oboe_audio_out.cpp:35 Observe: Oboe gen=1 api=2 perf=10 share=1 rate=48000 ch=2 burst=960 capacity=2886 size=1920 sources=1 callbacks=144614 frames=113910720 consumed=114591488 starved=1792 xruns=0 timestamp_result=0 presented=113905296 reconnects=0 error=0
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+Skipped 2 duplicate messages..
+[Lib.AudioOut] <Info> (Guest-1) oboe_audio_out.cpp:35 Observe: Oboe gen=1 api=2 perf=10 share=1 rate=48000 ch=2 burst=960 capacity=2886 size=1920 sources=1 callbacks=144675 frames=113958720 consumed=114639488 starved=1792 xruns=0 timestamp_result=0 presented=113953296 reconnects=0 error=0
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (Guest-13) guest_storage_hle.cpp:570 DispatchStoragePinned: Session open path=/savedata0/User.ini.json flags=0x601 fd=5 error=0
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+Skipped 1 duplicate messages..
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (Guest-13) guest_storage_hle.cpp:570 DispatchStoragePinned: Session open path=/savedata0/User.ini.json flags=0x601 fd=5 error=0
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (Guest-13) guest_storage_hle.cpp:570 DispatchStoragePinned: Session open path=/savedata0/User.ini.json flags=0x601 fd=5 error=0
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (Guest-13) guest_runtime.cpp:1976 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.AudioOut] <Info> (Guest-1) oboe_audio_out.cpp:35 Observe: Oboe gen=1 api=2 perf=10 share=1 rate=48000 ch=2 burst=960 capacity=2886 size=1920 sources=1 callbacks=144735 frames=114005760 consumed=114686528 starved=1792 xruns=0 timestamp_result=0 presented=114001296 reconnects=0 error=0
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2292 sceGnmSubmitAndFlipCommandBuffersForWorkload: called [buf = 1]
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Lib.NpManager] <Debug> (Guest-1) np_manager.cpp:967 sceNpCheckCallback: called
+[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1437 GetRenderFrame: Got render frame, remaining 5
+[Lib.GnmDriver] <Debug> (Guest-2) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2292 sceGnmSubmitAndFlipCommandBuffersForWorkload: called [buf = 2]
+[Lib.GnmDriver] <Debug> (Guest-1) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1437 GetRenderFrame: Got render frame, remaining 5
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] A heap error is detected.
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] -- Mspace Name --
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] Garlic work heap ( 2)
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] -- Address for free (or delete) --
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740000
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] -- Segments --
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x0000000238400000 - 0x0000000327000000 (0x00000000eec00000)
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] -- Memory --
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740000: 0x0000000000000000 0x0000000000000000 <--
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740010: 0x0000000000000000 0x0000000000000000
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740020: 0x0000000000000000 0x0000000000000000
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740030: 0x0000000000000000 0x0000000000000000
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740040: 0x0000000000000000 0x0000000000000000
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740050: 0x0000000000000000 0x0000000000000000
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] [SceLibc] 0x000000025b740060: 0x0000000000000000 0x0000000000000000
+[T[Kernel.Vmm] <Info> (shadps4.android) memory.cpp:36 Initialize: Virtual memory space initialized with regions:
+[Kernel.Vmm] <Info> (shadps4.android) memory.cpp:44 Initialize: 0x400000 - 0x10000000
+[Kernel.Vmm] <Info> (shadps4.android) memory.cpp:44 Initialize: 0x100000000 - 0x4800000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module eboot.bin to 0x400000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000001f78000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000001f78000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000001a33c90
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000001a34000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000002000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000013c6a0

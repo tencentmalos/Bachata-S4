@@ -37,6 +37,7 @@ s32 PS4_SYSV_ABI sceKernelIsProspero();
 s32 PS4_SYSV_ABI sceKernelIsCEX();
 s32 PS4_SYSV_ABI sceKernelGetMainSocId();
 s32 PS4_SYSV_ABI sceKernelGetCpumode();
+s32 PS4_SYSV_ABI sceKernelSetFsstParam(s32 priority, u64 cpu_mask);
 s32 PS4_SYSV_ABI sceKernelGetCurrentCpu();
 
 s32 PS4_SYSV_ABI sceKernelGetModuleInfoForUnwind(VAddr addr, s32 flags,

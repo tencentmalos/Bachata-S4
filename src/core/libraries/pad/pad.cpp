@@ -460,7 +460,7 @@ int ProcessStates(OrbisPadData* pData, const Input::State* states, s32 num) {
 
 int PS4_SYSV_ABI scePadRead(s32 handle, OrbisPadData* pData, s32 num) {
 #ifdef __ANDROID__
-    return Core::HostRuntime::GlobalPadAdapter().Read(handle, pData, num);
+    return Core::HostRuntime::GlobalPadAdapter().Read(handle, pData, num, false, true);
 #else
     LOG_TRACE(Lib_Pad, "called");
     if (pData == nullptr || num < 1 || num > ORBIS_PAD_MAX_DATA_NUM) {
@@ -499,7 +499,7 @@ int PS4_SYSV_ABI scePadReadHistory() {
 
 int PS4_SYSV_ABI scePadReadState(s32 handle, OrbisPadData* pData) {
 #ifdef __ANDROID__
-    const int n = Core::HostRuntime::GlobalPadAdapter().Read(handle, pData, 1, true);
+    const int n = Core::HostRuntime::GlobalPadAdapter().Read(handle, pData, 1, true, true);
     return n < 0 ? n : ORBIS_OK;
 #else
     LOG_TRACE(Lib_Pad, "handle: {}", handle);

@@ -1,0 +1,96 @@
+
+7-Zip (z) 26.02 (arm64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
+ 64-bit arm_v:8.5-A locale=C.UTF-8 Threads:14 OPEN_MAX:1048575, ASM
+
+Scanning the drive for archives:
+1 file, 4294967296 bytes (4096 MiB)
+
+Listing archive: /Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part1.rar
+
+--
+Path = /Users/bytedance/game/ps4/《血源诅咒：老猎人》港版中文版（含1.09升级补丁+全DLC+PKG金手指+JSON金手指+繁中简体化补丁）（日式3D第三人称魂类动作RPG游戏）/《血源诅咒：老猎人》港版中文版游戏本体/《血源诅咒：老猎人》港版中文版游戏本体.part1.rar
+Type = Rar5
+Physical Size = 4294967296
+Total Physical Size = 31380601263
+Characteristics = Volume Lock Locator QuickOpen:4294967148
+Encrypted = -
+Solid = -
+Blocks = 3
+Method = v6:4G:m0:m1
+Multivolume = +
+Volume Index = 0
+Volumes = 8
+
+----------
+Path = HP9000-CUSA03023_00-BLOODBORNE0000AS-A0100-V0100.pkg
+Folder = -
+Size = 31352094720
+Packed Size = 31380598674
+Modified = 2018-02-01 22:55:28.0000000
+Created = 
+Accessed = 
+Attributes = A
+Alternate Stream = -
+Encrypted = -
+Solid = -
+Split Before = -
+Split After = -
+CRC = AA2CA15D
+Host OS = Windows
+Method = v6:m1:4G
+Characteristics = CRC Time:M
+Symbolic Link = 
+Hard Link = 
+Copy Link = 
+Volume Index = 0
+Checksum = 
+NT Security = 
+
+Path = 更多资源请访问 2468c.com.url
+Folder = -
+Size = 192
+Packed Size = 162
+Modified = 2024-07-13 15:37:14.6942314
+Created = 
+Accessed = 
+Attributes = A
+Alternate Stream = -
+Encrypted = -
+Solid = -
+Split Before = -
+Split After = -
+CRC = 1CD9BABA
+Host OS = Windows
+Method = v6:m1:4G
+Characteristics = CRC Time:M
+Symbolic Link = 
+Hard Link = 
+Copy Link = 
+Volume Index = 7
+Checksum = 
+NT Security = 
+
+Path = 2468c.com.txt
+Folder = -
+Size = 200
+Packed Size = 200
+Modified = 2026-03-04 18:40:07.1751412
+Created = 
+Accessed = 
+Attributes = A
+Alternate Stream = -
+Encrypted = -
+Solid = -
+Split Before = -
+Split After = -
+CRC = CFADA9B1
+Host OS = Windows
+Method = v6:m0:4G
+Characteristics = CRC Time:M
+Symbolic Link = 
+Hard Link = 
+Copy Link = 
+Volume Index = 7
+Checksum = 
+NT Security = 
+

@@ -82,6 +82,34 @@
       "status": "saved",
       "bytes": 35149,
       "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "file": "vulkan-layered-primitive-notes.md",
+      "kind": "local_summary_of_official_khronos_sources",
+      "scope": "Layer and ViewportIndex across auxiliary tessellation; not Sony ABI",
+      "urls": [
+        "https://docs.vulkan.org/refpages/latest/refpages/source/Layer.html",
+        "https://docs.vulkan.org/spec/latest/chapters/interfaces.html",
+        "https://docs.vulkan.org/spec/latest/chapters/tessellation.html"
+      ],
+      "status": "notes_saved",
+      "bytes": 1201,
+      "sha256": "d4be233a195af961e187a0497a454b8d0b4f78adef4c6def771348a92add87ee"
+    },
+    {
+      "file": "vulkan-subgroup-notes.md",
+      "kind": "local_notes_from_official_sources",
+      "url": "https://docs.vulkan.org/glslext/latest/glslext/khr/GL_KHR_shader_subgroup.html",
+      "additional_urls": [
+        "https://docs.vulkan.org/spec/latest/chapters/shaders.html#shaders-subgroup-size",
+        "https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html",
+        "https://gpuopen.com/download/AMD_GCN3_Instruction_Set_Architecture_rev1.1.pdf"
+      ],
+      "scope": "Broadcast uniformity, shuffle routing, quad selection, required subgroup size; not Sony SDK API documentation",
+      "retrieved_at_utc": "2026-09-22",
+      "status": "notes_saved",
+      "bytes": 3672,
+      "sha256": "fcc426eec5a7ce591ab86d1df512a73a7662b18781f7751a5105d647dfc5ba6a"
     }
   ],
   "not_retrieved": [

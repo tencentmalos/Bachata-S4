@@ -30,7 +30,6 @@ class GuestRwlockDomain final {
     // Shared ownership lets Unlock notify after releasing the domain mutex.
     std::map<u64, std::shared_ptr<LockState>> locks;
     std::map<u64, u32> attributes;
-    size_t allocations{};
     bool Read(u64 slot, u64& value) {
         return bool(space.ReadData(GuestCpu::GuestAddress{slot},
                                    std::as_writable_bytes(std::span{&value, 1})));
@@ -44,12 +43,28 @@ class GuestRwlockDomain final {
     }
     int Create(u64 slot, u32 type, bool attr, u64& address) {
         if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8}, GuestCpu::GuestPermission::Write)) return POSIX_EFAULT;
-        if (allocations >= 4096) return POSIX_ENOMEM;
+        // Addresses are session-unique tokens. Capacity follows actual backing
+        // and host allocation availability, not the number ever initialized.
         address = allocate();
-        ++allocations;
-        if (int error = Write(slot, address)) return error;
-        if (attr) attributes.emplace(address, type);
-        else locks.emplace(address, std::make_shared<LockState>()).first->second->type = type;
+        if (!address) return POSIX_ENOMEM;
+        try {
+            if (attr) {
+                if (!attributes.emplace(address, type).second) return POSIX_EINVAL;
+            } else {
+                auto state = std::make_shared<LockState>();
+                state->type = type;
+                if (!locks.emplace(address, std::move(state)).second) return POSIX_EINVAL;
+            }
+        } catch (const std::bad_alloc&) {
+            return POSIX_ENOMEM;
+        }
+        // Publish only a fully constructed object. A failed guest write must
+        // not leave a live entry or replace the caller's previous handle.
+        if (int error = Write(slot, address)) {
+            if (attr) attributes.erase(address);
+            else locks.erase(address);
+            return error;
+        }
         return 0;
     }
 public:

@@ -1,0 +1,18 @@
+[
+  {
+    "label": "mhw-v4-start",
+    "title": "CUSA09554",
+    "pid": 24330,
+    "rows": 999,
+    "refused_rows": 249,
+    "refused_unique": 247
+  },
+  {
+    "label": "mhr-v4-start",
+    "title": "CUSA34119",
+    "pid": 25050,
+    "rows": 1201,
+    "refused_rows": 344,
+    "refused_unique": 341
+  }
+]

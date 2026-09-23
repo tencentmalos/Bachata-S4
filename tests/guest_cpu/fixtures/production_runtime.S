@@ -10,6 +10,17 @@ _start:
 dependency_init:
     cmp qword ptr [rip + tls_relocations], 2
     jne dependency_bad
+#ifdef BOOTSTRAP_LIBC
+    // Unlike the system libc, a game libc bootstraps from its constructor.
+    sub rsp, 8
+    call malloc_init
+    add rsp, 8
+    test eax, eax
+    jne dependency_bad
+    sub rsp, 8
+    call mutex_enable
+    add rsp, 8
+#endif
 #ifdef WAIT_FOREVER
     sub rsp, 8
 dependency_wait:

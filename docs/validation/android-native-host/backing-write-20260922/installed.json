@@ -1,0 +1,10 @@
+{
+  "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/backing-write-20260922/shadps4-backing-write.apk",
+  "apk_sha256": "4758939ef9050e9b0a3a9322a29d799c150b5ca843c9a4b4548fe100de215a27",
+  "host_sha256": "a1d24cae5317381cafba0d9330b603ff4a7796eaa00c4f026f69a36a3eb58e25",
+  "old_host_sha256": "33825d4e9163bc57d8e8e61d966a6465aa94d9c12d0063be70ec8eef26d6ffae",
+  "installed": true,
+  "jni_sha256": "232f0c067cf1f57170a8492f51d13307b7861bb8a1dcb18a27b57b94afe57d17",
+  "verified_device_sha256": "4758939ef9050e9b0a3a9322a29d799c150b5ca843c9a4b4548fe100de215a27",
+  "installed_unix_time": 1790076160.4563599
+}

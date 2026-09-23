@@ -1,0 +1,58 @@
+{
+  "date": "2026-09-22",
+  "scope": "UTC/localtime family; gameplay evidence to hub only; heap failure unresolved",
+  "files": {
+    "tests.json": {
+      "bytes": 1026,
+      "sha256": "14a9e189289f9a00d6a3e8be8c35b960be523a30f998c2d0b919a90874a3e9a1"
+    },
+    "positive.log": {
+      "bytes": 12038,
+      "sha256": "eac9a4bed01f6ce20517c9298122964c9f5c5d7a896b0fa137b4a0dd0c9efd34"
+    },
+    "after-start-screen.png": {
+      "bytes": 1596629,
+      "sha256": "44563344570616d62f629e75c912f01ae0a30aac4481a79547188cc97a1345f5"
+    },
+    "process.log": {
+      "bytes": 40,
+      "sha256": "b906e5438ebbea5f79f3269bb8c631e7d58f93d6d4706162051818d9927f6904"
+    },
+    "negative.log": {
+      "bytes": 13102,
+      "sha256": "4830c6dc5ce31efd82d8c4db60e8d519d624258a67e02683afcc58b0dab565be"
+    },
+    "after-start-status.txt": {
+      "bytes": 756,
+      "sha256": "c850a5bc0c091258a98fc0b66f4e4d0b7d252bd6b2f709fe6a762a2e6009f57d"
+    },
+    "userdata-check-final.json": {
+      "bytes": 13000,
+      "sha256": "64bbd0847e3054d4ce2759c9c44a7d0a549199b42179586c3c60b773e7921c93"
+    },
+    "installed.json": {
+      "bytes": 774,
+      "sha256": "fce83fe57a189ad3a0af1c8c45aaf55de64dcf269e73762049543bdf37fa0d2e"
+    },
+    "hub-status.txt": {
+      "bytes": 762,
+      "sha256": "967f89d6bac5d2fc06a67175642a7b701e4f64406ceafd07c6fd900c7019b56a"
+    },
+    "hub-imports.json": {
+      "bytes": 433616,
+      "sha256": "78cf1ec22d84083d70c5cff102a2bd3792ccc6b65b69b7908da1de7b3392a17a"
+    },
+    "exit-info.txt": {
+      "bytes": 5851,
+      "sha256": "dc0e05ae247f515deb8a8abb49d706b24658d70052dacab3dc429da56518ab43"
+    },
+    "hub-screen.png": {
+      "bytes": 1936219,
+      "sha256": "99c426cc7d092c1b3b790bd3f9ec9fd79855f4fa781732dea715888951a7b95a"
+    },
+    "after-start-imports.json": {
+      "bytes": 433616,
+      "sha256": "78cf1ec22d84083d70c5cff102a2bd3792ccc6b65b69b7908da1de7b3392a17a"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "unix_time": 1790009439.277073,
+  "serial": "9c2841a4",
+  "settings": {
+    "unchanged_bytes": true,
+    "before_sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+    "after_sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+  },
+  "host-config": {
+    "unchanged_bytes": true,
+    "before_sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+    "after_sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+  },
+  "pid": "32300",
+  "tracer": "TracerPid:\t0",
+  "adb_forward": "\n",
+  "debug_status": "TASK 10190:com.shadps4.android id=1692 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 289d126 pid=32300\nsession: none\nsnapshot_ns: 786815018824847\n\n",
+  "services": "ACTIVITY MANAGER SERVICES (dumpsys activity services)\n  (nothing)\n",
+  "props": {
+    "debug.shadps4.guest_debug_port": "0",
+    "debug.shadps4.guest_debug_wait": "0",
+    "debug.shadps4.vulkan_driver": "turnip",
+    "debug.shadps4.hmd_log": "",
+    "debug.shadps4.vr_probe": "",
+    "debug.shadps4.guest_patch_enabled": ""
+  },
+  "save_checkpoint_comparison": {
+    "baseline": "savedata-after-v3-sha.txt",
+    "baseline_count": 37,
+    "final_count": 37,
+    "changed": [
+      "files/host/home/1000/savedata/CUSA50828/main/sce_backup/User.ini.json",
+      "files/host/home/1000/savedata/CUSA50828/main/User.ini.json"
+    ],
+    "removed": [],
+    "added": [],
+    "pre_v3_snapshot_invalid": true
+  }
+}

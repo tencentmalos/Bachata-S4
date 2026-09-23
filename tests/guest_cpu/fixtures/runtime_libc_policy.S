@@ -8,6 +8,18 @@ _start:
     ret
 .org 0x100
 init:
+#ifndef SYSTEM_LIBC
+    // Game libc owns its allocator bootstrap. Both helpers reject a repeated
+    // call, so this also catches an erroneous host pre-initialization.
+    sub rsp,8
+    call malloc_init
+    add rsp,8
+    test eax,eax
+    jne bad
+    sub rsp,8
+    call mutex_enable
+    add rsp,8
+#endif
     cmp dword ptr [rip+init_flags],2
     jne bad
     inc dword ptr [rip+init_flags]

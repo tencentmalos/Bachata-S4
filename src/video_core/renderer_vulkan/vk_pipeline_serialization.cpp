@@ -12,11 +12,11 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 12u; // MSAA policy image types and sample operands
+static constexpr u32 ShaderBinaryVersion = 15u; // Non-uniform DS_SWIZZLE uses legal subgroup routing
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 8u; // invalidate pre-alias-fix flattened layouts
+static constexpr u32 ShaderMetaVersion = 10u; // preserve wave requirements when preloading pipelines
 #else
-static constexpr u32 ShaderMetaVersion = 9u; // portable SRT plan; never native x86 bytes
+static constexpr u32 ShaderMetaVersion = 11u; // portable SRT plan and persisted wave requirements
 #endif
 static constexpr u32 PipelineKeyVersion = 5u; // auxiliary interfaces follow current vertex exports
 } // namespace Serialization
@@ -393,6 +393,8 @@ void Info::Serialize(Serialization::Archive& ar) const {
     Serialization::Writer info{ar};
 
     info.Write(this, sizeof(InfoPersistent));
+    info.Write(uses_lane_id);
+    info.Write(uses_group_ballot);
     info.Write(flattened_ud_buf);
     srt_info.Serialize(ar);
 }
@@ -401,6 +403,8 @@ bool Info::Deserialize(Serialization::Archive& ar) {
     Serialization::Reader info{ar};
 
     info.Read(this, sizeof(Shader::InfoPersistent));
+    info.Read(uses_lane_id);
+    info.Read(uses_group_ballot);
     info.Read(flattened_ud_buf);
 
     return srt_info.Deserialize(ar);

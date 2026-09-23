@@ -31,6 +31,10 @@ inline constexpr std::string_view NpControlNids[]{
     "S7QTn72PrDw", // sceNpDeleteRequest
     "VfRSmPmj8Q8", // sceNpRegisterStateCallback
     "mjjTXh+NHWY", // sceNpUnregisterStateCallback
+    "qQJfO8HAiaY", // sceNpRegisterStateCallbackA
+    "M3wFXbYQtAA", // sceNpUnregisterStateCallbackA
+    "hw5KNqAAels", // sceNpRegisterNpReachabilityStateCallback
+    "cRILAEvn+9M", // sceNpUnregisterNpReachabilityStateCallback
     "GImICnh+boA", // sceNpRegisterPlusEventCallback
     "xViqJdDgKl0", // sceNpUnregisterPlusEventCallback
     "uFJpaKNBAj4", // sceNpRegisterGamePresenceCallback
@@ -44,11 +48,21 @@ class GuestNpControl {
     using Space = GuestCpu::GuestAddressSpace;
     std::mutex mutex, event_mutex, native_calls;
     std::set<s32> requests;
-    struct Slot { u64 function{}, argument{}, revision{}; } state, toolkit, plus, presence;
+    struct Slot { u64 function{}, argument{}, revision{}; } state, toolkit, plus, presence, reachability;
+    struct StateASlot { Slot binding; s32 native_id{}; };
+    std::array<StateASlot, 8> state_a{}; // Same capacity as desktop NP Manager.
     u64 next_revision{1};
     bool checking{};
 public:
-    struct Callback { u64 function, argument, revision; s32 user; u32 state; bool unsupported_identity; bool toolkit{}; };
+    enum class CallbackKind { Legacy, Toolkit, StateA, Reachability };
+    struct Callback {
+        u64 function, argument, revision;
+        s32 user;
+        u32 state;
+        bool unsupported_identity;
+        CallbackKind kind{CallbackKind::Legacy};
+        size_t index{};
+    };
 private:
     std::vector<Callback> events;
     static void PS4_SYSV_ABI State(s32 user, Libraries::Np::NpManager::OrbisNpState value,
@@ -65,7 +79,26 @@ private:
         std::scoped_lock lock(self.mutex, self.event_mutex);
         if (self.toolkit.function)
             self.events.push_back({self.toolkit.function, self.toolkit.argument,
-                                   self.toolkit.revision, user, u32(value), false, true});
+                                   self.toolkit.revision, user, u32(value), false, CallbackKind::Toolkit});
+    }
+    template <size_t Index>
+    static void PS4_SYSV_ABI StateA(s32 user, Libraries::Np::NpManager::OrbisNpState value,
+                                   void* opaque) {
+        auto& self = *static_cast<GuestNpControl*>(opaque);
+        std::scoped_lock lock(self.mutex, self.event_mutex);
+        const auto& slot = self.state_a[Index].binding;
+        if (slot.function)
+            self.events.push_back({slot.function, slot.argument, slot.revision, user,
+                                   u32(value), false, CallbackKind::StateA, Index});
+    }
+    static void PS4_SYSV_ABI Reachability(s32 user,
+            Libraries::Np::NpManager::OrbisNpReachabilityState value, void* opaque) {
+        auto& self = *static_cast<GuestNpControl*>(opaque);
+        std::scoped_lock lock(self.mutex, self.event_mutex);
+        const auto& slot = self.reachability;
+        if (slot.function)
+            self.events.push_back({slot.function, slot.argument, slot.revision, user,
+                                   u32(value), false, CallbackKind::Reachability});
     }
     static void PS4_SYSV_ABI Plus(s32, s32, void*) {} // desktop has no offline event producer
     static void PS4_SYSV_ABI Presence(const Libraries::Np::OrbisNpOnlineId*, void*) {}
@@ -75,6 +108,9 @@ public:
         // Runtime joins all guest/callback owners before destroying the domain.
         if (state.function) sceNpUnregisterStateCallback();
         if (toolkit.function) sceNpUnregisterStateCallbackForToolkit();
+        for (const auto& entry : state_a)
+            if (entry.native_id > 0) sceNpUnregisterStateCallbackA(entry.native_id);
+        if (reachability.function) sceNpUnregisterNpReachabilityStateCallback();
         if (plus.function) sceNpUnregisterPlusEventCallback();
         if (presence.function) sceNpRegisterGamePresenceCallback(nullptr,nullptr);
         for (const auto id : requests) sceNpDeleteRequest(id);
@@ -86,7 +122,17 @@ public:
         std::lock_guard lock(event_mutex);
         std::vector<Callback> out; out.swap(events); return out;
     }
-    bool IsCurrent(const Callback& cb) { std::lock_guard lock(mutex); const auto& slot = cb.toolkit ? toolkit : state; return slot.function==cb.function && slot.revision==cb.revision; }
+    bool IsCurrent(const Callback& cb) {
+        std::lock_guard lock(mutex);
+        const Slot* slot = &state;
+        if (cb.kind == CallbackKind::Toolkit) slot = &toolkit;
+        else if (cb.kind == CallbackKind::Reachability) slot = &reachability;
+        else if (cb.kind == CallbackKind::StateA) {
+            if (cb.index >= state_a.size()) return false;
+            slot = &state_a[cb.index].binding;
+        }
+        return slot->function == cb.function && slot->revision == cb.revision;
+    }
     void EndCallbacks() { std::lock_guard lock(mutex); checking=false; }
     u32 Dispatch(Space& space, std::string_view nid, const std::array<u64,6>& a) {
         using namespace GuestCpu;
@@ -98,6 +144,50 @@ public:
         };
         std::lock_guard native_lock(native_calls);
         std::lock_guard lock(mutex);
+        if (nid == "qQJfO8HAiaY") {
+            if (!a[0] || !space.ValidateRange({GuestAddress{a[0]}, 1}, GuestPermission::Execute))
+                return bad;
+            for (const auto& entry : state_a)
+                if (entry.binding.function == a[0])
+                    return u32(ORBIS_NP_ERROR_CALLBACK_ALREADY_REGISTERED);
+            // Desktop rejects duplicate native function addresses. Distinct
+            // trampolines preserve each guest registration and its userdata.
+            static constexpr std::array<OrbisNpStateCallbackA, 8> trampolines{
+                StateA<0>, StateA<1>, StateA<2>, StateA<3>,
+                StateA<4>, StateA<5>, StateA<6>, StateA<7>};
+            for (size_t i = 0; i < state_a.size(); ++i) {
+                auto& entry = state_a[i];
+                if (entry.native_id) continue;
+                const auto id = sceNpRegisterStateCallbackA(trampolines[i], this);
+                if (id > 0) entry = {{a[0], a[1], next_revision++}, id};
+                return u32(id);
+            }
+            return u32(ORBIS_NP_ERROR_CALLBACK_MAX);
+        }
+        if (nid == "M3wFXbYQtAA") {
+            const auto id = s32(a[0]);
+            if (id <= 0 || id > s32(state_a.size())) return bad;
+            for (auto& entry : state_a) {
+                if (entry.native_id != id) continue;
+                const auto result = sceNpUnregisterStateCallbackA(id);
+                if (!result) entry = {};
+                return u32(result);
+            }
+            return u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED);
+        }
+        if (nid == "hw5KNqAAels") {
+            if (!a[0] || !space.ValidateRange({GuestAddress{a[0]}, 1}, GuestPermission::Execute))
+                return bad;
+            const auto result = sceNpRegisterNpReachabilityStateCallback(Reachability, this);
+            if (!result) reachability = {a[0], a[1], next_revision++};
+            return u32(result);
+        }
+        if (nid == "cRILAEvn+9M") {
+            if (!reachability.function) return u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED);
+            const auto result = sceNpUnregisterNpReachabilityStateCallback();
+            if (!result) reachability = {};
+            return u32(result);
+        }
         if (nid=="GpLQDNKICac" || nid=="eiqMCt9UshI") {
             s32 result;
             if (nid=="GpLQDNKICac") result=sceNpCreateRequest();

@@ -274,40 +274,48 @@ bool MemoryManager::TryReadSrtMemory(VAddr address, void* data, u64 size) {
 
 bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
     const VAddr virtual_addr = std::bit_cast<VAddr>(address);
-    std::shared_lock lk{mutex};
-    ASSERT_MSG(IsValidMapping(virtual_addr, size), "Attempted to access invalid address {:#x}",
-               virtual_addr);
-
-    std::vector<VirtualMemoryArea> vmas_to_write;
-    auto current_vma = FindVMA(virtual_addr);
-    while (current_vma->second.Overlaps(virtual_addr, size)) {
-        if (!HasPhysicalBacking(current_vma->second)) {
-            break;
-        }
-        vmas_to_write.emplace_back(current_vma->second);
-        current_vma++;
-    }
-
-    if (vmas_to_write.empty()) {
+    if (!size)
+        return true;
+    if (!data || virtual_addr > UINT64_MAX - size)
         return false;
-    }
+    std::shared_lock lk{mutex};
+    if (!IsValidMapping(virtual_addr, size))
+        return false;
 
-    for (auto& vma : vmas_to_write) {
-        auto start_in_vma = std::max<VAddr>(virtual_addr, vma.base) - vma.base;
-        auto phys_handle = std::prev(vma.phys_areas.upper_bound(start_in_vma));
-        for (; phys_handle != vma.phys_areas.end(); phys_handle++) {
-            if (!size) {
-                break;
-            }
-            const u64 start_in_dma =
-                std::max<u64>(start_in_vma, phys_handle->first) - phys_handle->first;
-            u8* backing = impl.BackingBase() + phys_handle->second.base + start_in_dma;
-            u64 copy_size = std::min<u64>(size, phys_handle->second.size - start_in_dma);
-            memcpy(backing, data, copy_size);
-            size -= copy_size;
-        }
+    // Validate the whole destination before modifying backing. A GPU readback
+    // can span several VMAs or noncontiguous physical segments within one pool.
+    // Never repeat source bytes at a segment boundary or report a partial copy
+    // as a successful write when a later span has no backing.
+    struct Copy {
+        u8* destination;
+        u64 offset, size;
+    };
+    std::vector<Copy> copies;
+    VAddr cursor = virtual_addr;
+    u64 remaining = size;
+    while (remaining) {
+        const auto& vma = FindVMA(cursor)->second;
+        if (!HasPhysicalBacking(vma))
+            return false;
+        const u64 offset = cursor - vma.base;
+        auto physical = vma.phys_areas.upper_bound(offset);
+        if (physical == vma.phys_areas.begin())
+            return false;
+        --physical;
+        const u64 within = offset - physical->first;
+        if (within >= physical->second.size)
+            return false;
+        const u64 count = std::min({remaining, vma.size - offset, physical->second.size - within});
+        if (!count)
+            return false;
+        copies.push_back(
+            {impl.BackingBase() + physical->second.base + within, cursor - virtual_addr, count});
+        cursor += count;
+        remaining -= count;
     }
-
+    const auto* source = static_cast<const u8*>(data);
+    for (const auto& copy : copies)
+        std::memcpy(copy.destination, source + copy.offset, copy.size);
     return true;
 }
 
@@ -1201,7 +1209,8 @@ s64 MemoryManager::ProtectBytes(VAddr addr, VirtualMemoryArea& vma_base, u64 siz
     return adjusted_size;
 }
 
-s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot) {
+s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot,
+                           std::optional<s32> memory_type) {
     // If size is zero, then there's nothing to protect
     if (size == 0) {
         return ORBIS_OK;
@@ -1209,7 +1218,9 @@ s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot) {
 
     // Ensure the range to modify is valid
     std::scoped_lock writer{unmap_mutex};
-    ASSERT_MSG(IsValidMapping(addr, size), "Attempted to access invalid address {:#x}", addr);
+    if (size > UINT64_MAX - addr || !IsValidMapping(addr, size) ||
+        (memory_type && (*memory_type < 0 || *memory_type > 10)))
+        return ORBIS_KERNEL_ERROR_EINVAL;
 
     auto preparation = impl.PrepareMapping(addr, size, True(prot & MemoryProt::CpuExec));
     std::scoped_lock lk{mutex};
@@ -1228,7 +1239,8 @@ s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot) {
             // Account for potential gaps in memory map.
             protected_bytes += vma_base.base - (addr + protected_bytes);
         }
-        auto result = ProtectBytes(addr + protected_bytes, vma_base, size - protected_bytes, prot);
+        auto result = ProtectBytes(addr + protected_bytes, vma_base, size - protected_bytes,
+                                   valid_flags);
         if (result < 0) {
             // ProtectBytes returned an error, return it
             return result;
@@ -1236,6 +1248,9 @@ s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot) {
         protected_bytes += result;
     }
 
+    // Keep mapping identity stable between host protection and physical type
+    // publication. The caller invalidates GPU data after releasing these locks.
+    if (memory_type) SetDirectMemoryTypeLocked(addr, size, *memory_type);
     return ORBIS_OK;
 }
 
@@ -1351,7 +1366,14 @@ s32 MemoryManager::DirectQueryAvailable(PAddr search_start, PAddr search_end, u6
 s32 MemoryManager::SetDirectMemoryType(VAddr addr, u64 size, s32 memory_type) {
     std::scoped_lock lk{mutex, unmap_mutex};
 
-    ASSERT_MSG(IsValidMapping(addr, size), "Attempted to access invalid address {:#x}", addr);
+    if (size > UINT64_MAX - addr || !IsValidMapping(addr, size) ||
+        memory_type < 0 || memory_type > 10)
+        return ORBIS_KERNEL_ERROR_EINVAL;
+    SetDirectMemoryTypeLocked(addr, size, memory_type);
+    return ORBIS_OK;
+}
+
+void MemoryManager::SetDirectMemoryTypeLocked(VAddr addr, u64 size, s32 memory_type) {
 
     // Search through all VMAs covered by the provided range.
     // We aren't modifying these VMAs, so it's safe to iterate through them.
@@ -1395,7 +1417,6 @@ s32 MemoryManager::SetDirectMemoryType(VAddr addr, u64 size, s32 memory_type) {
         }
     }
 
-    return ORBIS_OK;
 }
 
 s32 MemoryManager::NameVirtualRange(VAddr virtual_addr, u64 size, std::string_view name) {
@@ -1466,7 +1487,8 @@ s32 MemoryManager::GetDirectMemoryType(PAddr addr, s32* directMemoryTypeOut,
 
 s32 MemoryManager::IsStack(VAddr addr, void** start, void** end) {
     std::shared_lock lk{mutex};
-    ASSERT_MSG(IsValidMapping(addr), "Attempted to access invalid address {:#x}", addr);
+    if (!IsValidMapping(addr))
+        return ORBIS_KERNEL_ERROR_EACCES;
     const auto& vma = FindVMA(addr)->second;
     if (vma.IsFree()) {
         return ORBIS_KERNEL_ERROR_EACCES;
@@ -1524,19 +1546,44 @@ VAddr MemoryManager::SearchFree(VAddr virtual_addr, u64 size, u32 alignment) {
     auto min_search_address = impl.SystemManagedVirtualBase();
     auto max_search_address = impl.UserVirtualBase() + impl.UserVirtualSize();
 
+    if (guest_backend) {
+        if (vma_map.empty()) return VAddr(-1);
+        // Guest backends may expose disjoint regions or a test arena anywhere
+        // in host VA. The legacy AddressSpace user-size constants are not the
+        // bounds of these reservations; the owned VMA map is authoritative.
+        min_search_address = vma_map.begin()->first;
+        max_search_address = vma_map.rbegin()->second.base + vma_map.rbegin()->second.size;
+        // Only non-fixed mappings use SearchFree. A hint above the segmented
+        // guest envelope (or near its occupied end) is not an exact-address
+        // requirement. Try at/after the hint, then wrap once through owned
+        // free VMAs. Never reserve an Android/ART gap or replace a live mapping.
+        auto search = [&](VAddr lower, VAddr upper) -> VAddr {
+            auto first = vma_map.upper_bound(lower);
+            if (first != vma_map.begin()) --first;
+            for (auto it = first; it != vma_map.end(); ++it) {
+                const auto& [base, vma] = *it;
+                if (base >= upper) break;
+                if (!vma.IsFree() || vma.base + vma.size <= lower) continue;
+                const VAddr begin = std::max(base, lower);
+                if (begin > UINT64_MAX - (alignment - 1)) continue;
+                const VAddr candidate = Common::AlignUp(begin, alignment);
+                const VAddr end = std::min(vma.base + vma.size, upper);
+                if (candidate < end && size <= end - candidate)
+                    return candidate;
+            }
+            return VAddr(-1);
+        };
+        const VAddr hint = std::clamp(virtual_addr, min_search_address, max_search_address);
+        if (const auto address = search(hint, max_search_address); address != VAddr(-1))
+            return address;
+        return search(min_search_address, max_search_address);
+    }
+
     // If the requested address is below the mapped range, start search from the lowest address
     if (virtual_addr < min_search_address) {
         virtual_addr = min_search_address;
     }
 
-    // A non-fixed hint may point into an intentionally unowned host interval
-    // (ART on Android). Continue at the next guest VMA; never map the host gap.
-    if (guest_backend && !IsValidMapping(virtual_addr)) {
-        const auto next = vma_map.lower_bound(virtual_addr);
-        if (next == vma_map.end())
-            return -1;
-        virtual_addr = next->first;
-    }
     if (!IsValidMapping(virtual_addr)) {
         LOG_ERROR(Kernel_Vmm, "addr = {:#x} is outside the memory map", virtual_addr);
         return -1;

@@ -1,0 +1,7 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSystemGesture.sprx",
+  "destination": "files/host/sys_modules/libSceSystemGesture.sprx",
+  "sha256": "98425066e5c44346fc849931f62e369cad70e358e89ccadfa75eca2c5b1425f8",
+  "device_sha256": "98425066e5c44346fc849931f62e369cad70e358e89ccadfa75eca2c5b1425f8",
+  "preexisting": false
+}

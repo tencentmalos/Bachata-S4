@@ -41,7 +41,10 @@
 #include "core/host_runtime/guest_aio.h"
 #include "core/host_runtime/guest_app_content.h"
 #include "core/host_runtime/guest_audio.h"
+#include "core/host_runtime/guest_audio3d.h"
 #include "core/host_runtime/guest_audio_input.h"
+#include "core/host_runtime/guest_live_streaming.h"
+#include "core/host_runtime/guest_remote_services.h"
 #include "core/host_runtime/guest_avplayer.h"
 #include "core/host_runtime/guest_clock.h"
 #include "core/host_runtime/guest_camera.h"
@@ -55,6 +58,8 @@
 #include "core/host_runtime/guest_direct_memory_hle.h"
 #include "core/host_runtime/guest_page_states.h"
 #include "core/host_runtime/guest_process_services.h"
+#include "core/host_runtime/guest_backtrace.h"
+#include "core/host_runtime/guest_kernel_time.h"
 #include "core/libraries/sysmodule/sysmodule_internal.h"
 #include "core/host_runtime/guest_video_event_hle.h"
 #include "core/host_runtime/guest_mouse.h"
@@ -89,6 +94,7 @@
 #include "core/diagnostics/executable_export.h"
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_rwlock.h"
+#include "core/host_runtime/guest_rwlock_diagnostics.h"
 #include "core/host_runtime/guest_sync_abi.h"
 #if __has_include("guest_sync_payload.h")
 // Generated from guest/runtime/sync by build-guest-payload at host build time.
@@ -393,12 +399,13 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestAjm> ajm;
     std::unique_ptr<GuestAvPlayer> avplayer;
     std::unique_ptr<GuestAudio> audio;
+    std::unique_ptr<GuestAudio3d> audio3d;
     std::unique_ptr<GuestKernelSemaphore> kernel_semaphores;
     std::unique_ptr<GuestPad> pad;
     std::shared_ptr<GuestSaveDialog> save_dialog;
     std::unique_ptr<GuestImeDialog> ime_dialog;
     GuestImeKeyboard ime_keyboard;
-    GuestErrorDialog error_dialog;
+    GuestErrorDialog error_dialog{EmulatorSettings.AreGuestDialogsSilent()};
     std::unique_ptr<GuestSigninDialog> signin_dialog;
     std::shared_ptr<GuestMsgDialog> msg_dialog;
     std::unique_ptr<GuestCommerceDialog> commerce_dialog;
@@ -414,6 +421,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::atomic<u64> reprojection_calls{};
     bool hmd_diagnostics{};
     std::atomic<u64> hmd_diagnostic_frames{};
+    bool network_diagnostics{};
+    std::atomic<u64> network_diagnostic_calls{};
+    bool rwlock_diagnostics{};
+    u64 rwlock_diagnostic_slot{};
     // CPU VM permissions and GPU watch permissions are separate. Signal-time
     // watch retirement must not take the VM transaction lock or retire FEX code.
     GuestPageStates gpu_pages;
@@ -454,6 +465,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestThreadAttributeDomain> thread_attributes;
     std::unique_ptr<GuestMutexDomain> mutex_domain;
     std::unique_ptr<GuestSyncArena> sync_arena;
+    std::unique_ptr<GuestSyncArena> rwlock_arena;
     std::unique_ptr<GuestRwlockDomain> rwlock_domain;
     std::unique_ptr<GuestSemaphoreDomain> semaphore_domain;
     int backing_fd{-1};
@@ -750,7 +762,26 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char hmd_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.hmd_log", hmd_property);
             hmd_diagnostics = std::string_view(hmd_property) == "1";
+            char network_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.network_log", network_property);
+            network_diagnostics = std::string_view(network_property) == "1";
+            char rwlock_property[PROP_VALUE_MAX]{}, rwlock_slot_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.rwlock_log", rwlock_property);
+            __system_property_get("debug.shadps4.rwlock_slot", rwlock_slot_property);
+            const auto rwlock_slot = GuestRwlockDiagnostics::ParseSlot(rwlock_slot_property);
+            rwlock_diagnostics = std::string_view(rwlock_property) == "1" && rwlock_slot.has_value();
+            rwlock_diagnostic_slot = rwlock_slot.value_or(0);
+            if (std::string_view(rwlock_property) == "1" && !rwlock_slot)
+                LOG_WARNING(Core, "Invalid rwlock_slot; rwlock diagnostics disabled");
 #else
+            const char* rwlock_slot_value = std::getenv("SHADPS4_RWLOCK_SLOT");
+            const auto rwlock_slot = GuestRwlockDiagnostics::ParseSlot(
+                rwlock_slot_value ? rwlock_slot_value : "");
+            if (const char* value = std::getenv("SHADPS4_RWLOCK_LOG"))
+                rwlock_diagnostics = std::string_view(value) == "1" && rwlock_slot.has_value();
+            rwlock_diagnostic_slot = rwlock_slot.value_or(0);
+            if (const char* value = std::getenv("SHADPS4_NETWORK_LOG"))
+                network_diagnostics = std::string_view(value) == "1";
             if (const char* value = std::getenv("SHADPS4_HMD_LOG"))
                 hmd_diagnostics = std::string_view(value) == "1";
             if (const char* value = std::getenv("SHADPS4_SYNC_FASTPATH"))
@@ -786,6 +817,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         for (auto& [id, o] : owners)
             if (o->worker.joinable())
                 o->worker.join();
+        audio3d.reset();
         audio.reset(); // joins audio workers before clock/VM teardown
         ajm.reset(); // joins decoder worker before VM/backing teardown
         np.reset(); // desktop NP resources/callback thunks retire after guest owners join
@@ -935,11 +967,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 throw std::runtime_error("GPU watch mprotect failed");
         }
     }
-    u64 Allocate(u64 size, std::string_view name, u64 base = GuestRuntime::ServiceAllocationBase) {
+    u64 Allocate(u64 size, std::string_view name, u64 base = GuestRuntime::ServiceAllocationBase,
+                 VMAType type = VMAType::File) {
         void* address{};
         auto result = memory->MapMemory(&address, base, Common::AlignUp(size, 0x4000ULL),
                                         MemoryProt::CpuReadWrite, MemoryMapFlags::NoFlags,
-                                        VMAType::File, std::string(name));
+                                        type, std::string(name));
         if (result)
             throw std::runtime_error("guest allocation failed: " + std::string(name));
         return reinterpret_cast<u64>(address);
@@ -988,7 +1021,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 o->attributes.guard = 0; // Caller owns neighboring memory; never protect it.
             } else {
                 const u64 guard = Common::AlignUp(std::max<u64>(0x4000, attributes.guard), 0x4000ULL);
-                const u64 allocation = Allocate(o->stack_size + guard, "GuestStack");
+                const u64 allocation = Allocate(o->stack_size + guard, "GuestStack",
+                                                GuestRuntime::ServiceAllocationBase, VMAType::Stack);
                 if (memory->Protect(allocation, guard, MemoryProt::NoAccess))
                     throw std::runtime_error("guest stack guard failed");
                 o->stack = allocation + guard; // Always the first usable guest byte.
@@ -1321,6 +1355,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         if (user_callbacks) user_callbacks->RequestStop();
         if (avplayer)
             avplayer->RequestStop();
+        if (audio3d) audio3d->RequestStop();
         if (audio) audio->RequestStop();
         if (ajm) ajm->RequestStop();
         if (network) network->RequestStop();
@@ -1462,8 +1497,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const bool random_nid = nid == "PI7jIZj4pcE";
         const bool coredump_nid = std::ranges::find(CoredumpUnavailableNids, nid) != CoredumpUnavailableNids.end();
         const bool kernel_nid =
-            !coredump_nid && !IsAudioInputNid(nid) &&
-            !random_nid && !posix_net_nid && !np_nid && !IsNpScoreOfflineNid(nid) && !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) && !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) && !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsAudioNid(nid) && !IsAjmNid(nid) &&
+            !coredump_nid && !IsAudioInputNid(nid) && !IsLiveStreamingUnavailableNid(nid) && !FindRemoteService(nid) &&
+            !random_nid && !posix_net_nid && !np_nid && !IsNpScoreOfflineNid(nid) && !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) && !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) && !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsAudioNid(nid) && !IsAudio3dNid(nid) && !IsAjmNid(nid) &&
             !IsPadNid(nid) && !IsMouseNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) &&
             !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
@@ -1479,8 +1514,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             ((avplayer && IsAvPlayerNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAvPlayer#1#libSceAvPlayer#Function") ||
              (IsAudioInputNid(nid) && symbol.name.substr(nid.size()) == "#libSceAudioIn#1#libSceAudioIn#Function") ||
+             AdmitsLiveStreamingUnavailable(nid, symbol.name.substr(nid.size())) ||
+             AdmitsRemoteService(nid, symbol.name.substr(nid.size())) ||
              (audio && IsAudioNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAudioOut#1#libSceAudioOut#Function") ||
+             (audio3d && IsAudio3dNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceAudio3d#1#libSceAudio3d#Function") ||
              (ajm && IsAjmNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
              (pad && IsPadNid(nid) &&
@@ -1522,6 +1561,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libSceDiscMap#1#libSceDiscMap#Function") ||
              (coredump_nid && symbol.name.substr(nid.size()) == "#libSceCoredump#1#libkernel#Function") ||
              (nid == "f7KBOafysXo" && symbol.name.substr(nid.size()) == "#libkernel_psmkit#1#libkernel#Function") ||
+             // IsProspero also has this desktop-registered platform export.
+             // Keep the alias scoped to its NID, library version and module.
+             (nid == "mpxAdqW7dKY" &&
+              symbol.name.substr(nid.size()) == "#libkernel_cpumode_platform#1#libkernel#Function") ||
              (kernel_nid &&
               (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
                symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function")) ||
@@ -1593,7 +1636,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                         : IsMouseNid(nid)
                             ? "android_bridge_guest_device_no_provider"
                             : IsAudioInputNid(nid) ? "android_bridge_audio_input_no_provider"
-                            : coredump_nid ? "android_bridge_coredump_no_provider" : MemoryServiceStatus(nid);
+                            : FindRemoteService(nid) ? "android_bridge_remote_service_no_provider"
+                            : IsLiveStreamingUnavailableNid(nid) ? "android_bridge_broadcast_no_provider"
+                            : coredump_nid ? "android_bridge_coredump_no_provider"
+                            : nid == "VjBtg5Btl94" ? "android_bridge_fsst_no_provider"
+                            : MemoryServiceStatus(nid);
             }
         }
         if (!adapter) {
@@ -1901,6 +1948,7 @@ void GuestRuntime::Impl::InstallHandlers() {
             // Storage admits the complete buffer batch atomically. Only those
             // references survive the disk/descriptor operation.
             if (!entry.save && entry.op != StorageOp::Open && entry.op != StorageOp::Stat &&
+                entry.op != StorageOp::CheckReachability &&
                 entry.op != StorageOp::Mkdir && entry.op != StorageOp::Rmdir &&
                 entry.op != StorageOp::Unlink &&
                 entry.op != StorageOp::Rename && network && network->Sockets().Contains(s32(args[0]))) {
@@ -2018,8 +2066,20 @@ void GuestRuntime::Impl::InstallHandlers() {
             steady + std::min(remaining, std::chrono::duration_cast<std::chrono::nanoseconds>(room)));
         return error ? PosixFailure(error) : 0;
     });
+    // Separate from the mutex arena: each domain serializes its own allocator.
+    // Pack immutable handles instead of mapping 16 KiB for every rwlock/attr.
+    rwlock_arena = std::make_unique<GuestSyncArena>([this] {
+        void* address{};
+        const auto result = memory->MapMemory(
+            &address, GuestRuntime::ServiceAllocationBase, GuestSyncArena::BlockSize,
+            MemoryProt::CpuReadWrite, MemoryMapFlags::NoFlags, VMAType::File,
+            "GuestRwlockObjects");
+        if (result == ORBIS_KERNEL_ERROR_ENOMEM) return u64{0};
+        if (result) throw std::runtime_error("GuestRwlockObjects mapping failed");
+        return reinterpret_cast<u64>(address);
+    });
     rwlock_domain = std::make_unique<GuestRwlockDomain>(
-        space, [this] { return Allocate(0x4000, "GuestRwlock"); });
+        space, [this] { return rwlock_arena->Allocate(); });
     auto pthread_bind = [&](const char* posix, const char* sce, std::function<int(const std::array<u64, 6>&)> fn) {
         bind({posix}, [fn](const auto& a) -> u64 { return fn(a); });
         bind({sce}, [fn](const auto& a) -> u64 {
@@ -2139,32 +2199,6 @@ void GuestRuntime::Impl::InstallHandlers() {
         // result; keep Beat Saber on its normal fallback path without claiming
         // a mouse provider exists.
         return ORBIS_MOUSE_ERROR_NOT_INITIALIZED;
-    });
-    bind({"QwOO7vegnV8"}, [this](const auto& a) -> u64 {
-        // OrbisSaveDataMemoryGet2 is a guest aggregate. The session storage
-        // already owns the save-memory file; marshal the data descriptor and
-        // buffer explicitly instead of passing its guest pointers to desktop
-        // SaveMemory code.
-        if (!a[0]) return static_cast<u32>(Libraries::SaveData::Error::PARAMETER);
-        u32 user{}; u64 data{}, param{}, icon{};
-        if (!space.ReadData({GuestAddress{a[0]}}, std::as_writable_bytes(std::span{&user, size_t{1}})) ||
-            !space.ReadData({GuestAddress{a[0] + 8}}, std::as_writable_bytes(std::span{&data, size_t{1}})) ||
-            !space.ReadData({GuestAddress{a[0] + 16}}, std::as_writable_bytes(std::span{&param, size_t{1}})) ||
-            !space.ReadData({GuestAddress{a[0] + 24}}, std::as_writable_bytes(std::span{&icon, size_t{1}})))
-            return static_cast<u32>(Libraries::SaveData::Error::PARAMETER);
-        (void)param; (void)icon;
-        if (!data) return 0;
-        u64 buffer{}; u64 size{}; s64 offset{};
-        if (!space.ReadData({GuestAddress{data}}, std::as_writable_bytes(std::span{&buffer, size_t{1}})) ||
-            !space.ReadData({GuestAddress{data + 8}}, std::as_writable_bytes(std::span{&size, size_t{1}})) ||
-            !space.ReadData({GuestAddress{data + 16}}, std::as_writable_bytes(std::span{&offset, size_t{1}})) ||
-            size > 64 * 1024 * 1024)
-            return static_cast<u32>(Libraries::SaveData::Error::PARAMETER);
-        auto pin = space.AcquireDataSpan({GuestAddress{buffer}, size}, true);
-        if (!pin) return static_cast<u32>(Libraries::SaveData::Error::PARAMETER);
-        const auto result = storage->Memory(s32(user),
-            {reinterpret_cast<u8*>(pin.Value().WritableBytes().data()), size_t(size)}, offset, false);
-        return static_cast<u32>(result);
     });
     bind({"kGVLc3htQE8"}, [this](const auto& a) -> u64 {
         if (!a[1]) return ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS;
@@ -2584,6 +2618,11 @@ void GuestRuntime::Impl::InstallHandlers() {
         return 0;
     };
     bind({"n88vx3C5nW8"}, [gettimeofday](const auto& a) { return gettimeofday(a, false); });
+    for (const auto nid : KernelTimezoneNids) {
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 {
+            return DispatchKernelTimezone(space, nid, a);
+        });
+    }
     bind({"ejekcaNQNq0"}, [gettimeofday](const auto& a) {
         auto args = a;
         args[1] = 0;
@@ -2741,11 +2780,50 @@ void GuestRuntime::Impl::InstallHandlers() {
     bind({"crb5j7mkk1c"}, [this](const auto& a) -> u64 {
         return ClassifyGuestSignalReturn(space, a[0]);
     });
+    handlers["Wl2o5hOVZdw"] = [this](HleCallFrame& frame) -> Status {
+        const auto trace = CaptureGuestBacktrace(space, frame.registers);
+        const std::string_view prefix{trace.prefix.data(), trace.prefix_size};
+        LOG_INFO(Tty, "GUEST_BACKTRACE begin prefix={} prefix_status={} rsp={:#x} rbp={:#x}",
+                 prefix, trace.prefix_status, frame.registers.Get(Gpr::Rsp),
+                 frame.registers.Get(Gpr::Rbp));
+        for (size_t i = 0; i < trace.count; ++i) {
+            const u64 pc = trace.addresses[i];
+            // Return PCs can point one byte beyond an executable segment.
+            if (auto* module = linker->FindByAddress(pc ? pc - 1 : 0)) {
+                LOG_INFO(Tty, "GUEST_BACKTRACE {} frame={} pc={:#x} module={} base={:#x} offset={:#x}",
+                         prefix, i, pc, module->file.filename().string(), module->GetBaseAddress(),
+                         pc - module->GetBaseAddress());
+            } else {
+                LOG_INFO(Tty, "GUEST_BACKTRACE {} frame={} pc={:#x} module=unknown", prefix, i, pc);
+            }
+        }
+        LOG_INFO(Tty, "GUEST_BACKTRACE end count={} stop={} at={:#x}", trace.count, trace.stop,
+                 trace.stopped_at);
+        // Diagnostic, void ABI. No guest memory/register mutation, exception
+        // swallowing, or change to the caller's error/abort control flow.
+        return Ok();
+    };
     for (const auto nid : AioNids) {
         bind({nid.data()}, [this, nid](const auto& a) -> u64 {
             if (!aio) return u32(ORBIS_KERNEL_ERROR_ENXIO);
             std::array<u64, 6> args{}; std::copy_n(a.begin(), 6, args.begin());
             return aio->Dispatch(nid, args, HleScope::Current()->CancellationToken());
+        });
+    }
+    for (const auto& entry : RemoteServiceEntries) {
+        bind({entry.nid.data()}, [this, entry](const auto& a) -> u64 {
+            std::array<u64, 6> args{}; std::copy_n(a.begin(), 6, args.begin());
+            const auto result = DispatchRemoteService(entry, args);
+            PrepareStage(fmt::format("RemoteService no_provider nid={} result={:#x}", entry.nid, result));
+            return result;
+        });
+    }
+    for (const auto nid : LiveStreamingUnavailableNids) {
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 {
+            std::array<u64, 6> args{}; std::copy_n(a.begin(), 6, args.begin());
+            const auto result = DispatchLiveStreamingUnavailable(nid, args);
+            PrepareStage(fmt::format("GameLiveStreaming no_provider nid={} result={:#x}", nid, result));
+            return result;
         });
     }
     for (const auto nid : AudioInputNids) {
@@ -3008,6 +3086,10 @@ void GuestRuntime::Impl::InstallHandlers() {
     bind({"vSMAm3cxYTY"}, [this](const auto& a) -> u64 {
         return static_cast<u32>(
             Libraries::Kernel::sceKernelMprotect(reinterpret_cast<void*>(a[0]), a[1], a[2]));
+    });
+    bind({"9bfdLIyuwCY"}, [](const auto& a) -> u64 {
+        return u32(Libraries::Kernel::sceKernelMtypeprotect(
+            reinterpret_cast<void*>(a[0]), a[1], s32(a[2]), s32(a[3])));
     });
     bind({"7Xl257M4VNI", "3PtV6p3QNX4"}, [](const auto& a) -> u64 { return a[0] == a[1]; });
     bind({"3eqs37G74-s", "EI-5-jlq2dE"}, [this](const auto&) -> u64 { return Current()->id; });
@@ -3357,6 +3439,14 @@ void GuestRuntime::Impl::InstallHandlers() {
             return Ok();
         };
     }
+    for (auto nid : Audio3dNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i) args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            frame.registers.Set(Gpr::Rax, audio3d->Dispatch(nid, args, HleScope::Current()->CancellationToken()));
+            return Ok();
+        };
+    }
     for (auto nid : AjmNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
             std::array<u64, 10> args{};
@@ -3447,7 +3537,7 @@ void GuestRuntime::Impl::InstallHandlers() {
                 if (cb.unsupported_identity)
                     return Status(MakeError(ErrorCategory::Unsupported,"GuestNp","online callback in offline domain"));
                 GuestCallArgs args;
-                if (cb.toolkit) { args.values={u64(u32(cb.user)),cb.state,cb.argument}; args.count=3; }
+                if (cb.kind != GuestNpControl::CallbackKind::Legacy) { args.values={u64(u32(cb.user)),cb.state,cb.argument}; args.count=3; }
                 else { args.values={u64(u32(cb.user)),cb.state,0,cb.argument}; args.count=4; }
                 auto result=Call(cb.function,args);
                 if (!result) return Status(result.GetError());
@@ -3702,6 +3792,20 @@ void GuestRuntime::Impl::InstallHandlers() {
     bind({"8aCOCGoRkUI"}, [](const auto&) -> u64 { return Kernel::sceKernelIsCEX(); });
     bind({"0vTn5IDMU9A"}, [](const auto&) -> u64 { return Kernel::sceKernelGetMainSocId(); });
     bind({"VOx8NGmHXTs"}, [](const auto&) -> u64 { return Kernel::sceKernelGetCpumode(); });
+    bind({"4oXYe9Xmk0Q"}, [](const auto&) -> u64 { return Kernel::sceKernelGetGPI(); });
+    bind({"WB66evu8bsU"}, [this](const auto& a) -> u64 {
+        if (!a[0]) return u32(ORBIS_KERNEL_ERROR_EINVAL);
+        const GuestAddressSpace::DataRequest output{{GuestAddress{a[0]}, 4}, GuestPermission::Write};
+        auto pin = space.AcquireDataBatch(std::span{&output, 1});
+        if (!pin) return u32(ORBIS_KERNEL_ERROR_EFAULT);
+        s32 version{};
+        const auto result = Kernel::sceKernelGetCompiledSdkVersion(&version);
+        if (!result) std::memcpy(pin.Value()[0].WritableBytes().data(), &version, sizeof(version));
+        return u32(result);
+    });
+    bind({"VjBtg5Btl94"}, [](const auto& a) -> u64 {
+        return u32(Kernel::sceKernelSetFsstParam(s32(a[0]), a[1]));
+    });
     bind({"g0VTBxfJyu0"}, [](const auto&) -> u64 { return Kernel::sceKernelGetCurrentCpu(); });
     // libSceSystemService startup family. Output pointers are validated and the
     // real emulator functions run on host-local objects; results are copied back.
@@ -4209,6 +4313,79 @@ void GuestRuntime::Impl::InstallHandlers() {
             return status;
         };
     }
+    if (rwlock_diagnostics) {
+        for (auto& [nid, handler] : handlers) {
+            const auto* entry = AeroLib::FindByNid(nid.c_str());
+            if (!entry || !GuestRwlockDiagnostics::Matches(entry->name))
+                continue;
+            handler = [this, inner = std::move(handler), name = std::string(entry->name),
+                       trace = std::make_shared<GuestRwlockDiagnostics>(rwlock_diagnostic_slot)]
+                      (HleCallFrame& frame) {
+                return trace->Call(frame, inner, [&](const GuestRwlockDiagnostics::Record& r) {
+                    const auto* scope = HleScope::Current();
+                    const auto line = nlohmann::json{
+                        {"context", cpu.ContextId()}, {"pid", getpid()}, {"api", name},
+                        {"thread", scope ? scope->Thread().id : 0},
+                        {"thread_generation", scope ? scope->Thread().generation : 0},
+                        {"invocation", scope ? scope->InvocationId() : 0},
+                        {"operation", frame.operation}, {"call", r.call}, {"args", r.args},
+                        {"result", r.result}, {"adapter_ok", r.adapter_ok}, {"rsp", r.rsp},
+                        {"caller", r.caller}, {"caller_readable", r.caller_readable}}.dump();
+                    LOG_INFO(Core, "RWLOCK_TRACE {}", line);
+#ifdef __ANDROID__
+                    __android_log_print(ANDROID_LOG_INFO, "GuestRwlockTrace", "%s", line.c_str());
+#endif
+                });
+            };
+        }
+    }
+    if (network_diagnostics) {
+        // Bounded, opt-in ABI observations. Do not dereference title secrets,
+        // account records, URLs or request bodies. Pair by sequence across threads.
+        // Keep logcat copies: GPU debug traffic can bury the host log's startup tail.
+        for (auto& [nid, handler] : handlers) {
+            const auto* entry = AeroLib::FindByNid(nid.c_str());
+            if (!entry)
+                continue;
+            const std::string_view name{entry->name};
+            if (!name.starts_with("sceNet") && !name.starts_with("sceNp") &&
+                !name.starts_with("sceHttp") && !name.starts_with("sceSsl") &&
+                !name.starts_with("sceErrorDialog"))
+                continue;
+            handler = [this, inner = std::move(handler), name = std::string(name),
+                       count = std::make_shared<std::atomic<u64>>()](HleCallFrame& frame) {
+                const u64 call = ++*count;
+                if (call > 16)
+                    return inner(frame);
+                const u64 sequence = ++network_diagnostic_calls;
+                const auto record = [&](bool output, bool adapter_ok) noexcept {
+                    try {
+                        auto log = nlohmann::json{{"context", cpu.ContextId()},
+                            {"pid", getpid()}, {"api", name}, {"call", call},
+                            {"sequence", sequence}, {"phase", output ? "out" : "in"}};
+                        if (output) {
+                            log["result"] = frame.registers.Get(Gpr::Rax);
+                            log["adapter_ok"] = adapter_ok;
+                        } else {
+                            std::array<u64, 6> args{};
+                            for (unsigned i = 0; i < args.size(); ++i)
+                                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+                            log["args"] = args;
+                        }
+                        const auto line = log.dump();
+                        LOG_INFO(Lib_Net, "NETWORK_TRACE {}", line);
+#ifdef __ANDROID__
+                        __android_log_print(ANDROID_LOG_INFO, "GuestNetworkTrace", "%s", line.c_str());
+#endif
+                    } catch (...) {} // Diagnostics must not change the HLE result.
+                };
+                record(false, true);
+                auto status = inner(frame);
+                record(true, bool(status));
+                return status;
+            };
+        }
+    }
     if (hmd_diagnostics) {
         LOG_INFO(Lib_Hmd, "HMD_TRACE {}", HmdDiagnostics::Json{
             {"context", cpu.ContextId()}, {"pid", getpid()}, {"phase", "enabled"},
@@ -4425,6 +4602,43 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     });
     std::ranges::sort(plugins);
     for (const auto& plugin : plugins) visit(load(plugin));
+    // Like desktop's LLE allowlist, use user-provided local libraries for their
+    // complete implementation. Discover them before TLS and relocation freeze;
+    // only an actual import pulls a provider into the graph.
+    // Do not auto-load arbitrary firmware services or replace a game provider.
+    struct LocalLibrary { std::string_view library, module, filename; };
+    for (const auto& [library, module, filename] : {
+             LocalLibrary{"libSceSystemGesture", "libSceSystemGesture", "libSceSystemGesture.sprx"},
+             // Json2's export module is libSceJson (firmware 11.00), not its filename.
+             LocalLibrary{"libSceJson2", "libSceJson", "libSceJson2.sprx"}}) {
+        std::vector<u32> consumers, providers;
+        for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
+            const auto matches = [&](const auto& l) {
+                return l.name == library && l.version == 1;
+            };
+            if (std::ranges::any_of(m->GetImportLibs(), matches)) consumers.push_back(id);
+            if (std::ranges::any_of(m->GetExportLibs(), matches)) providers.push_back(id);
+        }
+        if (consumers.empty()) continue;
+        if (providers.size() > 1)
+            throw std::runtime_error("duplicate guest provider: " + std::string(library));
+        if (providers.empty()) {
+            const auto path = EmulatorSettings.GetSysModulesDir() / filename;
+            if (!std::filesystem::is_regular_file(path)) continue;
+            const auto id = load(path);
+            const auto* m = impl->linker->GetModule(id);
+            if (!std::ranges::any_of(m->GetExportLibs(), [&](const auto& l) {
+                    return l.name == library && l.version == 1;
+                }) || !std::ranges::any_of(m->GetExportModules(), [&](const auto& mod) {
+                    return mod.name == module;
+                }))
+                throw std::runtime_error("system guest provider identity mismatch: " + path.string());
+            visit(id);
+            providers.push_back(id);
+        }
+        for (const auto id : consumers)
+            if (id != providers.front()) dependencies[id].push_back(providers.front());
+    }
     std::set<u32> parameterized;
     for (const auto& [path, id] : loaded)
         if (GuestModuleNeedsLoadArguments(path.lexically_relative(content_root)))
@@ -4531,7 +4745,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             std::vector<s32> dialog_users;
             for (const auto& user : users) if (user.id >= 0) dialog_users.push_back(user.id);
             impl->commerce_dialog = std::make_unique<GuestCommerceDialog>(impl->save_dialog->CommonDomain(), dialog_users, sdk);
-            impl->msg_dialog = std::make_shared<GuestMsgDialog>(impl->save_dialog->CommonDomain(), std::move(dialog_users));
+            impl->msg_dialog = std::make_shared<GuestMsgDialog>(impl->save_dialog->CommonDomain(), std::move(dialog_users), EmulatorSettings.AreGuestDialogsSilent());
             impl->sysmodules.Publish("libSceMsgDialog", 0x1000001e);
             impl->sysmodules.Publish("libSceNpCommerce", 0x1000001f);
         }
@@ -4572,6 +4786,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
     impl->sysmodules.Publish("libScePad", 0x1000000d);
     impl->audio = std::make_unique<GuestAudio>(impl->space, impl->clock);
+    impl->audio3d = std::make_unique<GuestAudio3d>(impl->space, *impl->audio);
     impl->ajm = std::make_unique<GuestAjm>(impl->space);
     impl->avplayer =
         std::make_unique<GuestAvPlayer>(impl->space, [p = impl.get()] { return p->CallbackOwner("AvPlayerCallbackScratch"); });
@@ -4615,7 +4830,11 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     }
     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
              EmulatorSettings.IsConnectedToNetwork());
-    impl->sysmodules.Publish("libSceNet", 0x1000000b);
+    // Firmware 11.00 DT_INIT invokes its constructor at +0x47f0, which enters
+    // sceNetInit. Merely publishing a cold provider makes PoolCreate fail in
+    // games that rely on module initialization.
+    if (impl->network->Initialize() == 0)
+        impl->sysmodules.Publish("libSceNet", 0x1000000b);
     if (impl->network->InitializeControl() == 0)
         impl->sysmodules.Publish("libSceNetCtl", 0x1000000c);
     // Desktop explicitly allows Json2 load bookkeeping when its optional LLE
@@ -4817,11 +5036,12 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
     auto owner = impl->NewOwner(GuestThreadAttributes{.size = 2 << 20});
     try {
         impl->Attach(owner, module->GetEntryAddress());
-        // libkernel initializes each guest libc allocator before constructors.
-        // DT_INIT alone leaves libc's replaceable malloc table on its bootstrap
-        // implementation. These exports are guest PCs and must go through FEX.
+        // Like the desktop libkernel bootstrap, initialize only the system libc
+        // here. The game's libc.prx owns allocator initialization in DT_INIT;
+        // calling it early initializes its default heap mutex twice (MHR aborts).
+        // These exports are guest PCs and must go through FEX.
         for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
-            if (m->name != "libc.prx" && m->name != "libSceLibcInternal.sprx")
+            if (m->name != "libSceLibcInternal.sprx")
                 continue;
             if (const auto entry = m->FindByName("_malloc_init")) {
                 Common::Profiler::Scope profile{"Startup.GuestMallocInit"};

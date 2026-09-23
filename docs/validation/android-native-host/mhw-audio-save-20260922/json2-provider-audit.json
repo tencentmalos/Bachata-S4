@@ -1,0 +1,477 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceJson2.sprx",
+  "sha256": "6a9d3894497cdfbe8720a5720cc0ab06f4aefbc73dff6e5c86885770b58097c5",
+  "bytes": 127784,
+  "init": "0x0",
+  "libraries": [
+    [
+      "0x61000013",
+      "libSceJson2",
+      1
+    ],
+    [
+      "0x61000015",
+      "libSceLibcInternal",
+      1
+    ],
+    [
+      "0x61000015",
+      "libkernel",
+      1
+    ]
+  ],
+  "modules": [
+    [
+      "0x6100000f",
+      "libkernel"
+    ],
+    [
+      "0x6100000f",
+      "libSceLibcInternal"
+    ],
+    [
+      "0x6100000d",
+      "libSceJson"
+    ]
+  ],
+  "dependencies": [
+    "libkernel.prx",
+    "libSceLibcInternal.prx"
+  ],
+  "imports": [
+    {
+      "name": "ZT4ODD2Ts9o#B#C",
+      "kind": 1,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "Need_sceLibcInternal"
+    },
+    {
+      "name": "z+P+xCnWLBk#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZdlPv"
+    },
+    {
+      "name": "fJnpuVVBbKk#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_Znwm"
+    },
+    {
+      "name": "H2e8t5ScQGc#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_finalize"
+    },
+    {
+      "name": "zr094EQ39Ww#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_pure_virtual"
+    },
+    {
+      "name": "dhK16CKwhQg#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__isfinite"
+    },
+    {
+      "name": "V02oFv+-JzA#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__isinf"
+    },
+    {
+      "name": "GfxAp9Xyiqs#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__isnan"
+    },
+    {
+      "name": "L1SBTkC+Cvw#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "abort"
+    },
+    {
+      "name": "8zTFvBIAIN8#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "memset"
+    },
+    {
+      "name": "eLdDw6l0-bU#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "snprintf"
+    },
+    {
+      "name": "GMpvxPFW924#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "vprintf"
+    },
+    {
+      "name": "Ou3iL1abvng#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__stack_chk_fail"
+    },
+    {
+      "name": "f7uOxY9mM1U#A#B",
+      "kind": 1,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__stack_chk_guard"
+    },
+    {
+      "name": "UK2Tl2DWUns#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelClose"
+    },
+    {
+      "name": "WB66evu8bsU#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelGetCompiledSdkVersion"
+    },
+    {
+      "name": "1G3lF1Gg1k8#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelOpen"
+    },
+    {
+      "name": "Cg4srZ6TKbU#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelRead"
+    },
+    {
+      "name": "2Of0f+3mhhE#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexDestroy"
+    },
+    {
+      "name": "cmo1RIYva9o#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexInit"
+    },
+    {
+      "name": "9UK1vLZQft4#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexLock"
+    },
+    {
+      "name": "tn3VlD0hG60#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexUnlock"
+    },
+    {
+      "name": "smWEktiyyG0#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrDestroy"
+    },
+    {
+      "name": "F8bUHwAG284#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrInit"
+    },
+    {
+      "name": "iMp8QpE+XO4#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrSettype"
+    }
+  ],
+  "export_count": 222,
+  "mhw_required": [
+    {
+      "symbol": "IXW-z8pggfg#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json11Initializer10initializeEPKNS0_14InitParameter2E",
+      "export_present": true
+    },
+    {
+      "symbol": "cK6bYHf-Q5E#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json11InitializerC1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "RujUxbr3haM#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json11InitializerD1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "-hJRce8wn1U#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json12MemAllocatorC2Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "OcAgPxcq5Vk#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json12MemAllocatorD2Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "I2QC8PYhJWY#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json14InitParameter212setAllocatorEPNS0_12MemAllocatorEPv",
+      "export_present": true
+    },
+    {
+      "symbol": "Eu95jmqn5Rw#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json14InitParameter217setFileBufferSizeEm",
+      "export_present": true
+    },
+    {
+      "symbol": "WVZBP4IyM+E#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json14InitParameter225setSpecialFloatFormatTypeENS0_22SpecialFloatFormatTypeE",
+      "export_present": true
+    },
+    {
+      "symbol": "WSOuge5IsCg#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json14InitParameter2C1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "zQtLRTqceMY#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Array9push_backERKNS0_5ValueE",
+      "export_present": true
+    },
+    {
+      "symbol": "JP-PtKMiI1E#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ArrayC1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "HJ8GpRT1aiw#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ArrayD1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "Xbl-LYVFNEE#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Value21setNullAccessCallBackEPFRKS1_NS0_9ValueTypeEPS2_PvES6_",
+      "export_present": true
+    },
+    {
+      "symbol": "bJWBpvGCIJU#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Value22setSpecialFloatHandlerEPFKS1_NS0_12FunctionTypeEdPS2_PvPbES5_",
+      "export_present": true
+    },
+    {
+      "symbol": "IKQimvG9Wqs#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Value3setENS0_9ValueTypeE",
+      "export_present": true
+    },
+    {
+      "symbol": "dFCphqnd+a4#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Value3setERKNS0_6ObjectE",
+      "export_present": true
+    },
+    {
+      "symbol": "FIjXN2TkuTs#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Value5clearEv",
+      "export_present": true
+    },
+    {
+      "symbol": "R7FDWtcN6f8#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5Value9serializeERNS0_6StringE",
+      "export_present": true
+    },
+    {
+      "symbol": "CbrT3dwDILo#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1ENS0_9ValueTypeE",
+      "export_present": true
+    },
+    {
+      "symbol": "iZeYfOxtMRg#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1ERKNS0_5ArrayE",
+      "export_present": true
+    },
+    {
+      "symbol": "3xUXnmUkXfo#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1ERKNS0_6ObjectE",
+      "export_present": true
+    },
+    {
+      "symbol": "sZIoMRGO+jk#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1ERKNS0_6StringE",
+      "export_present": true
+    },
+    {
+      "symbol": "sOmU4vnx3s0#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1Ed",
+      "export_present": true
+    },
+    {
+      "symbol": "0lLK8+kDqmE#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1El",
+      "export_present": true
+    },
+    {
+      "symbol": "qBMjqyBn3OM#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueC1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "WTtYf+cNnXI#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueD1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "4zrm6VrgIAw#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json5ValueaSERKS1_",
+      "export_present": true
+    },
+    {
+      "symbol": "OJPTonqdg0I#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6ObjectC1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "5JmzZt8twAo#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6ObjectD1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "ERuf9y0DY84#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6ObjectixERKNS0_6StringE",
+      "export_present": true
+    },
+    {
+      "symbol": "S5JxQnoGF3E#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6Parser5parseERNS0_5ValueEPKcm",
+      "export_present": true
+    },
+    {
+      "symbol": "9KUZFjI1IxA#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6StringC1EPKc",
+      "export_present": true
+    },
+    {
+      "symbol": "qSmqLXXCPas#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6StringC1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "cG1VE2HMl6c#libSceJson2#1#libSceJson#Function",
+      "name": "_ZN3sce4Json6StringD1Ev",
+      "export_present": true
+    },
+    {
+      "symbol": "zTwZdI8AZ5Y#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json5Value10getBooleanEv",
+      "export_present": true
+    },
+    {
+      "symbol": "DIxvoy7Ngvk#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json5Value10getIntegerEv",
+      "export_present": true
+    },
+    {
+      "symbol": "RBw+4NukeGQ#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json5Value5countEv",
+      "export_present": true
+    },
+    {
+      "symbol": "epJ6x2LV0kU#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json5Value9getStringEv",
+      "export_present": true
+    },
+    {
+      "symbol": "HwDt5lD9Bfo#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json5ValueixEPKc",
+      "export_present": true
+    },
+    {
+      "symbol": "XlWbvieLj2M#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json5ValueixEm",
+      "export_present": true
+    },
+    {
+      "symbol": "L1KAkYWml-M#libSceJson2#1#libSceJson#Function",
+      "name": "_ZNK3sce4Json6String5c_strEv",
+      "export_present": true
+    }
+  ],
+  "mhw_all_41_static_exports_present": true
+}

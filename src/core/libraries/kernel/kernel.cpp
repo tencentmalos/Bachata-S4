@@ -329,8 +329,9 @@ s32 PS4_SYSV_ABI posix_getpagesize() {
     return 16_KB;
 }
 
-// stubbed on non-devkit consoles
-s32 PS4_SYSV_ABI sceKernelGetGPI() {
+// Firmware's 64-bit hardware query returns zero when its provider is unavailable.
+// No devkit general-purpose input provider is exposed by the emulator.
+u64 PS4_SYSV_ABI sceKernelGetGPI() {
     LOG_DEBUG(Kernel, "called");
     return ORBIS_OK;
 }

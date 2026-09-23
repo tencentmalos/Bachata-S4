@@ -1,0 +1,197 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSharePlay.sprx",
+  "sha256": "194378a232a14299c12b0e3b3cefa18d85820af07a3b40461adc921364577f84",
+  "analysis_sha256": "6c903defa45bf8cd26c127375f9af490cc786af6c17ae52675bf8afa457971c4",
+  "plt": {
+    "0xb8": {
+      "name": "Ou3iL1abvng#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__stack_chk_fail"
+    },
+    "0xc8": {
+      "name": "3GPpjQdAMTw#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_guard_acquire"
+    },
+    "0xd8": {
+      "name": "6ULAa0fq4jA#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadRwlockInit"
+    },
+    "0xe8": {
+      "name": "tsvEmnenz48#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_atexit"
+    },
+    "0xf8": {
+      "name": "9rAeANT2tyE#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_guard_release"
+    },
+    "0x108": {
+      "name": "Ox9i0c7L5w0#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadRwlockRdlock"
+    },
+    "0x118": {
+      "name": "+L98PIbGttk#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadRwlockUnlock"
+    },
+    "0x128": {
+      "name": "O1lQ2+do5r4#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6ConfigC1Ev"
+    },
+    "0x138": {
+      "name": "mqdNorrB+gI#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadRwlockWrlock"
+    },
+    "0x148": {
+      "name": "gQX+4GDQjpM#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "malloc"
+    },
+    "0x158": {
+      "name": "Vla-Z+eXlxo#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceLibcMspaceFree"
+    },
+    "0x168": {
+      "name": "W6SiVSiCDtI#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceLibcMspaceDestroy"
+    },
+    "0x178": {
+      "name": "tIhsqj0qsFE#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "free"
+    },
+    "0x188": {
+      "name": "yoVdeXZzPck#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6Config14MsgQueueConfig20estimateMsgQueueSizeEmj"
+    },
+    "0x198": {
+      "name": "-hn1tcVHq5Q#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceLibcMspaceCreate"
+    },
+    "0x1a8": {
+      "name": "Rih7HnIM3JQ#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6Config24estimateClientMemorySizeEv"
+    },
+    "0x1b8": {
+      "name": "OJjm-QOIHlI#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceLibcMspaceMalloc"
+    },
+    "0x1c8": {
+      "name": "0zsTiDhM0nU#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6createEPPS0_PKNS0_6ConfigEPvS6_"
+    },
+    "0x1d8": {
+      "name": "1jfXLRVzisc#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelUsleep"
+    },
+    "0x1e8": {
+      "name": "BB+kb08Tl9A#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadRwlockDestroy"
+    },
+    "0x1f8": {
+      "name": "H2e8t5ScQGc#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_finalize"
+    }
+  },
+  "init": "0x0"
+}

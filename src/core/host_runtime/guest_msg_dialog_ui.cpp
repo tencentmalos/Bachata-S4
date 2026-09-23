@@ -58,18 +58,41 @@ public:
         const auto& io = ImGui::GetIO();
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always,
                                 {0.5f, 0.5f});
-        ImGui::SetNextWindowSize({std::min(600.0f, io.DisplaySize.x * 0.9f), 0.0f});
+        // Scale in display pixels, independently of the guest render resolution.
+        // Keep the footer visible while long guest messages scroll above it.
+        const float scale = std::clamp(std::min(io.DisplaySize.x / 1280.0f,
+                                                io.DisplaySize.y / 720.0f), 0.75f, 2.0f);
+        const float gap = 16.0f * scale;
+        const float button_height = 56.0f * scale;
+        ImGui::SetNextWindowSize({std::min(760.0f * scale, io.DisplaySize.x * 0.9f),
+                                  std::min(300.0f * scale, io.DisplaySize.y * 0.85f)});
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {24.0f * scale, 20.0f * scale});
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {gap, 12.0f * scale});
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 12.0f * scale);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f * scale);
         if (ImGui::BeginPopupModal(title, nullptr,
-                                   ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove |
+                                   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar |
                                        ImGuiWindowFlags_NoSavedSettings)) {
+            const float base_font_size = ImGui::GetFontSize();
+            ImGui::SetWindowFontScale(24.0f * scale / base_font_size);
+            ImGui::TextUnformatted(state.title.c_str());
+            ImGui::Separator();
+            ImGui::SetWindowFontScale(20.0f * scale / base_font_size);
             if (!running) {
                 ImGui::CloseCurrentPopup();
                 popup = false;
             } else {
+                const bool has_buttons = !state.first.empty() || !state.second.empty() || state.cancel;
+                const float footer = has_buttons ? button_height + gap * 2.0f : 0.0f;
+                const float progress_height = state.mode == 2 ? ImGui::GetFrameHeightWithSpacing() : 0.0f;
+                const float body_height = std::max(1.0f, ImGui::GetContentRegionAvail().y - footer - progress_height);
+                ImGui::BeginChild("##MessageBody", {0.0f, body_height}, ImGuiChildFlags_None);
                 ImGui::TextWrapped("%s", state.text.c_str());
+                ImGui::EndChild();
                 if (state.mode == 2)
                     ImGui::ProgressBar(std::min(state.progress, 100u) / 100.0f, {-1.0f, 0.0f});
-                ImGui::Spacing();
+                if (has_buttons) ImGui::Separator();
                 const auto pad = Libraries::Ime::ReadVirtualPadSnapshot(state.user, io.DeltaTime);
                 const auto pressed = pad.buttons & ~previous_buttons;
                 previous_buttons = pad.buttons;
@@ -83,16 +106,22 @@ public:
                     (ImGui::IsKeyPressed(ImGuiKey_LeftArrow) ||
                      (pressed & u32(Libraries::Pad::OrbisPadButtonDataOffset::Left))))
                     selected = 1;
-                if (!state.second.empty() &&
+                if ((!state.second.empty() || state.cancel) &&
                     (ImGui::IsKeyPressed(ImGuiKey_RightArrow) ||
                      (pressed & u32(Libraries::Pad::OrbisPadButtonDataOffset::Right))))
-                    selected = 2;
+                    selected = state.second.empty() ? 0 : 2;
                 u32 action = 3;
+                const int button_count = int(!state.first.empty()) + int(!state.second.empty() || state.cancel);
+                const float available_width = ImGui::GetContentRegionAvail().x;
+                const float button_width = button_count ? std::min(200.0f * scale,
+                    (available_width - gap * (button_count - 1)) / button_count) : 0.0f;
+                if (button_count) ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
+                    (available_width - button_width * button_count - gap * (button_count - 1)) * 0.5f);
                 auto button = [&](const std::string& label, u32 id) {
                     if (selected == id)
                         ImGui::PushStyleColor(ImGuiCol_Button,
                                               ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-                    const bool clicked = ImGui::Button(label.c_str(), {160, 40});
+                    const bool clicked = ImGui::Button(label.c_str(), {button_width, button_height});
                     if (selected == id)
                         ImGui::PopStyleColor();
                     if (clicked)
@@ -104,8 +133,10 @@ public:
                     if (!state.first.empty())
                         ImGui::SameLine();
                     button(state.second + "##second", 2);
-                } else if (state.cancel && ImGui::Button("Cancel", {160, 40}))
-                    action = 0;
+                } else if (state.cancel) {
+                    if (!state.first.empty()) ImGui::SameLine();
+                    button("Cancel##cancel", 0);
+                }
                 if (armed && confirm)
                     action = selected;
                 if (armed && cancel && state.cancel)
@@ -115,9 +146,11 @@ public:
                     popup = false;
                 }
             }
+            ImGui::SetWindowFontScale(1.0f);
             ImGui::EndPopup();
         } else if (!running)
             popup = false;
+        ImGui::PopStyleVar(4);
     }
 
 private:

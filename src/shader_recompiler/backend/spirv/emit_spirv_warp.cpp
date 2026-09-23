@@ -18,16 +18,34 @@ Id EmitLaneId(EmitContext& ctx) {
     return ctx.OpLoad(ctx.U32[1], ctx.subgroup_local_invocation_id);
 }
 
-Id EmitQuadShuffle(EmitContext& ctx, Id value, Id index) {
-    return ctx.OpGroupNonUniformQuadBroadcast(ctx.U32[1], SubgroupScope(ctx), value, index);
+Id EmitQuadShuffle(EmitContext& ctx, Id value, const IR::Value& index) {
+    const Id scope = SubgroupScope(ctx);
+    if (index.IsImmediate()) {
+        return ctx.OpGroupNonUniformQuadBroadcast(ctx.U32[1], scope, value, ctx.Def(index));
+    }
+    // DS_SWIZZLE's quad permutation can select a different source in every lane.
+    // QuadBroadcast requires an index uniform within the derivative group. Read
+    // each constant source before selecting, preserving quad layout/helper rules.
+    const Id selector = ctx.Def(index);
+    Id result = ctx.OpGroupNonUniformQuadBroadcast(ctx.U32[1], scope, value, ctx.ConstU32(3u));
+    for (u32 source = 0; source < 3; ++source) {
+        const Id candidate =
+            ctx.OpGroupNonUniformQuadBroadcast(ctx.U32[1], scope, value, ctx.ConstU32(source));
+        const Id selected = ctx.OpIEqual(ctx.U1[1], selector, ctx.ConstU32(source));
+        result = ctx.OpSelect(ctx.U32[1], selected, candidate, result);
+    }
+    return result;
 }
 
 Id EmitReadFirstLane(EmitContext& ctx, Id value) {
     return ctx.OpGroupNonUniformBroadcastFirst(ctx.U32[1], SubgroupScope(ctx), value);
 }
 
-Id EmitReadLane(EmitContext& ctx, Id value, Id lane) {
-    return ctx.OpGroupNonUniformBroadcast(ctx.U32[1], SubgroupScope(ctx), value, lane);
+Id EmitReadLane(EmitContext& ctx, Id value, const IR::Value& lane) {
+    // ReadLane also represents DS_SWIZZLE bitmask routing. Its index is generally
+    // lane-dependent, whereas Broadcast requires a subgroup-uniform source ID.
+    ctx.AddCapability(spv::Capability::GroupNonUniformShuffle);
+    return ctx.OpGroupNonUniformShuffle(ctx.U32[1], SubgroupScope(ctx), value, ctx.Def(lane));
 }
 
 Id EmitWriteLane(EmitContext& ctx, Id value, Id write_value, u32 lane) {

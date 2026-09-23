@@ -136,17 +136,60 @@ int GuestStorage::MountTemporary(u32 option, std::array<char, 16>& point) {
 }
 int GuestStorage::TemporarySpace(std::string_view point, u64& available_kib) {
     std::lock_guard lock(namespace_mutex);
-    if (point != "/temp0")
-        return EINVAL;
-    const auto mount = mounts.GetMountSnapshot("/temp0");
-    if (temporary_root.empty() || !mount || mount->host_path != temporary_root)
-        return ENOENT;
+    if (const int error = ValidateTemporaryLocked(point))
+        return error;
     std::error_code error;
     const auto info = fs::space(temporary_root, error);
     if (error)
         return error.value();
     available_kib = info.available / 1024;
     return 0;
+}
+int GuestStorage::ValidateTemporaryLocked(std::string_view point) {
+    if (point != "/temp0")
+        return EINVAL;
+    const auto mount = mounts.GetMountSnapshot("/temp0");
+    if (temporary_root.empty() || !mount || mount->host_path != temporary_root)
+        return ENOENT;
+    std::error_code error;
+    const auto status = fs::symlink_status(temporary_root, error);
+    if (error)
+        return error.value();
+    return fs::is_directory(status) ? 0 : ENOTDIR;
+}
+int GuestStorage::FormatTemporary(std::string_view point) {
+    std::lock_guard lock(namespace_mutex);
+    if (const int error = ValidateTemporaryLocked(point))
+        return error;
+    // Includes closed descriptors with outstanding positioned-I/O/mmap leases.
+    // Namespace exclusion prevents new opens until clearing has finished.
+    if (HasFileLease(-2))
+        return EBUSY;
+    if (cancelled)
+        return EINTR;
+    std::error_code error;
+    fs::directory_iterator entry(temporary_root, error), end;
+    if (error)
+        return error.value();
+    while (entry != end) {
+        if (cancelled)
+            return EINTR;
+        // remove_all removes a symlink itself, never its target. The private
+        // root and its mount remain alive; savedata is a separate namespace.
+        fs::remove_all(entry->path(), error);
+        if (error)
+            return error.value();
+        entry.increment(error);
+        if (error)
+            return error.value();
+    }
+    return 0;
+}
+int GuestStorage::UnmountTemporary(std::string_view point) {
+    std::lock_guard lock(namespace_mutex);
+    if (const int error = ValidateTemporaryLocked(point))
+        return error;
+    return UnmountTemporaryLocked();
 }
 int GuestStorage::UnmountTemporaryLocked() {
     if (temporary_root.empty())
@@ -182,6 +225,7 @@ GuestStorage::Error GuestStorage::Terminate() {
         return Error::BUSY;
     initialized = false;
     save_memory.reset();
+    memory_policies.clear();
     return Error::OK;
 }
 u64 GuestStorage::Used(const fs::path& root) {
@@ -573,6 +617,80 @@ GuestStorage::Error GuestStorage::Memory(int uid, std::span<u8> bytes, s64 offse
         return Error::OK;
     } catch (const fs::filesystem_error& e) { return Failure(e); }
 }
+GuestStorage::Error GuestStorage::SetupMemory2(int uid, u32 slot, u64 size, u32 option,
+    const OrbisSaveDataParam* param, const std::vector<u8>* icon, u64 icon_capacity, u64& existed) {
+    std::lock_guard lock(namespace_mutex);
+    LOG_INFO(Lib_SaveData, "Session memory setup user={} slot={} bytes={} option={:#x}", uid, slot, size, option);
+    const auto directory = SaveMemory::GetSaveDir(slot);
+    auto status = CheckIdentity(uid, title, directory);
+    if (status != Error::OK) return status;
+    // Firmware 11.00 validation (5ae0): bit 0 enables params, bit 1 double
+    // buffering, bit 2 the larger limit. The ABI wrapper applies bit 2 for >=5.50.
+    const u64 limit = (option & 4 ? 32ull : 8ull) * 1024 * 1024 / (option & 2 ? 2 : 1);
+    if (!size || size > limit || slot >= 16 || option > 7 ||
+        (param && !(option & 1)) || icon_capacity > 0x1c800 ||
+        (icon && (!icon_capacity || icon->size() > icon_capacity))) return Error::PARAMETER;
+    if (save_memory && save_memory->IsSaveMemoryInitialized(slot)) return Error::BUSY;
+    const auto path = home / std::to_string(user) / "savedata" / title / directory / "memory.dat";
+    std::error_code size_error;
+    const auto disk_size = fs::file_size(path, size_error);
+    const u64 retained_size = size_error ? size : std::max<u64>(size, disk_size);
+    if (retained_size > limit) return Error::PARAMETER;
+    const u64 charge = retained_size * (option & 2 ? 2 : 1);
+    u64 total = charge;
+    for (const auto& [id, policy] : memory_policies) total += policy.charged_bytes;
+    if (total > 32ull * 1024 * 1024) return static_cast<Error>(0x809f0017);
+
+    try {
+        SafeDirectory(home, fs::path(std::to_string(user)) / "savedata" / title / directory / "sce_sys");
+        if (!save_memory) save_memory = std::make_unique<SaveMemory::Store>(false, home);
+        if (save_memory->IsSaveMemoryInitialized(slot)) return Error::BUSY;
+        existed = save_memory->SetupSaveMemory(user, slot, title, size);
+        if (!existed) {
+            if (param) param->ToSFO(save_memory->GetParamSFO(slot));
+            save_memory->SaveSFO(slot);
+            if (icon && !icon->empty()) save_memory->SetIcon(slot, const_cast<u8*>(icon->data()), icon->size());
+            else save_memory->SetIcon(slot);
+        }
+        memory_policies[slot] = {option, charge, icon_capacity};
+        return Error::OK;
+    } catch (const fs::filesystem_error& e) { return Failure(e); }
+}
+GuestStorage::Error GuestStorage::AccessMemory2(int uid, u32 slot, std::vector<MemoryPart>& parts,
+    OrbisSaveDataParam* param, std::vector<u8>* icon, bool write) {
+    std::lock_guard lock(namespace_mutex);
+    if (!initialized) return Error::NOT_INITIALIZED;
+    if (uid != user) return Error::INVALID_LOGIN_USER;
+    if (!save_memory || !save_memory->IsSaveMemoryInitialized(slot)) return Error::MEMORY_NOT_READY;
+    const auto policy = memory_policies.find(slot);
+    if (policy != memory_policies.end() &&
+        ((param && !(policy->second.option & 1)) ||
+         (icon && (!policy->second.icon_capacity ||
+                   (write && icon->size() > policy->second.icon_capacity))))) return Error::PARAMETER;
+    const auto size = save_memory->MemorySize(slot);
+    for (const auto& part : parts)
+        if (part.offset < 0 || u64(part.offset) > size || part.bytes.size() > size - u64(part.offset))
+            return Error::PARAMETER;
+    try {
+        if (write) {
+            // Whole batch validation precedes any mutation. One cache/disk publication.
+            if (!parts.empty()) {
+                std::vector<u8> data(size);
+                save_memory->ReadMemory(slot, data.data(), data.size(), 0);
+                for (const auto& part : parts)
+                    if (!part.bytes.empty()) std::memcpy(data.data() + part.offset, part.bytes.data(), part.bytes.size());
+                save_memory->WriteMemory(slot, data.data(), data.size(), 0);
+            }
+            if (param) { param->ToSFO(save_memory->GetParamSFO(slot)); save_memory->SaveSFO(slot); }
+            if (icon) save_memory->SetIcon(slot, icon->data(), icon->size());
+        } else {
+            for (auto& part : parts) save_memory->ReadMemory(slot, part.bytes.data(), part.bytes.size(), part.offset);
+            if (param) param->FromSFO(save_memory->GetParamSFO(slot));
+            if (icon) *icon = save_memory->GetIcon(slot);
+        }
+        return Error::OK;
+    } catch (const fs::filesystem_error& e) { return Failure(e); }
+}
 GuestStorage::Error GuestStorage::SaveIcon(std::string_view point, std::span<const u8> bytes) {
     std::lock_guard lock(namespace_mutex);
     if (!initialized) return Error::NOT_INITIALIZED;
@@ -590,7 +708,10 @@ GuestStorage::Error GuestStorage::Search(const Libraries::SaveData::OrbisSaveDat
     std::shared_lock lock(namespace_mutex);
     if (!initialized) return Error::NOT_INITIALIZED;
     if (c.userId != user) return Error::INVALID_LOGIN_USER;
-    if (c.titleId && std::string_view(c.titleId->data) != title) return Error::PARAMETER;
+    if (c.titleId && std::string_view(c.titleId->data) != title) {
+        LOG_WARNING(Lib_SaveData, "Session search title={} current={}", std::string_view(c.titleId->data), title);
+        return Error::PARAMETER;
+    }
     try { return Libraries::SaveData::SearchSaveDirectories(&c, &r, title, Common::ElfInfo::Instance().FirmwareVer(), home); }
     catch (const fs::filesystem_error& e) { return Failure(e); }
 }
@@ -1315,6 +1436,31 @@ GuestStorage::Error GuestStorage::UnmountBackup(std::string_view point) {
     event.title.data.FromString(title);
     event.directory.data.FromString(directory);
     events.push_back(event);
+    return status;
+}
+GuestStorage::Error GuestStorage::SyncMemory(int uid, u32 slot, u32 option) {
+    std::lock_guard lock(namespace_mutex);
+    if (!initialized) return Error::NOT_INITIALIZED;
+    if (uid != user) return Error::INVALID_LOGIN_USER;
+    if (option > 1) return Error::PARAMETER;
+    if (!save_memory || !save_memory->IsSaveMemoryInitialized(slot)) return Error::MEMORY_NOT_READY;
+    if (events.size() >= 64) return Error::BUSY;
+    const auto directory = SaveMemory::GetSaveDir(slot);
+    const auto path = home / std::to_string(user) / "savedata" / title / directory;
+    auto status = Error::OK;
+    try {
+        save_memory->PersistMemory(slot);
+        save_memory->SaveSFO(slot);
+        const auto pending = path / "sce_backup_tmp";
+        fs::remove_all(pending);
+        CopyTree(path, pending);
+        PublishDirectory(pending, path / "sce_backup");
+        SyncPath(path, true);
+        fs::remove_all(pending);
+    } catch (const fs::filesystem_error& e) { status = Failure(e); }
+    Event event{}; event.type = 3; event.error = u32(status); event.user = user;
+    event.title.data.FromString(title); event.directory.data.FromString(directory);
+    events.push_back(event); // only after real persistence/backup completed
     return status;
 }
 GuestStorage::Error GuestStorage::CheckBackup(int uid, std::string_view tid,

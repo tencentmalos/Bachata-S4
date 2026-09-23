@@ -1,0 +1,5500 @@
+{
+  "pid": 18957,
+  "source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/sports-stereo-20260921/fixed-tail.txt",
+  "scope": "sampled call boundaries; last_sampled_call is not total calls",
+  "malformed_source_lines": [],
+  "entries": {
+    "sceHmdInitialize315": {
+      "samples": 2,
+      "last_sampled_call": 2,
+      "results": {
+        "0x0": 1,
+        "0x81110001": 1
+      }
+    },
+    "sceHmdReprojectionQueryOnionBuffSize": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x810": 1
+      }
+    },
+    "sceHmdReprojectionQueryOnionBuffAlign": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x100": 1
+      }
+    },
+    "sceHmdReprojectionQueryGarlicBuffSize": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x100000": 1
+      }
+    },
+    "sceHmdReprojectionQueryGarlicBuffAlign": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x100": 1
+      }
+    },
+    "sceHmdReprojectionSetUserEventStart": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdReprojectionSetUserEventEnd": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdGetDeviceInformation": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdOpen": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0xf000000": 1
+      }
+    },
+    "sceHmdGetFieldOfView": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdReprojectionInitialize": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdReprojectionSetOutputMinColor": {
+      "samples": 2,
+      "last_sampled_call": 2,
+      "results": {
+        "0x0": 2
+      }
+    },
+    "sceHmdReprojectionSetDisplayBuffers": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdGetDeviceInformationByHandle": {
+      "samples": 24,
+      "last_sampled_call": 4096,
+      "results": {
+        "0x0": 24
+      }
+    },
+    "sceHmdReprojectionStartMultilayer": {
+      "samples": 23,
+      "last_sampled_call": 2048,
+      "results": {
+        "0x0": 23
+      }
+    },
+    "sceHmdSetupDialogInitialize": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdSetupDialogOpen": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdSetupDialogUpdateStatus": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x3": 1
+      }
+    },
+    "sceHmdSetupDialogGetResult": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    },
+    "sceHmdSetupDialogTerminate": {
+      "samples": 1,
+      "last_sampled_call": 1,
+      "results": {
+        "0x0": 1
+      }
+    }
+  },
+  "records": [
+    {
+      "context": 1,
+      "phase": "enabled",
+      "pid": 18957,
+      "sampling": "first16_then_powers_of_two_through65536_per_entry",
+      "source_line": 81259
+    },
+    {
+      "api": "sceHmdInitialize315",
+      "args": [
+        120261210048,
+        43176,
+        10408,
+        103080755215,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120261210048,
+          "field": "initialize",
+          "le_hex": "00000000000000000000000000000000",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 82480
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdInitialize315",
+      "args": [
+        120261210048,
+        43176,
+        10408,
+        103080755215,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 82482
+    },
+    {
+      "api": "sceHmdReprojectionQueryOnionBuffSize",
+      "args": [
+        237,
+        43176,
+        10408,
+        103080755215,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82484
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionQueryOnionBuffSize",
+      "args": [
+        237,
+        43176,
+        10408,
+        103080755215,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 2064,
+      "source_line": 82485
+    },
+    {
+      "api": "sceHmdReprojectionQueryOnionBuffAlign",
+      "args": [
+        237,
+        43176,
+        10408,
+        103080722447,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82486
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionQueryOnionBuffAlign",
+      "args": [
+        237,
+        43176,
+        10408,
+        103080722447,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 256,
+      "source_line": 82487
+    },
+    {
+      "api": "sceHmdReprojectionQueryGarlicBuffSize",
+      "args": [
+        237,
+        43176,
+        10408,
+        103081033743,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82488
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionQueryGarlicBuffSize",
+      "args": [
+        237,
+        43176,
+        10408,
+        103081033743,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 1048576,
+      "source_line": 82489
+    },
+    {
+      "api": "sceHmdReprojectionQueryGarlicBuffAlign",
+      "args": [
+        237,
+        43176,
+        10408,
+        103080673295,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82490
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionQueryGarlicBuffAlign",
+      "args": [
+        237,
+        43176,
+        10408,
+        103080673295,
+        268447751,
+        11318402808
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 256,
+      "source_line": 82491
+    },
+    {
+      "api": "sceHmdReprojectionSetUserEventStart",
+      "args": [
+        1073741833,
+        1,
+        0,
+        103080460303,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82502
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionSetUserEventStart",
+      "args": [
+        1073741833,
+        1,
+        0,
+        103080460303,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 82504
+    },
+    {
+      "api": "sceHmdReprojectionSetUserEventEnd",
+      "args": [
+        1073741833,
+        2,
+        0,
+        103080460303,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82505
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionSetUserEventEnd",
+      "args": [
+        1073741833,
+        2,
+        0,
+        103080460303,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 82507
+    },
+    {
+      "api": "sceHmdInitialize315",
+      "args": [
+        120261210048,
+        0,
+        29876472,
+        103080738831,
+        1,
+        11471814656
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120261210048,
+          "field": "initialize",
+          "le_hex": "00000000000000000000000000000000",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 82508
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdInitialize315",
+      "args": [
+        120261210048,
+        0,
+        29876472,
+        103080738831,
+        1,
+        11471814656
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 2165374977,
+      "source_line": 82509
+    },
+    {
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        36552180,
+        0,
+        29876472,
+        103080509455,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82510
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformation",
+      "args": [
+        36552180,
+        0,
+        29876472,
+        103080509455,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 82512
+    },
+    {
+      "api": "sceHmdOpen",
+      "args": [
+        1000,
+        0,
+        0,
+        0,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82513
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdOpen",
+      "args": [
+        1000,
+        0,
+        0,
+        0,
+        1,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 251658240,
+      "source_line": 82515
+    },
+    {
+      "api": "sceHmdGetFieldOfView",
+      "args": [
+        251658240,
+        36553656,
+        120261209984,
+        103079936015,
+        29876498,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82522
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetFieldOfView",
+      "args": [
+        251658240,
+        36553656,
+        120261209984,
+        103079936015,
+        29876498,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36553656,
+          "field": "fov",
+          "le_hex": "118d9a3f5936973fcaa5a13fcaa5a13f",
+          "readable": true,
+          "size": 16,
+          "tan_out_in_top_bottom": [
+            1.2074300050735474,
+            1.18134605884552,
+            1.2628719806671143,
+            1.2628719806671143
+          ]
+        }
+      ],
+      "result": 0,
+      "source_line": 82524
+    },
+    {
+      "api": "sceHmdReprojectionInitialize",
+      "args": [
+        120261210048,
+        1,
+        0,
+        103080656911,
+        29876498,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120261210048,
+          "field": "initialize",
+          "le_hex": "004045ab02000000006b11220200000000010000000000003800000000000000050000000500000000000000000000000000000000000000",
+          "readable": true,
+          "size": 56
+        }
+      ],
+      "source_line": 82525
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionInitialize",
+      "args": [
+        120261210048,
+        1,
+        0,
+        103080656911,
+        29876498,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 82527
+    },
+    {
+      "api": "sceHmdReprojectionSetOutputMinColor",
+      "args": [
+        120261210048,
+        1,
+        120261209984,
+        103080263695,
+        29876446,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "rgb": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_line": 82528
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionSetOutputMinColor",
+      "args": [
+        120261210048,
+        1,
+        120261209984,
+        103080263695,
+        29876446,
+        11471814656
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 82530
+    },
+    {
+      "api": "sceHmdReprojectionSetDisplayBuffers",
+      "args": [
+        1,
+        3,
+        4,
+        0,
+        32,
+        16
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82547
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionSetDisplayBuffers",
+      "args": [
+        1,
+        3,
+        4,
+        0,
+        32,
+        16
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 82549
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785135462401,
+        3083116376,
+        13275239348791477786
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82550
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785135462401,
+        3083116376,
+        13275239348791477786
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 82552
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785135507969,
+        3083006176,
+        13274699578776552986
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82566
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785135507969,
+        3083006176,
+        13274699578776552986
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 82568
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785135728385,
+        3082662777,
+        13276228492644648474
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82657
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785135728385,
+        3082662777,
+        13276228492644648474
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 82659
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138445057,
+        3086308158,
+        13274941376845383193
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82982
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138445057,
+        3086308158,
+        13274941376845383193
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 82984
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138463233,
+        3086223806,
+        13275411190432990745
+      ],
+      "call": 5,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 82995
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138463233,
+        3086223806,
+        13275411190432990745
+      ],
+      "call": 5,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 82997
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138484993,
+        3086137050,
+        13275161171796755993
+      ],
+      "call": 6,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83027
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138484993,
+        3086137050,
+        13275161171796755993
+      ],
+      "call": 6,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83029
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        0,
+        0
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000004427cd389728bc3984223dbafaff7f3f00000000cc77bccdb6000000cc77bccdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83057
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 0,
+      "source_line": 83058
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        0,
+        0
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83061
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138529537,
+        3086308157,
+        13274941376845383193
+      ],
+      "call": 7,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83077
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138529537,
+        3086308157,
+        13274941376845383193
+      ],
+      "call": 7,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83079
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138532865,
+        3086362794,
+        13274651526682445337
+      ],
+      "call": 8,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83084
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138532865,
+        3086362794,
+        13274651526682445337
+      ],
+      "call": 8,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83086
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        1,
+        0
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000a926fc371317f239a83f3abafaff7f3f000000009a32e6cdb60000009a32e6cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83099
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 1,
+      "source_line": 83100
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        1,
+        0
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83103
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138563329,
+        3086400104,
+        13274361676519507481
+      ],
+      "call": 9,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83121
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138563329,
+        3086400104,
+        13274361676519507481
+      ],
+      "call": 9,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83123
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138575873,
+        3086260417,
+        13274471601912481305
+      ],
+      "call": 10,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83131
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138575873,
+        3086260417,
+        13274471601912481305
+      ],
+      "call": 10,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83133
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        2,
+        0
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "10cf242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000001bc88c373d5ff339599738bafaff7f3f000000005235e7cdb60000005235e7cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83136
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217808,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 2,
+      "source_line": 83137
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        2,
+        0
+      ],
+      "call": 3,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83139
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138595329,
+        3086132503,
+        13274221621930952217
+      ],
+      "call": 11,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83156
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138595329,
+        3086132503,
+        13274221621930952217
+      ],
+      "call": 11,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83158
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        3,
+        0
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000005b7237380dc1f439258d36bafaff7f3f000000000bb9e7cdb60000000bb9e7cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83167
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 3,
+      "source_line": 83168
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        3,
+        0
+      ],
+      "call": 4,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83170
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138598913,
+        3086132503,
+        13274221621930952217
+      ],
+      "call": 12,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83179
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138598913,
+        3086132503,
+        13274221621930952217
+      ],
+      "call": 12,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83181
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138612993,
+        3085828549,
+        13274011550785537561
+      ],
+      "call": 13,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83194
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138612993,
+        3085828549,
+        13274011550785537561
+      ],
+      "call": 13,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83198
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        4,
+        0
+      ],
+      "call": 5,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000873ac6384faff039511036bafaff7f3f00000000d136e8cdb6000000d136e8cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83202
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 4,
+      "source_line": 83203
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        4,
+        0
+      ],
+      "call": 5,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83205
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138616833,
+        3085828549,
+        13274011550785537561
+      ],
+      "call": 14,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83214
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138616833,
+        3085828549,
+        13274011550785537561
+      ],
+      "call": 14,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83216
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138628865,
+        3085912544,
+        13274081575932331545
+      ],
+      "call": 15,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83225
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138628865,
+        3085912544,
+        13274081575932331545
+      ],
+      "call": 15,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83227
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        5,
+        0
+      ],
+      "call": 6,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "10cf242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000003f47f3387413ec395e5335bafaff7f3f00000000b37be8cdb6000000b37be8cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83237
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217808,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 5,
+      "source_line": 83238
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        5,
+        0
+      ],
+      "call": 6,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83241
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138632193,
+        3085912544,
+        13274081575932331545
+      ],
+      "call": 16,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83249
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138632193,
+        3085912544,
+        13274081575932331545
+      ],
+      "call": 16,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83251
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        6,
+        0
+      ],
+      "call": 7,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "00000000000000000000000083a7f838b358ed39a69235bafaff7f3f0000000003b9e8cdb600000003b9e8cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83270
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 6,
+      "source_line": 83271
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        6,
+        0
+      ],
+      "call": 7,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83273
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        7,
+        0
+      ],
+      "call": 8,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000002ca8df385523f03971e43abafaff7f3f0000000036fce8cdb600000036fce8cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83301
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 7,
+      "source_line": 83302
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        7,
+        0
+      ],
+      "call": 8,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83304
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        8,
+        0
+      ],
+      "call": 9,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "10cf242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000004e04a8383d0cf3390af13ebafaff7f3f00000000963de9cdb6000000963de9cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83332
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217808,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 8,
+      "source_line": 83333
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        8,
+        0
+      ],
+      "call": 9,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83335
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        9,
+        0
+      ],
+      "call": 10,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000f33174384f92f339796644baf9ff7f3f00000000c480e9cdb6000000c480e9cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83355
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 9,
+      "source_line": 83356
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        9,
+        0
+      ],
+      "call": 10,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83358
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        10,
+        0
+      ],
+      "call": 11,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000f33174384f92f339796644baf9ff7f3f00000000b2bee9cdb6000000b2bee9cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83376
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 10,
+      "source_line": 83377
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        10,
+        0
+      ],
+      "call": 11,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83379
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        11,
+        0
+      ],
+      "call": 12,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "10cf242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000086493389c52f239c00e46baf9ff7f3f000000003801eacdb60000003801eacdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83397
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217808,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 11,
+      "source_line": 83398
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        11,
+        0
+      ],
+      "call": 12,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83400
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        12,
+        0
+      ],
+      "call": 13,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000005de29f374cf6f139d4e643bafaff7f3f00000000a344eacdb6000000a344eacdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83418
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 12,
+      "source_line": 83419
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        12,
+        0
+      ],
+      "call": 13,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83421
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        13,
+        0
+      ],
+      "call": 14,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "0000000000000000000000008f772fb8a06df239174844baf9ff7f3f00000000b183eacdb6000000b183eacdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83439
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 13,
+      "source_line": 83440
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        13,
+        0
+      ],
+      "call": 14,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83442
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138766081,
+        3086861127,
+        13277891061600028184
+      ],
+      "call": 32,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83444
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785138766081,
+        3086861127,
+        13277891061600028184
+      ],
+      "call": 32,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83446
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        14,
+        0
+      ],
+      "call": 15,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "10cf242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000202128b9bacffb3917f742baf9ff7f3f0000000017c6eacdb600000017c6eacdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83462
+    },
+    {
+      "context": 1,
+      "display_index": 3,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "006d51024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217808,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 14,
+      "source_line": 83463
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        14,
+        0
+      ],
+      "call": 15,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83465
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        15,
+        0
+      ],
+      "call": 16,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000dacd2ab95caefa39225a43baf9ff7f3f00000000bf08ebcdb6000000bf08ebcdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83481
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 15,
+      "source_line": 83482
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        15,
+        0
+      ],
+      "call": 16,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83484
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785139033857,
+        3086251581,
+        13270492769979270682
+      ],
+      "call": 64,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 83680
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785139033857,
+        3086251581,
+        13270492769979270682
+      ],
+      "call": 64,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 83682
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        31,
+        0
+      ],
+      "call": 32,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000027739382902ed39cd0025bafbff7f3f000000006e15efcdb60000006e15efcdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 83707
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 31,
+      "source_line": 83708
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        31,
+        0
+      ],
+      "call": 32,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 83709
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785139571713,
+        3086858070,
+        13271812622019266074
+      ],
+      "call": 128,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 84104
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        0,
+        785139571713,
+        3086858070,
+        13271812622019266074
+      ],
+      "call": 128,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 84106
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        63,
+        0
+      ],
+      "call": 64,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000f203193735eefb39c3e42cbafaff7f3f00000000583cf7cdb6000000583cf7cdb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 84130
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 63,
+      "source_line": 84131
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        63,
+        0
+      ],
+      "call": 64,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 84132
+    },
+    {
+      "api": "sceHmdSetupDialogInitialize",
+      "args": [
+        235,
+        0,
+        145,
+        103080755215,
+        8858370200,
+        8899791904
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 84583
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogInitialize",
+      "args": [
+        235,
+        0,
+        145,
+        103080755215,
+        8858370200,
+        8899791904
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 84584
+    },
+    {
+      "api": "sceHmdSetupDialogOpen",
+      "args": [
+        120261209904,
+        0,
+        145,
+        103079952399,
+        8858370200,
+        8899791904
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 84585
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogOpen",
+      "args": [
+        120261209904,
+        0,
+        145,
+        103079952399,
+        8858370200,
+        8899791904
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 84586
+    },
+    {
+      "api": "sceHmdSetupDialogUpdateStatus",
+      "args": [
+        235,
+        2162098181,
+        9128183120,
+        103080738831,
+        9128183312,
+        2104
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 84649
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogUpdateStatus",
+      "args": [
+        235,
+        2162098181,
+        9128183120,
+        103080738831,
+        9128183312,
+        2104
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 3,
+      "source_line": 84650
+    },
+    {
+      "api": "sceHmdSetupDialogGetResult",
+      "args": [
+        120261212128,
+        2162098181,
+        9128183120,
+        103080214543,
+        9128183312,
+        2104
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 84651
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogGetResult",
+      "args": [
+        120261212128,
+        2162098181,
+        9128183120,
+        103080214543,
+        9128183312,
+        2104
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 84652
+    },
+    {
+      "api": "sceHmdSetupDialogTerminate",
+      "args": [
+        120261212128,
+        2162098181,
+        9128183120,
+        103079788559,
+        9128183312,
+        2104
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 84653
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdSetupDialogTerminate",
+      "args": [
+        120261212128,
+        2162098181,
+        9128183120,
+        103079788559,
+        9128183312,
+        2104
+      ],
+      "call": 1,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 84654
+    },
+    {
+      "api": "sceHmdReprojectionSetOutputMinColor",
+      "args": [
+        120261211264,
+        8858370488,
+        1345,
+        103079280655,
+        5521408,
+        8899981392
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "rgb": [
+        0.10000000149011612,
+        0.10000000149011612,
+        0.10000000149011612
+      ],
+      "source_line": 84655
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionSetOutputMinColor",
+      "args": [
+        120261211264,
+        8858370488,
+        1345,
+        103079280655,
+        5521408,
+        8899981392
+      ],
+      "call": 2,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 84657
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3088065521,
+        13268962876858631705
+      ],
+      "call": 256,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 85186
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3088065521,
+        13268962876858631705
+      ],
+      "call": 256,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 85188
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        127,
+        0
+      ],
+      "call": 128,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000ea5611b9e6040f3a7d7f23bafaff7f3f000000007f9129ceb60000007f9129ceb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 85213
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 127,
+      "source_line": 85214
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        127,
+        0
+      ],
+      "call": 128,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 85215
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3087462238,
+        13270021100965791258
+      ],
+      "call": 512,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 86877
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3087462238,
+        13270021100965791258
+      ],
+      "call": 512,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 86879
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        255,
+        0
+      ],
+      "call": 256,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000173f27b73421063a52e825bafaff7f3f00000000f31e4aceb6000000f31e4aceb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 86904
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 255,
+      "source_line": 86905
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        255,
+        0
+      ],
+      "call": 256,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 86906
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3087833628,
+        13259455146410182172
+      ],
+      "call": 1024,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 90257
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3087833628,
+        13259455146410182172
+      ],
+      "call": 1024,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 90259
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        511,
+        0
+      ],
+      "call": 512,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "00000000000000000000000064be6cb9f7830b3ae5f901bafbff7f3f00000000563a8bceb6000000563a8bceb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 90284
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 511,
+      "source_line": 90285
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        511,
+        0
+      ],
+      "call": 512,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 90286
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3088362770,
+        13253078721998423580
+      ],
+      "call": 2048,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 97034
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3088362770,
+        13253078721998423580
+      ],
+      "call": 2048,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 97036
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        1023,
+        0
+      ],
+      "call": 1024,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "50cd242002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000ad77eab96d8c133ad262eab9faff7f3f0000000056730dcfb600000056730dcfb60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 97062
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "00214e024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129217360,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 1023,
+      "source_line": 97063
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        1023,
+        0
+      ],
+      "call": 1024,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 97064
+    },
+    {
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3089093231,
+        13242089197768082972
+      ],
+      "call": 4096,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [],
+      "source_line": 110563
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdGetDeviceInformationByHandle",
+      "args": [
+        251658240,
+        36552180,
+        8,
+        120261209064,
+        3089093231,
+        13242089197768082972
+      ],
+      "call": 4096,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 36552180,
+          "field": "device",
+          "le_hex": "00000000e8030000000000008007000038040000010001000100000000000000",
+          "mounted": 1,
+          "panel": [
+            1920,
+            1080
+          ],
+          "readable": true,
+          "size": 32,
+          "status": 0,
+          "user": 1000
+        }
+      ],
+      "result": 0,
+      "source_line": 110565
+    },
+    {
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        2047,
+        0
+      ],
+      "call": 2048,
+      "context": 1,
+      "phase": "in",
+      "pid": 18957,
+      "records": [
+        {
+          "address": 120276204848,
+          "field": "submission",
+          "le_hex": "a0ac252002000000b80b00000000000000000000000000000000000000000000050000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 80
+        },
+        {
+          "address": 120276204512,
+          "field": "pose",
+          "le_hex": "000000000000000000000000f99f4eba6826213a8cecc6b9f6ff7f3f0000000062e011d0b600000062e011d0b60000000000000000000000",
+          "readable": true,
+          "size": 56
+        },
+        {
+          "address": 120276205088,
+          "field": "layer0",
+          "float28_64": [
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.505459725856781,
+            0.5,
+            0.4186244308948517,
+            0.3959229588508606,
+            0.49454033374786377,
+            0.5
+          ],
+          "float68_6c": [
+            0.0,
+            0.0
+          ],
+          "kind78": 0,
+          "le_hex": "003d05011c000000e03c05011c0000000000000000000000000000000000000040c62d0200000000f155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003ff155d63e6ab6ca3ecf65013f0000003ff155d63e6ab6ca3e6434fd3e0000003f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "readable": true,
+          "size": 168
+        },
+        {
+          "address": 120276204800,
+          "field": "layer0.texture0",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 120276204768,
+          "field": "layer0.texture1",
+          "le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "readable": true,
+          "size": 32
+        },
+        {
+          "address": 36554304,
+          "field": "layer0.sampler",
+          "le_hex": "4900000000f0ff000000500500000040",
+          "readable": true,
+          "size": 16
+        }
+      ],
+      "source_line": 110590
+    },
+    {
+      "context": 1,
+      "display_index": 4,
+      "eyes": [
+        {
+          "base_array": 0,
+          "eye": 0,
+          "height": 1080,
+          "last_array": 0,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00000000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            2.7137499358786954e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        },
+        {
+          "base_array": 1,
+          "eye": 1,
+          "height": 1080,
+          "last_array": 1,
+          "pitch": 1024,
+          "sampler_le_hex": "4900000000f0ff000000500500000040",
+          "texture_le_hex": "802f50024000a0e4bfc30d712e0fe0d001e07f00012000000000000000000000",
+          "uv_scale_bias": [
+            1.0,
+            1.0,
+            1.2173781982482978e-08,
+            -1.1235570696044306e-08
+          ],
+          "width": 960
+        }
+      ],
+      "label": 9129274528,
+      "phase": "submit",
+      "pid": 18957,
+      "sequence": 2047,
+      "source_line": 110591
+    },
+    {
+      "adapter_ok": true,
+      "api": "sceHmdReprojectionStartMultilayer",
+      "args": [
+        120276205088,
+        1,
+        120276204848,
+        120276204512,
+        2047,
+        0
+      ],
+      "call": 2048,
+      "context": 1,
+      "phase": "out",
+      "pid": 18957,
+      "records": [],
+      "result": 0,
+      "source_line": 110593
+    }
+  ]
+}

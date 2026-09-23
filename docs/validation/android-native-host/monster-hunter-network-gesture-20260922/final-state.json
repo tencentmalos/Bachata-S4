@@ -1,0 +1,13 @@
+{
+  "pid": 21001,
+  "status": "TASK 10190:com.shadps4.android id=1713 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity c34c187 pid=21001\nsession: none\nsnapshot_ns: 817341040217213\n\n",
+  "tracer": "TracerPid:\t0",
+  "properties": {
+    "debug.shadps4.guest_debug_port": "0",
+    "debug.shadps4.guest_debug_wait": "0",
+    "debug.shadps4.sync_fastpath": "",
+    "debug.shadps4.read_probe": "0"
+  },
+  "forward": "\n",
+  "services": "ACTIVITY MANAGER SERVICES (dumpsys activity services)\n  (nothing)\n"
+}

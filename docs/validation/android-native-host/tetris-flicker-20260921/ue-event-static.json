@@ -1,0 +1,76 @@
+{
+  "tetrisOpen": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"ok\":true,\"workspaceId\":\"tetris-lifecycle-20260921\",\"generation\":\"836fcc352dc98ae7638dc38f7029b127fd6c5d52f646360034fd2fe1b3bc1979\",\"databasePath\":\"/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/SpatialDebugTool/IdaMcp/tetris-lifecycle-20260921-92a2c789b330b689.ida.db\",\"modules\":[{\"name\":\"main\",\"moduleId\":1,\"functionCount\":124429,\"xrefCount\":985149,\"boundsApproximate\":false,\"imagebase\":\"0x0\",\"imagebaseEstimated\":false}],\"addressBridge\":\"module_offset = ida_ea - imagebase; ida_ea = imagebase \\u002B module_offset\",\"nextSteps\":[\"Call reverse_study.schema before writing SQL.\",\"Use reverse_study.callers rather than counting raw xrefs.\"]}"
+      }
+    ]
+  },
+  "tetris-static-0": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"items\":[{\"from\":\"0x17c9e7b\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17c9ea0\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"loc_17C9EA0\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca0c4\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca253\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca264\",\"to\":\"0x6a8b220\",\"type\":2,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca298\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"loc_17CA298\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca2b9\",\"to\":\"0x6a8b220\",\"type\":2,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca3a0\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca3ff\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"loc_17CA3FF\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca5b4\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca5d3\",\"to\":\"0x6a8b220\",\"type\":2,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca679\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca68a\",\"to\":\"0x6a8b220\",\"type\":2,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca6be\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"loc_17CA6BE\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17ca6e8\",\"to\":\"0x6a8b220\",\"type\":2,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"},{\"from\":\"0x17da195\",\"to\":\"0x6a8b220\",\"type\":3,\"isCode\":false,\"isUser\":false,\"fromName\":\"\",\"toName\":\"qword_6A8B220\"}],\"nextOffset\":null,\"workspaceId\":\"tetris-lifecycle-20260921\",\"generation\":\"836fcc352dc98ae7638dc38f7029b127fd6c5d52f646360034fd2fe1b3bc1979\",\"module\":\"main\",\"imagebase\":\"0x0\"}"
+        }
+      ]
+    }
+  },
+  "tetris-static-1": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":false,\"code\":\"NOT_IN_FUNCTION\",\"message\":\"main0x17da1b6 is not inside a function.\",\"suggestedActions\":[]}"
+        }
+      ]
+    }
+  },
+  "tetris-static-2": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"module\":\"main\",\"moduleOffset\":\"0x17da1b6\",\"buildId\":\"\",\"function\":\"\",\"realCallerCount\":0,\"totalXrefCount\":0,\"flowOnlyCount\":0,\"dataRefCount\":0,\"finding\":\"address_not_indexed\",\"interpretation\":\"main\\u002B0x17da1b6 is inside \\u0027\\u0027 rather than at its entry, and the reference index covers function entries. Zero results here mean this address was never indexed, not that nothing references it.\",\"callers\":[],\"flowReferences\":[],\"truncated\":false,\"coverage\":\"address_outside_indexed_set\",\"addressIsIndexed\":false}"
+        }
+      ]
+    }
+  },
+  "tetris-event-0": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"module\":\"main\",\"function\":\"sub_10354A0\",\"functionOffset\":\"0x10354a0\",\"buildId\":\"\",\"text\":\"__int64 __fastcall sub_10354A0(__int64 a1)\\n{\\n  __int64 v1; // r12\\n  __int64 v2; // rcx\\n  __int64 v3; // rsi\\n  unsigned __int64 v4; // r14\\n  unsigned int v5; // ebx\\n  __int64 v6; // r12\\n  __int64 v7; // rcx\\n  __int64 v8; // rsi\\n  unsigned __int64 v9; // r14\\n  unsigned int v10; // ebx\\n  __int64 v11; // r14\\n  __int64 v12; // rdi\\n  __int64 result; // rax\\n\\n  if ( (_BYTE)a1 != 0 )\\n  {\\n    if ( byte_6A08108 == 0 \\u0026\\u0026 (unsigned int)plt___cxa_guard_acquire(a1: \\u0026byte_6A08108) != 0 )\\n    {\\n      qword_6A080B8 = 0;\\n      qword_6A08100 = (__int64)\\u0026unk_6A08070;\\n      plt___cxa_atexit(a1: sub_104E420, a2: \\u0026unk_6A08070, a3: \\u0026off_6608FB8);\\n      plt___cxa_guard_release(a1: \\u0026byte_6A08108);\\n    }\\n    v1 = qword_6A08100;\\n    while ( 1 )\\n    {\\n      _mm_mfence();\\n      v4 = *(_QWORD *)(v1 \\u002B 72);\\n      _mm_mfence();\\n      v5 = v4 \\u0026 0x3FFFFFF;\\n      if ( (v4 \\u0026 0x3FFFFFF) == 0 )\\n        break;\\n      if ( (v4 \\u002B 0x4000000) \\u003E\\u003E 26 \\u003C v4 \\u003E\\u003E 26 )\\n        sub_100CC60(a1);\\n      v2 = v5 \\u003E\\u003E 14;\\n      v3 = *((_QWORD *)\\u0026unk_69FBFB8 \\u002B v2 \\u002B 17);\\n      if ( v4 == _InterlockedCompareExchange64(\\n                   (volatile signed __int64 *)(v1 \\u002B 72),\\n                   *(unsigned int *)(v3 \\u002B 24 * (v4 \\u0026 0x3FFF) \\u002B 16) | (v4 \\u002B 0x4000000) \\u0026 0xFFFFFFFFFC000000LL,\\n                   v4) )\\n      {\\n        *(_DWORD *)(v3 \\u002B 24 * (v4 \\u0026 0x3FFF) \\u002B 16) = 0;\\n        v11 = *(_QWORD *)(*((_QWORD *)\\u0026unk_69FBFB8 \\u002B v2 \\u002B 17) \\u002B 24 * (v4 \\u0026 0x3FFF) \\u002B 8);\\n        sub_100CD70(a1: v5);\\n        if ( v11 != 0 )\\n          goto LABEL_19;\\n        break;\\n      }\\n    }\\n    v12 = 1;\\n  }\\n  else\\n  {\\n    if ( byte_6A081A8 == 0 \\u0026\\u0026 (unsigned int)plt___cxa_guard_acquire(a1: \\u0026byte_6A081A8) != 0 )\\n    {\\n      qword_6A08158 = 0;\\n      qword_6A081A0 = (__int64)\\u0026unk_6A08110;\\n      plt___cxa_atexit(a1: sub_104E5B0, a2: \\u0026unk_6A08110, a3: \\u0026off_6608FB8);\\n      plt___cxa_guard_release(a1: \\u0026byte_6A081A8);\\n    }\\n    v6 = qword_6A081A0;\\n    while ( 1 )\\n    {\\n      _mm_mfence();\\n      v9 = *(_QWORD *)(v6 \\u002B 72);\\n      _mm_mfence();\\n      v10 = v9 \\u0026 0x3FFFFFF;\\n      if ( (v9 \\u0026 0x3FFFFFF) == 0 )\\n        break;\\n      if ( (v9 \\u002B 0x4000000) \\u003E\\u003E 26 \\u003C v9 \\u003E\\u003E 26 )\\n        sub_100CC60(a1);\\n      v7 = v10 \\u003E\\u003E 14;\\n      v8 = *((_QWORD *)\\u0026unk_69FBFB8 \\u002B v7 \\u002B 17);\\n      if ( v9 == _InterlockedCompareExchange64(\\n                   (volatile signed __int64 *)(v6 \\u002B 72),\\n                   *(unsigned int *)(v8 \\u002B 24 * (v9 \\u0026 0x3FFF) \\u002B 16) | (v9 \\u002B 0x4000000) \\u0026 0xFFFFFFFFFC000000LL,\\n                   v9) )\\n      {\\n        *(_DWORD *)(v8 \\u002B 24 * (v9 \\u0026 0x3FFF) \\u002B 16) = 0;\\n        v11 = *(_QWORD *)(*((_QWORD *)\\u0026unk_69FBFB8 \\u002B v7 \\u002B 17) \\u002B 24 * (v9 \\u0026 0x3FFF) \\u002B 8);\\n        sub_100CD70(a1: v10);\\n        if ( v11 != 0 )\\n          goto LABEL_19;\\n        break;\\n      }\\n    }\\n    v12 = 0;\\n  }\\n  v11 = sub_FEEE80(a1: v12);\\nLABEL_19:\\n  sub_1067CD0(a1: v11);\\n  result = sub_EE13A0(a1: 24);\\n  *(_DWORD *)(result \\u002B 8) = 0;\\n  *(_DWORD *)(result \\u002B 12) = 0;\\n  *(_QWORD *)result = \\u0026unk_5FD3530;\\n  *(_QWORD *)(result \\u002B 16) = v11;\\n  return result;\\n}\",\"lineCount\":100,\"truncated\":false,\"generation\":\"836fcc352dc98ae7638dc38f7029b127fd6c5d52f646360034fd2fe1b3bc1979\",\"refreshed\":false}"
+        }
+      ]
+    }
+  },
+  "tetris-event-1": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"module\":\"main\",\"function\":\"sub_1035740\",\"functionOffset\":\"0x1035740\",\"buildId\":\"\",\"text\":\"signed __int64 __fastcall sub_1035740(_QWORD *a1)\\n{\\n  __int64 v2; // r14\\n  __int64 v3; // r15\\n  __int64 v4; // rdi\\n  unsigned int v5; // esi\\n  __int64 v6; // r12\\n  __int64 v7; // rax\\n  __int64 v8; // rsi\\n  __int64 v9; // rdx\\n  signed __int64 result; // rax\\n  unsigned __int64 v11; // rbx\\n  __int64 v12; // r14\\n  __int64 v13; // r15\\n  __int64 v14; // r14\\n  __int64 v15; // r15\\n  __int64 v16; // rdi\\n  unsigned int v17; // esi\\n  __int64 v18; // r12\\n  __int64 v19; // rax\\n  __int64 v20; // rsi\\n  __int64 v21; // rdx\\n  unsigned __int64 v22; // rbx\\n  __int64 v23; // r14\\n  __int64 v24; // r15\\n  __int64 v25; // [rsp\\u002B0h] [rbp-30h]\\n  __int64 v26; // [rsp\\u002B0h] [rbp-30h]\\n\\n  if ( a1 != nullptr )\\n  {\\n    if ( (*(unsigned __int8 (__fastcall **)(_QWORD *))(*a1 \\u002B 8LL))(a1) != 0 )\\n    {\\n      if ( byte_6A08108 == 0 \\u0026\\u0026 (unsigned int)plt___cxa_guard_acquire(a1: \\u0026byte_6A08108) != 0 )\\n      {\\n        qword_6A080B8 = 0;\\n        qword_6A08100 = (__int64)\\u0026unk_6A08070;\\n        plt___cxa_atexit(a1: sub_104E420, a2: \\u0026unk_6A08070, a3: \\u0026off_6608FB8);\\n        plt___cxa_guard_release(a1: \\u0026byte_6A08108);\\n      }\\n      v2 = qword_6A08100;\\n      v3 = a1[2];\\n      sub_EE1560(a1);\\n      (*(void (__fastcall **)(__int64))(*(_QWORD *)v3 \\u002B 24LL))(a1: v3);\\n      v5 = sub_100CF20(a1: v4);\\n      v6 = v5;\\n      v7 = v5 \\u0026 0x3FFF;\\n      v25 = v2;\\n      v8 = v5 \\u003E\\u003E 14;\\n      v9 = 3 * v7;\\n      *(_QWORD *)(*((_QWORD *)\\u0026unk_69FBFB8 \\u002B (unsigned int)v8 \\u002B 17) \\u002B 24 * v7 \\u002B 8) = v3;\\n      do\\n      {\\n        _mm_mfence();\\n        v11 = *(_QWORD *)(v2 \\u002B 72);\\n        _mm_mfence();\\n        if ( (v11 \\u002B 0x4000000) \\u003E\\u003E 26 \\u003C v11 \\u003E\\u003E 26 )\\n        {\\n          v12 = v8;\\n          v13 = v9;\\n          sub_100CC60(a1: \\u0026unk_69FBFB8);\\n          v8 = v12;\\n          v2 = v25;\\n          v9 = v13;\\n        }\\n        *(_DWORD *)(*((_QWORD *)\\u0026unk_69FBFB8 \\u002B v8 \\u002B 17) \\u002B 8 * v9 \\u002B 16) = v11 \\u0026 0x3FFFFFF;\\n        result = _InterlockedCompareExchange64(\\n                   (volatile signed __int64 *)(v2 \\u002B 72),\\n                   v6 | (v11 \\u002B 0x4000000) \\u0026 0xFFFFFFFFFC000000LL,\\n                   v11);\\n      }\\n      while ( v11 != result );\\n    }\\n    else\\n    {\\n      if ( byte_6A081A8 == 0 \\u0026\\u0026 (unsigned int)plt___cxa_guard_acquire(a1: \\u0026byte_6A081A8) != 0 )\\n      {\\n        qword_6A08158 = 0;\\n        qword_6A081A0 = (__int64)\\u0026unk_6A08110;\\n        plt___cxa_atexit(a1: sub_104E5B0, a2: \\u0026unk_6A08110, a3: \\u0026off_6608FB8);\\n        plt___cxa_guard_release(a1: \\u0026byte_6A081A8);\\n      }\\n      v14 = qword_6A081A0;\\n      v15 = a1[2];\\n      sub_EE1560(a1);\\n      (*(void (__fastcall **)(__int64))(*(_QWORD *)v15 \\u002B 24LL))(a1: v15);\\n      v17 = sub_100CF20(a1: v16);\\n      v18 = v17;\\n      v19 = v17 \\u0026 0x3FFF;\\n      v26 = v14;\\n      v20 = v17 \\u003E\\u003E 14;\\n      v21 = 3 * v19;\\n      *(_QWORD *)(*((_QWORD *)\\u0026unk_69FBFB8 \\u002B (unsigned int)v20 \\u002B 17) \\u002B 24 * v19 \\u002B 8) = v15;\\n      do\\n      {\\n        _mm_mfence();\\n        v22 = *(_QWORD *)(v14 \\u002B 72);\\n        _mm_mfence();\\n        if ( (v22 \\u002B 0x4000000) \\u003E\\u003E 26 \\u003C v22 \\u003E\\u003E 26 )\\n        {\\n          v23 = v20;\\n          v24 = v21;\\n          sub_100CC60(a1: \\u0026unk_69FBFB8);\\n          v20 = v23;\\n          v14 = v26;\\n          v21 = v24;\\n        }\\n        *(_DWORD *)(*((_QWORD *)\\u0026unk_69FBFB8 \\u002B v20 \\u002B 17) \\u002B 8 * v21 \\u002B 16) = v22 \\u0026 0x3FFFFFF;\\n        result = _InterlockedCompareExchange64(\\n                   (volatile signed __int64 *)(v14 \\u002B 72),\\n                   v18 | (v22 \\u002B 0x4000000) \\u0026 0xFFFFFFFFFC000000LL,\\n                   v22);\\n      }\\n      while ( v22 != result );\\n    }\\n  }\\n  return result;\\n}\",\"lineCount\":117,\"truncated\":false,\"generation\":\"836fcc352dc98ae7638dc38f7029b127fd6c5d52f646360034fd2fe1b3bc1979\",\"refreshed\":false}"
+        }
+      ]
+    }
+  },
+  "tetris-event-2": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"module\":\"main\",\"function\":\"sub_17CA5B0\",\"functionOffset\":\"0x17ca5b0\",\"buildId\":\"\",\"text\":\"__int64 sub_17CA5B0()\\n{\\n  __int64 result; // rax\\n\\n  byte_6A8B218 = 1;\\n  byte_6A8B219 = 1;\\n  if ( qword_6A8B220 == 0 )\\n    qword_6A8B220 = sub_10354A0(a1: 0);\\n  qword_6A8B1D8 = sub_1065A70(a1: \\u0026qword_6A8B1E0, a2: \\u0022R\\u0022, a3: 0, a4: 1, a5: -1, a6: 0);\\n  result = sub_1039FC0();\\n  if ( (_BYTE)result != 0 )\\n  {\\n    byte_6A8B229 = 1;\\n    byte_6A8B228 = 1;\\n    result = sub_1065A70(a1: \\u0026qword_6A8B230, a2: \\u0022R\\u0022, a3: 0, a4: 1, a5: 63, a6: 0);\\n    qword_6A8B260 = result;\\n  }\\n  return result;\\n}\",\"lineCount\":19,\"truncated\":false,\"generation\":\"836fcc352dc98ae7638dc38f7029b127fd6c5d52f646360034fd2fe1b3bc1979\",\"refreshed\":false}"
+        }
+      ]
+    }
+  }
+}

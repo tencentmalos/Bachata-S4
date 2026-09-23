@@ -1,0 +1,31 @@
+23640376-[Render.Vulkan] <Warning> (shadPS4:GpuComm) image.cpp:820 SanitizeCopyLayers: Coercing copy source layers 1 and destination layers 2 to minimum.
+23640377-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling fs shader 0x823b9dc8cea60fcd 
+23640378-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling vs shader 0xc855590191ef3509 
+23640379:[Render] <Warning> (shadPS4:GpuComm) position.h:36 ExportPosition: RenderTargetIndex is exported in vertex shader but tessellation-based primitive emulation is active. Not implemented yet.
+23640380-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:374 GetGraphicsPipeline: Compiling graphics pipeline 0x4b739af3d4e3297b
+23640381-[Lib.GnmDriver] <Debug> (Guest-41) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+23640382-[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1435 GetRenderFrame: Got render frame, remaining 5
+--
+24155494-[Render.Vulkan] <Warning> (shadPS4:GpuComm) image.cpp:820 SanitizeCopyLayers: Coercing copy source layers 1 and destination layers 2 to minimum.
+24155495-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling fs shader 0x823b9dc8cea60fcd 
+24155496-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling vs shader 0xc855590191ef3509 
+24155497:[Render] <Warning> (shadPS4:GpuComm) position.h:36 ExportPosition: RenderTargetIndex is exported in vertex shader but tessellation-based primitive emulation is active. Not implemented yet.
+24155498-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:374 GetGraphicsPipeline: Compiling graphics pipeline 0x4b739af3d4e3297b
+24155499-[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1435 GetRenderFrame: Got render frame, remaining 5
+24155500-[Lib.GnmDriver] <Debug> (Guest-41) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+--
+25254190-[Render.Vulkan] <Warning> (shadPS4:GpuComm) image.cpp:820 SanitizeCopyLayers: Coercing copy source layers 1 and destination layers 2 to minimum.
+25254191-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling fs shader 0x823b9dc8cea60fcd 
+25254192-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling vs shader 0xc855590191ef3509 
+25254193:[Render] <Warning> (shadPS4:GpuComm) position.h:36 ExportPosition: RenderTargetIndex is exported in vertex shader but tessellation-based primitive emulation is active. Not implemented yet.
+25254194-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:374 GetGraphicsPipeline: Compiling graphics pipeline 0x4b739af3d4e3297b
+25254195-[Lib.GnmDriver] <Debug> (Guest-41) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+25254196-[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1437 GetRenderFrame: Got render frame, remaining 5
+--
+32332686-[Render.Vulkan] <Warning> (shadPS4:GpuComm) image.cpp:838 SanitizeCopyLayers: Coercing copy source layers 1 and destination layers 2 to minimum.
+32332687-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:671 CompileModule: Compiling fs shader 0x823b9dc8cea60fcd 
+32332688-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:671 CompileModule: Compiling vs shader 0xc855590191ef3509 
+32332689:[Render] <Warning> (shadPS4:GpuComm) position.h:36 ExportPosition: RenderTargetIndex is exported in vertex shader but tessellation-based primitive emulation is active. Not implemented yet.
+32332690-[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:375 GetGraphicsPipeline: Compiling graphics pipeline 0x4b739af3d4e3297b
+32332691-[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1437 GetRenderFrame: Got render frame, remaining 5
+32332692-[Lib.GnmDriver] <Debug> (Guest-41) gnmdriver.cpp:2451 sceGnmSubmitDone: called

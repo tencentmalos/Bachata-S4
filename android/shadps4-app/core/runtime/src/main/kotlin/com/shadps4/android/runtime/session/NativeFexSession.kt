@@ -22,6 +22,7 @@ object NativeFexSession {
 
     external fun nativeSetGuestShadingQuality(quality: Int)
     external fun nativeSetMsaaDisabled(disabled: Boolean)
+    external fun nativeSetSilentDialogs(enabled: Boolean)
     external fun nativeSetTextureQuality(quality: Int)
     external fun nativeSetInternalScalePercent(percent: Float)
     external fun nativeSetConsoleLanguage(language: Int)

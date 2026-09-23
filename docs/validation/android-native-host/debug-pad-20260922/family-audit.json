@@ -1,0 +1,25 @@
+{
+  "rows": 1449,
+  "refused_rows": 126,
+  "refused_unique": 99,
+  "timezone": [
+    {
+      "binding": "runtime_bound",
+      "guest_address": 103086571520,
+      "hle_status": "android_bridge",
+      "importer": "libc.prx",
+      "name": "sceKernelConvertLocaltimeToUtc",
+      "provider": "runtime_fallback",
+      "symbol": "0NTHN1NKONI#libkernel#1#libkernel#Function"
+    },
+    {
+      "binding": "runtime_bound",
+      "guest_address": 103086456832,
+      "hle_status": "android_bridge",
+      "importer": "libc.prx",
+      "name": "sceKernelConvertUtcToLocaltime",
+      "provider": "runtime_fallback",
+      "symbol": "-o5uEDpN+oY#libkernel#1#libkernel#Function"
+    }
+  ]
+}

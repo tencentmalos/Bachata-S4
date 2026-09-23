@@ -177,16 +177,29 @@ s32 deleteContext(s32 libCtxId) {
 }
 
 s32 retireOfflineControlContext(s32 id) {
-    // The session bridge admits local control objects only. Never apply this
-    // fast retirement to contexts containing online users/requests/callbacks.
+    // Session-owned offline objects only. Refuse active users/requests or
+    // callbacks/HTTP resources belonging to an online provider.
     std::scoped_lock global{g_global_mutex};
     auto it = g_contexts.find(id);
     if (it == g_contexts.end()) return ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND;
     auto* context = it->second;
     {
         std::scoped_lock local{context->contextLock};
-        if (context->userCount || !context->userContexts.empty() || areContextHandlesBusy(context))
+        if (context->userCount || areContextHandlesBusy(context))
             return ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_BUSY;
+        for (const auto& [key, user] : context->userContexts) {
+            if (user->userCount || !user->extendedPushEventCallbacks.empty() ||
+                !user->servicePushEventCallbacks.empty() || !user->pushEventCallbacks.empty() ||
+                user->notificationCallbackFunction)
+                return ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_BUSY;
+            for (const auto& [rid, request] : user->requests)
+                if (request->userCount || request->http_request_id || request->http_connection_id || request->http_template_id)
+                    return ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_BUSY;
+        }
+        for (auto& [key, user] : context->userContexts) {
+            for (auto& [rid, request] : user->requests) delete request;
+            delete user;
+        }
         context->terminated = true;
         for (auto& [key, value] : context->handles) delete value;
         for (auto& [key, value] : context->timerHandles) delete value;
@@ -398,6 +411,13 @@ void checkUserContextTimeout(OrbisNpWebApiUserContext* userContext) {
     }
 }
 
+static void DestroyRequest(OrbisNpWebApiRequest* request) {
+    if (request->http_request_id) Libraries::Http::sceHttpDeleteRequest(request->http_request_id);
+    if (request->http_connection_id) Libraries::Http::sceHttpDeleteConnection(request->http_connection_id);
+    if (request->http_template_id) Libraries::Http::sceHttpDeleteTemplate(request->http_template_id);
+    delete request;
+}
+
 s32 deleteUserContext(s32 titleUserCtxId) {
     OrbisNpWebApiContext* context = findAndValidateContext(titleUserCtxId >> 0x10);
     if (context == nullptr) {
@@ -446,11 +466,16 @@ s32 deleteUserContext(s32 titleUserCtxId) {
         }
     }
 
+    for (auto& [id, callback] : user_context->extendedPushEventCallbacks) delete callback;
+    for (auto& [id, callback] : user_context->servicePushEventCallbacks) delete callback;
+    for (auto& [id, callback] : user_context->pushEventCallbacks) delete callback;
+    for (auto& [id, request] : user_context->requests) DestroyRequest(request);
     user_context->extendedPushEventCallbacks.clear();
     user_context->servicePushEventCallbacks.clear();
     user_context->pushEventCallbacks.clear();
     user_context->requests.clear();
     context->userContexts.erase(titleUserCtxId);
+    delete user_context;
 
     unlockContext(context);
     releaseContext(context);
@@ -1044,6 +1069,7 @@ s32 deleteRequest(s64 requestId) {
     lockContext(context);
     OrbisNpWebApiUserContext* user_context = findUserContext(context, requestId >> 0x20);
     if (user_context == nullptr) {
+        unlockContext(context);
         releaseContext(context);
         return ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_NOT_FOUND;
     }
@@ -1051,6 +1077,7 @@ s32 deleteRequest(s64 requestId) {
     OrbisNpWebApiRequest* request = findRequestAndMarkBusy(user_context, requestId);
     if (request == nullptr) {
         releaseUserContext(user_context);
+        unlockContext(context);
         releaseContext(context);
         return ORBIS_NP_WEBAPI_ERROR_REQUEST_NOT_FOUND;
     }
@@ -1058,6 +1085,7 @@ s32 deleteRequest(s64 requestId) {
     if (g_sdk_ver < Common::ElfInfo::FW_400 && isRequestBusy(request)) {
         releaseRequest(request);
         releaseUserContext(user_context);
+        unlockContext(context);
         releaseContext(context);
         return ORBIS_NP_WEBAPI_ERROR_REQUEST_BUSY;
     }
@@ -1070,19 +1098,8 @@ s32 deleteRequest(s64 requestId) {
     }
 
     releaseRequest(request);
-    if (request->http_request_id != 0) {
-        Libraries::Http::sceHttpDeleteRequest(request->http_request_id);
-        request->http_request_id = 0;
-    }
-    if (request->http_connection_id != 0) {
-        Libraries::Http::sceHttpDeleteConnection(request->http_connection_id);
-        request->http_connection_id = 0;
-    }
-    if (request->http_template_id != 0) {
-        Libraries::Http::sceHttpDeleteTemplate(request->http_template_id);
-        request->http_template_id = 0;
-    }
     user_context->requests.erase(request->requestId);
+    DestroyRequest(request);
 
     releaseUserContext(user_context);
     unlockContext(context);

@@ -62,8 +62,7 @@ static IR::VectorReg IterateBarycentrics(const RuntimeInfo& runtime_info, auto&&
 }
 
 Translator::Translator(Info& info_, const RuntimeInfo& runtime_info_, const Profile& profile_)
-    : info{info_}, runtime_info{runtime_info_}, profile{profile_},
-      next_vgpr_num{runtime_info.num_allocated_vgprs} {
+    : info{info_}, runtime_info{runtime_info_}, profile{profile_} {
     IterateBarycentrics(runtime_info, [this](u32 vreg, IR::Attribute attrib, u32) {
         vgpr_to_interp[vreg] = attrib;
     });
@@ -257,16 +256,6 @@ void Translator::EmitPrologue(IR::Block* first_block) {
     default:
         UNREACHABLE_MSG("Unknown shader stage");
     }
-}
-
-IR::VectorReg Translator::GetScratchVgpr(u32 offset) {
-    const auto [it, is_new] = vgpr_map.try_emplace(offset);
-    if (is_new) {
-        ASSERT_MSG(next_vgpr_num < 256, "Out of VGPRs");
-        const auto new_vgpr = static_cast<IR::VectorReg>(next_vgpr_num++);
-        it->second = new_vgpr;
-    }
-    return it->second;
 }
 
 IR::U1 Translator::GetSrc1(const InstOperand& operand) {

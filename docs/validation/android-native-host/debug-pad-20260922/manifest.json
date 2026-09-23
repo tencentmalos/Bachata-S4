@@ -1,0 +1,166 @@
+{
+  "date": "2026-09-22",
+  "acceptance": "Device input bridge, hidden overlay and TMNT hub; heap corruption unresolved, MHW not rerun",
+  "files": {
+    "final-launch.png": {
+      "bytes": 2364416,
+      "sha256": "2b6e27810d39f5fd41998ee20f46020ed8ec0368d0300686410c15f8367afed6"
+    },
+    "final-launch-pad.txt": {
+      "bytes": 976,
+      "sha256": "fdcef805b1b92976eea92d94452c8c354776c92922a1dc1d86d2ea1296614fce"
+    },
+    "debug_pad_tests.log": {
+      "bytes": 34,
+      "sha256": "0df769f608e7560f29c7b65680a641361d948c7fc23aaf0c37507b9f989c1ac0"
+    },
+    "guest_pad_tests-v1.log": {
+      "bytes": 31,
+      "sha256": "19d0906a2d63534a1ec1cfbe28ab2f13dc0d2db519705badcc57f23a167a6395"
+    },
+    "final-status.txt": {
+      "bytes": 761,
+      "sha256": "88d4695181328aef2232ba9c284f17165bca0521cd9388f34fe16e12f61e77c7"
+    },
+    "tests.json": {
+      "bytes": 949,
+      "sha256": "678758c484273a31f14369e77b6e3357a72277d4b1d49c99180309fe6787fc8c"
+    },
+    "tests-v1.json": {
+      "bytes": 949,
+      "sha256": "7a3adbf0af598ab10ca55d322c0f690712d9795c70129a33b6281d052e8c5dcc"
+    },
+    "after-action-3.png": {
+      "bytes": 1965363,
+      "sha256": "b6d10a2c3b1eb7c93856c77e5893e47d942f2a8362c6f1480345ff0928305eb4"
+    },
+    "v1-stopped-screen.png": {
+      "bytes": 1212301,
+      "sha256": "772366104e5599b01afac4a3a33c33fcc8b02a522df1f13e751a2eb1f74d7873"
+    },
+    "v1-stopped-imports.json": {
+      "bytes": 433616,
+      "sha256": "891dbdf9055f6414dfb72e3a768b5a6da498cfe0727bd89c08ce28a406e3bbc4"
+    },
+    "pre-install-pids.txt": {
+      "bytes": 6,
+      "sha256": "6224d3618efd5d609c40fcaa004685f07fa4fdef1262d520aaa4ca4025f81a3a"
+    },
+    "forwards-final.txt": {
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "action-2.json": {
+      "bytes": 5220,
+      "sha256": "22184aadf9781d124d06c86c340980b94b7e71fc881a4c3751966191d1acdadf"
+    },
+    "built.json": {
+      "bytes": 416,
+      "sha256": "ad7515ccab42a2ba728217a671eda3a0e6bedd333bda745d30b2e6e1164767c9"
+    },
+    "final-screen.png": {
+      "bytes": 1855116,
+      "sha256": "bf8d4df23874638451e22e8e1cd0294ba1ef0b76150c4f88eb91a29aff7bbba8"
+    },
+    "final-action-1.json": {
+      "bytes": 5327,
+      "sha256": "d3557d0c77fc6e9fb887aba4eb331e984d1d8d60e06011b1d4e8af9312d96812"
+    },
+    "pre-install-status.txt": {
+      "bytes": 4919,
+      "sha256": "71c77b78a11db5b1aa477d0c0b6233bc75b55321794d35316cca684ef75f5cf8"
+    },
+    "action-3.json": {
+      "bytes": 5255,
+      "sha256": "f382191d89c871e6ae062db74405ff2625a7dc4c7ba888a994faf8a725f9678c"
+    },
+    "v1-stopped-status.txt": {
+      "bytes": 4912,
+      "sha256": "6ae1ade91de6eee03f588f1cd7277c0a05360f45df67a162ddf96a609bc5d857"
+    },
+    "properties-final.txt": {
+      "bytes": 944,
+      "sha256": "1ef3b3ee3314725a3d6f4d9884fd4c5dfe9ed82dffdee7b2a9b187c2514e3008"
+    },
+    "final-modal.png": {
+      "bytes": 954340,
+      "sha256": "38e608bb7e6948c5974ff1034042d8090ee8829da0b1f8fc51b5bfa9dee8d7cb"
+    },
+    "installed.json": {
+      "bytes": 576,
+      "sha256": "1793b1e45c7db8ceeb8d849258a529fcea2941a7f8bd9d6b6a48a27761b5ad84"
+    },
+    "focus-final.txt": {
+      "bytes": 319,
+      "sha256": "e33a2a8d76ce5ea94c11722694624ef1115bcb9318fd79cd8c518c55ab1ed62d"
+    },
+    "family-audit.json": {
+      "bytes": 684,
+      "sha256": "3392457d4f2fcffecb28b35a29b9efaf354d0fd5b4c6c0c591039fd540040a91"
+    },
+    "guest_pad_tests.log": {
+      "bytes": 31,
+      "sha256": "19d0906a2d63534a1ec1cfbe28ab2f13dc0d2db519705badcc57f23a167a6395"
+    },
+    "final-action-2.json": {
+      "bytes": 5325,
+      "sha256": "eb4055756b57b9683debdbe9b390d2336dd6551fb6389b8b198f68a71bb6b790"
+    },
+    "modal-rejected.txt": {
+      "bytes": 263,
+      "sha256": "ec974203005e8e690b1b17442103204b15c30ecce0f55618bfdce9ba2169bbeb"
+    },
+    "final-action-3.json": {
+      "bytes": 5325,
+      "sha256": "bbb8148f1d63279b6bae5934dff213ab32b04047f82b529a2beb6e8775f04118"
+    },
+    "ui-preferences-final.xml": {
+      "bytes": 127,
+      "sha256": "548bbd9ed8170f193e35e8dcc61f1913af471c86b9862fe107b7c7c32547c8a5"
+    },
+    "final-imports.json": {
+      "bytes": 433616,
+      "sha256": "e7ce6d6e886d8eb7396b4d81a3e137206abedc6cb9455650544a52973ee869df"
+    },
+    "kotlin-tests.json": {
+      "bytes": 1093,
+      "sha256": "2228df937125fb295f9795c0d9e95895d8d8b74659093a32e4dbf2ecfe88ed52"
+    },
+    "action-1.json": {
+      "bytes": 5220,
+      "sha256": "f6cb5cebcd952a6964b1ea1255603080f0addf3ba684d0a6f60c6fa9a0b6d505"
+    },
+    "hidden-before-input.png": {
+      "bytes": 2367617,
+      "sha256": "21e9df7cc662803a644d8edd05bac8e382e286c639b006219b93a19bc28a07db"
+    },
+    "tracer-final.txt": {
+      "bytes": 45,
+      "sha256": "4171ffcfbe080ca9ccec804b7438151ceccce6fa29823f4bb3765b0cf3efad4a"
+    },
+    "installed.json.v1": {
+      "bytes": 578,
+      "sha256": "148321c6878614ea83c816946b106cada6841bc529ad98b9c3bb07147fb48a20"
+    },
+    "userdata-check.json": {
+      "bytes": 13059,
+      "sha256": "d2c0d160119b08decadd69947d38c449ec440a54b82cc414ad98c9571612eb04"
+    },
+    "install.log": {
+      "bytes": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    "debug_pad_tests-v1.log": {
+      "bytes": 34,
+      "sha256": "dcb339b9bccb3c0e699a940f86ea12c91ad65ca017f7cece3e6ea485a508b910"
+    },
+    "built.json.v1": {
+      "bytes": 416,
+      "sha256": "649aa84b44832fa537d785afc0b5d055ec0ac96c959bd805bedb9cd52d7501dd"
+    },
+    "final-release-and-stale.json": {
+      "bytes": 2460,
+      "sha256": "4820d83f69aae4abc9beb25e1ee68945311410d27720c98bfa50b69f230eec46"
+    }
+  }
+}

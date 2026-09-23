@@ -8,6 +8,7 @@
 #include "common/gpu_timing.h"
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/host_runtime/guest_patch.h"
+#include "core/host_runtime/orbis_pad_adapter.h"
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_sync_metrics.h"
 #include "core/diagnostics/executable_export.h"
@@ -132,6 +133,10 @@ std::uint64_t NowNs(const MonotonicClockNs& clock) {
 void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& registry,
                                  DiagnosticsHub& hub, MonotonicClockNs clock) {
 #if defined(SHADPS4_TYPED_HLE_HOST)
+    registry.Register("pad", "Session-bound controller: capabilities | status | state | release_all",
+        [](const std::vector<std::string>& args) {
+            return HostRuntime::GlobalPadAdapter().DebugCommand(args);
+        });
     registry.Register("guest_executable_export",
         "Export disk executables asynchronously: start [current|absolute_path] | start path_hex HEX | status [id] | cancel id",
         [](const std::vector<std::string>& args) { return ExecutableExport::Command(args); });

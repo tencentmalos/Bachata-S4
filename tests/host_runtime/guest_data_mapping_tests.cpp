@@ -3,6 +3,7 @@
 #include <atomic>
 #include <cstdio>
 #include <future>
+#include <stdexcept>
 #include <thread>
 #include <fcntl.h>
 #include <unistd.h>
@@ -183,17 +184,34 @@ int main() {
     struct Observer final : MemoryObserver {
         GuestAddressSpace* space{};
         bool observed{};
+        bool mutation_rejected{};
+        bool throw_on_write{};
         std::string_view Name() const override {
             return "reentrant-copy";
         }
         void OnGuestWrite(GuestRange r) override {
             observed = space->Counts().live_pins > 0 && bool(space->Query(r.base));
+            mutation_rejected = !space->ProtectData(r, GuestPermission::None);
+            if (throw_on_write)
+                throw std::runtime_error("observer test");
         }
     } observer;
     observer.space = space.get();
     space->AddObserver(&observer);
     Check(bool(space->WriteData(range(2).base, marker)) && observer.observed,
           "observer unlocked with live mapping");
+    Check(observer.mutation_rejected && !space->Counts().live_pins,
+          "observer cannot retire backing and completed write releases pin");
+    observer.throw_on_write = true;
+    bool observer_threw{};
+    try {
+        (void)space->WriteData(range(2).base, marker);
+    } catch (const std::runtime_error&) {
+        observer_threw = true;
+    }
+    Check(observer_threw && !space->Counts().live_pins &&
+              bool(space->ReadData(range(2).base, read)) && read == marker,
+          "observer exception releases pin without losing published bytes");
     space->RemoveObserver(&observer);
 #if defined(GUEST_CPU_TEST_HOOKS)
     const auto old_data = space->Query(range(2).base).Value().mapping_generation;

@@ -1,0 +1,294 @@
+{
+  "schema": 1,
+  "status": "V12 built, host hash verified in APK, not installed; device unavailable; V10 remains last known installed",
+  "raw_local_evidence": [
+    {
+      "path": "build/validation/mhw-audio3d-20260922/v10-own-tombstone.txt",
+      "bytes": 66120,
+      "sha256": "8b12f272c77630b04220e8e176fa15163e4005a6e2600915ecc4510bdb3eaf38"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/v10-failure-logcat.txt",
+      "bytes": 1787542,
+      "sha256": "7dfe83aa5ea0c5d4de676f9c4866814bf203b1aa8d00843c0b03135e597a9a62"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/v10-null-object-xrefs.json",
+      "bytes": 2654,
+      "sha256": "f4561ff40b8a0fc2a3d1fa3b4a310d4c350505c9eb151af87ce29bd0ad45bbcd"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/v10-network-init.c",
+      "bytes": 37412,
+      "sha256": "c637b24a66a06a513277ae272bb054c46941fad51bf352c274eaa5fab75bba20"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/v10-network-init-caller.c",
+      "bytes": 5382,
+      "sha256": "e47a0af4f2920fe77c925b4c5329398cd9d67420b6acd99463ee53331ee8e626"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/v10-object-writer.asm",
+      "bytes": 11958,
+      "sha256": "39d5d4c454f5b88e629a6286d8b00c0d58d7218d269953af4835711ff3d8615b"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/savedata-v9-check.json",
+      "bytes": 551,
+      "sha256": "635017dc05b207338df26c2adb28041bbf65f76d09c298f005bd59cfe17b5af4"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/mhw-save-before-v10.tar",
+      "bytes": 16933376,
+      "sha256": "052c8e7862d9a16368dbabc12069e1ce0c37906d78cdd9ae149093ab6b60d197"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/build-v11b.log",
+      "bytes": 9779,
+      "sha256": "60a4c0515139584c93fb4172adde383036866999882ea929bfd13c34e40d8b37"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/apk-build-v11.log",
+      "bytes": 20589,
+      "sha256": "f7abb163da8ae2ace878467ea61c6096a1675b86cb46d45d1aa8c2482a16df53"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/provenance.txt",
+      "bytes": 290,
+      "sha256": "991ca740c582a1a448103c9eac03b13a652f7b66a0129acb0ae8f0dbb9676207"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/np-provenance.json",
+      "bytes": 1095,
+      "sha256": "e0f646bc4d92ac75f32d6d65716a35891c48953a61460820039aad56d5474798"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/make-callback-harness.py",
+      "bytes": 3962,
+      "sha256": "290b0e3984c79acc9a7fcff0af73e7b8a5dcdb1c69e612dbda38b0d702456fc4"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/build-v12b.log",
+      "bytes": 1125,
+      "sha256": "14caabffc0d555bea7d31ce1dbfc196c48724abfd5316cecb8ebe693a9b895fb"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/build-v12c.log",
+      "bytes": 6868,
+      "sha256": "03e850706e24b9e453cbd83e4f921b7d779b03f179001da4ea19d93fdcc4ec60"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/apk-build-v12.log",
+      "bytes": 20591,
+      "sha256": "090a7b43ce4538b10d38a928a811fea7591e42a5500458590279cba4a20e8d67"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/network-host-config3.log",
+      "bytes": 762,
+      "sha256": "80081d1a1ae2fd526b8e2c1666369ef33f2ff6b393f7d3a76b583b1ea2dc6fdc"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/network-host-build2.log",
+      "bytes": 15795,
+      "sha256": "ac881a04a6a2fd73706f9ad33c58516917f5ed11e9270a1f725ee8b34a5a8885"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/CMakeLists.txt",
+      "bytes": 1575,
+      "sha256": "99e061d44a5790ed0b1db5cadc0506c4f321fa69fe890ef5eef62aa9e16a8e9a"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/socket_info.cpp",
+      "bytes": 6509,
+      "sha256": "b119ab5c4942737b511436abd8aa468d642856f901276b5ac476c1ddb4caa7a4"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/errno.cpp",
+      "bytes": 3804,
+      "sha256": "08b5ad49e0aef4aeb7b6c03871519f6785920c317f26b7f0f35c4139c9044992"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/support.cpp",
+      "bytes": 322,
+      "sha256": "ebe8a3b92048558ba59f146d05eb1ee8b7871d13876c083f6b522cdd2d8b8709"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/np_callbacks.cpp",
+      "bytes": 11734,
+      "sha256": "9047d479a74de60b9bf5a7e22aaad82d4d78b7f5f5b1f0ea0f9a21fff7cdcfda"
+    },
+    {
+      "path": "build/validation/mhw-audio3d-20260922/host-network/np_callbacks_test.cpp",
+      "bytes": 5268,
+      "sha256": "d670a2f577bb88e7acc206a9f78ddd4c5d95a38a60caabdf928382734862f98c"
+    }
+  ],
+  "retained_evidence": [
+    {
+      "path": "apk-build-v12-summary.txt",
+      "bytes": 282,
+      "sha256": "ceac608724acb676987cd6ddc53f4db9a69ca57a9633a4119951c20bb04ea17b"
+    },
+    {
+      "path": "apk-v10.json",
+      "bytes": 616,
+      "sha256": "670940ea4f039279ac45297c1917be4f4eb13628630bcf4881afaac6a122c595"
+    },
+    {
+      "path": "apk-v12.json",
+      "bytes": 636,
+      "sha256": "276666d0559dbf22551a599972e06e10bc3485ff17620456cb31ba62f2a430aa"
+    },
+    {
+      "path": "audio-v4.json",
+      "bytes": 702,
+      "sha256": "df2d969da5a651ae57eec5c9908d2216ee6c90fbc92c964fb73211bf40e536f6"
+    },
+    {
+      "path": "audio-v4.log",
+      "bytes": 34,
+      "sha256": "a5504e8d0a215e71c357220dd30cebeca0c1582d325b315df29eefb5f4d675f2"
+    },
+    {
+      "path": "audio3d-v4.json",
+      "bytes": 704,
+      "sha256": "a137a30c23287755d998bf05476de0d7835c2a0cb5c8ffe55c0a7d6fe0fb8e55"
+    },
+    {
+      "path": "audio3d-v4.log",
+      "bytes": 22,
+      "sha256": "f5c9c30c39d13c2be6bf5bf20782361dcae5f02895e75efc9c6a49227d5e9957"
+    },
+    {
+      "path": "build-v12-final.log",
+      "bytes": 1269,
+      "sha256": "e0dd6111022b9555e541882b27db860bb6780e65c242fbbc7076a9e9959ae42e"
+    },
+    {
+      "path": "commerce-v11.json",
+      "bytes": 712,
+      "sha256": "84d17be244c36ceb7deabb91f382d57a8c51cc2f12de9a382911e004008ed4d3"
+    },
+    {
+      "path": "commerce-v11.log",
+      "bytes": 38,
+      "sha256": "73cc3e71fa684c9a48fa04667d05a352f7c83857667bad576230654fa600daec"
+    },
+    {
+      "path": "graphics-v4.json",
+      "bytes": 715,
+      "sha256": "75274460ec89a6448952be23bef7755df361e6f436f944cbd9ea3c7181cae394"
+    },
+    {
+      "path": "graphics-v4.log",
+      "bytes": 40,
+      "sha256": "15c6c472e6cabf15ce795185f91410a6265d537d2ffacfae99eb1b733e82f245"
+    },
+    {
+      "path": "json2-provider-audit.json",
+      "bytes": 11473,
+      "sha256": "ae607542bf3282e9ecbd99fe6790f143a300b2dc5362882928f9690e3fb01eca"
+    },
+    {
+      "path": "msg-v11.json",
+      "bytes": 707,
+      "sha256": "f961175bf86d46735f71d86bb9bd1ee6fc9e387d9cddc97164288008da325ed8"
+    },
+    {
+      "path": "msg-v11.log",
+      "bytes": 33,
+      "sha256": "7bac2563f53384a0b2922f11c3c316a3005fa2ee74f6b07fdad87d86445d6deb"
+    },
+    {
+      "path": "network-host-probe.log",
+      "bytes": 245,
+      "sha256": "06c4ac75fb51c12b6c93898049a2d7b70765656f704bc1b7fede2f21f4f27d68"
+    },
+    {
+      "path": "network-host-v12.log",
+      "bytes": 167,
+      "sha256": "478033191bdaa786e02a0f18b393e28d2164555f74941accf2825e4881bc2c1f"
+    },
+    {
+      "path": "np-host-build2.log",
+      "bytes": 285,
+      "sha256": "59a53fb91c329b66c7d51663118a0ad7daee26d7fa1ac670ffce10c5234d75a4"
+    },
+    {
+      "path": "np-host-provenance.json",
+      "bytes": 1095,
+      "sha256": "e0f646bc4d92ac75f32d6d65716a35891c48953a61460820039aad56d5474798"
+    },
+    {
+      "path": "np-host.log",
+      "bytes": 39,
+      "sha256": "e01c2225535dc51df6769b93f15f64005d8d738e0fc0ed481039ae197001350b"
+    },
+    {
+      "path": "save-v9.json",
+      "bytes": 710,
+      "sha256": "006e3c83c74c829a2ec69296e420d771c460263406b7c0f58e4147f5107605ea"
+    },
+    {
+      "path": "save-v9.log",
+      "bytes": 38,
+      "sha256": "0f16df2f513aca2502ea787234d5f23db527678851abc6ab1072bfccd5e4e2aa"
+    },
+    {
+      "path": "v10-imports.json",
+      "bytes": 319299,
+      "sha256": "9a7fbed7584e4bd07f6a7a2fedb0aecdc769f7c0a4eb60f0b969003fa1510722"
+    },
+    {
+      "path": "v10-remaining-summary.json",
+      "bytes": 811,
+      "sha256": "07f8e2d10d3d10a7a3131507cb5cc232626177ac98638beb900a52243cc5a420"
+    }
+  ],
+  "source_snapshots": [
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "sha256": "690fa5f67ece86de18c4562fd0cdacecbead382695405faf3d03c98f2419c9f3"
+    },
+    {
+      "path": "src/core/host_runtime/guest_network.h",
+      "sha256": "d59361fec31ba2ae39201562301d9ac6399b06cc66ca900e66f5e39524a2f875"
+    },
+    {
+      "path": "src/core/host_runtime/guest_np_control.h",
+      "sha256": "1dda51ee830a1ac61ab60c1c8d2693bf53594e9f0338c8009ac8a0e7bf62e115"
+    },
+    {
+      "path": "src/core/host_runtime/guest_np.h",
+      "sha256": "9fc6d3d6059cd9b0de91eb1676636dc6d2e1180264f5bea1ef480762f08d8b40"
+    },
+    {
+      "path": "src/core/host_runtime/guest_msg_dialog_ui.cpp",
+      "sha256": "bce0ca3d7874405f733f4e5912635d08c557d518f09add7107d5c02782f4cf24"
+    },
+    {
+      "path": "src/core/host_runtime/guest_msg_dialog.cpp",
+      "sha256": "5fe2603d68be4285e7d70dd9b871457caefe2ec24144aaf6ca8cd65716457cb2"
+    },
+    {
+      "path": "src/core/host_runtime/guest_msg_dialog.h",
+      "sha256": "df49475e668bd08c81de34ab3eb261a398317ba3fdeb35627bf3b0bbe50d7379"
+    },
+    {
+      "path": "src/core/host_runtime/guest_error_dialog.h",
+      "sha256": "ab96ae023afc5567a4e749e0c77f246809993d702b52952fcbf31dab76d5e094"
+    },
+    {
+      "path": "src/core/libraries/np/np_manager.h",
+      "sha256": "a0d4caa44ba77fb22ef11777357efc55e5d45f34b71eed0230a9b895e03cd2f2"
+    },
+    {
+      "path": "tests/host_runtime/guest_np_tests.cpp",
+      "sha256": "72dc3869929d7d9c619a60af30280476cee5c3afe7235172897d4598b84f2d6b"
+    },
+    {
+      "path": "tests/host_runtime/guest_network_tests.cpp",
+      "sha256": "5a2511b6e202a26c690a5826e92053d3670bd7337908f506bbab93afa742fe0e"
+    }
+  ]
+}

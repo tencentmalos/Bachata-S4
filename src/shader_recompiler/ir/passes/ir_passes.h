@@ -35,6 +35,8 @@ void DomainShaderTransform(const IR::Program& program, const RuntimeInfo& runtim
 void SharedMemoryBarrierPass(IR::Program& program, const RuntimeInfo& runtime_info,
                              const Profile& profile);
 void SharedMemorySimplifyPass(IR::Program& program, const Profile& profile);
+// False leaves the program untouched: this LDS pattern needs actual cross-lane memory.
+bool FragmentLdsPass(IR::Program& program);
 void SharedMemoryToStoragePass(IR::Program& program, const RuntimeInfo& runtime_info,
                                const Profile& profile);
 

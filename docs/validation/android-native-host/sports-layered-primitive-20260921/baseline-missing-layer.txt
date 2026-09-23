@@ -1,0 +1,1 @@
+[Render] <Warning> (shadPS4:GpuComm) position.h:36 ExportPosition: RenderTargetIndex is exported in vertex shader but tessellation-based primitive emulation is active. Not implemented yet.

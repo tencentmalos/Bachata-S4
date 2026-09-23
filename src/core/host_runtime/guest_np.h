@@ -63,7 +63,7 @@ public:
             return space.AcquireDataBatch(requests) ? 0 : u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
         }
         if (nid == "3Zl8BePTh9Y" || nid == "JELHf4xPufo")
-            return 0; // Empty NP queue; registrations/producers are not admitted.
+            return 0; // Runtime overrides these entries to InvokeGuest translated callbacks.
         if (!IsNpOfflineNid(nid))
             return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
         if ((nid == "p-o74CnoNzY" || nid == "XDncXQIJUSk") && Offline::InvalidUser(s32(a[0])))

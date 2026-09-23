@@ -11,13 +11,13 @@ class GuestErrorDialog {
 public:
     inline static constexpr std::array<std::string_view, 6> Nids{
         "ekXHb1kDBl0", "t2FvHRXzgqk", "I88KChlynSs", "M2ZF-ClLhgY", "9XAxK2PMwk8", "WWiGuh9XfgQ"};
-    GuestErrorDialog() {
+    explicit GuestErrorDialog(bool silent = false) {
         // Desktop ErrorDialog has its own lifecycle and requires no preceding
         // CommonDialogInitialize. Reuse the owned modal renderer with that same
         // independence, without retaining guest addresses in the UI.
         auto common = std::make_shared<GuestCommonDialog>();
         common->Initialize();
-        dialog = std::make_shared<GuestMsgDialog>(std::move(common), std::vector<s32>{0});
+        dialog = std::make_shared<GuestMsgDialog>(std::move(common), std::vector<s32>{0}, silent);
     }
     static bool IsNid(std::string_view nid) {
         return std::ranges::find(Nids, nid) != Nids.end();
@@ -57,7 +57,7 @@ public:
             // Desktop displays the code and doesn't require PSN identity. This
             // local presentation user is unrelated to the opaque guest user ID.
             return dialog->OpenLocalMessage(0, fmt::format("An error has occurred.\nCode: {:#X}",
-                                                          u32(param.errorCode)));
+                                                          u32(param.errorCode)), "Error");
         } catch (const std::bad_alloc&) {
             return u32(CD::Error::OUT_OF_MEMORY);
         }

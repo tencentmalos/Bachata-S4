@@ -1,0 +1,8 @@
+> Task :app:mergeFdroidDebugNativeLibs
+> Task :app:stripFdroidDebugDebugSymbols
+> Task :app:packageFdroidDebug
+> Task :app:createFdroidDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFdroidDebug
+
+BUILD SUCCESSFUL in 1m 4s
+290 actionable tasks: 7 executed, 283 up-to-date

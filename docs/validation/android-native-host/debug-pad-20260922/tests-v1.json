@@ -1,0 +1,13 @@
+{
+  "results": {
+    "debug_pad_tests": 0,
+    "guest_pad_tests": 0
+  },
+  "files": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33-sbs-20260919-r29/native/debug_pad_tests": "332efe1e3d9205987996594e309921c2599d207563fac2ab1ec35c783b1e17d5",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33-sbs-20260919-r29/native/guest_pad_tests": "fde2c1d8f872bfb594ca91881b03d765b3c8e0794c61ada4cdf0b08b2fa20305",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33-sbs-20260919-r29/native/libshadps4_host.so": "46a9de5a40915a7ab8e520101f83fb70ad7036b710b9708da586ed72ca9b9193",
+    "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "remote": "/data/local/tmp/debug-pad-1790073341138180000"
+}

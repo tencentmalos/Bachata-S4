@@ -12,6 +12,7 @@
 #include "core/libraries/ime/ime.h"
 #include "core/host_runtime/guest_np_utility.h"
 #include "core/host_runtime/guest_np_webapi.h"
+#include "core/libraries/np/np_web_api/np_web_api_internal.h"
 #include "core/host_runtime/guest_system_service.h"
 #include "core/host_runtime/guest_hmd_geometry.h"
 #include "core/host_runtime/guest_vr_sensor.h"
@@ -116,6 +117,50 @@ int main() {
         CHECK(webcall("G3AnLNdRBjE",{1,1<<20})==u32(ORBIS_NP_WEBAPI_ERROR_INVALID_ARGUMENT));
         const auto ctx=webcall("G3AnLNdRBjE",{http_id,1<<20}); CHECK(s32(ctx)>0);
         CHECK(foreign.Dispatch(*space,"asz3TtIqGF8",{ctx})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
+        const char group[]="commerce";
+        const char path[]="/v1/test/entitlements";
+        CHECK(space->WriteData({base+3000},std::as_bytes(std::span{group})));
+        CHECK(space->WriteData({base+3100},std::as_bytes(std::span{path})));
+        const u64 untouched=0xa5a5a5a5a5a5a5a5ULL;
+        CHECK(space->WriteData({base+3500},std::as_bytes(std::span{&untouched,1})));
+        CHECK(webcall("rdgs5Z1MyFw",{u32(-1),base+3000,base+3100,0,0,base+3500})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
+        u64 rid{};
+        CHECK(space->ReadData({base+3500},std::as_writable_bytes(std::span{&rid,1})) && rid==untouched);
+        const auto user=webcall("zk6c65xoyO0",{ctx,1000}); CHECK(s32(user)>0);
+        CHECK(webcall("zk6c65xoyO0",{ctx,1000})==u32(ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_ALREADY_EXIST));
+        CHECK(foreign.Dispatch(*space,"XUjdsSTTZ3U",{user})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
+        CHECK(webcall("rdgs5Z1MyFw",{user,base+3000,base+3100,0,0,base+0x7ffc})==u32(ORBIS_NP_WEBAPI_ERROR_INVALID_ARGUMENT));
+        CHECK(webcall("rdgs5Z1MyFw",{user,base+3000,base+3100,0,0,base+3500})==0);
+        CHECK(space->ReadData({base+3500},std::as_writable_bytes(std::span{&rid,1})) && rid!=untouched && rid>0);
+        CHECK(foreign.Dispatch(*space,"noQgleu+KLE",{rid})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
+        CHECK(webcall("qWcbJkBj1Lg",{rid,20'000'000})==0);
+        CHECK(webcall("KjNeZ-29ysQ",{rid,base+0x8000,4})==u32(ORBIS_NP_WEBAPI_ERROR_INVALID_ARGUMENT));
+        CHECK(webcall("KjNeZ-29ysQ",{rid,0,0})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
+        CHECK(space->WriteData({base+3600},std::as_bytes(std::span{&untouched,1})));
+        CHECK(webcall("CQtPRSF6Ds8",{rid,base+3600,8})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
+        CHECK(webcall("743ZzEBzlV8",{rid,base+3000,base+3600})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
+        CHECK(webcall("VwJ5L0Higg0",{rid,base+3000,base+3600,8})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
+        u64 after{};
+        CHECK(space->ReadData({base+3600},std::as_writable_bytes(std::span{&after,1})) && after==untouched);
+        CHECK(webcall("noQgleu+KLE",{rid})==0);
+        CHECK(webcall("noQgleu+KLE",{rid})==u32(ORBIS_NP_WEBAPI_ERROR_REQUEST_NOT_FOUND));
+        // The shared native missing-request path must release its recursive
+        // context lock so a different thread can keep using that context.
+        CHECK(u32(Libraries::Np::NpWebApi::sceNpWebApiDeleteRequest(rid))==u32(ORBIS_NP_WEBAPI_ERROR_REQUEST_NOT_FOUND));
+        std::thread other([&] { web.CheckTimeout(); }); other.join();
+        CHECK(webcall("rdgs5Z1MyFw",{user,base+3000,base+3100,0,0,base+3500})==0);
+        CHECK(space->ReadData({base+3500},std::as_writable_bytes(std::span{&rid,1})));
+        CHECK(webcall("XUjdsSTTZ3U",{user})==0); // retires its remaining request
+        CHECK(webcall("KjNeZ-29ysQ",{rid})==u32(ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_NOT_FOUND));
+        CHECK(webcall("XUjdsSTTZ3U",{user})==u32(ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_NOT_FOUND));
+        // Termination and destructor retire live offline users/requests too.
+        for (int i=0;i<8;++i) {
+            GuestNpWebApiControl scoped(http);
+            const auto c=scoped.Dispatch(*space,"G3AnLNdRBjE",{http_id,4096}); CHECK(s32(c)>0);
+            const auto u=scoped.Dispatch(*space,"zk6c65xoyO0",{c,1000}); CHECK(s32(u)>0);
+            CHECK(scoped.Dispatch(*space,"rdgs5Z1MyFw",{u,base+3000,base+3100,0,0,base+3500})==0);
+            if (i&1) CHECK(scoped.Dispatch(*space,"asz3TtIqGF8",{c})==0);
+        }
         const auto handle=webcall("79M-JqvvGo0",{ctx}); CHECK(s32(handle)>0);
         struct Filter { char type[65]; u8 padding[7]; u64 keys,count; } filter{};
         std::strcpy(filter.type,"np:test:event"); filter.keys=base+1024; filter.count=1;

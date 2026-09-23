@@ -796,8 +796,24 @@ Status GuestAddressSpace::CheckDataRequestsLocked(std::span<const DataRequest> r
         if (static_cast<unsigned>(r.permission) & ~3u)
             return MakeError(ErrorCategory::InvalidArgument, "AcquireDataBatch",
                              "not a data permission");
-        if (auto status = ValidateRangeLocked(r.range, r.permission); !status)
-            return status;
+        if (!r.allow_adjacent_mappings) {
+            if (auto status = ValidateRangeLocked(r.range, r.permission); !status)
+                return status;
+        } else {
+            if (!r.range.size || r.range.base.value > UINT64_MAX - r.range.size)
+                return MakeError(ErrorCategory::InvalidArgument, "AcquireDataBatch",
+                                 "invalid byte buffer range");
+            for (auto address = r.range.base.value; address < r.range.End();) {
+                const auto* m = FindContainingMappingLocked({GuestAddress{address}, 1});
+                if (!m)
+                    return MakeError(ErrorCategory::InvalidArgument, "AcquireDataBatch",
+                                     "byte buffer crosses an unmapped gap");
+                if (!HasPermission(m->permission, r.permission))
+                    return MakeError(ErrorCategory::PermissionDenied, "AcquireDataBatch",
+                                     "byte buffer segment lacks the requested permission");
+                address = std::min(r.range.End(), m->range.End());
+            }
+        }
         // Every expected segment must cover exactly the requested output. Never
         // accept an incomplete identity list as proof of an async destination.
         auto next = r.range.base.value;
@@ -922,20 +938,23 @@ Status GuestAddressSpace::WriteData(GuestAddress to, std::span<const std::byte> 
         pins.push_back(Pin{lease, request.range, true});
         host = HostPointer(to);
     }
+    PinnedSpan retained{liveness, to, host, from.size(), true, lease};
     // The copy runs outside the lock (a watched page may fault into the page
     // manager), exactly as the pinned path does.
     std::memcpy(host, from.data(), from.size());
-    // Release the lease and snapshot observers under one lock hold instead of
-    // two: this is the hot path for every checked scalar publication (mutex
-    // owner/depth, errno, timeout write-back), and each extra round trip on
-    // the address-space lock is a contention point across all guest threads.
+    // Keep the backing alive through observer callbacks, including exception
+    // unwinding. Without observers, retain the single-lock release fast path
+    // used by checked scalar publications (mutex state, errno, timeouts).
     std::vector<MemoryObserver*> snapshot;
     {
         std::lock_guard guard{lock};
-        std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease; });
-        NotifyLeasesIdleLocked();
-        if (!observers.empty())
+        if (!observers.empty()) {
             snapshot = observers;
+        } else {
+            std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease; });
+            NotifyLeasesIdleLocked();
+            retained.lease_id = 0;
+        }
     }
     if (!snapshot.empty()) {
         GuestRange widened{};

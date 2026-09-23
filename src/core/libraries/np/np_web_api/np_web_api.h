@@ -149,6 +149,7 @@ void EnqueuePushEvent(const PushEventInput& ev);
 void PS4_SYSV_ABI sceNpWebApiCheckTimeout();
 s32 PS4_SYSV_ABI sceNpWebApiInitialize(s32 libHttpCtxId, u64 poolSize);
 s32 PS4_SYSV_ABI sceNpWebApiTerminate(s32 libCtxId);
+s32 PS4_SYSV_ABI sceNpWebApiSetRequestTimeout(s64 requestId, u32 timeout);
 s32 RetireOfflineControlContext(s32 id);
 s32 PS4_SYSV_ABI sceNpWebApiCreateHandle(s32 libCtxId);
 s32 PS4_SYSV_ABI sceNpWebApiDeleteHandle(s32 libCtxId, s32 handleId);

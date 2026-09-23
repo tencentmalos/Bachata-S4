@@ -1,0 +1,760 @@
+{
+  "files": [
+    {
+      "source": "build/validation/monster-hunter-20260921/apk-v5.json",
+      "path": "apk-v5.json",
+      "bytes": 616,
+      "sha256": "ea0ef13114a590acfbfc8197e66be7718ebb6acdb2cc1ad4de8877936ac5f54b",
+      "stored_sha256": "ea0ef13114a590acfbfc8197e66be7718ebb6acdb2cc1ad4de8877936ac5f54b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/apk-v6.json",
+      "path": "apk-v6.json",
+      "bytes": 616,
+      "sha256": "767b0cd06ecba437fbc262f0da5b7aceca8d7361bc230467ef20b6f5b0789ffc",
+      "stored_sha256": "767b0cd06ecba437fbc262f0da5b7aceca8d7361bc230467ef20b6f5b0789ffc"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/apk-v7.json",
+      "path": "apk-v7.json",
+      "bytes": 616,
+      "sha256": "22aadac276c395ed0c99d1ed80839c62b9c53eff09ae0abd3d4248355feb34aa",
+      "stored_sha256": "22aadac276c395ed0c99d1ed80839c62b9c53eff09ae0abd3d4248355feb34aa"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/apk-v8.json",
+      "path": "apk-v8.json",
+      "bytes": 616,
+      "sha256": "8bc4589b32a952a1af7328e6f49f04a9d65639ff52ba34b37cddfa592c58b863",
+      "stored_sha256": "8bc4589b32a952a1af7328e6f49f04a9d65639ff52ba34b37cddfa592c58b863"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/apk-v9.json",
+      "path": "apk-v9.json",
+      "bytes": 616,
+      "sha256": "204372d93adf567436ce4ba77be2b862ec309b22990f126327c5d1e3d23b2681",
+      "stored_sha256": "204372d93adf567436ce4ba77be2b862ec309b22990f126327c5d1e3d23b2681"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v5-tests.json",
+      "path": "broadcast-v5-tests.json",
+      "bytes": 706,
+      "sha256": "762501ca6c48e32581454361c05c1180d8c4b9ae5bb457fef99bd82912bf33fd",
+      "stored_sha256": "762501ca6c48e32581454361c05c1180d8c4b9ae5bb457fef99bd82912bf33fd"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v5-tests.log",
+      "path": "broadcast-v5-tests.log",
+      "bytes": 46,
+      "sha256": "9b09bf3252d1c3368882c019089d6609794c2efa47510967842a1827349dfeaf",
+      "stored_sha256": "9b09bf3252d1c3368882c019089d6609794c2efa47510967842a1827349dfeaf"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v6-tests.json",
+      "path": "broadcast-v6-tests.json",
+      "bytes": 706,
+      "sha256": "36bd0eb3751ece6928fc974d689514072ff0ffb3c01a1ef8c06914056d2b84c5",
+      "stored_sha256": "36bd0eb3751ece6928fc974d689514072ff0ffb3c01a1ef8c06914056d2b84c5"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v6-tests.log",
+      "path": "broadcast-v6-tests.log",
+      "bytes": 46,
+      "sha256": "17261672349e09ded3b1e1508bf9431c6369eb58b16bfb0dfa361dd5a115d279",
+      "stored_sha256": "17261672349e09ded3b1e1508bf9431c6369eb58b16bfb0dfa361dd5a115d279"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v8-tests.json",
+      "path": "broadcast-v8-tests.json",
+      "bytes": 706,
+      "sha256": "0b0f2ce3005d425ba039f5f896375bf33dde25c254f1c68f30cdb94ead7643f9",
+      "stored_sha256": "0b0f2ce3005d425ba039f5f896375bf33dde25c254f1c68f30cdb94ead7643f9"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v8-tests.log",
+      "path": "broadcast-v8-tests.log",
+      "bytes": 46,
+      "sha256": "17261672349e09ded3b1e1508bf9431c6369eb58b16bfb0dfa361dd5a115d279",
+      "stored_sha256": "17261672349e09ded3b1e1508bf9431c6369eb58b16bfb0dfa361dd5a115d279"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v9-tests.json",
+      "path": "broadcast-v9-tests.json",
+      "bytes": 706,
+      "sha256": "b50314916cec80282668735d8648bff3d87047fb697522f3a360dbfcfe772aab",
+      "stored_sha256": "b50314916cec80282668735d8648bff3d87047fb697522f3a360dbfcfe772aab"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/broadcast-v9-tests.log",
+      "path": "broadcast-v9-tests.log",
+      "bytes": 46,
+      "sha256": "17261672349e09ded3b1e1508bf9431c6369eb58b16bfb0dfa361dd5a115d279",
+      "stored_sha256": "17261672349e09ded3b1e1508bf9431c6369eb58b16bfb0dfa361dd5a115d279"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/buffer-v6-negative.json",
+      "path": "buffer-v6-negative.json",
+      "bytes": 729,
+      "sha256": "614c4bd434500b5f8f0c586c34bbd3e7cdeba5c1fcba78dd268f237cf2767c51",
+      "stored_sha256": "614c4bd434500b5f8f0c586c34bbd3e7cdeba5c1fcba78dd268f237cf2767c51"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/buffer-v6-negative.log",
+      "path": "buffer-v6-negative.log",
+      "bytes": 64,
+      "sha256": "0e84cd0921d7fce42a38434a523050183c2508f7ae8c0e41320322a18731b03b",
+      "stored_sha256": "0e84cd0921d7fce42a38434a523050183c2508f7ae8c0e41320322a18731b03b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/buffer-v8-fixed.json",
+      "path": "buffer-v8-fixed.json",
+      "bytes": 708,
+      "sha256": "898bc393e83fceb3b07d2e331d6c44e91c7963e4c7e6039b5bc561c5cc3c5449",
+      "stored_sha256": "898bc393e83fceb3b07d2e331d6c44e91c7963e4c7e6039b5bc561c5cc3c5449"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/buffer-v8-fixed.log",
+      "path": "buffer-v8-fixed.log",
+      "bytes": 54,
+      "sha256": "b78511187459f4be59e0ba8393ed1ee41132c9f356debef6c87a9b189562b7b0",
+      "stored_sha256": "b78511187459f4be59e0ba8393ed1ee41132c9f356debef6c87a9b189562b7b0"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/crossmapping-pread-probe.cpp",
+      "path": "crossmapping-pread-probe.cpp",
+      "bytes": 1828,
+      "sha256": "bdacb8c4b38ce815a7e2ad74c6547761d599d2308688dacf831345c2745ca3d7",
+      "stored_sha256": "bdacb8c4b38ce815a7e2ad74c6547761d599d2308688dacf831345c2745ca3d7"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v7-tests.json",
+      "path": "file-v7-tests.json",
+      "bytes": 704,
+      "sha256": "00c17ff232a805c49198ca03d49e9bab19d15a1eb45be08a42a4ee1f653a09d3",
+      "stored_sha256": "00c17ff232a805c49198ca03d49e9bab19d15a1eb45be08a42a4ee1f653a09d3"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v7-tests.log",
+      "path": "file-v7-tests.log",
+      "bytes": 36,
+      "sha256": "24b5ce62a441ffc76d3a4f958e976bcc4860ae70cb24bc89a4903b9862f527d7",
+      "stored_sha256": "24b5ce62a441ffc76d3a4f958e976bcc4860ae70cb24bc89a4903b9862f527d7"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v8-tests.json",
+      "path": "file-v8-tests.json",
+      "bytes": 704,
+      "sha256": "ce2fc7eb8717e902a4bbd44d335a21ca0be31bf5083dbaaabc8436e912cef66b",
+      "stored_sha256": "ce2fc7eb8717e902a4bbd44d335a21ca0be31bf5083dbaaabc8436e912cef66b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v8-tests.log",
+      "path": "file-v8-tests.log",
+      "bytes": 36,
+      "sha256": "24b5ce62a441ffc76d3a4f958e976bcc4860ae70cb24bc89a4903b9862f527d7",
+      "stored_sha256": "24b5ce62a441ffc76d3a4f958e976bcc4860ae70cb24bc89a4903b9862f527d7"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v9-tests.json",
+      "path": "file-v9-tests.json",
+      "bytes": 704,
+      "sha256": "4d28295d7b2a4e3eff486145267d51339a950d9a42657f623c5337c59b44b72d",
+      "stored_sha256": "4d28295d7b2a4e3eff486145267d51339a950d9a42657f623c5337c59b44b72d"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v9-tests.log",
+      "path": "file-v9-tests.log",
+      "bytes": 36,
+      "sha256": "24b5ce62a441ffc76d3a4f958e976bcc4860ae70cb24bc89a4903b9862f527d7",
+      "stored_sha256": "24b5ce62a441ffc76d3a4f958e976bcc4860ae70cb24bc89a4903b9862f527d7"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/livestream-analysis.json",
+      "path": "livestream-analysis.json",
+      "bytes": 8239,
+      "sha256": "e7e4b32e414d44037020f13a353d048deccff7b25b557dda7dd703492a8bb605",
+      "stored_sha256": "e7e4b32e414d44037020f13a353d048deccff7b25b557dda7dd703492a8bb605"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/livestream-cold-path-audit.json",
+      "path": "livestream-cold-path-audit.json",
+      "bytes": 6492,
+      "sha256": "fb26379f79652c1be040c2bd79894a792308502401f1cee3bd59d2c0d20115d4",
+      "stored_sha256": "fb26379f79652c1be040c2bd79894a792308502401f1cee3bd59d2c0d20115d4"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mapping-v8-cwd-tests.json",
+      "path": "mapping-v8-cwd-tests.json",
+      "bytes": 709,
+      "sha256": "b6e30ee9ecfb17783f99e5a217670183de931d553fc4d717c17593f6e68b0c9f",
+      "stored_sha256": "b6e30ee9ecfb17783f99e5a217670183de931d553fc4d717c17593f6e68b0c9f"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mapping-v8-cwd-tests.log",
+      "path": "mapping-v8-cwd-tests.log",
+      "bytes": 82,
+      "sha256": "1df24cbab7708e68aafe46875bde1d271bf4ec3d967bc2b35e3ade2ec99284a6",
+      "stored_sha256": "1df24cbab7708e68aafe46875bde1d271bf4ec3d967bc2b35e3ade2ec99284a6"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mapping-v8-tests.json",
+      "path": "mapping-v8-tests.json",
+      "bytes": 709,
+      "sha256": "d9243fb469592d85fb5d2b067e8f04a14d1846ede6e0a66fa469c3f54230aea5",
+      "stored_sha256": "d9243fb469592d85fb5d2b067e8f04a14d1846ede6e0a66fa469c3f54230aea5"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mapping-v8-tests.log",
+      "path": "mapping-v8-tests.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mapping-v9-tests.json",
+      "path": "mapping-v9-tests.json",
+      "bytes": 709,
+      "sha256": "fd515a745be814dfe08694f19b44eaf0aa453fc427e01147ad334bbf1ef40d72",
+      "stored_sha256": "fd515a745be814dfe08694f19b44eaf0aa453fc427e01147ad334bbf1ef40d72"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mapping-v9-tests.log",
+      "path": "mapping-v9-tests.log",
+      "bytes": 41,
+      "sha256": "01bd49f0d6e0bc85f73129f455f73109521c35697365c42a7db583fc2ac13672",
+      "stored_sha256": "01bd49f0d6e0bc85f73129f455f73109521c35697365c42a7db583fc2ac13672"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mhw-oodle-input-cleanup.json",
+      "path": "mhw-oodle-input-cleanup.json",
+      "bytes": 16318,
+      "sha256": "c7929405502ce03f578b7a7df0e521679b4794754f68d4e6675e24f8b5c8589b",
+      "stored_sha256": "c7929405502ce03f578b7a7df0e521679b4794754f68d4e6675e24f8b5c8589b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mhw-oodle-input-rsp.json",
+      "path": "mhw-oodle-input-rsp.json.gz",
+      "bytes": 227071,
+      "sha256": "ff89e456219effa96666a6b735266fd89860d4501e64ff28bfb799d961cdfaf1",
+      "stored_sha256": "9767f29c0b48a87923148b280855ac82324562023ae3561b7ae01b20ac83a770"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mhw-pread-index-rsp.json",
+      "path": "mhw-pread-index-rsp.json.gz",
+      "bytes": 169735,
+      "sha256": "e74b02c25375c7b0da1d1a4fc399e61c67ba97591e0574b93377199beadf5c1a",
+      "stored_sha256": "18559f88a44b45a43084e3875764e890c5b0ff51699d55469347da0716cc98d7"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mhw-rsp8-maps.txt",
+      "path": "mhw-rsp8-maps.txt.gz",
+      "bytes": 332893,
+      "sha256": "8b9062d2ade5ec2517544f6bb3065920acd8bb94a5adda160a2f8803c634b6b2",
+      "stored_sha256": "937931cf85611fe31bf583517c429b4ea06af3ba802a072a1d34aa64dcf59ce5"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mhw-v6-read.log",
+      "path": "mhw-v6-read.log.gz",
+      "bytes": 82156,
+      "sha256": "1c72262036f4fc200fbedcc73d1fcbcafb0012ed39b4e4f2bcc8ba36e34ccc19",
+      "stored_sha256": "31b9fbcf4c1300905682cb4763684df732c0eb49a30d7628a7666658c7569ea2"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/mhw-v7-read.log",
+      "path": "mhw-v7-read.log.gz",
+      "bytes": 83420,
+      "sha256": "acfaa682cf756d2de6c17d443088c30139fc82f7e8ea6ece884bc074ba032ad0",
+      "stored_sha256": "6357801c1f82f245174ae1151529314e25e2895210fa743fe4eadaced089a500"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/network-v9-tests.json",
+      "path": "network-v9-tests.json",
+      "bytes": 704,
+      "sha256": "632990d227bca5f7878c6db69583ae6aaf34a907a8059b6504d51b609e048f2a",
+      "stored_sha256": "632990d227bca5f7878c6db69583ae6aaf34a907a8059b6504d51b609e048f2a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/network-v9-tests.log",
+      "path": "network-v9-tests.log",
+      "bytes": 36,
+      "sha256": "918cd3bfe768df44f75e9fecf98cb23ff82384929a0ef25cced14bd1bef8411a",
+      "stored_sha256": "918cd3bfe768df44f75e9fecf98cb23ff82384929a0ef25cced14bd1bef8411a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/remoteplay-analysis.json",
+      "path": "remoteplay-analysis.json",
+      "bytes": 3928,
+      "sha256": "5d6b2a09fd136dbccd4a1dad727b24905b0e06758da761b22512df97571d8074",
+      "stored_sha256": "5d6b2a09fd136dbccd4a1dad727b24905b0e06758da761b22512df97571d8074"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/reprojection-v9-tests.json",
+      "path": "reprojection-v9-tests.json",
+      "bytes": 709,
+      "sha256": "27f65f28b98f25dcf37a0c23da7e07e6ebb575faaf2769e4844698d550b77711",
+      "stored_sha256": "27f65f28b98f25dcf37a0c23da7e07e6ebb575faaf2769e4844698d550b77711"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/reprojection-v9-tests.log",
+      "path": "reprojection-v9-tests.log",
+      "bytes": 49,
+      "sha256": "7633c5f44477908c2a79ab99135670540bbebef1eb19701ee66842cb4985c6e7",
+      "stored_sha256": "7633c5f44477908c2a79ab99135670540bbebef1eb19701ee66842cb4985c6e7"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v5-live/captured.json",
+      "path": "runs/mhr-v5-live/captured.json",
+      "bytes": 79,
+      "sha256": "c981ca5272fdf1b8968297692c00e6a0d7f32164ab6d1ae0c15580d0f7957444",
+      "stored_sha256": "c981ca5272fdf1b8968297692c00e6a0d7f32164ab6d1ae0c15580d0f7957444"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v5-live/host-tail.txt",
+      "path": "runs/mhr-v5-live/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "ed147293e498aa89a142597727fdc923bf5789e4e2d7924d75e24c6ee98d7930",
+      "stored_sha256": "c8f2f5f44c12f75ac905bdfd78fed36c70f867c84641859fb4104be53e2e6946"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v5-live/imports.json",
+      "path": "runs/mhr-v5-live/imports.json.gz",
+      "bytes": 398827,
+      "sha256": "b8e2c088d8a0fe1b928cdb676e56a4184f90d3e5d532f272e47f13377df823d1",
+      "stored_sha256": "bbf44c422f015363f2aadafd6d99c4e46dbc74c2f3e9ea931f2ca97df85e09fe"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v5-live/pids.txt",
+      "path": "runs/mhr-v5-live/pids.txt",
+      "bytes": 6,
+      "sha256": "716a1ad331f4459650816028c694c110222b6c98ad3e856a2cb3509cf6002c0a",
+      "stored_sha256": "716a1ad331f4459650816028c694c110222b6c98ad3e856a2cb3509cf6002c0a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v5-live/screen.png",
+      "path": "runs/mhr-v5-live/screen.png",
+      "bytes": 573883,
+      "sha256": "7c479ecb820a2498a9d42d6a1238793b52698c7becb04a8936f50f834e947775",
+      "stored_sha256": "7c479ecb820a2498a9d42d6a1238793b52698c7becb04a8936f50f834e947775"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v5-live/status.txt",
+      "path": "runs/mhr-v5-live/status.txt",
+      "bytes": 4819,
+      "sha256": "c99d44ddca8a8e63e3d34239d207a769fed199d1e8d1808c6a39937844b627f6",
+      "stored_sha256": "c99d44ddca8a8e63e3d34239d207a769fed199d1e8d1808c6a39937844b627f6"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v6-live/captured.json",
+      "path": "runs/mhr-v6-live/captured.json",
+      "bytes": 80,
+      "sha256": "75e8e2bd25dd85fbe5ddc2db0d1c7c4e4e056d2493403e11f74a69d819153766",
+      "stored_sha256": "75e8e2bd25dd85fbe5ddc2db0d1c7c4e4e056d2493403e11f74a69d819153766"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v6-live/host-tail.txt",
+      "path": "runs/mhr-v6-live/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "a959137a3fa559559d939aff8e290ec214bd9e71e5a56ad43b6046d19e678596",
+      "stored_sha256": "3546df1fb5b060f28bc505b9d309ff9904d455a436e4cddddc13ec8de3a968d3"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v6-live/imports.json",
+      "path": "runs/mhr-v6-live/imports.json.gz",
+      "bytes": 398026,
+      "sha256": "3c2b194eacf00d303b7bb3984fd291dc263f4b789f4f3a5f28f22d390bc45177",
+      "stored_sha256": "2379eab694debc1b26863b4a602ea1d100ae5ca481e3d0fbae6f013375677180"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v6-live/pids.txt",
+      "path": "runs/mhr-v6-live/pids.txt",
+      "bytes": 5,
+      "sha256": "63fff746884b77fa37a642c6b919cc5911c20a9807c9006ad73804300999ef6f",
+      "stored_sha256": "63fff746884b77fa37a642c6b919cc5911c20a9807c9006ad73804300999ef6f"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v6-live/screen.png",
+      "path": "runs/mhr-v6-live/screen.png",
+      "bytes": 573184,
+      "sha256": "47876018854ea5d9868de72b66fe222d6baedecf8510b2b0c829d6aa1a40d958",
+      "stored_sha256": "47876018854ea5d9868de72b66fe222d6baedecf8510b2b0c829d6aa1a40d958"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v6-live/status.txt",
+      "path": "runs/mhr-v6-live/status.txt",
+      "bytes": 4817,
+      "sha256": "7f1e68a7a54cfd1c310bf7ee57b3f12b3b693045fc5ac414be702a26335d7286",
+      "stored_sha256": "7f1e68a7a54cfd1c310bf7ee57b3f12b3b693045fc5ac414be702a26335d7286"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v8-final/captured.json",
+      "path": "runs/mhr-v8-final/captured.json",
+      "bytes": 80,
+      "sha256": "00ca632c59d63b5c2da6ee45ca92b2cab8ce423ce26ab7b7400ddc644c3bd58d",
+      "stored_sha256": "00ca632c59d63b5c2da6ee45ca92b2cab8ce423ce26ab7b7400ddc644c3bd58d"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v8-final/host-tail.txt",
+      "path": "runs/mhr-v8-final/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "4aedac69c24e04401b83ed15193d149487993513c7af7ae1fb182def53afd3b9",
+      "stored_sha256": "5682c69a75e33baa2d9f9e8393fa1b46cb4a620de7c82eb8180d4bc0ea949b04"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v8-final/imports.json",
+      "path": "runs/mhr-v8-final/imports.json.gz",
+      "bytes": 398027,
+      "sha256": "2c03a346b0c11dc1d9687df34f735cfc21a846706ed53141a7dbc942e3f24b89",
+      "stored_sha256": "0ac950d43656daf8880d9736344b26f8ca13e546d3a24160e4265363c9873a58"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v8-final/pids.txt",
+      "path": "runs/mhr-v8-final/pids.txt",
+      "bytes": 6,
+      "sha256": "df900963c5463ce0431c77db1f5f9be29b925abba42a110ffe9ff57516eb7efa",
+      "stored_sha256": "df900963c5463ce0431c77db1f5f9be29b925abba42a110ffe9ff57516eb7efa"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v8-final/screen.png",
+      "path": "runs/mhr-v8-final/screen.png",
+      "bytes": 206530,
+      "sha256": "985d976a6380a167e8f72cba8471ed7d89bcb1985fb64e17aaa448b231f84de4",
+      "stored_sha256": "985d976a6380a167e8f72cba8471ed7d89bcb1985fb64e17aaa448b231f84de4"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v8-final/status.txt",
+      "path": "runs/mhr-v8-final/status.txt",
+      "bytes": 4819,
+      "sha256": "7174e66a753b479f2c57dc60aeb7eef202c44c1b7c066c89d966d279796946e1",
+      "stored_sha256": "7174e66a753b479f2c57dc60aeb7eef202c44c1b7c066c89d966d279796946e1"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v5-oodle/captured.json",
+      "path": "runs/mhw-v5-oodle/captured.json",
+      "bytes": 80,
+      "sha256": "54fed03e7e0071682ea792dbf4a26aef098ef2c0d73dfa73496eca7a0f234513",
+      "stored_sha256": "54fed03e7e0071682ea792dbf4a26aef098ef2c0d73dfa73496eca7a0f234513"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v5-oodle/host-tail.txt",
+      "path": "runs/mhw-v5-oodle/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "3dbbccfa6bcf19551954a828b8e9d39c41c1388608cb3a2f77a64a9e753f8d97",
+      "stored_sha256": "db632c128c50d1bba6d1c2a341a65f906644560d1ac044ea101e68671d3d528a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v5-oodle/imports.json",
+      "path": "runs/mhw-v5-oodle/imports.json.gz",
+      "bytes": 322734,
+      "sha256": "a6d401f9aa760b1d6018892a29e7492d8578273a033866cba382e8fc39ae0511",
+      "stored_sha256": "738d6e5de0e0922ec23377ece3c0a347da00eb9d7324a4669662130eb661fd07"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v5-oodle/pids.txt",
+      "path": "runs/mhw-v5-oodle/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v5-oodle/screen.png",
+      "path": "runs/mhw-v5-oodle/screen.png",
+      "bytes": 766214,
+      "sha256": "36530d9e0459fa5133470f39daaf29a8c20ad4047c3de14b41ffd5e51a7438ac",
+      "stored_sha256": "36530d9e0459fa5133470f39daaf29a8c20ad4047c3de14b41ffd5e51a7438ac"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v5-oodle/status.txt",
+      "path": "runs/mhw-v5-oodle/status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753",
+      "stored_sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-probe/captured.json",
+      "path": "runs/mhw-v6-probe/captured.json",
+      "bytes": 81,
+      "sha256": "18d3d5719cc658ffcf998f00f766e8f5672929c0f5c19a2e0db87bd5eb0b5d95",
+      "stored_sha256": "18d3d5719cc658ffcf998f00f766e8f5672929c0f5c19a2e0db87bd5eb0b5d95"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-probe/host-tail.txt",
+      "path": "runs/mhw-v6-probe/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "50cb7d81d8239e2a85fdea3e40cf7e27be0367d4c2583acd13f99640a23caf3f",
+      "stored_sha256": "75fc263b36cc716d977ba4be723dd5758a357c095cad911fc48418379e4e993a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-probe/imports.json",
+      "path": "runs/mhw-v6-probe/imports.json.gz",
+      "bytes": 321825,
+      "sha256": "cc70e769c6e319f7e45fd2073ca49b2b72d3d0dea213f9546fe39501d31b1dfe",
+      "stored_sha256": "3382c8f2af2141a0bee8fb78f58030de3e168df2161afbdf5ed55e0704277b37"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-probe/pids.txt",
+      "path": "runs/mhw-v6-probe/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-probe/screen.png",
+      "path": "runs/mhw-v6-probe/screen.png",
+      "bytes": 769900,
+      "sha256": "9f10b405dbef4973bd0287e7c03715b7e4e66e63bd47f6e83142e9b76c7279ff",
+      "stored_sha256": "9f10b405dbef4973bd0287e7c03715b7e4e66e63bd47f6e83142e9b76c7279ff"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-probe/status.txt",
+      "path": "runs/mhw-v6-probe/status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753",
+      "stored_sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-rsp/captured.json",
+      "path": "runs/mhw-v6-rsp/captured.json",
+      "bytes": 79,
+      "sha256": "22078c001862fa8b3c186d650dca22eac88dcf1d0657cab1aa27c02a0104988a",
+      "stored_sha256": "22078c001862fa8b3c186d650dca22eac88dcf1d0657cab1aa27c02a0104988a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-rsp/host-tail.txt",
+      "path": "runs/mhw-v6-rsp/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "35219a7001791c98bbee5c94d924365ee7d0009fb986688c2f771eab160b1420",
+      "stored_sha256": "d0c9567a9cf47bb9e5f0414cda8211136af7608d805c132b7ede91101c65c13b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-rsp/imports.json",
+      "path": "runs/mhw-v6-rsp/imports.json.gz",
+      "bytes": 321824,
+      "sha256": "9573d4760df5c7c79cc2588558aec1997dda93f02b1c3049f9509a2e9766d08d",
+      "stored_sha256": "242f841e9e3ed7fd2ce9a2b788b93b903926bb13b80d88663493d355bc3e490c"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-rsp/pids.txt",
+      "path": "runs/mhw-v6-rsp/pids.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-rsp/screen.png",
+      "path": "runs/mhw-v6-rsp/screen.png",
+      "bytes": 770165,
+      "sha256": "0d9cc504a6af205062d474a6ae3a6abb798a41949e4034b884c48e9830dc650a",
+      "stored_sha256": "0d9cc504a6af205062d474a6ae3a6abb798a41949e4034b884c48e9830dc650a"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v6-rsp/status.txt",
+      "path": "runs/mhw-v6-rsp/status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753",
+      "stored_sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v7-range/captured.json",
+      "path": "runs/mhw-v7-range/captured.json",
+      "bytes": 80,
+      "sha256": "736ee92c0674153c2387661e63d5540dcb6b48349abfc7526dc48ebfda34e993",
+      "stored_sha256": "736ee92c0674153c2387661e63d5540dcb6b48349abfc7526dc48ebfda34e993"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v7-range/host-tail.txt",
+      "path": "runs/mhw-v7-range/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "33d024d58700a330753783af95c830d837b8f50551b0db43596b5ff519203361",
+      "stored_sha256": "1315aabb49ca473ee32be5b87be92c41650699ccb55bae2359358332f76291e1"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v7-range/imports.json",
+      "path": "runs/mhw-v7-range/imports.json.gz",
+      "bytes": 321825,
+      "sha256": "82d7fe82a351f26154122e745aea2e7f9510e7fc635fad90dbe285f7735785e9",
+      "stored_sha256": "7b97c8e34a50fd50b7c9cb350217f310acb338988e854d6fc9ed278504241322"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v7-range/pids.txt",
+      "path": "runs/mhw-v7-range/pids.txt",
+      "bytes": 6,
+      "sha256": "34114f1f15e85071207f18cea931ee4c0d70c8d5f7e6d3086225cfbf02c7ba0b",
+      "stored_sha256": "34114f1f15e85071207f18cea931ee4c0d70c8d5f7e6d3086225cfbf02c7ba0b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v7-range/screen.png",
+      "path": "runs/mhw-v7-range/screen.png",
+      "bytes": 197140,
+      "sha256": "30ef5799e4c4eab97d40ae05baeb02880f1b3a494b90ebebd65b6cb3e39f88fd",
+      "stored_sha256": "30ef5799e4c4eab97d40ae05baeb02880f1b3a494b90ebebd65b6cb3e39f88fd"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v7-range/status.txt",
+      "path": "runs/mhw-v7-range/status.txt",
+      "bytes": 4820,
+      "sha256": "05f1a4d329a134c8dd359133773839c936111b8898d9be55c94c5953fe4cbe36",
+      "stored_sha256": "05f1a4d329a134c8dd359133773839c936111b8898d9be55c94c5953fe4cbe36"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v9-final/captured.json",
+      "path": "runs/mhw-v9-final/captured.json",
+      "bytes": 80,
+      "sha256": "dc516e8b0932894a7ccf734d3cf547a78f0d82cda073b13a0f7149de6c7d9cd3",
+      "stored_sha256": "dc516e8b0932894a7ccf734d3cf547a78f0d82cda073b13a0f7149de6c7d9cd3"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v9-final/host-tail.txt",
+      "path": "runs/mhw-v9-final/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "9203e86c76953513b383f6783f1b23092f7bfed84ca9d6ed6bd6ab8ea1a9faa6",
+      "stored_sha256": "de4cbfac0660947a705b30bb2b7fb2170a41335507b8ad55af067b50bbcb3720"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v9-final/imports.json",
+      "path": "runs/mhw-v9-final/imports.json.gz",
+      "bytes": 321825,
+      "sha256": "7a196e85b14807de56cadfef2f55e2baf1314d02aa6e2a12c31c0f3dc970e13c",
+      "stored_sha256": "d7cdd79ad6e746f8f30fb2c28fe77caa1b9f9b2c7686da4b6fbfd751827be9f3"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v9-final/pids.txt",
+      "path": "runs/mhw-v9-final/pids.txt",
+      "bytes": 6,
+      "sha256": "973219aac794e21d69cc247e170cc75cba4b34934222ec7d469fea6244968f28",
+      "stored_sha256": "973219aac794e21d69cc247e170cc75cba4b34934222ec7d469fea6244968f28"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v9-final/screen.png",
+      "path": "runs/mhw-v9-final/screen.png",
+      "bytes": 196416,
+      "sha256": "a9e52e2177208de3cad5c3ba13b1084073e3723012fb4f757278be998fedfec1",
+      "stored_sha256": "a9e52e2177208de3cad5c3ba13b1084073e3723012fb4f757278be998fedfec1"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhw-v9-final/status.txt",
+      "path": "runs/mhw-v9-final/status.txt",
+      "bytes": 4820,
+      "sha256": "e2cd4f24d67cef7aac28cd0ea3999dece82380ddc11611f50c9142ae5b4b4d50",
+      "stored_sha256": "e2cd4f24d67cef7aac28cd0ea3999dece82380ddc11611f50c9142ae5b4b4d50"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/shareplay-analysis.json",
+      "path": "shareplay-analysis.json",
+      "bytes": 4101,
+      "sha256": "aa7d58aec3fe6f733ba8b49173f4085d095c1d45694e46422b2f33cfd573329c",
+      "stored_sha256": "aa7d58aec3fe6f733ba8b49173f4085d095c1d45694e46422b2f33cfd573329c"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/system-gesture-analysis.json",
+      "path": "system-gesture-analysis.json",
+      "bytes": 2430,
+      "sha256": "81edfb3d6f55ed3ddc0fa0a921ab9822f4b5b9226cb68ed0f6e30c2ffb76b543",
+      "stored_sha256": "81edfb3d6f55ed3ddc0fa0a921ab9822f4b5b9226cb68ed0f6e30c2ffb76b543"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/source-v9.json",
+      "path": "source-v9.json",
+      "bytes": 1290,
+      "sha256": "440990d3c37c944fd11b2c8f2a452c0a2f1461f99fed81e76ea618393297f806",
+      "stored_sha256": "440990d3c37c944fd11b2c8f2a452c0a2f1461f99fed81e76ea618393297f806"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/cleanup-v9-final.json",
+      "path": "cleanup-v9-final.json",
+      "bytes": 1330,
+      "sha256": "bb1c3c69a9d48f74c5b475d3e27fb9d5d08b48fc366cb9c02ac07c03094e5533",
+      "stored_sha256": "bb1c3c69a9d48f74c5b475d3e27fb9d5d08b48fc366cb9c02ac07c03094e5533"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/savedata-after-v9-sha.txt",
+      "path": "savedata-after-v9-sha.txt",
+      "bytes": 4906,
+      "sha256": "38025f82a41989d911ef210a8e180d162ec6ceb786bb54fd3c8fe5b4bdec588e",
+      "stored_sha256": "38025f82a41989d911ef210a8e180d162ec6ceb786bb54fd3c8fe5b4bdec588e"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/library-v9-final.png",
+      "path": "library-v9-final.png",
+      "bytes": 1583431,
+      "sha256": "5bbacf542592b152622d8108f9b132dfc06e7ab352051e4b2433f0fc03ed1ac1",
+      "stored_sha256": "5bbacf542592b152622d8108f9b132dfc06e7ab352051e4b2433f0fc03ed1ac1"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/import-v9-summary.json",
+      "path": "import-v9-summary.json",
+      "bytes": 2222,
+      "sha256": "282e48af31a581969062c1fba1e356e28361d94b6211fa3a1b5f3aca496ad14b",
+      "stored_sha256": "282e48af31a581969062c1fba1e356e28361d94b6211fa3a1b5f3aca496ad14b"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/refused-v9-families.json",
+      "path": "refused-v9-families.json",
+      "bytes": 137161,
+      "sha256": "ba2b624176f51204e1dab01fa29cb88743cfbebdfde491659bec35cb5b4b6c92",
+      "stored_sha256": "ba2b624176f51204e1dab01fa29cb88743cfbebdfde491659bec35cb5b4b6c92"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v6-negative.json",
+      "path": "file-v6-negative.json",
+      "bytes": 725,
+      "sha256": "d237ab217498731a27aa04f3dfd0d7bd98dabf342305e289bd2e760c68cc97e2",
+      "stored_sha256": "d237ab217498731a27aa04f3dfd0d7bd98dabf342305e289bd2e760c68cc97e2"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/file-v6-negative.log",
+      "path": "file-v6-negative.log",
+      "bytes": 1560,
+      "sha256": "e8e80bb96a1256a23ce9b32ce088ab2acc9b2b8d506b53ef4e4414b89af9061d",
+      "stored_sha256": "e8e80bb96a1256a23ce9b32ce088ab2acc9b2b8d506b53ef4e4414b89af9061d"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v9-final/screen.png",
+      "path": "runs/mhr-v9-final/screen.png",
+      "bytes": 206289,
+      "sha256": "ca9cac202bd7dadef233a346d15d80c2a147fe1f7c6329b2208cf380aa97b634",
+      "stored_sha256": "ca9cac202bd7dadef233a346d15d80c2a147fe1f7c6329b2208cf380aa97b634"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v9-final/pids.txt",
+      "path": "runs/mhr-v9-final/pids.txt",
+      "bytes": 6,
+      "sha256": "16533373faba508583c427fe7b7b9fb54c5ee186c34ba6b92429b2188f44416d",
+      "stored_sha256": "16533373faba508583c427fe7b7b9fb54c5ee186c34ba6b92429b2188f44416d"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v9-final/imports.json",
+      "path": "runs/mhr-v9-final/imports.json.gz",
+      "bytes": 398027,
+      "sha256": "95edbf8b952e01e8f9c35a2aff08b5ceb697f6a4788618f1d974077e562785f2",
+      "stored_sha256": "34966a429f38881123cb731467b0124a4ab0022916fc0043c3caccc8ca78cee8"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v9-final/status.txt",
+      "path": "runs/mhr-v9-final/status.txt",
+      "bytes": 4821,
+      "sha256": "d0c2f2453896f5623b0fdc6b268d5f6d6ccbad360f53163dd6a96c334a87a94d",
+      "stored_sha256": "d0c2f2453896f5623b0fdc6b268d5f6d6ccbad360f53163dd6a96c334a87a94d"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v9-final/captured.json",
+      "path": "runs/mhr-v9-final/captured.json",
+      "bytes": 80,
+      "sha256": "81fd6705053d455fc046d79e00549634ab99f9a9e20a67efc0da46cafd54c3ee",
+      "stored_sha256": "81fd6705053d455fc046d79e00549634ab99f9a9e20a67efc0da46cafd54c3ee"
+    },
+    {
+      "source": "build/validation/monster-hunter-20260921/runs/mhr-v9-final/host-tail.txt",
+      "path": "runs/mhr-v9-final/host-tail.txt.gz",
+      "bytes": 2000000,
+      "sha256": "0e72d7cf0e1561b3381b4489e9918183fb3ae30bb070565c4126a8478a97c4a8",
+      "stored_sha256": "043ea93de22535fbed4aaca599fa537e3ffbe8bd797604fd583034f10f5b760f"
+    },
+    {
+      "source": "MCP session_list(serial=9c2841a4)",
+      "path": "debug-sessions-v9-final.json",
+      "bytes": 165,
+      "sha256": "5b7120f2f70d25c0e24601f002ebf2370f3bbe41f4a7bb50bff4c7d4217d5027",
+      "stored_sha256": "5b7120f2f70d25c0e24601f002ebf2370f3bbe41f4a7bb50bff4c7d4217d5027"
+    }
+  ]
+}

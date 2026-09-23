@@ -1,0 +1,170 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceAppContent.sprx",
+  "sha256": "0a9524f531fe05818202f2acd151c2f1ac35376e61b099c71dfb2bc4664e5062",
+  "analysis_sha256": "a5d41c82da1260a9d520b9165669a03fb544b828268a9d4d8ef933a75d997a3c",
+  "plt": {
+    "0xb8": {
+      "name": "Ou3iL1abvng#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__stack_chk_fail"
+    },
+    "0xc8": {
+      "name": "j4ViWNHEgww#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "strlen"
+    },
+    "0xd8": {
+      "name": "F8bUHwAG284#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrInit"
+    },
+    "0xe8": {
+      "name": "iMp8QpE+XO4#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrSettype"
+    },
+    "0xf8": {
+      "name": "cmo1RIYva9o#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexInit"
+    },
+    "0x108": {
+      "name": "O1lQ2+do5r4#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6ConfigC1Ev"
+    },
+    "0x118": {
+      "name": "0zsTiDhM0nU#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZN4IPMI6Client6createEPPS0_PKNS0_6ConfigEPvS6_"
+    },
+    "0x128": {
+      "name": "hcuQgD53UxM#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "printf"
+    },
+    "0x138": {
+      "name": "9UK1vLZQft4#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexLock"
+    },
+    "0x148": {
+      "name": "tn3VlD0hG60#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexUnlock"
+    },
+    "0x158": {
+      "name": "2Of0f+3mhhE#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexDestroy"
+    },
+    "0x168": {
+      "name": "smWEktiyyG0#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrDestroy"
+    },
+    "0x178": {
+      "name": "WB66evu8bsU#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelGetCompiledSdkVersion"
+    },
+    "0x188": {
+      "name": "YQ0navp+YIc#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "puts"
+    },
+    "0x198": {
+      "name": "hdm0YfMa7TQ#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_Znam"
+    },
+    "0x1a8": {
+      "name": "8zTFvBIAIN8#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "memset"
+    },
+    "0x1b8": {
+      "name": "MLWl90SFWNE#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "_ZdaPv"
+    },
+    "0x1c8": {
+      "name": "H2e8t5ScQGc#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_finalize"
+    }
+  },
+  "init": "0x0"
+}

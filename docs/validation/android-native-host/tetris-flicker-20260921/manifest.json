@@ -1,0 +1,316 @@
+{
+  "source_commit": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "branch": "codex/tetris-runtime-fix",
+  "device": "9c2841a4",
+  "model": "AYN Thor",
+  "baseline_apk_sha256": "e727bef6762ed16e477092dc2dc8d60b0b44679d94d6a52d0bf7d375d1818119",
+  "baseline_host_sha256": "47e4c36cd5104c8b9aa69a4a5b7c4e1b1b20798c0903a4ccdad112bcc34a0184",
+  "baseline_jni_sha256": "3c23c2ffd04e12ca3d066a0f160faad57f56d764e2b7db8972c55c5d4ef9696c",
+  "turnip_sha256": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+  "videos": [
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/tetris-flicker-baseline.mp4",
+      "bytes": 7625682,
+      "sha256": "fa21261df96ce2d7223c1afbe95c33106387bc197fdc370d677f4bb880c92a17",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "313"
+          }
+        ],
+        "format": {
+          "duration": "9.972922"
+        }
+      }
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/tetris-overlay-hidden.mp4",
+      "bytes": 5581131,
+      "sha256": "5498e4165e02007f6fe06484a7c71ec7fb55ab6054e2b0ad7b8e1c3fa7ad4778",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "156"
+          }
+        ],
+        "format": {
+          "duration": "9.996656"
+        }
+      }
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/tetris-native-scale.mp4",
+      "bytes": 2210293,
+      "sha256": "433892a5adf35a9073fb8da36e5094eba7dafedb1e1dcd6d5dee38973b3817e9",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "409"
+          }
+        ],
+        "format": {
+          "duration": "9.980856"
+        }
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "baseline-first12.png",
+      "bytes": 944932,
+      "sha256": "7ab4f810fe5e42ef1d8d0517b939843bd8beb005cf3183b630614d1392b8764c"
+    },
+    {
+      "path": "baseline-frame-stats-summary.json",
+      "bytes": 12903,
+      "sha256": "93305be6ccd9b881271f8fd40d3a40e1e58908c6e4d0fbf66320d380e38393fc"
+    },
+    {
+      "path": "baseline-stopped.txt",
+      "bytes": 4917,
+      "sha256": "0655c896568c0a2d9ce6a9f7723b7a40cbc56a7477834382dbb6439c687d1550"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 405,
+      "sha256": "889d3d6d8c658f800fbb2b9710cdb40d60f14c33838d1968908a3cceef7b8224"
+    },
+    {
+      "path": "final-status.txt",
+      "bytes": 154,
+      "sha256": "9b65a1de6f6d4d9a5d55e332a9bb64970844e37157d796049ad786e0f22ec37f"
+    },
+    {
+      "path": "hmd-stopped.txt",
+      "bytes": 4914,
+      "sha256": "a245a7dd4f86bb3669ff91efeec34a8f8e06ff30e27a070de5e4e52c7ae55c9c"
+    },
+    {
+      "path": "hmd-trace.json",
+      "bytes": 184514,
+      "sha256": "7a7c072fa137ebc01a172e4c526ffaafed94edead8f4204e29270abec87df09f"
+    },
+    {
+      "path": "layer-launch-crash.txt",
+      "bytes": 12001,
+      "sha256": "59c300e3fecb7cf6718ee510daefa15d66f55f62a15e38f4715cf9bcc3f6b27d"
+    },
+    {
+      "path": "native-first12.png",
+      "bytes": 306476,
+      "sha256": "99863ed11879cda10dbec93055f28df0ef458cfc79aafb55c4cba7cd259e2e23"
+    },
+    {
+      "path": "native-scale-stats-summary.json",
+      "bytes": 17224,
+      "sha256": "8b82b99a279e9bef473f705094095cd60b5500310b6ac7c3673058b879481256"
+    },
+    {
+      "path": "native-scale-stopped.txt",
+      "bytes": 4915,
+      "sha256": "142587eb08708cb13e91df19bfd6eaa24e1961e1ab5014018d1385e51257b1f3"
+    },
+    {
+      "path": "overlay-hidden-stats-summary.json",
+      "bytes": 6513,
+      "sha256": "a8a2b0d3c82577f0aa94ebc9ce20e18a7ef2421c6bb28af4717d358e0779c01c"
+    },
+    {
+      "path": "probe-contact.png",
+      "bytes": 47156,
+      "sha256": "97c8799aa7e367552fff8470b4c16e93a5a71bd79639a5fbf304e8ef1f4848e9"
+    },
+    {
+      "path": "probe-identity.json",
+      "bytes": 298,
+      "sha256": "994cebc93e5e378ee9c38eaa5609d558625e2a08b9a4906bea756377dfa46fdb"
+    },
+    {
+      "path": "probe-results.txt",
+      "bytes": 8512,
+      "sha256": "be742505d6e9028323372b4184668fe49ded849cb210f9319a5fb26eb90674f2"
+    },
+    {
+      "path": "probe-stopped.txt",
+      "bytes": 4913,
+      "sha256": "314563a2ec7b70007824c6d2021eaa5d07a5672dc14b5096e719105754c83d13"
+    },
+    {
+      "path": "temporary-probe.patch",
+      "bytes": 5790,
+      "sha256": "6ba960b6ec724c8675af4bf5cca27719b7feea10927112ab20654386670a5af7"
+    },
+    {
+      "path": "ue-event-static.json",
+      "bytes": 14054,
+      "sha256": "7d037c82f070b45273a9758a1c605e49908b3bd4a4804622c447073c8f05ee78"
+    }
+  ],
+  "probe_images": [
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-366-0.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-366-1.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-366-2.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-366-3.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-366-4.png",
+      "bytes": 82420,
+      "sha256": "e320cebac9889dbcf22003cd5435c75b522b3a3f6a16b0db8a052fe3d6e471c6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-367-0.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-367-1.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-367-2.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-367-3.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-367-4.png",
+      "bytes": 82420,
+      "sha256": "e320cebac9889dbcf22003cd5435c75b522b3a3f6a16b0db8a052fe3d6e471c6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-368-0.png",
+      "bytes": 89708,
+      "sha256": "04c1fb1d552822c62a961cdbaf19e0e3c187eadd3c49a071dc1705a6fa351d4b"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-368-1.png",
+      "bytes": 89708,
+      "sha256": "04c1fb1d552822c62a961cdbaf19e0e3c187eadd3c49a071dc1705a6fa351d4b"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-368-2.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-368-3.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-368-4.png",
+      "bytes": 210355,
+      "sha256": "09c1491855f2f51e77b919db3fcaf01a72587cab75e5d4635921419d4a61bcf4"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-369-0.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-369-1.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-369-2.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-369-3.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-369-4.png",
+      "bytes": 82420,
+      "sha256": "e320cebac9889dbcf22003cd5435c75b522b3a3f6a16b0db8a052fe3d6e471c6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-370-0.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-370-1.png",
+      "bytes": 40705,
+      "sha256": "723c4b8f17bec3ac5b7c153c94fd3aee22c062933992fa165ccf48b258289710"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-370-2.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-370-3.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-370-4.png",
+      "bytes": 82420,
+      "sha256": "e320cebac9889dbcf22003cd5435c75b522b3a3f6a16b0db8a052fe3d6e471c6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-371-0.png",
+      "bytes": 90158,
+      "sha256": "fe85695f2f64cb18d1015b55f06dd3ff99af582959635d02103ac08dc9099d95"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-371-1.png",
+      "bytes": 90158,
+      "sha256": "fe85695f2f64cb18d1015b55f06dd3ff99af582959635d02103ac08dc9099d95"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-371-2.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-371-3.png",
+      "bytes": 21051,
+      "sha256": "0036098855f967b9122ef768aa492178804625f272d2ba071d4eb9a316bcfff6"
+    },
+    {
+      "path": "build/validation/tetris-lifecycle-20260921/probe-images/vr-probe-371-4.png",
+      "bytes": 211344,
+      "sha256": "88db9391037e52e191e09c8be115f69381a7a3e7bbb48106f4c57eb08cdbeeb0"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "head": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "uncommitted": true,
+  "built": {
+    "apk": "build/validation/mhw-swizzle-20260922/shadps4-mhw-swizzle.apk",
+    "bytes": 205350020,
+    "sha256": "a69073d1242493129b05abe7363de608ca0a0c36628fe5bd2f584d9d4a9a75a4",
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_fex_session.so": "c7c6ae0dd3762d9945a963338a9cc036a8fa08fa5bc5ac3baac9e207b00efabc",
+      "lib/arm64-v8a/libshadps4_host.so": "b5dc085b071e62f98424b8e2b0525c4e708b41d5529a5fce4acc40e0f2f21f76"
+    },
+    "installed": false,
+    "gpu_tested": false,
+    "reason": "AYN exclusively leased to another user-authorized task",
+    "probe_sha256": "e00ae0667509f10376bd398f2206eef3d0b476c0e7d02d32e07233b688454722"
+  },
+  "source_contract": "5 nonuniform broadcast indices proven in actual V4 SPIR-V; unique GPU-fault cause unproven",
+  "validation": {
+    "android_host_build": true,
+    "android_probe_build": true,
+    "gpu_pixel_tests": {
+      "system": [
+        808199,
+        0
+      ],
+      "turnip": [
+        808199,
+        0
+      ],
+      "initial_turnip": [
+        808199,
+        2048
+      ]
+    },
+    "shader_metadata_roundtrip": "4 combinations passed on each driver",
+    "new_spirv_validation": "263/0 Vulkan1.3",
+    "MHW_gameplay": "not re-tested on final APK"
+  },
+  "device_operations_this_batch": true,
+  "evidence": [
+    {
+      "path": "build/validation/mhw-swizzle-20260922/build-final.log",
+      "bytes": 6006,
+      "sha256": "6333227b23df004b315c9e3b3ced71a98267a7c68f07e3110068efce11b0e31a"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/build-meta.log",
+      "bytes": 8848,
+      "sha256": "ad282cb288d95b3259294951cbb7657d617d68bc829a14bc7e6b6101532734db"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/build-shuffle-all.log",
+      "bytes": 6115,
+      "sha256": "1142c533bf302ff89efa17388172b33d9b7a13a0948e18176e3969111f477c31"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/build.log",
+      "bytes": 4765,
+      "sha256": "2f4ccb63dcafa68003743c38863f3373279e2532e5a6fc9f00fdb04856690151"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/built.json",
+      "bytes": 624,
+      "sha256": "71000fbe0da3b2e1cc90620264fc0388908011661eafd5a6762c6b7094441730"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/gradle.log",
+      "bytes": 25671,
+      "sha256": "e668ba7519afcfa1dd530d93d0fa77240129f0a1391fc4c2a23cba3deee1b939"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/run-gpu.py",
+      "bytes": 1926,
+      "sha256": "7baa4859fef180c76e185ecfacaada8048132e8d0ad288cdad59e3e8b189a6b9"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/shadps4-mhw-swizzle.apk",
+      "bytes": 205350020,
+      "sha256": "a69073d1242493129b05abe7363de608ca0a0c36628fe5bd2f584d9d4a9a75a4"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/spirv-validation.json",
+      "bytes": 18829,
+      "sha256": "b0699b46af5048d8dbb472b6cc09411bf7dfd92f550e8a0ce00e866fcd01dc25"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-gpu-system-v1.log",
+      "bytes": 27089,
+      "sha256": "d6fa3a5af0ae061e559bd668b3709cbdbad90f20c837696698067bd9a01afe61"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-gpu-system.log",
+      "bytes": 27191,
+      "sha256": "9520d9a8bfbce7c94a1c72082742484f78c2de590e50550c52df5c8a772ae1e5"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-gpu-turnip-v1.log",
+      "bytes": 28914,
+      "sha256": "ac50d2a71f4a9f2819231a595fd144c48a4d57a862c36ad4974d29e4aa3ac83d"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-gpu-turnip.log",
+      "bytes": 29007,
+      "sha256": "7e483520f646a6a2df1a2c3e07567c6fe3c38c3744babb1bc7339c6efb0a8b2e"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-gpu-v1.json",
+      "bytes": 770,
+      "sha256": "ba12ac5c0745b7ee4751ab42dcbb5c98d411a2963c97c48ec7833591853f4e72"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-gpu.json",
+      "bytes": 770,
+      "sha256": "4338b8d5942923db49a31af09dda524ab472591ffe3d8fe3e8bcd8cbe8a837e6"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/swizzle-spv.tar",
+      "bytes": 1077248,
+      "sha256": "10b8eeb3aa00bf2dc8e72dbe2e2ca7948aff4d43f137577012e4b22b155dfbc6"
+    },
+    {
+      "path": "build/validation/mhw-swizzle-20260922/v4-broadcast-audit.json",
+      "bytes": 6677,
+      "sha256": "901efa651e9435b06daa06b3cec208353f0060ef75100e67dbe59d8727bb1ac4"
+    }
+  ],
+  "gpu_test_identity": {
+    "android_swizzle_probe": "b2b8ec6816907c70427fc48110c2d7af2ea2db036b0f8ad996268dae555cd37e",
+    "libshadps4_host.so": "03b1b56289ff8b2bf9453f6bc31f2c8dfe2a7085cd9ca2c5c4452df3a8a35026",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+    "vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+    "libhook_impl.so": "fdcffad559433ce7c33d52730dd42a4401a0d960ed2d341dba76d0ef5fe1d177",
+    "libmain_hook.so": "782038e6ac22cab895695f42ca21b20f67f30971d7d22eb1a0fdd16329a8f6ad",
+    "libfile_redirect_hook.so": "fe50a24384a9724fcaf78d1eb47f435bf4a84941564634d05554f4612850ca56",
+    "libgsl_alloc_hook.so": "00c3aa808dc3fdc00de5ace7b1bcfe3d6fd0d4312b1bf9b617b4d846073023b4",
+    "system": 0,
+    "turnip": 0
+  },
+  "installed_final": {
+    "apk": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tmnt-backtrace-20260922/shadps4-tmnt-backtrace.apk",
+      "bytes": 205374346,
+      "sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0"
+    },
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_host.so": "75b7a709d1459db85e2971f40b233b3111feba5405b4e32d5592603599cf2bb5",
+      "lib/arm64-v8a/libshadps4_fex_session.so": "a58e6d461810d73fd0d770961442d4714d02e427d992f3fb5d78ef2ab6ba48f6"
+    },
+    "installed": true,
+    "installed_path": "/data/app/~~YByy1C8i-2-36j_JfXbSlg==/com.shadps4.android-YQow1dEfNWL7SlCr3y2N4g==/base.apk",
+    "verified_device_sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0",
+    "installed_unix_time": 1790070684.427917
+  }
+}

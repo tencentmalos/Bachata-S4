@@ -24,6 +24,9 @@ public:
     GuestAudio(GuestCpu::GuestAddressSpace& space, GuestClock& clock, Factory factory = {});
     ~GuestAudio();
     u64 Dispatch(std::string_view nid, const std::array<u64, 6>& args, std::stop_token stop = {});
+    // Owned host PCM follows the same device queue and cancellation as Guest PCM.
+    u64 OutputHost(u32 handle, std::span<const u8> pcm, std::stop_token stop = {},
+                   bool nonblocking = false);
     void RequestStop();
 
 private:

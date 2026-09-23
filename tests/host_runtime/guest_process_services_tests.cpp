@@ -2,6 +2,8 @@
 #include <cstdio>
 #include "core/host_runtime/guest_audio_input.h"
 #include "core/host_runtime/guest_process_services.h"
+#include "core/host_runtime/guest_backtrace.h"
+#include "core/host_runtime/guest_kernel_time.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/vr_tracker/vr_tracker.h"
 #include "core/libraries/vr_tracker/vr_tracker_error.h"
@@ -15,6 +17,66 @@ int main() {
     auto space = std::move(made).Value();
     const auto base = space->ReservationBase().value;
     CHECK(space->Map({{base}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+    {
+        std::array<u8, 64> sentinel{}; sentinel.fill(0xa5);
+        auto reset = [&] {
+            CHECK(space->WriteData({base}, std::as_bytes(std::span{sentinel})));
+        };
+        auto read = [&] {
+            std::array<u8, 64> bytes{};
+            CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{bytes})));
+            return bytes;
+        };
+        const std::array<GuestKernelTimezone, 3> zones{{{}, {480, 0}, {-300, 60}}};
+        for (const auto zone : zones) {
+            reset();
+            CHECK(DispatchKernelTimezone(*space, "kOcnerypnQA", {base}, zone) == 0);
+            auto result = read();
+            CHECK(std::memcmp(result.data(), &zone, sizeof(zone)) == 0);
+            CHECK(std::equal(result.begin() + 8, result.end(), sentinel.begin() + 8));
+            for (u64 epoch : std::array<u64, 4>{0, UINT64_MAX, 1709164800ULL, 0x7fffffffffffffffULL}) {
+                const u64 expected_local = epoch + u64((s64(zone.offset_minutes) + zone.dst_minutes) * 60);
+                for (bool to_utc : {false, true}) {
+                    const auto nid = to_utc ? "0NTHN1NKONI" : "-o5uEDpN+oY";
+                    const size_t first = to_utc ? 2 : 1;
+                    for (u32 optional = 0; optional < 8; ++optional) {
+                        reset();
+                        std::array<u64, 6> args{};
+                        args[0] = to_utc ? expected_local : epoch;
+                        if (to_utc) args[1] = UINT64_MAX; // Fixed UTC profile has no DST fold.
+                        if (optional & 1) args[first] = base;
+                        if (optional & 2) args[first + 1] = base + 16;
+                        if (optional & 4) args[first + 2] = base + 40;
+                        CHECK(DispatchKernelTimezone(*space, nid, args, zone) == 0);
+                        auto want = sentinel;
+                        const u64 expected = to_utc ? epoch : expected_local;
+                        const GuestKernelTimeInfo info{epoch, zone.offset_minutes * 60, zone.dst_minutes * 60};
+                        const s32 dst = zone.dst_minutes * 60;
+                        if (optional & 1) std::memcpy(want.data(), &expected, 8);
+                        if (optional & 2) std::memcpy(want.data() + 16, &info, 16);
+                        if (optional & 4) std::memcpy(want.data() + 40, &dst, 4);
+                        CHECK(read() == want); // Includes all canaries around 8/16/4 outputs.
+                    }
+                    for (size_t bad_output = 0; bad_output < 3; ++bad_output) {
+                        for (u64 bad : {base + 0x3ffe, UINT64_MAX}) {
+                            reset();
+                            std::array<u64, 6> args{};
+                            args[0] = epoch;
+                            args[first] = base;
+                            args[first + 1] = base + 16;
+                            args[first + 2] = base + 40;
+                            args[first + bad_output] = bad;
+                            CHECK(DispatchKernelTimezone(*space, nid, args, zone) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+                            CHECK(read() == sentinel); // No partial success before bad output.
+                        }
+                    }
+                }
+            }
+        }
+        CHECK(DispatchKernelTimezone(*space, "kOcnerypnQA", {}) == 0);
+        CHECK(DispatchKernelTimezone(*space, "kOcnerypnQA", {base + 0x3ffe}) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(DispatchKernelTimezone(*space, "unknown", {}) == u32(ORBIS_KERNEL_ERROR_ENOSYS));
+    }
     Core::OrbisKernelModuleInfoEx source{};
     source.id = 7; source.name[0] = 'x'; source.eh_frame_hdr_addr = base + 0x3100;
     source.eh_frame_addr = base + 0x3200; source.eh_frame_size = 0x123;
@@ -64,6 +126,65 @@ int main() {
     CHECK(s64(DispatchUnavailableCoredump("Dbbkj6YHWdo", UINT64_MAX, UINT64_MAX)) == ORBIS_COREDUMP_ERROR_NOT_IN_COREDUMP_HANDLER);
     CHECK(DispatchUnavailableCoredump("8zLSfEfW5AU", 1, 0x3fff) == u32(ORBIS_COREDUMP_ERROR_PARAM));
     CHECK(space->Map({{base+0x4000}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+    {
+        RegisterFile regs{};
+        CHECK(CaptureGuestBacktrace(*space, regs).stop == "registers_unavailable");
+        regs.validity = RegisterValidity::Gpr;
+        regs.Set(Gpr::Rdi, base + 0x200);
+        regs.Set(Gpr::Rsp, base + 0x300);
+        regs.Set(Gpr::Rbp, base + 0x3ff8);
+        const std::array<char, 5> prefix{'t','e','s','t',0};
+        CHECK(space->WriteData({base + 0x200}, std::as_bytes(std::span{prefix})));
+        const u64 caller = 0x123456789;
+        CHECK(space->WriteData({base + 0x300}, std::as_bytes(std::span{&caller, 1})));
+        // Frame record deliberately straddles two independently mapped pages.
+        std::array<u64, 2> record{base + 0x4100, 0x23456789a};
+        CHECK(space->WriteData({base + 0x3ff8}, std::as_bytes(std::span{&record[0], 1})));
+        CHECK(space->WriteData({base + 0x4000}, std::as_bytes(std::span{&record[1], 1})));
+        std::array<u64, 2> final_record{0, 0x3456789ab};
+        CHECK(space->WriteData({base + 0x4100}, std::as_bytes(std::span{final_record})));
+        auto trace = CaptureGuestBacktrace(*space, regs);
+        CHECK(trace.stop == "complete" && trace.count == 3 && trace.stopped_at == 0);
+        CHECK(trace.addresses[0] == caller && trace.addresses[1] == record[1] &&
+              trace.addresses[2] == final_record[1]);
+        CHECK(std::string_view(trace.prefix.data(), trace.prefix_size) == "test");
+        CHECK(trace.prefix_status == "complete");
+        final_record[0] = base + 0x3ff8;
+        CHECK(space->WriteData({base + 0x4100}, std::as_bytes(std::span{final_record})));
+        CHECK(CaptureGuestBacktrace(*space, regs).stop == "nonascending_frame");
+        for (u64 bad : {base + 0x301, base + 0x2f8}) {
+            regs.Set(Gpr::Rbp, bad);
+            CHECK(CaptureGuestBacktrace(*space, regs).stop == "invalid_frame");
+        }
+        regs.Set(Gpr::Rbp, UINT64_MAX - 7);
+        CHECK(CaptureGuestBacktrace(*space, regs).stop == "unreadable_frame");
+        regs.Set(Gpr::Rbp, 0);
+        regs.Set(Gpr::Rdi, 0);
+        trace = CaptureGuestBacktrace(*space, regs);
+        CHECK(trace.stop == "complete" && trace.count == 1 && trace.prefix_status == "null");
+        regs.Set(Gpr::Rdi, UINT64_MAX);
+        CHECK(CaptureGuestBacktrace(*space, regs).prefix_status == "unreadable");
+        std::array<char, 1024> long_prefix{}; long_prefix.fill('x');
+        CHECK(space->WriteData({base + 0x1000}, std::as_bytes(std::span{long_prefix})));
+        regs.Set(Gpr::Rdi, base + 0x1000);
+        CHECK(CaptureGuestBacktrace(*space, regs).prefix_status == "truncated");
+        regs.Set(Gpr::Rdi, base + 0x7fff);
+        const char x = 'x';
+        CHECK(space->WriteData({base + 0x7fff}, std::as_bytes(std::span{&x, 1})));
+        trace = CaptureGuestBacktrace(*space, regs);
+        CHECK(trace.prefix_size == 1 && trace.prefix_status == "unreadable");
+        regs.Set(Gpr::Rdi, 0);
+        // A long, valid chain must terminate with an explicit limit marker.
+        for (u64 offset = 0x1000; offset < 0x2100; offset += 16) {
+            record = {base + offset + 16, offset};
+            CHECK(space->WriteData({base + offset}, std::as_bytes(std::span{record})));
+        }
+        regs.Set(Gpr::Rbp, base + 0x1000);
+        trace = CaptureGuestBacktrace(*space, regs);
+        CHECK(trace.stop == "frame_limit" && trace.count == 256);
+        regs.Set(Gpr::Rsp, base + 0x8000);
+        CHECK(CaptureGuestBacktrace(*space, regs).stop == "unreadable_return");
+    }
     std::array<u8, 64> code{};
     const std::array<u8, 19> sig{0x48,0x8d,0x7c,0x24,0x40,0x6a,0,0x48,0xc7,0xc0,0xa1,1,0,0,0x0f,5,0xf4,0xeb,0xfd};
     std::copy(sig.begin(), sig.end(), code.begin());

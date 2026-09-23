@@ -1,0 +1,35 @@
+{
+  "scope": "GuestNpControl plus verbatim desktop callback registries, public functions and dispatch; direct SignedOut event injection instead of UserService/NpHandler; unrelated NP calls abort; no FEX/Android/online validation",
+  "source": "/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/libraries/np/np_manager.cpp",
+  "source_sha256": "7093477fb94a237a3ca2c7aab1b0b4abe98f1db9b0ae0451796a79e336bd8b89",
+  "regions": [
+    [
+      31026,
+      32166
+    ],
+    [
+      33744,
+      41226
+    ]
+  ],
+  "unrelated_abort_stubs": [
+    "sceNpAbortRequest",
+    "sceNpCheckNpAvailability",
+    "sceNpCheckNpAvailabilityA",
+    "sceNpCheckNpReachability",
+    "sceNpCheckPlus",
+    "sceNpCreateAsyncRequest",
+    "sceNpCreateRequest",
+    "sceNpDeleteRequest",
+    "sceNpGetAccountLanguage",
+    "sceNpGetAccountLanguageA",
+    "sceNpGetParentalControlInfo",
+    "sceNpGetParentalControlInfoA",
+    "sceNpPollAsync",
+    "sceNpRegisterGamePresenceCallback",
+    "sceNpRegisterPlusEventCallback",
+    "sceNpSetTimeout",
+    "sceNpUnregisterPlusEventCallback",
+    "sceNpWaitAsync"
+  ]
+}

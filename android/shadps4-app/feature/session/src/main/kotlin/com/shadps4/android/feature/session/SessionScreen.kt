@@ -82,7 +82,12 @@ fun SessionScreen(
     val device by viewModel.deviceTelemetry.collectAsState()
     val diagnosticState by diagnosticViewModel.uiState.collectAsState()
 
-    var faded by remember { mutableStateOf(false) }
+    val sessionUiPreferences = remember(context) {
+        context.getSharedPreferences("session_ui", android.content.Context.MODE_PRIVATE)
+    }
+    var showTouchControls by remember(sessionUiPreferences) {
+        mutableStateOf(sessionUiPreferences.getBoolean("show_touch_controls", true))
+    }
     var showMemory by remember { mutableStateOf(true) }
     var showStopOverlay by remember { mutableStateOf(false) }
     var showSessionStopReport by remember { mutableStateOf(false) }
@@ -177,9 +182,10 @@ fun SessionScreen(
             },
         )
 
-        FixedControllerOverlay(
+        // Removing the View stops drawing AND hit testing; its disposal sends
+        // only the overlay neutral state. Physical/debugbus sources stay independent.
+        if (showTouchControls) FixedControllerOverlay(
             layout = touchLayout,
-            faded = faded,
             onSnapshot = { snapshot ->
                 if ((snapshot.buttons and Ps4Button.PS) != 0L) {
                     showStopOverlay = true
@@ -318,19 +324,22 @@ fun SessionScreen(
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
                         Text(
-                            text = "Show/Hide Controller overlay",
+                            text = "Touch controls",
                             color = BachataPalette.Secondary,
                             style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(end = 16.dp)
                         )
                         Button(
-                            onClick = { faded = !faded },
+                            onClick = {
+                                showTouchControls = !showTouchControls
+                                sessionUiPreferences.edit().putBoolean("show_touch_controls", showTouchControls).apply()
+                            },
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = if (faded) BachataPalette.Accent else BachataPalette.RaisedSurface,
-                                contentColor = if (faded) BachataPalette.OnAccent else BachataPalette.Primary
+                                containerColor = if (!showTouchControls) BachataPalette.Accent else BachataPalette.RaisedSurface,
+                                contentColor = if (!showTouchControls) BachataPalette.OnAccent else BachataPalette.Primary
                             )
                         ) {
-                            Text(if (faded) "Hidden" else "Shown")
+                            Text(if (!showTouchControls) "Hidden" else "Shown")
                         }
                     }
 

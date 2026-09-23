@@ -1,0 +1,19 @@
+{
+  "remote": "/data/local/tmp/mh-temp-1790008485458113000",
+  "artifacts": [
+    {
+      "path": "build/android-host-api33/native/guest_memory_manager_concurrency_tests",
+      "sha256": "e4c3363c0e96640ee7bbd4ed5fc47dec727a9afb01d074c2a17f4fb2c6d0873f"
+    },
+    {
+      "path": "build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "390f40190f98ec927499164f2133f52bccf08ce66cf0131768c0fc01ba8469d4"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    }
+  ],
+  "exit": 0,
+  "cleanup": ""
+}

@@ -220,7 +220,9 @@ GraphicsPipeline::GraphicsPipeline(
                 *infos[u32(Shader::LogicalStage::Vertex)], profile);
             sdata.tcs = Shader::Backend::SPIRV::EmitAuxilaryTessShader(type, locations,
                 key.emulate_depth_range && (runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_near ||
-                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far));
+                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far),
+                Shader::Backend::SPIRV::AuxiliaryBuiltinLocations(
+                    *infos[u32(Shader::LogicalStage::Vertex)], profile));
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationControl,
@@ -242,7 +244,9 @@ GraphicsPipeline::GraphicsPipeline(
             sdata.tes = Shader::Backend::SPIRV::EmitAuxilaryTessShader(
                 AuxShaderType::PassthroughTES, locations,
                 key.emulate_depth_range && (runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_near ||
-                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far));
+                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far),
+                Shader::Backend::SPIRV::AuxiliaryBuiltinLocations(
+                    *infos[u32(Shader::LogicalStage::Vertex)], profile));
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
@@ -250,9 +254,17 @@ GraphicsPipeline::GraphicsPipeline(
             .pName = "main",
         });
     }
+    const vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo fragment_subgroup_size{
+        .requiredSubgroupSize = 64,
+    };
     stage = u32(Shader::LogicalStage::Fragment);
     if (infos[stage]) {
+        // A PS4 wave has 64 lanes. In particular, reductions ending in reads of
+        // lanes 31/63 must not accidentally combine halves of a 128-lane host wave.
+        const bool uses_wave = infos[stage]->uses_lane_id || infos[stage]->uses_group_ballot;
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+            .pNext = uses_wave && instance.IsSubgroupSize64Supported(vk::ShaderStageFlagBits::eFragment)
+                         ? &fragment_subgroup_size : nullptr,
             .stage = vk::ShaderStageFlagBits::eFragment,
             .module = modules[stage],
             .pName = "main",

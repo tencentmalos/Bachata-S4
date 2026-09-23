@@ -1,0 +1,12 @@
+{
+  "implementation": "MemoryManager::TryWriteBacking",
+  "scope": "cross-VMA / cross-physical-area copy and no partial write on later missing backing",
+  "tests": "same Android executable against prior and new host library",
+  "files": {
+    "tests.json": "6220aff0f71c4aedfb97b25c829c915f0f220b007e2211c69cd9de66353c33ad",
+    "installed.json": "033ed0366f9c5b907dfda88c4b2fcc3123e168d3501bfa2bc4c4007c91d16f8e",
+    "new-full.log": "1933e970e0d96d5f785d7843596102343f97d90f275c2b0263b876450d92f4fc",
+    "new-backing.log": "a0ce177d8cb81ca09c6a621850956f3922aea4257d170f9e847a69cc2c131897",
+    "old-backing.log": "7a46e3c2d2b68abbab2c7b6539f0eab91801a2ba2894ad1740e01f78b59a9c24"
+  }
+}

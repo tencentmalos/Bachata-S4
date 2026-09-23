@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <cstring>
 #include <limits>
+#include <nlohmann/json.hpp>
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 #include "common/logging/log.h"
 #include "core/libraries/system/msgdialog_ui.h"
 #include "guest_msg_dialog.h"
@@ -78,6 +82,24 @@ u32 GuestMsgDialog::Publish(Snapshot next) {
     next.request = state.request + 1;
     state = std::move(next);
     result = button = 0;
+    if (silent && state.acknowledgement) {
+        // Complete the same acknowledgement as Respond(request, 1), without
+        // creating a modal or taking input capture. Keep the CommonDialog lease
+        // until Terminate, just as in the interactive lifecycle.
+        result = 0;
+        button = 1;
+        state.status = Status::FINISHED;
+        try {
+            const auto record = nlohmann::json{{"request", state.request}, {"user", state.user},
+                {"title", state.title}, {"text", state.text}, {"mode", state.mode},
+                {"action", "acknowledge"}, {"result", result}, {"button", button}}.dump();
+            LOG_INFO(Lib_MsgDlg, "DIALOG_AUTO_ACK {}", record);
+#ifdef __ANDROID__
+            __android_log_print(ANDROID_LOG_INFO, "GuestDialog", "DIALOG_AUTO_ACK %s", record.c_str());
+#endif
+        } catch (...) {} // Logging cannot turn an acknowledgement into an Open failure.
+        return 0;
+    }
     capture = true;
     ImGui::Core::AcquireGamepadInputCapture();
     LOG_INFO(Lib_MsgDlg, "guest Open request={} mode={} user={}", state.request, state.mode,
@@ -85,7 +107,7 @@ u32 GuestMsgDialog::Publish(Snapshot next) {
     ShowGuestMsgDialog(self);
     return 0;
 }
-u32 GuestMsgDialog::OpenLocalMessage(s32 user, std::string text) {
+u32 GuestMsgDialog::OpenLocalMessage(s32 user, std::string text, std::string title) {
     try {
         std::lock_guard lock(mutex);
         if (stopped || (state.status != Status::INITIALIZED && state.status != Status::FINISHED))
@@ -96,7 +118,9 @@ u32 GuestMsgDialog::OpenLocalMessage(s32 user, std::string text) {
         next.user = user;
         next.mode = 1;
         next.text = std::move(text);
+        next.title = std::move(title);
         next.first = "Close";
+        next.acknowledgement = true;
         next.cancel = true;
         return Publish(std::move(next));
     } catch (const std::bad_alloc&) {
@@ -213,6 +237,7 @@ u64 GuestMsgDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_view 
             next.button_type = u32(user.buttonType);
             switch (user.buttonType) {
             case MD::ButtonType::OK:
+                next.acknowledgement = true;
                 next.first = "OK";
                 break;
             case MD::ButtonType::YESNO:
@@ -282,6 +307,7 @@ u64 GuestMsgDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_view 
                 return Code(CD::Error::NOT_SUPPORTED);
             }
             next.first = "OK";
+            next.acknowledgement = true;
         } else
             return Code(CD::Error::PARAM_INVALID);
         return Publish(std::move(next));

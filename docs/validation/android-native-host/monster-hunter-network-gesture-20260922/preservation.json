@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "before": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+    "after": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+    "identical": true
+  },
+  "host-config": {
+    "before": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+    "after": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+    "identical": true
+  },
+  "savedata": {
+    "before": 37,
+    "after": 37,
+    "identical": true
+  }
+}

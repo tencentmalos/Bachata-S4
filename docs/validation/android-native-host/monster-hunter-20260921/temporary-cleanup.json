@@ -1,0 +1,37 @@
+{
+  "retained": [
+    {
+      "retained_archive": "/Users/bytedance/game/ps4/zar/CUSA34119.zar",
+      "sha256": "318e805a18d63f666b012d2eb88b750d71179accc2b7c536618b72971ff4c7fb",
+      "bytes": 37864228626
+    },
+    {
+      "retained_archive": "/Volumes/Macintosh HD - Data/Users/Shared/PS4-ZAR/CUSA09554.zar",
+      "sha256": "50588595a5055009b06940e473e01a4854d31877b65184ca66394352c547c991",
+      "bytes": 58358764365
+    }
+  ],
+  "original_rars": "retained",
+  "analysis_modules": "copied out of scratch and SHA compared before deletion",
+  "targets": [
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/trees/CUSA34119",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/trees/CUSA09554",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/mhr-containers",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/packed/CUSA34119.zar",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/packed/CUSA09554.zar",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/containers/mhr-dlc",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/containers/mhw-dlc"
+  ],
+  "deleted": [
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/trees/CUSA34119",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/trees/CUSA09554",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/mhr-containers",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/packed/CUSA34119.zar",
+    "/Volumes/Macintosh HD - Data/Users/Shared/shadps4-monster-hunter-20260921/packed/CUSA09554.zar",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/containers/mhr-dlc",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/containers/mhw-dlc"
+  ],
+  "logical_bytes_removed": 173730140156,
+  "state": "completed",
+  "completed_at": 1790006699.8053179
+}

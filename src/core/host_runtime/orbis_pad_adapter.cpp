@@ -42,6 +42,7 @@ OrbisPadData OrbisPadAdapter::Neutral() {
 }
 u64 OrbisPadAdapter::BeginSession() {
     std::lock_guard lock(mutex_);
+    ResetDebugLocked();
     token_ = hub_.BeginSession();
     initialized_ = false;
     for (auto &p : ports_) {
@@ -54,6 +55,7 @@ void OrbisPadAdapter::EndSession(u64 token) {
     std::lock_guard lock(mutex_);
     if (!token || token != token_)
         return;
+    ResetDebugLocked();
     hub_.EndSession(token);
     token_ = 0;
     initialized_ = false;
@@ -82,7 +84,7 @@ void OrbisPadAdapter::Publish(int port) {
     u32 buttons{};
     // Overlay and physical hold independent state; releasing one cannot release
     // buttons held by the other. Stronger axis wins, physical breaks equal ties.
-    for (auto *identity : {&p.overlay, &p.physical}) {
+    for (auto *identity : {&p.debug, &p.overlay, &p.physical}) {
         if (!*identity)
             continue;
         const auto state = hub_.Snapshot(**identity);
@@ -105,10 +107,11 @@ void OrbisPadAdapter::Publish(int port) {
     d.rightStick = {Stick(axes[2]), Stick(axes[3])};
     d.analogButtons.l2 = Trigger(axes[4]);
     d.analogButtons.r2 = Trigger(axes[5]);
-    if (p.overlay && p.touch.touch_down) {
+    const auto& touch = p.debug && p.debug_touch.touch_down ? p.debug_touch : p.touch;
+    if ((p.debug || p.overlay) && touch.touch_down) {
         d.touchData.touchNum = 1;
-        d.touchData.touch[0] = {u16(std::lround(std::clamp(p.touch.touch_x, 0.f, 1.f) * 1919)),
-                                u16(std::lround(std::clamp(p.touch.touch_y, 0.f, 1.f) * 949)), 1};
+        d.touchData.touch[0] = {u16(std::lround(std::clamp(touch.touch_x, 0.f, 1.f) * 1919)),
+                                u16(std::lround(std::clamp(touch.touch_y, 0.f, 1.f) * 949)), 1};
     }
     d.connectedCount = p.data.connectedCount + (d.connected && !p.data.connected ? 1 : 0);
     if (d.buttons != p.data.buttons) {
@@ -119,13 +122,16 @@ void OrbisPadAdapter::Publish(int port) {
     p.data = d;
     if (p.history.size() == ORBIS_PAD_MAX_DATA_NUM)
         p.history.pop_front();
-    p.history.push_back(d);
+    p.history.push_back({d, p.debug_receipt});
+    TracePublishLocked(port);
 }
 PadResult OrbisPadAdapter::SetConnected(u64 token, int port, bool connected) {
     std::lock_guard lock(mutex_);
     if (auto r = Validate(token, port); r != PadResult::Ok)
         return r;
     auto &p = ports_[port];
+    if (port == 0) DebugFocusLocked(connected);
+    else if (!connected) ReleaseDebugLocked("disconnected", true);
     if (connected && !p.overlay) {
         const auto epoch = hub_.RegisterDevice(token, Source::OnScreenOverlay, port, "overlay",
                                                OverlayCapabilities());
@@ -212,6 +218,7 @@ void OrbisPadAdapter::RemoveDevice(u64 token, int port, u64 epoch) {
     auto &p = ports_[port];
     if (!p.physical || p.physical->connection_epoch != epoch)
         return;
+    ReleaseDebugLocked("device_removed", true);
     hub_.RemoveDevice(*p.physical);
     p.physical.reset();
     Publish(port);
@@ -220,10 +227,11 @@ void OrbisPadAdapter::FocusLost(u64 token) {
     std::lock_guard lock(mutex_);
     if (!token || token != token_)
         return;
+    DebugFocusLocked(false);
     for (int port = 0; port < kMaxPadPorts; ++port) {
         auto &p = ports_[port];
         p.touch = {};
-        for (auto *id : {&p.overlay, &p.physical}) {
+        for (auto *id : {&p.debug, &p.overlay, &p.physical}) {
             if (!*id)
                 continue;
             auto state = hub_.Snapshot(**id);
@@ -313,7 +321,7 @@ int OrbisPadAdapter::Open(int user, int type, int index, int port) {
     p.index = index;
     p.handle = next_handle_++;
     p.history.clear();
-    p.history.push_back(p.data);
+    p.history.push_back({p.data, p.debug_receipt});
     return p.handle;
 }
 int OrbisPadAdapter::GetHandle(int user, int type, int index) const {
@@ -335,7 +343,7 @@ int OrbisPadAdapter::Close(int handle) {
     p->history.clear();
     return 0;
 }
-int OrbisPadAdapter::Read(int handle, OrbisPadData *out, int count, bool latest) {
+int OrbisPadAdapter::Read(int handle, OrbisPadData *out, int count, bool latest, bool guest_read) {
     std::lock_guard lock(mutex_);
     if (!out || count < 1 || count > ORBIS_PAD_MAX_DATA_NUM)
         return ORBIS_PAD_ERROR_INVALID_ARG;
@@ -366,14 +374,18 @@ int OrbisPadAdapter::Read(int handle, OrbisPadData *out, int count, bool latest)
     if (latest || p->history.empty()) {
         *out = p->data;
         mask_for_guest(*out);
+        if (guest_read) ObserveDebugLocked({p->data, p->debug_receipt},
+            (u32(out->buttons) & 0x80000000u) != 0);
         trace_sample(*out);
         return 1;
     }
     int n = 0;
     while (n < count && !p->history.empty()) {
-        out[n++] = p->history.front();
+        const auto sample = p->history.front();
+        out[n++] = sample.data;
         p->history.pop_front();
         mask_for_guest(out[n - 1]);
+        if (guest_read) ObserveDebugLocked(sample, (u32(out[n - 1].buttons) & 0x80000000u) != 0);
     }
     trace_sample(out[n - 1]);
     Common::Profiler::Counter("Input.HistoryRemaining", p->history.size());

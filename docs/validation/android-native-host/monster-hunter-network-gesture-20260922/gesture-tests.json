@@ -1,0 +1,51 @@
+{
+  "remote": "/data/local/tmp/mh-gesture-1790038271016989000",
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/out/runtime/production_runtime_runner",
+      "sha256": "875cbf5a15ef40e3443d9b9334207b828bd449bce9ac18e5e86482b7003e860f"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "52984c630353027ec666d2d460660fd03ab0d74e2b5ac70b8ccc24c98b699904"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-network-gesture-20260922/gesture-main.elf",
+      "sha256": "62cab5e058ea31d8bb870384d4ce1d6e1abb15f9d2c0eda4f0c1ccaf5b3c16fa"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-network-gesture-20260922/gesture-game-provider.elf",
+      "sha256": "437c1650c3b162accbdb513f8d1449f0551dfa825e52690e683005c3b07be2c4"
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSystemGesture.sprx",
+      "sha256": "98425066e5c44346fc849931f62e369cad70e358e89ccadfa75eca2c5b1425f8"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/runtime-tests/fixtures/system.sprx",
+      "sha256": "6d451ff7c0e7d402978ebf9acf927e7159bd29c853807deeed8998761c3ea567"
+    }
+  ],
+  "results": [
+    {
+      "case": "missing",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "case": "wrong-identity",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "case": "firmware",
+      "exit": 1,
+      "passed": false
+    }
+  ],
+  "cleanup": ""
+}

@@ -1,0 +1,1 @@
+sh: find files/host/home -type f -exec sha256sum {} \;: inaccessible or not found

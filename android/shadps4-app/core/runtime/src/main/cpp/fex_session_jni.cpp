@@ -513,6 +513,12 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetGuestShadingQ
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetSilentDialogs(
+    JNIEnv*, jobject, jboolean enabled) {
+    EmulatorSettings.SetGuestDialogsSilent(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetMsaaDisabled(
     JNIEnv*, jobject, jboolean disabled) {
     EmulatorSettings.SetMsaaDisabled(disabled == JNI_TRUE);

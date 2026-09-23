@@ -1,0 +1,24 @@
+{
+  "settings": {
+    "unchanged_bytes": true,
+    "before_sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+    "after_sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+  },
+  "host-config": {
+    "unchanged_bytes": true,
+    "before_sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+    "after_sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+  },
+  "pid": "7069",
+  "tracer": "TracerPid:\t0",
+  "adb_forward": "\n",
+  "debug_status": "TASK 10190:com.shadps4.android id=1682 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 3f4617e pid=7069\nsession: none\nsnapshot_ns: 784144561813210\n\n",
+  "props": {
+    "debug.shadps4.guest_debug_port": "0",
+    "debug.shadps4.guest_debug_wait": "0",
+    "debug.shadps4.vulkan_driver": "turnip",
+    "debug.shadps4.hmd_log": "",
+    "debug.shadps4.vr_probe": "",
+    "debug.shadps4.guest_patch_enabled": ""
+  }
+}

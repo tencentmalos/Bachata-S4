@@ -5,6 +5,7 @@
 #include <sys/system_properties.h>
 #endif
 #include "common/logging/log.h"
+#include "common/elf_info.h"
 #include "common/profiler.h"
 #include "core/libraries/kernel/kernel.h"
 #include "guest_storage_hle.h"
@@ -100,6 +101,110 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         return 0;
     };
     switch (e.op) {
+    case StorageOp::SetupMemory2: {
+        struct Setup { u32 option; s32 user; u64 size, icon_size, param, icon; u32 slot; u8 reserved[20]; };
+        struct Icon { u64 buffer, capacity, size; u8 reserved[32]; };
+        struct Result { u64 existed; u8 reserved[16]; };
+        Setup setup{}; Icon icon{}; Libraries::SaveData::OrbisSaveDataParam param{};
+        if (!a[0] || !Copy(space,a[0],setup) || setup.icon_size > 0x1c800 || setup.option > 7 ||
+            std::any_of(std::begin(setup.reserved),std::end(setup.reserved),[](u8 b){return b != 0;}) ||
+            (setup.param && !Copy(space,setup.param,param)) ||
+            (setup.icon && (!Copy(space,setup.icon,icon) || icon.size > icon.capacity ||
+                            icon.size > setup.icon_size || !setup.icon_size))) return error(EFAULT);
+        std::vector<u8> bytes(setup.icon ? icon.size : 0);
+        if (!bytes.empty() && !space.ReadData({icon.buffer},std::as_writable_bytes(std::span{bytes}))) return error(EFAULT);
+        const u32 slot = Common::ElfInfo::Instance().FirmwareVer() > Common::ElfInfo::FW_500 ? setup.slot : 0;
+        if (Common::ElfInfo::Instance().FirmwareVer() >= Common::ElfInfo::FW_550) setup.option |= 4;
+        auto operation = [&](auto& outputs) {
+            Result value{};
+            auto status=storage.SetupMemory2(setup.user,slot,setup.size,setup.option,
+                setup.param?&param:nullptr,setup.icon?&bytes:nullptr,setup.icon_size,value.existed);
+            if (a[1]) { outputs[0].resize(sizeof(value)); std::memcpy(outputs[0].data(),&value,sizeof(value)); }
+            return status;
+        };
+        if (a[1]) return publish({{{GuestAddress{a[1]},sizeof(Result)},GuestPermission::Write}},operation);
+        std::vector<std::vector<u8>> outputs; return u32(slow([&]{return operation(outputs);}));
+    }
+    case StorageOp::SetMemory2:
+    case StorageOp::GetMemory2: {
+        struct Get { s32 user; u32 pad; u64 data,param,icon; u32 slot; u8 reserved[28]; };
+        struct Set { s32 user; u32 pad; u64 data,param,icon; u32 count,slot; u8 reserved[32]; };
+        struct Data { u64 buffer,size; s64 offset; u8 reserved[40]; };
+        struct Icon { u64 buffer,capacity,size; u8 reserved[32]; };
+        static_assert(sizeof(Get)==64 && sizeof(Set)==72 && sizeof(Data)==64);
+        const bool write=e.op==StorageOp::SetMemory2;
+        const bool modern=Common::ElfInfo::Instance().FirmwareVer()>Common::ElfInfo::FW_500;
+        Get request{}; u32 count=1;
+        if (write) {
+            Set set{}; if (!a[0] || !Copy(space,a[0],set)) return error(EFAULT);
+            request={set.user,0,set.data,set.param,set.icon,set.slot,{}};
+            count=modern?std::max(1u,set.count):1;
+        } else if (!a[0] || !Copy(space,a[0],request)) return error(EFAULT);
+        if (count>1024) return error(EINVAL);
+        if (!request.data) count=0;
+        std::vector<Data> descriptors(count);
+        if (count && !space.ReadData({request.data},std::as_writable_bytes(std::span{descriptors}))) return error(EFAULT);
+        Icon icon{}; Libraries::SaveData::OrbisSaveDataParam param{};
+        if (request.icon && (!Copy(space,request.icon,icon) || icon.capacity>4*1024*1024)) return error(EFAULT);
+        if (write && request.param && !Copy(space,request.param,param)) return error(EFAULT);
+        std::vector<GuestStorage::MemoryPart> parts; u64 total{};
+        std::vector<GuestAddressSpace::DataRequest> ranges;
+        for (const auto& d:descriptors) {
+            if (d.size>64*1024*1024-total || d.offset<0 || (!d.buffer && d.size)) return error(EINVAL);
+            total+=d.size; parts.push_back({d.offset,std::vector<u8>(d.size)});
+            if (d.size) ranges.push_back({{{d.buffer},d.size},write?GuestPermission::Read:GuestPermission::Write,{},true});
+        }
+        if (write && request.icon && icon.size > icon.capacity) return error(EINVAL);
+        std::vector<u8> icon_bytes(write && request.icon?icon.size:0);
+        if (write) {
+            if (request.icon && icon.size) ranges.push_back({{{icon.buffer},icon.size},GuestPermission::Read,{},true});
+            {
+                auto pins=space.AcquireDataBatch(ranges); if(!pins) return error(EFAULT); size_t index{};
+                for(auto& part:parts) if(!part.bytes.empty()) {
+                    std::memcpy(part.bytes.data(),pins.Value()[index++].Bytes().data(),part.bytes.size());
+                }
+                if(!icon_bytes.empty()) std::memcpy(icon_bytes.data(),pins.Value()[index].Bytes().data(),icon_bytes.size());
+            }
+            return u32(slow([&]{return storage.AccessMemory2(request.user,modern?request.slot:0,parts,
+                request.param?&param:nullptr,request.icon?&icon_bytes:nullptr,true);}));
+        }
+        if(request.param) ranges.push_back({{{request.param},sizeof(param)},GuestPermission::Write});
+        if(request.icon) {
+            ranges.push_back({{{request.icon},sizeof(icon)},GuestPermission::Write});
+            if(icon.capacity) ranges.push_back({{{icon.buffer},icon.capacity},GuestPermission::Write,{},true});
+        }
+        return publish(std::move(ranges),[&](auto& outputs) {
+            auto rc=storage.AccessMemory2(request.user,modern?request.slot:0,parts,
+                request.param?&param:nullptr,request.icon?&icon_bytes:nullptr,false);
+            size_t index{};
+            for(auto& part:parts) if(!part.bytes.empty()) outputs[index++]=std::move(part.bytes);
+            if(request.param) { outputs[index].resize(sizeof(param)); std::memcpy(outputs[index++].data(),&param,sizeof(param)); }
+            if(request.icon) {
+                icon.size=std::min<u64>(icon.capacity,icon_bytes.size());
+                outputs[index].resize(sizeof(icon)); std::memcpy(outputs[index++].data(),&icon,sizeof(icon));
+                if(icon.capacity) { outputs[index].resize(icon.capacity); std::memcpy(outputs[index].data(),icon_bytes.data(),icon.size); }
+            }
+            return rc;
+        });
+    }
+    case StorageOp::SyncMemory: {
+        struct Sync { s32 user; u32 slot,option; u8 reserved[28]; };
+        Sync sync{}; if(!a[0] || !Copy(space,a[0],sync)) return error(EFAULT);
+        const u32 slot=Common::ElfInfo::Instance().FirmwareVer()>Common::ElfInfo::FW_500?sync.slot:0;
+        return u32(slow([&]{return storage.SyncMemory(sync.user,slot,sync.option);}));
+    }
+    case StorageOp::TransferringMount: {
+        struct Transfer { s32 user; u32 pad; u64 title,directory,fingerprint; u8 reserved[32]; };
+        Transfer request{}; if(!a[0] || !Copy(space,a[0],request)) return error(EFAULT);
+        const auto title=String(space,request.title,10), directory=String(space,request.directory,32);
+        std::array<u8,80> fingerprint{};
+        if(!title || !directory || (request.fingerprint && !Copy(space,request.fingerprint,fingerprint))) return error(EFAULT);
+        return publish({{{{a[1]},sizeof(GuestStorage::MountResult)},GuestPermission::Write}},[&](auto& outputs) {
+            GuestStorage::MountResult value{};
+            const auto rc=storage.Mount(request.user,*title,*directory,0,1,value);
+            outputs[0].resize(sizeof(value)); std::memcpy(outputs[0].data(),&value,sizeof(value)); return rc;
+        });
+    }
     case StorageOp::SetupMemory: {
         Libraries::SaveData::OrbisSaveDataParam param{};
         if (a[2] && !Copy(space,a[2],param)) return error(EFAULT);
@@ -130,6 +235,7 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         using namespace Libraries::SaveData;
         OrbisSaveDataDirNameSearchCond cond{};OrbisSaveDataDirNameSearchResult result{};
         if (!Copy(space,a[0],cond)||!Copy(space,a[1],result)||result.dirNamesNum>4096) return error(EFAULT);
+        LOG_INFO(Lib_SaveData, "Session save search user={} key={} order={} count={} title_ptr={:#x} names_ptr={:#x} params_ptr={:#x}", cond.userId, u32(cond.key), u32(cond.order), result.dirNamesNum, reinterpret_cast<u64>(cond.titleId), reinterpret_cast<u64>(result.dirNames), reinterpret_cast<u64>(result.params));
         const auto original=result;
         OrbisSaveDataTitleId title{};OrbisSaveDataDirName pattern{};
         if (cond.titleId) {auto text=String(space,reinterpret_cast<u64>(cond.titleId),10);if(!text)return error(EFAULT);title.data.FromString(*text);cond.titleId=&title;}
@@ -141,8 +247,10 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         auto add=[&](auto* pointer,auto& data) {
             if(data.empty())return true;
             const u64 address=reinterpret_cast<u64>(pointer), size=data.size()*sizeof(data[0]);
-            if(!space.ReadData(GuestAddress{address},std::as_writable_bytes(std::span{data})))return false;
-            requests.push_back({{GuestAddress{address},size},GuestPermission::Write});return true;
+            const std::array input{GuestAddressSpace::DataRequest{{GuestAddress{address},size},GuestPermission::Read,{},true}};
+            auto pin=space.AcquireDataBatch(input);if(!pin)return false;
+            std::memcpy(data.data(),pin.Value()[0].Bytes().data(),size);
+            requests.push_back({{GuestAddress{address},size},GuestPermission::Write,{},true});return true;
         };
         if(!add(result.dirNames,names)||!add(result.params,params)||!add(result.infos,infos))return error(EFAULT);
         result.dirNames=names.data();result.params=params.empty()?nullptr:params.data();result.infos=infos.empty()?nullptr:infos.data();
@@ -177,6 +285,26 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
                 std::memcpy(pins.Value()[1].WritableBytes().data(), &base, sizeof(base));
         }
         return io(result);
+    }
+    case StorageOp::CheckReachability: {
+        // The kernel contract accepts at most 255 path bytes. Distinguish an
+        // inaccessible guest string from a readable but overlong path.
+        if (!a[0] || a[0] > UINT64_MAX - 255)
+            return error(EFAULT);
+        std::string path;
+        for (size_t i = 0; i <= 255; ++i) {
+            char c{};
+            if (!Copy(space, a[0] + i, c))
+                return error(EFAULT);
+            if (!c) {
+                Libraries::Kernel::OrbisKernelStat value{};
+                // Reuse the session namespace: ZAR overlays, save/temporary
+                // mounts and admitted devices must agree with open/stat.
+                return io(slow([&] { return storage.Stat(path, value); }));
+            }
+            path += c;
+        }
+        return error(ENAMETOOLONG);
     }
     case StorageOp::Stat:
     case StorageOp::Fstat: {
@@ -242,7 +370,7 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
             if (!length)
                 continue;
             requests.push_back({{GuestAddress{item.address}, length},
-                                write ? GuestPermission::Read : GuestPermission::Write});
+                                write ? GuestPermission::Read : GuestPermission::Write, {}, true});
             remaining -= length;
         }
         auto pinned = space.AcquireDataBatch(requests);
@@ -477,14 +605,17 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         if (!a[2])
             return e.op == StorageOp::Read ? io(slow([&] { return storage.Read(a[0], {}); }))
                                            : io(slow([&] { return storage.Write(a[0], {}); }));
-        auto pin = space.AcquireDataSpan({GuestAddress{a[1]}, count}, e.op == StorageOp::Read);
+        const GuestAddressSpace::DataRequest request{
+            {GuestAddress{a[1]}, count},
+            e.op == StorageOp::Read ? GuestPermission::Write : GuestPermission::Read, {}, true};
+        auto pin = space.AcquireDataBatch(std::span{&request, 1});
         if (!pin)
             return error(EFAULT);
         if (e.op == StorageOp::Read) {
-            auto bytes = pin.Value().WritableBytes();
+            auto bytes = pin.Value()[0].WritableBytes();
             return io(slow([&] { return storage.Read(a[0], {reinterpret_cast<u8*>(bytes.data()), bytes.size()}); }));
         }
-        auto bytes = pin.Value().Bytes();
+        auto bytes = pin.Value()[0].Bytes();
         return io(slow([&] { return storage.Write(a[0], {reinterpret_cast<const u8*>(bytes.data()), bytes.size()}); }));
     }
     }

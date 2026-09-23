@@ -378,15 +378,12 @@ private:
     void ExportDepth(const GcnInst& inst);
     void LogMissingOpcode(const GcnInst& inst);
 
-    IR::VectorReg GetScratchVgpr(u32 offset);
 
 private:
     IR::IREmitter ir;
     Info& info;
     const RuntimeInfo& runtime_info;
     const Profile& profile;
-    u32 next_vgpr_num;
-    std::unordered_map<u32, IR::VectorReg> vgpr_map;
     std::array<IR::Attribute, MaxInterpVgpr> vgpr_to_interp{};
     bool opcode_missing = false;
     u32 pc{};

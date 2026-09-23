@@ -206,6 +206,7 @@ struct GeneralSettings {
     Setting<double> trophy_notification_duration{6.0};
     Setting<std::string> trophy_notification_side{"right"};
     Setting<bool> show_splash{false};
+    Setting<bool> silent_dialogs{true};
     Setting<bool> connected_to_network{false};
     Setting<bool> discord_rpc_enabled{false};
     Setting<bool> show_fps_counter{false};
@@ -232,6 +233,7 @@ struct GeneralSettings {
             make_override<GeneralSettings>("trophy_notification_duration",
                                            &GeneralSettings::trophy_notification_duration),
             make_override<GeneralSettings>("show_splash", &GeneralSettings::show_splash),
+            make_override<GeneralSettings>("silent_dialogs", &GeneralSettings::silent_dialogs),
             make_override<GeneralSettings>("trophy_notification_side",
                                            &GeneralSettings::trophy_notification_side),
             make_override<GeneralSettings>("connected_to_network",
@@ -248,7 +250,7 @@ struct GeneralSettings {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GeneralSettings, install_dirs, addon_install_dir, home_dir,
                                    sys_modules_dir, font_dir, volume_slider, neo_mode, dev_kit_mode,
                                    extra_dmem_in_mbytes, extra_fmem_in_mbytes, shad_net_enabled,
-                                   trophy_popup_disabled, trophy_notification_duration, show_splash,
+                                   trophy_popup_disabled, trophy_notification_duration, show_splash, silent_dialogs,
                                    trophy_notification_side, connected_to_network,
                                    discord_rpc_enabled, show_fps_counter, console_language,
                                    big_picture_scale, shadnet_server, shadnet_webapi_server,
@@ -577,6 +579,7 @@ private:
     std::atomic<float> m_internal_scale_percent{0.f};
     std::atomic<u32> m_texture_quality{3};
     std::atomic<int> m_force_disable_msaa{-1};
+    std::atomic<int> m_silent_dialogs{-1};
     GeneralSettings m_general{};
     LogSettings m_log{};
     DebugSettings m_debug{};
@@ -698,6 +701,14 @@ public:
     SETTING_FORWARD_BOOL(m_general, ConnectedToNetwork, connected_to_network)
     SETTING_FORWARD_BOOL(m_general, DiscordRPCEnabled, discord_rpc_enabled)
     SETTING_FORWARD_BOOL(m_general, ShowFpsCounter, show_fps_counter)
+    SETTING_FORWARD(m_general, ConfiguredSilentDialogs, silent_dialogs)
+    bool AreGuestDialogsSilent() const {
+        const int value = m_silent_dialogs.load(std::memory_order_relaxed);
+        return value < 0 ? GetConfiguredSilentDialogs() : value != 0;
+    }
+    void SetGuestDialogsSilent(bool value) {
+        m_silent_dialogs.store(value, std::memory_order_relaxed);
+    }
     SETTING_FORWARD(m_general, ConsoleLanguage, console_language)
     SETTING_FORWARD(m_general, BigPictureScale, big_picture_scale)
     SETTING_FORWARD(m_general, ShadNetServer, shadnet_server)

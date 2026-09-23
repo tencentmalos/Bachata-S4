@@ -143,6 +143,11 @@ s32 PS4_SYSV_ABI sceNpPollAsync(s32 req_id, s32* result);
 s32 PS4_SYSV_ABI sceNpDeleteRequest(s32 req_id);
 s32 PS4_SYSV_ABI sceNpRegisterStateCallback(OrbisNpStateCallback callback, void* userdata);
 s32 PS4_SYSV_ABI sceNpUnregisterStateCallback();
+s32 PS4_SYSV_ABI sceNpRegisterStateCallbackA(OrbisNpStateCallbackA callback, void* userdata);
+s32 PS4_SYSV_ABI sceNpUnregisterStateCallbackA(s32 callback_id);
+s32 PS4_SYSV_ABI sceNpRegisterNpReachabilityStateCallback(OrbisNpReachabilityStateCallback callback,
+                                                       void* userdata);
+s32 PS4_SYSV_ABI sceNpUnregisterNpReachabilityStateCallback();
 s32 PS4_SYSV_ABI sceNpRegisterStateCallbackForToolkit(OrbisNpStateCallbackForNpToolkit callback, void* userdata);
 s32 PS4_SYSV_ABI sceNpUnregisterStateCallbackForToolkit();
 s32 PS4_SYSV_ABI sceNpRegisterPlusEventCallback(OrbisNpPlusEventCallback callback, void* userdata);

@@ -98,6 +98,8 @@ IR::Program TranslateProgram(const std::span<const u32>& code, Pools& pools, Inf
     }
     Shader::Optimization::SsaRewritePass(program);
     Shader::Optimization::ConstantPropagationPass(program.post_order_blocks);
+    ASSERT_MSG(Shader::Optimization::FragmentLdsPass(program),
+               "Unsupported fragment LDS addressing in shader {:#x}", info.pgm_hash);
     if (info.l_stage == LogicalStage::TessellationControl) {
         Shader::Optimization::TessellationPreprocess(program, runtime_info);
         Shader::Optimization::HullShaderTransform(program, runtime_info);

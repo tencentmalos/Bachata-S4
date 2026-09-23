@@ -8,6 +8,10 @@
 #include <mutex>
 #include <thread>
 #include <utility>
+#ifndef _WIN32
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 #include <fmt/format.h>
 
 #include "boost/icl/concept/interval.hpp"
@@ -44,10 +48,29 @@ struct SlotData {
     size_t memory_cache_size{};
 };
 
+static void LoadMemoryCache(SlotData& data) {
+    if (!data.memory_cache.empty())
+        return;
+    const auto path = data.folder_path / FilenameSaveDataMemory;
+    std::vector<u8> loaded(data.memory_cache_size);
+    if (fs::exists(path)) {
+        IOFile file(path, Common::FS::FileAccessMode::Read);
+        if (!file.IsOpen())
+            throw fs::filesystem_error("save memory read open", path,
+                                       std::make_error_code(std::errc::io_error));
+        const size_t count = std::min<u64>(file.GetSize(), loaded.size());
+        if (file.ReadRaw<u8>(loaded.data(), count) != count)
+            throw fs::filesystem_error("short save memory read", path,
+                                       std::make_error_code(std::errc::io_error));
+    }
+    data.memory_cache.swap(loaded);
+}
+
 struct Store::Impl {
     std::mutex mutex;
     std::unordered_map<u32, SlotData> slots;
     bool desktop_backups;
+    bool persist_replaced{};
     fs::path home;
 };
 Store::Store(bool desktop_backups, fs::path home) : impl(std::make_unique<Impl>()) {
@@ -67,9 +90,63 @@ void Store::PersistMemory(u32 slot_id, bool lock) {
     if (lock) {
         lck.lock();
     }
-    auto& data = impl->slots[slot_id];
+    auto& data = impl->slots.at(slot_id);
     auto memoryPath = data.folder_path / FilenameSaveDataMemory;
     fs::create_directories(memoryPath.parent_path());
+    // Sync after Setup must load the existing file before persisting it.
+    impl->persist_replaced = false;
+    LoadMemoryCache(data);
+#ifndef _WIN32
+    if (!impl->desktop_backups) {
+        // Session persistence never truncates the last committed memory.dat.
+        std::string pending = (memoryPath.parent_path() / "memory.dat.pending-XXXXXX").string();
+        int fd = ::mkstemp(pending.data());
+        if (fd < 0)
+            throw fs::filesystem_error("save memory temporary", memoryPath,
+                                       std::error_code(errno, std::generic_category()));
+        try {
+            size_t offset{};
+            while (offset < data.memory_cache.size()) {
+                const auto n = ::write(fd, data.memory_cache.data() + offset,
+                                       data.memory_cache.size() - offset);
+                if (n < 0 && errno == EINTR)
+                    continue;
+                if (n <= 0)
+                    throw fs::filesystem_error(
+                        "save memory write", pending,
+                        std::error_code(n < 0 ? errno : EIO, std::generic_category()));
+                offset += n;
+            }
+            if (::fsync(fd) != 0)
+                throw fs::filesystem_error("save memory fsync", pending,
+                                           std::error_code(errno, std::generic_category()));
+            const int closed = ::close(fd);
+            fd = -1;
+            if (closed != 0)
+                throw fs::filesystem_error("save memory close", pending,
+                                           std::error_code(errno, std::generic_category()));
+            fs::rename(pending, memoryPath);
+            impl->persist_replaced = true;
+            const int parent = ::open(memoryPath.parent_path().c_str(),
+                                      O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+            if (parent < 0)
+                throw fs::filesystem_error("save memory directory", memoryPath,
+                                           std::error_code(errno, std::generic_category()));
+            const int synced = ::fsync(parent), error = errno;
+            ::close(parent);
+            if (synced != 0)
+                throw fs::filesystem_error("save memory directory sync", memoryPath,
+                                           std::error_code(error, std::generic_category()));
+        } catch (...) {
+            if (fd >= 0)
+                ::close(fd);
+            std::error_code ignored;
+            fs::remove(pending, ignored);
+            throw;
+        }
+        return;
+    }
+#endif
 
     int n = 0;
     std::string errMsg;
@@ -127,8 +204,7 @@ size_t Store::SetupSaveMemory(Libraries::UserService::OrbisUserServiceUserId use
                                              : impl->home / std::to_string(user_id) / "savedata" /
                                                    game_serial / GetSaveDir(slot_id);
 
-    auto& data = impl->slots[slot_id];
-    data = SlotData{
+    SlotData data{
         .user_id = user_id,
         .game_serial = std::string{game_serial},
         .folder_path = save_dir,
@@ -136,26 +212,30 @@ size_t Store::SetupSaveMemory(Libraries::UserService::OrbisUserServiceUserId use
         .memory_cache = {},
         .memory_cache_size = memory_size,
     };
-
     SaveInstance::SetupDefaultParamSFO(data.sfo, GetSaveDir(slot_id), std::string{game_serial});
-
-    auto param_sfo_path = SaveInstance::GetParamSFOPath(save_dir);
-    if (!fs::exists(param_sfo_path)) {
-        return 0;
-    }
-
-    if (!data.sfo.Open(param_sfo_path) || fs::exists(save_dir / CorruptFileName)) {
-        if (!Backup::Restore(save_dir)) { // Could not restore the backup
-            return 0;
+    const auto param_path = SaveInstance::GetParamSFOPath(save_dir);
+    const auto memory_path = save_dir / FilenameSaveDataMemory;
+    size_t existed{};
+    if (fs::exists(param_path)) {
+        if (!data.sfo.Open(param_path) || fs::exists(save_dir / CorruptFileName)) {
+            if (!impl->desktop_backups || !Backup::Restore(save_dir) || !data.sfo.Open(param_path))
+                throw fs::filesystem_error("corrupt save memory metadata", param_path,
+                                           std::make_error_code(std::errc::state_not_recoverable));
         }
+        if (fs::exists(memory_path))
+            existed = fs::file_size(memory_path);
+    } else if (!impl->desktop_backups && fs::exists(memory_path)) {
+        throw fs::filesystem_error("save memory metadata missing", param_path,
+                                   std::make_error_code(std::errc::state_not_recoverable));
     }
-
-    const auto memory = save_dir / FilenameSaveDataMemory;
-    if (fs::exists(memory)) {
-        return fs::file_size(memory);
+    if (!impl->desktop_backups) {
+        if (existed > 64 * 1024 * 1024)
+            throw fs::filesystem_error("save memory too large", memory_path,
+                                       std::make_error_code(std::errc::file_too_large));
+        data.memory_cache_size = std::max(memory_size, existed);
     }
-
-    return 0;
+    impl->slots.insert_or_assign(slot_id, std::move(data));
+    return existed;
 }
 
 void Store::SetIcon(u32 slot_id, void* buf, size_t buf_size) {
@@ -223,14 +303,7 @@ void Store::ReadMemory(u32 slot_id, void* buf, size_t buf_size, int64_t offset) 
     std::lock_guard lk{impl->mutex};
     auto& data = impl->slots[slot_id];
     auto& memory = data.memory_cache;
-    if (memory.empty()) { // Load file
-        memory.resize(data.memory_cache_size);
-        IOFile f{data.folder_path / FilenameSaveDataMemory, Common::FS::FileAccessMode::Read};
-        if (f.IsOpen()) {
-            f.Seek(0);
-            f.ReadSpan(std::span{memory});
-        }
-    }
+    LoadMemoryCache(data);
     if (offset < 0 || u64(offset) > memory.size())
         throw std::out_of_range("save memory offset");
     const auto read_size = std::min(buf_size, memory.size() - size_t(offset));
@@ -245,17 +318,19 @@ void Store::WriteMemory(u32 slot_id, void* buf, size_t buf_size, int64_t offset)
     if (offset < 0 || buf_size > SIZE_MAX - u64(offset))
         throw std::out_of_range("save memory range");
     // A first write must retain previously persisted bytes outside its range.
-    if (memory.empty()) {
-        memory.resize(data.memory_cache_size);
-        IOFile file{data.folder_path / FilenameSaveDataMemory, Common::FS::FileAccessMode::Read};
-        if (file.IsOpen())
-            file.ReadSpan(std::span{memory});
+    LoadMemoryCache(data);
+    auto previous = memory;
+    try {
+        if (offset + buf_size > memory.size())
+            memory.resize(offset + buf_size);
+        if (buf_size)
+            std::memcpy(memory.data() + offset, buf, buf_size);
+        PersistMemory(slot_id, false);
+    } catch (...) {
+        if (!impl->persist_replaced)
+            memory.swap(previous);
+        throw;
     }
-    if (offset + buf_size > memory.size()) {
-        memory.resize(offset + buf_size);
-    }
-    std::memcpy(memory.data() + offset, buf, buf_size);
-    PersistMemory(slot_id, false);
     if (impl->desktop_backups)
         Backup::NewRequest(data.user_id, data.game_serial, GetSaveDir(slot_id),
                            Backup::OrbisSaveDataEventType::__DO_NOT_SAVE);

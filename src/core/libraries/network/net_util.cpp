@@ -95,8 +95,10 @@ bool NetUtilInternal::RetrieveEthernetAddr() {
 
     ifc.ifc_len = sizeof(buf);
     ifc.ifc_buf = buf;
-    if (ioctl(sock, SIOCGIFCONF, &ifc) == -1)
+    if (ioctl(sock, SIOCGIFCONF, &ifc) == -1) {
+        close(sock);
         return false;
+    }
 
     ifreq* it = ifc.ifc_req;
     const ifreq* const end = it + (ifc.ifc_len / sizeof(ifreq));

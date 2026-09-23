@@ -1,0 +1,478 @@
+{
+  "baseline_commit": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "device": "9c2841a4",
+  "package": {
+    "apk": "e44290a0cec4d0c86b10bb94dd6b3d0fdcee36a70b86727c02583db7631ec9d5",
+    "lib/arm64-v8a/libshadps4_host.so": "a75026cb6798d244d0a0c251179d1dbb127f991e1bfb110e958ca50bfebccaa0",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "2bd9c2d76bc180f3532d3be9c1fa6a145f16ba120649fba9fea1fdee39e7c548"
+  },
+  "binary_note": "After building this package, only whitespace/line-ending formatting was applied to tested source. No semantic changes.",
+  "capture": {
+    "kind": "physical_display",
+    "duration_requested_s": 10,
+    "duration_s": 10.035722,
+    "frames": 577,
+    "finalized": true
+  },
+  "files": [
+    {
+      "path": "build/validation/sports-stereo-20260921/build-apk-v2.log",
+      "bytes": 20589,
+      "sha256": "928bf684b9ebea1ba62d050e0b3d269c0e7e3b6277e733459b8516d1135483f0"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/build-probes.log",
+      "bytes": 29309,
+      "sha256": "2d1838955ea1094b58698bf720c8da3f070d30291af4f3ea943229e78c328a88"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/build-apk.log",
+      "bytes": 20589,
+      "sha256": "85a9ff62729953284888610c1b3262495fa8266c626a611db600aff497875e82"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/build-host.log",
+      "bytes": 9968,
+      "sha256": "c005b2e843dc6a730e8b6208325588a6f692a5ccaea6861854a8edbb2fcda48f"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/build-probes-v3.log",
+      "bytes": 5126,
+      "sha256": "08c8eadc015919cbf7f8df9a5afb6d10782c2136843f7dfd1a52f8f6de6dca7b"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/build-probes-v2.log",
+      "bytes": 6244,
+      "sha256": "43733f24c3cb1253b0cd78283f54aaf022c789f4354510695c1ac57a1f527d85"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/build-probes-v4.log",
+      "bytes": 6650,
+      "sha256": "a26999f1a8ad218ea6c8f4a9a781301cac46aae95c65cb3627e87e7a896bc9c0"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-3-1-0.spv",
+      "bytes": 4844,
+      "sha256": "b0c884593e86dfdf34d2760e9cdb09785bbd33a0abef463a7f87b31210102bdf"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-0-0-0.spv",
+      "bytes": 2816,
+      "sha256": "21c97305e778c4c9a79c0bb1c73fc0671e67bd05ab8290f4a15275b5174ab41c"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-0-0-1.spv",
+      "bytes": 1804,
+      "sha256": "4e4fe063a6772e95f72607da9c10f55d8260891963e1ddf9bb34f1d378343558"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-3-1-1.spv",
+      "bytes": 2916,
+      "sha256": "da0958236b4d7c8e9fbb4f607e32fb1709c8894c568515b01872de4d8fb00055"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-0-1-2.spv",
+      "bytes": 2060,
+      "sha256": "c7556c469671729545c2f800479038270e0c3b5f95556965f09e895685104fc1"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-3-0-2.spv",
+      "bytes": 1580,
+      "sha256": "1dd7a1ac58790a4f3b882ecc2cf96d94d49f81a916a2c6a9f556fd48307a504b"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-3-0-0.spv",
+      "bytes": 2880,
+      "sha256": "029535dd186b4edff4399fe3e67acf1c94471bdaa05e3a6fa5733c38ecfa9c6f"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-0-1-0.spv",
+      "bytes": 3456,
+      "sha256": "d0041d71054d2a11da94ca62c9929addf92182104ce0fc47fe35db074c9014a6"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-0-0-2.spv",
+      "bytes": 1292,
+      "sha256": "e678cecf26d74004335f409a5168ebf9138d661a195c20871ace10cc6fdb4432"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-3-1-2.spv",
+      "bytes": 2348,
+      "sha256": "4032a8c12602d1e626f2e4102a6b1deaf1892d0679e26012fe873f8e60639dc4"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-0-1-1.spv",
+      "bytes": 6256,
+      "sha256": "f71cbc51ba2f7433013b6ed5028d93c04094713dfea341d38e9674211ff62869"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-3-0-1.spv",
+      "bytes": 3784,
+      "sha256": "7962e1c9439b9aafb70b1396e1b45f7b0c66c6134e2ecac856d418bb5b0cd39c"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-2-0-0.spv",
+      "bytes": 2800,
+      "sha256": "6c763c382f635df3987d3d94577efcdfc8a2369a1ee8a84308da8b25bb8bca5d"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-1-1-0.spv",
+      "bytes": 3536,
+      "sha256": "7ac62a737121f4c55093136a1130391da49842feeef0c1edbc60f13b3a67a480"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-1-1-1.spv",
+      "bytes": 6460,
+      "sha256": "6a40d9586c99ff7f26bd303644f0704bf1da8d9446ba915d7e6fee702b5d66b2"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-2-0-1.spv",
+      "bytes": 3644,
+      "sha256": "346aaa3515480a185867a1243613b3831920255dc9ec5886b56bc5376f260434"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-1-0-2.spv",
+      "bytes": 1452,
+      "sha256": "5922ad9a5139b56d8c6630bc221a1d15ff3a994011afe2a4170a4917bbc33ee4"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-2-1-2.spv",
+      "bytes": 2220,
+      "sha256": "a6e0029675036a2bae2b3f5741a0f34daa95760eb50dd81426b7eedeaf42f5d7"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-2-1-0.spv",
+      "bytes": 4764,
+      "sha256": "cbb0b42099e7e754c554adc658ba58d1761aa6d63f99359b865a4cbef75d4c91"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-1-0-0.spv",
+      "bytes": 2896,
+      "sha256": "1c65f0e6965280d22eeadf7bbc9c43a50136db7b3f08c28fa7c9adbfeb3a70b0"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-1-1-2.spv",
+      "bytes": 2220,
+      "sha256": "27c6816f1d9954f054754d9c3271cc092a74cfd4ff8f861cfd628968f230acb4"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-2-0-2.spv",
+      "bytes": 1452,
+      "sha256": "f56df54c5d08d25afa4189d8cc5bcb9024de4af857425f6192b94a04e95598df"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-1-0-1.spv",
+      "bytes": 2008,
+      "sha256": "4d58f4e2c006b63480382d14ab65debbafc452519762132b2686185476692020"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-2-1-1.spv",
+      "bytes": 2776,
+      "sha256": "6fe9444272144ea88c18881edbe4af93662e51da4ee774f7b98ed02d977c9825"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-3-1-0.spv",
+      "bytes": 4764,
+      "sha256": "7b58421f181e07b79f1558f2550e6ce59c342865586ad3d9c4c2bb563d53283a"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-0-0-0.spv",
+      "bytes": 2720,
+      "sha256": "2945ba7bafa7facc55c926c591a32300d96597865b7a687d49f7ad69acdae593"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-0-0-1.spv",
+      "bytes": 3440,
+      "sha256": "7e5225e69b2f3750458873f54a284cad5f3e339cb482393aced3456537d81a69"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-3-1-1.spv",
+      "bytes": 6600,
+      "sha256": "3234ed77361c2c2343581bcf73e92f1db1bffe92fbab2b7d69970b0a2a2c418c"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-0-1-2.spv",
+      "bytes": 2060,
+      "sha256": "c7556c469671729545c2f800479038270e0c3b5f95556965f09e895685104fc1"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-3-0-2.spv",
+      "bytes": 1580,
+      "sha256": "1dd7a1ac58790a4f3b882ecc2cf96d94d49f81a916a2c6a9f556fd48307a504b"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-3-0-0.spv",
+      "bytes": 2976,
+      "sha256": "309574dd4813a79220ab6f924e6c325ed5502c40ece5fcab5d88b44532d7aa82"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-0-1-0.spv",
+      "bytes": 3536,
+      "sha256": "2a2dd122befe5969d16dc34f283559ad1416542f22d373e3dcb33d1ca0c8dfe9"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-0-0-2.spv",
+      "bytes": 1292,
+      "sha256": "e678cecf26d74004335f409a5168ebf9138d661a195c20871ace10cc6fdb4432"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-3-1-2.spv",
+      "bytes": 2348,
+      "sha256": "4032a8c12602d1e626f2e4102a6b1deaf1892d0679e26012fe873f8e60639dc4"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-0-1-1.spv",
+      "bytes": 2572,
+      "sha256": "5198715096190a8d2a2c6df9df3965d588a34b586f479386164238ac37b94ffd"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-3-0-1.spv",
+      "bytes": 2148,
+      "sha256": "24843fa2504877bee447c59461e8db18d5621a9c2003122bf78d64890873e3f8"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-2-0-0.spv",
+      "bytes": 2896,
+      "sha256": "1c65f0e6965280d22eeadf7bbc9c43a50136db7b3f08c28fa7c9adbfeb3a70b0"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-1-1-0.spv",
+      "bytes": 3616,
+      "sha256": "cd832c7d4ca2143035dacddb70bc87e7f99ab92fd0da0f1b69437839d28edaad"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-1-1-1.spv",
+      "bytes": 2776,
+      "sha256": "6fe9444272144ea88c18881edbe4af93662e51da4ee774f7b98ed02d977c9825"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-2-0-1.spv",
+      "bytes": 2008,
+      "sha256": "4d58f4e2c006b63480382d14ab65debbafc452519762132b2686185476692020"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-1-0-2.spv",
+      "bytes": 1452,
+      "sha256": "5922ad9a5139b56d8c6630bc221a1d15ff3a994011afe2a4170a4917bbc33ee4"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-2-1-2.spv",
+      "bytes": 2220,
+      "sha256": "a6e0029675036a2bae2b3f5741a0f34daa95760eb50dd81426b7eedeaf42f5d7"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-2-1-0.spv",
+      "bytes": 4684,
+      "sha256": "16b0560aa2c913b38ebfb607446b8faceea6e21e3a18d4e615690d9f6f945afa"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-1-0-0.spv",
+      "bytes": 2800,
+      "sha256": "6c763c382f635df3987d3d94577efcdfc8a2369a1ee8a84308da8b25bb8bca5d"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-1-1-2.spv",
+      "bytes": 2220,
+      "sha256": "27c6816f1d9954f054754d9c3271cc092a74cfd4ff8f861cfd628968f230acb4"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-1-2-0-2.spv",
+      "bytes": 1452,
+      "sha256": "f56df54c5d08d25afa4189d8cc5bcb9024de4af857425f6192b94a04e95598df"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-1-0-1.spv",
+      "bytes": 3644,
+      "sha256": "346aaa3515480a185867a1243613b3831920255dc9ec5886b56bc5376f260434"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/spirv/layered-0-2-1-1.spv",
+      "bytes": 6460,
+      "sha256": "6a40d9586c99ff7f26bd303644f0704bf1da8d9446ba915d7e6fee702b5d66b2"
+    },
+    {
+      "path": "build/validation/sports-stereo-20260921/sports-stereo-fixed.mp4",
+      "bytes": 2489690,
+      "sha256": "ce0e1b5c56224dfa3cd9e1909e304604a392e54acbf5f789868f1d0b749f5005"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-turnip-negative.txt",
+      "bytes": 19664,
+      "sha256": "afc8f7a65d9329492bdbed9e89b47558f100004ff8aa143eea3821c165552d7c"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-identity.json",
+      "bytes": 299,
+      "sha256": "2e58dc7b605cbcc3970f144aa9713ce84b852b26e1f34fcbb4b2f88f28e8a3c5"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-system-v2.txt",
+      "bytes": 16771,
+      "sha256": "f125d6894511689e8e5f1218714158b19336d0ee4d66326c8f59c59b86378a08"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/bindings.tsv",
+      "bytes": 315468,
+      "sha256": "ecc352f29ba213eca267f412817c63bf7b79452d578a46e632c295317957015d"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-system-v3.txt",
+      "bytes": 21406,
+      "sha256": "4ea45b2394f0d8499cd28b6b599a176b104ca0b3dd98bdf5c51972b0d3ccdc7c"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-hmd.json",
+      "bytes": 140051,
+      "sha256": "67027fbcdc1496278fcac329de216de015a4c2546eeeffa1e94be7b39fd8cd1a"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-turnip-final.txt",
+      "bytes": 19669,
+      "sha256": "eef7dfddd8f6d35abfa9401bb388f4916b650d4fd5954476a970b32de70f9bed"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-status.txt",
+      "bytes": 745,
+      "sha256": "71f98adfa8f36a0194980c907c257811e9989f03960ca034fd0c6eb7504e5592"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/final-library.txt",
+      "bytes": 155,
+      "sha256": "e8aa09ee9934584af4b75caa450c5ed890e9b15ee94fac8db815dbcdf14557de"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/baseline.png",
+      "bytes": 364808,
+      "sha256": "e243dd8ba6f67cd7b3df71bef49e231459ff2841fe91b7c6e3c3b38cdb09832f"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/baseline-status.txt",
+      "bytes": 749,
+      "sha256": "65cb70efaa8c33b96f9ca9ca4c18e48cee9a11abd335699eb81c8a579909b895"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/baseline-stopped.txt",
+      "bytes": 4915,
+      "sha256": "97d4a2ca43ddb922a5e99c275d9551947db57dd436d0666e61ea2a0fdd48244f"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/cold-stopped-final.txt",
+      "bytes": 4911,
+      "sha256": "d49224b84560d3f564feab7fcd2b4bfd1d7ebdd783c53d4ec4579854dbc95b36"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/installed-sha.txt",
+      "bytes": 157,
+      "sha256": "a9154d9145c61284dc27ab4aee5a413a08b38352d3e3f06500b9b8ce8e69b922"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/baseline-missing-layer.txt",
+      "bytes": 189,
+      "sha256": "82fb16dc8a6cb26f077ed19db4547259cde45f1db9efa0fee67424cc5f25ef8e"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/cleanup.json",
+      "bytes": 243,
+      "sha256": "329aee7562930d3d46550367da3044ddd8f81acefe08a0b4d6817d7441bf76b1"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-after-input.png",
+      "bytes": 516050,
+      "sha256": "82bbff55712638688a4499bc847b297f3b7bc5ef84fd0ae84f376f0e0ad2d7e9"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/family-audit.json",
+      "bytes": 68820,
+      "sha256": "276c3e18872ce06773b4d9d092459ffadfb29d18bcfe270147c086ce5ab8a624"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/spirv-validation.txt",
+      "bytes": 1392,
+      "sha256": "aacb95d941ea8bcd895fff265ea60b301321d3c82bcb13116b6b108f90ee8ca7"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/cold-after-input.png",
+      "bytes": 511772,
+      "sha256": "e93c0e8b1312045ca9a45a204bf6d40fd751044b08ec05d57f6578bff0b5e454"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-hmd-summary.txt",
+      "bytes": 2945,
+      "sha256": "2f57aac7d5de04867da3e2dcc510a82a31d12d5dc94896414f0d2df145f4ed80"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/cold-status.txt",
+      "bytes": 753,
+      "sha256": "a680b508ecc920a33abe83ac9dc531c898d15c420e251af4480938b00bc50462"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/hmd.json",
+      "bytes": 134683,
+      "sha256": "501e4b1e323d784af1f9045cb47eac014869778fe9de7571f95253d60b759184"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-stopped.txt",
+      "bytes": 4903,
+      "sha256": "ee3fab553b16d2076597346bf7e01b13cbe75770a3aacce6e01dca203ff817cb"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/auxiliary-system.txt",
+      "bytes": 18372,
+      "sha256": "e96130d6ac0c07ca3c54355694d53da6f5a138cc6051ee1eb238334c419cb9cf"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-turnip-v3.txt",
+      "bytes": 19669,
+      "sha256": "eef7dfddd8f6d35abfa9401bb388f4916b650d4fd5954476a970b32de70f9bed"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-turnip-v2.txt",
+      "bytes": 19669,
+      "sha256": "bfd6a91bf9ec195ae7c4d8027c6305475695361d512d1ea05bb03a93f7703d47"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/cold-imports.json",
+      "bytes": 737990,
+      "sha256": "2b7cb81965b320e6d3c32c9ae253aba62803fd1bf1dc36ae7b214f8cfe050662"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/fixed-scene.png",
+      "bytes": 510940,
+      "sha256": "362a4360cf202ea56ab5a6a3434c71bc329444b9f8778aacc5ff78c2af551f6d"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/cold-scene.png",
+      "bytes": 572075,
+      "sha256": "a7b269cb23e9436ab47af076483c0c4f8598e54f395a51028e047efac87549d8"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-turnip-v1.txt",
+      "bytes": 123,
+      "sha256": "c403a65f8b07f436529d6520015ff25793b8f1b0225668e5583b8589429b51dd"
+    },
+    {
+      "path": "docs/validation/android-native-host/sports-layered-primitive-20260921/probe-system.txt",
+      "bytes": 16709,
+      "sha256": "1d2572f18cb3af42582de29f661e1a867e74643a188573132c66df6c24158de7"
+    }
+  ],
+  "final_cleanup": {
+    "global_byte_equal": true,
+    "host_config_byte_equal": true,
+    "library_pid": 29089,
+    "session": "none",
+    "owned_scrcpy_sessions": "stopped",
+    "hmd_log": "cleared",
+    "turnip": "preserved",
+    "owned_device_probe_directory": "removed"
+  },
+  "cold_session": {
+    "pid": 27598,
+    "generation": 1,
+    "run_uuid": "bb0f1490e75971aafb2e4f28c7603a58",
+    "presents": 4384,
+    "stage": "Stopped",
+    "reason": "user_stop",
+    "return": 4
+  }
+}

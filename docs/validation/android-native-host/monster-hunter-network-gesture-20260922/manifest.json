@@ -1,0 +1,321 @@
+{
+  "head": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "branch": "codex/tetris-runtime-fix",
+  "source_sha256": {
+    "src/core/host_runtime/guest_runtime.cpp": "00755818989ea7ce67d96cde31295d95fdf22ad68d71b900be78f85294f87b80",
+    "src/core/host_runtime/guest_network.h": "7e9ec71e47787cbbbb495c5a6e474b7e9c22f374f617c56fe4086306029ff913",
+    "src/core/host_runtime/guest_sockets.cpp": "e4e126630f924ea98d8919f00b18bf005aafa70f9fdc99a2490e1ff9cbdd8d63",
+    "src/core/libraries/network/net.h": "235ecfab368ba664967dad368642d301d8fcebe0e62ed9bc14c49eb620ff3f83",
+    "src/core/libraries/network/net.cpp": "cce568c27d6255a95a2c97a96e5f95fb333e65adde2f0d9607c21e2502ad9aef",
+    "src/core/libraries/network/net_util.cpp": "ea16802d1f0a794c04974317e2e2e5acbdcab4e9c2ee5ffb59794d013d7bf70d",
+    "src/core/memory.h": "43786a8512aa89969cca09b2a9f6949c6eca6c4a8985edb0f737ef3f573a80e5",
+    "src/core/memory.cpp": "7274f0fb61db437f3deebac4bc569d6f2e2344cccb2bdbb9f497015a9fe21a50",
+    "src/core/libraries/kernel/kernel.h": "5df4233317f231ee15c62c62b2e19977ee08db0b27c3a6f57dbad8aa1ff37ffb",
+    "src/core/libraries/kernel/kernel.cpp": "fa946ad3df62943161d6545d4863a02c187b63e3e9dc992d1d5edd62de8707f4",
+    "src/core/libraries/kernel/memory.cpp": "dfe8a5c72371bff5f5392f9c7adba4ac39f82c1fe2109667560570db7edf973f",
+    "tests/host_runtime/guest_network_tests.cpp": "d08cb99419a245c63ca061adf1df59ff6739b484235509f2584e231f1cff22fb",
+    "tests/host_runtime/guest_memory_manager_concurrency_tests.cpp": "696753a3adfb44d6d0dabc5cf1a8a7196cd658e234d3efa34535d215e4cc3223",
+    "tests/guest_cpu/fixtures/runtime_system_gesture.S": "a0bcc22d0fe01c56557e1caffb18721fff6d266532945b8e11a39d1f73138cc8",
+    "scripts/android/generate-production-runtime-fixture": "21c3ceab1c34f8b27922d95d1a658f379ec9d934ef0d76aa3698ceba963aeede"
+  },
+  "evidence": {
+    "apk-v1.json": {
+      "bytes": 616,
+      "sha256": "491afa7520f5ea1f735c756e491f0494b83b88f7880cfca1ef4f52e7a7b8ca7c"
+    },
+    "apk-v2.json": {
+      "bytes": 616,
+      "sha256": "59f66d644a1183afe3e26cb61aa3adcd4f73f3320739ec87c5b91fd0e94be7f0"
+    },
+    "final-state.json": {
+      "bytes": 513,
+      "sha256": "b26d6d8385faf2bd2968e9b56af7bf887cb3b19d02f42c079e5eb32ec73c1b97"
+    },
+    "gesture-firmware.log": {
+      "bytes": 8186,
+      "sha256": "3e10d853fc35c9f9f6e1c0b2572b104db8e9cf335c12dd7dc54d5f6c63704aca"
+    },
+    "gesture-module-install.json": {
+      "bytes": 355,
+      "sha256": "9f0b9d501daf0595dfe6dbaae77ee36070a20161fcd0c2f9d8c7d7ba165f5361"
+    },
+    "gesture-tests-v2.json": {
+      "bytes": 2688,
+      "sha256": "1d6b3f456a771710bf090e77e64f178b6560f92a14962cad134c3e9a50da885c"
+    },
+    "gesture-tests-v3.json": {
+      "bytes": 2690,
+      "sha256": "16d828446c74297a0c2ccd339a3ede70b01a1943d39f918621d98ff3e99a120a"
+    },
+    "gesture-tests-v4.json": {
+      "bytes": 2771,
+      "sha256": "637a0443b6045fd2b7be0eb8da4b5c95122e45a8e3950ddeb924db323fe46a7b"
+    },
+    "gesture-tests.json": {
+      "bytes": 2004,
+      "sha256": "5575b58af684c2c0bc57895f679830c2ac8d64166fb1b1c6ff9cfa9d48b195c9"
+    },
+    "gesture-v2-firmware-game-libc.log": {
+      "bytes": 15408,
+      "sha256": "18257549a46f8fc6b3fc5ffecde7987580bf64c5c1d87f5882906d5e9c205e08"
+    },
+    "gesture-v3-firmware-system-libc.log": {
+      "bytes": 12699,
+      "sha256": "6089ab45eb9bcc6be299480dc77bdf9aac150d1a674750357a739fc57dacc5dc"
+    },
+    "gesture-v4-firmware-game-libc.log.gz": {
+      "bytes": 2717,
+      "sha256": "51a955676ad81258538b1296970f3e511418515d1e0afa8550f8e614d61f4832"
+    },
+    "gesture-v4-game-precedence.log.gz": {
+      "bytes": 2715,
+      "sha256": "474d54c2989e8dd4e4dbf3b4b51a73ca33d78e024ff8259e8ad45cb63efd81ec"
+    },
+    "gesture-v4-missing.log": {
+      "bytes": 13828,
+      "sha256": "d9918d4dd1232236951f3a893d33d86a9100118284bd3abc0fdfb8ca57f81de5"
+    },
+    "gesture-v4-wrong-identity.log": {
+      "bytes": 19770,
+      "sha256": "f6a4420c231ce3715d5db85d52c2c72f72158acff5e38e4393ac6880d02e919a"
+    },
+    "memory-v2.json": {
+      "bytes": 723,
+      "sha256": "d3d4948d80ce07e34f23266ecf69181c7cb0acb95eb98981a0c18b243509980f"
+    },
+    "memory-v2.log": {
+      "bytes": 63,
+      "sha256": "f61317879177b6ce7585fe3d3a98b484ec93649015aae73a1b2528f5648a43bc"
+    },
+    "mhr-fault1.asm": {
+      "bytes": 10913,
+      "sha256": "8758101fa9dc2732daae20da533c0b6f13838a72c29f5ec9bdf6a0618405112f"
+    },
+    "mhr-fault2.asm": {
+      "bytes": 6723,
+      "sha256": "a21c3b27eef30ab5cc0492791766bd772bad917696fd2229504e234ae8534360"
+    },
+    "mhr-rsp-identity.json": {
+      "bytes": 46,
+      "sha256": "fc51b0cf5f2fe80e3e3664447fedd89d365aa13a9b31866dc1acdf0ed19813b3"
+    },
+    "mhr-rsp.json.gz": {
+      "bytes": 2357,
+      "sha256": "881e25e899817e04d565d17fe7c8c4fa8827f60b313f215567f995a992f24794"
+    },
+    "mhr-v1-captured.json": {
+      "bytes": 74,
+      "sha256": "561676f72f1ae45f1540d4c44c3227d935bf16c8a192a7394750f6cf90c94ec8"
+    },
+    "mhr-v1-host-tail.txt.gz": {
+      "bytes": 64035,
+      "sha256": "6c55640172ed2677f1d74c7e462fc8bc0207fb512c6ade37cbe5a39bef342f4f"
+    },
+    "mhr-v1-imports.json.gz": {
+      "bytes": 38405,
+      "sha256": "aef06ff94d4e70f5ea1390edc05b4fe7826ea54538e32244627e0ddd35f66d76"
+    },
+    "mhr-v1-logcat-tail.txt.gz": {
+      "bytes": 25949,
+      "sha256": "cdf3aba29ad7e2e9e9d9c75e9570d84ea0c9259e1c47be8a9e26fd547e5486a2"
+    },
+    "mhr-v1-screen.png": {
+      "bytes": 207673,
+      "sha256": "f5e9c0bba27c073306b70d2917725015eb831ca0265e889182e386716bb3edfa"
+    },
+    "mhr-v1-status.txt": {
+      "bytes": 4819,
+      "sha256": "b34121a842914f7791f3bd6c47d59d04d77ec7dd6a56f02d17d62e0524c7788c"
+    },
+    "mhr-v2-captured.json": {
+      "bytes": 75,
+      "sha256": "b96b6531974290531d90cc7131220d5827d4d183f559f572c6ea9bcf1bf19baf"
+    },
+    "mhr-v2-dropbox-own-tombstone.txt.gz": {
+      "bytes": 10328,
+      "sha256": "4a8a23178b35e833aca0ecbec60a329f86814550b9ce51c744093ee17f0d4aae"
+    },
+    "mhr-v2-host-tail.txt.gz": {
+      "bytes": 60384,
+      "sha256": "dd5ca1113d4fe9ea33cbcd88a7d9088271abc1064f3480721a1f8246f7d36484"
+    },
+    "mhr-v2-imports.json.gz": {
+      "bytes": 38352,
+      "sha256": "76f79b926b2c463f5fbd534f0e4e016df8fd45d0e7eaa7dee4554f5bfdb9e8c7"
+    },
+    "mhr-v2-jit.asm": {
+      "bytes": 2295,
+      "sha256": "347c50cb48e4db86f5dedd968afb36dcb7fcc40fd8f6fd3e4a76412faa0c251a"
+    },
+    "mhr-v2-logcat-tail.txt.gz": {
+      "bytes": 27966,
+      "sha256": "d4b68a8168b257abbef30677211e840dfb0b140b0e9288c153598177354bf370"
+    },
+    "mhr-v2-rsp-captured.json": {
+      "bytes": 78,
+      "sha256": "11703fb17c743cc55ee195addaf0c596611af5a7ddab08c3d15eb3c188269b6f"
+    },
+    "mhr-v2-rsp-dropbox-own-tombstone.txt.gz": {
+      "bytes": 10307,
+      "sha256": "a20e107919b0f2322a365d532a5b80f6cfc878359b8d76ce7f8fce841484caef"
+    },
+    "mhr-v2-rsp-host-tail.txt.gz": {
+      "bytes": 70745,
+      "sha256": "1c0aad3bda7a3a91ff93877c94aa3fc9bc504c4e79d68ea250b59be51ceb441c"
+    },
+    "mhr-v2-rsp-imports.json.gz": {
+      "bytes": 38353,
+      "sha256": "79ea07ab675ddb3fddc5704b53966166bb7913a0e32a347b04c7c0be31eeb2c2"
+    },
+    "mhr-v2-rsp-jit.asm": {
+      "bytes": 2407,
+      "sha256": "1fe7d417adbf73b41a19036c3b6e2f6b556e2b848642c73784beeb9a2150229c"
+    },
+    "mhr-v2-rsp-logcat-tail.txt.gz": {
+      "bytes": 24736,
+      "sha256": "ca32ebbd8eddd90514c822121cd8f7b5d7f251b8c907123209e405c1e9353511"
+    },
+    "mhr-v2-rsp-screen.png": {
+      "bytes": 769485,
+      "sha256": "f6bcd6d227c238ab557f5202ab39a31379ce7a22380c82422907d1ff14f57b87"
+    },
+    "mhr-v2-rsp-status.txt": {
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    "mhr-v2-screen.png": {
+      "bytes": 769653,
+      "sha256": "21076a67ecdade09fa69c017d14452af1a083be542f515ac7d37f9184b79262f"
+    },
+    "mhr-v2-status.txt": {
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    "mhr-v2-sync-off-captured.json": {
+      "bytes": 83,
+      "sha256": "437ac58e07263774c75c7a4263b995fa60ba0e429c0ffef2514cfb6ada57b824"
+    },
+    "mhr-v2-sync-off-dropbox-own-tombstone.txt.gz": {
+      "bytes": 10275,
+      "sha256": "49a031c7c87ab0dded66814d68bd59ad196d67df4471b88c12fee84a24590c83"
+    },
+    "mhr-v2-sync-off-host-tail.txt.gz": {
+      "bytes": 82019,
+      "sha256": "4556a8cffdeb7ca11d9cc0d41bccc836e63d5d930bd452b0f8df7c73efd91f17"
+    },
+    "mhr-v2-sync-off-imports.json.gz": {
+      "bytes": 38363,
+      "sha256": "c8b0119fa6fdf18cac854c630094245ea1d8d58eb139b0d8af0895d32b09d1b6"
+    },
+    "mhr-v2-sync-off-logcat-tail.txt.gz": {
+      "bytes": 26858,
+      "sha256": "6fb325a54a654f6ad70c8077c1351ed9a272ab2fd8b5de1658472f4ff88abb3e"
+    },
+    "mhr-v2-sync-off-screen.png": {
+      "bytes": 769788,
+      "sha256": "5ba735954dbd3e14eb8e52b7b879f3a1307d5302df2d7e7cb31dea3bff1de2dd"
+    },
+    "mhr-v2-sync-off-status.txt": {
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    "mhw-v1-captured.json": {
+      "bytes": 74,
+      "sha256": "a865911ce708a767c0cf584a5d22a6f8857f3e3f0541f09676a84c2054641df7"
+    },
+    "mhw-v1-host-tail.txt.gz": {
+      "bytes": 55880,
+      "sha256": "5e3a7f86d713a558008d7df4734e55f74eb83b156e239d8b36ad42ed9a564f6e"
+    },
+    "mhw-v1-imports.json.gz": {
+      "bytes": 30176,
+      "sha256": "ce1a80b0ec161c80f0297892b4610e7bcb7ad2d058bd597458c0816b7b47fa0e"
+    },
+    "mhw-v1-logcat-tail.txt.gz": {
+      "bytes": 22894,
+      "sha256": "a4fc7f8a447098ca986f39f6438e68ef0ca1a04842ab94505b91bb8faf5738f6"
+    },
+    "mhw-v1-screen.png": {
+      "bytes": 198208,
+      "sha256": "3e6821311c5bff8762cb5707ff441ece2bbbaca1194a8c57b244166c2167cf1d"
+    },
+    "mhw-v1-status.txt": {
+      "bytes": 4816,
+      "sha256": "cdaa592cd931baa8a1c8099b348eb9603dca803f0145897ac19ed4979d923471"
+    },
+    "mhw-v2-captured.json": {
+      "bytes": 72,
+      "sha256": "a67353c6e5a2b9dd3a727530d91e9a231792b97f76277dd2cac3dd74a57298ce"
+    },
+    "mhw-v2-host-tail.txt.gz": {
+      "bytes": 51147,
+      "sha256": "e66d40884a0d8712099131e431213211296cc1594d26b27439af3c70755953e9"
+    },
+    "mhw-v2-imports.json.gz": {
+      "bytes": 30148,
+      "sha256": "86c8b9f20c30bcef02bd4e5ad058611fc042c52bf2886a1982ebc50f7f961291"
+    },
+    "mhw-v2-logcat-tail.txt.gz": {
+      "bytes": 23620,
+      "sha256": "287721b50ef33a56b38dd54529c990e8461f593b880499704b39397c525567db"
+    },
+    "mhw-v2-screen.png": {
+      "bytes": 199953,
+      "sha256": "8ad9df1d727005b3c3ff1977ad9038c09096a9198e3f66735df77a8a50570420"
+    },
+    "mhw-v2-status.txt": {
+      "bytes": 4821,
+      "sha256": "515d89bc1d61d21cfe35778dc4a30edb0dc8e8eefad0e0059e2bd2af37bb192e"
+    },
+    "network-v1.json": {
+      "bytes": 704,
+      "sha256": "fa52efaa1a6b6e8a57e483870678f0513709c20dd6a3c3675c467e55cb77ee03"
+    },
+    "network-v1.log": {
+      "bytes": 36,
+      "sha256": "ad076a76a7f2837034ce7c2a77fb85141883abebffaff03e83be6bc5d882cc82"
+    },
+    "network-v2.json": {
+      "bytes": 704,
+      "sha256": "15a4e4288efa81d685a8aacb68aa7928bd6b9b13ea65c5e28937a128b6f45acd"
+    },
+    "network-v2.log": {
+      "bytes": 36,
+      "sha256": "ad076a76a7f2837034ce7c2a77fb85141883abebffaff03e83be6bc5d882cc82"
+    },
+    "posix-v2.json": {
+      "bytes": 710,
+      "sha256": "b7057d980f1103ff253cf2ec5055899bebf003201cb25a92fceb78d9ebb77714"
+    },
+    "posix-v2.log": {
+      "bytes": 277,
+      "sha256": "473b0bab97d83dde70b2b75bcbef3b9cac60f31f2da635f9361132ed3422fa63"
+    },
+    "preservation.json": {
+      "bytes": 496,
+      "sha256": "eb0ee740791897620542b81d06d4718b563ff0f2311d0b0fe98ab2f3aa89cac6"
+    },
+    "remaining-families.json": {
+      "bytes": 79978,
+      "sha256": "8e153942b50e62a80f11e9295d1ec0ce894913eca70c88ac0f9e069a11530347"
+    },
+    "run-gesture.py": {
+      "bytes": 2969,
+      "sha256": "c9750df6347d3a655684ec5ee03565877d24e66e8724dfcc8bc31d4354cafc8d"
+    },
+    "run-tests.py": {
+      "bytes": 1469,
+      "sha256": "763c074140aeb56eae914aa3e290583a182a9df955708c42426388316962e297"
+    },
+    "savedata-after-sha.txt": {
+      "bytes": 4906,
+      "sha256": "38025f82a41989d911ef210a8e180d162ec6ceb786bb54fd3c8fe5b4bdec588e"
+    },
+    "savedata-before-sha.txt": {
+      "bytes": 4906,
+      "sha256": "38025f82a41989d911ef210a8e180d162ec6ceb786bb54fd3c8fe5b4bdec588e"
+    }
+  },
+  "local_full_artifacts": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-network-gesture-20260922",
+  "scope": "Local uncommitted validation; no playable or whole-game regression claim."
+}

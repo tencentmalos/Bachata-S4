@@ -1,0 +1,19 @@
+{
+  "version": "V12",
+  "built": true,
+  "installed": false,
+  "reason": "AYN unavailable; last installed version V10",
+  "apk": "build/validation/mhw-audio3d-20260922/shadps4-mhw-v12.apk",
+  "bytes": 205050602,
+  "sha256": "cd4502718ffe7fad4281ae4c9f31705727e6b4a699a91889b1bc8b10755b8dc5",
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_host.so": {
+      "sha256": "473482c3e6058cd088e85d88fa7906cff114d3e4723cd02f7ed1621f694c49a6",
+      "bytes": 495135912
+    },
+    "lib/arm64-v8a/libshadps4_fex_session.so": {
+      "sha256": "ec798b8de8d3869e946823b2daab6a5a5814e56d52ec2cb28e8a4f784f908572",
+      "bytes": 35569544
+    }
+  }
+}

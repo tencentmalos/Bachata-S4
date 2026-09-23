@@ -1,0 +1,12 @@
+{
+  "apk": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/debug-pad-20260922/shadps4-debug-pad.apk",
+    "sha256": "d669ca9db2d8f7918334c44cf75a034423d9ce8ae7ec82bc56a2edbc2753c127",
+    "bytes": 205734996
+  },
+  "host_sha256": "46a9de5a40915a7ab8e520101f83fb70ad7036b710b9708da586ed72ca9b9193",
+  "jni_sha256": "53c89e5d59b0842cc2cc13ff26d04c5fe156c87e72abd88f13f49ef26ce70cff",
+  "installed": true,
+  "verified_device_sha256": "d669ca9db2d8f7918334c44cf75a034423d9ce8ae7ec82bc56a2edbc2753c127",
+  "installed_unix_time": 1790073587.6249511
+}

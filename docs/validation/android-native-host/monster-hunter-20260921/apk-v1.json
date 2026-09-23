@@ -1,0 +1,10 @@
+{
+  "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk",
+  "apk_sha256": "2d20b2c716676a8064601a117a23e70afbbb7e90045a96f5bfb26e85c576368b",
+  "device_apk_sha256": "2d20b2c716676a8064601a117a23e70afbbb7e90045a96f5bfb26e85c576368b",
+  "host_sha256": "a5fbf13fdeb20ee6e37e4a60cd5494a097a6d86b6055369b4f3b542af6eaa338",
+  "packed_libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "2bd9c2d76bc180f3532d3be9c1fa6a145f16ba120649fba9fea1fdee39e7c548",
+    "lib/arm64-v8a/libshadps4_host.so": "a5fbf13fdeb20ee6e37e4a60cd5494a097a6d86b6055369b4f3b542af6eaa338"
+  }
+}

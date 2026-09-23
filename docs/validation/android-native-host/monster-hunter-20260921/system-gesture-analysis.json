@@ -1,0 +1,116 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSystemGesture.sprx",
+  "sha256": "98425066e5c44346fc849931f62e369cad70e358e89ccadfa75eca2c5b1425f8",
+  "analysis_sha256": "52251913ce71ee7eb23f3d3ff1a94005b2860a22434c64358e23c2e099c6bc36",
+  "plt": {
+    "0xb8": {
+      "name": "8zTFvBIAIN8#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "memset"
+    },
+    "0xc8": {
+      "name": "gjP9-KQzoUk#A#B",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePadGetControllerInformation"
+    },
+    "0xd8": {
+      "name": "Ou3iL1abvng#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__stack_chk_fail"
+    },
+    "0xe8": {
+      "name": "QI-x0SL8jhw#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "acosf"
+    },
+    "0xf8": {
+      "name": "F8bUHwAG284#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrInit"
+    },
+    "0x108": {
+      "name": "cmo1RIYva9o#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexInit"
+    },
+    "0x118": {
+      "name": "smWEktiyyG0#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexattrDestroy"
+    },
+    "0x128": {
+      "name": "WB66evu8bsU#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "sceKernelGetCompiledSdkVersion"
+    },
+    "0x138": {
+      "name": "2Of0f+3mhhE#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexDestroy"
+    },
+    "0x148": {
+      "name": "9UK1vLZQft4#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexLock"
+    },
+    "0x158": {
+      "name": "tn3VlD0hG60#B#C",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "scePthreadMutexUnlock"
+    },
+    "0x168": {
+      "name": "H2e8t5ScQGc#C#D",
+      "kind": 2,
+      "bind": 1,
+      "section": 0,
+      "va": 0,
+      "size": 0,
+      "known": "__cxa_finalize"
+    }
+  },
+  "init": "0x0"
+}

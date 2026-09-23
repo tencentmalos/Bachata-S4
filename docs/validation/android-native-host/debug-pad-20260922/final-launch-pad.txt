@@ -1,0 +1,4 @@
+TASK 10190:com.shadps4.android id=1742 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity c05eadd pid=16363
+{"schema":1,"status":"ok","pid":16363,"generation":1,"run_uuid":"b63431c100c46a4134b115280c788f73","phase":3,"input_token":1,"focused":true,"owner":"","ports":[{"port":0,"connected":true,"buttons":0,"left_x":128,"left_y":128,"right_x":128,"right_y":128,"left_trigger":0,"right_trigger":0,"timestamp_us":851788156697,"debug_active":false},{"port":1,"connected":false,"buttons":0,"left_x":128,"left_y":128,"right_x":128,"right_y":128,"left_trigger":0,"right_trigger":0,"timestamp_us":0,"debug_active":false},{"port":2,"connected":false,"buttons":0,"left_x":128,"left_y":128,"right_x":128,"right_y":128,"left_trigger":0,"right_trigger":0,"timestamp_us":0,"debug_active":false},{"port":3,"connected":false,"buttons":0,"left_x":128,"left_y":128,"right_x":128,"right_y":128,"left_trigger":0,"right_trigger":0,"timestamp_us":0,"debug_active":false}],"ui_captured":false}
+

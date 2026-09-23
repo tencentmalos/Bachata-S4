@@ -67,6 +67,14 @@ u64 EncoderCall(u32* output, const Args& a, const u32* regs, const char* marker,
     return static_cast<u32>(Fn(argument.template operator()<I>()...));
 }
 } // namespace
+Result<PinnedSpan> AcquireGraphicsCommandBuffer(GuestAddressSpace& space, GuestRange range,
+                                                 bool writable, std::stop_token stop) {
+    GuestAddressSpace::DataRequest request{range,
+        writable ? GuestPermission::Write : GuestPermission::Read, {}, true};
+    auto pins = space.AcquireDataBatch(std::span{&request, 1}, stop);
+    if (!pins) return pins.GetError();
+    return std::move(pins.Value()[0]);
+}
 Result<ExecutionLease> AcquireGraphicsAdmission(
     GuestAddressSpace& space, std::stop_token cancel,
     std::chrono::steady_clock::time_point deadline, const std::function<void()>& wait) {
@@ -145,7 +153,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     }
 
                     // Validate the entire dword capacity and preserve unwritten padding.
-                    auto pin = space.AcquireDataSpan({GuestAddress{a[0]}, a[1] * 4}, true);
+                    auto pin = AcquireGraphicsCommandBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
                     if (!pin)
                         return u32(-1);
                     constexpr u32 guard = 0xa55a9187;
@@ -186,7 +194,9 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
         auto* port = graphics.VideoOut().GetPort(a[2]);
         if (!port || !port->is_open || a[3] >= VideoOut::MaxDisplayBuffers || a[1] != 7)
             return u32(-1);
-        auto pin = Must(space.AcquireDataSpan({GuestAddress{a[0]}, a[1] * 4}, true));
+        auto result = AcquireGraphicsCommandBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
+        if (!result) return u32(-1);
+        auto pin = std::move(result).Value();
         return u32(GnmDriver::sceGnmInsertWaitFlipDone(
             reinterpret_cast<u32*>(pin.WritableBytes().data()), a[1], a[2], a[3]));
     });
@@ -322,13 +332,16 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         dcbs[i].resize(ds[i] / 4);
                         ccbs[i].resize(cs[i] / 4);
                         source_addresses[i] = Read<u64>(space, a[1] + i * 8);
-                        auto r = space.ReadData(GuestAddress{source_addresses[i]},
-                                                std::as_writable_bytes(std::span{dcbs[i]}));
-                        if (!r)
-                            return 0x80d11000u;
-                        if (cs[i] && !space.ReadData(GuestAddress{Read<u64>(space, a[3] + i * 8)},
-                                                     std::as_writable_bytes(std::span{ccbs[i]})))
-                            return 0x80d11000u;
+                        {
+                            auto pin = AcquireGraphicsCommandBuffer(space, {GuestAddress{source_addresses[i]}, ds[i]}, false);
+                            if (!pin) return 0x80d11000u;
+                            std::memcpy(dcbs[i].data(), pin.Value().Bytes().data(), ds[i]);
+                        }
+                        if (cs[i]) {
+                            auto pin = AcquireGraphicsCommandBuffer(space, {GuestAddress{Read<u64>(space, a[3] + i * 8)}, cs[i]}, false);
+                            if (!pin) return 0x80d11000u;
+                            std::memcpy(ccbs[i].data(), pin.Value().Bytes().data(), cs[i]);
+                        }
                         dp[i] = dcbs[i].data();
                         cp[i] = ccbs[i].data();
                     }

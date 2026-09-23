@@ -201,6 +201,66 @@ int main() {
     CHECK(!save.CommonDomain()->IsUsed());
     CHECK(call("lDqxaY1UbEo") == code(CD::Error::INVALID_STATE));
 
+    // Silent acknowledgements use the ordinary result/lease lifecycle without
+    // a render frame or input capture. Choice/wait/progress contracts stay live.
+    dialog = std::make_shared<GuestMsgDialog>(save.CommonDomain(), std::vector<s32>{1000}, true);
+    CHECK(call("lDqxaY1UbEo") == 0);
+    p.mode = MD::MsgDialogMode::USER_MSG;
+    p.sysMsgParam = nullptr;
+    p.userMsgParam = reinterpret_cast<MD::UserMessageParam*>(base + 512);
+    user = {};
+    user.msg = reinterpret_cast<const char*>(base + 2048);
+    user.buttonType = MD::ButtonType::OK;
+    write(base + 512, user);
+    write(base + 2048, text);
+    CHECK(open() == 0);
+    CHECK(call("CWVW78Qc3fI") == u32(CD::Status::FINISHED));
+    CHECK(!ImGui::Core::IsGamepadInputCaptured() && save.CommonDomain()->IsUsed());
+    CHECK(call("Lr8ovHH9l6A", {base + 1024}) == 0);
+    CHECK(space->ReadData({base + 1024}, std::as_writable_bytes(std::span{&result, 1})));
+    CHECK(result.result == CD::Result::OK && result.buttonId == MD::ButtonId::OK);
+    const auto acknowledged = dialog->Read().request;
+    CHECK(!dialog->Respond(acknowledged, 1));
+    for (auto type : {MD::ButtonType::YESNO, MD::ButtonType::OK_CANCEL,
+                      MD::ButtonType::WAIT, MD::ButtonType::NONE}) {
+        user.buttonType = type;
+        write(base + 512, user);
+        CHECK(open() == 0);
+        CHECK(call("CWVW78Qc3fI") == u32(CD::Status::RUNNING));
+        CHECK(ImGui::Core::IsGamepadInputCaptured());
+        CHECK(!dialog->Respond(acknowledged, 1));
+        CHECK(call("HTrcDKlFKuM") == 0);
+    }
+    p.mode = MD::MsgDialogMode::PROGRESS_BAR;
+    p.userMsgParam = nullptr;
+    p.progBarParam = reinterpret_cast<MD::ProgressBarParam*>(base + 512);
+    write(base + 512, progress);
+    CHECK(open() == 0 && dialog->Read().status == CD::Status::RUNNING);
+    CHECK(call("HTrcDKlFKuM") == 0);
+    CHECK(dialog->OpenLocalMessage(1000, "Error code 0x80550006", "Error") == 0);
+    CHECK(dialog->Read().status == CD::Status::FINISHED);
+    CHECK(!ImGui::Core::IsGamepadInputCaptured());
+    CHECK(call("ePw-kqZmelo") == 0 && !save.CommonDomain()->IsUsed());
+    {
+        GuestErrorDialog silent_error(true);
+        CHECK(silent_error.Invoke(*space, "I88KChlynSs", {}) == 0);
+        Libraries::ErrorDialog::Param error{};
+        error.size = sizeof(error);
+        error.errorCode = s32(0x80550006);
+        write(base + 512, error);
+        CHECK(silent_error.Invoke(*space, "M2ZF-ClLhgY", {base + 512}) == 0);
+        CHECK(silent_error.Read().status == CD::Status::FINISHED);
+        CHECK(silent_error.Read().text.find("0X80550006") != std::string::npos);
+        CHECK(!ImGui::Core::IsGamepadInputCaptured());
+        CHECK(silent_error.Invoke(*space, "9XAxK2PMwk8", {}) == 0);
+    }
+    // Restore the interactive UI fixture below.
+    p.mode = MD::MsgDialogMode::SYSTEM_MSG;
+    p.userMsgParam = nullptr;
+    p.progBarParam = nullptr;
+    p.sysMsgParam = reinterpret_cast<MD::SystemMessageParam*>(base + 512);
+    write(base + 512, system);
+
     // Real permanent UI layer, including opening-key rejection, response and Stop.
     ImGui::CreateContext();
     auto& io = ImGui::GetIO();

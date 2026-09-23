@@ -40,7 +40,62 @@ int main() {
         return net.Dispatch(*space, nid, a, base + 128);
     };
     const auto error = [](int e) { return u32(ORBIS_NET_ERROR_BASE | e); };
+    {
+        unsigned calls{};
+        const GuestNetwork::MacAddress expected{0x02, 1, 2, 3, 4, 5}; // synthetic provider only
+        GuestNetwork identity(false, std::make_shared<GuestDescriptorIds>(), [&] {
+            ++calls;
+            return std::optional{expected};
+        });
+        auto query = [&](u64 address, u64 flags = 0) {
+            return identity.Dispatch(*space, "6Oc0bLsIYe0", {address, flags}, base + 128);
+        };
+        CHECK(query(0, 1) == error(ORBIS_NET_ENOTINIT) && calls == 0);
+        CHECK(identity.Dispatch(*space, "Nlev7Lg8k3A", {}, base + 128) == 0);
+        CHECK(query(0) == error(ORBIS_NET_EINVAL) && calls == 0);
+        CHECK(query(base + 512, 1) == error(ORBIS_NET_EINVAL) && calls == 0);
+        CHECK(query(1) == error(ORBIS_NET_EFAULT) && calls == 0);
+        CHECK(query(base + 0x4000) == error(ORBIS_NET_EFAULT) && calls == 0);
+        write(base + 512, std::array<u8, 8>{9,9,9,9,9,9,9,9});
+        CHECK(query(base + 512) == 0 && calls == 1);
+        CHECK(read.operator()<std::array<u8, 8>>(base + 512) ==
+              (std::array<u8, 8>{2,1,2,3,4,5,9,9}));
+        identity.RequestStop();
+        CHECK(query(base + 512) == error(ORBIS_NET_ECANCELED) && calls == 1);
+        GuestNetwork absent(false, std::make_shared<GuestDescriptorIds>(), [] {
+            return std::optional<GuestNetwork::MacAddress>{};
+        });
+        CHECK(absent.Dispatch(*space, "Nlev7Lg8k3A", {}, base + 128) == 0);
+        CHECK(absent.Dispatch(*space, "6Oc0bLsIYe0", {base + 512}, base + 128) == error(ORBIS_NET_ENODEV));
+        CHECK(read.operator()<std::array<u8, 8>>(base + 512) ==
+              (std::array<u8, 8>{2,1,2,3,4,5,9,9}));
+        CHECK(!space->Counts().live_pins);
+    }
     write(base, std::array<char, 8>{'p', 'o', 'o', 'l', 0});
+    {
+        // Production module publication performs Initialize, without a guest
+        // sceNetInit call. Term must still return it to the cold state.
+        GuestNetwork published(false);
+        CHECK(published.Initialize() == 0);
+        CHECK(published.Initialize() == 0);
+        auto dispatch = [&](std::string_view nid, std::array<u64, 6> args = {}) {
+            return published.Dispatch(*space, nid, args, base + 128);
+        };
+        const auto pool = dispatch("dgJBaeJnGpo", {base, 65536, 0});
+        CHECK(s32(pool) > 0);
+        CHECK(dispatch("cTGkc6-TBlI") == error(ORBIS_NET_EBUSY));
+        CHECK(dispatch("K7RlrTkI-mw", {pool}) == 0);
+        CHECK(dispatch("cTGkc6-TBlI") == 0);
+        CHECK(dispatch("dgJBaeJnGpo", {base, 65536, 0}) == error(ORBIS_NET_ENOTINIT));
+        CHECK(dispatch("Nlev7Lg8k3A") == 0);
+        published.RequestStop();
+        CHECK(published.Initialize() == error(ORBIS_NET_ECANCELED));
+        CHECK(dispatch("Nlev7Lg8k3A") == error(ORBIS_NET_ECANCELED));
+        GuestNetwork online_provider(true);
+        CHECK(online_provider.Initialize() == error(ORBIS_NET_ENETDOWN));
+        CHECK(online_provider.Dispatch(*space, "dgJBaeJnGpo", {base, 65536, 0}, base + 128)
+              == error(ORBIS_NET_ENOTINIT));
+    }
     CHECK(call("dgJBaeJnGpo", {base, 4096, 0}) == error(ORBIS_NET_ENOTINIT));
     CHECK(call("Nlev7Lg8k3A") == 0);
     CHECK(call("Nlev7Lg8k3A") == 0);
@@ -83,6 +138,45 @@ int main() {
     CHECK(call("drjIbDbA7UQ",{epoll,base+256,1,0})==error(ORBIS_NET_EBADF));
     const auto socket = call("Q4qBuN-c0ZM", {base, 2, 1, 0});
     CHECK(s64(socket) >= 0 && socket < 1024);
+    {
+        using namespace Libraries::Net;
+        CHECK(call("hLuXdjHnhiI", {u32(-1), 0, 0, 0}) == 1);
+        CHECK(call("hLuXdjHnhiI", {socket, 0, 1, 0}) == error(ORBIS_NET_EINVAL));
+        CHECK(call("hLuXdjHnhiI", {socket, base+1024, 0, 0}) == error(ORBIS_NET_EINVAL));
+        CHECK(call("hLuXdjHnhiI", {socket, 1, 1, 0}) == error(ORBIS_NET_EFAULT));
+        write(base+128, s32{123});
+        CHECK(call("hLuXdjHnhiI", {socket, base+1024, 1, 0x1000}) == error(ORBIS_NET_EINVAL));
+        CHECK(read.operator()<s32>(base+128) == 123); // wrapper's direct return
+        CHECK(call("hLuXdjHnhiI", {socket, base+1024, 1, 0x40}) == error(ORBIS_NET_EOPNOTSUPP));
+        CHECK(call("hLuXdjHnhiI", {socket, base+1024, 1, 0}) == 1);
+        auto info = read.operator()<OrbisNetSockInfo>(base+1024);
+        CHECK(info.s == socket && info.socket_type == 1 && std::string_view(info.name) == "pool");
+        CHECK(info.flags == ORBIS_NET_SOCKINFO_F_SELF); // host fd is always nonblocking
+        struct Addr { u8 size, family; u16 port; u32 addr; u64 zero; };
+        write(base+512, Addr{16, 2, 0, htonl(0x7f000001), 0});
+        CHECK(call("bErx49PgxyY", {socket, base+512, 16}) == 0);
+        CHECK(call("kOj1HiAGE54", {socket, 4}) == 0);
+        CHECK(call("hLuXdjHnhiI", {socket, base+1024, 1, 0}) == 1);
+        info = read.operator()<OrbisNetSockInfo>(base+1024);
+        CHECK(info.state == ORBIS_NET_SOCKINFO_STATE_LISTEN && info.local_port &&
+              info.local_adr.inaddr_addr == htonl(0x7f000001));
+        write(base+512, Addr{16, 2, info.local_port, info.local_adr.inaddr_addr, 0});
+        const auto client = call("Q4qBuN-c0ZM", {base, 2, 1, 0});
+        CHECK(client < 1024 && call("OXXX4mUk3uk", {client, base+512, 16}) == 0);
+        CHECK(call("hLuXdjHnhiI", {client, base+1024, 1, 0}) == 1);
+        info = read.operator()<OrbisNetSockInfo>(base+1024);
+        CHECK(info.state == ORBIS_NET_SOCKINFO_STATE_ESTABLISHED && info.remote_port &&
+              info.recv_buffer_size > 0 && info.send_buffer_size > 0);
+        CHECK(call("hLuXdjHnhiI", {u32(-1), base+1024, 1, 0}) == 1);
+        CHECK(call("hLuXdjHnhiI", {u32(-1), base+1024, 1000000, 0}) == 2);
+        CHECK(call("45ggEzakPJQ", {client}) == 0);
+        CHECK(call("hLuXdjHnhiI", {client, base+1024, 1, 0}) == error(ORBIS_NET_EBADF));
+        const auto ipv6 = call("Q4qBuN-c0ZM", {base, 28, 2, 0});
+        CHECK(ipv6 < 1024 && call("hLuXdjHnhiI", {ipv6, base+1024, 1, 0}) == error(ORBIS_NET_EAFNOSUPPORT));
+        CHECK(call("hLuXdjHnhiI", {u32(-1), 0, 0, 0}) == 1); // IPv4 ABI only
+        CHECK(call("45ggEzakPJQ", {ipv6}) == 0);
+        CHECK(!space->Counts().live_pins);
+    }
     CHECK(call("45ggEzakPJQ", {socket}) == 0);
     CHECK(call("Q4qBuN-c0ZM", {1, 2, 1, 0}) == error(ORBIS_NET_EFAULT));
     CHECK(call("45ggEzakPJQ", {1}) == error(ORBIS_NET_EBADF));

@@ -1,0 +1,27 @@
+{
+  "branch": "codex/tetris-runtime-fix",
+  "base_head": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "dirty_source_sha256": {
+    "src/core/host_runtime/guest_app_content.h": "f3bcbf7a3bf4bf6aa3104e135ae6d1f3fec0378474cf2529e9eb5cf07421b84c",
+    "src/core/host_runtime/guest_memory_hle.h": "0c4d2ff8c48c2bccbe4e579efcee7c10297fabbabf926b27a86f9e4f4b8fd444",
+    "src/core/host_runtime/guest_runtime.cpp": "4089cb7709dad95bc8dc68f2dfd0ee5602df920823d388aff2c92d6b7b30df21",
+    "src/core/host_runtime/guest_storage.cpp": "9ae2277c6cba950220f0b05d68736a3f36b6faf7245c797861422e9fdc8cd5ca",
+    "src/core/host_runtime/guest_storage.h": "30dafde06102fbe4382022ab5c0270594c4c2fefb65cc50998bec115f7f5282c",
+    "src/core/host_runtime/guest_storage_hle.cpp": "38c48becb9aedc2aed83842946bcc537ed3c89ffea34a28727ef0ffbc657beb8",
+    "src/core/host_runtime/guest_storage_hle.h": "ad64592009f9561c63e600351f1dd879d3bc9d49537bea34a0606a0c4c2344cd",
+    "src/core/libraries/app_content/app_content_error.h": "c08846186f4b05ea4758547406f10458715a28762ceaa3ed76100b45276eace4",
+    "src/core/libraries/kernel/process.cpp": "c02bdf11c8f7e72c8962aa57c848cf11a5970e8c7668e630593c7b20e4cb31d3",
+    "src/core/libraries/kernel/process.h": "62ea1fe7ebbc96465fead4280b1deb3f920d0e2ec0bf5f88d7c2f6cb2afe9997",
+    "src/core/memory.cpp": "1855ccd0364ec2bdd993414c6cd9f6e20787bb54fdb0f82a84ccb11bc297c021",
+    "tests/host_runtime/guest_file_io_tests.cpp": "9227399752be52d254b87fde6d6297ee0c74018df01d6e20890cb6bd5789dbdb",
+    "tests/host_runtime/guest_memory_manager_concurrency_tests.cpp": "b0e600bc13248b68d67ec27b3878354769a876d4c31b81769d85f6effcb168c8",
+    "tests/guest_cpu/fixtures/production_runtime.S": "c0cb520dad6cad1719a73764231500434ca3752816be8d6ca08b24992d2db2b5",
+    "tests/guest_cpu/fixtures/runtime_libc_policy.S": "5cce9d05a02a724ee627610a5a52f505ba33c8463dcd32d666f63037d5af7480"
+  },
+  "apk_manifest": "apk-v4.json",
+  "tests": [
+    "temp-lifecycle-v4-tests.json",
+    "memory-v4-final-tests.json"
+  ],
+  "scope": "MHW/MHR V4 dirty source; unrelated pre-existing Sports/Tetris changes retained; no commit/push"
+}

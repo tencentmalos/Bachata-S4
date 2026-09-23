@@ -1,0 +1,3 @@
+Name:	shadps4.android
+Pid:	16363
+TracerPid:	0

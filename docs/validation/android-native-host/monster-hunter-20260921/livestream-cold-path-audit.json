@@ -1,0 +1,174 @@
+[
+  {
+    "name": "sceGameLiveStreamingClearPresetSocialFeedbackCommands",
+    "rva": "0x2560",
+    "cold_checks": [
+      "2572: 48 83 3d 4e 9c 00 00 00      \tcmpq\t$0x0, 0x9c4e(%rip)      # 0xc1c8",
+      "25c0: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingClearSocialFeedbackMessages",
+    "rva": "0x2740",
+    "cold_checks": [
+      "275a: 48 83 3d 66 9a 00 00 00      \tcmpq\t$0x0, 0x9a66(%rip)      # 0xc1c8",
+      "27cd: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingClearSpoilerTag",
+    "rva": "0x22d0",
+    "cold_checks": [
+      "22e2: 48 83 3d de 9e 00 00 00      \tcmpq\t$0x0, 0x9ede(%rip)      # 0xc1c8",
+      "2340: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingEnableLiveStreaming",
+    "rva": "0x19c0",
+    "cold_checks": [
+      "19d4: 48 83 3d ec a7 00 00 00      \tcmpq\t$0x0, 0xa7ec(%rip)      # 0xc1c8",
+      "1a38: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingGetCurrentStatus2",
+    "rva": "0x1be0",
+    "cold_checks": [
+      "1be7: 48 83 3d d9 a5 00 00 00      \tcmpq\t$0x0, 0xa5d9(%rip)      # 0xc1c8",
+      "1cc1: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingGetProgramInfo",
+    "rva": "0x2370",
+    "cold_checks": [
+      "238a: 48 83 3d 36 9e 00 00 00      \tcmpq\t$0x0, 0x9e36(%rip)      # 0xc1c8",
+      "2420: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingGetSocialFeedbackMessages",
+    "rva": "0x1e60",
+    "cold_checks": [
+      "1e89: 48 83 3d 37 a3 00 00 00      \tcmpq\t$0x0, 0xa337(%rip)      # 0xc1c8",
+      "1fad: 41 bd 04 00 a0 80            \tmovl\t$0x80a00004, %r13d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingGetSocialFeedbackMessagesCount",
+    "rva": "0x1da0",
+    "cold_checks": [
+      "1dbc: 48 83 3d 04 a4 00 00 00      \tcmpq\t$0x0, 0xa404(%rip)      # 0xc1c8",
+      "1e34: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingInitialize",
+    "rva": "0x16c0",
+    "cold_checks": [
+      "16f9: 48 83 3d c7 aa 00 00 00      \tcmpq\t$0x0, 0xaac7(%rip)      # 0xc1c8",
+      "170c: 80 3d 35 ab 00 00 00         \tcmpb\t$0x0, 0xab35(%rip)      # 0xc248",
+      "1812: c6 05 2f aa 00 00 01         \tmovb\t$0x1, 0xaa2f(%rip)      # 0xc248"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingPermitLiveStreaming",
+    "rva": "0x18e0",
+    "cold_checks": [
+      "18f4: 48 83 3d cc a8 00 00 00      \tcmpq\t$0x0, 0xa8cc(%rip)      # 0xc1c8",
+      "1958: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingPermitServerSideRecording",
+    "rva": "0x1ff0",
+    "cold_checks": [
+      "2004: 48 83 3d bc a1 00 00 00      \tcmpq\t$0x0, 0xa1bc(%rip)      # 0xc1c8",
+      "2068: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingPostSocialMessage",
+    "rva": "0x27f0",
+    "cold_checks": [
+      "280a: 48 83 3d b6 99 00 00 00      \tcmpq\t$0x0, 0x99b6(%rip)      # 0xc1c8",
+      "28a8: 41 be 04 00 a0 80            \tmovl\t$0x80a00004, %r14d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetCameraFrameSetting",
+    "rva": "0x28d0",
+    "cold_checks": [
+      "28ea: 48 83 3d d6 98 00 00 00      \tcmpq\t$0x0, 0x98d6(%rip)      # 0xc1c8",
+      "29b6: 41 be 04 00 a0 80            \tmovl\t$0x80a00004, %r14d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetInvitationSessionId",
+    "rva": "0x2b40",
+    "cold_checks": [
+      "2b5a: 48 83 3d 66 96 00 00 00      \tcmpq\t$0x0, 0x9666(%rip)      # 0xc1c8",
+      "2bf6: 41 be 04 00 a0 80            \tmovl\t$0x80a00004, %r14d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetMaxBitrate",
+    "rva": "0x1a60",
+    "cold_checks": [
+      "1a74: 48 83 3d 4c a7 00 00 00      \tcmpq\t$0x0, 0xa74c(%rip)      # 0xc1c8",
+      "1ad8: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetMetadata",
+    "rva": "0x2090",
+    "cold_checks": [
+      "20aa: 48 83 3d 16 a1 00 00 00      \tcmpq\t$0x0, 0xa116(%rip)      # 0xc1c8",
+      "2148: 41 be 04 00 a0 80            \tmovl\t$0x80a00004, %r14d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetPresetSocialFeedbackCommands",
+    "rva": "0x2450",
+    "cold_checks": [
+      "2470: 48 83 3d 50 9d 00 00 00      \tcmpq\t$0x0, 0x9d50(%rip)      # 0xc1c8",
+      "253c: 41 bc 04 00 a0 80            \tmovl\t$0x80a00004, %r12d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetPresetSocialFeedbackCommandsDescription",
+    "rva": "0x25e0",
+    "cold_checks": [
+      "25fa: 48 83 3d c6 9b 00 00 00      \tcmpq\t$0x0, 0x9bc6(%rip)      # 0xc1c8",
+      "267a: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004",
+      "26ba: 48 83 3d 06 9b 00 00 00      \tcmpq\t$0x0, 0x9b06(%rip)      # 0xc1c8",
+      "271d: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetSpoilerTag",
+    "rva": "0x2170",
+    "cold_checks": [
+      "2190: 48 83 3d 30 a0 00 00 00      \tcmpq\t$0x0, 0xa030(%rip)      # 0xc1c8",
+      "2228: 41 be 04 00 a0 80            \tmovl\t$0x80a00004, %r14d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingSetStandbyScreenResource",
+    "rva": "0x3050",
+    "cold_checks": [
+      "3089: 48 83 3d 37 91 00 00 00      \tcmpq\t$0x0, 0x9137(%rip)      # 0xc1c8",
+      "3261: 41 bf 04 00 a0 80            \tmovl\t$0x80a00004, %r15d      # imm = 0x80A00004"
+    ]
+  },
+  {
+    "name": "sceGameLiveStreamingTerminate",
+    "rva": "0x1620",
+    "cold_checks": [
+      "1637: 80 3d 0a ac 00 00 01         \tcmpb\t$0x1, 0xac0a(%rip)      # 0xc248",
+      "163e: bb 04 00 a0 80               \tmovl\t$0x80a00004, %ebx       # imm = 0x80A00004",
+      "1690: c6 05 b1 ab 00 00 00         \tmovb\t$0x0, 0xabb1(%rip)      # 0xc248"
+    ]
+  }
+]

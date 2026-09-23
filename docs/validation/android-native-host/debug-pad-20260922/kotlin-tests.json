@@ -1,0 +1,42 @@
+[
+  {
+    "name": "com.shadps4.android.feature.session.controller.TouchControllerStateTest",
+    "tests": "5",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-22T10:37:28.313Z",
+    "hostname": "MacBook-Pro-9.local",
+    "time": "0.011"
+  },
+  {
+    "name": "com.shadps4.android.feature.session.controller.TouchLayoutTest",
+    "tests": "3",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-22T10:37:28.324Z",
+    "hostname": "MacBook-Pro-9.local",
+    "time": "0.014"
+  },
+  {
+    "name": "com.shadps4.android.feature.session.controller.TouchControlVisualStyleTest",
+    "tests": "1",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-22T10:37:28.299Z",
+    "hostname": "MacBook-Pro-9.local",
+    "time": "0.013"
+  },
+  {
+    "name": "com.shadps4.android.feature.session.SessionWindowModeTest",
+    "tests": "2",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-09-22T10:37:28.298Z",
+    "hostname": "MacBook-Pro-9.local",
+    "time": "0.0"
+  }
+]

@@ -1,0 +1,54 @@
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=366 eye=0 address=0x2038000000 id=100 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=366 eye=1 address=0x2038000000 id=100 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=366 eye=2 address=0x203a000000 id=98 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=366 eye=3 address=0x203b000000 id=99 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-366-0.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-366-1.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-366-2.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-366-3.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-366-4.png rgb_sum=0 alpha_sum=528768000 nonblack=0 pixels=2073600
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=367 eye=0 address=0x2039000000 id=103 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=367 eye=1 address=0x2039000000 id=103 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=367 eye=2 address=0x203c000000 id=104 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=367 eye=3 address=0x203d000000 id=105 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-367-0.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-367-1.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-367-2.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-367-3.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-367-4.png rgb_sum=0 alpha_sum=528768000 nonblack=0 pixels=2073600
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=368 eye=0 address=0x2038000000 id=100 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=368 eye=1 address=0x2038000000 id=100 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=368 eye=2 address=0x203e000000 id=107 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=368 eye=3 address=0x203f000000 id=108 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-368-0.png rgb_sum=7295421 alpha_sum=2432049 nonblack=15723 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-368-1.png rgb_sum=7295421 alpha_sum=2432049 nonblack=15723 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-368-2.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-368-3.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-368-4.png rgb_sum=29601662 alpha_sum=528768000 nonblack=59265 pixels=2073600
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=369 eye=0 address=0x2039000000 id=103 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=369 eye=1 address=0x2039000000 id=103 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=369 eye=2 address=0x203a000000 id=98 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=369 eye=3 address=0x203b000000 id=99 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-369-0.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-369-1.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-369-2.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-369-3.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-369-4.png rgb_sum=0 alpha_sum=528768000 nonblack=0 pixels=2073600
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=370 eye=0 address=0x2038000000 id=100 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=370 eye=1 address=0x2038000000 id=100 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=370 eye=2 address=0x203c000000 id=104 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=370 eye=3 address=0x203d000000 id=105 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-370-0.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-370-1.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-370-2.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-370-3.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-370-4.png rgb_sum=0 alpha_sum=528768000 nonblack=0 pixels=2073600
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=371 eye=0 address=0x2039000000 id=103 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=371 eye=1 address=0x2039000000 id=103 flags=0x48 extent=1344x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=371 eye=2 address=0x203e000000 id=107 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:883 PrepareVrFrame: VR_PROBE sample=371 eye=3 address=0x203f000000 id=108 flags=0x48 extent=672x756
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-371-0.png rgb_sum=7294852 alpha_sum=2431737 nonblack=15829 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-371-1.png rgb_sum=7294852 alpha_sum=2431737 nonblack=15829 pixels=1016064
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-371-2.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-371-3.png rgb_sum=0 alpha_sum=0 nonblack=0 pixels=508032
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_presenter.cpp:943 lambda: VR_PROBE result=vr-probe-371-4.png rgb_sum=29640299 alpha_sum=528768000 nonblack=59897 pixels=2073600

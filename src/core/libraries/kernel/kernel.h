@@ -14,6 +14,7 @@ class SymbolsResolver;
 namespace Libraries::Kernel {
 
 s32 PS4_SYSV_ABI _sigprocmask(); // Desktop compatibility: does not alter host signal masks.
+u64 PS4_SYSV_ABI sceKernelGetGPI();
 void ErrSceToPosix(s32 result);
 s32 ErrnoToSceKernelError(s32 e);
 void SetPosixErrno(s32 e);

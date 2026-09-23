@@ -575,6 +575,7 @@ bool Instance::CreateDevice() {
             .timelineSemaphore = vk12_features.timelineSemaphore,
             .bufferDeviceAddress = vk12_features.bufferDeviceAddress,
             .shaderOutputLayer = vk12_features.shaderOutputLayer,
+            .shaderOutputViewportIndex = vk12_features.shaderOutputViewportIndex,
         },
         vk::PhysicalDeviceVulkan13Features{
             .robustImageAccess = vk13_features.robustImageAccess,

@@ -1,0 +1,15 @@
+{
+  "head": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "branch": "codex/tetris-runtime-fix",
+  "built_dirty": true,
+  "files": {
+    "src/core/host_runtime/guest_runtime.cpp": "d201694b807164da8952caee88e199fea4ff6fcb90ef86fd98b223fe74e0362d",
+    "src/core/host_runtime/guest_storage_hle.cpp": "38c48becb9aedc2aed83842946bcc537ed3c89ffea34a28727ef0ffbc657beb8",
+    "src/core/host_runtime/guest_storage_hle.h": "ad64592009f9561c63e600351f1dd879d3bc9d49537bea34a0606a0c4c2344cd",
+    "tests/guest_cpu/fixtures/runtime_libc_policy.S": "5cce9d05a02a724ee627610a5a52f505ba33c8463dcd32d666f63037d5af7480",
+    "tests/guest_cpu/fixtures/production_runtime.S": "c0cb520dad6cad1719a73764231500434ca3752816be8d6ca08b24992d2db2b5",
+    "tests/host_runtime/guest_file_io_tests.cpp": "2210428072e1d5e3c4a2b8106c8eb6f59bb99d2c3a993e41959c86659ebcbea0"
+  },
+  "baseline_diff_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/monster-hunter-20260921/baseline.diff",
+  "baseline_diff_sha256": "e8b5ec0b29c59472fc5615e78562a6566901580cb7684608bee4ee97e5589cc7"
+}

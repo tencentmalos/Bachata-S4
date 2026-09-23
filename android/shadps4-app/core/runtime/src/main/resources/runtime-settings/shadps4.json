@@ -1,4 +1,17 @@
 [
+{
+  "id": "general.silent_dialogs",
+  "nativeKey": "General.silent_dialogs",
+  "section": "General",
+  "category": "System",
+  "title": "Silent Dialogs",
+  "help": "Automatically acknowledge error notices and single-OK messages, and record them in the log. Choices, text entry and save confirmations remain interactive. Restart the game to apply.",
+  "kind": "BOOLEAN",
+  "defaultValue": true,
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true,
+  "risk": "NORMAL"
+},
   {
     "id": "audio.audio_backend",
     "nativeKey": "Audio.audio_backend",

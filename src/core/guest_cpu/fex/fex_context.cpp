@@ -125,6 +125,10 @@ void RegistersFromCpuState(const FEXCore::Core::CPUState& state, RegisterFile& o
     out.mxcsr = state.mxcsr;
     out.fs_base = state.fs_cached;
     out.gs_base = state.gs_cached;
+    // The HLE boundary captures these fields, unlike an arbitrary JIT signal
+    // stop. Consumers must not have to ignore validity to use the copied GPRs.
+    out.validity = RegisterValidity::Gpr | RegisterValidity::Rip | RegisterValidity::Xmm |
+                   RegisterValidity::Mxcsr | RegisterValidity::SegmentBases;
 }
 void ApplyRegistersToCpuState(const RegisterFile& in, FEXCore::Core::CPUState& state) {
     for (std::size_t i = 0; i < kGprCount; ++i) {

@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+project(libc_bootstrap_validation LANGUAGES C CXX ASM)
+add_subdirectory("/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/fex" runtime)
+get_target_property(sources production_runtime_runner SOURCES)
+list(REMOVE_ITEM sources "/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/fex/../../tools/production_runtime_runner.cpp")
+set_property(TARGET production_runtime_runner PROPERTY SOURCES ${sources} "${CMAKE_CURRENT_SOURCE_DIR}/runner.cpp")

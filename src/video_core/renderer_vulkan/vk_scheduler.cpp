@@ -308,8 +308,22 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         }
         // The worker's poison path must see real driver failures as well as
         // injected exceptions; a process-wide assertion bypasses its waiters.
-        if (result != vk::Result::eSuccess)
+        if (result != vk::Result::eSuccess) {
+            // Only cached CPU metadata here: a failed device must not be queried
+            // or waited on while preserving the original submission exception.
+            try {
+                LOG_ERROR(Render_Vulkan,
+                          "GPU_SUBMIT_FAILED result={} generation={} scheduler={} tick={} "
+                          "cached_retired={} host_serial={} elapsed_ns={} waits={} signals={}",
+                          vk::to_string(result), generation, master->DiagnosticId(), signal_value,
+                          master->KnownGpuTick(), receipt.serial,
+                          Core::Diagnostics::DiagnosticNowNs() - receipt.started_ns,
+                          packet.num_wait_semas, packet.num_signal_semas);
+            } catch (...) {
+                // Diagnostic allocation/logging failure must not mask device loss.
+            }
             throw std::runtime_error("vkQueueSubmit failed: " + vk::to_string(result));
+        }
         master->Submitted(signal_value);
         if (const auto& diag = instance_ptr->Diagnostics()) {
             diag->MarkAvailable(Core::Diagnostics::AdvanceSignal::QueueSubmit, true);

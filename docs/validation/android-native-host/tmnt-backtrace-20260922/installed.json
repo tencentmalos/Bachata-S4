@@ -1,0 +1,15 @@
+{
+  "apk": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tmnt-backtrace-20260922/shadps4-tmnt-backtrace.apk",
+    "bytes": 205374346,
+    "sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0"
+  },
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_host.so": "75b7a709d1459db85e2971f40b233b3111feba5405b4e32d5592603599cf2bb5",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "a58e6d461810d73fd0d770961442d4714d02e427d992f3fb5d78ef2ab6ba48f6"
+  },
+  "installed": true,
+  "installed_path": "/data/app/~~YByy1C8i-2-36j_JfXbSlg==/com.shadps4.android-YQow1dEfNWL7SlCr3y2N4g==/base.apk",
+  "verified_device_sha256": "ade81d86fc1bcdd4a5f8c1a71c0ac2ff11296d9ee0c936c439df5f542d5f4ad0",
+  "installed_unix_time": 1790070684.427917
+}

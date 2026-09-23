@@ -5,6 +5,7 @@
 #include "guest_storage.h"
 namespace Core::HostRuntime {
 enum class StorageOp {
+    SetupMemory2, GetMemory2, SetMemory2, SyncMemory, TransferringMount,
     SetupMemory,
     GetMemory,
     SetMemory,
@@ -33,6 +34,7 @@ enum class StorageOp {
     Rmdir,
     Unlink,
     Rename,
+    CheckReachability,
     Stat,
     Fstat,
     GetDents,
@@ -50,6 +52,12 @@ struct StorageEntry {
     bool posix{};
 };
 inline constexpr StorageEntry StorageEntries[]{
+    {"oQySEUfgXRA", StorageOp::SetupMemory2, true},
+    {"QwOO7vegnV8", StorageOp::GetMemory2, true},
+    {"cduy9v4YmT4", StorageOp::SetMemory2, true},
+    {"wiT9jeC7xPw", StorageOp::SyncMemory, true},
+    {"WAzWTZm1H+I", StorageOp::TransferringMount, true},
+    {"uWyW3v98sU4", StorageOp::CheckReachability, false},
     {"naInUjYt3so", StorageOp::Rmdir, false},
     {"c7ZnT7V1B98", StorageOp::Rmdir, false, true},
     {"v7AAAMo0Lz4", StorageOp::SetupMemory, true},

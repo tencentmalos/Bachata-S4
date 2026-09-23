@@ -1,0 +1,15 @@
+{
+  "apk": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tmnt-timezone-20260922/shadps4-tmnt-timezone.apk",
+    "bytes": 205370609,
+    "sha256": "aeb1f4143bd7d0755de2199a4dca15cfe56608adb0b0e50740c56e5c633d4914"
+  },
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "a58e6d461810d73fd0d770961442d4714d02e427d992f3fb5d78ef2ab6ba48f6",
+    "lib/arm64-v8a/libshadps4_host.so": "8a6ec2c4488c86b6ad98b326985ff7f2d8590a42d411206c39cce52cc1b93b46"
+  },
+  "installed": true,
+  "installed_path": "/data/app/~~TSFSfBvX12dq7iA6DwG2yw==/com.shadps4.android-0Y4s59XKHwlZUsGERG5h4w==/base.apk",
+  "verified_device_sha256": "aeb1f4143bd7d0755de2199a4dca15cfe56608adb0b0e50740c56e5c633d4914",
+  "installed_unix_time": 1790071736.783535
+}

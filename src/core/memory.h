@@ -5,6 +5,7 @@
 
 #include <map>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include "common/enum.h"
@@ -307,7 +308,8 @@ public:
 
     s32 QueryProtection(VAddr addr, void** start, void** end, u32* prot);
 
-    s32 Protect(VAddr addr, u64 size, MemoryProt prot);
+    s32 Protect(VAddr addr, u64 size, MemoryProt prot,
+                std::optional<s32> memory_type = std::nullopt);
 
     s64 ProtectBytes(VAddr addr, VirtualMemoryArea& vma_base, u64 size, MemoryProt prot);
 
@@ -333,6 +335,8 @@ public:
     void InvalidateMemory(VAddr addr, u64 size) const;
 
 private:
+    void SetDirectMemoryTypeLocked(VAddr addr, u64 size, s32 memory_type);
+
     VMAHandle FindVMA(VAddr target) {
         return std::prev(vma_map.upper_bound(target));
     }

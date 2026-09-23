@@ -15,7 +15,8 @@
 namespace Core::HostRuntime {
 inline constexpr std::string_view AppContentNids[]{"R9lA82OraNs", "99b82IKXpH4", "xnd8BJzAxmk",
                                                    "m47juOmH0VE", "XTWR0UXvcgs", "VANhIWcqYak",
-                                                   "buYbeLOGWmA", "SaKib2Ug0yI", "Gl6w5i0JokY"};
+                                                   "buYbeLOGWmA", "SaKib2Ug0yI", "Gl6w5i0JokY",
+                                                   "7bOLX66Iz-U", "a5N7lAG0y2Q", "bcolXMmp6qQ"};
 inline bool IsAppContentNid(std::string_view nid) {
     return std::find(std::begin(AppContentNids), std::end(AppContentNids), nid) !=
            std::end(AppContentNids);
@@ -129,8 +130,9 @@ public:
             return 0;
         }
         if (!initialized)
-            return u32(ORBIS_APP_CONTENT_ERROR_BUSY);
-        if (nid == "buYbeLOGWmA" || nid == "SaKib2Ug0yI") {
+            return u32(ORBIS_APP_CONTENT_ERROR_NOT_INITIALIZED);
+        if (nid == "buYbeLOGWmA" || nid == "7bOLX66Iz-U" || nid == "SaKib2Ug0yI" ||
+            nid == "a5N7lAG0y2Q" || nid == "bcolXMmp6qQ") {
             if (!storage)
                 return u32(ORBIS_APP_CONTENT_ERROR_BUSY);
             auto failure = [](int error) -> u32 {
@@ -141,20 +143,28 @@ public:
                 return u32(ORBIS_APP_CONTENT_ERROR_BUSY);
             };
             OrbisAppContentMountPoint point{};
-            if (nid == "buYbeLOGWmA") {
-                if (u32(a[0]) > 1)
+            if (nid == "buYbeLOGWmA" || nid == "7bOLX66Iz-U") {
+                const u32 option = nid == "7bOLX66Iz-U" ? 1 : u32(a[0]);
+                if (option > 1)
                     return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
-                auto pin = output(a[1], sizeof(point));
+                auto pin = output(a[nid == "7bOLX66Iz-U" ? 0 : 1], sizeof(point));
                 if (!pin)
                     return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
                 std::array<char, 16> mounted{};
-                if (const int error = storage->MountTemporary(u32(a[0]), mounted))
+                if (const int error = storage->MountTemporary(option, mounted))
                     return failure(error);
                 std::memcpy(pin.Value().WritableBytes().data(), mounted.data(), mounted.size());
                 return 0;
             }
             if (!read(a[0], point) || !std::memchr(point.data, 0, sizeof(point.data)))
                 return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
+            // Firmware 11.00 copies a complete 16-byte mount-point record for
+            // Format and Unmount. Neither entry accepts a host path or a save.
+            if (nid == "a5N7lAG0y2Q" || nid == "bcolXMmp6qQ") {
+                const int error = nid == "a5N7lAG0y2Q" ? storage->FormatTemporary(point.data)
+                                                       : storage->UnmountTemporary(point.data);
+                return error ? failure(error) : 0;
+            }
             auto pin = output(a[1], sizeof(u64));
             if (!pin)
                 return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);

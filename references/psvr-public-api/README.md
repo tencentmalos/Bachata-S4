@@ -54,6 +54,8 @@ Orbital 的 `sceHmdReprojectionStartMultilayerVrTraceHook` 给出六项，
 
 ## 接续分析
 
+2026-09-21 补充 [Vulkan Layer/ViewportIndex 跨辅助图元阶段笔记](vulkan-layered-primitive-notes.md)。Sports 右眼输入本来就是数组第1层；Guest RenderTargetIndex 在辅助 TCS/TES 路径丢失，修复后真机双眼均有内容。见 [实现与验证](../../docs/validation/android-native-host/sports-layered-primitive-20260921.md)。
+
 1. 新增来源先核对来源、版本、函数后缀和结构体大小；保存原文/提交及 SHA，更新 manifest。
 2. 用固定 ELF 的调用点和固件读取偏移校验原型，再用真实输入/输出确认，未知字段继续保留原字节。
 3. Beat 是单层 kind 0、共享 2688×1512 颜色图；提交 UV 和 guest viewport 均分左右半区。
@@ -66,3 +68,5 @@ Orbital 的 `sceHmdReprojectionStartMultilayerVrTraceHook` 给出六项，
 `hmd_reprojection.h` 和 SDK/documentation 组合。现有搜索命中主要是模拟器 stub、
 Orbital 类型表及一般渲染说明。PS5-3.20_Libs 的 HMD 文件是跳转导出，未提供参数实现，
 未纳入有效 ABI 资料。没有搜索命中不表示文档不存在。
+
+- [Vulkan subgroup routing and 64-lane requirements](vulkan-subgroup-notes.md): MHW DS_SWIZZLE broadcast/shuffle contract and public source links (2026-09-22).

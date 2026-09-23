@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk",
+    "bytes": 204474056,
+    "sha256": "e44290a0cec4d0c86b10bb94dd6b3d0fdcee36a70b86727c02583db7631ec9d5"
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+    "bytes": 493025912,
+    "sha256": "a75026cb6798d244d0a0c251179d1dbb127f991e1bfb110e958ca50bfebccaa0"
+  }
+]

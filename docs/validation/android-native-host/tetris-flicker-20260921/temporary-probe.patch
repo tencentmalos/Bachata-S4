@@ -1,0 +1,96 @@
+diff --git a/src/video_core/renderer_vulkan/vk_presenter.cpp b/src/video_core/renderer_vulkan/vk_presenter.cpp
+index 923713d8..34f18dc8 100644
+--- a/src/video_core/renderer_vulkan/vk_presenter.cpp
++++ b/src/video_core/renderer_vulkan/vk_presenter.cpp
+@@ -50,6 +50,10 @@
+ #include <imgui.h>
+ #include <stb_image_write.h>
+ #include <vk_mem_alloc.h>
++#ifdef __ANDROID__
++#include <sys/system_properties.h>
++#include <unistd.h>
++#endif
+ #include "video_core/vma_diagnostics.h"
+ 
+ namespace Vulkan {
+@@ -825,6 +829,21 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
+     }
+     draw_scheduler.EndRendering();
+     draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
++    // Temporary bounded diagnostic; removed after the same-build image comparison.
++    bool probe{};
++#ifdef __ANDROID__
++    static u32 probe_count{};
++    char probe_value[PROP_VALUE_MAX]{};
++    __system_property_get("debug.shadps4.vr_probe", probe_value);
++    probe = probe_value[0] == '1' && probe_count < 6;
++    if (probe) ++probe_count;
++#endif
++    auto snapshots = std::make_shared<std::vector<ScreenshotReadback>>();
++    snapshots->reserve(5);
++    const auto probe_path = [&](u32 eye) {
++        return Common::FS::GetUserPath(Common::FS::PathType::ScreenshotsDir) /
++            fmt::format("vr-probe-{}-{}.png", vr_sample, eye);
++    };
+     for (u32 i = 0; i < image_count; ++i) {
+         VideoCore::TextureCache::ImageDesc desc{eyes[i], Shader::ImageResource{}};
+         const auto id = texture_cache.FindImage(desc);
+@@ -848,6 +867,21 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
+         image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
+                       vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.CommandBuffer());
+         views[i] = *texture_cache.FindTexture(id, desc).image_view;
++        if (probe && desc.view_info.range.base.layer == 0 &&
++            image.backing->image.image_ci.format == vk::Format::eR8G8B8A8Unorm) {
++            const auto extent = image.HostExtent();
++            snapshots->emplace_back(instance, draw_scheduler, ScreenshotKind::GameOnly,
++                std::vector<std::filesystem::path>{probe_path(i)}, extent.width, extent.height,
++                vk::Format::eR8G8B8A8Unorm, false);
++            image.Transit(vk::ImageLayout::eTransferSrcOptimal,
++                          vk::AccessFlagBits2::eTransferRead, {}, draw_scheduler.CommandBuffer());
++            CopyImageToReadback(draw_scheduler.CommandBuffer(), image.backing->image,
++                               vk::ImageLayout::eTransferSrcOptimal, snapshots->back());
++            image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
++                          vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.CommandBuffer());
++            LOG_INFO(Render_Vulkan, "VR_PROBE sample={} eye={} address={:#x} id={} flags={:#x} extent={}x{}",
++                vr_sample, i, image.info.guest_address, id.index, u32(image.flags), extent.width, extent.height);
++        }
+         samplers[i] = texture_cache.GetSampler(source.samplers[i], {});
+         if (!i) eye_size = {u32(eyes[i].width + 1), u32(eyes[i].height + 1)};
+     }
+@@ -883,6 +917,36 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
+     // applying FDM here would only reduce host post-processing work.
+     pp_pass.Render(draw_scheduler, views[0], eye_size, *frame, settings,
+                    {views[1], views[2], views[3]}, {}, samplers);
++    if (probe) {
++        snapshots->emplace_back(instance, draw_scheduler, ScreenshotKind::GameOnly,
++            std::vector<std::filesystem::path>{probe_path(4)}, frame->width, frame->height,
++            swapchain.GetSurfaceFormat().format, false);
++        const vk::ImageMemoryBarrier2 before{
++            .srcStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,
++            .srcAccessMask = vk::AccessFlagBits2::eColorAttachmentWrite,
++            .dstStageMask = vk::PipelineStageFlagBits2::eTransfer,
++            .dstAccessMask = vk::AccessFlagBits2::eTransferRead,
++            .oldLayout = vk::ImageLayout::eGeneral, .newLayout = vk::ImageLayout::eGeneral,
++            .image = frame->image, .subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
++        cmdbuf.pipelineBarrier2(vk::DependencyInfo{.imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &before});
++        CopyImageToReadback(cmdbuf, frame->image, vk::ImageLayout::eGeneral, snapshots->back());
++        draw_scheduler.DeferOperation([snapshots] {
++            for (const auto& shot : *snapshots) {
++                vmaInvalidateAllocation(shot.buffer.buffer.allocator, shot.buffer.buffer.allocation, 0, VK_WHOLE_SIZE);
++                const auto* raw = shot.buffer.mapped_data.data();
++                u64 rgb_sum{}, alpha_sum{}, nonblack{};
++                for (u64 p = 0; p < u64(shot.width) * shot.height; ++p) {
++                    const u32 rgb = raw[p * 4] + raw[p * 4 + 1] + raw[p * 4 + 2];
++                    rgb_sum += rgb; alpha_sum += raw[p * 4 + 3]; nonblack += rgb > 12;
++                }
++                LOG_INFO(Render_Vulkan, "VR_PROBE result={} rgb_sum={} alpha_sum={} nonblack={} pixels={}",
++                    shot.paths[0].filename().string(), rgb_sum, alpha_sum, nonblack, u64(shot.width) * shot.height);
++                std::vector<u8> pixels;
++                if (ConvertReadbackToRgba8(shot, pixels))
++                    WritePng(shot.paths[0], pixels, shot.width, shot.height);
++            }
++        });
++    }
+     expected_ratio = 16.0f / 9.0f;
+     DebugState.game_resolution = {u32(float(eye_size.width) * std::abs(source.uv[0][0]) * 2.f), eye_size.height};
+     DebugState.output_resolution = {frame->width, frame->height};

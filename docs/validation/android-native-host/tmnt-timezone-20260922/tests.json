@@ -1,0 +1,15 @@
+{
+  "remote": "/data/local/tmp/tmnt-timezone-1790071656565488000",
+  "files": {
+    "build/validation/monster-hunter-20260921/runtime-tests/out/runtime/production_runtime_runner": "1b9b584f7c4fde68853603aad0643381a664c59ca0030546f195a0860a6190fc",
+    "build/android-host-api33-sbs-20260919-r29/native/libshadps4_host.so": "8a6ec2c4488c86b6ad98b326985ff7f2d8590a42d411206c39cce52cc1b93b46",
+    "build/android-host-api33-sbs-20260919-r29/native/guest_process_services_tests": "3f9afd2669f1dbe8b2de5bde98851dd9d590dbae686dff3623d80284b2a33c00",
+    "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tmnt-timezone-20260922/timezone.elf": "fd91003aa163f9ab8624a42b3f7dbdc3e627a04b69cf37580ca7932955995997"
+  },
+  "results": {
+    "process": 0,
+    "positive": 0,
+    "negative": 0
+  }
+}

@@ -1,0 +1,1 @@
+[1;35m[Debug] <Critical> (android_layered) log.cpp:288 Terminate: Exception: Missing adrenotools hook: libhook_impl.so[m

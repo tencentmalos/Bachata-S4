@@ -112,7 +112,7 @@ public:
                 {GuestAddress{a[1]}, sizeof(OrbisPadData) * size_t(count)}, true);
             if (!pin) return ORBIS_PAD_ERROR_INVALID_ARG;
             std::array<OrbisPadData, ORBIS_PAD_MAX_DATA_NUM> data{};
-            const int result = pad.Read(s32(a[0]), data.data(), count, latest);
+            const int result = pad.Read(s32(a[0]), data.data(), count, latest, true);
             if (result < 0) return result;
             std::memcpy(pin.Value().WritableBytes().data(), data.data(), sizeof(OrbisPadData) * result);
             return latest ? 0 : result;

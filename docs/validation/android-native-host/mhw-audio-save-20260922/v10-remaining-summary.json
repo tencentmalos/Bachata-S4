@@ -1,0 +1,33 @@
+{
+  "version": "V10 installed, before offline V12; no post-repair runtime-binding claim",
+  "pid": 27992,
+  "title_id": "CUSA09554",
+  "imports": 999,
+  "refused_rows": 198,
+  "refused_unique": 196,
+  "families": {
+    "libSceAjm": 2,
+    "libSceAppContent": 2,
+    "libSceAvPlayer": 1,
+    "libSceGnmDriver": 28,
+    "libSceHttp": 3,
+    "libSceIme": 5,
+    "libSceInvitationDialog": 6,
+    "libSceJson2": 41,
+    "libSceNpAuth": 5,
+    "libSceNpManager": 8,
+    "libSceNpMatching2": 11,
+    "libSceNpParty": 6,
+    "libSceNpProfileDialog": 6,
+    "libSceNpScore": 5,
+    "libSceNpTus": 5,
+    "libSceNpWebApi": 11,
+    "libSceScreenShot": 4,
+    "libSceSystemService": 1,
+    "libSceVideoOut": 2,
+    "libSceVideoRecording": 7,
+    "libSceVoice": 16,
+    "libSceWebBrowserDialog": 5,
+    "libkernel": 16
+  }
+}

@@ -783,7 +783,13 @@ std::string PipelineCache::GetShaderName(Shader::Stage stage, u64 hash,
 
 void PipelineCache::DumpShader(std::span<const u32> code, u64 hash, Shader::Stage stage,
                                size_t perm_idx, std::string_view ext) {
-    if (!EmulatorSettings.IsDumpShaders()) {
+    bool dump = EmulatorSettings.IsDumpShaders();
+#ifdef __ANDROID__
+    char property[PROP_VALUE_MAX]{};
+    dump |= __system_property_get("debug.shadps4.shader_dump", property) > 0 &&
+            std::string_view(property) == "1";
+#endif
+    if (!dump) {
         return;
     }
 

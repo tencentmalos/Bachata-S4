@@ -1,0 +1,169 @@
+{
+  "baseline_commit": "605053a651ebd7085acbe7efbec996675f25bc6a",
+  "package": {
+    "apk": "e44290a0cec4d0c86b10bb94dd6b3d0fdcee36a70b86727c02583db7631ec9d5",
+    "lib/arm64-v8a/libshadps4_host.so": "a75026cb6798d244d0a0c251179d1dbb127f991e1bfb110e958ca50bfebccaa0",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "2bd9c2d76bc180f3532d3be9c1fa6a145f16ba120649fba9fea1fdee39e7c548"
+  },
+  "session": {
+    "pid": 21629,
+    "generation": 1,
+    "run_uuid": "90a62704a7d543d6836c16a236f315ce",
+    "state": "Stopped",
+    "stop_reason": "user_stop",
+    "return_value": "68719731408",
+    "presents": 9840
+  },
+  "files": [
+    {
+      "path": "build/validation/tetris-order-20260921/tetris-sports-fix-baseline.mp4",
+      "bytes": 913723,
+      "sha256": "3d0aa2922bd763ca63a044629e9ec090fb10b75f97e75d3910c13fa1bd32040c"
+    },
+    {
+      "path": "build/validation/tetris-order-20260921/tetris-eula-fixed.mp4",
+      "bytes": 7841866,
+      "sha256": "f6d551394c527260c197f96c46eca942f38ce2cc5464a74aadc0ea9b20b74b80"
+    },
+    {
+      "path": "build/validation/tetris-order-20260921/luma.txt",
+      "bytes": 335420,
+      "sha256": "9ccb353be63bfe443b960b4d91ed6a550650b66169bf71c43967b9abca41e22d"
+    },
+    {
+      "path": "build/validation/tetris-order-20260921/eula-luma.txt",
+      "bytes": 276084,
+      "sha256": "5787aabd15ed6ba99a99d3a99cbda54ed367d1e04d7f049e3f3633378250c0c5"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/journey.png",
+      "bytes": 1542682,
+      "sha256": "f4d6ebe77235da82c8f1988bfa8b09738507e6694d6ea81b980ba0a2cedf7238"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/stopped-final.txt",
+      "bytes": 4916,
+      "sha256": "6097404afb0bec7bf05ab1cce8f95eac41b305982cd56ba22e34fb4b60f6a458"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/bindings.tsv",
+      "bytes": 322742,
+      "sha256": "ccb9df6f360976b18e8d9da570433abec660ba11696d3cca3c8a9b9438ab203b"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/eula-luma-summary.json",
+      "bytes": 104,
+      "sha256": "5dda9c838fa127cce49bf2d01c26fc45f07ba7286189ff0beef1e6cf799f08a5"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/menu-status.txt",
+      "bytes": 760,
+      "sha256": "542d232d24f4eb4f329002723905f8c220b4f8461b230571a51941323d62fefe"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/title.png",
+      "bytes": 2283303,
+      "sha256": "94f0b319e2d20ae5e13ef9d3bb6a7a19c734db9d7096745f5842b1ce7d2e5b60"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/eula-bottom2.png",
+      "bytes": 2299791,
+      "sha256": "b41bf6b5c51b43aaf2a9a6de7fde72dfca76e70f5597e2ae202ba97fefb1b132"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/final-tail.txt",
+      "bytes": 524576,
+      "sha256": "df0641643d260258427286c561577c2aa12e54d7b805f9174e6f1fe162207be2"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/tetris-eula-fixed-probe.json",
+      "bytes": 260,
+      "sha256": "17e030b4976f275f55ec3016be6104dd19f154505045cdd9c8e309d8a2f8906d"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/first12.png",
+      "bytes": 352151,
+      "sha256": "01561c48fbb593d9c8fe78ee808245d78aa75ab0eea09081620b71cdd1a5ea32"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/tutorial.png",
+      "bytes": 247267,
+      "sha256": "de70c0ec007fa22711f43b46319424868b51bae28dc6a9e88f2fc0cd46a44869"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/tutorial-status.txt",
+      "bytes": 757,
+      "sha256": "b0eb42cbb253d1740928104303aedc0e3c929002aa2477019ca03c88d9980c06"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/family-audit.json",
+      "bytes": 79499,
+      "sha256": "c5730d8d6ed2a154b672227e59a4bc0bc9461a9c06ff2ef6621761f2f6b76c13"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/main-menu2.png",
+      "bytes": 2265141,
+      "sha256": "26d4d0cb656e01621c2c95965906e5b779bc69acb69d2614c11faa1b2b6b0f84"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/eula.png",
+      "bytes": 2261225,
+      "sha256": "876f0a7d3edab2001c4fc660283ffc0ffaf9ed8372a2490fa29332d7e626bf48"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/tetris-sports-fix-baseline-probe.json",
+      "bytes": 260,
+      "sha256": "0ee80adbad79f2e17213e4625a510d93a19c12d2a877a5befb5951233e7f044b"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/status2.txt",
+      "bytes": 751,
+      "sha256": "b4fe34fdbe6b875d63815f9af94d477ab7694b0bf3f0696ae1f5c915c9a2c508"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/difficulty.png",
+      "bytes": 1487754,
+      "sha256": "1836cd7ba646527f5bf081fa6ef78484f7c5c8f0479b0859014f2dffc9ccd570"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/imports.json",
+      "bytes": 800515,
+      "sha256": "563436dca96737ad269bd9ba8a1190dedd659ab69f5f2382ee516030901bb5eb"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/status.txt",
+      "bytes": 752,
+      "sha256": "63eb9ddf0126c0a6fe137dad69d17fdfc4a672613a1d08a00ffd94203bc17c96"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/old-missing-layer.txt",
+      "bytes": 3869,
+      "sha256": "53a194aa91880a52a4caa7633641475bbf3ecfa41c27c7f4c27f0753744a2aa5"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/after-cross.png",
+      "bytes": 336329,
+      "sha256": "88c48b0ab812cb3f19b9e960567367d3574d6175c015d40d4b3ff647941a6bb7"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/luma-summary.json",
+      "bytes": 104,
+      "sha256": "c136e495c6aec0d78af3285de553148bee9ecff540a474a83afee74a487f6efb"
+    },
+    {
+      "path": "docs/validation/android-native-host/tetris-layered-followup-20260921/eula-first12.png",
+      "bytes": 1434654,
+      "sha256": "dda3fb084f52bdc565f6854e67f73574ddbcf37ecc251f1fc8a15b5c301d2ded"
+    }
+  ],
+  "final_cleanup": {
+    "global_byte_equal": true,
+    "host_config_byte_equal": true,
+    "library_pid": 29089,
+    "session": "none",
+    "owned_scrcpy_sessions": "stopped",
+    "hmd_log": "cleared",
+    "turnip": "preserved",
+    "owned_device_probe_directory": "removed"
+  }
+}

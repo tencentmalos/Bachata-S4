@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
+#include <cstring>
+#include <algorithm>
 #include <thread>
 #include "core/host_runtime/guest_page_states.h"
 #include "core/host_runtime/guest_video_event_hle.h"
@@ -34,6 +36,24 @@ int main() {
     using namespace Libraries;
     const auto address = space->ReservationBase().value;
     CHECK(space->Map({{address}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+    CHECK(space->Map({{address + 0x4000}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+    {
+        const GuestRange command{{address + 0x3ff4}, 28};
+        CHECK(!space->AcquireDataSpan(command, true)); // old contract rejected valid stream
+        auto output = AcquireGraphicsCommandBuffer(*space, command, true);
+        CHECK(output && output.Value().WritableBytes().size() == 28);
+        if (output) std::memset(output.Value().WritableBytes().data(), 0x6b, 28);
+    }
+    {
+        auto input = AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, false);
+        CHECK(input && std::ranges::all_of(input.Value().Bytes(), [](auto b) { return b == std::byte{0x6b}; }));
+    }
+    CHECK(space->Protect({{address + 0x4000}, 0x4000}, GuestPermission::Read));
+    CHECK(!AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, true));
+    CHECK(AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, false));
+    CHECK(space->Unmap({{address + 0x4000}, 0x4000}));
+    CHECK(!AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, false));
+    CHECK(!AcquireGraphicsCommandBuffer(*space, {{~u64(0) - 3}, 28}, true));
     {
         VideoOut::Mode mode{};
         VideoOut::sceVideoOutModeSetAny_(&mode, sizeof(mode));

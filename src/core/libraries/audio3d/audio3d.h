@@ -130,6 +130,9 @@ struct Port {
     std::deque<AudioData> mixed_queue;
 };
 
+// Caller serializes the port. Shared desktop/Android stereo PCM mixer.
+u32 ProcessMixQueue(Port& port);
+
 struct Audio3dState {
     std::mutex ports_mutex;
     std::unordered_map<OrbisAudio3dPortId, Port> ports;

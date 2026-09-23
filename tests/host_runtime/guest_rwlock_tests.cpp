@@ -97,5 +97,43 @@ int main() {
     check(mutexes.Unlock(base+32,1)==0);
     check(mutexes.Destroy(base+32)==0);
     check(IsGuestLibcFunction("gQX+4GDQjpM") && IsGuestLibcFunction("MUjC4lbHrK4") && !IsGuestLibcFunction("UnknownRunt"));
+    // MHR initializes thousands of simultaneous locks. Lifetime churn must not
+    // exhaust an artificial quota either; all handles remain distinct.
+    u64 next_handle = base + 0x100000;
+    bool exhausted = false;
+    GuestRwlockDomain many(*space, [&] { return exhausted ? u64{0} : (next_handle += 0x100); });
+    unsigned create_errors{}, operation_errors{}, churn_errors{};
+    for (unsigned i = 0; i < 5000; ++i) {
+        const auto slot = base + 512 + i * 8;
+        if (many.Init(slot, 0)) { ++create_errors; continue; }
+        if (many.Lock(slot, 1, true, true, {})) ++operation_errors;
+        if (many.Unlock(slot, 1)) ++operation_errors;
+    }
+    for (unsigned i = 0; i < 5000; ++i) {
+        const auto slot = base + 512 + i * 8;
+        if (many.Destroy(slot)) ++operation_errors;
+    }
+    check(create_errors == 0);
+    check(operation_errors == 0);
+    for (unsigned i = 0; i < 5000; ++i) {
+        if (many.Attribute(base + 512, 0)) ++churn_errors;
+        if (many.Attribute(base + 512, 1)) ++churn_errors;
+    }
+    check(churn_errors == 0);
+    exhausted = true;
+    const auto before = read64(base + 520);
+    check(many.Init(base + 520, 0) == POSIX_ENOMEM);
+    check(read64(base + 520) == before);
+    check(many.Attribute(base + 512, 0) == POSIX_ENOMEM);
+    check(read64(base + 512) == 0);
+    check(many.Lock(base + 512, 1, false, true, {}) == POSIX_ENOMEM);
+    check(read64(base + 512) == 0);
+    exhausted = false;
+    check(many.Init(base + 520, 0) == 0);
+    check(many.Lock(base + 520, 1, false, true, {}) == 0);
+    check(many.Unlock(base + 520, 1) == 0);
+    check(many.Destroy(base + 520) == 0);
+    std::printf("RWLOCK_SCALE create_errors=%u operation_errors=%u churn_errors=%u\n",
+                create_errors, operation_errors, churn_errors);
     std::printf("RWLOCK_LIBC checks=%u failures=%u\n",checks,failures);return failures?1:0;
 }
