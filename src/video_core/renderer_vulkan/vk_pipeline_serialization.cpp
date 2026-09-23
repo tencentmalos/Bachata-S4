@@ -14,9 +14,9 @@ namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
 static constexpr u32 ShaderBinaryVersion = 22u; // upstream U64 SALU masks and wave64 lowering
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 12u; // hardware/software stage split of runtime info
+static constexpr u32 ShaderMetaVersion = 13u; // front-face encoding in fragment runtime info
 #else
-static constexpr u32 ShaderMetaVersion = 13u; // hardware/software stage split of runtime info
+static constexpr u32 ShaderMetaVersion = 14u; // front-face encoding in fragment runtime info
 #endif
 static constexpr u32 PipelineKeyVersion = 6u; // indirect draw base vertex/instance parameters
 } // namespace Serialization
