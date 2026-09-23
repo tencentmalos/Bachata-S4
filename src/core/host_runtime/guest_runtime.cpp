@@ -953,22 +953,49 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         if (!space.OwnsRange({GuestAddress{address}, size}) || (address | size) % 4096)
             throw std::runtime_error("invalid GPU watch range");
         const u8 watch = (~static_cast<u8>(permission) & 3) << 3;
-        for (u64 page = address / 4096; page < (address + size) / 4096; ++page) {
+        const u64 first = address / 4096, last = (address + size) / 4096;
+        // One mprotect per run of pages that end up with the same protection: mmap_lock,
+        // VMA split/merge and the TLB flush are paid per call, not per page.
+        u64 run_begin = first, syscalls = 0;
+        int run_prot = -1;
+        const bool per_page = gpu_watch_per_page.load(std::memory_order_relaxed);
+        const auto flush = [&](u64 end) {
+            if (run_prot < 0 || end == run_begin)
+                return;
+            if (::mprotect(reinterpret_cast<void*>(run_begin * 4096), (end - run_begin) * 4096,
+                           run_prot) != 0)
+                throw std::runtime_error("GPU watch mprotect failed");
+            ++syscalls;
+        };
+        for (u64 page = first; page < last; ++page) {
             const auto old = gpu_pages.At(page).load(std::memory_order_acquire);
             // Never let GPU tracking alter executable code or revive an unmapped page.
-            if (!(old & 0x80) || (old & 4))
+            if (!(old & 0x80) || (old & 4)) {
+                flush(page); // pages before the rejected one are published and protected
                 throw std::runtime_error(fmt::format(
                     "GPU watch requires mapped non-executable memory: range={:#x}+{:#x} "
                     "page={:#x} state={:#x} permission={:#x}",
                     address, size, page * 4096, old, static_cast<u32>(permission)));
+            }
             // Publish before protection; retain a retired-watch bit until the
             // next VM mutation for faults already pending on another owner.
             const u8 retired = ((old & 24) & ~watch) << 2;
             gpu_pages.At(page).store((old & ~u8(24)) | watch | retired, std::memory_order_release);
             const int prot = (old & 3) & static_cast<u8>(permission);
-            if (::mprotect(reinterpret_cast<void*>(page * 4096), 4096, prot) != 0)
-                throw std::runtime_error("GPU watch mprotect failed");
+            if (prot != run_prot || per_page) {
+                flush(page);
+                run_begin = page;
+                run_prot = prot;
+            }
         }
+        flush(last);
+        auto& counters = gpu_watch_counters;
+        const bool release = True(permission & MemoryPermission::Write);
+        (release ? counters.release_calls : counters.watch_calls)
+            .fetch_add(1, std::memory_order_relaxed);
+        (release ? counters.release_pages : counters.watch_pages)
+            .fetch_add(last - first, std::memory_order_relaxed);
+        counters.syscalls.fetch_add(syscalls, std::memory_order_relaxed);
     }
     u64 Allocate(u64 size, std::string_view name, u64 base = GuestRuntime::ServiceAllocationBase,
                  VMAType type = VMAType::File) {

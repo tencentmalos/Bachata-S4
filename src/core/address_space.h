@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <span>
 #include <utility>
@@ -22,6 +23,16 @@ enum class MemoryPermission : u32 {
     ReadWriteExecute = Read | Write | Execute,
 };
 DECLARE_ENUM_FLAG_OPERATORS(MemoryPermission)
+
+// GPU write-watch activity of the guest backend: watch = guest write access removed,
+// release = restored (usually from a write fault). syscalls counts actual mprotect calls.
+struct GpuWatchCounters {
+    std::atomic<u64> watch_calls{}, watch_pages{}, release_calls{}, release_pages{}, syscalls{};
+    std::atomic<u64> predicted_pages{}; // released ahead of a write fault (buffer cache)
+};
+inline GpuWatchCounters gpu_watch_counters;
+// Diagnostic A/B: one mprotect per page as before run coalescing.
+inline std::atomic<bool> gpu_watch_per_page{false};
 
 // Injected production guest VM. Desktop keeps its native implementation;
 // Android uses the same MemoryManager against the FEX-owned reservation.

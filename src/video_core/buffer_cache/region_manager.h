@@ -51,6 +51,10 @@ public:
         gpu.Clear();
         writeable.Fill();
         readable.Fill();
+        written.Clear();
+        released_ahead.Clear();
+        confidence_lo.Clear();
+        confidence_hi.Clear();
     }
 
     void SetCpuAddress(VAddr new_cpu_addr) {
@@ -121,6 +125,56 @@ public:
     }
 
     /**
+     * A CPU write fault in [dirty_addr, dirty_addr + size): mark those pages CPU modified and,
+     * when predicting, also the run of following pages in the window that are expected to be
+     * rewritten (write confidence > 0) and are still watched and not GPU modified. Uploading a
+     * predicted page the CPU did not write again only costs a redundant copy of unchanged guest
+     * memory, while each avoided fault saves a signal round trip and an mprotect.
+     * Returns the number of pages released ahead.
+     */
+    size_t MarkWriteFault(u64 dirty_addr, u64 size, bool predict) {
+        RENDERER_TRACE;
+        const size_t offset = dirty_addr - cpu_addr;
+        const size_t start_page = SanitizeAddress(offset) / TRACKER_BYTES_PER_PAGE;
+        const size_t end_page = std::min<size_t>(
+            Common::DivCeil(SanitizeAddress(offset + size), TRACKER_BYTES_PER_PAGE),
+            NUM_PAGES_PER_REGION);
+        if (start_page >= end_page) {
+            return 0;
+        }
+        RegionBits release;
+        release.SetRange(start_page, end_page);
+        size_t predicted = 0;
+        if (predict) {
+            // Streaming writers fill buffers front to back: release the confident pages that
+            // follow the fault, skipping pages already released and stopping at the first page
+            // that is GPU modified or not expected to be written.
+            constexpr size_t Window = std::min<size_t>(WRITE_FAULT_WINDOW_PAGES, NUM_PAGES_PER_REGION);
+            const size_t window_end = std::min(Common::DivCeil(end_page, Window) * Window,
+                                               NUM_PAGES_PER_REGION);
+            const RegionBits confident = confidence_lo | confidence_hi;
+            for (size_t page = end_page; page < window_end; ++page) {
+                if (gpu.Get(page)) {
+                    break;
+                }
+                if (cpu.Get(page)) {
+                    continue;
+                }
+                if (!confident.Get(page)) {
+                    break;
+                }
+                released_ahead.Set(page);
+                cpu.Set(page);
+                ++predicted;
+            }
+        }
+        written |= release;
+        cpu |= release;
+        UpdateProtection<false, false>();
+        return predicted;
+    }
+
+    /**
      * Loop over each page in the given range, turn off those bits and notify the tracker if
      * needed. Call the given function on each turned off range.
      *
@@ -145,6 +199,7 @@ public:
         if constexpr (clear) {
             bits.UnsetRange(start_page, end_page);
             if constexpr (type == Type::CPU) {
+                EndWriteCycle(mask);
                 UpdateProtection<true, false>();
             } else if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled) {
                 UpdateProtection<false, true>();
@@ -203,12 +258,33 @@ private:
         tracker->UpdatePageWatchersForRegion<track, is_read>(cpu_addr, mask);
     }
 
+    /**
+     * An upload cleans `cleaned` and re-watches it, ending those pages' write cycle. A released
+     * page gives no evidence of whether the CPU wrote it, so the 2-bit write confidence is set
+     * to 3 by a real fault, decays by one per cycle spent released ahead and drops to 0 when the
+     * page was dirty for another reason. A page the CPU keeps rewriting faults once every four
+     * cycles; one it stopped writing is uploaded redundantly at most three more times.
+     */
+    void EndWriteCycle(const RegionBits& cleaned) {
+        const RegionBits faulted = written & cleaned;
+        const RegionBits ahead = released_ahead & cleaned & ~faulted;
+        const RegionBits lo = confidence_lo, hi = confidence_hi;
+        confidence_lo = (lo & ~cleaned) | faulted | (ahead & hi & ~lo);
+        confidence_hi = (hi & ~cleaned) | faulted | (ahead & hi & lo);
+        written &= ~cleaned;
+        released_ahead &= ~cleaned;
+    }
+
     PageManager* tracker;
     VAddr cpu_addr = 0;
     RegionBits cpu;
     RegionBits gpu;
     RegionBits writeable;
     RegionBits readable;
+    RegionBits written;        // CPU write faults since the upload that last cleaned the page
+    RegionBits released_ahead; // released by MarkWriteFault prediction in this cycle
+    RegionBits confidence_lo;  // 2-bit write confidence (see EndWriteCycle)
+    RegionBits confidence_hi;
 };
 
 } // namespace VideoCore

@@ -96,6 +96,14 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
         << " download_requested_bytes=" << download_buffer.SizeBytes()
         << " device_requested_bytes=" << device_buffer.SizeBytes()
         << " bda_page_table_requested_bytes=" << bda_pagetable_buffer.SizeBytes() << "\n";
+    const auto& watch = Core::gpu_watch_counters;
+    constexpr auto o = std::memory_order_relaxed;
+    out << "gpu_watch watch_calls=" << watch.watch_calls.load(o)
+        << " watch_pages=" << watch.watch_pages.load(o)
+        << " release_calls=" << watch.release_calls.load(o)
+        << " release_pages=" << watch.release_pages.load(o)
+        << " syscalls=" << watch.syscalls.load(o)
+        << " predicted_pages=" << watch.predicted_pages.load(o) << "\n";
 }
 
 void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
@@ -103,6 +111,14 @@ void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
     // Published tracker regions are stable; absent/unwatched pages are no-ops.
     memory_tracker->InvalidateRegion(
         device_addr, size, [this, device_addr, size] { ReadMemory(device_addr, size, true); });
+}
+
+void BufferCache::InvalidateMemoryFromWriteFault(VAddr device_addr, u64 size) {
+    const size_t predicted = memory_tracker->InvalidateRegionFromWriteFault(
+        device_addr, size, [this, device_addr, size] { ReadMemory(device_addr, size, true); });
+    if (predicted) {
+        Core::gpu_watch_counters.predicted_pages.fetch_add(predicted, std::memory_order_relaxed);
+    }
 }
 
 void BufferCache::InvalidateMapping(VAddr device_addr, u64 size) {

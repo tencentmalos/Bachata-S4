@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <fmt/format.h>
 #include "common/logging/log.h"
+#include "core/address_space.h"
+#include "video_core/buffer_cache/region_definitions.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 
@@ -83,6 +85,9 @@ std::string Summary() {
     out += fmt::format("armed={} uploads={} images={} frames={} uploads_per_frame={:.2f} dirty_notes={} log_left={}\n",
                        armed.load() ? 1 : 0, total_uploads, uploaded, frames,
                        frames ? double(total_uploads) / frames : 0.0, dirty_notes, log_budget.load());
+    out += fmt::format("watch_coalesce={} watch_predict={}\n",
+                       Core::gpu_watch_per_page.load() ? "off" : "on",
+                       predict_write_faults.load() ? "on" : "off");
     out += fmt::format("ignore_storage_dirty={} ignored_storage_dirty={}\n",
                        ignore_storage_dirty.load() ? 1 : 0, ignored_storage_dirty.load());
     std::vector<std::pair<u64, u64>> by_writer(writers.begin(), writers.end());
@@ -295,8 +300,20 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("fill_clear={} (compute fill kernels {})\n", args[1],
                            args[1] == "on" ? "clear images directly" : "dispatch as before");
     }
+    if (sub == "watch_coalesce" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        Core::gpu_watch_per_page.store(args[1] == "off");
+        return fmt::format("watch_coalesce={} (GPU write-watch mprotect {})\n", args[1],
+                           args[1] == "on" ? "per run of pages" : "per 4 KiB page");
+    }
+    if (sub == "watch_predict" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        predict_write_faults.store(args[1] == "on");
+        return fmt::format("watch_predict={} (write faults {})\n", args[1],
+                           args[1] == "on" ? "also release pages rewritten last cycle"
+                                           : "release only the faulting page");
+    }
     return "status=bad_arguments usage: start [log_lines] | status | stop | "
-           "ignore_storage_dirty on|off | fill_clear on|off\n";
+           "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
+           "watch_predict on|off\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics
