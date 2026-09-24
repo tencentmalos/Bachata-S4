@@ -1017,7 +1017,8 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 scheduler.NoteBarrierSource(desc.is_written ? "shader-write" : "shader-read",
                                             vsharp.base_address, size, *barrier, stage.pgm_hash);
             }
-            if (desc.is_written && desc.is_formatted) {
+            if (desc.is_written) {
+                // Raw storage-buffer writes can also make an aliased cached image stale.
                 texture_cache.InvalidateMemoryFromGPU(
                     vsharp.base_address, size,
                     VideoCore::UploadDiagnostics::DirtySource::GpuStorageWrite, stage.pgm_hash);
@@ -1285,7 +1286,7 @@ void Rasterizer::NoteDispatchDiagnostics(const Shader::Info& cs,
         }
         bool base_match = false;
         b.images = texture_cache.DescribeImagesForDiagnostics(b.address, b.size, base_match);
-        writes_image |= desc.is_written && desc.is_formatted && base_match;
+        writes_image |= desc.is_written && base_match;
     }
     if (writes_image) {
         VideoCore::UploadDiagnostics::NoteDispatch(cs.pgm_hash, program.dim_x, program.dim_y,
