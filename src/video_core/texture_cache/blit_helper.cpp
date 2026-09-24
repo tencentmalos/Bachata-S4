@@ -82,7 +82,7 @@ void BlitHelper::EncodeAstc(vk::Image source, vk::Format source_format, u32 sour
     };
     scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, astc_encoder->PipelineLayout(),
                                    astc_encoder->DescriptorLayout(), writes);
-    const auto cmd = scheduler.CommandBuffer();
+    const auto cmd = scheduler.RawCommandBuffer();
     ASSERT(astc_encoder->Record(cmd, VK_NULL_HANDLE, request));
     const vk::BufferMemoryBarrier2 barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eComputeShader,

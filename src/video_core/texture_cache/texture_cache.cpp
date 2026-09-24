@@ -160,6 +160,15 @@ void TextureCache::PublishMemoryDiagnostics() {
         for (size_t i = 0; i < resumes.size(); ++i)
             out << ' ' << Vulkan::Scheduler::RenderBreakNames[i] << '=' << resumes[i];
         out << '\n';
+        const auto tiles = Vulkan::render_pass_stats.Read();
+        out << "tile_traffic passes=" << tiles.passes << " loads=" << tiles.loads
+            << " clears=" << tiles.clears << " stores=" << tiles.stores
+            << " load_pixels=" << tiles.load_pixels << " store_pixels=" << tiles.store_pixels
+            << " draws_per_pass empty=" << tiles.empty << " single=" << tiles.single
+            << " few=" << tiles.few << " many=" << tiles.many << '\n';
+        out << "pass_hoist hoisted=" << tiles.hoisted << " conflicts=" << tiles.hoist_conflicts
+            << " unavailable=" << tiles.hoist_unavailable
+            << " interrupted=" << tiles.hoist_interrupted << '\n';
         // Re-arm the bounded pass-break/resume log so the next frames after a request
         // describe which images and transitions split passes in the current scene.
         scheduler.ArmPassBreakLog(400);

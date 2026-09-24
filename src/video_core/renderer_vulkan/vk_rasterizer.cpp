@@ -240,6 +240,7 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
     UpdateDynamicState(pipeline, is_indexed);
     RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
+    scheduler.NoteDraw();
 
     const auto& vs_info = pipeline->GetStage(Shader::LogicalStage::Vertex);
     const auto& fetch_shader = pipeline->GetFetchShader();
@@ -322,6 +323,7 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
     UpdateDynamicState(pipeline, is_indexed);
     RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
+    scheduler.NoteDraw();
 
     // We can safely ignore both SGPR UD indices and results of fetch shader parsing, as vertex and
     // instance offsets will be automatically applied by Vulkan from indirect args buffer.
@@ -1177,6 +1179,7 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
             bound_images.emplace_back(image_id);
 
             auto& image = texture_cache.GetImage(image_id);
+            scheduler.StageAccess(image.info.guest_address, image.info.guest_size, is_storage);
             auto& image_view = texture_cache.FindTexture(image_id, desc);
 
             // The image is either bound as storage in a separate descriptor or bound as render
@@ -1275,6 +1278,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
             image = &texture_cache.GetImage(image_id);
         }
         texture_cache.UpdateImage(image_id);
+        scheduler.StageAccess(image->info.guest_address, image->info.guest_size, true);
         image->SetBackingSamples(key.color_samples[cb]);
         ASSERT(u32(image->backing->image.image_ci.samples) == key.color_samples[cb]);
         const auto& image_view = texture_cache.FindRenderTarget(image_id, desc);
@@ -1324,6 +1328,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         const auto& image_view = texture_cache.FindDepthTarget(image_id, desc);
         auto& image = texture_cache.GetImage(image_id);
         ASSERT(u32(image.backing->image.image_ci.samples) == key.depth_samples);
+        scheduler.StageAccess(image.info.guest_address, image.info.guest_size, true);
 
         const auto slice = image_view.info.range.base.layer;
         const bool is_depth_clear =

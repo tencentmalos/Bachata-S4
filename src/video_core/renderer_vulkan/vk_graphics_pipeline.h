@@ -10,6 +10,7 @@
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_depth.h"
 #include "video_core/amdgpu/regs_primitive.h"
+#include "video_core/renderer_vulkan/vk_command_recorder.h"
 #include "video_core/renderer_vulkan/vk_pipeline_common.h"
 
 namespace VideoCore {
@@ -104,7 +105,7 @@ public:
 
     // Re-emit after every guest pipeline bind, including indirect draws and
     // transitions from host helper pipelines with static 1x1 state.
-    void ApplyFragmentShadingRate(vk::CommandBuffer cmd, u32 quality) const;
+    void ApplyFragmentShadingRate(const RecordingCommandBuffer& cmd, u32 quality) const;
 
     /// Gets the attributes and bindings for vertex inputs.
     template <typename Attribute, typename Binding>

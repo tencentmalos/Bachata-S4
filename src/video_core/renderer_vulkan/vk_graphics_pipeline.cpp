@@ -486,13 +486,13 @@ GraphicsPipeline::GraphicsPipeline(
     SetObjectName(device, *pipeline, "Graphics Pipeline {}", debug_str);
 }
 
-void GraphicsPipeline::ApplyFragmentShadingRate(vk::CommandBuffer cmd, u32 quality) const {
+void GraphicsPipeline::ApplyFragmentShadingRate(const RecordingCommandBuffer& cmd, u32 quality) const {
     if (!instance.IsPipelineFragmentShadingRateSupported()) {
         return;
     }
     const auto size = instance.GetFragmentShadingRates().Select(
         quality, raster_samples, requires_full_fragment_rate);
-    SetGuestFragmentShadingRate(cmd, size);
+    cmd.Custom(0, [size](vk::CommandBuffer c) { SetGuestFragmentShadingRate(c, size); });
     // Bounded diagnostics: one record per requested/effective pair per render
     // thread, not one per draw or pipeline. Unsupported qualities use full rate.
     static thread_local u32 reported{};

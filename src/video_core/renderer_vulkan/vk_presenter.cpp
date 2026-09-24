@@ -544,9 +544,9 @@ Presenter::~Presenter() {
         draw_scheduler.Finish();
         present_scheduler.Finish();
         flip_scheduler.Finish();
-        Check(draw_scheduler.CommandBuffer().reset());
-        Check(present_scheduler.CommandBuffer().reset());
-        Check(flip_scheduler.CommandBuffer().reset());
+        Check(draw_scheduler.RawCommandBuffer().reset());
+        Check(present_scheduler.RawCommandBuffer().reset());
+        Check(flip_scheduler.RawCommandBuffer().reset());
     } catch (const std::exception& error) {
         // A poisoned submission worker is reported to the Session owner. Do not
         // throw again from its teardown. Drain any accepted host calls first;
@@ -710,7 +710,7 @@ vk::ImageView Presenter::RecordFdmUpload(Scheduler& scheduler, const Frame& fram
         return {};
     }
     const auto result = fdm_ring.RecordUpload(
-        static_cast<VkCommandBuffer>(scheduler.CommandBuffer()), frame.id, fdm_map,
+        static_cast<VkCommandBuffer>(scheduler.RawCommandBuffer()), frame.id, fdm_map,
         fdm_map_hash);
     if (result == spatial::foveation::vulkan::UploadResult::Failed) {
         LOG_WARNING(Render_Vulkan, "FDM map upload failed for frame {}", frame.id);
@@ -747,7 +747,7 @@ Frame* Presenter::PrepareLastFrame() {
 
     auto& scheduler = flip_scheduler;
     scheduler.EndRendering(Vulkan::RenderBreak::Present);
-    const auto cmdbuf = scheduler.CommandBuffer();
+    const auto cmdbuf = scheduler.RawCommandBuffer();
 
     const auto frame_subresources = vk::ImageSubresourceRange{
         .aspectMask = vk::ImageAspectFlagBits::eColor,
@@ -825,7 +825,7 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
                  static_cast<u32>(eyes[1].GetType()), eyes[1].data_format, eyes[1].num_format);
     }
     draw_scheduler.EndRendering(Vulkan::RenderBreak::Present);
-    draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
+    draw_scheduler.GpuProfile().Prepare(draw_scheduler.RawCommandBuffer());
     for (u32 i = 0; i < image_count; ++i) {
         VideoCore::TextureCache::ImageDesc desc{eyes[i], Shader::ImageResource{}};
         const auto id = texture_cache.FindImage(desc);
@@ -847,7 +847,7 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
                      source.samplers[i].raw0, source.samplers[i].raw1);
         }
         image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
-                      vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.CommandBuffer());
+                      vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.RawCommandBuffer());
         views[i] = *texture_cache.FindTexture(id, desc).image_view;
         samplers[i] = texture_cache.GetSampler(source.samplers[i], {});
         if (!i) eye_size = {u32(eyes[i].width + 1), u32(eyes[i].height + 1)};
@@ -867,7 +867,7 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
         .newLayout = vk::ImageLayout::eColorAttachmentOptimal,
         .image = frame->image,
         .subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
-    const auto cmdbuf = draw_scheduler.CommandBuffer();
+    const auto cmdbuf = draw_scheduler.RawCommandBuffer();
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &barrier});
     auto settings = pp_settings;
@@ -940,8 +940,8 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         Common::Profiler::Scope scope{"Prepare.EndRendering"};
         draw_scheduler.EndRendering(Vulkan::RenderBreak::Present);
     }
-    draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
-    const auto cmdbuf = draw_scheduler.CommandBuffer();
+    draw_scheduler.GpuProfile().Prepare(draw_scheduler.RawCommandBuffer());
+    const auto cmdbuf = draw_scheduler.RawCommandBuffer();
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .imageMemoryBarrierCount = 1,
         .pImageMemoryBarriers = &pre_barrier,
@@ -1054,7 +1054,7 @@ Frame* Presenter::PrepareBlankFrame(bool present_thread) {
     auto& scheduler = present_thread ? present_scheduler : draw_scheduler;
     scheduler.EndRendering(Vulkan::RenderBreak::Present);
 
-    const auto cmdbuf = scheduler.CommandBuffer();
+    const auto cmdbuf = scheduler.RawCommandBuffer();
 
     constexpr vk::ImageSubresourceRange simple_subresource = {
         .aspectMask = vk::ImageAspectFlagBits::eColor,
@@ -1181,7 +1181,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
 
     auto& scheduler = present_scheduler;
     scheduler.GpuProfile().PresentKind(is_reusing_frame);
-    const auto cmdbuf = scheduler.CommandBuffer();
+    const auto cmdbuf = scheduler.RawCommandBuffer();
     const u32 capture_with_overlays_count = VideoCore::ConsumeWithOverlaysScreenshotRequests();
     std::vector<ScreenshotReadback> pending_screenshots;
     if (capture_with_overlays_count > 0) {

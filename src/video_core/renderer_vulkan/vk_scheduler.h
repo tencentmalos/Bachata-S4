@@ -6,14 +6,18 @@
 #include <atomic>
 
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <queue>
+#include <span>
 #include <string>
 #include <vector>
 
 #include "common/unique_function.h"
 #include "video_core/renderer_vulkan/render_break.h"
+#include "video_core/renderer_vulkan/render_pass_stats.h"
+#include "video_core/renderer_vulkan/vk_command_recorder.h"
 #include "video_core/renderer_vulkan/vk_gpu_profiler.h"
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_primitive.h"
@@ -172,7 +176,7 @@ struct DynamicState {
     bool feedback_loop_enabled{};
 
     /// Commits the dynamic state to the provided command buffer.
-    void Commit(const Instance& instance, const vk::CommandBuffer& cmdbuf);
+    void Commit(const Instance& instance, const RecordingCommandBuffer& cmdbuf);
 
     /// Invalidates all dynamic state to be flushed into the next command buffer.
     void Invalidate() {
@@ -386,7 +390,8 @@ public:
     // See render_break.h: only real breaks (a pass was open) are counted.
     using RenderBreak = Vulkan::RenderBreak;
     static constexpr const auto& RenderBreakNames = Vulkan::RenderBreakNames;
-    bool IsRendering() const { return is_rendering; }
+    // A hoisted operation is logically outside (before) the open pass.
+    bool IsRendering() const { return is_rendering && !hoisting; }
     const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderBreaks() const { return render_breaks; }
     uint64_t RenderBegins() const { return render_begins; }
     /// Pass instances whose attachments/area differ from the previous instance: the
@@ -405,6 +410,42 @@ public:
     void ArmPassBreakLog(uint32_t lines) { pass_break_log_budget.store(lines, std::memory_order_relaxed); }
     bool BeginRendering(const RenderState& new_state);
 
+    /// Counts a draw recorded inside the open render pass (per-pass draw histogram).
+    void NoteDraw() {
+        ++pass_draws;
+        if (pass_trackable) {
+            if (pass_reads.size() + staged_reads.size() > MaxPassRanges ||
+                pass_writes.size() + staged_writes.size() > MaxPassRanges) {
+                pass_trackable = false;
+            } else {
+                pass_reads.insert(pass_reads.end(), staged_reads.begin(), staged_reads.end());
+                pass_writes.insert(pass_writes.end(), staged_writes.begin(), staged_writes.end());
+            }
+        }
+        ClearStagedAccess();
+    }
+
+    /// Guest memory accessed by the draw being prepared; joins the pass the draw lands in.
+    void StageAccess(VAddr address, u64 size, bool write) {
+        if (hoisting || !size || !(recorder && recorder->Deferring()))
+            return;
+        (write ? staged_writes : staged_reads).emplace_back(address, address + size);
+    }
+    void ClearStagedAccess() noexcept {
+        staged_reads.clear();
+        staged_writes.clear();
+    }
+
+    using AccessRange = std::pair<VAddr, VAddr>; // [begin, end)
+    /// Tries to place the following commands before the open (held) render pass instead
+    /// of breaking it: only when nothing recorded in the pass so far writes what the
+    /// operation reads, or reads/writes what it writes. `reads_written` also treats the
+    /// reads as writes (e.g. the operation may upload those ranges first). On success the
+    /// operation must be closed with EndHoist; EndRendering is a no-op in between.
+    bool BeginHoist(std::span<const AccessRange> reads, std::span<const AccessRange> writes,
+                    bool reads_written);
+    void EndHoist();
+
     /// Ends current rendering scope.
     void EndRendering(RenderBreak cause = RenderBreak::Other);
 
@@ -418,8 +459,19 @@ public:
         return dynamic_state;
     }
 
-    /// Returns the current command buffer.
-    vk::CommandBuffer CommandBuffer() const {
+    /// Returns the current command buffer. With deferred recording on, commands are
+    /// copied into chunks and replayed in order by the recording thread.
+    RecordingCommandBuffer CommandBuffer() const {
+        return {recorder.get(), current_cmdbuf};
+    }
+
+    /// The real command buffer for code that records through its own entry points
+    /// (profiler timestamps, third-party integrations). Drains deferred recording first.
+    vk::CommandBuffer RawCommandBuffer() {
+        if (hoisting)
+            InterruptHoist();
+        if (recorder)
+            recorder->CheckOutRaw();
         return current_cmdbuf;
     }
 
@@ -484,6 +536,7 @@ private:
     std::unique_ptr<DescriptorHeap> diagnostic_descriptors;
     DynamicState dynamic_state;
     vk::CommandBuffer current_cmdbuf;
+    std::unique_ptr<CommandRecorder> recorder;
     std::vector<std::string> marker_stack;
     uint64_t last_submission{};
     std::condition_variable_any event_cv;
@@ -506,6 +559,13 @@ private:
     uint64_t render_begins{}, render_natural{};
     RenderBreak last_break{RenderBreak::Other};
     bool last_begin_resumed{};
+    u32 pass_draws{};
+    // Pass dependency tracking for hoisting (guest address ranges of the open pass).
+    static constexpr size_t MaxPassRanges = 16384;
+    bool pass_trackable{};
+    bool hoisting{};
+    std::vector<AccessRange> pass_reads, pass_writes, staged_reads, staged_writes;
+    void InterruptHoist();
     std::atomic<uint32_t> pass_break_log_budget{400};
     tracy::VkCtxScope* profiler_scope{};
 };
@@ -519,11 +579,11 @@ public:
     GpuZoneScope(Scheduler& scheduler_, GpuProfiler::Stage stage) : scheduler{scheduler_} {
         if (!Common::Profiler::GpuTimingDetailed()) return;
         serial = scheduler.GpuProfile().BatchSerial();
-        zone = scheduler.GpuProfile().Begin(scheduler.CommandBuffer(), stage);
+        zone = scheduler.GpuProfile().Begin(scheduler.RawCommandBuffer(), stage);
     }
     ~GpuZoneScope() {
         if (zone != GpuProfiler::Invalid && scheduler.GpuProfile().BatchSerial() == serial)
-            scheduler.GpuProfile().End(scheduler.CommandBuffer(), zone);
+            scheduler.GpuProfile().End(scheduler.RawCommandBuffer(), zone);
     }
     GpuZoneScope(const GpuZoneScope&) = delete;
     GpuZoneScope& operator=(const GpuZoneScope&) = delete;

@@ -28,6 +28,8 @@
 #include "video_core/gpu_reshape_status.h"
 #include "core/memory.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
+#include "video_core/amdgpu/pm4_stats.h"
+#include "video_core/renderer_vulkan/vk_command_recorder.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/renderdoc_capture.h"
 
@@ -170,6 +172,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("srt_batch",
         "Batched SRT (shader user-data) guest reads: status | on | off | verify on|off",
         [](const std::vector<std::string>& args) { return Core::MemoryManager::SrtReadBatch::Command(args); });
+    registry.Register("vk_recorder",
+        "Deferred Vulkan command recording thread: status | on | off (applies at the next submission)",
+        [](const std::vector<std::string>& args) { return Vulkan::CommandRecorder::Command(args); });
+    registry.Register("pm4_stats",
+        "Guest command buffer structure census (default off): start [detailed_frames] | status | stop",
+        [](const std::vector<std::string>& args) { return AmdGpu::Pm4Stats::Command(args); });
     registry.Register("upload_diag",
         "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });

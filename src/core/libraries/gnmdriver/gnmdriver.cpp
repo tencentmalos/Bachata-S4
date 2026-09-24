@@ -24,6 +24,7 @@
 #include "core/platform.h"
 #include "frontend/window.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 
@@ -2300,9 +2301,12 @@ s32 PS4_SYSV_ABI sceGnmSubmitAndFlipCommandBuffersForWorkload(
         return patch_result;
     }
 
-    return sceGnmSubmitCommandBuffers(count, const_cast<const u32**>(dcb_gpu_addrs),
-                                      dcb_sizes_in_bytes, const_cast<const u32**>(ccb_gpu_addrs),
-                                      ccb_sizes_in_bytes);
+    const s32 submit_result =
+        sceGnmSubmitCommandBuffers(count, const_cast<const u32**>(dcb_gpu_addrs),
+                                   dcb_sizes_in_bytes, const_cast<const u32**>(ccb_gpu_addrs),
+                                   ccb_sizes_in_bytes);
+    AmdGpu::Pm4Stats::NoteFlip();
+    return submit_result;
 }
 
 int PS4_SYSV_ABI sceGnmSubmitCommandBuffersForWorkload(u32 workload, u32 count,
@@ -2429,8 +2433,10 @@ int PS4_SYSV_ABI sceGnmSubmitCommandBuffersForWorkload(u32 workload, u32 count,
                 .base_addr = reinterpret_cast<uintptr_t>(ccb),
             });
         }
+        AmdGpu::Pm4Stats::NoteDcb(cbpair, dcb_span, ccb_size_dw != 0);
         liverpool->SubmitGfx(dcb_span, ccb_span, ScopedSubmitSources::Get(cbpair));
     }
+    AmdGpu::Pm4Stats::EndSubmitCall();
 
     return ORBIS_OK;
 }

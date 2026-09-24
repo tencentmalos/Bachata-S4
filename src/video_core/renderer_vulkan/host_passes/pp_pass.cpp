@@ -249,7 +249,7 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
                                 std::array<vk::ImageView, 3> stereo_views,
                                 vk::ImageView fdm_view,
                                 std::array<vk::Sampler, 4> stereo_samplers) {
-    const auto cmdbuf = scheduler.CommandBuffer();
+    const auto cmdbuf = scheduler.RawCommandBuffer();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
             .pLabelName = "Host/Post processing",

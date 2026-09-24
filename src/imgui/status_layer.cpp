@@ -42,6 +42,22 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
             }
             last_coverage = cov;
         }
+        {
+            const auto tiles = ::Vulkan::render_pass_stats.Read();
+            if (sample_ns) {
+                window_tiles = {tiles.passes - last_tiles.passes, tiles.loads - last_tiles.loads,
+                                tiles.clears - last_tiles.clears, tiles.stores - last_tiles.stores,
+                                tiles.load_pixels - last_tiles.load_pixels,
+                                tiles.store_pixels - last_tiles.store_pixels,
+                                tiles.empty - last_tiles.empty, tiles.single - last_tiles.single,
+                                tiles.few - last_tiles.few, tiles.many - last_tiles.many,
+                                tiles.hoisted - last_tiles.hoisted,
+                                tiles.hoist_conflicts - last_tiles.hoist_conflicts,
+                                tiles.hoist_unavailable - last_tiles.hoist_unavailable,
+                                tiles.hoist_interrupted - last_tiles.hoist_interrupted};
+            }
+            last_tiles = tiles;
+        }
         last_flips = flips; last_draws = draws; sample_ns = now;
     }
     const float panel_width = std::min(480.f, std::max(260.f, width * .32f));
@@ -140,6 +156,24 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                         "Re-uploads %.1f/%s (%.1f MB)  fill clears %.1f", uploads,
                         per_frame ? "frame" : "s", window_upload_bytes / divisor / (1024.0 * 1024.0),
                         window_fill_clears / divisor);
+        }
+        if (coverage_sampled && window_tiles.passes) {
+            // Tile traffic per guest frame (per second without flips): attachments loaded
+            // into / stored from tile memory, in megapixels, and passes by draw count.
+            const bool per_frame = window_flips != 0;
+            const double d = per_frame ? double(window_flips) : std::max(window_seconds, 1e-3);
+            Text("Tiles/%s  load %.0f (%.1f MPix)  clear %.0f  store %.0f (%.1f MPix)",
+                 per_frame ? "frame" : "s", window_tiles.loads / d, window_tiles.load_pixels / d / 1e6,
+                 window_tiles.clears / d, window_tiles.stores / d, window_tiles.store_pixels / d / 1e6);
+            const bool tiny = (window_tiles.empty + window_tiles.single) * 2 > window_tiles.passes;
+            TextColored(tiny ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
+                        "Passes/%s %.0f  draws 0:%.0f 1:%.0f 2-7:%.0f 8+:%.0f", per_frame ? "frame" : "s",
+                        window_tiles.passes / d, window_tiles.empty / d, window_tiles.single / d,
+                        window_tiles.few / d, window_tiles.many / d);
+            if (window_tiles.hoisted || window_tiles.hoist_conflicts || window_tiles.hoist_unavailable)
+                Text("Hoisted/%s %.1f  kept break: conflict %.1f  no hold %.1f",
+                     per_frame ? "frame" : "s", window_tiles.hoisted / d,
+                     window_tiles.hoist_conflicts / d, window_tiles.hoist_unavailable / d);
         }
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
         if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");

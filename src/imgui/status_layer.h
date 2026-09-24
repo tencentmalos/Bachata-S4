@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include "video_core/renderer_vulkan/render_pass_stats.h"
 #include <memory>
 #include "common/gpu_timing.h"
 #include "video_core/texture_cache/scale_coverage.h"
@@ -41,6 +42,8 @@ private:
     // image clears, and guest flips to express both per frame.
     uint64_t window_uploads{}, window_upload_bytes{}, window_fill_clears{}, window_flips{};
     double window_seconds{};
+    // Same window: render pass tile traffic (Vulkan::render_pass_stats deltas).
+    ::Vulkan::RenderPassStats::Snapshot last_tiles{}, window_tiles{};
     bool coverage_sampled{};
     uint64_t sample_ns{}, last_flips{}, last_draws{};
     double guest_flip_fps{}, draws_per_second{};
