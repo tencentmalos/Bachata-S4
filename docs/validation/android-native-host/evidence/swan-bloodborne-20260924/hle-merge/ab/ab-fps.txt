@@ -1,0 +1,8 @@
+off1 hle_merge=off fps=18.639 gpubusy=97.9% cpuset=/top-app
+on1 hle_merge=on fps=17.819 gpubusy=94.4% cpuset=/top-app
+off2 hle_merge=off fps=19.038 gpubusy=98.5% cpuset=/top-app
+on2 hle_merge=on fps=19.139 gpubusy=96.7% cpuset=/top-app
+off3 hle_merge=off fps=18.536 gpubusy=97.1% cpuset=/top-app
+on3 hle_merge=on fps=18.467 gpubusy=95.6% cpuset=/top-app
+off4 hle_merge=off fps=18.131 gpubusy=97.1% cpuset=/top-app
+on4 hle_merge=on fps=18.616 gpubusy=96.7% cpuset=/top-app

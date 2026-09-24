@@ -1,0 +1,1 @@
+    hle_copies per_frame: dispatches=55.6 regions=495.7 kbytes=992.1 max_regions=31 sizes(<=64/<=256/<=4K/<=64K/more)=69.6/125.9/269.5/29.7/1.0 adjacent=0.0 sorted_adjacent=0.0 same_base_consecutive=0.0

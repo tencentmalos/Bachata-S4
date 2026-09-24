@@ -1,0 +1,3 @@
+s-off rec=off fps=22.286 draws/frame=1636.3 chunks=0.0 cmds=0.0 syncs= waits=0.0 raw=0.0 cpuset=/foreground
+s-on rec=on fps=20.177 draws/frame=1566.1 chunks=69.0 cmds=17504.8 syncs= waits=1.2 raw=1.2 cpuset=/foreground
+s-on2 rec=on fps= draws/frame= chunks=-25032.0 cmds=-6349286.0 syncs= waits=-421.0 raw=-422.0 cpuset=/background

@@ -1,0 +1,1 @@
+on0 hoist=on fps=22.73 gpubusy=97.9% passes=274 loads=444 loadMPix=153.8 hoisted=8.5 conflicts=37.9 unavail=0.0 interrupted=0.00 cpuset=C:/Program Files/Git/top-app

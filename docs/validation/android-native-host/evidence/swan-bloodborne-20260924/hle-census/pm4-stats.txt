@@ -1,0 +1,4 @@
+    armed=1 frames=202 per_frame: calls=12.01 dcbs=73.40 draws=1579.1 dispatches=173.5 ib_calls=0.0 kdwords=216.6 dcbs_with_clear_state=4.99 truncated=0
+    stream_copies per_frame(flips=201): copies=8580.8 kbytes=7457.1 keys=689959 same_frame_unchanged=4222.5 (4185.3 KB) cross_frame_unchanged=752.5 (1401.1 KB) changed=173.1 (178.4 KB) first_seen_total=689959
+    hle_copies per_frame: dispatches=56.3 regions=4206.3 kbytes=992.2 max_regions=1112 sizes(<=64/<=256/<=4K/<=64K/more)=109.4/4096.9/0.0/0.0/0.0 adjacent=3710.6 sorted_adjacent=3710.6 same_base_consecutive=0.0
+
