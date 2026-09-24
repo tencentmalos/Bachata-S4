@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include "common/logging/log.h"
 #include "common/assert.h"
 #include "common/debug.h"
@@ -28,6 +29,9 @@ Scheduler::Scheduler(const Instance& instance, GpuProfiler::Stage stage)
         };
         diagnostic_descriptors = std::make_unique<DescriptorHeap>(instance, &master_semaphore, sizes);
     }
+    // Only the guest command stream is recorded on a separate thread.
+    if (stage == GpuProfiler::Stage::DrawBatch)
+        recorder = std::make_unique<CommandRecorder>();
     AllocateWorkerCommandBuffers();
     priority_pending_ops_thread =
         std::jthread([this](std::stop_token stop) {
@@ -59,14 +63,14 @@ Scheduler::~Scheduler() {
 void Scheduler::BindHostDescriptors(vk::PipelineBindPoint point, vk::PipelineLayout layout,
     vk::DescriptorSetLayout set_layout, vk::ArrayProxy<const vk::WriteDescriptorSet> writes) {
     if (!diagnostic_descriptors) {
-        current_cmdbuf.pushDescriptorSetKHR(point, layout, 0, writes);
+        CommandBuffer().pushDescriptorSetKHR(point, layout, 0, writes);
         return;
     }
     const auto set = diagnostic_descriptors->Commit(set_layout);
     std::vector<vk::WriteDescriptorSet> assigned(writes.begin(), writes.end());
     for (auto& write : assigned) write.dstSet = set;
     instance.GetDevice().updateDescriptorSets(assigned, {});
-    current_cmdbuf.bindDescriptorSets(point, layout, 0, set, {});
+    CommandBuffer().bindDescriptorSets(point, layout, 0, set, {});
 }
 
 bool Scheduler::BeginRendering(const RenderState& new_state) {
@@ -90,6 +94,33 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
     }
     is_rendering = true;
     render_state = new_state;
+    pass_draws = 0;
+    {
+        // Tile traffic this pass asks for: every attachment is stored; LOAD reads it in.
+        constexpr auto o = std::memory_order_relaxed;
+        auto& stats = render_pass_stats;
+        const u64 pixels = u64(new_state.width) * new_state.height * std::max<u16>(new_state.num_layers, 1);
+        u32 loads = 0, clears = 0, stores = 0;
+        for (u32 i = 0; i < new_state.num_color_attachments; ++i) {
+            const auto& cb = new_state.color_attachments[i];
+            if (!cb.image_view)
+                continue;
+            ++stores;
+            cb.is_clear ? ++clears : ++loads;
+        }
+        const auto& ds = new_state.depth_stencil_attachment;
+        if (ds.image_view && (ds.has_depth || ds.has_stencil)) {
+            ++stores;
+            const bool loaded = (ds.has_depth && !ds.depth_clear) || (ds.has_stencil && !ds.stencil_clear);
+            loaded ? ++loads : ++clears;
+        }
+        stats.passes.fetch_add(1, o);
+        stats.loads.fetch_add(loads, o);
+        stats.clears.fetch_add(clears, o);
+        stats.stores.fetch_add(stores, o);
+        stats.load_pixels.fetch_add(loads * pixels, o);
+        stats.store_pixels.fetch_add(stores * pixels, o);
+    }
 
     std::array<vk::RenderingAttachmentInfo, 8> color_attachments;
     for (u32 i = 0; i < render_state.num_color_attachments; ++i) {
@@ -136,20 +167,89 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
     };
 
     if (Common::Profiler::GpuTimingDetailed())
-        gpu_render_zone = gpu_profiler.Begin(current_cmdbuf, GpuProfiler::Stage::RenderPass);
-    current_cmdbuf.beginRendering(rendering_info);
+        gpu_render_zone = gpu_profiler.Begin(RawCommandBuffer(), GpuProfiler::Stage::RenderPass);
+    pass_reads.clear();
+    pass_writes.clear();
+    if (recorder) {
+        recorder->BeginPass(); // hold the pass so independent work can go before it
+        pass_trackable = recorder->Holding() &&
+                         !render_pass_stats.hoist_off.load(std::memory_order_relaxed);
+    }
+    CommandBuffer().beginRendering(rendering_info);
     return true;
 }
 
+bool Scheduler::BeginHoist(std::span<const AccessRange> reads, std::span<const AccessRange> writes,
+                           bool reads_written) {
+    if (!is_rendering || hoisting)
+        return false;
+    constexpr auto o = std::memory_order_relaxed;
+    if (!pass_trackable || !recorder || !recorder->Holding()) {
+        render_pass_stats.hoist_unavailable.fetch_add(1, o);
+        return false;
+    }
+    const auto overlaps = [](const std::vector<AccessRange>& set, const AccessRange& r) {
+        for (const auto& [begin, end] : set)
+            if (begin < r.second && r.first < end)
+                return true;
+        return false;
+    };
+    for (const auto& w : writes) {
+        if (overlaps(pass_reads, w) || overlaps(pass_writes, w)) {
+            render_pass_stats.hoist_conflicts.fetch_add(1, o);
+            return false;
+        }
+    }
+    for (const auto& r : reads) {
+        if (overlaps(pass_writes, r) || (reads_written && overlaps(pass_reads, r))) {
+            render_pass_stats.hoist_conflicts.fetch_add(1, o);
+            return false;
+        }
+    }
+    recorder->BeginPrePass();
+    hoisting = true;
+    render_pass_stats.hoisted.fetch_add(1, o);
+    return true;
+}
+
+void Scheduler::EndHoist() {
+    if (!hoisting)
+        return;
+    recorder->EndPrePass();
+    hoisting = false;
+}
+
+void Scheduler::InterruptHoist() {
+    // Something needs the pass closed (submission, raw command buffer) while a hoisted
+    // operation is being recorded: end the held pass now. The operation's commands so far
+    // stay before the pass, the rest follows its end; both orders are valid for an
+    // operation independent of the pass, and its own order is unchanged.
+    recorder->EndPrePass();
+    hoisting = false;
+    render_pass_stats.hoist_interrupted.fetch_add(1, std::memory_order_relaxed);
+    EndRendering(RenderBreak::Other);
+}
+
 void Scheduler::EndRendering(RenderBreak cause) {
-    if (!is_rendering) {
+    if (!is_rendering || hoisting) {
         return;
     }
     ++render_breaks[size_t(cause)];
     last_break = cause;
     is_rendering = false;
-    current_cmdbuf.endRendering();
-    gpu_profiler.End(current_cmdbuf, gpu_render_zone);
+    {
+        constexpr auto o = std::memory_order_relaxed;
+        auto& stats = render_pass_stats;
+        (pass_draws == 0 ? stats.empty : pass_draws == 1 ? stats.single
+                                        : pass_draws < 8 ? stats.few : stats.many)
+            .fetch_add(1, o);
+    }
+    CommandBuffer().endRendering();
+    pass_trackable = false;
+    if (recorder)
+        recorder->EndPass(); // queue pre-pass work, then the pass
+    if (gpu_render_zone != GpuProfiler::Invalid)
+        gpu_profiler.End(RawCommandBuffer(), gpu_render_zone);
     gpu_render_zone = GpuProfiler::Invalid;
 }
 
@@ -211,14 +311,14 @@ void Scheduler::PopPendingOperations() {
 void Scheduler::BeginMarker(std::string name) {
     if (!VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdBeginDebugUtilsLabelEXT) return;
     marker_stack.push_back(std::move(name));
-    current_cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
+    CommandBuffer().beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
         .pLabelName = marker_stack.back().c_str(),
     });
 }
 
 void Scheduler::EndMarker() {
     if (marker_stack.empty()) return;
-    current_cmdbuf.endDebugUtilsLabelEXT();
+    CommandBuffer().endDebugUtilsLabelEXT();
     marker_stack.pop_back();
 }
 
@@ -239,6 +339,12 @@ void Scheduler::AllocateWorkerCommandBuffers() {
     // Invalidate dynamic state so it gets applied to the new command buffer.
     dynamic_state.Invalidate();
 
+    // The recorder is drained here; later commands replay into the new buffer.
+    if (recorder) {
+        recorder->SetTarget(current_cmdbuf);
+        recorder->ApplyRequestedMode();
+    }
+
 #if TRACY_GPU_ENABLED
     auto* profiler_ctx = instance.GetProfilerContext();
     if (profiler_ctx) {
@@ -253,11 +359,21 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     Common::Profiler::Scope execution_scope{"Vulkan.SubmitExecution"};
     const auto generation = instance.DiagnosticGeneration();
     instance.CheckSubmissionHealth();
+    if (hoisting)
+        InterruptHoist();
+    // Let the recording thread work on queued chunks while this thread waits below.
+    EndRendering(RenderBreak::Flush);
+    if (recorder)
+        recorder->Dispatch();
     if (instance.Submissions() && CurrentTick() > 8) {
         // Also bound work already accepted by Vulkan, not just the host FIFO.
         // Tick reservation alone must never make a command buffer reusable.
         Common::Profiler::Scope scope{"Vulkan.InflightBudget"};
         master_semaphore.Wait(CurrentTick() - 8);
+    }
+    if (recorder) {
+        Common::Profiler::Scope scope{"Vulkan.RecorderDrain"};
+        recorder->Sync(); // the command buffer is ended and submitted by this thread
     }
     const u64 signal_value = master_semaphore.NextTick();
 
@@ -407,7 +523,7 @@ void Scheduler::PriorityPendingOpsThread(std::stop_token stoken) {
     }
 }
 
-void DynamicState::Commit(const Instance& instance, const vk::CommandBuffer& cmdbuf) {
+void DynamicState::Commit(const Instance& instance, const RecordingCommandBuffer& cmdbuf) {
     if (dirty_state.viewports) {
         dirty_state.viewports = false;
         cmdbuf.setViewportWithCount(viewports);

@@ -9,6 +9,7 @@
 #include "core/rasterizer_hooks.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
+#include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/texture_cache/texture_cache.h"
 
@@ -123,6 +124,7 @@ private:
     void RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering);
 
     void ResetBindings() {
+        scheduler.ClearStagedAccess();
         for (auto& image_id : bound_images) {
             texture_cache.GetImage(image_id).binding = {};
         }

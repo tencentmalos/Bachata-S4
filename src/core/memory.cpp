@@ -180,6 +180,26 @@ void MemoryManager::SetPrtArea(u32 id, VAddr address, u64 size) {
     rasterizer->MapMemory(address, size);
 }
 
+bool MemoryManager::TryCopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
+    std::shared_lock lk{mutex};
+    if (!IsValidMapping(virtual_addr))
+        return false;
+    auto vma = FindVMA(virtual_addr);
+    while (size) {
+        u64 copy_size = std::min<u64>(vma->second.size - (virtual_addr - vma->first), size);
+        if (vma->second.IsMapped()) {
+            std::memcpy(dest, std::bit_cast<const u8*>(virtual_addr), copy_size);
+        } else {
+            std::memset(dest, 0, copy_size);
+        }
+        size -= copy_size;
+        virtual_addr += copy_size;
+        dest += copy_size;
+        ++vma;
+    }
+    return true;
+}
+
 void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
     std::shared_lock lk{mutex};
     ASSERT_MSG(IsValidMapping(virtual_addr), "Attempted to access invalid address {:#x}",

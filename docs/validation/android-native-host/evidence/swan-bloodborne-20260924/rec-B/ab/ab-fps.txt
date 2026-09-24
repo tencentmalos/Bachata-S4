@@ -1,0 +1,8 @@
+off1 rec=off fps=18.528 draws/frame=1553.3 chunks=0.0 cmds=0.0 syncs=2.3 waits=0.0 raw=0.0 cpuset=/top-app
+on1 rec=on fps=19.264 draws/frame=1547.5 chunks=69.1 cmds=17536.0 syncs=3.5 waits=1.2 raw=1.2 cpuset=/top-app
+off2 rec=off fps=19.128 draws/frame=1567.2 chunks=0.0 cmds=0.0 syncs=2.4 waits=0.0 raw=0.0 cpuset=/top-app
+on2 rec=on fps=19.149 draws/frame=1567.7 chunks=69.9 cmds=17770.3 syncs=3.6 waits=1.2 raw=1.2 cpuset=/top-app
+off3 rec=off fps=19.096 draws/frame=1567.2 chunks=0.0 cmds=0.0 syncs=2.3 waits=0.0 raw=0.0 cpuset=/top-app
+on3 rec=on fps=19.304 draws/frame=1566.8 chunks=69.9 cmds=17740.0 syncs=3.6 waits=1.2 raw=1.2 cpuset=/top-app
+off4 rec=off fps=18.836 draws/frame=1546.4 chunks=0.0 cmds=0.0 syncs=2.3 waits=0.0 raw=0.0 cpuset=/top-app
+on4 rec=on fps=19.236 draws/frame=1567.9 chunks=69.6 cmds=17702.1 syncs=3.5 waits=1.2 raw=1.2 cpuset=/top-app

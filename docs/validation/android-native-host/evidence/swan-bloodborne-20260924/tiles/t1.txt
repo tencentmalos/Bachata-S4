@@ -1,0 +1,2 @@
+    status=sampled sample_ns=96390561515052 render_scale_percent=50 texture_quality=medium legacy=0 attachment_counter_version=2 attachment_draws=1515468 scaled_attachment_draws=1347305 attachment_passes=302296 scaled_attachment_passes=201422 resumed_attachment_passes=35356 plan_entries=1249 budget_native=0
+    tile_traffic passes=326582 loads=485859 clears=8931 stores=494790 load_pixels=197285012765 store_pixels=208103085341 draws_per_pass empty=0 single=228738 few=56687 many=41157

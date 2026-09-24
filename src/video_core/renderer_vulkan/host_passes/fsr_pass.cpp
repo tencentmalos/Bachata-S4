@@ -142,7 +142,7 @@ void FsrPass::Create(const Instance& instance, VmaAllocator allocator, u32 num_i
 vk::ImageView FsrPass::Render(Scheduler& scheduler, vk::ImageView input,
                               vk::Extent2D input_size, vk::Extent2D output_size, Settings settings,
                               bool hdr) {
-    const auto cmdbuf = scheduler.CommandBuffer();
+    const auto cmdbuf = scheduler.RawCommandBuffer();
     if (!settings.enable) {
         DebugState.is_using_fsr = false;
         return input;

@@ -208,9 +208,7 @@ public:
         const auto [data, offset] = Map(size, alignment);
         auto* memory = Core::Memory::Instance();
         const VAddr src_vaddr = reinterpret_cast<const VAddr>(src);
-        if (memory->IsValidMapping(src_vaddr)) {
-            memory->CopySparseMemory(src_vaddr, data, size);
-        } else {
+        if (!memory->TryCopySparseMemory(src_vaddr, data, size)) {
             std::memcpy(data, reinterpret_cast<const void*>(src), size);
         }
         Commit();

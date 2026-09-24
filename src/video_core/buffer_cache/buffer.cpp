@@ -258,10 +258,12 @@ bool StreamBuffer::WaitPendingOperations(u64 requested_upper_bound, bool allow_w
     }
     while (requested_upper_bound > wait_bound && wait_cursor < *invalidation_mark) {
         auto& watch = previous_watches[wait_cursor];
-        if (!scheduler->IsFree(watch.tick) && !allow_wait) {
-            return false;
+        if (!scheduler->IsFree(watch.tick)) {
+            if (!allow_wait) {
+                return false;
+            }
+            scheduler->Wait(watch.tick);
         }
-        scheduler->Wait(watch.tick);
         wait_bound = watch.upper_bound;
         ++wait_cursor;
     }

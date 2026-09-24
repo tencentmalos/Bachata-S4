@@ -170,6 +170,8 @@ void Liverpool::Process(std::stop_token stoken) {
                     static_cast<u64>(curr_qid), task.promise().diagnostic_id};
                 task.resume();
             }
+            // The task suspended or finished: publish packets it consumed since the last batch.
+            FlushPm4Progress();
 
             if (task.done()) {
                 SHAD_HANDOFF(generation, "queue_complete", curr_qid, task.promise().diagnostic_id);
@@ -261,9 +263,7 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb) {
             UNREACHABLE_MSG("Unknown PM4 type 3 opcode {:#x} with count {}",
                             static_cast<u32>(opcode), count);
         }
-        if (diagnostics)
-            diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
-                                 Core::Diagnostics::DiagnosticNowNs());
+        NotePm4Consumed();
         ccb = NextPacket(ccb, header->type3.NumWords() + 1);
     }
 
@@ -307,9 +307,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             break;
         case 2:
             // Type-2 packet are used for padding purposes
-            if (diagnostics)
-                diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
-                                     Core::Diagnostics::DiagnosticNowNs());
+            NotePm4Consumed();
             dcb = NextPacket(dcb, 1);
             continue;
         case 3:
@@ -950,9 +948,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 UNREACHABLE_MSG("Unknown PM4 type 3 opcode {:#x} with count {}",
                                 static_cast<u32>(opcode), count);
             }
-            if (diagnostics)
-                diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
-                                     Core::Diagnostics::DiagnosticNowNs());
+            NotePm4Consumed();
             dcb = NextPacket(dcb, header->type3.NumWords() + 1);
             break;
         }
@@ -1016,9 +1012,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         if (header->type == 2) {
             // Type-2 packet are used for padding purposes
             next_dw_off = 1;
-            if (diagnostics)
-                diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
-                                     Core::Diagnostics::DiagnosticNowNs());
+            NotePm4Consumed();
             acb = NextPacket(acb, next_dw_off);
             if constexpr (!is_indirect) {
                 *queue.read_addr += next_dw_off;
@@ -1239,9 +1233,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
                             static_cast<u32>(opcode), header->type3.NumWords());
         }
 
-        if (diagnostics)
-            diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
-                                 Core::Diagnostics::DiagnosticNowNs());
+        NotePm4Consumed();
         acb = NextPacket(acb, next_dw_off);
 
         if constexpr (!is_indirect) {

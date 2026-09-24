@@ -280,6 +280,9 @@ public:
     void SetPrtArea(u32 id, VAddr address, u64 size);
 
     void CopySparseMemory(VAddr source, u8* dest, u64 size);
+    /// CopySparseMemory for a source that may not be guest memory: one locked mapping
+    /// check instead of an unlocked pre-check plus the locked one. False when unmapped.
+    bool TryCopySparseMemory(VAddr source, u8* dest, u64 size);
 
     // GPU cache ranges may include reservation holes, just like sparse copies.
     // Keep those pages inaccessible; only mapped spans receive host watches.

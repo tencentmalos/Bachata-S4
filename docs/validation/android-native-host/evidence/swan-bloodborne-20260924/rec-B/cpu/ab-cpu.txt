@@ -1,0 +1,6 @@
+off1 rec=off fps=18.73 Guest-1=34.0ms/f shadPS4:GpuComm=44.4ms/f shadPS4:Present=3.6ms/f shadPS4:VkRecor=0.0ms/f
+on1 rec=on fps=18.99 Guest-1=33.9ms/f shadPS4:GpuComm=33.1ms/f shadPS4:Present=3.6ms/f shadPS4:VkRecor=10.8ms/f
+off2 rec=off fps=18.90 Guest-1=33.3ms/f shadPS4:GpuComm=43.9ms/f shadPS4:Present=3.5ms/f shadPS4:VkRecor=0.0ms/f
+on2 rec=on fps=18.86 Guest-1=34.0ms/f shadPS4:GpuComm=33.1ms/f shadPS4:Present=3.5ms/f shadPS4:VkRecor=10.8ms/f
+off3 rec=off fps=18.98 Guest-1=33.5ms/f shadPS4:GpuComm=44.4ms/f shadPS4:Present=3.5ms/f shadPS4:VkRecor=0.0ms/f
+on3 rec=on fps=18.98 Guest-1=33.7ms/f shadPS4:GpuComm=33.2ms/f shadPS4:Present=3.6ms/f shadPS4:VkRecor=10.8ms/f

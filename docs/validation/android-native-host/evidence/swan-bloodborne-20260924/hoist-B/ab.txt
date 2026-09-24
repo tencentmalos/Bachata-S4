@@ -1,0 +1,4 @@
+on1 hoist=on fps=22.78 gpubusy=98.6% passes=250 loads=359 loadMPix=106.7 hoisted=43.6 conflicts=1.1 unavail=1.0 interrupted=0.00 cpuset=C:/Program Files/Git/top-app
+off1 hoist=off fps=22.04 gpubusy=97.5% passes=273 loads=448 loadMPix=163.0 hoisted=0.0 conflicts=0.0 unavail=44.0 interrupted=0.00 cpuset=C:/Program Files/Git/top-app
+on2 hoist=on fps=22.87 gpubusy=98.4% passes=259 loads=366 loadMPix=108.1 hoisted=44.9 conflicts=1.1 unavail=1.0 interrupted=0.00 cpuset=C:/Program Files/Git/top-app
+off2 hoist=off fps=22.63 gpubusy=98.8% passes=268 loads=438 loadMPix=159.4 hoisted=0.0 conflicts=0.0 unavail=43.2 interrupted=0.00 cpuset=C:/Program Files/Git/top-app

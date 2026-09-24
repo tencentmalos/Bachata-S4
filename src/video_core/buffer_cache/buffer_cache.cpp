@@ -8,6 +8,7 @@
 #include "common/debug.h"
 #include "common/scope_exit.h"
 #include "core/memory.h"
+#include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/buffer_cache/memory_tracker.h"
@@ -460,9 +461,17 @@ std::pair<Buffer*, u32> BufferCache::ObtainBuffer(VAddr device_addr, u32 size, b
                                                   bool is_texel_buffer, BufferId buffer_id) {
     // For read-only buffers use device local stream buffer to reduce renderpass breaks.
     if (!is_written && size <= CACHING_PAGESIZE && !IsRegionGpuModified(device_addr, size)) {
+        // A CPU snapshot taken now: later GPU writes to this range cannot affect the
+        // draw, so it is not a pass dependency.
         const u64 offset = stream_buffer.Copy(device_addr, size, instance.UniformMinAlignment());
+        if (AmdGpu::Pm4Stats::armed.load(std::memory_order_relaxed)) [[unlikely]] {
+            AmdGpu::Pm4Stats::NoteStreamCopy(liverpool->diagnostic_guest_flip, device_addr, size,
+                                             stream_buffer.mapped_data.data() + offset);
+        }
         return {&stream_buffer, offset};
     }
+    // Pass dependency tracking: the draw being prepared reads/writes this GPU range.
+    scheduler.StageAccess(device_addr, size, is_written);
     if (IsBufferInvalid(buffer_id)) {
         buffer_id = FindBuffer(device_addr, size);
     }

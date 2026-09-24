@@ -36,6 +36,23 @@ struct Liverpool {
     // not a CPU function invocation or a host present.
     u64 diagnostic_guest_flip{};
     std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
+    // PM4 progress is published in batches: one clock read per packet cost ~3% of the
+    // command processor. The owner flushes whenever a queue task suspends or returns.
+    static constexpr u32 Pm4ProgressBatch = 64;
+    u32 pm4_progress_pending{};
+    void NotePm4Consumed() noexcept {
+        if (diagnostics && ++pm4_progress_pending >= Pm4ProgressBatch) {
+            FlushPm4Progress();
+        }
+    }
+    void FlushPm4Progress() noexcept {
+        if (pm4_progress_pending == 0 || !diagnostics) {
+            return;
+        }
+        diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
+                             Core::Diagnostics::DiagnosticNowNs(), pm4_progress_pending);
+        pm4_progress_pending = 0;
+    }
     static constexpr u32 GfxQueueId = 0u;
     static constexpr u32 NumGfxRings = 1u;     // actually 2, but HP is reserved by system software
     static constexpr u32 NumComputePipes = 7u; // actually 8, but #7 is reserved by system software

@@ -709,7 +709,11 @@ void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
                                : std::string{"full"});
         }
         scheduler->EndRendering(cause);
-        cmdbuf = scheduler->CommandBuffer();
+        scheduler->CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
+            .imageMemoryBarrierCount = static_cast<u32>(barriers.size()),
+            .pImageMemoryBarriers = barriers.data(),
+        });
+        return;
     }
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .imageMemoryBarrierCount = static_cast<u32>(barriers.size()),

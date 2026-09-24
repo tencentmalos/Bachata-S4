@@ -1,8 +1,12 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <array>
 #include <numeric>
 #include "shader_recompiler/info.h"
+#include "video_core/amdgpu/liverpool.h"
+#include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
@@ -38,20 +42,59 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
     copies.clear();
     copies.reserve(cs_program.dim_x);
 
+    // Turnip sets up a blit per region; the guest lists mostly 64-256 byte pieces that
+    // continue each other in both buffers, so extend the previous region instead.
+    const bool merge = !AmdGpu::Pm4Stats::hle_merge_off.load(std::memory_order_relaxed);
     for (u32 i = 0; i < cs_program.dim_x; i++) {
         const auto& [dst_idx, src_idx, end] = ctl_buf[i];
         const u32 local_dst_offset = dst_idx * buf_stride;
         const u32 local_src_offset = src_idx * buf_stride;
         const u32 local_size = (end + 1) * buf_stride;
+        if (merge && !copies.empty()) {
+            auto& last = copies.back();
+            if (last.srcOffset + last.size == local_src_offset &&
+                last.dstOffset + last.size == local_dst_offset) {
+                last.size += local_size;
+                continue;
+            }
+        }
         copies.emplace_back(local_src_offset, local_dst_offset, local_size);
     }
 
+    if (AmdGpu::Pm4Stats::armed.load(std::memory_order_relaxed)) [[unlikely]] {
+        static std::vector<AmdGpu::Pm4Stats::HleRegion> regions;
+        regions.clear();
+        for (const auto& c : copies)
+            regions.push_back({c.srcOffset, c.dstOffset, c.size});
+        AmdGpu::Pm4Stats::NoteHleCopy(liverpool->diagnostic_guest_flip, src_buf_sharp.base_address,
+                                      dst_buf_sharp.base_address, regions);
+    }
     if (scheduler.TakePassBreakLog())
         LOG_INFO(Render_Vulkan, "Internal scale: hle copy src={:#x} dst={:#x} stride={} copies={} bytes={}",
                  src_buf_sharp.base_address, dst_buf_sharp.base_address, buf_stride, copies.size(),
                  std::accumulate(copies.begin(), copies.end(), u64{0},
                                  [](u64 acc, const vk::BufferCopy& c) { return acc + c.size; }));
-    scheduler.EndRendering(Vulkan::RenderBreak::Hle);
+    // Place the copy before the open pass instead of breaking it when nothing in the pass
+    // so far depends on it (frame-graph style hoisting on the deferred command stream).
+    bool hoisted = false;
+    if (scheduler.IsRendering() && !copies.empty()) {
+        // Checked per region: bounding boxes would cover unrelated data between them.
+        static std::vector<Scheduler::AccessRange> reads, writes;
+        reads.clear();
+        writes.clear();
+        bool src_upload = false;
+        for (const auto& c : copies) {
+            const VAddr src = src_buf_sharp.base_address + c.srcOffset;
+            const VAddr dst = dst_buf_sharp.base_address + c.dstOffset;
+            reads.emplace_back(src, src + c.size);
+            writes.emplace_back(dst, dst + c.size);
+            // A CPU-dirty source is uploaded first, which rewrites its GPU copy.
+            src_upload = src_upload || buffer_cache.IsRegionCpuModified(src, c.size);
+        }
+        hoisted = scheduler.BeginHoist(reads, writes, src_upload);
+    }
+    if (!hoisted)
+        scheduler.EndRendering(Vulkan::RenderBreak::Hle);
 
     static constexpr vk::MemoryBarrier READ_BARRIER{
         .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,
@@ -122,6 +165,8 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
     scheduler.CommandBuffer().pipelineBarrier(
         vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eAllCommands,
         vk::DependencyFlagBits::eByRegion, WRITE_BARRIER, {}, {});
+    if (hoisted)
+        scheduler.EndHoist();
 
     return true;
 }
