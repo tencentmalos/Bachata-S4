@@ -34,6 +34,9 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/renderdoc_capture.h"
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+#include "video_core/renderer_vulkan/capture_recorder.h"
+#endif
 
 namespace Core::Diagnostics {
 namespace {
@@ -327,6 +330,13 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
                 return AmdGpu::Pm4Trace::Command(args, id, NowNs(clock));
             });
     }
+
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    registry.Register("capture_video", "capture_video [start|start_live TOKEN|stop|status] -- embedded final RT H.264",
+        [](const std::vector<std::string>& args) {
+            return Vulkan::HandleEmbeddedCaptureCommand(args);
+        });
+#endif
 
     // Commands whose backends are not built yet. Registered so help/schema is
     // complete and callers get an honest, uniform reply -- never a faked success.

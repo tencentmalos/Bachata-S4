@@ -3,6 +3,29 @@
 日期：2026-09-07。这是初始基线 `a7128893` 之后的依赖准备里程碑；不改写初始基线记录。
 主仓原先只有桌面核心，本次增加基础设施的构建入口，尚未提供 Android app 或 guest backend。
 
+## 2026-09-24：可选的 scrcpy 嵌入式录制 SDK
+
+SDK 源码现由私有仓 [`tencentmalos/my_mcp_tools`](https://github.com/tencentmalos/my_mcp_tools)
+的 `dev_tools/mcp/scrcpy/capture-sdk` 维护，`master` 首个提交为
+[`890ce3d`](https://github.com/tencentmalos/my_mcp_tools/commit/890ce3df2e632b45317484247d95f2449655bbec)。
+Foundation `main` 从
+[`3c66847`](https://github.com/tencentmalos/foundation/commit/3c668471de11653682e2c68f9ecf8bfb784ced1b) 起提供可选的
+`spatial::foundation_capture` target。Android 构建时从仓库根目录或 SDK `native`
+目录解析源码；未指定 SDK 时不构建录制适配层，普通宿主构建不依赖私有仓权限。
+
+```sh
+git clone git@github.com:tencentmalos/my_mcp_tools.git /path/to/my_mcp_tools
+python3 scripts/android/build-host-android --ndk /path/to/android-ndk --api 33 \
+  --out /path/to/capture-host-build \
+  --scrcpy-capture-sdk-root /path/to/my_mcp_tools
+```
+
+`capture_video start|start_live TOKEN|stop|status` 通过现有 DebugBus 控制，源是
+`shadps4.final_render_target` 的完整 canvas，宿主 ImGui 状态层不进入录制画面。
+SDK 工具用 `python3 /path/to/my_mcp_tools/dev_tools/mcp/scrcpy/capture-sdk/tools/capturectl.py`。
+[AYN 实机首验与限制](validation/android-native-host/scrcpy-sdk-source-20260924.md)记录了既有结果；
+立体分眼、样本与生产帧精确关联和持续录制性能尚未验收。
+
 ## 2026-09-24：Profiler SDK 源码集成
 
 Foundation 现在跟踪共享 `main`。`third_party/profiler_sdk` 已从内网子模块改为

@@ -20,6 +20,18 @@ def sha(path):
     with Path(path).open("rb") as f:
         return hashlib.file_digest(f, "sha256").hexdigest()
 
+def scrcpy_sdk_native_root(checkout):
+    if checkout is None:
+        return None
+    root = checkout.expanduser().resolve()
+    native = root / "dev_tools/mcp/scrcpy/capture-sdk/native"
+    if (native / "CMakeLists.txt").is_file():
+        return native
+    if ((root / "CMakeLists.txt").is_file() and
+            (root / "include/scrcpy_capture/encoder_session.h").is_file()):
+        return root
+    raise ValueError("--scrcpy-capture-sdk-root must name my_mcp_tools or its dev_tools/mcp/scrcpy/capture-sdk/native directory")
+
 def source_identity():
     paths = [ROOT / "CMakeLists.txt", ROOT / "externals/CMakeLists.txt",
              Path(__file__).resolve()]
@@ -30,6 +42,8 @@ def source_identity():
     # the parent's old gitlink alone cannot identify code compiled into host.
     paths += [p for p in (ROOT / "foundation/modules/audio").rglob("*")
               if p.is_file() and (p.suffix in (".h", ".cpp", ".cmake") or p.name == "CMakeLists.txt")]
+    paths += [p for p in (ROOT / "foundation/modules/capture").rglob("*")
+              if p.is_file() and (p.suffix in (".h", ".cpp", ".cmake") or p.name in ("CMakeLists.txt", "README.md"))]
     return {"files": {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(paths))},
             "gitlinks": [line for line in capture(["git", "ls-files", "--stage"]).splitlines()
                          if line.startswith("160000 ")]}
@@ -52,9 +66,15 @@ def main():
     p.add_argument("--out", type=Path, default=ROOT / "build/android-host-api33")
     p.add_argument("--jobs", type=int, default=6)
     p.add_argument("--gpu-reshape-sdk-root", type=Path, help="Independent optional Android SDK source checkout")
+    p.add_argument("--scrcpy-capture-sdk-root", type=Path,
+                   help="private tencentmalos/my_mcp_tools checkout (or its capture-sdk/native directory)")
     a = p.parse_args()
     if a.ndk is None or a.jobs < 1:
         p.error("--ndk (or ANDROID_NDK_HOME) and positive --jobs required")
+    try:
+        scrcpy_native = scrcpy_sdk_native_root(a.scrcpy_capture_sdk_root)
+    except ValueError as exc:
+        p.error(str(exc))
     ndk, out = a.ndk.resolve(), a.out.resolve()
     platforms = json.loads((ndk / "meta/platforms.json").read_text())
     if not max(33, platforms["min"]) <= a.api <= platforms["max"]:
@@ -67,7 +87,8 @@ def main():
     profile = {"ndk": str(ndk), "compiler": capture([str(compiler), "--version"]),
                "ndk_properties": (ndk / "source.properties").read_text(),
                "api": a.api, "abi": "arm64-v8a", "stl": "c++_shared",
-               "build_type": "RelWithDebInfo", "foundation": True, "source": str(ROOT)}
+               "build_type": "RelWithDebInfo", "foundation": True, "source": str(ROOT),
+               "scrcpy_capture_sdk": str(scrcpy_native) if scrcpy_native else None}
     out.mkdir(parents=True, exist_ok=True)
     profile_path = out / "profile.json"
     if profile_path.exists() and json.loads(profile_path.read_text()) != profile:
@@ -97,6 +118,15 @@ def main():
             "manifest": str((run_dir / "gpu-reshape-source.json").relative_to(out)),
             "manifest_sha256": sha(run_dir / "gpu-reshape-source.json"),
             "library_sha256": sdk_identity["library_sha256"]}
+    if scrcpy_native:
+        sdk_paths = sorted(p for p in scrcpy_native.rglob("*") if p.is_file() and
+                           p.suffix in (".h", ".cpp", ".txt"))
+        sdk_source = {str(p.relative_to(scrcpy_native)): sha(p) for p in sdk_paths}
+        (run_dir / "scrcpy-capture-source.json").write_text(json.dumps(sdk_source, indent=2) + "\n")
+        result["scrcpy_capture_sdk"] = {
+            "root": str(scrcpy_native),
+            "manifest": str((run_dir / "scrcpy-capture-source.json").relative_to(out)),
+            "manifest_sha256": sha(run_dir / "scrcpy-capture-source.json")}
     def save():
         (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         (run_dir / "result.json").write_text(json.dumps(result, indent=2) + "\n")
@@ -127,7 +157,8 @@ def main():
              "-DENABLE_DISCORD_RPC=OFF", "-DENABLE_UPDATER=OFF", "-DENABLE_SPATIAL_FOUNDATION=ON",
              f"-DSHADNET_PROTOC_EXECUTABLE={protoc}", f"-DIMGUI_FONT_EMBED_EXECUTABLE={font}",
              "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-             f"-DSHADPS4_GPU_RESHAPE_SDK_ROOT={a.gpu_reshape_sdk_root.resolve() if a.gpu_reshape_sdk_root else ''}"], "host-configure")
+             f"-DSHADPS4_GPU_RESHAPE_SDK_ROOT={a.gpu_reshape_sdk_root.resolve() if a.gpu_reshape_sdk_root else ''}",
+             f"-DSPATIAL_SCRCPY_CAPTURE_SDK_ROOT={a.scrcpy_capture_sdk_root.expanduser().resolve() if a.scrcpy_capture_sdk_root else ''}"], "host-configure")
         run(["cmake", "--build", native, "--target", "shadps4_host", "host_library_smoke", "host_dlopen_smoke",
              "-j", a.jobs], "host-build")
         library = native / "libshadps4_host.so"

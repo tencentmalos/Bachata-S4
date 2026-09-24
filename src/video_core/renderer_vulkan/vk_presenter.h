@@ -27,6 +27,10 @@ struct Liverpool;
 
 namespace Vulkan {
 
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+class CaptureRecorder;
+#endif
+
 struct Frame {
     u32 width;
     u32 height;
@@ -152,6 +156,9 @@ private:
     u32 fdm_quality{0xffffffffU};
     bool fdm_ready{};
     VideoCore::CaptureBinding capture_binding;
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    std::unique_ptr<CaptureRecorder> embedded_capture;
+#endif
     std::unique_ptr<ImGui::StatusLayer> status_layer;
     HostPasses::FsrPass fsr_pass;
     HostPasses::FsrPass::Settings fsr_settings{};

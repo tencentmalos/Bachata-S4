@@ -24,6 +24,9 @@
 #include "video_core/renderdoc.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+#include "video_core/renderer_vulkan/capture_recorder.h"
+#endif
 #include "shader_recompiler/resource.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
@@ -494,6 +497,9 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
     const u64 generation = diag ? diag->Generation() : 1;
     capture_binding.Bind(generation, static_cast<VkInstance>(instance.GetInstance()),
                          window->GetWindowInfo().render_surface, instance.GetDriverVersionName());
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    embedded_capture = std::make_unique<CaptureRecorder>(instance);
+#endif
     const u32 num_images = swapchain.GetImageCount();
     const vk::Device device = instance.GetDevice();
 
@@ -558,6 +564,10 @@ Presenter::~Presenter() {
         if (result != vk::Result::eSuccess)
             LOG_ERROR(Render_Vulkan, "Device drain during failed teardown: {}", vk::to_string(result));
     }
+
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    embedded_capture->Close();
+#endif
 
     const vk::Device device = instance.GetDevice();
     for (auto& frame : present_frames) {
@@ -1167,6 +1177,13 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         return false;
     }
 
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    if (!is_reusing_frame) {
+        embedded_capture->SyncRequest(*frame, swapchain.GetSurfaceFormat().format,
+                                      static_cast<u32>(present_frames.size()));
+    }
+#endif
+
     // Reset fence for queue submission. Do it here instead of GetRenderFrame() because we may
     // skip frame because of slow swapchain recreation. If a frame skip occurs, we skip signal
     // the frame's present fence and future GetRenderFrame() call will hang waiting for this frame.
@@ -1307,6 +1324,14 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         status_layer->Draw(Core::Diagnostics::DiagnosticNowNs(), extent.width, extent.height);
         ImGui::Core::Render(cmdbuf, swapchain_image_view, swapchain.GetExtent());
 
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+        // Frame::image contains the complete application render target. Host
+        // ImGui was drawn to swapchain_image and does not enter this copy.
+        if (!is_reusing_frame && embedded_capture->Acquire(*frame)) {
+            embedded_capture->Record(cmdbuf, *frame);
+        }
+#endif
+
         if (capture_with_overlays_count > 0) {
             pending_screenshots.emplace_back(
                 instance, scheduler, ScreenshotKind::WithOverlays,
@@ -1392,6 +1417,9 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     info.AddWait(frame->ready_semaphore, frame->ready_tick);
     info.AddSignal(swapchain.GetPresentReadySemaphore());
     info.AddSignal(frame->present_done);
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    embedded_capture->AddSubmitSync(info);
+#endif
     scheduler.Flush(info);
     // FIFO acceptance is not enough for a binary present wait: its signal and
     // timeline dependencies must already have reached vkQueueSubmit. Wait here,
@@ -1410,6 +1438,9 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         Core::Diagnostics::Handoff::Scope scope{"Present.DriverCall", instance.DiagnosticGeneration()};
         const auto previous = swapchain.SuccessfulPresents();
         reusable = swapchain.Present();
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+        embedded_capture->Present();
+#endif
         presented = swapchain.SuccessfulPresents() > previous;
         if (presented)
             status_layer->Presented(Core::Diagnostics::DiagnosticNowNs(), is_reusing_frame);

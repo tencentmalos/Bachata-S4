@@ -66,6 +66,8 @@ function(shadps4_add_foundation)
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/texture_codec" EXCLUDE_FROM_ALL)
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_texture_codec)
     if(ANDROID)
+        add_subdirectory("${foundation_root}/modules/capture"
+                         "${CMAKE_CURRENT_BINARY_DIR}/foundation/capture" EXCLUDE_FROM_ALL)
         # Oboe stays an independently pinned dependency. Foundation consumes
         # its target, without vendoring another copy.
         if(NOT TARGET oboe)

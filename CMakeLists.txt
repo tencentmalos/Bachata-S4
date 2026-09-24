@@ -1463,6 +1463,13 @@ if (ANDROID)
         target_sources(shadps4 PRIVATE src/video_core/renderer_vulkan/vk_driver_android.cpp)
     endif()
     target_link_libraries(shadps4 PRIVATE log android)
+    if(TARGET spatial::foundation_capture)
+        target_sources(shadps4 PRIVATE
+            src/video_core/renderer_vulkan/capture_recorder.cpp
+            src/video_core/renderer_vulkan/capture_recorder.h)
+        target_compile_definitions(shadps4 PRIVATE SHADPS4_HAS_SCRCPY_CAPTURE_SDK=1)
+        target_link_libraries(shadps4 PRIVATE spatial::foundation_capture)
+    endif()
 endif()
 
 target_compile_definitions(shadps4 PRIVATE IMGUI_USER_CONFIG="imgui/imgui_config.h")
