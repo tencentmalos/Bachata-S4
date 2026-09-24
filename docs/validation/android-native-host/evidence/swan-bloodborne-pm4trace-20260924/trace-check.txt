@@ -1,0 +1,2 @@
+build/validation/swan-bloodborne-20260924/pm4trace-2/e7ea2556c6fcb3c9e388406fe9d6e91a.gpu.pm4.trace: schema=ps4.pm4.command layer=1 capture=e7ea2556c6fcb3c9e388406fe9d6e91a records=100294 types={5: 3, 3: 150, 1: 148, 2: 150, 4: 99626, 6: 217} partial=-
+build/validation/swan-bloodborne-20260924/pm4trace-2/e7ea2556c6fcb3c9e388406fe9d6e91a.gcmdtrace.ps4: schema=ps4.guest-command layer=2 capture=e7ea2556c6fcb3c9e388406fe9d6e91a records=4889 types={5: 3, 16: 3488, 17: 1398} partial=-

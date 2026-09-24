@@ -1,0 +1,6 @@
+  buf read  cs 0x241d5d13c+0x10
+  == replaced by image store fill clear
+  >> pass 483894 begin guest 960x540 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  << pass 483894 end sampled_image draws=1 load_px=518400
+  >> pass 483895 begin resumed after sampled_image 960x540 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  << pass 483895 end sampled_image draws=1 load_px=518400

@@ -1,0 +1,3 @@
+     22       end_detail: [vertex X+X src={ ShaderWrite }/{ AllCommands } dst={ VertexAttributeRead }]
+     12       end_detail: [shader-read X+X src={ ShaderWrite }/{ AllCommands } dst={ ShaderRead } sh=X]
+      1       end_detail: [hoist conflict: copy reads X-X, pass read it and source re-uploads] [hle copy src=X dst=X regions=3 bytes=29856]

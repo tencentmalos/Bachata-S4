@@ -1,0 +1,100 @@
+== pass-gpu
+passes 3000 gpu_ms 414.5
+   83.8ms  20.2% n=  24 draws= 5724 ldMpx=  87.1 res:buffer_barrier 96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   66.5ms  16.0% n=  55 draws=   66 ldMpx= 114.0 guest              192Ax1 c0=A:R16G16B16A16Sfloat:L
+   29.0ms   7.0% n= 134 draws=  398 ldMpx=  69.5 guest              96Ax1 c0=A:R8G8B8A8Unorm:L
+   26.9ms   6.5% n= 144 draws=  924 ldMpx=   1.2 guest              64x64x1 c0=A:R16G16Sfloat:L d=A:D32Sfloat:L:rw
+   23.8ms   5.7% n=  24 draws=  660 ldMpx=  87.1 guest              96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   21.0ms   5.1% n= 144 draws= 1416 ldMpx=   4.7 guest              128x128x1 c0=A:R16G16Sfloat:L d=A:D32Sfloat:L:rw
+   17.3ms   4.2% n= 144 draws= 1188 ldMpx=   0.3 guest              32x32x1 c0=A:R16G16Sfloat:L d=A:D32Sfloat:L:rw
+   15.4ms   3.7% n=  92 draws=  169 ldMpx=  95.4 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:rw
+   14.8ms   3.6% n=  72 draws= 3912 ldMpx= 112.0 res:sampled_image  96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L d=A:D32SfloatS8Uint:L:ro
+   13.1ms   3.2% n=  11 draws=   11 ldMpx=  22.8 res:sampled_image  192Ax1 c0=A:R16G16B16A16Sfloat:L
+   12.7ms   3.1% n=  23 draws=   23 ldMpx=  11.9 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L
+    9.4ms   2.3% n= 120 draws=  565 ldMpx= 124.4 res:buffer_upload  96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:ro
+    7.6ms   1.8% n= 100 draws=  144 ldMpx=  13.0 guest              48Ax1 c0=A:R8G8B8A8Unorm:L
+    6.5ms   1.6% n=  68 draws=  217 ldMpx=  70.5 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:ro
+    6.4ms   1.5% n= 100 draws=  112 ldMpx= 103.7 guest              96Ax1 c0=A:R8G8B8A8Unorm:L d=A:D32SfloatS8Uint:L:rw
+== storefill-on
+passes 3000 gpu_ms 418.0
+   77.4ms  18.5% n=  23 draws= 4455 ldMpx=  83.5 guest              96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   61.8ms  14.8% n=  60 draws=   72 ldMpx= 124.4 guest              192Ax1 c0=A:R16G16B16A16Sfloat:L:native(semantic-native,A,created as storage)
+   28.2ms   6.8% n= 108 draws=  156 ldMpx=  14.0 guest              48Ax1 c0=A:R8G8B8A8Unorm:L
+   27.2ms   6.5% n= 144 draws=  432 ldMpx=  74.6 guest              96Ax1 c0=A:R8G8B8A8Unorm:L
+   20.1ms   4.8% n= 132 draws= 1089 ldMpx=   0.3 guest              32x32x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   19.7ms   4.7% n=  24 draws=   24 ldMpx=   3.1 guest              48Ax1 c0=A:R16G16B16A16Sfloat:L
+   17.4ms   4.2% n=  72 draws=  828 ldMpx=   2.4 guest              128x128x1 c0=A:R16G16Sfloat:L d=A:D32Sfloat:L:rw
+   17.4ms   4.2% n= 135 draws=  865 ldMpx=   1.1 guest              64x64x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   16.0ms   3.8% n=  96 draws=  180 ldMpx=  99.5 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:rw
+   11.0ms   2.6% n= 132 draws=  132 ldMpx=   0.1 guest              32x32x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias)
+    9.5ms   2.3% n=   1 draws=  393 ldMpx=   3.6 guest              
+    9.3ms   2.2% n=  72 draws= 3912 ldMpx= 112.0 res:sampled_image  96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L d=A:D32SfloatS8Uint:L:ro
+    8.6ms   2.1% n=  36 draws= 1536 ldMpx= 130.6 res:hle            96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+    8.4ms   2.0% n=  12 draws=   12 ldMpx=  24.9 res:sampled_image  192Ax1 c0=A:R16G16B16A16Sfloat:L:native(semantic-native,A,created as storage)
+    7.3ms   1.8% n=  24 draws=   24 ldMpx=  12.4 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L
+fps 22
+fps 21
+fps 22
+== storefill-on2
+passes 3000 gpu_ms 365.1
+   67.0ms  18.4% n=  25 draws= 4883 ldMpx=  90.7 guest              96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   38.8ms  10.6% n=  91 draws=  104 ldMpx=  47.2 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L
+   35.8ms   9.8% n= 144 draws=  924 ldMpx=   0.3 guest              32x32x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   28.0ms   7.7% n= 153 draws=  453 ldMpx=  79.3 guest              96Ax1 c0=A:R8G8B8A8Unorm:L
+   20.7ms   5.7% n= 144 draws= 1068 ldMpx=   1.2 guest              64x64x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   20.1ms   5.5% n= 117 draws=  169 ldMpx=  15.2 guest              48Ax1 c0=A:R8G8B8A8Unorm:L
+   16.8ms   4.6% n=  65 draws= 4394 ldMpx= 101.1 res:sampled_image  96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L d=A:D32SfloatS8Uint:L:ro
+   16.7ms   4.6% n=  37 draws= 1774 ldMpx= 134.3 res:hle            96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   10.6ms   2.9% n=  12 draws=   12 ldMpx=  18.7 guest              96Ax1 c0=A:R8G8B8A8Unorm:C c1=A:R8G8B8A8Unorm:C c2=A:R8G8B8A8Srgb:C c3=A:R8G8B8A8Unorm:C c4=A:B10G11R11UfloatP
+   10.6ms   2.9% n=  26 draws=   26 ldMpx=   3.4 guest              588x22A c0=A:R16G16B16A16Sfloat:L
+   10.1ms   2.8% n=  13 draws=   13 ldMpx=  13.5 guest              96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L
+    8.4ms   2.3% n=  13 draws=   13 ldMpx=   6.7 res:sampled_image  96Ax1 c0=A:R16G16B16A16Sfloat:L
+    8.1ms   2.2% n= 112 draws=  208 ldMpx= 116.1 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:rw
+    7.5ms   2.0% n=  86 draws=  443 ldMpx=  89.2 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:ro
+    6.9ms   1.9% n= 144 draws=  144 ldMpx=   0.1 guest              32x32x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias)
+fps 24
+fps 25
+fps 25
+cpuset /top-app
+== barrier-hoist
+passes 3000 gpu_ms 365.6
+  119.4ms  32.7% n=  23 draws= 5863 ldMpx=  83.5 guest              96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   27.3ms   7.5% n=  84 draws=   96 ldMpx=  43.5 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L
+   22.7ms   6.2% n=  96 draws=  180 ldMpx=  99.5 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:rw
+   21.2ms   5.8% n=  72 draws=  828 ldMpx=   2.4 guest              128x128x1 c0=A:R16G16Sfloat:L d=A:D32Sfloat:L:rw
+   18.2ms   5.0% n= 144 draws=  924 ldMpx=   1.2 guest              64x64x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   17.7ms   4.8% n=  68 draws=  319 ldMpx=  70.5 res:buffer_upload  96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:ro
+   15.8ms   4.3% n= 135 draws= 1103 ldMpx=   0.3 guest              32x32x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   10.9ms   3.0% n=   1 draws=  521 ldMpx=   3.6 guest              
+   10.8ms   3.0% n=  72 draws=   72 ldMpx=   1.2 guest              128x128x1 c0=A:R16G16Sfloat:L
+   10.2ms   2.8% n= 144 draws=  144 ldMpx=   2.4 guest              128x128x1 d=A:D32Sfloat:L:rw
+    9.9ms   2.7% n=  72 draws=  519 ldMpx=  74.6 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:ro
+    9.5ms   2.6% n= 144 draws=  432 ldMpx=  74.6 guest              96Ax1 c0=A:R8G8B8A8Unorm:L
+    9.3ms   2.6% n=  72 draws= 3912 ldMpx= 112.0 res:sampled_image  96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L d=A:D32SfloatS8Uint:L:ro
+    8.0ms   2.2% n= 108 draws=  156 ldMpx=  14.0 guest              48Ax1 c0=A:R8G8B8A8Unorm:L
+    5.6ms   1.5% n=  10 draws=  251 ldMpx=   5.2 guest              96Ax1 d=A:D32SfloatS8Uint:L:ro
+fps 23
+fps 24
+fps 24
+cpuset /top-app
+== tu-sysmem
+passes 3000 gpu_ms 333.6
+  104.6ms  31.4% n=  24 draws= 6384 ldMpx=  87.1 guest              96Ax1 c0=A:R8G8B8A8Unorm:L c1=A:R8G8B8A8Unorm:L c2=A:R8G8B8A8Srgb:L c3=A:R8G8B8A8Unorm:L c4=A:B10G11R11UfloatP
+   25.4ms   7.6% n=  84 draws=   96 ldMpx=  43.5 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L
+   22.4ms   6.7% n= 144 draws=  924 ldMpx=   1.2 guest              64x64x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   17.7ms   5.3% n= 144 draws= 1188 ldMpx=   0.3 guest              32x32x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+   15.2ms   4.6% n=  72 draws= 3912 ldMpx= 112.0 res:sampled_image  96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L d=A:D32SfloatS8Uint:L:ro
+   11.9ms   3.6% n=  96 draws=  180 ldMpx=  99.5 guest              96Ax1 c0=A:R16G16B16A16Sfloat:L d=A:D32SfloatS8Uint:L:rw
+   10.0ms   3.0% n=  35 draws=  432 ldMpx=   9.1 guest              48Ax1 c0=A:R8G8B8A8Unorm:L d=A:D32SfloatS8Uint:L:rw
+    9.5ms   2.9% n=  12 draws=   36 ldMpx=  18.7 guest              96Ax1 c0=A:B10G11R11UfloatPack32:L c1=A:B10G11R11UfloatPack32:L d=A:D32SfloatS8Uint:L:ro
+    9.3ms   2.8% n= 144 draws=  144 ldMpx=   0.6 guest              64x64x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias)
+    9.2ms   2.8% n=  72 draws=  588 ldMpx=   2.4 guest              128x128x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias) d=A:D32Sfloat:L:rw
+    9.0ms   2.7% n= 134 draws=  398 ldMpx=  69.5 guest              96Ax1 c0=A:R8G8B8A8Unorm:L
+    8.1ms   2.4% n=  72 draws=  828 ldMpx=   2.4 guest              128x128x1 c0=A:R16G16Sfloat:L d=A:D32Sfloat:L:rw
+    7.8ms   2.3% n= 104 draws=  148 ldMpx=  13.5 guest              48Ax1 c0=A:R8G8B8A8Unorm:L
+    6.7ms   2.0% n=  92 draws=  104 ldMpx=   0.0 guest              192Ax1
+    6.2ms   1.9% n=  72 draws=   72 ldMpx=   1.2 guest              128x128x1 c0=A:R16G16Sfloat:L:native(alias,A,copy alias)
+fps 24
+fps 24
+fps 24
+cpuset /top-app
