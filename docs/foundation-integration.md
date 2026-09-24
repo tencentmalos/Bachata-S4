@@ -3,6 +3,43 @@
 日期：2026-09-07。这是初始基线 `a7128893` 之后的依赖准备里程碑；不改写初始基线记录。
 主仓原先只有桌面核心，本次增加基础设施的构建入口，尚未提供 Android app 或 guest backend。
 
+## 2026-09-24：Profiler SDK 源码集成
+
+Foundation 现在跟踪共享 `main`。`third_party/profiler_sdk` 已从内网子模块改为
+Foundation 直接跟踪的普通源码，SDK、配套 C++/Python reader、测试和规格一起保留。
+迁移前先同步 SDK 上游 `main` 的 `f34a1c8df05d870bdfdd6c9d9f47e97b8963a8f6`，
+并保留现有集成分支的 GPU metadata、reader 和无帧采集修复。
+[版本与维护方式](../foundation/third_party/profiler_sdk.UPSTREAM.md)记录了完整树身份。
+
+宿主的 `modules/profiler_ring` / `profiler-sdk` CMake 入口及分析器路径不变；
+Foundation 适配了上游删除的 `bookmark_dyn`，保持 LiteTrace 对临时名称的复制语义。
+新机器只需初始化 Foundation，不再需要内网 SDK 权限：
+
+```sh
+git submodule update --init foundation
+```
+
+已有 checkout 在更新父仓 gitlink 前应先保存 Foundation 和旧 SDK 的本地修改。
+Git 可能把旧 SDK 的 `.git` 文件留在原目录；它不是新版本的依赖。新机器和干净
+checkout 不含该嵌套 Git 元数据，不应再对 profiler_sdk 执行 submodule update。
+
+验证：SDK Debug CTest **80/80**、Python analyzer **91/91**、C++/Python 采集导出
+（123 chunks、0 skipped、无截断、Perfetto 字节一致）与 Release encoding 检查通过。
+Foundation 的干净本地递归克隆没有 `.gitmodules` 或 SDK `.git`，SDK 目录树与同步结果
+`c1204a4ae4b5202c5bb682e60609994030916995` 完全一致；仅允许 Git `file` 协议执行
+递归初始化也成功，ring round-trip/file/socket 两项测试通过。
+
+shadPS4 的实际 `shadps4_add_foundation()` profile 使用父仓固定的 fmt、Vulkan Headers、
+Oboe target 做独立接入探针：macOS shared library + registry smoke **1/1**，Android
+arm64-v8a/API 35（本机 NDK 29）包含 SDK/ring/audio/dumpsys 的 101 个构建步骤及
+shared library 链接通过。探针复用 `tests/foundation` 的两个 C++ 文件，在外层先提供
+上述真实 target；没有启用完整模拟器构建。Foundation input 单测通过；audio 单测在
+AppleClang 17 的 `-fexperimental-library` 配置通过（默认 libc++ 未暴露 stop_token/jthread）。
+本轮未安装 APK、操作设备或进行游戏回归。
+
+SDK 最新 Bookmark wire 布局仍使用 PROF v3；新采集用随源码集成的 reader，旧采集
+保留匹配旧版本的 reader。以下章节是早期里程碑，版本以当前 Foundation gitlink 为准。
+
 ## 来源与已经落地的范围
 
 与 azahar 使用同一个 [tencentmalos/foundation](https://github.com/tencentmalos/foundation)，

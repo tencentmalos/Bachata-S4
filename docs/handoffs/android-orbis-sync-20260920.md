@@ -36,7 +36,7 @@ build/sync-domains/guest_sync_performance > sync-domain-results.jsonl
 
 性能 benchmark 使用 Linux/Android `RUSAGE_THREAD`；macOS 可只编译 `guest_sync_isolation_tests`。新源码直接 include `common/types.h`，不依赖前一个头文件偶然引入类型。
 
-完整 APK 需要 `references/FEX`、`foundation` 等固定子仓及 Android dependencies。Foundation 的 `third_party/profiler_sdk` 地址是 **`git@code.byted.org:spatial/profiler_sdk.git`**，另一台机器可能没有权限；这不是主仓库 push 丢失。没有此权限时先完成源码和独立测试评估，准确列出完整构建阻碍，不使用任意新 SDK 代替固定版本。
+完整 APK 需要 `references/FEX`、`foundation` 等固定子仓及 Android dependencies。**2026-09-24 更新：** profiler_sdk 已同步上游并作为 Foundation 普通源码集成，原内网子模块访问限制已解除；初始化父仓固定的 Foundation 即可。见 [当前接入说明](../foundation-integration.md)。
 
 游戏/固件、APK/.so、原始大 PROF/KGSL/RDC、设备权限与本机 build 目录均不在仓库。独立未跟踪 `externals/dear_imgui` 不是本工程子模块，未导入。不要把本机绝对路径当另一台机器的可用资源。
 
