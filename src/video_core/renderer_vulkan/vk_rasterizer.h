@@ -10,6 +10,7 @@
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
+#include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/texture_cache/texture_cache.h"
 
@@ -117,11 +118,19 @@ private:
     // Replaces a known pattern-fill compute kernel (Gnmx-style clear) by image clears
     // when it fills whole cached images with a uniform texel. True when the dispatch is done.
     bool TryComputeImageFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
+    // Constant-colour image_store kernel over 8x8 groups: an image clear.
+    bool TryComputeImageStoreFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
     // Upload diagnostics only (called while armed): logs dispatches that write a formatted
     // storage buffer starting at a cached image, with every buffer binding's range and head.
     void NoteDispatchDiagnostics(const Shader::Info& cs, const AmdGpu::ComputeProgram& program,
                                  bool indirect);
     void RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering);
+
+    void InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect);
+    // Guest command trace (pm4_trace.h): the decoded draw/dispatch with its resources.
+    void TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* pipeline,
+                     const RenderState* state, u32 p0, u32 p1, u32 p2, u32 p3, u64 p4);
+    AmdGpu::Pm4Trace::Action trace_action;
 
     void ResetBindings() {
         scheduler.ClearStagedAccess();

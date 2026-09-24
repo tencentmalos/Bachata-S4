@@ -1,3 +1,6 @@
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
 #include "video_core/renderdoc.h"
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
@@ -265,6 +268,17 @@ std::vector<const char*> GetInstanceLayers(bool enable_validation, bool enable_c
     if (enable_crash_diagnostic) {
         layers.push_back(CRASH_DIAGNOSTIC_LAYER_NAME);
     }
+#ifdef __ANDROID__
+    // RenderDoc on Android: with enable_gpu_debug_layers=1 and gpu_debug_layer_app set but
+    // gpu_debug_layers left empty, the layer is only available, not forced into every
+    // Vulkan instance of the process (Pico HWUI aborts when it is). Enable it for the
+    // guest renderer's instance alone.
+    {
+        char value[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.renderdoc_layer", value) > 0 && value[0] == '1')
+            layers.push_back("VK_LAYER_RENDERDOC_Capture");
+    }
+#endif
 
     // Sanitize layer list
     std::erase_if(layers, [&](const char* layer) -> bool {

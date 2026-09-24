@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <array>
 #include "common/alignment.h"
 #include "common/assert.h"
 #include "video_core/buffer_cache/buffer.h"
@@ -87,8 +88,20 @@ void UniqueBuffer::Create(const vk::BufferCreateInfo& buffer_ci, MemoryUsage usa
     VkBuffer unsafe_buffer{};
     VkResult result = VideoCore::VmaDiagnostics::CreateBuffer(allocator, &buffer_ci_unsafe, &alloc_ci, &unsafe_buffer,
                                       &allocation, out_alloc_info, "buffer/" + std::string(BufferTypeName(usage)));
-    ASSERT_MSG(result == VK_SUCCESS, "Failed allocating buffer with error {}",
-               vk::to_string(vk::Result{result}));
+    if (result != VK_SUCCESS) {
+        // Distinguish VMA's own budget refusal (WITHIN_BUDGET) from a driver failure.
+        std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets{};
+        vmaGetHeapBudgets(allocator, budgets.data());
+        const VkPhysicalDeviceMemoryProperties* props{};
+        vmaGetMemoryProperties(allocator, &props);
+        for (u32 i = 0; props && i < props->memoryHeapCount; ++i)
+            LOG_ERROR(Render_Vulkan, "heap {}: size={} MiB usage={} MiB budget={} MiB blocks={} MiB",
+                      i, props->memoryHeaps[i].size >> 20, budgets[i].usage >> 20,
+                      budgets[i].budget >> 20, budgets[i].statistics.blockBytes >> 20);
+    }
+    ASSERT_MSG(result == VK_SUCCESS,
+               "Failed allocating buffer with error {} (size={:#x} usage={} bda={})",
+               vk::to_string(vk::Result{result}), buffer_ci.size, BufferTypeName(usage), with_bda);
     buffer = vk::Buffer{unsafe_buffer};
 
     if (with_bda) {

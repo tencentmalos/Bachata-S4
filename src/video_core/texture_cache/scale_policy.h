@@ -79,8 +79,12 @@ struct ResourceScalePlan {
     u32 uploads{};
     u64 upload_bytes{};
     u32 native_reason_mask{};
+    // First concrete native trigger (a string literal), for diagnostics.
+    const char* native_why{};
     bool render_transition{}, sampled{}, upscaled_readback{};
-    void RequireNative(ScaleReason why) {
+    void RequireNative(ScaleReason why, const char* detail = nullptr) {
+        if (!native_why && detail)
+            native_why = detail;
         native_reason_mask |= 1u << u32(why);
         if (reason != ScaleReason::None && reason != ScaleReason::UnknownUsage)
             native_reason_mask |= 1u << u32(reason);

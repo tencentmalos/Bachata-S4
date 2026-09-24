@@ -29,7 +29,9 @@
 #include "core/memory.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/amdgpu/pm4_stats.h"
+#include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_command_recorder.h"
+#include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/renderdoc_capture.h"
 
@@ -98,6 +100,8 @@ std::string FormatReceipt(const VideoCore::CaptureReceipt& r) {
     out << "last_guest_flip: " << r.last_guest_flip << "\n";
     out << "state: " << VideoCore::ToString(r.state) << "\n";
     out << "requested_frames: " << r.requested_frames << "\n";
+    if (r.delay_boundaries)
+        out << "delay: " << r.skipped_boundaries << "/" << r.delay_boundaries << "\n";
     out << "captures_before: " << r.num_captures_before << "\n";
     out << "captures_after: " << r.num_captures_after << "\n";
     if (!r.run_uuid.empty()) {
@@ -172,6 +176,9 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("srt_batch",
         "Batched SRT (shader user-data) guest reads: status | on | off | verify on|off",
         [](const std::vector<std::string>& args) { return Core::MemoryManager::SrtReadBatch::Command(args); });
+    registry.Register("pass_log",
+        "Render pass instance log (default off): start [passes] | status | dump | stop",
+        [](const std::vector<std::string>& args) { return Vulkan::Scheduler::PassLogCommand(args); });
     registry.Register("vk_recorder",
         "Deferred Vulkan command recording thread: status | on | off (applies at the next submission)",
         [](const std::vector<std::string>& args) { return Vulkan::CommandRecorder::Command(args); });
@@ -234,29 +241,33 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     // coordinator advances at real present boundaries; this returns the initial
     // receipt (armed, or failed if RenderDoc is absent).
     registry.Register(
-        "renderdoc_capture", "renderdoc_capture [frames] -- arm a frame capture",
+        "renderdoc_capture", "renderdoc_capture [frames] [delay] -- arm a frame capture, starting after delay presents",
         [&hub, clock](const std::vector<std::string>& args) {
-            u64 frames = 1;
-            if (args.size() > 1 || (!args.empty() && !ParseId(args[0], frames)) || frames > 8)
+            u64 frames = 1, delay = 0;
+            if (args.size() > 2 || (!args.empty() && !ParseId(args[0], frames)) || frames > 8 ||
+                (args.size() == 2 && !ParseId(args[1], delay)))
                 return BadArguments();
             DiagnosticsSnapshot snap;
             hub.QuerySnapshot(snap, NowNs(clock));
             const auto r = VideoCore::GetCaptureCoordinator().Arm(
                 static_cast<u32>(frames), snap.has_session ? snap.generation : 0,
-                snap.run_uuid, NowNs(clock));
+                snap.run_uuid, NowNs(clock), VideoCore::CaptureBoundary::HostPresent,
+                static_cast<u32>(std::min<u64>(delay, 1'000'000)));
             return FormatReceipt(r);
         });
 
-    registry.Register("renderdoc_guest_capture", "renderdoc_guest_capture [frames] -- capture complete guest flip intervals",
+    registry.Register("renderdoc_guest_capture", "renderdoc_guest_capture [frames] [delay] -- capture complete guest flip intervals, starting after delay flips",
         [&hub, clock](const std::vector<std::string>& args) {
-            u64 frames = 1;
-            if (args.size() > 1 || (!args.empty() && !ParseId(args[0], frames)) || frames > 8)
+            u64 frames = 1, delay = 0;
+            if (args.size() > 2 || (!args.empty() && !ParseId(args[0], frames)) || frames > 8 ||
+                (args.size() == 2 && !ParseId(args[1], delay)))
                 return BadArguments();
             DiagnosticsSnapshot snap;
             hub.QuerySnapshot(snap, NowNs(clock));
             return FormatReceipt(VideoCore::GetCaptureCoordinator().Arm(
                 static_cast<u32>(frames), snap.has_session ? snap.generation : 0,
-                snap.run_uuid, NowNs(clock), VideoCore::CaptureBoundary::GuestFlip));
+                snap.run_uuid, NowNs(clock), VideoCore::CaptureBoundary::GuestFlip,
+                static_cast<u32>(std::min<u64>(delay, 1'000'000))));
         });
 
     // renderdoc_capture_status [request_id]: query the current or a specific
@@ -301,6 +312,22 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             return out.str();
         });
 
+    // Guest GPU command trace: one bounded capture of PM4 packets, decoded actions and
+    // host consequences (video_core/amdgpu/pm4_trace.h); both names drive it.
+    for (const char* name : {"gpu_command_trace", "guest_command_trace"}) {
+        registry.Register(
+            name,
+            "status | arm [frames=2] [delay=0] [max_mib=64] | save | cancel -- PM4 + guest "
+            "action trace, written to CapturesDir/gpu-trace",
+            [&hub, clock](const std::vector<std::string>& args) {
+                DiagnosticsSnapshot snap;
+                hub.QuerySnapshot(snap, NowNs(clock));
+                AmdGpu::Pm4Trace::Identity id{snap.run_uuid, snap.pid, snap.generation,
+                                              snap.driver_identity};
+                return AmdGpu::Pm4Trace::Command(args, id, NowNs(clock));
+            });
+    }
+
     // Commands whose backends are not built yet. Registered so help/schema is
     // complete and callers get an honest, uniform reply -- never a faked success.
     static constexpr const char* kPending[] = {
@@ -309,8 +336,6 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "performance_capture",
         "performance_capture_status",
         "performance_capture_cancel",
-        "guest_command_trace",
-        "gpu_command_trace",
     };
     for (const char* name : kPending) {
         const std::string command{name};

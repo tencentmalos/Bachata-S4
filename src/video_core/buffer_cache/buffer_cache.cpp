@@ -283,6 +283,8 @@ void BufferCache::BindVertexBuffers(
                     buffer->GetBarrier(vk::AccessFlagBits2::eVertexAttributeRead,
                                        vk::PipelineStageFlagBits2::eVertexAttributeInput)) {
                 barriers.emplace_back(*barrier);
+                scheduler.ClassifyBarrier(buffer->CpuAddr(), buffer->SizeBytes(), false);
+                scheduler.NoteBarrierSource("vertex", range.base_address, size, *barrier);
             }
         }
     }
@@ -339,6 +341,8 @@ void BufferCache::BindIndexBuffer(
         if (auto barrier = vk_buffer->GetBarrier(vk::AccessFlagBits2::eIndexRead,
                                                  vk::PipelineStageFlagBits2::eIndexInput)) {
             barriers.emplace_back(*barrier);
+            scheduler.ClassifyBarrier(vk_buffer->CpuAddr(), vk_buffer->SizeBytes(), false);
+            scheduler.NoteBarrierSource("index", index_address, index_buffer_size, *barrier);
         }
     }
     const auto cmdbuf = scheduler.CommandBuffer();

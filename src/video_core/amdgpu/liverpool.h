@@ -250,7 +250,7 @@ private:
     CmdBuffer CopyCmdBuffers(std::span<const u32> dcb, std::span<const u32> ccb);
     Task ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb, u64 submission, VAddr source);
     Task ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission, VAddr source);
-    Task ProcessCeUpdate(std::span<const u32> ccb);
+    Task ProcessCeUpdate(std::span<const u32> ccb, u64 submission = 0);
     template <bool is_indirect = false>
     Task ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source);
 

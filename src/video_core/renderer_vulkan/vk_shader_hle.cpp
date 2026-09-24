@@ -10,6 +10,7 @@
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
+#include "video_core/amdgpu/pm4_trace.h"
 
 extern std::unique_ptr<AmdGpu::Liverpool> liverpool;
 
@@ -93,8 +94,37 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         }
         hoisted = scheduler.BeginHoist(reads, writes, src_upload);
     }
-    if (!hoisted)
+    if (AmdGpu::Pm4Trace::Active()) {
+        u64 bytes = 0;
+        for (const auto& c : copies)
+            bytes += c.size;
+        AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::HleCopy,
+                                   src_buf_sharp.base_address, dst_buf_sharp.base_address,
+                                   copies.size(), bytes,
+                                   hoisted                    ? "hoisted before pass"
+                                   : scheduler.IsRendering() ? "breaks pass"
+                                                              : "outside pass");
+    }
+    if (!hoisted) {
+        if (Scheduler::PassLogActive() || AmdGpu::Pm4Trace::Active()) {
+            u64 bytes = 0;
+            for (const auto& c : copies)
+                bytes += c.size;
+            scheduler.NoteBreak(fmt::format("[hle copy src={:#x} dst={:#x} regions={} bytes={}]",
+                                            src_buf_sharp.base_address, dst_buf_sharp.base_address,
+                                            copies.size(), bytes));
+        }
         scheduler.EndRendering(Vulkan::RenderBreak::Hle);
+        scheduler.ClearBreakDetail();
+    }
+    if (Scheduler::LabelsEnabled()) {
+        u64 bytes = 0;
+        for (const auto& c : copies)
+            bytes += c.size;
+        scheduler.Label(fmt::format("shadps4.hle.copy src={:#x} dst={:#x} regions={} bytes={} {}",
+                                    src_buf_sharp.base_address, dst_buf_sharp.base_address,
+                                    copies.size(), bytes, hoisted ? "hoisted-before-pass" : "pass-break"));
+    }
 
     static constexpr vk::MemoryBarrier READ_BARRIER{
         .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,

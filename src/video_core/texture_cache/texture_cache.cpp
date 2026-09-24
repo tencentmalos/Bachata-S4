@@ -168,7 +168,8 @@ void TextureCache::PublishMemoryDiagnostics() {
             << " few=" << tiles.few << " many=" << tiles.many << '\n';
         out << "pass_hoist hoisted=" << tiles.hoisted << " conflicts=" << tiles.hoist_conflicts
             << " unavailable=" << tiles.hoist_unavailable
-            << " interrupted=" << tiles.hoist_interrupted << '\n';
+            << " interrupted=" << tiles.hoist_interrupted
+            << " barriers=" << tiles.hoisted_barriers << '\n';
         // Re-arm the bounded pass-break/resume log so the next frames after a request
         // describe which images and transitions split passes in the current scene.
         scheduler.ArmPassBreakLog(400);
