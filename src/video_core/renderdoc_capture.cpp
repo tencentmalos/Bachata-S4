@@ -86,7 +86,7 @@ bool CaptureCoordinator::Bind(CaptureTarget target) {
     return true;
 }
 CaptureReceipt CaptureCoordinator::Arm(u32 frames, u64 generation, std::string run, u64 now,
-                                      CaptureBoundary boundary) {
+                                      CaptureBoundary boundary, u32 delay) {
     std::lock_guard lock(state_mutex_);
     auto reject = [&](const char* status) {
         auto r = current_;
@@ -94,6 +94,7 @@ CaptureReceipt CaptureCoordinator::Arm(u32 frames, u64 generation, std::string r
         return r;
     };
     if (frames < 1 || frames > 8) return reject("invalid_frames");
+    if (delay > MaxDelayBoundaries) return reject("invalid_delay");
     if (!generation || generation != target_.generation || target_stopping_)
         return reject("no_matching_renderer");
     if (!Terminal(current_.state) || backend_active_ || current_.cleanup_pending)
@@ -109,6 +110,7 @@ CaptureReceipt CaptureCoordinator::Arm(u32 frames, u64 generation, std::string r
     current_.capture_uuid = current_.run_uuid + ":" + std::to_string(generation) + ":" +
                             std::to_string(current_.request_id);
     current_.requested_frames = frames;
+    current_.delay_boundaries = delay;
     current_.boundary = boundary;
     current_.coverage = boundary == CaptureBoundary::GuestFlip ? "guest_flip_interval" : "host_present_interval";
     if (!backend_.IsLoaded()) {
@@ -216,6 +218,14 @@ void CaptureCoordinator::OnFrameBoundary(u64 generation, u64 present, u64 now,
         CheckDeadlineLocked(now);
         if (current_.cleanup_pending) {
             // Clean up below without retaining the state lock.
+        } else if (current_.state == CaptureRequestState::Armed &&
+                   current_.skipped_boundaries < current_.delay_boundaries) {
+            // Delayed start: each boundary is progress, so the arm deadline restarts.
+            ++current_.skipped_boundaries;
+            deadline_ = now > std::numeric_limits<u64>::max() - timeout_ns_
+                            ? std::numeric_limits<u64>::max() : now + timeout_ns_;
+            PublishLocked();
+            return;
         } else if (current_.state == CaptureRequestState::Armed) {
             current_.state = CaptureRequestState::Starting;
             first = last = present;

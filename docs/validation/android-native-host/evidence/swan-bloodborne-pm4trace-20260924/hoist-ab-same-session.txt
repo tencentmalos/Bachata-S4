@@ -1,0 +1,9 @@
+A(vk_recorder hoist on) fps=25.20 gpu_frame_ms=35.66 frames=251
+B(vk_recorder hoist off) fps=25.80 gpu_frame_ms=36.15 frames=258
+A(vk_recorder hoist on) fps=25.60 gpu_frame_ms=35.22 frames=256
+B(vk_recorder hoist off) fps=25.60 gpu_frame_ms=35.44 frames=256
+A(vk_recorder hoist on) fps=25.40 gpu_frame_ms=35.91 frames=254
+B(vk_recorder hoist off) fps=25.60 gpu_frame_ms=35.91 frames=253
+A(vk_recorder hoist on) fps=24.80 gpu_frame_ms=36.19 frames=248
+B(vk_recorder hoist off) fps=25.20 gpu_frame_ms=37.56 frames=252
+cpuset /top-app

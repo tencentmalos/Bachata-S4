@@ -14,6 +14,7 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/blit_helper.h"
 #include "video_core/texture_cache/image.h"
+#include "video_core/amdgpu/pm4_trace.h"
 
 #include <vk_mem_alloc.h>
 #include "video_core/vma_diagnostics.h"
@@ -243,7 +244,15 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         } else if (use == ScaleUse::Texture && scale_plan->domain == ScaleDomain::Unknown) {
             scale_plan->domain = ScaleDomain::Asset;
             scale_plan->reason = ScaleReason::None;
-        } else if (use == ScaleUse::Storage) scale_plan->RequireNative(ScaleReason::SemanticNative);
+        } else if (use == ScaleUse::Storage) {
+            scale_plan->RequireNative(ScaleReason::SemanticNative, "created as storage");
+            if (AmdGpu::Pm4Trace::Active())
+                AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Native, info.guest_address,
+                                           (u64(info.size.width) << 32) | info.size.height,
+                                           static_cast<u64>(info.pixel_format),
+                                           static_cast<u64>(ScaleReason::SemanticNative),
+                                           "created as storage");
+        }
     }
     u32 selected = 8;
     bool direct_drop = false;
@@ -311,7 +320,8 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
     backing->num_samples = u32(image_ci.samples);
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(image_ci);
-    if (selected < 8 && !IsScaled()) scale_plan->RequireNative(ScaleReason::SemanticNative);
+    if (selected < 8 && !IsScaled())
+        scale_plan->RequireNative(ScaleReason::SemanticNative, "backing not scalable");
     PublishScalePlan();
     if (IsScaled()) {
         static std::atomic<u32> reports{};
@@ -451,7 +461,12 @@ void Image::ForceNative(const char* reason) {
     if (code == ScaleReason::Readback && IsScaled()) scale_plan->upscaled_readback = true;
     const bool changed = scale_plan->domain != ScaleDomain::NativeRequired;
     if (changed) {
-        scale_plan->RequireNative(code);
+        scale_plan->RequireNative(code, reason);
+        if (AmdGpu::Pm4Trace::Active())
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Native, info.guest_address,
+                                       (u64(info.size.width) << 32) | info.size.height,
+                                       static_cast<u64>(info.pixel_format),
+                                       static_cast<u64>(code), reason);
         if (owner) owner->RecordNativeFallback(code);
         // One-way promotions are rare (tens per session); a bounded log attributes each
         // native attachment that later seeds a mixed-pass cascade to its first cause.

@@ -2,13 +2,18 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <fmt/format.h>
+#include <unordered_map>
 #include "common/logging/log.h"
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/thread.h"
+#include "core/emulator_settings.h"
 #include "core/diagnostics/pipeline_handoff.h"
 #include "imgui/renderer/texture_manager.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderdoc.h"
+#include "video_core/renderdoc_capture.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 
 namespace Vulkan {
@@ -114,6 +119,10 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
             const bool loaded = (ds.has_depth && !ds.depth_clear) || (ds.has_stencil && !ds.stencil_clear);
             loaded ? ++loads : ++clears;
         }
+        pass_loads = loads;
+        pass_clears = clears;
+        pass_load_pixels = loads * pixels;
+        pass_hoists = 0;
         stats.passes.fetch_add(1, o);
         stats.loads.fetch_add(loads, o);
         stats.clears.fetch_add(clears, o);
@@ -166,8 +175,6 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
         .pStencilAttachment = db.has_stencil ? &stencil_attachment : nullptr,
     };
 
-    if (Common::Profiler::GpuTimingDetailed())
-        gpu_render_zone = gpu_profiler.Begin(RawCommandBuffer(), GpuProfiler::Stage::RenderPass);
     pass_reads.clear();
     pass_writes.clear();
     if (recorder) {
@@ -175,8 +182,128 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
         pass_trackable = recorder->Holding() &&
                          !render_pass_stats.hoist_off.load(std::memory_order_relaxed);
     }
+    // Inside the held pass: work hoisted before it is not counted as this pass.
+    if (Common::Profiler::GpuTimingDetailed()) {
+        gpu_render_serial = gpu_profiler.BatchSerial();
+        gpu_render_zone = gpu_profiler.BeginWith(GpuProfiler::Stage::RenderPass,
+                                                 TimestampWriter(), render_begins);
+    }
     CommandBuffer().beginRendering(rendering_info);
+    pass_begin_cause = resumed ? last_break : RenderBreak::Other;
+    pass_description = std::move(pending_pass_description);
+    pending_pass_description.clear();
+    if (AmdGpu::Pm4Trace::Active())
+        AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::PassBegin, render_begins,
+                                   resumed ? 1 : 0, static_cast<u64>(pass_begin_cause),
+                                   (u64(render_state.width) << 32) | render_state.height,
+                                   pass_description);
+    if (pending_pass_marker && !pass_description.empty()) {
+        // RenderDoc: what this pass instance is and why it was opened.
+        const auto label = fmt::format("shadps4.pass #{} {} {}", render_begins,
+                                       resumed ? fmt::format("resumed-after:{}", RenderBreakNames[size_t(last_break)])
+                                               : std::string{"guest"},
+                                       pass_description);
+        CommandBuffer().insertDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{.pLabelName = label.c_str()});
+    }
     return true;
+}
+
+namespace {
+struct PassLogEntry {
+    u64 index;
+    bool resumed;
+    RenderBreak begin_cause, end_cause;
+    u32 draws, loads, clears, hoists;
+    u64 load_pixels;
+    std::string description;
+    std::string end_detail;
+};
+struct PassLog {
+    std::mutex mutex;
+    std::atomic<u32> remaining{};
+    std::vector<PassLogEntry> entries;
+    // GPU time per pass index (gpu_timing detail), joined at dump.
+    bool collecting{};
+    std::unordered_map<u64, u64> gpu_ns;
+} pass_log;
+} // namespace
+
+bool Scheduler::PassLogActive() noexcept {
+    return pass_log.remaining.load(std::memory_order_relaxed) != 0;
+}
+
+void Scheduler::NoteBarrierSource(const char* kind, u64 address, u64 size,
+                                  const vk::BufferMemoryBarrier2& barrier, u64 shader_hash) {
+    if (AmdGpu::Pm4Trace::Active())
+        AmdGpu::Pm4Trace::NoteHost(
+            AmdGpu::Pm4Trace::HostEvent::Barrier, address, size,
+            static_cast<u64>(static_cast<VkAccessFlags2>(barrier.srcAccessMask)),
+            static_cast<u64>(static_cast<VkAccessFlags2>(barrier.dstAccessMask)),
+            shader_hash ? fmt::format("{} sh={:#x}", kind, shader_hash) : std::string{kind});
+    if (!(PassLogActive() || AmdGpu::Pm4Trace::Active()) || break_detail.size() > 1024)
+        return;
+    break_detail += fmt::format(" [{} {:#x}+{:#x} src={}/{} dst={}{}]", kind, address, size,
+                                vk::to_string(barrier.srcAccessMask),
+                                vk::to_string(barrier.srcStageMask),
+                                vk::to_string(barrier.dstAccessMask),
+                                shader_hash ? fmt::format(" sh={:#x}", shader_hash) : std::string{});
+}
+
+void RecordTaggedGpuTime(uint64_t tag, uint64_t ns) {
+    std::scoped_lock lk{pass_log.mutex};
+    if (pass_log.collecting && pass_log.gpu_ns.size() < 4 * pass_log.entries.capacity())
+        pass_log.gpu_ns[tag] = ns;
+}
+
+bool Scheduler::LabelsEnabled() noexcept {
+    return VideoCore::IsRenderDocLoaded() || EmulatorSettings.IsVkHostMarkersEnabled();
+}
+
+bool Scheduler::WantsPassDescription() const noexcept {
+    return pass_log.remaining.load(std::memory_order_relaxed) != 0 ||
+           AmdGpu::Pm4Trace::Active() || VideoCore::IsRenderDocLoaded();
+}
+
+std::string Scheduler::PassLogCommand(const std::vector<std::string>& args) {
+    const std::string cmd = args.empty() ? "status" : args[0];
+    std::scoped_lock lk{pass_log.mutex};
+    if (cmd == "start") {
+        u32 n = 2000;
+        if (args.size() > 1)
+            n = static_cast<u32>(std::clamp<unsigned long>(std::stoul(args[1]), 1, 20000));
+        pass_log.entries.clear();
+        pass_log.entries.reserve(n);
+        pass_log.gpu_ns.clear();
+        pass_log.collecting = true;
+        pass_log.remaining.store(n, std::memory_order_relaxed);
+        return fmt::format("pass_log armed for {} passes\n", n);
+    }
+    if (cmd == "stop") {
+        pass_log.remaining.store(0, std::memory_order_relaxed);
+        pass_log.collecting = false;
+        return "pass_log stopped\n";
+    }
+    if (cmd != "status" && cmd != "dump")
+        return "usage: pass_log start [passes] | status | dump | stop\n";
+    std::string out = fmt::format("pass_log remaining={} entries={} gpu_timed={}\n",
+                                  pass_log.remaining.load(std::memory_order_relaxed),
+                                  pass_log.entries.size(), pass_log.gpu_ns.size());
+    if (cmd == "dump") {
+        for (const auto& e : pass_log.entries) {
+            const auto gpu = pass_log.gpu_ns.find(e.index);
+            out += fmt::format("pass {} {} begin={} end={} draws={} loads={} clears={} load_px={} "
+                               "hoists={} gpu_us={} {}\n",
+                               e.index, e.resumed ? "resumed" : "guest",
+                               e.resumed ? RenderBreakNames[size_t(e.begin_cause)] : "-",
+                               RenderBreakNames[size_t(e.end_cause)], e.draws, e.loads, e.clears,
+                               e.load_pixels, e.hoists,
+                               gpu == pass_log.gpu_ns.end() ? -1.0 : gpu->second / 1000.0,
+                               e.description);
+            if (!e.end_detail.empty())
+                out += fmt::format("  end_detail:{}\n", e.end_detail);
+        }
+    }
+    return out;
 }
 
 bool Scheduler::BeginHoist(std::span<const AccessRange> reads, std::span<const AccessRange> writes,
@@ -186,6 +313,10 @@ bool Scheduler::BeginHoist(std::span<const AccessRange> reads, std::span<const A
     constexpr auto o = std::memory_order_relaxed;
     if (!pass_trackable || !recorder || !recorder->Holding()) {
         render_pass_stats.hoist_unavailable.fetch_add(1, o);
+        if (PassLogActive() || AmdGpu::Pm4Trace::Active())
+            NoteBreak(fmt::format("[hoist unavailable: trackable={} recorder={} holding={}]",
+                                  pass_trackable, bool(recorder),
+                                  recorder && recorder->Holding()));
         return false;
     }
     const auto overlaps = [](const std::vector<AccessRange>& set, const AccessRange& r) {
@@ -197,18 +328,48 @@ bool Scheduler::BeginHoist(std::span<const AccessRange> reads, std::span<const A
     for (const auto& w : writes) {
         if (overlaps(pass_reads, w) || overlaps(pass_writes, w)) {
             render_pass_stats.hoist_conflicts.fetch_add(1, o);
+            if (PassLogActive() || AmdGpu::Pm4Trace::Active())
+                NoteBreak(fmt::format("[hoist conflict: copy writes {:#x}-{:#x}, pass {}]", w.first,
+                                      w.second, overlaps(pass_writes, w) ? "wrote it" : "read it"));
             return false;
         }
     }
     for (const auto& r : reads) {
         if (overlaps(pass_writes, r) || (reads_written && overlaps(pass_reads, r))) {
             render_pass_stats.hoist_conflicts.fetch_add(1, o);
+            if (PassLogActive() || AmdGpu::Pm4Trace::Active())
+                NoteBreak(fmt::format("[hoist conflict: copy reads {:#x}-{:#x}, pass {}]", r.first,
+                                      r.second,
+                                      overlaps(pass_writes, r) ? "wrote it"
+                                                               : "read it and source re-uploads"));
             return false;
         }
     }
     recorder->BeginPrePass();
     hoisting = true;
+    ++pass_hoists;
     render_pass_stats.hoisted.fetch_add(1, o);
+    return true;
+}
+
+bool Scheduler::TakeBarrierHoist(const vk::DependencyInfo& dependencies) {
+    const bool ok = barrier_pass_continues && !barrier_conflict &&
+                    barriers_classified == dependencies.bufferMemoryBarrierCount &&
+                    dependencies.memoryBarrierCount == 0 && dependencies.imageMemoryBarrierCount == 0 &&
+                    is_rendering && !hoisting &&
+                    pass_trackable && recorder && recorder->Holding() &&
+                    !render_pass_stats.hoist_off.load(std::memory_order_relaxed);
+    ResetBarrierHoist();
+    if (!ok)
+        return false;
+    recorder->BeginPrePass();
+    CommandBuffer().pipelineBarrier2(dependencies);
+    recorder->EndPrePass();
+    ++pass_hoists;
+    render_pass_stats.hoisted_barriers.fetch_add(1, std::memory_order_relaxed);
+    if (AmdGpu::Pm4Trace::Active())
+        AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::BarrierHoisted, render_begins,
+                                   dependencies.bufferMemoryBarrierCount, 0, 0);
     return true;
 }
 
@@ -244,13 +405,28 @@ void Scheduler::EndRendering(RenderBreak cause) {
                                         : pass_draws < 8 ? stats.few : stats.many)
             .fetch_add(1, o);
     }
+    if (AmdGpu::Pm4Trace::Active())
+        AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::PassEnd, render_begins,
+                                   static_cast<u64>(cause), pass_draws, pass_load_pixels,
+                                   break_detail);
+    if (pass_log.remaining.load(std::memory_order_relaxed)) {
+        std::scoped_lock lk{pass_log.mutex};
+        if (u32 left = pass_log.remaining.load(std::memory_order_relaxed)) {
+            pass_log.entries.push_back({render_begins, last_begin_resumed, pass_begin_cause, cause,
+                                        pass_draws, pass_loads, pass_clears, pass_hoists,
+                                        pass_load_pixels, std::move(pass_description),
+                                        std::move(break_detail)});
+            pass_log.remaining.store(left - 1, std::memory_order_relaxed);
+        }
+    }
+    pass_description.clear();
     CommandBuffer().endRendering();
+    if (gpu_render_zone != GpuProfiler::Invalid && gpu_profiler.BatchSerial() == gpu_render_serial)
+        gpu_profiler.EndWith(gpu_render_zone, TimestampWriter());
+    gpu_render_zone = GpuProfiler::Invalid;
     pass_trackable = false;
     if (recorder)
         recorder->EndPass(); // queue pre-pass work, then the pass
-    if (gpu_render_zone != GpuProfiler::Invalid)
-        gpu_profiler.End(RawCommandBuffer(), gpu_render_zone);
-    gpu_render_zone = GpuProfiler::Invalid;
 }
 
 void Scheduler::Flush(SubmitInfo& info) {

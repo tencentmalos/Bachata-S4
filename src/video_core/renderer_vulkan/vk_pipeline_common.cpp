@@ -31,9 +31,14 @@ void Pipeline::BindResources(DescriptorWrites& set_writes, const BufferBarriers&
             .bufferMemoryBarrierCount = u32(buffer_barriers.size()),
             .pBufferMemoryBarriers = buffer_barriers.data(),
         };
-        scheduler.EndRendering(Vulkan::RenderBreak::Barrier);
-        cmdbuf.pipelineBarrier2(dependencies);
+        if (!scheduler.TakeBarrierHoist(dependencies)) {
+            scheduler.EndRendering(Vulkan::RenderBreak::Barrier);
+            cmdbuf.pipelineBarrier2(dependencies);
+        }
+    } else {
+        scheduler.ResetBarrierHoist();
     }
+    scheduler.ClearBreakDetail();
 
     const auto stage_flags = IsCompute() ? vk::ShaderStageFlagBits::eCompute : AllGraphicsStageBits;
     cmdbuf.pushConstants(*pipeline_layout, stage_flags, 0u, sizeof(push_data), &push_data);

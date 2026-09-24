@@ -1220,6 +1220,8 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/texture_cache/types.h
                src/video_core/amdgpu/pm4_stats.cpp
                src/video_core/amdgpu/pm4_stats.h
+               src/video_core/amdgpu/pm4_trace.cpp
+               src/video_core/amdgpu/pm4_trace.h
                src/video_core/texture_cache/upload_diagnostics.cpp
                src/video_core/texture_cache/upload_diagnostics.h
                src/video_core/cache_storage.cpp

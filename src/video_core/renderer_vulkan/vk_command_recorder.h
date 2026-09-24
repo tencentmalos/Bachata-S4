@@ -159,7 +159,8 @@ public:
     // Pass holding: commands of an open render pass stay on this thread until the pass
     // ends, so operations found independent of it can be placed before its begin.
     // BeginPass is called right before the pass begin command is recorded.
-    static constexpr size_t MaxHeldChunks = 8;
+    // 32 x 128 KiB: large guest passes (a 400-draw G-buffer) stay held to their end.
+    static constexpr size_t MaxHeldChunks = 32;
     void BeginPass();
     void EndPass();
     bool Holding() const noexcept {

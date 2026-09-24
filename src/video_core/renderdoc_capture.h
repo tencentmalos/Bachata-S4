@@ -27,6 +27,9 @@ struct CaptureReceipt {
     u64 request_id{}, generation{};
     CaptureRequestState state{CaptureRequestState::Idle};
     u32 requested_frames{}, completed_frames{}, num_captures_before{}, num_captures_after{};
+    // Boundaries to let pass after arming before the capture starts (e.g. to reach a
+    // scene after moving the camera), and how many have passed so far.
+    u32 delay_boundaries{}, skipped_boundaries{};
     u64 first_present{}, last_present{}, capture_timestamp{}, file_size{};
     u64 first_guest_flip{}, last_guest_flip{};
     CaptureBoundary boundary{CaptureBoundary::HostPresent};
@@ -61,8 +64,9 @@ public:
     bool Bind(CaptureTarget target);
     void RequestStop(u64 generation);
     void Unbind(u64 generation); // Owner teardown only, after renderer workers drain.
+    static constexpr u32 MaxDelayBoundaries = 600;
     CaptureReceipt Arm(u32 frames, u64 generation, std::string run_uuid, u64 now_ns,
-                       CaptureBoundary boundary = CaptureBoundary::HostPresent);
+                       CaptureBoundary boundary = CaptureBoundary::HostPresent, u32 delay = 0);
     CaptureReceipt Cancel(u64 request_id, u64 generation);
     void OnFrameBoundary(u64 generation, u64 present_id, u64 now_ns,
                          CaptureBoundary boundary = CaptureBoundary::HostPresent);

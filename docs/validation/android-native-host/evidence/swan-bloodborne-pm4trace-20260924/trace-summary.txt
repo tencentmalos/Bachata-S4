@@ -1,0 +1,13 @@
+capture e7ea2556c6fcb3c9e388406fe9d6e91a run=a78a8ff8e51311ad04c5c5e03f260a0e frames=2/2 flips 3890..3892 ended_by=complete
+
+frame after flip 3890: 51.3 ms, submits=74 ibs=75 packets=49676
+  actions: {'dispatch': 170, 'draw': 521, 'draw_indexed': 1037, 'draw_indirect': 2, 'dispatch_indirect': 2}
+  host: {'hle_copy': 54, 'replaced': 119, 'pass_begin': 265, 'pass_end': 265, 'barrier': 9}
+  pass ends by cause: {'sampled_image': 102, 'attachment': 62, 'image_copy': 45, 'state_change': 33, 'buffer_upload': 15, 'hle': 4, 'buffer_barrier': 2, 'dispatch': 1, 'present': 1}
+  top packets: SetContextReg=19869, SetShReg=13375, Nop=8557, DmaData=1603, NumInstances=1485, DrawIndexOffset2=993, AcquireMem=876, EventWriteEop=568, DrawIndexAuto=534, IndexBase=355, WaitRegMem=351, SetUconfigReg=257
+
+frame after flip 3891: 43.7 ms, submits=74 ibs=75 packets=49950
+  actions: {'dispatch': 171, 'draw': 521, 'draw_indexed': 1060, 'draw_indirect': 2, 'dispatch_indirect': 2}
+  host: {'hle_copy': 55, 'replaced': 120, 'pass_begin': 251, 'pass_end': 251, 'barrier': 9}
+  pass ends by cause: {'sampled_image': 102, 'attachment': 62, 'image_copy': 45, 'state_change': 33, 'hle': 4, 'buffer_upload': 2, 'dispatch': 1, 'buffer_barrier': 1, 'present': 1}
+  top packets: SetContextReg=19877, SetShReg=13400, Nop=8607, DmaData=1624, NumInstances=1508, DrawIndexOffset2=1016, AcquireMem=877, EventWriteEop=573, DrawIndexAuto=534, WaitRegMem=376, IndexBase=356, SetUconfigReg=257

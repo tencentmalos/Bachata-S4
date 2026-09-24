@@ -14,6 +14,7 @@
 #include "core/libraries/videoout/videoout_error.h"
 #include "imgui/renderer/imgui_core.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 
 extern std::unique_ptr<Vulkan::Presenter> presenter;
@@ -436,6 +437,7 @@ bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
                            .flip_arg = s64(sequence), .index = index, .eop = false});
         }
         const auto guest_flip = ++liverpool->diagnostic_guest_flip;
+        AmdGpu::Pm4Trace::NoteFlip(guest_flip);
         if (const auto& diag = presenter->Diagnostics())
             diag->Advance(Core::Diagnostics::AdvanceSignal::GuestFlip, Core::Diagnostics::DiagnosticNowNs());
         Common::Profiler::Counter("VR.PassthroughFrames", liverpool->diagnostic_guest_flip);
@@ -509,6 +511,7 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
     }
     if (index >= 0) {
         const auto guest_flip = ++liverpool->diagnostic_guest_flip;
+        AmdGpu::Pm4Trace::NoteFlip(guest_flip);
         Common::Profiler::Counter("VideoOut.PreparedGuestFlips", guest_flip);
         if (guest_flip == 1) Common::Profiler::Bookmark("Startup.FirstGuestPrepared");
         const auto generation = presenter->CaptureGeneration();

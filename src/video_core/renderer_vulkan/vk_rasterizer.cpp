@@ -18,6 +18,7 @@
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
+#include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/texture_cache/image_view.h"
@@ -213,6 +214,12 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
         return;
     }
 
+    const bool tracing = AmdGpu::Pm4Trace::Active();
+    if (tracing)
+        AmdGpu::Pm4Trace::BeginAction();
+    // Accesses staged by work outside a draw (HLE copies, dispatches) are not this draw's.
+    scheduler.ClearStagedAccess();
+    scheduler.ResetBarrierHoist();
     PrepareRenderState(pipeline);
 #if defined(__ANDROID__)
     static std::atomic<u32> sbs_draw_samples{};
@@ -231,16 +238,25 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
         return;
     }
     const auto state = BeginRendering(pipeline);
+    if (tracing)
+        TraceAction(is_indexed ? AmdGpu::Pm4Trace::ActionKind::DrawIndexed
+                               : AmdGpu::Pm4Trace::ActionKind::Draw,
+                    pipeline, &state, regs.num_indices, regs.num_instances.NumInstances(),
+                    static_cast<u32>(regs.primitive_type), index_offset,
+                    is_indexed ? regs.index_base_address.Address() : 0);
 
     buffer_cache.BindVertexBuffers(*pipeline, buffer_barriers);
     if (is_indexed) {
         buffer_cache.BindIndexBuffer(index_offset, buffer_barriers);
     }
 
+    scheduler.PrepareBarrierHoist(state);
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
     UpdateDynamicState(pipeline, is_indexed);
     RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
     scheduler.NoteDraw();
+    if (HostMarkersEnabled())
+        InsertDrawTag(pipeline, is_indexed, false);
 
     const auto& vs_info = pipeline->GetStage(Shader::LogicalStage::Vertex);
     const auto& fetch_shader = pipeline->GetFetchShader();
@@ -289,11 +305,21 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
         return;
     }
 
+    const bool tracing = AmdGpu::Pm4Trace::Active();
+    if (tracing)
+        AmdGpu::Pm4Trace::BeginAction();
+    scheduler.ClearStagedAccess();
+    scheduler.ResetBarrierHoist();
     PrepareRenderState(pipeline);
     if (!BindResources(pipeline)) {
         return;
     }
     const auto state = BeginRendering(pipeline);
+    if (tracing)
+        TraceAction(is_indexed ? AmdGpu::Pm4Trace::ActionKind::DrawIndexedIndirect
+                               : AmdGpu::Pm4Trace::ActionKind::DrawIndirect,
+                    pipeline, &state, max_count, stride, offset,
+                    static_cast<u32>(liverpool->regs.primitive_type), arg_address);
 
     buffer_cache.BindVertexBuffers(*pipeline, buffer_barriers);
     if (is_indexed) {
@@ -324,6 +350,8 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
     UpdateDynamicState(pipeline, is_indexed);
     RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
     scheduler.NoteDraw();
+    if (HostMarkersEnabled())
+        InsertDrawTag(pipeline, is_indexed, true);
 
     // We can safely ignore both SGPR UD indices and results of fetch shader parsing, as vertex and
     // instance offsets will be automatically applied by Vulkan from indirect args buffer.
@@ -383,13 +411,31 @@ void Rasterizer::DispatchDirect() {
     }
 
     const auto& cs = pipeline->GetStage(Shader::LogicalStage::Compute);
+    const bool tracing = AmdGpu::Pm4Trace::Active();
+    if (tracing) {
+        AmdGpu::Pm4Trace::BeginAction();
+        TraceAction(AmdGpu::Pm4Trace::ActionKind::Dispatch, pipeline, nullptr, cs_program.dim_x,
+                    cs_program.dim_y, cs_program.dim_z, 0, 0);
+    }
     if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
         NoteDispatchDiagnostics(cs, cs_program, false);
     }
     if (ExecuteShaderHLE(cs, liverpool->regs, cs_program, *this)) {
+        if (tracing)
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
+                                       "copy-shader HLE");
         return;
     }
     if (TryComputeImageFill(cs, cs_program)) {
+        if (tracing)
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
+                                       "image fill clear");
+        return;
+    }
+    if (TryComputeImageStoreFill(cs, cs_program)) {
+        if (tracing)
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
+                                       "image store fill clear");
         return;
     }
 
@@ -422,6 +468,11 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
         return;
     }
 
+    if (AmdGpu::Pm4Trace::Active()) {
+        AmdGpu::Pm4Trace::BeginAction();
+        TraceAction(AmdGpu::Pm4Trace::ActionKind::DispatchIndirect, pipeline, nullptr, 0, 0, 0,
+                    size, address + offset);
+    }
     if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
         NoteDispatchDiagnostics(pipeline->GetStage(Shader::LogicalStage::Compute), cs_program,
                                 true);
@@ -487,8 +538,13 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
 }
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
-    if (IsComputeImageCopy(pipeline) || IsComputeMetaClear(pipeline) ||
-        IsComputeImageClear(pipeline)) {
+    const char* replaced = IsComputeImageCopy(pipeline)    ? "compute image copy"
+                           : IsComputeMetaClear(pipeline)  ? "compute meta clear"
+                           : IsComputeImageClear(pipeline) ? "compute image clear"
+                                                           : nullptr;
+    if (replaced) {
+        if (AmdGpu::Pm4Trace::Active())
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0, replaced);
         return false;
     }
 
@@ -525,7 +581,16 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                     memory->IsValidGpuMapping(sharp.Address(), 0)) {
                     VideoCore::TextureCache::ImageDesc desc{sharp, resource};
                     auto id = texture_cache.FindImage(desc);
-                    texture_cache.GetImage(id).ForceNative("exact shader data access");
+                    // Distinct literals: the plan keeps the first trigger for diagnostics.
+                    texture_cache.GetImage(id).ForceNative(
+                        resource.is_written ? "exact shader data access: written" :
+                        resource.is_atomic ? "exact shader data access: atomic" :
+                        resource.requires_native_scale ? "exact shader data access: requires native" :
+                        resource.post_op == Shader::SharpFetchPostOp::ConvertCubeTo2DArray
+                            ? "exact shader data access: cube as 2D array" :
+                        descriptor >= Shader::PushData::MaxScaledBinding
+                            ? "exact shader data access: binding beyond scale table" :
+                        "exact shader data access: integer format");
                 }
                 descriptor += resource.NumBindings(*stage);
             }
@@ -932,6 +997,10 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                                                           : vk::AccessFlagBits2::eShaderRead,
                                           vk::PipelineStageFlagBits2::eAllCommands)) {
                 buffer_barriers.emplace_back(*barrier);
+                scheduler.ClassifyBarrier(vk_buffer->CpuAddr(), vk_buffer->SizeBytes(),
+                                          desc.is_written);
+                scheduler.NoteBarrierSource(desc.is_written ? "shader-write" : "shader-read",
+                                            vsharp.base_address, size, *barrier, stage.pgm_hash);
             }
             if (desc.is_written && desc.is_formatted) {
                 texture_cache.InvalidateMemoryFromGPU(
@@ -1054,6 +1123,122 @@ bool Rasterizer::TryComputeImageFill(const Shader::Info& cs,
         dst.base_address, bytes, std::span{pattern.data(), period}, images);
     VideoCore::UploadDiagnostics::NoteFill(outcome, images, bytes);
     return outcome == FillOutcome::Cleared;
+}
+
+// Constant-colour image fill (GCN CI encoding), one texel per thread of 8x8 groups:
+//   image[tgid.xy * 8 + tid.xy] = color (the 16-byte buffer), mip/layer of the descriptor.
+// Matching the whole program pins the semantics; out-of-range coordinates are dropped by
+// the hardware, so a dispatch covering the level is exactly a clear of that subresource.
+static constexpr std::array<u32, 15> ImageStoreFillCode{
+    0xbeeb03ff, 0x00000009, // s_mov_b32 vcc_hi, 9 (binary info marker)
+    0x8f008310,             // s_lshl_b32 s0, s16, 3                  tgid.x * 8
+    0x8f018311,             // s_lshl_b32 s1, s17, 3                  tgid.y * 8
+    0x4a000000,             // v_add_i32 v0, vcc, s0, v0              x
+    0x4a020201,             // v_add_i32 v1, vcc, s1, v1              y
+    0xc2800d00,             // s_buffer_load_dwordx4 s[0:3], s[12:15], 0   colour
+    0xbf8c007f,             // s_waitcnt lgkmcnt(0)
+    0x7e040200,             // v_mov_b32 v2, s0
+    0x7e060201,             // v_mov_b32 v3, s1
+    0x7e080202,             // v_mov_b32 v4, s2
+    0x7e0a0203,             // v_mov_b32 v5, s3
+    0xf0201f00, 0x00010200, // image_store v[2:5], v[0:1], s[4:11] dmask:0xf unorm
+    0xbf810000,             // s_endpgm
+};
+
+bool Rasterizer::TryComputeImageStoreFill(const Shader::Info& cs,
+                                          const AmdGpu::ComputeProgram& program) {
+    // Cheap rejects first: this runs for every direct dispatch. The recompiler may add
+    // internal buffers (flattened user data, fault/BDA tables); exactly one guest buffer.
+    const auto guest_buffers = std::ranges::count_if(
+        cs.buffers, [](const Shader::BufferResource& b) { return !b.IsSpecial(); });
+    if (cs.images.size() != 1 || guest_buffers != 1 || program.num_thread_x.full != 8 ||
+        program.num_thread_y.full != 8 || program.num_thread_z.full != 1 ||
+        program.num_thread_x.partial || program.num_thread_y.partial || program.start_x ||
+        program.start_y || program.start_z || program.dim_z != 1) {
+        return false;
+    }
+    const auto& image_desc = cs.images[0];
+    const auto& color_desc = *std::ranges::find_if(
+        cs.buffers, [](const Shader::BufferResource& b) { return !b.IsSpecial(); });
+    if (!image_desc.is_written || image_desc.is_atomic || image_desc.is_depth ||
+        color_desc.is_written || color_desc.is_formatted ||
+        std::memcmp(program.Address<const u32*>(), ImageStoreFillCode.data(),
+                    sizeof(ImageStoreFillCode))) {
+        return false;
+    }
+    if (VideoCore::UploadDiagnostics::fill_clear_off.load(std::memory_order_relaxed)) {
+        return false;
+    }
+    const AmdGpu::Image sharp = image_desc.GetSharp(cs);
+    const AmdGpu::Buffer color = color_desc.GetSharp(cs);
+    if (!sharp.Valid() || sharp.GetType() != AmdGpu::ImageType::Color2D ||
+        sharp.NumSamples() != 1 || color.GetSize() < 16 || !color.base_address) {
+        return false;
+    }
+    // The clear value is exact only where the store's conversion equals Vulkan's clear
+    // conversion: float/normalized formats take the float bits, integer formats the raw
+    // bits. sRGB and scaled formats keep the dispatch.
+    const auto nfmt = sharp.GetNumberFmt();
+    const bool is_float = nfmt == AmdGpu::NumberFormat::Float ||
+                          nfmt == AmdGpu::NumberFormat::Unorm ||
+                          nfmt == AmdGpu::NumberFormat::Snorm;
+    const bool is_int = nfmt == AmdGpu::NumberFormat::Uint || nfmt == AmdGpu::NumberFormat::Sint;
+    if ((!is_float && !is_int) || AmdGpu::IsBlockCoded(sharp.GetDataFmt())) {
+        return false;
+    }
+    // The dispatch must cover the whole level the descriptor selects.
+    const u32 level = sharp.base_level;
+    const u32 width = std::max<u32>(u32(sharp.width + 1) >> level, 1);
+    const u32 height = std::max<u32>(u32(sharp.height + 1) >> level, 1);
+    if (u64(program.dim_x) * 8 < width || u64(program.dim_y) * 8 < height) {
+        return false;
+    }
+    if (buffer_cache.IsRegionGpuModified(color.base_address, 16)) {
+        return false; // colour produced by earlier GPU work: keep the real dispatch
+    }
+    std::array<u32, 4> value{};
+    if (!memory->TryReadSrtMemory(color.base_address, value.data(), 8) ||
+        !memory->TryReadSrtMemory(color.base_address + 8, value.data() + 2, 8)) {
+        return false;
+    }
+
+    // Looked up as a sampled texture, not storage: the image keeps its render-scale plan
+    // (its next attachment use re-plans it) instead of being pinned to native by a clear.
+    VideoCore::TextureCache::ImageDesc desc{sharp, image_desc};
+    desc.type = VideoCore::TextureCache::BindingType::Texture;
+    const auto image_id = texture_cache.FindImage(desc);
+    if (!image_id) {
+        return false;
+    }
+    auto& image = texture_cache.GetImage(image_id);
+    if (image.info.num_samples != 1 || image.info.props.is_depth ||
+        image.info.num_bits != AmdGpu::NumBitsPerBlock(sharp.GetDataFmt())) {
+        return false;
+    }
+    const u32 layer = desc.view_info.range.base.layer;
+    const u32 view_level = desc.view_info.range.base.level;
+    const bool whole = image.info.resources.levels == 1 && image.info.resources.layers == 1;
+    if (!whole && True(image.flags & VideoCore::ImageFlagBits::Dirty)) {
+        texture_cache.UpdateImage(image_id); // keep the other subresources' pending data
+    }
+    vk::ClearValue clear{};
+    if (is_float) {
+        std::memcpy(clear.color.float32.data(), value.data(), sizeof(value));
+    } else {
+        std::memcpy(clear.color.uint32.data(), value.data(), sizeof(value));
+    }
+    image.Clear(clear, {.base = {.level = view_level, .layer = layer},
+                        .extent = {.levels = 1, .layers = 1}});
+    image.flags |= VideoCore::ImageFlagBits::GpuModified;
+    if (whole) {
+        image.flags &= ~VideoCore::ImageFlagBits::Dirty;
+    }
+    static std::atomic<u32> logged{};
+    if (logged.fetch_add(1, std::memory_order_relaxed) < 8) {
+        LOG_INFO(Render_Vulkan, "image store fill: {:#x} {}x{} level {} layer {} -> clear",
+                 sharp.Address(), width, height, view_level, layer);
+    }
+    return true;
 }
 
 void Rasterizer::NoteDispatchDiagnostics(const Shader::Info& cs,
@@ -1369,7 +1554,10 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
             attachment.has_depth = true;
             attachment.depth_clear = is_depth_clear;
         }
-        if (regs.depth_buffer.StencilValid()) {
+        // The guest may describe a stencil surface for a depth image the host created
+        // without one (e.g. D32Sfloat); a stencil attachment there would only turn a
+        // cleared depth pass into a loaded one.
+        if (regs.depth_buffer.StencilValid() && image.info.props.has_stencil) {
             attachment.clear_value[1] = is_stencil_clear ? regs.stencil_clear : 0u;
             attachment.has_stencil = true;
             attachment.stencil_clear = is_stencil_clear;
@@ -1382,6 +1570,56 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
 
     if (state.num_layers == std::numeric_limits<u16>::max()) {
         state.num_layers = 1;
+    }
+    const bool has_attachments =
+        state.depth_stencil_attachment.image_view ||
+        std::any_of(state.color_attachments.begin(),
+                    state.color_attachments.begin() + state.num_color_attachments,
+                    [](const RenderAttachment& a) { return bool(a.image_view); });
+    if (!has_attachments) {
+        // Nothing bounds the pass but the scissor (draws that only write buffers); a
+        // device-maximum render area makes the tiler bin a 16K x 16K surface.
+        const bool offset = !regs.window_scissor.window_offset_disable;
+        const s32 off_x = offset ? regs.window_offset.window_x_offset : 0;
+        const s32 off_y = offset ? regs.window_offset.window_y_offset : 0;
+        const s32 br_x = std::min({s32(regs.screen_scissor.bottom_right_x),
+                                   s32(regs.window_scissor.bottom_right_x) + off_x,
+                                   s32(regs.generic_scissor.bottom_right_x) + off_x});
+        const s32 br_y = std::min({s32(regs.screen_scissor.bottom_right_y),
+                                   s32(regs.window_scissor.bottom_right_y) + off_y,
+                                   s32(regs.generic_scissor.bottom_right_y) + off_y});
+        state.width = static_cast<u16>(std::clamp<s32>(br_x, 1, state.width));
+        state.height = static_cast<u16>(std::clamp<s32>(br_y, 1, state.height));
+    }
+    if (scheduler.WantsPassDescription()) {
+        // Targets of the pass as the guest set them: guest address, format, load (L) or
+        // clear (C), and whether depth is only tested (ro) or also written (rw).
+        std::string desc = fmt::format("{}x{}x{}", state.width, state.height, state.num_layers);
+        for (u32 cb = 0; cb < state.num_color_attachments; ++cb) {
+            const auto& [image_id, d] = cb_descs[cb];
+            if (!image_id || !state.color_attachments[cb].image_view)
+                continue;
+            const auto& image = texture_cache.GetImage(image_id);
+            desc += fmt::format(" c{}={:#x}:{}:{}", cb, image.info.guest_address,
+                                vk::to_string(image.info.pixel_format),
+                                state.color_attachments[cb].is_clear ? 'C' : 'L');
+            if (!image.IsScaled()) {
+                // Why this target stays native under Internal Scale.
+                const auto& plan = image.ScalePlan();
+                desc += fmt::format(":native({},{:#x},{})", VideoCore::ScaleReasonName(plan.reason),
+                                    plan.native_reason_mask,
+                                    plan.native_why ? plan.native_why : "-");
+            }
+        }
+        if (const auto& ds = state.depth_stencil_attachment; ds.image_view && db_desc.first) {
+            const auto& image = texture_cache.GetImage(db_desc.first);
+            const bool read_only = ds.image_layout == vk::ImageLayout::eDepthReadOnlyOptimal ||
+                                   ds.image_layout == vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+            desc += fmt::format(" d={:#x}:{}:{}:{}", image.info.guest_address,
+                                vk::to_string(image.info.pixel_format),
+                                (ds.has_depth && ds.depth_clear) ? 'C' : 'L', read_only ? "ro" : "rw");
+        }
+        scheduler.SetPassDescription(std::move(desc), HostMarkersEnabled());
     }
 
     return state;
@@ -1837,6 +2075,109 @@ void Rasterizer::UpdateColorBlendingState(const GraphicsPipeline* pipeline) cons
     dynamic_state.SetBlendConstants(regs.blend_constants);
     dynamic_state.SetColorWriteMasks(pipeline->GetGraphicsKey().write_masks);
     dynamic_state.SetAttachmentFeedbackLoopEnabled(attachment_feedback_loop);
+}
+
+void Rasterizer::TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* pipeline,
+                             const RenderState* state, u32 p0, u32 p1, u32 p2, u32 p3, u64 p4) {
+    using namespace AmdGpu::Pm4Trace;
+    auto& a = trace_action;
+    a.Clear();
+    a.kind = kind;
+    a.p0 = p0;
+    a.p1 = p1;
+    a.p2 = p2;
+    a.p3 = p3;
+    a.p4 = p4;
+    // Guest-level resources from the sharps this pipeline resolved for this action.
+    for (const auto* stage : pipeline->GetStages()) {
+        if (!stage)
+            continue;
+        const u32 s = static_cast<u32>(stage->l_stage);
+        a.stages.push_back({s, 0, stage->pgm_hash, stage->pgm_base});
+        if (stage->pgm_base && WantShader(stage->pgm_hash)) {
+            // Same code span the pipeline cache hashed (binary info length).
+            const auto* code = reinterpret_cast<const u32*>(stage->pgm_base);
+            const auto& bininfo = AmdGpu::SearchBinaryInfo(code);
+            NoteShader(stage->pgm_hash, stage->pgm_base, s,
+                       {code, bininfo.length / sizeof(u32)});
+        }
+        for (const auto& image : stage->images) {
+            const auto sharp = image.GetSharp(*stage);
+            const u32 flags = (image.is_written ? 1u : 0u) | (image.is_atomic ? 2u : 0u) |
+                              (image.is_depth ? 4u : 0u) | (image.is_array ? 8u : 0u) |
+                              (image.requires_native_scale ? 16u : 0u);
+            a.images.push_back({s, flags, sharp.Address(), static_cast<u32>(sharp.width + 1),
+                                static_cast<u32>(sharp.height + 1),
+                                static_cast<u32>(sharp.depth + 1), sharp.NumLevels(),
+                                static_cast<u32>(sharp.GetDataFmt()),
+                                static_cast<u32>(sharp.GetNumberFmt()),
+                                static_cast<u32>(sharp.GetType()),
+                                static_cast<u32>(sharp.tiling_index)});
+        }
+        for (const auto& buffer : stage->buffers) {
+            if (buffer.IsSpecial())
+                continue;
+            const auto sharp = buffer.GetSharp(*stage);
+            const u32 flags = (buffer.is_written ? 1u : 0u) | (buffer.is_formatted ? 2u : 0u);
+            a.buffers.push_back({s, flags, static_cast<u64>(sharp.base_address), sharp.GetSize(),
+                                 sharp.GetStride()});
+        }
+    }
+    // Host targets of the pass this draw renders into (scale as actually allocated).
+    if (state) {
+        for (u32 cb = 0; cb < state->num_color_attachments; ++cb) {
+            const auto& [image_id, desc] = cb_descs[cb];
+            if (!image_id || !state->color_attachments[cb].image_view)
+                continue;
+            const auto& image = texture_cache.GetImage(image_id);
+            a.targets.push_back({cb, state->color_attachments[cb].is_clear ? 1u : 0u,
+                                 image.info.guest_address, image.info.size.width,
+                                 image.info.size.height, image.info.resources.layers,
+                                 static_cast<u32>(image.info.pixel_format), image.ScaleEighths(),
+                                 0});
+        }
+        if (const auto& ds = state->depth_stencil_attachment; ds.image_view && db_desc.first) {
+            const auto& image = texture_cache.GetImage(db_desc.first);
+            const bool read_only = ds.image_layout == vk::ImageLayout::eDepthReadOnlyOptimal ||
+                                   ds.image_layout == vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+            a.targets.push_back({8, (ds.has_depth && ds.depth_clear ? 1u : 0u) |
+                                        (read_only ? 2u : 0u) | (ds.has_stencil ? 4u : 0u),
+                                 image.info.guest_address, image.info.size.width,
+                                 image.info.size.height, image.info.resources.layers,
+                                 static_cast<u32>(image.info.pixel_format), image.ScaleEighths(),
+                                 0});
+        }
+    }
+    NoteAction(a);
+}
+
+void Rasterizer::InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect) {
+    // Enough to identify a draw from a capture: shader hashes, geometry size, depth
+    // state and the guest textures it samples (address:WxH:format).
+    const auto& regs = liverpool->regs;
+    std::string tag = "shadps4.draw";
+    static constexpr std::array<const char*, 5> stage_names{"ps", "hs", "ds", "vs", "gs"};
+    for (u32 i = 0; const auto* info : pipeline->GetStages()) {
+        if (info)
+            tag += fmt::format(" {}=0x{:x}", i < stage_names.size() ? stage_names[i] : "s", info->pgm_hash);
+        ++i;
+    }
+    tag += fmt::format(" {}{} count={} inst={} prim={}", indirect ? "indirect-" : "",
+                       is_indexed ? "indexed" : "auto", regs.num_indices,
+                       regs.num_instances.NumInstances(), static_cast<u32>(regs.primitive_type));
+    tag += fmt::format(" depth={}{}", regs.depth_control.depth_enable ? "test" : "off",
+                       regs.depth_control.depth_write_enable ? "+write" : "");
+    u32 shown = 0;
+    for (const auto& image_id : bound_images) {
+        if (shown++ == 8) {
+            tag += " tex=...";
+            break;
+        }
+        const auto& image = texture_cache.GetImage(image_id);
+        tag += fmt::format(" tex={:#x}:{}x{}:{}", image.info.guest_address, image.info.size.width,
+                           image.info.size.height, vk::to_string(image.info.pixel_format));
+    }
+    scheduler.Label(tag);
 }
 
 bool Rasterizer::HostMarkersEnabled() const {

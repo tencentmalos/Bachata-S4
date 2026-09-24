@@ -1,0 +1,122 @@
+#1684 draw n=3 inst=1 prim=17 vs=0x89cda9e4
+  << pass 252320 end state_change draws=13 load_px=259200
+  >> pass 252321 begin guest 960x540 960x540x1
+  << pass 252321 end sampled_image draws=1 load_px=0
+#1685 draw n=4 inst=1 prim=6 fs=0xabf92450 vs=0xb0acf50
+  RT c0 0x269d90000 960x540x1 R8G8B8A8Unorm scale=0.5
+  img read  fs 0x269b50000 960x540x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x24ae9ec30+0x100
+  >> pass 252322 begin guest 480x270 480x270x1 c0=0x269d90000:R8G8B8A8Unorm:L
+  << pass 252322 end sampled_image draws=1 load_px=129600
+#1686 draw n=4 inst=1 prim=6 fs=0xabf92450 vs=0xb0acf50
+  RT c0 0x269b50000 960x540x1 R8G8B8A8Unorm scale=0.5
+  img read  fs 0x269d90000 960x540x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x24ae9ec30+0x100
+  >> pass 252323 begin guest 480x270 480x270x1 c0=0x269b50000:R8G8B8A8Unorm:L
+#1687 dispatch 29x1x1 cs=0xfefebf9f
+  buf read  cs 0x244d96800+0x15c fmt
+  buf read  cs 0x24ae99020+0x5d10 fmt
+  buf WRITE cs 0x24ffb9f70+0x81d7e900 fmt
+  ~~ hle copy 0x24ae99020 -> 0x24ffb9f70 regions=13 bytes=6080 (hoisted before pass)
+  == replaced by copy-shader HLE
+#1688 dispatch 1x1x16 cs=0x200820a1
+  img read  cs 0x2e1c70200 16x256x1 mips=1 8_8_8_8/Unorm 2D
+  img WRITE cs 0x2d3239700 16x16x16 mips=1 32_32_32_32/Float 3D
+  << pass 252323 end sampled_image draws=1 load_px=129600
+#1689 dispatch 240x135x1 cs=0x9a9cf8a9
+  img WRITE cs 0x263e80000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  buf read  cs 0x241d5d13c+0x10
+#1690 draw_indexed n=6 inst=1 prim=4 fs=0xccbf44a6 vs=0xb0acf50
+  RT c0 0x263e80000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x26ab40000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  >> pass 252324 begin guest 1920x1080 1920x1080x1 c0=0x263e80000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252324 end sampled_image draws=1 load_px=2073600
+#1691 draw_indexed n=3 inst=1 prim=6 fs=0xfbe7c4b6 vs=0x7d668276
+  RT c0 0x263e80000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x259910000 628x530x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x269fd0000 1920x1080x1 mips=1 32/Float 2D
+  img read  fs 0x2d326f600 2048x2x1 mips=1 32/Float 2D
+  buf read  fs 0x256d0bd80+0x1010
+  buf read  vs 0x256d0bd80+0x1010
+  >> pass 252325 begin resumed after sampled_image 1920x1080 1920x1080x1 c0=0x263e80000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252325 end sampled_image draws=1 load_px=2073600
+#1692 draw_indexed n=3 inst=1 prim=6 fs=0x265a6d2d vs=0x1baf9590
+  RT c0 0x25a830000 1176x441x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x263e80000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cb3800+0x1010
+  buf read  vs 0x256cb3800+0x1010
+  >> pass 252326 begin guest 1176x441 1176x441x1 c0=0x25a830000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252326 end sampled_image draws=1 load_px=518616
+#1693 draw_indexed n=3 inst=1 prim=6 fs=0xe80526cc vs=0x7e956bc3
+  RT c0 0x25aed0000 1176x441x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x25a830000 1176x441x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cb4810+0x1010
+  buf read  vs 0x256cb4810+0x1010
+  >> pass 252327 begin guest 1176x441 1176x441x1 c0=0x25aed0000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252327 end sampled_image draws=1 load_px=518616
+#1694 draw_indexed n=3 inst=1 prim=6 fs=0x111fce32 vs=0xd3ca03f3
+  RT c0 0x257010000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x263e80000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x25aed0000 1176x441x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cb5820+0x1010
+  buf read  vs 0x256cb5820+0x1010
+  >> pass 252328 begin guest 1920x1080 1920x1080x1 c0=0x257010000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+#1695 draw_indexed n=3 inst=1 prim=6 fs=0xbf368417 vs=0x4c37ae6d
+  RT c0 0x257010000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x269fd0000 1920x1080x1 mips=1 32/Float 2D
+  img read  fs 0x25aed0000 1176x441x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cb6830+0x1010
+  buf read  vs 0x256cb6830+0x1010
+  << pass 252328 end sampled_image draws=2 load_px=2073600
+#1696 draw_indexed n=3 inst=1 prim=6 fs=0xd3c8bb21 vs=0x7ea47480
+  RT c0 0x25bb10000 960x540x1 R16G16B16A16Sfloat scale=0.5
+  img read  fs 0x269fd0000 1920x1080x1 mips=1 32/Float 2D
+  img read  fs 0x269b50000 960x540x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x256cb7840+0x1010
+  buf read  vs 0x256cb7840+0x1010
+  >> pass 252329 begin guest 480x270 480x270x1 c0=0x25bb10000:R16G16B16A16Sfloat:L
+  << pass 252329 end sampled_image draws=1 load_px=129600
+#1697 draw_indexed n=3 inst=1 prim=6 fs=0xe0305cef vs=0x7d668276
+  RT c0 0x258010000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x257010000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x25bb10000 960x540x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cb8850+0x1010
+  buf read  vs 0x256cb8850+0x1010
+  >> pass 252330 begin guest 1920x1080 1920x1080x1 c0=0x258010000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252330 end sampled_image draws=1 load_px=2073600
+#1698 draw_indexed n=3 inst=1 prim=6 fs=0xe0305cef vs=0x7d668276
+  RT c0 0x263e80000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x258010000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x25bb10000 960x540x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cb9860+0x1010
+  buf read  vs 0x256cb9860+0x1010
+  >> pass 252331 begin guest 1920x1080 1920x1080x1 c0=0x263e80000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252331 end sampled_image draws=1 load_px=2073600
+#1699 draw_indexed n=3 inst=1 prim=6 fs=0x3c2b7974 vs=0x84b3a182
+  RT c0 0x257010000 1920x1080x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x263e80000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cba870+0x1010
+  buf read  vs 0x256cba870+0x1010
+  >> pass 252332 begin guest 1920x1080 1920x1080x1 c0=0x257010000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252332 end sampled_image draws=1 load_px=2073600
+#1700 draw_indexed n=3 inst=1 prim=6 fs=0x4b766f62 vs=0x4c37ae6d
+  RT c0 0x25db30000 960x540x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x257010000 1920x1080x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cbb880+0x1010
+  buf read  vs 0x256cbb880+0x1010
+  >> pass 252333 begin guest 960x540 960x540x1 c0=0x25db30000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252333 end sampled_image draws=1 load_px=518400
+#1701 draw_indexed n=3 inst=1 prim=6 fs=0x4b766f62 vs=0x4c37ae6d
+  RT c0 0x25e450000 480x270x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x25db30000 960x540x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cbc890+0x1010
+  buf read  vs 0x256cbc890+0x1010
+  >> pass 252334 begin guest 480x270 480x270x1 c0=0x25e450000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252334 end sampled_image draws=1 load_px=129600
+#1702 draw_indexed n=3 inst=1 prim=6 fs=0x4eb5a42f vs=0x7d668276
+  RT c0 0x2651c0000 314x265x1 R16G16B16A16Sfloat scale=1
+  img read  fs 0x25e450000 480x270x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x256cbd8a0+0x1010
+  buf read  vs 0x256cbd8a0+0x1010
+  >> pass 252335 begin guest 314x265 314x265x1 c0=0x2651c0000:R16G16B16A16Sfloat:L:native(semantic-native,0x4,created as storage)
+  << pass 252335 end sampled_image draws=1 load_px=83210

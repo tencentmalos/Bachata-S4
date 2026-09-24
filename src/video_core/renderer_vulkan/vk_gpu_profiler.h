@@ -7,6 +7,8 @@
 
 namespace Vulkan {
 class Instance;
+// Receives the GPU time of tagged zones (render pass instance index) once retired.
+void RecordTaggedGpuTime(uint64_t tag, uint64_t ns);
 // Scheduler-owner only. Bounded query leases are reused only after successful
 // submission, timeline completion AND available results. No query WAIT bit.
 class GpuProfiler {
@@ -19,6 +21,23 @@ public:
     void BeginBatch(vk::CommandBuffer cmd, uint64_t completed);
     uint32_t Begin(vk::CommandBuffer cmd, Stage stage);
     void End(vk::CommandBuffer cmd, uint32_t zone);
+    // Same zones with the timestamp written by the caller (`write(pool, query)`), so a
+    // deferred recorder can replay it in recording order instead of draining to the raw
+    // command buffer. `tag` != 0 is reported through RecordTaggedGpuTime on retirement.
+    template <typename W>
+    uint32_t BeginWith(Stage kind, W&& write, uint64_t tag = 0) {
+        const uint32_t zone = Reserve(kind, tag);
+        if (zone != Invalid) write(*pool, (current * ZonesPerBatch + zone) * 2);
+        return zone;
+    }
+    template <typename W>
+    void EndWith(uint32_t zone, W&& write) {
+        if (current == Invalid || zone == Invalid) return;
+        auto& b = batches[current];
+        if (zone >= b.count || b.zones[zone].ended) return;
+        write(*pool, (current * ZonesPerBatch + zone) * 2 + 1);
+        b.zones[zone].ended = true;
+    }
     void Prepare(vk::CommandBuffer cmd);
     void FrameEnd();
     void PresentKind(bool redraw);
@@ -30,7 +49,8 @@ public:
     // Increments at every BeginBatch; a zone may only be ended inside the batch that began it.
     uint64_t BatchSerial() const { return batch_serial; }
 private:
-    struct Zone { Stage stage{}; bool ended{}; };
+    uint32_t Reserve(Stage kind, uint64_t tag);
+    struct Zone { Stage stage{}; bool ended{}; uint64_t tag{}; };
     struct Batch {
         uint64_t tick{}, generation{}, submit_before_ns{};
         uint32_t count{}, partial_retries{};

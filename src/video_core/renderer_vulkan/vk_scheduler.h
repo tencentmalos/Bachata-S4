@@ -18,6 +18,7 @@
 #include "video_core/renderer_vulkan/render_break.h"
 #include "video_core/renderer_vulkan/render_pass_stats.h"
 #include "video_core/renderer_vulkan/vk_command_recorder.h"
+#include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_gpu_profiler.h"
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_primitive.h"
@@ -362,6 +363,15 @@ class Scheduler {
 public:
     explicit Scheduler(const Instance& instance, GpuProfiler::Stage stage = GpuProfiler::Stage::DrawBatch);
     GpuProfiler& GpuProfile() { return gpu_profiler; }
+    /// Writes a profiler timestamp in recording order (through the deferred recorder
+    /// when it is active) without draining it to the raw command buffer.
+    auto TimestampWriter() {
+        return [this](vk::QueryPool pool, uint32_t query) {
+            CommandBuffer().Custom(0, [pool, query](vk::CommandBuffer cmd) {
+                cmd.writeTimestamp2(vk::PipelineStageFlagBits2::eAllCommands, pool, query);
+            });
+        };
+    }
     ~Scheduler();
 
     /// Sends the current execution context to the GPU
@@ -425,6 +435,38 @@ public:
         ClearStagedAccess();
     }
 
+    /// Buffer barrier hoisting. A draw that continues the open pass and needs a barrier on
+    /// a buffer no draw of this pass has written (or, for a write, accessed) depends only on
+    /// work recorded before the pass: the barrier goes in the pre-pass slot instead of
+    /// ending the pass. ClassifyBarrier is called per barrier with the buffer's whole guest
+    /// range (its access state covers the whole buffer); PrepareBarrierHoist once the
+    /// draw's render state is known; TakeBarrierHoist when the barriers are recorded.
+    void ClassifyBarrier(VAddr address, u64 size, bool write_access) {
+        ++barriers_classified;
+        if (!is_rendering || !pass_trackable) {
+            barrier_conflict = true;
+            return;
+        }
+        const AccessRange r{address, address + size};
+        const auto overlaps = [&r](const std::vector<AccessRange>& set) {
+            for (const auto& [begin, end] : set)
+                if (begin < r.second && r.first < end)
+                    return true;
+            return false;
+        };
+        if (overlaps(pass_writes) || (write_access && overlaps(pass_reads)))
+            barrier_conflict = true;
+    }
+    void PrepareBarrierHoist(const RenderState& state) noexcept {
+        barrier_pass_continues = is_rendering && render_state == state;
+    }
+    bool TakeBarrierHoist(const vk::DependencyInfo& dependencies);
+    void ResetBarrierHoist() noexcept {
+        barrier_conflict = false;
+        barrier_pass_continues = false;
+        barriers_classified = 0;
+    }
+
     /// Guest memory accessed by the draw being prepared; joins the pass the draw lands in.
     void StageAccess(VAddr address, u64 size, bool write) {
         if (hoisting || !size || !(recorder && recorder->Deferring()))
@@ -434,6 +476,38 @@ public:
     void ClearStagedAccess() noexcept {
         staged_reads.clear();
         staged_writes.clear();
+    }
+
+    /// Pass description (targets, load/clear, read-only depth) for the next pass begin:
+    /// inserted as a debug label when `marker` is set and kept by the pass log.
+    bool WantsPassDescription() const noexcept;
+    /// Host debug labels (RenderDoc loaded or host markers enabled): emulator-side work
+    /// such as uploads, readbacks and HLE copies is labelled so a capture separates it
+    /// from guest draws.
+    static bool LabelsEnabled() noexcept;
+    void Label(const std::string& text) {
+        CommandBuffer().insertDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{.pLabelName = text.c_str()});
+    }
+    void SetPassDescription(std::string description, bool marker) {
+        pending_pass_description = std::move(description);
+        pending_pass_marker = marker;
+    }
+    /// pass_log start [passes] | status | dump | stop (default off).
+    static std::string PassLogCommand(const std::vector<std::string>& args);
+    /// pass_log only: records which buffer barrier a draw/dispatch needs, so a pass the
+    /// barrier ends carries its source (buffer, previous writer, new access, shader).
+    static bool PassLogActive() noexcept;
+    void NoteBarrierSource(const char* kind, u64 address, u64 size,
+                           const vk::BufferMemoryBarrier2& barrier, u64 shader_hash = 0);
+    void NoteBreak(std::string_view text) {
+        if ((PassLogActive() || AmdGpu::Pm4Trace::Active()) && break_detail.size() <= 1024) {
+            break_detail += ' ';
+            break_detail += text;
+        }
+    }
+    void ClearBreakDetail() noexcept {
+        if (!break_detail.empty())
+            break_detail.clear();
     }
 
     using AccessRange = std::pair<VAddr, VAddr>; // [begin, end)
@@ -554,6 +628,7 @@ private:
     RenderState render_state;
     bool is_rendering = false;
     uint32_t gpu_render_zone = GpuProfiler::Invalid;
+    uint64_t gpu_render_serial{};
     std::array<uint64_t, size_t(RenderBreak::Count)> render_breaks{};
     std::array<uint64_t, size_t(RenderBreak::Count)> render_resumes{};
     uint64_t render_begins{}, render_natural{};
@@ -566,6 +641,14 @@ private:
     bool hoisting{};
     std::vector<AccessRange> pass_reads, pass_writes, staged_reads, staged_writes;
     void InterruptHoist();
+    // Pass description / log of the open pass.
+    std::string pending_pass_description, pass_description, break_detail;
+    bool barrier_conflict{}, barrier_pass_continues{};
+    u32 barriers_classified{}; // barriers without a classification are never hoisted
+    bool pending_pass_marker{};
+    u32 pass_loads{}, pass_clears{}, pass_hoists{};
+    u64 pass_load_pixels{};
+    RenderBreak pass_begin_cause{RenderBreak::Other};
     std::atomic<uint32_t> pass_break_log_budget{400};
     tracy::VkCtxScope* profiler_scope{};
 };
@@ -579,11 +662,11 @@ public:
     GpuZoneScope(Scheduler& scheduler_, GpuProfiler::Stage stage) : scheduler{scheduler_} {
         if (!Common::Profiler::GpuTimingDetailed()) return;
         serial = scheduler.GpuProfile().BatchSerial();
-        zone = scheduler.GpuProfile().Begin(scheduler.RawCommandBuffer(), stage);
+        zone = scheduler.GpuProfile().BeginWith(stage, scheduler.TimestampWriter());
     }
     ~GpuZoneScope() {
         if (zone != GpuProfiler::Invalid && scheduler.GpuProfile().BatchSerial() == serial)
-            scheduler.GpuProfile().End(scheduler.RawCommandBuffer(), zone);
+            scheduler.GpuProfile().EndWith(zone, scheduler.TimestampWriter());
     }
     GpuZoneScope(const GpuZoneScope&) = delete;
     GpuZoneScope& operator=(const GpuZoneScope&) = delete;

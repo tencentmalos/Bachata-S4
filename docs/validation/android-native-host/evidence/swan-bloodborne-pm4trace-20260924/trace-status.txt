@@ -1,0 +1,8 @@
+state: ready
+capture_uuid: e7ea2556c6fcb3c9e388406fe9d6e91a
+frames: 2/2  delay: 0/0
+flips: 3890..3892
+records: submit=148 ib=150 packet=99626 flip=3 shader=217 action=3488 host=1398 seq=105180
+pm4_file: /data/user/0/com.shadps4.android/files/host/captures/gpu-trace/e7ea2556c6fcb3c9e388406fe9d6e91a.gpu.pm4.trace bytes=7628629 fnv1a64=99b78d39c11769aa
+gcmd_file: /data/user/0/com.shadps4.android/files/host/captures/gpu-trace/e7ea2556c6fcb3c9e388406fe9d6e91a.gcmdtrace.ps4 bytes=2205009 fnv1a64=2c30b7997f18aabe
+capture_ms: 95.5

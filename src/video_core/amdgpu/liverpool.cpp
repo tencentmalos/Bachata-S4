@@ -17,6 +17,7 @@
 #include "core/platform.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_cmds.h"
+#include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderdoc.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 
@@ -203,14 +204,26 @@ void Liverpool::Process(std::stop_token stoken) {
     }
 }
 
-Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb) {
+Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submission) {
     FIBER_ENTER(ccb_task_name);
 
+    // The CE copy is owned by the submission; its guest address is not carried here.
+    const u64 trace_ib = Pm4Trace::NextIb();
+    const auto trace_base = reinterpret_cast<uintptr_t>(ccb.data());
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteIbBegin(trace_ib, submission, GfxQueueId, Pm4Trace::IbKind::Constant, 0,
+                              static_cast<u32>(ccb.size()));
     while (!stopping && !ccb.empty()) {
         ProcessCommands();
 
         const auto* header = reinterpret_cast<const PM4Header*>(ccb.data());
         const u32 type = header->type;
+        if (Pm4Trace::Active())
+            Pm4Trace::NotePacket(
+                trace_ib, submission, GfxQueueId,
+                static_cast<u32>((reinterpret_cast<uintptr_t>(header) - trace_base) / 4), 0,
+                ccb.first(std::min<size_t>(type == 3 ? header->type3.NumWords() + 1 : 1,
+                                           ccb.size())));
         if (type != 3) {
             // No other types of packets were spotted so far
             UNREACHABLE_MSG("Invalid PM4 type {}", type);
@@ -248,8 +261,8 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb) {
         }
         case PM4ItOpcode::IndirectBufferConst: {
             const auto* indirect_buffer = reinterpret_cast<const PM4CmdIndirectBuffer*>(header);
-            auto task =
-                ProcessCeUpdate({indirect_buffer->Address<const u32>(), indirect_buffer->ib_size});
+            auto task = ProcessCeUpdate(
+                {indirect_buffer->Address<const u32>(), indirect_buffer->ib_size}, submission);
             RESUME_CE(task);
 
             while (!task.handle.done()) {
@@ -266,6 +279,8 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb) {
         NotePm4Consumed();
         ccb = NextPacket(ccb, header->type3.NumWords() + 1);
     }
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteIbEnd(trace_ib);
 
     FIBER_EXIT;
 }
@@ -279,9 +294,13 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
     // CE task should be moved into more global scope
     Task ce_task{};
 
+    const u64 trace_ib = Pm4Trace::NextIb();
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteIbBegin(trace_ib, submission, GfxQueueId, Pm4Trace::IbKind::Graphics,
+                              source, static_cast<u32>(dcb.size()));
     if (!ccb.empty()) {
         // In case of CCB provided kick off CE asap to have the constant heap ready to use
-        ce_task = ProcessCeUpdate(ccb);
+        ce_task = ProcessCeUpdate(ccb, submission);
         RESUME_GFX(ce_task);
     }
     const bool host_markers_enabled = rasterizer && rasterizer->HostMarkersEnabled();
@@ -296,6 +315,13 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             rasterizer->SetDiagnosticPacket(diagnostic_guest_flip + 1, submission, GfxQueueId,
                 source ? source + reinterpret_cast<VAddr>(header) - base_addr : 0);
         const u32 type = header->type;
+        if (Pm4Trace::Active())
+            Pm4Trace::NotePacket(
+                trace_ib, submission, GfxQueueId,
+                static_cast<u32>((reinterpret_cast<uintptr_t>(header) - base_addr) / 4),
+                source ? source + reinterpret_cast<VAddr>(header) - base_addr : 0,
+                dcb.first(std::min<size_t>(type == 3 ? header->type3.NumWords() + 1 : 1,
+                                           dcb.size())));
 
         switch (type) {
         default:
@@ -959,6 +985,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             RESUME_GFX(ce_task);
         }
     }
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteIbEnd(trace_ib);
 
     FIBER_EXIT;
 }
@@ -977,10 +1005,17 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
 
     auto base_addr = reinterpret_cast<VAddr>(acb.data());
     size_t acb_size = acb.size_bytes();
+    const u64 trace_ib = Pm4Trace::NextIb();
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteIbBegin(trace_ib, submission, vqid + 1, Pm4Trace::IbKind::Compute, source,
+                              static_cast<u32>(acb.size()));
     while (!stopping && !acb.empty()) {
         ProcessCommands();
 
         auto* header = reinterpret_cast<const PM4Header*>(acb.data());
+        // A packet completed from the previous ring span has no single guest address.
+        const bool trace_split = queue.tmp_dwords > 0;
+        const auto trace_offset = static_cast<u32>((reinterpret_cast<VAddr>(header) - base_addr) / 4);
         if (host_markers_enabled)
             rasterizer->SetDiagnosticPacket(0, submission, vqid + 1,
                 // A split packet started in the previous ring span. Its original
@@ -1009,6 +1044,12 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             break;
         }
 
+        if (Pm4Trace::Active()) {
+            const u32 words = header->type == 3 ? header->type3.NumWords() + 1 : 1;
+            Pm4Trace::NotePacket(trace_ib, submission, vqid + 1, trace_offset,
+                                 source && !trace_split ? source + VAddr(trace_offset) * 4 : 0,
+                                 {reinterpret_cast<const u32*>(header), words});
+        }
         if (header->type == 2) {
             // Type-2 packet are used for padding purposes
             next_dw_off = 1;
@@ -1293,6 +1334,9 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
     auto& queue = mapped_queues[GfxQueueId];
     const auto submission = Core::Diagnostics::Handoff::NextId();
 
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteSubmit(GfxQueueId, submission, source, static_cast<u32>(dcb.size()),
+                             reinterpret_cast<u64>(ccb.data()), static_cast<u32>(ccb.size()));
     if (!owned_submissions && EmulatorSettings.IsCopyGpuBuffers()) {
         std::tie(dcb, ccb) = CopyCmdBuffers(dcb, ccb);
     }
@@ -1332,6 +1376,8 @@ void Liverpool::SubmitAsc(u32 gnm_vqid, std::span<const u32> acb) {
     const auto vqid = gnm_vqid - 1;
     const auto submission = Core::Diagnostics::Handoff::NextId();
     const auto source = reinterpret_cast<VAddr>(acb.data());
+    if (Pm4Trace::Active())
+        Pm4Trace::NoteSubmit(gnm_vqid, submission, source, static_cast<u32>(acb.size()), 0, 0);
     auto task = owned_submissions ? ProcessOwnedCompute({acb.begin(), acb.end()}, vqid, submission, source)
                                   : ProcessCompute(acb, vqid, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;

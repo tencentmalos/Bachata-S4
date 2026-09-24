@@ -109,6 +109,12 @@ void GpuProfiler::BeginBatch(vk::CommandBuffer cmd, uint64_t completed) {
     if (stage == Stage::DrawBatch) guest_zone = Begin(cmd, Stage::Guest);
 }
 uint32_t GpuProfiler::Begin(vk::CommandBuffer cmd, Stage kind) {
+    const uint32_t index = Reserve(kind, 0);
+    if (index != Invalid)
+        cmd.writeTimestamp2(vk::PipelineStageFlagBits2::eAllCommands, *pool, (current * ZonesPerBatch + index) * 2);
+    return index;
+}
+uint32_t GpuProfiler::Reserve(Stage kind, uint64_t tag) {
     if (current == Invalid) return Invalid;
     auto& b = batches[current];
     // Detail zones leave four slots for the outer batch/guest/prepare intervals.
@@ -117,8 +123,7 @@ uint32_t GpuProfiler::Begin(vk::CommandBuffer cmd, Stage kind) {
         std::lock_guard lock{stats->mutex}; ++stats->snapshot.dropped_zones; return Invalid;
     }
     const auto index = b.count++;
-    b.zones[index] = {.stage = kind};
-    cmd.writeTimestamp2(vk::PipelineStageFlagBits2::eAllCommands, *pool, (current * ZonesPerBatch + index) * 2);
+    b.zones[index] = {.stage = kind, .tag = tag};
     return index;
 }
 void GpuProfiler::End(vk::CommandBuffer cmd, uint32_t zone) {
@@ -239,6 +244,7 @@ void GpuProfiler::Collect(uint64_t completed) {
             const auto ns = GpuElapsedNs(start, end, bits, period);
             if (!ns) { ++s.errors; frame_incomplete = true; continue; }
             if (b.zones[z].stage == Stage::Guest) guest_frame_ns += *ns;
+            if (b.zones[z].tag) RecordTaggedGpuTime(b.zones[z].tag, uint64_t(*ns));
             if (emit) {
                 sample(b.zones[z].stage, *ns);
                 if (context) Counter("GPU.ClockAlignmentUncertaintyNs", int64_t(s.calibration_deviation_ns));
