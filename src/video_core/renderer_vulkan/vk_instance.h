@@ -617,6 +617,7 @@ private:
     bool shader_atomic_float{};
     bool shader_atomic_float2{};
     bool workgroup_memory_explicit_layout{};
+    bool maintenance_5{};
     bool maintenance_8{};
     bool robust_buffer_access2{};
     bool robust_image_access2{};

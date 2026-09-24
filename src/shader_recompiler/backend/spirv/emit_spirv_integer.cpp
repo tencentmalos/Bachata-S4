@@ -457,4 +457,8 @@ Id EmitUGreaterThanEqual64(EmitContext& ctx, Id lhs, Id rhs) {
     return ctx.OpLogicalNot(ctx.U1[1], ctx.LessU64(lhs, rhs));
 }
 
+Id EmitMaskedBitCount32(EmitContext& ctx, Id value, Id addend, bool hi) {
+    UNREACHABLE_MSG("Unreachable instruction");
+}
+
 } // namespace Shader::Backend::SPIRV
