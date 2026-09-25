@@ -133,7 +133,7 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
     }
 
     const auto host_range = image.HostRange(info.range);
-    const vk::ImageViewCreateInfo image_view_ci = {
+    vk::ImageViewCreateInfo image_view_ci = {
         .pNext = &usage_ci,
         .image = image.GetImage(),
         .viewType = ConvertImageViewType(info.type),
@@ -150,6 +150,8 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
     if (!IsViewTypeCompatible(info.type, image.info.type)) {
         LOG_ERROR(Render_Vulkan, "image view type {} is incompatible with image type {}",
                   magic_enum::enum_name(info.type), magic_enum::enum_name(image.info.type));
+        info.type = image.info.type;
+        image_view_ci.viewType = ConvertImageViewType(info.type);
     }
 
     auto [view_result, view] = instance.GetDevice().createImageViewUnique(image_view_ci);
