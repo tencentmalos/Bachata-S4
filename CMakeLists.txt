@@ -808,7 +808,8 @@ set(DEV_TOOLS src/core/devtools/layer.cpp
               src/core/devtools/widget/text_editor.h
 )
 
-set(COMMON src/common/profiler.cpp
+set(COMMON src/common/logging/classes.cpp
+           src/common/profiler.cpp
            src/common/guest_patch_log.cpp
            src/common/foundation_foveation_log.cpp
            src/common/logging/classes.h

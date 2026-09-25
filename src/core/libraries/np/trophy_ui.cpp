@@ -8,7 +8,9 @@
 #include <SDL3/SDL_init.h>
 #endif
 #include <cmrc/cmrc.hpp>
+#include <fmt/format.h>
 #include <imgui.h>
+#include <imgui/imgui_std.h>
 #include <queue>
 
 #define MINIMP3_IMPLEMENTATION
@@ -18,7 +20,6 @@
 #include "common/path_util.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/np/trophy_ui.h"
-#include "imgui/imgui_std.h"
 
 CMRC_DECLARE(res);
 namespace fs = std::filesystem;

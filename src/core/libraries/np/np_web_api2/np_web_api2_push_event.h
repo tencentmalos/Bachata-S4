@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "common/logging/log.h"
 #include "core/libraries/kernel/time.h"
 #include "core/libraries/np/np_types.h"
