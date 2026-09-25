@@ -285,6 +285,7 @@ if (ENABLE_SYSTEM_LIBRARIES)
     list(POP_BACK CMAKE_MODULE_PATH)
 endif()
 
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildSpeed.cmake")
 add_subdirectory(externals)
 if(ENABLE_SPATIAL_FOUNDATION)
     include(cmake/SpatialFoundation.cmake)
@@ -1434,6 +1435,8 @@ endif()
 
 target_sources(shadps4 PRIVATE src/frontend/window.cpp)
 create_target_directory_groups(shadps4)
+# Deferred so sources added further down are scanned too.
+cmake_language(DEFER CALL shadps4_enable_unity_build shadps4)
 
 target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
 if(ENABLE_SPATIAL_FOUNDATION)
