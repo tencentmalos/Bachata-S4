@@ -1,0 +1,18 @@
+> Task :core:runtime:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:runtime:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:runtime:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:runtime:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:runtime:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:runtime:testDebugUnitTest UP-TO-DATE
+> Task :core:runtime:mergeDebugNativeLibs
+> Task :core:runtime:copyDebugJniLibsProjectOnly
+> Task :app:mergeFdroidDebugNativeLibs
+> Task :app:stripFdroidDebugDebugSymbols
+> Task :app:packageFdroidDebug
+> Task :app:createFdroidDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFdroidDebug
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 14s
+295 actionable tasks: 7 executed, 288 up-to-date

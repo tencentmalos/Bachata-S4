@@ -167,14 +167,34 @@ fun SessionScreen(
             modifier = Modifier.fillMaxSize(),
             factory = { currentContext ->
                 SurfaceView(currentContext).also { view ->
+                    view.setOnTouchListener { target, event ->
+                        val bridge = com.shadps4.android.runtime.input.NativePadBridge
+                        if (target.width <= 0 || target.height <= 0) false else {
+                            when (event.actionMasked) {
+                                android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_POINTER_DOWN,
+                                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_POINTER_UP -> {
+                                    val i = event.actionIndex
+                                    val phase = if (event.actionMasked == android.view.MotionEvent.ACTION_DOWN || event.actionMasked == android.view.MotionEvent.ACTION_POINTER_DOWN) 0 else 2
+                                    bridge.overlayPointer(event.getPointerId(i), phase, event.getX(i)/target.width, event.getY(i)/target.height)
+                                }
+                                android.view.MotionEvent.ACTION_MOVE -> {
+                                    for (i in 0 until event.pointerCount) bridge.overlayPointer(event.getPointerId(i), 1, event.getX(i)/target.width, event.getY(i)/target.height)
+                                }
+                                android.view.MotionEvent.ACTION_CANCEL -> bridge.cancelOverlayPointers()
+                            }
+                            true
+                        }
+                    }
                     view.holder.addCallback(object : SurfaceHolder.Callback {
                         override fun surfaceCreated(holder: SurfaceHolder) = Unit
                         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+                            com.shadps4.android.runtime.input.NativePadBridge.updateOverlayDensity(view.resources.displayMetrics.density)
                             if (width > 0 && height > 0) {
                                 ManagedSession.attachSurface(RuntimeSurface(holder.surface, width, height))
                             }
                         }
                         override fun surfaceDestroyed(holder: SurfaceHolder) {
+                            com.shadps4.android.runtime.input.NativePadBridge.cancelOverlayPointers()
                             ManagedSession.detachSurface(holder.surface)
                         }
                     })
@@ -186,6 +206,8 @@ fun SessionScreen(
         // only the overlay neutral state. Physical/debugbus sources stay independent.
         if (showTouchControls) FixedControllerOverlay(
             layout = touchLayout,
+            onOverlayPointer = com.shadps4.android.runtime.input.NativePadBridge::overlayPointer,
+            onOverlayCancel = com.shadps4.android.runtime.input.NativePadBridge::cancelOverlayPointers,
             onSnapshot = { snapshot ->
                 if ((snapshot.buttons and Ps4Button.PS) != 0L) {
                     showStopOverlay = true
@@ -342,6 +364,11 @@ fun SessionScreen(
                             Text(if (!showTouchControls) "Hidden" else "Shown")
                         }
                     }
+
+                    Button(onClick = {
+                        showStopOverlay = false
+                        com.shadps4.android.runtime.input.NativePadBridge.openOverlayControls()
+                    }) { Text("Status overlay controls") }
 
                     // Memory overlay (FPS is shown by the native StatusLayer)
                     Row(

@@ -39,6 +39,8 @@ void Flush();
 // outside ALL_LOGGERS so guest instrumentation cannot change the user's main
 // log filters or duplicate records into the console.
 void WriteGuestPatch(std::string_view message) noexcept;
+// One host-side entry point, also callable from the JNI DSO without exporting spdlog internals.
+void WriteOverlayEvent(std::string_view message) noexcept;
 
 void Terminate();
 

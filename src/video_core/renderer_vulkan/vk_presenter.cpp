@@ -1201,6 +1201,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     ASSERT_MSG(reset_result == vk::Result::eSuccess,
                "Unexpected error resetting present done fence: {}", vk::to_string(reset_result));
 
+    status_layer->Prepare(Core::Diagnostics::DiagnosticNowNs(), swapchain.GetWidth(), swapchain.GetHeight());
     ImGuiID dockId = ImGui::Core::NewFrame(is_reusing_frame);
 
     const vk::Image swapchain_image = swapchain.Image();
@@ -1331,7 +1332,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
             ImGui::PopStyleVar(3);
             ImGui::PopStyleColor();
         }
-        status_layer->Draw(Core::Diagnostics::DiagnosticNowNs(), extent.width, extent.height);
+        status_layer->Draw();
         ImGui::Core::Render(cmdbuf, swapchain_image_view, swapchain.GetExtent());
 
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)

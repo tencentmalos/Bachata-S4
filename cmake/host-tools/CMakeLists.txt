@@ -19,4 +19,4 @@ set(protobuf_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_PROTOC_BINARIES ON CACHE BOOL "" FORCE)
 add_subdirectory("${REPO_ROOT}/externals/protobuf" protobuf EXCLUDE_FROM_ALL)
 add_executable(shadps4_font_embed
-    "${REPO_ROOT}/externals/imgui/misc/fonts/binary_to_compressed_c.cpp")
+    "${REPO_ROOT}/foundation/third_party/imgui/misc/fonts/binary_to_compressed_c.cpp")

@@ -264,6 +264,11 @@ void Flush() {
     }
 }
 
+void WriteOverlayEvent(std::string_view message) noexcept {
+    WriteGuestPatch(message);
+    try { LOG_INFO(ImGui, "{}", message); } catch (...) {}
+}
+
 void WriteGuestPatch(std::string_view message) noexcept {
     try {
         if (g_guest_patch_logger != nullptr &&

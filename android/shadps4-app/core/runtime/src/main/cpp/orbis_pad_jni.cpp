@@ -5,6 +5,7 @@
 // state. Foundation owns no native methods or Java references.
 
 #include <jni.h>
+#include "core/diagnostics/overlay_control.h"
 
 #include "common/path_util.h"
 #include "common/profiler.h"
@@ -377,4 +378,26 @@ extern "C" JNIEXPORT jint JNICALL Java_com_shadps4_android_runtime_input_NativeP
     } catch (...) {
         return -1;
     }
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeOverlayPointer(
+    JNIEnv*, jclass, jlong token, jint id, jint phase, jfloat x, jfloat y) {
+    if (!token || static_cast<std::uint64_t>(token) != GlobalPadAdapter().CurrentToken()) return false;
+    return Core::Diagnostics::StatusOverlayMailbox().Touch(id, phase, x, y);
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeOverlayCancel(JNIEnv*, jclass, jlong token) {
+    if (token && static_cast<std::uint64_t>(token) == GlobalPadAdapter().CurrentToken())
+        Core::Diagnostics::StatusOverlayMailbox().Cancel();
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeOverlayControls(JNIEnv*, jclass, jlong token) {
+    if (token && static_cast<std::uint64_t>(token) == GlobalPadAdapter().CurrentToken())
+        Core::Diagnostics::StatusOverlayMailbox().Request("controls");
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeOverlayDensity(JNIEnv*, jclass, jfloat density) {
+    Core::Diagnostics::StatusOverlayMailbox().SetPixelDensity(density);
 }

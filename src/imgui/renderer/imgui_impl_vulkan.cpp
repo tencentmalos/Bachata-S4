@@ -5,6 +5,10 @@
 
 #include <cstdio>
 #include <mutex>
+#include <vector>
+#include <fmt/format.h>
+#include "spatial/imgui/SdfFontAtlas.hpp"
+#include "spatial/imgui/SdfTextShaders.hpp"
 
 #include <imgui.h>
 
@@ -46,19 +50,16 @@ struct VkData {
     vk::DescriptorSetLayout descriptor_set_layout{};
     vk::PipelineLayout pipeline_layout{};
     vk::Pipeline pipeline{};
+    vk::Pipeline sdf_pipeline{};
+    vk::ShaderModule sdf_fragment{};
+    spatial::imgui::SdfPipelineEvidence font_evidence{};
+    std::uint64_t font_uploads{}, sdf_draws{};
     vk::ShaderModule shader_module_vert{};
     vk::ShaderModule shader_module_frag{};
 
     std::mutex command_pool_mutex;
     vk::CommandPool command_pool{};
     vk::Sampler simple_sampler{};
-
-    // Font data
-    vk::DeviceMemory font_memory{};
-    vk::Image font_image{};
-    vk::ImageView font_view{};
-    ImTextureID font_texture{};
-    vk::CommandBuffer font_command_buffer{};
 
     // Render buffers
     WindowRenderBuffers render_buffers{};
@@ -695,7 +696,16 @@ void RenderDrawData(ImDrawData& draw_data, vk::CommandBuffer command_buffer,
                 command_buffer.setScissor(0, 1, &scissor);
 
                 // Bind DescriptorSet with font or user texture
-                vk::DescriptorSet desc_set[1]{pcmd->GetTexID()->descriptor_set};
+                const auto* texture = pcmd->GetTexID();
+                IM_ASSERT(texture != nullptr);
+                const bool sdf = texture->sdf_font && bd->sdf_pipeline;
+                command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, sdf ? bd->sdf_pipeline : pipeline);
+                if (sdf) {
+                    bd->font_evidence.sdf_texture_bound = true;
+                    bd->font_evidence.sdf_shader_bound = true;
+                    ++bd->sdf_draws;
+                }
+                vk::DescriptorSet desc_set[1]{texture->descriptor_set};
                 command_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                                                   bd->pipeline_layout, 0, {desc_set}, {});
 
@@ -711,228 +721,79 @@ void RenderDrawData(ImDrawData& draw_data, vk::CommandBuffer command_buffer,
     //    command_buffer.setScissor(0, 1, &scissor);
 }
 
-static void DestroyFontsTexture();
+struct ManagedFontTexture {
+    UploadTextureData upload;
+};
 
-static bool CreateFontsTexture() {
-    ImGuiIO& io = ImGui::GetIO();
-    VkData* bd = GetBackendData();
-    const InitInfo& v = bd->init_info;
-
-    // Destroy existing texture (if any)
-    if (bd->font_view || bd->font_image || bd->font_memory || bd->font_texture) {
-        if (v.drain_submissions) v.drain_submissions();
-        {
-            std::unique_lock<std::mutex> lock;
-            if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
-            CheckVkErr(v.queue.waitIdle());
-        }
-        DestroyFontsTexture();
-    }
-
-    // Create command buffer
-    if (bd->font_command_buffer == VK_NULL_HANDLE) {
-        vk::CommandBufferAllocateInfo info{
-            .commandPool = bd->command_pool,
-            .commandBufferCount = 1,
-        };
-        std::unique_lock lk(bd->command_pool_mutex);
-        bd->font_command_buffer = CheckVkResult(v.device.allocateCommandBuffers(info)).front();
-    }
-
-    // Start command buffer
-    {
-        CheckVkErr(bd->font_command_buffer.reset());
-        vk::CommandBufferBeginInfo begin_info{};
-        begin_info.flags |= vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
-        CheckVkErr(bd->font_command_buffer.begin(&begin_info));
-    }
-
-    unsigned char* pixels;
-    int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-    size_t upload_size = width * height * 4 * sizeof(char);
-
-    // Create the Image:
-    {
-        vk::ImageCreateInfo info{
-            .imageType = vk::ImageType::e2D,
-            .format = vk::Format::eR8G8B8A8Unorm,
-            .extent{
-                .width = static_cast<uint32_t>(width),
-                .height = static_cast<uint32_t>(height),
-                .depth = 1,
-            },
-            .mipLevels = 1,
-            .arrayLayers = 1,
-            .samples = vk::SampleCountFlagBits::e1,
-            .tiling = vk::ImageTiling::eOptimal,
-            .usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-            .sharingMode = vk::SharingMode::eExclusive,
-            .initialLayout = vk::ImageLayout::eUndefined,
-        };
-        bd->font_image = CheckVkResult(v.device.createImage(info, v.allocator));
-        vk::MemoryRequirements req = v.device.getImageMemoryRequirements(bd->font_image);
-        vk::MemoryAllocateInfo alloc_info{
-            .allocationSize = IM_MAX(v.min_allocation_size, req.size),
-            .memoryTypeIndex =
-                FindMemoryType(vk::MemoryPropertyFlagBits::eDeviceLocal, req.memoryTypeBits),
-        };
-        bd->font_memory = CheckVkResult(v.device.allocateMemory(alloc_info, v.allocator));
-        CheckVkErr(v.device.bindImageMemory(bd->font_image, bd->font_memory, 0));
-    }
-
-    // Create the Image View:
-    {
-        vk::ImageViewCreateInfo info{
-            .image = bd->font_image,
-            .viewType = vk::ImageViewType::e2D,
-            .format = vk::Format::eR8G8B8A8Unorm,
-            .subresourceRange{
-                .aspectMask = vk::ImageAspectFlagBits::eColor,
-                .levelCount = 1,
-                .layerCount = 1,
-            },
-        };
-        bd->font_view = CheckVkResult(v.device.createImageView(info, v.allocator));
-    }
-
-    // Create the Descriptor Set:
-    bd->font_texture = AddTexture(bd->font_view, vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    // Create the Upload Buffer:
-    vk::DeviceMemory upload_buffer_memory{};
-    vk::Buffer upload_buffer{};
-    {
-        vk::BufferCreateInfo buffer_info{
-            .size = upload_size,
-            .usage = vk::BufferUsageFlagBits::eTransferSrc,
-            .sharingMode = vk::SharingMode::eExclusive,
-        };
-        upload_buffer = CheckVkResult(v.device.createBuffer(buffer_info, v.allocator));
-        vk::MemoryRequirements req = v.device.getBufferMemoryRequirements(upload_buffer);
-        bd->buffer_memory_alignment = IM_MAX(bd->buffer_memory_alignment, req.alignment);
-        vk::MemoryAllocateInfo alloc_info{
-            .allocationSize = IM_MAX(v.min_allocation_size, req.size),
-            .memoryTypeIndex =
-                FindMemoryType(vk::MemoryPropertyFlagBits::eHostVisible, req.memoryTypeBits),
-        };
-        upload_buffer_memory = CheckVkResult(v.device.allocateMemory(alloc_info, v.allocator));
-        CheckVkErr(v.device.bindBufferMemory(upload_buffer, upload_buffer_memory, 0));
-    }
-
-    // Upload to Buffer:
-    {
-        char* map = (char*)CheckVkResult(v.device.mapMemory(upload_buffer_memory, 0, upload_size));
-        memcpy(map, pixels, upload_size);
-        vk::MappedMemoryRange range[1]{
-            {
-                .memory = upload_buffer_memory,
-                .size = upload_size,
-            },
-        };
-        CheckVkErr(v.device.flushMappedMemoryRanges({range}));
-        v.device.unmapMemory(upload_buffer_memory);
-    }
-
-    // Copy to Image:
-    {
-        vk::ImageMemoryBarrier copy_barrier[1]{
-            {
-                .dstAccessMask = vk::AccessFlagBits::eTransferWrite,
-                .oldLayout = vk::ImageLayout::eUndefined,
-                .newLayout = vk::ImageLayout::eTransferDstOptimal,
-                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .image = bd->font_image,
-                .subresourceRange{
-                    .aspectMask = vk::ImageAspectFlagBits::eColor,
-                    .levelCount = 1,
-                    .layerCount = 1,
-                },
-            },
-        };
-        bd->font_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost,
-                                                vk::PipelineStageFlagBits::eTransfer, {}, {}, {},
-                                                {copy_barrier});
-
-        vk::BufferImageCopy region{
-            .imageSubresource{
-                .aspectMask = vk::ImageAspectFlagBits::eColor,
-                .layerCount = 1,
-            },
-            .imageExtent{
-                .width = static_cast<uint32_t>(width),
-                .height = static_cast<uint32_t>(height),
-                .depth = 1,
-            },
-        };
-        bd->font_command_buffer.copyBufferToImage(upload_buffer, bd->font_image,
-                                                  vk::ImageLayout::eTransferDstOptimal, {region});
-
-        vk::ImageMemoryBarrier use_barrier[1]{{
-            .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
-            .dstAccessMask = vk::AccessFlagBits::eShaderRead,
-            .oldLayout = vk::ImageLayout::eTransferDstOptimal,
-            .newLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
-            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .image = bd->font_image,
-            .subresourceRange{
-                .aspectMask = vk::ImageAspectFlagBits::eColor,
-                .levelCount = 1,
-                .layerCount = 1,
-            },
-        }};
-        bd->font_command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
-                                                vk::PipelineStageFlagBits::eFragmentShader, {}, {},
-                                                {}, {use_barrier});
-    }
-
-    // Store our identifier
-    io.Fonts->SetTexID(bd->font_texture);
-
-    // End command buffer
-    vk::SubmitInfo end_info = {};
-    end_info.commandBufferCount = 1;
-    end_info.pCommandBuffers = &bd->font_command_buffer;
-    CheckVkErr(bd->font_command_buffer.end());
-    {
-        std::unique_lock<std::mutex> lock;
-        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
-        CheckVkErr(v.queue.submit({end_info}));
-        CheckVkErr(v.queue.waitIdle());
-    }
-
-    v.device.destroyBuffer(upload_buffer, v.allocator);
-    v.device.freeMemory(upload_buffer_memory, v.allocator);
-
-    return true;
+spatial::imgui::RendererCapabilities FontCapabilities() {
+    spatial::imgui::RendererCapabilities caps;
+    caps.renderer_managed_textures = true;
+    // Dirty frames currently replace the complete SDF image with an explicit GPU lifetime boundary.
+    caps.partial_texture_updates = false;
+    caps.sdf_font = spatial::imgui::sdfTextShadersAvailable();
+    caps.reuse_draw_frame_across_views = true;
+    return caps;
 }
-
-// You probably never need to call this, as it is called by CreateFontsTexture()
-// and Shutdown().
-static void DestroyFontsTexture() {
-    ImGuiIO& io = ImGui::GetIO();
-    VkData* bd = GetBackendData();
-    const InitInfo& v = bd->init_info;
-
-    if (bd->font_texture) {
-        RemoveTexture(bd->font_texture);
-        bd->font_texture = nullptr;
-        io.Fonts->SetTexID(nullptr);
+spatial::imgui::SdfPipelineEvidence FontEvidence() {
+    auto* bd = GetBackendData();
+    return bd ? bd->font_evidence : spatial::imgui::SdfPipelineEvidence{};
+}
+std::string FontDiagnostics() {
+    auto* bd = GetBackendData();
+    return fmt::format("{}; atlas uploads {}; SDF draws {}",
+        spatial::imgui::describeFontMode(spatial::imgui::resolveFontMode(
+            spatial::imgui::FontRenderMode::Sdf, FontCapabilities(), FontEvidence())),
+        bd ? bd->font_uploads : 0, bd ? bd->sdf_draws : 0);
+}
+static void DestroyManagedTexture(ImTextureData* texture) {
+    if (auto* data = static_cast<ManagedFontTexture*>(texture->BackendUserData)) {
+        data->upload.Destroy();
+        delete data;
     }
-
-    if (bd->font_view) {
-        v.device.destroyImageView(bd->font_view, v.allocator);
-        bd->font_view = VK_NULL_HANDLE;
-    }
-    if (bd->font_image) {
-        v.device.destroyImage(bd->font_image, v.allocator);
-        bd->font_image = VK_NULL_HANDLE;
-    }
-    if (bd->font_memory) {
-        v.device.freeMemory(bd->font_memory, v.allocator);
-        bd->font_memory = VK_NULL_HANDLE;
+    texture->BackendUserData = nullptr;
+    texture->SetTexID(ImTextureID_Invalid);
+    texture->SetStatus(ImTextureStatus_Destroyed);
+}
+void UpdateTextures(ImDrawData& draw_data) {
+    if (!draw_data.Textures) return;
+    auto* bd = GetBackendData();
+    for (auto* texture : *draw_data.Textures) {
+        if (texture->Status == ImTextureStatus_WantDestroy) {
+            DestroyManagedTexture(texture);
+            continue;
+        }
+        if (texture->Status != ImTextureStatus_WantCreate && texture->Status != ImTextureStatus_WantUpdates) continue;
+        std::vector<std::uint8_t> rgba(std::size_t(texture->Width) * texture->Height * 4);
+        if (texture->Format == ImTextureFormat_RGBA32) {
+            std::memcpy(rgba.data(), texture->Pixels, rgba.size());
+        } else {
+            for (std::size_t i = 0; i < rgba.size()/4; ++i) {
+                rgba[i*4] = rgba[i*4+1] = rgba[i*4+2] = 255;
+                rgba[i*4+3] = texture->Pixels[i];
+            }
+        }
+        // A colored atlas (e.g. color glyphs/custom rectangles) retains its RGBA shader.
+        const bool sdf = !texture->UseColors && bd->sdf_pipeline;
+        spatial::imgui::SdfFontAtlas atlas;
+        if (sdf) {
+            atlas = spatial::imgui::BuildSdfFontAtlasRgba32(rgba, texture->Width, texture->Height);
+            IM_ASSERT(atlas.IsValid());
+            rgba = std::move(atlas.rgba32);
+        }
+        auto* old = static_cast<ManagedFontTexture*>(texture->BackendUserData);
+        // Drain accepted submissions before retiring a descriptor; the current UI command buffer
+        // has not consumed GetTexID yet. Unchanged frames perform no upload or queue wait.
+        if (old) { old->upload.Destroy(); delete old; texture->BackendUserData = nullptr; }
+        auto data = std::make_unique<ManagedFontTexture>();
+        data->upload = UploadTexture(rgba.data(), vk::Format::eR8G8B8A8Unorm,
+                                     texture->Width, texture->Height, rgba.size());
+        data->upload.Upload();
+        data->upload.im_texture->sdf_font = sdf;
+        texture->SetTexID(data->upload.im_texture);
+        texture->BackendUserData = data.release();
+        texture->SetStatus(ImTextureStatus_OK);
+        bd->font_evidence.atlas_generated |= sdf;
+        ++bd->font_uploads;
     }
 }
 
@@ -980,11 +841,17 @@ static void CreateShaderModules(vk::Device device, const vk::AllocationCallbacks
 
 static void CreatePipeline(vk::Device device, const vk::AllocationCallbacks* allocator,
                            vk::PipelineCache pipeline_cache, vk::RenderPass render_pass,
-                           vk::Pipeline* pipeline, uint32_t subpass) {
+                           vk::Pipeline* pipeline, uint32_t subpass, bool sdf = false) {
     VkData* bd = GetBackendData();
     const InitInfo& v = bd->init_info;
 
     CreateShaderModules(device, allocator);
+    if (sdf && !bd->sdf_fragment) {
+        const auto shaders = spatial::imgui::getSdfTextShaderModules();
+        IM_ASSERT(shaders.available);
+        bd->sdf_fragment = CheckVkResult(device.createShaderModule(vk::ShaderModuleCreateInfo{
+            .codeSize = shaders.fragment_spirv.size_bytes(), .pCode = shaders.fragment_spirv.data()}, allocator));
+    }
 
     vk::PipelineShaderStageCreateInfo stage[2]{
         {
@@ -994,7 +861,7 @@ static void CreatePipeline(vk::Device device, const vk::AllocationCallbacks* all
         },
         {
             .stage = vk::ShaderStageFlagBits::eFragment,
-            .module = bd->shader_module_frag,
+            .module = sdf ? bd->sdf_fragment : bd->shader_module_frag,
             .pName = "main",
         },
     };
@@ -1175,6 +1042,7 @@ bool CreateDeviceObjects() {
     }
 
     CreatePipeline(v.device, v.allocator, v.pipeline_cache, nullptr, &bd->pipeline, v.subpass);
+    CreatePipeline(v.device, v.allocator, v.pipeline_cache, nullptr, &bd->sdf_pipeline, v.subpass, true);
 
     if (bd->command_pool == VK_NULL_HANDLE) {
         vk::CommandPoolCreateInfo info{
@@ -1210,13 +1078,11 @@ void ImGuiImplVulkanDestroyDeviceObjects() {
     VkData* bd = GetBackendData();
     const InitInfo& v = bd->init_info;
     DestroyWindowRenderBuffers(v.device, bd->render_buffers, v.allocator);
-    DestroyFontsTexture();
-
-    if (bd->font_command_buffer) {
-        std::unique_lock lk(bd->command_pool_mutex);
-        v.device.freeCommandBuffers(bd->command_pool, {bd->font_command_buffer});
-        bd->font_command_buffer = VK_NULL_HANDLE;
+    for (auto* texture : ImGui::GetPlatformIO().Textures) {
+        if (texture->BackendUserData) DestroyManagedTexture(texture);
     }
+    if (bd->sdf_pipeline) v.device.destroyPipeline(bd->sdf_pipeline, v.allocator);
+    if (bd->sdf_fragment) v.device.destroyShaderModule(bd->sdf_fragment, v.allocator);
     if (bd->command_pool) {
         std::unique_lock lk(bd->command_pool_mutex);
         v.device.destroyCommandPool(bd->command_pool, v.allocator);
@@ -1271,7 +1137,7 @@ bool Init(InitInfo info) {
     io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 
     CreateDeviceObjects();
-    CreateFontsTexture();
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
 
     return true;
 }
@@ -1284,7 +1150,7 @@ void Shutdown() {
     ImGuiImplVulkanDestroyDeviceObjects();
     io.BackendRendererName = nullptr;
     io.BackendRendererUserData = nullptr;
-    io.BackendFlags &= ~ImGuiBackendFlags_RendererHasVtxOffset;
+    io.BackendFlags &= ~(ImGuiBackendFlags_RendererHasVtxOffset | ImGuiBackendFlags_RendererHasTextures);
     IM_DELETE(bd);
 }
 
@@ -1300,6 +1166,9 @@ void OnSurfaceFormatChange(vk::Format surface_format) {
             bd->pipeline = VK_NULL_HANDLE;
             CreatePipeline(v.device, v.allocator, v.pipeline_cache, nullptr, &bd->pipeline,
                            v.subpass);
+            if (bd->sdf_pipeline) v.device.destroyPipeline(bd->sdf_pipeline, v.allocator);
+            CreatePipeline(v.device, v.allocator, v.pipeline_cache, nullptr, &bd->sdf_pipeline,
+                           v.subpass, true);
         }
     }
 }

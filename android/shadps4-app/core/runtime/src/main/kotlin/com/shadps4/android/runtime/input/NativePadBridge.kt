@@ -48,6 +48,15 @@ object NativePadBridge {
         val action = Runnable { current?.takeIf { it.generation == generation }?.let { it.close(); current = null } }
         if (Looper.myLooper() == main.looper) action.run() else main.post(action)
     }
+    fun overlayPointer(id: Int, phase: Int, x: Float, y: Float): Boolean {
+        onMain()
+        val connection = current ?: return false
+        if (!connection.focused) return false
+        return NativePad.nativeOverlayPointer(connection.token, id, phase, x, y)
+    }
+    fun updateOverlayDensity(density: Float) { onMain(); NativePad.nativeOverlayDensity(density) }
+    fun cancelOverlayPointers() { onMain(); current?.let { NativePad.nativeOverlayCancel(it.token) } }
+    fun openOverlayControls() { onMain(); current?.let { NativePad.nativeOverlayControls(it.token) } }
     fun currentToken(): Long = current?.token ?: 0
     /** Read-only diagnostics. Values are sampled, not an atomic input transaction. */
     fun diagnosticStatus(): String {
@@ -63,7 +72,7 @@ object NativePadBridge {
     fun hasPhysicalController(): Boolean = current?.bindings?.isNotEmpty() == true
     fun dispatchKeyEvent(event: KeyEvent): Boolean { onMain(); return current?.dispatchKey(event) ?: false }
     fun dispatchGenericMotionEvent(event: MotionEvent): Boolean { onMain(); return current?.dispatchMotion(event) ?: false }
-    fun setFocused(focused: Boolean) { onMain(); windowFocused = focused; current?.let { it.setFocused(focused && !it.uiCaptured) } }
+    fun setFocused(focused: Boolean) { onMain(); if (!focused) cancelOverlayPointers(); windowFocused = focused; current?.let { it.setFocused(focused && !it.uiCaptured) } }
     fun requestStop(generation: Long) {
         onMain()
         current?.takeIf { it.generation == generation }?.let {
@@ -74,6 +83,7 @@ object NativePadBridge {
     fun setUiCaptured(generation: Long, captured: Boolean) {
         onMain()
         current?.takeIf { it.generation == generation }?.let {
+            if (captured) cancelOverlayPointers()
             it.uiCaptured = captured
             it.setFocused(windowFocused && !captured)
         }

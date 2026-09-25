@@ -1,0 +1,18 @@
+/private/tmp/shadps4-status-overlay-20260925/foundation/basic/underlying/math/public/spatial/math/TVector2.hpp:51:59: warning: instantiation of variable 'spatial::math::TVector2<float>::UnitVector' required here, but no definition is available [-Wundefined-var-template]
+   51 |     static inline TVector2<T> one() { return TVector2<T>::UnitVector; }
+      |                                                           ^
+/private/tmp/shadps4-status-overlay-20260925/foundation/modules/imgui/public/spatial/imgui/LayerManager.hpp:141:70: note: in instantiation of member function 'spatial::math::TVector2<float>::one' requested here
+  141 |     spatial::math::Vector2f mDisplayScale = spatial::math::Vector2f::one();
+      |                                                                      ^
+/private/tmp/shadps4-status-overlay-20260925/foundation/basic/underlying/math/public/spatial/math/TVector2.hpp:35:53: note: forward declaration of template entity is here
+   35 |     SPATIAL_FOUNDATION_API static const TVector2<T> UnitVector;
+      |                                                     ^
+/private/tmp/shadps4-status-overlay-20260925/foundation/basic/underlying/math/public/spatial/math/TVector2.hpp:51:59: note: add an explicit instantiation declaration to suppress this warning if 'spatial::math::TVector2<float>::UnitVector' is explicitly instantiated in another translation unit
+   51 |     static inline TVector2<T> one() { return TVector2<T>::UnitVector; }
+      |                                                           ^
+1 warning generated.
+1 warning generated.
+7 warnings generated.
+3 warnings generated.
+ld: warning: ignoring duplicate libraries: 'dependencies/foundation/basic/allocator/libfoundation_allocator.a', 'dependencies/foundation/basic/meta/reflection/libfoundation_meta_reflection.a', 'dependencies/foundation/basic/underlying/core/libfoundation_core_minimal.a'
+Overlay reflection and host integration passed

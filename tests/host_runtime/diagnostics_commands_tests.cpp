@@ -7,6 +7,7 @@
 #include "core/diagnostics/diagnostics_commands.h"
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/overlay_control.h"
 
 using namespace Core::Diagnostics;
 using spatial::debugbus::DebugCommandRegistry;
@@ -83,15 +84,23 @@ int main() {
         CHECK(Has(r, "capture_backend: coordinator"));
     }
 
-    // --- overlay status: honest not-implemented + redraw counter ---
+    // --- overlay commands are queued; visibility reports the applied renderer state ---
     {
         const std::string r = registry.Handle("overlay status");
         CHECK(Has(r, "overlay: hidden"));
         CHECK(Has(r, "overlay_redraw:"));
-        // Visibility is actual control state; it does not claim a renderer exists.
         const std::string show = registry.Handle("overlay show");
-        CHECK(Has(show, "overlay: shown"));
-        CHECK(Has(registry.Handle("overlay hide"), "overlay: hidden"));
+        CHECK(Has(show, "request: queued"));
+        CHECK(Has(show, "overlay: hidden"));
+        status_overlay_enabled.store(true);
+        CHECK(Has(registry.Handle("overlay status"), "overlay: shown"));
+        CHECK(Has(registry.Handle("overlay hide"), "request: queued"));
+        CHECK(Has(registry.Handle("overlay status"), "overlay: shown"));
+        std::vector<OverlayTouch> touches;
+        std::vector<std::string> commands;
+        StatusOverlayMailbox().Drain(touches, commands);
+        CHECK(commands == std::vector<std::string>({"show", "hide"}));
+        status_overlay_enabled.store(false);
         CHECK(Has(registry.Handle("overlay invalid"), "invalid_arguments"));
     }
 

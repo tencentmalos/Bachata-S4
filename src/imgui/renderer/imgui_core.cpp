@@ -51,6 +51,18 @@ namespace ImGui {
 
 namespace Core {
 
+static std::atomic<unsigned> ime_input_capture_count{};
+void AcquireImeInputCapture() {
+    ime_input_capture_count.fetch_add(1, std::memory_order_relaxed);
+    AcquireGamepadInputCapture();
+}
+void ReleaseImeInputCapture() {
+    auto expected = ime_input_capture_count.load(std::memory_order_relaxed);
+    while (expected && !ime_input_capture_count.compare_exchange_weak(expected, expected - 1)) {}
+    if (expected) ReleaseGamepadInputCapture();
+}
+bool IsImeInputCaptured() { return ime_input_capture_count.load(std::memory_order_relaxed) != 0; }
+
 void AcquireGamepadInputCapture() {
     force_gamepad_input_capture_count.fetch_add(1, std::memory_order_relaxed);
 }
@@ -98,7 +110,10 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
     ImFontConfig font_cfg{};
     font_cfg.OversampleH = 2;
     font_cfg.OversampleV = 1;
-    io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
+    font_cfg.RasterizerDensity = 2.f;
+    io.Fonts->TexGlyphPadding = 7;
+    io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight | ImFontAtlasFlags_NoBakedLines;
     const int console_language = EmulatorSettings.GetConsoleLanguage();
     io.FontDefault = FontStack::AddPrimaryUiFont(io.Fonts, 32.0f, console_language, font_cfg, true);
 
@@ -120,11 +135,11 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
     io.Fonts->TexMaxWidth = atlas_max;
     io.Fonts->TexMaxHeight = atlas_max;
 
-    io.Fonts->Build();
 
     io.FontGlobalScale = 0.5f;
 
     StyleColorsDark();
+    GetStyle().AntiAliasedLinesUseTex = false;
 
     ::Core::Devtools::Layer::SetupSettings();
     platform_window = &window;
@@ -165,6 +180,9 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
                                : window.GetWindowInfo().render_surface_scale;
 #else
     const auto dpi = window.GetWindowInfo().render_surface_scale;
+#endif
+#ifndef __ANDROID__
+    ::Core::Diagnostics::StatusOverlayMailbox().SetPixelDensity(dpi);
 #endif
     if (dpi > 0.0f) {
         GetIO().FontGlobalScale *= dpi;
@@ -228,6 +246,10 @@ bool ProcessEvent(SDL_Event* event) {
 #else
     if (!using_sdl)
         return false; // Android input is delivered by its own adapter.
+    if (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_F10 && !event->key.repeat && !IsImeInputCaptured()) {
+        ::Core::Diagnostics::StatusOverlayMailbox().Request("controls");
+        return true;
+    }
     Sdl::ProcessEvent(event);
     switch (event->type) {
     // Don't block release/up events
@@ -318,6 +340,7 @@ void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
             const vk::Extent2D& extent) {
     ImGui::Render();
     ImDrawData* draw_data = GetDrawData();
+    Vulkan::UpdateTextures(*draw_data);
     if (draw_data->CmdListsCount == 0) {
         return;
     }
@@ -353,7 +376,8 @@ void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
 }
 
 bool MustKeepDrawing() {
-    return ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed) ||
+    return ::Core::Diagnostics::StatusOverlayMailbox().Pending() ||
+           ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed) ||
            std::ranges::any_of(layers, [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
            change_layers.size() > 1;
 }

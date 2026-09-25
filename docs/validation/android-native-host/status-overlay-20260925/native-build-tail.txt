@@ -1,0 +1,18 @@
+In file included from /private/tmp/shadps4-status-overlay-20260925/foundation/modules/imgui_overlay/public/spatial/imgui/overlay/OverlayComponents.hpp:14:
+In file included from /private/tmp/shadps4-status-overlay-20260925/foundation/modules/imgui_overlay/public/spatial/imgui/overlay/KeyboardPanelMetrics.hpp:11:
+In file included from /private/tmp/shadps4-status-overlay-20260925/foundation/modules/imgui_overlay/public/spatial/imgui/overlay/OverlayLayout.hpp:12:
+In file included from /private/tmp/shadps4-status-overlay-20260925/cmake/../foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:9:
+/private/tmp/shadps4-status-overlay-20260925/cmake/../foundation/basic/underlying/math/public/spatial/math/TVector2.hpp:50:60: warning: instantiation of variable 'spatial::math::TVector2<float>::ZeroVector' required here, but no definition is available [-Wundefined-var-template]
+   50 |     static inline TVector2<T> zero() { return TVector2<T>::ZeroVector; }
+      |                                                            ^
+/private/tmp/shadps4-status-overlay-20260925/foundation/modules/imgui_overlay/../imgui/public/spatial/imgui/LayerTypes.hpp:112:43: note: in instantiation of member function 'spatial::math::TVector2<float>::zero' requested here
+  112 |         mousePos = spatial::math::float2::zero();
+      |                                           ^
+/private/tmp/shadps4-status-overlay-20260925/cmake/../foundation/basic/underlying/math/public/spatial/math/TVector2.hpp:28:53: note: forward declaration of template entity is here
+   28 |     SPATIAL_FOUNDATION_API static const TVector2<T> ZeroVector;
+      |                                                     ^
+/private/tmp/shadps4-status-overlay-20260925/cmake/../foundation/basic/underlying/math/public/spatial/math/TVector2.hpp:50:60: note: add an explicit instantiation declaration to suppress this warning if 'spatial::math::TVector2<float>::ZeroVector' is explicitly instantiated in another translation unit
+   50 |     static inline TVector2<T> zero() { return TVector2<T>::ZeroVector; }
+      |                                                            ^
+3 warnings generated.
+[34/34] Linking CXX shared library libshadps4_host.so

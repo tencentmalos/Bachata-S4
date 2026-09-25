@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
-#include "video_core/renderer_vulkan/render_pass_stats.h"
 #include <memory>
 #include "common/gpu_timing.h"
-#include "video_core/texture_cache/scale_coverage.h"
-#include "video_core/texture_cache/scale_policy.h"
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/frame_history.h"
+#include "imgui/runtime_tooltips.h"
+#include "imgui/status_overlay.h"
+#include "video_core/renderer_vulkan/render_pass_stats.h"
+#include "video_core/texture_cache/scale_coverage.h"
+#include "video_core/texture_cache/scale_policy.h"
 
 namespace ImGui {
 // Native status content modeled on Citron. Shares the existing renderer's ImGui
@@ -14,17 +16,22 @@ namespace ImGui {
 class StatusLayer {
 public:
     explicit StatusLayer(std::shared_ptr<::Core::Diagnostics::DiagnosticsPublisher> publisher,
-        std::shared_ptr<Common::Profiler::GpuTimingState> gpu = {},
-        VideoCore::ScalePolicySnapshot policy = {},
-        std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage = {})
+                         std::shared_ptr<Common::Profiler::GpuTimingState> gpu = {},
+                         VideoCore::ScalePolicySnapshot policy = {},
+                         std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage = {})
         : publisher{std::move(publisher)}, gpu{std::move(gpu)}, scale_policy{policy},
           coverage{std::move(coverage)} {}
     void Presented(uint64_t now, bool reused) {
         all_presents.Record(now);
-        if (!reused) game_presents.Record(now);
+        if (!reused)
+            game_presents.Record(now);
     }
-    void Draw(uint64_t now, unsigned width, unsigned height);
+    void Prepare(uint64_t now, unsigned width, unsigned height);
+    void Draw();
+
 private:
+    StatusOverlay overlay;
+    RuntimeTooltips tooltips;
     std::shared_ptr<::Core::Diagnostics::DiagnosticsPublisher> publisher;
     std::shared_ptr<Common::Profiler::GpuTimingState> gpu;
     ::Core::Diagnostics::FrameHistory game_presents, all_presents;

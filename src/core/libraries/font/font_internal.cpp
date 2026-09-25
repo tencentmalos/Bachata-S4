@@ -126,7 +126,7 @@ constexpr std::string_view kBuiltinFontCjkTc = "@builtin/NotoSansCJK-Regular.tc.
 
 struct BuiltinFontBlob {
     std::string_view virtual_path;
-    const unsigned char* compressed_data = nullptr;
+    const void* compressed_data = nullptr;
     unsigned int compressed_size = 0;
     u32 face_index = 0;
 };
@@ -1890,13 +1890,13 @@ std::shared_ptr<std::vector<unsigned char>> LoadBuiltinFontBytesShared(
         }
     }
 
-    const unsigned int output_len = StbDecompressLength(blob->compressed_data);
+    const unsigned int output_len = StbDecompressLength(static_cast<const unsigned char*>(blob->compressed_data));
     if (output_len == 0u) {
         return {};
     }
 
     auto bytes = std::make_shared<std::vector<unsigned char>>(output_len);
-    if (StbDecompress(bytes->data(), blob->compressed_data) != output_len) {
+    if (StbDecompress(bytes->data(), static_cast<const unsigned char*>(blob->compressed_data)) != output_len) {
         return {};
     }
 

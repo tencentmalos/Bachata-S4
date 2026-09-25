@@ -245,7 +245,7 @@ ImeUi::ImeUi(ImeState* state, const OrbisImeParam* param, const OrbisImeParamExt
                                             pending_keyboard_col, last_keyboard_selected_row,
                                             last_keyboard_selected_col);
         AddLayer(this);
-        ImGui::Core::AcquireGamepadInputCapture();
+        ImGui::Core::AcquireImeInputCapture();
         gamepad_input_capture_active = true;
     }
 }
@@ -356,7 +356,7 @@ ImeUi& ImeUi::operator=(ImeUi&& other) {
 
     AddLayer(this);
     if (!gamepad_input_capture_active && ime_param) {
-        ImGui::Core::AcquireGamepadInputCapture();
+        ImGui::Core::AcquireImeInputCapture();
         gamepad_input_capture_active = true;
     }
     return *this;
@@ -555,7 +555,7 @@ void ImeUi::Draw() {
         if (pointer_input) {
             pointer_navigation_active = true;
         }
-        if (osk_control_input) {
+        if (osk_control_input && !pointer_input && !IsMouseDown(ImGuiMouseButton_Left)) {
             pointer_navigation_active = false;
         }
         if (native_input_active && virtual_control_input && !request_input_focus &&
@@ -1791,7 +1791,7 @@ int ImeUi::InputTextCallback(ImGuiInputTextCallbackData* data) {
 void ImeUi::Free() {
     RemoveLayer(this);
     if (gamepad_input_capture_active) {
-        ImGui::Core::ReleaseGamepadInputCapture();
+        ImGui::Core::ReleaseImeInputCapture();
         gamepad_input_capture_active = false;
     }
 }

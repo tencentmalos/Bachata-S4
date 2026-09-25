@@ -1,0 +1,475 @@
+Test project /private/tmp/shadps4-overlay-foundation-tests
+        Start   1: Back unwinds innermost first and never touches Status
+  1/235 Test   #1: Back unwinds innermost first and never touches Status ......................   Passed    0.01 sec
+        Start   2: Backspace deletes through the session
+  2/235 Test   #2: Backspace deletes through the session ......................................   Passed    0.01 sec
+        Start   3: CapsLock is distinguishable from Shift on the key face
+  3/235 Test   #3: CapsLock is distinguishable from Shift on the key face .....................   Passed    0.01 sec
+        Start   4: Control and IME centre on the content safe rect
+  4/235 Test   #4: Control and IME centre on the content safe rect ............................   Passed    0.01 sec
+        Start   5: Control dialog stays above the backdrop and closes by mouse
+  5/235 Test   #5: Control dialog stays above the backdrop and closes by mouse ................   Passed    0.01 sec
+        Start   6: Controls remains reachable in a short Summary
+  6/235 Test   #6: Controls remains reachable in a short Summary ..............................   Passed    0.01 sec
+        Start   7: Controls shares pointer interaction with visible HUD but blocks the game
+  7/235 Test   #7: Controls shares pointer interaction with visible HUD but blocks the game ...   Passed    0.01 sec
+        Start   8: Detail raises the budget to two
+  8/235 Test   #8: Detail raises the budget to two ............................................   Passed    0.01 sec
+        Start   9: Enter confirms on a single-line field and inserts on a multiline one
+  9/235 Test   #9: Enter confirms on a single-line field and inserts on a multiline one .......   Passed    0.01 sec
+        Start  10: Flat presentation reports a single submission
+ 10/235 Test  #10: Flat presentation reports a single submission ..............................   Passed    0.01 sec
+        Start  11: HideAllOverlays aborts an open IME
+ 11/235 Test  #11: HideAllOverlays aborts an open IME .........................................   Passed    0.01 sec
+        Start  12: HideAllOverlays closes everything
+ 12/235 Test  #12: HideAllOverlays closes everything ..........................................   Passed    0.01 sec
+        Start  13: IME confirmation is emitted exactly once
+ 13/235 Test  #13: IME confirmation is emitted exactly once ...................................   Passed    0.01 sec
+        Start  14: None has no surfaces; Simple only builds one chip
+ 14/235 Test  #14: None has no surfaces; Simple only builds one chip ..........................   Passed    0.01 sec
+        Start  15: None is reachable only by an explicit request
+ 15/235 Test  #15: None is reachable only by an explicit request ..............................   Passed    0.01 sec
+        Start  16: Property colors accept RGB and RGBA without guessing malformed values
+ 16/235 Test  #16: Property colors accept RGB and RGBA without guessing malformed values ......   Passed    0.01 sec
+        Start  17: Property colors reach Summary and Detail vertices without leaking style
+ 17/235 Test  #17: Property colors reach Summary and Detail vertices without leaking style ....   Passed    0.01 sec
+        Start  18: SBS safe insets apply only to the edge they touch
+ 18/235 Test  #18: SBS safe insets apply only to the edge they touch ..........................   Passed    0.01 sec
+        Start  19: SBS width is never computed from the full framebuffer
+ 19/235 Test  #19: SBS width is never computed from the full framebuffer ......................   Passed    0.01 sec
+        Start  20: Shift re-cases in place without moving keys
+ 20/235 Test  #20: Shift re-cases in place without moving keys ................................   Passed    0.01 sec
+        Start  21: Shift releases after one character but CapsLock does not
+ 21/235 Test  #21: Shift releases after one character but CapsLock does not ...................   Passed    0.01 sec
+        Start  22: Simple Status is narrower than Summary
+ 22/235 Test  #22: Simple Status is narrower than Summary .....................................   Passed    0.01 sec
+        Start  23: Simple Status width follows measured content within its band
+ 23/235 Test  #23: Simple Status width follows measured content within its band ...............   Passed    0.01 sec
+        Start  24: Simple actions open Detail and Controls without expanding Summary
+ 24/235 Test  #24: Simple actions open Detail and Controls without expanding Summary ..........   Passed    0.01 sec
+        Start  25: Simple fits its text and actions and expands from the FPS reading
+ 25/235 Test  #25: Simple fits its text and actions and expands from the FPS reading ..........   Passed    0.01 sec
+        Start  26: Simple shows one FPS number and nothing else
+ 26/235 Test  #26: Simple shows one FPS number and nothing else ...............................   Passed    0.01 sec
+        Start  27: Space inserts a space
+ 27/235 Test  #27: Space inserts a space ......................................................   Passed    0.01 sec
+        Start  28: Status docks left and Detail docks right
+ 28/235 Test  #28: Status docks left and Detail docks right ...................................   Passed    0.01 sec
+        Start  29: Status is absent in None
+ 29/235 Test  #29: Status is absent in None ...................................................   Passed    0.01 sec
+        Start  30: Summary keeps long fields after the sixth row
+ 30/235 Test  #30: Summary keeps long fields after the sixth row ..............................   Passed    0.01 sec
+        Start  31: Summary respects its width and height fractions
+ 31/235 Test  #31: Summary respects its width and height fractions ............................   Passed    0.01 sec
+        Start  32: Summary shows both rates even when they agree
+ 32/235 Test  #32: Summary shows both rates even when they agree ..............................   Passed    0.01 sec
+        Start  33: Summary shows both rates when they differ
+ 33/235 Test  #33: Summary shows both rates when they differ ..................................   Passed    0.01 sec
+        Start  34: Summary shows six rows and the action footer at Retina density
+ 34/235 Test  #34: Summary shows six rows and the action footer at Retina density .............   Passed    0.01 sec
+        Start  35: Summary to Simple crops rather than reallocating
+ 35/235 Test  #35: Summary to Simple crops rather than reallocating ...........................   Passed    0.01 sec
+        Start  36: XR keeps the resolved aspect ratio
+ 36/235 Test  #36: XR keeps the resolved aspect ratio .........................................   Passed    0.01 sec
+        Start  37: XR modals sit in front of the game panel
+ 37/235 Test  #37: XR modals sit in front of the game panel ...................................   Passed    0.01 sec
+        Start  38: XR places Status left and Detail right of the game panel
+ 38/235 Test  #38: XR places Status left and Detail right of the game panel ...................   Passed    0.01 sec
+        Start  39: XR raster scale changes neither geometry nor text
+ 39/235 Test  #39: XR raster scale changes neither geometry nor text ..........................   Passed    0.01 sec
+        Start  40: XR surface budgets hold for normal, detail and modal
+ 40/235 Test  #40: XR surface budgets hold for normal, detail and modal .......................   Passed    0.01 sec
+        Start  41: a Cancel key on a non-cancelable request does nothing
+ 41/235 Test  #41: a Cancel key on a non-cancelable request does nothing ......................   Passed    0.01 sec
+        Start  42: a UTF-16 limit counts a surrogate pair as two
+ 42/235 Test  #42: a UTF-16 limit counts a surrogate pair as two ..............................   Passed    0.01 sec
+        Start  43: a backend with the shaders can resolve SDF
+ 43/235 Test  #43: a backend with the shaders can resolve SDF .................................   Passed    0.01 sec
+        Start  44: a backend without cross-view reuse gets one submission
+ 44/235 Test  #44: a backend without cross-view reuse gets one submission .....................   Passed    0.01 sec
+        Start  45: a bitmap request is not reported as a downgrade
+ 45/235 Test  #45: a bitmap request is not reported as a downgrade ............................   Passed    0.01 sec
+        Start  46: a captured layer disappearing mid-gesture cancels the pointer
+ 46/235 Test  #46: a captured layer disappearing mid-gesture cancels the pointer ..............   Passed    0.01 sec
+        Start  47: a captured pointer keeps its layer after leaving the bounds
+ 47/235 Test  #47: a captured pointer keeps its layer after leaving the bounds ................   Passed    0.01 sec
+        Start  48: a character key inserts its glyph
+ 48/235 Test  #48: a character key inserts its glyph ..........................................   Passed    0.01 sec
+        Start  49: a closed layer stops being submitted immediately
+ 49/235 Test  #49: a closed layer stops being submitted immediately ...........................   Passed    0.01 sec
+        Start  50: a closed surface is retained then destroyed
+ 50/235 Test  #50: a closed surface is retained then destroyed ................................   Passed    0.01 sec
+        Start  51: a composition layer carries the resolved quad geometry
+ 51/235 Test  #51: a composition layer carries the resolved quad geometry .....................   Passed    0.01 sec
+        Start  52: a disabled key does nothing at all
+ 52/235 Test  #52: a disabled key does nothing at all .........................................   Passed    0.01 sec
+        Start  53: a display-only layer never takes a pointer
+ 53/235 Test  #53: a display-only layer never takes a pointer .................................   Passed    0.01 sec
+        Start  54: a dropped press edge cancels its pointer
+ 54/235 Test  #54: a dropped press edge cancels its pointer ...................................   Passed    0.01 sec
+        Start  55: a duplicate name is refused without disturbing the original
+ 55/235 Test  #55: a duplicate name is refused without disturbing the original ................   Passed    0.01 sec
+        Start  56: a failing factory fails the registration
+ 56/235 Test  #56: a failing factory fails the registration ...................................   Passed    0.01 sec
+        Start  57: a first frame creates the surface and submits it
+ 57/235 Test  #57: a first frame creates the surface and submits it ...........................   Passed    0.01 sec
+        Start  58: a future persistence version is refused
+ 58/235 Test  #58: a future persistence version is refused ....................................   Passed    0.01 sec
+        Start  59: a held direction repeats after an initial delay
+ 59/235 Test  #59: a held direction repeats after an initial delay ............................   Passed    0.01 sec
+        Start  60: a hidden slot gets no spatial anchor
+ 60/235 Test  #60: a hidden slot gets no spatial anchor .......................................   Passed    0.01 sec
+        Start  61: a hidden status layer takes no input
+ 61/235 Test  #61: a hidden status layer takes no input .......................................   Passed    0.01 sec
+        Start  62: a layer without a spatial anchor is not submitted
+ 62/235 Test  #62: a layer without a spatial anchor is not submitted ..........................   Passed    0.01 sec
+        Start  63: a legacy adoption is marked as such
+ 63/235 Test  #63: a legacy adoption is marked as such ........................................   Passed    0.01 sec
+        Start  64: a long paste inserts the prefix that fits
+ 64/235 Test  #64: a long paste inserts the prefix that fits ..................................   Passed    0.01 sec
+        Start  65: a lower-priority modal does not displace a higher one
+ 65/235 Test  #65: a lower-priority modal does not displace a higher one ......................   Passed    0.01 sec
+        Start  66: a modal does not steal a press that started before it opened
+ 66/235 Test  #66: a modal does not steal a press that started before it opened ...............   Passed    0.01 sec
+        Start  67: a modal frame carries the dim as a layer
+ 67/235 Test  #67: a modal frame carries the dim as a layer ...................................   Passed    0.01 sec
+        Start  68: a modal keeps keyboard input away from the game
+ 68/235 Test  #68: a modal keeps keyboard input away from the game ............................   Passed    0.01 sec
+        Start  69: a modal preserves Status and Detail on its shared surface
+ 69/235 Test  #69: a modal preserves Status and Detail on its shared surface ..................   Passed    0.01 sec
+        Start  70: a modal takes input the game would otherwise get
+ 70/235 Test  #70: a modal takes input the game would otherwise get ...........................   Passed    0.01 sec
+        Start  71: a multiline field keeps newlines and normalizes CRLF
+ 71/235 Test  #71: a multiline field keeps newlines and normalizes CRLF .......................   Passed    0.01 sec
+        Start  72: a narrow frame reports the degraded status mode
+ 72/235 Test  #72: a narrow frame reports the degraded status mode ............................   Passed    0.01 sec
+        Start  73: a narrow screen degrades Detail without losing its state
+ 73/235 Test  #73: a narrow screen degrades Detail without losing its state ...................   Passed    0.01 sec
+        Start  74: a non-cancelable IME ignores Back and cancel
+ 74/235 Test  #74: a non-cancelable IME ignores Back and cancel ...............................   Passed    0.01 sec
+        Start  75: a non-cancelable request has no Cancel to reach
+ 75/235 Test  #75: a non-cancelable request has no Cancel to reach ............................   Passed    0.01 sec
+        Start  76: a non-cancelable session refuses cancel
+ 76/235 Test  #76: a non-cancelable session refuses cancel ....................................   Passed    0.01 sec
+        Start  77: a non-modal layer leaves unhit areas to the game
+ 77/235 Test  #77: a non-modal layer leaves unhit areas to the game ...........................   Passed    0.01 sec
+        Start  78: a number field gets a numeric page with no way off it
+ 78/235 Test  #78: a number field gets a numeric page with no way off it ......................   Passed    0.01 sec
+        Start  79: a platform IME can replace the whole buffer
+ 79/235 Test  #79: a platform IME can replace the whole buffer ................................   Passed    0.01 sec
+        Start  80: a presentation change cancels a live gesture
+ 80/235 Test  #80: a presentation change cancels a live gesture ...............................   Passed    0.01 sec
+        Start  81: a press fires exactly once even with repeated down edges
+ 81/235 Test  #81: a press fires exactly once even with repeated down edges ...................   Passed    0.01 sec
+        Start  82: a reference-space change forces a rebuild from the new space
+ 82/235 Test  #82: a reference-space change forces a rebuild from the new space ...............   Passed    0.01 sec
+        Start  83: a requested SDF on a bitmap-only backend resolves to bitmap
+ 83/235 Test  #83: a requested SDF on a bitmap-only backend resolves to bitmap ................   Passed    0.01 sec
+        Start  84: a second finger does not release the first one's capture
+ 84/235 Test  #84: a second finger does not release the first one's capture ...................   Passed    0.01 sec
+        Start  85: a single-line field folds newlines to spaces
+ 85/235 Test  #85: a single-line field folds newlines to spaces ...............................   Passed    0.01 sec
+        Start  86: a snapshot older than a second is stale
+ 86/235 Test  #86: a snapshot older than a second is stale ....................................   Passed    0.01 sec
+        Start  87: a subtle border is weaker than the panel edge
+ 87/235 Test  #87: a subtle border is weaker than the panel edge ..............................   Passed    0.01 sec
+        Start  88: a tap entirely between two frames is still observed
+ 88/235 Test  #88: a tap entirely between two frames is still observed ........................   Passed    0.01 sec
+        Start  89: a tap in one SBS eye produces exactly one command
+ 89/235 Test  #89: a tap in one SBS eye produces exactly one command ..........................   Passed    0.01 sec
+        Start  90: a tap produces exactly one step
+ 90/235 Test  #90: a tap produces exactly one step ............................................   Passed    0.01 sec
+        Start  91: a track survives exactly as long as its gesture
+ 91/235 Test  #91: a track survives exactly as long as its gesture ............................   Passed    0.01 sec
+        Start  92: a truncating paste never splits a multi-byte sequence
+ 92/235 Test  #92: a truncating paste never splits a multi-byte sequence ......................   Passed    0.01 sec
+        Start  93: a very narrow screen gives Detail full height
+ 93/235 Test  #93: a very narrow screen gives Detail full height ..............................   Passed    0.01 sec
+        Start  94: a warning badge opens Detail but never a modal
+ 94/235 Test  #94: a warning badge opens Detail but never a modal .............................   Passed    0.01 sec
+        Start  95: a wide screen keeps Detail docked
+ 95/235 Test  #95: a wide screen keeps Detail docked ..........................................   Passed    0.01 sec
+        Start  96: a zero or negative scale falls back to 1
+ 96/235 Test  #96: a zero or negative scale falls back to 1 ...................................   Passed    0.01 sec
+        Start  97: abort ends a session at any point
+ 97/235 Test  #97: abort ends a session at any point ..........................................   Passed    0.01 sec
+        Start  98: aborting an IME reports it rather than dropping it
+ 98/235 Test  #98: aborting an IME reports it rather than dropping it .........................   Passed    0.01 sec
+        Start  99: adoption also refuses a duplicate name
+ 99/235 Test  #99: adoption also refuses a duplicate name .....................................   Passed    0.01 sec
+        Start 100: an IME completion is never the command dropped
+100/235 Test #100: an IME completion is never the command dropped .............................   Passed    0.01 sec
+        Start 101: an IME shares the modal surface with the panel it covers
+101/235 Test #101: an IME shares the modal surface with the panel it covers ...................   Passed    0.01 sec
+        Start 102: an SBS layer is submitted to both eyes from one build
+102/235 Test #102: an SBS layer is submitted to both eyes from one build ......................   Passed    0.01 sec
+        Start 103: an SBS modal is centred per eye and shares one surface
+103/235 Test #103: an SBS modal is centred per eye and shares one surface .....................   Passed    0.01 sec
+        Start 104: an SBS pointer binds to one eye and stays there
+104/235 Test #104: an SBS pointer binds to one eye and stays there ............................   Passed    0.01 sec
+        Start 105: an abandoned composition leaves no text behind
+105/235 Test #105: an abandoned composition leaves no text behind .............................   Passed    0.01 sec
+        Start 106: an empty frame plans nothing
+106/235 Test #106: an empty frame plans nothing ...............................................   Passed    0.01 sec
+        Start 107: an empty layout yields an empty panel
+107/235 Test #107: an empty layout yields an empty panel ......................................   Passed    0.01 sec
+        Start 108: an empty name is refused
+108/235 Test #108: an empty name is refused ...................................................   Passed    0.01 sec
+        Start 109: an inactive session rejects edits
+109/235 Test #109: an inactive session rejects edits ..........................................   Passed    0.01 sec
+        Start 110: an incremental composition stays anchored where it started
+110/235 Test #110: an incremental composition stays anchored where it started .................   Passed    0.01 sec
+        Start 111: an unchanged SBS frame still reports both submissions
+111/235 Test #111: an unchanged SBS frame still reports both submissions ......................   Passed    0.01 sec
+        Start 112: an unchanged frame resubmits without acquiring or rendering
+112/235 Test #112: an unchanged frame resubmits without acquiring or rendering ................   Passed    0.01 sec
+        Start 113: an unlimited request accepts long text
+113/235 Test #113: an unlimited request accepts long text .....................................   Passed    0.01 sec
+        Start 114: backspace at the start does nothing
+114/235 Test #114: backspace at the start does nothing ........................................   Passed    0.01 sec
+        Start 115: backspace removes a whole code point
+115/235 Test #115: backspace removes a whole code point .......................................   Passed    0.01 sec
+        Start 116: both SBS eyes share one canonical canvas
+116/235 Test #116: both SBS eyes share one canonical canvas ...................................   Passed    0.01 sec
+        Start 117: cancel ends a cancelable session once
+117/235 Test #117: cancel ends a cancelable session once ......................................   Passed    0.01 sec
+        Start 118: cancel ends a gesture without activating what was under it
+118/235 Test #118: cancel ends a gesture without activating what was under it .................   Passed    0.01 sec
+        Start 119: cancelAll ends live pointers on presentation change
+119/235 Test #119: cancelAll ends live pointers on presentation change ........................   Passed    0.01 sec
+        Start 120: caret keys move without editing
+120/235 Test #120: caret keys move without editing ............................................   Passed    0.01 sec
+        Start 121: caret movement is in code points and clamps at both ends
+121/235 Test #121: caret movement is in code points and clamps at both ends ...................   Passed    0.01 sec
+        Start 122: clamping leaves non-grid focus alone
+122/235 Test #122: clamping leaves non-grid focus alone .......................................   Passed    0.01 sec
+        Start 123: clear removes every record
+123/235 Test #123: clear removes every record .................................................   Passed    0.01 sec
+        Start 124: closing the ControlPanel returns focus to the Status button
+124/235 Test #124: closing the ControlPanel returns focus to the Status button ................   Passed    0.01 sec
+        Start 125: collapsing or hiding Status closes Detail
+125/235 Test #125: collapsing or hiding Status closes Detail ..................................   Passed    0.01 sec
+        Start 126: command generations increase so late replies can be discarded
+126/235 Test #126: command generations increase so late replies can be discarded ..............   Passed    0.01 sec
+        Start 127: commands for an unknown request are inert
+127/235 Test #127: commands for an unknown request are inert ..................................   Passed    0.01 sec
+        Start 128: commands reach the host through the shell
+128/235 Test #128: commands reach the host through the shell ..................................   Passed    0.01 sec
+        Start 129: compact typography preserves a 16sp body and a 14sp caption
+129/235 Test #129: compact typography preserves a 16sp body and a 14sp caption ................   Passed    0.01 sec
+        Start 130: composition is not committed text until it commits
+130/235 Test #130: composition is not committed text until it commits .........................   Passed    0.01 sec
+        Start 131: confirmation is idempotent
+131/235 Test #131: confirmation is idempotent .................................................   Passed    0.01 sec
+        Start 132: confirming commits an in-flight composition
+132/235 Test #132: confirming commits an in-flight composition ................................   Passed    0.01 sec
+        Start 133: cycling toggles Simple and Summary only
+133/235 Test #133: cycling toggles Simple and Summary only ....................................   Passed    0.01 sec
+        Start 134: degenerate presentation extents never produce a bad placement
+134/235 Test #134: degenerate presentation extents never produce a bad placement ..............   Passed    0.01 sec
+        Start 135: detail section state is keyed by StableId
+135/235 Test #135: detail section state is keyed by StableId ..................................   Passed    0.01 sec
+        Start 136: dirty reasons accumulate and clear
+136/235 Test #136: dirty reasons accumulate and clear .........................................   Passed    0.01 sec
+        Start 137: down from the bottom row reaches Confirm
+137/235 Test #137: down from the bottom row reaches Confirm ...................................   Passed    0.01 sec
+        Start 138: each SBS eye resolves its own placement with one canonical canvas
+138/235 Test #138: each SBS eye resolves its own placement with one canonical canvas ..........   Passed    0.01 sec
+        Start 139: every modal component shares one auxiliary layer
+139/235 Test #139: every modal component shares one auxiliary layer ...........................   Passed    0.01 sec
+        Start 140: every role scales with the text product
+140/235 Test #140: every role scales with the text product ....................................   Passed    0.01 sec
+        Start 141: exceeding the budget is reported rather than accepted
+141/235 Test #141: exceeding the budget is reported rather than accepted ......................   Passed    0.01 sec
+        Start 142: focus is clamped onto a valid key after a page switch
+142/235 Test #142: focus is clamped onto a valid key after a page switch ......................   Passed    0.01 sec
+        Start 143: forward delete removes the code point after the caret
+143/235 Test #143: forward delete removes the code point after the caret ......................   Passed    0.01 sec
+        Start 144: geometry and text scale are separate products
+144/235 Test #144: geometry and text scale are separate products ..............................   Passed    0.01 sec
+        Start 145: geometry tokens sit on the spacing grid
+145/235 Test #145: geometry tokens sit on the spacing grid ....................................   Passed    0.01 sec
+        Start 146: growing back into the allocation does not recreate either
+146/235 Test #146: growing back into the allocation does not recreate either ..................   Passed    0.01 sec
+        Start 147: having the shaders is not the same as having bound them
+147/235 Test #147: having the shaders is not the same as having bound them ....................   Passed    0.01 sec
+        Start 148: hiding a layer releases its capture
+148/235 Test #148: hiding a layer releases its capture ........................................   Passed    0.01 sec
+        Start 149: hover-only pointers do not accumulate tracks
+149/235 Test #149: hover-only pointers do not accumulate tracks ...............................   Passed    0.01 sec
+        Start 150: ids are not reused after a layer is removed
+150/235 Test #150: ids are not reused after a layer is removed ................................   Passed    0.01 sec
+        Start 151: initial text over the limit is clamped on open
+151/235 Test #151: initial text over the limit is clamped on open .............................   Passed    0.01 sec
+        Start 152: input outside the overlay stays with the game
+152/235 Test #152: input outside the overlay stays with the game ..............................   Passed    0.01 sec
+        Start 153: input routes to the Status layer that was hit
+153/235 Test #153: input routes to the Status layer that was hit ..............................   Passed    0.01 sec
+        Start 154: key rects tile without overlapping
+154/235 Test #154: key rects tile without overlapping .........................................   Passed    0.01 sec
+        Start 155: key, analog and text input reach the frame
+155/235 Test #155: key, analog and text input reach the frame .................................   Passed    0.01 sec
+        Start 156: keys never shrink below the minimum touch target
+156/235 Test #156: keys never shrink below the minimum touch target ...........................   Passed    0.01 sec
+        Start 157: layers at the same depth keep registration order
+157/235 Test #157: layers at the same depth keep registration order ...........................   Passed    0.01 sec
+        Start 158: layers order by z_order then registration
+158/235 Test #158: layers order by z_order then registration ..................................   Passed    0.01 sec
+        Start 159: left and right wrap within a row
+159/235 Test #159: left and right wrap within a row ...........................................   Passed    0.01 sec
+        Start 160: length is counted in the unit the adapter declared
+160/235 Test #160: length is counted in the unit the adapter declared .........................   Passed    0.01 sec
+        Start 161: logical scale multiplies the dp metrics
+161/235 Test #161: logical scale multiplies the dp metrics ....................................   Passed    0.01 sec
+        Start 162: lookup by name and by id agree
+162/235 Test #162: lookup by name and by id agree .............................................   Passed    0.01 sec
+        Start 163: many instances of one role can coexist
+163/235 Test #163: many instances of one role can coexist .....................................   Passed    0.01 sec
+        Start 164: memory pressure releases retained surfaces at once
+164/235 Test #164: memory pressure releases retained surfaces at once .........................   Passed    0.01 sec
+        Start 165: metric stats cover the samples actually present
+165/235 Test #165: metric stats cover the samples actually present ............................   Passed    0.01 sec
+        Start 166: modal open and close are reported for host pausing
+166/235 Test #166: modal open and close are reported for host pausing .........................   Passed    0.01 sec
+        Start 167: navigation skips a disabled key
+167/235 Test #167: navigation skips a disabled key ............................................   Passed    0.01 sec
+        Start 168: no dim is emitted without a modal
+168/235 Test #168: no dim is emitted without a modal ..........................................   Passed    0.01 sec
+        Start 169: no two keys occupy the same grid cell
+169/235 Test #169: no two keys occupy the same grid cell ......................................   Passed    0.01 sec
+        Start 170: one composition entry per submitted surface
+170/235 Test #170: one composition entry per submitted surface ................................   Passed    0.01 sec
+        Start 171: only visible unsuspended layers are renderable
+171/235 Test #171: only visible unsuspended layers are renderable .............................   Passed    0.01 sec
+        Start 172: opening the ControlPanel twice focuses the existing one
+172/235 Test #172: opening the ControlPanel twice focuses the existing one ....................   Passed    0.01 sec
+        Start 173: panel metrics are computable without a frame
+173/235 Test #173: panel metrics are computable without a frame ...............................   Passed    0.01 sec
+        Start 174: persistence stores stable ids, not enum values
+174/235 Test #174: persistence stores stable ids, not enum values .............................   Passed    0.01 sec
+        Start 175: persistent state round-trips without transient modal or IME text
+175/235 Test #175: persistent state round-trips without transient modal or IME text ...........   Passed    0.01 sec
+        Start 176: persistent state survives a shell restart
+176/235 Test #176: persistent state survives a shell restart ..................................   Passed    0.01 sec
+        Start 177: pointer input staged through the shell is bounded
+177/235 Test #177: pointer input staged through the shell is bounded ..........................   Passed    0.01 sec
+        Start 178: presentation FPS is the primary number
+178/235 Test #178: presentation FPS is the primary number .....................................   Passed    0.01 sec
+        Start 179: reflected text edits return to their control and close exactly once
+179/235 Test #179: reflected text edits return to their control and close exactly once ........   Passed    0.01 sec
+        Start 180: rendering before initialize yields an empty frame
+180/235 Test #180: rendering before initialize yields an empty frame ..........................   Passed    0.01 sec
+        Start 181: reopening inside the grace period reuses the allocation
+181/235 Test #181: reopening inside the grace period reuses the allocation ....................   Passed    0.01 sec
+        Start 182: repeatedly setting one detail section does not accumulate entries
+182/235 Test #182: repeatedly setting one detail section does not accumulate entries ..........   Passed    0.01 sec
+        Start 183: resolved SDF needs atlas, texture and shader together
+183/235 Test #183: resolved SDF needs atlas, texture and shader together ......................   Passed    0.01 sec
+        Start 184: resolved sizes land on whole pixels
+184/235 Test #184: resolved sizes land on whole pixels ........................................   Passed    0.01 sec
+        Start 185: reuse needs a backend that retains frames
+185/235 Test #185: reuse needs a backend that retains frames ..................................   Passed    0.01 sec
+        Start 186: roles keep their hierarchy
+186/235 Test #186: roles keep their hierarchy .................................................   Passed    0.01 sec
+        Start 187: routed output order does not depend on hash iteration
+187/235 Test #187: routed output order does not depend on hash iteration ......................   Passed    0.01 sec
+        Start 188: select all then delete empties the field
+188/235 Test #188: select all then delete empties the field ...................................   Passed    0.01 sec
+        Start 189: session loss also invalidates the cached image
+189/235 Test #189: session loss also invalidates the cached image .............................   Passed    0.01 sec
+        Start 190: shift-movement extends the selection from its anchor
+190/235 Test #190: shift-movement extends the selection from its anchor .......................   Passed    0.01 sec
+        Start 191: shutdown is idempotent and releases input state
+191/235 Test #191: shutdown is idempotent and releases input state ............................   Passed    0.01 sec
+        Start 192: surfaces form an ascending elevation ladder
+192/235 Test #192: surfaces form an ascending elevation ladder ................................   Passed    0.01 sec
+        Start 193: switching input source preserves the text being edited
+193/235 Test #193: switching input source preserves the text being edited .....................   Passed    0.01 sec
+        Start 194: switching page keeps the session text
+194/235 Test #194: switching page keeps the session text ......................................   Passed    0.01 sec
+        Start 195: switching presentation kind adopts that kind's saved mode
+195/235 Test #195: switching presentation kind adopts that kind's saved mode ..................   Passed    0.01 sec
+        Start 196: switching tabs needs only one Back to close
+196/235 Test #196: switching tabs needs only one Back to close ................................   Passed    0.01 sec
+        Start 197: symbol pages cycle and lead back to letters
+197/235 Test #197: symbol pages cycle and lead back to letters ................................   Passed    0.01 sec
+        Start 198: text size presets share one hierarchy and default to Medium
+198/235 Test #198: text size presets share one hierarchy and default to Medium ................   Passed    0.01 sec
+        Start 199: the IME moves clear of a system soft keyboard
+199/235 Test #199: the IME moves clear of a system soft keyboard ..............................   Passed    0.01 sec
+        Start 200: the IME suspends the ControlPanel and restores it afterwards
+200/235 Test #200: the IME suspends the ControlPanel and restores it afterwards ...............   Passed    0.01 sec
+        Start 201: the IME takes focus from the panel below it
+201/235 Test #201: the IME takes focus from the panel below it ................................   Passed    0.01 sec
+        Start 202: the SBS surface is sized by the canvas, not by an eye rect
+202/235 Test #202: the SBS surface is sized by the canvas, not by an eye rect .................   Passed    0.01 sec
+        Start 203: the SDF shader modules are either real SPIR-V or honestly absent
+203/235 Test #203: the SDF shader modules are either real SPIR-V or honestly absent ...........   Passed    0.01 sec
+        Start 204: the alphabetic layout has the expected keys
+204/235 Test #204: the alphabetic layout has the expected keys ................................   Passed    0.01 sec
+        Start 205: the command queue is bounded
+205/235 Test #205: the command queue is bounded ...............................................   Passed    0.01 sec
+        Start 206: the default history is 120 points
+206/235 Test #206: the default history is 120 points ..........................................   Passed    0.01 sec
+        Start 207: the default touch target is a full one
+207/235 Test #207: the default touch target is a full one .....................................   Passed    0.01 sec
+        Start 208: the default z-order bands leave room between them
+208/235 Test #208: the default z-order bands leave room between them ..........................   Passed    0.01 sec
+        Start 209: the diagnostics report requested and resolved separately
+209/235 Test #209: the diagnostics report requested and resolved separately ...................   Passed    0.01 sec
+        Start 210: the dim is ordered beneath the dialog it dims
+210/235 Test #210: the dim is ordered beneath the dialog it dims ..............................   Passed    0.02 sec
+        Start 211: the first run defaults to Simple
+211/235 Test #211: the first run defaults to Simple ...........................................   Passed    0.01 sec
+        Start 212: the frame reports the control page being shown
+212/235 Test #212: the frame reports the control page being shown .............................   Passed    0.01 sec
+        Start 213: the frame reports the state its layers were sized for
+213/235 Test #213: the frame reports the state its layers were sized for ......................   Passed    0.01 sec
+        Start 214: the host policy can shorten the grace period
+214/235 Test #214: the host policy can shorten the grace period ...............................   Passed    0.01 sec
+        Start 215: the legacy level adapter emits the edges it can see
+215/235 Test #215: the legacy level adapter emits the edges it can see ........................   Passed    0.01 sec
+        Start 216: the metric ring wraps at its capacity
+216/235 Test #216: the metric ring wraps at its capacity ......................................   Passed    0.01 sec
+        Start 217: the modal dim covers the whole view, not just the safe rect
+217/235 Test #217: the modal dim covers the whole view, not just the safe rect ................   Passed    0.01 sec
+        Start 218: the normal budget is one auxiliary layer
+218/235 Test #218: the normal budget is one auxiliary layer ...................................   Passed    0.01 sec
+        Start 219: the panel is solved inside the safe rect
+219/235 Test #219: the panel is solved inside the safe rect ...................................   Passed    0.01 sec
+        Start 220: the panel scales with logical scale
+220/235 Test #220: the panel scales with logical scale ........................................   Passed    0.01 sec
+        Start 221: the queue preserves edges and drops only coalescible moves
+221/235 Test #221: the queue preserves edges and drops only coalescible moves .................   Passed    0.01 sec
+        Start 222: the queue reports a pointer whose press it had to drop
+222/235 Test #222: the queue reports a pointer whose press it had to drop .....................   Passed    0.01 sec
+        Start 223: the raster scale sizes the allocation, clamped
+223/235 Test #223: the raster scale sizes the allocation, clamped .............................   Passed    0.01 sec
+        Start 224: the resolved font mode reflects the pipeline, not the request
+224/235 Test #224: the resolved font mode reflects the pipeline, not the request ..............   Passed    0.01 sec
+        Start 225: the revision advances on every mutation
+225/235 Test #225: the revision advances on every mutation ....................................   Passed    0.01 sec
+        Start 226: the shell is instantiable more than once
+226/235 Test #226: the shell is instantiable more than once ...................................   Passed    0.01 sec
+        Start 227: the status mode is remembered per presentation kind
+227/235 Test #227: the status mode is remembered per presentation kind ........................   Passed    0.01 sec
+        Start 228: the topmost interactive layer wins an overlapping hit
+228/235 Test #228: the topmost interactive layer wins an overlapping hit ......................   Passed    0.01 sec
+        Start 229: typing replaces the selection
+229/235 Test #229: typing replaces the selection ..............................................   Passed    0.01 sec
+        Start 230: unmeasurable values render as a dash
+230/235 Test #230: unmeasurable values render as a dash .......................................   Passed    0.01 sec
+        Start 231: unregistering an unknown id is reported
+231/235 Test #231: unregistering an unknown id is reported ....................................   Passed    0.01 sec
+        Start 232: up from the top row reaches the text field
+232/235 Test #232: up from the top row reaches the text field .................................   Passed    0.01 sec
+        Start 233: validation messages are carried on the session
+233/235 Test #233: validation messages are carried on the session .............................   Passed    0.01 sec
+        Start 234: visible FPS actions remain interactive while Controls is open
+234/235 Test #234: visible FPS actions remain interactive while Controls is open ..............   Passed    0.01 sec
+        Start 235: zero FPS is displayed, not hidden
+235/235 Test #235: zero FPS is displayed, not hidden ..........................................   Passed    0.01 sec
+
+100% tests passed out of 235
+
+Total Test time (real) =   2.20 sec

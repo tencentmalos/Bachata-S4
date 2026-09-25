@@ -299,16 +299,20 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             return FormatReceipt(VideoCore::GetCaptureCoordinator().Cancel(id, generation));
         });
 
-    registry.Register("overlay", "overlay status | show | hide",
+    registry.Register("overlay", "overlay status | show | hide | simple | summary | detail | controls | text small|medium|large",
         [&hub, clock](const std::vector<std::string>& args) {
-            if (args.size() > 1) return BadArguments();
             const auto sub = args.empty() ? "status" : args[0];
-            if (sub == "show") status_overlay_enabled.store(true, std::memory_order_relaxed);
-            else if (sub == "hide") status_overlay_enabled.store(false, std::memory_order_relaxed);
-            else if (sub != "status") return BadArguments();
+            if (sub == "text" && args.size() == 2 &&
+                (args[1] == "small" || args[1] == "medium" || args[1] == "large")) {
+                StatusOverlayMailbox().Request("text " + args[1]);
+            } else if (args.size() <= 1 && (sub == "show" || sub == "hide" || sub == "simple" ||
+                       sub == "summary" || sub == "detail" || sub == "controls")) {
+                StatusOverlayMailbox().Request(sub);
+            } else if (sub != "status" || args.size() > 1) return BadArguments();
             DiagnosticsSnapshot snap;
             hub.QuerySnapshot(snap, NowNs(clock));
             std::ostringstream out;
+            if (sub != "status") out << "request: queued\n";
             out << "overlay: " << (status_overlay_enabled.load() ? "shown" : "hidden") << "\n";
             out << "overlay_redraw: " << FormatCounter(snap.Counter(AdvanceSignal::OverlayRedraw), snap.snapshot_ns) << "\n";
             out << "session: " << (snap.has_session ? "session_active" : "no_session") << "\n";

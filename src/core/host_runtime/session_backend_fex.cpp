@@ -43,6 +43,7 @@
 #include "core/host_runtime/guest_reservation.h"
 #include "common/path_util.h"
 #include "common/profiler.h"
+#include "common/logging/log.h"
 #endif
 
 namespace Core::HostRuntime {
@@ -431,6 +432,16 @@ void FexSessionBackend::PublishLifecycle(std::uint64_t generation, std::uint32_t
         if (!reason.empty()) publisher->SetStopReason(reason);
         if (!detail.empty()) publisher->SetTerminalDetail(detail);
         if (phase == 5 || phase == 6) {
+#if defined(SHADPS4_TYPED_HLE_HOST)
+            // Preserve terminal evidence even if the renderer cannot display its last tooltip.
+            std::string message(detail.substr(0, 512));
+            for (auto& c : message) if (c == '\n' || c == '\r' || c == '\t') c = ' ';
+            const auto event = fmt::format(
+                "[OVERLAY_EVENT] tag=session.terminal pid={} generation={} run_uuid={} mono_ns={} phase={} reason={} detail={}",
+                ::getpid(), generation, Diagnostics::ProcessRunUuid(), Diagnostics::DiagnosticNowNs(),
+                phase, reason, message);
+            Common::Log::WriteOverlayEvent(event);
+#endif
             Core::Diagnostics::Handoff::EndGeneration(generation);
             publisher->Complete();
         }

@@ -1236,6 +1236,11 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
 )
 
 set(IMGUI src/imgui/imgui_config.h
+          src/imgui/runtime_tooltips.cpp
+          src/imgui/runtime_tooltips.h
+          src/core/diagnostics/overlay_control.cpp
+          src/imgui/status_overlay.cpp
+          src/imgui/status_overlay.h
           src/imgui/status_layer.cpp
           src/imgui/status_layer.h
           src/imgui/imgui_layer.h

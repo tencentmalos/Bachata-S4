@@ -30,7 +30,7 @@ CaptureCoordinator& GetCaptureCoordinator() { static Absent b; static CaptureCoo
 hub = ["src/core/diagnostics/diagnostics_hub.cpp"]
 registry = hub + ["src/core/diagnostics/diagnostics_hub_registry.cpp"]
 capture = ["src/video_core/renderdoc_capture.cpp"]
-commands = registry + capture + ["src/core/diagnostics/diagnostics_commands.cpp", "src/core/diagnostics/pipeline_handoff.cpp",
+commands = registry + capture + ["src/core/diagnostics/diagnostics_commands.cpp", "src/core/diagnostics/overlay_control.cpp", "src/core/diagnostics/pipeline_handoff.cpp",
     "foundation/modules/debugbus/src/DebugCommandRegistry.cpp", "src/common/profiler.cpp"]
 tests = {
     "frame_history": [],

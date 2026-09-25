@@ -45,12 +45,14 @@ fun FixedControllerOverlay(
     modifier: Modifier = Modifier,
     layout: TouchLayout = TouchLayout(),
     faded: Boolean = false,
+    onOverlayPointer: (Int, Int, Float, Float) -> Boolean = { _, _, _, _ -> false },
+    onOverlayCancel: () -> Unit = {},
     onSnapshot: (ControllerSnapshot) -> Unit,
 ) {
     val state = remember(layout) { TouchControllerState(layout) }
     var snapshot by remember { mutableStateOf(ControllerSnapshot.Neutral) }
     DisposableEffect(state) {
-        onDispose { state.cancelAll(); onSnapshot(ControllerSnapshot.Neutral) }
+        onDispose { onOverlayCancel(); state.cancelAll(); onSnapshot(ControllerSnapshot.Neutral) }
     }
     fun applyMotion(event: MotionEvent, viewWidth: Int, viewHeight: Int): Boolean {
         if (viewWidth <= 0 || viewHeight <= 0) return false
@@ -61,17 +63,21 @@ fun FixedControllerOverlay(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                 val index = event.actionIndex
-                state.pointerDown(event.getPointerId(index).toLong(), logicalX(index), logicalY(index))
+                if (!onOverlayPointer(event.getPointerId(index), 0, event.getX(index)/viewWidth, event.getY(index)/viewHeight))
+                    state.pointerDown(event.getPointerId(index).toLong(), logicalX(index), logicalY(index))
             }
             MotionEvent.ACTION_MOVE -> {
                 for (index in 0 until event.pointerCount) {
-                    state.pointerMove(event.getPointerId(index).toLong(), logicalX(index), logicalY(index))
+                    if (!onOverlayPointer(event.getPointerId(index), 1, event.getX(index)/viewWidth, event.getY(index)/viewHeight))
+                        state.pointerMove(event.getPointerId(index).toLong(), logicalX(index), logicalY(index))
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                state.pointerUp(event.getPointerId(event.actionIndex).toLong())
+                val index = event.actionIndex
+                onOverlayPointer(event.getPointerId(index), 2, event.getX(index)/viewWidth, event.getY(index)/viewHeight)
+                state.pointerUp(event.getPointerId(index).toLong())
             }
-            MotionEvent.ACTION_CANCEL -> state.cancelAll()
+            MotionEvent.ACTION_CANCEL -> { onOverlayCancel(); state.cancelAll() }
             else -> return false
         }
         val snap = state.snapshot()

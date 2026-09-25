@@ -2,17 +2,27 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Status groups and graph appearance adapted from Citron status_layer.cpp.
-#include "imgui/status_layer.h"
-#include "core/diagnostics/overlay_control.h"
-#include "core/emulator_settings.h"
-#include <imgui.h>
 #include <algorithm>
 #include <array>
+#include <fmt/format.h>
+#include <imgui.h>
+#include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/overlay_control.h"
+#include "core/emulator_settings.h"
+#include "imgui/status_layer.h"
 
 namespace ImGui {
-void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
+void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
     using namespace ::Core::Diagnostics;
-    if (!status_overlay_enabled.load(std::memory_order_relaxed) || !publisher) return;
+    namespace ov = spatial::imgui::overlay;
+    overlay.Begin(width, height);
+    ov::StatusSnapshot model;
+    model.sampled_at = std::chrono::steady_clock::now();
+    model.presentation_fps = game_presents.Fps(now);
+    if (!publisher) {
+        overlay.Prepare(std::move(model));
+        return;
+    }
     if (!sample_ns || now - sample_ns >= 500000000) {
         publisher->CopyInto(snapshot, now);
         const auto flips = snapshot.Counter(AdvanceSignal::GuestFlip).count;
@@ -45,12 +55,16 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
         {
             const auto tiles = ::Vulkan::render_pass_stats.Read();
             if (sample_ns) {
-                window_tiles = {tiles.passes - last_tiles.passes, tiles.loads - last_tiles.loads,
-                                tiles.clears - last_tiles.clears, tiles.stores - last_tiles.stores,
+                window_tiles = {tiles.passes - last_tiles.passes,
+                                tiles.loads - last_tiles.loads,
+                                tiles.clears - last_tiles.clears,
+                                tiles.stores - last_tiles.stores,
                                 tiles.load_pixels - last_tiles.load_pixels,
                                 tiles.store_pixels - last_tiles.store_pixels,
-                                tiles.empty - last_tiles.empty, tiles.single - last_tiles.single,
-                                tiles.few - last_tiles.few, tiles.many - last_tiles.many,
+                                tiles.empty - last_tiles.empty,
+                                tiles.single - last_tiles.single,
+                                tiles.few - last_tiles.few,
+                                tiles.many - last_tiles.many,
                                 tiles.hoisted - last_tiles.hoisted,
                                 tiles.hoist_conflicts - last_tiles.hoist_conflicts,
                                 tiles.hoist_unavailable - last_tiles.hoist_unavailable,
@@ -58,151 +72,173 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
             }
             last_tiles = tiles;
         }
-        last_flips = flips; last_draws = draws; sample_ns = now;
-    }
-    const float panel_width = std::min(480.f, std::max(260.f, width * .32f));
-    const float margin = std::max(8.f, width * .008f);
-    SetNextWindowPos({width - margin, margin}, ImGuiCond_Always, {1, 0});
-    SetNextWindowSize({std::min(panel_width, width - 2 * margin), 0});
-    SetNextWindowBgAlpha(.9f);
-    PushStyleColor(ImGuiCol_WindowBg, {0.015f, .06f, .10f, 1});
-    PushStyleColor(ImGuiCol_Border, {.14f, .45f, .58f, 1});
-    PushStyleVar(ImGuiStyleVar_WindowPadding, {14.f, 10.f});
-    constexpr auto flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs |
-        ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDocking;
-    if (Begin("Status###shadps4_status", nullptr, flags)) {
-        SetWindowFontScale(width >= 1600 ? 1.3f : 1.f);
-        TextColored({.4f, .85f, 1.f, 1.f}, "shadPS4  |  Status");
-        const double fps = game_presents.Fps(now);
-        Text("FPS  %.1f    Guest flip  %.1f", fps, guest_flip_fps);
-        TextDisabled("New game frames / successful present");
-        std::array<float, 240> values{};
-        const size_t count = std::min(values.size(), game_presents.Count());
-        float sum{}, minimum = 0, maximum = 0;
-        for (size_t i = 0; i < count; ++i) {
-            const auto& s = game_presents.At(game_presents.Count() - count + i);
-            values[i] = s.milliseconds; sum += values[i];
-            minimum = i ? std::min(minimum, values[i]) : values[i];
-            maximum = std::max(maximum, values[i]);
-        }
+        last_flips = flips;
+        last_draws = draws;
+        sample_ns = now;
         const auto last_present = game_presents.LastPresentNs();
-        if (last_present && now >= last_present && now - last_present >= 1000000000)
-            TextColored({1.f, .65f, .25f, 1.f}, "No new game frame for %.1f s", (now - last_present) / 1e9);
-        if (count) Text("Last frame %.2f ms  |  avg %.2f", values[count - 1], sum / count);
-        else TextDisabled("Frame time: waiting for presents");
-        const float axis = std::max(33.334f, maximum * 1.05f);
-        const ImVec2 size{GetContentRegionAvail().x, std::clamp(height * .095f, 65.f, 110.f)};
-        InvisibleButton("##frame_pacing", size);
-        auto* list = GetWindowDrawList();
-        const auto lo = GetItemRectMin(), hi = GetItemRectMax();
-        list->AddRectFilled(lo, hi, IM_COL32(3, 15, 26, 235), 4);
-        list->AddRect(lo, hi, IM_COL32(35, 108, 148, 225), 4);
-        for (float reference : {16.667f, 33.333f}) {
-            const float y = hi.y - reference / axis * size.y;
-            for (float x = lo.x; x < hi.x; x += 10)
-                list->AddLine({x, y}, {std::min(x + 5, hi.x), y}, IM_COL32(180, 210, 230, 100));
-        }
-        std::array<ImVec2, 240> points;
-        for (size_t i = 0; i < count; ++i)
-            points[i] = {lo.x + size.x * i / std::max<size_t>(1, count - 1),
-                         hi.y - values[i] / axis * size.y};
-        if (count > 1) list->AddPolyline(points.data(), static_cast<int>(count),
-            IM_COL32(74, 215, 178, 255), ImDrawFlags_None, 1.7f);
-        TextDisabled("Min %.1f / Max %.1f ms | 16.7 / 33.3 guides", minimum, maximum);
-        Separator();
-        const char* driver_label = snapshot.driver_identity.find("source=system") != std::string::npos
-                                       ? "System" : snapshot.driver_identity.find("source=turnip") != std::string::npos
-                                       ? "Turnip" : "Unknown";
-        Text("CPU  FEX x86-64    GPU  Vulkan / %s", driver_label);
-        const auto internal_scale = scale_policy.render_eighths * 12.5f;
-        const char* scale_label = internal_scale == 25 ? "0.25" : internal_scale == 37.5f ? "0.375" : internal_scale == 50 ? "0.5" : internal_scale == 75 ? "0.75" : "1.0";
-        Text("Surface %u x %u (x%s)    Generation %llu", width, height, scale_label,
-             static_cast<unsigned long long>(snapshot.generation));
-        Text("Texture %s%s", VideoCore::TextureQualityName(scale_policy.texture).data(), scale_policy.legacy ? " (legacy)" : "");
-        if (coverage && scale_policy.render_eighths != 8) {
-            // Attachment draws and render-pass instances of the last 500 ms window that
-            // actually rendered at x<scale>, as scaled/total; orange below half.
-            if (coverage_sampled && window_draws) {
-                const bool low = window_scaled_draws * 2 < window_draws;
-                TextColored(low ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
-                            "Scale x%s  draws %llu/%llu  passes %llu/%llu", scale_label,
-                            static_cast<unsigned long long>(window_scaled_draws),
-                            static_cast<unsigned long long>(window_draws),
-                            static_cast<unsigned long long>(window_scaled_passes),
-                            static_cast<unsigned long long>(window_passes));
-            } else TextDisabled("Scale x%s coverage: sampling", scale_label);
-            if (coverage_sampled && window_passes) {
-                // Pass instances the guest expressed (target changes) vs. fragments that
-                // re-opened the same targets after an emulator-imposed break.
-                const auto guest = window_passes - std::min(window_passes, window_resumed_passes);
-                const bool split = window_resumed_passes > guest;
-                TextColored(split ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
-                            "passes: guest %llu  +%llu split", static_cast<unsigned long long>(guest),
-                            static_cast<unsigned long long>(window_resumed_passes));
-            }
-            if (window_promotions || window_readbacks)
-                TextDisabled("native promotions +%llu | upscaled readbacks +%llu",
-                             static_cast<unsigned long long>(window_promotions),
-                             static_cast<unsigned long long>(window_readbacks));
-        }
-        if (coverage && coverage_sampled) {
-            // Texture re-uploads of the last window per guest frame (per second without
-            // flips); orange from 4 per frame. Fill clears: compute fills replaced by clears.
-            const bool per_frame = window_flips != 0;
-            const double divisor = per_frame ? double(window_flips) : std::max(window_seconds, 1e-3);
-            const double uploads = window_uploads / divisor;
-            TextColored(per_frame && uploads >= 4 ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
-                        "Re-uploads %.1f/%s (%.1f MB)  fill clears %.1f", uploads,
-                        per_frame ? "frame" : "s", window_upload_bytes / divisor / (1024.0 * 1024.0),
-                        window_fill_clears / divisor);
-        }
-        if (coverage_sampled && window_tiles.passes) {
-            // Tile traffic per guest frame (per second without flips): attachments loaded
-            // into / stored from tile memory, in megapixels, and passes by draw count.
-            const bool per_frame = window_flips != 0;
-            const double d = per_frame ? double(window_flips) : std::max(window_seconds, 1e-3);
-            Text("Tiles/%s  load %.0f (%.1f MPix)  clear %.0f  store %.0f (%.1f MPix)",
-                 per_frame ? "frame" : "s", window_tiles.loads / d, window_tiles.load_pixels / d / 1e6,
-                 window_tiles.clears / d, window_tiles.stores / d, window_tiles.store_pixels / d / 1e6);
-            const bool tiny = (window_tiles.empty + window_tiles.single) * 2 > window_tiles.passes;
-            TextColored(tiny ? ImVec4{1.f, .65f, .25f, 1.f} : ImVec4{.6f, .9f, .7f, 1.f},
-                        "Passes/%s %.0f  draws 0:%.0f 1:%.0f 2-7:%.0f 8+:%.0f", per_frame ? "frame" : "s",
-                        window_tiles.passes / d, window_tiles.empty / d, window_tiles.single / d,
-                        window_tiles.few / d, window_tiles.many / d);
-            if (window_tiles.hoisted || window_tiles.hoist_conflicts || window_tiles.hoist_unavailable)
-                Text("Hoisted/%s %.1f  kept break: conflict %.1f  no hold %.1f",
-                     per_frame ? "frame" : "s", window_tiles.hoisted / d,
-                     window_tiles.hoist_conflicts / d, window_tiles.hoist_unavailable / d);
-        }
-        Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
-        if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");
-        else if (gpu) {
-            const auto timing = gpu->Read();
-            using Stage = Common::Profiler::GpuStage;
-            const auto& guest = timing.stages[size_t(Stage::GuestFrame)];
-            if (!timing.supported) TextDisabled("GPU timestamps unavailable");
-            else if (!guest.count || now < guest.observed_ns || now - guest.observed_ns > 1000000000)
-                TextDisabled("GPU: awaiting completed guest frame (stale/partial)");
-            else {
-                Text("GPU guest %.2f ms | prepare %.2f ms", guest.last_ms, timing.stages[size_t(Stage::Prepare)].last_ms);
-                Text("GPU present %.2f / redraw %.2f ms", timing.stages[size_t(Stage::Present)].last_ms, timing.stages[size_t(Stage::Redraw)].last_ms);
-                std::array<float, 120> history{};
-                const auto n = std::min<uint64_t>(timing.guest_history_count, history.size());
-                for (uint64_t i = 0; i < n; ++i) history[i] = timing.guest_history[(timing.guest_history_count - n + i) % history.size()];
-                PlotLines("##gpu_times", history.data(), int(n), 0, "GPU guest elapsed ms", 0.f,
-                    std::max(33.334f, *std::max_element(history.begin(), history.end()) * 1.05f), {GetContentRegionAvail().x, 58});
-            }
-            TextDisabled("GPU queries: pending %u / dropped %llu / errors %llu", timing.pending,
-                (unsigned long long)(timing.dropped_batches + timing.dropped_zones), (unsigned long long)timing.errors);
-            if (timing.estimated_alignment) TextDisabled("CPU/GPU alignment estimated +/- %.2f ms", timing.calibration_deviation_ns / 1e6);
-            else if (!timing.calibrated) TextDisabled("Duration only; clock alignment pending");
-        }
-        SetWindowFontScale(1.f);
+        tooltips.Update(snapshot,
+                        last_present && now >= last_present && now - last_present >= 1000000000,
+                        coverage_sampled && window_flips && window_uploads >= 4 * window_flips);
     }
-    End();
-    PopStyleVar(); PopStyleColor(2);
-    publisher->MarkAvailable(AdvanceSignal::OverlayRedraw, true);
-    publisher->Advance(AdvanceSignal::OverlayRedraw, now);
+    if (!overlay.WantsMetrics()) {
+        overlay.Prepare(std::move(model));
+        return;
+    }
+    const ov::ThemeColor green{.6f, .9f, .7f, 1.f}, orange{1.f, .65f, .25f, 1.f};
+    const ov::ThemeColor dim{.62f, .72f, .82f, 1.f};
+    auto field = [&](const char* group, const char* id, const char* label, std::string value,
+                     bool summary = false, std::optional<ov::ThemeColor> color = {}) {
+        ov::PropertyStyle style{color, {}};
+        if (summary)
+            model.summary_items.push_back({ov::StableId(id), ov::LocalizedText(label), value,
+                                           ov::StatusSeverity::Normal, style});
+        if (!overlay.WantsDetail())
+            return;
+        auto section =
+            std::find_if(model.detail_sections.begin(), model.detail_sections.end(),
+                         [&](const auto& item) { return item.id == ov::StableId(group); });
+        if (section == model.detail_sections.end()) {
+            model.detail_sections.push_back({ov::StableId(group), ov::LocalizedText(group)});
+            section = std::prev(model.detail_sections.end());
+        }
+        section->properties.push_back(
+            {ov::LocalizedText(label), value, 0, ov::StatusSeverity::Normal, {}, style});
+    };
+    ov::MetricSeries frames;
+    frames.id = ov::StableId("frame_time");
+    frames.label = ov::LocalizedText("New game frame interval");
+    frames.unit = ov::LocalizedText("ms");
+    frames.reference_value = 33.333f;
+    frames.reserveCapacity(240);
+    for (size_t i = 0; i < game_presents.Count(); ++i)
+        frames.push(game_presents.At(i).milliseconds);
+    if (frames.count())
+        model.frame_time_ms = frames.current();
+    model.graphs.push_back(std::move(frames));
+    const auto last = game_presents.LastPresentNs();
+    if (last && now >= last && now - last >= 1000000000) {
+        model.severity = ov::StatusSeverity::Warning;
+        field("Frame timing", "stalled", "No new frame",
+              fmt::format("{:.1f} s", (now - last) / 1e9), true, orange);
+    }
+    field("Frame timing", "fps_meaning", "FPS source", "New game frames / successful present",
+          false, dim);
+    field("Frame timing", "guest_flip", "Guest flip", fmt::format("{:.1f}/s", guest_flip_fps),
+          true);
+    field("Frame timing", "all_present", "All presents",
+          fmt::format("{:.1f}/s", all_presents.Fps(now)));
+    field("Frame timing", "draws", "Draw / dispatch", fmt::format("{:.0f}/s", draws_per_second));
+    const char* driver =
+        snapshot.driver_identity.find("source=system") != std::string::npos   ? "System"
+        : snapshot.driver_identity.find("source=turnip") != std::string::npos ? "Turnip"
+                                                                              : "Unknown";
+    field("Renderer", "backend", "CPU / GPU", fmt::format("FEX x86-64 / Vulkan {}", driver), true);
+    field("Renderer", "surface", "Surface", fmt::format("{} x {}", width, height));
+    field("Renderer", "scale", "Render scale",
+          fmt::format("x{:g}", scale_policy.render_eighths / 8.0));
+    field("Renderer", "texture", "Texture quality",
+          std::string(VideoCore::TextureQualityName(scale_policy.texture)) +
+              (scale_policy.legacy ? " (legacy)" : ""));
+    field("Renderer", "generation", "Session generation", fmt::format("{}", snapshot.generation));
+    if (coverage && scale_policy.render_eighths != 8) {
+        field("Scaling", "coverage", "Scaled draws / passes",
+              coverage_sampled && window_draws
+                  ? fmt::format("{}/{} draws; {}/{} passes", window_scaled_draws, window_draws,
+                                window_scaled_passes, window_passes)
+                  : "Sampling",
+              true,
+              !coverage_sampled || !window_draws       ? dim
+              : window_scaled_draws * 2 < window_draws ? orange
+                                                       : green);
+        const auto guest = window_passes - std::min(window_passes, window_resumed_passes);
+        field("Scaling", "split", "Guest / split passes",
+              fmt::format("{} / +{}", guest, window_resumed_passes), false,
+              window_resumed_passes > guest ? orange : green);
+        field("Scaling", "promotions", "Native promotions", fmt::format("+{}", window_promotions));
+        field("Scaling", "readbacks", "Upscaled readbacks", fmt::format("+{}", window_readbacks));
+    }
+    if (coverage && coverage_sampled) {
+        const double divisor = window_flips ? double(window_flips) : std::max(window_seconds, 1e-3);
+        const char* unit = window_flips ? "frame" : "s";
+        const double uploads = window_uploads / divisor;
+        field("Texture uploads", "uploads", "Re-uploads",
+              fmt::format("{:.1f}/{} ({:.1f} MiB)", uploads, unit,
+                          window_upload_bytes / divisor / (1024. * 1024.)),
+              true, window_flips && uploads >= 4 ? orange : green);
+        field("Texture uploads", "fills", "Fill clears",
+              fmt::format("{:.1f}/{}", window_fill_clears / divisor, unit), true, green);
+        field("Render passes", "tiles", "Tile load / clear / store",
+              fmt::format("{:.0f} / {:.0f} / {:.0f} per {}", window_tiles.loads / divisor,
+                          window_tiles.clears / divisor, window_tiles.stores / divisor, unit));
+        field("Render passes", "pixels", "Load / store pixels",
+              fmt::format("{:.1f} / {:.1f} MPix/{}", window_tiles.load_pixels / divisor / 1e6,
+                          window_tiles.store_pixels / divisor / 1e6, unit));
+        field("Render passes", "passes", "Passes",
+              fmt::format("{:.1f}/{}", window_tiles.passes / divisor, unit), false,
+              (window_tiles.empty + window_tiles.single) * 2 > window_tiles.passes ? orange
+                                                                                   : green);
+        field("Render passes", "histogram", "Draws 0 / 1 / 2-7 / 8+",
+              fmt::format("{:.0f} / {:.0f} / {:.0f} / {:.0f} per {}", window_tiles.empty / divisor,
+                          window_tiles.single / divisor, window_tiles.few / divisor,
+                          window_tiles.many / divisor, unit));
+        field("Render passes", "hoisted", "Hoisted",
+              fmt::format("{:.1f}/{}", window_tiles.hoisted / divisor, unit));
+        field("Render passes", "conflicts", "Kept break: conflict / no hold",
+              fmt::format("{:.1f} / {:.1f} per {}", window_tiles.hoist_conflicts / divisor,
+                          window_tiles.hoist_unavailable / divisor, unit));
+    }
+    if (!Common::Profiler::GpuTimingEnabled())
+        field("GPU timing", "gpu_state", "GPU timing", "Off", true, dim);
+    else if (gpu) {
+        const auto timing = gpu->Read();
+        using Stage = Common::Profiler::GpuStage;
+        const auto& guest = timing.stages[size_t(Stage::GuestFrame)];
+        const bool fresh =
+            guest.count && now >= guest.observed_ns && now - guest.observed_ns <= 1000000000;
+        field("GPU timing", "gpu_guest", "GPU guest",
+              !timing.supported ? "Unavailable"
+              : !fresh          ? "Awaiting completed frame"
+                                : fmt::format("{:.2f} ms", guest.last_ms),
+              true, fresh ? green : dim);
+        if (timing.supported && fresh) {
+            field("GPU timing", "gpu_prepare", "Prepare",
+                  fmt::format("{:.2f} ms", timing.stages[size_t(Stage::Prepare)].last_ms));
+            field("GPU timing", "gpu_present", "Present / redraw",
+                  fmt::format("{:.2f} / {:.2f} ms", timing.stages[size_t(Stage::Present)].last_ms,
+                              timing.stages[size_t(Stage::Redraw)].last_ms));
+            if (overlay.WantsDetail()) {
+                ov::MetricSeries series;
+                series.id = ov::StableId("gpu_guest");
+                series.label = ov::LocalizedText("GPU guest elapsed");
+                series.unit = ov::LocalizedText("ms");
+                series.reference_value = 33.333f;
+                const auto n =
+                    std::min<uint64_t>(timing.guest_history_count, timing.guest_history.size());
+                for (uint64_t i = 0; i < n; ++i)
+                    series.push(timing.guest_history[(timing.guest_history_count - n + i) %
+                                                     timing.guest_history.size()]);
+                model.detail_sections.back().graphs.push_back(std::move(series));
+            }
+        }
+        field("GPU timing", "gpu_queries", "Pending / dropped / errors",
+              fmt::format("{} / {} / {}", timing.pending,
+                          timing.dropped_batches + timing.dropped_zones, timing.errors),
+              false, timing.errors ? orange : dim);
+        field("GPU timing", "gpu_alignment", "Clock alignment",
+              timing.estimated_alignment
+                  ? fmt::format("Estimated +/- {:.2f} ms", timing.calibration_deviation_ns / 1e6)
+              : timing.calibrated ? "Calibrated"
+                                  : "Duration only",
+              false, dim);
+    }
+    overlay.Prepare(std::move(model));
+}
+void StatusLayer::Draw() {
+    overlay.Draw();
+    if (publisher && ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed)) {
+        publisher->MarkAvailable(::Core::Diagnostics::AdvanceSignal::OverlayRedraw, true);
+        publisher->Advance(::Core::Diagnostics::AdvanceSignal::OverlayRedraw,
+                           ::Core::Diagnostics::DiagnosticNowNs());
+    }
 }
 } // namespace ImGui

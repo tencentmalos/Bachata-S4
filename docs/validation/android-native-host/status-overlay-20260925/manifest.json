@@ -1,0 +1,18 @@
+{
+  "apk": "/private/tmp/shadps4-status-overlay-20260925/android/shadps4-app/app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk",
+  "apk_sha256": "5b85cf522bca7d1f08659f69b3afdf0297c8d0f541cb50491f87f9e5bedd14aa",
+  "packaged_libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "cb915abd2f2241b0b764789a54a59493e87135bfc50410722ecd427598a15982",
+    "lib/arm64-v8a/libshadps4_host.so": "cfd716f7c33fa71ffeb5d59c8f3aa80577b3535cf31485ddb673e584fa21d07e"
+  },
+  "host_sha256": "cfd716f7c33fa71ffeb5d59c8f3aa80577b3535cf31485ddb673e584fa21d07e",
+  "android_runtime_unit_tests": {
+    "tests": 123,
+    "failures": 0,
+    "errors": 0
+  },
+  "device_validation": "NOT_RUN: adb devices empty",
+  "cemu_reference": "local 74fd7b6b plus existing working tree, read only; Foundation f536264",
+  "gpu": "Apple M4 Pro / MoltenVK; VK_LAYER_KHRONOS_validation enabled",
+  "foundation_commit": "03aa68d2dd4b7a9b134e67c31214c7b0dbc3e5f2"
+}

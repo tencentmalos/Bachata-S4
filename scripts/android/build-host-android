@@ -44,6 +44,10 @@ def source_identity():
               if p.is_file() and (p.suffix in (".h", ".cpp", ".cmake") or p.name == "CMakeLists.txt")]
     paths += [p for p in (ROOT / "foundation/modules/capture").rglob("*")
               if p.is_file() and (p.suffix in (".h", ".cpp", ".cmake") or p.name in ("CMakeLists.txt", "README.md"))]
+    paths += [p for folder in ("foundation/modules/imgui", "foundation/modules/imgui_overlay",
+                               "foundation/third_party/imgui")
+              for p in (ROOT / folder).rglob("*")
+              if p.is_file() and p.suffix in (".h", ".hpp", ".cpp", ".c", ".cmake", ".txt", ".vert", ".frag")]
     return {"files": {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(paths))},
             "gitlinks": [line for line in capture(["git", "ls-files", "--stage"]).splitlines()
                          if line.startswith("160000 ")]}

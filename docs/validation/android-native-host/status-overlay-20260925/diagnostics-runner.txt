@@ -1,0 +1,150 @@
+[frame_history] exit=0
+11 checks, 0 failures
+[gpu_reshape_config] exit=0
+11 checks, 0 failures
+[pipeline_handoff] exit=0
+21 checks, 0 failures
+[trace_identity] exit=0
+trace_identity: 27 checks, 0 failures
+[diagnostics_hub] exit=0
+concurrency: 15620 reads, final count 160000
+diagnostics_hub: 28 checks, 0 failures
+[diagnostics_hub_registry] exit=0
+registry concurrency: 2058 consistent reads
+diagnostics_hub_registry: 32 checks, 0 failures
+[renderdoc_capture] exit=0
+renderdoc_capture: 65 checks, 0 failures
+[diagnostics_commands] exit=1
+In file included from src/core/diagnostics/diagnostics_commands.cpp:1:
+src/core/emulator_settings.h:15:10: fatal error: 'nlohmann/json.hpp' file not found
+   15 | #include <nlohmann/json.hpp>
+      |          ^~~~~~~~~~~~~~~~~~~
+1 error generated.
+src/common/profiler.cpp:17:26: warning: unused parameter 'name' [-Wunused-parameter]
+   17 | Scope::Scope(const char* name) noexcept {
+      |                          ^
+src/common/profiler.cpp:31:28: warning: unused parameter 'name' [-Wunused-parameter]
+   31 | FlowToken Post(const char* name) noexcept {
+      |                            ^
+src/common/profiler.cpp:42:26: warning: unused parameter 'name' [-Wunused-parameter]
+   42 | Scope::Scope(const char* name, FlowToken flow) noexcept {
+      |                          ^
+src/common/profiler.cpp:42:42: warning: unused parameter 'flow' [-Wunused-parameter]
+   42 | Scope::Scope(const char* name, FlowToken flow) noexcept {
+      |                                          ^
+src/common/profiler.cpp:51:26: warning: unused parameter 'name' [-Wunused-parameter]
+   51 | Phase::Phase(const char* name) noexcept {
+      |                          ^
+src/common/profiler.cpp:69:26: warning: unused parameter 'name' [-Wunused-parameter]
+   69 | void Counter(const char* name, int64_t value) noexcept {
+      |                          ^
+src/common/profiler.cpp:69:40: warning: unused parameter 'value' [-Wunused-parameter]
+   69 | void Counter(const char* name, int64_t value) noexcept {
+      |                                        ^
+src/common/profiler.cpp:74:27: warning: unused parameter 'name' [-Wunused-parameter]
+   74 | void Bookmark(const char* name) noexcept {
+      |                           ^
+src/common/profiler.cpp:117:53: warning: unused parameter 'args' [-Wunused-parameter]
+  117 | std::string Control(const std::vector<std::string>& args) {
+      |                                                     ^
+src/common/profiler.cpp:220:28: warning: unused parameter 'cpu_ns' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                            ^
+src/common/profiler.cpp:220:45: warning: unused parameter 'gpu_tick' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                             ^
+src/common/profiler.cpp:220:62: warning: unused parameter 'period' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                                              ^
+src/common/profiler.cpp:220:78: warning: unused parameter 'bits' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                                                              ^
+src/common/profiler.cpp:220:96: warning: unused parameter 'name' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                                                                                ^
+src/common/profiler.cpp:226:23: warning: unused parameter 'generation' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                       ^
+src/common/profiler.cpp:226:43: warning: unused parameter 'ctx' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                           ^
+src/common/profiler.cpp:226:57: warning: unused parameter 'slot' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                         ^
+src/common/profiler.cpp:226:75: warning: unused parameter 'name' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                                           ^
+src/common/profiler.cpp:226:90: warning: unused parameter 'begin' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                                                          ^
+src/common/profiler.cpp:226:106: warning: unused parameter 'end' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                                                                          ^
+20 warnings generated.
+[diagnostics_service] exit=1
+In file included from src/core/diagnostics/diagnostics_commands.cpp:1:
+src/core/emulator_settings.h:15:10: fatal error: 'nlohmann/json.hpp' file not found
+   15 | #include <nlohmann/json.hpp>
+      |          ^~~~~~~~~~~~~~~~~~~
+1 error generated.
+src/common/profiler.cpp:17:26: warning: unused parameter 'name' [-Wunused-parameter]
+   17 | Scope::Scope(const char* name) noexcept {
+      |                          ^
+src/common/profiler.cpp:31:28: warning: unused parameter 'name' [-Wunused-parameter]
+   31 | FlowToken Post(const char* name) noexcept {
+      |                            ^
+src/common/profiler.cpp:42:26: warning: unused parameter 'name' [-Wunused-parameter]
+   42 | Scope::Scope(const char* name, FlowToken flow) noexcept {
+      |                          ^
+src/common/profiler.cpp:42:42: warning: unused parameter 'flow' [-Wunused-parameter]
+   42 | Scope::Scope(const char* name, FlowToken flow) noexcept {
+      |                                          ^
+src/common/profiler.cpp:51:26: warning: unused parameter 'name' [-Wunused-parameter]
+   51 | Phase::Phase(const char* name) noexcept {
+      |                          ^
+src/common/profiler.cpp:69:26: warning: unused parameter 'name' [-Wunused-parameter]
+   69 | void Counter(const char* name, int64_t value) noexcept {
+      |                          ^
+src/common/profiler.cpp:69:40: warning: unused parameter 'value' [-Wunused-parameter]
+   69 | void Counter(const char* name, int64_t value) noexcept {
+      |                                        ^
+src/common/profiler.cpp:74:27: warning: unused parameter 'name' [-Wunused-parameter]
+   74 | void Bookmark(const char* name) noexcept {
+      |                           ^
+src/common/profiler.cpp:117:53: warning: unused parameter 'args' [-Wunused-parameter]
+  117 | std::string Control(const std::vector<std::string>& args) {
+      |                                                     ^
+src/common/profiler.cpp:220:28: warning: unused parameter 'cpu_ns' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                            ^
+src/common/profiler.cpp:220:45: warning: unused parameter 'gpu_tick' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                             ^
+src/common/profiler.cpp:220:62: warning: unused parameter 'period' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                                              ^
+src/common/profiler.cpp:220:78: warning: unused parameter 'bits' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                                                              ^
+src/common/profiler.cpp:220:96: warning: unused parameter 'name' [-Wunused-parameter]
+  220 | uint8_t GpuContext(int64_t cpu_ns, uint64_t gpu_tick, double period, uint8_t bits, const char* name) noexcept {
+      |                                                                                                ^
+src/common/profiler.cpp:226:23: warning: unused parameter 'generation' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                       ^
+src/common/profiler.cpp:226:43: warning: unused parameter 'ctx' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                           ^
+src/common/profiler.cpp:226:57: warning: unused parameter 'slot' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                         ^
+src/common/profiler.cpp:226:75: warning: unused parameter 'name' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                                           ^
+src/common/profiler.cpp:226:90: warning: unused parameter 'begin' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                                                          ^
+src/common/profiler.cpp:226:106: warning: unused parameter 'end' [-Wunused-parameter]
+  226 | void GpuZone(uint64_t generation, uint8_t ctx, uint32_t slot, const char* name, uint64_t begin, uint64_t end) noexcept {
+      |                                                                                                          ^
+20 warnings generated.

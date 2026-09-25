@@ -187,16 +187,17 @@ if (NOT TARGET PNG::PNG)
     add_library(PNG::PNG ALIAS png_static)
 endif()
 
-# Dear ImGui
+# One ImGui source and ABI shared with Foundation OverlayShell.
+set(SHADPS4_IMGUI_ROOT "${PROJECT_SOURCE_DIR}/foundation/third_party/imgui")
 add_library(Dear_ImGui
-        imgui/imgui.cpp
-        imgui/imgui_demo.cpp
-        imgui/imgui_draw.cpp
-        imgui/imgui_internal.h
-        imgui/imgui_tables.cpp
-        imgui/imgui_widgets.cpp
+        ${SHADPS4_IMGUI_ROOT}/imgui.cpp
+        ${SHADPS4_IMGUI_ROOT}/imgui_demo.cpp
+        ${SHADPS4_IMGUI_ROOT}/imgui_draw.cpp
+        ${SHADPS4_IMGUI_ROOT}/imgui_internal.h
+        ${SHADPS4_IMGUI_ROOT}/imgui_tables.cpp
+        ${SHADPS4_IMGUI_ROOT}/imgui_widgets.cpp
 )
-target_include_directories(Dear_ImGui INTERFACE imgui/)
+target_include_directories(Dear_ImGui PUBLIC "${SHADPS4_IMGUI_ROOT}")
 
 # Tracy's pinned embedded rpmalloc uses initial-exec TLS, which bionic rejects
 # when ART dlopens this host DSO. Keep desktop profiling; Android uses DebugBus
@@ -306,6 +307,12 @@ target_include_directories(minimp3 INTERFACE minimp3)
 # ImGuiFileDialog
 add_library(ImGuiFileDialog ImGuiFileDialog/ImGuiFileDialog.cpp)
 target_compile_definitions(ImGuiFileDialog PRIVATE USE_STD_FILESYSTEM)
+# This pinned FileDialog uses the 1.93 internal field spelling. Foundation supplies 1.92.
+file(STRINGS "${PROJECT_SOURCE_DIR}/foundation/third_party/imgui/imgui_internal.h"
+    imgui_child_flags_set REGEX "ImGuiChildFlags[ \t]+ChildFlagsSet;")
+if (NOT imgui_child_flags_set)
+    target_compile_definitions(ImGuiFileDialog PRIVATE ChildFlagsSet=ChildFlags)
+endif()
 target_include_directories(ImGuiFileDialog INTERFACE ImGuiFileDialog/)
 target_link_libraries(ImGuiFileDialog PRIVATE Dear_ImGui)
 

@@ -1,0 +1,1 @@
+requested=sdf resolved=sdf reason=none; atlas uploads 6; SDF draws 53; pixels=312480; GPU=Apple M4 Pro

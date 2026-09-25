@@ -407,7 +407,7 @@ ImeDialogUi::ImeDialogUi(ImeDialogState* state, OrbisImeDialogStatus* status,
             kb_layout_selection, state->ext_option, pending_keyboard_row, pending_keyboard_col,
             last_keyboard_selected_row, last_keyboard_selected_col);
         AddLayer(this);
-        ImGui::Core::AcquireGamepadInputCapture();
+        ImGui::Core::AcquireImeInputCapture();
         gamepad_input_capture_active = true;
     }
 }
@@ -514,7 +514,7 @@ ImeDialogUi::ImeDialogUi(ImeDialogUi&& other) noexcept
     if (state && *status == OrbisImeDialogStatus::Running) {
         AddLayer(this);
         if (!gamepad_input_capture_active) {
-            ImGui::Core::AcquireGamepadInputCapture();
+            ImGui::Core::AcquireImeInputCapture();
             gamepad_input_capture_active = true;
         }
     }
@@ -626,7 +626,7 @@ ImeDialogUi& ImeDialogUi::operator=(ImeDialogUi&& other) {
     if (state && *status == OrbisImeDialogStatus::Running) {
         AddLayer(this);
         if (!gamepad_input_capture_active) {
-            ImGui::Core::AcquireGamepadInputCapture();
+            ImGui::Core::AcquireImeInputCapture();
             gamepad_input_capture_active = true;
         }
     }
@@ -637,7 +637,7 @@ ImeDialogUi& ImeDialogUi::operator=(ImeDialogUi&& other) {
 void ImeDialogUi::Free() {
     RemoveLayer(this);
     if (gamepad_input_capture_active) {
-        ImGui::Core::ReleaseGamepadInputCapture();
+        ImGui::Core::ReleaseImeInputCapture();
         gamepad_input_capture_active = false;
     }
 }
@@ -890,7 +890,7 @@ void ImeDialogUi::Draw() {
         if (pointer_input) {
             pointer_navigation_active = true;
         }
-        if (osk_control_input) {
+        if (osk_control_input && !pointer_input && !IsMouseDown(ImGuiMouseButton_Left)) {
             pointer_navigation_active = false;
         }
         if (native_input_active && virtual_control_input && !request_input_focus &&

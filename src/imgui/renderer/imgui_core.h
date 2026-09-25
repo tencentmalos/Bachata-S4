@@ -16,7 +16,7 @@ struct Frame;
 
 namespace ImGui::Core {
 
-void Initialize(const Vulkan::Instance& instance, const Frontend::Window& window, u32 image_count,
+void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& window, u32 image_count,
                 vk::Format surface_format, const vk::AllocationCallbacks* allocator = nullptr);
 
 void OnResize();
@@ -30,6 +30,11 @@ bool ProcessEvent(SDL_Event* event);
 void AcquireGamepadInputCapture();
 void ReleaseGamepadInputCapture();
 bool IsGamepadInputCaptured();
+// PS4 IME retains its own ABI, keyboard and gamepad mappings. Its modal pointer
+// capture only routes host touch events into the shared ImGui context.
+void AcquireImeInputCapture();
+void ReleaseImeInputCapture();
+bool IsImeInputCaptured();
 
 ImGuiID NewFrame(bool is_reusing_frame = false);
 

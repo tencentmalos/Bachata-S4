@@ -2,6 +2,11 @@ package com.shadps4.android.runtime.input
 
 /** App JNI. State and production scePad* live once in libshadps4_host.so. */
 object NativePad {
+    @JvmStatic external fun nativeOverlayDensity(density: Float)
+    @JvmStatic external fun nativeOverlayPointer(token: Long, id: Int, phase: Int, x: Float, y: Float): Boolean
+    @JvmStatic external fun nativeOverlayCancel(token: Long)
+    @JvmStatic external fun nativeOverlayControls(token: Long)
+
     init { System.loadLibrary("shadps4_fex_session") }
     object Result { const val OK=0; const val WRONG_SESSION=1; const val BAD_PORT=2; const val REJECTED=3; const val NO_SESSION=4 }
     const val MAX_PORTS = 4

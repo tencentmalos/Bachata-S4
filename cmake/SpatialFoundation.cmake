@@ -65,6 +65,15 @@ function(shadps4_add_foundation)
     add_subdirectory("${foundation_root}/modules/texture_codec"
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/texture_codec" EXCLUDE_FROM_ALL)
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_texture_codec)
+    # Use the renderer's ImGui ABI/context. The shell-only profile consumes copied
+    # Property models and does not pull in Foundation's platform/allocator graph.
+    set(FOUNDATION_OVERLAY_HOST_IMGUI_TARGET Dear_ImGui CACHE STRING "" FORCE)
+    set(SPATIAL_BUILD_OVERLAY_EXAMPLE OFF CACHE BOOL "" FORCE)
+    add_subdirectory("${foundation_root}/modules/imgui_overlay"
+                     "${CMAKE_CURRENT_BINARY_DIR}/foundation/imgui_overlay" EXCLUDE_FROM_ALL)
+    target_compile_definitions(foundation_imgui_overlay PRIVATE
+        IMGUI_USER_CONFIG="${CMAKE_SOURCE_DIR}/src/imgui/imgui_config.h")
+    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_imgui_overlay)
     if(ANDROID)
         add_subdirectory("${foundation_root}/modules/capture"
                          "${CMAKE_CURRENT_BINARY_DIR}/foundation/capture" EXCLUDE_FROM_ALL)

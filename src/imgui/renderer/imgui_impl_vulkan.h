@@ -6,6 +6,10 @@
 #pragma once
 
 #include <mutex>
+#pragma push_macro("assert_invariant")
+#include "spatial/imgui/RendererCapabilities.hpp"
+#undef assert_invariant
+#pragma pop_macro("assert_invariant")
 
 #include "common/types.h"
 #include <functional>
@@ -16,6 +20,7 @@ struct ImDrawData;
 namespace ImGui {
 struct Texture {
     vk::DescriptorSet descriptor_set{nullptr};
+    bool sdf_font{};
 };
 } // namespace ImGui
 
@@ -71,6 +76,11 @@ void Shutdown();
 void RenderDrawData(ImDrawData& draw_data, vk::CommandBuffer command_buffer,
                     vk::Pipeline pipeline = VK_NULL_HANDLE);
 
+// Process ImGui 1.92+ texture requests before entering dynamic rendering.
+void UpdateTextures(ImDrawData& draw_data);
+spatial::imgui::RendererCapabilities FontCapabilities();
+spatial::imgui::SdfPipelineEvidence FontEvidence();
+std::string FontDiagnostics();
 void SetBlendEnabled(bool enabled);
 void OnSurfaceFormatChange(vk::Format surface_format);
 
