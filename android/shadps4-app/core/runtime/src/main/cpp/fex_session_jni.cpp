@@ -365,6 +365,15 @@ Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeLoad(
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_swapchain.h"
 #include <android/native_window_jni.h>
+
+namespace {
+std::mutex rendered_surface_mutex;
+std::uint64_t rendered_surface_generation{};
+std::weak_ptr<Frontend::AndroidWindow> rendered_window;
+std::uint64_t pending_surface_generation{};
+std::shared_ptr<ANativeWindow> pending_surface;
+bool pending_surface_update{};
+} // namespace
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeInspectSurface(
     JNIEnv *env, jobject, jstring hooks, jstring files, jobject surface) {
@@ -450,8 +459,16 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExe
     params.create_save_dialog = CreateDialog;
     params.requires_platform_ready = true;
     params.create_window = [native](std::uint64_t generation) {
-      return std::make_shared<Frontend::AndroidWindow>(native.get(),
-                                                       generation);
+      auto window = std::make_shared<Frontend::AndroidWindow>(native.get(), generation);
+      std::lock_guard lock(rendered_surface_mutex);
+      rendered_surface_generation = generation;
+      rendered_window = window;
+      if (pending_surface_update && pending_surface_generation == generation) {
+        window->UpdateSurface(pending_surface.get());
+        pending_surface.reset();
+        pending_surface_update = false;
+      }
+      return window;
     };
     char driver_property[PROP_VALUE_MAX]{};
     __system_property_get("debug.shadps4.vulkan_driver", driver_property);
@@ -472,6 +489,34 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExe
     return 0;
   } catch (...) {
     return 0;
+  }
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeUpdateRenderedSurface(
+    JNIEnv* env, jclass, jlong generation, jobject surface) {
+  try {
+    if (generation <= 0 || Session().CurrentGeneration() != static_cast<std::uint64_t>(generation))
+      return JNI_FALSE;
+    std::shared_ptr<ANativeWindow> native;
+    if (surface) {
+      auto* window = ANativeWindow_fromSurface(env, surface);
+      if (!window) return JNI_FALSE;
+      native = std::shared_ptr<ANativeWindow>(window, ANativeWindow_release);
+    }
+    std::lock_guard lock(rendered_surface_mutex);
+    if (rendered_surface_generation == static_cast<std::uint64_t>(generation)) {
+      if (auto window = rendered_window.lock()) {
+        window->UpdateSurface(native.get());
+        return JNI_TRUE;
+      }
+    }
+    pending_surface_generation = static_cast<std::uint64_t>(generation);
+    pending_surface = std::move(native);
+    pending_surface_update = true;
+    return JNI_TRUE;
+  } catch (...) {
+    return JNI_FALSE;
   }
 }
 extern "C" JNIEXPORT jboolean JNICALL

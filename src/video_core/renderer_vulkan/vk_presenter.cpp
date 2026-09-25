@@ -1156,6 +1156,15 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         return false;
     }
 
+    // SurfaceView may withdraw its ANativeWindow without ending the Guest
+    // session. Keep the frame pool moving until a replacement is published.
+    if (!swapchain.CanPresent()) {
+        free_frame();
+        return false;
+    }
+    if (swapchain.SurfaceChanged())
+        swapchain.Recreate(window->GetWidth(), window->GetHeight());
+
     // Recreate the swapchain if the window was resized.
     if (window->GetWidth() != swapchain.GetWidth() ||
         window->GetHeight() != swapchain.GetHeight()) {
@@ -1166,7 +1175,8 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         Core::Diagnostics::Handoff::Scope scope{"Present.AcquireImage", instance.DiagnosticGeneration(), 0, 0, true};
         return swapchain.AcquireNextImage();
     }();
-    if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested()) {
+    if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested() &&
+        swapchain.CanPresent()) {
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
         acquired = swapchain.AcquireNextImage();
     }
@@ -1446,7 +1456,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
             status_layer->Presented(Core::Diagnostics::DiagnosticNowNs(), is_reusing_frame);
     }
     // Recreate may wait for GPU resources. Do not prevent their producer from submitting.
-    if (!reusable && !swapchain.StopRequested()) {
+    if (!reusable && !swapchain.StopRequested() && swapchain.CanPresent()) {
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
     }
 

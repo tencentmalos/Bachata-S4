@@ -231,13 +231,14 @@ class FexSessionService : Service() {
                 }
             }
             surfaceJob?.cancel()
-            boundSurface?.takeIf { admitted }?.let { owned ->
+            boundSurface?.takeIf { admitted }?.let {
                 surfaceJob = serviceScope.launch {
                     ManagedSession.surface.collect { current ->
-                        if (NativeFexSession.nativeCurrentGeneration() == generation &&
-                            (current?.surface !== owned.surface || !owned.surface.isValid)) {
-                            // Retire this generation before accepting any replacement Surface.
-                            handleStop()
+                        if (NativeFexSession.nativeCurrentGeneration() == generation) {
+                            // SurfaceView is destroyed on backgrounding. Keep the Guest
+                            // generation and publish the replacement to its Vulkan owner.
+                            NativeFexSession.nativeUpdateRenderedSurface(
+                                generation, current?.surface?.takeIf { it.isValid })
                         }
                     }
                 }

@@ -12,6 +12,9 @@
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_swapchain.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
+#ifdef __ANDROID__
+#include "frontend/android_window.h"
+#endif
 
 namespace Vulkan {
 
@@ -21,7 +24,18 @@ static constexpr vk::SurfaceFormatKHR SURFACE_FORMAT_HDR = {
 };
 
 Swapchain::Swapchain(const Instance& instance_, const Frontend::Window& window_)
-    : instance{instance_}, window{window_}, surface{CreateSurface(instance.GetInstance(), window)} {
+    : instance{instance_}, window{window_} {
+    auto info = window.GetWindowInfo();
+#ifdef __ANDROID__
+    if (info.type == Frontend::WindowSystemType::Android) {
+        const auto snapshot = static_cast<const Frontend::AndroidWindow&>(window).GetSurfaceSnapshot();
+        if (!snapshot.window) throw std::runtime_error("Android session Surface unavailable");
+        surface_native_window = snapshot.window;
+        surface_epoch = snapshot.epoch;
+        info.render_surface = snapshot.window.get();
+    }
+#endif
+    surface = CreateSurface(instance.GetInstance(), info);
     FindPresentFormat();
     FindPresentMode();
 
@@ -88,21 +102,32 @@ void Swapchain::Create(u32 width_, u32 height_) {
 void Swapchain::Recreate(u32 width_, u32 height_) {
     LOG_DEBUG(Render_Vulkan, "Recreate the swapchain: width={} height={} HDR={}", width_, height_,
               needs_hdr);
-    // If the previous acquire/present reported the surface itself was lost (Android
-    // hands back a fresh ANativeWindow* on backgrounding/rotation), the VkSurfaceKHR
-    // is dead and recreating only the swapchain would fail. Rebuild the surface
-    // first. Desktop never sets surface_lost, so this is Android-only in practice.
-    if (surface_lost) {
-#ifdef __ANDROID__
-        // ANativeWindow is immutable within one Session generation. A replacement
-        // Surface requires a new generation; rebuilding from the dead handle is unsafe.
-        throw std::runtime_error("Android session Surface lost");
-#else
+    // Android may replace its ANativeWindow while the Guest remains in the same
+    // session. The old VkSurface and its native-window lease retire together.
+    if (surface_lost || SurfaceChanged()) {
         RebuildSurface();
-#endif
         surface_lost = false;
     }
     Create(width_, height_);
+}
+
+bool Swapchain::CanPresent() const {
+#ifdef __ANDROID__
+    if (window.GetWindowInfo().type == Frontend::WindowSystemType::Android) {
+        const auto snapshot = static_cast<const Frontend::AndroidWindow&>(window).GetSurfaceSnapshot();
+        return snapshot.window && (!surface_lost || snapshot.epoch != surface_epoch);
+    }
+#endif
+    return true;
+}
+
+bool Swapchain::SurfaceChanged() const {
+#ifdef __ANDROID__
+    if (window.GetWindowInfo().type == Frontend::WindowSystemType::Android)
+        return static_cast<const Frontend::AndroidWindow&>(window).GetSurfaceSnapshot().epoch !=
+               surface_epoch;
+#endif
+    return false;
 }
 
 void Swapchain::RebuildSurface() {
@@ -122,9 +147,17 @@ void Swapchain::RebuildSurface() {
         instance.GetInstance().destroySurfaceKHR(surface);
         surface = VK_NULL_HANDLE;
     }
-    // CreateSurface reads the window's current native handle (ANativeWindow* in
-    // window_info.render_surface on Android), so this picks up the new surface.
-    surface = CreateSurface(instance.GetInstance(), window);
+    auto info = window.GetWindowInfo();
+#ifdef __ANDROID__
+    if (info.type == Frontend::WindowSystemType::Android) {
+        const auto snapshot = static_cast<const Frontend::AndroidWindow&>(window).GetSurfaceSnapshot();
+        if (!snapshot.window) throw std::runtime_error("Android session Surface unavailable");
+        surface_native_window = snapshot.window;
+        surface_epoch = snapshot.epoch;
+        info.render_surface = snapshot.window.get();
+    }
+#endif
+    surface = CreateSurface(instance.GetInstance(), info);
     // Formats/present modes are queried against a surface; refresh them for the new
     // one before the swapchain is rebuilt.
     FindPresentFormat();
@@ -147,7 +180,7 @@ void Swapchain::SetHDR(bool hdr) {
     }
 
     needs_hdr = hdr;
-    Recreate(width, height);
+    if (CanPresent()) Recreate(width, height);
     ImGui::Core::OnSurfaceFormatChange(needs_hdr ? SURFACE_FORMAT_HDR.format
                                                  : surface_format.format);
 }
@@ -161,7 +194,7 @@ AcquireStatus Swapchain::AcquireNextImage() {
         (acquired.result != vk::Result::eSuboptimalKHR || SuboptimalNeedsRecreation());
     surface_lost |= acquired.surface_lost;
 #ifdef __ANDROID__
-    if (acquired.surface_lost || acquired.status == AcquireStatus::Error)
+    if (acquired.status == AcquireStatus::Error)
         throw std::runtime_error("Android swapchain acquire: " + vk::to_string(acquired.result));
 #endif
     if (acquired.status == AcquireStatus::Error) {
@@ -187,9 +220,6 @@ bool Swapchain::Present() {
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
         needs_recreation |= result == vk::Result::eErrorOutOfDateKHR || SuboptimalNeedsRecreation();
     } else if (result == vk::Result::eErrorSurfaceLostKHR) {
-#ifdef __ANDROID__
-        throw std::runtime_error("Android swapchain present: Surface lost");
-#endif
         // Surface object died mid-present (Android detach): the next Recreate must
         // rebuild the VkSurfaceKHR, not just the swapchain.
         surface_lost = true;

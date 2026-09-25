@@ -4,6 +4,7 @@
 #pragma once
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 #include <vector>
 #include "common/types.h"
@@ -13,6 +14,7 @@
 namespace Frontend {
 class Window;
 }
+struct ANativeWindow;
 
 namespace Vulkan {
 
@@ -29,6 +31,10 @@ public:
 
     /// Recreates the swapchain with a given size and current surface.
     void Recreate(u32 width, u32 height);
+
+    // Android may withdraw its Surface while the guest session stays alive.
+    bool CanPresent() const;
+    bool SurfaceChanged() const;
 
     /// Acquires the next image in the swapchain.
     AcquireStatus AcquireNextImage();
@@ -139,6 +145,10 @@ private:
     const Frontend::Window& window;
     vk::SwapchainKHR swapchain{};
     vk::SurfaceKHR surface{};
+#ifdef __ANDROID__
+    std::shared_ptr<ANativeWindow> surface_native_window;
+    u64 surface_epoch{};
+#endif
     vk::SurfaceFormatKHR surface_format;
     vk::Format view_format;
     vk::PresentModeKHR present_mode;

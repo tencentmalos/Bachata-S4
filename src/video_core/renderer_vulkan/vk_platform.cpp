@@ -71,8 +71,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(
     return VK_FALSE;
 }
 
-vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::Window& emu_window) {
-    const auto& window_info = emu_window.GetWindowInfo();
+vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::WindowSystemInfo& window_info) {
     vk::SurfaceKHR surface{};
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)

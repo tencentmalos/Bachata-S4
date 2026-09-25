@@ -52,6 +52,8 @@ object NativeFexSession {
 
     external fun nativeStartRenderedExecutable(contentId: String, executablePath: String,
         surface: android.view.Surface, hookDirectory: String, driverDirectory: String): Long
+    /** Replace or withdraw the Android presentation Surface without ending the guest generation. */
+    external fun nativeUpdateRenderedSurface(generation: Long, surface: android.view.Surface?): Boolean
     external fun nativePlatformReady(generation: Long): Boolean
 
     /** Request a stop of [generation]. Returns a [StopResult] ordinal. */

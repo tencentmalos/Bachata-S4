@@ -6,11 +6,12 @@
 
 namespace Frontend {
 AndroidWindow::AndroidWindow(ANativeWindow* window, u64 generation_, KeyboardCapture keyboard_)
-    : native_window{window}, generation{generation_}, keyboard{std::move(keyboard_)} {
-    if (!native_window || !generation) {
+    : generation{generation_}, keyboard{std::move(keyboard_)} {
+    if (!window || !generation) {
         throw std::invalid_argument("AndroidWindow requires a Surface and nonzero generation");
     }
-    ANativeWindow_acquire(native_window);
+    ANativeWindow_acquire(window);
+    native_window = std::shared_ptr<ANativeWindow>(window, ANativeWindow_release);
 }
 
 AndroidWindow::~AndroidWindow() {
@@ -20,17 +21,33 @@ AndroidWindow::~AndroidWindow() {
         } catch (...) { /* Destruction must release the Surface. */
         }
     }
-    ANativeWindow_release(native_window);
 }
 
 s32 AndroidWindow::GetWidth() const {
-    return ANativeWindow_getWidth(native_window);
+    const auto surface = GetSurfaceSnapshot().window;
+    return surface ? ANativeWindow_getWidth(surface.get()) : 0;
 }
 s32 AndroidWindow::GetHeight() const {
-    return ANativeWindow_getHeight(native_window);
+    const auto surface = GetSurfaceSnapshot().window;
+    return surface ? ANativeWindow_getHeight(surface.get()) : 0;
 }
 WindowSystemInfo AndroidWindow::GetWindowInfo() const {
-    return {.render_surface = native_window, .type = WindowSystemType::Android};
+    const auto surface = GetSurfaceSnapshot().window;
+    return {.render_surface = surface.get(), .type = WindowSystemType::Android};
+}
+
+AndroidWindow::SurfaceSnapshot AndroidWindow::GetSurfaceSnapshot() const {
+    std::scoped_lock lock(surface_mutex);
+    return {native_window, surface_epoch};
+}
+
+void AndroidWindow::UpdateSurface(ANativeWindow* window) {
+    std::scoped_lock lock(surface_mutex);
+    if (native_window.get() == window) return;
+    if (window) ANativeWindow_acquire(window);
+    if (window) native_window = std::shared_ptr<ANativeWindow>(window, ANativeWindow_release);
+    else native_window.reset();
+    ++surface_epoch;
 }
 
 bool AndroidWindow::RequestKeyboard() {
