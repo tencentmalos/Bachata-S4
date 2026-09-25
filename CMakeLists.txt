@@ -933,6 +933,8 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/file_format/psf.h
          src/core/file_format/playgo_chunk.cpp
          src/core/file_format/playgo_chunk.h
+         src/core/file_format/rif.cpp
+         src/core/file_format/rif.h
          src/core/file_format/trp.cpp
                 src/core/file_format/trophy_support.cpp
          src/core/file_format/trp.h

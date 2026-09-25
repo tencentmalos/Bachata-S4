@@ -10,6 +10,7 @@
 #include "common/singleton.h"
 #include "core/emulator_settings.h"
 #include "core/file_format/psf.h"
+#include "core/file_format/rif.h"
 #include "core/file_sys/fs.h"
 #include "core/libraries/app_content/app_content_error.h"
 #include "core/libraries/kernel/process.h"
@@ -381,6 +382,35 @@ int PS4_SYSV_ABI sceAppContentInitialize(const OrbisAppContentInitParam* initPar
         auto& info = addcont_info[addcont_count++];
         entitlement_id.copy(info.entitlement_label, entitlement_id.length());
         info.status = OrbisAppContentAddcontDownloadStatus::Installed;
+    }
+
+    // Load license files for any license-only DLC.
+    if (const auto value = param_sfo->GetString("CONTENT_ID"); value.has_value()) {
+        const std::string_view& content_id = *value;
+        std::string service_id(content_id.substr(0, content_id.find_last_of('-')));
+
+        const std::filesystem::path& licenses_dir =
+            Common::FS::GetUserPath(Common::FS::PathType::LicensesDir);
+        std::filesystem::path ridx_path = licenses_dir / (service_id + ".idx");
+        std::filesystem::path rifa_path = licenses_dir / (service_id + ".rif");
+
+        if (std::filesystem::exists(ridx_path) && std::filesystem::exists(rifa_path)) {
+            if (RIF rif; rif.Open(ridx_path, rifa_path)) {
+                LOG_INFO(Lib_AppContent, "Checking license {} for additional entitlements",
+                         service_id);
+
+                const std::vector<std::string>& entitlements = rif.GetLicenseOnlyEntitlements();
+                for (const auto& entitlement_id : entitlements) {
+                    LOG_INFO(Lib_AppContent, "License-only entitlement {} found", entitlement_id);
+
+                    auto& info = addcont_info[addcont_count++];
+                    entitlement_id.copy(info.entitlement_label, entitlement_id.length());
+                    info.status = OrbisAppContentAddcontDownloadStatus::NoExtraData;
+                }
+            } else {
+                LOG_ERROR(Lib_AppContent, "Could not open license file for {}", service_id);
+            }
+        }
     }
 
     if (addcont_count > 0) {
