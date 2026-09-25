@@ -14,6 +14,11 @@
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 
+#ifdef _WIN32
+#include <windows.h>
+static_assert(std::is_same_v<ThreadID, DWORD>);
+#endif
+
 using namespace DebugStateType;
 
 DebugStateImpl& DebugState = *Common::Singleton<DebugStateImpl>::Instance();

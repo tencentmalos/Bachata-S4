@@ -11,7 +11,7 @@
 #include "common/types.h"
 
 #ifdef _WIN64
-#include <windows.h>
+#include "core/libraries/kernel/sync/win32_wait.h"
 #elif defined(__APPLE__)
 #include <dispatch/dispatch.h>
 #else
@@ -29,7 +29,7 @@ public:
 #endif
     {
 #ifdef _WIN64
-        sem = CreateSemaphore(nullptr, initialCount, max, nullptr);
+        sem = Win32::CreateSemaphoreObject(initialCount, static_cast<s32>(max));
         ASSERT_MSG(sem != nullptr, "Failed to create Win32 semaphore");
 #elif defined(__APPLE__)
         sem = dispatch_semaphore_create(initialCount);
@@ -39,7 +39,7 @@ public:
 
     ~Semaphore() {
 #ifdef _WIN64
-        CloseHandle(sem);
+        Win32::CloseObject(sem);
 #elif defined(__APPLE__)
         dispatch_release(sem);
 #endif
@@ -47,8 +47,8 @@ public:
 
     void release() {
 #ifdef _WIN64
-        ASSERT_MSG(ReleaseSemaphore(sem, 1, nullptr) != 0, "Failed to release Win32 semaphore: {}",
-                   GetLastError());
+        ASSERT_MSG(Win32::ReleaseSemaphoreObject(sem), "Failed to release Win32 semaphore: {}",
+                   Win32::LastError());
 #elif defined(__APPLE__)
         dispatch_semaphore_signal(sem);
 #else
@@ -59,12 +59,12 @@ public:
     void acquire() {
 #ifdef _WIN64
         for (;;) {
-            u64 res = WaitForSingleObjectEx(sem, INFINITE, true);
-            if (res == WAIT_OBJECT_0) {
+            u64 res = Win32::WaitForObject(sem, Win32::Infinite, true);
+            if (res == Win32::WaitObject0) {
                 return;
             }
-            ASSERT_MSG(res == WAIT_IO_COMPLETION,
-                       "Unexpected Win32 semaphore wait result {:#x}: {}", res, GetLastError());
+            ASSERT_MSG(res == Win32::WaitIoCompletion,
+                       "Unexpected Win32 semaphore wait result {:#x}: {}", res, Win32::LastError());
         }
 #elif defined(__APPLE__)
         for (;;) {
@@ -80,7 +80,7 @@ public:
 
     bool try_acquire() {
 #ifdef _WIN64
-        return WaitForSingleObjectEx(sem, 0, true) == WAIT_OBJECT_0;
+        return Win32::WaitForObject(sem, 0, true) == Win32::WaitObject0;
 #elif defined(__APPLE__)
         return dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW) == 0;
 #else
@@ -92,7 +92,7 @@ public:
     // non-alertable call; the native Darwin and standard C++ semaphore calls already behave so.
     bool try_acquire_pending() {
 #ifdef _WIN64
-        return WaitForSingleObjectEx(sem, 0, false) == WAIT_OBJECT_0;
+        return Win32::WaitForObject(sem, 0, false) == Win32::WaitObject0;
 #elif defined(__APPLE__)
         return dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW) == 0;
 #else
@@ -121,14 +121,14 @@ public:
 
             const auto remaining_ms =
                 std::chrono::ceil<std::chrono::milliseconds>(deadline - current);
-            constexpr auto MaxFiniteWait = static_cast<s64>(INFINITE) - 1;
-            const DWORD timeout_ms =
-                static_cast<DWORD>(std::min<s64>(remaining_ms.count(), MaxFiniteWait));
-            const DWORD res = WaitForSingleObjectEx(sem, timeout_ms, true);
-            if (res == WAIT_OBJECT_0) {
+            constexpr auto MaxFiniteWait = static_cast<s64>(Win32::Infinite) - 1;
+            const u32 timeout_ms =
+                static_cast<u32>(std::min<s64>(remaining_ms.count(), MaxFiniteWait));
+            const u32 res = Win32::WaitForObject(sem, timeout_ms, true);
+            if (res == Win32::WaitObject0) {
                 return true;
             }
-            if (res != WAIT_IO_COMPLETION && res != WAIT_TIMEOUT) {
+            if (res != Win32::WaitIoCompletion && res != Win32::WaitTimeout) {
                 return false;
             }
         }
@@ -152,7 +152,7 @@ public:
 
 private:
 #ifdef _WIN64
-    HANDLE sem;
+    Win32::Handle sem;
 #elif defined(__APPLE__)
     dispatch_semaphore_t sem;
 #else

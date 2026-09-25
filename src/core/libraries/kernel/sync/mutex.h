@@ -8,7 +8,8 @@
 #include "common/types.h"
 
 #ifdef _WIN64
-#include <windows.h>
+#include <algorithm>
+#include "core/libraries/kernel/sync/win32_wait.h"
 #else
 #include <mutex>
 #endif
@@ -57,10 +58,12 @@ public:
             }
 
             const auto rel_ms = std::chrono::ceil<std::chrono::milliseconds>(abs_time - now);
-            u64 res = WaitForSingleObjectEx(mtx, static_cast<u64>(rel_ms.count()), true);
-            if (res == WAIT_OBJECT_0) {
+            constexpr auto MaxFiniteWait = static_cast<s64>(Win32::Infinite) - 1;
+            const u32 res = Win32::WaitForObject(
+                mtx, static_cast<u32>(std::min<s64>(rel_ms.count(), MaxFiniteWait)), true);
+            if (res == Win32::WaitObject0) {
                 return true;
-            } else if (res == WAIT_TIMEOUT) {
+            } else if (res == Win32::WaitTimeout) {
                 return false;
             }
         }
@@ -71,7 +74,7 @@ public:
 
 private:
 #ifdef _WIN64
-    HANDLE mtx;
+    Win32::Handle mtx;
 #else
     std::timed_mutex mtx;
 #endif

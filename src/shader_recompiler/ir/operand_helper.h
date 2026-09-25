@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#pragma once
+
 // Some helpers to get operand indices of instructions by name to make it a bit safer.
 // Just a start, not widely used
 

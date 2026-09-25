@@ -12,6 +12,9 @@
 #include "emulator.h"
 
 #ifdef _WIN32
+#include <cstring>
+#include <exception>
+#include <string>
 #include <windows.h>
 static constexpr DWORD MS_VC_EXCEPTION = 0x406D1388;
 #else
@@ -25,6 +28,40 @@ static constexpr DWORD MS_VC_EXCEPTION = 0x406D1388;
 namespace Core {
 
 #if defined(_WIN32)
+
+// Names the C++ type carried by an MSVC-ABI exception (code 0xE06D7363) and, for
+// std::exception subclasses, its what(). Records of other exceptions give an empty string.
+static std::string DescribeCxxException(const EXCEPTION_RECORD* record) {
+    constexpr DWORD CxxExceptionCode = 0xE06D7363;
+    constexpr ULONG_PTR CxxMagic = 0x19930520;
+    if (record == nullptr || record->ExceptionCode != CxxExceptionCode ||
+        record->NumberParameters < 4 || record->ExceptionInformation[0] != CxxMagic ||
+        record->ExceptionInformation[2] == 0 || record->ExceptionInformation[3] == 0) {
+        return {};
+    }
+    // x64 ThrowInfo/CatchableType fields are offsets from the throwing module's base.
+    const auto base = static_cast<uintptr_t>(record->ExceptionInformation[3]);
+    const auto* object = reinterpret_cast<const u8*>(record->ExceptionInformation[1]);
+    const auto* throw_info = reinterpret_cast<const s32*>(record->ExceptionInformation[2]);
+    const auto* types = reinterpret_cast<const s32*>(base + throw_info[3]);
+    std::string names;
+    const std::exception* std_exception = nullptr;
+    for (s32 i = 0; i < types[0]; ++i) {
+        // CatchableType: properties, type descriptor, {mdisp, pdisp, vdisp}, size, copy fn.
+        const auto* catchable = reinterpret_cast<const s32*>(base + types[1 + i]);
+        // TypeDescriptor: vftable pointer, spare pointer, decorated name.
+        const char* name = reinterpret_cast<const char*>(base + catchable[1] + 16);
+        names += names.empty() ? name : std::string(" ") + name;
+        if (object != nullptr && catchable[3] == -1 &&
+            std::strcmp(name, ".?AVexception@std@@") == 0) {
+            std_exception = reinterpret_cast<const std::exception*>(object + catchable[2]);
+        }
+    }
+    if (std_exception != nullptr) {
+        names += fmt::format(": {}", std_exception->what());
+    }
+    return names;
+}
 
 static LONG WINAPI SignalHandler(EXCEPTION_POINTERS* pExp) noexcept {
     using namespace Libraries::Kernel;
@@ -137,16 +174,44 @@ static LONG WINAPI SignalHandler(EXCEPTION_POINTERS* pExp) noexcept {
         }
     }
 
+    // A vectored handler sees every exception first. Ones raised in software (C++ throw,
+    // RPC and WIL errors inside system DLLs such as the orientation-sensor API) belong to
+    // their raiser's own handlers; they are not guest faults, so leave them to SEH.
+    if (pExp != nullptr && pExp->ExceptionRecord != nullptr &&
+        (pExp->ExceptionRecord->ExceptionFlags & EXCEPTION_SOFTWARE_ORIGINATE)) {
+        LOG_DEBUG(Debug, "Passing software exception {:#x} at {} to its handlers {}", code,
+                  address, DescribeCxxException(pExp->ExceptionRecord));
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+
     // Windows static guest red-zone protection
     const bool report_unhandled = use_static_windows_guest_red_zone_protection
                                       ? static_protection_exception
                                       : code != EXCEPTION_BREAKPOINT;
     if (report_unhandled) { // Windows static guest red-zone protection
-        LOG_CRITICAL(Debug, "Unhandled Exception code {:#x} at {}", code, address);
+        LOG_CRITICAL(Debug, "Unhandled Exception code {:#x} at {} {}", code, address,
+                     DescribeCxxException(pExp ? pExp->ExceptionRecord : nullptr));
         Common::Singleton<Core::Emulator>::Instance()->Shutdown();
     }
 
     return EXCEPTION_CONTINUE_SEARCH;
+}
+
+static LPTOP_LEVEL_EXCEPTION_FILTER previous_unhandled_filter = nullptr;
+
+// Reached only when nothing handled the exception. SignalHandler lets software exceptions
+// pass untouched, so name them here before the process ends (hardware faults were already
+// reported there).
+static LONG WINAPI UnhandledExceptionReport(EXCEPTION_POINTERS* pExp) noexcept {
+    if (pExp != nullptr && pExp->ExceptionRecord != nullptr &&
+        (pExp->ExceptionRecord->ExceptionFlags & EXCEPTION_SOFTWARE_ORIGINATE)) {
+        LOG_CRITICAL(Debug, "Unhandled software exception {:#x} at {} {}",
+                     pExp->ExceptionRecord->ExceptionCode,
+                     pExp->ExceptionRecord->ExceptionAddress,
+                     DescribeCxxException(pExp->ExceptionRecord));
+    }
+    return previous_unhandled_filter ? previous_unhandled_filter(pExp)
+                                     : EXCEPTION_CONTINUE_SEARCH;
 }
 
 #else
@@ -321,6 +386,7 @@ SignalDispatch::SignalDispatch(Delivery delivery) {
 #if defined(_WIN32)
     ASSERT_MSG(handle = AddVectoredExceptionHandler(0, SignalHandler),
                "Failed to register exception handler.");
+    previous_unhandled_filter = SetUnhandledExceptionFilter(UnhandledExceptionReport);
 #else
     struct sigaction action{};
     action.sa_sigaction = SignalHandler;
@@ -343,6 +409,7 @@ void SignalDispatch::RemoveHandlers() {
     // asserting here would get into an infinite loop until too
     // many nested exceptions makes the OS kill the process
 #if defined(_WIN32)
+    SetUnhandledExceptionFilter(previous_unhandled_filter);
     if (!(RemoveVectoredExceptionHandler(handle))) {
         LOG_CRITICAL(Core, "Failed to remove exception handler.");
         std::quick_exit(1);

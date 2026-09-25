@@ -67,6 +67,16 @@ static vk::SampleCountFlags ConfigureImageSamples(const Vulkan::Instance& instan
             ? result.value.imageFormatProperties.sampleCounts : vk::SampleCountFlags{};
     };
     auto supported = query(ci.usage);
+    if (!supported && (ci.usage & vk::ImageUsageFlagBits::eStorage)) {
+        // Storage is only speculative (compute clears, uncompressed storage views of block
+        // formats). Some drivers reject it even with extended usage, e.g. desktop drivers for
+        // BC6H; keep the image usable for transfer/sampling instead of failing its creation.
+        const auto without_storage = ci.usage & ~vk::ImageUsageFlagBits::eStorage;
+        if (const auto fallback = query(without_storage)) {
+            ci.usage = without_storage;
+            supported = fallback;
+        }
+    }
     auto selected = LiverpoolToVK::NumSamples(requested, supported);
     if (requested > 1 && (ci.usage & vk::ImageUsageFlagBits::eStorage)) {
         const auto attachment_usage = ci.usage & ~vk::ImageUsageFlagBits::eStorage;

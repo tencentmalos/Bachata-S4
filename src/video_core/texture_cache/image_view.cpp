@@ -96,7 +96,8 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
     vk::ImageViewUsageCreateInfo usage_ci{.usage = image.backing->image.image_ci.usage};
     ASSERT_MSG(!info.is_storage || image.info.props.is_depth ||
                    bool(usage_ci.usage & vk::ImageUsageFlagBits::eStorage),
-               "Storage view is unsupported for this multisampled image backing");
+               "Storage view is unsupported for this image backing: format={} usage={}",
+               vk::to_string(image.backing->image.image_ci.format), vk::to_string(usage_ci.usage));
     if (!info.is_storage) {
         usage_ci.usage &= ~vk::ImageUsageFlagBits::eStorage;
     }

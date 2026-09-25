@@ -9,22 +9,22 @@ namespace Libraries::Kernel {
 
 TimedMutex::TimedMutex() {
 #ifdef _WIN64
-    mtx = CreateMutex(nullptr, false, nullptr);
+    mtx = Win32::CreateMutexObject();
     ASSERT(mtx);
 #endif
 }
 
 TimedMutex::~TimedMutex() {
 #ifdef _WIN64
-    CloseHandle(mtx);
+    Win32::CloseObject(mtx);
 #endif
 }
 
 void TimedMutex::lock() {
 #ifdef _WIN64
     for (;;) {
-        u64 res = WaitForSingleObjectEx(mtx, INFINITE, true);
-        if (res == WAIT_OBJECT_0) {
+        u64 res = Win32::WaitForObject(mtx, Win32::Infinite, true);
+        if (res == Win32::WaitObject0) {
             return;
         }
     }
@@ -35,7 +35,7 @@ void TimedMutex::lock() {
 
 bool TimedMutex::try_lock() {
 #ifdef _WIN64
-    return WaitForSingleObjectEx(mtx, 0, true) == WAIT_OBJECT_0;
+    return Win32::WaitForObject(mtx, 0, true) == Win32::WaitObject0;
 #else
     return mtx.try_lock();
 #endif
@@ -43,7 +43,7 @@ bool TimedMutex::try_lock() {
 
 void TimedMutex::unlock() {
 #ifdef _WIN64
-    ReleaseMutex(mtx);
+    Win32::ReleaseMutexObject(mtx);
 #else
     mtx.unlock();
 #endif

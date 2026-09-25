@@ -348,8 +348,9 @@ void Linker::Relocate(Module* module) {
                 // The supplied PS4 libc/Fios SELF uses an unnamed, zero local
                 // STT_SECTION entry as the current-module DTPMOD64 marker.
                 // It names a module, not a TLS variable/export. Do not apply
-                // this exception to offset relocations or named symbols.
-                const bool self_module_marker = memory->IsGuestBackend() &&
+                // this exception to offset relocations or named symbols. This is a
+                // property of the guest binary, so it holds for every memory backend.
+                const bool self_module_marker =
                     type == R_X86_64_DTPMOD64 && tls_symbol.GetType() == STT_SECTION &&
                     tls_symbol.GetBind() == STB_LOCAL && tls_symbol.st_name == 0 &&
                     tls_symbol.st_shndx == 0 && tls_symbol.st_value == 0 && addend == 0;

@@ -358,6 +358,8 @@ set(KERNEL_LIB src/core/libraries/kernel/coredump/coredump.cpp
                src/core/libraries/kernel/sync/mutex.cpp
                src/core/libraries/kernel/sync/mutex.h
                src/core/libraries/kernel/sync/semaphore.h
+               src/core/libraries/kernel/sync/win32_wait.cpp
+               src/core/libraries/kernel/sync/win32_wait.h
                src/core/libraries/kernel/threads/condvar.cpp
                src/core/libraries/kernel/threads/event_flag.cpp
                src/core/libraries/kernel/threads/exception.cpp
@@ -745,6 +747,9 @@ set(VR_LIBS  src/core/libraries/hmd/hmd.cpp
              src/core/libraries/hmd/hmd_setup_dialog.h
              src/core/libraries/vr_tracker/vr_tracker.cpp
              src/core/libraries/vr_tracker/vr_tracker.h
+             # Used by hmd/move/vr_tracker and the presenter on every platform.
+             src/core/host_runtime/guest_vr_sensor.cpp
+             src/core/host_runtime/guest_vr_sensor.h
 )
 
 set(MISC_LIBS  src/core/libraries/screenshot/screenshot.cpp
@@ -1478,6 +1483,9 @@ if (ANDROID)
 endif()
 
 target_compile_definitions(shadps4 PRIVATE IMGUI_USER_CONFIG="imgui/imgui_config.h")
+# vk_common.h enables the beta extensions for vulkan.hpp, but a file that includes
+# vulkan_core.h directly first (possible in any unity batch) would lock them out.
+target_compile_definitions(shadps4 PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 target_compile_definitions(Dear_ImGui PRIVATE IMGUI_USER_CONFIG="${PROJECT_SOURCE_DIR}/src/imgui/imgui_config.h")
 
 if (ENABLE_DISCORD_RPC)
@@ -1667,7 +1675,6 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp
         src/core/host_runtime/guest_vr_session.cpp
-        src/core/host_runtime/guest_vr_sensor.cpp
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)
     target_sources(shadps4 PRIVATE src/core/diagnostics/executable_export.cpp)

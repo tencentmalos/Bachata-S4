@@ -22,6 +22,11 @@
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 
+// windows.h defines MemoryBarrier as __faststorefence, which breaks vk::MemoryBarrier.
+#ifdef MemoryBarrier
+#undef MemoryBarrier
+#endif
+
 namespace Vulkan {
 
 // Deferred Vulkan command recording (the CommandChunk/worker scheme of Citron/yuzu).

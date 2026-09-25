@@ -8,6 +8,8 @@
 
 #ifndef _WIN32
 #include <sys/signal.h>
+#else
+struct _CONTEXT;
 #endif
 
 namespace Core::Loader {
@@ -136,8 +138,9 @@ struct Ucontext {
     explicit Ucontext(siginfo_t const* inf, ucontext_t* raw_context);
     ucontext_t* host_context{};
 #else
-    explicit Ucontext(PCONTEXT context);
-    PCONTEXT host_context{};
+    // _CONTEXT* is PCONTEXT; spelled out so this header does not need <windows.h>.
+    explicit Ucontext(_CONTEXT* context);
+    _CONTEXT* host_context{};
 #endif
     bool HasGuestContext() const {
         return guest_context_valid;

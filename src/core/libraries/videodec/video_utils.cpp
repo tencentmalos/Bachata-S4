@@ -6,7 +6,9 @@
 #include "common/alignment.h"
 #include "common/assert.h"
 
+extern "C" {
 #include <libavutil/frame.h>
+}
 
 #include <cstring>
 

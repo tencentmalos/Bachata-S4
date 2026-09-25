@@ -16,11 +16,7 @@
 #include "video_core/renderer_vulkan/vk_common.h"
 
 #ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
-#endif
-#include <Windows.h>
-using ThreadID = DWORD;
+using ThreadID = unsigned long; // DWORD; <windows.h> stays in debug_state.cpp
 #else
 #include <pthread.h>
 #include <signal.h>

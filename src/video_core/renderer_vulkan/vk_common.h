@@ -4,7 +4,9 @@
 #pragma once
 
 // Include vulkan-hpp header
+#ifndef VK_ENABLE_BETA_EXTENSIONS // also a target-wide definition, see CMakeLists.txt
 #define VK_ENABLE_BETA_EXTENSIONS
+#endif
 #define VK_NO_PROTOTYPES
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #define VULKAN_HPP_NO_CONSTRUCTORS

@@ -11,7 +11,7 @@ struct PthreadAttr;
 
 namespace Core {
 #ifdef WIN32
-using ThreadFunc = DWORD (*)(void*);
+using ThreadFunc = unsigned long (*)(void*); // DWORD; <windows.h> stays in thread.cpp
 #else
 using ThreadFunc = void* (*)(void*);
 #endif
