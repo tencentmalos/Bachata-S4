@@ -516,14 +516,22 @@ void Translator::S_MOV(const GcnInst& inst) {
 }
 
 void Translator::S_MOV_B64(const GcnInst& inst) {
-    // Moving SGPR to SGPR is used for thread masks, like most operations, but it can also be used
-    // for moving sharps.
-    if (inst.dst[0].field == OperandField::ScalarGPR &&
-        inst.src[0].field == OperandField::ScalarGPR) {
-        ir.SetScalarReg(IR::ScalarReg(inst.dst[0].code),
-                        ir.GetScalarReg(IR::ScalarReg(inst.src[0].code)));
-        ir.SetScalarReg(IR::ScalarReg(inst.dst[0].code + 1),
-                        ir.GetScalarReg(IR::ScalarReg(inst.src[0].code + 1)));
+    const auto has_numeric_view = [](const InstOperand& operand) {
+        return operand.field == OperandField::ScalarGPR || operand.field == OperandField::VccLo;
+    };
+    if (has_numeric_view(inst.dst[0]) && has_numeric_view(inst.src[0])) {
+        // Copy both existing views. Rebuilding the words from a ballot would
+        // corrupt ordinary 64-bit data such as descriptor addresses. Read both
+        // halves before writing, including when source and destination overlap.
+        const auto data = GetSrc64<IR::U64>(inst.src[0]);
+        const auto mask = GetSrc1(inst.src[0]);
+        SetDst64(inst.dst[0], data);
+        if (inst.dst[0].field == OperandField::ScalarGPR) {
+            ir.SetThreadBitScalarReg(IR::ScalarReg(inst.dst[0].code), mask);
+        } else {
+            ir.SetVcc(mask);
+        }
+        return;
     }
     SetDst1(inst.dst[0], GetSrc1(inst.src[0]));
 }

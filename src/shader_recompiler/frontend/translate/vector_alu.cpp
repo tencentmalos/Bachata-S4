@@ -1624,7 +1624,7 @@ void Translator::V_MAD_U64_U32(const GcnInst& inst) {
     const IR::U1 less_src0 = ir.ILessThan(sum_result, mul_result, false);
     const IR::U1 less_src1 = ir.ILessThan(sum_result, src2, false);
     const IR::U1 did_overflow = ir.LogicalOr(less_src0, less_src1);
-    ir.SetVcc(did_overflow);
+    SetDst1(InstOperand{.field = OperandField::VccLo}, did_overflow);
 }
 
 void Translator::V_LSHLREV_B16(const GcnInst& inst) {
@@ -1955,7 +1955,7 @@ void Translator::SetCarryOut(const GcnInst& inst, const IR::U1& carry) {
     if (inst.dst_count == 2) { // VOP3
         SetDst1(inst.dst[1], carry);
     } else { // VOP2
-        ir.SetVcc(carry);
+        SetDst1(InstOperand{.field = OperandField::VccLo}, carry);
     }
 }
 

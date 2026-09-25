@@ -901,12 +901,24 @@ template pk_type<IR::F32> Translator::GetSrcPk<IR::F32, false>(const InstOperand
 
 void Translator::SetDst1(const InstOperand& operand, const IR::U1& value) {
     switch (operand.field) {
-    case OperandField::VccLo:
+    case OperandField::VccLo: {
         ir.SetVcc(value);
+        const auto mask = ir.Ballot(value);
+        ir.SetVccLo(IR::U32{ir.CompositeExtract(mask, 0)});
+        ir.SetVccHi(IR::U32{ir.CompositeExtract(mask, 1)});
         break;
-    case OperandField::ScalarGPR:
+    }
+    case OperandField::ScalarGPR: {
         ir.SetThreadBitScalarReg(IR::ScalarReg(operand.code), value);
+        // A lane mask and its two scalar words alias the same GCN registers.
+        // Scalar arithmetic can inspect a saved EXEC or a VOP3 comparison mask;
+        // retaining the previous numeric SGPR definitions makes those reads stale.
+        // Unused numeric views (the common case) disappear with DCE.
+        const auto mask = ir.Ballot(value);
+        ir.SetScalarReg(IR::ScalarReg(operand.code), IR::U32{ir.CompositeExtract(mask, 0)});
+        ir.SetScalarReg(IR::ScalarReg(operand.code + 1), IR::U32{ir.CompositeExtract(mask, 1)});
         break;
+    }
     case OperandField::ExecLo:
         ir.SetExec(value);
         break;

@@ -1,3 +1,7 @@
+- **AYN MHW trace 续查（2026-09-25）：** [匹配KGSL、Guest shader、反例与修复](docs/validation/android-native-host/mhw-gpu-trace-20260925.md)。trace已在主干及实包可用；修正SGPR/VCC mask写后整数视图陈旧，保留S_MOV_B64普通数据及V_READLANE相邻word，binary21，两驱动各11776/0。实际MHW仍GPU超时；Broadcast与异步提交关闭对照均未消除，已撤回实验/恢复属性，不宣称可玩。下一步核间接dispatch实参及输入资源内容；现有trace不包含完整资源内容快照。
+
+- **Guest GPU / PM4 trace 使用入口（2026-09-25）：** [采集、导出、解码与 KGSL 关联](docs/debugbus-gpu-command-trace.md)。`c694b179a` 已经 `a562e8100` 合入 `malos/main`；DebugBus `gpu_command_trace` / `guest_command_trace` 同一引擎，一次产出 `.gpu.pm4.trace` + `.gcmdtrace.ps4`。遇到 GPU 超时、资源读写或 pass 切断问题先检查实包支持并有界采集；区分 Guest AMD PM4 与 KGSL Adreno PM4，先排除旧 snapshot，不把静态命令当作执行 PC。本轮 [MHW 实测与边界](docs/validation/android-native-host/mhw-gpu-trace-20260925.md)。
+
 ## 当前仓库主分支（用户指定，2026-09-20）
 
 - **Profiler SDK 源码集成（2026-09-24）：** Foundation 跟踪共享 `main`，`third_party/profiler_sdk` 为普通源码，已同步上游 `f34a1c8` 并保留既有集成修复；不再初始化或访问内网 SDK 子仓。见 [接入说明](docs/foundation-integration.md) 和 [SDK 来源](foundation/third_party/profiler_sdk.UPSTREAM.md)。新采集需配套 reader（上游 Bookmark 布局变化但仍为 PROF v3）。后续历史条目的内网 submodule 说明不代表当前状态。

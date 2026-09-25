@@ -91,6 +91,7 @@ void Visit(Info& info, const IR::Inst& inst) {
     case IR::Opcode::ReadLane:
     case IR::Opcode::ReadFirstLane:
     case IR::Opcode::WriteLane:
+    case IR::Opcode::Ballot:
         info.uses_group_ballot = true;
         break;
     case IR::Opcode::Discard:

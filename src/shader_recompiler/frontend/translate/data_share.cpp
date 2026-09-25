@@ -107,7 +107,8 @@ void Translator::V_READLANE_B32(const GcnInst& inst) {
     SetDst(inst.dst[0], ir.ReadLane(value, lane));
 
     // Restore a thread mask's per-lane bool spilled by V_WRITELANE_B32. Only the low (even) half
-    // of a 64-bit mask carries the view; SetDst1 routes it to the SGPR, VCC, or EXEC.
+    // of a 64-bit mask carries the view. Preserve the numeric value read above:
+    // this lane can hold ordinary data, and a B32 read must not overwrite its neighbor.
     if (lane.IsImmediate()) {
         ASSERT(lane.U32() < 64);
         const auto& dst = inst.dst[0];
@@ -115,7 +116,14 @@ void Translator::V_READLANE_B32(const GcnInst& inst) {
                                 dst.field == OperandField::VccLo ||
                                 dst.field == OperandField::ExecLo;
         if (is_mask_lo) {
-            SetDst1(dst, ir.GetMaskLaneVariable(IR::VectorReg(inst.src[0].code), lane.U32()));
+            const auto mask = ir.GetMaskLaneVariable(IR::VectorReg(inst.src[0].code), lane.U32());
+            if (dst.field == OperandField::ScalarGPR) {
+                ir.SetThreadBitScalarReg(IR::ScalarReg(dst.code), mask);
+            } else if (dst.field == OperandField::VccLo) {
+                ir.SetVcc(mask);
+            } else {
+                SetDst1(dst, mask);
+            }
         }
     }
 }

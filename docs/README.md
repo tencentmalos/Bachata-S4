@@ -1,3 +1,5 @@
+**2026-09-25：[Guest GPU command trace / PM4 trace 操作入口](debugbus-gpu-command-trace.md)**（已合入主干）：有界采集、离线解码、KGSL 身份关联与错误现场保存；[MHW 实例](validation/android-native-host/mhw-gpu-trace-20260925.md)。后文 09-14 的“待实施”是历史状态。
+
 **2026-09-20 推荐 spec：[Internal Scale 资源分流、小贴图保护与动态尺寸](specs/internal-scale-resource-policy-20260920.md)。** 基于当前PS4实现及本地Citron对照，建议独立Render Scale/Texture Quality，补齐小图、streaming mip、RT用途转换和动态extent约束；仅设计，尚未实施或完成新策略验收。
 
 **2026-09-17：[FIOS I/O / 新数据映射去串行化验证](validation/android-native-host/fios-io-global-locks-2026-09-17.md)、[移除 Runtime VM 总锁的设计](guest-memory-concurrency.md)。** 已拆文件执行锁与新增数据映射的全局停机/译码清空；VM总锁尚未完全删除。最终25.2秒停帧期间后台仍读取284MB且无VM事务，不能声称loading已修复。

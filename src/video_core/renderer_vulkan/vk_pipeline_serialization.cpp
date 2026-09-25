@@ -12,7 +12,7 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 15u; // Non-uniform DS_SWIZZLE uses legal subgroup routing
+static constexpr u32 ShaderBinaryVersion = 21u; // Keep SGPR and VCC numeric mask views coherent
 #ifdef ARCH_X86_64
 static constexpr u32 ShaderMetaVersion = 10u; // preserve wave requirements when preloading pipelines
 #else
