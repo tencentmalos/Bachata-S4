@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <vector>
 #include <CLI/CLI.hpp>
 #include <SDL3/SDL_messagebox.h>
@@ -15,11 +16,13 @@
 #include "common/memory_patcher.h"
 #include "common/path_util.h"
 #include "core/debugger.h"
+#include "core/diagnostics/overlay_control.h"
 #include "core/emulator_settings.h"
 #include "core/emulator_state.h"
 #include "core/file_sys/fs.h"
 #include "core/ipc/ipc.h"
 #include "core/user_settings.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
 
@@ -59,6 +62,8 @@ int main(int argc, char* argv[]) {
     std::optional<std::string> fullscreenStr;
     bool ignoreGamePatch = false;
     bool showFps = false;
+    bool statusLayer = false;
+    std::vector<std::string> uploadDiagCommands;
     bool configClean = false;
     bool configGlobal = false;
     bool bigPicture = false;
@@ -90,6 +95,11 @@ int main(int argc, char* argv[]) {
     app.add_option("--wait-for-pid", waitPid);
 
     app.add_flag("--show-fps", showFps);
+    app.add_flag("--status-layer", statusLayer,
+                 "Show the status layer (FPS, frame-time graph, GPU and render-scale counters)");
+    app.add_option("--upload-diag", uploadDiagCommands,
+                   "Texture upload diagnostics command applied at startup, e.g. \"fill_clear off\" "
+                   "(same commands as the Android DebugBus upload_diag); may be repeated");
     app.add_flag("--config-clean", configClean);
     app.add_flag("--config-global", configGlobal);
     app.add_flag("--log-append", Common::Log::g_should_append);
@@ -212,6 +222,18 @@ int main(int argc, char* argv[]) {
 
     if (showFps)
         EmulatorSettings.SetShowFpsCounter(true);
+
+    if (statusLayer)
+        Core::Diagnostics::status_overlay_enabled.store(true, std::memory_order_relaxed);
+
+    for (const auto& command : uploadDiagCommands) {
+        std::vector<std::string> args;
+        std::istringstream words{command};
+        for (std::string word; words >> word;) {
+            args.push_back(word);
+        }
+        LOG_INFO(Debug, "upload_diag {}: {}", command, VideoCore::UploadDiagnostics::Command(args));
+    }
 
     if (configClean)
         EmulatorSettings.SetConfigMode(ConfigMode::Clean);

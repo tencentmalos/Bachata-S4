@@ -128,11 +128,19 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
     field("Frame timing", "all_present", "All presents",
           fmt::format("{:.1f}/s", all_presents.Fps(now)));
     field("Frame timing", "draws", "Draw / dispatch", fmt::format("{:.0f}/s", draws_per_second));
+#ifdef __ANDROID__
+    constexpr const char* cpu = "FEX x86-64";
+    constexpr const char* default_driver = "Unknown";
+#else
+    // Desktop runs guest code natively and always goes through the system Vulkan loader.
+    constexpr const char* cpu = "Native x86-64";
+    constexpr const char* default_driver = "System";
+#endif
     const char* driver =
         snapshot.driver_identity.find("source=system") != std::string::npos   ? "System"
         : snapshot.driver_identity.find("source=turnip") != std::string::npos ? "Turnip"
-                                                                              : "Unknown";
-    field("Renderer", "backend", "CPU / GPU", fmt::format("FEX x86-64 / Vulkan {}", driver), true);
+                                                                              : default_driver;
+    field("Renderer", "backend", "CPU / GPU", fmt::format("{} / Vulkan {}", cpu, driver), true);
     field("Renderer", "surface", "Surface", fmt::format("{} x {}", width, height));
     field("Renderer", "scale", "Render scale",
           fmt::format("x{:g}", scale_policy.render_eighths / 8.0));

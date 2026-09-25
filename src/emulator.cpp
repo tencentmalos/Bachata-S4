@@ -43,6 +43,7 @@
 #include "core/linker.h"
 #include "core/memory.h"
 #include "core/user_settings.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "emulator.h"
 #include "video_core/cache_storage.h"
 #include "video_core/renderdoc.h"
@@ -445,6 +446,16 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
                                        Common::g_scm_branch, Common::g_scm_desc, game_title);
         }
     }
+    // The desktop has no Android session lifecycle to register a diagnostics publisher, so
+    // the emulator process registers itself as generation 1 before the renderer exists.
+    // Without it the status layer and the renderer/video-out counters have no sink.
+#ifdef _WIN32
+    const u64 process_id = GetCurrentProcessId();
+#else
+    const u64 process_id = static_cast<u64>(getpid());
+#endif
+    Core::Diagnostics::DiagnosticsHub::Instance().Register(1, process_id);
+
     window = std::make_shared<Frontend::WindowSDL>(EmulatorSettings.GetWindowWidth(),
                                                    EmulatorSettings.GetWindowHeight(), controllers,
                                                    window_title);
