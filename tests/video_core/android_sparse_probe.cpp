@@ -249,6 +249,14 @@ int main(int argc, char** argv) {
             get_queue(device, sparse_family, 0, &queue);
             TryArena(gipa, instance, physical, device, queue, VkDeviceSize{4} << 30, 8);
             TryArena(gipa, instance, physical, device, queue, VkDeviceSize{8} << 30, 8);
+            // Smaller arenas for drivers whose maxBufferSize is below 4 GiB. Informational:
+            // the upstream design uses 4 GiB arenas.
+            for (VkDeviceSize size = VkDeviceSize{2} << 30; size >= (VkDeviceSize{1} << 30);
+                 size >>= 1) {
+                const int before = failures;
+                TryArena(gipa, instance, physical, device, queue, size, 8);
+                failures = before;
+            }
             destroy_device(device, nullptr);
         }
         Get<PFN_vkDestroyInstance>(gipa, instance, "vkDestroyInstance")(instance, nullptr);
