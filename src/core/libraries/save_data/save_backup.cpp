@@ -127,6 +127,7 @@ static void BackupThreadBody() {
             std::scoped_lock lk{g_backup_queue_mutex};
             wait = g_backup_queue.empty();
             if (!wait) {
+                g_backup_queue.front().started = true;
                 req = g_backup_queue.front();
             }
         }
@@ -137,6 +138,7 @@ static void BackupThreadBody() {
                 if (g_backup_queue.empty()) {
                     continue;
                 }
+                g_backup_queue.front().started = true;
                 req = g_backup_queue.front();
             }
         }
@@ -161,6 +163,7 @@ static void BackupThreadBody() {
         }
         {
             std::scoped_lock lk{g_backup_queue_mutex};
+            req = std::move(g_backup_queue.front());
             g_backup_queue.pop_front();
             if (req.origin != OrbisSaveDataEventType::__DO_NOT_SAVE) {
                 g_result_queue.push_back(std::move(req));
@@ -210,11 +213,26 @@ bool NewRequest(Libraries::UserService::OrbisUserServiceUserId user_id, std::str
     }
     {
         std::scoped_lock lk{g_backup_queue_mutex};
-        for (const auto& it : g_backup_queue) {
-            if (it.dir_name == dir_name) {
-                LOG_TRACE(Lib_SaveData, "Backup request to {} ignored. Already queued", dir_name);
-                return false;
+        for (auto& it : g_backup_queue) {
+            // A backup that already started may have copied the directory before the caller's
+            // latest write, so only a pending request can absorb this one.
+            if (it.dir_name != dir_name || it.started) {
+                continue;
             }
+            // The pending request covers this backup, but the caller may still need its event:
+            // a silent write-through backup must not swallow e.g. a SyncSaveDataMemory event
+            // that the game polls sceSaveDataGetEventResult for.
+            if (it.origin == OrbisSaveDataEventType::__DO_NOT_SAVE &&
+                origin != OrbisSaveDataEventType::__DO_NOT_SAVE) {
+                it.origin = origin;
+                it.user_id = user_id;
+                it.title_id = std::string{title_id};
+                LOG_DEBUG(Lib_SaveData, "Backup request to {} merged into a pending one",
+                          dir_name);
+                return true;
+            }
+            LOG_TRACE(Lib_SaveData, "Backup request to {} ignored. Already queued", dir_name);
+            return false;
         }
         g_backup_queue.push_back(BackupRequest{
             .user_id = user_id,

@@ -30,6 +30,7 @@ enum class OrbisSaveDataEventType : u32 {
 
 struct BackupRequest {
     bool done{};
+    bool started{}; // Taken by the backup thread; later requests can no longer merge into it.
 
     Libraries::UserService::OrbisUserServiceUserId user_id{};
     std::string title_id{};
