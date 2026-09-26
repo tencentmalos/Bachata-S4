@@ -538,6 +538,8 @@ set(SYSTEM_LIBS src/core/libraries/system/commondialog.cpp
                 src/core/libraries/mouse/mouse.cpp
                 src/core/libraries/mouse/mouse.h
                 src/core/libraries/mouse/mouse_error.h
+                src/core/libraries/keyboard/keyboard.cpp
+                src/core/libraries/keyboard/keyboard.h
                 src/core/libraries/mouse/sdl_mouse.cpp
                 src/core/libraries/mouse/sdl_mouse.h
                 src/core/libraries/web_browser_dialog/webbrowserdialog.cpp
@@ -1419,7 +1421,9 @@ if(BUILD_HOST_CORE)
         src/input/input_mouse.h)
     list(REMOVE_ITEM CORE
         src/core/libraries/mouse/sdl_mouse.cpp
-        src/core/libraries/mouse/sdl_mouse.h)
+        src/core/libraries/mouse/sdl_mouse.h
+        src/core/libraries/keyboard/keyboard.cpp
+        src/core/libraries/keyboard/keyboard.h)
     add_library(shadps4 OBJECT
         ${AUDIO_CORE}
         ${IMGUI}
