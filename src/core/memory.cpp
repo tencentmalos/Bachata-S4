@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <array>
 #include <shared_mutex>
 
 #include "common/alignment.h"
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/elf_info.h"
+#include "common/thread.h"
 #include "core/emulator_settings.h"
 #include "core/file_sys/fs.h"
 #include "core/libraries/kernel/memory.h"
@@ -23,6 +26,41 @@
 #include "core/rasterizer_hooks.h"
 
 namespace Core {
+
+namespace {
+
+// The last mapping changes, kept so a crash report can say which operation last touched a
+// corrupted range. Recorded after each successful change, under the mapping writer lock, so
+// the cost is one short uncontended lock per map/unmap/protect.
+struct MappingEvent {
+    u64 sequence = 0;
+    const char* operation = nullptr;
+    VAddr address = 0;
+    u64 size = 0;
+    u64 detail = 0; // physical address or protection, per operation
+    std::array<char, 24> thread{};
+};
+constexpr std::size_t MappingHistorySize = 1024;
+std::mutex g_mapping_history_mutex;
+std::array<MappingEvent, MappingHistorySize> g_mapping_history;
+u64 g_mapping_sequence = 0;
+
+void RecordMapping(const char* operation, VAddr address, u64 size, u64 detail) {
+    // Looked up once per thread: a name query per mapping change is a syscall.
+    thread_local const std::string thread = Common::GetCurrentThreadName();
+    std::scoped_lock lock{g_mapping_history_mutex};
+    auto& event = g_mapping_history[g_mapping_sequence % MappingHistorySize];
+    event.sequence = ++g_mapping_sequence;
+    event.operation = operation;
+    event.address = address;
+    event.size = size;
+    event.detail = detail;
+    event.thread.fill(0);
+    thread.copy(event.thread.data(), event.thread.size() - 1);
+}
+
+} // namespace
+
 
 MemoryManager::MemoryManager() {
     Initialize();
@@ -722,6 +760,7 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
         rasterizer->MapMemory(mapped_addr, size);
     }
 
+    RecordMapping("pool-commit", mapped_addr, size, static_cast<u64>(prot));
     return ORBIS_OK;
 }
 
@@ -872,6 +911,10 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
             // Determine the size we can map here.
             u64 size_to_map = std::min<u64>(remaining_size, handle->second.size);
 
+            // A free physical range must not be mapped anywhere.
+            CheckPhysicalUnshared("Allocating flexible", handle->second.base, size_to_map,
+                                  mapped_addr, size);
+
             // Create a physical area
             const auto new_fmem_handle = CarvePhysArea(fmem_map, handle->second.base, size_to_map);
             auto& new_fmem_area = new_fmem_handle->second;
@@ -951,6 +994,12 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
         }
     }
 
+    static constexpr std::array<const char*, 10> MapNames = {
+        "map-free",   "reserve", "map-direct", "map-flexible", "map-pooled",
+        "pool-reserve", "map-stack", "map-code", "map-file",  "map-system"};
+    const auto type_index = static_cast<std::size_t>(type);
+    RecordMapping(type_index < MapNames.size() ? MapNames[type_index] : "map", mapped_addr, size,
+                  phys_addr);
     return ORBIS_OK;
 }
 
@@ -1085,6 +1134,7 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
     }
 
     *out_addr = std::bit_cast<void*>(mapped_addr);
+    RecordMapping("map-file", mapped_addr, size, static_cast<u64>(phys_addr));
     return ORBIS_OK;
 }
 
@@ -1170,6 +1220,7 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
     // Tracy memory tracking breaks from merging memory areas. Disabled for now.
     // TRACK_FREE(virtual_addr, "VMEM");
 
+    RecordMapping("pool-decommit", virtual_addr, size, 0);
     return ORBIS_OK;
 }
 
@@ -1197,7 +1248,11 @@ s32 MemoryManager::UnmapMemory(VAddr virtual_addr, u64 size) {
 
     // Acquire writer lock.
     std::scoped_lock lk2{mutex};
-    return UnmapMemoryImpl(virtual_addr, size);
+    const s32 result = UnmapMemoryImpl(virtual_addr, size);
+    if (result == ORBIS_OK) {
+        RecordMapping("unmap", virtual_addr, size, 0);
+    }
+    return result;
 }
 
 u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma_base, u64 size) {
@@ -1241,7 +1296,9 @@ u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma
                 // Coalesce with nearby flexible memory areas.
                 MergeAdjacent(fmem_map, new_fmem_handle);
 
-                // Zero out the old memory data
+                // Zero out the old memory data, which only this mapping may still reference.
+                CheckPhysicalUnshared("Zeroing flexible", phys_addr, size_in_dma, virtual_addr,
+                                      size_in_vma);
                 const auto unmap_hardware_address = impl.BackingBase() + phys_addr;
                 std::memset(unmap_hardware_address, 0, size_in_dma);
 
@@ -1392,6 +1449,7 @@ s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot,
     // Keep mapping identity stable between host protection and physical type
     // publication. The caller invalidates GPU data after releasing these locks.
     if (memory_type) SetDirectMemoryTypeLocked(addr, size, *memory_type);
+    RecordMapping("protect", addr, size, static_cast<u64>(prot));
     return ORBIS_OK;
 }
 
@@ -1441,6 +1499,134 @@ s32 MemoryManager::VirtualQuery(VAddr addr, s32 flags,
     strncpy(info->name, vma.name.data(), ::Libraries::Kernel::ORBIS_KERNEL_MAXIMUM_NAME_LENGTH);
 
     return ORBIS_OK;
+}
+
+std::vector<std::string> MemoryManager::DescribeMappingHistoryForCrash(
+    std::span<const VAddr> addresses) {
+    std::vector<std::string> out;
+    std::unique_lock lock{g_mapping_history_mutex, std::try_to_lock};
+    if (!lock.owns_lock()) {
+        out.emplace_back("<mapping history busy>");
+        return out;
+    }
+    const u64 newest = g_mapping_sequence;
+    const u64 count = std::min<u64>(newest, MappingHistorySize);
+    for (u64 age = 0; age < count && out.size() < 16; ++age) {
+        const auto& event = g_mapping_history[(newest - 1 - age) % MappingHistorySize];
+        const bool relevant = std::ranges::any_of(addresses, [&](VAddr address) {
+            return address >= event.address && address - event.address < event.size;
+        });
+        if (relevant) {
+            out.push_back(fmt::format("#{} ({} ago) {} {:#x}-{:#x} detail {:#x} by {}",
+                                      event.sequence, age + 1, event.operation, event.address,
+                                      event.address + event.size, event.detail,
+                                      event.thread.data()));
+        }
+    }
+    return out;
+}
+
+void MemoryManager::CheckPhysicalUnshared(const char* what, PAddr base, u64 size, VAddr exclude,
+                                          u64 exclude_size) {
+    static std::atomic<u32> reported{};
+    if (reported.load(std::memory_order_relaxed) >= 16) {
+        return;
+    }
+    for (const auto& [vma_base, vma] : vma_map) {
+        if (!HasPhysicalBacking(vma)) {
+            continue;
+        }
+        for (const auto& [offset, area] : vma.phys_areas) {
+            const PAddr begin = std::max(base, area.base);
+            const PAddr end = std::min(base + size, area.base + area.size);
+            if (begin >= end) {
+                continue;
+            }
+            const VAddr mapped = vma.base + offset + (begin - area.base);
+            if (mapped >= exclude && mapped < exclude + exclude_size) {
+                continue;
+            }
+            if (reported.fetch_add(1, std::memory_order_relaxed) < 16) {
+                LOG_ERROR(Kernel_Vmm,
+                          "{} physical {:#x}-{:#x} is still mapped at {:#x} (vma {:#x}-{:#x}, "
+                          "type {}) outside {:#x}-{:#x}",
+                          what, begin, end, mapped, vma.base, vma.base + vma.size,
+                          static_cast<u32>(vma.type), exclude, exclude + exclude_size);
+            }
+            return;
+        }
+    }
+}
+
+std::string MemoryManager::DescribeForCrash(VAddr addr) {
+    if (!mutex.try_lock_shared()) {
+        return "<memory map busy>";
+    }
+    std::shared_lock lock{mutex, std::adopt_lock};
+    if (vma_map.empty() || addr < vma_map.begin()->first) {
+        return {};
+    }
+    const auto& vma = FindVMA(addr)->second;
+    if (vma.IsFree() || !vma.Contains(addr, 1)) {
+        return {};
+    }
+    constexpr std::array<const char*, 10> TypeNames = {
+        "free", "reserved", "direct", "flexible", "pooled", "pool-reserved", "stack", "code",
+        "file", "system"};
+    const auto type_name = [&](VMAType type) {
+        const auto index = static_cast<std::size_t>(type);
+        return index < TypeNames.size() ? TypeNames[index] : "?";
+    };
+    const auto prot = [](MemoryProt value) {
+        return fmt::format("{}{}{}", True(value & MemoryProt::CpuRead) ? 'r' : '-',
+                           True(value & MemoryProt::CpuWrite) ? 'w' : '-',
+                           True(value & MemoryProt::CpuExec) ? 'x' : '-');
+    };
+    std::string out = fmt::format("{} {:#x}-{:#x} {}", type_name(vma.type), vma.base,
+                                  vma.base + vma.size, prot(vma.prot));
+    if (!vma.name.empty()) {
+        out += fmt::format(" \"{}\"", vma.name);
+    }
+    // Physical address of `addr` within one mapping, if it has physical backing there.
+    const auto physical = [](const VirtualMemoryArea& area, VAddr at) -> std::optional<PAddr> {
+        const u64 offset = at - area.base;
+        auto it = area.phys_areas.upper_bound(offset);
+        if (it == area.phys_areas.begin()) {
+            return std::nullopt;
+        }
+        --it;
+        if (offset - it->first >= it->second.size) {
+            return std::nullopt;
+        }
+        return it->second.base + (offset - it->first);
+    };
+    const auto paddr = physical(vma, addr);
+    if (!paddr) {
+        return out;
+    }
+    out += fmt::format(" phys {:#x}", *paddr);
+    // Direct, pooled and flexible memory share one backing with disjoint physical ranges, so a
+    // physical address identifies the byte whatever the mapping type.
+    int aliases = 0;
+    for (const auto& [base, other] : vma_map) {
+        if (base == vma.base || !HasPhysicalBacking(other) || other.phys_areas.empty()) {
+            continue;
+        }
+        for (const auto& [offset, area] : other.phys_areas) {
+            if (*paddr >= area.base && *paddr < area.base + area.size) {
+                const VAddr alias = other.base + offset + (*paddr - area.base);
+                if (aliases++ < 4) {
+                    out += fmt::format(", also at {:#x} ({} {:#x}-{:#x})", alias,
+                                       type_name(other.type), other.base,
+                                       other.base + other.size);
+                }
+            }
+        }
+    }
+    if (aliases > 4) {
+        out += fmt::format(", {} more aliases", aliases - 4);
+    }
+    return out;
 }
 
 s32 MemoryManager::DirectMemoryQuery(PAddr addr, bool find_next,

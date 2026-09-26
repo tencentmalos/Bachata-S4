@@ -9,6 +9,7 @@
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -356,6 +357,15 @@ public:
 
     s32 VirtualQuery(VAddr addr, s32 flags, ::Libraries::Kernel::OrbisVirtualQueryInfo* info);
 
+    /// For crash reports: the mapping holding `addr`, its physical address, and the other
+    /// mappings of the same physical byte (aliases are legal, but an unexpected one explains
+    /// corruption that appears far from its writer). Never blocks; empty for unmapped memory.
+    std::string DescribeForCrash(VAddr addr);
+
+    /// For crash reports: recent mapping changes (map, unmap, protect, pool commit/decommit)
+    /// whose range contains one of `addresses`, newest first. Never blocks.
+    std::vector<std::string> DescribeMappingHistoryForCrash(std::span<const VAddr> addresses);
+
     s32 DirectMemoryQuery(PAddr addr, bool find_next,
                           ::Libraries::Kernel::OrbisQueryInfo* out_info);
 
@@ -398,6 +408,12 @@ private:
         return vma.type == VMAType::Direct || vma.type == VMAType::Flexible ||
                vma.type == VMAType::Pooled;
     }
+
+    /// Flexible memory is handed out and zeroed by physical range. Logs (bounded) when such a
+    /// range is still mapped by a VMA outside [exclude, exclude + exclude_size): that zeroing or
+    /// reuse would destroy live data of the other mapping. Caller holds the writer lock.
+    void CheckPhysicalUnshared(const char* what, PAddr base, u64 size, VAddr exclude,
+                               u64 exclude_size);
 
     VMAHandle CreateArea(VAddr virtual_addr, u64 size, MemoryProt prot, MemoryMapFlags flags,
                          VMAType type, std::string_view name, u64 alignment);
