@@ -63,6 +63,11 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
     // little under 4 GiB); pages are the largest power of two at most half of it.
     const u64 buffer_limit = instance.MaxBufferSize();
     max_arena_size = buffer_limit ? buffer_limit : u64{1} << (MAX_ARENA_PAGE_BITS + 1);
+    if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
+        // Adreno 740 driver 69e13475cb crashes (on the CPU, while recording) a vkCmdCopyBuffer
+        // into a 2 GiB sparse buffer whose region reaches offset 2^31; 2047 MiB ones work.
+        max_arena_size = std::min<u64>(max_arena_size, (u64{1} << 31) - 1);
+    }
     arena_page_bits = static_cast<u32>(
         std::clamp<u64>(std::bit_width(max_arena_size / 2) - 1, MIN_ARENA_PAGE_BITS,
                         MAX_ARENA_PAGE_BITS));
