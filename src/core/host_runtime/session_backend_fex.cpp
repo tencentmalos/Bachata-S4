@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <fmt/format.h>
 #if defined(__ANDROID__)
 #include <android/log.h>
 #include <sys/system_properties.h>
