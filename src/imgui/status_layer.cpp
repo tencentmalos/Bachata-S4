@@ -141,6 +141,8 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
         : snapshot.driver_identity.find("source=turnip") != std::string::npos ? "Turnip"
                                                                               : default_driver;
     field("Renderer", "backend", "CPU / GPU", fmt::format("{} / Vulkan {}", cpu, driver), true);
+    if (!gpu_device.empty())
+        field("Renderer", "gpu_device", "GPU", gpu_device, multiple_gpus);
     field("Renderer", "surface", "Surface", fmt::format("{} x {}", width, height));
     field("Renderer", "scale", "Render scale",
           fmt::format("x{:g}", scale_policy.render_eighths / 8.0));

@@ -371,6 +371,14 @@ public:
         return properties.deviceName;
     }
 
+    /// Selected device for status displays, e.g. "AMD Radeon RX 7600M XT (discrete, 1 of 2)".
+    std::string DeviceSummary() const;
+
+    /// Number of Vulkan physical devices this instance enumerated.
+    std::size_t PhysicalDeviceCount() const {
+        return physical_devices.size();
+    }
+
     /// Returns if the device is an integrated GPU.
     bool IsIntegrated() const {
         return properties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu;

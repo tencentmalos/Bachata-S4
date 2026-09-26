@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include <memory>
+#include <string>
 #include "common/gpu_timing.h"
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/frame_history.h"
@@ -18,9 +19,11 @@ public:
     explicit StatusLayer(std::shared_ptr<::Core::Diagnostics::DiagnosticsPublisher> publisher,
                          std::shared_ptr<Common::Profiler::GpuTimingState> gpu = {},
                          VideoCore::ScalePolicySnapshot policy = {},
-                         std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage = {})
+                         std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage = {},
+                         std::string gpu_device = {}, bool multiple_gpus = false)
         : publisher{std::move(publisher)}, gpu{std::move(gpu)}, scale_policy{policy},
-          coverage{std::move(coverage)} {}
+          coverage{std::move(coverage)}, gpu_device{std::move(gpu_device)},
+          multiple_gpus{multiple_gpus} {}
     void Presented(uint64_t now, bool reused) {
         all_presents.Record(now);
         if (!reused)
@@ -38,6 +41,9 @@ private:
     ::Core::Diagnostics::DiagnosticsSnapshot snapshot;
     const VideoCore::ScalePolicySnapshot scale_policy;
     std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage;
+    // Vulkan device the renderer runs on; with several GPUs it is also a summary item.
+    const std::string gpu_device;
+    const bool multiple_gpus;
     VideoCore::ScaleCoverageCounters::Snapshot last_coverage{};
     // Windowed (500 ms) Render Scale coverage: share of attachment draws/passes that
     // rendered scaled, plus promotions and upscaled readbacks in the window.

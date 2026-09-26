@@ -492,8 +492,9 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
       texture_cache{rasterizer->GetTextureCache()} {
     const auto& diag = instance.Diagnostics();
-    status_layer = std::make_unique<ImGui::StatusLayer>(diag, instance.GpuTiming(), instance.ScalePolicy(),
-                                                        texture_cache.Coverage());
+    status_layer = std::make_unique<ImGui::StatusLayer>(
+        diag, instance.GpuTiming(), instance.ScalePolicy(), texture_cache.Coverage(),
+        instance.DeviceSummary(), instance.PhysicalDeviceCount() > 1);
     const u64 generation = diag ? diag->Generation() : 1;
     capture_binding.Bind(generation, static_cast<VkInstance>(instance.GetInstance()),
                          window->GetWindowInfo().render_surface, instance.GetDriverVersionName());

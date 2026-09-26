@@ -106,6 +106,50 @@ static std::unique_lock<std::mutex> AcquireDispatcher() {
 #endif
 }
 
+// SHADPS4_VK_DISABLE_EXTENSIONS / debug.shadps4.vk_disable_extensions: a comma-separated
+// list of device extensions to treat as unsupported. Reproduces the fallback paths of
+// drivers (or capture layers such as RenderDoc) that lack them on any GPU.
+static std::vector<std::string> DisabledDeviceExtensions() {
+    std::string list;
+    if (const char* value = std::getenv("SHADPS4_VK_DISABLE_EXTENSIONS")) {
+        list = value;
+    }
+#ifdef __ANDROID__
+    char prop[PROP_VALUE_MAX]{};
+    if (__system_property_get("debug.shadps4.vk_disable_extensions", prop) > 0) {
+        list += list.empty() ? "" : ",";
+        list += prop;
+    }
+#endif
+    std::vector<std::string> names;
+    for (std::string_view rest{list}; !rest.empty();) {
+        const auto comma = rest.find(',');
+        std::string_view name = rest.substr(0, comma);
+        while (!name.empty() && name.front() == ' ') name.remove_prefix(1);
+        while (!name.empty() && name.back() == ' ') name.remove_suffix(1);
+        if (!name.empty()) {
+            names.emplace_back(name);
+        }
+        rest.remove_prefix(comma == std::string_view::npos ? rest.size() : comma + 1);
+    }
+    return names;
+}
+
+static const char* DeviceTypeName(vk::PhysicalDeviceType type) {
+    switch (type) {
+    case vk::PhysicalDeviceType::eIntegratedGpu:
+        return "integrated";
+    case vk::PhysicalDeviceType::eDiscreteGpu:
+        return "discrete";
+    case vk::PhysicalDeviceType::eVirtualGpu:
+        return "virtual";
+    case vk::PhysicalDeviceType::eCpu:
+        return "CPU";
+    default:
+        return "other";
+    }
+}
+
 static VideoCore::ScalePolicySnapshot CaptureScalePolicy() {
     const auto flag = [](const char* env, [[maybe_unused]] const char* property) {
         const char* value = std::getenv(env);
@@ -201,6 +245,12 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
     }
 
     available_extensions = GetSupportedExtensions(physical_device);
+    for (const auto& name : DisabledDeviceExtensions()) {
+        if (std::erase(available_extensions, name) != 0) {
+            LOG_WARNING(Render_Vulkan, "Extension {} disabled by SHADPS4_VK_DISABLE_EXTENSIONS",
+                        name);
+        }
+    }
     format_properties = GetFormatProperties(physical_device);
     properties = physical_device.getProperties();
     memory_properties = physical_device.getMemoryProperties();
@@ -813,6 +863,13 @@ void Instance::CreateAllocator() {
         UNREACHABLE_MSG("Failed to initialize VMA with error {}",
                         vk::to_string(vk::Result{result}));
     }
+}
+
+std::string Instance::DeviceSummary() const {
+    const auto it = std::ranges::find(physical_devices, physical_device);
+    const auto index = static_cast<std::size_t>(std::distance(physical_devices.begin(), it));
+    return fmt::format("{} ({}, {} of {})", GetModelName(), DeviceTypeName(properties.deviceType),
+                       index + 1, physical_devices.size());
 }
 
 void Instance::CollectDeviceParameters() {
