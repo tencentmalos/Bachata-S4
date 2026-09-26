@@ -5,12 +5,14 @@
 
 #include <array>
 #include <cstdint>
+#include <string_view>
 #include <fmt/base.h>
 
 #include "common/logging/classes.h"
 
 namespace Common::Log {
 
+// Same order as Foundation's spatial::LogLevel.
 enum class Level : std::uint8_t {
     Trace = 0,
     Debug,
@@ -20,28 +22,26 @@ enum class Level : std::uint8_t {
     Critical,
     Off,
 };
-extern std::array<Level, NUM_LOG_CLASSES> g_class_levels;
 
+// Logging runs on Foundation's LogModule: every Class is a Foundation logger kind named after the
+// class (see classes.cpp), so its level is the kind switch. Setup starts the log channel with the
+// main file; Switch moves the channel to the game's file.
 void Setup(std::string_view shadps4_filename);
 void Switch(std::string_view game_filename, bool append_log);
 void Shutdown();
 void Flush();
 
-// Writes a diagnostic record to the dedicated guest-patch sink. This is kept
-// outside ALL_LOGGERS so guest instrumentation cannot change the user's main
-// log filters or duplicate records into the console.
+// Writes a diagnostic record to the dedicated guest-patch file. It has its own log channel so
+// guest instrumentation cannot change the user's main log filters or reach the console.
 void WriteGuestPatch(std::string_view message) noexcept;
-// One host-side entry point, also callable from the JNI DSO without exporting spdlog internals.
+// One host-side entry point, also callable from the JNI DSO without exporting the log backend.
 void WriteOverlayEvent(std::string_view message) noexcept;
 
-void Terminate();
-void UpdateSinks();
+// `<class>:<level> ...` with `*:<level>` as the default; applies to every Foundation logger kind.
 void UpdateLogLevels(std::string_view log_filter);
 void UpdateLogFlushLevel(std::string_view log_flush_level);
 
-[[nodiscard]] inline bool ShouldLog(Class log_class, Level level) {
-    return level >= g_class_levels[static_cast<std::size_t>(log_class)];
-}
+[[nodiscard]] bool ShouldLog(Class log_class, Level level) noexcept;
 
 void VLog(Class log_class, Level level, const char* file, int line, const char* func,
           fmt::string_view format, fmt::format_args args);

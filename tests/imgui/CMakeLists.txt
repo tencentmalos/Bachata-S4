@@ -17,5 +17,4 @@ add_executable(overlay_vulkan_probe overlay_vulkan_probe.cpp ${ROOT}/src/imgui/r
 target_include_directories(overlay_vulkan_probe PRIVATE ${ROOT}/externals/vulkan-headers/include)
 target_link_libraries(overlay_vulkan_probe PRIVATE probe_imgui foundation_imgui_overlay fmt::fmt ${CMAKE_DL_LIBS})
 add_executable(overlay_tooltips_test overlay_tooltips_test.cpp ${ROOT}/src/imgui/runtime_tooltips.cpp)
-target_include_directories(overlay_tooltips_test PRIVATE ${ROOT}/externals/spdlog/include)
 target_link_libraries(overlay_tooltips_test PRIVATE probe_imgui fmt::fmt)

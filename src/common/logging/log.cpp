@@ -1,282 +1,338 @@
 // SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <atomic>
+#include <cctype>
 #include <cstdlib>
-#include <iostream>
+#include <filesystem>
+#include <map>
+#include <mutex>
+#include <optional>
 #include <string>
-#include <fmt/std.h>
-#include <spdlog/sinks/async_sink.h>
-#include <spdlog/sinks/dup_filter_sink.h>
+#include <vector>
+#include <fmt/format.h>
 
-#include <spdlog/details/fmt_helper.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spatial/core/imodules/ILogger.hpp>
+#include <spatial/log/LogWriterFactory.h>
 
-#ifdef _WIN32
-#include <spdlog/sinks/msvc_sink.h>
-#include <spdlog/sinks/wincolor_sink.h>
-using spdlog_stdout = spdlog::sinks::sink;
-#else
-using spdlog_stdout = spdlog::sinks::stdout_color_sink_mt;
-#endif
-
-#include <spdlog/spdlog.h>
-
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
-#include "common/assert.h"
 #include "common/logging/log.h"
-#include "common/logging/log_file_sink.h"
+#include "common/logging/log_stats.h"
 #include "common/path_util.h"
 #include "common/thread.h"
 #include "common/types.h"
 #include "core/emulator_settings.h"
 
 namespace Common::Log {
+namespace {
 
-static std::shared_ptr<spdlog_stdout> g_console_sink;
-static std::shared_ptr<LogFileSink> g_shad_file_sink;
-static std::shared_ptr<LogFileSink> g_guest_patch_file_sink;
-static std::shared_ptr<spdlog::logger> g_guest_patch_logger;
-static std::array<std::unique_ptr<spdlog::logger>, NUM_LOG_CLASSES> ALL_LOGGERS{};
+static_assert(static_cast<int>(Level::Trace) == static_cast<int>(spatial::LogLevel::Trace) &&
+              static_cast<int>(Level::Warning) == static_cast<int>(spatial::LogLevel::Warn) &&
+              static_cast<int>(Level::Off) == static_cast<int>(spatial::LogLevel::Off));
 
-std::array<Level, NUM_LOG_CLASSES> g_class_levels{};
-
-static spdlog::level ToSpdlog(Level l) {
-    return static_cast<spdlog::level>(l);
+constexpr spatial::LogLevel ToSpatial(Level level) {
+    return static_cast<spatial::LogLevel>(level);
 }
 
-static Level FromSpdlog(spdlog::level l) {
-    return static_cast<Level>(l);
+constexpr auto Channel = spatial::LogChannel::LOG_CHANNEL_NORMAL;
+// Rotated files kept next to the current one (<name>_1.log is the previous run or chunk).
+constexpr u32 KeptLogFiles = 2;
+
+// A Foundation logger kind per Class, named after the class. Its level is the class filter, and
+// Foundation's kind switches (ILogger::SetLogLevelByName) reach it like any other kind.
+class ClassLogger final : public spatial::ILogger {
+public:
+    void Register(std::string_view name) {
+        this->name = name;
+        AddLoggerToMap(name, this);
+    }
+
+protected:
+    void LogMessageImpl(spatial::LogMessageConfig config, std::string_view message) override {
+        GLOG.traceMessage(Channel, name, config, message);
+    }
+
+private:
+    std::string_view name; // NameOf literal: the log thread reads it after the call returns.
+};
+
+std::array<ClassLogger, NUM_LOG_CLASSES>& Loggers() {
+    static auto& loggers = []() -> std::array<ClassLogger, NUM_LOG_CLASSES>& {
+        static std::array<ClassLogger, NUM_LOG_CLASSES> array;
+        for (int i = 0; i < NUM_LOG_CLASSES; ++i) {
+            array[i].Register(NameOf(static_cast<Class>(i)));
+            array[i].SetLevel(spatial::LogLevel::Info);
+        }
+        return array;
+    }();
+    return loggers;
 }
 
-[[nodiscard]] static constexpr std::string_view NameOf(spdlog::level lvl) noexcept {
-    static constexpr std::array level_string_views{"Trace", "Debug",    "Info", "Warning",
-                                                   "Error", "Critical", "Off"};
-    return level_string_views[level_to_number(lvl)];
+std::mutex g_state_mutex;
+spatial::ILogWritter* g_file_writer{}; // Owned; the current file of the main channel.
+// Guest instrumentation has its own module (channel thread and file), outside the kinds.
+spatial::LogModule g_guest_patch;
+bool g_guest_patch_running{};
+std::string g_active_filter;
+std::atomic<Level> g_flush_level{Level::Off};
+
+std::string_view Basename(std::string_view path) {
+    const auto slash = path.find_last_of("/\\");
+    return slash == std::string_view::npos ? path : path.substr(slash + 1);
+}
+
+// Foundation file writers add ".log" and rotate <name>_<n>.log, so the name is used without its
+// extension. Returns null when the file cannot be opened; logging then continues elsewhere.
+spatial::ILogWritter* MakeFileWriter(std::string_view filename, bool append) {
+    const auto dir = FS::GetUserPath(FS::PathType::LogDir);
+    const auto size_limit = EmulatorSettings.GetLogSizeLimit();
+    spatial::FileWriterConfig config{
+        .logFilePath = FS::PathToUTF8String(dir),
+        .logName = FS::PathToUTF8String(std::filesystem::path(filename).stem()),
+        // 0 means unlimited; the writer takes MiB and ignores sizes below 1 MiB.
+        .maxFileSizeM = size_limit == 0 ? (size_t{1} << 20) : std::max<size_t>(1, size_limit >> 20),
+        .maxFileNum = KeptLogFiles,
+        .isAppend = append,
+        .isRotateByTime = false,
+    };
+    return spatial::modules::LogWriterFactory::queryFileWriter(config);
+}
+
+std::optional<spatial::LogLevel> ParseLevel(std::string_view text) {
+    std::string lower{text};
+    std::ranges::transform(lower, lower.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    // Foundation names plus the spellings older configs use.
+    static constexpr std::pair<std::string_view, spatial::LogLevel> names[] = {
+        {"trace", spatial::LogLevel::Trace},  {"debug", spatial::LogLevel::Debug},
+        {"info", spatial::LogLevel::Info},    {"warn", spatial::LogLevel::Warn},
+        {"warning", spatial::LogLevel::Warn}, {"err", spatial::LogLevel::Error},
+        {"error", spatial::LogLevel::Error},  {"critical", spatial::LogLevel::Critical},
+        {"off", spatial::LogLevel::Off},
+    };
+    for (const auto& [name, level] : names) {
+        if (lower == name) {
+            return level;
+        }
+    }
+    return std::nullopt;
+}
+
+struct Filter {
+    spatial::LogLevel fallback{spatial::LogLevel::Info};
+    std::vector<std::pair<std::string, spatial::LogLevel>> kinds;
+};
+
+// Parses "<kind>:<level> ... *:<level>". Kinds are checked against the registered loggers when
+// `strict`; otherwise unknown entries are skipped like before.
+std::optional<Filter> ParseFilter(std::string_view text, bool strict, std::string* error) {
+    Filter filter;
+    const auto known = spatial::ILogger::GetAllLoggerState();
+    std::size_t pos = 0;
+    while (pos < text.size()) {
+        const auto end = std::min(text.find(' ', pos), text.size());
+        const auto token = text.substr(pos, end - pos);
+        pos = end + 1;
+        if (token.empty()) {
+            continue;
+        }
+        const auto colon = token.rfind(':');
+        const auto level =
+            colon == std::string_view::npos ? std::nullopt : ParseLevel(token.substr(colon + 1));
+        const auto name = colon == std::string_view::npos ? token : token.substr(0, colon);
+        if (!level || (name != "*" && !known.contains(name))) {
+            if (strict) {
+                *error = !level ? fmt::format("bad level in '{}' (trace|debug|info|warning|"
+                                              "error|critical|off)",
+                                              token)
+                                : fmt::format("unknown logger kind '{}'", name);
+                return std::nullopt;
+            }
+            continue;
+        }
+        if (name == "*") {
+            filter.fallback = *level;
+        } else {
+            filter.kinds.emplace_back(name, *level);
+        }
+    }
+    return filter;
+}
+
+void ApplyFilter(const Filter& filter, std::string_view text) {
+    const bool enabled = EmulatorSettings.IsLogEnable();
+    for (const auto& [name, level] : spatial::ILogger::GetAllLoggerState()) {
+        spatial::ILogger::SetLogLevelByName(name,
+                                            enabled ? filter.fallback : spatial::LogLevel::Off);
+    }
+    if (enabled) {
+        for (const auto& [name, level] : filter.kinds) {
+            spatial::ILogger::SetLogLevelByName(name, level);
+        }
+    }
+    std::scoped_lock lock{g_state_mutex};
+    g_active_filter = text;
+}
+
+} // namespace
+
+bool ShouldLog(Class log_class, Level level) noexcept {
+    return Loggers()[static_cast<std::size_t>(log_class)].ShouldLog(ToSpatial(level));
 }
 
 void VLog(Class log_class, Level level, const char* file, int line, const char* func,
           fmt::string_view format, fmt::format_args args) {
-    const auto& logger = ALL_LOGGERS[static_cast<size_t>(log_class)];
-    if (!logger) {
+    fmt::memory_buffer msg;
+    const std::string_view fn = std::string_view(func) == "operator()" ? "lambda" : func;
+    // Time, level, thread id and class come from the Foundation writers.
+    fmt::format_to(fmt::appender(msg), "({}) {}:{} {}: ", Common::GetCurrentThreadName(),
+                   Basename(file), line, fn);
+    const auto header = msg.size();
+    fmt::vformat_to(fmt::appender(msg), format, args);
+    Loggers()[static_cast<std::size_t>(log_class)].Log({ToSpatial(level), EMPTY_LOG_MASK},
+                                                       std::string_view(msg.data(), msg.size()));
+    Stats::Record(log_class, file, line, func, msg.size() - header);
+    Stats::Tick();
+    // Critical lines usually precede an abort; the channel writes asynchronously.
+    if (level >= std::min(g_flush_level.load(std::memory_order_relaxed), Level::Critical)) {
+        Flush();
+    }
+}
+
+namespace {
+// Moves the main channel to `filename`; the current file stays in use if the new one cannot be
+// opened.
+void UseFile(std::string_view filename, bool append) {
+    auto* writer = MakeFileWriter(filename, append);
+    if (!writer) {
         return;
     }
-    fmt::memory_buffer msg;
-    fmt::vformat_to(fmt::appender(msg), format, args);
-    const std::string_view fn = std::string_view(func) == "operator()" ? "lambda" : func;
-    logger->log(ToSpdlog(level), "[{}] <{}> ({}) {}:{} {}: {}", NameOf(log_class),
-                NameOf(ToSpdlog(level)), Common::GetCurrentThreadName(),
-                spdlog::source_loc::basename(file), line, fn,
-                std::string_view(msg.data(), msg.size()));
-}
-
-template <typename T>
-static auto UpdateColorLevels(T sink) {
-#ifdef _WIN32
-    using LogColor = std::uint16_t;
-
-    const auto Grey = FOREGROUND_INTENSITY;
-    const auto Cyan = FOREGROUND_GREEN | FOREGROUND_BLUE;
-    const auto Bright_gray = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-    const auto Bright_yellow = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-    const auto Bright_red = FOREGROUND_RED | FOREGROUND_INTENSITY;
-    const auto Bright_magenta = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
-#else
-    using LogColor = std::string_view;
-
-#define ESC "\x1b"
-    const auto Grey = ESC "[1;30m";
-    const auto Cyan = ESC "[0;36m";
-    const auto Bright_gray = ESC "[0;37m";
-    const auto Bright_yellow = ESC "[1;33m";
-    const auto Bright_red = ESC "[1;31m";
-    const auto Bright_magenta = ESC "[1;35m";
-#undef ESC
-#endif
-
-    const std::unordered_map<spdlog::level, LogColor> colors{
-        {spdlog::level::trace, Grey},       {spdlog::level::debug, Cyan},
-        {spdlog::level::info, Bright_gray}, {spdlog::level::warn, Bright_yellow},
-        {spdlog::level::err, Bright_red},   {spdlog::level::critical, Bright_magenta}};
-
-    for (const auto& [level, color] : colors) {
-        sink->set_color(level, color);
+    std::scoped_lock lock{g_state_mutex};
+    GLOG.addChannelWriter(Channel, writer);
+    if (g_file_writer) {
+        // The channel stops using it before removeChannelWriter returns.
+        GLOG.removeChannelWriter(Channel, g_file_writer);
+        g_file_writer->flush();
+        delete g_file_writer;
     }
-
-    return sink;
+    g_file_writer = writer;
 }
+} // namespace
 
 void Setup(std::string_view shadps4_filename) {
-    static std::once_flag already_registered;
-
-    std::call_once(already_registered, []() {
+    // The channels live for the whole process; later calls only move the main file.
+    static std::once_flag started;
+    std::call_once(started, [] {
         std::atexit(Shutdown);
         std::at_quick_exit(Flush);
-    });
+        Loggers();
 
-    for (u32 i = 0; i < ALL_LOGGERS.size(); ++i) {
-        const auto log_class = static_cast<Class>(i);
-        auto& logger = ALL_LOGGERS[i];
-        logger = std::make_unique<spdlog::logger>(std::string(NameOf(log_class)));
-        logger->set_level(spdlog::level::trace);
-    }
-
-    // Setup console
-
-#ifdef _WIN32
-    if (EmulatorSettings.GetLogType() == "wincolor") {
-        g_console_sink = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
-    } else {
-        g_console_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-    }
-
-#else
-    g_console_sink = UpdateColorLevels(std::make_shared<spdlog_stdout>(spdlog::color_mode::always));
+        spatial::LogInitParm parm{spatial::LogLevel::Trace};
+        auto& channel =
+            parm.channelCfg.emplace(Channel, spatial::LogInitParm::ChannelCfg{"shadPS4:Log"})
+                .first->second;
+#ifndef __ANDROID__
+        // Android keeps logcat quiet; its logs are in the app's log directory.
+        channel.consoleWriter = spatial::modules::LogWriterFactory::queryConsoleWriter(true);
 #endif
+        GLOG.initLogger(parm);
 
-    g_console_sink->set_pattern("%^%v%$");
-
-    // Setup file
-
-    g_shad_file_sink = std::make_shared<LogFileSink>(
-        (GetUserPath(Common::FS::PathType::LogDir) / shadps4_filename).string(), false,
-        EmulatorSettings.GetLogSizeLimit());
-    g_shad_file_sink->set_pattern("%^%v%$");
-
-    // Guest instrumentation is intentionally managed by the same logger
-    // lifecycle, but uses a private sink/file. This keeps high-volume patch
-    // probes out of the main log and console while retaining the normal
-    // shadPS4 path, flush, and shutdown semantics.
-    g_guest_patch_file_sink = std::make_shared<LogFileSink>(
-        (GetUserPath(Common::FS::PathType::LogDir) / "guest-patch.log").string(), false);
-    g_guest_patch_file_sink->set_pattern("%^%v%$");
-    g_guest_patch_logger = std::make_shared<spdlog::logger>("GuestPatch", g_guest_patch_file_sink);
-    g_guest_patch_logger->set_level(spdlog::level::trace);
-    g_guest_patch_logger->flush_on(spdlog::level::info);
-
-    UpdateSinks();
+        spatial::LogInitParm guest_parm{spatial::LogLevel::Trace};
+        auto& guest_channel =
+            guest_parm.channelCfg
+                .emplace(Channel, spatial::LogInitParm::ChannelCfg{"shadPS4:GuestLog"})
+                .first->second;
+        if (auto* writer = MakeFileWriter("guest-patch", false)) {
+            guest_channel.writers.push_back(writer);
+            g_guest_patch.initLogger(guest_parm);
+            g_guest_patch_running = true;
+        }
+    });
+    UseFile(shadps4_filename, false);
+    UpdateLogLevels(EmulatorSettings.GetLogFilter());
 }
 
 void Switch(std::string_view game_filename, bool append_log) {
-    UpdateSinks();
     UpdateLogLevels(EmulatorSettings.GetLogFilter());
     UpdateLogFlushLevel(EmulatorSettings.GetLogFlushLevel());
-
-    g_shad_file_sink->_size_limit = EmulatorSettings.GetLogSizeLimit();
-    g_shad_file_sink->session_file_helper_.open(
-        (GetUserPath(Common::FS::PathType::LogDir) / game_filename).string(),
-        !(append_log || EmulatorSettings.IsLogAppend()));
+    UseFile(game_filename, append_log || EmulatorSettings.IsLogAppend());
 }
 
 void Shutdown() {
-    for (auto& logger : ALL_LOGGERS) {
-        logger.reset();
+    std::scoped_lock lock{g_state_mutex};
+    // release() joins the channel threads and deletes their writers.
+    GLOG.release();
+    g_file_writer = nullptr;
+    if (g_guest_patch_running) {
+        g_guest_patch.release();
+        g_guest_patch_running = false;
     }
-
-    g_shad_file_sink.reset();
-    g_guest_patch_logger.reset();
-    g_guest_patch_file_sink.reset();
-    g_console_sink.reset();
 }
 
 void Flush() {
-    if (g_shad_file_sink != nullptr) {
-        g_shad_file_sink->flush();
-    }
-
-    if (g_guest_patch_file_sink != nullptr) {
-        g_guest_patch_file_sink->flush();
-    }
-
-    if (g_console_sink != nullptr) {
-        g_console_sink->flush();
+    GLOG.flushChannel(Channel);
+    if (g_guest_patch_running) {
+        g_guest_patch.flushChannel(Channel);
     }
 }
 
 void WriteOverlayEvent(std::string_view message) noexcept {
     WriteGuestPatch(message);
-    try { LOG_INFO(ImGui, "{}", message); } catch (...) {}
+    try {
+        LOG_INFO(ImGui, "{}", message);
+    } catch (...) {
+    }
 }
 
 void WriteGuestPatch(std::string_view message) noexcept {
     try {
-        if (g_guest_patch_logger != nullptr &&
-            g_guest_patch_logger->should_log(spdlog::level::info)) {
-            g_guest_patch_logger->log(spdlog::level::info, "{}", message);
+        if (g_guest_patch_running) {
+            g_guest_patch.traceMessage(Channel, "GuestPatch",
+                                       {spatial::LogLevel::Info, EMPTY_LOG_MASK}, message);
         }
     } catch (...) {
         // Diagnostics must never affect guest execution or HLE return values.
     }
 }
 
-void UpdateSinks() {
-    std::initializer_list<spdlog::sink_ptr> sinks{g_console_sink, g_shad_file_sink};
-
-    std::initializer_list<spdlog::sink_ptr> async_sink{std::make_shared<spdlog::sinks::async_sink>(
-        spdlog::sinks::async_sink::config{.sinks = sinks})};
-
-    std::initializer_list<spdlog::sink_ptr> dup_filter{
-        std::make_shared<spdlog::sinks::dup_filter_sink_mt>(
-            std::chrono::milliseconds(EmulatorSettings.GetLogMaxSkipDuration()),
-            EmulatorSettings.IsLogSync() ? sinks : async_sink)};
-
-    for (auto& logger : ALL_LOGGERS) {
-        logger->sinks() = EmulatorSettings.IsLogSkipDuplicate()
-                              ? dup_filter
-                              : (EmulatorSettings.IsLogSync() ? sinks : async_sink);
-    }
-}
-
 void UpdateLogLevels(std::string_view log_filter) {
-    spdlog::level default_log_level = spdlog::level::info;
-    std::unordered_map<std::string, spdlog::level> log_level_per_class;
-
-    if (EmulatorSettings.IsLogEnable()) {
-        for (const auto class_level : std::views::split(log_filter, ' ')) {
-            const auto class_level_pair =
-                std::views::split(class_level, ':') | std::ranges::to<std::vector<std::string>>();
-
-            if (class_level_pair.size() != 2) {
-                LOG_ERROR(Config, "bad log filter provided");
-                continue;
-            }
-
-            if (class_level_pair.front()[0] == '*') {
-                default_log_level = spdlog::level_from_str(class_level_pair.back() |
-                                                           std::ranges::to<std::string>());
-            } else {
-                log_level_per_class[class_level_pair.front() | std::ranges::to<std::string>()] =
-                    spdlog::level_from_str(class_level_pair.back() |
-                                           std::ranges::to<std::string>());
-            }
-        }
-    }
-
-    for (u32 i = 0; i < ALL_LOGGERS.size(); ++i) {
-        const auto log_class = static_cast<Class>(i);
-        auto& logger = ALL_LOGGERS[i];
-        if (EmulatorSettings.IsLogEnable()) {
-            const auto level_it = log_level_per_class.find(std::string(NameOf(log_class)));
-            const auto log_level =
-                level_it != log_level_per_class.end() ? level_it->second : default_log_level;
-            logger->set_level(log_level);
-            g_class_levels[i] = FromSpdlog(log_level);
-        } else {
-            logger->set_level(spdlog::level::off);
-            g_class_levels[i] = Level::Off;
-        }
+    Loggers();
+    std::string error;
+    if (const auto filter = ParseFilter(log_filter, false, &error)) {
+        ApplyFilter(*filter, log_filter);
     }
 }
 
 void UpdateLogFlushLevel(std::string_view log_flush_level) {
-    if (!log_flush_level.empty()) {
-        for (auto& logger : ALL_LOGGERS) {
-            logger->flush_on(spdlog::level_from_str(log_flush_level.data()));
+    const auto level = log_flush_level.empty() ? std::nullopt : ParseLevel(log_flush_level);
+    g_flush_level.store(level ? static_cast<Level>(*level) : Level::Off, std::memory_order_relaxed);
+}
+
+std::string FilterCommand(const std::vector<std::string>& args) {
+    Loggers();
+    if (!args.empty()) {
+        std::string text;
+        for (const auto& token : args) {
+            text += text.empty() ? token : ' ' + token;
         }
+        std::string error;
+        const auto filter = ParseFilter(text, true, &error);
+        if (!filter) {
+            return "error=" + error + "\n";
+        }
+        ApplyFilter(*filter, text);
     }
+    std::string out;
+    {
+        std::scoped_lock lock{g_state_mutex};
+        out = "filter: " + g_active_filter + "\nkinds:\n";
+    }
+    const auto states = spatial::ILogger::GetAllLoggerState();
+    const std::map<std::string_view, spatial::LogLevel> sorted{states.begin(), states.end()};
+    for (const auto& [name, level] : sorted) {
+        out += fmt::format("  {} {}\n", name, spatial::LogModule::getLogLevelName(level));
+    }
+    return out;
 }
 
 } // namespace Common::Log

@@ -39,7 +39,7 @@ for src in block((shader_dir/'CMakeLists.txt').read_text(), 'SHADER_FILES').spli
 inc_path = root/'scripts/android/host-ndk-include-set.txt'
 flags = shlex.split(inc_path.read_text()) + ['-I','externals/fmt/include','-I',str(headers)]
 # Explicit NDK profile, not desktop ABI flags. Tracy OFF means macro undefined.
-flags += ['-DUSE_OS_TZDB=1','-DARCH_ARM64=1','-DAL_LIBTYPE_STATIC','-DBOOST_ASIO_STANDALONE','-DHAS_STRING_VIEW=1','-DNOMINMAX','-DONLY_C_LOCALE=0','-DPUGIXML_NO_EXCEPTIONS','-DSPDLOG_FUNCTION=__func__','-DZYCORE_STATIC_BUILD','-DZYDIS_STATIC_BUILD','-DNDEBUG','-DVK_USE_PLATFORM_ANDROID_KHR','-DIMGUI_USER_CONFIG="imgui/imgui_config.h"']
+flags += ['-DUSE_OS_TZDB=1','-DARCH_ARM64=1','-DAL_LIBTYPE_STATIC','-DBOOST_ASIO_STANDALONE','-DHAS_STRING_VIEW=1','-DNOMINMAX','-DONLY_C_LOCALE=0','-DPUGIXML_NO_EXCEPTIONS','-DZYCORE_STATIC_BUILD','-DZYDIS_STATIC_BUILD','-DNDEBUG','-DVK_USE_PLATFORM_ANDROID_KHR','-DIMGUI_USER_CONFIG="imgui/imgui_config.h"']
 # Generate miniz's actual export header with the NDK toolchain, not a copied
 # desktop header or a hand-written substitute. No external sources are changed.
 if 'src/video_core/cache_storage.cpp' in sources:

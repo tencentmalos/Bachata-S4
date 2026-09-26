@@ -28,6 +28,8 @@ set(SETTINGS_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/classes.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/log_stats.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/profiler.cpp
 
     # Stubs that replace dependencies
     stubs/common_stub.cpp
@@ -57,6 +59,8 @@ set(NGS2_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/classes.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/log_stats.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/profiler.cpp
 
     # Stubs that replace dependencies
     stubs/common_stub.cpp
@@ -146,6 +150,8 @@ set(GCN_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/classes.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/log_stats.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/profiler.cpp
     ${CMAKE_SOURCE_DIR}/src/common/ntapi.cpp
 
     # Stubs that replace dependencies
@@ -184,6 +190,8 @@ set(CONTENT_ROOTS_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/error.cpp
     ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/log_stats.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/profiler.cpp
 
     # Stubs that replace dependencies
     stubs/common_stub.cpp
@@ -217,7 +225,7 @@ target_link_libraries(shadps4_settings_test PRIVATE
     nlohmann_json::nlohmann_json
     toml11::toml11
     SDL3::SDL3
-    spdlog::spdlog
+    spatial::foundation_log
 )
 target_link_libraries(shadps4_ngs2_test PRIVATE
     GTest::gtest_main
@@ -225,7 +233,7 @@ target_link_libraries(shadps4_ngs2_test PRIVATE
     nlohmann_json::nlohmann_json
     toml11::toml11
     SDL3::SDL3
-    spdlog::spdlog
+    spatial::foundation_log
 )
 target_link_libraries(shadps4_gcn_test PRIVATE
     GTest::gtest_main
@@ -237,7 +245,7 @@ target_link_libraries(shadps4_gcn_test PRIVATE
     Vulkan::Headers
     sirit
     SDL3::SDL3
-    spdlog::spdlog
+    spatial::foundation_log
     half::half
 )
 
@@ -249,7 +257,7 @@ target_link_libraries(shadps4_content_roots_test PRIVATE
     toml11::toml11
     tsl::robin_map
     SDL3::SDL3
-    spdlog::spdlog
+    spatial::foundation_log
     ZArchive::zarchive
 )
 
@@ -281,6 +289,10 @@ foreach(t ${TEST_TARGETS})
                 _SCL_SECURE_NO_WARNINGS
                 _TIMESPEC_DEFINED
             )
+        endif()
+        if (MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+            # Foundation's logging core uses 128-bit division (__udivti3), like shadps4 itself.
+            target_link_libraries(${t} PRIVATE clang_rt.builtins-x86_64.lib)
         endif()
     endif()
 endforeach()
@@ -315,6 +327,8 @@ set(HTTP_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/classes.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/log_stats.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/profiler.cpp
 
     # Stubs that replace dependencies
     stubs/common_stub.cpp
@@ -351,7 +365,7 @@ target_link_libraries(shadps4_http_test PRIVATE
     nlohmann_json::nlohmann_json
     toml11::toml11
     SDL3::SDL3
-    spdlog::spdlog
+    spatial::foundation_log
     ZLIB::ZLIB
 )
 

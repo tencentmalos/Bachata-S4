@@ -303,7 +303,7 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
         EmulatorSettings.GetWindowsGuestRedZoneProtectionMode());
     // Switch to configured log
     Common::Log::Switch((!id.empty() && EmulatorSettings.IsLogSeparate()) ? id + ".log"
-                                                                          : "shad_log.txt",
+                                                                          : "shad_log.log",
                         append_log);
 #ifdef _WIN32
     // Windows static guest red-zone protection

@@ -23,23 +23,13 @@ if (NOT TARGET Boost::headers)
     add_subdirectory(ext-boost)
 endif()
 
-# fmt must precede spdlog: otherwise spdlog v2 fetches its own fmt revision.
 if (NOT TARGET fmt::fmt)
     include(FetchContent)
-    # spdlog's external mode calls find_package(fmt CONFIG); redirect that call
-    # to the already pinned source, without requiring a host install prefix.
+    # Dependencies that call find_package(fmt CONFIG) get the already pinned
+    # source, without requiring a host install prefix.
     FetchContent_Declare(fmt SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fmt" OVERRIDE_FIND_PACKAGE)
     FetchContent_MakeAvailable(fmt)
 endif()
-
-# spdlog
-set(SPDLOG_NO_EXCEPTIONS ON)
-set(SPDLOG_DISABLE_GLOBAL_LOGGER ON)
-if (TARGET fmt::fmt)
-    set(SPDLOG_FMT_EXTERNAL ON)
-endif()
-add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
-target_compile_definitions(spdlog PUBLIC SPDLOG_FUNCTION=__func__)
 
 # FFmpeg
 if (NOT TARGET FFmpeg::ffmpeg)

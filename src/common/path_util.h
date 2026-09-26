@@ -56,7 +56,7 @@ constexpr auto CUSTOM_MODULES_DIR = "custom_modules";
 constexpr auto LICENSES_DIR = "licenses";
 
 // Filenames
-constexpr auto LOG_FILE = "shad_log.txt";
+constexpr auto LOG_FILE = "shad_log.log";
 
 #ifdef __ANDROID__
 // Call with an app-owned filesDir child before any host service/worker starts.

@@ -6,6 +6,7 @@
 #include "core/diagnostics/diagnostics_commands.h"
 #include "common/profiler.h"
 #include "common/gpu_timing.h"
+#include "common/logging/log_stats.h"
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/host_runtime/guest_patch.h"
 #include "core/host_runtime/orbis_pad_adapter.h"
@@ -198,6 +199,14 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("upload_diag",
         "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
+
+    registry.Register("log_stats",
+        "Written log lines per call site and class (nothing is dropped): status [top]",
+        [](const std::vector<std::string>& args) { return Common::Log::Stats::Command(args); });
+    registry.Register("log_filter",
+        "Per-class log levels for this session: no args shows them | "
+        "<class>:<level> ... (e.g. *:info Kernel.Vmm:warning)",
+        [](const std::vector<std::string>& args) { return Common::Log::FilterCommand(args); });
 
     registry.Register("hle_guest_copy",
         "Copy-shader HLE also writes its exact destination regions to guest memory: "

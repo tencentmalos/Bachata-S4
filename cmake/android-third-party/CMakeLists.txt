@@ -15,7 +15,7 @@ get_filename_component(repo "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 # Exercise the production recipes directly; FFmpeg has its own decode probe.
 add_subdirectory("${repo}/externals" externals)
 add_library(third_party_probe SHARED probe.cpp)
-target_link_libraries(third_party_probe PRIVATE fmt::fmt spdlog::spdlog ZLIB::ZLIB
+target_link_libraries(third_party_probe PRIVATE fmt::fmt ZLIB::ZLIB
     PNG::PNG Freetype::Freetype SDL3::SDL3 sirit OpenAL::OpenAL libusb::usb
     fdk-aac LibAtrac9 ZArchive::zarchive protobuf::libprotobuf
     lfreist-hwinfo::hwinfo Cpp_Httplib)

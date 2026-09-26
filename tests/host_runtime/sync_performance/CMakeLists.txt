@@ -8,7 +8,7 @@ add_subdirectory(${ROOT}/src/core/guest_cpu ${CMAKE_CURRENT_BINARY_DIR}/guest_cp
 add_executable(guest_sync_performance ../guest_sync_performance.cpp
     ${ROOT}/src/common/native_clock.cpp ${ROOT}/src/common/rdtsc.cpp
     ${ROOT}/src/core/libraries/kernel/sync/mutex.cpp)
-target_include_directories(guest_sync_performance PRIVATE ${ROOT}/externals/spdlog/include ${ROOT}/externals/fmt/include)
+target_include_directories(guest_sync_performance PRIVATE ${ROOT}/externals/fmt/include)
 target_link_libraries(guest_sync_performance PRIVATE guest_cpu_api Threads::Threads)
 if(ANDROID)
     target_link_libraries(guest_sync_performance PRIVATE log)

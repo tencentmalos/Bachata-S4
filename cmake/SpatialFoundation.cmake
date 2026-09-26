@@ -33,10 +33,14 @@ function(shadps4_add_foundation)
     endif()
     add_subdirectory("${foundation_root}/modules/debugbus"
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/debugbus" EXCLUDE_FROM_ALL)
+    # Logging (common/logging) runs on Foundation's LogModule: the basic layer's copy on the
+    # desktop, the log-only profile on Android.
+    add_subdirectory("${foundation_root}/modules/log"
+                     "${CMAKE_CURRENT_BINARY_DIR}/foundation/log" EXCLUDE_FROM_ALL)
 
     add_library(shadps4_foundation INTERFACE)
     add_library(shadps4::foundation ALIAS shadps4_foundation)
-    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus)
+    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus spatial::foundation_log)
     if(TARGET spatial::foundation_debugbus_tcp)
         target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus_tcp)
         target_compile_definitions(shadps4_foundation INTERFACE SHADPS4_DEBUGBUS_TCP=1)
@@ -45,8 +49,8 @@ function(shadps4_add_foundation)
     # The FDM module is graphics-only and its upstream CMake target pulls in
     # Foundation's full basic/core graph.  shadPS4 already owns those host
     # services, so keep the integration narrow: compile the two FDM sources
-    # against the public math/platform headers and route Foundation diagnostics
-    # through the emulator logger (see foundation_foveation_log.cpp).
+    # against the public math/platform headers; their diagnostics use a
+    # Foundation logger kind.
     add_library(shadps4_foundation_foveation STATIC
         "${foundation_root}/modules/foveation/src/Foveation.cpp"
         "${foundation_root}/modules/foveation/src/vulkan/FragmentDensityMap.cpp"
@@ -60,7 +64,7 @@ function(shadps4_add_foundation)
             "${foundation_root}/modules/utils/include"
     )
     target_link_libraries(shadps4_foundation_foveation
-        PUBLIC Vulkan::Headers fmt::fmt
+        PUBLIC Vulkan::Headers fmt::fmt spatial::foundation_log
     )
     target_compile_features(shadps4_foundation_foveation PUBLIC cxx_std_20)
     target_compile_definitions(shadps4_foundation_foveation PRIVATE VULKAN_HPP_NO_TO_STRING)

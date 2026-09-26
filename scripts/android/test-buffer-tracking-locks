@@ -24,10 +24,10 @@ def main():
         parser.error("expected one Android arm64 API 33 compiler in the selected NDK")
     flags = [
         "-std=c++23", "-O2", "-pthread", "-static-libstdc++", "-DNDEBUG",
-        "-DFMT_HEADER_ONLY", "-DSPDLOG_FMT_EXTERNAL",
+        "-DFMT_HEADER_ONLY",
     ]
     includes = ["src", "externals/ext-boost", "externals/json/include", "externals/fmt/include",
-                "externals/spdlog/include", "externals/tracy/public"]
+                "externals/tracy/public"]
     flags += ["-I" + str(root / path) for path in includes]
     adb = ["adb", "-s", args.serial]
 

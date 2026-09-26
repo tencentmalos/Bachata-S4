@@ -4,7 +4,6 @@
 #include <fmt/format.h>
 #include <ft2build.h>
 #include <png.h>
-#include <spdlog/logger.h>
 #include <zlib.h>
 #include FT_FREETYPE_H
 #include <AL/al.h>
@@ -25,8 +24,6 @@ extern "C" int third_party_check() {
         std::printf("%s %s\n", ok ? "PASS" : "FAIL", name);
     };
     check(fmt::format("{}", 42) == "42", "fmt");
-    spdlog::logger logger("probe");
-    check(logger.name() == "probe", "spdlog");
     const unsigned char input[] = "bionic dependency probe";
     unsigned char compressed[128]{}, output[128]{};
     uLongf size = sizeof(compressed), length = sizeof(output);
