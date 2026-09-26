@@ -18,6 +18,42 @@
 
 namespace Common {
 
+#if defined(__linux__) && defined(ARCH_ARM64)
+// ARM64 Linux/bionic carries the fault status in the ESR, delivered through the ucontext
+// __reserved area as a chain of _aarch64_ctx records. Walk the chain to the ESR_MAGIC block.
+// Bounds are validated at every step so a malformed chain returns false rather than reading
+// out of the reserved buffer.
+static bool ReadEsr(void* ctx, u64& out) {
+    const auto* context = static_cast<const ucontext_t*>(ctx);
+    const auto* record = context->uc_mcontext.__reserved;
+    const auto* const end = record + sizeof(context->uc_mcontext.__reserved);
+    while (static_cast<size_t>(end - record) >= sizeof(_aarch64_ctx)) {
+        const auto* header = reinterpret_cast<const _aarch64_ctx*>(record);
+        if (header->magic == 0 && header->size == 0) {
+            break;
+        }
+        const size_t remaining = end - record;
+        // AArch64 signal records use 16-byte layout alignment. The 4-byte
+        // alignment of the header alone is insufficient: advancing by 12 would
+        // leave the next esr_context's 64-bit field misaligned.
+        constexpr size_t RecordAlignment = 16;
+        if (header->size < sizeof(*header) || header->size > remaining ||
+            (header->size % RecordAlignment) != 0) {
+            return false;
+        }
+        if (header->magic == ESR_MAGIC) {
+            if (header->size < sizeof(esr_context)) {
+                return false;
+            }
+            out = reinterpret_cast<const esr_context*>(record)->esr;
+            return true;
+        }
+        record += header->size;
+    }
+    return false;
+}
+#endif
+
 void* GetRip(void* ctx) {
 #if defined(_WIN32)
     return (void*)((EXCEPTION_POINTERS*)ctx)->ContextRecord->Rip;
@@ -51,38 +87,36 @@ bool IsWriteError(void* ctx) {
 #elif defined(ARCH_X86_64)
     return ((ucontext_t*)ctx)->uc_mcontext.gregs[REG_ERR] & 0x2;
 #elif defined(__linux__) && defined(ARCH_ARM64)
-    // ARM64 Linux/bionic carries the fault status in the ESR, delivered through
-    // the ucontext __reserved area as a chain of _aarch64_ctx records. Walk the
-    // chain to the ESR_MAGIC block and read bit 6 (WnR = write-not-read). Bounds
-    // are validated at every step so a malformed chain returns false rather than
-    // reading out of the reserved buffer.
-    const auto* context = static_cast<const ucontext_t*>(ctx);
-    const auto* record = context->uc_mcontext.__reserved;
-    const auto* const end = record + sizeof(context->uc_mcontext.__reserved);
-    while (static_cast<size_t>(end - record) >= sizeof(_aarch64_ctx)) {
-        const auto* header = reinterpret_cast<const _aarch64_ctx*>(record);
-        if (header->magic == 0 && header->size == 0) {
-            break;
-        }
-        const size_t remaining = end - record;
-        // AArch64 signal records use 16-byte layout alignment. The 4-byte
-        // alignment of the header alone is insufficient: advancing by 12 would
-        // leave the next esr_context's 64-bit field misaligned.
-        constexpr size_t RecordAlignment = 16;
-        if (header->size < sizeof(*header) || header->size > remaining ||
-            (header->size % RecordAlignment) != 0) {
-            return false;
-        }
-        if (header->magic == ESR_MAGIC) {
-            if (header->size < sizeof(esr_context)) {
-                return false;
-            }
-            const auto* esr = reinterpret_cast<const esr_context*>(record);
-            return esr->esr & 0x40;
-        }
-        record += header->size;
+    u64 esr{};
+    // WnR (write-not-read).
+    return ReadEsr(ctx, esr) && (esr & 0x40);
+#else
+#error "Unsupported architecture"
+#endif
+}
+
+bool IsExecuteError(void* ctx) {
+#if defined(_WIN32)
+    // Access violation information[0]: 0 read, 1 write, 8 DEP (execute).
+    return ((EXCEPTION_POINTERS*)ctx)->ExceptionRecord->ExceptionInformation[0] == 8;
+#elif defined(__APPLE__) && defined(ARCH_X86_64)
+    return ((ucontext_t*)ctx)->uc_mcontext->__es.__err & 0x16;
+#elif defined(__FreeBSD__) && defined(ARCH_X86_64)
+    return ((ucontext_t*)ctx)->uc_mcontext.mc_err & 0x16;
+#elif defined(ARCH_X86_64)
+    return ((ucontext_t*)ctx)->uc_mcontext.gregs[REG_ERR] & 0x16;
+#elif defined(__APPLE__) && defined(ARCH_ARM64)
+    // Exception class 0x20/0x21: instruction abort from a lower/the same exception level.
+    const u64 ec = (((ucontext_t*)ctx)->uc_mcontext->__es.__esr >> 26) & 0x3f;
+    return ec == 0x20 || ec == 0x21;
+#elif defined(__linux__) && defined(ARCH_ARM64)
+    u64 esr{};
+    if (!ReadEsr(ctx, esr)) {
+        return false;
     }
-    return false;
+    // Exception class 0x20/0x21: instruction abort from a lower/the same exception level.
+    const u64 ec = (esr >> 26) & 0x3f;
+    return ec == 0x20 || ec == 0x21;
 #else
 #error "Unsupported architecture"
 #endif
