@@ -1,0 +1,85 @@
+{
+  "rounds": [
+    {
+      "file": "fex-pinned-0-before.log",
+      "variant": "before",
+      "process_cpu_ms": [
+        400.704423,
+        398.762763,
+        398.786885
+      ]
+    },
+    {
+      "file": "fex-pinned-1-after.log",
+      "variant": "after",
+      "process_cpu_ms": [
+        383.613068,
+        380.186194,
+        360.928024
+      ]
+    },
+    {
+      "file": "fex-pinned-2-before.log",
+      "variant": "before",
+      "process_cpu_ms": [
+        393.595307,
+        397.790687,
+        384.083693
+      ]
+    },
+    {
+      "file": "fex-pinned-3-after.log",
+      "variant": "after",
+      "process_cpu_ms": [
+        373.629058,
+        367.080838,
+        373.914074
+      ]
+    },
+    {
+      "file": "fex-pinned-4-before.log",
+      "variant": "before",
+      "process_cpu_ms": [
+        376.410679,
+        376.359486,
+        382.748332
+      ]
+    },
+    {
+      "file": "fex-pinned-5-after.log",
+      "variant": "after",
+      "process_cpu_ms": [
+        361.385113,
+        354.963287,
+        376.307193
+      ]
+    },
+    {
+      "file": "fex-pinned-6-before.log",
+      "variant": "before",
+      "process_cpu_ms": [
+        395.513649,
+        401.408022,
+        380.8964
+      ]
+    },
+    {
+      "file": "fex-pinned-7-after.log",
+      "variant": "after",
+      "process_cpu_ms": [
+        364.171869,
+        375.330469,
+        363.319169
+      ]
+    }
+  ],
+  "process_cpu_ms": {
+    "before": 390.5883605,
+    "after": 369.56902966666667
+  },
+  "reduction_pct": 5.381453458169128,
+  "excluded": [
+    "fex-pinned-8-after.log: taskset failed before process launch; no metrics"
+  ],
+  "conditions": "taskset CPU7, no frequency lock, concurrent game process 9560; synthetic backend.Run includes ABI checks and 500000 guest calls"
+}

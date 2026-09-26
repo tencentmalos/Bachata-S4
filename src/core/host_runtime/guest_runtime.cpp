@@ -48,6 +48,7 @@
 #include "core/host_runtime/guest_remote_services.h"
 #include "core/host_runtime/guest_avplayer.h"
 #include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_gettimeofday.h"
 #include "core/host_runtime/guest_camera.h"
 #include "core/host_runtime/guest_reprojection.h"
 #include "core/host_runtime/guest_hmd_diagnostics.h"
@@ -2670,35 +2671,24 @@ void GuestRuntime::Impl::InstallHandlers() {
              [nanosleep](const auto& a) { return nanosleep(a, false); });
         bind({"QvsZxomvUHs"}, [nanosleep](const auto& a) { return nanosleep(a, true); });
     }
-    auto gettimeofday = [this](const auto& a, bool sce) -> u64 {
-        using Tv = Libraries::Kernel::OrbisKernelTimeval;
-        using Tz = Libraries::Kernel::OrbisKernelTimezone;
-        auto fail = [&](int error) { return sce ? u64(0x80020000u | error) : PosixFailure(error); };
-        if ((a[0] &&
-             !space.ValidateRange({GuestAddress{a[0]}, sizeof(Tv)}, GuestPermission::Write)) ||
-            (a[1] &&
-             !space.ValidateRange({GuestAddress{a[1]}, sizeof(Tz)}, GuestPermission::Write)))
-            return fail(POSIX_EFAULT);
-        Libraries::Kernel::OrbisKernelTimespec ts{};
-        if (int error = clock.Read(Libraries::Kernel::ORBIS_CLOCK_REALTIME, ts, false))
-            return fail(error);
-        if (a[0])
-            Write(a[0], Tv{ts.tv_sec, ts.tv_nsec / 1000});
-        if (a[1])
-            Write(a[1], Tz{}); // Current guest session timezone profile is UTC.
-        return 0;
+    // Only decode the ABI's actual arguments; avoid the generic six-register
+    // array and its extra type-erased function call on this high-frequency path.
+    handlers["n88vx3C5nW8"] = [this](HleCallFrame& frame) {
+        const int error = GuestGettimeofday(space, clock, frame.registers.Get(Gpr::Rdi),
+                                           frame.registers.Get(Gpr::Rsi));
+        frame.registers.Set(Gpr::Rax, error ? PosixFailure(error) : 0);
+        return Ok();
     };
-    bind({"n88vx3C5nW8"}, [gettimeofday](const auto& a) { return gettimeofday(a, false); });
     for (const auto nid : KernelTimezoneNids) {
         bind({nid.data()}, [this, nid](const auto& a) -> u64 {
             return DispatchKernelTimezone(space, nid, a);
         });
     }
-    bind({"ejekcaNQNq0"}, [gettimeofday](const auto& a) {
-        auto args = a;
-        args[1] = 0;
-        return gettimeofday(args, true);
-    });
+    handlers["ejekcaNQNq0"] = [this](HleCallFrame& frame) {
+        const int error = GuestGettimeofday(space, clock, frame.registers.Get(Gpr::Rdi), 0);
+        frame.registers.Set(Gpr::Rax, error ? u64(0x80020000u | error) : 0);
+        return Ok();
+    };
     handlers["rNhWz+lvOMU"] = [this](HleCallFrame& frame) -> Status {
         const u64 entry = frame.registers.Get(Gpr::Rdi);
 

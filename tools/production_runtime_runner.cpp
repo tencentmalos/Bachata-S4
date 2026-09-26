@@ -6,9 +6,11 @@
 #include "core/host_runtime/session_backend_fex.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <optional>
 #include <thread>
+#include <time.h>
 
 using namespace Core::HostRuntime;
 int main(int argc, char **argv) {
@@ -25,6 +27,11 @@ int main(int argc, char **argv) {
   try {
     Common::FS::InitializeAndroidUserPaths(std::filesystem::path(argv[1]));
     Common::Log::Setup("production-runtime.log");
+    // The runner owns Setup; stop the Foundation log worker before static
+    // teardown on every return path, including a failed fixture.
+    struct LogLifetime {
+      ~LogLifetime() { Common::Log::Shutdown(); }
+    } log_lifetime;
     StopTicket stale{};
     for (unsigned round = 1; round <= 3; ++round) {
       FexSessionBackend backend;
@@ -53,7 +60,22 @@ int main(int argc, char **argv) {
           requested = backend.RequestCancel(*runtime);
         });
       }
+      const bool metrics = std::getenv("SHADPS4_RUNTIME_METRICS") != nullptr;
+      const auto cpu_ns = [] {
+        timespec t{};
+        if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t)) std::abort();
+        return uint64_t(t.tv_sec) * 1'000'000'000 + t.tv_nsec;
+      };
+      const auto start = std::chrono::steady_clock::now();
+      const auto cpu_start = metrics ? cpu_ns() : 0;
       const auto report = backend.Run(*runtime);
+      if (metrics) {
+        const auto cpu = cpu_ns() - cpu_start;
+        const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                 std::chrono::steady_clock::now() - start).count();
+        std::printf("RUN_METRICS round=%u elapsed_ns=%lld process_cpu_ns=%llu\n", round,
+                    static_cast<long long>(elapsed), static_cast<unsigned long long>(cpu));
+      }
       if (stopper.joinable())
         stopper.join();
       std::printf("ROUND %u OUTCOME %s DETAIL %s\n", round,
