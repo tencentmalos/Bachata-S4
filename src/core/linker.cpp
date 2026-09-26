@@ -454,15 +454,23 @@ void Linker::Relocate(Module* module) {
 bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Module* m,
                      Loader::SymbolRecord* return_info) {
     const auto ids = Common::SplitString(name, '#');
-    if (ids.size() != 3) {
+    const LibraryInfo* library{};
+    const ModuleInfo* module{};
+    if (ids.size() == 3) {
+        library = m->FindLibrary(ids[1]);
+        module = m->FindModule(ids[2]);
+    } else if (ids.size() == 1 && sym_type == Loader::SymbolType::NoType) {
+        LOG_DEBUG(Core_Linker, "NoType export {}", name);
+        library = m->FindLibrary("");
+        module = m->FindModule("");
+    } else {
+        if (memory->IsGuestBackend())
+            throw std::runtime_error("malformed guest import name: " + name);
         return_info->virtual_address = 0;
         return_info->name = name;
         LOG_ERROR(Core_Linker, "Not Resolved {}", name);
         return false;
     }
-
-    const LibraryInfo* library = m->FindLibrary(ids[1]);
-    const ModuleInfo* module = m->FindModule(ids[2]);
     if ((!library || !module) && memory->IsGuestBackend())
         throw std::runtime_error("import references unknown module/library: " + name);
     ASSERT_MSG(library && module, "Unable to find library and module");

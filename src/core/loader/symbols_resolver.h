@@ -25,6 +25,16 @@ enum class SymbolType {
     NoType,
 };
 
+struct SymbolResolver {
+    std::string name;
+    std::string nidName;
+    std::string library;
+    u16 library_version;
+    std::string module;
+    SymbolType type;
+    bool operator==(SymbolResolver const& o) const;
+};
+
 struct SymbolRecord {
     std::string name;
     std::string nid_name;
@@ -35,15 +45,8 @@ struct SymbolRecord {
     // Merely storing this descriptor does not implement that relocation. Null on the
     // desktop x86 path, where `virtual_address` is the callable host pointer.
     std::shared_ptr<Core::GuestCpu::Hle::HleCallAdapter> hle_adapter;
-};
-
-struct SymbolResolver {
-    std::string name;
-    std::string nidName;
-    std::string library;
-    u16 library_version;
-    std::string module;
-    SymbolType type;
+    // What the symbol was registered as; lookups compare against this.
+    SymbolResolver symbol;
 };
 
 class SymbolsResolver {
@@ -69,22 +72,7 @@ public:
 
     static std::string GenerateName(const SymbolResolver& s);
 
-    static std::string_view SymbolTypeToS(SymbolType sym_type) {
-        switch (sym_type) {
-        case SymbolType::Unknown:
-            return "Unknown";
-        case SymbolType::Function:
-            return "Function";
-        case SymbolType::Object:
-            return "Object";
-        case SymbolType::Tls:
-            return "Tls";
-        case SymbolType::NoType:
-            return "NoType";
-        default:
-            UNREACHABLE();
-        }
-    }
+    static std::string_view SymbolTypeToS(SymbolType sym_type);
 
 private:
     std::vector<SymbolRecord> m_symbols;
