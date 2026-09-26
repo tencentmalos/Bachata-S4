@@ -290,6 +290,18 @@ public:
     void ProtectGpu(VAddr address, u64 size, MemoryPermission permission);
 
     bool TryWriteBacking(void* address, const void* data, u64 size);
+
+    struct GuestCopy {
+        VAddr source;
+        VAddr destination;
+        u64 size;
+    };
+    /// Guest-to-guest copies of many small regions under one lock: the source is read through its
+    /// mapping (a read never faults on write-watched pages), the destination is written through
+    /// its physical backing so watched pages are neither faulted nor marked CPU-modified. A region
+    /// whose destination is not inside one backing segment, or whose source is not mapped, is not
+    /// copied and its index is appended to `skipped`. Returns the bytes copied.
+    u64 CopyGuestRegions(std::span<const GuestCopy> copies, std::vector<size_t>& skipped);
     bool TryReadSrtMemory(VAddr address, void* data, u64 size);
 
     /// Batched reads for shader user-data (SRT) flattening. Holds the mapping lock shared for

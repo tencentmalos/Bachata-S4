@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/profiler.h"
 #include <algorithm>
 #include <ostream>
 #include <magic_enum/magic_enum.hpp>
@@ -105,6 +106,17 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
         << " release_pages=" << watch.release_pages.load(o)
         << " syscalls=" << watch.syscalls.load(o)
         << " predicted_pages=" << watch.predicted_pages.load(o) << "\n";
+    out << "hle_guest_copy mirror_regions=" << watch.hle_mirror_regions.load(o)
+        << " mirror_bytes=" << watch.hle_mirror_bytes.load(o)
+        << " commit_regions=" << watch.hle_commit_regions.load(o)
+        << " commit_bytes=" << watch.hle_commit_bytes.load(o) << "\n";
+    const u64 overwrites = watch.gpu_data_overwrites.load(o);
+    out << "gpu_data_overwrites=" << overwrites
+        << " (CPU writes to GPU-written pages with readbacks off; first:";
+    for (u64 i = 0; i < std::min<u64>(overwrites, watch.gpu_data_overwrite_addrs.size()); ++i) {
+        out << fmt::format(" {:#x}", watch.gpu_data_overwrite_addrs[i].load(o));
+    }
+    out << ")\n";
 }
 
 void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
@@ -771,7 +783,9 @@ bool BufferCache::SynchronizeBuffer(Buffer& buffer, VAddr device_addr, u32 size,
         });
 
     // Vulkan publication/retirement never runs under a tracking lock.
+    std::optional<Common::Profiler::Scope> upload_scope;
     if (uploaded_bytes != 0) {
+        upload_scope.emplace("Buffer.Upload");
         if (temporary) {
             src_buffer = temporary->Handle();
             vmaFlushAllocation(instance.GetAllocator(), temporary->buffer.allocation, 0,

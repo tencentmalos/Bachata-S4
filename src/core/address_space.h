@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <memory>
 #include <span>
@@ -29,6 +30,22 @@ DECLARE_ENUM_FLAG_OPERATORS(MemoryPermission)
 struct GpuWatchCounters {
     std::atomic<u64> watch_calls{}, watch_pages{}, release_calls{}, release_pages{}, syscalls{};
     std::atomic<u64> predicted_pages{}; // released ahead of a write fault (buffer cache)
+    // CPU writes to pages holding GPU-written data while readbacks are off: the page is re-uploaded
+    // from guest memory, which never received the GPU's data, so that data is lost. Counted in the
+    // fault path (no logging there); the first addresses are kept for `gpu_memory status`.
+    // Copy-shader HLE destinations also written to guest memory: at record time from CPU-owned
+    // sources, or after completion from the GPU copy (see vk_shader_hle.cpp).
+    std::atomic<u64> hle_mirror_regions{}, hle_mirror_bytes{};
+    std::atomic<u64> hle_commit_regions{}, hle_commit_bytes{};
+    std::atomic<u64> gpu_data_overwrites{};
+    std::array<std::atomic<u64>, 16> gpu_data_overwrite_addrs{};
+
+    void NoteGpuDataOverwrite(u64 address) {
+        const u64 index = gpu_data_overwrites.fetch_add(1, std::memory_order_relaxed);
+        if (index < gpu_data_overwrite_addrs.size()) {
+            gpu_data_overwrite_addrs[index].store(address, std::memory_order_relaxed);
+        }
+    }
 };
 inline GpuWatchCounters gpu_watch_counters;
 // Diagnostic A/B: one mprotect per page as before run coalescing.

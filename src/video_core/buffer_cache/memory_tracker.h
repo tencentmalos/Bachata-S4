@@ -16,6 +16,7 @@
 #include "common/debug.h"
 #include "common/scope_exit.h"
 #include "common/types.h"
+#include "core/address_space.h"
 #include "core/emulator_settings.h"
 #include "video_core/buffer_cache/region_manager.h"
 
@@ -96,9 +97,12 @@ public:
                     // modified. If we need to flush the flush function is going to perform CPU
                     // state change.
                     std::scoped_lock lk{manager->lock};
-                    if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled &&
-                        manager->template IsRegionModified<Type::GPU>(offset, size)) {
-                        return true;
+                    if (manager->template IsRegionModified<Type::GPU>(offset, size)) {
+                        if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled) {
+                            return true;
+                        }
+                        Core::gpu_watch_counters.NoteGpuDataOverwrite(manager->GetCpuAddr() +
+                                                                      offset);
                     }
                     manager->template ChangeRegionState<Type::CPU, true>(
                         manager->GetCpuAddr() + offset, size);
@@ -119,9 +123,12 @@ public:
             cpu_addr, size, [&](RegionManager* manager, u64 offset, size_t bytes) {
                 const bool should_flush = [&] {
                     std::scoped_lock lk{manager->lock};
-                    if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled &&
-                        manager->template IsRegionModified<Type::GPU>(offset, bytes)) {
-                        return true;
+                    if (manager->template IsRegionModified<Type::GPU>(offset, bytes)) {
+                        if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled) {
+                            return true;
+                        }
+                        Core::gpu_watch_counters.NoteGpuDataOverwrite(manager->GetCpuAddr() +
+                                                                      offset);
                     }
                     predicted +=
                         manager->MarkWriteFault(manager->GetCpuAddr() + offset, bytes, predict);

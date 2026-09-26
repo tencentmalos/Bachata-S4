@@ -498,6 +498,71 @@ bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
     return true;
 }
 
+u64 MemoryManager::CopyGuestRegions(std::span<const GuestCopy> copies,
+                                    std::vector<size_t>& skipped) {
+    std::shared_lock lk{mutex};
+    // Consecutive regions are usually in the same VMA and backing segment: remember the last ones.
+    VAddr source_begin = 0, source_end = 0;
+    VAddr target_begin = 0, target_end = 0;
+    u8* target_backing = nullptr;
+    const auto source_mapped = [&](VAddr address, u64 size) {
+        if (address >= source_begin && address + size <= source_end) {
+            return true;
+        }
+        if (!IsValidMapping(address, size)) {
+            return false;
+        }
+        const auto& vma = FindVMA(address)->second;
+        if (!vma.IsMapped() || address + size > vma.base + vma.size) {
+            return false;
+        }
+        source_begin = vma.base;
+        source_end = vma.base + vma.size;
+        return true;
+    };
+    const auto target = [&](VAddr address, u64 size) -> u8* {
+        if (address < target_begin || address + size > target_end) {
+            if (!IsValidMapping(address, size)) {
+                return nullptr;
+            }
+            const auto& vma = FindVMA(address)->second;
+            if (!HasPhysicalBacking(vma)) {
+                return nullptr;
+            }
+            const u64 offset = address - vma.base;
+            auto physical = vma.phys_areas.upper_bound(offset);
+            if (physical == vma.phys_areas.begin()) {
+                return nullptr;
+            }
+            --physical;
+            if (offset - physical->first >= physical->second.size) {
+                return nullptr;
+            }
+            target_begin = vma.base + physical->first;
+            target_end = target_begin + std::min(physical->second.size, vma.size - physical->first);
+            target_backing = impl.BackingBase() + physical->second.base;
+            if (address + size > target_end) {
+                return nullptr;
+            }
+        }
+        return target_backing + (address - target_begin);
+    };
+    u64 copied = 0;
+    for (size_t i = 0; i < copies.size(); ++i) {
+        const auto& copy = copies[i];
+        u8* destination = source_mapped(copy.source, copy.size)
+                              ? target(copy.destination, copy.size)
+                              : nullptr;
+        if (!destination) {
+            skipped.push_back(i);
+            continue;
+        }
+        std::memmove(destination, std::bit_cast<const u8*>(copy.source), copy.size);
+        copied += copy.size;
+    }
+    return copied;
+}
+
 PAddr MemoryManager::PoolExpand(PAddr search_start, PAddr search_end, u64 size, u64 alignment) {
     std::scoped_lock lk{mutex, unmap_mutex};
     alignment = alignment > 0 ? alignment : 64_KB;

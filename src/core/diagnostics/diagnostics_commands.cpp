@@ -27,6 +27,7 @@
 #include "video_core/renderdoc.h"
 #include "video_core/gpu_reshape_status.h"
 #include "core/memory.h"
+#include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/pm4_trace.h"
@@ -191,6 +192,51 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("upload_diag",
         "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
+
+    registry.Register("hle_guest_copy",
+        "Copy-shader HLE also writes its exact destination regions to guest memory: "
+        "status | on | off",
+        [](const std::vector<std::string>& args) { return Vulkan::HleGuestCopyCommand(args); });
+
+    registry.Register("memory_describe",
+        "Guest address: mapping, physical address, aliases, recent mapping changes and bytes: "
+        "<address> [bytes<=256]",
+        [](const std::vector<std::string>& args) -> std::string {
+            if (args.empty() || args.size() > 2) return BadArguments();
+            u64 address = 0;
+            u64 count = 64;
+            const auto parse = [](const std::string& text, u64& out) {
+                const bool hex = text.starts_with("0x") || text.starts_with("0X");
+                const char* begin = text.data() + (hex ? 2 : 0);
+                const auto [end, ec] = std::from_chars(begin, text.data() + text.size(), out,
+                                                       hex ? 16 : 10);
+                return ec == std::errc{} && end == text.data() + text.size();
+            };
+            if (!parse(args[0], address) || (args.size() == 2 && !parse(args[1], count)) ||
+                count == 0 || count > 256) {
+                return BadArguments();
+            }
+            auto* memory = Core::Memory::Instance();
+            std::string out = fmt::format("address {:#x}: {}\n", address,
+                                          memory->DescribeForCrash(address));
+            std::vector<u8> bytes(count);
+            if (memory->TryCopySparseMemory(address, bytes.data(), count)) {
+                for (u64 row = 0; row < count; row += 16) {
+                    out += fmt::format("  +{:#04x}:", row);
+                    for (u64 i = row; i < std::min(row + 16, count); ++i) {
+                        out += fmt::format(" {:02x}", bytes[i]);
+                    }
+                    out += "\n";
+                }
+            } else {
+                out += "  <not readable>\n";
+            }
+            const VAddr addresses[] = {address};
+            for (const auto& line : memory->DescribeMappingHistoryForCrash(addresses)) {
+                out += fmt::format("  mapping {}\n", line);
+            }
+            return out;
+        });
 
     registry.Register("gpu_memory", "GPU allocation snapshot: request | status (no GPU waits)",
         [](const std::vector<std::string>& args) {
