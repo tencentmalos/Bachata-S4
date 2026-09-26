@@ -252,9 +252,35 @@ void TextureCache::ReadbackImageForDiagnostics(ImageId image_id) {
 }
 
 void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
+    auto write_back = RecordImageDownload(image_id, false);
+    if (!write_back) {
+        return;
+    }
+    if (sync) {
+        scheduler.Finish();
+        write_back();
+    } else {
+        scheduler.DeferPriorityOperation(std::move(write_back));
+    }
+}
+
+std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool tracked_only) {
     Image& image = slot_images[image_id];
     if (False(image.flags & ImageFlagBits::GpuModified)) {
-        return;
+        return {};
+    }
+    const VAddr image_begin = image.info.guest_address;
+    VAddr write_begin = image_begin;
+    VAddr write_end = image_begin + image.info.guest_size;
+    if (tracked_only) {
+        if (!image.IsTracked()) {
+            return {};
+        }
+        write_begin = std::max(write_begin, image.track_addr);
+        write_end = std::min(write_end, image.track_addr_end);
+        if (write_begin >= write_end) {
+            return {};
+        }
     }
     // A readback no longer promotes the identity to native: a scaled backing is
     // transferred through a temporary native-extent copy inside Image::Download and
@@ -296,18 +322,14 @@ void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
         .dstAccessMask = vk::AccessFlagBits2::eHostRead};
     scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
         .memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
-    auto copy_back = [allocator = instance.GetAllocator(), allocation = target->buffer.allocation,
-                      device_addr = image.info.guest_address, download, offset, download_size,
-                      oversized] {
+    const u64 skip = write_begin - image_begin;
+    return [allocator = instance.GetAllocator(), allocation = target->buffer.allocation,
+            write_begin, write_size = write_end - write_begin, source = download + skip, offset,
+            download_size, oversized] {
         vmaInvalidateAllocation(allocator, allocation, offset, download_size);
-        Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(device_addr), download, download_size);
+        Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(write_begin), source,
+                                                  write_size);
     };
-    if (sync) {
-        scheduler.Finish();
-        copy_back();
-    } else {
-        scheduler.DeferPriorityOperation(std::move(copy_back));
-    }
 }
 
 void TextureCache::MarkAsMaybeDirty(ImageId image_id, Image& image) {
@@ -685,33 +707,35 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
         const auto new_image_id =
             slot_images.insert(instance, scheduler, blit_helper, slot_image_views, new_info, this);
         RegisterImage(new_image_id);
+        // The insertion may have grown slot_images, invalidating the cache_image reference.
+        auto& source_image = slot_images[cache_image_id];
 
         // Inherit image usage
         auto& new_image = slot_images[new_image_id];
-        new_image.usage = cache_image.usage;
+        new_image.usage = source_image.usage;
         new_image.flags &= ~ImageFlagBits::Dirty;
         // When creating a depth buffer through overlap resolution don't clear it on first use.
         new_image.info.meta_info.htile_clear_mask = 0;
 
-        if (cache_image.info.num_samples == 1 && new_info.num_samples == 1) {
+        if (source_image.info.num_samples == 1 && new_info.num_samples == 1) {
             // Perform depth<->color copy using the intermediate copy buffer.
             if (instance.IsMaintenance8Supported()) {
-                new_image.CopyImage(cache_image);
+                new_image.CopyImage(source_image);
             } else {
                 const auto& copy_buffer = buffer_cache.GetUtilityBuffer(MemoryUsage::DeviceLocal);
-                new_image.CopyImageWithBuffer(cache_image, copy_buffer.Handle(), 0);
+                new_image.CopyImageWithBuffer(source_image, copy_buffer.Handle(), 0);
             }
-        } else if (cache_image.info.num_samples == 1 && new_info.props.is_depth &&
+        } else if (source_image.info.num_samples == 1 && new_info.props.is_depth &&
                    new_info.num_samples > 1) {
             // Perform a rendering pass to transfer the channels of source as samples in dest.
-            cache_image.ForceNative("multisample reinterpretation");
-            cache_image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
+            source_image.ForceNative("multisample reinterpretation");
+            source_image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
                                 vk::AccessFlagBits2::eShaderRead, {});
             new_image.Transit(vk::ImageLayout::eDepthAttachmentOptimal,
                               vk::AccessFlagBits2::eDepthStencilAttachmentWrite, {});
             blit_helper.ReinterpretColorAsMsDepth(
                 new_info.size.width, new_info.size.height, new_image.backing->num_samples,
-                cache_image.info.pixel_format, new_info.pixel_format, cache_image.GetImage(),
+                source_image.info.pixel_format, new_info.pixel_format, source_image.GetImage(),
                 new_image.GetImage());
         } else {
             LOG_WARNING(Render_Vulkan, "Unimplemented depth overlap copy");
@@ -1201,10 +1225,11 @@ ImageView& TextureCache::FindDepthTarget(ImageId image_id, const ImageDesc& desc
         }
         Image& stencil_image = slot_images[stencil_id];
         TouchImage(stencil_image);
-        stencil_image.AssociateDepth(image_id, image.image_uid);
+        // Inserting the stencil image may have grown slot_images: `image` can no longer be used.
+        stencil_image.AssociateDepth(image_id, slot_images[image_id].image_uid);
     }
 
-    return image.FindView(desc.view_info, false);
+    return slot_images[image_id].FindView(desc.view_info, false);
 }
 
 void TextureCache::RefreshImage(Image& image) {
@@ -1581,6 +1606,44 @@ void TextureCache::GarbageCollectImages() {
         }
         if (pressured) coverage->gc_pressured_ticks.fetch_add(1, std::memory_order_relaxed);
     };
+    // Evicted GPU-modified images are written back to guest memory before they stop being
+    // tracked, and only where their pages are still tracked. A write-back deferred until the
+    // GPU copy completes landed on memory the guest may have reused in between -- freeing the
+    // image untracks its pages, so CPU writes there were no longer seen -- and a freed image's
+    // memory reused as heap got its block headers overwritten with old pixels. This costs one
+    // GPU wait per GC pass that evicts GPU-modified images, which only happens under pressure.
+    std::vector<ImageId> evicted_modified;
+    const auto write_back_evicted = [&] {
+        if (evicted_modified.empty()) {
+            return;
+        }
+        std::vector<std::function<void()>> writes;
+        for (const ImageId image_id : evicted_modified) {
+            if (auto write = RecordImageDownload(image_id, true)) {
+                writes.push_back(std::move(write));
+                static std::atomic<u32> logged{};
+                if (logged.fetch_add(1, std::memory_order_relaxed) < 16) {
+                    const auto& image = slot_images[image_id];
+                    LOG_INFO(Render_Vulkan,
+                             "Texture GC write-back: {:#x}-{:#x} tracked {:#x}-{:#x} {}x{} {}",
+                             image.info.guest_address,
+                             image.info.guest_address + image.info.guest_size, image.track_addr,
+                             image.track_addr_end, image.info.size.width, image.info.size.height,
+                             vk::to_string(image.info.pixel_format));
+                }
+            }
+        }
+        if (!writes.empty()) {
+            scheduler.Finish();
+            for (auto& write : writes) {
+                write();
+            }
+        }
+        for (const ImageId image_id : evicted_modified) {
+            FreeImage(image_id);
+        }
+        evicted_modified.clear();
+    };
     const auto clean_up = [&](ImageId image_id) {
         if (num_deletions == 0) {
             return true;
@@ -1596,12 +1659,13 @@ void TextureCache::GarbageCollectImages() {
         if (download && !pressured) {
             return false;
         }
-        if (download) {
-            DownloadImageMemory(image_id);
-            coverage->gc_downloads.fetch_add(1, std::memory_order_relaxed);
-        }
         coverage->gc_frees.fetch_add(1, std::memory_order_relaxed);
-        FreeImage(image_id);
+        if (download) {
+            coverage->gc_downloads.fetch_add(1, std::memory_order_relaxed);
+            evicted_modified.push_back(image_id);
+        } else {
+            FreeImage(image_id);
+        }
         if (total_used_memory < critical_gc_memory) {
             if (aggresive) {
                 num_deletions >>= 2;
@@ -1619,11 +1683,13 @@ void TextureCache::GarbageCollectImages() {
     // Try to remove anything old enough and not high priority.
     configure(false);
     lru_cache.ForEachItemBelow(gc_tick - ticks_to_destroy, clean_up);
+    write_back_evicted();
 
     if (total_used_memory >= critical_gc_memory) {
         // If we are still over the critical limit, run an aggressive GC
         configure(true);
         lru_cache.ForEachItemBelow(gc_tick - ticks_to_destroy, clean_up);
+        write_back_evicted();
     }
 }
 
