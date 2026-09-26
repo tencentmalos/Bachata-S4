@@ -144,19 +144,6 @@ void TryArena(PFN_vkGetInstanceProcAddr gipa, VkInstance instance, VkPhysicalDev
                                VkDeviceSize block, const std::string& what) {
         constexpr VkDeviceSize Chunk = 256;
         const VkDeviceSize bytes = Chunk * 2 * list.size();
-        uint32_t host_type = UINT32_MAX;
-        for (uint32_t i = 0; i < mem.memoryTypeCount; ++i) {
-            constexpr VkMemoryPropertyFlags want =
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-            if ((mem.memoryTypes[i].propertyFlags & want) == want) {
-                host_type = i;
-                break;
-            }
-        }
-        if (host_type == UINT32_MAX) {
-            Check(false, label + " host-coherent memory type for the round trip");
-            return;
-        }
         VkBuffer host[2]{};
         VkDeviceMemory host_memory[2]{};
         uint8_t* mapped[2]{};
@@ -165,14 +152,41 @@ void TryArena(PFN_vkGetInstanceProcAddr gipa, VkInstance instance, VkPhysicalDev
                                           VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
                                               VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                           VK_SHARING_MODE_EXCLUSIVE};
-            create_buffer(device, &info, nullptr, &host[i]);
+            bool ok = create_buffer(device, &info, nullptr, &host[i]) == VK_SUCCESS;
             VkMemoryRequirements host_req{};
-            requirements(device, host[i], &host_req);
+            if (ok) {
+                requirements(device, host[i], &host_req);
+            }
+            uint32_t host_type = UINT32_MAX;
+            for (uint32_t type = 0; ok && type < mem.memoryTypeCount; ++type) {
+                constexpr VkMemoryPropertyFlags want =
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+                if ((host_req.memoryTypeBits & (1u << type)) &&
+                    (mem.memoryTypes[type].propertyFlags & want) == want) {
+                    host_type = type;
+                    break;
+                }
+            }
             const VkMemoryAllocateInfo alloc{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr,
                                              host_req.size, host_type};
-            allocate(device, &alloc, nullptr, &host_memory[i]);
-            bind_buffer_memory(device, host[i], host_memory[i], 0);
-            map_memory(device, host_memory[i], 0, bytes, 0, reinterpret_cast<void**>(&mapped[i]));
+            ok = ok && host_type != UINT32_MAX &&
+                 allocate(device, &alloc, nullptr, &host_memory[i]) == VK_SUCCESS &&
+                 bind_buffer_memory(device, host[i], host_memory[i], 0) == VK_SUCCESS &&
+                 map_memory(device, host_memory[i], 0, bytes, 0,
+                            reinterpret_cast<void**>(&mapped[i])) == VK_SUCCESS &&
+                 mapped[i] != nullptr;
+            if (!ok) {
+                Check(false, label + " host staging buffer for the round trip");
+                for (int j = 0; j <= i; ++j) {
+                    if (host[j]) {
+                        destroy_buffer(device, host[j], nullptr);
+                    }
+                    if (host_memory[j]) {
+                        free_memory(device, host_memory[j], nullptr);
+                    }
+                }
+                return;
+            }
         }
         for (VkDeviceSize i = 0; i < bytes; ++i) {
             mapped[0][i] = static_cast<uint8_t>(i * 7 + 3);
@@ -196,7 +210,10 @@ void TryArena(PFN_vkGetInstanceProcAddr gipa, VkInstance instance, VkPhysicalDev
                                                    nullptr, pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                                                    1};
         VkCommandBuffer cmd{};
-        allocate_cmd(device, &cmd_info, &cmd);
+        if (!pool || allocate_cmd(device, &cmd_info, &cmd) != VK_SUCCESS) {
+            Check(false, label + " command buffer for the round trip");
+            return;
+        }
         const VkCommandBufferBeginInfo begin{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
         begin_cmd(cmd, &begin);
         cmd_copy(cmd, host[0], target, static_cast<uint32_t>(in.size()), in.data());
@@ -373,14 +390,18 @@ int main(int argc, char** argv) {
             }
             VkQueue queue{};
             get_queue(device, sparse_family, 0, &queue);
-            TryArena(gipa, instance, physical, device, queue, sparse_family,
-                     VkDeviceSize{4} << 30, 8);
-            TryArena(gipa, instance, physical, device, queue, sparse_family,
-                     VkDeviceSize{8} << 30, 8);
-            // Smaller arenas for drivers whose maxBufferSize is below 4 GiB. Informational:
-            // the upstream design uses 4 GiB arenas.
-            for (VkDeviceSize size = VkDeviceSize{2} << 30; size >= (VkDeviceSize{1} << 30);
-                 size >>= 1) {
+            // The buffer cache's sizes: pages are the largest power of two at most half of
+            // maxBufferSize (at most 4 GiB), and two pages merge into one arena.
+            VkDeviceSize page = VkDeviceSize{4} << 30;
+            while (page > (VkDeviceSize{256} << 20) && page * 2 > m4.maxBufferSize) {
+                page >>= 1;
+            }
+            std::printf("  arena page %" PRIu64 " MiB, merged %" PRIu64 " MiB\n", page >> 20,
+                        (page * 2) >> 20);
+            TryArena(gipa, instance, physical, device, queue, sparse_family, page, 8);
+            TryArena(gipa, instance, physical, device, queue, sparse_family, page * 2, 8);
+            // Beyond the limit: informational only (upstream used 4/8 GiB regardless).
+            for (VkDeviceSize size = page * 4; size <= (VkDeviceSize{8} << 30); size *= 2) {
                 const int before = failures;
                 TryArena(gipa, instance, physical, device, queue, sparse_family, size, 8);
                 failures = before;
