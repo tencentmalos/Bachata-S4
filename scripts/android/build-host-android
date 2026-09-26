@@ -150,10 +150,12 @@ def main():
         run(["cmake", "-S", ROOT / "cmake/host-tools", "-B", host_tools, "-G", "Ninja",
              "-DCMAKE_BUILD_TYPE=Release"], "tools-configure")
         run(["cmake", "--build", host_tools, "--target", "protoc", "shadps4_font_embed",
-             "-j", a.jobs], "tools-build")
+             "glslang-standalone", "-j", a.jobs], "tools-build")
         protoc, font = host_tools / f"protobuf/protoc{exe}", host_tools / f"shadps4_font_embed{exe}"
+        glslang = host_tools / f"glslang/StandAlone/glslang{exe}"
         result["tools"] = {"protoc_version": capture([str(protoc), "--version"]),
-                           "protoc_sha256": sha(protoc), "font_sha256": sha(font)}
+                           "protoc_sha256": sha(protoc), "font_sha256": sha(font),
+                           "glslang_sha256": sha(glslang)}
         run(["cmake", "-S", ROOT, "-B", native, "-G", "Ninja",
              f"-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake",
              "-DANDROID_ABI=arm64-v8a", f"-DANDROID_PLATFORM=android-{a.api}",
@@ -161,6 +163,7 @@ def main():
              "-DBUILD_HOST_CORE=ON", "-DENABLE_TESTS=OFF", "-DHOST_BUILD_PROBES=ON",
              "-DENABLE_DISCORD_RPC=OFF", "-DENABLE_UPDATER=OFF", "-DENABLE_SPATIAL_FOUNDATION=ON",
              f"-DSHADNET_PROTOC_EXECUTABLE={protoc}", f"-DIMGUI_FONT_EMBED_EXECUTABLE={font}",
+             f"-DHOST_SHADER_COMPILER={glslang}",
              "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
              f"-DSHADPS4_GPU_RESHAPE_SDK_ROOT={a.gpu_reshape_sdk_root.resolve() if a.gpu_reshape_sdk_root else ''}",
              f"-DSPATIAL_SCRCPY_CAPTURE_SDK_ROOT={a.scrcpy_capture_sdk_root.expanduser().resolve() if a.scrcpy_capture_sdk_root else ''}"], "host-configure")

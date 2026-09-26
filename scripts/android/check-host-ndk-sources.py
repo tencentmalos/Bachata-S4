@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """NDK source census. Does not link the host or execute it on a device.
-Reads root CMake's VIDEO_CORE/SHADER_RECOMPILER lists; generates real host-shader
-string headers using the existing generator. Every command/exit/log is retained.
+Reads root CMake's VIDEO_CORE/SHADER_RECOMPILER lists; generates the real host-shader
+SPIR-V headers with glslang from host_shaders/CMakeLists.txt. Every command/exit/log is retained.
 """
-import argparse, concurrent.futures, hashlib, json, pathlib, re, shlex, subprocess, sys, time
+import argparse, concurrent.futures, hashlib, json, pathlib, re, shlex, shutil, subprocess, sys, time
 p = argparse.ArgumentParser()
 p.add_argument('--ndk', type=pathlib.Path, required=True)
 p.add_argument('--out', type=pathlib.Path, required=True)
 p.add_argument('--jobs', type=int, default=4)
 p.add_argument('--emit-objects', action='store_true')
 p.add_argument('--set', choices=['graphics','spine'], default='graphics')
+p.add_argument('--glslang', type=pathlib.Path, default=shutil.which('glslangValidator') or shutil.which('glslang'),
+               help='glslang executable for the host-shader headers')
 p.add_argument('sources', nargs='*')
 a = p.parse_args()
 if a.jobs < 1: p.error('--jobs must be positive')
 root = pathlib.Path(__file__).resolve().parents[2]
 out = a.out.resolve(); out.mkdir(parents=True, exist_ok=True)
-compiler = next(iter(sorted(a.ndk.glob('toolchains/llvm/prebuilt/*/bin/clang++'))), None)
+compiler = next(iter(sorted([*a.ndk.glob('toolchains/llvm/prebuilt/*/bin/clang++'), *a.ndk.glob('toolchains/llvm/prebuilt/*/bin/clang++.exe')])), None)
 if compiler is None: raise SystemExit('NDK compiler missing')
 compiler = compiler.resolve()
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -33,9 +35,16 @@ sources = a.sources or (spine if a.set == 'spine' else [s for files in groups.va
 if not sources or len(sources) != len(set(sources)): raise SystemExit('empty or duplicate source list')
 shader_dir = root/'src/video_core/host_shaders'
 headers = out/'generated/include'
-for src in block((shader_dir/'CMakeLists.txt').read_text(), 'SHADER_FILES').split():
-    dest = headers/'video_core/host_shaders'/(src.replace('.', '_')+'.h')
-    subprocess.run(['cmake','-P',str(shader_dir/'StringShaderHeader.cmake'),str(shader_dir/src),str(dest),str(shader_dir/'source_shader.h.in')], cwd=root, check=True, capture_output=True)
+if not a.glslang: raise SystemExit('glslang missing; pass --glslang')
+def expand_foreach(text):
+    body = lambda m: ''.join(m[3].replace('${'+m[1]+'}', item) for item in m[2].split())
+    return re.sub(r'foreach\((\w+) IN ITEMS ([^)]*)\)(.*?)endforeach\(\)', body, text, flags=re.S)
+(headers/'video_core/host_shaders').mkdir(parents=True, exist_ok=True)
+for call in re.findall(r'^\s*add_host_shader\(([^)]*)\)', expand_foreach((shader_dir/'CMakeLists.txt').read_text()), re.M):
+    src, name, *defines = call.split()
+    dest = headers/'video_core/host_shaders'/(name+'.h')
+    subprocess.run([str(a.glslang),'--target-env','vulkan1.3','-o',str(dest),'--vn',name.upper(),*['-D'+d for d in defines],str(shader_dir/src)], cwd=root, check=True, capture_output=True)
+    subprocess.run(['cmake','-DHEADER_FILE='+str(dest),'-P',str(shader_dir/'AddShaderHeaderInclude.cmake')], cwd=root, check=True, capture_output=True)
 inc_path = root/'scripts/android/host-ndk-include-set.txt'
 flags = shlex.split(inc_path.read_text()) + ['-I','externals/fmt/include','-I',str(headers)]
 # Explicit NDK profile, not desktop ABI flags. Tracy OFF means macro undefined.

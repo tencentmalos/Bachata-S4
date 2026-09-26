@@ -4,6 +4,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <boost/container_hash/hash.hpp>
 #include "common/types.h"
 #include "video_core/amdgpu/tiling.h"
 #include "video_core/buffer_cache/buffer.h"
@@ -15,7 +16,31 @@ struct Image;
 class StreamBuffer;
 
 class TileManager {
-    static constexpr size_t NUM_BPPS = 5;
+    // One pipeline per specialization of tiling.comp. pack_kind != 0 selects the fused
+    // readback variant (sampled image in) with that raw packing.
+    struct TilingKey {
+        AmdGpu::TileMode tile_mode;
+        u32 num_bits;
+        u32 num_samples;
+        u32 pack_kind;
+        bool is_tiler;
+        bool pack_bgra;
+
+        bool operator==(const TilingKey&) const = default;
+
+        struct Hash {
+            size_t operator()(const TilingKey& key) const {
+                size_t hash = 0;
+                boost::hash_combine(hash, key.tile_mode);
+                boost::hash_combine(hash, key.num_bits);
+                boost::hash_combine(hash, key.num_samples);
+                boost::hash_combine(hash, key.pack_kind);
+                boost::hash_combine(hash, key.is_tiler);
+                boost::hash_combine(hash, key.pack_bgra);
+                return hash;
+            }
+        };
+    };
 
 public:
     using ScratchBuffer = std::pair<vk::Buffer, VmaAllocation>;
@@ -41,6 +66,7 @@ public:
 private:
     vk::Pipeline GetTilingPipeline(const ImageInfo& info, bool is_tiler);
     vk::Pipeline GetImageTilingPipeline(const ImageInfo& info, const ReadbackPack& pack);
+    vk::Pipeline CreateTilingPipeline(const TilingKey& key, const ImageInfo& info);
     // Tiles `num_mips` levels of a scaled image straight into guest layout by sampling
     // the scaled backing. Returns false when the image/format is outside the fused path.
     bool TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer out_buffer,
@@ -53,14 +79,12 @@ private:
     StreamBuffer& stream_buffer;
     vk::UniqueDescriptorSetLayout desc_layout;
     vk::UniquePipelineLayout pl_layout;
-    std::array<vk::UniquePipeline, AmdGpu::NUM_TILE_MODES * NUM_BPPS> detilers{};
-    std::array<vk::UniquePipeline, AmdGpu::NUM_TILE_MODES * NUM_BPPS> tilers{};
-    // Fused readback: sampler-fed tiler pipelines keyed by tile mode, bpp and pack.
+    std::unordered_map<TilingKey, vk::UniquePipeline, TilingKey::Hash> tiling_pipelines;
+    // Fused readback: sampler-fed tiler pipelines (tiling_pipelines, pack_kind != 0).
     vk::UniqueDescriptorSetLayout image_desc_layout;
     vk::UniquePipelineLayout image_pl_layout;
     vk::UniqueSampler linear_sampler;
     vk::UniqueSampler nearest_sampler;
-    std::unordered_map<u32, vk::UniquePipeline> image_tilers;
     bool fused_readback{true};
 };
 

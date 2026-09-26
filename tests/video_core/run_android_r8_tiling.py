@@ -4,6 +4,7 @@ The explicit private loader implements RenderDoc_LoadAndroidVulkan (cmake/render
 No game data, APK reinstall, system driver or global debug settings are involved.
 """
 import argparse
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -46,7 +47,8 @@ def main():
         print(result.stdout, end='', flush=True)
         if result.returncode: raise RuntimeError(f'command failed ({result.returncode}); see {out}/results.txt')
         return result.stdout
-    compiler = list(a.ndk.glob('toolchains/llvm/prebuilt/*/bin/aarch64-linux-android33-clang++'))
+    suffix = '.cmd' if os.name == 'nt' else ''  # the NDK's Windows driver wrappers
+    compiler = list(a.ndk.glob(f'toolchains/llvm/prebuilt/*/bin/aarch64-linux-android33-clang++{suffix}'))
     if len(compiler) != 1: parser.error('Ambiguous/missing compiler')
     run([compiler[0], '-O2', '-std=c++20', '-static-libstdc++', Path(__file__).with_name('android_r8_tiling_probe.cpp'), '-ldl', '-o', out / 'probe'])
     adb = [shutil.which('adb'), '-s', a.serial]
@@ -73,12 +75,17 @@ def main():
                 run(adb + ['shell', 'run-as', a.package, 'cp', tmp + '/' + name, private + '/' + name])
             for tiler in (False, True):
                 target = out / f'{mode}-{"tile" if tiler else "detile"}.spv'
-                defines = ['BITS_PER_PIXEL=8', 'NUM_SAMPLES=1', 'MICRO_TILE_THICKNESS=1',
-                           f'ARRAY_MODE={2 if mode == "micro" else 4}', f'MICRO_TILE_MODE={0 if mode == "display" else 1}']
-                if mode != 'micro':
-                    defines += ['PIPE_CONFIG=12', 'BANK_WIDTH=1', 'BANK_HEIGHT=4', 'NUM_BANKS=16', 'NUM_BANK_BITS=4', 'TILE_SPLIT_BYTES=256', 'MACRO_TILE_ASPECT=4']
-                if tiler: defines += ['IS_TILER=1']
-                run(['glslangValidator', '-V', '--target-env', 'spirv1.3', '-S', 'comp', *['-D' + x for x in defines], ROOT / 'src/video_core/host_shaders/tiling.comp', '-o', target])
+                generic = out / f'{mode}-{"tile" if tiler else "detile"}-generic.spv'
+                macro = mode != 'micro'
+                # The build compiles one module per pixel width and micro/macro; the rest are
+                # specialization constants (tile_manager.cpp TilingSpecData, by constant_id).
+                spec = {0: 1, 1: 0 if mode == 'display' else 1, 2: 1, 3: int(tiler)}
+                if macro:
+                    spec |= {4: 4, 5: 12, 6: 1, 7: 4, 8: 16, 9: 4, 10: 256, 11: 4}
+                run(['glslangValidator', '-V', '--target-env', 'spirv1.3', '-S', 'comp', '-DBITS_PER_PIXEL=8', f'-DIS_MACRO_TILED={int(macro)}', ROOT / 'src/video_core/host_shaders/tiling.comp', '-o', generic])
+                # The probe creates its pipeline without specialization info, so the values
+                # become the constants' defaults.
+                run(['spirv-opt', '--set-spec-const-default-value', ' '.join(f'{k}:{v}' for k, v in spec.items()), generic, '-o', target])
                 run(['spirv-val', '--target-env', 'vulkan1.2', '--scalar-block-layout', target])
                 assembly = subprocess.check_output(['spirv-dis', str(target)], text=True)
                 assert 'OpCapability StorageBuffer8BitAccess' not in assembly
