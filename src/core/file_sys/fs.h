@@ -115,9 +115,11 @@ public:
     explicit MntPoints(MntPair snapshot) : m_mnt_pairs{std::move(snapshot)} {}
     ~MntPoints() = default;
 
+    std::shared_ptr<IBackend> CreateBackend(const std::filesystem::path& host_path, bool read_only);
+
     void Mount(const std::filesystem::path& host_folder, const std::string& guest_folder,
                bool read_only = false);
-    void Unmount(const std::filesystem::path& host_folder, const std::string& guest_folder);
+    void Unmount(const std::string& guest_folder);
     // Session retirement must not remove a replacement mount with the same VA path.
     void UnmountOwned(const std::filesystem::path& host_folder, const std::string& guest_folder) {
         std::scoped_lock lock{m_mutex};

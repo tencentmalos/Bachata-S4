@@ -158,7 +158,7 @@ SaveInstance::~SaveInstance() {
 }
 void SaveInstance::Abandon() noexcept {
     if (mounted) {
-        mounts->Unmount(save_path, mount_point);
+        mounts->Unmount(mount_point);
         mounted = false;
     }
 }
@@ -270,7 +270,7 @@ void SaveInstance::Umount() {
         SyncMetadata(param_sfo_path.parent_path(), true);
         SyncMetadata(save_path, true);
     }
-    mounts->Unmount(save_path, mount_point);
+    mounts->Unmount(mount_point);
     mounted = false;
     param_sfo = PSF();
 }
