@@ -5,7 +5,7 @@
 
 namespace Core {
 
-SignalDispatch::SignalDispatch() = default;
+SignalDispatch::SignalDispatch(Delivery /*delivery*/) {}
 
 SignalDispatch::~SignalDispatch() = default;
 
