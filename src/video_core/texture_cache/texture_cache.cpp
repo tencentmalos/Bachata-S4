@@ -750,14 +750,16 @@ std::tuple<ImageId, int, int> TextureCache::ResolveOverlap(const ImageInfo& imag
         // DRS fallback, not a clear or a reinterpretation of stale guest RAM.
         // Incompatible format/layout reuse belongs to the existing alias/pool
         // path below; a matching address alone is not evidence of DRS.
-        // FindImage already owns mutex. UpdateImage would recursively acquire
-        // that non-recursive mutex on every dynamic-extent transition.
-        TrackImage(cache_image_id);
+        // Only the pages still write-tracked and inside the new descriptor are written. The
+        // guest may have reused the rest (Bloodborne frees its render targets on a scene
+        // change and its heap reallocates the range): re-tracking first, as before, dropped
+        // the record of those CPU writes and the old pixels overwrote the heap's block headers.
         TouchImage(cache_image);
-        RefreshImage(cache_image);
         if (True(cache_image.flags & ImageFlagBits::GpuModified)) {
             cache_image.DetachScalePlanForRetirement();
-            DownloadImageMemory(cache_image_id, true);
+            DownloadImageMemory(cache_image_id, true, true,
+                                image_info.guest_address + image_info.guest_size,
+                                "image_writeback_drs");
         }
         FreeImage(cache_image_id);
         return {merged_image_id, -1, -1};
