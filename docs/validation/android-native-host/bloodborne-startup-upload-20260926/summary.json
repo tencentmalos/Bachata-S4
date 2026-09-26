@@ -1,0 +1,668 @@
+{
+  "phases": [
+    {
+      "label": "Runtime to first present",
+      "start_s": 0.0,
+      "end_s": 1.849299,
+      "gpucomm_cpu_categories_ms_approx": {
+        "PM4 self": 0.411225112854659,
+        "Other instrumented": 21.892972837882823,
+        "GCN translation": 4.641941782225509,
+        "Resource binding self": 12.899712987316605,
+        "Texture refresh": 37.93588056827785,
+        "Buffer work": 0.054342404340180006,
+        "Draw self": 2.782186436242107,
+        "HLE copy/mirror": 8.137316987122107
+      },
+      "texture_compile_exact_fully_contained": {
+        "Texture.Refresh": {
+          "count": 44,
+          "total_ms": 50.390154,
+          "max_ms": 10.783021,
+          "p50_ms": 0.024687,
+          "p95_ms": 7.707708
+        },
+        "Texture.Stage": {
+          "count": 44,
+          "total_ms": 2.994377,
+          "max_ms": 2.476146,
+          "p50_ms": 0.011719,
+          "p95_ms": 0.042135
+        },
+        "Texture.Detile": {
+          "count": 44,
+          "total_ms": 47.03125,
+          "max_ms": 10.765261,
+          "p50_ms": 0.005364,
+          "p95_ms": 7.093385
+        },
+        "Texture.Upload": {
+          "count": 44,
+          "total_ms": 0.30922,
+          "max_ms": 0.075052,
+          "p50_ms": 0.002448,
+          "p95_ms": 0.021094
+        },
+        "GPU.CompileGuestShader": {
+          "count": 13,
+          "total_ms": 5.294688,
+          "max_ms": 0.638802,
+          "p50_ms": 0.466823,
+          "p95_ms": 0.638802
+        }
+      },
+      "sdk_frames": 0,
+      "sdk_frame_p50_ms": null,
+      "sdk_frame_p95_ms": null,
+      "sdk_frame_max_ms": 0,
+      "presented_samples_full_seconds_only": 0
+    },
+    {
+      "label": "Early screens / manual progression",
+      "start_s": 1.849299,
+      "end_s": 25.0,
+      "gpucomm_cpu_categories_ms_approx": {
+        "PM4 self": 58.62519197925482,
+        "Other instrumented": 161.5708463844172,
+        "GCN translation": 24.107735991575343,
+        "Resource binding self": 165.04252497826747,
+        "Texture refresh": 103.15049791924248,
+        "Buffer work": 7.801360126189783,
+        "Draw self": 303.06403516791954,
+        "HLE copy/mirror": 92.43703686680401
+      },
+      "texture_compile_exact_fully_contained": {
+        "Texture.Refresh": {
+          "count": 36,
+          "total_ms": 51.409948,
+          "max_ms": 15.371927,
+          "p50_ms": 0.110989,
+          "p95_ms": 12.570209
+        },
+        "Texture.Stage": {
+          "count": 36,
+          "total_ms": 21.629949,
+          "max_ms": 6.065989,
+          "p50_ms": 0.052604,
+          "p95_ms": 5.465312
+        },
+        "Texture.Detile": {
+          "count": 36,
+          "total_ms": 21.39448,
+          "max_ms": 10.940469,
+          "p50_ms": 0.011406,
+          "p95_ms": 9.871719
+        },
+        "Texture.Upload": {
+          "count": 36,
+          "total_ms": 8.251774000000001,
+          "max_ms": 7.947084,
+          "p50_ms": 0.006823,
+          "p95_ms": 0.031927
+        },
+        "GPU.CompileGuestShader": {
+          "count": 33,
+          "total_ms": 9.794578,
+          "max_ms": 0.893958,
+          "p50_ms": 0.279687,
+          "p95_ms": 0.450469
+        }
+      },
+      "sdk_frames": 652,
+      "sdk_frame_p50_ms": 33.428282,
+      "sdk_frame_p95_ms": 41.87026,
+      "sdk_frame_max_ms": 180.753438,
+      "presented_samples_full_seconds_only": 639
+    },
+    {
+      "label": "Loading observation",
+      "start_s": 25.0,
+      "end_s": 62.0,
+      "gpucomm_cpu_categories_ms_approx": {
+        "PM4 self": 827.6030311504265,
+        "Other instrumented": 1222.3340795926097,
+        "GCN translation": 620.0226911450659,
+        "Resource binding self": 4356.5541317519865,
+        "Texture refresh": 427.2365478868019,
+        "Buffer work": 120.37901267279484,
+        "Draw self": 10956.488274861038,
+        "HLE copy/mirror": 1561.1527975094234
+      },
+      "texture_compile_exact_fully_contained": {
+        "Texture.Refresh": {
+          "count": 2820,
+          "total_ms": 465.547798,
+          "max_ms": 81.40401,
+          "p50_ms": 0.01875,
+          "p95_ms": 0.195834
+        },
+        "Texture.Stage": {
+          "count": 2820,
+          "total_ms": 254.216336,
+          "max_ms": 49.805312,
+          "p50_ms": 0.005573,
+          "p95_ms": 0.164583
+        },
+        "Texture.Detile": {
+          "count": 2821,
+          "total_ms": 190.776022,
+          "max_ms": 76.031041,
+          "p50_ms": 0.004532,
+          "p95_ms": 0.021719
+        },
+        "Texture.Upload": {
+          "count": 2821,
+          "total_ms": 14.887105,
+          "max_ms": 0.159844,
+          "p50_ms": 0.004115,
+          "p95_ms": 0.011562
+        },
+        "GPU.CompileGuestShader": {
+          "count": 325,
+          "total_ms": 636.22266,
+          "max_ms": 95.297136,
+          "p50_ms": 0.742395,
+          "p95_ms": 4.986927
+        }
+      },
+      "sdk_frames": 731,
+      "sdk_frame_p50_ms": 42.888437,
+      "sdk_frame_p95_ms": 78.276719,
+      "sdk_frame_max_ms": 929.166823,
+      "presented_samples_full_seconds_only": 720
+    },
+    {
+      "label": "Hunters Dream / manual movement",
+      "start_s": 62.0,
+      "end_s": 105.610394114,
+      "gpucomm_cpu_categories_ms_approx": {
+        "PM4 self": 1267.6967667676274,
+        "Other instrumented": 522.335274996335,
+        "GCN translation": 30.462945081133277,
+        "Resource binding self": 6649.035056192968,
+        "Texture refresh": 179.77054362567782,
+        "Buffer work": 87.16166542896951,
+        "Draw self": 13471.471220378593,
+        "HLE copy/mirror": 2204.747695749494
+      },
+      "texture_compile_exact_fully_contained": {
+        "Texture.Refresh": {
+          "count": 2073,
+          "total_ms": 179.04432,
+          "max_ms": 13.94526,
+          "p50_ms": 0.024583,
+          "p95_ms": 0.223698
+        },
+        "Texture.Stage": {
+          "count": 2073,
+          "total_ms": 139.795691,
+          "max_ms": 13.896042,
+          "p50_ms": 0.008334,
+          "p95_ms": 0.187031
+        },
+        "Texture.Detile": {
+          "count": 2073,
+          "total_ms": 19.834823,
+          "max_ms": 0.230625,
+          "p50_ms": 0.006198,
+          "p95_ms": 0.022552
+        },
+        "Texture.Upload": {
+          "count": 2073,
+          "total_ms": 12.795965,
+          "max_ms": 0.558334,
+          "p50_ms": 0.004844,
+          "p95_ms": 0.012604
+        },
+        "GPU.CompileGuestShader": {
+          "count": 17,
+          "total_ms": 27.923388,
+          "max_ms": 4.954635,
+          "p50_ms": 0.927396,
+          "p95_ms": 4.954635
+        }
+      },
+      "sdk_frames": 985,
+      "sdk_frame_p50_ms": 41.271458,
+      "sdk_frame_p95_ms": 62.457864,
+      "sdk_frame_max_ms": 488.52026,
+      "presented_samples_full_seconds_only": 969
+    }
+  ],
+  "long_frames": [
+    {
+      "sdk_frame": 874,
+      "tid": 10667,
+      "start_ns": 1165206299912212,
+      "end_ns": 1165207229079035,
+      "ms": 929.166823,
+      "start_s": 34.872603229,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 20.552813,
+          "self_total_ms": 16.601408
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 27.112344,
+          "self_total_ms": 23.349741
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 22.786459,
+          "self_total_ms": 19.51922
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 23.126041,
+          "self_total_ms": 19.525781
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 20.878386,
+          "self_total_ms": 17.720573
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 56.542239,
+          "self_total_ms": 50.223073
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 22.978646,
+          "self_total_ms": 18.92875
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 20.692135,
+          "self_total_ms": 17.438437
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 29.963855,
+          "self_total_ms": 25.661668
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 36.758542,
+          "self_total_ms": 31.428489
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 32.381718,
+          "self_total_ms": 27.226353
+        }
+      ]
+    },
+    {
+      "sdk_frame": 654,
+      "tid": 10667,
+      "start_ns": 1165196303929816,
+      "end_ns": 1165196900958045,
+      "ms": 597.028229,
+      "start_s": 24.876620833,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Texture.Refresh",
+          "ms": 12.570209,
+          "self_total_ms": 0.002708
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 21.783177,
+          "self_total_ms": 0.536979
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 24.981302,
+          "self_total_ms": 0.015
+        },
+        {
+          "name": "Texture.Refresh",
+          "ms": 71.45901,
+          "self_total_ms": 0.007292
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 82.837344,
+          "self_total_ms": 3.175052
+        },
+        {
+          "name": "HLE.CopyShader",
+          "ms": 52.640312,
+          "self_total_ms": 52.482811
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 52.644844,
+          "self_total_ms": 0.004532
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 29.077083,
+          "self_total_ms": 5.828646
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 21.749167,
+          "self_total_ms": 18.153178
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 25.896719,
+          "self_total_ms": 25.250938
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 30.45198,
+          "self_total_ms": 0.030365
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 20.71776,
+          "self_total_ms": 0.002031
+        }
+      ]
+    },
+    {
+      "sdk_frame": 1099,
+      "tid": 10667,
+      "start_ns": 1165219540293566,
+      "end_ns": 1165220128760962,
+      "ms": 588.467396,
+      "start_s": 48.112984583,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 46.373282,
+          "self_total_ms": 30.775469
+        },
+        {
+          "name": "GPU.CompileGuestShader",
+          "ms": 11.612656,
+          "self_total_ms": 11.612656
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 108.166042,
+          "self_total_ms": 96.522917
+        },
+        {
+          "name": "GPU.CompileGuestShader",
+          "ms": 95.297136,
+          "self_total_ms": 95.297136
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 326.203646,
+          "self_total_ms": 228.955885
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 20.52724,
+          "self_total_ms": 13.758385
+        },
+        {
+          "name": "Texture.Refresh",
+          "ms": 36.676562,
+          "self_total_ms": 0.000937
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 38.421354,
+          "self_total_ms": 1.347187
+        }
+      ]
+    },
+    {
+      "sdk_frame": 1966,
+      "tid": 10667,
+      "start_ns": 1165254817407368,
+      "end_ns": 1165255305927628,
+      "ms": 488.52026,
+      "start_s": 83.390098385,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 84.073854,
+          "self_total_ms": 11.963281
+        }
+      ]
+    },
+    {
+      "sdk_frame": 1130,
+      "tid": 10667,
+      "start_ns": 1165221606582264,
+      "end_ns": 1165222067799503,
+      "ms": 461.217239,
+      "start_s": 50.179273281,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 47.632917,
+          "self_total_ms": 40.712708
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 39.884636,
+          "self_total_ms": 34.20448
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 38.607917,
+          "self_total_ms": 33.087135
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 33.618802,
+          "self_total_ms": 28.917186
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 34.47974,
+          "self_total_ms": 32.546615
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 39.47448,
+          "self_total_ms": 33.753906
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 31.65375,
+          "self_total_ms": 30.282603
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 31.577552,
+          "self_total_ms": 26.835364
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 31.069062,
+          "self_total_ms": 29.853594
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 34.108177,
+          "self_total_ms": 28.955417
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 34.320052,
+          "self_total_ms": 29.475416
+        }
+      ]
+    },
+    {
+      "sdk_frame": 657,
+      "tid": 10667,
+      "start_ns": 1165197104364660,
+      "end_ns": 1165197516820285,
+      "ms": 412.455625,
+      "start_s": 25.677055677,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 78.570989,
+          "self_total_ms": 68.875052
+        },
+        {
+          "name": "GPU.CompileGuestShader",
+          "ms": 92.442552,
+          "self_total_ms": 92.442552
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 320.414063,
+          "self_total_ms": 227.781771
+        }
+      ]
+    },
+    {
+      "sdk_frame": 1199,
+      "tid": 10667,
+      "start_ns": 1165225227210024,
+      "end_ns": 1165225584724295,
+      "ms": 357.514271,
+      "start_s": 53.799901041,
+      "gpucomm_long_scopes": []
+    },
+    {
+      "sdk_frame": 873,
+      "tid": 10667,
+      "start_ns": 1165205974644712,
+      "end_ns": 1165206299912212,
+      "ms": 325.2675,
+      "start_s": 34.547335729,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 25.881093,
+          "self_total_ms": 25.892968
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 32.992292,
+          "self_total_ms": 26.24698
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 23.891406,
+          "self_total_ms": 19.382968
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 26.482343,
+          "self_total_ms": 21.68729
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 32.166927,
+          "self_total_ms": 25.018958
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 24.165364,
+          "self_total_ms": 19.721301
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 28.637136,
+          "self_total_ms": 23.583386
+        }
+      ]
+    },
+    {
+      "sdk_frame": 1308,
+      "tid": 10667,
+      "start_ns": 1165229694386899,
+      "end_ns": 1165230002239451,
+      "ms": 307.852552,
+      "start_s": 58.267077916,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 21.524218,
+          "self_total_ms": 19.955988
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 20.511823,
+          "self_total_ms": 19.351668
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 22.756771,
+          "self_total_ms": 20.486667
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 20.261302,
+          "self_total_ms": 18.88875
+        },
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 32.110573,
+          "self_total_ms": 27.88802
+        }
+      ]
+    },
+    {
+      "sdk_frame": 877,
+      "tid": 10667,
+      "start_ns": 1165207495839712,
+      "end_ns": 1165207743622680,
+      "ms": 247.782968,
+      "start_s": 36.068530729,
+      "gpucomm_long_scopes": [
+        {
+          "name": "Rasterizer.Draw",
+          "ms": 33.27375,
+          "self_total_ms": 23.015833
+        },
+        {
+          "name": "HLE.CopyShader",
+          "ms": 47.654271,
+          "self_total_ms": 47.650208
+        },
+        {
+          "name": "Rasterizer.Dispatch",
+          "ms": 47.668229,
+          "self_total_ms": 0.013958
+        }
+      ]
+    },
+    {
+      "sdk_frame": 1211,
+      "tid": 10667,
+      "start_ns": 1165226056896274,
+      "end_ns": 1165226287606274,
+      "ms": 230.71,
+      "start_s": 54.629587291,
+      "gpucomm_long_scopes": []
+    },
+    {
+      "sdk_frame": 872,
+      "tid": 10667,
+      "start_ns": 1165205747798878,
+      "end_ns": 1165205974644712,
+      "ms": 226.845834,
+      "start_s": 34.320489895,
+      "gpucomm_long_scopes": []
+    }
+  ],
+  "whole_sdk_frames": {
+    "count": 2371,
+    "p50_ms": 36.894323,
+    "p95_ms": 64.231511,
+    "max_ms": 929.166823
+  },
+  "gpucomm_cpu_self_ms": 45536.411467,
+  "verification": {
+    "max_per_thread_second_self_ns": 1000000000,
+    "per_thread_second_no_double_count": true
+  },
+  "phase_boundaries": "0 and first present exact runtime markers; 25 and 62 seconds approximate reviewed observation cuts, not exact game loading begin/end"
+}

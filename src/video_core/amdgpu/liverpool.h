@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <coroutine>
 #include <exception>
+#include <functional>
 #include <mutex>
 #include <semaphore>
 #include <span>

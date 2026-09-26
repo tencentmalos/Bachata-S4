@@ -1,0 +1,180 @@
+{
+  "source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/bloodborne-startup-20260926/run-ayn/capture/9c2841a4-9560-file-1790429150734619-1.prof",
+  "sha256": "5ad196fa588e5d223343896b890328072e8df984ff46c679cfdcb68a86b25dd2",
+  "sdk_revision": "b6797a098adedbba23ab35a15a83cc146736c24d",
+  "events": 62059047,
+  "elapsed_ms": 105610.394114,
+  "gpu_records": {
+    "context_defs": 3,
+    "zone_begins": 503942,
+    "zone_ends": 503942,
+    "times": 1007884,
+    "orphan_times": 0
+  },
+  "truncated": false,
+  "unmatched_ends": 0,
+  "open_scopes": 131,
+  "gpu_clock_calibrated": false,
+  "cpu_is_elapsed_not_oncpu": true,
+  "boundary_scope_note": "summary long-frame overlap ms is clipped to frame, but self_total_ms is the original whole-scope self; do not compare these as the same interval",
+  "phase_note": "25 s and 62 s are approximate reviewed observation cuts",
+  "gettimeofday_per_physical_thread": [
+    {
+      "tid": 10611,
+      "name": "HLE.gettimeofday",
+      "count": 18267329,
+      "inclusive_ms": 6704.371378,
+      "self_ms": 6704.371378,
+      "max_ms": 4.078281
+    },
+    {
+      "tid": 10635,
+      "name": "HLE.gettimeofday",
+      "count": 6146,
+      "inclusive_ms": 205.843574,
+      "self_ms": 205.843574,
+      "max_ms": 8.06724
+    },
+    {
+      "tid": 10657,
+      "name": "HLE.gettimeofday",
+      "count": 14948,
+      "inclusive_ms": 122.12874,
+      "self_ms": 122.12874,
+      "max_ms": 2.453177
+    },
+    {
+      "tid": 10692,
+      "name": "HLE.gettimeofday",
+      "count": 73727,
+      "inclusive_ms": 175.079061,
+      "self_ms": 175.079061,
+      "max_ms": 2.161562
+    },
+    {
+      "tid": 10693,
+      "name": "HLE.gettimeofday",
+      "count": 77,
+      "inclusive_ms": 0.24203,
+      "self_ms": 0.24203,
+      "max_ms": 0.033073
+    },
+    {
+      "tid": 10667,
+      "name": "HLE.gettimeofday",
+      "count": 1,
+      "inclusive_ms": 0.003906,
+      "self_ms": 0.003906,
+      "max_ms": 0.003906
+    },
+    {
+      "tid": 10711,
+      "name": "HLE.gettimeofday",
+      "count": 3059,
+      "inclusive_ms": 86.317772,
+      "self_ms": 86.317772,
+      "max_ms": 4.196771
+    },
+    {
+      "tid": 10644,
+      "name": "HLE.gettimeofday",
+      "count": 5950,
+      "inclusive_ms": 22.06553,
+      "self_ms": 22.06553,
+      "max_ms": 1.086511
+    },
+    {
+      "tid": 10645,
+      "name": "HLE.gettimeofday",
+      "count": 6894,
+      "inclusive_ms": 29.557511,
+      "self_ms": 29.557511,
+      "max_ms": 1.16401
+    },
+    {
+      "tid": 10646,
+      "name": "HLE.gettimeofday",
+      "count": 9158,
+      "inclusive_ms": 49.680798,
+      "self_ms": 49.680798,
+      "max_ms": 2.310104
+    },
+    {
+      "tid": 10684,
+      "name": "HLE.gettimeofday",
+      "count": 11,
+      "inclusive_ms": 0.020572,
+      "self_ms": 0.020572,
+      "max_ms": 0.005521
+    },
+    {
+      "tid": 10685,
+      "name": "HLE.gettimeofday",
+      "count": 12,
+      "inclusive_ms": 0.139636,
+      "self_ms": 0.139636,
+      "max_ms": 0.123541
+    },
+    {
+      "tid": 10687,
+      "name": "HLE.gettimeofday",
+      "count": 9,
+      "inclusive_ms": 0.03578,
+      "self_ms": 0.03578,
+      "max_ms": 0.021042
+    },
+    {
+      "tid": 10688,
+      "name": "HLE.gettimeofday",
+      "count": 3,
+      "inclusive_ms": 0.005521,
+      "self_ms": 0.005521,
+      "max_ms": 0.002708
+    },
+    {
+      "tid": 10686,
+      "name": "HLE.gettimeofday",
+      "count": 8,
+      "inclusive_ms": 0.028748,
+      "self_ms": 0.028748,
+      "max_ms": 0.020312
+    }
+  ],
+  "gettimeofday_all_threads_count": 18387332,
+  "gettimeofday_all_threads_elapsed_ms": 7395.520557,
+  "reproduce": "Copy these scripts beside original capture/ and analysis.payload and use the exact installed SDK reader path embedded in analyze_full.py; summary and plot require full-analysis.json in that same evidence directory. plot.py uses matplotlib.",
+  "files": {
+    "summary.json": {
+      "bytes": 17367,
+      "sha256": "bfab9ccbc846a7b2607d3b3dfab6dd5efb1fbc916a1469cf3e20c36464bf313d"
+    },
+    "plot.py": {
+      "bytes": 3647,
+      "sha256": "5fa43b8896ed596bf0bb774b08dcc3a73fa0801eb0f4a68779c2881cb7ea25bc"
+    },
+    "overview.svg": {
+      "bytes": 304009,
+      "sha256": "13f6b12de6318c6920d59480597eb82013e81c04883bdccb96de8259ad7c3e5e"
+    },
+    "container-header.json": {
+      "bytes": 645,
+      "sha256": "17bf16a6c1875a2e2d9741bc66743e49a6af7f6b7bb78c820f6b81efaeee12a1"
+    },
+    "overview.png": {
+      "bytes": 277426,
+      "sha256": "c4fddb61038a647722065af33cfb00ede80124ebff1a05d8c86e3b1b0008dbfe"
+    },
+    "summarize.py": {
+      "bytes": 3965,
+      "sha256": "ae41d27c6913a8f7e0dad9d956887e0c6d57144bc8207e96b89b7df80de63e88"
+    },
+    "clock-relation.json": {
+      "bytes": 349,
+      "sha256": "4770baa65ac8a67ced014c0089ba9e9125682d081e4be1937c1647dbad02bdf0"
+    },
+    "analyze_full.py": {
+      "bytes": 5977,
+      "sha256": "846676ddb89c5cbbca569bdf9fa80e1a8073034adc70019b05b91a538cc140f4"
+    }
+  }
+}
