@@ -228,6 +228,9 @@ void TryArena(PFN_vkGetInstanceProcAddr gipa, VkInstance instance, VkPhysicalDev
         end_cmd(cmd);
         const VkSubmitInfo submit_info{VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr,
                                        nullptr, 1, &cmd};
+        if (std::getenv("SPARSE_PROBE_PER_BLOCK")) {
+            std::printf("    recorded, submitting\n");
+        }
         const auto result = queue_submit(queue, 1, &submit_info, fence);
         const auto waited =
             result == VK_SUCCESS ? wait_fences(device, 1, &fence, VK_TRUE, 5'000'000'000ull)
@@ -248,6 +251,15 @@ void TryArena(PFN_vkGetInstanceProcAddr gipa, VkInstance instance, VkPhysicalDev
     };
     if (allocated) {
         submit(binds, "bind");
+        if (std::getenv("SPARSE_PROBE_PER_BLOCK")) {
+            // One block per submission, announced first, to find where a driver fails.
+            for (const auto& bind : binds) {
+                std::printf("  block at %" PRIu64 " MiB (+%" PRIu64 ")\n",
+                            bind.resourceOffset >> 20, bind.resourceOffset);
+                RoundTrip(buffer, {bind}, req.alignment,
+                          "block at " + std::to_string(bind.resourceOffset >> 20) + " MiB");
+            }
+        }
         RoundTrip(buffer, binds, req.alignment, "through bound blocks");
         // Control: the same copies through an ordinary buffer bound to one allocation.
         VkBufferCreateInfo plain_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
@@ -398,6 +410,19 @@ int main(int argc, char** argv) {
             }
             std::printf("  arena page %" PRIu64 " MiB, merged %" PRIu64 " MiB\n", page >> 20,
                         (page * 2) >> 20);
+            if (const char* sizes = std::getenv("SPARSE_PROBE_SIZES_MIB")) {
+                // Explicit arena sizes, e.g. "512,1024,1536".
+                for (std::string_view list{sizes}; !list.empty();) {
+                    const auto comma = list.find(',');
+                    const auto mib = std::stoull(std::string(list.substr(0, comma)));
+                    TryArena(gipa, instance, physical, device, queue, sparse_family,
+                             VkDeviceSize{mib} << 20, 8);
+                    list = comma == std::string_view::npos ? std::string_view{}
+                                                           : list.substr(comma + 1);
+                }
+                destroy_device(device, nullptr);
+                continue;
+            }
             TryArena(gipa, instance, physical, device, queue, sparse_family, page, 8);
             TryArena(gipa, instance, physical, device, queue, sparse_family, page * 2, 8);
             // Beyond the limit: informational only (upstream used 4/8 GiB regardless).
