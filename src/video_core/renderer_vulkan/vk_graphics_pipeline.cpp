@@ -66,7 +66,7 @@ GraphicsPipeline::GraphicsPipeline(
     if (!preloading) {
         VertexInputs<AmdGpu::Buffer> guest_buffers;
         if (!instance.IsVertexInputDynamicState()) {
-            const auto& vs_info = runtime_infos[u32(Shader::LogicalStage::Vertex)].vs_info;
+            const auto& vs_info = runtime_infos[u32(Shader::SwStage::Vertex)].sw.vs;
             GetVertexInputs(sdata.vertex_attributes, sdata.vertex_bindings, sdata.divisors,
                             guest_buffers, vs_info.step_rate_0, vs_info.step_rate_1);
         }
@@ -122,7 +122,7 @@ GraphicsPipeline::GraphicsPipeline(
     }
 
     if (!preloading) {
-        const auto& fs_info = runtime_infos[u32(Shader::LogicalStage::Fragment)].fs_info;
+        const auto& fs_info = runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs;
         sdata.multisampling = {
             .rasterizationSamples = LiverpoolToVK::NumSamples(
                 key.num_samples, instance.GetColorSampleCounts() & instance.GetDepthSampleCounts()),
@@ -135,7 +135,7 @@ GraphicsPipeline::GraphicsPipeline(
     ASSERT_MSG(u32(raster_samples) == key.num_samples,
                "Unsupported pipeline sample count: requested={} actual={}",
                key.num_samples, u32(raster_samples));
-    const auto* fragment = infos[u32(Shader::LogicalStage::Fragment)];
+    const auto* fragment = infos[u32(Shader::SwStage::Fragment)];
     // Coarse shading must not reduce guest-visible memory writes/atomics or
     // per-sample evaluation. Read-only storage resources remain eligible.
     requires_full_fragment_rate = sdata.multisampling.sampleShadingEnable || !fragment;
@@ -190,7 +190,7 @@ GraphicsPipeline::GraphicsPipeline(
 
     boost::container::static_vector<vk::PipelineShaderStageCreateInfo, MaxShaderStages>
         shader_stages;
-    auto stage = u32(Shader::LogicalStage::Vertex);
+    auto stage = u32(Shader::SwStage::Vertex);
     if (infos[stage]) {
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eVertex,
@@ -198,7 +198,7 @@ GraphicsPipeline::GraphicsPipeline(
             .pName = "main",
         });
     }
-    stage = u32(Shader::LogicalStage::Geometry);
+    stage = u32(Shader::SwStage::Geometry);
     if (infos[stage]) {
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eGeometry,
@@ -206,7 +206,7 @@ GraphicsPipeline::GraphicsPipeline(
             .pName = "main",
         });
     }
-    stage = u32(Shader::LogicalStage::TessellationControl);
+    stage = u32(Shader::SwStage::TessellationControl);
     if (infos[stage]) {
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationControl,
@@ -217,12 +217,12 @@ GraphicsPipeline::GraphicsPipeline(
         const auto type = is_quad_list ? AuxShaderType::QuadListTCS : AuxShaderType::RectListTCS;
         if (!preloading) {
             const auto locations = Shader::Backend::SPIRV::AuxiliaryVaryingLocations(
-                *infos[u32(Shader::LogicalStage::Vertex)], profile);
+                *infos[u32(Shader::SwStage::Vertex)], profile);
             sdata.tcs = Shader::Backend::SPIRV::EmitAuxilaryTessShader(type, locations,
-                key.emulate_depth_range && (runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_near ||
-                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far),
+                key.emulate_depth_range && (runtime_infos[u32(Shader::SwStage::Vertex)].depth_range.clip_near ||
+                                           runtime_infos[u32(Shader::SwStage::Vertex)].depth_range.clip_far),
                 Shader::Backend::SPIRV::AuxiliaryBuiltinLocations(
-                    *infos[u32(Shader::LogicalStage::Vertex)], profile));
+                    *infos[u32(Shader::SwStage::Vertex)], profile));
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationControl,
@@ -230,7 +230,7 @@ GraphicsPipeline::GraphicsPipeline(
             .pName = "main",
         });
     }
-    stage = u32(Shader::LogicalStage::TessellationEval);
+    stage = u32(Shader::SwStage::TessellationEval);
     if (infos[stage]) {
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
@@ -240,13 +240,13 @@ GraphicsPipeline::GraphicsPipeline(
     } else if (is_rect_list || is_quad_list) {
         if (!preloading) {
             const auto locations = Shader::Backend::SPIRV::AuxiliaryVaryingLocations(
-                *infos[u32(Shader::LogicalStage::Vertex)], profile);
+                *infos[u32(Shader::SwStage::Vertex)], profile);
             sdata.tes = Shader::Backend::SPIRV::EmitAuxilaryTessShader(
                 AuxShaderType::PassthroughTES, locations,
-                key.emulate_depth_range && (runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_near ||
-                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far),
+                key.emulate_depth_range && (runtime_infos[u32(Shader::SwStage::Vertex)].depth_range.clip_near ||
+                                           runtime_infos[u32(Shader::SwStage::Vertex)].depth_range.clip_far),
                 Shader::Backend::SPIRV::AuxiliaryBuiltinLocations(
-                    *infos[u32(Shader::LogicalStage::Vertex)], profile));
+                    *infos[u32(Shader::SwStage::Vertex)], profile));
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
@@ -254,34 +254,35 @@ GraphicsPipeline::GraphicsPipeline(
             .pName = "main",
         });
     }
-    const vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo fragment_subgroup_size{
-        .requiredSubgroupSize = 64,
-    };
-    stage = u32(Shader::LogicalStage::Fragment);
+    stage = u32(Shader::SwStage::Fragment);
     if (infos[stage]) {
-        // A PS4 wave has 64 lanes. In particular, reductions ending in reads of
-        // lanes 31/63 must not accidentally combine halves of a 128-lane host wave.
-        const bool uses_wave = infos[stage]->uses_lane_id || infos[stage]->uses_group_ballot;
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
-            .pNext = uses_wave && instance.IsSubgroupSize64Supported(vk::ShaderStageFlagBits::eFragment)
-                         ? &fragment_subgroup_size : nullptr,
             .stage = vk::ShaderStageFlagBits::eFragment,
             .module = modules[stage],
             .pName = "main",
         });
-    } else if (runtime_infos[u32(Shader::LogicalStage::Fragment)].fs_info.clip_distance_emulation) {
+    } else if (runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs.clip_distance_emulation) {
         if (!preloading) {
-            const auto vs_runtime_info =
-                runtime_infos[static_cast<u32>(Shader::LogicalStage::Vertex)].vs_info;
+            const auto& vs = runtime_infos[static_cast<u32>(Shader::SwStage::Vertex)].hw.vs;
 
-            sdata.fragment =
-                Shader::Backend::SPIRV::EmitDiscardFragmentShader(vs_runtime_info.outputs);
+            sdata.fragment = Shader::Backend::SPIRV::EmitDiscardFragmentShader(vs.outputs);
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eFragment,
             .module = CompileSPV(sdata.fragment, instance.GetDevice()),
             .pName = "main",
         });
+    }
+
+    // A PS4 wave has 64 lanes. U64 lane masks (ballot/inverse ballot) and reductions ending in
+    // reads of lanes 31/63 must not combine halves of a 128-lane host wave (Turnip's default
+    // fragment size), so request 64 wherever the device allows it for that stage.
+    const vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo subgroup_size_ci = {
+        .requiredSubgroupSize = 64,
+    };
+    for (auto& stage : shader_stages) {
+        stage.pNext =
+            instance.IsSubgroupSize64Supported(stage.stage) ? &subgroup_size_ci : nullptr;
     }
 
     const auto depth_format =
@@ -472,7 +473,7 @@ GraphicsPipeline::GraphicsPipeline(
             data["stages"].push_back({{"stage",stage},{"hash",infos[stage]->pgm_hash},
                 {"key",key.stage_hashes[stage]},{"params",std::move(params)}});
         }
-        const auto& fs=runtime_infos[u32(Shader::LogicalStage::Fragment)].fs_info;
+        const auto& fs=runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs;
         data["fs_inputs"]=nlohmann::json::array();
         for (u32 i=0;i<fs.num_inputs;++i) data["fs_inputs"].push_back({{"param",i},
             {"location",fs.inputs[i].param_index},{"default",fs.inputs[i].IsDefault()}});
@@ -518,7 +519,7 @@ void GraphicsPipeline::GetVertexInputs(
     if (!fetch_shader || fetch_shader->attributes.empty()) {
         return;
     }
-    const auto& vs_info = GetStage(Shader::LogicalStage::Vertex);
+    const auto& vs_info = GetStage(Shader::SwStage::Vertex);
     for (const auto& attrib : fetch_shader->attributes) {
         const auto step_rate = attrib.GetStepRate();
         const auto buffer = attrib.GetSharp(vs_info);
@@ -569,7 +570,7 @@ void GraphicsPipeline::BuildDescSetLayout(bool preloading) {
         if (!stage) {
             continue;
         }
-        const auto stage_bit = LogicalStageToStageBit[u32(stage->l_stage)];
+        const auto stage_bit = LogicalStageToStageBit[u32(stage->sw_stage)];
         for (const auto& buffer : stage->buffers) {
             const auto sharp =
                 preloading ? AmdGpu::Buffer{}

@@ -17,7 +17,7 @@ void EmitPrologue(EmitContext& ctx) {
             ctx.TypePointer(spv::StorageClass::Output, ctx.TypeArray(ctx.F32[1], ctx.ConstU32(8U))),
             ctx.depth_vertex_block, ctx.ConstU32(1U));
     }
-    if (ctx.stage == Stage::Fragment) {
+    if (ctx.hw_stage == HwStage::Fragment) {
         ctx.DefineAmdPerVertexAttribs();
     }
     if (ctx.info.loads.Get(IR::Attribute::WorkgroupIndex)) {
@@ -117,13 +117,14 @@ void ConvertViewportDepth(EmitContext& ctx) {
 }
 
 void EmitEpilogue(EmitContext& ctx) {
-    if (ctx.stage == Stage::Vertex && ctx.runtime_info.depth_range.enabled) {
+    if (ctx.hw_stage == HwStage::Vertex && ctx.runtime_info.depth_range.enabled) {
         ConvertViewportDepth(ctx);
     }
-    if (ctx.stage == Stage::Vertex && ctx.runtime_info.vs_info.emulate_depth_negative_one_to_one) {
+    if (ctx.hw_stage == HwStage::Vertex &&
+        ctx.runtime_info.hw.vs.emulate_depth_negative_one_to_one) {
         ConvertDepthMode(ctx);
     }
-    if (ctx.stage == Stage::Vertex && ctx.runtime_info.vs_info.clip_disable) {
+    if (ctx.hw_stage == HwStage::Vertex && ctx.runtime_info.hw.vs.clip_disable) {
         ConvertPositionToClipSpace(ctx);
     }
 }
@@ -172,6 +173,15 @@ void EmitDebugPrint(EmitContext& ctx, IR::Inst* inst, Id fmt, Id arg0, Id arg1, 
     std::array<Id, IR::DEBUGPRINT_NUM_FORMAT_ARGS> fmt_args = {arg0, arg1, arg2, arg3};
     auto fmt_args_span = std::span<Id>(fmt_args.begin(), fmt_args.begin() + flags.num_args);
     ctx.OpDebugPrintf(fmt, fmt_args_span);
+}
+
+Id EmitMemtime(EmitContext& ctx) {
+    if (ctx.profile.supports_shader_subgroup_clock) {
+        return ctx.OpReadClockKHR(ctx.U64, ctx.ConstU32(std::to_underlying(spv::Scope::Subgroup)));
+    } else {
+        // ConstU64 also covers the {lo, hi} u32-pair U64 used without shaderInt64.
+        return ctx.ConstU64(1U);
+    }
 }
 
 } // namespace Shader::Backend::SPIRV

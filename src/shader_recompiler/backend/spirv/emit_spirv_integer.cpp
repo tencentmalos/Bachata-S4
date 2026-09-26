@@ -180,8 +180,33 @@ Id EmitBitwiseXor32(EmitContext& ctx, IR::Inst* inst, Id a, Id b) {
     return result;
 }
 
-Id EmitBitFieldInsert(EmitContext& ctx, Id base, Id insert, Id offset, Id count) {
+Id EmitBitwiseXor64(EmitContext& ctx, IR::Inst* inst, Id a, Id b) {
+    const Id result{ctx.OpBitwiseXor(ctx.U64, a, b)};
+    SetZeroFlag(ctx, inst, result);
+    SetSignFlag(ctx, inst, result);
+    return result;
+}
+
+Id EmitBitFieldInsert32(EmitContext& ctx, Id base, Id insert, Id offset, Id count) {
     return ctx.OpBitFieldInsert(ctx.U32[1], base, insert, offset, count);
+}
+
+Id EmitBitFieldInsert64(EmitContext& ctx, Id base, Id insert, Id offset, Id count) {
+    if (ctx.profile.support_int64) {
+        return ctx.OpBitFieldInsert(ctx.U64, base, insert, offset, count);
+    }
+    // u32-pair U64: a component-wise OpBitFieldInsert would insert into each half separately.
+    // (base & ~mask) | ((insert << offset) & mask), mask = ((1 << count) - 1) << offset.
+    // A pair shift by 64 is not a zero shift, so a full-width count selects all ones.
+    const Id all_ones{ctx.ConstU64(~u64{0})};
+    const Id full{ctx.OpUGreaterThanEqual(ctx.U1[1], count, ctx.ConstU32(64U))};
+    const Id low_ones{ctx.SubU64(ctx.ShiftU64(ctx.ConstU64(1), count, true), ctx.ConstU64(1))};
+    const Id ones{ctx.OpSelect(ctx.U64, ctx.OpCompositeConstruct(ctx.U1[2], full, full), all_ones,
+                               low_ones)};
+    const Id mask{ctx.ShiftU64(ones, offset, true)};
+    const Id field{ctx.OpBitwiseAnd(ctx.U64, ctx.ShiftU64(insert, offset, true), mask)};
+    return ctx.OpBitwiseOr(ctx.U64, ctx.OpBitwiseAnd(ctx.U64, base, ctx.OpNot(ctx.U64, mask)),
+                           field);
 }
 
 Id EmitBitFieldSExtract(EmitContext& ctx, IR::Inst* inst, Id base, Id offset, Id count) {
@@ -219,6 +244,10 @@ Id EmitBitCount64(EmitContext& ctx, Id value) {
 
 Id EmitBitwiseNot32(EmitContext& ctx, Id value) {
     return ctx.OpNot(ctx.U32[1], value);
+}
+
+Id EmitBitwiseNot64(EmitContext& ctx, Id value) {
+    return ctx.OpNot(ctx.U64, value);
 }
 
 Id EmitFindSMsb32(EmitContext& ctx, Id value) {

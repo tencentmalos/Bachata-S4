@@ -146,7 +146,7 @@ Id EmitContext::U64ToFloat(Id value, bool is_signed, bool fp64) {
     const auto halfway =
         OpLogicalAnd(U1[1], EqualU64(remainder, half), OpINotEqual(U1[1], discard, u32_zero_value));
     auto round_up = OpLogicalOr(U1[1], LessU64(half, remainder), OpLogicalAnd(U1[1], halfway, odd));
-    const auto mode = fp64 ? runtime_info.fp_round_mode16_64 : runtime_info.fp_round_mode32;
+    const auto mode = fp64 ? runtime_info.props.fp_round_mode16_64 : runtime_info.props.fp_round_mode32;
     if (mode == AmdGpu::FpRoundMode::ToZero) {
         round_up = false_value;
     } else if (mode == AmdGpu::FpRoundMode::PlusInf || mode == AmdGpu::FpRoundMode::MinInf) {

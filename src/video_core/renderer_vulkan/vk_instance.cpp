@@ -328,7 +328,8 @@ bool Instance::CreateDevice() {
                           vk::PhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR,
                           vk::PhysicalDeviceImage2DViewOf3DFeaturesEXT,
                           vk::PhysicalDeviceFragmentDensityMapFeaturesEXT,
-                          vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>();
+                          vk::PhysicalDeviceFragmentShadingRateFeaturesKHR,
+                          vk::PhysicalDeviceShaderClockFeaturesKHR>();
     features = feature_chain.get().features;
     LOG_INFO(Render_Vulkan, "Shader Int64 path: {}",
              features.shaderInt64 ? "native" : "u32 pair lowering (including BDA)");
@@ -536,6 +537,12 @@ bool Instance::CreateDevice() {
         }
     }
     supports_memory_budget = add_extension(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+    shader_clock = add_extension(VK_KHR_SHADER_CLOCK_EXTENSION_NAME);
+    if (shader_clock) {
+        shader_clock_features = feature_chain.get<vk::PhysicalDeviceShaderClockFeaturesKHR>();
+        LOG_INFO(Render_Vulkan, "- shaderSubgroupClock: {}",
+                 shader_clock_features.shaderSubgroupClock);
+    }
     const bool calibrated_timestamps =
 #if defined(SHADPS4_PROFILER_RING)
         add_extension(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
@@ -723,6 +730,9 @@ bool Instance::CreateDevice() {
             .primitiveFragmentShadingRate = VK_FALSE,
             .attachmentFragmentShadingRate = VK_FALSE,
         },
+        vk::PhysicalDeviceShaderClockFeaturesKHR{
+            .shaderSubgroupClock = shader_clock_features.shaderSubgroupClock,
+        },
     };
 
     if (!custom_border_color) {
@@ -773,6 +783,9 @@ bool Instance::CreateDevice() {
     }
     if (!fragment_shading_rate_enabled) {
         device_chain.unlink<vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>();
+    }
+    if (!shader_clock) {
+        device_chain.unlink<vk::PhysicalDeviceShaderClockFeaturesKHR>();
     }
 
     gpu_reshape.ConfigureDeviceFeatures(
@@ -1083,6 +1096,11 @@ vk::Format Instance::GetSupportedFormat(const vk::Format format,
         case vk::Format::eR8Srgb:
             if (IsFormatSupported(vk::Format::eR8Unorm, flags)) {
                 return vk::Format::eR8Unorm;
+            }
+            break;
+        case vk::Format::eR8G8Srgb:
+            if (IsFormatSupported(vk::Format::eR8G8Unorm, flags)) {
+                return vk::Format::eR8G8Unorm;
             }
             break;
         default:

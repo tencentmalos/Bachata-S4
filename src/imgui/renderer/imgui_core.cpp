@@ -337,6 +337,7 @@ ImGuiID NewFrame(bool is_reusing_frame) {
         previous_frame = now;
     }
     ImGui::NewFrame();
+    SetKeyOwner(ImGuiKey_GamepadFaceUp, ImHashStr("shadps4/pad"));
 
     ImGuiWindowFlags flags =
         ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar;

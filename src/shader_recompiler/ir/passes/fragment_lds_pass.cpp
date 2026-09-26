@@ -76,7 +76,7 @@ std::optional<u32> LaneValue(IR::Value v, u32 lane, u32 depth = 0) {
 } // namespace
 
 bool FragmentLdsPass(IR::Program& program) {
-    if (program.info.stage != Stage::Fragment)
+    if (program.info.hw_stage != HwStage::Fragment)
         return true;
     struct Access {
         IR::Inst* inst;

@@ -123,7 +123,7 @@ public:
 
     Frame* PrepareBlankFrame(bool present_thread);
 
-    bool Present(Frame* frame, bool is_reusing_frame = false);
+    bool Present(Frame* frame, bool is_reusing_frame = false, bool is_game_frame = true);
     Frame* PrepareLastFrame();
 
 private:

@@ -72,7 +72,7 @@ enum class ActionKind : u32 {
     DispatchIndirect = 6,
 };
 struct ActionStage {
-    u32 stage; // Shader::LogicalStage
+    u32 stage; // Shader::SwStage
     u32 reserved;
     u64 hash;
     u64 base;

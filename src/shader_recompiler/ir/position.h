@@ -12,8 +12,9 @@ namespace Shader::IR {
 
 /// Maps special position export to builtin attribute stores
 template <typename StageRuntimeInfo>
-inline void ExportPosition(IREmitter& ir, const StageRuntimeInfo& stage, Attribute attribute,
-                           u32 comp, const IR::F32& value) {
+inline void ExportPosition(IREmitter& ir, const StageRuntimeInfo& stage,
+                           bool tess_emulated_primitive, Attribute attribute, u32 comp,
+                           const IR::F32& value) {
     if (attribute == Attribute::Position0) {
         ir.SetAttribute(attribute, value, comp);
         return;
@@ -21,11 +22,11 @@ inline void ExportPosition(IREmitter& ir, const StageRuntimeInfo& stage, Attribu
 
     const u32 index = u32(attribute) - u32(Attribute::Position1);
     const auto output = stage.outputs[index][comp];
-    if constexpr (std::is_same_v<StageRuntimeInfo, VertexRuntimeInfo>) {
+    if constexpr (std::is_same_v<StageRuntimeInfo, HwVertexRuntimeInfo>) {
         // Layer and viewport are forwarded through the auxiliary TCS/TES using
         // integer varyings. Point size still needs a gl_PerVertex bridge.
         const auto last_stage_required = output == Output::PointSize;
-        if (stage.tess_emulated_primitive && last_stage_required) {
+        if (tess_emulated_primitive && last_stage_required) {
             LOG_WARNING(Render,
                         "{} is exported in vertex shader but tessellation-based primitive "
                         "emulation is active. Not implemented yet.",

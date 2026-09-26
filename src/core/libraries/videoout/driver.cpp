@@ -348,8 +348,10 @@ void VideoOutDriver::Flip(const Request& req) {
 
 void VideoOutDriver::DrawBlankFrame() {
     const auto empty_frame = presenter->PrepareBlankFrame(true);
-    if (empty_frame)
-    presenter->Present(empty_frame);
+    // A blank frame is not a guest flip; it must not advance the flip frame counter.
+    if (empty_frame) {
+        presenter->Present(empty_frame, false, false);
+    }
 }
 
 void VideoOutDriver::DrawLastFrame() {

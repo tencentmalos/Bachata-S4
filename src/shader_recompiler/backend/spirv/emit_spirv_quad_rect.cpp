@@ -391,7 +391,8 @@ private:
 };
 
 std::vector<u32> AuxiliaryVaryingLocations(const Info& vertex, const Profile& profile) {
-    const bool clip = vertex.stage == Stage::Vertex && profile.needs_clip_distance_emulation &&
+    const bool clip = vertex.hw_stage == HwStage::Vertex &&
+                      profile.needs_clip_distance_emulation &&
                       vertex.stores.GetAny(IR::Attribute::ClipDistance);
     std::vector<u32> locations;
     if (clip) locations.push_back(0);

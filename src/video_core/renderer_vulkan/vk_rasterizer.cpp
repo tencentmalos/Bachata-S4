@@ -18,6 +18,7 @@
 #include "video_core/amdgpu/depth_range.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -50,7 +51,9 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_,
       buffer_cache{instance, scheduler, liverpool_, texture_cache, page_manager},
       texture_cache{instance, scheduler, liverpool_, buffer_cache, page_manager},
       liverpool{liverpool_}, memory{Core::Memory::Instance()},
-      pipeline_cache{instance, scheduler, liverpool} {
+      pipeline_cache{instance, scheduler, liverpool},
+      host_markers_enabled{EmulatorSettings.IsVkHostMarkersEnabled()},
+      guest_markers_enabled{EmulatorSettings.IsVkGuestMarkersEnabled()} {
     if (!EmulatorSettings.IsNullGPU()) {
         liverpool->BindRasterizer(this);
     }
@@ -260,7 +263,7 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     if (HostMarkersEnabled())
         InsertDrawTag(pipeline, is_indexed, false);
 
-    const auto& vs_info = pipeline->GetStage(Shader::LogicalStage::Vertex);
+    const auto& vs_info = pipeline->GetStage(Shader::SwStage::Vertex);
     const auto& fetch_shader = pipeline->GetFetchShader();
     const auto [vertex_offset, instance_offset] = GetDrawOffsets(regs, vs_info, fetch_shader);
 
@@ -293,7 +296,8 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
 }
 
 void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u32 stride,
-                              u32 max_count, VAddr count_address) {
+                              u32 max_count, VAddr count_address, u16 vertex_sgpr_offset,
+                              u16 instance_sgpr_offset) {
     RENDERER_TRACE;
     Common::Profiler::Scope profile_scope{"Rasterizer.Draw"};
 
@@ -303,7 +307,11 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
         return;
     }
 
-    const GraphicsPipeline* pipeline = pipeline_cache.GetGraphicsPipeline();
+    const DrawIndirectParams params = {
+        .vertex_sgpr_offset = vertex_sgpr_offset,
+        .instance_sgpr_offset = instance_sgpr_offset,
+    };
+    const GraphicsPipeline* pipeline = pipeline_cache.GetGraphicsPipeline(params);
     if (!pipeline) {
         return;
     }
@@ -414,7 +422,7 @@ void Rasterizer::DispatchDirect() {
         return;
     }
 
-    const auto& cs = pipeline->GetStage(Shader::LogicalStage::Compute);
+    const auto& cs = pipeline->GetStage(Shader::SwStage::Compute);
     const bool tracing = AmdGpu::Pm4Trace::Active();
     if (tracing) {
         AmdGpu::Pm4Trace::BeginAction();
@@ -479,7 +487,7 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
                     size, address + offset);
     }
     if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
-        NoteDispatchDiagnostics(pipeline->GetStage(Shader::LogicalStage::Compute), cs_program,
+        NoteDispatchDiagnostics(pipeline->GetStage(Shader::SwStage::Compute), cs_program,
                                 true);
     }
     if (!BindResources(pipeline)) {
@@ -535,7 +543,7 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
     if (db_desc.first) attachments.push_back(db_desc.first);
     u64 fragment_hash{};
     for (const auto* stage : pipeline->GetStages())
-        if (stage && stage->l_stage == Shader::LogicalStage::Fragment)
+        if (stage && stage->sw_stage == Shader::SwStage::Fragment)
             fragment_hash = stage->pgm_hash;
     texture_cache.RecordAttachmentDraw(attachments, fragment_hash, render_scale_eighths != 8,
                                       began_rendering,
@@ -570,7 +578,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
         for (const auto* stage : pipeline->GetStages()) {
             if (!stage) continue;
             descriptor += stage->buffers.size();
-            if (stage->l_stage == Shader::LogicalStage::Fragment) {
+            if (stage->sw_stage == Shader::SwStage::Fragment) {
                 fragment_buffer_writes |= std::ranges::any_of(stage->buffers,
                     [](const auto& buffer) { return buffer.is_written && !buffer.IsSpecial(); });
                 fragment_image_writes |= std::ranges::any_of(stage->images,
@@ -641,7 +649,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                     if (native_pass_logged.insert(graphics).second) {
                         u64 fragment_hash{};
                         for (const auto* stage : pipeline->GetStages())
-                            if (stage && stage->l_stage == Shader::LogicalStage::Fragment)
+                            if (stage && stage->sw_stage == Shader::SwStage::Fragment)
                                 fragment_hash = stage->pgm_hash;
                         std::string native_desc = "none";
                         if (native_attachment) {
@@ -714,7 +722,7 @@ bool Rasterizer::IsComputeMetaClear(const Pipeline* pipeline) {
     // we can skip the whole dispatch and update the tracked state instead. Also, it is not
     // intended to be consumed and in such rare cases (e.g. HTile introspection, CRAA) we
     // will need its full emulation anyways.
-    const auto& info = pipeline->GetStage(Shader::LogicalStage::Compute);
+    const auto& info = pipeline->GetStage(Shader::SwStage::Compute);
 
     // Assume if a shader reads metadata, it is a copy shader.
     for (const auto& desc : info.buffers) {
@@ -749,7 +757,7 @@ bool Rasterizer::IsComputeImageCopy(const Pipeline* pipeline) {
 
     // Ensure shader only has 2 bound buffers
     const auto& cs_pgm = liverpool->GetCsRegs();
-    const auto& info = pipeline->GetStage(Shader::LogicalStage::Compute);
+    const auto& info = pipeline->GetStage(Shader::SwStage::Compute);
     if (cs_pgm.num_thread_x.full != 64 || info.buffers.size() != 2 || !info.images.empty()) {
         return false;
     }
@@ -845,7 +853,7 @@ bool Rasterizer::IsComputeImageClear(const Pipeline* pipeline) {
 
     // Ensure shader only has 2 bound buffers
     const auto& cs_pgm = liverpool->GetCsRegs();
-    const auto& info = pipeline->GetStage(Shader::LogicalStage::Compute);
+    const auto& info = pipeline->GetStage(Shader::SwStage::Compute);
     if (cs_pgm.num_thread_x.full != 64 || info.buffers.size() != 2 || !info.images.empty()) {
         return false;
     }
@@ -2098,7 +2106,7 @@ void Rasterizer::TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* 
     for (const auto* stage : pipeline->GetStages()) {
         if (!stage)
             continue;
-        const u32 s = static_cast<u32>(stage->l_stage);
+        const u32 s = static_cast<u32>(stage->sw_stage);
         a.stages.push_back({s, 0, stage->pgm_hash, stage->pgm_base});
         if (stage->pgm_base && WantShader(stage->pgm_hash)) {
             // Same code span the pipeline cache hashed (binary info length).

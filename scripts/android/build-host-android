@@ -105,9 +105,10 @@ def main():
     run_dir.mkdir(parents=True)
     source = source_identity()
     (run_dir / "source.json").write_text(json.dumps(source, indent=2) + "\n")
-    (run_dir / "source.patch").write_text(capture(
+    # Raw bytes: sources are not all UTF-8 (a diff can carry legacy code-page comments).
+    (run_dir / "source.patch").write_bytes(subprocess.check_output(
         ["git", "diff", "HEAD", "--", "src", "cmake", "scripts/android/build-host-android",
-         "tests/host_runtime", "CMakeLists.txt", "externals/CMakeLists.txt"]))
+         "tests/host_runtime", "CMakeLists.txt", "externals/CMakeLists.txt"], cwd=ROOT))
     result = {"status": "IN_PROGRESS", "profile": profile, "commands": [],
               "source_head": capture(["git", "rev-parse", "HEAD"]),
               "scope": "native host library build only; validate runtime/APK separately, Turnip/game NOT_ACCEPTED",

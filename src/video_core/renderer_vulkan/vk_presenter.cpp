@@ -1146,7 +1146,7 @@ Frame* Presenter::PrepareBlankFrame(bool present_thread) {
     return frame;
 }
 
-bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
+bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame) {
     Core::Diagnostics::Handoff::Scope present_scope{"Present.Frame", instance.DiagnosticGeneration()};
     if (!frame)
         return false;
@@ -1478,7 +1478,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     }
 
     free_frame(presented);
-    if (!is_reusing_frame) {
+    if (!is_reusing_frame && is_game_frame) {
         DebugState.IncFlipFrameNum();
     }
     return presented;

@@ -56,6 +56,7 @@ set(SHADPS4_UNITY_EXCLUDE
     src/core/libraries/audio/openal_audio_out.cpp     # VOLUME_* (sdl_audio_out.cpp)
     src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.cpp  # SPIRV_VERSION_1_5 (emit_spirv_discard_frag.cpp)
     src/core/host_runtime/guest_commerce_dialog.cpp   # Code/ReadValue/Zero (guest_msg_dialog.cpp)
+    src/shader_recompiler/ir/passes/inverse_ballot_elimination_pass.cpp  # FoldCompositeConstruct/FoldInverseFunc (constant_propagation_pass.cpp)
     # Order-dependent sources.
     src/video_core/renderer_vulkan/vk_platform.cpp    # VK_USE_PLATFORM_* must precede the first Vulkan include
     src/shader_recompiler/ir/ir_emitter.cpp           # explicit specializations must precede first instantiation

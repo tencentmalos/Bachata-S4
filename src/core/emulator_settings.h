@@ -442,6 +442,7 @@ struct GPUSettings {
     Setting<float> internal_scale_percent{100.f};
     Setting<std::string> texture_quality{"high"};
     Setting<bool> force_disable_msaa{false};
+    Setting<bool> userfaultfd{false};
     // TODO add overrides
     std::vector<OverrideItem> GetOverrideableFields() const {
         return std::vector<OverrideItem>{
@@ -814,6 +815,7 @@ public:
     SETTING_FORWARD_BOOL(m_gpu, ReadbackLinearImagesEnabled, readback_linear_images_enabled)
     SETTING_FORWARD_BOOL(m_gpu, DirectMemoryAccessEnabled, direct_memory_access_enabled)
     SETTING_FORWARD_BOOL_READONLY(m_gpu, PatchShaders, patch_shaders)
+    SETTING_FORWARD_BOOL(m_gpu, UserfaultfdTracking, userfaultfd)
 
     u32 GetVblankFrequency() {
         if (m_gpu.vblank_frequency.value < 30) {

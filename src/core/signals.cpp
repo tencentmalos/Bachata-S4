@@ -236,7 +236,7 @@ static void ReportUnhandledException(const EXCEPTION_POINTERS* pExp) {
 static LONG WINAPI SignalHandler(EXCEPTION_POINTERS* pExp) noexcept {
     using namespace Libraries::Kernel;
     const auto* signals = Signals::Instance();
-    // Windows static guest red-zone protection
+
     const bool use_static_windows_guest_red_zone_protection =
         WindowsGuestRedZoneProtection::IsStaticPatchingEnabled();
     DWORD code = 0;
@@ -354,11 +354,11 @@ static LONG WINAPI SignalHandler(EXCEPTION_POINTERS* pExp) noexcept {
         return EXCEPTION_CONTINUE_SEARCH;
     }
 
-    // Windows static guest red-zone protection
-    const bool report_unhandled = use_static_windows_guest_red_zone_protection
-                                      ? static_protection_exception
-                                      : code != EXCEPTION_BREAKPOINT;
-    if (report_unhandled) { // Windows static guest red-zone protection
+    // Host assertions remove these handlers before trapping (assert_fail_impl), so a breakpoint
+    // that still reaches here came from the guest and is reported like any other fault.
+    const bool report_unhandled =
+        use_static_windows_guest_red_zone_protection ? static_protection_exception : true;
+    if (report_unhandled) {
         LOG_CRITICAL(Debug, "Unhandled Exception code {:#x} at {} {}", code, address,
                      DescribeCxxException(pExp ? pExp->ExceptionRecord : nullptr));
         ReportUnhandledException(pExp);

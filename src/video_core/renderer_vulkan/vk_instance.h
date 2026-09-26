@@ -331,6 +331,12 @@ public:
         return features.tessellationShader;
     }
 
+    /// Returns true when the shaderSubgroupClock feature of
+    /// VK_KHR_shader_clock is supported.
+    bool IsShaderSubgroupClockSupported() const {
+        return shader_clock && shader_clock_features.shaderSubgroupClock;
+    }
+
     /// Returns the vendor ID of the physical device
     u32 GetVendorID() const {
         return properties.vendorID;
@@ -578,6 +584,7 @@ private:
     vk::PhysicalDevicePrimitiveTopologyListRestartFeaturesEXT list_restart_features;
     vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
     vk::PhysicalDeviceFragmentShadingRatePropertiesKHR fragment_shading_rate_properties;
+    vk::PhysicalDeviceShaderClockFeaturesKHR shader_clock_features;
     vk::DriverIdKHR driver_id;
     vk::UniqueDebugUtilsMessengerEXT debug_callback{};
     std::string vendor_name;
@@ -621,6 +628,7 @@ private:
     FragmentShadingRates fragment_shading_rates{};
     bool fdm_enabled{};
     spatial::foveation::vulkan::Capabilities fdm_capabilities{};
+    bool shader_clock{};
     bool supports_memory_budget{};
     bool supports_block_texel_view{};
     u64 total_memory_budget{};

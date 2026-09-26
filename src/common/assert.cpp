@@ -4,6 +4,7 @@
 #include "common/arch.h"
 #include "common/assert.h"
 #include "core/signals.h"
+#include "emulator.h"
 
 #if defined(__ANDROID__)
 #include <android/log.h>
@@ -22,6 +23,9 @@
 void assert_fail_impl() {
 #if !defined(__ANDROID__)
     Core::Signals::Instance()->RemoveHandlers();
+    // The Android host links no Core::Emulator (emulator.cpp is desktop-only);
+    // its Session owns shutdown and log draining.
+    Common::Singleton<Core::Emulator>::Instance()->Shutdown();
 #endif
     Crash();
 }

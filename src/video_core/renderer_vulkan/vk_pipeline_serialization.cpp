@@ -12,13 +12,13 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 21u; // Keep SGPR and VCC numeric mask views coherent
+static constexpr u32 ShaderBinaryVersion = 22u; // upstream U64 SALU masks and wave64 lowering
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 10u; // preserve wave requirements when preloading pipelines
+static constexpr u32 ShaderMetaVersion = 12u; // hardware/software stage split of runtime info
 #else
-static constexpr u32 ShaderMetaVersion = 11u; // portable SRT plan and persisted wave requirements
+static constexpr u32 ShaderMetaVersion = 13u; // hardware/software stage split of runtime info
 #endif
-static constexpr u32 PipelineKeyVersion = 5u; // auxiliary interfaces follow current vertex exports
+static constexpr u32 PipelineKeyVersion = 6u; // indirect draw base vertex/instance parameters
 } // namespace Serialization
 
 namespace Vulkan {
@@ -289,7 +289,7 @@ bool PipelineCache::LoadPipelineStage(Serialization::Archive& ar, size_t stage) 
                 LOG_WARNING(Render_Vulkan,
                             "Cached permutation {} of {}_{:x} conflicts with index {}, skipping "
                             "preload",
-                            perm_idx, program->info.stage, program->info.pgm_hash, idx);
+                            perm_idx, program->info.hw_stage, program->info.pgm_hash, idx);
                 return false;
             }
             module = it->module;
