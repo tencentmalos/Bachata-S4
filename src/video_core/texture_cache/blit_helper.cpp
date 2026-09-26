@@ -8,6 +8,7 @@
 #include "video_core/texture_cache/image.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "spatial/texture_codec/AstcEncoder.h"
+#include "spatial/texture_codec/Bc7Encoder.h"
 
 #include "video_core/host_shaders/color_to_ms_depth_frag.h"
 #include "video_core/host_shaders/fs_tri_vert.h"
@@ -46,21 +47,24 @@ BlitHelper::~BlitHelper() {
     device.destroy(src_non_msaa_copy_frag);
 }
 
-void BlitHelper::EncodeAstc(vk::Image source, vk::Format source_format, u32 source_mip,
-                            vk::Image dest, u32 dest_mip, u32 width, u32 height, u32 layers,
-                            bool srgb, u32 block_dim) {
+void BlitHelper::EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format source_format, u32 source_mip,
+                              vk::Image dest, u32 dest_mip, u32 width, u32 height, u32 layers,
+                              bool srgb, u32 block_dim) {
     using namespace spatial::texture_codec;
-    if (!astc_encoder) {
+    ASSERT(codec != BlockCodec::None && (codec == BlockCodec::Astc || block_dim == 4));
+    auto& slot = codec == BlockCodec::Bc7 ? bc7_encoder : astc_encoder;
+    if (!slot) {
         auto encoder = std::make_unique<VulkanAstcEncoder>();
-        const auto shader = Vulkan::Compile(AstcLdrShader(), vk::ShaderStageFlagBits::eCompute,
-                                            instance.GetDevice());
+        const auto shader = Vulkan::Compile(codec == BlockCodec::Bc7 ? Bc7Shader() : AstcLdrShader(),
+                                            vk::ShaderStageFlagBits::eCompute, instance.GetDevice());
         const auto result = encoder->Initialize(instance.GetDevice(),
             VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr, shader,
             bool(instance.HostDescriptorFlags() & vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR));
         instance.GetDevice().destroyShaderModule(shader);
-        ASSERT_MSG(result == VK_SUCCESS, "ASTC encoder initialization failed: {}", int(result));
-        astc_encoder = std::move(encoder);
+        ASSERT_MSG(result == VK_SUCCESS, "{} encoder initialization failed: {}", BlockCodecName(codec), int(result));
+        slot = std::move(encoder);
     }
+    const auto& encoder = *slot;
     const AstcRequest request{width, height, layers, u32(srgb), block_dim};
     ASSERT(request.Valid());
     auto blocks = std::make_shared<Buffer>(instance, scheduler, MemoryUsage::DeviceLocal, 0,
@@ -72,7 +76,7 @@ void BlitHelper::EncodeAstc(vk::Image source, vk::Format source_format, u32 sour
         .subresourceRange = {vk::ImageAspectFlagBits::eColor, source_mip, 1, 0, layers},
     });
     ASSERT(result == vk::Result::eSuccess);
-    const vk::DescriptorImageInfo input{astc_encoder->Sampler(), view, vk::ImageLayout::eShaderReadOnlyOptimal};
+    const vk::DescriptorImageInfo input{encoder.Sampler(), view, vk::ImageLayout::eShaderReadOnlyOptimal};
     const vk::DescriptorBufferInfo output{blocks->Handle(), 0, request.Bytes()};
     const std::array writes{
         vk::WriteDescriptorSet{.dstBinding = 0, .descriptorCount = 1,
@@ -80,10 +84,10 @@ void BlitHelper::EncodeAstc(vk::Image source, vk::Format source_format, u32 sour
         vk::WriteDescriptorSet{.dstBinding = 1, .descriptorCount = 1,
             .descriptorType = vk::DescriptorType::eStorageBuffer, .pBufferInfo = &output},
     };
-    scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, astc_encoder->PipelineLayout(),
-                                   astc_encoder->DescriptorLayout(), writes);
+    scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, encoder.PipelineLayout(),
+                                   encoder.DescriptorLayout(), writes);
     const auto cmd = scheduler.RawCommandBuffer();
-    ASSERT(astc_encoder->Record(cmd, VK_NULL_HANDLE, request));
+    ASSERT(encoder.Record(cmd, VK_NULL_HANDLE, request));
     const vk::BufferMemoryBarrier2 barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eComputeShader,
         .srcAccessMask = vk::AccessFlagBits2::eShaderWrite,

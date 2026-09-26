@@ -800,7 +800,8 @@ static vk::Format GetFrameViewFormat(const Libraries::VideoOut::PixelFormat form
     case Libraries::VideoOut::PixelFormat::A8R8G8B8Srgb:
         // VideoOut images are allocated as the internal RGBA-compatible
         // format in ImageInfo; avoid a B8 reinterpretation that Turnip may
-        // legally create but samples as zero.
+        // legally create but samples as zero. The channel order is restored
+        // by FrameSwapsRedBlue instead.
         return vk::Format::eR8G8B8A8Srgb;
     case Libraries::VideoOut::PixelFormat::A2R10G10B10:
     case Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb:
@@ -811,6 +812,13 @@ static vk::Format GetFrameViewFormat(const Libraries::VideoOut::PixelFormat form
     }
     UNREACHABLE_MSG("Unknown format={}", static_cast<u32>(format));
     return {};
+}
+
+// A8R8G8B8 is B,G,R,A in memory, and ImageInfo stores it in an RGBA image, so the
+// image's red channel holds blue. The frame view keeps the image's own format and
+// swaps red and blue in its component mapping.
+static bool FrameSwapsRedBlue(const Libraries::VideoOut::PixelFormat format) {
+    return format == Libraries::VideoOut::PixelFormat::A8R8G8B8Srgb;
 }
 
 Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
@@ -961,6 +969,11 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     view_info.format = GetFrameViewFormat(attribute.attrib.pixel_format);
     // Exclude alpha from output frame to avoid blending with UI.
     view_info.mapping.a = vk::ComponentSwizzle::eOne;
+    const bool swap_red_blue = FrameSwapsRedBlue(attribute.attrib.pixel_format);
+    if (swap_red_blue) {
+        view_info.mapping.r = vk::ComponentSwizzle::eB;
+        view_info.mapping.b = vk::ComponentSwizzle::eR;
+    }
 
     auto& image = texture_cache.GetImage(image_id);
     auto image_view = [&] {
@@ -979,7 +992,9 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         pending_screenshots.emplace_back(
             instance, draw_scheduler, ScreenshotKind::GameOnly,
             BuildScreenshotPaths(ScreenshotKind::GameOnly, capture_game_only_count),
-            image_size.width, image_size.height, view_info.format, hdr_encoded);
+            image_size.width, image_size.height,
+            // The readback copies the image bytes, which are in guest (B,G,R,A) order.
+            swap_red_blue ? vk::Format::eB8G8R8A8Srgb : view_info.format, hdr_encoded);
         auto& readback = pending_screenshots.back();
 
         // Capture the guest output before any host-side scaling (FSR/PP) is applied.

@@ -288,6 +288,10 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
     const auto astc_format = info.num_bits == 64
         ? (IsSrgbBlock(supported_format) ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
         : (IsSrgbBlock(supported_format) ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
+    // Without ASTC (desktop GPUs), 16-byte LDR blocks are re-encoded as BC7. Eight-byte BC1/BC4
+    // blocks stay native: 16-byte BC7 blocks at 0.75 would take more memory than the original.
+    const auto bc7_format = IsSrgbBlock(supported_format) ? vk::Format::eBc7SrgbBlock : vk::Format::eBc7UnormBlock;
+    const auto reencode_features = vk::FormatFeatureFlagBits2::eSampledImage | vk::FormatFeatureFlagBits2::eTransferDst;
     // Integer, volume, tiny LUT and multisampled resources keep their exact data layout.
     // Format capability checks also exclude integer formats from filtered resampling.
     const bool eligible = scale.eighths < 8 && image_ci.imageType == vk::ImageType::e2D &&
@@ -315,15 +319,20 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         image_ci.extent.height = std::max(info.size.height >> mip_skip, 1u);
         image_ci.mipLevels -= mip_skip;
     } else if (eligible && !direct_drop && !render && AstcLdrSource(supported_format) &&
-        instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear) &&
-        instance->IsFormatSupported(astc_format,
-            vk::FormatFeatureFlagBits2::eSampledImage | vk::FormatFeatureFlagBits2::eTransferDst)) {
-        scale_eighths = scale.eighths;
-        astc_encoded = true;
-        image_ci.format = astc_format;
-        image_ci.extent.width = scale.Size(info.size.width);
-        image_ci.extent.height = scale.Size(info.size.height);
-        image_ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
+        instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear)) {
+        if (instance->IsFormatSupported(astc_format, reencode_features)) {
+            block_codec = BlockCodec::Astc;
+            image_ci.format = astc_format;
+        } else if (info.num_bits == 128 && instance->IsFormatSupported(bc7_format, reencode_features)) {
+            block_codec = BlockCodec::Bc7;
+            image_ci.format = bc7_format;
+        }
+        if (block_codec != BlockCodec::None) {
+            scale_eighths = scale.eighths;
+            image_ci.extent.width = scale.Size(info.size.width);
+            image_ci.extent.height = scale.Size(info.size.height);
+            image_ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
+        }
     }
 
     backing = &backing_images.emplace_back();
@@ -339,7 +348,8 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
             LOG_INFO(Render_Vulkan, "Internal scale allocation: {}x{} {} -> {}x{} {} levels {} -> {} mode {}",
                 info.size.width, info.size.height, vk::to_string(info.pixel_format),
                 image_ci.extent.width, image_ci.extent.height, vk::to_string(image_ci.format),
-                info.resources.levels, image_ci.mipLevels, mip_skip ? "mip-drop" : astc_encoded ? "ASTC" : "resample");
+                info.resources.levels, image_ci.mipLevels,
+                mip_skip ? "mip-drop" : block_codec != BlockCodec::None ? BlockCodecName(block_codec) : "resample");
     } else if (policy.render_eighths != 8 && (render || use == ScaleUse::Texture) &&
                std::min(info.size.width, info.size.height) > 64 && info.num_samples == 1 &&
                !info.props.is_block && info.resources.levels < 2) {
@@ -418,14 +428,14 @@ void Image::PublishScalePlan() {
 }
 
 void Image::ReallocateScale(u32 eighths, bool preserve_contents) {
-    if (eighths == scale_eighths && !mip_skip && !astc_encoded) return;
+    if (eighths == scale_eighths && !mip_skip && block_codec == BlockCodec::None) return;
     scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
     auto ci = backing->image.image_ci;
     const InternalScale scale{eighths};
     ci.extent = vk::Extent3D{scale.Size(info.size.width), scale.Size(info.size.height), info.size.depth};
     ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
-    const bool reload = mip_skip != 0 || astc_encoded;
-    if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
+    const bool reload = mip_skip != 0 || block_codec != BlockCodec::None;
+    if (block_codec != BlockCodec::None) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
     auto* source = backing;
     auto retired = std::make_shared<std::deque<BackingImage>>(std::move(backing_images));
     backing_images.clear();
@@ -435,7 +445,7 @@ void Image::ReallocateScale(u32 eighths, bool preserve_contents) {
     backing->image.Create(ci);
     scale_eighths = eighths;
     mip_skip = 0;
-    astc_encoded = false;
+    block_codec = BlockCodec::None;
     if (!reload && preserve_contents && source->state.layout != vk::ImageLayout::eUndefined) {
         BlitBacking(*source, *backing);
     }
@@ -524,7 +534,7 @@ bool Image::InheritCopyPlan(Image& source, bool whole_image) {
     scale_plan->history |= 1u << 8;
     source.scale_plan->history |= 1u << 7;
     if (scale_plan->domain == ScaleDomain::NativeRequired ||
-        source.mip_skip || source.astc_encoded || mip_skip || astc_encoded ||
+        source.mip_skip || source.IsReencoded() || mip_skip || IsReencoded() ||
         info.size != source.info.size || info.num_bits != source.info.num_bits ||
         info.props.is_block != source.info.props.is_block || info.type != source.info.type ||
         info.resources.layers != source.info.resources.layers) return false;
@@ -795,7 +805,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     auto ci = backing->image.image_ci;
     ci.extent = vk::Extent3D{info.size.width, info.size.height, info.size.depth};
     ci.mipLevels = info.resources.levels;
-    if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
+    if (block_codec != BlockCodec::None) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
     temporary->image.Create(ci);
     VmaDiagnostics::Tag(instance->GetAllocator(), temporary->image.allocation, "image/upload-source", true);
     VmaAllocationInfo temporary_info{};
@@ -807,7 +817,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     auto* scaled = backing;
     backing = temporary.get();
     UploadRegions(copies, buffer, offset, buffer_size);
-    if (astc_encoded) {
+    if (block_codec != BlockCodec::None) {
         Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {});
         backing = scaled;
         Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
@@ -815,8 +825,9 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
             const u32 mip = copy.imageSubresource.mipLevel;
             if (mip >= backing->image.image_ci.mipLevels) continue;
             const auto extent = HostExtent(mip);
-            blit_helper->EncodeAstc(temporary->image, ci.format, mip, backing->image, mip,
-                extent.width, extent.height, info.resources.layers, IsSrgbBlock(ci.format), info.num_bits == 64 ? 6 : 4);
+            blit_helper->EncodeBlocks(block_codec, temporary->image, ci.format, mip, backing->image, mip,
+                extent.width, extent.height, info.resources.layers, IsSrgbBlock(ci.format),
+                block_codec == BlockCodec::Astc && info.num_bits == 64 ? 6 : 4);
         }
         Transit(vk::ImageLayout::eGeneral, vk::AccessFlagBits2::eShaderRead, {});
     } else {
@@ -897,7 +908,7 @@ void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::B
                  info.resources.layers, info.resources.levels, info.guest_address, download_size,
                  IsScaled(), bool(info.props.is_tiled));
     if (IsScaled()) {
-        if (mip_skip || astc_encoded) {
+        if (mip_skip || IsReencoded()) {
             // Dropped-mip / recompressed assets cannot be blitted back to the guest
             // layout; they are CPU-reconstructible uploads, so keep the old promotion.
             ForceNative("guest readback");
@@ -1023,7 +1034,7 @@ void Image::CopyImage(Image& src_image) {
         src_image.ForceNative("copy alias");
     }
     if ((IsScaled() || src_image.IsScaled()) &&
-        (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_eighths != src_image.scale_eighths ||
+        (mip_skip || src_image.mip_skip || IsReencoded() || src_image.IsReencoded() || scale_eighths != src_image.scale_eighths ||
          info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
          info.props.is_block != src_image.info.props.is_block)) {
         ForceNative("image alias");
@@ -1134,8 +1145,8 @@ bool Image::BlitCopy(Image& src_image) {
     const auto& src = src_image.info;
     if (scale_eighths == src_image.scale_eighths || info.pixel_format != src.pixel_format ||
         info.size != src.size || info.type != src.type || info.resources.layers != src.resources.layers ||
-        info.num_samples != 1 || src.num_samples != 1 || info.props.is_block || mip_skip || astc_encoded ||
-        src_image.mip_skip || src_image.astc_encoded || ConvertImageType(info.type) != vk::ImageType::e2D)
+        info.num_samples != 1 || src.num_samples != 1 || info.props.is_block || mip_skip || IsReencoded() ||
+        src_image.mip_skip || src_image.IsReencoded() || ConvertImageType(info.type) != vk::ImageType::e2D)
         return false;
     const auto format = backing->image.image_ci.format;
     if (format != src_image.backing->image.image_ci.format ||
@@ -1182,7 +1193,7 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
         ForceNative("copy alias");
         src_image.ForceNative("copy alias");
     }
-    if (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_eighths != src_image.scale_eighths ||
+    if (mip_skip || src_image.mip_skip || IsReencoded() || src_image.IsReencoded() || scale_eighths != src_image.scale_eighths ||
         info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
         info.props.is_block != src_image.info.props.is_block) {
         ForceNative("byte reinterpretation");

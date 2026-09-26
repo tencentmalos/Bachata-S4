@@ -35,6 +35,12 @@ struct ScalePolicySnapshot {
     }
 };
 enum class ScaleUse : u32 { Unknown, Texture, Storage, RenderTarget, DepthTarget, VideoOut };
+// Compressed format a resampled asset is re-encoded into; the guest format stays in the image info.
+// ASTC where the device samples it (Android); BC7 on devices with BC but no ASTC (desktop GPUs).
+enum class BlockCodec : u8 { None, Astc, Bc7 };
+inline constexpr std::string_view BlockCodecName(BlockCodec codec) {
+    return codec == BlockCodec::Astc ? "ASTC" : codec == BlockCodec::Bc7 ? "BC7" : "none";
+}
 enum class ScaleDomain : u32 { Unknown, Asset, Render, NativeRequired };
 enum class ScaleOrigin : u32 { Unknown, Upload, Render, Compute, Copy };
 enum class ScaleReason : u32 {

@@ -530,7 +530,7 @@ bool TileManager::TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer 
                                       u32 out_offset) {
     const auto& info = in_image.info;
     if (!fused_readback || !in_image.IsScaled() || in_image.DroppedMips() ||
-        in_image.IsAstcEncoded() || !info.props.is_tiled || info.props.is_block ||
+        in_image.IsReencoded() || !info.props.is_tiled || info.props.is_block ||
         info.props.is_volume || info.num_samples != 1 || num_mips == 0 ||
         num_mips > info.resources.levels) {
         return false;

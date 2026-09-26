@@ -199,7 +199,8 @@ void TextureCache::PublishMemoryDiagnostics() {
             if (!image.backing) continue;
             const std::string kind = std::string(ScaleDomainName(image.ScalePlan().domain)) + "/" +
                 std::string(ScaleReasonName(image.ScalePlan().reason));
-            const std::string format = image.IsAstcEncoded() ? "ASTC" : image.info.props.is_block ? "BC" : "uncompressed";
+            const std::string format = image.IsReencoded() ? std::string(BlockCodecName(image.Reencoding()))
+                                       : image.info.props.is_block ? "BC" : "uncompressed";
             auto& group = groups[kind + "/" + format + (image.IsScaled() ? "/scaled" : "/native")];
             if (group.images < 4) {
                 const auto& plan = image.ScalePlan();
@@ -515,7 +516,7 @@ UploadDiagnostics::FillOutcome TextureCache::ClearImagesForFill(VAddr address, u
         }
         const u32 texel_bytes = info.num_bits / 8;
         if (info.props.is_depth || info.props.is_block || info.num_samples > 1 ||
-            image.IsAstcEncoded() || !texel_bytes || info.num_bits % 8 != 0 ||
+            image.IsReencoded() || !texel_bytes || info.num_bits % 8 != 0 ||
             (period % texel_bytes != 0 && texel_bytes % period != 0)) {
             outcome = FillOutcome::Format;
             return;

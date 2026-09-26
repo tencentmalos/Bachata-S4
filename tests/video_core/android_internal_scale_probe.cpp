@@ -239,7 +239,7 @@ int main(int argc, char** argv) {
             image.Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
             for (u32 mip=0; mip<Levels; ++mip) {
                 auto extent=image.HostExtent(mip);
-                blit.EncodeAstc(source_image->GetImage(), source_image->info.pixel_format, mip,
+                blit.EncodeBlocks(VideoCore::BlockCodec::Astc, source_image->GetImage(), source_image->info.pixel_format, mip,
                     image.GetImage(), mip, extent.width, extent.height, Layers, srgb, block_dim);
             }
         } else image.Upload(copies, *upload.buffer, 0);
@@ -315,7 +315,7 @@ int main(int argc, char** argv) {
         const u32 center=((H/2)*W+W/2)*4;
         check(std::abs(int(pixels[center])-128)<6 && std::abs(int(pixels[center+1])-128)<6, "promotion content");
         }
-        check((!compressed || encoder_gradient || percent == 100 || image.DroppedMips()) || image.IsAstcEncoded(), "compressed resample really ASTC");
+        check((!compressed || encoder_gradient || percent == 100 || image.DroppedMips()) || image.Reencoding() == VideoCore::BlockCodec::Astc, "compressed resample really ASTC");
         if (compressed && !encoder_gradient && scale.MipDrop() && test_levels > scale.MipDrop()) {
             check(image.DroppedMips() == scale.MipDrop(), "mip-drop count");
             check(image.backing->image.image_ci.mipLevels == test_levels-scale.MipDrop(), "mip-drop allocation");

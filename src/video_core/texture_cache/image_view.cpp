@@ -110,12 +110,15 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
     }
     // When sampling D32/D16 texture from shader, the T# specifies R32/R16 format so adjust it.
     vk::Format format = info.format;
-    if (image.IsAstcEncoded()) {
+    if (image.IsReencoded()) {
         const bool srgb = format == vk::Format::eBc1RgbSrgbBlock || format == vk::Format::eBc1RgbaSrgbBlock ||
             format == vk::Format::eBc2SrgbBlock || format == vk::Format::eBc3SrgbBlock || format == vk::Format::eBc7SrgbBlock;
-        format = image.info.num_bits == 64
-            ? (srgb ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
-            : (srgb ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
+        if (image.Reencoding() == BlockCodec::Bc7)
+            format = srgb ? vk::Format::eBc7SrgbBlock : vk::Format::eBc7UnormBlock;
+        else
+            format = image.info.num_bits == 64
+                ? (srgb ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
+                : (srgb ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
     }
     vk::ImageAspectFlags aspect = image.aspect_mask;
     if (image.aspect_mask & vk::ImageAspectFlagBits::eDepth &&

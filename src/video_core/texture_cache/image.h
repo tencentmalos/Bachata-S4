@@ -178,7 +178,8 @@ struct Image {
         ++scale_plan->content_version;
     }
     void CheckUploadBudget();
-    bool IsAstcEncoded() const { return astc_encoded; }
+    bool IsReencoded() const { return block_codec != BlockCodec::None; }
+    BlockCodec Reencoding() const { return block_codec; }
     bool IsScaled() const { return scale_eighths != 8; }
     u32 ScaleEighths() const { return scale_eighths; }
     u32 DroppedMips() const { return mip_skip; }
@@ -269,7 +270,7 @@ private:
     std::shared_ptr<ResourceScalePlan> scale_plan;
     u32 scale_eighths = 8;
     u32 mip_skip = 0;
-    bool astc_encoded = false;
+    BlockCodec block_codec = BlockCodec::None;
     static Common::IncrementalIdProvider<u64> global_image_uid;
 };
 

@@ -9,6 +9,7 @@ namespace spatial::texture_codec { class VulkanAstcEncoder; }
 
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
+#include "video_core/texture_cache/scale_policy.h"
 
 namespace Vulkan {
 class Instance;
@@ -32,9 +33,11 @@ public:
                                    vk::Format src_pixel_format, vk::Format dst_pixel_format,
                                    vk::Image source, vk::Image dest);
 
-    // Records sample/resample -> ASTC blocks -> destination mip on the existing queue.
-    void EncodeAstc(vk::Image source, vk::Format source_format, u32 source_mip,
-                    vk::Image dest, u32 dest_mip, u32 width, u32 height, u32 layers, bool srgb, u32 block_dim = 4);
+    // Records sample/resample -> ASTC or BC7 blocks -> destination mip on the existing queue.
+    // block_dim selects ASTC 4x4 or 6x6; BC7 blocks are always 4x4.
+    void EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format source_format, u32 source_mip,
+                      vk::Image dest, u32 dest_mip, u32 width, u32 height, u32 layers, bool srgb,
+                      u32 block_dim = 4);
 
     void CopyBetweenMsImages(u32 width, u32 height, u32 num_samples, vk::Format pixel_format,
                              bool src_msaa, vk::Image source, vk::Image dest);
@@ -54,7 +57,9 @@ private:
     void CreateMsCopyPipeline(const MsPipelineKey& key);
 
 private:
+    // Both run on the codec module's encoder class; they differ only in their shader.
     std::unique_ptr<spatial::texture_codec::VulkanAstcEncoder> astc_encoder;
+    std::unique_ptr<spatial::texture_codec::VulkanAstcEncoder> bc7_encoder;
     const Vulkan::Instance& instance;
     Vulkan::Scheduler& scheduler;
     vk::UniqueDescriptorSetLayout single_texture_descriptor_set_layout;
