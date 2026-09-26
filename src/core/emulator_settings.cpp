@@ -561,14 +561,8 @@ bool EmulatorSettingsImpl::TransferSettings() {
         setFromToml(s.append, log, "append");
         setFromToml(s.enable, log, "enable");
         setFromToml(s.filter, log, "filter");
-        setFromToml(s.max_skip_duration, log, "maxSkipDuration");
         setFromToml(s.separate, log, "separate");
         setFromToml(s.size_limit, log, "sizeLimit");
-        setFromToml(s.skip_duplicate, log, "skipDuplicate");
-        setFromToml(s.sync, log, "sync");
-#ifdef _WIN32
-        setFromToml(s.type, log, "type");
-#endif
     }
 
     if (og_data.contains("General")) {
@@ -576,14 +570,6 @@ bool EmulatorSettingsImpl::TransferSettings() {
         auto& s = m_log;
 
         setFromToml(s.filter, general, "logFilter");
-        setFromToml(s.skip_duplicate, general, "isIdenticalLogGrouped");
-        Setting<std::string> logType("sync");
-        setFromToml(logType, general, "logType");
-        if (logType.get() == "sync") {
-            s.sync = true;
-        } else {
-            s.sync = false;
-        }
     }
 
     if (og_data.contains("Debug")) {

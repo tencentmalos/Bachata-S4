@@ -36,14 +36,9 @@ object ShadPs4ConfigManager {
             root["General"]?.jsonObject?.forEach(::put)
             put("dev_kit_mode", false)
         }
-        val log = buildJsonObject {
-            root["Log"]?.jsonObject?.forEach(::put)
-            put("sync", false)
-        }
         val updatedRoot = buildJsonObject {
             root.forEach(::put)
             put("General", general)
-            put("Log", log)
             put("Vulkan", updatedVulkan)
         }
         val temporary = config.resolveSibling("${config.fileName}.tmp")

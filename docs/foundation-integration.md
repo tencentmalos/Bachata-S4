@@ -3,6 +3,38 @@
 日期：2026-09-07。这是初始基线 `a7128893` 之后的依赖准备里程碑；不改写初始基线记录。
 主仓原先只有桌面核心，本次增加基础设施的构建入口，尚未提供 Android app 或 guest backend。
 
+## 2026-09-26：日志迁移到 Foundation LogModule，移除 spdlog
+
+`common/logging` 的后端从 spdlog 换成 Foundation 的 `LogModule`（`GLOG`）；`LOG_*` 宏与调用点不变。
+
+- **类别 = Foundation logger kind。** 每个 `Common::Log::Class` 注册为一个以类名命名的
+  `spatial::ILogger`（如 `Kernel.Vmm`、`Lib.SharePlay`），类别级别就是 kind 开关；
+  `Log.filter`（`*:info Kernel.Vmm:warning`）、Foundation 的 `ILogger::SetLogLevelByName`
+  与 DebugBus `log_filter` 改的是同一个开关。Foundation 模块自己的 kind（如 FDM 的
+  `FoveationVulkan`）也在同一张表里。日志不做限流：刷屏靠类别开关治理。
+- **异步通道 + 轮转文件。** 主通道（线程 `shadPS4:Log`）写 Foundation `RotateFileWriter`，文件名
+  取原名去扩展名再加 `.log`：`shadps4.log`（启动）、`shad_log.log`（游戏，原 `shad_log.txt`）、
+  `<serial>.log`（`separate`）、Android `android-host.log`。打开时旧文件轮转为 `<name>_1.log`、
+  `<name>_2.log`（保留上一轮），超过 `size_limit` 同样轮转。guest patch 探针是独立的
+  `LogModule` 实例与通道，仍写 `guest-patch.log`，不进控制台。Critical（断言）行写完即 flush；
+  `flush_level` 按级别在写后等待落盘（每行一次通道往返，只在排查崩溃时设低）。
+  桌面控制台用 Foundation `ConsoleWriter`；Android 不写 logcat。
+- **计数与查询。** 每 250 ms 向 Litep ring 发累计 counter `Log.Lines`、`Log.MessageBytes`、
+  `Log.Class.<name>`；DebugBus `log_stats status [top]` 列出按近 10 s 速率/累计行数排序的调用点
+  （file:line）与类别，`log_filter [<kind>:<level> ...]` 运行期替换过滤器并列出所有 kind 级别。
+- **设置清理。** 删除只对 spdlog 有意义的 `sync`、`skip_duplicate`、`max_skip_duration`、`type`
+  （含 big picture 设置页、Android 设置目录与兼容配置写入）；旧配置里的这些键被忽略。
+- **Foundation 侧。** 新增 `modules/log`（`spatial::foundation_log`）：已加入 basic 层的桌面宿主上
+  是 `foundation_core_minimal` + `foundation_module_log`；Android 编译只含日志源码的窄版本，
+  不带 mimalloc（Foundation 在 Android 上为它设置 `MI_TLS_SLOT=2`）、模块运行时和 JNI helper，
+  文件目录须为绝对路径。另修：`getRotateFileWriter` 在 POSIX 上把绝对目录拼到可写目录下；
+  Windows 控制台不再改终端字体/缓冲区/输入模式（原先关掉了 Ctrl+C 处理），换行不再重复。
+- 验证：桌面 MHW 运行中 `log_stats` 定位到 Kernel.Vmm 三个调用点各约 90 行/s，
+  `log_filter *:info Kernel.Vmm:warning` 后立即静默；ring dump 含 `Log.*` counter；正常关窗后
+  控制台与文件末行一致；`shadps4_settings_test` 74/74；Android host `HOST_LINK_PASS`，ELF 无
+  `STATIC_TLS`；Kotlin `ShadPs4ConfigManagerTest`/`RuntimeSettingCatalogTest` 通过。
+  未做 Android 真机运行验证。
+
 ## 2026-09-26：桌面材质 Medium 的 BC7 重编码、帧颜色与状态层交互
 
 - Texture quality Medium（0.75 倍）在只采样 BC、不支持 ASTC 的桌面 GPU 上，16 字节 BC 源块改用

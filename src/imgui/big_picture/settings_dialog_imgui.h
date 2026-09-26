@@ -162,7 +162,6 @@ private:
     // Log tab
     bool logEnableSetting;
     bool logSeparateSetting;
-    bool logSyncSetting;
 
     // Experimental tab
     int readbacksModeSetting;

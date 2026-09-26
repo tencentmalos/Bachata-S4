@@ -259,19 +259,16 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GeneralSettings, install_dirs, addon_install_
 // -------------------------------
 // Log settings
 // -------------------------------
+// Logging runs on Foundation's LogModule (asynchronous channel, rotating files); the filter sets
+// the level of each logger kind.
 struct LogSettings {
     Setting<bool> append{false}; // specific
     Setting<bool> enable{true};  // specific
     Setting<std::string> filter{""};
     Setting<std::string> flush_level{""};
-    Setting<u32> max_skip_duration{5'000};
     Setting<bool> separate{false}; // specific
+    // Size of one log file before it rotates to <name>_1.log; 0 = no rotation by size.
     Setting<unsigned long long> size_limit{100_MB};
-    Setting<bool> skip_duplicate{true};
-    Setting<bool> sync{true};
-#ifdef _WIN32
-    Setting<std::string> type{"wincolor"};
-#endif
 
     // return a vector of override descriptors (runtime, but tiny)
     std::vector<OverrideItem> GetOverrideableFields() const {
@@ -280,25 +277,13 @@ struct LogSettings {
             make_override<LogSettings>("enable", &LogSettings::enable),
             make_override<LogSettings>("filter", &LogSettings::filter),
             make_override<LogSettings>("flush_level", &LogSettings::flush_level),
-            make_override<LogSettings>("max_skip_duration", &LogSettings::max_skip_duration),
             make_override<LogSettings>("separate", &LogSettings::separate),
             make_override<LogSettings>("size_limit", &LogSettings::size_limit),
-            make_override<LogSettings>("skip_duplicate", &LogSettings::skip_duplicate),
-            make_override<LogSettings>("sync", &LogSettings::sync),
-#ifdef _WIN32
-            make_override<LogSettings>("type", &LogSettings::type),
-#endif
         };
     }
 };
-#ifdef _WIN32
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LogSettings, append, enable, filter, flush_level,
-                                   max_skip_duration, separate, size_limit, skip_duplicate, sync,
-                                   type)
-#else
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LogSettings, append, enable, filter, flush_level,
-                                   max_skip_duration, separate, size_limit, skip_duplicate, sync)
-#endif
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LogSettings, append, enable, filter, flush_level, separate,
+                                   size_limit)
 
 // -------------------------------
 // Debug settings
@@ -722,14 +707,8 @@ public:
     SETTING_FORWARD_BOOL(m_log, LogEnable, enable)
     SETTING_FORWARD(m_log, LogFilter, filter)
     SETTING_FORWARD(m_log, LogFlushLevel, flush_level)
-    SETTING_FORWARD(m_log, LogMaxSkipDuration, max_skip_duration)
     SETTING_FORWARD_BOOL(m_log, LogSeparate, separate)
     SETTING_FORWARD(m_log, LogSizeLimit, size_limit)
-    SETTING_FORWARD_BOOL(m_log, LogSkipDuplicate, skip_duplicate)
-    SETTING_FORWARD_BOOL(m_log, LogSync, sync)
-#ifdef _WIN32
-    SETTING_FORWARD(m_log, LogType, type)
-#endif
 
     // Audio settings
     SETTING_FORWARD(m_audio, AudioBackend, audio_backend)

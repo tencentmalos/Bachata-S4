@@ -75,7 +75,6 @@ void SettingsWindow::LoadSettings(std::string profile) {
     /////////// Log Tab
     logEnableSetting = EmulatorSettings.IsLogEnable();
     logSeparateSetting = EmulatorSettings.IsLogSeparate();
-    logSyncSetting = EmulatorSettings.IsLogSync();
 
     /////////// Experimental Tab
     if (isSpecific) {
@@ -139,7 +138,6 @@ void SettingsWindow::SaveSettings(std::string profile) {
     /////////// Log Tab
     EmulatorSettings.SetLogEnable(logEnableSetting, isSpecific);
     EmulatorSettings.SetLogSeparate(logSeparateSetting, isSpecific);
-    EmulatorSettings.SetLogSync(logSyncSetting, isSpecific);
 
     /////////// Experimental Tab
     if (isSpecific) {
@@ -760,7 +758,6 @@ void SettingsWindow::DrawSettingsTable(SettingsCategory category) {
             AddSettingCheckbox("Enable Logging", logEnableSetting);
             if (logEnableSetting) {
                 AddSettingCheckbox("Separate Log Files", logSeparateSetting);
-                AddSettingCheckbox("Log Sync", logSyncSetting);
             }
 
             ImGui::EndTable();
