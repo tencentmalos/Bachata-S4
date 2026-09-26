@@ -32,6 +32,12 @@ void OverlayMailbox::Publish(std::uint64_t value, std::vector<OverlayRect> next)
     if (active && value == owner)
         regions = std::move(next);
 }
+bool OverlayMailbox::Contains(float x, float y) {
+    std::lock_guard lock(mutex);
+    return active && std::any_of(regions.begin(), regions.end(), [&](const auto& r) {
+        return x >= r.x && y >= r.y && x < r.x + r.width && y < r.y + r.height;
+    });
+}
 bool OverlayMailbox::Touch(int id, int phase, float x, float y) {
     std::lock_guard lock(mutex);
     if (!active || phase < 0 || phase > 3 || !std::isfinite(x) || !std::isfinite(y))

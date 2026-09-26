@@ -62,6 +62,7 @@ void StatusOverlay::Save() {
     try {
         nlohmann::json json{{"shell", ov::serializeOverlayState(shell.persistentState())},
                             {"text_size", int(text_size)},
+                            {"status_anchor", int(status_anchor)},
                             {"opacity", theme.background.a},
                             {"fps_opacity", theme.simple_background.a}};
         auto temp = settings_path;
@@ -107,6 +108,8 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
                     restored = true;
                 }
                 text_size = ov::OverlayTextSize(std::clamp(json.value("text_size", 1), 0, 2));
+                if (json.contains("status_anchor"))
+                    status_anchor = ov::StatusAnchor(std::clamp(json.value("status_anchor", 0), 0, 3));
                 theme.simple_background.a = std::clamp(json.value("fps_opacity", .55f), 0.f, 1.f);
                 theme.background.a = std::clamp(json.value("opacity", .94f), .25f, 1.f);
             }
@@ -118,6 +121,7 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
             Request("hide");
 #endif
         shell.setTypography(ov::makeOverlayTypography(text_size));
+        metrics.status_anchor = status_anchor;
         initialized = true;
     }
     const float density = diag::StatusOverlayMailbox().PixelDensity();
@@ -202,6 +206,8 @@ void StatusOverlay::Controls() {
     };
     choice("mode", "Status", int(shell.controller().statusMode()), {"None", "Only FPS", "Summary"});
     choice("text_size", "Text size", int(text_size), {"Small", "Medium", "Large"});
+    choice("status_anchor", "FPS position", int(status_anchor),
+           {"Top left", "Top right", "Bottom left", "Bottom right"});
     ov::ControlDescriptor opacity;
     opacity.id = ov::StableId("opacity");
     opacity.label = ov::LocalizedText("Panel opacity");
@@ -298,6 +304,12 @@ void StatusOverlay::ApplyCommands() {
                 if (value->value() == "0" || value->value() == "1" || value->value() == "2") {
                     text_size = ov::OverlayTextSize(value->value()[0] - '0');
                     shell.setTypography(ov::makeOverlayTypography(text_size));
+                    Save();
+                }
+            } else if (command.control == ov::StableId("status_anchor") && value) {
+                if (value->value().size() == 1 && value->value()[0] >= '0' && value->value()[0] <= '3') {
+                    status_anchor = ov::StatusAnchor(value->value()[0] - '0');
+                    metrics.status_anchor = status_anchor;
                     Save();
                 }
             } else if (command.control == ov::StableId("fps_opacity")) {

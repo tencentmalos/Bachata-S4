@@ -6,13 +6,24 @@ StatusLayer 使用 Foundation OverlayShell 的 Simple/Summary/Detail/Controls；
 
 ## 操作
 
-- 点击 FPS / Summary 面板上的按钮进入 Detail 或 Controls。
+- Only FPS 条与 Summary 标题行是同一组控制：柱状图图标开关 Detail，滑杆图标开关 Controls；
+  点 Summary 标题行其余部分切回 Only FPS。面板底部不再有额外按钮，也没有单独的“-”折叠。
+- Detail 标题行与 Controls 相同：左侧标题，右侧 “-” 按钮隐藏 Detail（与 FPS 条的 Detail 图标等价）；
+  Detail 宽度有上限，桌面小窗口下也不会占满整屏。
+- FPS 位置可在 Controls → `FPS position` 选左上/右上/左下/右下；桌面默认左下，Android 默认左上
+  （避开底部触控按键）。Detail 停靠在 FPS 的另一侧。
+- 状态层只接受鼠标/触屏点击，不抢键盘和手柄焦点（Status/Detail 窗口 `NoNav`）；只有 Controls、
+  IME 等模态面板接收导航输入。桌面鼠标点在面板上时不转发给游戏，移动不受影响。
 - Android 暂停菜单的 `Status overlay controls` 可在状态面板隐藏时重新打开 Controls。
 - 桌面按 F10 打开/关闭 Controls；PS4 IME 正在输入时不接管此快捷键。
 - DebugBus：`overlay simple|summary|show|hide|detail|controls`、`overlay text small|medium|large`、
   `overlay status`。修改先排入渲染线程，响应含 `request: queued`，`overlay:` 是当前已应用状态。
-- Controls 可选 None / Only FPS / Summary、字号、面板透明度与独立的 FPS 透明度；保存到 UserDir 下的 `status-overlay.json`。
+  桌面经 TCP 发送时一条命令一个参数：`python scripts/debug/debugbus.py "overlay detail"`。
+- Controls 可选 None / Only FPS / Summary、字号、FPS 位置、面板透明度与独立的 FPS 透明度；保存到
+  UserDir 下的 `status-overlay.json`（`status_anchor` 0–3 对应左上/右上/左下/右下，缺省按平台默认）。
   不保存 live modal、IME 输入内容或指针捕获。
+- Detail → Renderer 显示实际选用的 GPU：`名称 (类型, 第 n 块/共 m 块)`，用于区分集显/独显；
+  机器上有多块 GPU 时同一行也出现在 Summary。
 
 FPS 仍指实际新游戏画面，overlay 重画单独计数。CPU/GPU、倍率覆盖率、重传、tile/pass
 及 GPU timing 保留原始含义和颜色；GPU 无样本时显示 unavailable，不补零。

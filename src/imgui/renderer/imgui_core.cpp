@@ -253,9 +253,25 @@ bool ProcessEvent(SDL_Event* event) {
     Sdl::ProcessEvent(event);
     switch (event->type) {
     // Don't block release/up events
-    case SDL_EVENT_MOUSE_MOTION:
     case SDL_EVENT_MOUSE_WHEEL:
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+        // The status overlay never takes navigation focus, so the check below does not see it.
+        // A click or scroll inside its published input regions is still the overlay's, not the
+        // game's; pointer motion keeps reaching the game (mouse camera).
+        float x = event->type == SDL_EVENT_MOUSE_WHEEL ? event->wheel.mouse_x : event->button.x;
+        float y = event->type == SDL_EVENT_MOUSE_WHEEL ? event->wheel.mouse_y : event->button.y;
+        int width = 0, height = 0;
+        if (SDL_Window* sdl_window = SDL_GetWindowFromID(event->type == SDL_EVENT_MOUSE_WHEEL
+                                                             ? event->wheel.windowID
+                                                             : event->button.windowID);
+            sdl_window && SDL_GetWindowSize(sdl_window, &width, &height) && width > 0 &&
+            height > 0 &&
+            ::Core::Diagnostics::StatusOverlayMailbox().Contains(x / width, y / height)) {
+            return true;
+        }
+        [[fallthrough]];
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
         const auto& io = GetIO();
         return io.WantCaptureMouse && io.Ctx->NavWindow != nullptr &&
                (io.Ctx->NavWindow->Flags & ImGuiWindowFlags_NoNav) == 0;

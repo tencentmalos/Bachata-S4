@@ -34,6 +34,15 @@ private:
     spatial::imgui::overlay::ImeDialogState ime;
     spatial::imgui::overlay::OverlayTextSize text_size{
         spatial::imgui::overlay::OverlayTextSize::Medium};
+    // Corner of the FPS chip / Summary panel. Android keeps the top left clear of the touch
+    // controls in the bottom corners; the desktop defaults to the bottom left.
+    spatial::imgui::overlay::StatusAnchor status_anchor{
+#ifdef __ANDROID__
+        spatial::imgui::overlay::StatusAnchor::TopLeft
+#else
+        spatial::imgui::overlay::StatusAnchor::BottomLeft
+#endif
+    };
     std::filesystem::path settings_path;
     unsigned width{}, height{};
     float pixel_density{};

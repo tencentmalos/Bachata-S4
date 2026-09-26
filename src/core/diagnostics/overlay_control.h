@@ -29,6 +29,9 @@ public:
     void End(std::uint64_t owner);
     void Publish(std::uint64_t owner, std::vector<OverlayRect> regions);
     bool Touch(int id, int phase, float x, float y);
+    // Whether a normalized point lies in a published input region. Desktop mouse
+    // clicks there belong to the overlay, like admitted touches on Android.
+    bool Contains(float x, float y);
     void Cancel();
     void Request(std::string command);
     void Drain(std::vector<OverlayTouch>& touches, std::vector<std::string>& commands);
