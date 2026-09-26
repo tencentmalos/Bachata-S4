@@ -12,6 +12,7 @@
 #include "common/thread.h"
 #include "core/emulator_settings.h"
 #include "core/file_sys/fs.h"
+#include "core/guest_write_watch.h"
 #include "core/libraries/kernel/memory.h"
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/process.h"
@@ -492,6 +493,7 @@ bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
         cursor += count;
         remaining -= count;
     }
+    GuestWriteWatch::Check(virtual_addr, data, size);
     const auto* source = static_cast<const u8*>(data);
     for (const auto& copy : copies)
         std::memcpy(copy.destination, source + copy.offset, copy.size);
@@ -557,6 +559,7 @@ u64 MemoryManager::CopyGuestRegions(std::span<const GuestCopy> copies,
             skipped.push_back(i);
             continue;
         }
+        GuestWriteWatch::Check(copy.destination, std::bit_cast<const u8*>(copy.source), copy.size);
         std::memmove(destination, std::bit_cast<const u8*>(copy.source), copy.size);
         copied += copy.size;
     }

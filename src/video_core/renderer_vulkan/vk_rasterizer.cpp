@@ -13,6 +13,7 @@
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/emulator_settings.h"
 #include "core/memory.h"
+#include "core/guest_write_watch.h"
 #include "shader_recompiler/runtime_info.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/depth_range.h"
@@ -53,6 +54,7 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
       pipeline_cache{instance, scheduler, liverpool, buffer_cache.GetSparsePageShift()},
       host_markers_enabled{EmulatorSettings.IsVkHostMarkersEnabled()},
       guest_markers_enabled{EmulatorSettings.IsVkGuestMarkersEnabled()} {
+    Core::GuestWriteWatch::ArmFromEnvironment();
     if (!EmulatorSettings.IsNullGPU()) {
         liverpool->BindRasterizer(this);
     }

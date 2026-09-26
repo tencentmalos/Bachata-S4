@@ -1005,6 +1005,8 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/linker.h
          src/core/memory.cpp
          src/core/memory.h
+         src/core/guest_write_watch.cpp
+         src/core/guest_write_watch.h
          src/core/module.cpp
          src/core/module.h
          src/core/platform.h

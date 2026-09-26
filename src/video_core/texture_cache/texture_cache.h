@@ -359,14 +359,20 @@ private:
         }
     }
 
-    /// Copies image memory back to CPU.
-    void DownloadImageMemory(ImageId image_id, bool sync = false);
+    /// Copies image memory back to CPU. `tracked_only`, `write_end` and `writer` as for
+    /// RecordImageDownload.
+    void DownloadImageMemory(ImageId image_id, bool sync = false, bool tracked_only = false,
+                             VAddr write_end = ~VAddr{0},
+                             const char* writer = "image_writeback");
 
     /// Records the copy of a GPU-modified image into a download buffer and returns the step
     /// that writes it to guest memory, to run once the GPU has executed the copy. With
     /// `tracked_only` only the part whose pages are still write-tracked is written: anywhere
-    /// else a CPU write would have gone unnoticed. Empty when there is nothing to write.
-    std::function<void()> RecordImageDownload(ImageId image_id, bool tracked_only);
+    /// else a CPU write would have gone unnoticed. Nothing at or past `write_end` is written.
+    /// `writer` names the path for the guest write watch. Empty when there is nothing to write.
+    std::function<void()> RecordImageDownload(ImageId image_id, bool tracked_only,
+                                              VAddr write_end = ~VAddr{0},
+                                              const char* writer = "image_writeback");
 
     /// Thread function for copying downloaded images out to CPU memory.
     void DownloadedImagesThread(const std::stop_token& token);

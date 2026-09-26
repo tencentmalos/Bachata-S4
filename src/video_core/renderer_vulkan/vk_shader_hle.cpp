@@ -7,6 +7,7 @@
 #include <numeric>
 #include <tuple>
 #include "core/memory.h"
+#include "core/guest_write_watch.h"
 #include "shader_recompiler/info.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_stats.h"
@@ -181,6 +182,8 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
             guest_copies.push_back({src_buf_sharp.base_address + c.srcOffset,
                                     dst_buf_sharp.base_address + c.dstOffset, c.size});
         }
+        const Core::GuestWriteWatch::Scope watch_scope{"hle_copy_mirror",
+                                                       dst_buf_sharp.base_address};
         u64 bytes = memory->CopyGuestRegions(guest_copies, skipped);
         // Regions spanning backing segments: the general path.
         static std::vector<u8> staging;
@@ -309,6 +312,7 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
                 download.Invalidate();
                 auto* memory = Core::Memory::Instance();
                 auto& watch = Core::gpu_watch_counters;
+                const Core::GuestWriteWatch::Scope watch_scope{"hle_copy_commit"};
                 u64 at = 0;
                 for (const auto& [address, bytes] : targets) {
                     if (memory->TryWriteBacking(std::bit_cast<void*>(address), download.mapped + at,

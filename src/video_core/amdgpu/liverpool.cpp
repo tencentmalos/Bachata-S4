@@ -14,6 +14,7 @@
 #include "core/libraries/kernel/process.h"
 #include "core/libraries/videoout/driver.h"
 #include "core/memory.h"
+#include "core/guest_write_watch.h"
 #include "core/platform.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_cmds.h"
@@ -744,6 +745,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     rasterizer->ProcessDownloadImages();
                 }
                 event_eos->SignalFence([](void* address, u64 data, u32 num_bytes) {
+                    const Core::GuestWriteWatch::Scope watch_scope{"eos_label"};
                     auto* memory = Core::Memory::Instance();
                     if (!memory->TryWriteBacking(address, &data, num_bytes)) {
                         memcpy(address, &data, num_bytes);
@@ -766,6 +768,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 }
                 event_eop->SignalFence(
                     [](void* address, u64 data, u32 num_bytes) {
+                        const Core::GuestWriteWatch::Scope watch_scope{"eop_label"};
                         auto* memory = Core::Memory::Instance();
                         if (!memory->TryWriteBacking(address, &data, num_bytes)) {
                             memcpy(address, &data, num_bytes);

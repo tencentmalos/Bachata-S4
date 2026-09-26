@@ -10,6 +10,7 @@
 #include "common/alignment.h"
 #include "common/profiler.h"
 #include "core/memory.h"
+#include "core/guest_write_watch.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/buffer_cache/buffer.h"
@@ -330,6 +331,7 @@ void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 siz
     scheduler.Finish();
 
     download.buffer->Invalidate(download.offset, download.size);
+    const Core::GuestWriteWatch::Scope watch_scope{"buffer_download", arena_base};
     for (const auto& copy : copies) {
         auto* dst_addr = std::bit_cast<u8*>(arena_base + copy.srcOffset);
         memory->TryWriteBacking(dst_addr, download.mapped + (copy.dstOffset - download.offset),

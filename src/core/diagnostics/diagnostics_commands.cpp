@@ -28,6 +28,7 @@
 #include "video_core/renderdoc.h"
 #include "video_core/gpu_reshape_status.h"
 #include "core/memory.h"
+#include "core/guest_write_watch.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/amdgpu/pm4_stats.h"
@@ -212,6 +213,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "Copy-shader HLE also writes its exact destination regions to guest memory: "
         "status | on | off",
         [](const std::vector<std::string>& args) { return Vulkan::HleGuestCopyCommand(args); });
+
+    registry.Register("guest_write_watch",
+        "GPU-produced writes into guest memory matching a 64-bit pattern (default four FP16 "
+        "NaNs) or overlapping a range (default off): start [pattern_hex] | range <address> "
+        "<bytes> | status | dump [count] | stop",
+        [](const std::vector<std::string>& args) { return Core::GuestWriteWatch::Command(args); });
 
     registry.Register("memory_describe",
         "Guest address: mapping, physical address, aliases, recent mapping changes and bytes: "

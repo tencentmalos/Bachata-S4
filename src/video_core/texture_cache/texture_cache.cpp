@@ -18,6 +18,7 @@
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "core/memory.h"
+#include "core/guest_write_watch.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
 #include "video_core/memory_diagnostics.h"
@@ -244,17 +245,18 @@ void TextureCache::PublishMemoryDiagnostics() {
 void TextureCache::ProcessDownloadImages() {
     std::unique_lock lk{download_images_mutex};
     for (const ImageId image_id : download_images) {
-        DownloadImageMemory(image_id, true);
+        DownloadImageMemory(image_id, true, false, ~VAddr{0}, "image_writeback_queue");
     }
     download_images.clear();
 }
 
 void TextureCache::ReadbackImageForDiagnostics(ImageId image_id) {
-    DownloadImageMemory(image_id, true);
+    DownloadImageMemory(image_id, true, false, ~VAddr{0}, "image_writeback_diagnostic");
 }
 
-void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
-    auto write_back = RecordImageDownload(image_id, false);
+void TextureCache::DownloadImageMemory(ImageId image_id, bool sync, bool tracked_only,
+                                       VAddr write_end, const char* writer) {
+    auto write_back = RecordImageDownload(image_id, tracked_only, write_end, writer);
     if (!write_back) {
         return;
     }
@@ -266,23 +268,24 @@ void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
     }
 }
 
-std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool tracked_only) {
+std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool tracked_only,
+                                                       VAddr write_limit, const char* writer) {
     Image& image = slot_images[image_id];
     if (False(image.flags & ImageFlagBits::GpuModified)) {
         return {};
     }
     const VAddr image_begin = image.info.guest_address;
     VAddr write_begin = image_begin;
-    VAddr write_end = image_begin + image.info.guest_size;
+    VAddr write_end = std::min(image_begin + image.info.guest_size, write_limit);
     if (tracked_only) {
         if (!image.IsTracked()) {
             return {};
         }
         write_begin = std::max(write_begin, image.track_addr);
         write_end = std::min(write_end, image.track_addr_end);
-        if (write_begin >= write_end) {
-            return {};
-        }
+    }
+    if (write_begin >= write_end) {
+        return {};
     }
     // A readback no longer promotes the identity to native: a scaled backing is
     // transferred through a temporary native-extent copy inside Image::Download and
@@ -314,9 +317,10 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
     scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
         .memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
     const u64 skip = write_begin - image_begin;
-    return [this, staging, write_begin, write_size = write_end - write_begin,
+    return [this, staging, image_begin, writer, write_begin, write_size = write_end - write_begin,
             source = staging.mapped + skip] {
         staging.Invalidate();
+        const Core::GuestWriteWatch::Scope watch_scope{writer, image_begin};
         Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(write_begin), source,
                                                   write_size);
         runtime.GetStagingPool().FreeDeferred(staging);
@@ -1604,7 +1608,8 @@ void TextureCache::GarbageCollectImages() {
         }
         std::vector<std::function<void()>> writes;
         for (const ImageId image_id : evicted_modified) {
-            if (auto write = RecordImageDownload(image_id, true)) {
+            if (auto write = RecordImageDownload(image_id, true, ~VAddr{0},
+                                                 "image_writeback_gc")) {
                 writes.push_back(std::move(write));
                 static std::atomic<u32> logged{};
                 if (logged.fetch_add(1, std::memory_order_relaxed) < 16) {
