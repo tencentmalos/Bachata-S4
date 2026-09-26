@@ -132,6 +132,10 @@ private:
 
     void EnsureResident(const Buffer* arena, u64 first_block, u64 last_block);
 
+    /// Binds one block of a probe buffer and copies a pattern through it; throws when the
+    /// driver accepts the bind without backing the range with the bound memory.
+    void VerifySparseResidency();
+
     void DownloadMemory(const Buffer* arena, VAddr device_addr, u64 size);
 
     bool SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 size, bool is_written,

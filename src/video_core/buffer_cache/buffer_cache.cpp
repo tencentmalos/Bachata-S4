@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <cstring>
+#include <limits>
 #include <ostream>
+#include <stdexcept>
 #include <magic_enum/magic_enum.hpp>
 #include "common/alignment.h"
 #include "common/profiler.h"
@@ -93,9 +96,87 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
              {bda_pagetable_buffer.get(), "buffer/bda-page-table"}}) {
         VmaDiagnostics::Tag(instance.GetAllocator(), buffer->buffer.allocation, category);
     }
+    VerifySparseResidency();
 }
 
 BufferCache::~BufferCache() = default;
+
+void BufferCache::VerifySparseResidency() {
+    // Some drivers report sparse residency and accept binds without making the bound memory
+    // reachable (the R8 Turnip build on KGSL): every arena access would then read zeros and the
+    // game renders nothing. One block is checked through the GPU so such a driver fails here.
+    constexpr u64 PatternSize = 256;
+    const auto device = instance.GetDevice();
+    const auto memory = Vulkan::Check<"allocate sparse check memory">(
+        device.allocateMemoryUnique(vk::MemoryAllocateInfo{
+            .allocationSize = block_size,
+            .memoryTypeIndex = arena_memory_type_index,
+        }));
+    const Buffer probe{instance, 0, block_size, MemoryType::Sparse, "Sparse residency check"};
+    const vk::SparseMemoryBind bind = {
+        .resourceOffset = 0,
+        .size = block_size,
+        .memory = *memory,
+    };
+    const vk::SparseBufferMemoryBindInfo buffer_bind = {
+        .buffer = probe.Handle(),
+        .bindCount = 1,
+        .pBinds = &bind,
+    };
+    const auto fence = Vulkan::Check<"create sparse check fence">(device.createFenceUnique({}));
+    {
+        std::scoped_lock lock{instance.QueueMutex()};
+        Vulkan::Check<"bind the sparse check block">(instance.GetGraphicsQueue().bindSparse(
+            vk::BindSparseInfo{.bufferBindCount = 1, .pBufferBinds = &buffer_bind}, *fence));
+    }
+    Vulkan::Check<"wait for the sparse check bind">(
+        device.waitForFences(*fence, vk::True, std::numeric_limits<u64>::max()));
+
+    // Both ends of the block, written from a pattern and read back.
+    const auto upload = staging_pool.Request(PatternSize, MemoryType::HostUncached);
+    const auto download = staging_pool.Request(PatternSize * 2, MemoryType::HostCached);
+    for (u64 i = 0; i < PatternSize; ++i) {
+        upload.mapped[i] = static_cast<u8>(i * 7 + 3);
+    }
+    upload.Flush();
+    std::memset(download.mapped, 0, PatternSize * 2);
+    download.Flush();
+    const std::array<vk::BufferCopy, 2> writes = {{
+        {upload.offset, 0, PatternSize},
+        {upload.offset, block_size - PatternSize, PatternSize},
+    }};
+    const std::array<vk::BufferCopy, 2> reads = {{
+        {0, download.offset, PatternSize},
+        {block_size - PatternSize, download.offset + PatternSize, PatternSize},
+    }};
+    runtime.CopyBuffer(upload.buffer, &probe, writes);
+    runtime.CopyBuffer(&probe, download.buffer, reads);
+    runtime.FlushBarriers();
+    static constexpr vk::MemoryBarrier HostRead = {
+        .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
+        .dstAccessMask = vk::AccessFlagBits::eHostRead,
+    };
+    scheduler.CommandBuffer().pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                                              vk::PipelineStageFlagBits::eHost, {}, HostRead, {},
+                                              {});
+    scheduler.Finish();
+    download.Invalidate();
+
+    u64 mismatches = 0;
+    for (u64 i = 0; i < PatternSize * 2; ++i) {
+        mismatches += download.mapped[i] != upload.mapped[i % PatternSize];
+    }
+    if (mismatches != 0) {
+        const auto message = fmt::format(
+            "The Vulkan driver ({}) accepts sparse buffer binds but {} of {} bytes written through "
+            "a bound {} KiB block did not read back: sparse residency does not work, and the "
+            "buffer cache depends on it. On Android select the mainline Turnip driver.",
+            instance.GetModelName(), mismatches, PatternSize * 2, block_size >> 10);
+        LOG_CRITICAL(Render_Vulkan, "{}", message);
+        throw std::runtime_error(message);
+    }
+    LOG_INFO(Render_Vulkan, "Sparse residency check passed ({} KiB blocks)", block_size >> 10);
+}
 
 void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
     const auto allocation_size = [&](const Buffer& buffer) -> u64 {
