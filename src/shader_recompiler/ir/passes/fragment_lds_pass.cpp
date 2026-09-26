@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <array>
+#include <bit>
 #include <map>
 #include <optional>
 #include <unordered_map>
@@ -58,6 +59,16 @@ std::optional<u32> LaneValue(IR::Value v, u32 lane, u32 depth = 0) {
         default:
             return std::nullopt;
         }
+    }
+    case O::MaskedBitCount32: {
+        // V_MBCNT_LO/HI, lowered to subgroup masks only after this pass: count the set bits of
+        // src0 among the guest lanes below `lane` (low or high half of the 64-bit mask) + src1.
+        const auto a = arg(0), b = arg(1);
+        if (!a || !b || !i->Arg(2).IsImmediate())
+            return std::nullopt;
+        const u64 below = lane < 64 ? (u64{1} << lane) - 1 : ~u64{0};
+        const u32 half = i->Arg(2).U1() ? static_cast<u32>(below >> 32) : static_cast<u32>(below);
+        return static_cast<u32>(std::popcount(*a & half)) + *b;
     }
     case O::BitFieldUExtract:
     case O::BitFieldSExtract: {
