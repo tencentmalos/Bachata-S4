@@ -460,12 +460,17 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
         library = m->FindLibrary(ids[1]);
         module = m->FindModule(ids[2]);
     } else if (ids.size() == 1 && sym_type == Loader::SymbolType::NoType) {
+        // A bare NoType name is one of the module's own exports (e.g. module_stop of a PRX).
+        // A module without exports cannot provide it; the relocation stays unresolved.
         LOG_DEBUG(Core_Linker, "NoType export {}", name);
         library = m->FindLibrary("");
         module = m->FindModule("");
+        if (!library || !module) {
+            return_info->virtual_address = 0;
+            return_info->name = name;
+            return false;
+        }
     } else {
-        if (memory->IsGuestBackend())
-            throw std::runtime_error("malformed guest import name: " + name);
         return_info->virtual_address = 0;
         return_info->name = name;
         LOG_ERROR(Core_Linker, "Not Resolved {}", name);
@@ -490,7 +495,8 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
             guest_import_bindings.push_back({m, std::move(record), provider});
         }
     };
-    const auto* record = m_hle_symbols.FindSymbol(sr);
+    const bool own_export = ids.size() == 1;
+    const auto* record = own_export ? nullptr : m_hle_symbols.FindSymbol(sr);
     if (record) {
         *return_info = *record;
         provider = "registered_hle";
@@ -525,6 +531,14 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
         }
     }
 
+    if (own_export) {
+        // Not exported under that name: leave the relocation as it was loaded rather than
+        // binding a stub to a symbol the module defines itself.
+        LOG_DEBUG(Core_Linker, "NoType export {} not found in {}", name, library->name);
+        return_info->virtual_address = 0;
+        return_info->name = name;
+        return false;
+    }
     if (memory->IsGuestBackend()) {
         provider = "runtime_fallback";
         Loader::SymbolRecord missing{Loader::SymbolsResolver::GenerateName(sr), sr.name, 0, {}};
