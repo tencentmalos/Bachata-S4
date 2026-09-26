@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/profiler.h"
 #include <xxhash.h>
 #include <algorithm>
 #include <bit>
@@ -1263,6 +1264,7 @@ void TextureCache::RefreshImage(Image& image) {
         image.hash = hash;
     }
 
+    Common::Profiler::Scope refresh_scope{"Texture.Refresh"};
     const u32 num_layers = image.info.resources.layers;
     const u32 num_mips = image.info.resources.levels;
     const bool is_gpu_modified = True(image.flags & ImageFlagBits::GpuModified);
@@ -1324,8 +1326,11 @@ void TextureCache::RefreshImage(Image& image) {
     const auto upload_info = image.info.RetainedMipChain(image.DroppedMips());
     const auto skipped_bytes = upload_info.guest_address - image.info.guest_address;
     for (auto& copy : image_copies) copy.bufferOffset -= skipped_bytes;
-    const auto [in_buffer, in_offset] =
-        buffer_cache.ObtainBufferForImage(upload_info.guest_address, upload_info.guest_size);
+    const auto [in_buffer, in_offset] = [&] {
+        Common::Profiler::Scope scope{"Texture.Stage"};
+        return buffer_cache.ObtainBufferForImage(upload_info.guest_address,
+                                                 upload_info.guest_size);
+    }();
     if (auto barrier = in_buffer->GetBarrier(vk::AccessFlagBits2::eTransferRead,
                                              vk::PipelineStageFlagBits2::eTransfer)) {
         scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
@@ -1335,12 +1340,15 @@ void TextureCache::RefreshImage(Image& image) {
         });
     }
 
-    const auto [buffer, offset] =
-        tile_manager.DetileImage(in_buffer->Handle(), in_offset, upload_info);
+    const auto [buffer, offset] = [&] {
+        Common::Profiler::Scope scope{"Texture.Detile"};
+        return tile_manager.DetileImage(in_buffer->Handle(), in_offset, upload_info);
+    }();
     for (auto& copy : image_copies) {
         copy.bufferOffset += offset;
     }
 
+    Common::Profiler::Scope upload_scope{"Texture.Upload"};
     image.Upload(image_copies, buffer, offset, upload_info.guest_size);
 }
 

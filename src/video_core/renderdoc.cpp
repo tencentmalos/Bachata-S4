@@ -202,7 +202,12 @@ void StartCapture() {}
 void EndCapture() {}
 void TriggerCapture() {
     auto& c = GetCaptureCoordinator();
-    (void)c.Arm(1, c.BoundGeneration(), Core::Diagnostics::ProcessRunUuid(), Core::Diagnostics::DiagnosticNowNs());
+    const auto r = c.Arm(1, c.BoundGeneration(), Core::Diagnostics::ProcessRunUuid(),
+                         Core::Diagnostics::DiagnosticNowNs());
+    // The hotkey has no reply channel; the outcome is queried with the DebugBus
+    // command renderdoc_capture_status <request_id>.
+    LOG_INFO(Render, "RenderDoc capture request {}: {} ({}){}{}", r.request_id, ToString(r.state),
+             r.command_status, r.failure_reason.empty() ? "" : ": ", r.failure_reason);
 }
 void SetOutputDir(const std::filesystem::path&, const std::string&) {
     // Output belongs to the bound Session target and each unique request.

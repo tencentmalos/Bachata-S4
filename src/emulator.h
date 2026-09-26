@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "common/singleton.h"
+#include "core/diagnostics/diagnostics_service.h"
 #include "core/linker.h"
 #include "input/controller.h"
 #include "sdl_window.h"
@@ -47,6 +48,8 @@ public:
 
     const char* executableName;
     bool waitForDebuggerBeforeRun{false};
+    /// Loopback port of the DebugBus TCP service (0 = any free port); nullopt disables it.
+    std::optional<u16> debugBusPort{Core::Diagnostics::DefaultDebugBusPort};
 
 private:
     void LoadSystemModules(const std::string& game_serial);

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/profiler.h"
 #include <atomic>
 #include <bit>
 #include <cstring>
@@ -200,6 +201,7 @@ void Rasterizer::EliminateFastClear() {
 }
 
 void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
+    Common::Profiler::Scope profile_scope{"Rasterizer.Draw"};
     RENDERER_TRACE;
 
     scheduler.PopPendingOperations();
@@ -293,6 +295,7 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
 void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u32 stride,
                               u32 max_count, VAddr count_address) {
     RENDERER_TRACE;
+    Common::Profiler::Scope profile_scope{"Rasterizer.Draw"};
 
     scheduler.PopPendingOperations();
 
@@ -400,6 +403,7 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
 }
 
 void Rasterizer::DispatchDirect() {
+    Common::Profiler::Scope profile_scope{"Rasterizer.Dispatch"};
     RENDERER_TRACE;
 
     scheduler.PopPendingOperations();
@@ -458,6 +462,7 @@ void Rasterizer::DispatchDirect() {
 }
 
 void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
+    Common::Profiler::Scope profile_scope{"Rasterizer.Dispatch"};
     RENDERER_TRACE;
 
     scheduler.PopPendingOperations();
@@ -538,6 +543,7 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
 }
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
+    Common::Profiler::Scope profile_scope{"Rasterizer.BindResources"};
     const char* replaced = IsComputeImageCopy(pipeline)    ? "compute image copy"
                            : IsComputeMetaClear(pipeline)  ? "compute meta clear"
                            : IsComputeImageClear(pipeline) ? "compute image clear"

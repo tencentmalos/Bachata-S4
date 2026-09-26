@@ -64,6 +64,8 @@ int main(int argc, char* argv[]) {
     bool showFps = false;
     bool statusLayer = false;
     std::vector<std::string> uploadDiagCommands;
+    std::optional<int> debugBusPort;
+    bool noDebugBus = false;
     bool configClean = false;
     bool configGlobal = false;
     bool bigPicture = false;
@@ -100,6 +102,10 @@ int main(int argc, char* argv[]) {
     app.add_option("--upload-diag", uploadDiagCommands,
                    "Texture upload diagnostics command applied at startup, e.g. \"fill_clear off\" "
                    "(same commands as the Android DebugBus upload_diag); may be repeated");
+    app.add_option("--debugbus-port", debugBusPort,
+                   "Loopback port of the DebugBus TCP service (default 32124, 0 = any free port)")
+        ->check(CLI::Range(0, 65535));
+    app.add_flag("--no-debugbus", noDebugBus, "Do not start the DebugBus TCP service");
     app.add_flag("--config-clean", configClean);
     app.add_flag("--config-global", configGlobal);
     app.add_flag("--log-append", Common::Log::g_should_append);
@@ -272,6 +278,11 @@ int main(int argc, char* argv[]) {
     auto* emulator = Common::Singleton<Core::Emulator>::Instance();
     emulator->executableName = argv[0];
     emulator->waitForDebuggerBeforeRun = waitForDebugger;
+    if (noDebugBus) {
+        emulator->debugBusPort.reset();
+    } else if (debugBusPort) {
+        emulator->debugBusPort = static_cast<u16>(*debugBusPort);
+    }
     emulator->Run(ebootPath, gameArgs, overrideRoot, mounts, env_vars);
 
     return 0;

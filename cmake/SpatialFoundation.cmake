@@ -1,5 +1,6 @@
-# A deliberately small host profile. Reflection/packing and NetSystem have a
-# wider dependency closure; see docs/foundation-integration.md before enabling them.
+# Host profile: the debugbus registry, overlay/foveation/texture codec modules, and on
+# the desktop the basic module layer for the DebugBus TCP transport. See
+# docs/foundation-integration.md for the dependency closure of each part.
 include_guard(GLOBAL)
 
 function(shadps4_add_foundation)
@@ -12,24 +13,23 @@ function(shadps4_add_foundation)
         message(FATAL_ERROR "Foundation is missing. Run: git submodule update --init foundation")
     endif()
 
-    # Function scope keeps this profile from changing another consumer's options.
-    # Foundation exposes these as cache options. Force the parent integration
-    # to keep the optional transports disabled unless they are wired explicitly.
-    set(FOUNDATION_DEBUGBUS_BUILD_TCP OFF CACHE BOOL "" FORCE)
-    set(FOUNDATION_DEBUGBUS_BUILD_PROFILER OFF CACHE BOOL "" FORCE)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-    # The parent uses only the registry/dumpsys part of debugbus.  The current
-    # Foundation debugbus CMake still declares optional TCP/profiler targets
-    # unconditionally; provide empty dependency targets so those unused
-    # libraries remain out of this host profile without pulling their complete
-    # module graphs into shadPS4.
-    if(NOT TARGET spatial::foundation_module_network)
-        add_library(foundation_module_network INTERFACE)
-        add_library(spatial::foundation_module_network ALIAS foundation_module_network)
-    endif()
-    if(NOT TARGET spatial::foundation_profiler)
-        add_library(foundation_profiler INTERFACE)
-        add_library(spatial::foundation_profiler ALIAS foundation_profiler)
+    # Foundation targets read the host's unity switch under this name.
+    set(CITRA_USE_UNITY_BUILD ${ENABLE_UNITY_BUILD})
+
+    # The desktop DebugBus TCP transport (spatial::foundation_debugbus_tcp) runs on
+    # Foundation's NetSystemModule: the basic module layer (core, allocator, async,
+    # imodules) plus Foundation's vendored libevent, bound to shadPS4's fmt/Vulkan/
+    # VMA/zlib targets. Android reaches the same registry through dumpsys and keeps
+    # the registry-only profile. Directories are added before modules/debugbus so it
+    # declares the TCP transport.
+    if(NOT ANDROID)
+        include("${foundation_root}/cmake/FoundationSubdirectory.cmake")
+        include("${foundation_root}/cmake/FoundationHostDependencies.cmake")
+        foreach(layer third_party modules/property basic)
+            add_subdirectory("${foundation_root}/${layer}"
+                             "${CMAKE_CURRENT_BINARY_DIR}/foundation/${layer}" EXCLUDE_FROM_ALL)
+        endforeach()
     endif()
     add_subdirectory("${foundation_root}/modules/debugbus"
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/debugbus" EXCLUDE_FROM_ALL)
@@ -37,6 +37,10 @@ function(shadps4_add_foundation)
     add_library(shadps4_foundation INTERFACE)
     add_library(shadps4::foundation ALIAS shadps4_foundation)
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus)
+    if(TARGET spatial::foundation_debugbus_tcp)
+        target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus_tcp)
+        target_compile_definitions(shadps4_foundation INTERFACE SHADPS4_DEBUGBUS_TCP=1)
+    endif()
 
     # The FDM module is graphics-only and its upstream CMake target pulls in
     # Foundation's full basic/core graph.  shadPS4 already owns those host
@@ -88,9 +92,11 @@ function(shadps4_add_foundation)
                          "${CMAKE_CURRENT_BINARY_DIR}/foundation/audio" EXCLUDE_FROM_ALL)
         target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_audio)
         target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus_dumpsys)
-        add_subdirectory("${foundation_root}/modules/profiler_ring"
-                         "${CMAKE_CURRENT_BINARY_DIR}/foundation/profiler_ring" EXCLUDE_FROM_ALL)
-        target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_profiler_ring)
-        target_compile_definitions(shadps4_foundation INTERFACE SHADPS4_PROFILER_RING=1)
     endif()
+    # Litep ring capture (DebugBus profiler_ring / profiler_capture), on every platform: the SDK
+    # ring and LiteTrace only, without the Foundation module runtime.
+    add_subdirectory("${foundation_root}/modules/profiler_ring"
+                     "${CMAKE_CURRENT_BINARY_DIR}/foundation/profiler_ring" EXCLUDE_FROM_ALL)
+    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_profiler_ring)
+    target_compile_definitions(shadps4_foundation INTERFACE SHADPS4_PROFILER_RING=1)
 endfunction()

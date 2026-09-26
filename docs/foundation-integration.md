@@ -3,6 +3,46 @@
 日期：2026-09-07。这是初始基线 `a7128893` 之后的依赖准备里程碑；不改写初始基线记录。
 主仓原先只有桌面核心，本次增加基础设施的构建入口，尚未提供 Android app 或 guest backend。
 
+## 2026-09-26：桌面材质 Medium 的 BC7 重编码、帧颜色与状态层交互
+
+- Texture quality Medium（0.75 倍）在只采样 BC、不支持 ASTC 的桌面 GPU 上，16 字节 BC 源块改用
+  Foundation `texture_codec` 新增的 `Bc7Shader()`（mode 6）重编码；8 字节 BC1/BC4 保留原格式（转 BC7
+  存储反而膨胀），支持 ASTC 的设备仍走 ASTC。`VideoCore::BlockCodec` 记录实际编码，view/诊断按它选择格式。
+  独立 GPU 测试（硬件解码对照源图）在 RX 7600M XT 与 Radeon 890M 上各 74 checks / 0 failures。
+  血源 Medium 实测约 60 次 BC7 分配（如 `1024x1024 Bc7UnormBlock -> 768x768 ... levels 11 -> 10 mode BC7`）。
+  首轮 Medium（RX 7600M XT）出现一次 swapchain acquire `ErrorDeviceLost`，日志保留在本机运行目录
+  `user/log/shad_log-bc7-devicelost.txt`（不入库）；之后开 crash diagnostic 约 10 分钟、普通复现约 20 分钟
+  均未再现，原因未定，不归因 BC7。
+- VideoOut `A8R8G8B8Srgb` 帧（字节序 B,G,R,A）在 presenter 用 R/B component swizzle 采样，截图读回用
+  BGRA；不做 B8 格式重解释，不增加图像或内存。血瓶/HP 条恢复红色。
+- 状态层：Only FPS 条/Summary 标题统一控制 Detail 与 Controls，Detail 标题行与 Controls 相同、宽度有上限，
+  FPS 位置可配（桌面默认左下），Status/Detail 不抢键盘手柄焦点，Renderer 显示实际 GPU。操作见
+  [状态层指南](guides/status-overlay.md)；Foundation overlay 测试 239 cases / 1833 assertions 通过。
+
+## 2026-09-25：桌面 DebugBus TCP（Foundation `debugbus_tcp` + NetSystemModule）
+
+桌面版编入与 Android dumpsys 相同的命令表（`diagnostics_commands`/`diagnostics_service`），
+经 Foundation `spatial::foundation_debugbus_tcp` 在 `127.0.0.1:32124` 提供服务；不另写 socket。
+[cmake/SpatialFoundation.cmake](../cmake/SpatialFoundation.cmake) 在非 Android 宿主加入真实的
+`third_party`、`modules/property`、`basic`（core/allocator/async/imodules/network，libevent
+为 Foundation 自带版本，fmt/Vulkan/VMA/zlib 绑定宿主 target），不再用同名空 target 冒充
+network/profiler。Foundation 侧机制修正：`core_minimal` 不再硬依赖 Crypto++（`Crypto.cpp`
+拆为可选的 `foundation_core_crypto`）；debugbus 的 tcp/profiler target 仅在依赖模块存在时声明；
+`foundation_add_subdirectory` 与宿主依赖绑定可被只加部分层的宿主 include。Android 仍只用
+registry + dumpsys，不构建 basic 层。
+
+- 参数：`--debugbus-port N`（0 = 任意空闲端口）、`--no-debugbus`；`Emulator::Restart` 保留设置。
+- 协议与 Azahar DebugDump 客户端兼容：连接后两行 greeting，每行一条命令，回复以 `--END--`
+  行结束，`exit` 断开。handler 在 Foundation 网络线程执行，须只做线程安全的投递/查询。
+- 客户端：`python scripts/debug/debugbus.py "overlay status"`；抓帧
+  `python scripts/debug/debugbus.py --wait 300 "renderdoc_capture 1"` 等待到 ready/failed。
+- RenderDoc（未安装、只有 MCP 自带包时）：不要用 `renderdoccmd capture` 注入——dll 进程内可见但
+  Vulkan layer 未注册，StartFrameCapture 会失败。改用 layer 环境变量：
+  `VK_ADD_LAYER_PATH=<renderdoc>\qrenderdoc VK_LOADER_LAYERS_ENABLE=VK_LAYER_RENDERDOC_Capture`。
+  F12 与 DebugBus 共用同一 capture coordinator，结果写入 `user/captures`。
+- `SHADPS4_VK_DISABLE_EXTENSIONS=ext[,ext]`（Android：`debug.shadps4.vk_disable_extensions`）
+  把设备扩展视为不支持，用于在任意 GPU 上复现缺扩展驱动或 RenderDoc 下的回退路径。
+
 ## 2026-09-24：可选的 scrcpy 嵌入式录制 SDK
 
 SDK 源码现由私有仓 [`tencentmalos/my_mcp_tools`](https://github.com/tencentmalos/my_mcp_tools)
@@ -77,7 +117,8 @@ SDK 最新 Bookmark wire 布局仍使用 PROF v3；新采集用随源码集成�
 - 当前目标实际链接 `spatial::foundation_debugbus`，Android 时再链接
   `spatial::foundation_debugbus_dumpsys`；静态库按 PIC 构建。
 - 最小 profile 只加入 `foundation/modules/debugbus`，关闭 TCP/profiler target。
-  没有引入全局 allocator、JobSystem、第二套 ImGui、XR 或 libevent。
+  没有引入全局 allocator、JobSystem、第二套 ImGui、XR 或 libevent。（2026-09-25 起桌面
+  profile 为 DebugBus TCP 加入 basic 层与 libevent，见上文；Android 不变。）
 - 主程序已有 link 接入；没有注册运行时命令、启动网络端口或添加 Kotlin Service。
   这一步提供可用构建基础，不代表应用侧功能已经上线。
 

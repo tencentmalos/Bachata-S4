@@ -14,6 +14,7 @@
 
 #include "common/debug.h"
 #include "common/logging/log.h"
+#include "common/profiler.h"
 #include "common/string_util.h"
 #include "common/thread.h"
 #include "core/emulator_settings.h"
@@ -91,6 +92,8 @@ void Emulator::Shutdown() {
     if (exit_done) {
         return;
     }
+    // No DebugBus command may reach subsystems that are going away.
+    Core::Diagnostics::StopDebugBusServer();
     Common::Log::Flush();
     if (controllers) {
         controllers->ResetLightbarColors();
@@ -455,6 +458,16 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
     const u64 process_id = static_cast<u64>(getpid());
 #endif
     Core::Diagnostics::DiagnosticsHub::Instance().Register(1, process_id);
+    // Litep ring for DebugBus profiler_ring / profiler_capture; captures go to <log>/profiler.
+    Common::Profiler::Initialize();
+    if (debugBusPort) {
+        if (const u16 port = Core::Diagnostics::StartDebugBusServer(*debugBusPort)) {
+            LOG_INFO(Debug, "DebugBus listening on 127.0.0.1:{}", port);
+        } else {
+            LOG_WARNING(Debug, "DebugBus is unavailable: cannot listen on 127.0.0.1:{}",
+                        *debugBusPort);
+        }
+    }
 
     window = std::make_shared<Frontend::WindowSDL>(EmulatorSettings.GetWindowWidth(),
                                                    EmulatorSettings.GetWindowHeight(), controllers,
@@ -628,6 +641,13 @@ void Emulator::Restart(std::filesystem::path eboot_path,
 
     if (waitForDebuggerBeforeRun) {
         args.push_back("--wait-for-debugger");
+    }
+
+    if (!debugBusPort) {
+        args.push_back("--no-debugbus");
+    } else if (*debugBusPort != Core::Diagnostics::DefaultDebugBusPort) {
+        args.push_back("--debugbus-port");
+        args.push_back(std::to_string(*debugBusPort));
     }
 
     if (guest_args.size() > 0) {

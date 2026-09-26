@@ -1441,6 +1441,12 @@ cmake_language(DEFER CALL shadps4_enable_unity_build shadps4)
 target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
 if(ENABLE_SPATIAL_FOUNDATION)
     target_link_libraries(shadps4 PRIVATE shadps4::foundation)
+    if(NOT BUILD_HOST_CORE)
+        # The desktop DebugBus serves the same command registry that the Android
+        # host reaches through dumpsys (the host core adds these sources below).
+        target_sources(shadps4 PRIVATE src/core/diagnostics/diagnostics_commands.cpp
+            src/core/diagnostics/diagnostics_service.cpp)
+    endif()
 endif()
 target_link_libraries(shadps4 PRIVATE magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map xbyak::xbyak Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn half::half ZLIB::ZLIB PNG::PNG minimp3)
 target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers xxHash::xxhash Zydis::Zydis glslang::glslang pugixml::pugixml)

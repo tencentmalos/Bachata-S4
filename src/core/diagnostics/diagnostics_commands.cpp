@@ -134,6 +134,12 @@ bool ParseId(std::string_view text, u64& result) {
     const auto [end, ec] = std::from_chars(text.data(), text.data() + text.size(), result);
     return ec == std::errc{} && end == text.data() + text.size() && result != 0;
 }
+// Like ParseId, but zero is a valid count (e.g. "no delay").
+bool ParseCount(std::string_view text, u64& result) {
+    if (text.empty()) return false;
+    const auto [end, ec] = std::from_chars(text.data(), text.data() + text.size(), result);
+    return ec == std::errc{} && end == text.data() + text.size();
+}
 std::string BadArguments() { return "status: invalid_arguments\n"; }
 
 std::uint64_t NowNs(const MonotonicClockNs& clock) {
@@ -294,7 +300,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [&hub, clock](const std::vector<std::string>& args) {
             u64 frames = 1, delay = 0;
             if (args.size() > 2 || (!args.empty() && !ParseId(args[0], frames)) || frames > 8 ||
-                (args.size() == 2 && !ParseId(args[1], delay)))
+                (args.size() == 2 && !ParseCount(args[1], delay)))
                 return BadArguments();
             DiagnosticsSnapshot snap;
             hub.QuerySnapshot(snap, NowNs(clock));
@@ -309,7 +315,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [&hub, clock](const std::vector<std::string>& args) {
             u64 frames = 1, delay = 0;
             if (args.size() > 2 || (!args.empty() && !ParseId(args[0], frames)) || frames > 8 ||
-                (args.size() == 2 && !ParseId(args[1], delay)))
+                (args.size() == 2 && !ParseCount(args[1], delay)))
                 return BadArguments();
             DiagnosticsSnapshot snap;
             hub.QuerySnapshot(snap, NowNs(clock));
