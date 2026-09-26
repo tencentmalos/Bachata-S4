@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
+#include <algorithm>
 #include "video_core/vr_frame.h"
 
 #include "common/debug.h"

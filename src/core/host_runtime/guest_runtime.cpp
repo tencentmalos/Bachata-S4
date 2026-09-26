@@ -29,6 +29,7 @@
 #include "common/profiler.h"
 #include "common/thread.h"
 #include "common/elf_info.h"
+#include "common/path_util.h"
 #include "common/string_util.h"
 #include "common/singleton.h"
 #include "core/aerolib/aerolib.h"

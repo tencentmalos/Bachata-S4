@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
+#include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include "core/libraries/save_data/dialog/savedatadialog_ui.h"
 #include "guest_save_dialog.h"
