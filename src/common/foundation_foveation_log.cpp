@@ -12,14 +12,14 @@ void OsConsoleLogger::outputMessage(LogLevel level, std::string_view tag,
     // Foundation's FDM helpers are embedded as a small static target. Keep
     // their diagnostics in shadPS4's main Render.Vulkan sink instead of
     // pulling in Foundation's complete platform/logger implementation.
-    const auto logger = Common::Log::ALL_LOGGERS[Common::Log::Class::Render_Vulkan];
-    if (!logger) {
+    // LogLevel follows spdlog's order, which is also Common::Log::Level's.
+    const auto severity = static_cast<Common::Log::Level>(static_cast<int>(level));
+    if (severity >= Common::Log::Level::Off ||
+        !Common::Log::ShouldLog(Common::Log::Class::Render_Vulkan, severity)) {
         return;
     }
-    const auto severity = static_cast<spdlog::level>(static_cast<int>(level));
-    if (logger->should_log(severity)) {
-        logger->log(severity, "[Foundation:{}] {}", tag, message);
-    }
+    Common::Log::Log(Common::Log::Class::Render_Vulkan, severity, __FILE__, __LINE__, __func__,
+                     "[Foundation:{}] {}", tag, message);
 }
 
 } // namespace spatial::platform

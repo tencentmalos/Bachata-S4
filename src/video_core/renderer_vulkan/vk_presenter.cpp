@@ -868,7 +868,7 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
         image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
                       vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.RawCommandBuffer());
         views[i] = *texture_cache.FindTexture(id, desc).image_view;
-        samplers[i] = texture_cache.GetSampler(source.samplers[i], {});
+        samplers[i] = texture_cache.GetSampler(source.samplers[i], {}, false);
         if (!i) eye_size = {u32(eyes[i].width + 1), u32(eyes[i].height + 1)};
     }
     auto* frame = GetRenderFrame();

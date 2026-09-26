@@ -57,6 +57,7 @@ set(SHADPS4_UNITY_EXCLUDE
     src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.cpp  # SPIRV_VERSION_1_5 (emit_spirv_discard_frag.cpp)
     src/core/host_runtime/guest_commerce_dialog.cpp   # Code/ReadValue/Zero (guest_msg_dialog.cpp)
     src/shader_recompiler/ir/passes/inverse_ballot_elimination_pass.cpp  # FoldCompositeConstruct/FoldInverseFunc (constant_propagation_pass.cpp)
+    src/shader_recompiler/ir/passes/lower_hardware_intrinsics.cpp  # Lower (lower_fp64_to_fp32.cpp)
     # Order-dependent sources.
     src/video_core/renderer_vulkan/vk_platform.cpp    # VK_USE_PLATFORM_* must precede the first Vulkan include
     src/shader_recompiler/ir/ir_emitter.cpp           # explicit specializations must precede first instantiation
@@ -136,7 +137,12 @@ function(shadps4_enable_unity_build target)
         # Foundation's utils/debug.h (pulled in through vk_instance.h) defines an
         # assert_invariant() macro that collides with nlohmann::json's member of the
         # same name when json.hpp is first included by a later file of the batch.
-        UNITY_BUILD_CODE_AFTER_INCLUDE "#undef assert_invariant")
+        UNITY_BUILD_CODE_AFTER_INCLUDE "#undef assert_invariant"
+        # common/logging/log.h only includes <fmt/base.h>. A file of the batch that formats a
+        # std::string_view with just that header instantiates the undefined primary
+        # fmt::formatter<std::string_view>, and a later file's formatter.h specialization
+        # deriving from it fails. Full fmt first keeps every file of a batch consistent.
+        UNITY_BUILD_CODE_BEFORE_INCLUDE "#include <fmt/format.h>")
 
     get_target_property(sources ${target} SOURCES)
     get_target_property(source_dir ${target} SOURCE_DIR)
