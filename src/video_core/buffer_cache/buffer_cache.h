@@ -37,9 +37,11 @@ class PageManager;
 
 class BufferCache {
     static constexpr u64 ADDRESS_SPACE_BITS = 40;
-    static constexpr u64 ARENA_PAGE_BITS = 32;
-    static constexpr u64 ARENA_PAGE_SIZE = u64{1} << ARENA_PAGE_BITS;
-    static constexpr u64 NUM_ARENA_PAGES = u64{1} << (ADDRESS_SPACE_BITS - ARENA_PAGE_BITS);
+    // Arena pages are 4 GiB unless the device's buffer size limit is smaller: a page is at most
+    // half the limit, so an access straddling two pages always fits in one arena.
+    static constexpr u64 MAX_ARENA_PAGE_BITS = 32;
+    static constexpr u64 MIN_ARENA_PAGE_BITS = 28;
+    static constexpr u64 MAX_ARENA_PAGES = u64{1} << (ADDRESS_SPACE_BITS - MIN_ARENA_PAGE_BITS);
     static constexpr u64 MIN_BLOCK_SIZE = 16_KB;
     static constexpr u64 STREAM_THRESHOLD = 16_KB;
 
@@ -159,7 +161,7 @@ private:
     std::unique_ptr<FaultManager> fault_manager;
     std::unique_ptr<Buffer> bda_pagetable_buffer;
 
-    std::array<const Buffer*, NUM_ARENA_PAGES> address_space{};
+    std::array<const Buffer*, MAX_ARENA_PAGES> address_space{};
     std::deque<Buffer> arenas;
     std::vector<ArenaBinds> pending_binds;
     Vulkan::Semaphore memory_semaphore;
@@ -181,6 +183,9 @@ private:
     u32 block_shift{};
     u32 blocks_per_arena_page{};
     u32 blocks_per_arena_page_shift{};
+    u32 arena_page_bits{};
+    u64 max_arena_size{};
+    u64 arena_migrations{};
 };
 
 } // namespace VideoCore
