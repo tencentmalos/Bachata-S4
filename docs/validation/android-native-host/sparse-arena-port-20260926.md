@@ -16,6 +16,11 @@
 | `aed85550` / `89438d05` | `android_sparse_probe` 按缓冲区缓存的实际 arena 大小测试；逐块提交模式、指定大小模式 |
 | `7e366a57` | 高通专有驱动 arena 限制在 2 GiB 以下 |
 | `8eca8601` | 上游 #5062：主机着色器构建期编译为 SPIR-V，tiling 参数改特化常量 |
+| `5ce09d11` | 上游 #5035：关闭时不再存配置、配置加载失败改为致命、热键只在按下沿触发（fork：删掉 Android 迁移分支里残留的 `m_loaded`；Android 设置由 JNI 下发，生产会话不调用 `Load`） |
+| `7f331a4b` / `90a1bccc` / `b75ac150` / `500049fd` | 上游 #5000 文档、#5016 ngs2 SystemSetup 校验错误、#4963 删除未用设置代码、#5122 audioin include |
+| `0dd825ab` | 上游 #4740：基础 HLE 键盘库（fork：`posix_pthread_rename_np` 的 libkernel 注册已存在，不重复加；键盘实现依赖 SDL，Android host 与 `sdl_mouse.cpp` 一样排除，注册只在桌面，Android 原本就不准入 libSceKeyboard） |
+| `6da66f78` | #5044 移植回归修复：裸名字 `NoType` 符号在自身导出里找不到时恢复“未解析”，血源 libSceFios2 `module_stop` 不再让 Prepare 失败 |
+| `2f410a1f` / `dc4ea418` | 血源切场景崩溃：guest 写回诊断，以及 DRS 回写只写仍被跟踪、且在新描述符范围内的页，见 [血源 DRS 回写](bloodborne-drs-writeback-20260926.md) |
 
 ### #5047 的 fork 适配
 
@@ -56,7 +61,8 @@
 
 ## 未合入的上游 PR
 
-- #5069 / #5096：Linux userfaultfd 专用（注册、合并 Unmap、按 GPU 线程 tid 走 `assume_locks`）。fork 的 Android/Windows 走信号路径，fault 在 GPUComm 线程上发生时 `SendCommand` 已直接执行，行为等价。
+- #5069：userfaultfd 专用（保留注册、`Unmap` 返回合并后的范围、记录 GPU 线程 tid），并删掉 `SendCommand` 在 GPU 线程上直接执行的捷径、改为显式 `assume_locks`。
+- #5096：改的是信号路径 `SignalImpl::GuestFaultSignalHandler`（不只 Linux）：fault 落在 GPUComm 线程上时带 `assume_locks` 调 `Invalidate/ReadMemory`，避免 `SendCommand` 等待自己。fork 保留了 `SendCommand` 在 GPU 线程上直接执行的捷径，效果等价，无需合入。
 - #5113：针对上游新的 session 调度器；fork 的 `on_submit` 已在结束命令缓冲之前调用。
 - #5119：fork 已去掉启动时的 `io.Fonts->Build()`，且有自己的 `RendererHasTextures`（SDF 字体整图替换）实现；上游的 Vulkan 纹理管理与之重复。
 - #5100（内存跟踪器重写 + 批量上传）：见下。
