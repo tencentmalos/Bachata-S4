@@ -8,6 +8,7 @@
 #include <common/path_util.h>
 #include <common/scm_rev.h>
 #include <toml.hpp>
+#include "common/assert.h"
 #include "common/logging/formatter.h"
 #include "common/logging/log.h"
 #include "emulator_settings.h"
@@ -104,10 +105,7 @@ void EmulatorSettingsImpl::PrintChangedSummary(const std::vector<std::string>& c
 // ── Singleton ────────────────────────────────────────────────────────
 EmulatorSettingsImpl::EmulatorSettingsImpl() = default;
 
-EmulatorSettingsImpl::~EmulatorSettingsImpl() {
-    if (m_loaded)
-        Save();
-}
+EmulatorSettingsImpl::~EmulatorSettingsImpl() {}
 
 std::shared_ptr<EmulatorSettingsImpl> EmulatorSettingsImpl::GetInstance() {
     std::lock_guard lock(s_mutex);
@@ -408,7 +406,6 @@ bool EmulatorSettingsImpl::Load(const std::string& serial) {
                     // No interactive message box on Android; auto-migrate the old
                     // config when present, else fall through to defaults.
                     if (TransferSettings()) {
-                        m_loaded = true;
                         Save();
                         return true;
                     }
@@ -432,7 +429,6 @@ bool EmulatorSettingsImpl::Load(const std::string& serial) {
                     SDL_ShowMessageBox(&msg_box, &result);
                     if (result == 0) {
                         if (TransferSettings()) {
-                            m_loaded = true;
                             Save();
                             return true;
                         } else {
@@ -450,7 +446,6 @@ bool EmulatorSettingsImpl::Load(const std::string& serial) {
             if (GetConfigVersion() != Common::g_scm_rev) {
                 Save();
             }
-            m_loaded = true;
             return true;
         } else {
             // ── Per-game override file ─────────────────────────────────
@@ -502,7 +497,7 @@ bool EmulatorSettingsImpl::Load(const std::string& serial) {
             return true;
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(Config, "Error loading settings: {}", e.what());
+        UNREACHABLE_MSG("Error loading settings: {}", e.what());
         return false;
     }
 }
