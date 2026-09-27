@@ -375,8 +375,6 @@ set(KERNEL_LIB src/core/libraries/kernel/coredump/coredump.cpp
                src/core/libraries/kernel/threads/pthread_spec.cpp
                src/core/libraries/kernel/threads/rwlock.cpp
                src/core/libraries/kernel/threads/semaphore.cpp
-               src/core/libraries/kernel/threads/sleepq.cpp
-               src/core/libraries/kernel/threads/sleepq.h
                src/core/libraries/kernel/threads/stack.cpp
                src/core/libraries/kernel/threads/tcb.cpp
                src/core/libraries/kernel/threads/pthread.h
@@ -905,6 +903,7 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/aerolib/aerolib.h
          src/core/address_space.cpp
          src/core/address_space.h
+         src/core/guest_read_cache.h
          src/core/crypto/crypto.cpp
          src/core/crypto/crypto.h
          src/core/crypto/keys.h
@@ -1181,6 +1180,7 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/buffer_cache/buffer_cache.h
                src/video_core/buffer_cache/fault_manager.cpp
                src/video_core/buffer_cache/fault_manager.h
+               src/video_core/buffer_cache/gpu_byte_keeper.h
                src/video_core/buffer_cache/memory_tracker.h
                src/video_core/buffer_cache/range_set.h
                src/video_core/buffer_cache/region_definitions.h
@@ -1910,6 +1910,17 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_pad_tests PRIVATE shadps4_host spatial::foundation_input)
         target_include_directories(guest_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        # Shared kernel synchronization core (also runs on desktop).
+        add_executable(sync_core_tests tests/sync/sync_core_tests.cpp)
+        add_executable(host_event_flag_tests tests/host_runtime/guest_event_flag_tests.cpp)
+        target_include_directories(host_event_flag_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(host_event_flag_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        target_include_directories(sync_core_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(sync_core_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_equeue_tests tests/host_runtime/guest_equeue_tests.cpp)
+        target_link_libraries(guest_equeue_tests PRIVATE shadps4_host)
+        target_include_directories(guest_equeue_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_equeue_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_condition_tests tests/host_runtime/guest_condition_tests.cpp)
         target_link_libraries(guest_condition_tests PRIVATE shadps4_host)
         target_include_directories(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

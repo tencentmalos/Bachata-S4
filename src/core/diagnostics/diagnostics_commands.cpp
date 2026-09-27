@@ -209,7 +209,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "Guest command buffer structure census (default off): start [detailed_frames] | status | stop",
         [](const std::vector<std::string>& args) { return AmdGpu::Pm4Stats::Command(args); });
     registry.Register("upload_diag",
-        "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off",
+        "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off | raw_sync on|off | raw_copy on|off",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
 
     registry.Register("log_stats",
@@ -230,6 +230,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "NaNs) or overlapping a range (default off): start [pattern_hex] | range <address> "
         "<bytes> | status | dump [count] | stop",
         [](const std::vector<std::string>& args) { return Core::GuestWriteWatch::Command(args); });
+
+    registry.Register("vm_free_index",
+        "MemoryManager::Free direct-mapping lookup: status | verify on|off",
+        [](const std::vector<std::string>& args) {
+            return Core::Memory::Instance()->FreeIndexControl(args);
+        });
 
     registry.Register("memory_describe",
         "Guest address: mapping, physical address, aliases, recent mapping changes and bytes: "

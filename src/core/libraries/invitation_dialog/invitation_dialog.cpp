@@ -14,9 +14,10 @@
 
 namespace Libraries::InvitationDialog {
 
+// The UI points at the status and state: it is declared after them so it is destroyed first.
 static auto g_status = Libraries::CommonDialog::Status::NONE;
-static InvitationDialogUi g_dialog_ui;
 static DialogState g_state;
+static InvitationDialogUi g_dialog_ui;
 
 s32 PS4_SYSV_ABI sceInvitationDialogGetResultA(OrbisInvitationDialogResultA* result) {
     LOG_DEBUG(Lib_InvitationDialog, "Getting invitation dialog result (async), result ptr={}",

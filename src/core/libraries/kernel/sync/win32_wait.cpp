@@ -7,6 +7,8 @@
 
 #include <windows.h>
 
+#pragma comment(lib, "synchronization.lib")
+
 namespace Libraries::Kernel::Win32 {
 
 static_assert(Infinite == INFINITE);
@@ -40,6 +42,19 @@ void CloseObject(Handle handle) {
 
 u32 LastError() {
     return GetLastError();
+}
+
+bool WaitOnAddress32(const volatile void* address, u32 compare, u32 milliseconds) {
+    return ::WaitOnAddress(const_cast<volatile void*>(address), &compare, sizeof(compare),
+                           milliseconds) != FALSE;
+}
+
+void WakeAddressSingle(const volatile void* address) {
+    ::WakeByAddressSingle(const_cast<void*>(address));
+}
+
+void WakeAddressAll(const volatile void* address) {
+    ::WakeByAddressAll(const_cast<void*>(address));
 }
 
 } // namespace Libraries::Kernel::Win32

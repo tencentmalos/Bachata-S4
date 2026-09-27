@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "core/host_runtime/guest_sync_metrics.h"
-#include <algorithm>
+#include <array>
 #include <atomic>
-#include <chrono>
-#include <condition_variable>
 #include <cstring>
-#include <list>
-#include <map>
 #include <memory>
-#include <mutex>
+#include <span>
 #include <stop_token>
 #include <string>
+#include <string_view>
 #include <vector>
 #if defined(__ANDROID__)
 #include <android/log.h>
@@ -19,39 +16,23 @@
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/kernel/orbis_error.h"
+#include "core/libraries/kernel/sync/kernel_semaphore.h"
+#include "core/libraries/kernel/sync/object_table.h"
 namespace Core::HostRuntime {
 // Orbis 32-bit SlotId ABI is distinct from the POSIX sem_t guest-pointer ABI.
-// Mirrors desktop OrbisSem token/priority/cancel/delete behavior without g_curthread.
+// The semaphore itself (token accounting, waiter order, wake protocol) is the
+// shared Libraries::Kernel::Sync::KernelSemaphore the desktop kernel also uses;
+// this layer only decodes guest arguments, checks guest pointers and publishes
+// ids. Each semaphore has its own lock; the id table is locked only for lookup.
 class GuestKernelSemaphore {
-    using Clock = std::chrono::steady_clock;
+    using Semaphore = Libraries::Kernel::Sync::KernelSemaphore;
     struct Failure {
         int error;
     };
-    struct Waiter {
-        Waiter(s32 need, s32 priority) : need(need), priority(priority) {}
-        // Each waiter parks on its own mutex/condition. The domain mutex only
-        // orders selection; the wakeup itself is issued after the domain mutex
-        // is released, so the woken thread never contends with the signaller
-        // for the domain lock (no "hurry up and wait" second futex round trip).
-        std::mutex park;
-        std::condition_variable_any parked;
-        s32 need, priority;
-        bool done{};
-        s32 result{};
-    };
-    struct Semaphore {
-        s32 value{}, initial{}, maximum{};
-        bool fifo{};
-        std::string name;
-        std::list<std::shared_ptr<Waiter>> waiters;
-    };
-    using Wakes = std::vector<std::shared_ptr<Waiter>>;
     GuestCpu::GuestAddressSpace& space;
+    Libraries::Kernel::Sync::ObjectTable<Semaphore> objects{4096};
+    std::atomic<bool> foreground_admitted{};
 
-    mutable std::mutex mutex;
-    std::map<u32, std::shared_ptr<Semaphore>> objects;
-    static inline std::atomic<u32> next_id{1};
-    bool foreground_admitted{};
     static void Trace(std::string_view nid, u32 id, const Semaphore& sem, s32 requested,
                       s32 result) {
 #if defined(__ANDROID__)
@@ -60,16 +41,17 @@ class GuestKernelSemaphore {
         // atomic RMW on every semaphore operation.
         if (count.load(std::memory_order_relaxed) >= 256)
             return;
-        if (nid == "188x57JYp0g" && sem.name != "SuspendSemaphore" &&
-            sem.name != "ResumeSemaphore")
+        if (nid == "188x57JYp0g" && sem.Name() != "SuspendSemaphore" &&
+            sem.Name() != "ResumeSemaphore")
             return;
         const u32 index = count.fetch_add(1, std::memory_order_relaxed);
         if (index < 256) {
+            const auto state = sem.Snapshot();
             __android_log_print(ANDROID_LOG_INFO, "GuestKernelSema",
                                 "trace=%u nid=%.*s id=%u name=%s value=%d initial=%d max=%d requested=%d result=%d waiters=%zu",
                                 index, static_cast<int>(nid.size()), nid.data(), id,
-                                sem.name.c_str(), sem.value, sem.initial, sem.maximum, requested,
-                                result, sem.waiters.size());
+                                sem.Name().c_str(), state.value, state.initial, state.maximum,
+                                requested, result, state.waiters);
         }
 #else
         (void)nid;
@@ -84,9 +66,9 @@ class GuestKernelSemaphore {
             throw Failure{error};
     }
     std::shared_ptr<Semaphore> Find(u32 id) {
-        auto it = objects.find(id);
-        Need(it != objects.end(), ORBIS_KERNEL_ERROR_ESRCH);
-        return it->second;
+        auto sem = objects.Find(id);
+        Need(sem != nullptr, ORBIS_KERNEL_ERROR_ESRCH);
+        return sem;
     }
     template <class T>
     T Read(u64 address) {
@@ -106,41 +88,10 @@ class GuestKernelSemaphore {
         return address && bool(space.ValidateRange({GuestCpu::GuestAddress{address}, size},
                                                    GuestCpu::GuestPermission::Write));
     }
-    // Marks the waiter complete under its own park lock (the waiter reads
-    // `done` under that lock) and defers the notification to after the domain
-    // mutex is released. Requires the domain mutex.
-    static void Complete(const std::shared_ptr<Waiter>& waiter, s32 result, Wakes& wakes) {
-        {
-            std::lock_guard park(waiter->park);
-            waiter->done = true;
-            waiter->result = result;
-        }
-        wakes.push_back(waiter);
+    bool Lifecycle(const Semaphore& sem) const {
+        return foreground_admitted.load(std::memory_order_relaxed) &&
+               (sem.Name() == "SuspendSemaphore" || sem.Name() == "ResumeSemaphore");
     }
-    static void Wake(Semaphore& sem, Wakes& wakes) {
-        for (auto it = sem.waiters.begin(); it != sem.waiters.end();) {
-            auto& waiter = *it;
-            if (waiter->need > sem.value) {
-                ++it;
-                continue;
-            } // same satisfiable-waiter scan as desktop
-            sem.value -= waiter->need;
-            Complete(waiter, 0, wakes);
-            it = sem.waiters.erase(it);
-        }
-    }
-    // Releases the domain mutex (if still held) and only then notifies the
-    // selected waiters. Runs on every exit path, including Failure throws.
-    struct DeferredWakes {
-        std::unique_lock<std::mutex>& lock;
-        Wakes wakes;
-        ~DeferredWakes() {
-            if (lock.owns_lock())
-                lock.unlock();
-            for (auto& waiter : wakes)
-                waiter->parked.notify_one();
-        }
-    };
 
 public:
     GuestKernelSemaphore(GuestCpu::GuestAddressSpace& space) : space(space) {}
@@ -151,13 +102,11 @@ public:
     // initial foreground/resume edge into the guest domain.
     // Desktop remains unchanged because it never enables this flag.
     void AdmitForeground() {
-        std::lock_guard lock(mutex);
-        foreground_admitted = true;
+        foreground_admitted.store(true, std::memory_order_relaxed);
     }
     u32 Waiting(u32 id) const {
-        std::lock_guard lock(mutex);
-        auto it = objects.find(id);
-        return it == objects.end() ? 0 : it->second->waiters.size();
+        auto sem = objects.Find(id);
+        return sem ? static_cast<u32>(sem->Waiting()) : 0;
     }
     u64 Dispatch(std::string_view nid, const std::array<u64, 6>& a, s32 priority,
                  std::stop_token stop = {}) {
@@ -169,7 +118,6 @@ public:
                 u32 timeout{};
                 std::vector<GuestAddressSpace::MappingIdentity> identities;
                 if (!poll && a[2]) {
-
                     auto pin = space.AcquireDataSpan({GuestAddress{a[2]}, 4}, true, stop);
                     Need(bool(pin), ORBIS_KERNEL_ERROR_EFAULT);
                     std::memcpy(&timeout, pin.Value().Bytes().data(), 4);
@@ -181,91 +129,39 @@ public:
                         at = next;
                     }
                 }
-                SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-                std::unique_lock lock(mutex);
-                guard_phase.End();
                 const u32 id = u32(a[0]);
                 auto sem = Find(id);
-                Need(need > 0 && need <= sem->maximum, ORBIS_KERNEL_ERROR_EINVAL);
-                if (foreground_admitted &&
-                    (sem->name == "SuspendSemaphore" || sem->name == "ResumeSemaphore") &&
-                    sem->value < need) {
+                Need(need > 0 && need <= sem->Snapshot().maximum, ORBIS_KERNEL_ERROR_EINVAL);
+                if (Lifecycle(*sem)) {
                     // Until the Android lifecycle bridge gains a matching
                     // background/revoke callback, an admitted foreground is
                     // a level, not a one-shot edge. Do not affect any other
                     // guest semaphore or desktop behavior.
-                    sem->value = need;
+                    sem->RaiseTo(need);
                 }
-                Trace(nid, id, *sem, need, sem->value);
-                if (stop.stop_requested())
-                    return u32(ORBIS_KERNEL_ERROR_EINTR);
-                if (sem->value >= need) {
-                    sem->value -= need;
-                    Trace(nid, id, *sem, need, 0);
-                    return 0;
+                if (poll) {
+                    if (stop.stop_requested())
+                        return u32(ORBIS_KERNEL_ERROR_EINTR);
+                    const s32 result = sem->Poll(need);
+                    Trace(nid, id, *sem, need, result);
+                    return u32(result);
                 }
-                if (poll)
-                    return u32(ORBIS_KERNEL_ERROR_EBUSY);
-                if (a[2] && !timeout)
-                    return u32(ORBIS_KERNEL_ERROR_ETIMEDOUT);
-                auto waiter = std::make_shared<Waiter>(need, priority);
-                auto at = sem->waiters.end();
-                if (!sem->fifo)
-                    at = std::ranges::find_if(
-                        sem->waiters, [&](const auto& item) { return item->priority > priority; });
-                sem->waiters.insert(at, waiter);
-                const auto deadline = Clock::now() + std::chrono::microseconds(timeout);
-                // Park on the waiter's own lock. Signal/Cancel/Delete mark
-                // `done` under that lock and notify after releasing the domain
-                // mutex, so the wakeup never contends with the signaller here.
-                lock.unlock();
-                {
-                    SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-                    std::unique_lock park(waiter->park);
-                    const auto ready = [&] { return waiter->done; };
-                    if (a[2])
-                        waiter->parked.wait_until(park, stop, deadline, ready);
-                    else
-                        waiter->parked.wait(park, stop, ready);
-                }
-                lock.lock();
-                // A selection that raced with our timeout/cancel already
-                // consumed tokens for us; it must not be reported as a failure.
-                sem->waiters.remove(waiter);
-                bool done{};
-                s32 completion{};
-                {
-                    std::lock_guard park(waiter->park);
-                    done = waiter->done;
-                    completion = waiter->result;
-                }
-                s32 result = done                    ? completion
-                             : stop.stop_requested() ? ORBIS_KERNEL_ERROR_EINTR
-                                                     : ORBIS_KERNEL_ERROR_ETIMEDOUT;
+                bool parked = false;
+                SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
+                const s32 result = sem->Wait(need, u32(priority), a[2] ? &timeout : nullptr,
+                                             stop, &parked);
+                park_phase.End();
                 Trace(nid, id, *sem, need, result);
-                lock.unlock();
-                if (a[2]) {
-                    const s64 remaining = std::chrono::duration_cast<std::chrono::microseconds>(
-                                              deadline - Clock::now())
-                                              .count();
-                    const u32 left = !result ? std::clamp<s64>(remaining, 0, timeout) : 0;
-
+                if (a[2] && parked) {
+                    // The time left goes back only to the mapping that supplied the budget.
                     const GuestAddressSpace::DataRequest request{
                         {GuestAddress{a[2]}, 4}, GuestPermission::Write, identities};
                     auto pinned = space.AcquireDataBatch({&request, 1});
                     Need(bool(pinned), ORBIS_KERNEL_ERROR_EFAULT);
-                    std::memcpy(pinned.Value()[0].WritableBytes().data(), &left, 4);
+                    std::memcpy(pinned.Value()[0].WritableBytes().data(), &timeout, 4);
                 }
                 return u32(result);
             }
-            // Only this semaphore domain is synchronized below; no wait/callback.
-            // Selected waiters are notified by `deferred` after the domain mutex
-            // is released.
-
-            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-            std::unique_lock lock(mutex);
-            guard_phase.End();
-            DeferredWakes deferred{lock};
             if (nid == "188x57JYp0g") {
                 Need(a[1] && u32(a[2]) <= 2 && s32(a[3]) >= 0 && s32(a[4]) > 0 &&
                          s32(a[3]) <= s32(a[4]) && !a[5],
@@ -280,53 +176,48 @@ public:
                     Need(i < 31, ORBIS_KERNEL_ERROR_ENAMETOOLONG);
                     name += c;
                 }
-                Need(objects.size() < 4096, ORBIS_KERNEL_ERROR_ENOMEM);
-                auto sem = std::make_shared<Semaphore>();
-                sem->value = sem->initial = s32(a[3]);
-                sem->maximum = s32(a[4]);
-                sem->fifo = u32(a[2]) == 1;
-                sem->name = std::move(name);
-                if (foreground_admitted &&
-                    (sem->name == "SuspendSemaphore" || sem->name == "ResumeSemaphore") &&
-                    sem->value == 0)
-                    sem->value = sem->initial = 1;
-                const u32 id = next_id.fetch_add(1);
-                Need(id && id < INT32_MAX, ORBIS_KERNEL_ERROR_ENOMEM);
-                objects.emplace(id, sem);
-                Trace(nid, id, *sem, 0, 0);
+                s32 initial = s32(a[3]);
+                const bool lifecycle = foreground_admitted.load(std::memory_order_relaxed) &&
+                                       (name == "SuspendSemaphore" || name == "ResumeSemaphore");
+                if (lifecycle && initial == 0)
+                    initial = 1;
+                auto sem = std::make_shared<Semaphore>(std::move(name), initial, s32(a[4]),
+                                                       u32(a[2]) == 1);
+                const auto id = objects.Insert(sem);
+                Need(id.has_value(), ORBIS_KERNEL_ERROR_ENOMEM);
+                Trace(nid, *id, *sem, 0, 0);
                 try {
-                    Put(a[0], id);
+                    Put(a[0], *id);
                 } catch (...) {
-                    objects.erase(id);
+                    objects.Erase(*id);
                     throw;
                 }
                 return 0;
             }
-            auto sem = Find(u32(a[0]));
             if (nid == "4czppHBiriw") {
-                const s32 count = a[1];
-                Need(count > 0 && count <= sem->maximum - sem->value, ORBIS_KERNEL_ERROR_EINVAL);
-                sem->value += count;
-                Wake(*sem, deferred.wakes);
-                Trace(nid, u32(a[0]), *sem, count, 0);
-                return 0;
+                auto sem = Find(u32(a[0]));
+                const s32 result = sem->Signal(s32(a[1]));
+                Trace(nid, u32(a[0]), *sem, s32(a[1]), result);
+                return u32(result);
             }
             if (nid == "4DM06U2BNEY") {
+                auto sem = Find(u32(a[0]));
                 const s32 count = a[1];
-                Need(count <= sem->maximum, ORBIS_KERNEL_ERROR_EINVAL);
-                if (a[2])
-                    Put(a[2], s32(sem->waiters.size()));
-                for (auto& waiter : sem->waiters)
-                    Complete(waiter, ORBIS_KERNEL_ERROR_ECANCELED, deferred.wakes);
-                sem->waiters.clear();
-                sem->value = count < 0 ? sem->initial : count;
-                return 0;
+                Need(count <= sem->Snapshot().maximum, ORBIS_KERNEL_ERROR_EINVAL);
+                if (a[2]) {
+                    // Validated before any waiter is released, as the waiter count is an output.
+                    Need(Writable(a[2], 4), ORBIS_KERNEL_ERROR_EFAULT);
+                }
+                s32 waiters{};
+                const s32 result = sem->Cancel(count, &waiters);
+                if (result == ORBIS_OK && a[2])
+                    Put(a[2], waiters);
+                return u32(result);
             }
             if (nid == "R1Jvn8bSCW8") {
-                for (auto& waiter : sem->waiters)
-                    Complete(waiter, ORBIS_KERNEL_ERROR_EACCES, deferred.wakes);
-                sem->waiters.clear();
-                objects.erase(u32(a[0]));
+                auto sem = objects.Erase(u32(a[0]));
+                Need(sem != nullptr, ORBIS_KERNEL_ERROR_ESRCH);
+                sem->Delete();
                 return 0;
             }
             return u32(ORBIS_KERNEL_ERROR_EINVAL);

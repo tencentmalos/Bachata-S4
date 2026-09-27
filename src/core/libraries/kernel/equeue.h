@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
+#include <optional>
+#include <stop_token>
 #include <string>
 #include <vector>
 #include <boost/asio/steady_timer.hpp>
@@ -140,6 +143,13 @@ private:
     bool is_triggered = false;
 };
 
+enum class EqueueWaitResult {
+    Ready,       // triggered events or expired small timers are pending
+    TimedOut,    // the deadline passed first
+    Interrupted, // the stop token was requested
+    Closed,      // the queue was closed (deleted)
+};
+
 class EqueueInternal {
     struct SmallTimer {
         OrbisKernelEvent event;
@@ -148,6 +158,10 @@ class EqueueInternal {
     };
 
 public:
+    /// Small timers expire at sub-millisecond precision the condition variable cannot give: a
+    /// waiter sleeps until this long before the expiry, then yields.
+    static constexpr std::chrono::microseconds SmallTimerSpin{200};
+
     explicit EqueueInternal(OrbisKernelEqueue handle, std::string_view name)
         : m_handle(handle), m_name(name) {}
 
@@ -159,9 +173,18 @@ public:
     bool ScheduleEvent(u64 id, s16 filter,
                        void (*callback)(OrbisKernelEqueue, const OrbisKernelEvent&));
     bool RemoveEvent(u64 id, s16 filter);
+    /// Guest wait (desktop): waits and consumes; timo null waits forever, *timo == 0 polls.
     int WaitForEvents(OrbisKernelEvent* ev, int num, const OrbisKernelUseconds* timo);
     bool TriggerEvent(u64 ident, s16 filter, void* trigger_data);
-    int GetTriggeredEvents(OrbisKernelEvent* ev, int num);
+
+    /// Waits until events can be taken, without consuming them. Shared by the desktop wait and
+    /// the Android HLE wait (which pins its output between waiting and taking).
+    EqueueWaitResult WaitReady(std::optional<std::chrono::steady_clock::time_point> deadline,
+                               std::stop_token stop);
+    /// Consumes up to `num` triggered events and expired small timers.
+    int TakeTriggered(OrbisKernelEvent* ev, int num);
+    /// Wakes every waiter with EqueueWaitResult::Closed; no event is taken afterwards.
+    void Close();
 
     bool AddSmallTimer(EqueueEvent& event);
     bool HasSmallTimer() {
@@ -171,22 +194,29 @@ public:
     bool RemoveSmallTimer(u64 id) {
         if (HasSmallTimer()) {
             std::scoped_lock lock{m_mutex};
+            ++m_small_timer_generation;
             return m_small_timers.erase(id) > 0;
         }
         return false;
     }
 
-    int WaitForSmallTimer(OrbisKernelEvent* ev, int num, u32 micros);
-
     bool EventExists(u64 id, s16 filter);
 
 private:
+    /// Under m_mutex: whether anything can be taken at `now`; the earliest pending small timer
+    /// expiry is lowered into *next_timer.
+    bool HasReadyLocked(std::chrono::steady_clock::time_point now,
+                        std::chrono::steady_clock::time_point* next_timer) const;
+    int TakeTriggeredLocked(OrbisKernelEvent* ev, int num);
+
     OrbisKernelEqueue m_handle;
     std::string m_name;
     std::mutex m_mutex;
     std::vector<EqueueEvent> m_events;
-    std::condition_variable m_cond;
+    std::condition_variable_any m_cond;
     std::unordered_map<u64, SmallTimer> m_small_timers;
+    bool m_closed{};
+    u64 m_small_timer_generation{}; // bumped when small timers are added or removed
 };
 
 class SessionEqueues {

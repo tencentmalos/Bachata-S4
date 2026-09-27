@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <chrono>
+
 #include "common/elf_info.h"
 #include "core/libraries/kernel/kernel.h"
 #include "core/libraries/kernel/posix_error.h"
@@ -30,18 +33,48 @@ static s32 sdk_version;
     }
 
 static int RwlockInit(PthreadRwlockT* rwlock, const PthreadRwlockAttrT* attr) {
-    auto* prwlock = new (std::nothrow) PthreadRwlock{};
+    u32 type = 0;
+    if (attr != nullptr && *attr != nullptr) {
+        if ((*attr)->type > 2) {
+            if (sdk_version >= Common::ElfInfo::FW_450) {
+                return POSIX_EINVAL;
+            }
+        } else {
+            type = static_cast<u32>((*attr)->type);
+        }
+    }
+    auto* prwlock = new (std::nothrow) PthreadRwlock{type};
     if (prwlock == nullptr) {
         return POSIX_ENOMEM;
     }
-    if (attr != nullptr && sdk_version >= Common::ElfInfo::FW_450) {
-        if ((*attr)->type > 2) {
-            delete prwlock;
-            return POSIX_EINVAL;
-        }
-    }
     *rwlock = prwlock;
     return 0;
+}
+
+// The calling thread's identity as a lock owner.
+static u64 RwlockOwner() {
+    return reinterpret_cast<u64>(g_curthread);
+}
+
+static int RwlockAcquire(PthreadRwlock* prwlock, bool write, const OrbisKernelTimespec* abstime) {
+    const u64 owner = RwlockOwner();
+    Sync::ParkerWait no_wait{{}};
+    // POSIX: the timeout need not be validated when the lock can be taken at once.
+    if (prwlock->lock.Lock(owner, write, true, no_wait) == 0) {
+        return 0;
+    }
+    if (abstime && (abstime->tv_nsec >= 1000000000 || abstime->tv_nsec < 0)) [[unlikely]] {
+        return POSIX_EINVAL;
+    }
+    Sync::Deadline deadline;
+    if (abstime != nullptr) {
+        const auto left = abstime->TimePoint() - std::chrono::system_clock::now();
+        deadline = std::chrono::steady_clock::now() +
+                   std::chrono::duration_cast<std::chrono::steady_clock::duration>(
+                       std::max(left, decltype(left)::zero()));
+    }
+    Sync::ParkerWait wait{{}, deadline};
+    return prwlock->lock.Lock(owner, write, false, wait);
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_destroy(PthreadRwlockT* rwlock) {
@@ -51,6 +84,9 @@ int PS4_SYSV_ABI posix_pthread_rwlock_destroy(PthreadRwlockT* rwlock) {
     }
     if (prwlock == THR_RWLOCK_DESTROYED) {
         return POSIX_EINVAL;
+    }
+    if (prwlock->lock.Busy()) {
+        return POSIX_EBUSY;
     }
     *rwlock = THR_RWLOCK_DESTROYED;
     delete prwlock;
@@ -75,60 +111,11 @@ int PS4_SYSV_ABI posix_pthread_rwlock_init(PthreadRwlockT* rwlock, const Pthread
 }
 
 int PthreadRwlock::Rdlock(const OrbisKernelTimespec* abstime) {
-    Pthread* curthread = g_curthread;
-
-    /*
-     * POSIX said the validity of the abstimeout parameter need
-     * not be checked if the lock can be immediately acquired.
-     */
-    if (lock.try_lock_shared()) {
-        curthread->rdlock_count++;
-        return 0;
-    }
-    if (abstime && (abstime->tv_nsec >= 1000000000 || abstime->tv_nsec < 0)) [[unlikely]] {
-        return POSIX_EINVAL;
-    }
-
-    // Note: On interruption an attempt to relock the mutex is made.
-    if (abstime != nullptr) {
-        if (!lock.try_lock_shared_until(abstime->TimePoint())) {
-            return POSIX_ETIMEDOUT;
-        }
-    } else {
-        lock.lock_shared();
-    }
-
-    curthread->rdlock_count++;
-    return 0;
+    return RwlockAcquire(this, false, abstime);
 }
 
 int PthreadRwlock::Wrlock(const OrbisKernelTimespec* abstime) {
-    Pthread* curthread = g_curthread;
-
-    /*
-     * POSIX said the validity of the abstimeout parameter need
-     * not be checked if the lock can be immediately acquired.
-     */
-    if (lock.try_lock()) {
-        owner = curthread;
-        return 0;
-    }
-
-    if (abstime && (abstime->tv_nsec >= 1000000000 || abstime->tv_nsec < 0)) {
-        return POSIX_EINVAL;
-    }
-
-    // Note: On interruption an attempt to relock the mutex is made.
-    if (abstime != nullptr) {
-        if (!lock.try_lock_until(abstime->TimePoint())) {
-            return POSIX_ETIMEDOUT;
-        }
-    } else {
-        lock.lock();
-    }
-
-    owner = curthread;
-    return 0;
+    return RwlockAcquire(this, true, abstime);
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_rdlock(PthreadRwlockT* rwlock) {
@@ -145,28 +132,17 @@ int PS4_SYSV_ABI posix_pthread_rwlock_timedrdlock(PthreadRwlockT* rwlock,
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_tryrdlock(PthreadRwlockT* rwlock) {
-    Pthread* curthread = g_curthread;
     PthreadRwlockT prwlock{};
     CHECK_AND_INIT_RWLOCK
-
-    if (!prwlock->lock.try_lock_shared()) {
-        return POSIX_EBUSY;
-    }
-
-    curthread->rdlock_count++;
-    return 0;
+    Sync::ParkerWait no_wait{{}};
+    return prwlock->lock.Lock(RwlockOwner(), false, true, no_wait);
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_trywrlock(PthreadRwlockT* rwlock) {
-    Pthread* curthread = g_curthread;
     PthreadRwlockT prwlock{};
     CHECK_AND_INIT_RWLOCK
-
-    if (!prwlock->lock.try_lock()) {
-        return POSIX_EBUSY;
-    }
-    prwlock->owner = curthread;
-    return 0;
+    Sync::ParkerWait no_wait{{}};
+    return prwlock->lock.Lock(RwlockOwner(), true, true, no_wait);
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_wrlock(PthreadRwlockT* rwlock) {
@@ -183,23 +159,11 @@ int PS4_SYSV_ABI posix_pthread_rwlock_timedwrlock(PthreadRwlockT* rwlock,
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_unlock(PthreadRwlockT* rwlock) {
-    Pthread* curthread = g_curthread;
     PthreadRwlockT prwlock = *rwlock;
     if (prwlock <= THR_RWLOCK_DESTROYED) [[unlikely]] {
         return POSIX_EINVAL;
     }
-
-    if (prwlock->owner == curthread) {
-        prwlock->owner = nullptr;
-        prwlock->lock.unlock();
-    } else {
-        if (prwlock->owner == nullptr) {
-            curthread->rdlock_count--;
-        }
-        prwlock->lock.unlock_shared();
-    }
-
-    return 0;
+    return prwlock->lock.Unlock(RwlockOwner());
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlockattr_destroy(PthreadRwlockAttrT* rwlockattr) {
@@ -247,7 +211,7 @@ int PS4_SYSV_ABI posix_pthread_rwlockattr_init(PthreadRwlockAttrT* rwlockattr) {
 
 int PS4_SYSV_ABI posix_pthread_rwlockattr_settype_np(const PthreadRwlockAttrT* rwlockattr,
                                                      int type) {
-    if (rwlockattr == nullptr || *rwlockattr == nullptr || (*rwlockattr)->type > 2) {
+    if (rwlockattr == nullptr || *rwlockattr == nullptr || type < 0 || type > 2) {
         return POSIX_EINVAL;
     }
     (*rwlockattr)->type = type;

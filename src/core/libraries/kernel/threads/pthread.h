@@ -13,6 +13,8 @@
 #include "common/enum.h"
 #include "common/shared_first_mutex.h"
 #include "core/libraries/kernel/sync/mutex.h"
+#include "core/libraries/kernel/sync/condition_variable.h"
+#include "core/libraries/kernel/sync/rw_lock.h"
 #include "core/libraries/kernel/sync/semaphore.h"
 #include "core/libraries/kernel/threads/exception.h"
 #include "core/libraries/kernel/time.h"
@@ -135,9 +137,10 @@ enum class ClockId : u32 {
     ThreadCputimeID = 14,
 };
 
+// The waiting and notification protocol is the shared Sync::ConditionVariable the Android host
+// runtime also uses.
 struct PthreadCond {
-    bool has_user_waiters;
-    bool has_kern_waiters;
+    Sync::ConditionVariable cv;
     u32 flags;
     ClockId clock_id;
     std::string name;
@@ -209,9 +212,10 @@ struct PthreadRwlockAttr {
 };
 using PthreadRwlockAttrT = PthreadRwlockAttr*;
 
+// The lock is the shared Sync::RwLock the Android host runtime also uses.
 struct PthreadRwlock {
-    Common::SharedFirstMutex lock;
-    Pthread* owner;
+    explicit PthreadRwlock(u32 type = 0) : lock{type} {}
+    Sync::RwLock lock;
 
     int Wrlock(const OrbisKernelTimespec* abstime);
     int Rdlock(const OrbisKernelTimespec* abstime);
@@ -264,7 +268,6 @@ using PthreadEntryFunc = void* PS4_SYSV_ABI (*)(void*);
 
 constexpr s32 TidTerminated = 1;
 
-struct SleepQueue;
 
 struct SchedParam {
     int sched_priority;
@@ -316,8 +319,6 @@ struct Pthread {
     int event_mask;
     std::string name;
     WakeSemaphore wake_sema{0};
-    SleepQueue* sleepqueue;
-    void* wchan;
     PthreadMutex* mutex_obj;
     bool will_sleep;
     bool has_user_waiters;

@@ -10,8 +10,8 @@
 #include "core/libraries/kernel/kernel.h"
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/threads/pthread.h"
-#include "core/libraries/kernel/threads/sleepq.h"
 #include "core/libraries/kernel/threads/thread_state.h"
+#include "core/libraries/kernel/threads/wait_platform.h"
 #include "core/libraries/libs.h"
 
 namespace Libraries::Kernel {
@@ -91,110 +91,88 @@ int PS4_SYSV_ABI posix_pthread_cond_destroy(PthreadCondT* cond) {
     if (cvp == THR_COND_DESTROYED) {
         return POSIX_EINVAL;
     }
-    cvp = *cond;
+    // Waiters still queued or reacquiring their mutex use the object.
+    if (cvp->cv.Busy()) {
+        return POSIX_EBUSY;
+    }
     *cond = THR_COND_DESTROYED;
     delete cvp;
     return 0;
 }
+
+namespace {
+
+// The desktop side of a condition wait: a pthread cancellation point that sleeps on the thread's
+// wake semaphore and hands its mutex over under the condition lock.
+class CondWait final : public CancellationPointWait {
+public:
+    CondWait(Pthread* curthread_, PthreadMutex* mp_, const OrbisKernelTimespec* abstime,
+             u64 usec, ClockId clock_id)
+        : CancellationPointWait{curthread_, abstime, usec, clock_id}, mp{mp_} {}
+
+    u64 Owner() const {
+        return reinterpret_cast<u64>(curthread);
+    }
+    const void* Context() const {
+        return mp;
+    }
+    int ReleaseMutex() {
+        // The thread is about to sleep: wakes deferred to this unlock are issued when it does.
+        curthread->will_sleep = true;
+        curthread->mutex_obj = mp;
+        return mp->CvUnlock(&recurse);
+    }
+    int ReacquireMutex() {
+        curthread->mutex_obj = nullptr;
+        // Wakes deferred to the unlock above must not be lost if the thread never slept.
+        curthread->will_sleep = false;
+        if (curthread->nwaiter_defer > 0) {
+            curthread->WakeAll();
+        }
+        return mp->CvLock(recurse);
+    }
+
+private:
+    PthreadMutex* mp;
+    int recurse{};
+};
+
+// A notifier holding the waiter's mutex defers its wake until it unlocks the mutex: waking it
+// now would only make it block on that mutex (libthr's deferred wakeup).
+struct DeferToUnlock {
+    Pthread* curthread;
+    bool operator()(const Sync::ConditionVariable::Waiter& waiter) const {
+        auto* mp = static_cast<PthreadMutex*>(const_cast<void*>(waiter.context));
+        if (mp == nullptr || curthread == nullptr || mp->m_owner.load() != curthread) {
+            return false;
+        }
+        if (curthread->nwaiter_defer >= Pthread::MaxDeferWaiters) {
+            curthread->WakeAll();
+        }
+        Pthread* thread = static_cast<const ThreadWaitSlot&>(*waiter.slot).Thread();
+        curthread->defer_waiters[curthread->nwaiter_defer++] = &thread->wake_sema;
+        mp->m_flags |= PthreadMutexFlags::Deferred;
+        return true;
+    }
+};
+
+} // Anonymous namespace
 
 int PthreadCond::Wait(PthreadMutexT* mutex, const OrbisKernelTimespec* abstime, u64 usec) {
     PthreadMutex* mp = *mutex;
     if (const int error = mp->IsOwned(g_curthread); error != 0) {
         return error;
     }
-
     Pthread* curthread = g_curthread;
-    ASSERT_MSG(curthread->wchan == nullptr, "Thread was already on queue.");
     PthreadTestCancel();
-    SleepqLock(this);
-
-    /*
-     * set __has_user_waiters before unlocking mutex, this allows
-     * us to check it without locking in pthread_cond_signal().
-     */
-    has_user_waiters = true;
-    curthread->will_sleep = true;
-
-    int recurse;
-    mp->CvUnlock(&recurse);
-
-    curthread->mutex_obj = mp;
-    SleepqAdd(this, curthread);
-
-    const bool is_reltime = abstime == THR_RELTIME;
-    auto reltime_deadline = std::chrono::steady_clock::time_point{};
-    if (is_reltime) {
-        const auto now = std::chrono::steady_clock::now();
-        const auto max_relative = std::chrono::duration_cast<std::chrono::microseconds>(
-                                      std::chrono::steady_clock::time_point::max() - now)
-                                      .count();
-        reltime_deadline = usec > static_cast<u64>(max_relative)
-                               ? std::chrono::steady_clock::time_point::max()
-                               : now + std::chrono::microseconds(usec);
+    CondWait wait{curthread, mp, abstime, usec, clock_id};
+    const int error = cv.Wait(wait);
+    if (error == POSIX_EINTR) {
+        // Cancellation is pending at this cancellation point; the mutex is held again.
+        PthreadTestCancel();
+        return 0;
     }
-
-    int error = 0;
-    bool first_sleep = true;
-    for (;;) {
-        curthread->cancel_point = true;
-        curthread->ClearWake();
-        const bool cancel_pending = curthread->ShouldCancel();
-        SleepqUnlock(this);
-
-        if (cancel_pending) {
-            error = 0;
-        } else if (!is_reltime) {
-            error = curthread->Sleep(abstime, usec, clock_id) ? 0 : POSIX_ETIMEDOUT;
-        } else if (first_sleep) {
-            first_sleep = false;
-            error = curthread->Sleep(abstime, usec) ? 0 : POSIX_ETIMEDOUT;
-        } else {
-            const auto now = std::chrono::steady_clock::now();
-            if (now >= reltime_deadline) {
-                error = POSIX_ETIMEDOUT;
-            } else {
-                const auto remaining_us =
-                    std::chrono::ceil<std::chrono::microseconds>(reltime_deadline - now);
-                error = curthread->Sleep(abstime, static_cast<u64>(remaining_us.count()))
-                            ? 0
-                            : POSIX_ETIMEDOUT;
-            }
-        }
-        SleepqLock(this);
-        if (curthread->wchan == nullptr) {
-            error = 0;
-            break;
-        } else if (curthread->ShouldCancel()) {
-            if (SleepQueue* sq = SleepqLookup(this); sq != nullptr) {
-                has_user_waiters = SleepqRemove(sq, curthread);
-            } else {
-                ASSERT_MSG(false, "Cancelled condition-variable waiter has no sleep queue");
-                has_user_waiters = false;
-            }
-            SleepqUnlock(this);
-            curthread->mutex_obj = nullptr;
-            mp->CvLock(recurse);
-            curthread->cancel_point = false;
-            PthreadTestCancel();
-            return 0;
-        } else if (error == POSIX_ETIMEDOUT) {
-            if (SleepQueue* sq = SleepqLookup(this); sq != nullptr) {
-                has_user_waiters = SleepqRemove(sq, curthread);
-            } else {
-                ASSERT_MSG(false, "Timed-out condition-variable waiter has no sleep queue");
-                has_user_waiters = false;
-            }
-            break;
-        }
-    }
-    SleepqUnlock(this);
-    curthread->mutex_obj = nullptr;
-    const int error2 = mp->CvLock(recurse);
-    curthread->cancel_point = false;
     PthreadCancelInterrupt();
-    if (error == 0) {
-        error = error2;
-    }
     return error;
 }
 
@@ -233,101 +211,15 @@ int PthreadCond::Signal(Pthread* thread) {
         }
         thread->lock->unlock();
     }
-
-    SleepqLock(this);
-    SleepQueue* sq = SleepqLookup(this);
-    if (sq == nullptr) {
-        SleepqUnlock(this);
-        return thread != nullptr ? 1 : 0;
-    }
-
-    ASSERT_MSG(!sq->sq_blocked.empty(),
-               "Condition variable has a linked sleep queue with no blocked threads");
-    if (sq->sq_blocked.empty()) [[unlikely]] {
-        has_user_waiters = false;
-        SleepqUnlock(this);
-        return thread != nullptr ? 1 : 0;
-    }
-
-    Pthread* td{};
-    if (thread != nullptr) {
-        const auto it = std::find(sq->sq_blocked.begin(), sq->sq_blocked.end(), thread);
-        if (it == sq->sq_blocked.end()) {
-            SleepqUnlock(this);
-            return 1;
-        }
-        td = *it;
-    } else {
-        td = sq->sq_blocked.front();
-    }
-
-    PthreadMutex* mp = td->mutex_obj;
-    has_user_waiters = SleepqRemove(sq, td);
-
-    WakeSemaphore* wake_address = &td->wake_sema;
-    if (mp != nullptr && curthread != nullptr && mp->m_owner.load() == curthread) {
-        if (curthread->nwaiter_defer >= Pthread::MaxDeferWaiters) {
-            curthread->WakeAll();
-        }
-        curthread->defer_waiters[curthread->nwaiter_defer++] = &td->wake_sema;
-        mp->m_flags |= PthreadMutexFlags::Deferred;
-        wake_address = nullptr;
-    }
-
-    SleepqUnlock(this);
-    if (wake_address != nullptr) {
-        wake_address->release();
-    }
-    return 0;
+    ScopedPthreadCritical critical{curthread};
+    const bool selected = cv.Signal(reinterpret_cast<u64>(thread), DeferToUnlock{curthread});
+    return !selected && thread != nullptr ? 1 : 0;
 }
 
-struct BroadcastArg {
-    Pthread* curthread;
-    WakeSemaphore* immediate_wakes[Pthread::MaxDeferWaiters];
-    int count;
-};
-
 int PthreadCond::Broadcast() {
-    BroadcastArg ba;
-    ba.curthread = g_curthread;
-    ba.count = 0;
-
-    const auto drop_cb = [](Pthread* td, void* arg) {
-        auto* ba2 = static_cast<BroadcastArg*>(arg);
-        Pthread* curthread = ba2->curthread;
-        PthreadMutex* mp = td->mutex_obj;
-
-        if (mp != nullptr && curthread != nullptr && mp->m_owner.load() == curthread) {
-            if (curthread->nwaiter_defer >= Pthread::MaxDeferWaiters) {
-                curthread->WakeAll();
-            }
-            curthread->defer_waiters[curthread->nwaiter_defer++] = &td->wake_sema;
-            mp->m_flags |= PthreadMutexFlags::Deferred;
-        } else {
-            if (ba2->count >= Pthread::MaxDeferWaiters) {
-                for (int i = 0; i < ba2->count; i++) {
-                    ba2->immediate_wakes[i]->release();
-                }
-                ba2->count = 0;
-            }
-            ba2->immediate_wakes[ba2->count++] = &td->wake_sema;
-        }
-    };
-
-    SleepqLock(this);
-    SleepQueue* sq = SleepqLookup(this);
-    if (sq == nullptr) {
-        SleepqUnlock(this);
-        return 0;
-    }
-
-    SleepqDrop(sq, drop_cb, &ba);
-    has_user_waiters = false;
-    SleepqUnlock(this);
-
-    for (int i = 0; i < ba.count; i++) {
-        ba.immediate_wakes[i]->release();
-    }
+    Pthread* curthread = g_curthread;
+    ScopedPthreadCritical critical{curthread};
+    cv.Broadcast(DeferToUnlock{curthread});
     return 0;
 }
 

@@ -33,13 +33,27 @@ static void CheckVkResult(const vk::Result err) {
     LOG_ERROR(ImGui, "Vulkan error {}", vk::to_string(err));
 }
 
-static std::vector<ImGui::Layer*> layers;
+namespace {
 
-// Update layers before rendering to allow layer changes to be applied during rendering.
-// Using deque to keep the order of changes in case a Layer is removed then added again between
-// frames.
-static std::deque<std::pair<bool, ImGui::Layer*>> change_layers{};
-static std::mutex change_layers_mutex{};
+// Layers register and unregister themselves from their constructors and destructors, and some
+// are static objects in other translation units (dialog UIs, notification layers) destroyed at
+// process exit in an unspecified order relative to this file. The registry is created on first
+// use and deliberately never destroyed, so those calls always find it alive.
+struct LayerRegistry {
+    std::vector<ImGui::Layer*> layers;
+    // Update layers before rendering to allow layer changes to be applied during rendering.
+    // Using deque to keep the order of changes in case a Layer is removed then added again
+    // between frames.
+    std::deque<std::pair<bool, ImGui::Layer*>> change_layers;
+    std::mutex change_layers_mutex;
+};
+
+LayerRegistry& Registry() {
+    static LayerRegistry* const registry = new LayerRegistry{};
+    return *registry;
+}
+
+} // Anonymous namespace
 
 static ImGuiID dock_id;
 static std::atomic<std::uint32_t> force_gamepad_input_capture_count{0};
@@ -311,7 +325,10 @@ bool ProcessEvent(SDL_Event* event) {
 
 ImGuiID NewFrame(bool is_reusing_frame) {
     {
-        std::scoped_lock lock{change_layers_mutex};
+        auto& registry = Registry();
+        std::scoped_lock lock{registry.change_layers_mutex};
+        auto& layers = registry.layers;
+        auto& change_layers = registry.change_layers;
         while (!change_layers.empty()) {
             const auto [to_be_added, layer] = change_layers.front();
             if (to_be_added) {
@@ -346,7 +363,7 @@ ImGuiID NewFrame(bool is_reusing_frame) {
     }
     ImGuiID dockId = DockSpaceOverViewport(0, GetMainViewport(), flags);
 
-    for (auto* layer : layers) {
+    for (auto* layer : Registry().layers) {
         layer->Draw();
     }
 
@@ -395,20 +412,23 @@ void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
 bool MustKeepDrawing() {
     return ::Core::Diagnostics::StatusOverlayMailbox().Pending() ||
            ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed) ||
-           std::ranges::any_of(layers, [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
-           change_layers.size() > 1;
+           std::ranges::any_of(Registry().layers,
+                               [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
+           Registry().change_layers.size() > 1;
 }
 
 } // namespace Core
 
 void Layer::AddLayer(Layer* layer) {
-    std::scoped_lock lock{change_layers_mutex};
-    change_layers.emplace_back(true, layer);
+    auto& registry = Registry();
+    std::scoped_lock lock{registry.change_layers_mutex};
+    registry.change_layers.emplace_back(true, layer);
 }
 
 void Layer::RemoveLayer(Layer* layer) {
-    std::scoped_lock lock{change_layers_mutex};
-    change_layers.emplace_back(false, layer);
+    auto& registry = Registry();
+    std::scoped_lock lock{registry.change_layers_mutex};
+    registry.change_layers.emplace_back(false, layer);
 }
 
 } // namespace ImGui

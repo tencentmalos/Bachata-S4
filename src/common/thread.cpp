@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <ctime>
+#include <optional>
 #include <string>
 #include <thread>
 #include <fmt/format.h>
@@ -22,6 +23,9 @@
 #elif defined(_WIN32)
 #include <windows.h>
 #include "common/string_util.h"
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
 #else
 #if defined(__Bitrig__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <pthread_np.h>
@@ -117,10 +121,38 @@ bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanosec
     LARGE_INTEGER interval{
         .QuadPart = -1 * (duration.count() / 100u),
     };
-    HANDLE timer = ::CreateWaitableTimer(NULL, TRUE, NULL);
+    // One timer per thread instead of creating and closing one per sleep. High resolution timers
+    // (Windows 10 1803+) expire close to the request instead of on the next scheduler tick.
+    struct ThreadTimer {
+        HANDLE handle;
+        ThreadTimer() {
+            handle = ::CreateWaitableTimerExW(nullptr, nullptr,
+                                              CREATE_WAITABLE_TIMER_MANUAL_RESET |
+                                                  CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+                                              TIMER_ALL_ACCESS);
+            if (handle == nullptr) {
+                handle = ::CreateWaitableTimerW(nullptr, TRUE, nullptr);
+            }
+        }
+        ~ThreadTimer() {
+            if (handle != nullptr) {
+                ::CloseHandle(handle);
+            }
+        }
+    };
+    thread_local ThreadTimer thread_timer;
+    thread_local u32 sleep_depth = 0;
+    // A guest signal delivered as an APC during this wait may sleep too: it must not re-arm the
+    // timer the interrupted sleep is waiting on.
+    std::optional<ThreadTimer> nested_timer;
+    HANDLE timer = thread_timer.handle;
+    if (sleep_depth != 0) {
+        timer = nested_timer.emplace().handle;
+    }
+    ++sleep_depth;
     SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
     const auto ret = WaitForSingleObjectEx(timer, INFINITE, interruptible);
-    ::CloseHandle(timer);
+    --sleep_depth;
 
     if (remaining) {
         const auto end_sleep = std::chrono::high_resolution_clock::now();

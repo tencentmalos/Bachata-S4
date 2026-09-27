@@ -447,29 +447,41 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
         if (!queue)
             return u32(ORBIS_KERNEL_ERROR_EBADF);
         const u32 micros = a[4] ? Read<u32>(space, a[4]) : 0;
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::microseconds(micros);
+        // A null timeout waits forever; *timeout == 0 polls (the deadline has already passed).
+        std::optional<std::chrono::steady_clock::time_point> deadline;
+        if (a[4])
+            deadline = std::chrono::steady_clock::now() + std::chrono::microseconds(micros);
+        const std::stop_token stop = HleScope::Current()->CancellationToken();
+        std::vector<Kernel::OrbisKernelEvent> local(capacity);
         // Do not retain guest pins while waiting. Pin output immediately before
         // consuming events, so a bad pointer never loses a delivered event.
         for (;;) {
-            if (graphics.Stopping() || HleScope::Current()->CancellationToken().stop_requested())
+            if (graphics.Stopping())
                 return u32(ORBIS_KERNEL_ERROR_EINTR);
-            if (graphics.FindEqueue(a[0]) != queue)
+            // The GPU stop does not reach the HLE token: wake up to check it at least this often.
+            constexpr auto StopCheck = std::chrono::milliseconds(100);
+            auto slice = std::chrono::steady_clock::now() + StopCheck;
+            if (deadline)
+                slice = std::min(slice, *deadline);
+            const auto wait = queue->WaitReady(slice, stop);
+            if (wait == Kernel::EqueueWaitResult::Interrupted)
+                return u32(ORBIS_KERNEL_ERROR_EINTR);
+            if (wait == Kernel::EqueueWaitResult::Closed || graphics.FindEqueue(a[0]) != queue)
                 return u32(ORBIS_KERNEL_ERROR_EBADF);
-            {
+            if (wait == Kernel::EqueueWaitResult::Ready) {
                 auto events = Must(space.AcquireDataSpan(
                     {GuestAddress{a[1]}, u64(capacity) * sizeof(Kernel::OrbisKernelEvent)}, true));
                 auto result = Output<s32>(space, a[3]);
-                std::vector<Kernel::OrbisKernelEvent> local(capacity);
-                const auto n = queue->GetTriggeredEvents(local.data(), capacity);
+                const auto n = queue->TakeTriggered(local.data(), capacity);
                 if (n > 0) {
                     std::memcpy(events.WritableBytes().data(), local.data(), n * sizeof(local[0]));
                     std::memcpy(result.WritableBytes().data(), &n, sizeof(n));
                     return 0;
                 }
+                continue; // another waiter took them first
             }
-            if (a[4] && std::chrono::steady_clock::now() >= deadline)
+            if (deadline && std::chrono::steady_clock::now() >= *deadline)
                 return u32(ORBIS_KERNEL_ERROR_ETIMEDOUT);
-            HleScope::Current()->WaitFor(std::chrono::milliseconds(1));
         }
     });
     for (const auto* nid : {"D0OdFMjp46I", "jpFjmgAC5AE", "fzyMKs9kim0",

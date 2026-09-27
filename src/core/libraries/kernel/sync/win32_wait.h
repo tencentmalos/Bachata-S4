@@ -28,6 +28,13 @@ bool ReleaseSemaphoreObject(Handle handle);
 void CloseObject(Handle handle);
 u32 LastError();
 
+// Sleeps while the 32-bit value at `address` equals `compare` (WaitOnAddress): until a wake on
+// that address, the timeout, or spuriously. Callers recheck their condition. Not alertable;
+// guest signals and cancellation arrive as special user APCs, which need no alertable wait.
+bool WaitOnAddress32(const volatile void* address, u32 compare, u32 milliseconds);
+void WakeAddressSingle(const volatile void* address);
+void WakeAddressAll(const volatile void* address);
+
 } // namespace Libraries::Kernel::Win32
 
 #endif

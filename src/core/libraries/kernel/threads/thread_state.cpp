@@ -6,7 +6,6 @@
 #include "common/scope_exit.h"
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/threads/pthread.h"
-#include "core/libraries/kernel/threads/sleepq.h"
 #include "core/libraries/kernel/threads/thread_state.h"
 #include "core/memory.h"
 #include "core/tls.h"
@@ -108,7 +107,6 @@ Pthread* ThreadState::Alloc(Pthread* curthread) {
         std::memset(static_cast<void*>(thread), 0, sizeof(Pthread));
         std::construct_at(thread);
         thread->tcb = tcb;
-        thread->sleepqueue = new SleepQueue{};
     } else {
         thread_heap.Free(thread);
         total_threads.fetch_sub(1);
@@ -125,7 +123,6 @@ void ThreadState::Free(Pthread* curthread, Pthread* thread) {
         TcbDtor(thread->tcb);
     }
     thread->tcb = nullptr;
-    auto* sleepqueue = thread->sleepqueue;
     bool should_free;
     {
         std::scoped_lock lk{free_thread_lock};
@@ -137,7 +134,6 @@ void ThreadState::Free(Pthread* curthread, Pthread* thread) {
         }
     }
     if (should_free) {
-        delete sleepqueue;
         thread_heap.Free(thread);
         total_threads.fetch_sub(1);
     }

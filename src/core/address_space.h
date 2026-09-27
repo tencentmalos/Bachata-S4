@@ -39,12 +39,16 @@ struct GpuWatchCounters {
     std::atomic<u64> hle_commit_regions{}, hle_commit_bytes{};
     std::atomic<u64> gpu_data_overwrites{};
     std::array<std::atomic<u64>, 16> gpu_data_overwrite_addrs{};
+    // The most recent addresses too: the first ones are usually spent during loading.
+    std::array<std::atomic<u64>, 16> gpu_data_overwrite_recent{};
 
     void NoteGpuDataOverwrite(u64 address) {
         const u64 index = gpu_data_overwrites.fetch_add(1, std::memory_order_relaxed);
         if (index < gpu_data_overwrite_addrs.size()) {
             gpu_data_overwrite_addrs[index].store(address, std::memory_order_relaxed);
         }
+        gpu_data_overwrite_recent[index % gpu_data_overwrite_recent.size()].store(
+            address, std::memory_order_relaxed);
     }
 };
 inline GpuWatchCounters gpu_watch_counters;

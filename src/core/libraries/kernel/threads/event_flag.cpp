@@ -12,6 +12,7 @@
 #include "core/libraries/libs.h"
 #include "pthread.h"
 #include "event_flag_state.h"
+#include "core/libraries/kernel/sync/event_flags.h"
 
 namespace Libraries::Kernel {
 
@@ -28,66 +29,47 @@ constexpr int ORBIS_KERNEL_EVF_WAITMODE_CLEAR_PAT = 0x20;
 using EventFlagInternal = EventFlagState;
 
 using OrbisKernelUseconds = u32;
-using OrbisKernelEventFlag = EventFlagInternal*;
+// Guest handles are ids in the shared event flag table: a flag deleted while threads wait on it
+// stays alive until they leave it.
+using OrbisKernelEventFlag = u64;
 
 struct OrbisKernelEventFlagOptParam {
     size_t size;
 };
+
+static Sync::EventFlagTable event_flags;
 
 int PS4_SYSV_ABI sceKernelCreateEventFlag(OrbisKernelEventFlag* ef, const char* pName, u32 attr,
                                           u64 initPattern,
                                           const OrbisKernelEventFlagOptParam* pOptParam) {
     LOG_TRACE(Kernel_Event, "called name = {} attr = {:#x} initPattern = {:#x}", pName, attr,
               initPattern);
-    if (ef == nullptr || pName == nullptr) {
+    if (ef == nullptr || pName == nullptr || pOptParam) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
-    if (pOptParam || attr > (ORBIS_KERNEL_EVF_ATTR_MULTI | ORBIS_KERNEL_EVF_ATTR_TH_PRIO)) {
+    const auto attributes = Sync::DecodeEventFlagAttributes(attr);
+    if (!attributes) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
-
     if (strlen(pName) >= 32) {
         return ORBIS_KERNEL_ERROR_ENAMETOOLONG;
     }
-
-    auto thread_mode = EventFlagInternal::ThreadMode::Single;
-    auto queue_mode = EventFlagInternal::QueueMode::Fifo;
-    switch (attr & 0xfu) {
-    case 0x01:
-        queue_mode = EventFlagInternal::QueueMode::Fifo;
-        break;
-    case 0x02:
-        queue_mode = EventFlagInternal::QueueMode::ThreadPrio;
-        break;
-    case 0x00:
-        break;
-    default:
-        UNREACHABLE();
+    const auto id = event_flags.Insert(std::make_shared<EventFlagInternal>(
+        std::string(pName), attributes->thread_mode, attributes->queue_mode, initPattern));
+    if (!id) {
+        return ORBIS_KERNEL_ERROR_ENOMEM;
     }
-
-    switch (attr & 0xf0) {
-    case 0x10:
-        thread_mode = EventFlagInternal::ThreadMode::Single;
-        break;
-    case 0x20:
-        thread_mode = EventFlagInternal::ThreadMode::Multi;
-        break;
-    case 0x00:
-        break;
-    default:
-        UNREACHABLE();
-    }
-
-    *ef = new EventFlagInternal(std::string(pName), thread_mode, queue_mode, initPattern);
+    *ef = *id;
     return ORBIS_OK;
 }
 
 int PS4_SYSV_ABI sceKernelDeleteEventFlag(OrbisKernelEventFlag ef) {
-    if (ef == nullptr) {
+    const auto flag = ef > UINT32_MAX ? nullptr : event_flags.Erase(static_cast<u32>(ef));
+    if (!flag) {
         return ORBIS_KERNEL_ERROR_ESRCH;
     }
-
-    delete ef;
+    // Waiters are released with the deletion result before the last owner lets go.
+    flag->Delete();
     return ORBIS_OK;
 }
 
@@ -101,124 +83,75 @@ int PS4_SYSV_ABI sceKernelCloseEventFlag() {
     return ORBIS_OK;
 }
 
+static std::shared_ptr<EventFlagInternal> FindEventFlag(OrbisKernelEventFlag ef) {
+    return ef > UINT32_MAX ? nullptr : event_flags.Find(static_cast<u32>(ef));
+}
+
 int PS4_SYSV_ABI sceKernelClearEventFlag(OrbisKernelEventFlag ef, u64 bitPattern) {
     LOG_DEBUG(Kernel_Event, "called");
-    if (ef == nullptr) {
+    const auto flag = FindEventFlag(ef);
+    if (!flag) {
         return ORBIS_KERNEL_ERROR_ESRCH;
     }
-    ef->Clear(bitPattern);
+    flag->Clear(bitPattern);
     return ORBIS_OK;
 }
 
 int PS4_SYSV_ABI sceKernelCancelEventFlag(OrbisKernelEventFlag ef, u64 setPattern,
                                           int* pNumWaitThreads) {
     LOG_DEBUG(Kernel_Event, "called");
-    if (ef == nullptr) {
+    const auto flag = FindEventFlag(ef);
+    if (!flag) {
         return ORBIS_KERNEL_ERROR_ESRCH;
     }
-    ef->Cancel(setPattern, pNumWaitThreads);
+    flag->Cancel(setPattern, pNumWaitThreads);
     return ORBIS_OK;
 }
 
 int PS4_SYSV_ABI sceKernelSetEventFlag(OrbisKernelEventFlag ef, u64 bitPattern) {
     LOG_TRACE(Kernel_Event, "called");
-    if (ef == nullptr) {
+    const auto flag = FindEventFlag(ef);
+    if (!flag) {
         return ORBIS_KERNEL_ERROR_ESRCH;
     }
-    ef->Set(bitPattern);
+    flag->Set(bitPattern);
     return ORBIS_OK;
 }
 
 int PS4_SYSV_ABI sceKernelPollEventFlag(OrbisKernelEventFlag ef, u64 bitPattern, u32 waitMode,
                                         u64* pResultPat) {
     LOG_DEBUG(Kernel_Event, "called bitPattern = {:#x} waitMode = {:#x}", bitPattern, waitMode);
-
-    if (ef == nullptr) {
+    const auto flag = FindEventFlag(ef);
+    if (!flag) {
         return ORBIS_KERNEL_ERROR_ESRCH;
     }
-
-    if (bitPattern == 0) {
+    const auto mode = Sync::DecodeEventFlagWaitMode(waitMode);
+    if (bitPattern == 0 || !mode) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
-
-    auto wait = EventFlagInternal::WaitMode::And;
-    auto clear = EventFlagInternal::ClearMode::None;
-    switch (waitMode & 0xf) {
-    case 0x01:
-        wait = EventFlagInternal::WaitMode::And;
-        break;
-    case 0x02:
-        wait = EventFlagInternal::WaitMode::Or;
-        break;
-    default:
-        UNREACHABLE();
-    }
-
-    switch (waitMode & 0xf0) {
-    case 0x00:
-        clear = EventFlagInternal::ClearMode::None;
-        break;
-    case 0x10:
-        clear = EventFlagInternal::ClearMode::All;
-        break;
-    case 0x20:
-        clear = EventFlagInternal::ClearMode::Bits;
-        break;
-    default:
-        UNREACHABLE();
-    }
-
-    auto result = ef->Poll(bitPattern, wait, clear, pResultPat);
-
+    const auto result = flag->Poll(bitPattern, mode->wait, mode->clear, pResultPat);
     if (result != ORBIS_OK && result != ORBIS_KERNEL_ERROR_EBUSY) {
         LOG_DEBUG(Kernel_Event, "returned {:#x}", result);
     }
-
     return result;
 }
+
 int PS4_SYSV_ABI sceKernelWaitEventFlag(OrbisKernelEventFlag ef, u64 bitPattern, u32 waitMode,
                                         u64* pResultPat, OrbisKernelUseconds* pTimeout) {
     LOG_DEBUG(Kernel_Event, "called bitPattern = {:#x} waitMode = {:#x}", bitPattern, waitMode);
-    if (ef == nullptr) {
+    const auto flag = FindEventFlag(ef);
+    if (!flag) {
         return ORBIS_KERNEL_ERROR_ESRCH;
     }
-
-    if (bitPattern == 0) {
+    const auto mode = Sync::DecodeEventFlagWaitMode(waitMode);
+    if (bitPattern == 0 || !mode) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
-
-    auto wait = EventFlagInternal::WaitMode::And;
-    auto clear = EventFlagInternal::ClearMode::None;
-    switch (waitMode & 0xf) {
-    case 0x01:
-        wait = EventFlagInternal::WaitMode::And;
-        break;
-    case 0x02:
-        wait = EventFlagInternal::WaitMode::Or;
-        break;
-    default:
-        UNREACHABLE();
-    }
-
-    switch (waitMode & 0xf0) {
-    case 0x00:
-        clear = EventFlagInternal::ClearMode::None;
-        break;
-    case 0x10:
-        clear = EventFlagInternal::ClearMode::All;
-        break;
-    case 0x20:
-        clear = EventFlagInternal::ClearMode::Bits;
-        break;
-    default:
-        UNREACHABLE();
-    }
-
-    const int result = ef->Wait(bitPattern, wait, clear, pResultPat, pTimeout, g_curthread->attr.prio);
+    const int result = flag->Wait(bitPattern, mode->wait, mode->clear, pResultPat, pTimeout,
+                                  g_curthread->attr.prio);
     if (result != ORBIS_OK && result != ORBIS_KERNEL_ERROR_ETIMEDOUT) {
         LOG_DEBUG(Kernel_Event, "returned {:#x}", result);
     }
-
     return result;
 }
 

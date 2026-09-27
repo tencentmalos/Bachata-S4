@@ -1,11 +1,14 @@
 // SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <optional>
 #include <algorithm>
 #include <array>
 #include <shared_mutex>
 
 #include "common/alignment.h"
+#include "common/profiler.h"
+#include "common/scope_exit.h"
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/elf_info.h"
@@ -27,6 +30,22 @@
 #include "core/rasterizer_hooks.h"
 
 namespace Core {
+
+namespace {
+// The exclusive MemoryManager lock with a profiler scope over exactly the time it is held: guest
+// map/unmap/protect calls hold it while the GPU thread's reads of guest memory wait.
+struct WriteHold {
+    WriteHold(Common::SharedFirstMutex& mutex, const char* name) : lock{mutex} {
+        scope.emplace(name);
+    }
+    void unlock() {
+        scope.reset();
+        lock.unlock();
+    }
+    std::unique_lock<Common::SharedFirstMutex> lock;
+    std::optional<Common::Profiler::Scope> scope;
+};
+} // Anonymous namespace
 
 namespace {
 
@@ -96,6 +115,7 @@ void MemoryManager::Initialize() {
     total_direct_size = total_size;
     dmem_map.clear();
     dmem_map.emplace(0, PhysicalMemoryArea{0, total_direct_size});
+    dmem_free_hint = 0;
 
     // Pre-initialize flexible backing
     total_flexible_size = ORBIS_KERNEL_FLEXIBLE_MEMORY_SIZE + extra_fmem;
@@ -245,6 +265,69 @@ void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
                virtual_addr);
 
     auto vma = FindVMA(virtual_addr);
+    while (size) {
+        u64 copy_size = std::min<u64>(vma->second.size - (virtual_addr - vma->first), size);
+        if (vma->second.IsMapped()) {
+            std::memcpy(dest, std::bit_cast<const u8*>(virtual_addr), copy_size);
+        } else {
+            std::memset(dest, 0, copy_size);
+        }
+        size -= copy_size;
+        virtual_addr += copy_size;
+        dest += copy_size;
+        ++vma;
+    }
+}
+
+void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size,
+                                     GuestReadCache& cache) {
+    std::shared_lock lk{mutex};
+    const u64 epoch = mutex.WriteEpoch();
+    if (cache.epoch != epoch) {
+        cache.ranges = {};
+        cache.epoch = epoch;
+    }
+    const bool enabled = read_cache_enabled.load(std::memory_order_relaxed);
+    if (enabled) {
+        for (const auto& range : cache.ranges) {
+            if (virtual_addr >= range.begin && virtual_addr < range.end &&
+                size <= range.end - virtual_addr) {
+                ++cache.hits;
+                std::memcpy(dest, std::bit_cast<const u8*>(virtual_addr), size);
+                return;
+            }
+        }
+    }
+    ++cache.misses;
+    ASSERT_MSG(IsValidMapping(virtual_addr), "Attempted to access invalid address {:#x}",
+               virtual_addr);
+    auto vma = FindVMA(virtual_addr);
+    if (enabled && vma->second.IsMapped()) {
+        // Remember the run of contiguous mapped areas around the address (bounded walk).
+        VAddr begin = vma->second.base;
+        VAddr end = begin + vma->second.size;
+        constexpr int MaxNeighbours = 16;
+        auto after = std::next(vma);
+        for (int i = 0; i < MaxNeighbours && after != vma_map.end() && after->second.IsMapped() &&
+                        after->second.base == end;
+             ++i, ++after) {
+            end += after->second.size;
+        }
+        auto before = vma;
+        for (int i = 0; i < MaxNeighbours && before != vma_map.begin(); ++i) {
+            const auto prev = std::prev(before);
+            if (!prev->second.IsMapped() || prev->second.base + prev->second.size != begin) {
+                break;
+            }
+            begin = prev->second.base;
+            before = prev;
+        }
+        cache.ranges[cache.next++ % cache.ranges.size()] = {begin, end};
+        if (size <= end - virtual_addr) {
+            std::memcpy(dest, std::bit_cast<const u8*>(virtual_addr), size);
+            return;
+        }
+    }
     while (size) {
         u64 copy_size = std::min<u64>(vma->second.size - (virtual_addr - vma->first), size);
         if (vma->second.IsMapped()) {
@@ -567,15 +650,27 @@ u64 MemoryManager::CopyGuestRegions(std::span<const GuestCopy> copies,
 }
 
 PAddr MemoryManager::PoolExpand(PAddr search_start, PAddr search_end, u64 size, u64 alignment) {
-    std::scoped_lock lk{mutex, unmap_mutex};
+    std::scoped_lock unmap_lk{unmap_mutex};
+    WriteHold lk{mutex, "Memory.WriteHold.PoolExpand"};
     alignment = alignment > 0 ? alignment : 64_KB;
 
     if (!size || search_start >= search_end || search_start >= total_direct_size ||
         search_end > total_direct_size || alignment > total_direct_size)
         return PAddr(-1);
-    auto dmem_area = FindDmemArea(search_start);
+    // Areas below the hint are all in use; the first fit found from there is the same.
+    const bool from_hint = search_start <= dmem_free_hint;
+    std::optional<PAddr> first_free;
+    SCOPE_EXIT {
+        if (from_hint) {
+            dmem_free_hint = first_free.value_or(total_direct_size);
+        }
+    };
+    auto dmem_area = FindDmemArea(std::max(search_start, dmem_free_hint));
     PAddr mapping_start{};
     for (; dmem_area != dmem_map.end(); ++dmem_area) {
+        if (!first_free && dmem_area->second.dma_type == PhysicalMemoryType::Free) {
+            first_free = dmem_area->second.base;
+        }
         const auto begin = std::max(search_start, dmem_area->second.base);
         const auto end = std::min(search_end, dmem_area->second.GetEnd());
         mapping_start = Common::AlignUp(begin, alignment);
@@ -599,14 +694,30 @@ PAddr MemoryManager::PoolExpand(PAddr search_start, PAddr search_end, u64 size, 
 
 PAddr MemoryManager::Allocate(PAddr search_start, PAddr search_end, u64 size, u64 alignment,
                               s32 memory_type) {
-    std::scoped_lock lk{mutex, unmap_mutex};
+    std::scoped_lock unmap_lk{unmap_mutex};
+    WriteHold lk{mutex, "Memory.WriteHold.Allocate"};
     alignment = alignment > 0 ? alignment : 16_KB;
 
     if (!size || search_start >= search_end || search_start >= total_direct_size ||
         search_end > total_direct_size || alignment > total_direct_size ||
         size > search_end - search_start)
         return PAddr(-1);
-    auto dmem_area = FindDmemArea(search_start);
+    // Areas below the hint are all in use, so the lowest fitting area is found from there
+    // without walking every allocated block (games allocate thousands of small blocks).
+    const bool from_hint = search_start <= dmem_free_hint;
+    std::optional<PAddr> first_free;
+    SCOPE_EXIT {
+        if (from_hint) {
+            dmem_free_hint = first_free.value_or(total_direct_size);
+        }
+    };
+    auto dmem_area = FindDmemArea(std::max(search_start, dmem_free_hint));
+    const auto note_free = [&] {
+        if (!first_free && dmem_area->second.dma_type == PhysicalMemoryType::Free) {
+            first_free = dmem_area->second.base;
+        }
+    };
+    note_free();
     auto mapping_start =
         Common::AlignUp(std::max<PAddr>(search_start, dmem_area->second.base), alignment);
     auto mapping_end = mapping_start + size;
@@ -619,6 +730,7 @@ PAddr MemoryManager::Allocate(PAddr search_start, PAddr search_end, u64 size, u6
         if (dmem_area == dmem_map.end()) {
             break;
         }
+        note_free();
 
         // Update local variables based on the new dmem_area
         mapping_start = Common::AlignUp(dmem_area->second.base, alignment);
@@ -683,24 +795,77 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
         remaining_size -= size_in_dma;
     }
 
-    // Release any dmem mappings that reference this physical block.
+    // Release any dmem mappings that reference this physical block. Each dmem area counts its
+    // direct mappings and knows the address of a single one, so only aliased areas (or ones whose
+    // remaining mapping is unknown) need the walk over every VMA.
+    const PAddr free_end = phys_addr + size;
     std::vector<std::pair<VAddr, u64>> remove_list;
-    for (const auto& [addr, mapping] : vma_map) {
-        if (mapping.type != VMAType::Direct) {
+    bool needs_walk = false;
+    for (auto handle = FindDmemArea(phys_addr);
+         handle != dmem_map.end() && handle->second.base < free_end; ++handle) {
+        const auto& area = handle->second;
+        if (area.map_count == 0) {
             continue;
         }
-        for (auto& [offset_in_vma, phys_mapping] : mapping.phys_areas) {
-            if (phys_addr + size > phys_mapping.base &&
-                phys_addr < phys_mapping.base + phys_mapping.size) {
-                const u64 phys_offset =
-                    std::max<u64>(phys_mapping.base, phys_addr) - phys_mapping.base;
-                const VAddr addr_in_vma = mapping.base + offset_in_vma + phys_offset;
-                const u64 unmap_size = std::min<u64>(phys_mapping.size - phys_offset, size);
-
-                // Unmapping might erase from vma_map. We can't do it here.
-                remove_list.emplace_back(addr_in_vma, unmap_size);
+        if (area.map_count != 1 || area.va_delta == PhysicalMemoryArea::UnknownVaDelta) {
+            needs_walk = true;
+            break;
+        }
+        const PAddr start = std::max<PAddr>(phys_addr, area.base);
+        const PAddr end = std::min<PAddr>(free_end, area.GetEnd());
+        remove_list.emplace_back(static_cast<VAddr>(static_cast<s64>(start) + area.va_delta),
+                                 end - start);
+    }
+    const bool verify = free_index_verify.load(std::memory_order_relaxed);
+    if (needs_walk || verify) {
+        std::vector<std::pair<VAddr, u64>> walked;
+        {
+            Common::Profiler::Scope scan_scope{"Memory.FreeScan"};
+            for (const auto& [addr, mapping] : vma_map) {
+                if (mapping.type != VMAType::Direct) {
+                    continue;
+                }
+                for (auto& [offset_in_vma, phys_mapping] : mapping.phys_areas) {
+                    const PAddr start = std::max<PAddr>(phys_mapping.base, phys_addr);
+                    const PAddr end = std::min<PAddr>(phys_mapping.GetEnd(), free_end);
+                    if (start < end) {
+                        // Unmapping might erase from vma_map. We can't do it here.
+                        walked.emplace_back(mapping.base + offset_in_vma + start -
+                                                phys_mapping.base,
+                                            end - start);
+                    }
+                }
             }
         }
+        if (needs_walk) {
+            free_index_walks.fetch_add(1, std::memory_order_relaxed);
+        } else {
+            free_index_lookups.fetch_add(1, std::memory_order_relaxed);
+            // Compare as sorted, coalesced address ranges: the two may split them differently.
+            const auto normalize = [](std::vector<std::pair<VAddr, u64>> ranges) {
+                std::ranges::sort(ranges);
+                std::vector<std::pair<VAddr, u64>> out;
+                for (const auto& [addr, len] : ranges) {
+                    if (!out.empty() && out.back().first + out.back().second == addr) {
+                        out.back().second += len;
+                    } else {
+                        out.emplace_back(addr, len);
+                    }
+                }
+                return out;
+            };
+            if (normalize(remove_list) != normalize(walked)) {
+                if (free_index_mismatches.fetch_add(1, std::memory_order_relaxed) < 8) {
+                    LOG_ERROR(Kernel_Vmm,
+                              "Free index mismatch for phys {:#x}+{:#x}: index {} ranges, "
+                              "walk {} ranges",
+                              phys_addr, size, remove_list.size(), walked.size());
+                }
+            }
+        }
+        remove_list = std::move(walked);
+    } else {
+        free_index_lookups.fetch_add(1, std::memory_order_relaxed);
     }
 
     auto preparation = impl.PrepareMapping(remove_list);
@@ -712,24 +877,40 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
         }
     }
 
-    // Acquire writer lock
-    std::scoped_lock lk2{mutex};
+    // Only the bookkeeping runs under the writer lock; the host view removals of direct
+    // mappings follow it (desktop: VirtualFree/UnmapViewOfFile). The guest backend removes its
+    // views in place because a failed removal must leave the metadata unchanged.
+    DeferredUnmaps deferred;
+    {
+        WriteHold lk2{mutex, "Memory.WriteHold.Free"};
 
-    for (const auto& [addr, size] : remove_list) {
-        LOG_INFO(Kernel_Vmm, "Unmapping direct mapping {:#x} with size {:#x}", addr, size);
-        UnmapMemoryImpl(addr, size);
+        for (const auto& [addr, size] : remove_list) {
+            UnmapMemoryImpl(addr, size, guest_backend ? nullptr : &deferred);
+        }
+
+        // Unmap all dmem areas within this area.
+        for (auto& [phys_addr, size] : free_list) {
+            // Carve a free dmem area in place of this one.
+            const auto dmem_handle = CarvePhysArea(dmem_map, phys_addr, size);
+            auto& new_dmem_area = dmem_handle->second;
+            new_dmem_area.dma_type = PhysicalMemoryType::Free;
+            new_dmem_area.memory_type = 0;
+            new_dmem_area.map_count = 0;
+            new_dmem_area.va_delta = 0;
+            dmem_free_hint = std::min(dmem_free_hint, phys_addr);
+
+            // Merge the new dmem_area with dmem_map
+            MergeAdjacent(dmem_map, dmem_handle);
+        }
     }
-
-    // Unmap all dmem areas within this area.
-    for (auto& [phys_addr, size] : free_list) {
-        // Carve a free dmem area in place of this one.
-        const auto dmem_handle = CarvePhysArea(dmem_map, phys_addr, size);
-        auto& new_dmem_area = dmem_handle->second;
-        new_dmem_area.dma_type = PhysicalMemoryType::Free;
-        new_dmem_area.memory_type = 0;
-
-        // Merge the new dmem_area with dmem_map
-        MergeAdjacent(dmem_map, dmem_handle);
+    if (!deferred.empty()) {
+        Common::Profiler::Scope unmap_scope{"Memory.FreeUnmapViews"};
+        for (const auto& [addr, size] : deferred) {
+            impl.Unmap(addr, size);
+        }
+    }
+    for (const auto& [addr, size] : remove_list) {
+        LOG_INFO(Kernel_Vmm, "Unmapped direct mapping {:#x} with size {:#x}", addr, size);
     }
 
     return ORBIS_OK;
@@ -743,7 +924,7 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
     const VAddr mapped_addr = virtual_addr;
 
     auto preparation = impl.PrepareMapping(mapped_addr, size);
-    std::unique_lock lk2{mutex};
+    WriteHold lk2{mutex, "Memory.WriteHold.PoolCommit"};
 
     auto& vma = FindVMA(mapped_addr)->second;
     if (vma.type != VMAType::PoolReserved) {
@@ -954,7 +1135,7 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
     }
 
     // Acquire writer lock.
-    std::unique_lock lk2{mutex};
+    WriteHold lk2{mutex, "Memory.WriteHold.Map"};
 
     // Create VMA representing this mapping.
     auto new_vma_handle = CreateArea(virtual_addr, size, prot, flags, type, name, alignment);
@@ -1022,10 +1203,17 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
             const auto dmem_handle = CarvePhysArea(dmem_map, start_phys_addr, size_in_dma);
             auto& new_dmem_area = dmem_handle->second;
             new_dmem_area.dma_type = PhysicalMemoryType::Mapped;
+            new_dmem_area.va_delta = new_dmem_area.map_count == 0
+                                         ? static_cast<s64>(mapped_addr) - static_cast<s64>(phys_addr)
+                                         : PhysicalMemoryArea::UnknownVaDelta;
+            ++new_dmem_area.map_count;
 
             // Add the dmem area to this vma, merge it with any similar tracked areas.
             const u64 offset_in_vma = current_phys_addr - phys_addr;
-            new_vma.phys_areas[offset_in_vma] = dmem_handle->second;
+            auto& vma_phys_area = new_vma.phys_areas[offset_in_vma];
+            vma_phys_area = dmem_handle->second;
+            vma_phys_area.map_count = 0;
+            vma_phys_area.va_delta = 0;
             MergeAdjacent(new_vma.phys_areas, new_vma.phys_areas.find(offset_in_vma));
 
             // Merge the new dmem_area with dmem_map
@@ -1160,7 +1348,7 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
     }
 
     // Aquire writer lock
-    std::scoped_lock lk2{mutex};
+    WriteHold lk2{mutex, "Memory.WriteHold.MapFile"};
 
     // Update VMA map and map to address space.
     auto new_vma_handle = CreateArea(virtual_addr, size, prot, flags, VMAType::File, "anon", 0);
@@ -1229,7 +1417,7 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
     }
 
     // Aquire writer mutex
-    std::scoped_lock lk2{mutex};
+    WriteHold lk2{mutex, "Memory.WriteHold.PoolDecommit"};
 
     // Loop through all vmas in the area, unmap them.
     u64 remaining_size = size;
@@ -1315,7 +1503,7 @@ s32 MemoryManager::UnmapMemory(VAddr virtual_addr, u64 size) {
     }
 
     // Acquire writer lock.
-    std::scoped_lock lk2{mutex};
+    WriteHold lk2{mutex, "Memory.WriteHold.Unmap"};
     const s32 result = UnmapMemoryImpl(virtual_addr, size);
     if (result == ORBIS_OK) {
         RecordMapping("unmap", virtual_addr, size, 0);
@@ -1323,7 +1511,8 @@ s32 MemoryManager::UnmapMemory(VAddr virtual_addr, u64 size) {
     return result;
 }
 
-u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma_base, u64 size) {
+u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma_base, u64 size,
+                                        DeferredUnmaps* deferred) {
     const auto start_in_vma = virtual_addr - vma_base.base;
     const auto size_in_vma = std::min<u64>(vma_base.size - start_in_vma, size);
     const auto vma_type = vma_base.type;
@@ -1332,9 +1521,16 @@ u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma
     }
 
     if (vma_type != VMAType::Reserved && vma_type != VMAType::PoolReserved) {
-        // Drain the affected native spans before recycling/zeroing their backing.
-        // Failure leaves this entry's metadata and physical allocator unchanged.
-        impl.Unmap(virtual_addr, size_in_vma);
+        if (deferred && vma_type == VMAType::Direct) {
+            // The caller removes the host view after releasing the writer lock but before
+            // releasing unmap_mutex: readers already see the range free, and no writer can map
+            // the physical block again before the old view is gone.
+            deferred->emplace_back(virtual_addr, size_in_vma);
+        } else {
+            // Drain the affected native spans before recycling/zeroing their backing.
+            // Failure leaves this entry's metadata and physical allocator unchanged.
+            impl.Unmap(virtual_addr, size_in_vma);
+        }
     }
 
     VAddr current_addr = virtual_addr;
@@ -1352,6 +1548,11 @@ u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma
                 const auto new_dmem_handle = CarvePhysArea(dmem_map, phys_addr, size_in_dma);
                 auto& new_dmem_area = new_dmem_handle->second;
                 new_dmem_area.dma_type = PhysicalMemoryType::Allocated;
+                if (new_dmem_area.map_count > 0) {
+                    --new_dmem_area.map_count;
+                }
+                new_dmem_area.va_delta =
+                    new_dmem_area.map_count == 0 ? 0 : PhysicalMemoryArea::UnknownVaDelta;
 
                 // Coalesce with nearby direct memory areas.
                 MergeAdjacent(dmem_map, new_dmem_handle);
@@ -1394,13 +1595,13 @@ u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma
     return size_in_vma;
 }
 
-s32 MemoryManager::UnmapMemoryImpl(VAddr virtual_addr, u64 size) {
+s32 MemoryManager::UnmapMemoryImpl(VAddr virtual_addr, u64 size, DeferredUnmaps* deferred) {
     u64 unmapped_bytes = 0;
     do {
         auto it = FindVMA(virtual_addr + unmapped_bytes);
         auto& vma_base = it->second;
-        auto unmapped =
-            UnmapBytesFromEntry(virtual_addr + unmapped_bytes, vma_base, size - unmapped_bytes);
+        auto unmapped = UnmapBytesFromEntry(virtual_addr + unmapped_bytes, vma_base,
+                                            size - unmapped_bytes, deferred);
         ASSERT_MSG(unmapped > 0, "Failed to unmap memory, progress is impossible");
         unmapped_bytes += unmapped;
     } while (unmapped_bytes < size);
@@ -1489,7 +1690,7 @@ s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot,
         return ORBIS_KERNEL_ERROR_EINVAL;
 
     auto preparation = impl.PrepareMapping(addr, size, True(prot & MemoryProt::CpuExec));
-    std::scoped_lock lk{mutex};
+    WriteHold lk{mutex, "Memory.WriteHold.Protect"};
 
     // Appropriately restrict flags.
     constexpr static MemoryProt flag_mask =
@@ -1626,6 +1827,18 @@ void MemoryManager::CheckPhysicalUnshared(const char* what, PAddr base, u64 size
     }
 }
 
+std::string MemoryManager::FreeIndexControl(std::span<const std::string> args) {
+    if (args.size() == 2 && args[0] == "verify" && (args[1] == "on" || args[1] == "off")) {
+        free_index_verify.store(args[1] == "on", std::memory_order_relaxed);
+    } else if (!(args.empty() || (args.size() == 1 && args[0] == "status"))) {
+        return "usage: vm_free_index [status] | verify on|off\n";
+    }
+    constexpr auto o = std::memory_order_relaxed;
+    return fmt::format("free_index lookups={} walks={} verify={} mismatches={}\n",
+                       free_index_lookups.load(o), free_index_walks.load(o),
+                       free_index_verify.load(o) ? "on" : "off", free_index_mismatches.load(o));
+}
+
 std::string MemoryManager::DescribeForCrash(VAddr addr) {
     if (!mutex.try_lock_shared()) {
         return "<memory map busy>";
@@ -1759,7 +1972,8 @@ s32 MemoryManager::DirectQueryAvailable(PAddr search_start, PAddr search_end, u6
 }
 
 s32 MemoryManager::SetDirectMemoryType(VAddr addr, u64 size, s32 memory_type) {
-    std::scoped_lock lk{mutex, unmap_mutex};
+    std::scoped_lock unmap_lk{unmap_mutex};
+    WriteHold lk{mutex, "Memory.WriteHold.SetDirectMemoryType"};
 
     if (size > UINT64_MAX - addr || !IsValidMapping(addr, size) ||
         memory_type < 0 || memory_type > 10)
@@ -1815,7 +2029,8 @@ void MemoryManager::SetDirectMemoryTypeLocked(VAddr addr, u64 size, s32 memory_t
 }
 
 s32 MemoryManager::NameVirtualRange(VAddr virtual_addr, u64 size, std::string_view name) {
-    std::scoped_lock lk{mutex, unmap_mutex};
+    std::scoped_lock unmap_lk{unmap_mutex};
+    WriteHold lk{mutex, "Memory.WriteHold.NameVirtualRange"};
 
     // This API is guest-facing. Validate under the same metadata lock used
     // below, including alignment overflow; invalid guest input must not assert.

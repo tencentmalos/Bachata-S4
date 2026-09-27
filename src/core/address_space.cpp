@@ -9,6 +9,7 @@
 #include "common/assert.h"
 #include "common/elf_info.h"
 #include "common/error.h"
+#include "common/profiler.h"
 #include "core/address_space.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/kernel/memory.h"
@@ -234,6 +235,7 @@ struct AddressSpace::Impl {
     }
 
     void* MapRegion(MemoryRegion* region) {
+        Common::Profiler::Scope scope{"AddressSpace.MapView"};
         VAddr virtual_addr = region->base;
         PAddr phys_addr = region->phys_base;
         u64 size = region->size;
@@ -294,6 +296,7 @@ struct AddressSpace::Impl {
     }
 
     void UnmapRegion(MemoryRegion* region) {
+        Common::Profiler::Scope scope{"AddressSpace.UnmapView"};
         VAddr virtual_addr = region->base;
         PAddr phys_base = region->phys_base;
         u64 size = region->size;
@@ -313,6 +316,7 @@ struct AddressSpace::Impl {
     }
 
     void SplitRegion(VAddr virtual_addr, u64 size) {
+        Common::Profiler::Scope scope{"AddressSpace.Split"};
         // First, get the region this range covers
         auto it = std::prev(regions.upper_bound(virtual_addr));
 
@@ -422,6 +426,7 @@ struct AddressSpace::Impl {
     }
 
     void CoalesceFreeRegions(VAddr virtual_addr) {
+        Common::Profiler::Scope scope{"AddressSpace.Coalesce"};
         // First, get the region to update
         auto it = std::prev(regions.upper_bound(virtual_addr));
         ASSERT_MSG(!it->second.is_mapped, "Cannot coalesce mapped regions");

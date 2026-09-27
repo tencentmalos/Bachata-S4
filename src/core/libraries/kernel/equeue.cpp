@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include <thread>
 #include <magic_enum/magic_enum.hpp>
 
@@ -184,33 +185,98 @@ int EqueueInternal::WaitForEvents(OrbisKernelEvent* ev, int num, const OrbisKern
     if (timo != nullptr && *timo == 0) {
         // Effectively acts as a poll; only events that have already
         // arrived at the time of this function call can be received
-        return GetTriggeredEvents(ev, num);
+        return TakeTriggered(ev, num);
     }
-    const auto micros = timo ? *timo : 0u;
-
-    if (HasSmallTimer()) {
-        // If a small timer is set, just wait for it to expire.
-        return WaitForSmallTimer(ev, num, micros);
+    std::optional<std::chrono::steady_clock::time_point> deadline;
+    if (timo != nullptr) {
+        deadline = std::chrono::steady_clock::now() + std::chrono::microseconds(*timo);
     }
-
-    int count = 0;
-
-    const auto predicate = [&] {
-        count = GetTriggeredEvents(ev, num);
-        return count > 0;
-    };
-
-    if (micros == 0) {
-        // Wait indefinitely for events
-        std::unique_lock lock{m_mutex};
-        m_cond.wait(lock, predicate);
-    } else {
-        // Wait up until the timeout value
-        std::unique_lock lock{m_mutex};
-        m_cond.wait_for(lock, std::chrono::microseconds(micros), predicate);
+    for (;;) {
+        const EqueueWaitResult result = WaitReady(deadline, {});
+        const int count = TakeTriggered(ev, num);
+        if (count > 0 || result != EqueueWaitResult::Ready) {
+            return count;
+        }
+        // Another waiter took the events first.
     }
+}
 
-    return count;
+bool EqueueInternal::HasReadyLocked(std::chrono::steady_clock::time_point now,
+                                    std::chrono::steady_clock::time_point* next_timer) const {
+    if (std::ranges::any_of(m_events, [](const EqueueEvent& ev) { return ev.IsTriggered(); })) {
+        return true;
+    }
+    bool expired = false;
+    for (const auto& [id, timer] : m_small_timers) {
+        const auto expiry = timer.added + timer.interval;
+        if (now >= expiry) {
+            expired = true;
+        } else if (next_timer && expiry < *next_timer) {
+            *next_timer = expiry;
+        }
+    }
+    return expired;
+}
+
+EqueueWaitResult EqueueInternal::WaitReady(
+    std::optional<std::chrono::steady_clock::time_point> deadline, std::stop_token stop) {
+    using Clock = std::chrono::steady_clock;
+    std::unique_lock lock{m_mutex};
+    for (;;) {
+        if (m_closed) {
+            return EqueueWaitResult::Closed;
+        }
+        const auto now = Clock::now();
+        auto next_timer = Clock::time_point::max();
+        if (HasReadyLocked(now, &next_timer)) {
+            return EqueueWaitResult::Ready;
+        }
+        if (stop.stop_requested()) {
+            return EqueueWaitResult::Interrupted;
+        }
+        if (deadline && now >= *deadline) {
+            return EqueueWaitResult::TimedOut;
+        }
+        if (next_timer != Clock::time_point::max() && next_timer - now <= SmallTimerSpin) {
+            // The last stretch before a small timer expires.
+            lock.unlock();
+            std::this_thread::yield();
+            lock.lock();
+            continue;
+        }
+        auto wake = deadline.value_or(Clock::time_point::max());
+        if (next_timer != Clock::time_point::max()) {
+            wake = std::min(wake, next_timer - SmallTimerSpin);
+        }
+        // Woken by triggers, Close and stop requests, and by a changed set of small timers: the
+        // loop then recomputes the wake-up time for the new earliest expiry.
+        const u64 timers_seen = m_small_timer_generation;
+        const auto woken = [this, timers_seen] {
+            return m_closed || m_small_timer_generation != timers_seen ||
+                   HasReadyLocked(Clock::now(), nullptr);
+        };
+        if (wake == Clock::time_point::max()) {
+            m_cond.wait(lock, stop, woken);
+        } else {
+            m_cond.wait_until(lock, stop, wake, woken);
+        }
+    }
+}
+
+int EqueueInternal::TakeTriggered(OrbisKernelEvent* ev, int num) {
+    std::scoped_lock lock{m_mutex};
+    if (m_closed) {
+        return 0;
+    }
+    return TakeTriggeredLocked(ev, num);
+}
+
+void EqueueInternal::Close() {
+    {
+        std::scoped_lock lock{m_mutex};
+        m_closed = true;
+    }
+    m_cond.notify_all();
 }
 
 bool EqueueInternal::TriggerEvent(u64 ident, s16 filter, void* trigger_data) {
@@ -233,11 +299,12 @@ bool EqueueInternal::TriggerEvent(u64 ident, s16 filter, void* trigger_data) {
             }
         }
     }
-    m_cond.notify_one();
+    // Several threads may wait on one queue with different capacities.
+    m_cond.notify_all();
     return has_found;
 }
 
-int EqueueInternal::GetTriggeredEvents(OrbisKernelEvent* ev, int num) {
+int EqueueInternal::TakeTriggeredLocked(OrbisKernelEvent* ev, int num) {
     int count = 0;
     for (auto it = m_events.begin(); it != m_events.end();) {
         if (it->IsTriggered()) {
@@ -259,6 +326,17 @@ int EqueueInternal::GetTriggeredEvents(OrbisKernelEvent* ev, int num) {
         }
     }
 
+    if (count < num && !m_small_timers.empty()) {
+        const auto now = std::chrono::steady_clock::now();
+        for (auto it = m_small_timers.begin(); it != m_small_timers.end() && count < num;) {
+            if (now - it->second.added >= it->second.interval) {
+                ev[count++] = it->second.event;
+                it = m_small_timers.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
     return count;
 }
 
@@ -277,39 +355,11 @@ bool EqueueInternal::AddSmallTimer(EqueueEvent& ev) {
     {
         std::scoped_lock lock{m_mutex};
         m_small_timers[st.event.ident] = std::move(st);
+        ++m_small_timer_generation;
     }
+    // A waiter sleeping on its deadline has to take the new expiry into account.
+    m_cond.notify_all();
     return true;
-}
-
-int EqueueInternal::WaitForSmallTimer(OrbisKernelEvent* ev, int num, u32 micros) {
-    ASSERT(num >= 1);
-
-    auto curr_clock = std::chrono::steady_clock::now();
-    const auto wait_end_us = (micros == 0) ? std::chrono::steady_clock::time_point::max()
-                                           : curr_clock + std::chrono::microseconds{micros};
-    int count = 0;
-    do {
-        curr_clock = std::chrono::steady_clock::now();
-        {
-            std::scoped_lock lock{m_mutex};
-            for (auto it = m_small_timers.begin(); it != m_small_timers.end() && count < num;) {
-                const SmallTimer& st = it->second;
-
-                if (curr_clock - st.added >= st.interval) {
-                    ev[count++] = st.event;
-                    it = m_small_timers.erase(it);
-                } else {
-                    ++it;
-                }
-            }
-
-            if (count > 0)
-                return count;
-        }
-        std::this_thread::yield();
-    } while (curr_clock < wait_end_us);
-
-    return 0;
 }
 
 bool EqueueInternal::EventExists(u64 id, s16 filter) {

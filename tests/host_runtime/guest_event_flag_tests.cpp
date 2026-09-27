@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <atomic>
+#include <chrono>
 #include <cstdio>
 #include <future>
 #include <thread>

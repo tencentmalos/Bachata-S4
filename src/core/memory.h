@@ -5,6 +5,7 @@
 
 #include <array>
 #include <atomic>
+#include <limits>
 #include <map>
 #include <mutex>
 #include <optional>
@@ -18,6 +19,7 @@
 #include "common/singleton.h"
 #include "common/types.h"
 #include "core/address_space.h"
+#include "core/guest_read_cache.h"
 #include "core/libraries/kernel/memory.h"
 #include "core/rasterizer_hooks.h"
 
@@ -91,10 +93,19 @@ enum class PhysicalMemoryType : u32 {
 };
 
 struct PhysicalMemoryArea {
+    /// va_delta value of an area whose single mapping address is not known (see below).
+    static constexpr s64 UnknownVaDelta = std::numeric_limits<s64>::min();
+
     PAddr base = 0;
     u64 size = 0;
     s32 memory_type = 0;
     PhysicalMemoryType dma_type = PhysicalMemoryType::Free;
+    // dmem_map only: the number of direct mappings of this area and, while there is exactly
+    // one and its address is known, that virtual address minus the physical address. Free uses
+    // it to find the mappings of a block without walking every VMA. Copies kept in a VMA's
+    // phys_areas leave both zero.
+    u32 map_count = 0;
+    s64 va_delta = 0;
 
     PAddr GetEnd() const {
         return base + size;
@@ -108,6 +119,9 @@ struct PhysicalMemoryArea {
             return false;
         }
         if (dma_type != next.dma_type) {
+            return false;
+        }
+        if (map_count != next.map_count || va_delta != next.va_delta) {
             return false;
         }
         return true;
@@ -281,6 +295,11 @@ public:
     void SetPrtArea(u32 id, VAddr address, u64 size);
 
     void CopySparseMemory(VAddr source, u8* dest, u64 size);
+
+    /// CopySparseMemory through a caller-owned cache of mapped ranges (see GuestReadCache).
+    void CopySparseMemory(VAddr source, u8* dest, u64 size, GuestReadCache& cache);
+    /// DebugBus `upload_diag read_cache on|off`.
+    static inline std::atomic<bool> read_cache_enabled{true};
     /// CopySparseMemory for a source that may not be guest memory: one locked mapping
     /// check instead of an unlocked pre-check plus the locked one. False when unmapped.
     bool TryCopySparseMemory(VAddr source, u8* dest, u64 size);
@@ -376,6 +395,10 @@ public:
     /// corruption that appears far from its writer). Never blocks; empty for unmapped memory.
     std::string DescribeForCrash(VAddr addr);
 
+    /// DebugBus `vm_free_index`: status, or `verify on|off` (Free also walks every VMA and
+    /// compares; on a mismatch the walk's result is used and counted).
+    std::string FreeIndexControl(std::span<const std::string> args);
+
     /// For crash reports: recent mapping changes (map, unmap, protect, pool commit/decommit)
     /// whose range contains one of `addresses`, newest first. Never blocks.
     std::vector<std::string> DescribeMappingHistoryForCrash(std::span<const VAddr> addresses);
@@ -446,18 +469,29 @@ private:
 
     PhysHandle Split(PhysMap& map, PhysHandle dmem_handle, u64 offset_in_area);
 
-    u64 UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma_base, u64 size);
+    /// Host view removals postponed until the writer lock is released (see Free).
+    using DeferredUnmaps = std::vector<std::pair<VAddr, u64>>;
 
-    s32 UnmapMemoryImpl(VAddr virtual_addr, u64 size);
+    u64 UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma_base, u64 size,
+                            DeferredUnmaps* deferred = nullptr);
+
+    s32 UnmapMemoryImpl(VAddr virtual_addr, u64 size, DeferredUnmaps* deferred = nullptr);
 
 private:
     AddressSpace impl;
     bool guest_backend{};
     void Initialize();
     PhysMap dmem_map;
+    /// No free direct memory area starts below this address: first-fit searches that may
+    /// begin lower start here instead of walking every allocated area. Lowered when memory is
+    /// freed, raised by searches. Guarded by the writer lock.
+    PAddr dmem_free_hint{};
+    // Free's direct-mapping lookup (dmem area map counts) statistics and verification switch.
+    std::atomic<bool> free_index_verify{false};
+    std::atomic<u64> free_index_lookups{}, free_index_walks{}, free_index_mismatches{};
     PhysMap fmem_map;
     VMAMap vma_map;
-    Common::SharedFirstMutex mutex{};
+    Common::SharedFirstMutex mutex{"Memory.LockWait"};
     friend class HostRuntime::GuestRuntime;
     // Linker/patch publication participates in mapping-writer ordering only.
     // This capability must never be passed to data marshalling/HLE domains.

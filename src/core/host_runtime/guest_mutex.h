@@ -19,6 +19,13 @@
 #include "core/host_runtime/guest_sync_abi.h"
 #include "core/host_runtime/guest_sync_waiters.h"
 #include "core/libraries/kernel/posix_error.h"
+#include "core/libraries/kernel/sync/condition_variable.h"
+#include "core/libraries/kernel/sync/lock_word.h"
+
+// The guest mutex word follows the shared protocol of Libraries::Kernel::Sync::LockWordState.
+static_assert(SHAD_SYNC_STATE_FREE == Libraries::Kernel::Sync::LockWordState::Free);
+static_assert(SHAD_SYNC_STATE_HELD == Libraries::Kernel::Sync::LockWordState::Held);
+static_assert(SHAD_SYNC_STATE_CONTENDED == Libraries::Kernel::Sync::LockWordState::Contended);
 
 namespace Core::HostRuntime {
 // Orbis mutex state lives in the guest ABI prefix (guest_sync_abi.h): owner,
@@ -115,20 +122,13 @@ private:
         bucket.store(state, std::memory_order_release);
     }
     std::map<u64, AttributeState> attributes;
-    struct Waiter {
-        u64 owner{};
-        u64 mutex{};
-        bool notified{};
-        bool reacquiring{};
-        std::condition_variable changed;
-    };
+    // The waiting and notification protocol is the shared
+    // Libraries::Kernel::Sync::ConditionVariable the desktop kernel also uses;
+    // this domain supplies the guest mutex word, clocks and cancellation.
     struct Cond {
-        // Shared ownership lets a notifier signal a selected waiter after the
-        // condition guard is released, even if that waiter has already left.
-        std::vector<std::shared_ptr<Waiter>> waiters;
+        Libraries::Kernel::Sync::ConditionVariable cv;
         u32 clock{};
-        bool retired{};
-        std::mutex guard;
+        std::atomic<bool> retired{};
     };
     std::map<u64, std::shared_ptr<Cond>> conditions;
     std::map<u64, u32> condition_attributes;
@@ -522,25 +522,21 @@ public:
             if (it == conditions.end()) return POSIX_EINVAL;
             state = it->second;
         }
-        std::vector<std::shared_ptr<Waiter>> selected;
-        {
-            std::lock_guard lock(state->guard);
-            if (state->retired) return POSIX_EINVAL;
-            for (const auto& waiter : state->waiters) {
-                if (waiter->notified || waiter->reacquiring ||
-                    (target_owner && waiter->owner != target_owner)) continue;
-                waiter->notified = true;
-                TraceCond(CondTraceKind::Notified, addr, waiter->mutex, waiter->owner);
-                selected.push_back(waiter);
-                if (!broadcast) break;
-            }
+        if (state->retired.load(std::memory_order_acquire)) return POSIX_EINVAL;
+        // Each waiter has its own wake slot: a targeted signal neither wakes every
+        // owner nor an unselected one, and waiters are woken after the condition
+        // lock is released so they do not block on it.
+        const auto trace = [&](const Libraries::Kernel::Sync::ConditionVariable::Waiter& waiter) {
+            TraceCond(CondTraceKind::Notified, addr,
+                      static_cast<const Mutex*>(waiter.context)->address, waiter.owner);
+            return false;
+        };
+        if (broadcast) {
+            state->cv.Broadcast(trace);
+            return 0;
         }
-        // Each waiter has its own native condition. A targeted signal must
-        // neither wake every owner nor accidentally wake an unselected one.
-        // `notified` was published under the condition guard; notifying after
-        // releasing it keeps the woken waiter from blocking on that guard.
-        for (const auto& waiter : selected) waiter->changed.notify_one();
-        return target_owner && selected.empty() ? POSIX_EPERM : 0;
+        const bool selected = state->cv.Signal(target_owner, trace);
+        return target_owner && !selected ? POSIX_EPERM : 0;
     }
     int CondDestroy(u64 slot) {
         std::lock_guard registry(guard);
@@ -551,11 +547,10 @@ public:
         auto it = conditions.find(addr);
         if (it == conditions.end()) return POSIX_EINVAL;
         auto state = it->second;
-        std::lock_guard lock(state->guard);
-        if (!state->waiters.empty()) return POSIX_EBUSY;
+        if (state->cv.Busy()) return POSIX_EBUSY;
         if (!Writable(slot, 8)) return POSIX_EFAULT;
         Write(slot, u64{1});
-        state->retired = true;
+        state->retired.store(true, std::memory_order_release);
         conditions.erase(it);
         return 0;
     }
@@ -563,6 +558,99 @@ public:
         std::optional<u64> relative_us;
         std::optional<std::chrono::nanoseconds> absolute;
     };
+private:
+    // The guest side of a condition wait (see sync/condition_variable.h). The
+    // mutex is released and the waiter queued atomically under the condition
+    // lock; neither the registry nor a VM pin survives the wait.
+    struct CondPlatform {
+        GuestMutexDomain& domain;
+        Cond& c;
+        Mutex& m;
+        u64 owner;
+        u64 addr;
+        std::stop_token cancel;
+        const CondDeadline& limit;
+        u32 depth{};
+        int error{}; ///< A guest clock failure ends the wait with this error.
+        std::shared_ptr<Libraries::Kernel::Sync::ParkerSlot> slot;
+        std::optional<std::chrono::steady_clock::time_point> relative_deadline;
+
+        std::shared_ptr<Libraries::Kernel::Sync::WaitSlot> Slot() {
+            if (!slot) slot = std::make_shared<Libraries::Kernel::Sync::ParkerSlot>(cancel);
+            return slot;
+        }
+        u64 Owner() const { return owner; }
+        const void* Context() const { return &m; }
+        Libraries::Kernel::Sync::ParkerWait::NoCritical Critical() const { return {}; }
+        int ReleaseMutex() {
+            auto o = domain.Open(m);
+            if (o.prefix->owner != owner) return POSIX_EPERM;
+            m.cond_waiters.fetch_add(1, std::memory_order_acq_rel);
+            depth = o.prefix->count;
+            domain.ReleaseWord(m, o);
+            domain.TraceCond(CondTraceKind::Enqueued, addr, m.address, owner);
+            return 0;
+        }
+        // A stop requested before the wait still releases the mutex and ends at
+        // once, then reacquires as below.
+        bool BeforePark() const { return !cancel.stop_requested(); }
+        Libraries::Kernel::Sync::ParkResult Park() {
+            using Libraries::Kernel::Sync::ParkResult;
+            SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
+            if (limit.relative_us) {
+                if (!relative_deadline) {
+                    const auto now = std::chrono::steady_clock::now();
+                    const auto available = std::chrono::duration_cast<std::chrono::microseconds>(
+                                               std::chrono::steady_clock::time_point::max() - now).count();
+                    relative_deadline = *limit.relative_us > u64(available)
+                                            ? std::chrono::steady_clock::time_point::max()
+                                            : now + std::chrono::microseconds(*limit.relative_us);
+                }
+                return slot->Park(relative_deadline);
+            }
+            if (limit.absolute) {
+                // Guest clocks may be non-monotonic or virtual: recheck in slices.
+                for (;;) {
+                    Libraries::Kernel::OrbisKernelTimespec current{};
+                    std::chrono::nanoseconds now{};
+                    if (const int e = domain.clock.Read(c.clock, current, false)) {
+                        error = e;
+                        return ParkResult::TimedOut;
+                    }
+                    if (!GuestClock::Duration(current, now)) {
+                        error = POSIX_EINVAL;
+                        return ParkResult::TimedOut;
+                    }
+                    if (now >= *limit.absolute) return ParkResult::TimedOut;
+                    const auto slice = std::min(*limit.absolute - now,
+                                                std::chrono::nanoseconds(std::chrono::milliseconds(20)));
+                    const auto parked = slot->Park(std::chrono::steady_clock::now() +
+                                                   std::chrono::duration_cast<std::chrono::steady_clock::duration>(slice));
+                    if (parked != ParkResult::TimedOut) return parked;
+                }
+            }
+            return slot->Park({});
+        }
+        void AfterPark() const {
+            domain.TraceCond(CondTraceKind::Resumed, addr, m.address, owner,
+                             cancel.stop_requested() ? POSIX_EINTR : 0);
+        }
+        // Session cancellation is terminal and must not wait for a stopped
+        // owner: a free word is still taken, a held one is not waited for.
+        int ReacquireMutex() {
+            SyncMetrics::Phase reacquire_phase{SyncMetrics::Stage::Reacquire};
+            const int reacquired = domain.AcquireWord(m, owner, cancel);
+            if (!reacquired) {
+                auto o = domain.Open(m);
+                o.prefix->count = depth;
+            }
+            m.cond_waiters.fetch_sub(1, std::memory_order_acq_rel);
+            domain.TraceCond(CondTraceKind::Reacquired, addr, m.address, owner,
+                             cancel.stop_requested() ? POSIX_EINTR : reacquired);
+            return reacquired;
+        }
+    };
+public:
     int CondWait(u64 slot, u64 mutex_slot, u64 owner, std::stop_token cancel,
                  const CondDeadline& limit = {}) {
         std::shared_ptr<Cond> condition;
@@ -587,91 +675,11 @@ public:
         }
         auto& c = *condition;
         auto& m = *state;
-        auto waiter_ref = std::make_shared<Waiter>();
-        waiter_ref->owner = owner;
-        waiter_ref->mutex = m.address;
-        auto& waiter = *waiter_ref;
-        // Construct before taking the condition guard; destruction follows queue
-        // removal and guard release, and precedes destruction of the waiter.
-        // Mutex reacquisition parks in GuestAddressWaiters, which observes the
-        // same token itself.
-        std::stop_callback on_stop(cancel, [&] {
-            std::lock_guard lock(c.guard);
-            waiter.changed.notify_one();
-        });
-        std::unique_lock cond_lock(c.guard);
-        if (c.retired || m.retired.load(std::memory_order_acquire)) return POSIX_EINVAL;
-        u32 depth{};
-        {
-            // Enqueue and guest unlock are atomic with respect to notification:
-            // both happen under the condition guard, and a notifier needs that
-            // guard before it can select this waiter. Neither the registry nor
-            // a VM pin survives the wait.
-            auto o = Open(m);
-            if (o.prefix->owner != owner) return POSIX_EPERM;
-            c.waiters.push_back(waiter_ref);
-            m.cond_waiters.fetch_add(1, std::memory_order_acq_rel);
-            depth = o.prefix->count;
-            ReleaseWord(m, o);
-        }
-        struct Waiting {
-            Cond& c;
-            Mutex& m;
-            Waiter& waiter;
-            std::unique_lock<std::mutex>& cond_lock;
-            ~Waiting() {
-                if (cond_lock.owns_lock()) cond_lock.unlock();
-                {
-                    std::lock_guard lock(c.guard);
-                    std::erase_if(c.waiters, [&](const auto& item) { return item.get() == &waiter; });
-                }
-                m.cond_waiters.fetch_sub(1, std::memory_order_acq_rel);
-            }
-        } waiting{c, m, waiter, cond_lock};
-        TraceCond(CondTraceKind::Enqueued, addr, m.address, owner);
-        const auto ready = [&] { return waiter.notified || cancel.stop_requested(); };
-        int result{};
-        SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-        if (limit.relative_us) {
-            const auto now = std::chrono::steady_clock::now();
-            const auto available = std::chrono::duration_cast<std::chrono::microseconds>(
-                                       std::chrono::steady_clock::time_point::max() - now).count();
-            const auto deadline = *limit.relative_us > u64(available)
-                                      ? std::chrono::steady_clock::time_point::max()
-                                      : now + std::chrono::microseconds(*limit.relative_us);
-            if (!waiter.changed.wait_until(cond_lock, deadline, ready)) result = POSIX_ETIMEDOUT;
-        } else if (limit.absolute) {
-            while (!ready()) {
-                Libraries::Kernel::OrbisKernelTimespec current{};
-                std::chrono::nanoseconds now{};
-                result = clock.Read(c.clock, current, false);
-                if (result) break;
-                if (!GuestClock::Duration(current, now)) { result = POSIX_EINVAL; break; }
-                if (now >= *limit.absolute) { result = POSIX_ETIMEDOUT; break; }
-                // Recheck non-monotonic/virtual clocks as before.
-                waiter.changed.wait_for(cond_lock,
-                    std::min(*limit.absolute - now,
-                             std::chrono::nanoseconds(std::chrono::milliseconds(20))), ready);
-            }
-        } else {
-            waiter.changed.wait(cond_lock, ready);
-        }
-        park_phase.End();
-        TraceCond(CondTraceKind::Resumed, addr, m.address, owner,
-                  cancel.stop_requested() ? POSIX_EINTR : result);
-        waiter.reacquiring = true;
-        cond_lock.unlock();
-        SyncMetrics::Phase reacquire_phase{SyncMetrics::Stage::Reacquire};
-        // Session cancellation is terminal and must not wait for a stopped
-        // owner: a free word is still taken, a held one is not waited for.
-        const int reacquired = AcquireWord(m, owner, cancel);
-        if (!reacquired) {
-            auto o = Open(m);
-            o.prefix->count = depth;
-        }
-        reacquire_phase.End();
-        TraceCond(CondTraceKind::Reacquired, addr, m.address, owner,
-                  cancel.stop_requested() ? POSIX_EINTR : result);
+        if (c.retired.load(std::memory_order_acquire) || m.retired.load(std::memory_order_acquire))
+            return POSIX_EINVAL;
+        CondPlatform platform{*this, c, m, owner, addr, cancel, limit};
+        const int result = c.cv.Wait(platform);
+        if (platform.error) return platform.error;
         return cancel.stop_requested() ? POSIX_EINTR : result;
     }
     // Lock contenders parked on the word plus condition waiters queued against
@@ -691,9 +699,7 @@ public:
             if (it == conditions.end()) return 0;
             state = it->second;
         }
-        std::lock_guard lock(state->guard);
-        return std::count_if(state->waiters.begin(), state->waiters.end(),
-                             [](const auto& waiter) { return waiter->reacquiring; });
+        return state->cv.Reacquiring();
     }
     int IsOwned(u64 slot, u64 owner) {
         int error{};
