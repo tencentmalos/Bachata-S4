@@ -18,6 +18,7 @@
 #include "common/types.h"
 #include "core/address_space.h"
 #include "core/emulator_settings.h"
+#include "video_core/buffer_cache/gpu_byte_keeper.h"
 #include "video_core/buffer_cache/region_manager.h"
 
 namespace VideoCore {
@@ -37,6 +38,11 @@ public:
 public:
     explicit MemoryTracker(PageManager& tracker_) : tracker{&tracker_} {}
     ~MemoryTracker() = default;
+
+    /// Bytes written by the GPU that CPU writes beside them must not replace (readbacks off).
+    GpuByteKeeper& Keeper() {
+        return keeper;
+    }
 
     /// Returns true if a region has been modified from the CPU
     bool IsRegionCpuModified(VAddr query_cpu_addr, u64 query_size) noexcept {
@@ -90,7 +96,7 @@ public:
     /// Removes all protection from a page and ensures GPU data has been flushed if requested
     void InvalidateRegion(VAddr cpu_addr, u64 size, auto&& on_flush) noexcept {
         IteratePages<false>(
-            cpu_addr, size, [&on_flush](RegionManager* manager, u64 offset, size_t size) {
+            cpu_addr, size, [this, &on_flush](RegionManager* manager, u64 offset, size_t size) {
                 const bool should_flush = [&] {
                     // Perform both the GPU modification check and CPU state change with the lock
                     // in case we are racing with GPU thread trying to mark the page as GPU
@@ -101,8 +107,7 @@ public:
                         if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled) {
                             return true;
                         }
-                        Core::gpu_watch_counters.NoteGpuDataOverwrite(manager->GetCpuAddr() +
-                                                                      offset);
+                        NoteCpuWriteOverGpuPages(manager, offset, size);
                     }
                     manager->template ChangeRegionState<Type::CPU, true>(
                         manager->GetCpuAddr() + offset, size);
@@ -127,8 +132,7 @@ public:
                         if (EmulatorSettings.GetReadbacksMode() != GpuReadbacksMode::Disabled) {
                             return true;
                         }
-                        Core::gpu_watch_counters.NoteGpuDataOverwrite(manager->GetCpuAddr() +
-                                                                      offset);
+                        NoteCpuWriteOverGpuPages(manager, offset, bytes);
                     }
                     predicted +=
                         manager->MarkWriteFault(manager->GetCpuAddr() + offset, bytes, predict);
@@ -227,6 +231,32 @@ private:
      * @param func Callback for each word manager.
      * @return
      */
+    /// Readbacks off, the CPU writes [offset, offset + size) of `manager`'s region and some of
+    /// those pages hold GPU data: keep the GPU bytes of pages written beside them, count the
+    /// others as lost. Called under the region lock.
+    void NoteCpuWriteOverGpuPages(RegionManager* manager, u64 offset, u64 size) {
+        const VAddr base = manager->GetCpuAddr();
+        const VAddr lo = base + offset;
+        const VAddr hi = lo + size;
+        // Large explicit invalidations (unmaps, bulk HLE writes) take the pages over as before.
+        if (size > 16 * TRACKER_BYTES_PER_PAGE) {
+            Core::gpu_watch_counters.NoteGpuDataOverwrite(lo);
+            return;
+        }
+        for (VAddr page = lo & ~(TRACKER_BYTES_PER_PAGE - 1); page < hi;
+             page += TRACKER_BYTES_PER_PAGE) {
+            if (!manager->template IsRegionModified<Type::GPU>(page - base,
+                                                               TRACKER_BYTES_PER_PAGE)) {
+                continue;
+            }
+            const VAddr begin = std::max(lo, page);
+            const VAddr end = std::min(hi, page + TRACKER_BYTES_PER_PAGE);
+            if (!keeper.OnCpuWrite(page, begin, end - begin)) {
+                Core::gpu_watch_counters.NoteGpuDataOverwrite(begin);
+            }
+        }
+    }
+
     template <bool create_region_on_fail, typename Func>
     bool IteratePages(VAddr cpu_address, size_t size, Func&& func) {
         RENDERER_TRACE;
@@ -304,6 +334,7 @@ private:
     }
 
     PageManager* tracker;
+    GpuByteKeeper keeper;
     std::deque<std::array<RegionManager, MANAGER_POOL_SIZE>> manager_pool;
     std::vector<RegionManager*> free_managers;
     std::vector<std::unique_ptr<RegionDirectory>> directories;

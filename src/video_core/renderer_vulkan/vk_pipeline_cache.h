@@ -100,6 +100,11 @@ public:
     bool LoadGraphicsPipeline(Serialization::Archive& ar, PreloadJob& job);
     bool LoadPipelineStage(Serialization::Archive& ar, size_t stage);
 
+    /// Why the last GetGraphicsPipeline returned null (for capture labels of dropped draws).
+    const char* RejectReason() const noexcept {
+        return reject_reason ? reject_reason : "pipeline unavailable";
+    }
+
     const GraphicsPipeline* GetGraphicsPipeline(const DrawIndirectParams params = {});
 
     const ComputePipeline* GetComputePipeline();
@@ -201,6 +206,7 @@ private:
     std::array<vk::ShaderModule, MaxShaderStages> modules{};
     std::optional<Shader::Gcn::FetchShaderData> fetch_shader{};
     GraphicsPipelineKey graphics_key{};
+    const char* reject_reason{}; // why the last graphics key could not be built
     ComputePipelineKey compute_key{};
     u32 num_new_pipelines{}; // new pipelines added to the cache since the game start
 

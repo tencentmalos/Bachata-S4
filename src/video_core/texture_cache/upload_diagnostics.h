@@ -75,6 +75,25 @@ enum class FillOutcome : u8 {
     Count,
 };
 inline std::atomic<bool> fill_clear_off{false};
+
+// Raw (unformatted) buffer reads of GPU-written images tile the image back into the buffer cache
+// first (BufferCache::SynchronizeMemoryFromGpuImage). `raw_sync_off` is the runtime A/B switch
+// (`upload_diag raw_sync on|off`); raw_sync_stale counts images passed over because guest memory
+// under them was written through the buffer path after them.
+inline std::atomic<bool> raw_sync_off{false};
+inline std::atomic<u64> raw_syncs{0}, raw_sync_bytes{0}, raw_sync_stale{0};
+
+// Raw dword copy kernels between two same-layout images replaced by an image copy
+// (Rasterizer::TryComputeRawImageCopy); `upload_diag raw_copy on|off`.
+inline std::atomic<bool> raw_copy_off{false};
+// Largest read-only buffer copied into the stream buffer instead of bound from the arena
+// (`upload_diag stream_max <bytes>`; capped by BufferCache::STREAM_THRESHOLD).
+inline std::atomic<u32> stream_max{16384};
+// Discrete GPUs: streamed data (small read-only buffers, per-draw constants) goes to a stream
+// buffer in host memory instead of device memory the CPU writes through the PCIe BAR. On by
+// default there (`upload_diag stream_host on|off`); other GPUs have one stream buffer.
+inline std::atomic<bool> stream_host{true};
+inline std::atomic<u64> raw_copies{0}, raw_copy_bytes{0}, raw_copy_fallbacks{0};
 void NoteFill(FillOutcome outcome, u32 images_cleared, u64 bytes);
 
 // `writer` is the binding shader's program hash for GPU writes, 0 otherwise.
@@ -84,7 +103,8 @@ void NoteUpload(const UploadEvent& event);
 void NoteDispatch(u64 pgm_hash, u32 dim_x, u32 dim_y, u32 dim_z, bool indirect,
                   std::span<const DispatchBinding> bindings);
 
-// start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off
+// start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off |
+// raw_sync on|off | raw_copy on|off
 std::string Command(const std::vector<std::string>& args);
 
 } // namespace VideoCore::UploadDiagnostics

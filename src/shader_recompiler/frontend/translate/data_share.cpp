@@ -135,7 +135,7 @@ void Translator::DS_OP(const GcnInst& inst, AtomicOp op, bool rtn) {
     }();
     const IR::U32 offset =
         ir.Imm32((u32(inst.control.ds.offset1) << 8u) + u32(inst.control.ds.offset0));
-    const IR::U32 addr_offset = ir.IAdd(addr, offset);
+    const IR::U32 addr_offset = GdsAddress(ir.IAdd(addr, offset), is_gds);
     const T original_val = [&] -> T {
         switch (op) {
         case AtomicOp::Add:
@@ -178,7 +178,7 @@ void Translator::DS_CMPST(int bit_size, bool rtn, const GcnInst& inst) {
     const IR::U32 addr{GetSrc(inst.src[0])};
     const IR::U32 offset =
         ir.Imm32((u32(inst.control.ds.offset1) << 8u) + u32(inst.control.ds.offset0));
-    const IR::U32 addr_offset = ir.IAdd(addr, offset);
+    const IR::U32 addr_offset = GdsAddress(ir.IAdd(addr, offset), is_gds);
     if (bit_size == 64) {
         const IR::U64 cmp_value{GetSrc64(inst.src[1])};
         const IR::U64 write_value{GetSrc64(inst.src[2])};
@@ -201,7 +201,7 @@ void Translator::DS_CMPST(int bit_size, bool rtn, const GcnInst& inst) {
 void Translator::DS_WRITE(int bit_size, bool is_signed, bool is_pair, bool stride64,
                           const GcnInst& inst) {
     const bool is_gds = inst.control.ds.gds;
-    const IR::U32 addr{ir.GetVectorReg(IR::VectorReg(inst.src[0].code))};
+    const IR::U32 addr{GdsAddress(ir.GetVectorReg(IR::VectorReg(inst.src[0].code)), is_gds)};
     const IR::VectorReg data0{inst.src[1].code};
     const IR::VectorReg data1{inst.src[2].code};
     const u32 offset = (inst.control.ds.offset1 << 8u) + inst.control.ds.offset0;
@@ -252,7 +252,7 @@ void Translator::DS_WRITE(int bit_size, bool is_signed, bool is_pair, bool strid
 void Translator::DS_READ(int bit_size, bool is_signed, bool is_pair, bool stride64,
                          const GcnInst& inst) {
     const bool is_gds = inst.control.ds.gds;
-    const IR::U32 addr{ir.GetVectorReg(IR::VectorReg(inst.src[0].code))};
+    const IR::U32 addr{GdsAddress(ir.GetVectorReg(IR::VectorReg(inst.src[0].code)), is_gds)};
     IR::VectorReg dst_reg{inst.dst[0].code};
     const u32 offset = (inst.control.ds.offset1 << 8u) + inst.control.ds.offset0;
     if (is_pair) {
@@ -333,6 +333,13 @@ void Translator::DS_SWIZZLE_B32(const GcnInst& inst) {
             SetDst(inst.dst[0], ir.Shuffle(src, ir.BitwiseOr(index, half)));
         }
     }
+}
+
+IR::U32 Translator::GdsAddress(const IR::U32& address, bool is_gds) {
+    if (!is_gds) {
+        return address;
+    }
+    return ir.IAdd(ir.BitFieldExtract(ir.GetM0(), ir.Imm32(16), ir.Imm32(16)), address);
 }
 
 void Translator::DS_APPEND(const GcnInst& inst) {

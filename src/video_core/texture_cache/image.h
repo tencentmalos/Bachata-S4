@@ -176,6 +176,7 @@ struct Image {
     void MarkGpuWrite(bool storage = false) {
         scale_plan->origin = storage ? ScaleOrigin::Compute : ScaleOrigin::Render;
         ++scale_plan->content_version;
+        NoteWrite();
     }
     void CheckUploadBudget();
     bool IsReencoded() const { return block_codec != BlockCodec::None; }
@@ -244,6 +245,18 @@ public:
     u64 tick_accessed_last{};
     u64 hash{};
     bool uploaded{}; // contents were uploaded from guest memory at least once
+    // Raw buffer reads of a GPU-written image tile it back into the buffer cache (see
+    // BufferCache::SynchronizeMemoryFromGpuImage). write_epoch counts writes to the image's
+    // contents; buffer_synced_version is the epoch last tiled back. buffer_overwritten is set when
+    // guest memory under the image is written through the buffer path after the image's last
+    // write: the memory is then newer and the image must not be tiled over it.
+    u64 write_epoch{};
+    u64 buffer_synced_version{~u64{0}};
+    bool buffer_overwritten{};
+    void NoteWrite() {
+        ++write_epoch;
+        buffer_overwritten = false;
+    }
 
     struct {
         u32 texture : 1;

@@ -661,6 +661,7 @@ bool PipelineCache::RefreshGraphicsStages() {
     const auto& regs = liverpool->regs;
     auto& key = graphics_key;
     fetch_shader = std::nullopt;
+    reject_reason = "shader stage not bound";
 
     Shader::Backend::Bindings binding{};
     const auto bind_stage = [&](HwStage stage_in, SwStage stage_out) -> bool {
@@ -706,10 +707,13 @@ bool PipelineCache::RefreshGraphicsStages() {
     case AmdGpu::ShaderStageEnable::VgtStages::EsGs:
         if (!instance.IsGeometryStageSupported()) {
             LOG_WARNING(Render_Vulkan, "Geometry shader stage unsupported, skipping");
+            reject_reason = "geometry stage unsupported";
             return false;
         }
         if (regs.vgt_gs_mode.onchip || regs.vgt_strmout_config.raw) {
             LOG_WARNING(Render_Vulkan, "Geometry shader features unsupported, skipping");
+            reject_reason = regs.vgt_gs_mode.onchip ? "on-chip geometry shader unsupported"
+                                                    : "stream-out unsupported";
             return false;
         }
         if (!bind_stage(HwStage::Export, SwStage::Vertex)) {
@@ -721,6 +725,7 @@ bool PipelineCache::RefreshGraphicsStages() {
         break;
     case AmdGpu::ShaderStageEnable::VgtStages::LsHs:
         if (!instance.IsTessellationSupported()) {
+            reject_reason = "tessellation unsupported";
             return false;
         }
         if (!bind_stage(HwStage::Hull, SwStage::TessellationControl)) {
@@ -735,14 +740,18 @@ bool PipelineCache::RefreshGraphicsStages() {
         break;
     case AmdGpu::ShaderStageEnable::VgtStages::LsHsEsGs:
         if (!instance.IsTessellationSupported()) {
+            reject_reason = "tessellation unsupported";
             return false;
         }
         if (!instance.IsGeometryStageSupported()) {
             LOG_WARNING(Render_Vulkan, "Geometry shader stage unsupported, skipping");
+            reject_reason = "geometry stage unsupported";
             return false;
         }
         if (regs.vgt_gs_mode.onchip || regs.vgt_strmout_config.raw) {
             LOG_WARNING(Render_Vulkan, "Geometry shader features unsupported, skipping");
+            reject_reason = regs.vgt_gs_mode.onchip ? "on-chip geometry shader unsupported"
+                                                    : "stream-out unsupported";
             return false;
         }
         if (!bind_stage(HwStage::Hull, SwStage::TessellationControl)) {
@@ -763,6 +772,7 @@ bool PipelineCache::RefreshGraphicsStages() {
         break;
     default:
         LOG_WARNING(Render_Vulkan, "unimplemented shader stage {}", (u32)regs.stage_enable.raw);
+        reject_reason = "unimplemented shader stage configuration";
         return false;
     }
 

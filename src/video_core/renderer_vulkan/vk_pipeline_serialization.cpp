@@ -21,7 +21,7 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 24u; // whole-wave reductions as clustered ops
+static constexpr u32 ShaderBinaryVersion = 25u; // GDS instructions add the M0 base
 #ifdef ARCH_X86_64
 static constexpr u32 ShaderMetaVersion = 14u; // sample coverage in fragment runtime info
 #else

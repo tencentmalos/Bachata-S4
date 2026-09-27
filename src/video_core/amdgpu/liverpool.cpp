@@ -3,8 +3,10 @@
 
 #include <boost/preprocessor/stringize.hpp>
 
+#include "common/arch.h"
 #include "common/assert.h"
 #include "common/debug.h"
+#include "common/profiler.h"
 #include "common/polyfill_thread.h"
 #include "common/thread.h"
 #include "core/debug_state.h"
@@ -46,6 +48,16 @@ static const char* acb_task_name[] = NAME_ARRAY(ACB_TASK, MAX_NAMES);
 #define YIELD_CE() YIELD(ccb_task_name)
 #define YIELD_GFX() YIELD(dcb_task_name)
 #define YIELD_ASC(id) YIELD(acb_task_name[id])
+
+// A yield because the queue waits for memory the guest CPU or another queue has yet to write.
+// When every queue with work only yields this way, the command processor backs off instead of
+// resuming them in a tight loop.
+#define YIELD_WAIT(name)                                                                           \
+    waiting_yield = true;                                                                          \
+    YIELD(name)
+
+#define YIELD_WAIT_GFX() YIELD_WAIT(dcb_task_name)
+#define YIELD_WAIT_ASC(id) YIELD_WAIT(acb_task_name[id])
 
 #define RESUME(task, name)                                                                         \
     FIBER_EXIT;                                                                                    \
@@ -149,11 +161,27 @@ void Liverpool::Process(std::stop_token stoken) {
         VideoCore::StartCapture();
 
         curr_qid = -1;
+        // Per round over the queues: whether any queue got further, and whether one waited.
+        bool round_progress = false;
+        bool round_waited = false;
+        u32 idle_rounds = 0;
 
         while (!stoken.stop_requested() && (num_submits || num_commands)) {
-            ProcessCommands();
+            if (num_commands) {
+                ProcessCommands();
+                round_progress = true;
+            }
 
             curr_qid = (curr_qid + 1) % num_mapped_queues.load();
+            if (curr_qid == 0) {
+                if (round_waited && !round_progress) {
+                    IdleBackoff(++idle_rounds);
+                } else {
+                    idle_rounds = 0;
+                }
+                round_progress = false;
+                round_waited = false;
+            }
 
             auto& queue = mapped_queues[curr_qid];
 
@@ -167,10 +195,16 @@ void Liverpool::Process(std::stop_token stoken) {
             }
             const auto generation = diagnostics ? diagnostics->Generation() : 0;
             SHAD_HANDOFF(generation, "queue_resume", curr_qid, task.promise().diagnostic_id);
+            waiting_yield = false;
             {
                 Core::Diagnostics::Handoff::Scope scope{"PM4.Resume", generation,
                     static_cast<u64>(curr_qid), task.promise().diagnostic_id};
                 task.resume();
+            }
+            if (waiting_yield && !task.done()) {
+                round_waited = true;
+            } else {
+                round_progress = true;
             }
             // The task suspended or finished: publish packets it consumed since the last batch.
             FlushPm4Progress();
@@ -203,6 +237,32 @@ void Liverpool::Process(std::stop_token stoken) {
         processing = false;
         submit_cv.notify_all();
     }
+}
+
+void Liverpool::IdleBackoff(u32 idle_rounds) {
+    // Every queue with work waits on a label, semaphore or rewind that only the guest CPU or a
+    // queue further back can satisfy. Stay responsive for a short while, then give the core to
+    // the guest threads that have to write it: a new submission or command wakes this wait.
+    if (idle_rounds <= 64) {
+        for (u32 i = 0; i < 16; ++i) {
+#if defined(ARCH_X86_64)
+            __asm__ volatile("pause");
+#elif defined(ARCH_ARM64)
+            __asm__ volatile("yield");
+#endif
+        }
+        return;
+    }
+    if (idle_rounds <= 128) {
+        std::this_thread::yield();
+        return;
+    }
+    Common::Profiler::Scope scope{"PM4.IdleWait"};
+    std::unique_lock lk{submit_mutex};
+    const u32 submits = num_submits.load();
+    submit_cv.wait_for(lk, std::chrono::microseconds{500}, [&] {
+        return stopping.load() || num_commands.load() != 0 || num_submits.load() != submits;
+    });
 }
 
 Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submission) {
@@ -853,7 +913,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     mem_semaphore->Signal();
                 } else {
                     while (!mem_semaphore->Signaled()) {
-                        YIELD_GFX();
+                        YIELD_WAIT_GFX();
                     }
                     mem_semaphore->Decrement();
                 }
@@ -869,7 +929,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 }
                 const PM4CmdRewind* rewind = reinterpret_cast<const PM4CmdRewind*>(header);
                 while (!rewind->Valid()) {
-                    YIELD_GFX();
+                    YIELD_WAIT_GFX();
                 }
                 break;
             }
@@ -890,7 +950,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     break;
                 }
                 while (!wait_reg_mem->Test(regs.reg_array)) {
-                    YIELD_GFX();
+                    YIELD_WAIT_GFX();
                 }
                 break;
             }
@@ -1210,7 +1270,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
                 mem_semaphore->Signal();
             } else {
                 while (!mem_semaphore->Signaled()) {
-                    YIELD_ASC(vqid);
+                    YIELD_WAIT_ASC(vqid);
                 }
                 mem_semaphore->Decrement();
             }
@@ -1220,7 +1280,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             const auto* wait_reg_mem = reinterpret_cast<const PM4CmdWaitRegMem*>(header);
             ASSERT(wait_reg_mem->engine.Value() == PM4CmdWaitRegMem::Engine::Me);
             while (!wait_reg_mem->Test(regs.reg_array)) {
-                YIELD_ASC(vqid);
+                YIELD_WAIT_ASC(vqid);
             }
             break;
         }
@@ -1327,8 +1387,10 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
         ++num_submits;
     }
 
+    // WaitGpuIdle callers wait on the same condition: wake everyone so the command processor
+    // cannot miss it.
     std::scoped_lock lk{submit_mutex};
-    submit_cv.notify_one();
+    submit_cv.notify_all();
 }
 
 Liverpool::Task Liverpool::ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission, VAddr source) {
@@ -1364,7 +1426,7 @@ void Liverpool::SubmitAsc(u32 gnm_vqid, std::span<const u32> acb) {
 
     std::scoped_lock lk{submit_mutex};
     num_mapped_queues = std::max(num_mapped_queues.load(), gnm_vqid + 1);
-    submit_cv.notify_one();
+    submit_cv.notify_all();
 }
 
 } // namespace AmdGpu

@@ -457,6 +457,8 @@ void TextureCache::InvalidateMemoryFromGPU(VAddr address, size_t max_size,
     const bool keep_rendered = source == UploadDiagnostics::DirtySource::GpuStorageWrite &&
         UploadDiagnostics::ignore_storage_dirty.load(std::memory_order_relaxed);
     ForEachImageInRegion(address, max_size, [&](ImageId image_id, Image& image) {
+        // The memory under any overlapping image is now newer than the image.
+        image.buffer_overwritten = true;
         // Only consider images that match base address.
         // TODO: Maybe also consider subresources
         if (image.info.guest_address != address) {
@@ -1199,6 +1201,44 @@ ImageId TextureCache::FindImageFromRange(VAddr address, size_t size, bool ensure
         LOG_WARNING(Render_Vulkan,
                     "Failed to find exact image match for copy addr={:#x}, size={:#x}", address,
                     size);
+    }
+    return {};
+}
+
+void TextureCache::NoteBufferWrite(VAddr address, size_t size) {
+    std::scoped_lock lock{mutex};
+    ForEachImageInRegion(address, size, [&](ImageId, Image& image) {
+        if (True(image.flags & ImageFlagBits::GpuModified)) {
+            image.buffer_overwritten = true;
+        }
+    });
+}
+
+ImageId TextureCache::FindGpuWrittenImage(VAddr address, size_t size) {
+    ImageIds candidates;
+    // Only images starting at `address` qualify, so the first byte's page is enough to look up
+    // (this runs for every raw buffer read, whatever its size).
+    ForEachImageInRegion(address, 1, [&](ImageId image_id, Image& image) {
+        if (image.info.guest_address != address || image.info.num_samples > 1 ||
+            False(image.flags & ImageFlagBits::GpuModified) ||
+            True(image.flags & ImageFlagBits::Dirty) || !image.SafeToDownload()) {
+            return;
+        }
+        if (image.buffer_overwritten) {
+            // Memory reused through the buffer path after the image was last written, e.g. a
+            // freed render target's pages now holding a compute-written vertex buffer.
+            UploadDiagnostics::raw_sync_stale.fetch_add(1, std::memory_order_relaxed);
+            return;
+        }
+        candidates.push_back(image_id);
+    });
+    if (candidates.size() == 1) {
+        return candidates.back();
+    }
+    for (const ImageId id : candidates) {
+        if (slot_images[id].info.guest_size == size) {
+            return id;
+        }
     }
     return {};
 }

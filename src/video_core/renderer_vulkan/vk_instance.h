@@ -390,6 +390,11 @@ public:
         return properties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu;
     }
 
+    /// Returns if the device is a discrete GPU (device memory is behind PCIe).
+    bool IsDiscrete() const {
+        return properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+    }
+
     /// Returns the pipeline cache unique identifier
     const auto GetPipelineCacheUUID() const {
         return properties.pipelineCacheUUID;

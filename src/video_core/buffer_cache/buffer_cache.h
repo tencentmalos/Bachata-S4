@@ -9,9 +9,11 @@
 
 #include "common/interval_set.h"
 #include "common/types.h"
+#include "core/guest_read_cache.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/buffer_cache/fault_manager.h"
 #include "video_core/buffer_cache/range_set.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/renderer_vulkan/vk_semaphore.h"
 
 namespace AmdGpu {
@@ -31,6 +33,7 @@ class StagingBufferPool;
 
 namespace VideoCore {
 
+struct Image;
 class TextureCache;
 class MemoryTracker;
 class PageManager;
@@ -71,6 +74,9 @@ public:
 
     /// Retrieves the stream buffer.
     StreamBuffer& GetStreamBuffer() noexcept {
+        if (host_stream_buffer && UploadDiagnostics::stream_host.load(std::memory_order_relaxed)) {
+            return *host_stream_buffer;
+        }
         return stream_buffer;
     }
 
@@ -89,6 +95,9 @@ public:
     // New backing replaces cached sparse zeros and discards writes to old holes.
     // No readback into the newly mapped allocation is permitted.
     void InvalidateMapping(VAddr device_addr, u64 size);
+
+    /// Memory unmapped: forget which of its bytes the GPU wrote.
+    void ForgetGpuWrites(VAddr device_addr, u64 size);
 
     /// Flushes any GPU modified buffer in the logical page range back to CPU memory.
     void ReadMemory(VAddr device_addr, u64 size, bool is_write = false);
@@ -145,6 +154,13 @@ private:
 
     bool SynchronizeMemoryFromImage(const Buffer* arena, VAddr device_addr, u32 size);
 
+    /// Raw (unformatted) read of a whole GPU-written image, e.g. a compute shader copying a
+    /// render target with buffer_load: tile the image's newer contents into the arena first.
+    bool SynchronizeMemoryFromGpuImage(const Buffer* arena, VAddr device_addr, u32 size);
+
+    /// Tiles `image` (which starts at device_addr) back into the arena in guest layout.
+    bool TileImageIntoArena(const Buffer* arena, VAddr device_addr, u32 size, Image& image);
+
     const Vulkan::Instance& instance;
     Vulkan::Scheduler& scheduler;
     Vulkan::Runtime& runtime;
@@ -155,8 +171,17 @@ private:
     std::unique_ptr<MemoryTracker> memory_tracker;
 
     StreamBuffer stream_buffer;
+    // Discrete GPUs only: CPU writes through the PCIe BAR run at a few hundred MB/s on some
+    // systems, while the GPU reads small streamed data from host memory without trouble.
+    std::optional<StreamBuffer> host_stream_buffer;
     Buffer gds_buffer;
     RangeSet gpu_modified_ranges;
+    // Mapping lookups saved for streamed buffer copies (GPU command thread only).
+    Core::GuestReadCache stream_read_cache;
+    // Streamed copies: count, bytes and sizes (<=256 B, <=1 KiB, <=4 KiB, larger).
+    u64 stream_copies{};
+    u64 stream_bytes{};
+    std::array<u64, 4> stream_sizes{};
 
     std::unique_ptr<FaultManager> fault_manager;
     std::unique_ptr<Buffer> bda_pagetable_buffer;
@@ -186,6 +211,7 @@ private:
     u32 arena_page_bits{};
     u64 max_arena_size{};
     u64 arena_migrations{};
+    u32 raw_image_sync_logs{};
 };
 
 } // namespace VideoCore

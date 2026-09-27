@@ -13,7 +13,7 @@
 // Bionic is Unix but does not provide the GNU adaptive-mutex initializer.
 // Keep the fallback declaration available on every platform.
 #include "common/spin_lock.h"
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(_WIN32)
 #include "common/futex_mutex.h"
 #endif
 #include "common/debug.h"
@@ -23,8 +23,9 @@
 
 namespace VideoCore {
 
-#if defined(__ANDROID__)
-// Faulting guest writers sleep while another thread snapshots/tracks this region.
+#if defined(__ANDROID__) || defined(_WIN32)
+// Faulting guest writers sleep while another thread snapshots/tracks this region (the snapshot
+// copies memory and changes page protection under the lock; spinning burns the waiter's core).
 using LockType = Common::FutexMutex;
 #elif defined(PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP)
 using LockType = Common::AdaptiveMutex;

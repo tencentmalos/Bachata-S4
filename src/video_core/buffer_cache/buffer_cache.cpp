@@ -22,6 +22,7 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/texture_cache/texture_cache.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 
 #include <vk_mem_alloc.h>
 #include "video_core/vma_diagnostics.h"
@@ -114,6 +115,14 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
              {&gds_buffer, "buffer/gds"},
              {bda_pagetable_buffer.get(), "buffer/bda-page-table"}}) {
         VmaDiagnostics::Tag(instance.GetAllocator(), buffer->buffer.allocation, category);
+    }
+    if (instance.IsDiscrete()) {
+        host_stream_buffer.emplace(instance, scheduler, MemoryType::HostUncached,
+                                   STREAM_BUFFER_SIZE / 2);
+        VmaDiagnostics::Tag(instance.GetAllocator(), host_stream_buffer->buffer.allocation,
+                            "buffer/stream-pool-host");
+        LOG_INFO(Render_Vulkan, "Discrete GPU: streamed data in host memory ({} MiB)",
+                 host_stream_buffer->SizeBytes() >> 20);
     }
     VerifySparseResidency();
 }
@@ -247,7 +256,27 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
     for (u64 i = 0; i < std::min<u64>(overwrites, watch.gpu_data_overwrite_addrs.size()); ++i) {
         out << fmt::format(" {:#x}", watch.gpu_data_overwrite_addrs[i].load(o));
     }
+    out << "; recent:";
+    const u64 recent = std::min<u64>(overwrites, watch.gpu_data_overwrite_recent.size());
+    for (u64 i = 0; i < recent; ++i) {
+        const u64 slot = (overwrites - recent + i) % watch.gpu_data_overwrite_recent.size();
+        out << fmt::format(" {:#x}", watch.gpu_data_overwrite_recent[slot].load(o));
+    }
     out << ")\n";
+    out << "stream copies=" << stream_copies << " bytes=" << stream_bytes
+        << " sizes<=256/1K/4K/more=" << stream_sizes[0] << "/" << stream_sizes[1] << "/"
+        << stream_sizes[2] << "/" << stream_sizes[3]
+        << " max=" << UploadDiagnostics::stream_max.load(o) << " host_memory="
+        << (host_stream_buffer && UploadDiagnostics::stream_host.load(o)) << "\n";
+    out << "stream_read_cache enabled=" << Core::MemoryManager::read_cache_enabled.load(o)
+        << " hits=" << stream_read_cache.hits << " misses=" << stream_read_cache.misses << "\n";
+    const auto& kept = memory_tracker->Keeper().GetCounters();
+    out << "gpu_byte_keeper enabled=" << GpuByteKeeper::enabled.load(o)
+        << " kept_pages=" << kept.kept_pages.load(o) << " taken_pages=" << kept.taken_pages.load(o)
+        << " evicted_pages=" << kept.evicted_pages.load(o)
+        << " kept_uploads=" << kept.kept_uploads.load(o)
+        << " cpu_rewritten_bytes=" << kept.cpu_rewritten.load(o)
+        << " split_fallbacks=" << kept.split_fallbacks.load(o) << "\n";
 }
 
 void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
@@ -267,9 +296,16 @@ void BufferCache::InvalidateMemoryFromWriteFault(VAddr device_addr, u64 size) {
 
 void BufferCache::InvalidateMapping(VAddr device_addr, u64 size) {
     memory_tracker->InvalidateMapping(device_addr, size);
+    memory_tracker->Keeper().Forget(device_addr, size);
+}
+
+void BufferCache::ForgetGpuWrites(VAddr device_addr, u64 size) {
+    memory_tracker->Keeper().Forget(device_addr, size);
 }
 
 void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
+    // The faulting CPU thread waits here for the GPU command thread to download the data.
+    Common::Profiler::Scope scope{"Buffer.WaitCpuReadback"};
     liverpool->SendCommand<true>([this, device_addr, size, is_write] {
         // The CPU is about to read GPU-written data.
         Vulkan::MissingContent::CheckEscape(Vulkan::MissingContent::Escape::Readback, device_addr,
@@ -327,6 +363,9 @@ void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 siz
     if (total_size_bytes == 0) {
         return;
     }
+    // A synchronous GPU drain: the CPU touched memory the GPU wrote.
+    Common::Profiler::Scope scope{"Buffer.CpuReadback"};
+    Common::Profiler::Counter("Buffer.CpuReadbackBytes", static_cast<int64_t>(total_size_bytes));
     const auto download = staging_pool.Request(total_size_bytes, VideoCore::MemoryType::HostCached);
     for (auto& copy : copies) {
         copy.dstOffset += download.offset;
@@ -340,6 +379,8 @@ void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 siz
         auto* dst_addr = std::bit_cast<u8*>(arena_base + copy.srcOffset);
         memory->TryWriteBacking(dst_addr, download.mapped + (copy.dstOffset - download.offset),
                                 copy.size);
+        // Guest memory now holds these GPU bytes.
+        memory_tracker->Keeper().Forget(arena_base + copy.srcOffset, copy.size);
     }
     memory_tracker->UnmarkRegionAsGpuModified(device_addr, size);
 }
@@ -348,17 +389,23 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
                                                         bool is_written, bool is_texel_buffer) {
     Vulkan::MissingContent::Access(device_addr, size, is_written);
     // For read-only buffers use device local stream buffer to reduce renderpass breaks.
-    if (!is_written && size <= STREAM_THRESHOLD && !IsRegionGpuModified(device_addr, size)) {
+    const u64 stream_max = std::min<u64>(
+        STREAM_THRESHOLD, UploadDiagnostics::stream_max.load(std::memory_order_relaxed));
+    if (!is_written && size <= stream_max && !IsRegionGpuModified(device_addr, size)) {
+        ++stream_copies;
+        stream_bytes += size;
+        ++stream_sizes[size <= 256 ? 0 : size <= 1024 ? 1 : size <= 4096 ? 2 : 3];
         // A CPU snapshot taken now: later GPU writes to this range cannot affect the draw, so it
         // is not a pass dependency.
-        const auto [data, offset] = stream_buffer.Map(size, instance.UniformMinAlignment());
-        memory->CopySparseMemory(device_addr, data, size);
-        stream_buffer.Commit();
+        StreamBuffer& stream = GetStreamBuffer();
+        const auto [data, offset] = stream.Map(size, instance.UniformMinAlignment());
+        memory->CopySparseMemory(device_addr, data, size, stream_read_cache);
+        stream.Commit();
         if (AmdGpu::Pm4Stats::armed.load(std::memory_order_relaxed)) [[unlikely]] {
             AmdGpu::Pm4Stats::NoteStreamCopy(liverpool->diagnostic_guest_flip, device_addr, size,
                                              data);
         }
-        return {&stream_buffer, offset};
+        return {&stream, offset};
     }
     // Pass dependency tracking: the draw being prepared reads/writes this GPU range.
     scheduler.StageAccess(device_addr, size, is_written);
@@ -369,6 +416,7 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
     SynchronizeMemory(arena, device_addr, size, is_written, is_texel_buffer);
     if (is_written) {
         gpu_modified_ranges.Add(device_addr, size);
+        memory_tracker->Keeper().NoteGpuWrite(device_addr, size);
     }
     return {arena, arena->Offset(device_addr)};
 }
@@ -536,31 +584,79 @@ bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 
     boost::container::small_vector<vk::BufferCopy, 4> copies;
     size_t total_size_bytes{};
     Vulkan::StagingBufferRef staging{};
-    const auto uploaded_bytes = memory_tracker->SnapshotForUpload(
-        device_addr, size, is_written,
-        [&](u64 capacity) {
-            // All tracking locks are released here, including on a capacity retry. Reserve the
-            // copy metadata too: the snapshot callback must not allocate.
-            copies.reserve(capacity / TRACKER_BYTES_PER_PAGE);
-            staging = staging_pool.Request(capacity, MemoryType::HostUncached);
-        },
-        [&](u64 addr, u64 range_size) {
-            memory->CopySparseMemory(addr, staging.mapped + total_size_bytes, range_size);
-            copies.emplace_back(staging.offset + total_size_bytes, addr - arena->cpu_addr,
-                                range_size);
-            total_size_bytes += range_size;
-        });
+    // Pages holding kept GPU bytes upload in pieces (see GpuByteKeeper).
+    constexpr u32 KeeperExtraRanges = 4 * GpuByteKeeper::MaxRunsPerPage;
+    u32 keeper_budget = KeeperExtraRanges;
+    auto& keeper = memory_tracker->Keeper();
+    const auto uploaded_bytes = [&] {
+        return memory_tracker->SnapshotForUpload(
+            device_addr, size, is_written,
+            [&](u64 capacity) {
+                // All tracking locks are released here, including on a capacity retry. Reserve
+                // the copy metadata too: the snapshot callback must not allocate.
+                Common::Profiler::Scope scope{"Buffer.StagingRequest"};
+                copies.reserve(capacity / TRACKER_BYTES_PER_PAGE + KeeperExtraRanges);
+                staging = staging_pool.Request(capacity, MemoryType::HostUncached);
+            },
+            [&](u64 run_addr, u64 run_size) {
+                keeper.ForEachUpload(run_addr, run_size, keeper_budget, [&](u64 addr, u64 bytes) {
+                    memory->CopySparseMemory(addr, staging.mapped + total_size_bytes, bytes);
+                    copies.emplace_back(staging.offset + total_size_bytes,
+                                        addr - arena->cpu_addr, bytes);
+                    total_size_bytes += bytes;
+                });
+            });
+    }();
 
     // Vulkan publication/retirement never runs under a tracking lock.
-    if (uploaded_bytes != 0) {
+    if (uploaded_bytes != 0 && !copies.empty()) {
+        Common::Profiler::Counter("Buffer.UploadBytes", static_cast<int64_t>(total_size_bytes));
         Common::Profiler::Scope upload_scope{"Buffer.Upload"};
-        staging.buffer->Flush(staging.offset, uploaded_bytes);
+        staging.buffer->Flush(staging.offset, total_size_bytes);
         runtime.CopyBuffer(staging.buffer, arena, copies);
     }
     if (is_texel_buffer && !is_written) {
+        Common::Profiler::Scope scope{"Buffer.TexelImageSync"};
         return SynchronizeMemoryFromImage(arena, device_addr, size);
     }
+    if (!is_written) {
+        return SynchronizeMemoryFromGpuImage(arena, device_addr, size);
+    }
     return false;
+}
+
+bool BufferCache::SynchronizeMemoryFromGpuImage(const Buffer* arena, VAddr device_addr, u32 size) {
+    // A render target or storage image lives only in its Vulkan image; the arena still holds
+    // what was there before it was drawn. Reading it as memory needs the image tiled back into
+    // guest layout, once per content version: later reads of the same contents find the arena
+    // current.
+    if (UploadDiagnostics::raw_sync_off.load(std::memory_order_relaxed)) {
+        return false;
+    }
+    const ImageId image_id = texture_cache.FindGpuWrittenImage(device_addr, size);
+    if (!image_id) {
+        return false;
+    }
+    Image& image = texture_cache.GetImage(image_id);
+    const u64 version = image.write_epoch;
+    if (image.buffer_synced_version == version) {
+        return false;
+    }
+    if (!TileImageIntoArena(arena, device_addr, size, image)) {
+        return false;
+    }
+    image.buffer_synced_version = version;
+    UploadDiagnostics::raw_syncs.fetch_add(1, std::memory_order_relaxed);
+    UploadDiagnostics::raw_sync_bytes.fetch_add(image.info.guest_size, std::memory_order_relaxed);
+    if (raw_image_sync_logs < 32) {
+        ++raw_image_sync_logs;
+        LOG_INFO(Render_Vulkan,
+                 "Raw buffer read of GPU-written image {:#x} {}x{} {} (read {:#x} bytes, image {:#x}): "
+                 "tiled back into the buffer cache",
+                 image.info.guest_address, image.info.size.width, image.info.size.height,
+                 vk::to_string(image.info.pixel_format), size, image.info.guest_size);
+    }
+    return true;
 }
 
 bool BufferCache::SynchronizeMemoryFromImage(const Buffer* arena, VAddr device_addr, u32 size) {
@@ -577,7 +673,11 @@ bool BufferCache::SynchronizeMemoryFromImage(const Buffer* arena, VAddr device_a
     if (!image_id) {
         return false;
     }
-    Image& image = texture_cache.GetImage(image_id);
+    return TileImageIntoArena(arena, device_addr, size, texture_cache.GetImage(image_id));
+}
+
+bool BufferCache::TileImageIntoArena(const Buffer* arena, VAddr device_addr, u32 size,
+                                     Image& image) {
     ASSERT_MSG(device_addr == image.info.guest_address,
                "Texel buffer aliases image subresources {:x} : {:x}", device_addr,
                image.info.guest_address);

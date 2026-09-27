@@ -331,6 +331,8 @@ public:
     void DS_READ(int bit_size, bool is_signed, bool is_pair, bool stride64, const GcnInst& inst);
     void DS_SWIZZLE_B32(const GcnInst& inst);
     void DS_APPEND(const GcnInst& inst);
+    /// GDS instructions address GDS relative to the base in M0[31:16] (M0[15:0] is the size).
+    IR::U32 GdsAddress(const IR::U32& address, bool is_gds);
     void DS_CONSUME(const GcnInst& inst);
     void DS_CMPST(int bit_size, bool rtn, const GcnInst& inst);
 

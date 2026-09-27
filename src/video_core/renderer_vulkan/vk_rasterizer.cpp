@@ -383,11 +383,15 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     const auto& regs = liverpool->regs;
     const GraphicsPipeline* pipeline = pipeline_cache.GetGraphicsPipeline();
     if (!pipeline) {
+        if (HostMarkersEnabled())
+            InsertDroppedDrawTag(is_indexed, false);
         return;
     }
 
     const bool tracing = AmdGpu::Pm4Trace::Active();
     if (SkipUnbuiltDraw(*pipeline)) {
+        if (HostMarkersEnabled())
+            InsertDrawTag(pipeline, is_indexed, false, "shadps4.draw.skipped", false);
         if (tracing) {
             AmdGpu::Pm4Trace::BeginAction();
             TraceAction(is_indexed ? AmdGpu::Pm4Trace::ActionKind::DrawIndexed
@@ -499,6 +503,8 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
     };
     const GraphicsPipeline* pipeline = pipeline_cache.GetGraphicsPipeline(params);
     if (!pipeline) {
+        if (HostMarkersEnabled())
+            InsertDroppedDrawTag(is_indexed, true);
         return;
     }
 
@@ -629,19 +635,34 @@ void Rasterizer::DispatchDirect() {
     if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
         NoteDispatchDiagnostics(cs, cs_program, false);
     }
+    if (HostMarkersEnabled()) {
+        InsertDispatchTag(cs, cs_program, false);
+    }
     if (ExecuteShaderHLE(cs, liverpool->regs, cs_program, *this)) {
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "copy-shader HLE");
         return;
     }
+    if (TryComputeRawImageCopy(cs, cs_program)) {
+        if (HostMarkersEnabled())
+            scheduler.Label("shadps4.dispatch.replaced by=raw-image-copy");
+        if (tracing)
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
+                                       "raw image copy");
+        return;
+    }
     if (TryComputeImageFill(cs, cs_program)) {
+        if (HostMarkersEnabled())
+            scheduler.Label("shadps4.dispatch.replaced by=image-fill-clear");
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "image fill clear");
         return;
     }
     if (TryComputeImageStoreFill(cs, cs_program)) {
+        if (HostMarkersEnabled())
+            scheduler.Label("shadps4.dispatch.replaced by=image-store-fill-clear");
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "image store fill clear");
@@ -702,6 +723,9 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
         NoteDispatchDiagnostics(pipeline->GetStage(Shader::SwStage::Compute), cs_program,
                                 true);
+    }
+    if (HostMarkersEnabled()) {
+        InsertDispatchTag(pipeline->GetStage(Shader::SwStage::Compute), cs_program, true);
     }
     if (!BindResources(pipeline)) {
         return;
@@ -843,10 +867,14 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
     Common::Profiler::Scope profile_scope{"Rasterizer.BindResources"};
-    const char* replaced = IsComputeImageCopy(pipeline)    ? "compute image copy"
-                           : IsComputeMetaClear(pipeline)  ? "compute meta clear"
-                           : IsComputeImageClear(pipeline) ? "compute image clear"
-                                                           : nullptr;
+    const char* replaced = nullptr;
+    {
+        Common::Profiler::Scope hle_scope{"Bind.HleCheck"};
+        replaced = IsComputeImageCopy(pipeline)    ? "compute image copy"
+                   : IsComputeMetaClear(pipeline)  ? "compute meta clear"
+                   : IsComputeImageClear(pipeline) ? "compute image clear"
+                                                   : nullptr;
+    }
     if (replaced) {
         if (AmdGpu::Pm4Trace::Active())
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0, replaced);
@@ -861,6 +889,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     bool uses_dma = false;
     render_scale_eighths = 8;
     if (instance.ScalePolicy().ShaderMapping()) {
+        Common::Profiler::Scope scale_scope{"Bind.ScaleCheck"};
         // Resolve unsafe uses before producing any descriptor. This includes uses
         // in a later shader stage of the same draw, not only the first binding.
         u32 descriptor = 0;
@@ -986,12 +1015,19 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
         set_writes.resize(set_writes.size() + stage->buffers.size() + stage->images.size() +
                           stage->samplers.size());
         stage->PushUd(binding, push_data);
-        BindBuffers(*stage, binding, push_data);
-        BindTextures(*stage, binding);
+        {
+            Common::Profiler::Scope buffers_scope{"Bind.Buffers"};
+            BindBuffers(*stage, binding, push_data);
+        }
+        {
+            Common::Profiler::Scope textures_scope{"Bind.Textures"};
+            BindTextures(*stage, binding);
+        }
         uses_dma |= stage->uses_dma;
     }
 
     if (uses_dma) {
+        Common::Profiler::Scope dma_scope{"Bind.DmaSync"};
         buffer_cache.SynchronizeDmaBuffers();
         fault_process_pending = true;
     }
@@ -1340,9 +1376,13 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
     for (const auto& desc : stage.buffers) {
         if (desc.IsSpecial()) {
             if (desc.buffer_type == Shader::BufferType::GdsBuffer) {
+                // GDS is only reached through atomics (ds_append/consume, gds ds_* ops), so every
+                // use writes it. Register the access: a following DMA of a counter out of GDS
+                // (indirect dispatch arguments) must wait for this shader.
                 const auto* gds_buf = buffer_cache.GetGdsBuffer();
                 buffer_infos.emplace_back(gds_buf->Handle(), 0, gds_buf->SizeBytes());
-                needs_barrier |= runtime.IsBufferAccessed(gds_buf, 0, gds_buf->SizeBytes());
+                needs_barrier |= runtime.IsBufferAccessed(gds_buf, 0, gds_buf->SizeBytes(), true);
+                bound_buffers.emplace_back(gds_buf, 0, gds_buf->SizeBytes(), true);
             } else if (desc.buffer_type == Shader::BufferType::Flatbuf) {
                 auto& vk_buffer = buffer_cache.GetStreamBuffer();
                 const u32 ubo_size = stage.flattened_ud_buf.size() * sizeof(u32);
@@ -1410,6 +1450,7 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                     // A shader may read what it writes.
                     MissingContent::Read(vsharp.base_address, size);
                     // Raw storage-buffer writes can also make an aliased cached image stale.
+                    Common::Profiler::Scope invalidate_scope{"Bind.InvalidateGpu"};
                     texture_cache.InvalidateMemoryFromGPU(
                         vsharp.base_address, size,
                         VideoCore::UploadDiagnostics::DirtySource::GpuStorageWrite, stage.pgm_hash);
@@ -1441,6 +1482,102 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
 // Pattern-fill kernel (shaped like the Gnmx toolkit clear), GCN CI encoding. Matching the
 // whole program pins its exact semantics; for i = tgid.x * 64 + tid.x:
 //   if (i < ctl[0] && i < dst.num_records) dst[i] = src[ctl[1] & i]   (src[k] = 0 past its end)
+// Raw dword copy kernel, GCN CI encoding. Work group g copies elements g*128 + tid and
+// g*128 + 64 + tid: if (i < dst.num_records) dst[i] = src[i]  (idxen: src[i] = 0 past its end).
+static constexpr std::array<u32, 25> RawCopyCode{
+    0xbeeb03ff, 0x0000000f, // s_mov_b32 vcc_hi, 15 (binary info marker)
+    0x8f088708,             // s_lshl_b32 s8, s8, 7
+    0xd2ba0001, 0x04010008, // v_sad_u32 v1, s8, 0, v0
+    0x816ac008,             // s_add_i32 vcc_lo, s8, 64
+    0xd2ba0000, 0x0401006a, // v_sad_u32 v0, vcc_lo, 0, v0
+    0xe0302000, 0x80000201, // buffer_load_dword v2, v1, s[0:3], 0 idxen
+    0xe0302000, 0x80000300, // buffer_load_dword v3, v0, s[0:3], 0 idxen
+    0xbe82047e,             // s_mov_b64 s[2:3], exec
+    0xd1a80000, 0x00020206, // v_cmpx_gt_u32 s[0:1], s6, v1       i < dst.num_records
+    0xbf8c0f71,             // s_waitcnt vmcnt(1)
+    0xe0702000, 0x80410201, // buffer_store_dword v2, v1, s[4:7], 0 idxen slc
+    0xbefe0402,             // s_mov_b64 exec, s[2:3]
+    0xd1a80000, 0x00020006, // v_cmpx_gt_u32 s[0:1], s6, v0
+    0xbf8c0f71,             // s_waitcnt vmcnt(1)
+    0xe0702000, 0x80410300, // buffer_store_dword v3, v0, s[4:7], 0 idxen slc
+    0xbf810000,             // s_endpgm
+};
+
+bool Rasterizer::TryComputeRawImageCopy(const Shader::Info& cs,
+                                        const AmdGpu::ComputeProgram& program) {
+    namespace Diag = VideoCore::UploadDiagnostics;
+    // Cheap rejects first: this runs for every direct dispatch.
+    if (cs.buffers.size() != 2 || !cs.images.empty() || program.num_thread_x.full != 64 ||
+        program.num_thread_x.partial != 0 || program.start_x != 0 || program.dim_x == 0 ||
+        program.dim_y != 1 || program.dim_z != 1 || cs.buffers[0].is_written ||
+        !cs.buffers[1].is_written ||
+        std::memcmp(program.Address<const u32*>(), RawCopyCode.data(), sizeof(RawCopyCode))) {
+        return false;
+    }
+    if (Diag::raw_copy_off.load(std::memory_order_relaxed)) {
+        return false;
+    }
+    const auto fallback = [] {
+        Diag::raw_copy_fallbacks.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    };
+    const AmdGpu::Buffer src = cs.buffers[0].GetSharp(cs);
+    const AmdGpu::Buffer dst = cs.buffers[1].GetSharp(cs);
+    const auto plain = [](const AmdGpu::Buffer& buffer) {
+        return buffer.GetStride() == 4 && !buffer.swizzle_enable && !buffer.add_tid_enable &&
+               buffer.base_address != 0;
+    };
+    if (!plain(src) || !plain(dst)) {
+        return fallback();
+    }
+    // Bytes copied; the source must supply all of them (past its end the kernel writes zeros).
+    const u64 bytes = std::min<u64>(dst.num_records, u64(program.dim_x) * 128) * 4;
+    if (!bytes || u64(src.num_records) * 4 < bytes ||
+        (src.base_address < dst.base_address + bytes && dst.base_address < src.base_address + bytes)) {
+        return fallback();
+    }
+
+    // Both ranges must be exactly the memory of an image with the same layout, so the byte copy
+    // is an image copy.
+    const auto src_id = texture_cache.FindImageFromRange(src.base_address, bytes);
+    const auto dst_id = texture_cache.FindImageFromRange(dst.base_address, bytes, false);
+    if (!src_id || !dst_id) {
+        return fallback();
+    }
+    VideoCore::Image& src_image = texture_cache.GetImage(src_id);
+    VideoCore::Image& dst_image = texture_cache.GetImage(dst_id);
+    const auto& si = src_image.info;
+    const auto& di = dst_image.info;
+    if (si.guest_address != src.base_address || di.guest_address != dst.base_address ||
+        si.guest_size != bytes || di.guest_size != bytes || si.pitch != di.pitch ||
+        si.num_bits != di.num_bits || si.tile_mode != di.tile_mode ||
+        si.array_mode != di.array_mode || si.size != di.size ||
+        si.resources.levels != di.resources.levels || si.resources.layers != di.resources.layers ||
+        si.num_samples != di.num_samples) {
+        return fallback();
+    }
+
+    // Newer memory under the source (CPU or buffer writes) is uploaded first.
+    if (True(src_image.flags & VideoCore::ImageFlagBits::Dirty)) {
+        texture_cache.UpdateImage(src_id);
+    }
+    // Every other image over the destination bytes is overwritten through memory.
+    texture_cache.InvalidateMemoryFromGPU(dst.base_address, bytes,
+                                          VideoCore::UploadDiagnostics::DirtySource::GpuCopy);
+    if (instance.IsMaintenance8Supported() || si.props.is_depth == di.props.is_depth) {
+        runtime.CopyImage(&src_image, &dst_image);
+    } else {
+        runtime.CopyColorAndDepth(&src_image, &dst_image);
+    }
+    dst_image.flags |= VideoCore::ImageFlagBits::GpuModified;
+    dst_image.flags &= ~VideoCore::ImageFlagBits::Dirty;
+    MissingContent::Read(src.base_address, bytes);
+    MissingContent::Overwrite(dst.base_address, bytes);
+    Diag::raw_copies.fetch_add(1, std::memory_order_relaxed);
+    Diag::raw_copy_bytes.fetch_add(bytes, std::memory_order_relaxed);
+    return true;
+}
+
 static constexpr std::array<u32, 19> GnmxFillCode{
     0xbeeb03ff, 0x0000000d, // s_mov_b32 vcc_hi, 13 (binary info marker)
     0x8f6a860c,             // s_lshl_b32 vcc_lo, s12, 6
@@ -2144,6 +2281,7 @@ void Rasterizer::FillBuffer(VAddr address, u32 num_bytes, u32 value, bool is_gds
         if (is_gds) {
             return {buffer_cache.GetGdsBuffer(), address};
         }
+        texture_cache.NoteBufferWrite(address, num_bytes);
         return buffer_cache.ObtainBuffer(address, num_bytes, true);
     }();
     runtime.FillBuffer(buffer, offset, num_bytes, value);
@@ -2256,6 +2394,7 @@ void Rasterizer::MapMemory(VAddr addr, u64 size) {
 
 void Rasterizer::UnmapMemory(VAddr addr, u64 size) {
     buffer_cache.InvalidateMemory(addr, size);
+    buffer_cache.ForgetGpuWrites(addr, size);
     texture_cache.UnmapMemory(addr, size);
     page_manager.OnGpuUnmap(addr, size);
     {
@@ -2626,11 +2765,13 @@ void Rasterizer::TraceAction(AmdGpu::Pm4Trace::ActionKind kind,
     NoteAction(a);
 }
 
-void Rasterizer::InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect) {
+void Rasterizer::InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect,
+                               std::string_view kind, bool with_textures) {
     // Enough to identify a draw from a capture: shader hashes, geometry size, depth
-    // state and the guest textures it samples (address:WxH:format).
+    // state and the guest textures it samples (address:WxH:format). The hashes name the
+    // shader dumps (<stage>_<hash>_<perm>.bin) that tools/gcn-disasm --hash decodes.
     const auto& regs = liverpool->regs;
-    std::string tag = "shadps4.draw";
+    std::string tag{kind};
     static constexpr std::array<const char*, 5> stage_names{"ps", "hs", "ds", "vs", "gs"};
     for (u32 i = 0; const auto* info : pipeline->GetStages()) {
         if (info)
@@ -2642,8 +2783,23 @@ void Rasterizer::InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed
                        regs.num_instances.NumInstances(), static_cast<u32>(regs.primitive_type));
     tag += fmt::format(" depth={}{}", regs.depth_control.depth_enable ? "test" : "off",
                        regs.depth_control.depth_write_enable ? "+write" : "");
+    if (kind != "shadps4.draw") {
+        tag += " reason=pipeline-building";
+    }
+    for (u32 cb = 0; cb < AmdGpu::NUM_COLOR_BUFFERS; ++cb) {
+        const auto& col_buf = regs.color_buffers[cb];
+        if (col_buf && regs.color_target_mask.GetMask(cb)) {
+            tag += fmt::format(" mrt{}={:#x}:{}", cb, col_buf.Address(),
+                               static_cast<u32>(col_buf.GetDataFmt()));
+        }
+    }
+    if (regs.depth_buffer.DepthValid()) {
+        tag += fmt::format(" zbuf={:#x}", regs.depth_buffer.DepthAddress());
+    }
     u32 shown = 0;
     for (const auto& image_id : bound_images) {
+        if (!with_textures)
+            break;
         if (shown++ == 8) {
             tag += " tex=...";
             break;
@@ -2651,6 +2807,62 @@ void Rasterizer::InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed
         const auto& image = texture_cache.GetImage(image_id);
         tag += fmt::format(" tex={:#x}:{}x{}:{}", image.info.guest_address, image.info.size.width,
                            image.info.size.height, vk::to_string(image.info.pixel_format));
+    }
+    scheduler.Label(tag);
+}
+
+void Rasterizer::InsertDroppedDrawTag(bool is_indexed, bool indirect) {
+    // A draw the emulator does not execute at all: visible in a capture as a label only.
+    const auto& regs = liverpool->regs;
+    std::string tag = fmt::format("shadps4.draw.dropped reason=\"{}\"", pipeline_cache.RejectReason());
+    static constexpr std::array<std::pair<u32, const char*>, 6> stages{
+        {{0, "ps"}, {1, "vs"}, {2, "gs"}, {3, "es"}, {4, "hs"}, {5, "ls"}}};
+    for (const auto& [index, name] : stages) {
+        if (!regs.stage_enable.IsStageEnabled(index))
+            continue;
+        if (const auto* pgm = regs.ProgramForStage(index); pgm && pgm->Address<u32*>())
+            tag += fmt::format(" {}@{:#x}", name, pgm->Address<VAddr>());
+    }
+    tag += fmt::format(" {}{} count={} inst={} prim={} vgt_stages={:#x} gs_onchip={} strmout={:#x}",
+                       indirect ? "indirect-" : "", is_indexed ? "indexed" : "auto",
+                       regs.num_indices, regs.num_instances.NumInstances(),
+                       static_cast<u32>(regs.primitive_type), u32(regs.stage_enable.raw),
+                       u32(regs.vgt_gs_mode.onchip), u32(regs.vgt_strmout_config.raw));
+    scheduler.Label(tag);
+}
+
+void Rasterizer::InsertDispatchTag(const Shader::Info& cs, const AmdGpu::ComputeProgram& program,
+                                   bool indirect) {
+    // Shader hash (names the dump for tools/gcn-disasm --hash), group counts and the guest
+    // buffers it reads (R) / writes (W) as address+size.
+    std::string tag = fmt::format("shadps4.dispatch cs=0x{:x} local={}x{}x{}", cs.pgm_hash,
+                                  program.num_thread_x.full, program.num_thread_y.full,
+                                  program.num_thread_z.full);
+    if (indirect)
+        tag += " indirect";
+    else
+        tag += fmt::format(" groups={}x{}x{}", program.dim_x, program.dim_y, program.dim_z);
+    u32 shown = 0;
+    for (const auto& desc : cs.buffers) {
+        if (desc.IsSpecial())
+            continue;
+        if (shown++ == 12) {
+            tag += " buf=...";
+            break;
+        }
+        const auto vsharp = desc.GetSharp(cs);
+        tag += fmt::format(" buf={}{:#x}+{:#x}", desc.is_written ? 'W' : 'R', vsharp.base_address,
+                           vsharp.GetSize());
+    }
+    shown = 0;
+    for (const auto& desc : cs.images) {
+        if (shown++ == 8) {
+            tag += " img=...";
+            break;
+        }
+        const auto tsharp = desc.GetSharp(cs);
+        tag += fmt::format(" img={}{:#x}:{}x{}", desc.is_written ? 'W' : 'R', tsharp.Address(),
+                           tsharp.width + 1, tsharp.height + 1);
     }
     scheduler.Label(tag);
 }

@@ -141,6 +141,16 @@ public:
     /// Retrieves image whose address matches provided
     [[nodiscard]] ImageId FindImageFromRange(VAddr address, size_t size, bool ensure_valid = true);
 
+    /// The image starting at `address` whose GPU-written contents are newer than guest memory
+    /// and the buffer cache (written by a draw or dispatch, not since overwritten through
+    /// memory), for a raw buffer read of that range. With several such aliases only one of
+    /// exactly `size` bytes is taken; otherwise none.
+    [[nodiscard]] ImageId FindGpuWrittenImage(VAddr address, size_t size);
+
+    /// A GPU buffer write (fill, copy) to guest memory: GPU-written images overlapping the range
+    /// no longer hold the newest contents of that memory.
+    void NoteBufferWrite(VAddr address, size_t size);
+
     /// Retrieves an image view with the properties of the specified image id.
     [[nodiscard]] ImageView& FindTexture(ImageId image_id, const ImageDesc& desc);
 

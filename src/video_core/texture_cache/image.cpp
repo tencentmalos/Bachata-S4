@@ -791,6 +791,7 @@ void Image::CheckUploadBudget() {
 }
 
 void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset, u64 buffer_size) {
+    NoteWrite();
     if (!buffer_size) buffer_size = info.guest_size;
     ++scale_plan->content_version;
     ++scale_plan->uploads;
@@ -859,6 +860,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
 
 void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer,
                    u64 offset, u64 buffer_size) {
+    NoteWrite();
     SetBackingSamples(info.num_samples, false);
     scheduler->EndRendering(Vulkan::RenderBreak::ImageUpload);
 
@@ -1048,6 +1050,7 @@ static std::pair<u32, u32> SanitizeCopyLayers(const ImageInfo& src_info, const I
 }
 
 void Image::CopyImage(Image& src_image) {
+    NoteWrite();
     if (!InheritCopyPlan(src_image, true)) {
         if (BlitCopy(src_image)) return;
         ForceNative("copy alias");
@@ -1208,6 +1211,7 @@ bool Image::BlitCopy(Image& src_image) {
 }
 
 void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset) {
+    NoteWrite();
     if (!InheritCopyPlan(src_image, true)) {
         if (BlitCopy(src_image)) return;
         ForceNative("copy alias");
@@ -1307,6 +1311,7 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
 }
 
 void Image::CopyMip(Image& src_image, u32 mip, u32 slice) {
+    NoteWrite();
     ForceNative("mip alias");
     src_image.ForceNative("mip alias");
     const auto& src_info = src_image.info;
@@ -1422,6 +1427,7 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
 }
 
 void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::SubresourceRange& guest_range) {
+    NoteWrite();
     const auto range = HostRange(guest_range);
     const vk::ImageSubresourceRange vk_range = {
         .aspectMask = vk::ImageAspectFlagBits::eColor,

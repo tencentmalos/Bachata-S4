@@ -83,6 +83,8 @@ struct Liverpool {
     };
 
     std::atomic<bool> stopping{};
+    /// Set by a queue task that yields to wait for memory; command processor thread only.
+    bool waiting_yield{};
     std::atomic<bool> processing{};
     Regs regs{};
     std::array<CbDbExtent, NUM_COLOR_BUFFERS> last_cb_extent{};
@@ -120,7 +122,7 @@ public:
         mapped_queues[GfxQueueId].ccb_buffer_offset = 0;
         mapped_queues[GfxQueueId].dcb_buffer_offset = 0;
         submit_done = true;
-        submit_cv.notify_one();
+        submit_cv.notify_all();
     }
 
     void WaitGpuIdle() noexcept {
@@ -161,7 +163,7 @@ public:
                     sem.release();
                 });
                 ++num_commands;
-                submit_cv.notify_one();
+                submit_cv.notify_all();
             }
             sem.acquire();
             if (error)
@@ -170,7 +172,7 @@ public:
             std::scoped_lock lk{submit_mutex};
             command_queue.emplace(std::move(func));
             ++num_commands;
-            submit_cv.notify_one();
+            submit_cv.notify_all();
         }
     }
 
@@ -270,6 +272,9 @@ private:
     Task ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source);
 
     void ProcessCommands();
+    /// Every queue with work is waiting on memory: spin briefly, then yield, then sleep until a
+    /// new submission or command (bounded).
+    void IdleBackoff(u32 idle_rounds);
     void Process(std::stop_token stoken);
 
     struct GpuQueue {

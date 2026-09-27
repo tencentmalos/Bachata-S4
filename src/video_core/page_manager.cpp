@@ -6,6 +6,7 @@
 #include "common/debug.h"
 #include "common/div_ceil.h"
 #include "common/error.h"
+#include "common/futex_mutex.h"
 #include "common/range_lock.h"
 #include "common/signal_context.h"
 #include "common/thread.h"
@@ -242,7 +243,10 @@ struct PageManager::Impl {
     }
 
     std::array<PageState, NUM_ADDRESS_PAGES> cached_pages{};
-#ifdef PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP
+#if defined(__ANDROID__) || defined(_WIN32)
+    // Held across page protection changes: waiters sleep rather than spin.
+    using LockType = Common::FutexMutex;
+#elif defined(PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP)
     using LockType = Common::AdaptiveMutex;
 #else
     using LockType = Common::SpinLock;

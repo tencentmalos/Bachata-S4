@@ -278,7 +278,8 @@ def packet_text(rec, namer):
         return f"type{ptype} {header:#010x}"
     opcode = (header >> 8) & 0xFF
     name = OPCODES.get(opcode, f"op{opcode:#x}")
-    text = name
+    # Header bit 0 makes the packet subject to the active SET_PREDICATION.
+    text = name + ("[pred]" if header & 1 else "")
     if opcode in SET_REG_BASE and len(words) >= 2:
         reg = words[1] & 0xFFFF
         vals = words[2:]

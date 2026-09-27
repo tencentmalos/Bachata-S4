@@ -9,6 +9,8 @@
 #include <fmt/format.h>
 #include "common/logging/log.h"
 #include "core/address_space.h"
+#include "core/memory.h"
+#include "video_core/buffer_cache/gpu_byte_keeper.h"
 #include "video_core/buffer_cache/region_definitions.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
@@ -93,6 +95,12 @@ std::string Summary() {
     std::vector<std::pair<u64, u64>> by_writer(writers.begin(), writers.end());
     std::sort(by_writer.begin(), by_writer.end(),
               [](const auto& a, const auto& b) { return a.second > b.second; });
+    out += fmt::format("raw_sync: off={} syncs={} bytes={} stale_images_skipped={}\n",
+                       raw_sync_off.load() ? 1 : 0, raw_syncs.load(), raw_sync_bytes.load(),
+                       raw_sync_stale.load());
+    out += fmt::format("raw_copy: off={} image_copies={} bytes={} dispatched={}\n",
+                       raw_copy_off.load() ? 1 : 0, raw_copies.load(), raw_copy_bytes.load(),
+                       raw_copy_fallbacks.load());
     out += fmt::format("compute_fill: off={} images_cleared={} bytes_cleared={}",
                        fill_clear_off.load() ? 1 : 0, fill_images.load(), fill_bytes.load());
     for (size_t i = 0; i < FillOutcomeCount; ++i)
@@ -300,6 +308,16 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("fill_clear={} (compute fill kernels {})\n", args[1],
                            args[1] == "on" ? "clear images directly" : "dispatch as before");
     }
+    if (sub == "raw_sync" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        raw_sync_off.store(args[1] == "off");
+        return fmt::format("raw_sync={} (raw buffer reads of GPU-written images {})\n", args[1],
+                           args[1] == "on" ? "tile the image back first" : "read the buffer as is");
+    }
+    if (sub == "raw_copy" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        raw_copy_off.store(args[1] == "off");
+        return fmt::format("raw_copy={} (raw dword copies between images {})\n", args[1],
+                           args[1] == "on" ? "copy the images" : "dispatch as before");
+    }
     if (sub == "watch_coalesce" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         Core::gpu_watch_per_page.store(args[1] == "off");
         return fmt::format("watch_coalesce={} (GPU write-watch mprotect {})\n", args[1],
@@ -311,9 +329,37 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1] == "on" ? "also release pages rewritten last cycle"
                                            : "release only the faulting page");
     }
+    if (sub == "stream_host" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        stream_host.store(args[1] == "on");
+        return fmt::format("stream_host={} (streamed data in {} memory)\n", args[1],
+                           args[1] == "on" ? "host" : "device");
+    }
+    if (sub == "stream_max" && args.size() == 2) {
+        u32 bytes = 0;
+        const auto [end, ec] =
+            std::from_chars(args[1].data(), args[1].data() + args[1].size(), bytes);
+        if (ec != std::errc{} || end != args[1].data() + args[1].size()) {
+            return "status=bad_arguments usage: stream_max <bytes>\n";
+        }
+        stream_max.store(bytes);
+        return fmt::format("stream_max={} (read-only buffers up to this size are copied into "
+                           "the stream buffer)\n",
+                           bytes);
+    }
+    if (sub == "read_cache" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        Core::MemoryManager::read_cache_enabled.store(args[1] == "on");
+        return fmt::format("read_cache={} (streamed buffer copies {})\n", args[1],
+                           args[1] == "on" ? "reuse recent mapping lookups"
+                                           : "look up the mapping every time");
+    }
+    if (sub == "keep_gpu" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        GpuByteKeeper::enabled.store(args[1] == "on");
+        return fmt::format("keep_gpu={} (CPU writes beside GPU-written bytes {})\n", args[1],
+                           args[1] == "on" ? "keep those bytes" : "re-upload the whole page");
+    }
     return "status=bad_arguments usage: start [log_lines] | status | stop | "
            "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
-           "watch_predict on|off\n";
+           "watch_predict on|off | keep_gpu on|off | read_cache on|off | stream_max <bytes>\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

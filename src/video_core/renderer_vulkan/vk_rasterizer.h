@@ -132,6 +132,8 @@ private:
     // Replaces a known pattern-fill compute kernel (Gnmx-style clear) by image clears
     // when it fills whole cached images with a uniform texel. True when the dispatch is done.
     bool TryComputeImageFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
+    /// A raw dword copy kernel between the memory of two same-layout images: copy the images.
+    bool TryComputeRawImageCopy(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
     // Constant-colour image_store kernel over 8x8 groups: an image clear.
     bool TryComputeImageStoreFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
     // Upload diagnostics only (called while armed): logs dispatches that write a formatted
@@ -142,7 +144,11 @@ private:
     /// Missing-content tracking: what the draw's attachments contribute (clear, read, write).
     void NoteAttachmentContent(const RenderState& state, bool began_rendering);
 
-    void InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect);
+    void InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect,
+                       std::string_view kind = "shadps4.draw", bool with_textures = true);
+    void InsertDispatchTag(const Shader::Info& cs, const AmdGpu::ComputeProgram& program,
+                           bool indirect);
+    void InsertDroppedDrawTag(bool is_indexed, bool indirect);
     // Guest command trace (pm4_trace.h): the decoded draw/dispatch with its resources.
     void TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* pipeline,
                      const RenderState* state, u32 p0, u32 p1, u32 p2, u32 p3, u64 p4) {
@@ -183,7 +189,7 @@ private:
     AmdGpu::Liverpool* liverpool;
     Core::MemoryManager* memory;
     boost::icl::interval_set<VAddr> mapped_ranges;
-    Common::SharedFirstMutex mapped_ranges_mutex;
+    Common::SharedFirstMutex mapped_ranges_mutex{"Rasterizer.MappedRangesWait"};
     PipelineCache pipeline_cache;
     const bool host_markers_enabled;
     const bool guest_markers_enabled;
