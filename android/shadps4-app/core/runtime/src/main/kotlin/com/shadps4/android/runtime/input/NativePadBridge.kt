@@ -217,6 +217,12 @@ object NativePadBridge {
             val nativeDevice = device.copy(connectionEpoch = epoch)
             bindings[device] = Binding(port,epoch,nativeDevice,NativeButtonMapping(profiles[port]))
             actuator.register(nativeDevice)
+            val vibrators = runCatching {
+                if (android.os.Build.VERSION.SDK_INT >= 31) androidDevice?.vibratorManager?.vibratorIds?.size ?: 0
+                else if (androidDevice?.vibrator?.hasVibrator() == true) 1 else 0
+            }.getOrDefault(-1)
+            android.util.Log.i("NativePad", "Controller '${androidDevice?.name}' on port $port: " +
+                "rumble=${capabilities.hasRumble}, vibrators=$vibrators")
         }
         override fun onInputPacket(packet: InputPacket) {
             val b = bindings[packet.device] ?: return

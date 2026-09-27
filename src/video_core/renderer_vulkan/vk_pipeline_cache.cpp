@@ -1,11 +1,14 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <chrono>
+#include <cstdlib>
 #include <ranges>
 #ifdef __ANDROID__
 #include <sys/system_properties.h>
 #endif
 
+#include "common/elf_info.h"
 #include "common/hash.h"
 #include "common/io_file.h"
 #include "common/path_util.h"
@@ -20,6 +23,7 @@
 #include "video_core/cache_storage.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/renderer_vulkan/vk_pipeline_serialization.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
@@ -294,6 +298,24 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
     }
 #endif
     LOG_INFO(Render_Vulkan, "Guest shader Int64: {}", lower_int64 ? "u32-pair" : "native");
+    // Whole-wave reductions as clustered subgroup operations. The diagnostic override
+    // (debug.shadps4.wave_reduction / SHADPS4_WAVE_REDUCTION = 0) restores the shuffle
+    // translation for same-build A/B; it cannot enable an unsupported capability.
+    bool clustered_reduce = instance.IsSubgroupClusteredReduceSupported();
+#ifdef __ANDROID__
+    char reduce_property[PROP_VALUE_MAX]{};
+    if (__system_property_get("debug.shadps4.wave_reduction", reduce_property) > 0 &&
+        std::string_view(reduce_property) == "0") {
+        clustered_reduce = false;
+    }
+#else
+    if (const char* reduce_env = std::getenv("SHADPS4_WAVE_REDUCTION");
+        reduce_env && std::string_view(reduce_env) == "0") {
+        clustered_reduce = false;
+    }
+#endif
+    LOG_INFO(Render_Vulkan, "Guest whole-wave reductions: {}",
+             clustered_reduce ? "clustered subgroup ops" : "shuffles");
     const auto& vk12_props = instance.GetVk12Properties();
     // Qualcomm's proprietary compiler advertises FP32 FTZ but miscompiles the
     // Bloodborne gamma lookup shader with DenormFlushToZero 32. Exact-RDC
@@ -313,7 +335,9 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .max_viewport_height = instance.GetMaxViewportHeight(),
         .max_shared_memory_size = instance.MaxComputeSharedMemorySize(),
         .supported_spirv = SpirvVersion1_6,
-        .subgroup_size = instance.SubgroupSize(),
+        // Compute pipelines request 64-lane subgroups when the device allows it (Turnip
+        // otherwise reports its 128-lane default), and wave64 lowering keys off this size.
+        .subgroup_size = instance.IsSubgroupSize64Supported() ? 64u : instance.SubgroupSize(),
         .sparse_page_shift = sparse_page_shift,
         .support_int8 = instance.IsShaderInt8Supported(),
         .support_int16 = instance.IsShaderInt16Supported(),
@@ -354,6 +378,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
             instance_.IsAmdShaderExplicitVertexParameterSupported(),
         .supports_fragment_shader_barycentric = instance_.IsFragmentShaderBarycentricSupported(),
         .supports_shader_subgroup_clock = instance_.IsShaderSubgroupClockSupported(),
+        .supports_subgroup_clustered_reduce = clustered_reduce,
         .needs_manual_interpolation = instance.IsFragmentShaderBarycentricSupported() &&
                                       instance.GetDriverID() == vk::DriverId::eNvidiaProprietary,
         .needs_lds_barriers = instance.GetDriverID() == vk::DriverId::eNvidiaProprietary ||
@@ -365,18 +390,90 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .internal_scale = instance.ScalePolicy().ShaderMapping(),
         .force_disable_msaa = instance.IsMsaaDisabled(),
     };
+    PipelineStats::Reset();
+    MissingContent::Reset();
+    // The driver cache must exist before preloading so preloaded pipelines populate and reuse it.
+    // It is independent of the guest recipe cache (pipeline_cache_enabled).
+    std::filesystem::path driver_cache_path{};
+    const auto serial = Common::ElfInfo::Instance().GameSerial();
+    if (EmulatorSettings.IsDriverPipelineCache() && !serial.empty()) {
+        driver_cache_path = Common::FS::GetUserPath(Common::FS::PathType::CacheDir) /
+                            fmt::format("{}_{:04x}_{:04x}.vkpipelines", serial,
+                                        instance.GetVendorID(), instance.GetDeviceID());
+    }
+    const bool driver_cache_on = !driver_cache_path.empty();
+    driver_cache = std::make_unique<DriverPipelineCache>(instance, std::move(driver_cache_path));
+    PipelineStats::LatchConfiguredCompileMode();
+    // Created in every mode so the mode can be switched at runtime (DebugBus).
+    compiler = std::make_unique<PipelineCompiler>(PipelineCompileThreads(instance));
     WarmUp();
-
-    auto [cache_result, cache] = instance.GetDevice().createPipelineCacheUnique({});
-    ASSERT_MSG(cache_result == vk::Result::eSuccess, "Failed to create pipeline cache: {}",
-               vk::to_string(cache_result));
-    pipeline_cache = std::move(cache);
+    const bool recipe_store = Storage::DataBase::Instance().IsOpened();
+    PipelineStats::SetSettings({
+        .recipe_cache = EmulatorSettings.IsPipelineCacheEnabled(),
+        .recipe_store = recipe_store,
+        .driver_cache = driver_cache_on,
+        .compile_threads = compiler->Threads(),
+    });
+    LOG_INFO(Render_Vulkan,
+             "Pipeline caches: recipes {} (store {}), driver {}; compile mode {} on {} threads",
+             EmulatorSettings.IsPipelineCacheEnabled() ? "on" : "off",
+             recipe_store ? "open" : "closed", driver_cache_on ? "on" : "off",
+             PipelineStats::CompileModeName(PipelineStats::EffectiveCompileMode()),
+             compiler->Threads());
+    if (!graphics_pipelines.empty() || !compute_pipelines.empty()) {
+        // A killed process keeps what the preload compiled.
+        driver_cache->RequestSave();
+    }
 }
 
-PipelineCache::~PipelineCache() = default;
+PipelineCache::~PipelineCache() {
+    Sync();
+    // Finish builds in progress before the pipelines they write go away.
+    compiler->Stop();
+}
+
+bool PipelineCache::DeferBuilds() const {
+    return compiler->Threads() > 0 &&
+           PipelineStats::EffectiveCompileMode() != PipelineStats::CompileMode::Sync;
+}
+
+void PipelineCache::SubmitBuild(Pipeline& pipeline, u64 hash) {
+    PipelineStats::RecordDeferred(pipeline.IsCompute() ? PipelineKind::Compute
+                                                       : PipelineKind::Graphics);
+    pipeline.SetBuildObserver(this, hash);
+    if (!compiler->Submit(&pipeline) && pipeline.TryClaim()) {
+        // Queue full: build it now, which is what sync mode does.
+        pipeline.BuildClaimed();
+    }
+}
+
+void PipelineCache::OnPipelineBuilt(const Pipeline& pipeline, u64 hash) {
+    NotePipeline(pipeline, hash, pipeline.Preloaded());
+}
+
+void PipelineCache::PromoteIfPending(const Pipeline& pipeline) {
+    if (!pipeline.Ready() && pipeline.Preloaded() && pipeline.TakePromotion()) {
+        compiler->Promote(&pipeline);
+    }
+}
+
+void PipelineCache::NotePipeline(const Pipeline& pipeline, u64 hash, bool preload) {
+    const auto& creation = pipeline.Creation();
+    PipelineStats::RecordPipeline(
+        pipeline.IsCompute() ? PipelineKind::Compute : PipelineKind::Graphics, preload, creation);
+    if (!preload) {
+        LOG_INFO(Render_Vulkan, "Created {} pipeline {:#x} in {:.2f} ms ({})",
+                 pipeline.IsCompute() ? "compute" : "graphics", hash, double(creation.ns) / 1e6,
+                 !creation.feedback ? "no driver feedback"
+                 : creation.cache_hit ? "driver cache hit"
+                                      : "driver compiled");
+    }
+    driver_cache->NotePipelineCreated();
+}
 
 const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectParams params) {
     draw_indirect_params = params;
+    MaybeCheckpointUsage();
     if (!RefreshGraphicsKey()) {
         return nullptr;
     }
@@ -386,9 +483,15 @@ const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectPar
         LOG_INFO(Render_Vulkan, "Compiling graphics pipeline {:#x}", pipeline_hash);
 
         GraphicsPipeline::SerializationSupport sdata{};
+        const bool defer = DeferBuilds();
         it.value() = std::make_unique<GraphicsPipeline>(
-            instance, scheduler, desc_heap, profile, graphics_key, *pipeline_cache, infos,
-            runtime_infos, fetch_shader, modules, sdata, false);
+            instance, scheduler, desc_heap, profile, graphics_key, driver_cache->Handle(), infos,
+            runtime_infos, fetch_shader, modules, sdata, false, defer);
+        if (defer) {
+            SubmitBuild(*it.value(), pipeline_hash);
+        } else {
+            NotePipeline(*it.value(), pipeline_hash, false);
+        }
 
         RegisterPipelineData(graphics_key, pipeline_hash, sdata);
         ++num_new_pipelines;
@@ -402,23 +505,36 @@ const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectPar
             }
         }
         fetch_shader.reset();
+    } else {
+        PromoteIfPending(*it->second);
     }
     return it->second.get();
 }
 
 const ComputePipeline* PipelineCache::GetComputePipeline() {
-    if (!RefreshComputeKey()) {
-        return nullptr;
-    }
+    return PrepareComputeProgram() ? GetPreparedComputePipeline() : nullptr;
+}
+
+const Shader::Info* PipelineCache::PrepareComputeProgram() {
+    return RefreshComputeKey() ? infos[0] : nullptr;
+}
+
+const ComputePipeline* PipelineCache::GetPreparedComputePipeline() {
     const auto [it, is_new] = compute_pipelines.try_emplace(compute_key);
     if (is_new) {
         const auto pipeline_hash = std::hash<ComputePipelineKey>{}(compute_key);
         LOG_INFO(Render_Vulkan, "Compiling compute pipeline {:#x}", pipeline_hash);
 
         ComputePipeline::SerializationSupport sdata{};
+        const bool defer = DeferBuilds();
         it.value() = std::make_unique<ComputePipeline>(instance, scheduler, desc_heap, profile,
-                                                       *pipeline_cache, compute_key, *infos[0],
-                                                       modules[0], sdata, false);
+                                                       driver_cache->Handle(), compute_key,
+                                                       *infos[0], modules[0], sdata, false, defer);
+        if (defer) {
+            SubmitBuild(*it.value(), pipeline_hash);
+        } else {
+            NotePipeline(*it.value(), pipeline_hash, false);
+        }
         RegisterPipelineData(compute_key, sdata);
         ++num_new_pipelines;
 
@@ -426,6 +542,8 @@ const ComputePipeline* PipelineCache::GetComputePipeline() {
             auto& m = modules[0];
             module_related_pipelines[m].emplace_back(compute_key);
         }
+    } else {
+        PromoteIfPending(*it->second);
     }
     return it->second.get();
 }
@@ -679,6 +797,7 @@ vk::ShaderModule PipelineCache::CompileModule(Shader::Info& info, Shader::Runtim
                                               const std::span<const u32>& code, size_t perm_idx,
                                               Shader::Backend::Bindings& binding) {
     Common::Profiler::Scope profile_scope{"GPU.CompileGuestShader"};
+    const auto translate_start = std::chrono::steady_clock::now();
     LOG_INFO(Render_Vulkan, "Compiling {} shader {:#x} {}", info.hw_stage, info.pgm_hash,
              perm_idx != 0 ? "(permutation)" : "");
     DumpShader(code, info.pgm_hash, info.hw_stage, perm_idx, "bin");
@@ -698,14 +817,16 @@ vk::ShaderModule PipelineCache::CompileModule(Shader::Info& info, Shader::Runtim
         module = CompileSPV(spv, instance.GetDevice());
     }
 
-    RegisterShaderBinary(std::move(spv), info.pgm_hash, perm_idx);
-
     const auto name = GetShaderName(info.hw_stage, info.pgm_hash, perm_idx);
     Vulkan::SetObjectName(instance.GetDevice(), module, name);
     if (EmulatorSettings.IsShaderCollect()) {
         DebugState.CollectShader(name, info.sw_stage, module, spv, code,
                                  patch ? *patch : std::span<const u32>{}, is_patched);
     }
+    RegisterShaderBinary(std::move(spv), info.pgm_hash, perm_idx);
+    PipelineStats::RecordModule(u64(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                        std::chrono::steady_clock::now() - translate_start)
+                                        .count()));
     return module;
 }
 
@@ -773,12 +894,25 @@ std::optional<vk::ShaderModule> PipelineCache::ReplaceShader(vk::ShaderModule mo
     if (module_related_pipelines.contains(module)) {
         auto& pipeline_keys = module_related_pipelines[module];
         for (auto& key : pipeline_keys) {
+            // A deferred build may still be queued or running on a worker.
+            const auto retire = [this](const Pipeline& pipeline) {
+                compiler->Forget(&pipeline);
+                pipeline.WaitHandle();
+            };
             if (std::holds_alternative<GraphicsPipelineKey>(key)) {
                 auto& graphics_key = std::get<GraphicsPipelineKey>(key);
-                graphics_pipelines.erase(graphics_key);
+                if (const auto it = graphics_pipelines.find(graphics_key);
+                    it != graphics_pipelines.end()) {
+                    retire(*it->second);
+                    graphics_pipelines.erase(it);
+                }
             } else if (std::holds_alternative<ComputePipelineKey>(key)) {
                 auto& compute_key = std::get<ComputePipelineKey>(key);
-                compute_pipelines.erase(compute_key);
+                if (const auto it = compute_pipelines.find(compute_key);
+                    it != compute_pipelines.end()) {
+                    retire(*it->second);
+                    compute_pipelines.erase(it);
+                }
             }
         }
     }

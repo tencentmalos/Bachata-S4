@@ -685,6 +685,29 @@ U1 IREmitter::GroupAny(const U1& bit) {
     return Inst<U1>(Opcode::GroupAny, bit);
 }
 
+U32 IREmitter::ClusteredReduce(ReduceOp op, const U32& value, u32 cluster_size) {
+    const Opcode opcode = [op] {
+        switch (op) {
+        case ReduceOp::UMin:
+            return Opcode::ClusteredUMin32;
+        case ReduceOp::UMax:
+            return Opcode::ClusteredUMax32;
+        case ReduceOp::SMin:
+            return Opcode::ClusteredSMin32;
+        case ReduceOp::SMax:
+            return Opcode::ClusteredSMax32;
+        case ReduceOp::And:
+            return Opcode::ClusteredAnd32;
+        case ReduceOp::Or:
+            return Opcode::ClusteredOr32;
+        case ReduceOp::Xor:
+            return Opcode::ClusteredXor32;
+        }
+        UNREACHABLE();
+    }();
+    return Inst<U32>(opcode, value, Imm32(cluster_size));
+}
+
 F32F64 IREmitter::FPAdd(const F32F64& a, const F32F64& b) {
     if (a.Type() != b.Type()) {
         UNREACHABLE_MSG("Mismatching types {} and {}", a.Type(), b.Type());

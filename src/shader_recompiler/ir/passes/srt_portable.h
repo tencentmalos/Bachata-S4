@@ -40,6 +40,8 @@ struct PortableSrt {
     };
     static constexpr u32 MaxEntries = 65535;
     static constexpr u32 MaxDepth = 64;
+    /// Longest run of consecutive copies read with one call (a few sharps).
+    static constexpr u32 MaxBatchDwords = 64;
     std::vector<Expr> expressions;
     std::vector<Command> commands;
 
@@ -186,7 +188,50 @@ public:
             epoch = 0;
         }
         const std::span<Memo> memo{memo_buffer.data(), expressions.size()};
+        // Sharps are copied dword by dword from consecutive constant offsets of the current table
+        // into consecutive flat slots. Such a run is read with one call; if that read fails,
+        // every dword is read on its own, so the result is exactly that of per-dword copies
+        // (unreadable dwords become 0). The run is written out before any other command, whose
+        // expression may read flat slots.
+        u64 run_offset{};
+        u32 run_destination{}, run_count{};
+        const auto copy_dword = [&](u64 offset, u32 destination) {
+            u32 value{};
+            if (pointer && pointer <= UINT64_MAX - offset &&
+                !read(pointer + offset, &value, sizeof(value)))
+                value = 0;
+            flat[destination] = value;
+        };
+        const auto flush = [&] {
+            if (!run_count)
+                return;
+            const u64 bytes = u64(run_count) * sizeof(u32);
+            const bool batched = pointer && pointer <= UINT64_MAX - run_offset &&
+                                 bytes <= UINT64_MAX - (pointer + run_offset) &&
+                                 read(pointer + run_offset, flat.data() + run_destination, bytes);
+            if (!batched) {
+                for (u32 i = 0; i < run_count; ++i)
+                    copy_dword(run_offset + u64(i) * sizeof(u32), run_destination + i);
+            }
+            run_count = 0;
+        };
         for (auto command : commands) {
+            if (command.kind == Kind::Copy &&
+                expressions[command.expression].op == Op::Constant) {
+                const u64 offset = u32(expressions[command.expression].a << 2);
+                if (run_count && run_count < MaxBatchDwords &&
+                    offset == run_offset + u64(run_count) * sizeof(u32) &&
+                    command.destination == run_destination + run_count) {
+                    ++run_count;
+                    continue;
+                }
+                flush();
+                run_offset = offset;
+                run_destination = command.destination;
+                run_count = 1;
+                continue;
+            }
+            flush();
             if (command.kind == Kind::Pop) {
                 pointer = stack[--depth];
                 continue;
@@ -206,13 +251,10 @@ public:
                 stack[depth++] = pointer;
                 pointer = next & 0xFFFFFFFFFFFFULL;
             } else {
-                u32 value{};
-                if (pointer && pointer <= UINT64_MAX - offset &&
-                    !read(pointer + offset, &value, sizeof(value)))
-                    value = 0;
-                flat[command.destination] = value;
+                copy_dword(offset, command.destination);
             }
         }
+        flush();
     }
 };
 // Uses the current MemoryManager's mapped ranges, never an arbitrary host pointer.

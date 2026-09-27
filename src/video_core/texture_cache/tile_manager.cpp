@@ -5,10 +5,14 @@
 #include <memory>
 #include <span>
 #include "common/div_ceil.h"
+#include "common/profiler.h"
 #include "video_core/buffer_cache/buffer.h"
+#include "video_core/renderer_vulkan/vk_driver_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_pipeline_stats.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
+#include "video_core/renderer_vulkan/vk_staging_buffer_pool.h"
 #include "video_core/texture_cache/image.h"
 #include "video_core/texture_cache/image_info.h"
 #include "video_core/texture_cache/image_view.h"
@@ -197,8 +201,9 @@ static TileManager::ReadbackPack SelectReadbackPack(vk::Format backing, u32 num_
 }
 
 TileManager::TileManager(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler,
-                         StreamBuffer& stream_buffer_)
-    : instance{instance}, scheduler{scheduler}, stream_buffer{stream_buffer_} {
+                         StreamBuffer& stream_buffer_, Vulkan::StagingBufferPool& staging_pool_)
+    : instance{instance}, scheduler{scheduler}, stream_buffer{stream_buffer_},
+      staging_pool{staging_pool_} {
     const auto device = instance.GetDevice();
     const std::array<vk::DescriptorSetLayoutBinding, 3> bindings = {{
         {
@@ -378,12 +383,22 @@ vk::Pipeline TileManager::CreateTilingPipeline(const TilingKey& key, const Image
         .pName = "main",
         .pSpecializationInfo = &specialization,
     };
+    Vulkan::PipelineCreationProbe probe{1};
     const vk::ComputePipelineCreateInfo compute_pipeline_ci = {
+        .pNext = probe.Chain(nullptr),
         .stage = shader_ci,
         .layout = from_image ? *image_pl_layout : *pl_layout,
     };
-    auto [result, pipeline] =
-        device.createComputePipelineUnique(VK_NULL_HANDLE, compute_pipeline_ci);
+    probe.Start();
+    auto [result, pipeline] = [&] {
+        Common::Profiler::Scope scope{"Pipeline.CreateTiling"};
+        return device.createComputePipelineUnique(
+            driver_cache ? driver_cache->Handle() : vk::PipelineCache{}, compute_pipeline_ci);
+    }();
+    Vulkan::PipelineStats::RecordPipeline(Vulkan::PipelineKind::Tiling, false, probe.Finish());
+    if (driver_cache) {
+        driver_cache->NotePipelineCreated();
+    }
     device.destroyShaderModule(module);
     ASSERT_MSG(result == vk::Result::eSuccess, "Tiling pipeline {} creation failed {}",
                module_name, vk::to_string(result));
@@ -418,10 +433,11 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
         .range = sizeof(params),
     };
 
-    const auto [out_buffer, out_allocation] = GetScratchBuffer(info.guest_size);
-    scheduler.DeferOperation([this, out_buffer, out_allocation]() {
-        VideoCore::VmaDiagnostics::DestroyBuffer(instance.GetAllocator(), out_buffer, out_allocation);
-    });
+    // Freed with the current tick: the ring only hands the range out again once the GPU has
+    // executed the detile and the copy into the image.
+    const auto scratch =
+        staging_pool.Request(info.guest_size, MemoryType::DeviceLocal, instance.StorageMinAlignment());
+    const vk::Buffer out_buffer = scratch.buffer->Handle();
 
     scheduler.EndRendering(Vulkan::RenderBreak::Detile);
 
@@ -436,7 +452,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
 
     const vk::DescriptorBufferInfo linear_buffer_info{
         .buffer = out_buffer,
-        .offset = 0,
+        .offset = scratch.offset,
         .range = info.guest_size,
     };
 
@@ -473,7 +489,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
                                       64U * texels_per_invocation);
     Vulkan::GpuZoneScope gpu_zone{scheduler, Vulkan::GpuProfiler::Stage::Transfer};
     cmdbuf.dispatch(dim_x, 1, 1);
-    return {out_buffer, 0};
+    return {out_buffer, static_cast<u32>(scratch.offset)};
 }
 
 void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buffer_copies,

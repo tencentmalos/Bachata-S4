@@ -482,6 +482,13 @@ Id EmitBallot(EmitContext& ctx, Id bit);
 Id EmitBallotFindLsb(EmitContext& ctx, Id mask);
 Id EmitInverseBallot(EmitContext& ctx, Id mask);
 Id EmitGroupAny(EmitContext& ctx, Id bit);
+Id EmitClusteredUMin32(EmitContext& ctx, Id value, u32 cluster_size);
+Id EmitClusteredUMax32(EmitContext& ctx, Id value, u32 cluster_size);
+Id EmitClusteredSMin32(EmitContext& ctx, Id value, u32 cluster_size);
+Id EmitClusteredSMax32(EmitContext& ctx, Id value, u32 cluster_size);
+Id EmitClusteredAnd32(EmitContext& ctx, Id value, u32 cluster_size);
+Id EmitClusteredOr32(EmitContext& ctx, Id value, u32 cluster_size);
+Id EmitClusteredXor32(EmitContext& ctx, Id value, u32 cluster_size);
 Id EmitDataAppend(EmitContext& ctx, Id gds_dw_offset, Id exec);
 Id EmitDataConsume(EmitContext& ctx, Id gds_dw_offset, Id exec);
 

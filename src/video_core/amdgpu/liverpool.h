@@ -185,6 +185,20 @@ public:
         return mapped_queues[curr_qid].cs_state;
     }
 
+    /// PM4 context of the dispatch being processed, for GPU hang diagnostics only.
+    struct DispatchDiagnostics {
+        u32 queue{};           ///< 0: graphics ring, otherwise compute vqid + 1.
+        bool predicated{};     ///< Type-3 header predicate bit of the dispatch packet.
+        u32 predication_dw1{}; ///< Last SET_PREDICATION on the graphics ring (raw dwords).
+        u32 predication_dw2{};
+        u32 predications{};    ///< SET_PREDICATION packets seen.
+    };
+    DispatchDiagnostics dispatch_diag{};
+    /// Type-3 header predicate bit of the draw packet being executed (direct draws).
+    bool draw_predicated{};
+    /// Patched flip packets processed on the graphics ring: frame boundaries in command order.
+    u64 flip_epoch{};
+
     struct AscQueueInfo {
         static constexpr size_t Pm4BufferSize = 1024;
         VAddr map_addr;

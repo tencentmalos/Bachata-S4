@@ -448,6 +448,11 @@ public:
         staged_reads.clear();
         staged_writes.clear();
     }
+    /// For passes whose draws do not stage their guest memory accesses (emulator helper
+    /// passes): nothing may be placed before them, since their access set is unknown.
+    void UntrackPass() noexcept {
+        pass_trackable = false;
+    }
 
     /// Pass description (targets, load/clear, read-only depth) for the next pass begin:
     /// inserted as a debug label when `marker` is set and kept by the pass log.

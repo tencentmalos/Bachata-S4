@@ -7,6 +7,7 @@
 #include "core/emulator_settings.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/pad/pad_errors.h"
+#include "core/libraries/pad/pad_vibration.h"
 #include "core/user_settings.h"
 #include "imgui/renderer/imgui_core.h"
 #include "input/controller.h"
@@ -690,17 +691,23 @@ int PS4_SYSV_ABI scePadSetVibration(s32 handle, const OrbisPadVibrationParam* pP
 #ifdef __ANDROID__
     return Core::HostRuntime::GlobalPadAdapter().Vibrate(handle, pParam);
 #else
+    using Vibration::Outcome;
     auto it = handle_to_controller_map.find(handle);
     if (it == handle_to_controller_map.end()) {
+        Vibration::Record(handle, 0, 0, Outcome::NoHandle);
         return ORBIS_PAD_ERROR_INVALID_HANDLE;
     }
     auto& controller = *it->second;
     if (pParam != nullptr) {
-        LOG_DEBUG(Lib_Pad, "scePadSetVibration called handle = {} data = {} , {}", handle,
-                  pParam->smallMotor, pParam->largeMotor);
-        controller.SetVibration(pParam->smallMotor, pParam->largeMotor);
+        const auto result = controller.SetVibration(pParam->smallMotor, pParam->largeMotor);
+        Vibration::Record(handle, pParam->largeMotor, pParam->smallMotor,
+                          result == Input::GameController::RumbleResult::Sent ? Outcome::Sent
+                          : result == Input::GameController::RumbleResult::NoGamepad
+                              ? Outcome::NoActuator
+                              : Outcome::HostRejected);
         return ORBIS_OK;
     }
+    Vibration::Record(handle, 0, 0, Outcome::InvalidArgs);
     return ORBIS_PAD_ERROR_INVALID_ARG;
 #endif
 }

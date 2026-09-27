@@ -49,6 +49,7 @@ import com.shadps4.android.runtime.settings.ConsoleLanguage
 import com.shadps4.android.runtime.settings.ProfileScope
 import kotlinx.serialization.json.JsonPrimitive
 import com.shadps4.android.runtime.settings.SettingKind
+import com.shadps4.android.runtime.settings.choiceLabel
 
 private enum class SettingsPage(val title: String) {
     System("System"), Graphics("Graphics"), Library("Game Library"),
@@ -177,7 +178,7 @@ fun SettingsScreen(
                                             color = if (choice == current) BachataPalette.Accent else BachataPalette.RaisedSurface,
                                             shape = MaterialTheme.shapes.small,
                                         ) {
-                                            Text(if (spec.kind == SettingKind.BOOLEAN) { if (choice == "true") "On" else "Off" } else choice, Modifier.padding(12.dp),
+                                            Text(if (spec.kind == SettingKind.BOOLEAN) { if (choice == "true") "On" else "Off" } else spec.choiceLabel(choice), Modifier.padding(12.dp),
                                                 color = if (choice == current) BachataPalette.OnAccent else BachataPalette.Primary)
                                         }
                                     }

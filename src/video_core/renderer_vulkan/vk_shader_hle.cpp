@@ -13,6 +13,7 @@
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/amdgpu/pm4_trace.h"
 
@@ -201,6 +202,15 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         watch.hle_mirror_bytes.fetch_add(bytes, std::memory_order_relaxed);
     }
     const bool commit = guest_copy && !mirror;
+    if (commit && MissingContent::Tracking()) {
+        // The copied data is written back to guest memory, where the CPU reads it directly.
+        for (const auto& c : copies) {
+            if (MissingContent::CheckEscape(MissingContent::Escape::Readback,
+                                            src_buf_sharp.base_address + c.srcOffset, c.size)) {
+                break;
+            }
+        }
+    }
     static std::vector<std::pair<VAddr, u32>> commit_targets;
     commit_targets.clear();
     u64 commit_bytes = 0;

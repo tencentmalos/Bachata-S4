@@ -574,6 +574,35 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetMsaaDisabled(
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetPipelineCacheEnabled(
+    JNIEnv*, jobject, jboolean enabled) {
+    EmulatorSettings.SetPipelineCacheEnabled(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetDriverPipelineCacheEnabled(
+    JNIEnv*, jobject, jboolean enabled) {
+    EmulatorSettings.SetDriverPipelineCache(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetPipelineCompileMode(
+    JNIEnv*, jobject, jint mode) {
+    try {
+        EmulatorSettings.SetPipelineCompileMode(mode == 2   ? "async_graphics_skip"
+                                                : mode == 1 ? "async_accurate"
+                                                            : "sync");
+    }
+    catch (...) { /* Never unwind across JNI. */ }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetCommandRecorder(
+    JNIEnv*, jobject, jboolean enabled) {
+    EmulatorSettings.SetCommandRecorder(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetTextureQuality(
     JNIEnv*, jclass, jint quality) {
     try { EmulatorSettings.SetTextureQuality(static_cast<u32>(quality)); }

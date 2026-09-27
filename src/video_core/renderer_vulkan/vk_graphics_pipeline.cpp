@@ -7,8 +7,10 @@
 #include <nlohmann/json.hpp>
 #include "common/path_util.h"
 #include <boost/container/small_vector.hpp>
+#include <boost/container/static_vector.hpp>
 
 #include "common/assert.h"
+#include "common/profiler.h"
 #include "shader_recompiler/backend/spirv/emit_spirv_discard_frag.h"
 #include "shader_recompiler/backend/spirv/emit_spirv_quad_rect.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
@@ -30,13 +32,49 @@ static constexpr std::array LogicalStageToStageBit = {
     vk::ShaderStageFlagBits::eCompute,
 };
 
+struct GraphicsPipeline::CreateState {
+    vk::PipelineCache pipeline_cache{};
+    std::string debug_str{};
+    VertexInputs<vk::VertexInputAttributeDescription> vertex_attributes{};
+    VertexInputs<vk::VertexInputBindingDescription> vertex_bindings{};
+    VertexInputs<vk::VertexInputBindingDivisorDescriptionEXT> divisors{};
+    vk::PipelineMultisampleStateCreateInfo multisampling{};
+    vk::PipelineVertexInputDivisorStateCreateInfo divisor_state{};
+    vk::PipelineVertexInputStateCreateInfo vertex_input_info{};
+    vk::PipelineInputAssemblyStateCreateInfo input_assembly{};
+    vk::PipelineTessellationStateCreateInfo tessellation_state{};
+    vk::StructureChain<vk::PipelineRasterizationStateCreateInfo,
+                       vk::PipelineRasterizationProvokingVertexStateCreateInfoEXT,
+                       vk::PipelineRasterizationDepthClipStateCreateInfoEXT>
+        raster_chain{};
+    vk::PipelineViewportDepthClipControlCreateInfoEXT clip_control{};
+    vk::PipelineViewportStateCreateInfo viewport_info{};
+    boost::container::static_vector<vk::DynamicState, 32> dynamic_states{};
+    vk::PipelineDynamicStateCreateInfo dynamic_info{};
+    boost::container::static_vector<vk::PipelineShaderStageCreateInfo, MaxShaderStages>
+        shader_stages{};
+    boost::container::static_vector<vk::UniqueShaderModule, 3> aux_modules{};
+    vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo subgroup_size_ci{};
+    std::array<vk::Format, Shader::IR::NumRenderTargets> color_formats{};
+    std::array<vk::SampleCountFlagBits, AmdGpu::NUM_COLOR_BUFFERS> color_samples{};
+    vk::AttachmentSampleCountInfoAMD mixed_samples{};
+    vk::PipelineRenderingCreateInfo pipeline_rendering_ci{};
+    std::array<vk::PipelineColorBlendAttachmentState, AmdGpu::NUM_COLOR_BUFFERS> attachments{};
+    vk::PipelineColorBlendStateCreateInfo color_blending{};
+    vk::PipelineDepthStencilStateCreateInfo depth_stencil_info{};
+    std::optional<PipelineCreationProbe> probe{};
+    vk::GraphicsPipelineCreateInfo pipeline_info{};
+    Shader::HwFragmentRuntimeInfo fs_runtime{}; ///< Failure diagnostics only.
+};
+
 GraphicsPipeline::GraphicsPipeline(
     const Instance& instance, Scheduler& scheduler, DescriptorHeap& desc_heap,
     const Shader::Profile& profile, const GraphicsPipelineKey& key_,
     vk::PipelineCache pipeline_cache, std::span<const Shader::Info*, MaxShaderStages> infos,
     std::span<const Shader::RuntimeInfo, MaxShaderStages> runtime_infos,
     std::optional<const Shader::Gcn::FetchShaderData> fetch_shader_,
-    std::span<const vk::ShaderModule> modules, SerializationSupport& sdata, bool preloading)
+    std::span<const vk::ShaderModule> modules, SerializationSupport& sdata, bool preloading,
+    bool defer_build)
     : Pipeline{instance, scheduler, desc_heap, profile, pipeline_cache}, key{key_},
       fetch_shader{std::move(fetch_shader_)} {
     const vk::Device device = instance.GetDevice();
@@ -72,53 +110,56 @@ GraphicsPipeline::GraphicsPipeline(
         }
     }
 
-    const vk::PipelineVertexInputDivisorStateCreateInfo divisor_state = {
-        .vertexBindingDivisorCount = static_cast<u32>(sdata.divisors.size()),
-        .pVertexBindingDivisors = sdata.divisors.data(),
+    // Everything below that the driver call reads is prepared here, on the thread that knows
+    // the guest state, and owned by the pipeline; the call itself may run later elsewhere.
+    create_state = std::make_unique<CreateState>();
+    auto& s = *create_state;
+    s.pipeline_cache = pipeline_cache;
+    s.debug_str = debug_str;
+    s.vertex_attributes = sdata.vertex_attributes;
+    s.vertex_bindings = sdata.vertex_bindings;
+    s.divisors = sdata.divisors;
+
+    s.divisor_state = {
+        .vertexBindingDivisorCount = static_cast<u32>(s.divisors.size()),
+        .pVertexBindingDivisors = s.divisors.data(),
     };
 
-    const vk::PipelineVertexInputStateCreateInfo vertex_input_info = {
-        .pNext = sdata.divisors.empty() ? nullptr : &divisor_state,
-        .vertexBindingDescriptionCount = static_cast<u32>(sdata.vertex_bindings.size()),
-        .pVertexBindingDescriptions = sdata.vertex_bindings.data(),
-        .vertexAttributeDescriptionCount = static_cast<u32>(sdata.vertex_attributes.size()),
-        .pVertexAttributeDescriptions = sdata.vertex_attributes.data(),
+    s.vertex_input_info = {
+        .pNext = s.divisors.empty() ? nullptr : &s.divisor_state,
+        .vertexBindingDescriptionCount = static_cast<u32>(s.vertex_bindings.size()),
+        .pVertexBindingDescriptions = s.vertex_bindings.data(),
+        .vertexAttributeDescriptionCount = static_cast<u32>(s.vertex_attributes.size()),
+        .pVertexAttributeDescriptions = s.vertex_attributes.data(),
     };
 
-    const auto topology = LiverpoolToVK::PrimitiveType(key.prim_type);
-    const vk::PipelineInputAssemblyStateCreateInfo input_assembly = {
-        .topology = topology,
+    s.input_assembly = {
+        .topology = LiverpoolToVK::PrimitiveType(key.prim_type),
     };
 
     const bool is_rect_list = key.prim_type == AmdGpu::PrimitiveType::RectList;
     const bool is_quad_list = key.prim_type == AmdGpu::PrimitiveType::QuadList;
-    const vk::PipelineTessellationStateCreateInfo tessellation_state = {
+    s.tessellation_state = {
         .patchControlPoints = is_rect_list ? 3U : (is_quad_list ? 4U : key.patch_control_points),
     };
 
-    vk::StructureChain raster_chain = {
-        vk::PipelineRasterizationStateCreateInfo{
-            .depthClampEnable = key.depth_clamp_enable &&
-                                (!key.depth_clip_enable || instance.IsDepthClipEnableSupported()),
-            .rasterizerDiscardEnable = false,
-            .polygonMode = LiverpoolToVK::PolygonMode(key.polygon_mode),
-            .lineWidth = 1.0f,
-        },
-        vk::PipelineRasterizationProvokingVertexStateCreateInfoEXT{
-            .provokingVertexMode = key.provoking_vtx_last == AmdGpu::ProvokingVtxLast::First
-                                       ? vk::ProvokingVertexModeEXT::eFirstVertex
-                                       : vk::ProvokingVertexModeEXT::eLastVertex,
-        },
-        vk::PipelineRasterizationDepthClipStateCreateInfoEXT{
-            .depthClipEnable = key.depth_clip_enable,
-        },
-    };
-
+    auto& rasterization = s.raster_chain.get<vk::PipelineRasterizationStateCreateInfo>();
+    rasterization.depthClampEnable =
+        key.depth_clamp_enable && (!key.depth_clip_enable || instance.IsDepthClipEnableSupported());
+    rasterization.rasterizerDiscardEnable = false;
+    rasterization.polygonMode = LiverpoolToVK::PolygonMode(key.polygon_mode);
+    rasterization.lineWidth = 1.0f;
+    s.raster_chain.get<vk::PipelineRasterizationProvokingVertexStateCreateInfoEXT>()
+        .provokingVertexMode = key.provoking_vtx_last == AmdGpu::ProvokingVtxLast::First
+                                   ? vk::ProvokingVertexModeEXT::eFirstVertex
+                                   : vk::ProvokingVertexModeEXT::eLastVertex;
+    s.raster_chain.get<vk::PipelineRasterizationDepthClipStateCreateInfoEXT>().depthClipEnable =
+        key.depth_clip_enable;
     if (!instance.IsProvokingVertexSupported()) {
-        raster_chain.unlink<vk::PipelineRasterizationProvokingVertexStateCreateInfoEXT>();
+        s.raster_chain.unlink<vk::PipelineRasterizationProvokingVertexStateCreateInfoEXT>();
     }
     if (!instance.IsDepthClipEnableSupported()) {
-        raster_chain.unlink<vk::PipelineRasterizationDepthClipStateCreateInfoEXT>();
+        s.raster_chain.unlink<vk::PipelineRasterizationDepthClipStateCreateInfoEXT>();
     }
 
     if (!preloading) {
@@ -130,15 +171,24 @@ GraphicsPipeline::GraphicsPipeline(
                 (fs_info.addr_flags.persp_sample_ena || fs_info.addr_flags.linear_sample_ena),
         };
     }
+    s.multisampling = sdata.multisampling;
 
-    raster_samples = sdata.multisampling.rasterizationSamples;
+    raster_samples = s.multisampling.rasterizationSamples;
     ASSERT_MSG(u32(raster_samples) == key.num_samples,
                "Unsupported pipeline sample count: requested={} actual={}",
                key.num_samples, u32(raster_samples));
+    skip_eligible = std::ranges::none_of(infos, [](const Shader::Info* info) {
+        return info && (info->translation_failed ||
+                        std::ranges::any_of(info->buffers,
+                                            [](const auto& buffer) { return buffer.is_written; }) ||
+                        std::ranges::any_of(info->images, [](const auto& image) {
+                            return image.is_written || image.is_atomic;
+                        }));
+    });
     const auto* fragment = infos[u32(Shader::SwStage::Fragment)];
     // Coarse shading must not reduce guest-visible memory writes/atomics or
     // per-sample evaluation. Read-only storage resources remain eligible.
-    requires_full_fragment_rate = sdata.multisampling.sampleShadingEnable || !fragment;
+    requires_full_fragment_rate = s.multisampling.sampleShadingEnable || !fragment;
     if (fragment) {
         requires_full_fragment_rate |= std::ranges::any_of(
             fragment->buffers, [](const auto& resource) { return resource.is_written; });
@@ -147,15 +197,15 @@ GraphicsPipeline::GraphicsPipeline(
             [](const auto& resource) { return resource.is_written || resource.is_atomic; });
     }
 
-    const vk::PipelineViewportDepthClipControlCreateInfoEXT clip_control = {
+    s.clip_control = {
         .negativeOneToOne = key.clip_space == AmdGpu::ClipSpace::MinusWToW,
     };
 
-    const vk::PipelineViewportStateCreateInfo viewport_info = {
-        .pNext = instance.IsDepthClipControlSupported() ? &clip_control : nullptr,
+    s.viewport_info = {
+        .pNext = instance.IsDepthClipControlSupported() ? &s.clip_control : nullptr,
     };
 
-    boost::container::static_vector<vk::DynamicState, 32> dynamic_states = {
+    s.dynamic_states = {
         vk::DynamicState::eViewportWithCount,  vk::DynamicState::eScissorWithCount,
         vk::DynamicState::eBlendConstants,     vk::DynamicState::eDepthTestEnable,
         vk::DynamicState::eDepthWriteEnable,   vk::DynamicState::eDepthCompareOp,
@@ -168,31 +218,35 @@ GraphicsPipeline::GraphicsPipeline(
     };
 
     if (instance.IsDepthBoundsSupported()) {
-        dynamic_states.push_back(vk::DynamicState::eDepthBoundsTestEnable);
-        dynamic_states.push_back(vk::DynamicState::eDepthBounds);
+        s.dynamic_states.push_back(vk::DynamicState::eDepthBoundsTestEnable);
+        s.dynamic_states.push_back(vk::DynamicState::eDepthBounds);
     }
     if (instance.IsDynamicColorWriteMaskSupported()) {
-        dynamic_states.push_back(vk::DynamicState::eColorWriteMaskEXT);
+        s.dynamic_states.push_back(vk::DynamicState::eColorWriteMaskEXT);
     }
     if (instance.IsVertexInputDynamicState()) {
-        dynamic_states.push_back(vk::DynamicState::eVertexInputEXT);
-    } else if (!sdata.vertex_bindings.empty()) {
-        dynamic_states.push_back(vk::DynamicState::eVertexInputBindingStride);
+        s.dynamic_states.push_back(vk::DynamicState::eVertexInputEXT);
+    } else if (!s.vertex_bindings.empty()) {
+        s.dynamic_states.push_back(vk::DynamicState::eVertexInputBindingStride);
     }
     if (instance.IsPipelineFragmentShadingRateSupported()) {
-        dynamic_states.push_back(vk::DynamicState::eFragmentShadingRateKHR);
+        s.dynamic_states.push_back(vk::DynamicState::eFragmentShadingRateKHR);
     }
 
-    const vk::PipelineDynamicStateCreateInfo dynamic_info = {
-        .dynamicStateCount = static_cast<u32>(dynamic_states.size()),
-        .pDynamicStates = dynamic_states.data(),
+    s.dynamic_info = {
+        .dynamicStateCount = static_cast<u32>(s.dynamic_states.size()),
+        .pDynamicStates = s.dynamic_states.data(),
     };
 
-    boost::container::static_vector<vk::PipelineShaderStageCreateInfo, MaxShaderStages>
-        shader_stages;
+    // Host-generated stages (rect/quad tessellation, discard fragment) are owned by the create
+    // state; the pipeline does not need them once created.
+    const auto aux_module = [&](std::span<const u32> spv) {
+        s.aux_modules.emplace_back(CompileSPV(spv, device), device);
+        return *s.aux_modules.back();
+    };
     auto stage = u32(Shader::SwStage::Vertex);
     if (infos[stage]) {
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eVertex,
             .module = modules[stage],
             .pName = "main",
@@ -200,7 +254,7 @@ GraphicsPipeline::GraphicsPipeline(
     }
     stage = u32(Shader::SwStage::Geometry);
     if (infos[stage]) {
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eGeometry,
             .module = modules[stage],
             .pName = "main",
@@ -208,7 +262,7 @@ GraphicsPipeline::GraphicsPipeline(
     }
     stage = u32(Shader::SwStage::TessellationControl);
     if (infos[stage]) {
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationControl,
             .module = modules[stage],
             .pName = "main",
@@ -224,15 +278,15 @@ GraphicsPipeline::GraphicsPipeline(
                 Shader::Backend::SPIRV::AuxiliaryBuiltinLocations(
                     *infos[u32(Shader::SwStage::Vertex)], profile));
         }
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationControl,
-            .module = CompileSPV(sdata.tcs, instance.GetDevice()),
+            .module = aux_module(sdata.tcs),
             .pName = "main",
         });
     }
     stage = u32(Shader::SwStage::TessellationEval);
     if (infos[stage]) {
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
             .module = modules[stage],
             .pName = "main",
@@ -248,15 +302,15 @@ GraphicsPipeline::GraphicsPipeline(
                 Shader::Backend::SPIRV::AuxiliaryBuiltinLocations(
                     *infos[u32(Shader::SwStage::Vertex)], profile));
         }
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
-            .module = CompileSPV(sdata.tes, instance.GetDevice()),
+            .module = aux_module(sdata.tes),
             .pName = "main",
         });
     }
     stage = u32(Shader::SwStage::Fragment);
     if (infos[stage]) {
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eFragment,
             .module = modules[stage],
             .pName = "main",
@@ -267,9 +321,9 @@ GraphicsPipeline::GraphicsPipeline(
 
             sdata.fragment = Shader::Backend::SPIRV::EmitDiscardFragmentShader(vs.outputs);
         }
-        shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
+        s.shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eFragment,
-            .module = CompileSPV(sdata.fragment, instance.GetDevice()),
+            .module = aux_module(sdata.fragment),
             .pName = "main",
         });
     }
@@ -277,18 +331,17 @@ GraphicsPipeline::GraphicsPipeline(
     // A PS4 wave has 64 lanes. U64 lane masks (ballot/inverse ballot) and reductions ending in
     // reads of lanes 31/63 must not combine halves of a 128-lane host wave (Turnip's default
     // fragment size), so request 64 wherever the device allows it for that stage.
-    const vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo subgroup_size_ci = {
+    s.subgroup_size_ci = {
         .requiredSubgroupSize = 64,
     };
-    for (auto& stage : shader_stages) {
-        stage.pNext =
-            instance.IsSubgroupSize64Supported(stage.stage) ? &subgroup_size_ci : nullptr;
+    for (auto& stage_ci : s.shader_stages) {
+        stage_ci.pNext =
+            instance.IsSubgroupSize64Supported(stage_ci.stage) ? &s.subgroup_size_ci : nullptr;
     }
 
     const auto depth_format =
         instance.GetSupportedFormat(LiverpoolToVK::DepthFormat(key.z_format, key.stencil_format),
                                     vk::FormatFeatureFlagBits2::eDepthStencilAttachment);
-    std::array<vk::Format, Shader::IR::NumRenderTargets> color_formats;
     for (s32 i = 0; i < key.num_color_attachments; ++i) {
         const auto& col_buf = key.color_buffers[i];
         const auto format = LiverpoolToVK::SurfaceFormat(col_buf.data_format, col_buf.num_format);
@@ -300,25 +353,26 @@ GraphicsPipeline::GraphicsPipeline(
                         "color buffer format {} does not support COLOR_ATTACHMENT_BIT",
                         vk::to_string(color_format));
         }
-        color_formats[i] = color_format;
+        s.color_formats[i] = color_format;
     }
 
-    std::array<vk::SampleCountFlagBits, AmdGpu::NUM_COLOR_BUFFERS> color_samples;
-    std::ranges::transform(key.color_samples, color_samples.begin(), [&instance](u8 num_samples) {
-        return num_samples ? LiverpoolToVK::NumSamples(num_samples, instance.GetColorSampleCounts())
-                           : vk::SampleCountFlagBits::e1;
-    });
-    const vk::AttachmentSampleCountInfoAMD mixed_samples = {
+    std::ranges::transform(key.color_samples, s.color_samples.begin(),
+                           [&instance](u8 num_samples) {
+                               return num_samples ? LiverpoolToVK::NumSamples(
+                                                        num_samples, instance.GetColorSampleCounts())
+                                                  : vk::SampleCountFlagBits::e1;
+                           });
+    s.mixed_samples = {
         .colorAttachmentCount = key.num_color_attachments,
-        .pColorAttachmentSamples = color_samples.data(),
+        .pColorAttachmentSamples = s.color_samples.data(),
         .depthStencilAttachmentSamples =
             LiverpoolToVK::NumSamples(key.depth_samples, instance.GetDepthSampleCounts()),
     };
 
-    const vk::PipelineRenderingCreateInfo pipeline_rendering_ci = {
-        .pNext = instance.IsMixedDepthSamplesSupported() ? &mixed_samples : nullptr,
+    s.pipeline_rendering_ci = {
+        .pNext = instance.IsMixedDepthSamplesSupported() ? &s.mixed_samples : nullptr,
         .colorAttachmentCount = key.num_color_attachments,
-        .pColorAttachmentFormats = color_formats.data(),
+        .pColorAttachmentFormats = s.color_formats.data(),
         .depthAttachmentFormat = key.z_format != AmdGpu::DepthBuffer::ZFormat::Invalid
                                      ? depth_format
                                      : vk::Format::eUndefined,
@@ -327,7 +381,6 @@ GraphicsPipeline::GraphicsPipeline(
                                        : vk::Format::eUndefined,
     };
 
-    std::array<vk::PipelineColorBlendAttachmentState, AmdGpu::NUM_COLOR_BUFFERS> attachments;
     for (u32 i = 0; i < key.num_color_attachments; i++) {
         const auto& control = key.blend_controls[i];
 
@@ -377,7 +430,7 @@ GraphicsPipeline::GraphicsPipeline(
                 "Unimplemented use of min/max blend op with blend factor not equal to one.");
         }
 
-        attachments[i] = vk::PipelineColorBlendAttachmentState{
+        s.attachments[i] = vk::PipelineColorBlendAttachmentState{
             .blendEnable = control.enable,
             .srcColorBlendFactor = src_color,
             .dstColorBlendFactor = dst_color,
@@ -398,8 +451,8 @@ GraphicsPipeline::GraphicsPipeline(
             LOG_WARNING(
                 Render_Vulkan,
                 "Emulating scaled min/max blend with squared shader output on attachment {}", i);
-            attachments[i].srcColorBlendFactor = vk::BlendFactor::eOne;
-            attachments[i].dstColorBlendFactor = vk::BlendFactor::eOne;
+            s.attachments[i].srcColorBlendFactor = vk::BlendFactor::eOne;
+            s.attachments[i].dstColorBlendFactor = vk::BlendFactor::eOne;
         }
 
         // On GCN GPU there is an additional mask which allows to control color components exported
@@ -415,76 +468,98 @@ GraphicsPipeline::GraphicsPipeline(
         const auto has_src_alpha_in_dst_blend = dst_color == vk::BlendFactor::eSrcAlpha ||
                                                 dst_color == vk::BlendFactor::eOneMinusSrcAlpha;
         if (has_alpha_masked_out && has_src_alpha_in_src_blend) {
-            attachments[i].srcColorBlendFactor = src_color == vk::BlendFactor::eSrcAlpha
+            s.attachments[i].srcColorBlendFactor = src_color == vk::BlendFactor::eSrcAlpha
                                                      ? vk::BlendFactor::eOne
                                                      : vk::BlendFactor::eZero; // 1-A
         }
         if (has_alpha_masked_out && has_src_alpha_in_dst_blend) {
-            attachments[i].dstColorBlendFactor = dst_color == vk::BlendFactor::eSrcAlpha
+            s.attachments[i].dstColorBlendFactor = dst_color == vk::BlendFactor::eSrcAlpha
                                                      ? vk::BlendFactor::eOne
                                                      : vk::BlendFactor::eZero; // 1-A
         }
     }
 
-    const vk::PipelineColorBlendStateCreateInfo color_blending = {
+    s.color_blending = {
         .logicOpEnable =
             instance.IsLogicOpSupported() && key.logic_op != AmdGpu::ColorControl::LogicOp::Copy,
         .logicOp = LiverpoolToVK::LogicOp(key.logic_op),
         .attachmentCount = key.num_color_attachments,
-        .pAttachments = attachments.data(),
+        .pAttachments = s.attachments.data(),
         .blendConstants = std::array{1.0f, 1.0f, 1.0f, 1.0f},
     };
 
     // Required by spec unless VK_EXT_extended_dynamic_state3 is supported.
     // In practice, we use dynamic state for all of it.
-    constexpr vk::PipelineDepthStencilStateCreateInfo depth_stencil_info = {};
+    s.depth_stencil_info = {};
 
-    const vk::GraphicsPipelineCreateInfo pipeline_info = {
-        .pNext = &pipeline_rendering_ci,
-        .stageCount = static_cast<u32>(shader_stages.size()),
-        .pStages = shader_stages.data(),
-        .pVertexInputState = !instance.IsVertexInputDynamicState() ? &vertex_input_info : nullptr,
-        .pInputAssemblyState = &input_assembly,
-        .pTessellationState = &tessellation_state,
-        .pViewportState = &viewport_info,
-        .pRasterizationState = &raster_chain.get(),
-        .pMultisampleState = &sdata.multisampling,
+    s.probe.emplace(static_cast<u32>(s.shader_stages.size()));
+    s.pipeline_info = {
+        .pNext = s.probe->Chain(&s.pipeline_rendering_ci),
+        .stageCount = static_cast<u32>(s.shader_stages.size()),
+        .pStages = s.shader_stages.data(),
+        .pVertexInputState = !instance.IsVertexInputDynamicState() ? &s.vertex_input_info : nullptr,
+        .pInputAssemblyState = &s.input_assembly,
+        .pTessellationState = &s.tessellation_state,
+        .pViewportState = &s.viewport_info,
+        .pRasterizationState = &s.raster_chain.get(),
+        .pMultisampleState = &s.multisampling,
         .pDepthStencilState =
-            !instance.IsExtendedDynamicState3Supported() ? &depth_stencil_info : nullptr,
-        .pColorBlendState = &color_blending,
-        .pDynamicState = &dynamic_info,
+            !instance.IsExtendedDynamicState3Supported() ? &s.depth_stencil_info : nullptr,
+        .pColorBlendState = &s.color_blending,
+        .pDynamicState = &s.dynamic_info,
         .layout = *pipeline_layout,
     };
+    s.fs_runtime = runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs;
 
-    auto [pipeline_result, pipe] =
-        device.createGraphicsPipelineUnique(pipeline_cache, pipeline_info);
-    if (pipeline_result != vk::Result::eSuccess) {
-        // Failure-only diagnostics: no per-draw file I/O or extra synchronization.
-        nlohmann::json data={{"pipeline",debug_str},{"result",vk::to_string(pipeline_result)}};
-        data["stages"]=nlohmann::json::array();
-        for (u32 stage=0;stage<infos.size();++stage) {
-            if (!infos[stage]) continue;
-            nlohmann::json params=nlohmann::json::array();
-            for (u32 i=0;i<Shader::IR::NumParams;++i) {
-                const auto attr=Shader::IR::Attribute::Param0+i;
-                params.push_back({{"param",i},{"load",infos[stage]->loads.GetAny(attr)},
-                                  {"store",infos[stage]->stores.GetAny(attr)}});
-            }
-            data["stages"].push_back({{"stage",stage},{"hash",infos[stage]->pgm_hash},
-                {"key",key.stage_hashes[stage]},{"params",std::move(params)}});
-        }
-        const auto& fs=runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs;
-        data["fs_inputs"]=nlohmann::json::array();
-        for (u32 i=0;i<fs.num_inputs;++i) data["fs_inputs"].push_back({{"param",i},
-            {"location",fs.inputs[i].param_index},{"default",fs.inputs[i].IsDefault()}});
-        data["clip_distance_emulation"]=fs.clip_distance_emulation;
-        std::ofstream out(Common::FS::GetUserPath(Common::FS::PathType::LogDir)/"failed-graphics-pipeline.json");
-        out<<data.dump(2);out.close();
+    if (defer_build) {
+        MarkPending();
+    } else {
+        CreateNative();
     }
-    ASSERT_MSG(pipeline_result == vk::Result::eSuccess, "Failed to create graphics pipeline: {}",
-               vk::to_string(pipeline_result));
-    pipeline = std::move(pipe);
-    SetObjectName(device, *pipeline, "Graphics Pipeline {}", debug_str);
+}
+
+GraphicsPipeline::~GraphicsPipeline() = default;
+
+void GraphicsPipeline::CreateNative() const {
+    auto& s = *create_state;
+    const vk::Device device = instance.GetDevice();
+    {
+        const auto serialize = SerializePipelineCreate(instance);
+        s.probe->Start();
+        auto [pipeline_result, pipe] = [&] {
+            Common::Profiler::Scope scope{"Pipeline.CreateGraphics"};
+            return device.createGraphicsPipelineUnique(s.pipeline_cache, s.pipeline_info);
+        }();
+        creation = s.probe->Finish();
+        if (pipeline_result != vk::Result::eSuccess) {
+            // Failure-only diagnostics: no per-draw file I/O or extra synchronization.
+            nlohmann::json data={{"pipeline",s.debug_str},{"result",vk::to_string(pipeline_result)}};
+            data["stages"]=nlohmann::json::array();
+            for (u32 stage=0;stage<MaxShaderStages;++stage) {
+                if (!stages[stage]) continue;
+                nlohmann::json params=nlohmann::json::array();
+                for (u32 i=0;i<Shader::IR::NumParams;++i) {
+                    const auto attr=Shader::IR::Attribute::Param0+i;
+                    params.push_back({{"param",i},{"load",stages[stage]->loads.GetAny(attr)},
+                                      {"store",stages[stage]->stores.GetAny(attr)}});
+                }
+                data["stages"].push_back({{"stage",stage},{"hash",stages[stage]->pgm_hash},
+                    {"key",key.stage_hashes[stage]},{"params",std::move(params)}});
+            }
+            const auto& fs=s.fs_runtime;
+            data["fs_inputs"]=nlohmann::json::array();
+            for (u32 i=0;i<fs.num_inputs;++i) data["fs_inputs"].push_back({{"param",i},
+                {"location",fs.inputs[i].param_index},{"default",fs.inputs[i].IsDefault()}});
+            data["clip_distance_emulation"]=fs.clip_distance_emulation;
+            std::ofstream out(Common::FS::GetUserPath(Common::FS::PathType::LogDir)/"failed-graphics-pipeline.json");
+            out<<data.dump(2);out.close();
+        }
+        ASSERT_MSG(pipeline_result == vk::Result::eSuccess,
+                   "Failed to create graphics pipeline: {}", vk::to_string(pipeline_result));
+        pipeline = std::move(pipe);
+    }
+    SetObjectName(device, *pipeline, "Graphics Pipeline {}", s.debug_str);
+    create_state.reset(); // Also destroys the host-generated stage modules.
 }
 
 void GraphicsPipeline::ApplyFragmentShadingRate(const RecordingCommandBuffer& cmd, u32 quality) const {
@@ -508,7 +583,6 @@ void GraphicsPipeline::ApplyFragmentShadingRate(const RecordingCommandBuffer& cm
     }
 }
 
-GraphicsPipeline::~GraphicsPipeline() = default;
 
 template <typename Attribute, typename Binding>
 void GraphicsPipeline::GetVertexInputs(

@@ -9,6 +9,11 @@
 #include "video_core/amdgpu/tiling.h"
 #include "video_core/buffer_cache/buffer.h"
 
+namespace Vulkan {
+class DriverPipelineCache;
+class StagingBufferPool;
+}
+
 namespace VideoCore {
 
 struct ImageInfo;
@@ -47,13 +52,19 @@ public:
     using Result = std::pair<vk::Buffer, u32>;
 
     explicit TileManager(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler,
-                         StreamBuffer& stream_buffer);
+                         StreamBuffer& stream_buffer, Vulkan::StagingBufferPool& staging_pool);
     ~TileManager();
 
     void TileImage(Image& in_image, std::span<vk::BufferImageCopy> buffer_copies,
                    vk::Buffer out_buffer, u64 out_offset, u32 copy_size);
 
     Result DetileImage(vk::Buffer in_buffer, u32 in_offset, const ImageInfo& info);
+
+    /// Tiling pipelines are created with the persistent driver cache once it exists (it is
+    /// owned by the pipeline cache, which is built after the texture cache). Null detaches it.
+    void SetDriverCache(Vulkan::DriverPipelineCache* cache) {
+        driver_cache = cache;
+    }
 
     // Raw-bit packing the fused readback shader is compiled for, chosen from the backing
     // format. kind 0 means the format is not covered and the blit/copy/tile chain is used.
@@ -77,6 +88,9 @@ private:
     const Vulkan::Instance& instance;
     Vulkan::Scheduler& scheduler;
     StreamBuffer& stream_buffer;
+    // Detiled texture data lives here until copied into the image: device-local ring blocks
+    // reused once the GPU is done with them, not an allocation per upload.
+    Vulkan::StagingBufferPool& staging_pool;
     vk::UniqueDescriptorSetLayout desc_layout;
     vk::UniquePipelineLayout pl_layout;
     std::unordered_map<TilingKey, vk::UniquePipeline, TilingKey::Hash> tiling_pipelines;
@@ -86,6 +100,7 @@ private:
     vk::UniqueSampler linear_sampler;
     vk::UniqueSampler nearest_sampler;
     bool fused_readback{true};
+    Vulkan::DriverPipelineCache* driver_cache{};
 };
 
 } // namespace VideoCore

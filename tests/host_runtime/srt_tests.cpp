@@ -192,6 +192,75 @@ int main() {
     CHECK(expr(Op::Extract, 0xabcdef, 4, 8) == 0xde);
     CHECK(expr(Op::Extract, 0xabcdef, 0, 32) == 0xabcdef);
     CHECK(expr(Op::Extract, 7, 0, 0) == 0);
+
+    // Consecutive constant-offset copies (a sharp) are read with one call; a failed batch reads
+    // each dword on its own, so the flat buffer matches per-dword copies exactly.
+    {
+        constexpr u64 table_address = 0x1000;
+        std::array<u32, 16> table{};
+        for (u32 i = 0; i < table.size(); ++i)
+            table[i] = 0xA0000000u + i;
+        PortableSrt p;
+        // e0: offset 0 (user data pointer), e1..e8: table dwords 0..7, e9: dword 12, e10: flat[16]
+        p.expressions.push_back({Op::Constant, 0});
+        for (u32 i = 0; i < 8; ++i)
+            p.expressions.push_back({Op::Constant, i});
+        p.expressions.push_back({Op::Constant, 12});
+        p.expressions.push_back({Op::Flat, 16});
+        p.commands.push_back({PortableSrt::Kind::Push, 0, 0});
+        for (u32 i = 0; i < 8; ++i) // one run of 8 dwords into flat[16..23]
+            p.commands.push_back({PortableSrt::Kind::Copy, 1 + i, 16 + i});
+        p.commands.push_back({PortableSrt::Kind::Copy, 9, 30}); // breaks the run
+        p.commands.push_back({PortableSrt::Kind::Copy, 10, 31}); // reads flat[16]: needs the flush
+        p.commands.push_back({PortableSrt::Kind::Pop, 0, 0});
+        CHECK(p.Validate(32));
+        const std::array<u32, 2> user = {u32(table_address), u32(table_address >> 32)};
+        u32 calls{};
+        u32 fail_bytes_over{UINT32_MAX};
+        u64 fail_address{};
+        const auto reader = [&](u64 address, void* data, size_t size) {
+            ++calls;
+            if (size > fail_bytes_over || (fail_address && address <= fail_address &&
+                                           fail_address < address + size))
+                return false;
+            if (address < table_address || address + size > table_address + sizeof(table))
+                return false;
+            std::memcpy(data, reinterpret_cast<const u8*>(table.data()) + (address - table_address),
+                        size);
+            return true;
+        };
+        std::vector<u32> expected(32);
+        for (u32 i = 0; i < 8; ++i)
+            expected[16 + i] = table[i];
+        expected[30] = table[12];
+        // Offset flat[16] << 2 (32-bit) points past the table: unreadable, so 0. Without the
+        // flush before this command flat[16] would still be 0 and the copy would read table[0].
+        expected[31] = 0;
+        std::vector<u32> flat(32);
+        p.Run(user, flat, reader);
+        CHECK(std::equal(flat.begin() + 16, flat.end(), expected.begin() + 16));
+        CHECK(calls == 3); // one batch, one single dword, one out-of-table dword
+        // Batch refused: the same values through per-dword reads.
+        std::vector<u32> fallback(32);
+        calls = 0;
+        fail_bytes_over = 4;
+        p.Run(user, fallback, reader);
+        CHECK(fallback == flat);
+        CHECK(calls == 1 + 8 + 2);
+        // One unreadable dword inside the run: only that dword is 0.
+        std::vector<u32> hole(32);
+        fail_bytes_over = UINT32_MAX;
+        fail_address = table_address + 3 * 4;
+        p.Run(user, hole, reader);
+        CHECK(hole[16 + 3] == 0 && hole[16 + 2] == table[2] && hole[16 + 4] == table[4]);
+        // No table pointer: every copied dword is 0 without reading.
+        const std::array<u32, 2> null_user{};
+        std::vector<u32> none(32, 0xFFFFFFFFu);
+        calls = 0;
+        fail_address = 0;
+        p.Run(null_user, none, reader);
+        CHECK(none[16] == 0 && none[23] == 0 && none[30] == 0 && calls == 0);
+    }
     // A 1024x512 BC texture uses macro blocks at levels 0/1 and micro
     // blocks from level 2 onward. Literal byte footprints include padded tails.
     for (u32 bits : {64u, 128u}) {

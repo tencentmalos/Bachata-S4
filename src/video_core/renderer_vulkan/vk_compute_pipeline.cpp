@@ -1,8 +1,12 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <optional>
+#include <string>
+
 #include <boost/container/small_vector.hpp>
 
+#include "common/profiler.h"
 #include "shader_recompiler/info.h"
 #include "video_core/renderer_vulkan/vk_compute_pipeline.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
@@ -10,25 +14,32 @@
 
 namespace Vulkan {
 
+struct ComputePipeline::CreateState {
+    vk::PipelineCache pipeline_cache{};
+    std::string debug_str{};
+    vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo subgroup_size_ci{};
+    std::optional<PipelineCreationProbe> probe{};
+    vk::ComputePipelineCreateInfo create_info{};
+};
+
 ComputePipeline::ComputePipeline(const Instance& instance, Scheduler& scheduler,
                                  DescriptorHeap& desc_heap, const Shader::Profile& profile,
                                  vk::PipelineCache pipeline_cache, ComputePipelineKey compute_key_,
                                  const Shader::Info& info_, vk::ShaderModule module,
-                                 SerializationSupport& sdata, bool preloading /*=false*/)
+                                 SerializationSupport& sdata, bool preloading,
+                                 bool defer_build)
     : Pipeline{instance, scheduler, desc_heap, profile, pipeline_cache, true},
       compute_key{compute_key_} {
     auto& info = stages[int(Shader::SwStage::Compute)];
     info = &info_;
     const auto debug_str = GetDebugString();
 
-    const vk::PipelineShaderStageRequiredSubgroupSizeCreateInfo subgroup_size_ci = {
+    create_state = std::make_unique<CreateState>();
+    auto& s = *create_state;
+    s.pipeline_cache = pipeline_cache;
+    s.debug_str = debug_str;
+    s.subgroup_size_ci = {
         .requiredSubgroupSize = 64,
-    };
-    const vk::PipelineShaderStageCreateInfo shader_ci = {
-        .pNext = instance.IsSubgroupSize64Supported() ? &subgroup_size_ci : nullptr,
-        .stage = vk::ShaderStageFlagBits::eCompute,
-        .module = module,
-        .pName = "main",
     };
 
     u32 binding{};
@@ -102,18 +113,45 @@ ComputePipeline::ComputePipeline(const Instance& instance, Scheduler& scheduler,
     pipeline_layout = std::move(layout);
     SetObjectName(device, *pipeline_layout, "Compute PipelineLayout {}", debug_str);
 
-    const vk::ComputePipelineCreateInfo compute_pipeline_ci = {
-        .stage = shader_ci,
+    s.probe.emplace(1);
+    s.create_info = {
+        .pNext = s.probe->Chain(nullptr),
+        .stage =
+            {
+                .pNext = instance.IsSubgroupSize64Supported() ? &s.subgroup_size_ci : nullptr,
+                .stage = vk::ShaderStageFlagBits::eCompute,
+                .module = module,
+                .pName = "main",
+            },
         .layout = *pipeline_layout,
     };
-    auto [pipeline_result, pipe] =
-        instance.GetDevice().createComputePipelineUnique(pipeline_cache, compute_pipeline_ci);
-    ASSERT_MSG(pipeline_result == vk::Result::eSuccess, "Failed to create compute pipeline: {}",
-               vk::to_string(pipeline_result));
-    pipeline = std::move(pipe);
-    SetObjectName(device, *pipeline, "Compute Pipeline {}", debug_str);
+
+    if (defer_build) {
+        MarkPending();
+    } else {
+        CreateNative();
+    }
 }
 
 ComputePipeline::~ComputePipeline() = default;
+
+void ComputePipeline::CreateNative() const {
+    auto& s = *create_state;
+    const vk::Device device = instance.GetDevice();
+    {
+        const auto serialize = SerializePipelineCreate(instance);
+        s.probe->Start();
+        auto [pipeline_result, pipe] = [&] {
+            Common::Profiler::Scope scope{"Pipeline.CreateCompute"};
+            return device.createComputePipelineUnique(s.pipeline_cache, s.create_info);
+        }();
+        creation = s.probe->Finish();
+        ASSERT_MSG(pipeline_result == vk::Result::eSuccess,
+                   "Failed to create compute pipeline: {}", vk::to_string(pipeline_result));
+        pipeline = std::move(pipe);
+    }
+    SetObjectName(device, *pipeline, "Compute Pipeline {}", s.debug_str);
+    create_state.reset();
+}
 
 } // namespace Vulkan

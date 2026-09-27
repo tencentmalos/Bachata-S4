@@ -35,6 +35,9 @@ struct ScaleCoverageCounters {
     // RefreshImage, counted once per upload with the guest bytes of the uploaded mips), and
     // images cleared directly instead of re-uploaded after a compute pattern fill.
     std::atomic<u64> image_uploads{}, image_upload_bytes{}, fill_clears{};
+    // Of those, the first upload of each image (streamed-in textures, not re-uploads), and the
+    // GPU command thread's time in RefreshImage (staging copy, detile and copy recording).
+    std::atomic<u64> image_new_uploads{}, image_new_upload_bytes{}, image_upload_ns{};
 
     struct Snapshot {
         u64 draws, scaled_draws, passes, scaled_passes, resumed_passes, native_promotions,
@@ -42,7 +45,8 @@ struct ScaleCoverageCounters {
             scaled_blit_copies, image_buffer_syncs, image_buffer_sync_bytes, fused_readbacks,
             native_pass_side_effects, native_pass_msaa,
             native_pass_attachment, native_pass_mismatch, gc_downloads, gc_frees,
-            gc_pressured_ticks, image_uploads, image_upload_bytes, fill_clears;
+            gc_pressured_ticks, image_uploads, image_upload_bytes, fill_clears,
+            image_new_uploads, image_new_upload_bytes, image_upload_ns;
     };
     Snapshot Read() const noexcept {
         constexpr auto o = std::memory_order_relaxed;
@@ -52,7 +56,8 @@ struct ScaleCoverageCounters {
                 native_pass_side_effects.load(o), native_pass_msaa.load(o),
                 native_pass_attachment.load(o), native_pass_mismatch.load(o), gc_downloads.load(o),
                 gc_frees.load(o), gc_pressured_ticks.load(o), image_uploads.load(o),
-                image_upload_bytes.load(o), fill_clears.load(o)};
+                image_upload_bytes.load(o), fill_clears.load(o), image_new_uploads.load(o),
+                image_new_upload_bytes.load(o), image_upload_ns.load(o)};
     }
 };
 

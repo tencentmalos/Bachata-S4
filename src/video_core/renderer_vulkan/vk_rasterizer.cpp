@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "common/profiler.h"
+#include "video_core/renderer_vulkan/vk_pipeline_stats.h"
 #include <atomic>
 #include <bit>
+#include <chrono>
 #include <cstring>
 #include <cmath>
 
@@ -22,6 +24,7 @@
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
@@ -55,10 +58,14 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
       host_markers_enabled{EmulatorSettings.IsVkHostMarkersEnabled()},
       guest_markers_enabled{EmulatorSettings.IsVkGuestMarkersEnabled()} {
     Core::GuestWriteWatch::ArmFromEnvironment();
+    if (GpuBreadcrumbs::Requested()) {
+        breadcrumbs = std::make_unique<GpuBreadcrumbs>(instance);
+    }
     if (!EmulatorSettings.IsNullGPU()) {
         liverpool->BindRasterizer(this);
     }
     memory->SetRasterizer(this);
+    texture_cache.GetTileManager().SetDriverCache(&pipeline_cache.GetDriverCache());
 
     scheduler.SetSubmitCallback([this](Vulkan::SubmitInfo& info) {
         runtime.FlushBarriers();
@@ -68,6 +75,173 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
 
 Rasterizer::~Rasterizer() {
     memory->SetRasterizer(nullptr);
+    // The pipeline cache (and its driver cache) is destroyed before the texture cache.
+    texture_cache.GetTileManager().SetDriverCache(nullptr);
+}
+
+namespace {
+
+u64 SteadyNowNs() {
+    return u64(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::steady_clock::now().time_since_epoch())
+                   .count());
+}
+
+// A pipeline built in the middle of a frame in which its draws were dropped stays dropped for
+// the rest of that frame, so an object does not appear halfway through it; but never longer
+// than this in case no flip arrives.
+constexpr u64 HoldBuiltNs = 50'000'000;
+// A pipeline still not built after dropping draws this long is waited for instead.
+constexpr u64 MaxSkipNs = 3'000'000'000;
+
+// How a draw uses the depth and stencil planes, from the register state (missing-content
+// tracking). A plane is "tested" when its old content decides what else the draw writes.
+struct DepthStencilUse {
+    bool depth_tested;
+    bool depth_written;
+    bool stencil_tested;
+    bool stencil_written;
+};
+
+DepthStencilUse GetDepthStencilUse(const AmdGpu::Regs& regs) {
+    using AmdGpu::CompareFunc;
+    using AmdGpu::StencilFunc;
+    const auto& dc = regs.depth_control;
+    const auto& sc = regs.stencil_control;
+    const auto changes = [](StencilFunc fail, StencilFunc zpass, StencilFunc zfail) {
+        return fail != StencilFunc::Keep || zpass != StencilFunc::Keep ||
+               zfail != StencilFunc::Keep;
+    };
+    const bool stencil = dc.stencil_enable;
+    const bool back = dc.backface_enable;
+    return {
+        .depth_tested = dc.depth_enable && dc.depth_func != CompareFunc::Always,
+        .depth_written = dc.depth_enable && dc.depth_write_enable,
+        .stencil_tested = stencil && (dc.stencil_ref_func != CompareFunc::Always ||
+                                      (back && dc.stencil_bf_func != CompareFunc::Always)),
+        .stencil_written =
+            stencil && ((regs.stencil_ref_front.stencil_write_mask != 0 &&
+                         changes(sc.stencil_fail_front, sc.stencil_zpass_front,
+                                 sc.stencil_zfail_front)) ||
+                        (back && regs.stencil_ref_back.stencil_write_mask != 0 &&
+                         changes(sc.stencil_fail_back, sc.stencil_zpass_back,
+                                 sc.stencil_zfail_back))),
+    };
+}
+
+} // namespace
+
+PipelineStats::SkipBlocker Rasterizer::SkipBlockerFor(const GraphicsPipeline& pipeline) const {
+    using PipelineStats::SkipBlocker;
+    const auto& regs = liverpool->regs;
+    if (PipelineStats::SkipDisabledForSession()) {
+        return SkipBlocker::TableFull;
+    }
+    if (!pipeline.SkipEligible()) {
+        return SkipBlocker::SideEffects;
+    }
+    if (liverpool->draw_predicated) {
+        return SkipBlocker::Predicated;
+    }
+    if ((regs.vgt_strmout_config.raw & 0xf) != 0) {
+        return SkipBlocker::StreamOut;
+    }
+    const auto& db = regs.depth_render_control;
+    const auto mode = regs.color_control.mode;
+    if (db.depth_clear_enable || db.stencil_clear_enable || db.depth_copy || db.stencil_copy ||
+        db.resummarize_enable || db.decompress_enable ||
+        (mode != AmdGpu::ColorControl::OperationMode::Normal &&
+         mode != AmdGpu::ColorControl::OperationMode::Disable)) {
+        return SkipBlocker::MetaOp;
+    }
+    return SkipBlocker::None;
+}
+
+bool Rasterizer::SkipUnbuiltDraw(const GraphicsPipeline& pipeline) {
+    using PipelineStats::SkipBlocker;
+    const u64 epoch = liverpool->flip_epoch;
+    auto& skip = pipeline.Skip();
+    const bool ready = pipeline.Ready();
+    // The usual case: built and not dropped earlier in this frame.
+    if (ready && skip.epoch != epoch) {
+        if (skip.draws != 0) {
+            PipelineStats::RecordSkipEnded(skip.draws);
+            LOG_INFO(Render_Vulkan, "Drawing with pipeline {:#x} again after {} skipped draws",
+                     std::hash<GraphicsPipelineKey>{}(pipeline.GetGraphicsKey()), skip.draws);
+            skip.draws = 0;
+        }
+        return false;
+    }
+    if (!ready && PipelineStats::EffectiveCompileMode() !=
+                      PipelineStats::CompileMode::AsyncGraphicsSkip) {
+        return false;
+    }
+    if (const auto blocker = SkipBlockerFor(pipeline); blocker != SkipBlocker::None) {
+        // Not built: the bind waits for it. Built: draw it now even though earlier draws of
+        // this frame were dropped.
+        if (!ready) {
+            PipelineStats::RecordSkipBlocked(blocker);
+        }
+        return false;
+    }
+    const u64 now = SteadyNowNs();
+    if (ready && now - pipeline.ReadyNs() >= HoldBuiltNs) {
+        return false;
+    }
+    if (!ready && skip.draws != 0 && now - skip.first_ns >= MaxSkipNs) {
+        PipelineStats::RecordSkipBlocked(SkipBlocker::TooLong);
+        return false;
+    }
+
+    // Record what the draw would have written before committing to drop it: the guest ranges
+    // of the attachments, from the registers (no image is looked up or created for a dropped
+    // draw), so later work that reads them is known to read incomplete content.
+    const auto& regs = liverpool->regs;
+    const auto& key = pipeline.GetGraphicsKey();
+    bool recorded = true;
+    if (regs.color_control.mode != AmdGpu::ColorControl::OperationMode::Disable) {
+        for (s32 cb = 0; cb < std::bit_width(key.mrt_mask) && recorded; ++cb) {
+            const auto& col_buf = regs.color_buffers[cb];
+            if (col_buf && regs.color_target_mask.GetMask(cb) && (key.mrt_mask & (1 << cb))) {
+                recorded = PipelineStats::RecordSkippedTarget(col_buf.Address(), false, epoch) &&
+                           MissingContent::MarkSkipped(
+                               col_buf.Address(),
+                               u64(col_buf.GetColorSliceSize()) * col_buf.NumSlices(), epoch);
+            }
+        }
+    }
+    const auto& db = regs.depth_buffer;
+    const auto ds_use = GetDepthStencilUse(regs);
+    if (recorded && db.DepthValid() && ds_use.depth_written) {
+        recorded = PipelineStats::RecordSkippedTarget(db.DepthAddress(), true, epoch) &&
+                   MissingContent::MarkSkipped(
+                       db.DepthAddress(), u64(db.GetDepthSliceSize()) * regs.depth_view.NumSlices(),
+                       epoch);
+    }
+    if (recorded && db.StencilValid() && ds_use.stencil_written) {
+        // One byte per sample, in the depth plane's tiling.
+        const u64 stencil_slice = u64(db.depth_slice.tile_max + 1) * 64 * db.NumSamples();
+        recorded = MissingContent::MarkSkipped(db.StencilAddress(),
+                                               stencil_slice * regs.depth_view.NumSlices(), epoch);
+    }
+    if (!recorded) {
+        LOG_WARNING(Render_Vulkan, "Skipped-draw target table is full, draws wait for their "
+                                   "pipelines for the rest of the session");
+        PipelineStats::RecordSkipBlocked(SkipBlocker::TableFull);
+        return false;
+    }
+
+    const bool first = skip.draws == 0;
+    if (first) {
+        skip.first_ns = now;
+        LOG_INFO(Render_Vulkan, "Skipping draws of graphics pipeline {:#x} until it is built "
+                                "(async_graphics_skip, lossy)",
+                 std::hash<GraphicsPipelineKey>{}(key));
+    }
+    skip.epoch = epoch;
+    ++skip.draws;
+    PipelineStats::RecordSkippedDraw(epoch, ready, first);
+    return true;
 }
 
 bool Rasterizer::FilterDraw() {
@@ -213,11 +387,26 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     }
 
     const bool tracing = AmdGpu::Pm4Trace::Active();
+    if (SkipUnbuiltDraw(*pipeline)) {
+        if (tracing) {
+            AmdGpu::Pm4Trace::BeginAction();
+            TraceAction(is_indexed ? AmdGpu::Pm4Trace::ActionKind::DrawIndexed
+                                   : AmdGpu::Pm4Trace::ActionKind::Draw,
+                        pipeline, nullptr, regs.num_indices, regs.num_instances.NumInstances(),
+                        static_cast<u32>(regs.primitive_type), index_offset,
+                        is_indexed ? regs.index_base_address.Address() : 0);
+            AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Skipped,
+                                       std::hash<GraphicsPipelineKey>{}(pipeline->GetGraphicsKey()),
+                                       0, 0, 0, "async_graphics_skip");
+        }
+        return;
+    }
     if (tracing)
         AmdGpu::Pm4Trace::BeginAction();
     // Accesses staged by work outside a draw (HLE copies, dispatches) are not this draw's.
     scheduler.ClearStagedAccess();
     PrepareRenderState(pipeline);
+    const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
 #if defined(__ANDROID__)
     static std::atomic<u32> sbs_draw_samples{};
     const u32 draw_sample = sbs_draw_samples.fetch_add(1, std::memory_order_relaxed);
@@ -253,7 +442,9 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     }
     pipeline->BindResources(set_writes, push_data);
     UpdateDynamicState(pipeline, is_indexed);
-    RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
+    const bool began_rendering = scheduler.BeginRendering(state);
+    RecordAttachmentDraw(pipeline, began_rendering);
+    NoteAttachmentContent(state, began_rendering);
     scheduler.NoteDraw();
     if (HostMarkersEnabled())
         InsertDrawTag(pipeline, is_indexed, false);
@@ -263,7 +454,7 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     const auto [vertex_offset, instance_offset] = GetDrawOffsets(regs, vs_info, fetch_shader);
 
     const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+    pipeline->Bind(cmdbuf, vk::PipelineBindPoint::eGraphics);
     pipeline->ApplyFragmentShadingRate(cmdbuf, shading_settings->GetGuestShadingQuality());
     // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
     if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
@@ -316,6 +507,12 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
         AmdGpu::Pm4Trace::BeginAction();
     scheduler.ClearStagedAccess();
     PrepareRenderState(pipeline);
+    const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
+    MissingContent::CheckEscape(MissingContent::Escape::Indirect, arg_address + offset,
+                                u64(stride) * max_count);
+    if (count_address != 0) {
+        MissingContent::CheckEscape(MissingContent::Escape::Indirect, count_address, 4);
+    }
     if (!BindResources(pipeline)) {
         return;
     }
@@ -350,13 +547,15 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
 
     pipeline->BindResources(set_writes, push_data);
     UpdateDynamicState(pipeline, is_indexed);
-    RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
+    const bool began_rendering = scheduler.BeginRendering(state);
+    RecordAttachmentDraw(pipeline, began_rendering);
+    NoteAttachmentContent(state, began_rendering);
     scheduler.NoteDraw();
     if (HostMarkersEnabled())
         InsertDrawTag(pipeline, is_indexed, true);
 
     const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+    pipeline->Bind(cmdbuf, vk::PipelineBindPoint::eGraphics);
     pipeline->ApplyFragmentShadingRate(cmdbuf, shading_settings->GetGuestShadingQuality());
     // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
     if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
@@ -398,6 +597,12 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
     ResetBindings(false);
 }
 
+GpuBreadcrumbs::Context Rasterizer::BreadcrumbContext() const {
+    const auto& diag = liverpool->dispatch_diag;
+    return {diag.queue, diag.predicated, diag.predication_dw1, diag.predication_dw2,
+            diag.predications};
+}
+
 void Rasterizer::DispatchDirect() {
     Common::Profiler::Scope profile_scope{"Rasterizer.Dispatch"};
     RENDERER_TRACE;
@@ -405,17 +610,21 @@ void Rasterizer::DispatchDirect() {
     scheduler.PopPendingOperations();
 
     const auto& cs_program = liverpool->GetCsRegs();
-    const ComputePipeline* pipeline = pipeline_cache.GetComputePipeline();
-    if (!pipeline) {
+    // The shader is translated, but its pipeline is only created once no HLE path replaces the
+    // dispatch: replaced dispatches (fills, copies) never pay for a driver compile.
+    const Shader::Info* cs_info = pipeline_cache.PrepareComputeProgram();
+    if (!cs_info) {
         return;
     }
 
-    const auto& cs = pipeline->GetStage(Shader::SwStage::Compute);
+    const auto& cs = *cs_info;
+    // HLE replacements (copies, fills, clears) are this action too.
+    const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
     const bool tracing = AmdGpu::Pm4Trace::Active();
     if (tracing) {
         AmdGpu::Pm4Trace::BeginAction();
-        TraceAction(AmdGpu::Pm4Trace::ActionKind::Dispatch, pipeline, nullptr, cs_program.dim_x,
-                    cs_program.dim_y, cs_program.dim_z, 0, 0);
+        TraceAction(AmdGpu::Pm4Trace::ActionKind::Dispatch, std::span{&cs_info, 1}, nullptr,
+                    cs_program.dim_x, cs_program.dim_y, cs_program.dim_z, 0, 0);
     }
     if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
         NoteDispatchDiagnostics(cs, cs_program, false);
@@ -439,6 +648,10 @@ void Rasterizer::DispatchDirect() {
         return;
     }
 
+    const ComputePipeline* pipeline = pipeline_cache.GetPreparedComputePipeline();
+    if (!pipeline) {
+        return;
+    }
     if (!BindResources(pipeline)) {
         return;
     }
@@ -451,8 +664,15 @@ void Rasterizer::DispatchDirect() {
     pipeline->BindResources(set_writes, push_data);
 
     const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline->Handle());
+    pipeline->Bind(cmdbuf, vk::PipelineBindPoint::eCompute);
+    if (breadcrumbs) {
+        breadcrumbs->BeforeDispatch(cmdbuf, cs.pgm_hash, cs_program.dim_x, cs_program.dim_y,
+                                    cs_program.dim_z, false, BreadcrumbContext());
+    }
     cmdbuf.dispatch(cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
+    if (breadcrumbs) {
+        breadcrumbs->AfterDispatch(cmdbuf);
+    }
     DebugState.IncDispatch();
     if (const auto& diag = instance.Diagnostics())
         diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
@@ -471,6 +691,8 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     if (!pipeline) {
         return;
     }
+    const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
+    MissingContent::CheckEscape(MissingContent::Escape::Indirect, address + offset, size);
 
     if (AmdGpu::Pm4Trace::Active()) {
         AmdGpu::Pm4Trace::BeginAction();
@@ -497,8 +719,16 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     pipeline->BindResources(set_writes, push_data);
 
     const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline->Handle());
+    pipeline->Bind(cmdbuf, vk::PipelineBindPoint::eCompute);
+    if (breadcrumbs) {
+        breadcrumbs->BeforeDispatch(cmdbuf,
+                                    pipeline->GetStage(Shader::SwStage::Compute).pgm_hash, 0, 0,
+                                    0, true, BreadcrumbContext());
+    }
     cmdbuf.dispatchIndirect(buffer->Handle(), base);
+    if (breadcrumbs) {
+        breadcrumbs->AfterDispatch(cmdbuf);
+    }
     DebugState.IncDispatch();
     if (const auto& diag = instance.Diagnostics())
         diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
@@ -525,6 +755,76 @@ void Rasterizer::OnSubmit() {
     texture_cache.ProcessDownloadImages();
     texture_cache.RunGarbageCollector();
     runtime.TickFrame();
+}
+
+void Rasterizer::NoteAttachmentContent(const RenderState& state, bool began_rendering) {
+    if (!MissingContent::TrackingAction()) {
+        return;
+    }
+    const auto& regs = liverpool->regs;
+    // A clear load replaces the whole attachment only when this draw began the pass and the
+    // render area is the image's full single level and layer.
+    const auto clears_whole = [&](const VideoCore::Image& image) {
+        const auto extent = image.HostExtent(0);
+        const bool whole = began_rendering && image.info.resources.levels == 1 &&
+                           image.info.resources.layers == 1 && extent.width == state.width &&
+                           extent.height == state.height;
+        static u32 logged{};
+        if (!whole && logged < 16) {
+            ++logged;
+            LOG_INFO(Render_Vulkan,
+                     "Missing content: clear of {:#x} is not a whole overwrite (began {}, levels "
+                     "{}, layers {}, image {}x{}, render area {}x{})",
+                     image.info.guest_address, began_rendering, image.info.resources.levels,
+                     image.info.resources.layers, extent.width, extent.height, state.width,
+                     state.height);
+        }
+        return whole;
+    };
+    for (u32 cb = 0; cb < state.num_color_attachments; ++cb) {
+        const auto image_id = cb_descs[cb].first;
+        if (!image_id) {
+            continue;
+        }
+        const auto& image = texture_cache.GetImage(image_id);
+        const VAddr address = image.info.guest_address;
+        const u64 size = image.info.guest_size;
+        if (state.color_attachments[cb].is_clear && clears_whole(image)) {
+            MissingContent::Overwrite(address, size);
+            continue;
+        }
+        if (regs.blend_control[cb].enable && !regs.color_buffers[cb].info.blend_bypass) {
+            MissingContent::Read(address, size);
+        }
+        MissingContent::Write(address, size);
+    }
+    if (const auto image_id = db_desc.first; image_id) {
+        const auto& image = texture_cache.GetImage(image_id);
+        const auto& ds = state.depth_stencil_attachment;
+        const auto use = GetDepthStencilUse(regs);
+        // Depth and stencil are separate planes; a depth or stencil test reads its plane, so what
+        // the draw writes depends on it.
+        const auto plane = [&](VAddr address, u64 size, bool cleared, bool tested, bool written) {
+            if (cleared && clears_whole(image)) {
+                MissingContent::Overwrite(address, size);
+                return;
+            }
+            if (tested) {
+                MissingContent::Read(address, size);
+            }
+            if (written) {
+                MissingContent::Write(address, size);
+            }
+        };
+        if (ds.has_depth) {
+            plane(image.info.guest_address, image.info.guest_size, ds.depth_clear,
+                  use.depth_tested, use.depth_written);
+        }
+        if (ds.has_stencil && image.info.stencil_addr) {
+            plane(image.info.stencil_addr, image.info.stencil_size, ds.stencil_clear,
+                  use.stencil_tested, use.stencil_written);
+        }
+    }
 }
 
 void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering) {
@@ -940,6 +1240,8 @@ bool Rasterizer::IsComputeImageCopy(const Pipeline* pipeline) {
     }
     dst_image.flags |= VideoCore::ImageFlagBits::GpuModified;
     dst_image.flags &= ~VideoCore::ImageFlagBits::Dirty;
+    MissingContent::Read(src_image.info.guest_address, src_image.info.guest_size);
+    MissingContent::Overwrite(dst_image.info.guest_address, dst_image.info.guest_size);
 
     if (tail_size) {
         const auto [src_buffer, src_offset] = buffer_cache.ObtainBuffer(
@@ -1105,6 +1407,8 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 buffer_infos.emplace_back(buffer->Handle(), offset_aligned, size + adjust);
                 bound_buffers.emplace_back(buffer, offset, size, desc.is_written);
                 if (desc.is_written) {
+                    // A shader may read what it writes.
+                    MissingContent::Read(vsharp.base_address, size);
                     // Raw storage-buffer writes can also make an aliased cached image stale.
                     texture_cache.InvalidateMemoryFromGPU(
                         vsharp.base_address, size,
@@ -1475,6 +1779,10 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
 
             auto& image = texture_cache.GetImage(image_id);
             scheduler.StageAccess(image.info.guest_address, image.info.guest_size, is_storage);
+            MissingContent::Read(image.info.guest_address, image.info.guest_size);
+            if (is_storage) {
+                MissingContent::Write(image.info.guest_address, image.info.guest_size);
+            }
             auto& image_view = texture_cache.FindTexture(image_id, desc);
             const auto binding = image.binding;
 
@@ -1824,6 +2132,7 @@ void Rasterizer::FillBuffer(VAddr address, u32 num_bytes, u32 value, bool is_gds
     ASSERT_MSG(address % 4 == 0 && num_bytes % 4 == 0,
                "FillBuffer address and size must be a multiple of 4 bytes");
     if (!is_gds) {
+        MissingContent::Overwrite(address, num_bytes);
         texture_cache.ClearMeta(address);
         if (!buffer_cache.IsRegionGpuModified(address, num_bytes)) {
             u32* buffer = std::bit_cast<u32*>(address);
@@ -1841,6 +2150,13 @@ void Rasterizer::FillBuffer(VAddr address, u32 num_bytes, u32 value, bool is_gds
 }
 
 void Rasterizer::CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, bool src_gds) {
+    const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
+    if (!src_gds) {
+        MissingContent::Read(src, num_bytes);
+    }
+    if (!dst_gds) {
+        MissingContent::Overwrite(dst, num_bytes);
+    }
     if (!dst_gds && !buffer_cache.IsRegionGpuModified(dst, num_bytes)) {
         if (!src_gds && !buffer_cache.IsRegionGpuModified(src, num_bytes) &&
             !texture_cache.FindImageFromRange(src, num_bytes)) {
@@ -2235,7 +2551,8 @@ void Rasterizer::UpdateColorBlendingState(const GraphicsPipeline* pipeline) cons
     dynamic_state.SetAttachmentFeedbackLoopEnabled(attachment_feedback_loop);
 }
 
-void Rasterizer::TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* pipeline,
+void Rasterizer::TraceAction(AmdGpu::Pm4Trace::ActionKind kind,
+                             std::span<const Shader::Info* const> stages,
                              const RenderState* state, u32 p0, u32 p1, u32 p2, u32 p3, u64 p4) {
     using namespace AmdGpu::Pm4Trace;
     auto& a = trace_action;
@@ -2247,7 +2564,7 @@ void Rasterizer::TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* 
     a.p3 = p3;
     a.p4 = p4;
     // Guest-level resources from the sharps this pipeline resolved for this action.
-    for (const auto* stage : pipeline->GetStages()) {
+    for (const auto* stage : stages) {
         if (!stage)
             continue;
         const u32 s = static_cast<u32>(stage->sw_stage);

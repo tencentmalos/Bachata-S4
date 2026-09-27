@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstring>
 #include <mutex>
@@ -267,19 +268,29 @@ void GameControllers::ResetLightbarColors() {
     }
 }
 
-bool GameController::SetVibration(u8 smallMotor, u8 largeMotor) {
+GameController::RumbleResult GameController::SetVibration(u8 smallMotor, u8 largeMotor) {
 #ifndef __ANDROID__
-    if (m_sdl_gamepad != nullptr) {
-        return SDL_RumbleGamepad(m_sdl_gamepad, (smallMotor / 255.0f) * 0xFFFF,
-                                 (largeMotor / 255.0f) * 0xFFFF, -1);
+    if (m_sdl_gamepad == nullptr) {
+        return RumbleResult::NoGamepad;
     }
+    // The large motor is the low-frequency one. SDL caps the duration at about a minute; the
+    // levels hold until the game changes them, as on the console.
+    const auto level = [](u8 value) { return static_cast<Uint16>(value * 0x0101); };
+    if (SDL_RumbleGamepad(m_sdl_gamepad, level(largeMotor), level(smallMotor), 0xFFFF)) {
+        return RumbleResult::Sent;
+    }
+    static std::atomic<u32> logged{};
+    if (logged.fetch_add(1, std::memory_order_relaxed) < 4) {
+        LOG_WARNING(Input, "SDL_RumbleGamepad failed: {}", SDL_GetError());
+    }
+    return RumbleResult::Failed;
 #else
     // Android haptics are executed by the app's HapticsPump via OrbisPadAdapter,
     // not through an SDL gamepad handle here.
     (void)smallMotor;
     (void)largeMotor;
+    return RumbleResult::NoGamepad;
 #endif
-    return true;
 }
 
 static bool is_first_check = true;

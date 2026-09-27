@@ -374,6 +374,11 @@ private:
                                               VAddr write_end = ~VAddr{0},
                                               const char* writer = "image_writeback");
 
+    /// Logs an image retired by a same-address extent change. With the guest write watch
+    /// armed it also reads mip 0 into a staging buffer (never into guest memory) and counts
+    /// NaN and zero words, to tell never-drawn backings from drawn NaN content.
+    void DescribeRetiredImage(ImageId image_id, const ImageInfo& next);
+
     /// Thread function for copying downloaded images out to CPU memory.
     void DownloadedImagesThread(const std::stop_token& token);
 

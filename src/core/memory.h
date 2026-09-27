@@ -313,6 +313,8 @@ public:
     public:
         explicit SrtReadBatch(MemoryManager& memory_) : memory{memory_}, lock{memory_.mutex} {}
         ~SrtReadBatch();
+        /// Largest single read: a run of consecutive sharp dwords (PortableSrt::MaxBatchDwords).
+        static constexpr u64 MaxReadBytes = 256;
         bool Read(VAddr address, void* data, u64 size);
 
         // Runtime A/B switch (off: every read takes the per-read path) and a verification mode

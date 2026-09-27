@@ -23,6 +23,7 @@
 #include "spatial/debugbus/DebugCommandRegistry.h"
 
 #include "core/diagnostics/diagnostics_hub.h"
+#include "core/libraries/pad/pad_vibration.h"
 #include "core/diagnostics/pipeline_handoff.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "video_core/renderdoc.h"
@@ -34,6 +35,7 @@
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_command_recorder.h"
+#include "video_core/renderer_vulkan/vk_pipeline_stats.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/renderdoc_capture.h"
@@ -167,6 +169,11 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("guest_patch", "Guest patch status | enable/disable <context ID>",
         [](const std::vector<std::string>& args) { return GuestPatch::Command(args); });
 #endif
+    registry.Register("pad_vibration",
+        "Controller vibration requested by the game: status | test LARGE SMALL [HANDLE]",
+        [](const std::vector<std::string>& args) {
+            return Libraries::Pad::Vibration::Command(args);
+        });
     // debug_status: non-blocking hub snapshot.
     registry.Register(
         "debug_status", "Show session/advance status (non-blocking)",
@@ -191,6 +198,10 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("pass_log",
         "Render pass instance log (default off): start [passes] | status | dump | stop",
         [](const std::vector<std::string>& args) { return Vulkan::Scheduler::PassLogCommand(args); });
+    registry.Register("pipeline_cache",
+        "Shader/pipeline compile counts and times, driver pipeline cache hits, disk preload and "
+        "driver cache file: status",
+        [](const std::vector<std::string>& args) { return Vulkan::PipelineStats::Command(args); });
     registry.Register("vk_recorder",
         "Deferred Vulkan command recording thread: status | on | off (applies at the next submission)",
         [](const std::vector<std::string>& args) { return Vulkan::CommandRecorder::Command(args); });

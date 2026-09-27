@@ -16,6 +16,8 @@ data class RuntimeSettingSpec(
     val minimum: Double? = null,
     val maximum: Double? = null,
     val choices: List<String> = emptyList(),
+    /** Names shown for [choices] (same order); the stored value is still the choice itself. */
+    val choiceLabels: List<String> = emptyList(),
     val nativeEnumOrdinal: Boolean = false,
     val nativeEnumValues: List<Double> = emptyList(),
     val scope: SettingScope = SettingScope.GLOBAL_AND_GAME,
@@ -34,8 +36,15 @@ data class RuntimeSettingSpec(
         require(!nativeEnumOrdinal || choices.isNotEmpty()) {
             "Native enum ordinal storage requires choices"
         }
+        require(choiceLabels.isEmpty() || (kind == SettingKind.ENUM && choiceLabels.size == choices.size)) {
+            "Choice labels must name every choice of an enum setting"
+        }
     }
 }
+
+/** What the settings page shows for [choice]. */
+fun RuntimeSettingSpec.choiceLabel(choice: String): String =
+    choiceLabels.getOrNull(choices.indexOf(choice)) ?: choice
 
 @Serializable
 enum class SettingKind {

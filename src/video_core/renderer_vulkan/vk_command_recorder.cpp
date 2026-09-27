@@ -5,6 +5,7 @@
 
 #include "common/profiler.h"
 #include "common/thread.h"
+#include "core/emulator_settings.h"
 #include "video_core/renderer_vulkan/render_pass_stats.h"
 #include "video_core/renderer_vulkan/vk_command_recorder.h"
 
@@ -18,7 +19,7 @@ constexpr size_t Bytes(size_t count) {
 }
 } // namespace
 
-CommandRecorder::CommandRecorder() {
+CommandRecorder::CommandRecorder() : enabled{EmulatorSettings.IsCommandRecorder()} {
     worker = std::jthread([this](std::stop_token stop) { Worker(stop); });
 }
 

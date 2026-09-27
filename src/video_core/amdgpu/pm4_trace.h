@@ -129,6 +129,7 @@ enum class HostEvent : u32 {
     Replaced = 6,   // dispatch handled by an emulator HLE path; text=which
     HoistFail = 7,  // text=why an independent op could not move before the pass
     BarrierHoisted = 8, // a=pass b=barriers: placed before the pass instead of ending it
+    Skipped = 9,    // draw not issued, pipeline not built (lossy skip mode); a=pipeline hash
 };
 void NoteHost(HostEvent kind, u64 a, u64 b, u64 c, u64 d, std::string_view text = {});
 

@@ -79,6 +79,9 @@ void Scheduler::BindHostDescriptors(vk::PipelineBindPoint point, vk::PipelineLay
 }
 
 bool Scheduler::BeginRendering(const RenderState& new_state) {
+    if (hoisting) {
+        InterruptHoist(); // a helper pass inside a hoisted operation follows the held pass
+    }
     if (is_rendering && render_state == new_state) {
         return false;
     }

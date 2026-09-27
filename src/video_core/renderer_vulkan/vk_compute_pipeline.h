@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/renderer_vulkan/vk_pipeline_common.h"
 
@@ -47,11 +49,18 @@ public:
     ComputePipeline(const Instance& instance, Scheduler& scheduler, DescriptorHeap& desc_heap,
                     const Shader::Profile& profile, vk::PipelineCache pipeline_cache,
                     ComputePipelineKey compute_key, const Shader::Info& info,
-                    vk::ShaderModule module, SerializationSupport& sdata, bool preloading);
-    ~ComputePipeline();
+                    vk::ShaderModule module, SerializationSupport& sdata, bool preloading,
+                    bool defer_build = false);
+    ~ComputePipeline() override;
 
 private:
+    void CreateNative() const override;
+
+    /// Everything vkCreateComputePipelines reads, owned so the call can run on another thread.
+    struct CreateState;
+
     ComputePipelineKey compute_key;
+    mutable std::unique_ptr<CreateState> create_state;
 };
 
 } // namespace Vulkan

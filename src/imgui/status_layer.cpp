@@ -46,6 +46,8 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
                 window_uploads = cov.image_uploads - last_coverage.image_uploads;
                 window_upload_bytes = cov.image_upload_bytes - last_coverage.image_upload_bytes;
                 window_fill_clears = cov.fill_clears - last_coverage.fill_clears;
+                window_new_uploads = cov.image_new_uploads - last_coverage.image_new_uploads;
+                window_upload_ns = cov.image_upload_ns - last_coverage.image_upload_ns;
                 window_flips = flips >= last_flips ? flips - last_flips : 0;
                 window_seconds = now > sample_ns ? (now - sample_ns) / 1e9 : 0.0;
                 coverage_sampled = true;
@@ -78,7 +80,8 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
         const auto last_present = game_presents.LastPresentNs();
         tooltips.Update(snapshot,
                         last_present && now >= last_present && now - last_present >= 1000000000,
-                        coverage_sampled && window_flips && window_uploads >= 4 * window_flips);
+                        coverage_sampled && window_flips &&
+                            window_uploads - window_new_uploads >= 4 * window_flips);
     }
     if (!overlay.WantsMetrics()) {
         overlay.Prepare(std::move(model));
@@ -170,11 +173,18 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
     if (coverage && coverage_sampled) {
         const double divisor = window_flips ? double(window_flips) : std::max(window_seconds, 1e-3);
         const char* unit = window_flips ? "frame" : "s";
+        // New images are streamed-in textures (their first upload); re-uploads are images
+        // whose guest memory changed again. Only the latter indicates a problem.
         const double uploads = window_uploads / divisor;
-        field("Texture uploads", "uploads", "Re-uploads",
-              fmt::format("{:.1f}/{} ({:.1f} MiB)", uploads, unit,
-                          window_upload_bytes / divisor / (1024. * 1024.)),
-              true, window_flips && uploads >= 4 ? orange : green);
+        const double reuploads = (window_uploads - window_new_uploads) / divisor;
+        field("Texture uploads", "uploads", "Texture uploads",
+              fmt::format("{:.1f}/{} ({:.1f} MiB, {:.1f} ms)", uploads, unit,
+                          window_upload_bytes / divisor / (1024. * 1024.),
+                          window_upload_ns / divisor / 1e6),
+              true, green);
+        field("Texture uploads", "reuploads", "Re-uploads",
+              fmt::format("{:.1f}/{}", reuploads, unit), true,
+              window_flips && reuploads >= 4 ? orange : green);
         field("Texture uploads", "fills", "Fill clears",
               fmt::format("{:.1f}/{}", window_fill_clears / divisor, unit), true, green);
         field("Render passes", "tiles", "Tile load / clear / store",

@@ -20,6 +20,7 @@
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/texture_cache/texture_cache.h"
 
 #include <vk_mem_alloc.h>
@@ -270,6 +271,9 @@ void BufferCache::InvalidateMapping(VAddr device_addr, u64 size) {
 
 void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
     liverpool->SendCommand<true>([this, device_addr, size, is_write] {
+        // The CPU is about to read GPU-written data.
+        Vulkan::MissingContent::CheckEscape(Vulkan::MissingContent::Escape::Readback, device_addr,
+                                            size);
         const u32 first_block = device_addr >> block_shift;
         const u32 last_block = (device_addr + size - 1) >> block_shift;
         const auto* arena = GetArena(first_block, last_block);
@@ -342,6 +346,7 @@ void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 siz
 
 std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 size,
                                                         bool is_written, bool is_texel_buffer) {
+    Vulkan::MissingContent::Access(device_addr, size, is_written);
     // For read-only buffers use device local stream buffer to reduce renderpass breaks.
     if (!is_written && size <= STREAM_THRESHOLD && !IsRegionGpuModified(device_addr, size)) {
         // A CPU snapshot taken now: later GPU writes to this range cannot affect the draw, so it

@@ -16,7 +16,10 @@
 #include "video_core/amdgpu/resource.h"
 
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <numbers>
+#include <optional>
 #include <magic_enum/magic_enum.hpp>
 
 namespace Shader::Gcn {
@@ -1191,7 +1194,12 @@ void Translator::Translate(IR::Block* block, u32 start_pc, IR::Condition cond,
     }
     ir = IR::IREmitter{*block, block->begin()};
     pc = start_pc;
-    for (const auto& inst : inst_list) {
+    for (size_t index = 0; index < inst_list.size(); ++index) {
+        if (const size_t count = TranslateWaveReduction(inst_list, index); count != 0) {
+            index += count - 1;
+            continue;
+        }
+        const auto& inst = inst_list[index];
         pc += inst.length;
 
         // Special case for emitting fetch shader.
@@ -1207,6 +1215,210 @@ void Translator::Translate(IR::Block* block, u32 start_pc, IR::Condition cond,
     if (cond != IR::Condition::True && cond != IR::Condition::False) {
         block->branch_cond = ir.ConditionRef(ir.Condition(cond));
     }
+}
+
+namespace {
+
+bool IsSchedulingHint(const GcnInst& inst) {
+    return inst.opcode == Opcode::S_WAITCNT || inst.opcode == Opcode::S_NOP;
+}
+
+std::optional<u32> InlineInteger(const InstOperand& operand) {
+    switch (operand.field) {
+    case OperandField::ConstZero:
+        return 0u;
+    case OperandField::SignedConstIntPos:
+        return operand.code - SignedConstIntPosMin + 1;
+    case OperandField::SignedConstIntNeg:
+        return static_cast<u32>(-static_cast<s32>(operand.code) + SignedConstIntNegMin - 1);
+    case OperandField::LiteralConst:
+        return operand.code;
+    default:
+        return std::nullopt;
+    }
+}
+
+bool IsPlainOperand(const InstOperand& operand) {
+    return !operand.input_modifier.neg && !operand.input_modifier.abs &&
+           !operand.input_modifier.sext && !operand.dpp &&
+           operand.sdwa_sel == SdwaSelector::Invalid;
+}
+
+bool IsPlainVgpr(const InstOperand& operand, u32 reg) {
+    return operand.field == OperandField::VectorGPR && operand.code == reg &&
+           IsPlainOperand(operand);
+}
+
+bool WritesPlainVgpr(const GcnInst& inst) {
+    const auto& dst = inst.dst[0];
+    return dst.field == OperandField::VectorGPR && !dst.output_modifier.clamp &&
+           dst.output_modifier.multiplier == 0.f && dst.sdwa_sel == SdwaSelector::Invalid;
+}
+
+struct WaveReduction {
+    IR::ReduceOp op;
+    u32 identity;
+};
+
+std::optional<WaveReduction> ReductionOf(Opcode opcode) {
+    switch (opcode) {
+    case Opcode::V_MIN_U32:
+        return WaveReduction{IR::ReduceOp::UMin, 0xFFFFFFFFu};
+    case Opcode::V_MAX_U32:
+        return WaveReduction{IR::ReduceOp::UMax, 0u};
+    case Opcode::V_MIN_I32:
+        return WaveReduction{IR::ReduceOp::SMin, 0x7FFFFFFFu};
+    case Opcode::V_MAX_I32:
+        return WaveReduction{IR::ReduceOp::SMax, 0x80000000u};
+    case Opcode::V_AND_B32:
+        return WaveReduction{IR::ReduceOp::And, 0xFFFFFFFFu};
+    case Opcode::V_OR_B32:
+        return WaveReduction{IR::ReduceOp::Or, 0u};
+    case Opcode::V_XOR_B32:
+        return WaveReduction{IR::ReduceOp::Xor, 0u};
+    default:
+        return std::nullopt;
+    }
+}
+
+} // Anonymous namespace
+
+// The PS4 shader compiler reduces a value across a wave by enabling every lane
+// (s_orn2_saveexec_b64 SAVE, exec), filling the lanes outside SAVE with the operation's
+// identity (v_cndmask_b32 V, identity, X, SAVE), combining each 32-lane half with a
+// DS_SWIZZLE xor butterfly (16, 8, 4, 2, 1) and reading lanes such as 31 and 63.
+// Invocations that left the SPIR-V control flow earlier (lanes the guest had disabled)
+// cannot take part in that butterfly: a shuffle from them is undefined, and an undefined
+// minimum stalls the scalarization loops built on it forever. Lanes outside SAVE only ever
+// contribute the identity, so the same results are the reductions over the invocations
+// still present. Returns the number of instructions translated, or 0 when the sequence
+// does not match exactly.
+size_t Translator::TranslateWaveReduction(std::span<const GcnInst> list, size_t start) {
+    if (!profile.supports_subgroup_clustered_reduce || profile.subgroup_size < 64) {
+        return 0;
+    }
+    const GcnInst& enable = list[start];
+    if (enable.opcode != Opcode::S_ORN2_SAVEEXEC_B64 ||
+        enable.src[0].field != OperandField::ExecLo) {
+        return 0;
+    }
+    const InstOperand& saved = enable.dst[0];
+
+    size_t index = start + 1;
+    const auto skip_hints = [&] {
+        while (index < list.size() && IsSchedulingHint(list[index])) {
+            ++index;
+        }
+        return index < list.size();
+    };
+
+    if (!skip_hints()) {
+        return 0;
+    }
+    const GcnInst& fill = list[index++];
+    const bool fill_uses_saved =
+        fill.src[2].field == OperandField::Undefined
+            ? saved.field == OperandField::VccLo
+            : fill.src[2].field == saved.field && fill.src[2].code == saved.code;
+    const auto fill_identity = InlineInteger(fill.src[0]);
+    if (fill.opcode != Opcode::V_CNDMASK_B32 || !WritesPlainVgpr(fill) || !fill_uses_saved ||
+        !fill_identity || !IsPlainOperand(fill.src[1])) {
+        return 0;
+    }
+    const u32 value_reg = fill.dst[0].code;
+
+    std::optional<WaveReduction> reduction;
+    std::optional<u32> temp_reg;
+    u32 xor_masks = 0;
+    for (u32 step = 0; step < 5; ++step) {
+        if (!skip_hints()) {
+            return 0;
+        }
+        const GcnInst& swizzle = list[index++];
+        if (swizzle.opcode != Opcode::DS_SWIZZLE_B32 || swizzle.control.ds.gds) {
+            return 0;
+        }
+        const u32 offset0 = swizzle.control.ds.offset0;
+        const u32 offset1 = swizzle.control.ds.offset1;
+        const u32 and_mask = offset0 & 0x1f;
+        const u32 or_mask = (offset0 >> 5) | ((offset1 & 0x3) << 3);
+        const u32 xor_mask = offset1 >> 2;
+        const bool bit_mode = (offset1 & 0x80) == 0;
+        if (!bit_mode || and_mask != 0x1f || or_mask != 0 || !std::has_single_bit(xor_mask) ||
+            xor_mask > 16 || (xor_masks & xor_mask) != 0 ||
+            !IsPlainVgpr(swizzle.src[0], value_reg) ||
+            swizzle.dst[0].field != OperandField::VectorGPR ||
+            swizzle.dst[0].code == value_reg || (temp_reg && *temp_reg != swizzle.dst[0].code)) {
+            return 0;
+        }
+        xor_masks |= xor_mask;
+        temp_reg = swizzle.dst[0].code;
+
+        if (!skip_hints()) {
+            return 0;
+        }
+        const GcnInst& combine = list[index++];
+        const auto combine_reduction = ReductionOf(combine.opcode);
+        const bool combines_pair =
+            (IsPlainVgpr(combine.src[0], value_reg) && IsPlainVgpr(combine.src[1], *temp_reg)) ||
+            (IsPlainVgpr(combine.src[0], *temp_reg) && IsPlainVgpr(combine.src[1], value_reg));
+        if (!combine_reduction || (reduction && reduction->op != combine_reduction->op) ||
+            !WritesPlainVgpr(combine) || combine.dst[0].code != value_reg || !combines_pair) {
+            return 0;
+        }
+        reduction = combine_reduction;
+    }
+    if (xor_masks != 0x1f || reduction->identity != *fill_identity) {
+        return 0;
+    }
+    const size_t butterfly_end = index;
+
+    // Constant lane reads of the reduced value that follow the butterfly.
+    size_t reads_end = index;
+    while (skip_hints()) {
+        const GcnInst& read = list[index];
+        const auto lane = InlineInteger(read.src[1]);
+        if (read.opcode != Opcode::V_READLANE_B32 || !IsPlainVgpr(read.src[0], value_reg) ||
+            !lane || *lane > 63) {
+            break;
+        }
+        reads_end = ++index;
+    }
+
+    // The enable, the fill and the butterfly still translate as before: they are exact for
+    // the present invocations and keep defining the swizzle temporary. Only the reduced
+    // value and the lane reads are replaced.
+    std::optional<IR::U32> fill_value;
+    std::optional<IR::U32> lane_id;
+    std::array<std::optional<IR::U32>, 2> half_values{};
+    for (size_t i = start; i < reads_end; ++i) {
+        const GcnInst& inst = list[i];
+        pc += inst.length;
+        if (i >= butterfly_end && inst.opcode == Opcode::V_READLANE_B32) {
+            const u32 half = *InlineInteger(inst.src[1]) >> 5;
+            auto& half_value = half_values[half];
+            if (!half_value) {
+                if (!lane_id) {
+                    lane_id = ir.LaneId();
+                }
+                const IR::U1 in_half =
+                    ir.IEqual(ir.BitwiseAnd(*lane_id, ir.Imm32(32u)), ir.Imm32(half << 5));
+                const IR::U32 contribution{
+                    ir.Select(in_half, *fill_value, ir.Imm32(reduction->identity))};
+                half_value = ir.ClusteredReduce(reduction->op, contribution, 64);
+            }
+            SetDst(inst.dst[0], *half_value);
+            continue;
+        }
+        TranslateInstruction(inst);
+        if (&inst == &fill) {
+            fill_value = GetSrc(fill.dst[0]);
+        }
+        if (i + 1 == butterfly_end) {
+            SetDst(fill.dst[0], ir.ClusteredReduce(reduction->op, *fill_value, 32));
+        }
+    }
+    return reads_end - start;
 }
 
 void Translator::TranslateInstruction(const GcnInst& inst) {

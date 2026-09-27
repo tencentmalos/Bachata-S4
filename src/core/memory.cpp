@@ -280,7 +280,7 @@ void MemoryManager::ProtectGpu(VAddr address, u64 size, MemoryPermission permiss
 }
 
 bool MemoryManager::TryReadSrtMemory(VAddr address, void* data, u64 size) {
-    if (!data || !size || size > 8 || address > UINT64_MAX - size)
+    if (!data || !size || size > SrtReadBatch::MaxReadBytes || address > UINT64_MAX - size)
         return false;
     std::shared_lock lock(mutex);
     return TryReadSrtMemoryLocked(address, data, size);
@@ -333,7 +333,7 @@ MemoryManager::SrtReadBatch::~SrtReadBatch() {
 }
 
 bool MemoryManager::SrtReadBatch::Read(VAddr address, void* data, u64 size) {
-    if (!data || !size || size > 8 || address > UINT64_MAX - size)
+    if (!data || !size || size > SrtReadBatch::MaxReadBytes || address > UINT64_MAX - size)
         return false;
     ++reads;
     // Consecutive reads mostly stay in the same table: try the last window first.
@@ -367,7 +367,7 @@ bool MemoryManager::SrtReadBatch::Read(VAddr address, void* data, u64 size) {
         ++resolves;
     }
     if (verify.load(std::memory_order_relaxed)) [[unlikely]] {
-        std::array<u8, 8> expected{};
+        std::array<u8, MaxReadBytes> expected{};
         const bool ok = memory.TryReadSrtMemoryLocked(address, expected.data(), size);
         ++verified;
         if (!ok || std::memcmp(expected.data(), source, size) != 0) {

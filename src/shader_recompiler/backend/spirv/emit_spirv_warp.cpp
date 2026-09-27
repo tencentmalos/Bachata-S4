@@ -85,4 +85,40 @@ Id EmitGroupAny(EmitContext& ctx, Id bit) {
     return ctx.OpGroupNonUniformAny(ctx.U1[1], SubgroupScope(ctx), bit);
 }
 
+template <auto Op>
+static Id ClusteredReduce(EmitContext& ctx, Id value, u32 cluster_size) {
+    ctx.AddCapability(spv::Capability::GroupNonUniformArithmetic);
+    ctx.AddCapability(spv::Capability::GroupNonUniformClustered);
+    return (ctx.*Op)(ctx.U32[1], SubgroupScope(ctx), spv::GroupOperation::ClusteredReduce, value,
+                     ctx.ConstU32(cluster_size));
+}
+
+Id EmitClusteredUMin32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformUMin>(ctx, value, cluster_size);
+}
+
+Id EmitClusteredUMax32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformUMax>(ctx, value, cluster_size);
+}
+
+Id EmitClusteredSMin32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformSMin>(ctx, value, cluster_size);
+}
+
+Id EmitClusteredSMax32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformSMax>(ctx, value, cluster_size);
+}
+
+Id EmitClusteredAnd32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformBitwiseAnd>(ctx, value, cluster_size);
+}
+
+Id EmitClusteredOr32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformBitwiseOr>(ctx, value, cluster_size);
+}
+
+Id EmitClusteredXor32(EmitContext& ctx, Id value, u32 cluster_size) {
+    return ClusteredReduce<&EmitContext::OpGroupNonUniformBitwiseXor>(ctx, value, cluster_size);
+}
+
 } // namespace Shader::Backend::SPIRV

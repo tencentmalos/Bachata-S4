@@ -7,7 +7,10 @@ find the function around an address -- typically the address of a guest crash in
 Commands:
   ls       list a directory inside a .zar (or a plain game directory)
   extract  copy one file out of a .zar
-  elf      SELF/ELF -> analysis ELF (section table + one symbol per EH-described function)
+  elf      SELF/ELF -> analysis ELF (section table, one symbol per EH-described function,
+           imports named from their NIDs, relocations applied) -- the input for IDA
+  imports  imported functions/objects: NID, name, GOT slot, PLT stub, call sites
+  xrefs    direct calls/jumps and RIP-relative references to module offsets
   func     function containing a module offset, from the module's .eh_frame_hdr
   disasm   disassemble the function (or a window) around a module offset, marking it
   str      C string at a module offset (assert messages, file names), or --hex bytes
@@ -19,8 +22,12 @@ at `base + p_vaddr`, and PS4 modules start at vaddr 0), so `offset = runtime add
 analysis ELF keeps those virtual addresses, which makes llvm-objdump print module offsets.
 
 The analysis ELF is for reading only: e_type is rewritten to ET_EXEC and a section table is
-synthesised so tools accept it; every loadable byte is the original. Only fake-signed/decrypted
-SELFs are supported -- encrypted or compressed segments are refused, not guessed.
+synthesised so tools accept it. The module's own relocations (DT_SCE_RELA: R_X86_64_RELATIVE and
+self-defined symbols) are applied as if the module were loaded at 0, so vtables and pointer tables
+read as the module offsets they hold at run time; imports stay unresolved but get named symbols
+(`__imp_<name>` on the GOT slot, `<name>` on the PLT stub) from the NID table. Use --raw for the
+untouched loadable bytes. Only fake-signed/decrypted SELFs are supported -- encrypted or
+compressed segments are refused, not guessed.
 
 Needs Python 3.10+. .zar reading needs zstd: the standard `compression.zstd` (3.14+) or
 `pip install zstandard`. Disassembly needs llvm-objdump (PATH, --objdump or $LLVM_OBJDUMP).
@@ -254,6 +261,13 @@ EHDR = struct.Struct("<16sHHIQQQIHHHHHH")
 PHDR = struct.Struct("<IIQQQQQQ")
 SHDR = struct.Struct("<IIQQQQIIQQ")
 SYM = struct.Struct("<IBBHQQ")
+PT_SCE_DYNLIBDATA = 0x61000000
+RELA = struct.Struct("<QQq")
+R_X86_64_64, R_X86_64_GLOB_DAT, R_X86_64_JUMP_SLOT, R_X86_64_RELATIVE = 1, 6, 7, 8
+DT_SCE_JMPREL, DT_SCE_PLTRELSZ = 0x61000029, 0x6100002D
+DT_SCE_RELA, DT_SCE_RELASZ = 0x6100002F, 0x61000031
+DT_SCE_STRTAB, DT_SCE_STRSZ = 0x61000035, 0x61000037
+DT_SCE_SYMTAB, DT_SCE_SYMTABSZ = 0x61000039, 0x6100003F
 PHDR_TYPE_NAMES = {
     1: "LOAD", 2: "DYNAMIC", 3: "INTERP", 4: "NOTE", 7: "TLS", PT_GNU_EH_FRAME: "GNU_EH_FRAME",
     0x61000000: "SCE_DYNLIBDATA", 0x61000001: "SCE_PROCPARAM", 0x61000002: "SCE_MODULE_PARAM",
@@ -327,6 +341,158 @@ class Module:
             if ph[0] == PT_GNU_EH_FRAME:
                 return ph[3], ph[5]
         return None
+
+
+_NID_NAMES = None
+NID_TABLE = Path(__file__).resolve().parents[2] / "src" / "core" / "aerolib" / "aerolib.inl"
+
+
+def nid_names(path=None):
+    """NID -> function name, from the emulator's aerolib table (STUB("nid", name) lines)."""
+    global _NID_NAMES
+    if path is None and _NID_NAMES is not None:
+        return _NID_NAMES
+    table = {}
+    source = Path(path) if path else NID_TABLE
+    if source.is_file():
+        for match in re.finditer(r'STUB\("([^"]+)",\s*([^)\s]+)\)', source.read_text(errors="replace")):
+            table.setdefault(match.group(1), match.group(2))
+    if path is None:
+        _NID_NAMES = table
+    return table
+
+
+def symbol_name(text):
+    """Printable identifier for a symbol table (IDA/objdump accept [A-Za-z0-9_.$@?])."""
+    return re.sub(r"[^A-Za-z0-9_.$@?]", "_", text)
+
+
+class DynamicInfo:
+    """Relocations and symbols from a PS4 module's DT_SCE_* dynamic table.
+
+    Symbol names are `NID#library#module`; `name` resolves the NID through the aerolib table.
+    """
+
+    def __init__(self, module, names=None):
+        self.relocs = []   # (r_offset, type, symbol index, addend), DT_SCE_RELA then JMPREL
+        self.symbols = []  # (raw name, st_info, st_shndx, st_value)
+        self.names = names if names is not None else nid_names()
+        dyn_index = next((i for i, ph in enumerate(module.phdrs) if ph[0] == PT_DYNAMIC), None)
+        lib_index = next((i for i, ph in enumerate(module.phdrs) if ph[0] == PT_SCE_DYNLIBDATA), None)
+        if dyn_index is None or lib_index is None:
+            return
+        try:
+            dyn = module.phdr_bytes(dyn_index)
+            lib = module.phdr_bytes(lib_index)
+        except SystemExit:
+            return
+        tags = {}
+        for pos in range(0, len(dyn) - 15, 16):
+            tag, value = struct.unpack_from("<qQ", dyn, pos)
+            if tag == 0:
+                break
+            tags.setdefault(tag, value)
+
+        def blob(offset_tag, size_tag):
+            if offset_tag not in tags or size_tag not in tags:
+                return b""
+            start = tags[offset_tag]
+            return lib[start:start + tags[size_tag]]
+
+        strtab = blob(DT_SCE_STRTAB, DT_SCE_STRSZ)
+        symtab = blob(DT_SCE_SYMTAB, DT_SCE_SYMTABSZ)
+        for pos in range(0, len(symtab) - SYM.size + 1, SYM.size):
+            st_name, st_info, _, st_shndx, st_value, _ = SYM.unpack_from(symtab, pos)
+            end = strtab.find(b"\0", st_name)
+            raw = strtab[st_name:end if end >= 0 else len(strtab)].decode(errors="replace")
+            self.symbols.append((raw, st_info, st_shndx, st_value))
+        for data in (blob(DT_SCE_RELA, DT_SCE_RELASZ), blob(DT_SCE_JMPREL, DT_SCE_PLTRELSZ)):
+            for pos in range(0, len(data) - RELA.size + 1, RELA.size):
+                r_offset, r_info, r_addend = RELA.unpack_from(data, pos)
+                self.relocs.append((r_offset, r_info & 0xFFFFFFFF, r_info >> 32, r_addend))
+
+    def name(self, index):
+        raw = self.symbols[index][0] if index < len(self.symbols) else ""
+        nid = raw.split("#")[0]
+        return self.names.get(nid) or (f"nid_{symbol_name(nid)}" if nid else f"sym_{index}")
+
+    def defined(self, index):
+        return index < len(self.symbols) and self.symbols[index][2] != 0
+
+    def resolved(self):
+        """(r_offset, value) for relocations that do not depend on another module."""
+        for offset, kind, index, addend in self.relocs:
+            if kind == R_X86_64_RELATIVE:
+                yield offset, addend & 0xFFFFFFFFFFFFFFFF
+            elif kind in (R_X86_64_64, R_X86_64_GLOB_DAT, R_X86_64_JUMP_SLOT) and self.defined(index):
+                yield offset, (self.symbols[index][3] + addend) & 0xFFFFFFFFFFFFFFFF
+
+    def imports(self):
+        """(GOT slot, name, raw symbol, is_function) for relocations against undefined symbols."""
+        for offset, kind, index, _ in self.relocs:
+            if kind in (R_X86_64_JUMP_SLOT, R_X86_64_GLOB_DAT, R_X86_64_64) and not self.defined(index):
+                raw = self.symbols[index][0] if index < len(self.symbols) else ""
+                yield offset, self.name(index), raw, kind == R_X86_64_JUMP_SLOT
+
+
+def scan_rel32(module, targets, opcodes=(b"\xe8", b"\xe9")):
+    """(site, target, opcode) for every `opcode rel32` in executable segments that lands in
+    `targets`. Byte scanning, not disassembly: a site can sit inside another instruction, so
+    confirm interesting ones with disasm."""
+    hits = []
+    for base, body, _, flags in module.segments:
+        if not flags & PF_X:
+            continue
+        for opcode in opcodes:
+            pos = body.find(opcode)
+            while pos != -1 and pos + len(opcode) + 4 <= len(body):
+                rel = struct.unpack_from("<i", body, pos + len(opcode))[0]
+                target = base + pos + len(opcode) + 4 + rel
+                if target in targets:
+                    hits.append((base + pos, target, opcode))
+                pos = body.find(opcode, pos + 1)
+    return sorted(hits)
+
+
+RIP_REL = re.compile(rb"(?:[\x40-\x4f])?(?:\x8d|\x8b|\x89|\x3b|\x39|\x83|\x80|\xc7|\xc6|\xff)"
+                     rb"[\x05\x0d\x15\x1d\x25\x2d\x35\x3d]")
+
+
+def scan_rip_relative(module, targets):
+    """(site, target) for REX? op modrm(rip) disp32 forms (lea/mov/cmp/call/jmp [rip+d]) whose
+    effective address is in `targets`; the immediate forms (C7/C6/80/83) are sized accordingly."""
+    immediate = {0xC7: 4, 0xC6: 1, 0x80: 1, 0x83: 1}
+    hits = []
+    for base, body, _, flags in module.segments:
+        if not flags & PF_X:
+            continue
+        for match in RIP_REL.finditer(body):
+            pos = match.start()
+            op_at = pos + (1 if 0x40 <= body[pos] <= 0x4F else 0)
+            disp_at = op_at + 2
+            if disp_at + 4 > len(body):
+                continue
+            disp = struct.unpack_from("<i", body, disp_at)[0]
+            end = disp_at + 4 + immediate.get(body[op_at], 0)
+            target = base + end + disp
+            if target in targets:
+                hits.append((base + pos, target))
+    return sorted(hits)
+
+
+def plt_stubs(module, slots):
+    """PLT stub address -> GOT slot, from `jmp qword ptr [rip+d]` (FF 25) aimed at a slot."""
+    stubs = {}
+    for base, body, _, flags in module.segments:
+        if not flags & PF_X:
+            continue
+        pos = body.find(b"\xff\x25")
+        while pos != -1 and pos + 6 <= len(body):
+            target = base + pos + 6 + struct.unpack_from("<i", body, pos + 2)[0]
+            if target in slots:
+                stubs[base + pos] = target
+            pos = body.find(b"\xff\x25", pos + 1)
+    return stubs
 
 
 # --------------------------------------------------------------------------------------------
@@ -470,10 +636,12 @@ class EhIndex:
 # Analysis ELF
 
 
-def build_analysis_elf(module, eh=None):
-    """ELF64 ET_EXEC with the original loadable bytes at their original offsets, one section per
-    loadable segment and an fn_<vaddr> symbol per EH-described function."""
+def build_analysis_elf(module, eh=None, dyn=None, relocate=True, stats=None):
+    """ELF64 ET_EXEC with the loadable bytes at their original offsets, one section per loadable
+    segment, an fn_<vaddr> symbol per EH-described function and, with `dyn`, the module's own
+    relocations applied (load base 0) plus named import symbols."""
     eh = eh if eh is not None else EhIndex(module)
+    stats = stats if stats is not None else {}
     header_end = EHDR.size + len(module.phdrs) * PHDR.size
     # Keep the original file offsets when they leave room for the headers; otherwise relocate.
     cursor = max([header_end] + [ph[2] + ph[5] for ph in module.phdrs if ph[0] in LOADABLE])
@@ -502,6 +670,23 @@ def build_analysis_elf(module, eh=None):
         if ph[0] in LOADABLE and ph[5]:
             body = module.read(original[3], original[5])
             out[ph[2]:ph[2] + len(body)] = body
+
+    def file_offset(vaddr, size):
+        for ph in placed:
+            if ph[3] <= vaddr and vaddr + size <= ph[3] + ph[5]:
+                return ph[2] + (vaddr - ph[3])
+        return None
+
+    applied = outside = 0
+    if dyn is not None and relocate:
+        for offset, value in dyn.resolved():
+            at = file_offset(offset, 8)
+            if at is None:
+                outside += 1  # .bss or a non-loadable offset: nothing to write in the file
+                continue
+            struct.pack_into("<Q", out, at, value)
+            applied += 1
+    stats.update(relocations_applied=applied, relocations_outside=outside)
 
     # Section table: null, one section per load, .symtab, .strtab, .shstrtab.
     shstr = bytearray(b"\0")
@@ -535,10 +720,33 @@ def build_analysis_elf(module, eh=None):
 
     strtab = bytearray(b"\0")
     symtab = bytearray(SYM.pack(0, 0, 0, 0, 0, 0))
-    for start, end in zip(eh.starts, eh.ends):
+
+    def add_symbol(name, info, vaddr, size):
         offset = len(strtab)
-        strtab.extend(f"fn_{start:x}".encode() + b"\0")
-        symtab.extend(SYM.pack(offset, 0x12, 0, section_index(start), start, end - start))  # GLOBAL FUNC
+        strtab.extend(name.encode() + b"\0")
+        symtab.extend(SYM.pack(offset, info, 0, section_index(vaddr), vaddr, size))
+
+    for start, end in zip(eh.starts, eh.ends):
+        add_symbol(f"fn_{start:x}", 0x12, start, end - start)  # GLOBAL FUNC
+    imports = stubs = 0
+    if dyn is not None:
+        slots, used = {}, {}
+        for slot, name, _, is_function in dyn.imports():
+            if slot in slots:
+                continue
+            name = symbol_name(name)
+            count = used.get(name, 0)
+            used[name] = count + 1
+            unique = name if count == 0 else f"{name}_{count + 1}"
+            slots[slot] = (unique, is_function)
+            add_symbol(f"__imp_{unique}", 0x11, slot, 8)  # GLOBAL OBJECT
+            imports += 1
+        for stub, slot in sorted(plt_stubs(module, slots).items()):
+            name, is_function = slots[slot]
+            if is_function:
+                add_symbol(name, 0x12, stub, 6)
+                stubs += 1
+    stats.update(imports=imports, plt_stubs=stubs)
 
     def append_blob(blob, align=8):
         nonlocal out
@@ -689,15 +897,71 @@ def cmd_extract(args):
 def cmd_elf(args):
     module = load_module(args.module)
     eh = EhIndex(module)
-    elf = build_analysis_elf(module, eh)
+    dyn = None if args.raw else DynamicInfo(module, nid_names(args.nid_table))
+    stats = {}
+    elf = build_analysis_elf(module, eh, dyn, relocate=not args.raw, stats=stats)
     out = Path(args.output or Path(args.module).with_suffix(".analysis.elf"))
     out.write_bytes(elf)
     print(f"{out}: {module.kind} -> analysis ELF, {len(module.segments)} loadable segments, "
           f"{len(eh)} EH functions, extent {module.extent:#x}")
+    if dyn is not None:
+        print(f"  relocations applied {stats.get('relocations_applied', 0)} "
+              f"(+{stats.get('relocations_outside', 0)} in .bss, left to run time); "
+              f"imports {stats.get('imports', 0)}, PLT stubs named {stats.get('plt_stubs', 0)}")
     for ph in module.phdrs:
         flags = "".join(c if ph[1] & bit else "-" for c, bit in (("R", 4), ("W", 2), ("X", 1)))
         print(f"  {PHDR_TYPE_NAMES.get(ph[0], hex(ph[0])):<16} vaddr {ph[3]:#010x} "
               f"filesz {ph[5]:#x} memsz {ph[6]:#x} {flags}")
+    return 0
+
+
+def cmd_imports(args):
+    module = load_module(args.module)
+    dyn = DynamicInfo(module, nid_names(args.nid_table))
+    rows = list(dyn.imports())
+    wanted = [w.lower() for w in args.name]
+    if wanted:
+        rows = [r for r in rows if any(w in r[1].lower() or w in r[2].lower() for w in wanted)]
+    slots = {slot: name for slot, name, _, _ in rows}
+    stubs = plt_stubs(module, slots)
+    stub_of = {slot: stub for stub, slot in stubs.items()}
+    calls = {}
+    if args.calls:
+        for site, target, _ in scan_rel32(module, set(stubs), (b"\xe8", b"\xe9")):
+            calls.setdefault(stubs[target], []).append(site)
+        for site, target in scan_rip_relative(module, set(slots)):
+            if site not in stubs:  # the stub's own jmp [rip+d]
+                calls.setdefault(target, []).append(site)
+    for slot, name, raw, is_function in rows:
+        stub = stub_of.get(slot)
+        where = (f"plt {stub:#010x}" if stub is not None
+                 else ("no plt" if is_function else "object"))
+        print(f"{name:<48} {raw:<40} got {slot:#010x}  {where}")
+        for site in sorted(calls.get(slot, [])):
+            print(f"    called from {site:#x}")
+    print(f"{len(rows)} imports")
+    return 0
+
+
+def cmd_xrefs(args):
+    module = load_module(args.module)
+    targets = {int(t, 0) for t in args.offset}
+    eh = EhIndex(module)
+
+    def where(site):
+        fn = eh.containing(site)
+        return f"fn_{fn[0]:x}+{site - fn[0]:#x}" if fn else "?"
+
+    for site, target, opcode in scan_rel32(module, targets):
+        kind = "call" if opcode == b"\xe8" else "jmp "
+        print(f"{kind} {site:#x} ({where(site)}) -> {target:#x}")
+    for site, target in scan_rip_relative(module, targets):
+        print(f"rip  {site:#x} ({where(site)}) -> {target:#x}")
+    if args.data:
+        dyn = DynamicInfo(module)
+        for offset, value in dyn.resolved():
+            if value in targets:
+                print(f"data {offset:#x} holds {value:#x} (relocated pointer, e.g. a vtable slot)")
     return 0
 
 
@@ -913,9 +1177,63 @@ def _selftest_module():
     return elf
 
 
+def _selftest_dynamic():
+    # Module: code with a PLT stub and a call to it, data with a vtable-like pointer slot and a GOT
+    # slot, and DYNAMIC/SCE_DYNLIBDATA describing one RELATIVE and one JUMP_SLOT relocation.
+    code_base, data_base = 0x0, 0x1000
+    code = bytearray(b"\x90" * 0x40)
+    code[0x0:0x5] = b"\xe8" + struct.pack("<i", 0x20 - 0x5)            # call 0x20 (the stub)
+    code[0x10:0x17] = b"\x48\x8d\x05" + struct.pack("<i", 0x1000 - 0x17)  # lea rax,[rip+..] -> 0x1000
+    code[0x20:0x26] = b"\xff\x25" + struct.pack("<i", 0x1008 - 0x26)   # jmp [rip+..] -> GOT 0x1008
+    data = bytearray(16)
+    strtab = b"\0yFVnOdGxvZY#A#B\0"
+    symtab = SYM.pack(0, 0, 0, 0, 0, 0) + SYM.pack(1, 0x12, 0, 0, 0, 0)
+    rela = RELA.pack(0x1000, R_X86_64_RELATIVE, 0x10)
+    jmprel = RELA.pack(0x1008, (1 << 32) | R_X86_64_JUMP_SLOT, 0)
+    lib = strtab + b"\0" * ((-len(strtab)) % 8)
+    offsets = {}
+    for key, blob in (("sym", symtab), ("rela", rela), ("jmp", jmprel)):
+        offsets[key] = len(lib)
+        lib += blob
+    dyn = b"".join(struct.pack("<qQ", t, v) for t, v in (
+        (DT_SCE_STRTAB, 0), (DT_SCE_STRSZ, len(strtab)), (DT_SCE_SYMTAB, offsets["sym"]),
+        (DT_SCE_SYMTABSZ, len(symtab)), (DT_SCE_RELA, offsets["rela"]), (DT_SCE_RELASZ, len(rela)),
+        (DT_SCE_JMPREL, offsets["jmp"]), (DT_SCE_PLTRELSZ, len(jmprel)), (0, 0)))
+    phdrs_at = EHDR.size
+    phnum = 4
+    code_at = 0x1000
+    data_at = code_at + len(code)
+    dyn_at = data_at + len(data)
+    lib_at = dyn_at + len(dyn)
+    phdrs = [(PT_LOAD, PF_X | 4, code_at, code_base, code_base, len(code), len(code), 0x1000),
+             (PT_LOAD, PF_W | 4, data_at, data_base, data_base, len(data), len(data), 0x1000),
+             (PT_DYNAMIC, 4, dyn_at, 0, 0, len(dyn), len(dyn), 8),
+             (PT_SCE_DYNLIBDATA, 4, lib_at, 0, 0, len(lib), 0, 8)]
+    ident = ELF_MAGIC + bytes([2, 1, 1, 9]) + b"\0" * 8
+    blob = bytearray(EHDR.pack(ident, 0xFE10, 0x3E, 1, 0, phdrs_at, 0, 0, EHDR.size, PHDR.size,
+                               phnum, 0, 0, 0))
+    blob += b"".join(PHDR.pack(*p) for p in phdrs)
+    blob += b"\0" * (code_at - len(blob))
+    blob += code + data + dyn + lib
+    module = Module(bytes(blob), "dynamic")
+    info = DynamicInfo(module, {"yFVnOdGxvZY": "scePadSetVibration"})
+    assert list(info.resolved()) == [(0x1000, 0x10)], list(info.resolved())
+    assert [(s, n) for s, n, _, _ in info.imports()] == [(0x1008, "scePadSetVibration")]
+    assert plt_stubs(module, {0x1008}) == {0x20: 0x1008}
+    assert scan_rel32(module, {0x20}) == [(0x0, 0x20, b"\xe8")]
+    assert scan_rip_relative(module, {0x1000}) == [(0x10, 0x1000)]
+    stats = {}
+    elf = build_analysis_elf(module, EhIndex(module), info, stats=stats)
+    again = Module(elf, "analysis")
+    assert struct.unpack("<Q", again.read(0x1000, 8))[0] == 0x10
+    assert stats["relocations_applied"] == 1 and stats["imports"] == 1 and stats["plt_stubs"] == 1
+    assert b"scePadSetVibration\0" in elf and b"__imp_scePadSetVibration\0" in elf
+
+
 def cmd_selftest(args):
     _selftest_zar()
     elf = _selftest_module()
+    _selftest_dynamic()
     log = ("[Core.Linker] <Info> module.cpp:148 LoadModuleToMemory: Loading module eboot.bin to 0x400000\n"
            "[Core.Linker] <Info> module.cpp:148 LoadModuleToMemory: Loading module libc.prx to 0x800000\n"
            "[Debug] <Critical> signals.cpp:193 SignalHandler: Unhandled Exception code 0xc0000005 at 0x400004\n"
@@ -959,10 +1277,27 @@ def main(argv=None):
     p.add_argument("-o", "--output")
     p.set_defaults(func=cmd_extract)
 
-    p = sub.add_parser("elf", help="SELF/ELF -> analysis ELF")
+    p = sub.add_parser("elf", help="SELF/ELF -> analysis ELF (for IDA, objdump, gdb)")
     p.add_argument("module")
     p.add_argument("-o", "--output")
+    p.add_argument("--raw", action="store_true",
+                   help="original loadable bytes only: no relocations, no import symbols")
+    p.add_argument("--nid-table", help="STUB(\"nid\", name) table (default: src/core/aerolib/aerolib.inl)")
     p.set_defaults(func=cmd_elf)
+
+    p = sub.add_parser("imports", help="imports with NID, name, GOT slot and PLT stub")
+    p.add_argument("module")
+    p.add_argument("name", nargs="*", help="substring filter on the name or NID")
+    p.add_argument("--calls", action="store_true", help="also list call sites")
+    p.add_argument("--nid-table")
+    p.set_defaults(func=cmd_imports)
+
+    p = sub.add_parser("xrefs", help="calls/jumps and RIP-relative references to module offsets")
+    p.add_argument("module")
+    p.add_argument("offset", nargs="+")
+    p.add_argument("--data", action="store_true",
+                   help="also relocated pointers holding the offset (vtables, tables)")
+    p.set_defaults(func=cmd_xrefs)
 
     p = sub.add_parser("str", help="C string (or --hex bytes) at module offsets")
     p.add_argument("module")

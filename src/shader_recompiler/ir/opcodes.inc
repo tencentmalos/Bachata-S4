@@ -467,6 +467,13 @@ OPCODE(InverseBallot,                                       U1,             U64,
 OPCODE(DataAppend,                                          U32,            U32,            U1                                                              )
 OPCODE(DataConsume,                                         U32,            U32,            U1                                                              )
 OPCODE(GroupAny,                                            U1,             U1,                                                                             )
+OPCODE(ClusteredUMin32,                                     U32,            U32,            U32,                                                            )
+OPCODE(ClusteredUMax32,                                     U32,            U32,            U32,                                                            )
+OPCODE(ClusteredSMin32,                                     U32,            U32,            U32,                                                            )
+OPCODE(ClusteredSMax32,                                     U32,            U32,            U32,                                                            )
+OPCODE(ClusteredAnd32,                                      U32,            U32,            U32,                                                            )
+OPCODE(ClusteredOr32,                                       U32,            U32,            U32,                                                            )
+OPCODE(ClusteredXor32,                                      U32,            U32,            U32,                                                            )
 
 // Time operations
 OPCODE(Memtime,                                             U64,                                                                                            )

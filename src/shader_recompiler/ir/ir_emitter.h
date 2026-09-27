@@ -14,6 +14,9 @@
 
 namespace Shader::IR {
 
+/// Associative operations reducible across a cluster of subgroup invocations.
+enum class ReduceOp : u32 { UMin, UMax, SMin, SMax, And, Or, Xor };
+
 class IREmitter {
 public:
     explicit IREmitter() = default;
@@ -182,6 +185,9 @@ public:
     [[nodiscard]] U32 BallotFindLsb(const U64& mask);
     [[nodiscard]] U1 InverseBallot(const U64& mask);
     [[nodiscard]] U1 GroupAny(const U1& bit);
+    /// Reduces value over the active invocations of each aligned cluster of cluster_size
+    /// invocations; inactive invocations do not contribute.
+    [[nodiscard]] U32 ClusteredReduce(ReduceOp op, const U32& value, u32 cluster_size);
 
     [[nodiscard]] Value CompositeConstruct(const Value& e1, const Value& e2);
     [[nodiscard]] Value CompositeConstruct(const Value& e1, const Value& e2, const Value& e3);

@@ -34,14 +34,17 @@ Offsets printed are module offsets (the module's vaddr; PS4 modules start at 0),
 |---|---|
 | `ls <zar/dir> [path]` | list a directory inside an archive |
 | `extract <zar/dir> <path> -o out` | one file out of a `.zar` (no full unpack) |
-| `elf <self/elf> [-o out]` | SELF → analysis ELF with sections and `fn_<offset>` symbols (for IDA, objdump, gdb) |
+| `elf <self/elf> [-o out] [--raw]` | SELF → analysis ELF with sections, `fn_<offset>` symbols, the module's own relocations applied and imports named from NIDs (for IDA, objdump, gdb; see the `ps4-ida-analysis` skill) |
+| `imports <module> [name…] [--calls]` | imported functions/objects: NID, name, GOT slot, PLT stub, call sites |
+| `xrefs <module> <offset>… [--data]` | calls/jumps/RIP-relative references to offsets; `--data` adds relocated pointers (vtable slots) |
 | `func <module> <offset>` | function range containing an offset |
 | `disasm <module> <offset> [--base B]` | disassemble around an offset |
 | `str <module> <offset>… [--hex]` | C string / bytes at offsets, e.g. an assert message loaded by `lea rdi, [rip+…]` |
 
 Only decrypted / fake-signed SELFs are supported; encrypted or compressed segments are refused. The
-analysis ELF only rewrites `e_type` and adds a section table and symbols — loadable bytes are the
-original.
+analysis ELF rewrites `e_type`, adds a section table and symbols, and applies the module's own
+relocations (load base 0) so pointer tables read as module offsets; `--raw` keeps the loadable bytes
+exactly as in the file.
 
 ## Reading the Windows crash report
 

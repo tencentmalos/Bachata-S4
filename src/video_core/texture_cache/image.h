@@ -243,6 +243,7 @@ public:
     u64 lru_id{};
     u64 tick_accessed_last{};
     u64 hash{};
+    bool uploaded{}; // contents were uploaded from guest memory at least once
 
     struct {
         u32 texture : 1;

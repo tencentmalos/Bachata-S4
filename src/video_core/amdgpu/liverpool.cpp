@@ -353,6 +353,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     // There is no evidence that GPU CP drives flip events by parsing
                     // special NOP packets. For convenience lets assume that it does.
                     Platform::IrqC::Instance()->Signal(Platform::InterruptId::GfxFlip);
+                    ++flip_epoch;
                     break;
                 }
                 case PM4CmdNop::PayloadType::DebugMarkerPush: {
@@ -497,6 +498,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             }
             case PM4ItOpcode::SetPredication: {
                 LOG_WARNING(Render, "Unimplemented IT_SET_PREDICATION");
+                dispatch_diag.predication_dw1 = count >= 1 ? header[1].raw : 0;
+                dispatch_diag.predication_dw2 = count >= 2 ? header[2].raw : 0;
+                ++dispatch_diag.predications;
                 break;
             }
             case PM4ItOpcode::IndexType: {
@@ -517,6 +521,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (!rasterizer) {
                     break;
                 }
+                draw_predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
                 const auto cmd_address = reinterpret_cast<const void*>(header);
                 rasterizer->ScopeMarker("gfx:{}:DrawIndex2", fmt::make_format_args(cmd_address),
                                         [&] { rasterizer->Draw(true); });
@@ -534,6 +539,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (!rasterizer) {
                     break;
                 }
+                draw_predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
                 const auto cmd_address = reinterpret_cast<const void*>(header);
                 rasterizer->ScopeMarker(
                     "gfx:{}:DrawIndexOffset2", fmt::make_format_args(cmd_address),
@@ -550,6 +556,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (!rasterizer) {
                     break;
                 }
+                draw_predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
                 const auto cmd_address = reinterpret_cast<const void*>(header);
                 rasterizer->ScopeMarker("gfx:{}:DrawIndexAuto", fmt::make_format_args(cmd_address),
                                         [&] { rasterizer->Draw(false); });
@@ -671,6 +678,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (!rasterizer || (cs_program.dispatch_initiator & 1) == 0) {
                     break;
                 }
+                dispatch_diag.queue = 0;
+                dispatch_diag.predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
                 const auto cmd_address = reinterpret_cast<const void*>(header);
                 rasterizer->ScopeMarker("gfx:{}:DispatchDirect", fmt::make_format_args(cmd_address),
                                         [&] { rasterizer->DispatchDirect(); });
@@ -689,6 +698,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (!rasterizer || (cs_program.dispatch_initiator & 1) == 0) {
                     break;
                 }
+                dispatch_diag.queue = 0;
+                dispatch_diag.predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
                 const auto cmd_address = reinterpret_cast<const void*>(header);
                 rasterizer->ScopeMarker(
                     "gfx:{}:DispatchIndirect", fmt::make_format_args(cmd_address),
@@ -1153,6 +1164,8 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             if (!rasterizer || (cs_program.dispatch_initiator & 1) == 0) {
                 break;
             }
+            dispatch_diag.queue = vqid + 1;
+            dispatch_diag.predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
             const auto cmd_address = reinterpret_cast<const void*>(header);
             rasterizer->ScopeMarker("asc[{}]:{}:DispatchDirect",
                                     fmt::make_format_args(vqid, cmd_address),
@@ -1172,6 +1185,8 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             if (!rasterizer || (cs_program.dispatch_initiator & 1) == 0) {
                 break;
             }
+            dispatch_diag.queue = vqid + 1;
+            dispatch_diag.predicated = header->type3.predicate.Value() != PM4Predicate::PredDisable;
             const auto cmd_address = reinterpret_cast<const void*>(header);
             rasterizer->ScopeMarker("asc[{}]:{}:DispatchIndirect",
                                     fmt::make_format_args(vqid, cmd_address),

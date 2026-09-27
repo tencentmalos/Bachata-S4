@@ -14,6 +14,7 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/blit_helper.h"
 #include "video_core/texture_cache/image.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/amdgpu/pm4_trace.h"
 
 #include <vk_mem_alloc.h>
@@ -730,6 +731,23 @@ void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
     }
 
     if (!cmdbuf) {
+        // An image the open (held) pass has not read or written so far is transitioned before
+        // that pass instead of ending it; e.g. a texture uploaded for the draw being prepared.
+        // Its guest range stands for every view of it, so an alias the pass used conflicts.
+        bool hoisted = false;
+        if (scheduler->IsRendering() && info.guest_size != 0) {
+            const std::array<Vulkan::Scheduler::AccessRange, 1> written{
+                {{info.guest_address, info.guest_address + info.guest_size}}};
+            hoisted = scheduler->BeginHoist({}, written, false);
+        }
+        if (hoisted) {
+            scheduler->CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
+                .imageMemoryBarrierCount = static_cast<u32>(barriers.size()),
+                .pImageMemoryBarriers = barriers.data(),
+            });
+            scheduler->EndHoist();
+            return;
+        }
         // When using external cmdbuf you are responsible for ending rp.
         if (scheduler->IsRendering()) {
             // Bounded attribution of pass-breaking transitions: which image, from which
@@ -1412,6 +1430,10 @@ void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::Subresourc
         .baseArrayLayer = range.base.layer,
         .layerCount = range.extent.layers,
     };
+    if (guest_range.base.level == 0 && guest_range.base.layer == 0 &&
+        guest_range.extent == info.resources) {
+        Vulkan::MissingContent::Overwrite(info.guest_address, info.guest_size);
+    }
     scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
     Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
     const auto cmdbuf = scheduler->CommandBuffer();

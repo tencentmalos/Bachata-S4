@@ -27,6 +27,9 @@ vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::WindowSystem
 vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool enable_validation,
                                   bool enable_crash_diagnostic, const DriverLease& driver = {});
 
+/// Warnings and errors the driver reports on its own (outside validation), such as why a
+/// device was lost. Empty when VK_EXT_debug_utils is unavailable.
+vk::UniqueDebugUtilsMessengerEXT CreateDriverMessageCallback(vk::Instance instance);
 vk::UniqueDebugUtilsMessengerEXT CreateDebugCallback(vk::Instance instance);
 
 template <typename T>

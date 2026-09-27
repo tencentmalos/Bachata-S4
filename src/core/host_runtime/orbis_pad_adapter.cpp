@@ -2,6 +2,7 @@
 #include "core/host_runtime/orbis_pad_adapter.h"
 #include "common/profiler.h"
 #include "core/libraries/pad/pad_errors.h"
+#include "core/libraries/pad/pad_vibration.h"
 #include "imgui/renderer/imgui_core.h"
 #include <algorithm>
 #include <chrono>
@@ -409,17 +410,34 @@ int OrbisPadAdapter::Information(int handle, OrbisPadControllerInformation *out)
     return 0;
 }
 int OrbisPadAdapter::Vibrate(int handle, const OrbisPadVibrationParam *v) {
+    using Libraries::Pad::Vibration::Outcome;
+    namespace Vibration = Libraries::Pad::Vibration;
     std::lock_guard lock(mutex_);
-    if (!v)
+    if (!v) {
+        Vibration::Record(handle, 0, 0, Outcome::InvalidArgs);
         return ORBIS_PAD_ERROR_INVALID_ARG;
+    }
     auto *p = FindHandle(handle);
-    if (!p)
+    if (!p) {
+        Vibration::Record(handle, v->largeMotor, v->smallMotor, Outcome::NoHandle);
         return ORBIS_PAD_ERROR_INVALID_HANDLE;
-    if (!p->data.connected)
+    }
+    if (!p->data.connected) {
+        Vibration::Record(handle, v->largeMotor, v->smallMotor, Outcome::NotConnected);
         return ORBIS_PAD_ERROR_DEVICE_NOT_CONNECTED;
-    return VibrateLocked(int(p - ports_.data()), v->smallMotor, v->largeMotor) == PadResult::Ok
-               ? 0
-               : ORBIS_PAD_ERROR_NOT_PERMITTED;
+    }
+    if (!p->physical) {
+        Vibration::Record(handle, v->largeMotor, v->smallMotor, Outcome::NoActuator,
+                          "no physical Android controller is bound to this pad");
+        return ORBIS_PAD_ERROR_NOT_PERMITTED;
+    }
+    const auto result = VibrateLocked(int(p - ports_.data()), v->smallMotor, v->largeMotor);
+    Vibration::Record(handle, v->largeMotor, v->smallMotor,
+                      result == PadResult::Ok ? Outcome::Sent : Outcome::HostRejected,
+                      result == PadResult::Ok ? nullptr
+                                              : "the input hub refused it (session or device "
+                                                "without a vibrator)");
+    return result == PadResult::Ok ? 0 : ORBIS_PAD_ERROR_NOT_PERMITTED;
 }
 OrbisPadAdapter &GlobalPadAdapter() {
     static OrbisPadAdapter adapter;

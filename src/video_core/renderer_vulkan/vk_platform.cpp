@@ -23,6 +23,7 @@
 #include <android/native_window.h>
 #endif
 
+#include <algorithm>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -491,6 +492,34 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
     VULKAN_HPP_DEFAULT_DISPATCHER.init(*instance);
 
     return std::move(instance);
+}
+
+vk::UniqueDebugUtilsMessengerEXT CreateDriverMessageCallback(vk::Instance instance) {
+    const auto [properties_result, properties] = vk::enumerateInstanceExtensionProperties();
+    const bool available =
+        properties_result == vk::Result::eSuccess &&
+        std::ranges::any_of(properties, [](const vk::ExtensionProperties& property) {
+            return std::strcmp(property.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0;
+        });
+    if (!available) {
+        return {};
+    }
+    // Drivers only report through here on their error paths (e.g. Mesa's reason for a lost
+    // device), so this stays silent in normal operation.
+    const vk::DebugUtilsMessengerCreateInfoEXT msg_ci = {
+        .messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
+                           vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning,
+        .messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+                       vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+        .pfnUserCallback = DebugUtilsCallback,
+    };
+    auto [messenger_result, messenger] = instance.createDebugUtilsMessengerEXTUnique(msg_ci);
+    if (messenger_result != vk::Result::eSuccess) {
+        LOG_WARNING(Render_Vulkan, "Driver message callback unavailable: {}",
+                    vk::to_string(messenger_result));
+        return {};
+    }
+    return std::move(messenger);
 }
 
 vk::UniqueDebugUtilsMessengerEXT CreateDebugCallback(vk::Instance instance) {

@@ -92,8 +92,8 @@ public:
                      std::span<const Shader::RuntimeInfo, MaxShaderStages> runtime_infos,
                      std::optional<const Shader::Gcn::FetchShaderData> fetch_shader,
                      std::span<const vk::ShaderModule> modules, SerializationSupport& sdata,
-                     bool preloading);
-    ~GraphicsPipeline();
+                     bool preloading, bool defer_build = false);
+    ~GraphicsPipeline() override;
 
     const std::optional<const Shader::Gcn::FetchShaderData>& GetFetchShader() const noexcept {
         return fetch_shader;
@@ -101,6 +101,22 @@ public:
 
     const GraphicsPipelineKey& GetGraphicsKey() const {
         return key;
+    }
+
+    /// No stage writes buffers or images, uses atomics or failed to translate: the only effects
+    /// of a draw are on its attachments, so the lossy skip mode may drop it while unbuilt.
+    bool SkipEligible() const noexcept {
+        return skip_eligible;
+    }
+
+    /// Lossy skip mode bookkeeping, GPU command thread only.
+    struct SkipState {
+        u64 epoch = ~0ULL;   ///< Frame epoch of the last dropped draw.
+        u64 first_ns{};      ///< When the first draw was dropped.
+        u64 draws{};         ///< Draws dropped so far.
+    };
+    SkipState& Skip() const noexcept {
+        return skip_state;
     }
 
     // Re-emit after every guest pipeline bind, including indirect draws and
@@ -116,10 +132,17 @@ public:
 
 private:
     void BuildDescSetLayout(bool preloading);
+    void CreateNative() const override;
+
+    /// Everything vkCreateGraphicsPipelines reads, owned so the call can run on another thread.
+    struct CreateState;
 
 private:
+    mutable std::unique_ptr<CreateState> create_state;
     vk::SampleCountFlagBits raster_samples{vk::SampleCountFlagBits::e1};
     bool requires_full_fragment_rate{};
+    bool skip_eligible{};
+    mutable SkipState skip_state{};
     GraphicsPipelineKey key;
     std::optional<const Shader::Gcn::FetchShaderData> fetch_shader{};
 };

@@ -176,6 +176,10 @@ void CFG::SplitDivergenceScopes() {
         // (typical case when S_AND_SAVEEXEC_B64 is right before a branch)
         // or by a move instruction to EXEC that restores the backup.
         return (inst.opcode == Opcode::S_MOV_B64 && inst.dst[0].field == OperandField::ExecLo) ||
+               // Enabling every lane (EXEC | ~EXEC) ends the scope: what follows runs in all
+               // present invocations, not only those active when the scope was opened.
+               (inst.opcode == Opcode::S_ORN2_SAVEEXEC_B64 &&
+                inst.src[0].field == OperandField::ExecLo) ||
                // Sometimes compiler might insert instructions between the SAVEEXEC and the branch.
                // Those instructions need to be wrapped in the condition as well so allow branch
                // as end scope instruction.

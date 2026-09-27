@@ -609,6 +609,8 @@ set(IME_LIB src/core/libraries/ime/error_dialog.cpp
 set(PAD_LIB src/core/libraries/pad/pad.cpp
             src/core/libraries/pad/pad.h
             src/core/libraries/pad/pad_errors.h
+            src/core/libraries/pad/pad_vibration.cpp
+            src/core/libraries/pad/pad_vibration.h
 )
 
 set(SYSTEM_GESTURE_LIB
@@ -1195,11 +1197,21 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/renderer_vulkan/vk_compute_pipeline.h
                src/video_core/renderer_vulkan/vk_graphics_pipeline.cpp
                src/video_core/renderer_vulkan/vk_graphics_pipeline.h
+               src/video_core/renderer_vulkan/vk_gpu_breadcrumbs.cpp
+               src/video_core/renderer_vulkan/vk_gpu_breadcrumbs.h
                src/video_core/renderer_vulkan/vk_instance.cpp
                src/video_core/renderer_vulkan/vk_gpu_reshape.cpp
                src/video_core/renderer_vulkan/vk_instance.h
+               src/video_core/renderer_vulkan/vk_driver_pipeline_cache.cpp
+               src/video_core/renderer_vulkan/vk_driver_pipeline_cache.h
                src/video_core/renderer_vulkan/vk_pipeline_cache.cpp
                src/video_core/renderer_vulkan/vk_pipeline_cache.h
+               src/video_core/renderer_vulkan/vk_pipeline_compiler.cpp
+               src/video_core/renderer_vulkan/vk_pipeline_compiler.h
+               src/video_core/renderer_vulkan/vk_pipeline_stats.cpp
+               src/video_core/renderer_vulkan/vk_pipeline_stats.h
+               src/video_core/renderer_vulkan/vk_missing_content.cpp
+               src/video_core/renderer_vulkan/vk_missing_content.h
                src/video_core/renderer_vulkan/vk_pipeline_common.cpp
                src/video_core/renderer_vulkan/vk_pipeline_common.h
                src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp
@@ -1791,6 +1803,10 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_scalar_mask_probe PRIVATE shadps4_host)
         target_include_directories(android_scalar_mask_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_scalar_mask_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_wave_reduction_probe tests/video_core/android_wave_reduction_probe.cpp)
+        target_link_libraries(android_wave_reduction_probe PRIVATE shadps4_host)
+        target_include_directories(android_wave_reduction_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_wave_reduction_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(fragment_lds_tests tests/gcn/fragment_lds_tests.cpp)
         target_link_libraries(fragment_lds_tests PRIVATE shadps4_host)
         target_include_directories(fragment_lds_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

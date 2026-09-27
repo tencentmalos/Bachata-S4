@@ -6,8 +6,10 @@
 #include <algorithm>
 #include <bit>
 #include <chrono>
+#include <cstring>
 #include <map>
 #include <optional>
+#include <span>
 #include <sstream>
 
 #include "common/assert.h"
@@ -28,6 +30,7 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/host_compatibility.h"
 #include "video_core/texture_cache/texture_cache.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/texture_cache/tile_manager.h"
 
 #include <vk_mem_alloc.h>
@@ -43,7 +46,7 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
                            BufferCache& buffer_cache_, PageManager& tracker_)
     : instance{instance_}, scheduler{scheduler_}, runtime{runtime_}, liverpool{liverpool_},
       buffer_cache{buffer_cache_}, tracker{tracker_}, blit_helper{instance, scheduler},
-      tile_manager{instance, scheduler, buffer_cache.GetStreamBuffer()},
+      tile_manager{instance, scheduler, buffer_cache.GetStreamBuffer(), runtime.GetStagingPool()},
       readback_linear_images{EmulatorSettings.IsReadbackLinearImagesEnabled()} {
 
     memory_diagnostics_epoch = MemoryDiagnostics::Begin(instance.ScalePolicy());
@@ -145,7 +148,10 @@ void TextureCache::PublishMemoryDiagnostics() {
         << " image_buffer_sync_bytes=" << cov.image_buffer_sync_bytes
         << " fused_readbacks=" << cov.fused_readbacks << '\n';
     out << "texture_uploads count=" << cov.image_uploads << " bytes=" << cov.image_upload_bytes
-        << " fill_clears=" << cov.fill_clears << '\n';
+        << " new=" << cov.image_new_uploads << " new_bytes=" << cov.image_new_upload_bytes
+        << " reuploads=" << cov.image_uploads - cov.image_new_uploads
+        << " upload_ms=" << cov.image_upload_ns / 1000000 << " fill_clears=" << cov.fill_clears
+        << '\n';
     out << "gc downloads=" << cov.gc_downloads << " frees=" << cov.gc_frees
         << " pressured_ticks=" << cov.gc_pressured_ticks << " used_mib=" << (total_used_memory >> 20)
         << " trigger_mib=" << (trigger_gc_memory >> 20) << " pressure_mib=" << (pressure_gc_memory >> 20)
@@ -245,6 +251,11 @@ void TextureCache::PublishMemoryDiagnostics() {
 void TextureCache::ProcessDownloadImages() {
     std::unique_lock lk{download_images_mutex};
     for (const ImageId image_id : download_images) {
+        if (Vulkan::MissingContent::Tracking()) {
+            const auto& image = slot_images[image_id];
+            Vulkan::MissingContent::CheckEscape(Vulkan::MissingContent::Escape::Readback,
+                                                image.info.guest_address, image.info.guest_size);
+        }
         DownloadImageMemory(image_id, true, false, ~VAddr{0}, "image_writeback_queue");
     }
     download_images.clear();
@@ -266,6 +277,67 @@ void TextureCache::DownloadImageMemory(ImageId image_id, bool sync, bool tracked
     } else {
         scheduler.DeferPriorityOperation(std::move(write_back));
     }
+}
+
+void TextureCache::DescribeRetiredImage(ImageId image_id, const ImageInfo& next) {
+    Image& image = slot_images[image_id];
+    const auto& info = image.info;
+    const auto& plan = image.ScalePlan();
+    std::string content = "not probed";
+    const u32 bytes_per_texel = info.num_bits / 8;
+    if (Core::GuestWriteWatch::armed.load(std::memory_order_relaxed) && !info.props.is_block &&
+        info.num_samples == 1 && bytes_per_texel >= 2 && image.backing &&
+        image.backing->state.layout != vk::ImageLayout::eUndefined) {
+        const u64 bytes = u64(info.size.width) * info.size.height * bytes_per_texel;
+        const auto staging =
+            runtime.GetStagingPool().Request(bytes, MemoryType::HostCached, 16, /*deferred=*/true);
+        const vk::BufferImageCopy copy{
+            .bufferOffset = staging.offset,
+            .imageSubresource = {image.aspect_mask & ~vk::ImageAspectFlagBits::eStencil, 0, 0,
+                                 1},
+            .imageExtent = {info.size.width, info.size.height, 1},
+        };
+        image.Download(std::span{&copy, 1}, staging.buffer->Handle(), staging.offset, bytes);
+        const vk::MemoryBarrier2 host_barrier{
+            .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+            .srcAccessMask = vk::AccessFlagBits2::eMemoryWrite,
+            .dstStageMask = vk::PipelineStageFlagBits2::eHost,
+            .dstAccessMask = vk::AccessFlagBits2::eHostRead};
+        scheduler.CommandBuffer().pipelineBarrier2(
+            vk::DependencyInfo{.memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
+        scheduler.Finish();
+        staging.Invalidate();
+        u64 nan16 = 0, nan32 = 0, zero32 = 0;
+        const u64 words16 = bytes / 2;
+        for (u64 i = 0; i < words16; ++i) {
+            u16 half;
+            std::memcpy(&half, staging.mapped + i * 2, sizeof(half));
+            nan16 += (half & 0x7c00) == 0x7c00 && (half & 0x3ff) != 0;
+        }
+        for (u64 i = 0; i < bytes / 4; ++i) {
+            u32 word;
+            std::memcpy(&word, staging.mapped + i * 4, sizeof(word));
+            nan32 += (word & 0x7f800000) == 0x7f800000 && (word & 0x7fffff) != 0;
+            zero32 += word == 0;
+        }
+        u64 first{};
+        std::memcpy(&first, staging.mapped, std::min<u64>(bytes, sizeof(first)));
+        content = fmt::format("fp16_nan={}/{} fp32_nan={}/{} zero_words={} first={:#018x}", nan16,
+                              words16, nan32, bytes / 4, zero32, first);
+        runtime.GetStagingPool().FreeDeferred(staging);
+    }
+    LOG_INFO(Render_Vulkan,
+             "Texture DRS retire {:#x}: {}x{} {} tile={} bytes={:#x} -> {}x{} bytes={:#x}; "
+             "flags={:#x} tracked=[{:#x},{:#x}) rt={} storage={} sampled={} scale={}/8 "
+             "origin={} content_version={} uploads={} layout={} last_tick={}/{}; {}",
+             info.guest_address, info.size.width, info.size.height,
+             vk::to_string(info.pixel_format), static_cast<u32>(info.tile_mode), info.guest_size,
+             next.size.width, next.size.height, next.guest_size, static_cast<u32>(image.flags),
+             image.track_addr, image.track_addr_end, u32(image.usage.render_target),
+             u32(image.usage.storage), plan.sampled, image.ScaleEighths(),
+             static_cast<u32>(plan.origin), plan.content_version, plan.uploads,
+             image.backing ? vk::to_string(image.backing->state.layout) : std::string("none"),
+             image.tick_accessed_last, scheduler.CurrentTick(), content);
 }
 
 std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool tracked_only,
@@ -755,6 +827,7 @@ std::tuple<ImageId, int, int> TextureCache::ResolveOverlap(const ImageInfo& imag
         // change and its heap reallocates the range): re-tracking first, as before, dropped
         // the record of those CPU writes and the old pixels overwrote the heap's block headers.
         TouchImage(cache_image);
+        DescribeRetiredImage(cache_image_id, image_info);
         if (True(cache_image.flags & ImageFlagBits::GpuModified)) {
             cache_image.DetachScalePlanForRetirement();
             DownloadImageMemory(cache_image_id, true, true,
@@ -1300,12 +1373,47 @@ void TextureCache::RefreshImage(Image& image) {
         upload_bytes += image.info.mips_layout[copy.imageSubresource.mipLevel].size;
     coverage->image_uploads.fetch_add(1, std::memory_order_relaxed);
     coverage->image_upload_bytes.fetch_add(upload_bytes, std::memory_order_relaxed);
-
-    scheduler.EndRendering(Vulkan::RenderBreak::ImageUpload);
+    if (!image.uploaded) {
+        image.uploaded = true;
+        coverage->image_new_uploads.fetch_add(1, std::memory_order_relaxed);
+        coverage->image_new_upload_bytes.fetch_add(upload_bytes, std::memory_order_relaxed);
+    }
+    const auto upload_start = std::chrono::steady_clock::now();
+    SCOPE_EXIT {
+        coverage->image_upload_ns.fetch_add(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
+                                                                 upload_start)
+                .count(),
+            std::memory_order_relaxed);
+    };
 
     // Crop the upload source before staging and detiling. A low-quality backing
     // never reserves or transfers guest mip0, including on later dirty updates.
     const auto upload_info = image.info.RetainedMipChain(image.DroppedMips());
+
+    // Streamed textures are uploaded while a pass is open (the draw binding them is being
+    // prepared). Place the upload before that pass instead of ending it when nothing the pass
+    // recorded so far touches the image's memory. The source is staged from guest memory on the
+    // CPU, or read from the buffer cache when the GPU wrote it; the latter may first upload
+    // CPU-dirty parts of that range, so it counts as written.
+    bool hoisted = false;
+    if (scheduler.IsRendering()) {
+        const std::array<Vulkan::Scheduler::AccessRange, 1> written{
+            {{image.info.guest_address, image.info.guest_address + image.info.guest_size}}};
+        const std::array<Vulkan::Scheduler::AccessRange, 1> read{
+            {{upload_info.guest_address, upload_info.guest_address + upload_info.guest_size}}};
+        const bool from_gpu =
+            buffer_cache.IsRegionGpuModified(upload_info.guest_address, upload_info.guest_size);
+        using Ranges = std::span<const Vulkan::Scheduler::AccessRange>;
+        hoisted = scheduler.BeginHoist(from_gpu ? Ranges{read} : Ranges{}, written, from_gpu);
+    }
+    SCOPE_EXIT {
+        if (hoisted) {
+            scheduler.EndHoist();
+        }
+    };
+    scheduler.EndRendering(Vulkan::RenderBreak::ImageUpload);
+
     const auto skipped_bytes = upload_info.guest_address - image.info.guest_address;
     for (auto& copy : image_copies) copy.bufferOffset -= skipped_bytes;
     const auto [in_buffer, in_offset] = [&] {

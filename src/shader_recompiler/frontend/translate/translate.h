@@ -379,6 +379,8 @@ private:
     IR::F32 SelectCubeResult(const IR::F32& x, const IR::F32& y, const IR::F32& z,
                              const IR::F32& x_res, const IR::F32& y_res, const IR::F32& z_res);
 
+    size_t TranslateWaveReduction(std::span<const GcnInst> list, size_t start);
+
     void ExportRenderTarget(const GcnInst& inst);
     void ExportDepth(const GcnInst& inst);
     void LogMissingOpcode(const GcnInst& inst);

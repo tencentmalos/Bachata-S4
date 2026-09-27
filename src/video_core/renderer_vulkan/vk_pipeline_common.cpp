@@ -1,7 +1,11 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <chrono>
+
 #include <boost/container/static_vector.hpp>
+
+#include "common/profiler.h"
 
 #include "shader_recompiler/resource.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
@@ -18,6 +22,79 @@ Pipeline::Pipeline(const Instance& instance_, Scheduler& scheduler_, DescriptorH
       is_compute{is_compute_} {}
 
 Pipeline::~Pipeline() = default;
+
+std::unique_lock<std::mutex> SerializePipelineCreate(const Instance& instance) {
+    static std::mutex mutex;
+    if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
+        return std::unique_lock{mutex};
+    }
+    return {};
+}
+
+void Pipeline::Bind(const RecordingCommandBuffer& cmdbuf, vk::PipelineBindPoint point) const {
+    if (first_use_rank == 0) {
+        first_use_rank = PipelineStats::NextUseRank();
+        first_use_ms = PipelineStats::SessionMs();
+    }
+    if (Ready()) {
+        cmdbuf.bindPipeline(point, *pipeline);
+        return;
+    }
+    // The handle is read when the command runs, never captured while it is still empty.
+    cmdbuf.Custom(0, [this, point](vk::CommandBuffer c) { c.bindPipeline(point, WaitHandle()); });
+}
+
+bool Pipeline::TryClaim() const noexcept {
+    auto expected = BuildState::Pending;
+    return build_state.compare_exchange_strong(expected, BuildState::Building,
+                                               std::memory_order_acq_rel);
+}
+
+void Pipeline::BuildClaimed() const {
+    CreateNative();
+    if (build_observer) {
+        build_observer->OnPipelineBuilt(*this, build_hash);
+    }
+    ready_ns = u64(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                       std::chrono::steady_clock::now().time_since_epoch())
+                       .count());
+    // Last access to this object: a waiter that sees Ready may free it (ReplaceShader), so
+    // notify while it still cannot get past the lock.
+    std::scoped_lock lock{build_mutex};
+    build_state.store(BuildState::Ready, std::memory_order_release);
+    build_cv.notify_all();
+}
+
+vk::Pipeline Pipeline::WaitHandle(bool for_bind) const {
+    if (Ready()) {
+        return *pipeline;
+    }
+    if (TryClaim()) {
+        // Still queued behind other work: the first user builds it rather than waiting.
+        if (for_bind) {
+            PipelineStats::RecordFirstUse(PipelineStats::FirstUse::BuiltByUser, 0);
+        }
+        BuildClaimed();
+        return *pipeline;
+    }
+    if (!for_bind) {
+        std::unique_lock lock{build_mutex};
+        build_cv.wait(lock, [this] { return Ready(); });
+        return *pipeline;
+    }
+    Common::Profiler::Scope scope{"Pipeline.WaitReady"};
+    const auto start = std::chrono::steady_clock::now();
+    {
+        std::unique_lock lock{build_mutex};
+        build_cv.wait(lock, [this] { return Ready(); });
+    }
+    PipelineStats::RecordFirstUse(
+        PipelineStats::FirstUse::Waited,
+        u64(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
+                                                                 start)
+                .count()));
+    return *pipeline;
+}
 
 void Pipeline::BindResources(DescriptorWrites& set_writes,
                              const Shader::PushData& push_data) const {

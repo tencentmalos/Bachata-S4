@@ -153,6 +153,48 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetMsaaDisabled(disableMsaa)
             Log.i(TAG, "Guest force disable MSAA=$disableMsaa")
+            val pipelineCache = runCatching {
+                com.shadps4.android.runtime.settings.PipelineCache.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid shader cache profile, keeping the cache on", it)
+                true
+            }
+            NativeFexSession.nativeSetPipelineCacheEnabled(pipelineCache)
+            val driverPipelineCache = runCatching {
+                com.shadps4.android.runtime.settings.PipelineCache.resolveDriver(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid driver pipeline cache profile, keeping the cache on", it)
+                true
+            }
+            NativeFexSession.nativeSetDriverPipelineCacheEnabled(driverPipelineCache)
+            val compileMode = runCatching {
+                com.shadps4.android.runtime.settings.PipelineCache.resolveCompileMode(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid pipeline compile mode, using the default", it)
+                com.shadps4.android.runtime.settings.PipelineCache.DEFAULT_COMPILE_MODE
+            }
+            NativeFexSession.nativeSetPipelineCompileMode(compileMode)
+            val commandRecorder = runCatching {
+                com.shadps4.android.runtime.settings.PipelineCache.resolveRecorder(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid recording thread profile, keeping it on", it)
+                true
+            }
+            NativeFexSession.nativeSetCommandRecorder(commandRecorder)
+            Log.i(TAG, "Pipeline compile mode=$compileMode recording thread=$commandRecorder")
+            Log.i(TAG, "Shader cache=$pipelineCache driver pipeline cache=$driverPipelineCache")
             NativeFexSession.nativeSetTextureQuality(textureQuality)
             Log.i(TAG, "Guest texture quality=$textureQuality")
             NativeFexSession.nativeSetInternalScalePercent(internalScale)

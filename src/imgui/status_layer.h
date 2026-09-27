@@ -54,6 +54,7 @@ private:
     // Same window: texture re-uploads (count, guest bytes), compute fills turned into
     // image clears, and guest flips to express both per frame.
     uint64_t window_uploads{}, window_upload_bytes{}, window_fill_clears{}, window_flips{};
+    uint64_t window_new_uploads{}, window_upload_ns{};
     double window_seconds{};
     // Same window: render pass tile traffic (Vulkan::render_pass_stats deltas).
     ::Vulkan::RenderPassStats::Snapshot last_tiles{}, window_tiles{};

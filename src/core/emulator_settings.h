@@ -482,6 +482,19 @@ struct VulkanSettings {
     Setting<bool> vkguest_markers{false};
     Setting<bool> pipeline_cache_enabled{false};
     Setting<bool> pipeline_cache_archived{false};
+    // The graphics driver's own compiled pipelines (VkPipelineCache), kept per title.
+    Setting<bool> driver_pipeline_cache{true};
+    // "sync" creates driver pipelines on the GPU command thread; "async_accurate" prepares them
+    // there and lets compile workers build them, binds wait where the command is recorded;
+    // "async_graphics_skip" also drops side-effect-free draws whose pipeline is not built yet.
+    Setting<std::string> pipeline_compile_mode{"async_graphics_skip"};
+    // Guest command buffers are replayed into Vulkan on a separate recording thread
+    // (DebugBus vk_recorder switches it at run time).
+    Setting<bool> command_recorder{true};
+    Setting<u32> pipeline_compile_workers{0}; // 0: per device default
+    // At startup, cached pipelines are built in the order recent sessions first used them for at
+    // most this long; the rest are built in the background.
+    Setting<u32> pipeline_preload_wait_ms{3000};
     std::vector<OverrideItem> GetOverrideableFields() const {
         return std::vector<OverrideItem>{
             make_override<VulkanSettings>("gpu_id", &VulkanSettings::gpu_id),
@@ -502,6 +515,15 @@ struct VulkanSettings {
                                           &VulkanSettings::pipeline_cache_enabled),
             make_override<VulkanSettings>("pipeline_cache_archived",
                                           &VulkanSettings::pipeline_cache_archived),
+            make_override<VulkanSettings>("driver_pipeline_cache",
+                                          &VulkanSettings::driver_pipeline_cache),
+            make_override<VulkanSettings>("pipeline_compile_mode",
+                                          &VulkanSettings::pipeline_compile_mode),
+            make_override<VulkanSettings>("command_recorder", &VulkanSettings::command_recorder),
+            make_override<VulkanSettings>("pipeline_compile_workers",
+                                          &VulkanSettings::pipeline_compile_workers),
+            make_override<VulkanSettings>("pipeline_preload_wait_ms",
+                                          &VulkanSettings::pipeline_preload_wait_ms),
         };
     }
 };
@@ -509,7 +531,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VulkanSettings, gpu_id, renderdoc_enabled, vk
                                    vkvalidation_core_enabled, vkvalidation_sync_enabled,
                                    vkvalidation_gpu_enabled, vkcrash_diagnostic_enabled,
                                    vkhost_markers, vkguest_markers, pipeline_cache_enabled,
-                                   pipeline_cache_archived)
+                                   pipeline_cache_archived, driver_pipeline_cache,
+                                   pipeline_compile_mode, command_recorder,
+                                   pipeline_compile_workers, pipeline_preload_wait_ms)
 
 // -------------------------------
 // Main manager
@@ -838,6 +862,11 @@ public:
     SETTING_FORWARD_BOOL(m_vulkan, VkGuestMarkersEnabled, vkguest_markers)
     SETTING_FORWARD_BOOL(m_vulkan, PipelineCacheEnabled, pipeline_cache_enabled)
     SETTING_FORWARD_BOOL(m_vulkan, PipelineCacheArchived, pipeline_cache_archived)
+    SETTING_FORWARD_BOOL(m_vulkan, DriverPipelineCache, driver_pipeline_cache)
+    SETTING_FORWARD(m_vulkan, PipelineCompileMode, pipeline_compile_mode)
+    SETTING_FORWARD_BOOL(m_vulkan, CommandRecorder, command_recorder)
+    SETTING_FORWARD(m_vulkan, PipelineCompileWorkers, pipeline_compile_workers)
+    SETTING_FORWARD(m_vulkan, PipelinePreloadWaitMs, pipeline_preload_wait_ms)
 
 #undef SETTING_FORWARD
 #undef SETTING_FORWARD_BOOL

@@ -9,6 +9,7 @@
 #include "core/rasterizer_hooks.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
+#include "video_core/renderer_vulkan/vk_gpu_breadcrumbs.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
@@ -138,17 +139,31 @@ private:
     void NoteDispatchDiagnostics(const Shader::Info& cs, const AmdGpu::ComputeProgram& program,
                                  bool indirect);
     void RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering);
+    /// Missing-content tracking: what the draw's attachments contribute (clear, read, write).
+    void NoteAttachmentContent(const RenderState& state, bool began_rendering);
 
     void InsertDrawTag(const GraphicsPipeline* pipeline, bool is_indexed, bool indirect);
     // Guest command trace (pm4_trace.h): the decoded draw/dispatch with its resources.
     void TraceAction(AmdGpu::Pm4Trace::ActionKind kind, const Pipeline* pipeline,
-                     const RenderState* state, u32 p0, u32 p1, u32 p2, u32 p3, u64 p4);
+                     const RenderState* state, u32 p0, u32 p1, u32 p2, u32 p3, u64 p4) {
+        TraceAction(kind, pipeline->GetStages(), state, p0, p1, p2, p3, p4);
+    }
+    void TraceAction(AmdGpu::Pm4Trace::ActionKind kind,
+                     std::span<const Shader::Info* const> stages, const RenderState* state,
+                     u32 p0, u32 p1, u32 p2, u32 p3, u64 p4);
+
+    /// Lossy async_graphics_skip mode: true when this direct draw is dropped because its
+    /// pipeline is not built yet. Decided before any render state, resource binding or
+    /// attachment is touched, so the draw leaves no trace in the caches.
+    bool SkipUnbuiltDraw(const GraphicsPipeline& pipeline);
+    PipelineStats::SkipBlocker SkipBlockerFor(const GraphicsPipeline& pipeline) const;
     AmdGpu::Pm4Trace::Action trace_action;
 
     void BindVertexBuffers(const GraphicsPipeline* pipeline);
     void BindIndexBuffer(u32 index_offset = 0);
 
     void ResetBindings(bool is_compute);
+    GpuBreadcrumbs::Context BreadcrumbContext() const;
 
     bool IsComputeMetaClear(const Pipeline* pipeline);
     bool IsComputeImageCopy(const Pipeline* pipeline);
@@ -172,6 +187,7 @@ private:
     PipelineCache pipeline_cache;
     const bool host_markers_enabled;
     const bool guest_markers_enabled;
+    std::unique_ptr<GpuBreadcrumbs> breadcrumbs;
 
     using RenderTargetInfo = std::pair<VideoCore::ImageId, VideoCore::TextureCache::ImageDesc>;
     std::array<RenderTargetInfo, AmdGpu::NUM_COLOR_BUFFERS> cb_descs;

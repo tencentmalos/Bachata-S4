@@ -112,7 +112,8 @@ public:
     void SetLightBarRGB(Colour const c);
     Colour GetLightBarRGB();
     void PollLightColour();
-    bool SetVibration(u8 smallMotor, u8 largeMotor);
+    enum class RumbleResult { Sent, NoGamepad, Failed };
+    RumbleResult SetVibration(u8 smallMotor, u8 largeMotor);
     void SetTouchpadState(int touchIndex, bool touchDown, float x, float y);
 
     float gyro_buf[3] = {0.0f, 0.0f, 0.0f}, accel_buf[3] = {0.0f, 9.81f, 0.0f};

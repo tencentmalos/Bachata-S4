@@ -97,7 +97,7 @@ STAGES = {0: "fs", 1: "tcs", 2: "tes", 3: "vs", 4: "gs", 5: "cs"}
 ACTION_KIND = {1: "draw", 2: "draw_indexed", 3: "draw_indirect", 4: "draw_indexed_indirect",
                5: "dispatch", 6: "dispatch_indirect"}
 HOST_KIND = {1: "pass_begin", 2: "pass_end", 3: "barrier", 4: "hle_copy", 5: "native",
-             6: "replaced", 7: "hoist_fail", 8: "barrier_hoisted"}
+             6: "replaced", 7: "hoist_fail", 8: "barrier_hoisted", 9: "skipped"}
 BREAKS = ["state_change", "dispatch", "buffer_barrier", "image_barrier", "attachment",
           "sampled_image", "buffer_upload", "image_upload", "detile", "image_copy",
           "download", "flush", "cp_sync", "hle", "present", "other"]
@@ -340,6 +340,8 @@ def describe_host(h):
                 f"{VK_FORMAT.get(h['c'], 'vk' + str(h['c']))} {reason}: {h['text']}")
     if k == "replaced":
         return f"  == replaced by {h['text']}"
+    if k == "skipped":
+        return f"  xx skipped: pipeline {h['a']:#x} not built yet ({h['text']})"
     if k == "barrier_hoisted":
         return f"  ^^ {h['b']} buffer barrier(s) placed before pass {h['a']} (pass kept open)"
     return f"  ?? host {k} {h}"

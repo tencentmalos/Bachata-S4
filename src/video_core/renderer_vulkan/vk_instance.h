@@ -415,6 +415,16 @@ public:
         return vk11_props.subgroupSize;
     }
 
+    /// Returns true if compute and fragment shaders support clustered subgroup arithmetic.
+    bool IsSubgroupClusteredReduceSupported() const {
+        constexpr auto ops =
+            vk::SubgroupFeatureFlagBits::eArithmetic | vk::SubgroupFeatureFlagBits::eClustered;
+        constexpr auto stages =
+            vk::ShaderStageFlagBits::eCompute | vk::ShaderStageFlagBits::eFragment;
+        return (vk11_props.subgroupSupportedOperations & ops) == ops &&
+               (vk11_props.subgroupSupportedStages & stages) == stages;
+    }
+
     /// Returns the maximum size of compute shared memory.
     u32 MaxComputeSharedMemorySize() const {
         return properties.limits.maxComputeSharedMemorySize;

@@ -183,6 +183,8 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
       physical_devices{EnumeratePhysicalDevices(instance)} {
     if (enable_validation) {
         debug_callback = CreateDebugCallback(*instance);
+    } else {
+        debug_callback = CreateDriverMessageCallback(*instance);
     }
     const std::size_t num_physical_devices = static_cast<u16>(physical_devices.size());
     ASSERT_MSG(num_physical_devices > 0, "No physical devices found");
