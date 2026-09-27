@@ -304,7 +304,28 @@ bool EqueueInternal::TriggerEvent(u64 ident, s16 filter, void* trigger_data) {
     return has_found;
 }
 
+int EqueueInternal::GetTriggeredEvents(OrbisKernelEvent* ev, int num) {
+    std::scoped_lock lock{m_mutex};
+    return TakeEventsLocked(ev, num);
+}
+
 int EqueueInternal::TakeTriggeredLocked(OrbisKernelEvent* ev, int num) {
+    int count = TakeEventsLocked(ev, num);
+    if (count < num && !m_small_timers.empty()) {
+        const auto now = std::chrono::steady_clock::now();
+        for (auto it = m_small_timers.begin(); it != m_small_timers.end() && count < num;) {
+            if (now - it->second.added >= it->second.interval) {
+                ev[count++] = it->second.event;
+                it = m_small_timers.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    return count;
+}
+
+int EqueueInternal::TakeEventsLocked(OrbisKernelEvent* ev, int num) {
     int count = 0;
     for (auto it = m_events.begin(); it != m_events.end();) {
         if (it->IsTriggered()) {
@@ -323,18 +344,6 @@ int EqueueInternal::TakeTriggeredLocked(OrbisKernelEvent* ev, int num) {
             }
         } else {
             ++it;
-        }
-    }
-
-    if (count < num && !m_small_timers.empty()) {
-        const auto now = std::chrono::steady_clock::now();
-        for (auto it = m_small_timers.begin(); it != m_small_timers.end() && count < num;) {
-            if (now - it->second.added >= it->second.interval) {
-                ev[count++] = it->second.event;
-                it = m_small_timers.erase(it);
-            } else {
-                ++it;
-            }
         }
     }
     return count;

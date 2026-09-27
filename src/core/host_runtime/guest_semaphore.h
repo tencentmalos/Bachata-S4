@@ -3,6 +3,7 @@
 #include "core/host_runtime/guest_sync_metrics.h"
 #include "common/types.h"
 #include <chrono>
+#include <condition_variable>
 #include <cstring>
 #include <functional>
 #include <map>
@@ -12,21 +13,20 @@
 #include <stop_token>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/kernel/posix_error.h"
-#include "core/libraries/kernel/sync/counting_semaphore.h"
 
 namespace Core::HostRuntime {
 // Session-owned sem_t handles refer to guest allocations, never host objects.
-// The semaphore is the shared Libraries::Kernel::Sync::CountingSemaphore the
-// desktop kernel also uses: an atomic count, a per-object FIFO of waiters and a
-// single selected wake per post. The domain guard only covers the handle map.
 // No guest pin survives a wait; destroy refuses objects with active waiters.
 class GuestSemaphoreDomain final {
-    using Semaphore = Libraries::Kernel::Sync::CountingSemaphore;
+    struct Semaphore {
+        u32 value{}, waiters{};
+        std::condition_variable_any changed;
+    };
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
     std::mutex guard;
-    // Shared ownership keeps an object alive for a waiter or poster that looked
-    // it up before a concurrent Destroy.
+    // Shared ownership lets Post notify after releasing the domain guard even
+    // if Destroy erased the object meanwhile.
     std::map<u64, std::shared_ptr<Semaphore>> objects;
     size_t allocations{};
     std::optional<u64> Handle(u64 slot) {
@@ -36,26 +36,9 @@ class GuestSemaphoreDomain final {
             return {};
         return handle;
     }
-    // EFAULT for an unreadable slot, EINVAL for a handle that is not a live semaphore.
-    std::shared_ptr<Semaphore> Lookup(u64 slot, int& error) {
-        auto handle = Handle(slot);
-        if (!handle) {
-            error = POSIX_EFAULT;
-            return nullptr;
-        }
-        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-        std::lock_guard lock(guard);
-        guard_phase.End();
-        auto it = objects.find(*handle);
-        if (it == objects.end()) {
-            error = POSIX_EINVAL;
-            return nullptr;
-        }
-        return it->second;
-    }
 
 public:
-    static constexpr u32 MaxValue = Semaphore::MaxValue;
+    static constexpr u32 MaxValue = 0x7fffffff;
     GuestSemaphoreDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate)
         : space(space), allocate(std::move(allocate)) {}
     int Init(u64 slot, s32 shared, u32 value) {
@@ -77,7 +60,7 @@ public:
         auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
         if (!output)
             return POSIX_EFAULT;
-        objects.emplace(handle, std::make_shared<Semaphore>(value));
+        objects.emplace(handle, std::make_shared<Semaphore>()).first->second->value = value;
         std::memcpy(output.Value().WritableBytes().data(), &handle, sizeof(handle));
         return 0;
     }
@@ -91,7 +74,7 @@ public:
         auto it = objects.find(handle);
         if (it == objects.end())
             return POSIX_EINVAL;
-        if (it->second->Waiting())
+        if (it->second->waiters)
             return POSIX_EBUSY;
         objects.erase(it);
         handle = 0;
@@ -99,44 +82,87 @@ public:
         return 0;
     }
     int Post(u64 slot) {
-        int error{};
-        auto sem = Lookup(slot, error);
-        if (!sem)
-            return error;
-        return sem->Post();
+        std::shared_ptr<Semaphore> wake;
+        {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+            std::lock_guard lock(guard);
+            guard_phase.End();
+            auto handle = Handle(slot);
+            if (!handle)
+                return POSIX_EFAULT;
+            auto it = objects.find(*handle);
+            if (it == objects.end())
+                return POSIX_EINVAL;
+            if (it->second->value == MaxValue)
+                return POSIX_EOVERFLOW;
+            ++it->second->value;
+            if (it->second->waiters)
+                wake = it->second;
+        }
+        // The waiter re-checks `value` under the domain guard; notifying after
+        // releasing it avoids a second block on that guard.
+        if (wake)
+            wake->changed.notify_one();
+        return 0;
     }
     int GetValue(u64 slot, u64 address) {
-        int error{};
-        auto sem = Lookup(slot, error);
-        if (!sem)
-            return error;
-        const u32 value = sem->Value();
+        std::lock_guard lock(guard);
+        auto handle = Handle(slot);
+        if (!handle)
+            return POSIX_EFAULT;
+        auto it = objects.find(*handle);
+        if (it == objects.end())
+            return POSIX_EINVAL;
         auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{address}, 4}, true);
         if (!output)
             return POSIX_EFAULT;
-        std::memcpy(output.Value().WritableBytes().data(), &value, 4);
+        std::memcpy(output.Value().WritableBytes().data(), &it->second->value, 4);
         return 0;
     }
     u32 Pending(u64 slot) {
-        int error{};
-        auto sem = Lookup(slot, error);
-        return sem ? static_cast<u32>(sem->Waiting()) : 0;
+        std::lock_guard lock(guard);
+        auto handle = Handle(slot);
+        if (!handle) return 0;
+        auto it = objects.find(*handle);
+        return it == objects.end() ? 0 : it->second->waiters;
     }
     int Wait(u64 slot, bool try_only, std::stop_token cancel,
              std::optional<std::chrono::steady_clock::time_point> deadline = {}) {
-        int error{};
-        auto sem = Lookup(slot, error);
-        if (!sem)
-            return error;
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+        std::unique_lock lock(guard);
+        guard_phase.End();
+        auto handle = Handle(slot);
+        if (!handle)
+            return POSIX_EFAULT;
+        auto it = objects.find(*handle);
+        if (it == objects.end())
+            return POSIX_EINVAL;
+        auto& sem = *it->second;
         if (cancel.stop_requested())
             return POSIX_EINTR;
-        if (sem->TryWait())
+        if (sem.value) {
+            --sem.value;
             return 0;
+        }
         if (try_only)
             return POSIX_EAGAIN;
-        Libraries::Kernel::Sync::ParkerWait wait{std::move(cancel), deadline};
+        ++sem.waiters;
+        const auto ready = [&] { return sem.value != 0; };
         SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-        return sem->Wait(wait);
+        bool acquired = deadline ? sem.changed.wait_until(lock, cancel, *deadline, ready)
+                                 : sem.changed.wait(lock, cancel, ready);
+        park_phase.End();
+        --sem.waiters;
+        if (cancel.stop_requested()) {
+            // A selected waiter can cancel after Post made a token available.
+            // Transfer that wake while holding the predicate guard.
+            if (sem.value && sem.waiters) sem.changed.notify_one();
+            return POSIX_EINTR;
+        }
+        if (!acquired)
+            return POSIX_ETIMEDOUT;
+        --sem.value;
+        return 0;
     }
 };
 } // namespace Core::HostRuntime

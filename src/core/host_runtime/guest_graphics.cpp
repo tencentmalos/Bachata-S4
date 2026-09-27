@@ -174,7 +174,6 @@ s32 GuestGraphics::DeleteEqueue(s64 handle) {
     // IRQ handlers may already hold this queue. Retain its allocation until
     // renderer/VideoOut workers have joined, but refuse new guest operations.
     it->second.deleted = true;
-    it->second.queue->Close();
     return 0;
 }
 Libraries::Kernel::EqueueInternal* GuestGraphics::FindEqueue(s64 handle) {

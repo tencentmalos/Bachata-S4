@@ -1,4 +1,4 @@
-# MHW desktop stalls, blocking-wait primitives and the shared sync core (2026-09-27)
+# MHW desktop stalls, blocking-wait primitives and the desktop sync core (2026-09-27)
 
 Branch `feature/malos/mhw_fix` (base `malos/main` `c7b02fc9`), uncommitted. Desktop: Windows,
 clang-cl RelWithDebInfo, RX 7600M XT. Android: AYANEO Pocket DS `01108YHE01017563`, host probes
@@ -67,6 +67,9 @@ likely cost (§5).
   (`Memory.LockWait`, `Memory.WriteHold.*`, `Bind.*`).
 
 ## 3. Shared sync core (desktop and Android)
+
+Superseded on Android (§10): the Android host runtime went back to its original implementation;
+the core below is the desktop implementation only.
 
 See [sync-core.md](../../sync-core.md). New shared headers: `parker.h`, `wait_slot.h`,
 `object_table.h`, `kernel_semaphore.h`, `counting_semaphore.h`, `rw_lock.h`,
@@ -160,6 +163,9 @@ from ~2000 to 74 in the same phase (the rest are CPU rewrites of whole pages at 
 
 ## 7. Event queues
 
+Android part superseded (§10): the Android HLE polls `GetTriggeredEvents` every 1 ms again; the
+wait below is the desktop `WaitForEvents`.
+
 `EqueueInternal::WaitReady` (no consumption, stop token, deadline) and `TakeTriggered` are shared
 by the desktop `WaitForEvents` and the Android `sceKernelWaitEqueue` HLE. Small HR timers
 (< 1.2 ms) sleep on the condition variable until 200 µs before expiry, then yield; triggered
@@ -201,4 +207,77 @@ instrumented (`AddressSpace.*`), cause not yet identified.
 
 - Cabin-scene FPS with the host stream buffer still to be measured (title: 27 → 60 FPS).
 - Load-time map/unmap writer holds of ~5 ms.
-- Android: equeue probe and APK/game run with the shared core not done yet.
+- Android: done, see §10.
+
+## 10. Android freeze with the shared core; Android back on its original implementation
+
+Symptom (Pocket DS, Turnip mainline, Bloodborne, APK built from `793e4e24..a515631e`): the game
+stops presenting frames (FPS 0) — twice on the loading screen after Continue, once at the start-up
+logos after 70 flips. The previous APK (before the shared core) did not.
+
+Evidence (root `debuggerd -b` via the ayaneo-root adapter, two freezes): the GPU command thread
+idle in `Liverpool::Process` with nothing submitted; the main guest thread and 23–36 others parked
+in the condition variable (`CondPlatform::Park`, untimed), 15 in kernel semaphores, 9–10 polling
+with `usleep`; no host lock held, no thread in a fault handler. `hle_sync` during the freeze: no
+condition signals at all, semaphores and rwlocks busy and balanced, no non-zero results.
+`upload_diag keep_gpu off` and `read_cache off` applied in the first seconds of a run did not
+prevent it (frozen at 4872 flips for 95 s after Continue): not the §5/§8 video_core changes.
+
+Root cause, a lost wakeup in the shared `ConditionVariable::Wait`: the waiter released the
+caller's mutex first and counted itself in `queued` afterwards, while `Signal`/`Broadcast` return
+without taking the lock when `queued == 0`. A thread that takes the just-released mutex, changes
+the predicate and signals inside that window finds no waiter; the waiter then sleeps forever. The
+original Android condition had no such shortcut (the notifier always took the condition guard
+that the waiter held across unlock and enqueue). Fixed in the core: queue and count before
+`ReleaseMutex` (undone on its error); the mutex release orders the count before the signaller's
+acquire. APK with the fixed core: after Continue 1311 → 2138 flips in 60 s, loading screen at
+24 FPS.
+
+Second defect found in the same review: `Parker` never cleared `woken`, so a rwlock or `sem_t`
+waiter that was woken, lost the race and parked again returned at once — a busy spin until it
+won. `Park` now consumes the wake. Also the `sem_t` count re-read after registering a waiter is
+sequentially consistent (same instruction on x86-64 and ARM64; closes the memory-model gap of
+the post/wait handshake).
+
+Regression tests in `tests/sync/sync_core_tests.cpp`: a waiter whose `ReleaseMutex` lets the next
+mutex holder signal inside the window; `Parker` wake consumption; a woken rwlock writer overtaken
+by a reader. With the previous headers two checks fail (the waiter times out; a second `Park`
+returns `Woken`); with the fixes 20769 checks / 0 failures, three desktop runs.
+
+Old Android implementation compared with the shared core:
+
+| Primitive | Original Android | Shared core |
+|---|---|---|
+| Kernel semaphore | one mutex for every semaphore of the session; per-waiter park | per-semaphore lock, locked id table; same token, queue and timeout rules |
+| `sem_t` | domain guard held for every wait and post; waiters wait on the domain guard | atomic count (no lock uncontended), FIFO, one wake per post, pass-on on timeout/stop |
+| rwlock | one mutex for every rwlock; `notify_all` wakes every waiter of the lock | per-lock mutex, wakes only admitted waiters; same owner/type rules |
+| Condition | per-condition guard, the notifier always locks | per-waiter slot, lock-free empty check (the lost wakeup) |
+| Event flag | map + mutex over `EventFlagState` | shared id table, same decode rules |
+| Equeue wait | polls every 1 ms | `WaitReady` on the queue's condition variable |
+
+The shared core scales better (per-object locks, targeted wakes), but the platforms differ in
+principle (guest pointers pinned through `GuestAddressSpace`, guest-memory mutex word with a
+guest fast path, session stop tokens) and a change for one side silently changed the other. By
+decision of the user the two are maintained separately with the same interface
+([sync-core.md](../../sync-core.md)): the Android host runtime is back on its original files
+(`guest_kernel_semaphore.h`, `guest_semaphore.h`, `guest_rwlock.h`, `guest_mutex.h`, the event
+flag handlers in `guest_runtime.cpp`, the equeue HLE in `guest_graphics_hle.cpp` and
+`guest_graphics.cpp`, all as of `c7b02fc9`); `EqueueInternal::GetTriggeredEvents` (events only,
+no small timers) is back for that HLE. The shared core stays as the desktop implementation, with
+the fixes above; the Android host build no longer builds `sync_core_tests`.
+
+Android with the original implementation (Pocket DS):
+
+| Check | Result |
+|---|---|
+| `guest_kernel_semaphore_tests` | 588/0 |
+| `guest_condition_tests` | 67/0 |
+| `guest_native_mutex_tests` | 65499/0 |
+| `guest_rwlock_tests` | 73/0 |
+| `guest_equeue_tests` | 43/0 |
+| `host_event_flag_tests` | 1205/0 |
+| `host_library_smoke` (includes `sem_t`) | 511/0 |
+| Bloodborne, Continue, run 1 | 1488 → 2473 flips in 60 s, Central Yharnam at ~15 FPS, rendering correct |
+| Bloodborne, Continue, run 2 | 1494 → 2614 flips in 60 s |
+
+The GPU byte keeper, read cache and other video_core changes stay on both platforms.

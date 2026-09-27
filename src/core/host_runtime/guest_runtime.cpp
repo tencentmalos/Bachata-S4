@@ -53,7 +53,6 @@
 #include "core/host_runtime/guest_reprojection.h"
 #include "core/host_runtime/guest_hmd_diagnostics.h"
 #include "core/libraries/kernel/threads/event_flag_state.h"
-#include "core/libraries/kernel/sync/event_flags.h"
 #include "core/host_runtime/guest_graphics.h"
 #include "core/host_runtime/guest_kernel_semaphore.h"
 #include "core/host_runtime/guest_libc_policy.h"
@@ -544,8 +543,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::map<u64, std::shared_ptr<Owner>> owners;
     u64 next_id{1};
     using EventFlag = Libraries::Kernel::EventFlagState;
-    // The shared event flag table (Libraries::Kernel::Sync), the same the desktop kernel uses.
-    Libraries::Kernel::Sync::EventFlagTable event_flags;
+    std::mutex event_flags_mutex;
+    std::map<u64, std::shared_ptr<EventFlag>> event_flags;
+    u64 next_event_flag{1};
     std::optional<GuestCallResult> child_fault;
     std::optional<Error> child_error;
     bool prepared{}, has_system_libc{};
@@ -2133,31 +2133,33 @@ void GuestRuntime::Impl::InstallHandlers() {
         });
     };
     auto event_flag = [this](u64 handle) {
-        return handle > UINT32_MAX ? std::shared_ptr<EventFlag>{}
-                                   : event_flags.Find(static_cast<u32>(handle));
+        std::lock_guard lock(event_flags_mutex);
+        auto it = event_flags.find(handle);
+        return it == event_flags.end() ? std::shared_ptr<EventFlag>{} : it->second;
     };
     bind({"BpFoboUJoZU"}, [this](const auto& a) -> u64 {
-        const auto attributes = Libraries::Kernel::Sync::DecodeEventFlagAttributes(u32(a[2]));
-        if (!a[0] || a[4] || a[2] > UINT32_MAX || !attributes)
+        if (!a[0] || a[4] || (a[2] & ~u64{0x33}) ||
+            (a[2] & 0xf) > 2 || (a[2] & 0xf0) > 0x20)
             return ORBIS_KERNEL_ERROR_EINVAL;
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(u64)}, GuestPermission::Write))
             return ORBIS_KERNEL_ERROR_EFAULT;
         auto name = String(a[1], 32);
         if (name.size() >= 32) return ORBIS_KERNEL_ERROR_ENAMETOOLONG;
-        auto ef = std::make_shared<EventFlag>(name, attributes->thread_mode,
-                                              attributes->queue_mode, a[3]);
-        const auto id = event_flags.Insert(std::move(ef));
-        if (!id) return ORBIS_KERNEL_ERROR_ENOMEM;
-        const u64 handle = *id;
-        if (!space.WriteData(GuestAddress{a[0]}, std::as_bytes(std::span{&handle, 1}))) {
-            event_flags.Erase(*id);
+        auto ef = std::make_shared<EventFlag>(name,
+            (a[2] & 0x20) ? EventFlag::ThreadMode::Multi : EventFlag::ThreadMode::Single,
+            (a[2] & 2) ? EventFlag::QueueMode::ThreadPrio : EventFlag::QueueMode::Fifo, a[3]);
+        std::lock_guard lock(event_flags_mutex);
+        const u64 handle = next_event_flag++;
+        if (!space.WriteData(GuestAddress{a[0]}, std::as_bytes(std::span{&handle, 1})))
             return ORBIS_KERNEL_ERROR_EFAULT;
-        }
+        event_flags.emplace(handle, std::move(ef));
         return 0;
     });
     bind({"8mql9OcQnd4"}, [this](const auto& a) -> u64 {
-        auto ef = a[0] > UINT32_MAX ? nullptr : event_flags.Erase(static_cast<u32>(a[0]));
-        if (!ef) return ORBIS_KERNEL_ERROR_ESRCH;
+        std::shared_ptr<EventFlag> ef;
+        { std::lock_guard lock(event_flags_mutex); auto it = event_flags.find(a[0]);
+          if (it == event_flags.end()) return ORBIS_KERNEL_ERROR_ESRCH;
+          ef = it->second; event_flags.erase(it); }
         ef->Delete(); // wake existing leases before the last shared owner retires
         return 0;
     });
@@ -2183,12 +2185,14 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({nid}, [this, nid, event_flag](const auto& a) -> u64 {
             auto ef = event_flag(a[0]);
             if (!ef) return ORBIS_KERNEL_ERROR_ESRCH;
-            const auto mode = Libraries::Kernel::Sync::DecodeEventFlagWaitMode(u32(a[2]));
-            if (!a[1] || a[2] > UINT32_MAX || !mode)
+            const u32 mode = u32(a[2]);
+            if (!a[1] || (mode & 0xf) < 1 || (mode & 0xf) > 2 ||
+                (mode & ~0x3fu) || (mode & 0xf0) == 0x30)
                 return ORBIS_KERNEL_ERROR_EINVAL;
             const bool poll = nid == std::string_view{"9lvj5DjHZiA"};
-            const auto wait = mode->wait;
-            const auto clear = mode->clear;
+            const auto wait = (mode & 0xf) == 1 ? EventFlag::WaitMode::And : EventFlag::WaitMode::Or;
+            const auto clear = (mode & 0x10) ? EventFlag::ClearMode::All :
+                (mode & 0x20) ? EventFlag::ClearMode::Bits : EventFlag::ClearMode::None;
             if (a[3] && !space.ValidateRange({GuestAddress{a[3]}, sizeof(u64)}, GuestPermission::Write))
                 return ORBIS_KERNEL_ERROR_EFAULT;
             u32 timeout{};

@@ -177,8 +177,11 @@ public:
     int WaitForEvents(OrbisKernelEvent* ev, int num, const OrbisKernelUseconds* timo);
     bool TriggerEvent(u64 ident, s16 filter, void* trigger_data);
 
-    /// Waits until events can be taken, without consuming them. Shared by the desktop wait and
-    /// the Android HLE wait (which pins its output between waiting and taking).
+    /// Android HLE wait (host_runtime/guest_graphics_hle.cpp), which polls: consumes up to `num`
+    /// triggered events, small timers excluded.
+    int GetTriggeredEvents(OrbisKernelEvent* ev, int num);
+
+    /// Desktop wait: waits until events can be taken, without consuming them.
     EqueueWaitResult WaitReady(std::optional<std::chrono::steady_clock::time_point> deadline,
                                std::stop_token stop);
     /// Consumes up to `num` triggered events and expired small timers.
@@ -208,6 +211,7 @@ private:
     bool HasReadyLocked(std::chrono::steady_clock::time_point now,
                         std::chrono::steady_clock::time_point* next_timer) const;
     int TakeTriggeredLocked(OrbisKernelEvent* ev, int num);
+    int TakeEventsLocked(OrbisKernelEvent* ev, int num);
 
     OrbisKernelEqueue m_handle;
     std::string m_name;
