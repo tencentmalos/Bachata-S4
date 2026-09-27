@@ -1,0 +1,16 @@
+RUN_METRICS round=1 elapsed_ns=405265833 process_cpu_ns=393890457
+ROUND 1 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=1 veneers=21
+HLE_STATUS android_bridge=5
+HLE_STATUS guest_fastpath=16 graphics=not-created modules=1
+RUN_METRICS round=2 elapsed_ns=406264063 process_cpu_ns=392905576
+ROUND 2 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=1 veneers=21
+HLE_STATUS android_bridge=5
+HLE_STATUS guest_fastpath=16 graphics=not-created modules=1
+RUN_METRICS round=3 elapsed_ns=398764583 process_cpu_ns=392325056
+ROUND 3 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=1 veneers=21
+HLE_STATUS android_bridge=5
+HLE_STATUS guest_fastpath=16 graphics=not-created modules=1
+PRODUCTION_RUNTIME_PASS mode=return rounds=3

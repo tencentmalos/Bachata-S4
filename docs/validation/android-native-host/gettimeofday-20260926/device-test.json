@@ -1,0 +1,48 @@
+{
+  "remote": "/data/local/tmp/shadps4-gettimeofday-20260926",
+  "serial": "9c2841a4",
+  "game_pid_before": "9560",
+  "files": {
+    "after/libshadps4_host.so": {
+      "sha256": "178a207f1ab4d258598fbbd679c8721cde4083e3dc987cddf2853d962c37e235",
+      "bytes": 437603816
+    },
+    "before/libshadps4_host.so": {
+      "sha256": "cffae94c2bb931302e3573dfdf3038ccb612405ee9081ea48fbdd4e92d465639",
+      "bytes": 437596216
+    },
+    "guest_gettimeofday_tests": {
+      "sha256": "0110e6ea6f6b5e07a34a989b3fd0a221969a217c674e36424c100ff8fbe99516",
+      "bytes": 257232
+    },
+    "gettimeofday.elf": {
+      "sha256": "f118a6f7b72ebf7fd88758bd667f9662c0176eb6a0e133c429508f5fdcb94786",
+      "bytes": 82280
+    },
+    "libc++_shared.so": {
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+      "bytes": 9290184
+    },
+    "production_runtime_runner": {
+      "sha256": "1b6793e852abf5e0e16684e3c9cb640e277cfd5fd514d4fa56d325693cfc5c0d",
+      "bytes": 34599280
+    }
+  },
+  "apk": {
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "2fcc46498053940a7efe942cd29435870ebdd456401b93176d9b4865ab8136a6",
+    "host_sha256": "178a207f1ab4d258598fbbd679c8721cde4083e3dc987cddf2853d962c37e235",
+    "jni_sha256": "7ea201f9600b13f673b9689ae5d1be80f20e778a53018ef6e8e0b099ae2d2396",
+    "merged_host_matches_tested_native": true,
+    "stripped_host_matches_apk": true,
+    "installed": false,
+    "retained_path": "build/validation/gettimeofday-20260926/app-gettimeofday-debug.apk"
+  },
+  "cleanup": {
+    "owned_remote": "removed and absence checked",
+    "game_pid_after": "9560",
+    "apk_installed": false,
+    "app_restarted": false,
+    "properties_settings_saves_touched": false
+  }
+}

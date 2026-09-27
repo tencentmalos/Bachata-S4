@@ -1,0 +1,13 @@
+BENCH variant=before round=0 calls=200000 cpu_ns_per_call=183.10
+BENCH variant=after round=0 calls=200000 cpu_ns_per_call=160.15
+BENCH variant=after round=1 calls=200000 cpu_ns_per_call=160.17
+BENCH variant=before round=1 calls=200000 cpu_ns_per_call=183.11
+BENCH variant=before round=2 calls=200000 cpu_ns_per_call=183.07
+BENCH variant=after round=2 calls=200000 cpu_ns_per_call=160.11
+BENCH variant=after round=3 calls=200000 cpu_ns_per_call=160.14
+BENCH variant=before round=3 calls=200000 cpu_ns_per_call=183.14
+BENCH variant=before round=4 calls=200000 cpu_ns_per_call=182.37
+BENCH variant=after round=4 calls=200000 cpu_ns_per_call=159.41
+BENCH variant=after round=5 calls=200000 cpu_ns_per_call=176.95
+BENCH variant=before round=5 calls=200000 cpu_ns_per_call=191.36
+GETTIMEOFDAY_TESTS checks=40 failures=0

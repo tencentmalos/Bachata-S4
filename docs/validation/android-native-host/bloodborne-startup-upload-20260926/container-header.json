@@ -1,0 +1,24 @@
+{
+  "prof_version": 3,
+  "payload_bytes": 1486927467,
+  "chunks": 5673,
+  "gap_markers": 0,
+  "footer_present": true,
+  "trailing_bytes": 0,
+  "header": {
+    "session_name": "default",
+    "process_name": "shadPS4",
+    "process_id": 9560,
+    "main_thread_id": 0,
+    "clock_source": "ArmCntvct",
+    "clock_tick0": 23293025452755,
+    "clock_ns0": 1165087342724608,
+    "clock_numer": 1000000000,
+    "clock_denom": 19200000,
+    "chunks_ok": 0,
+    "chunks_skipped": 0,
+    "truncated": false,
+    "gpu_records": "GpuRecordCounts(context_defs=0, zone_begins=0, zone_ends=0, times=0, orphan_times=0)",
+    "dependencies_invalid": false
+  }
+}

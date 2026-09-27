@@ -1,0 +1,9 @@
+{
+  "device_realtime_minus_cpu_ns": 1789264063391880215,
+  "device_boottime_minus_cpu_ns": 48088136397109,
+  "mono_minus_cpu_ns": -718,
+  "anchor_bracket_ns": 313,
+  "host_midpoint_minus_device_realtime_ns": -2570143854,
+  "adb_roundtrip_ns": 62493000,
+  "scope": "post-capture same-boot clock relation; screenshot boundaries remain observations"
+}

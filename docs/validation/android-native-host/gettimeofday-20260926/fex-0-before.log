@@ -1,0 +1,17 @@
+RUN_METRICS round=1 elapsed_ns=401165782 process_cpu_ns=395196086
+ROUND 1 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=1 veneers=21
+HLE_STATUS android_bridge=5
+HLE_STATUS guest_fastpath=16 graphics=not-created modules=1
+RUN_METRICS round=2 elapsed_ns=407569635 process_cpu_ns=404974282
+ROUND 2 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=1 veneers=21
+HLE_STATUS android_bridge=5
+HLE_STATUS guest_fastpath=16 graphics=not-created modules=1
+RUN_METRICS round=3 elapsed_ns=394747239 process_cpu_ns=395914226
+ROUND 3 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=1 veneers=21
+HLE_STATUS android_bridge=5
+HLE_STATUS guest_fastpath=16 graphics=not-created modules=1
+PRODUCTION_RUNTIME_PASS mode=return rounds=3
+FORTIFY: pthread_mutex_destroy called on a destroyed mutex (0xb4000074a7e11148)
