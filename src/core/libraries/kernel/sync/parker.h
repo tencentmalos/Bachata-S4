@@ -21,7 +21,8 @@ using Deadline = std::optional<std::chrono::steady_clock::time_point>;
 
 /// The wake slot of one waiting thread. A waker selects the waiter under the object's lock,
 /// releases that lock and only then calls Unpark, so the woken thread never contends with the
-/// waker for the object lock; the sleep itself uses the slot's own lock.
+/// waker for the object lock; the sleep itself uses the slot's own lock. An Unpark that comes
+/// before Park is kept for it; the Park that returns Woken consumes it.
 ///
 /// Shared by the desktop kernel and the Android host runtime: the only platform difference is
 /// how a wait is cancelled, which is the optional stop token (the Android session stop). Desktop
@@ -48,6 +49,9 @@ public:
             cv.wait(lock, ready);
         }
         if (woken) {
+            // The wake is consumed: a waiter that loses the race for what it was woken for and
+            // parks again sleeps until the next Unpark instead of returning at once.
+            woken = false;
             return ParkResult::Woken;
         }
         return stop.stop_requested() ? ParkResult::Interrupted : ParkResult::TimedOut;

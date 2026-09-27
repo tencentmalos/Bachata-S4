@@ -17,9 +17,9 @@ namespace Libraries::Kernel::Sync {
 
 /// pthread_cond_t, shared by the desktop kernel and the Android host runtime.
 ///
-/// Waiters queue in FIFO order under the condition's own lock; releasing the caller's mutex
-/// happens under that same lock, so a notification can never fall between the unlock and the
-/// enqueue. A signal selects exactly one waiter (optionally a given owner), a broadcast all of
+/// Waiters queue in FIFO order under the condition's own lock and are counted before the
+/// caller's mutex is released under that same lock, so a notification can never fall between
+/// the unlock and the enqueue. A signal selects exactly one waiter (optionally a given owner), a broadcast all of
 /// them; the selected waiters are woken after the lock is released, or handed to the platform
 /// to wake later (desktop defers the wake until the signaller unlocks the waiter's mutex).
 /// A waiter counts against the condition until it has reacquired its mutex, so destroy refuses
@@ -48,11 +48,15 @@ public:
         {
             [[maybe_unused]] auto critical = platform.Critical();
             std::scoped_lock lock{mutex};
-            if (const int error = platform.ReleaseMutex()) {
-                return error;
-            }
+            // Counted before the mutex is released: a thread that takes the mutex next and
+            // signals must find this waiter, also through the lock-free empty check in
+            // Signal/Broadcast.
             queue.push_back(waiter);
             queued.fetch_add(1, std::memory_order_seq_cst);
+            if (const int error = platform.ReleaseMutex()) {
+                Dequeue(waiter);
+                return error;
+            }
             interrupted = !platform.BeforePark();
             if (interrupted) {
                 Dequeue(waiter);

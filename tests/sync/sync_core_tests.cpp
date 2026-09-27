@@ -612,6 +612,43 @@ static void ConditionVariableTests() {
         CHECK(result == 0 && !cv.Busy());
     }
     {
+        // A thread that takes the mutex the moment the waiter releases it, and signals, wakes
+        // that waiter: it is counted before the release, so the lock-free empty check in
+        // Signal cannot miss it. The hook lets the signaller run inside that window.
+        struct RacingWait : TestCondWait {
+            using TestCondWait::TestCondWait;
+            std::atomic<int>* signalled{};
+            int ReleaseMutex() {
+                const int error = TestCondWait::ReleaseMutex();
+                // The signaller holds the mutex next; give it the chance to signal before this
+                // waiter goes on (it cannot finish while it has to wait for the queue lock).
+                const auto end = std::chrono::steady_clock::now() + 100ms;
+                while (signalled->load() == 0 && std::chrono::steady_clock::now() < end) {
+                    std::this_thread::yield();
+                }
+                return error;
+            }
+        };
+        ConditionVariable cv;
+        TestMutex m;
+        std::atomic<int> signalled{0};
+        int result = -1;
+        m.Lock(1);
+        std::thread signaller([&] {
+            m.Lock(2); // granted by the waiter's release
+            cv.Signal();
+            signalled = 1;
+            m.Unlock();
+        });
+        RacingWait wait{m, 1, {}, std::chrono::steady_clock::now() + 2s};
+        wait.signalled = &signalled;
+        result = cv.Wait(wait);
+        m.Unlock();
+        signaller.join();
+        CHECK(result == 0);
+        CHECK(!cv.Busy());
+    }
+    {
         // Producer/consumer with a predicate: no lost wakeups.
         ConditionVariable cv;
         TestMutex m;
@@ -712,7 +749,51 @@ static void EventFlagRuleTests() {
     CHECK(DecodeEventFlagWaitMode(0x21)->clear == EventFlagState::ClearMode::Bits);
 }
 
+static void ParkerTests() {
+    using Sync::ParkResult;
+    using Sync::Parker;
+    {
+        // An Unpark before Park is kept for it; the Park that returns Woken consumes it, so a
+        // waiter that parks again sleeps (a woken rwlock or sem_t waiter that lost the race).
+        Parker parker;
+        parker.Unpark();
+        CHECK(parker.Park({}) == ParkResult::Woken);
+        CHECK(parker.Park(std::chrono::steady_clock::now() + 5ms) == ParkResult::TimedOut);
+        std::thread t([&] {
+            std::this_thread::sleep_for(5ms);
+            parker.Unpark();
+        });
+        CHECK(parker.Park(std::chrono::steady_clock::now() + 2s) == ParkResult::Woken);
+        t.join();
+    }
+    {
+        // A woken writer that a reader overtakes (type 0) queues again and gets the lock when the
+        // reader leaves.
+        Sync::RwLock rw{0};
+        Sync::ParkerWait none{{}};
+        CHECK(rw.Lock(1, false, false, none) == 0);
+        std::atomic<int> result{-1};
+        std::thread writer([&] {
+            Sync::ParkerWait wait{{}};
+            result = rw.Lock(2, true, false, wait);
+            if (result == 0) {
+                rw.Unlock(2);
+            }
+        });
+        CHECK(Eventually([&] { return rw.Waiting() == 1; }));
+        CHECK(rw.Unlock(1) == 0);                      // selects the writer
+        if (rw.Lock(3, false, true, none) == 0) {       // overtook it
+            std::this_thread::sleep_for(20ms);
+            CHECK(result.load() == -1 && rw.Waiting() == 1);
+            CHECK(rw.Unlock(3) == 0);
+        }
+        writer.join();
+        CHECK(result.load() == 0 && !rw.Busy());
+    }
+}
+
 int main() {
+    ParkerTests();
     EventFlagRuleTests();
     LockWordTests();
     KernelSemaphoreTests();

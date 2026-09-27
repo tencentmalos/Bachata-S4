@@ -29,7 +29,10 @@ public:
     explicit CountingSemaphore(u32 value_) : value{value_} {}
 
     bool TryWait() {
-        u32 current = value.load(std::memory_order_acquire);
+        // Sequentially consistent: a waiter re-reads the count after registering in `waiting`,
+        // the other half of the handshake with Post (acquire and seq_cst loads are the same
+        // instruction on x86-64 and ARM64).
+        u32 current = value.load(std::memory_order_seq_cst);
         while (current > 0) {
             if (value.compare_exchange_weak(current, current - 1, std::memory_order_acquire,
                                             std::memory_order_acquire)) {
