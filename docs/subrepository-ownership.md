@@ -91,3 +91,5 @@ gh api repos/tencentmalos/foundation/git/ref/heads/codex/shadps4-android-fex-v0 
 另将`externals/hwinfo`迁至新fork `tencentmalos/ext-hwinfo`，分支`codex/shadps4-bionic`，原pin`8660006e`上修复Android位数误判，最终`85bbcba35228b32f178f02cc537c39361614e18b`。该fork由恢复登录后的gh创建；修改前先推base分支并用gh核对，修改后child先push、parent后推进。AYN原14项探针全过。
 
 早期FFmpeg/adrenotools使用Git SSH；后续gh已重新登录tencentmalos，四个owned refs均通过API重新核对，见[证据](validation/android-native-host/2026-09-12-bionic-prerequisites/owned-refs.json)。其他健康第三方子仓不因仅需主仓CMake配置而换pin。按用户修正，独立FFmpeg/其他独立库不搬入Foundation；本轮Foundation pin不变。复用矩阵和运行边界见[三方库核查](validation/android-native-host/bionic-third-party-audit-2026-09-12.md)。
+
+2026-09-27：`externals/sirit` 改指 owned `tencentmalos/sirit`（该 fork 原为 Citron 的 sirit 系，不含 shadPS4 上游 `c58f4d4`），新分支 `codex/shadps4-clustered-group-ops` = `c58f4d4` + `6c4e1355`（`OpGroupNonUniform{S,U}{Min,Max}`/`Bitwise{And,Or,Xor}` 可选 ClusterSize，供 GCN 整 wave 归约降为 clustered reduce）。子仓先 push（原浅克隆需先 unshallow），主仓再推进 gitlink 与 `.gitmodules` url/branch。

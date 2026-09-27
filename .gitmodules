@@ -40,8 +40,9 @@
 	shallow = true
 [submodule "externals/sirit"]
 	path = externals/sirit
-	url = https://github.com/shadps4-emu/sirit.git
+	url = https://github.com/tencentmalos/sirit.git
 	shallow = true
+	branch = codex/shadps4-clustered-group-ops
 [submodule "externals/xxhash"]
 	path = externals/xxhash
 	url = https://github.com/Cyan4973/xxHash.git
