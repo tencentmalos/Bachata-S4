@@ -14,6 +14,7 @@
 #endif
 
 namespace Common::Profiler {
+std::atomic<bool> fine_enabled{false};
 Scope::Scope(const char* name) noexcept {
 #ifdef SHADPS4_PROFILER_RING
     if (spatial::ProfilerRing::Enabled()) {
@@ -117,7 +118,13 @@ void Initialize() {
 std::string Control(const std::vector<std::string>& args) {
 #ifdef SHADPS4_PROFILER_RING
     const auto action = args.empty() ? "status" : args[0];
-    if (action == "status" && args.size() <= 1) return spatial::ProfilerRing::Status();
+    if (action == "status" && args.size() <= 1)
+        return spatial::ProfilerRing::Status() +
+               (fine_enabled.load() ? "fine_scopes=on\n" : "fine_scopes=off\n");
+    if (action == "fine" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        fine_enabled.store(args[1] == "on");
+        return std::string{"fine_scopes="} + args[1] + "\n";
+    }
     if ((action == "start" || action == "stop") && args.size() == 1)
         return spatial::ProfilerRing::SetEnabled(action == "start");
     if (action == "dump" && args.size() <= 2) {

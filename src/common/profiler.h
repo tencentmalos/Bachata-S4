@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include <atomic>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,6 +20,22 @@ public:
 private:
     uint64_t generation{};
     bool active{};
+};
+// DebugBus `profiler fine on|off`, off by default.
+extern std::atomic<bool> fine_enabled;
+// A Scope for per-draw detail (several per draw on the GPU thread). Recorded only while
+// `profiler fine on`; otherwise one relaxed load, since each recorded pair costs ~0.2 us there.
+class FineScope {
+public:
+    explicit FineScope(const char* name) noexcept {
+        if (fine_enabled.load(std::memory_order_relaxed)) [[unlikely]] {
+            scope.emplace(name);
+        }
+    }
+    FineScope(const FineScope&) = delete;
+    FineScope& operator=(const FineScope&) = delete;
+private:
+    std::optional<Scope> scope;
 };
 // Cookie-paired elapsed stage; does not create frames or claim on-CPU time.
 class Phase {

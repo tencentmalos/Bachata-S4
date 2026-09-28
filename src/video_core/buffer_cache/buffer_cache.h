@@ -80,6 +80,12 @@ public:
         return stream_buffer;
     }
 
+    /// Streamed buffers hold CPU snapshots (ObtainBuffer's small read-only ranges, per-draw
+    /// constants) that the GPU only reads.
+    [[nodiscard]] bool IsStreamBuffer(const Buffer* buffer) const noexcept {
+        return buffer == &stream_buffer || (host_stream_buffer && buffer == &*host_stream_buffer);
+    }
+
     /// Returns minimum granularity of a sparse memory bind.
     u32 GetSparsePageShift() const noexcept {
         return block_shift;

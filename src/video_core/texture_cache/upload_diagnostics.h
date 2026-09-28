@@ -93,6 +93,9 @@ inline std::atomic<u32> stream_max{16384};
 // buffer in host memory instead of device memory the CPU writes through the PCIe BAR. On by
 // default there (`upload_diag stream_host on|off`); other GPUs have one stream buffer.
 inline std::atomic<bool> stream_host{true};
+// Reads of streamed buffers also go through the barrier tracker (`upload_diag stream_barriers
+// on|off`, off by default): an A/B switch for the earlier behaviour.
+inline std::atomic<bool> stream_barriers{false};
 inline std::atomic<u64> raw_copies{0}, raw_copy_bytes{0}, raw_copy_fallbacks{0};
 void NoteFill(FillOutcome outcome, u32 images_cleared, u64 bytes);
 

@@ -169,6 +169,9 @@ private:
     void BindIndexBuffer(u32 index_offset = 0);
 
     void ResetBindings(bool is_compute);
+    /// The next draw or dispatch reads this range: wait for pending writes to it, and record
+    /// the read when the bindings are reset.
+    void TrackRead(const VideoCore::Buffer* buffer, u64 offset, u64 size);
     GpuBreadcrumbs::Context BreadcrumbContext() const;
 
     bool IsComputeMetaClear(const Pipeline* pipeline);

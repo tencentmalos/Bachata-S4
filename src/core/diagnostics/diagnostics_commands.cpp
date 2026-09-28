@@ -301,7 +301,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const auto& args) { return Common::Profiler::GpuTimingControl(args); });
     registry.Register("profiler_ring_gpu", "GPU timestamps in the shared ring: start | detail | stop | status (alias of gpu_timing)",
         [](const auto& args) { return Common::Profiler::GpuTimingControl(args); });
-    registry.Register("profiler_ring", "LiteTrace ring: status | start | stop | dump [frames, 0=all]",
+    registry.Register("profiler_ring", "LiteTrace ring: status | start | stop | dump [frames, 0=all] | fine on|off (per-draw GPU-thread scopes)",
         [](const std::vector<std::string>& args) { return Common::Profiler::Control(args); });
     registry.Register("profiler_capture", "LiteTrace streaming: status | file/socket [max_mib] [seconds] | stop",
         [](const std::vector<std::string>& args) { return Common::Profiler::CaptureControl(args); });

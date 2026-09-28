@@ -352,6 +352,11 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1] == "on" ? "reuse recent mapping lookups"
                                            : "look up the mapping every time");
     }
+    if (sub == "stream_barriers" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        stream_barriers.store(args[1] == "on");
+        return fmt::format("stream_barriers={} (reads of streamed buffers {} the barrier tracker)\n",
+                           args[1], args[1] == "on" ? "go through" : "skip");
+    }
     if (sub == "keep_gpu" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         GpuByteKeeper::enabled.store(args[1] == "on");
         return fmt::format("keep_gpu={} (CPU writes beside GPU-written bytes {})\n", args[1],
@@ -359,7 +364,8 @@ std::string Command(const std::vector<std::string>& args) {
     }
     return "status=bad_arguments usage: start [log_lines] | status | stop | "
            "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
-           "watch_predict on|off | keep_gpu on|off | read_cache on|off | stream_max <bytes>\n";
+           "watch_predict on|off | keep_gpu on|off | read_cache on|off | stream_barriers on|off | "
+           "stream_max <bytes>\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

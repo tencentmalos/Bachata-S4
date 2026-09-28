@@ -616,7 +616,7 @@ bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 
         runtime.CopyBuffer(staging.buffer, arena, copies);
     }
     if (is_texel_buffer && !is_written) {
-        Common::Profiler::Scope scope{"Buffer.TexelImageSync"};
+        Common::Profiler::FineScope scope{"Buffer.TexelImageSync"};
         return SynchronizeMemoryFromImage(arena, device_addr, size);
     }
     if (!is_written) {

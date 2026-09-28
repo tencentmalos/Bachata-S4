@@ -411,19 +411,6 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     scheduler.ClearStagedAccess();
     PrepareRenderState(pipeline);
     const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
-#if defined(__ANDROID__)
-    static std::atomic<u32> sbs_draw_samples{};
-    const u32 draw_sample = sbs_draw_samples.fetch_add(1, std::memory_order_relaxed);
-    if (draw_sample < 48 || (draw_sample % 240) == 0) {
-        LOG_INFO(Render_Vulkan,
-                 "SBS draw sample={} indexed={} indices={} mrt0={:#x} mrt1={:#x} mrt2={:#x} depth={:#x}",
-                 draw_sample, is_indexed, liverpool->regs.num_indices,
-                 liverpool->regs.color_buffers[0].Address(),
-                 liverpool->regs.color_buffers[1].Address(),
-                 liverpool->regs.color_buffers[2].Address(),
-                 liverpool->regs.depth_buffer.DepthAddress());
-    }
-#endif
     if (!BindResources(pipeline)) {
         return;
     }
@@ -536,15 +523,13 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
 
     const auto [buffer, base] =
         buffer_cache.ObtainBuffer(arg_address + offset, stride * max_count, false);
-    needs_barrier |= runtime.IsBufferAccessed(buffer, base, stride * max_count);
-    bound_buffers.emplace_back(buffer, base, stride * max_count, false);
+    TrackRead(buffer, base, stride * max_count);
 
     const VideoCore::Buffer* count_buffer;
     u64 count_offset;
     if (count_address != 0) {
         std::tie(count_buffer, count_offset) = buffer_cache.ObtainBuffer(count_address, 4, false);
-        needs_barrier |= runtime.IsBufferAccessed(count_buffer, count_offset, 4);
-        bound_buffers.emplace_back(count_buffer, count_offset, 4u, false);
+        TrackRead(count_buffer, count_offset, 4);
     }
 
     if (needs_barrier) {
@@ -732,8 +717,7 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     }
 
     const auto [buffer, base] = buffer_cache.ObtainBuffer(address + offset, size, false);
-    needs_barrier |= runtime.IsBufferAccessed(buffer, base, size);
-    bound_buffers.emplace_back(buffer, base, size, false);
+    TrackRead(buffer, base, size);
 
     scheduler.EndRendering(Vulkan::RenderBreak::Dispatch);
     if (needs_barrier) {
@@ -866,10 +850,10 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
 }
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
-    Common::Profiler::Scope profile_scope{"Rasterizer.BindResources"};
+    Common::Profiler::FineScope profile_scope{"Rasterizer.BindResources"};
     const char* replaced = nullptr;
     {
-        Common::Profiler::Scope hle_scope{"Bind.HleCheck"};
+        Common::Profiler::FineScope hle_scope{"Bind.HleCheck"};
         replaced = IsComputeImageCopy(pipeline)    ? "compute image copy"
                    : IsComputeMetaClear(pipeline)  ? "compute meta clear"
                    : IsComputeImageClear(pipeline) ? "compute image clear"
@@ -889,7 +873,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     bool uses_dma = false;
     render_scale_eighths = 8;
     if (instance.ScalePolicy().ShaderMapping()) {
-        Common::Profiler::Scope scale_scope{"Bind.ScaleCheck"};
+        Common::Profiler::FineScope scale_scope{"Bind.ScaleCheck"};
         // Resolve unsafe uses before producing any descriptor. This includes uses
         // in a later shader stage of the same draw, not only the first binding.
         u32 descriptor = 0;
@@ -1016,11 +1000,11 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                           stage->samplers.size());
         stage->PushUd(binding, push_data);
         {
-            Common::Profiler::Scope buffers_scope{"Bind.Buffers"};
+            Common::Profiler::FineScope buffers_scope{"Bind.Buffers"};
             BindBuffers(*stage, binding, push_data);
         }
         {
-            Common::Profiler::Scope textures_scope{"Bind.Textures"};
+            Common::Profiler::FineScope textures_scope{"Bind.Textures"};
             BindTextures(*stage, binding);
         }
         uses_dma |= stage->uses_dma;
@@ -1096,8 +1080,7 @@ void Rasterizer::BindVertexBuffers(const GraphicsPipeline* pipeline) {
         const u64 size = memory->ClampRangeSize(range.base_address, range.GetSize());
         std::tie(range.buffer, range.offset) =
             buffer_cache.ObtainBuffer(range.base_address, size, false);
-        needs_barrier |= runtime.IsBufferAccessed(range.buffer, range.offset, size);
-        bound_buffers.emplace_back(range.buffer, range.offset, size, false);
+        TrackRead(range.buffer, range.offset, size);
     }
 
     // Bind vertex buffers
@@ -1148,10 +1131,20 @@ void Rasterizer::BindIndexBuffer(u32 index_offset) {
     const u32 index_buffer_size = regs.num_indices * index_size;
     const auto [buffer, offset] =
         buffer_cache.ObtainBuffer(index_address, index_buffer_size, false);
-    needs_barrier |= runtime.IsBufferAccessed(buffer, offset, index_buffer_size);
-    bound_buffers.emplace_back(buffer, offset, index_buffer_size, false);
+    TrackRead(buffer, offset, index_buffer_size);
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindIndexBuffer(buffer->Handle(), offset, index_type);
+}
+
+void Rasterizer::TrackRead(const VideoCore::Buffer* buffer, u64 offset, u64 size) {
+    // Streamed data is a CPU snapshot the GPU only reads, in a stream range reused only after
+    // the GPU is done with it, so no barrier ever involves it.
+    if (buffer_cache.IsStreamBuffer(buffer) &&
+        !VideoCore::UploadDiagnostics::stream_barriers.load(std::memory_order_relaxed)) {
+        return;
+    }
+    needs_barrier |= runtime.IsBufferAccessed(buffer, offset, size);
+    bound_buffers.emplace_back(buffer, offset, static_cast<u32>(size), false);
 }
 
 void Rasterizer::ResetBindings(bool is_compute) {
@@ -1445,7 +1438,13 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 }
                 push_data.AddOffset(binding.buffer, adjust);
                 buffer_infos.emplace_back(buffer->Handle(), offset_aligned, size + adjust);
-                bound_buffers.emplace_back(buffer, offset, size, desc.is_written);
+                // A streamed snapshot needs no barrier tracking: see TrackRead.
+                const bool snapshot =
+                    !desc.is_written && buffer_cache.IsStreamBuffer(buffer) &&
+                    !VideoCore::UploadDiagnostics::stream_barriers.load(std::memory_order_relaxed);
+                if (!snapshot) {
+                    bound_buffers.emplace_back(buffer, offset, size, desc.is_written);
+                }
                 if (desc.is_written) {
                     // A shader may read what it writes.
                     MissingContent::Read(vsharp.base_address, size);
@@ -1455,7 +1454,7 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                         vsharp.base_address, size,
                         VideoCore::UploadDiagnostics::DirtySource::GpuStorageWrite, stage.pgm_hash);
                 }
-                if (runtime.IsBufferAccessed(buffer, offset, size, desc.is_written)) {
+                if (!snapshot && runtime.IsBufferAccessed(buffer, offset, size, desc.is_written)) {
                     needs_barrier = true;
                     const vk::BufferMemoryBarrier2 access{
                         .dstStageMask = vk::PipelineStageFlagBits2::eAllCommands,
