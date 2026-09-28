@@ -302,3 +302,9 @@ multiblock 仍是默认关闭的开关（`debug.shadps4.fex_multiblock=1`）。�
 - **副作用**：存档里原本 17 分钟的下水道冒险因阵亡结束，现在存档停在巢穴（冒险时间 0s）。
 - **未覆盖**：长时间关卡、Boss、多人（沙发合作），以及其他游戏。
 - 结束后属性已清空。
+
+## 12. 后续（同日）
+
+multiblock 已改为默认开启；§9 的"逐 draw 绑 shader HLE"已做成 guest 快路径，剩余 HLE 编码器也做了减负。
+实现、逐字节对照、Swan 上的 CPU A/B 与期间遇到的（与快路径无关的）Swan GPU fault 见
+[gnm-fastpath-20260928.md](gnm-fastpath-20260928.md)。

@@ -1,0 +1,50 @@
+== off1: 15.2s presents=458 fps=30.10 gpubusy=87.9% gpuclk=902MHz cpu0-5=2746 cpu6-7=793 cpu7=818MHz
+   ctx: pid=31315 cpuset=/top-app focus=  mCurrentFocus=Window{81acb65 u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000
+   Guest-1                  tid=4542    75.9% cpu    25.2 ms/frame
+   shadPS4:GpuComm          tid=4647    41.8% cpu    13.9 ms/frame
+   Guest-20                 tid=4645    23.4% cpu     7.8 ms/frame
+   shadPS4:VkRecor          tid=4654    13.6% cpu     4.5 ms/frame
+   Guest-21                 tid=4716    11.5% cpu     3.8 ms/frame
+   Guest-22                 tid=4717    11.3% cpu     3.8 ms/frame
+   Guest-25                 tid=4731    11.3% cpu     3.8 ms/frame
+   Guest-23                 tid=4728    11.2% cpu     3.7 ms/frame
+   Guest-24                 tid=4729    11.1% cpu     3.7 ms/frame
+   Guest-17                 tid=4636     9.6% cpu     3.2 ms/frame
+   shadPS4:Present          tid=4715     7.1% cpu     2.4 ms/frame
+   Guest-36                 tid=4775     3.3% cpu     1.1 ms/frame
+   Guest-35                 tid=4774     3.0% cpu     1.0 ms/frame
+   shadps4.android          tid=31315    2.8% cpu     0.9 ms/frame
+== on1: 12.1s presents=0 fps=0.00 gpubusy=77.5% gpuclk=378MHz cpu0-5=1186 cpu6-7=768 cpu7=768MHz
+   ctx: pid= cpuset= focus=  mCurrentFocus=Window{931daf2 u0 com.picoxr.systemui/com.picoxr.systemui.dock.DockActivity} 105000
+== off2: 15.8s presents=456 fps=28.82 gpubusy=93.6% gpuclk=849MHz cpu0-5=2705 cpu6-7=950 cpu7=925MHz
+   ctx: pid=813 cpuset=/top-app focus=  mCurrentFocus=Window{f0760e5 u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000
+   Guest-1                  tid=9369    65.0% cpu    22.6 ms/frame
+   shadPS4:GpuComm          tid=9438    43.0% cpu    14.9 ms/frame
+   Guest-20                 tid=9437    22.4% cpu     7.8 ms/frame
+   shadPS4:VkRecor          tid=9442    14.0% cpu     4.9 ms/frame
+   Guest-25                 tid=9464    11.7% cpu     4.1 ms/frame
+   Guest-24                 tid=9463    11.5% cpu     4.0 ms/frame
+   Guest-21                 tid=9460    11.4% cpu     4.0 ms/frame
+   Guest-23                 tid=9462    10.9% cpu     3.8 ms/frame
+   Guest-22                 tid=9461    10.9% cpu     3.8 ms/frame
+   Guest-17                 tid=9432     9.5% cpu     3.3 ms/frame
+   shadPS4:Present          tid=9459     5.7% cpu     2.0 ms/frame
+   Guest-36                 tid=9478     3.1% cpu     1.1 ms/frame
+   Guest-35                 tid=9477     2.6% cpu     0.9 ms/frame
+   shadps4.android          tid=813      2.6% cpu     0.9 ms/frame
+== on2: 15.5s presents=465 fps=29.93 gpubusy=91.4% gpuclk=902MHz cpu0-5=2656 cpu6-7=877 cpu7=851MHz
+   ctx: pid=4444 cpuset=/top-app focus=  mCurrentFocus=Window{5bbae36 u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000
+   Guest-1                  tid=11088   75.9% cpu    25.3 ms/frame
+   shadPS4:GpuComm          tid=11151   42.6% cpu    14.2 ms/frame
+   Guest-20                 tid=11150   17.5% cpu     5.8 ms/frame
+   shadPS4:VkRecor          tid=11155   13.8% cpu     4.6 ms/frame
+   Guest-17                 tid=11139    9.4% cpu     3.1 ms/frame
+   Guest-24                 tid=11179    7.6% cpu     2.6 ms/frame
+   Guest-23                 tid=11178    7.5% cpu     2.5 ms/frame
+   Guest-25                 tid=11180    7.5% cpu     2.5 ms/frame
+   Guest-21                 tid=11176    7.4% cpu     2.5 ms/frame
+   Guest-22                 tid=11177    7.4% cpu     2.5 ms/frame
+   shadPS4:Present          tid=11175    6.4% cpu     2.1 ms/frame
+   Guest-36                 tid=11195    3.1% cpu     1.0 ms/frame
+   Guest-35                 tid=11194    2.7% cpu     0.9 ms/frame
+   shadps4.android          tid=4444     2.6% cpu     0.9 ms/frame

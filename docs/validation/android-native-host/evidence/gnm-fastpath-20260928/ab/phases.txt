@@ -1,0 +1,12 @@
+== off1 gnm_fastpath=0
+arrived: fps~30 stage=Running pid=31315 cpuset=/top-app
+[2026-09-27 23:36:01.575][Info][4542][Core.Linker](shadps4.android) guest_runtime.cpp:1941 InstallGnmFastPath: Guest Gnm fast path disabled by debug.shadps4.gnm_fastpath=0
+== on1 gnm_fastpath=1
+arrived: fps~0 stage= pid= cpuset=
+[2026-09-27 23:39:18.923][Info][8245][Core.Linker](shadps4.android) guest_runtime.cpp:1976 InstallGnmFastPath: Guest Gnm fast path installed: base=0x1800000000 bytes=3288 image_sha256=f1d019db459af94d889317c2b210ae03e9faaa255bdd52538d589c10f3d90059 routed=15
+== off2 gnm_fastpath=0
+arrived: fps~28 stage=Running pid=813 cpuset=/top-app
+[2026-09-27 23:43:57.203][Info][9369][Core.Linker](shadps4.android) guest_runtime.cpp:1941 InstallGnmFastPath: Guest Gnm fast path disabled by debug.shadps4.gnm_fastpath=0
+== on2 gnm_fastpath=1
+arrived: fps~31 stage=Running pid=4444 cpuset=/top-app
+[2026-09-27 23:47:15.771][Info][11088][Core.Linker](shadps4.android) guest_runtime.cpp:1976 InstallGnmFastPath: Guest Gnm fast path installed: base=0x1800000000 bytes=3288 image_sha256=f1d019db459af94d889317c2b210ae03e9faaa255bdd52538d589c10f3d90059 routed=15

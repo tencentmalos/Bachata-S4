@@ -1,0 +1,1 @@
+run 1 fastpath=0: alive fps~18 fps~21 fps~30 fps~30 fps~30 fps~30 fps~30 fps~30  validate=0

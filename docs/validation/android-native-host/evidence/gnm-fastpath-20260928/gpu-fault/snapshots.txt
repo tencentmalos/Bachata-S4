@@ -1,0 +1,16 @@
+# Swan KGSL snapshots from /data/vendor/gpu_snapshot (not copied into the repo; sizes 6-18 MB)
+c23d92055d54f16f5c82e8721ec6c14d9e4b9677eefe206c35081dd3a3a4c800  kgsl-1790520234-devcd1.bin  22:43:54  fast path ON  (first ON run, crash ~2 min, loading)
+cf95f362d65de0d23ec2e58cc23586b0accd079e9fac7a4206195c1e691bc8b8  kgsl-1790520677-devcd2.bin  22:51:17  fast path OFF (run2-off, ~6 min, idle at clinic door; submitting tid 23442 of that session)
+69a21c862cdcc4ef1bf66e2d58bf133a60c6cd570eb949b27b8b75ce94f2b01d  kgsl-1790523594-devcd3.bin  23:39:54  fast path ON  (ab on1, < 45 s)
+961c506c0381f6bcc813dbac580856fd624a6c6b40063baa51f7034521bf463c  kgsl-1790524939-devcd4.bin  00:02:18  fast path OFF (ab-trim trim-off2, ~85 s, loading)
+
+dmesg for each: adreno-gen8-gmu "CP (DDE BR) opcode error | opcode=0x00000000", kgsl "Fault id:2",
+app abort "vkQueueSubmit failed: ErrorDeviceLost" or Presenter::GetRenderFrame "Device lost during waiting for a frame".
+
+devcd3 (gpu-snapshot MCP, expert mode):
+- BR IB1 0x40b7bff000 (1333 dw, 469 left), IB2 0x413c71653c (905 dw; dmesg fetch 0x2c8 left).
+- IB2 decodes to 57 valid packets: CP_COND_REG_EXEC, RB_RESOLVE_*, CP_SET_DRAW_STATE x26, CP_DRAW_INDX_OFFSET x9.
+- Captured DRAW object 0x413c92a000 (16 KiB): the IB2 draw-state groups 15/16/11 in it are valid (CP_LOAD_STATE ...).
+- Pipeline draw-state groups 0/1 (0x402f8a9000, 0x402f775c80, ...) are not in the snapshot; the zero opcode is
+  presumably read there or in another uncaptured group. Not attributed further (separate task).
+devcd2: BR IB1 0x4191b2b000 (42952 dw, 38312 left) decodes to valid A2D blit sequences around the fetch point.

@@ -1,0 +1,20 @@
+# Gnm fast path tests (2026-09-28)
+
+## Host probe: guest_gnm_fastpath_tests (tests/host_runtime, links shadps4_host)
+shader.c compiled natively vs Libraries::GnmDriver encoders run through a model of the
+HLE route (guest_graphics_hle.cpp encoder); + route table vs aerolib NIDs + payload exports
++ HwInit write bound.
+- AYN Thor 9c2841a4:           gnm fastpath: 127894 checks, 0 failures   (before the HwInit bound block)
+- Negative control (Thor):     SetVsShader TrailingNop(11)->(10): 127894 checks, 758 failures (source restored, cmp identical)
+- Pico Swan PB3110PGL6240001G: gnm fastpath: 127918 checks, 0 failures   (with the 24 HwInit bound checks)
+
+## FEX: gnm_fastpath_guest_tests (cmake/fex; x86 payload + guest driver under real FEX vs native build)
+Thor, first payload (merged 64/128-bit stores), single thread, 16-byte aligned slots:
+  compared=21000 mismatches=0; BENCH 102400 calls 21.8 ns/call
+Swan, final payload (one aligned 32-bit store per dword):
+  aligned: compared=21000 mismatches=0
+  shifted: compared=21000 mismatches=0            (slot bases at every dword phase)
+  threads=4 compared=1008000 mismatches=0         (4 guest threads x 12 passes)
+  BENCH calls=102400 ns_per_call=28.5 (includes one InvokeGuest)
+Swan, first payload with the same test, 3 runs: all 0 mismatches, 27.8 / 28.6 / 28.7 ns/call.
+(Swan was also running other workloads; ns/call is indicative only.)

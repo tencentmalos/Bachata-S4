@@ -1,3 +1,9 @@
+- **Gnm 绑 shader 的 guest 快路径 / HLE 编码器减负 / multiblock 默认开（2026-09-28 续，已本地提交、未推送）：** [实现、对照与 Swan 实测](docs/validation/android-native-host/gnm-fastpath-20260928.md)。
+  - **快路径**：`guest/runtime/gnm/shader.c` 逐字节复刻 15 个 `sceGnmSet*/Update*Shader` 编码器与 `IsUserPaEnabled`（含 HLE 包装的前置检查），首次 `Bind` 发布并按 `guest_gnm_abi.h` 路由；`debug.shadps4.gnm_fastpath=0` 关闭。血源导入其中 12 个。
+  - **验证**：原生对生产编码器 127918/0（负对照 758 失败）；真实 FEX 下单线程、各 dword 相位、4 线程共 105 万例 0 不一致；游戏内 HLE 编码器零拒绝。
+  - **Swan 血源（30 FPS 封顶，看 on-CPU）**：工作线程 Guest-20..25 合计约少 8.5 ms/帧；编码器减负（不取 admission、线程局部 scratch、HwInit 只拷 0x100 dword）再让 Guest-20 少约 1.5 ms/帧；Guest-1、GpuComm 不变，FPS 看不到变化。每种配置 1–2 个会话。
+  - **multiblock 默认开**：`debug.shadps4.fex_multiblock=0` 关，`fex_loop_poll=0` 只关循环头 poll（仅测量用）。
+  - **已有问题（与快路径无关）**：Swan 血源偶发 `CP opcode error opcode=0` → device lost，开快路径 2/10、关 2/6；Turnip 命令流读到 0，推测管线 draw-state 生命周期，已另起任务。Thor 首轮开快路径时一次坏 PM4 崩溃，单样本未归因；Thor 随后断开，属性 `gnm_fastpath=1` 未清。新增默认关闭的诊断：坏包转储、`debug.shadps4.pm4_validate=1`、编码器拒绝日志。
 - **血源 Thor 瓶颈归因 / Render Scale 0.25 为何不提帧（2026-09-28，基于 `60ec46d0`；归因只测量，后续改动见“同日续”，已本地提交、未推送）：** [报告](docs/validation/android-native-host/thor-bloodborne-bottleneck-20260928.md)。AYN Thor 读档出生点静止，Render Scale 0.5 与 0.25 对比：
   - **GPU 不是瓶颈**：FPS 16.8→17.2；GPU busy 70%/498 MHz → 66%/401 MHz，每帧 GPU 工作量 −26%，按 680 MHz 满频折算只需 23–31 ms/帧。
   - **帧长由两条几乎等长的 CPU 路径决定**：
