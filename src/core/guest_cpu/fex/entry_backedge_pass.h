@@ -14,9 +14,9 @@ namespace Core::GuestCpu::Fex {
 // target includes the entry poll. Instruction-internal loops (REP, atomics, etc.)
 // have no guest EntryPoint and must retain their original semantics.
 //
-// Only the region start: with MULTIBLOCK=1 the block after a CALL is an EntryPoint
-// too, but its preamble probe is not the region's first, so the fault handler skips
-// it. Loops back to such a block get LoopHeaderPollPass's poll instead.
+// Only the region start: with MULTIBLOCK=1 (the default) the block after a CALL is an
+// EntryPoint too, but its preamble probe is not the region's first, so the fault
+// handler skips it. Loops back to such a block get LoopHeaderPollPass's poll instead.
 //
 // Inserted after FEX's register allocator: these edge blocks use only an inline
 // RIP constant and ExitFunction, which allocate no virtual/physical registers.

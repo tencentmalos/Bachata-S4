@@ -1143,30 +1143,34 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         // enable instruction scaling alone or scale host scheduling/profiling.
         static_assert(Common::FexTscScale::MinimumFrequency == FEXCore::Context::TSC_SCALE_MAXIMUM);
         FEXCore::Config::Set(FEXCore::Config::CONFIG_SMALLTSCSCALE, "1");
-        // Core-only GDBSERVER enables the entry interrupt-page store, not a server.
-        // Single basic blocks make its fault a restartable architectural boundary.
+        // Core-only GDBSERVER enables the entry interrupt-page store, not a server. The store at
+        // a region's entry is a restartable architectural boundary.
         FEXCore::Config::Set(FEXCore::Config::CONFIG_GDBSERVER, "1");
-        FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, "0");
+        // Multi-block regions (Bloodborne on AYN Thor: about +15% FPS, Guest-1 -19% on-CPU).
+        // A jump inside a region skips the entry poll, so LoopHeaderPollPass adds a poll at
+        // every loop header inside a region (tests G51, DBG25). debug.shadps4.fex_multiblock=0
+        // restores single-block regions; debug.shadps4.fex_loop_poll=0 drops the loop polls,
+        // only for measuring their cost and as the negative control of G51.
+        bool multiblock = true;
+        bool loop_poll = true;
 #if defined(__ANDROID__)
-        // Experimental: debug.shadps4.fex_multiblock=1 lets FEX build multi-block JIT regions.
-        // A jump inside a region skips the entry poll above, so LoopHeaderPollPass adds a poll
-        // at every loop header inside a region. Not yet the default: single-step over RET into
-        // a multi-block caller and flags reported at such a stop are not validated.
-        if (char multiblock[PROP_VALUE_MAX] = {};
-            __system_property_get("debug.shadps4.fex_multiblock", multiblock) > 0 &&
-            multiblock[0] == '1') {
-            FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, "1");
-            // debug.shadps4.fex_loop_poll=0 drops the loop polls, for measuring their cost and
-            // as the negative control of G51; loops then cannot be paused.
-            char loop_poll[PROP_VALUE_MAX] = {};
-            multiblock_loop_poll_ =
-                !(__system_property_get("debug.shadps4.fex_loop_poll", loop_poll) > 0 &&
-                  loop_poll[0] == '0');
-            __android_log_print(ANDROID_LOG_WARN, "FexCore",
-                                "debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled, loop-header polls %s",
-                                multiblock_loop_poll_ ? "on" : "OFF (loops cannot be paused)");
-        }
+        char property[PROP_VALUE_MAX] = {};
+        if (__system_property_get("debug.shadps4.fex_multiblock", property) > 0 &&
+            property[0] == '0')
+            multiblock = false;
+        property[0] = '\0';
+        if (__system_property_get("debug.shadps4.fex_loop_poll", property) > 0 &&
+            property[0] == '0')
+            loop_poll = false;
+        __android_log_print(multiblock && loop_poll ? ANDROID_LOG_INFO : ANDROID_LOG_WARN,
+                            "FexCore", "MULTIBLOCK %s, loop-header polls %s",
+                            multiblock ? "enabled" : "disabled by debug.shadps4.fex_multiblock=0",
+                            !multiblock ? "unused"
+                            : loop_poll ? "on"
+                                        : "OFF (loops cannot be paused)");
 #endif
+        FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, multiblock ? "1" : "0");
+        multiblock_loop_poll_ = multiblock && loop_poll;
 
         {
             // Read it back rather than assuming the write landed; a silently 32-bit context
