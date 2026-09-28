@@ -1,3 +1,34 @@
+- **血源 Thor 瓶颈归因 / Render Scale 0.25 为何不提帧（2026-09-28，基于 `60ec46d0`；归因只测量，后续改动见“同日续”，已本地提交、未推送）：** [报告](docs/validation/android-native-host/thor-bloodborne-bottleneck-20260928.md)。AYN Thor 读档出生点静止，Render Scale 0.5 与 0.25 对比：
+  - **GPU 不是瓶颈**：FPS 16.8→17.2；GPU busy 70%/498 MHz → 66%/401 MHz，每帧 GPU 工作量 −26%，按 680 MHz 满频折算只需 23–31 ms/帧。
+  - **帧长由两条几乎等长的 CPU 路径决定**：
+    - `Guest-1`：on-CPU 43 ms（其中 JIT 游戏代码 28 ms）+ 排队等 CPU 9 ms + 等任务线程 11 ms；
+    - `GpuComm`：38–43 ms（着色器查找 8.7、buffer 7.0、texture 6.3、rasterizer 6.1 ms/帧）。
+  - **sched trace（39.7 s 无溢出）**：
+    - `Guest-1` 只有 1.3% 时间在小核；
+    - 它每秒被任务线程唤醒约 2500 次、被抢占约 900 次，与 `GpuComm` 争用 cpu7；
+    - 快核需求约 3.4 个核，却只有 5 个快核可用。
+  - **simpleperf 其他发现**：
+    - 逐 draw 的 `SetVs/PsShader` 加 `IsUserPaEnabled` HLE 在各线程合计约 20 ms/帧；
+    - `GpuComm` 有固定开销：`memcpy` 3.6 ms（stream 拷贝 70% 未变化）、profiler ring 2.5 ms、out-of-line 原子 2.7 ms；
+    - 写跟踪缺页在各线程合计约 10.5 ms/帧。
+  - **FEX 配置**：固定为 `MULTIBLOCK=0`、`GDBSERVER=1`（`fex_context.cpp:1082-1083`）。报告 §8 做了 multiblock 上限实验：
+    - 做法：新增默认关闭的测量开关 `debug.shadps4.fex_multiblock=1`（未提交），APK `46c9a8bc`，同一 APK 按 A→B→A→B 交替测量。
+    - 帧率：16.57→18.73 FPS（+13%），每次开启都高于每次关闭。
+    - CPU：`Guest-1` on-CPU 41.8→34.8 ms/帧（−17%），任务线程各 −14%。
+    - 瓶颈随即转到 `GpuComm`：CPU 68%→81%，睡眠 18→9 ms/帧。
+    - 正确性：静置、走动、转镜头正常，两次界面 Stop 正常。热循环暂停/取消、调试器、探针、代码发布暂停均未验证。
+    - 转默认的前提：multiblock 区域内部回边也要能响应暂停（例如回边检查暂停标志后走 `ExitFunction`），并做回归。
+  - **工具问题**：
+    - 旧 host 输出目录缺 `scrcpy_capture_sdk` 字段，已补 null 字段（有备份）；全新输出目录的 Windows `protoc` 链接会失败，未修。
+    - Litep `capture_kgsl` 在 Thor 上实际窗口达 39.7 s，被判超时；数据改为手工解析，未绑定 sidecar。
+    - 服务对 shell 不导出，停止游戏走界面（返回 → Stop），之后对空闲 app 执行 force-stop 回到 Library。
+  - **结论只适用于 Thor**：用户的设备（可能是 Pocket DS）与 Swan 均未复核。设置已按原始字节恢复，会话 `user_stop` 正常停止，设备临时文件已清理。
+  - **同日续（报告 §10–§11，已本地提交、未推送）**：
+    - `GpuComm`：逐 draw 的细粒度 profiler scope 改为 `profiler_ring fine on` 时才记录（默认关），删掉遗留的 SBS 逐 draw 日志，约省 2.5 ms/帧；stream 缓冲区的只读绑定不再进屏障跟踪树（`upload_diag stream_barriers on` 恢复旧行为），5 个会话均省约 2.7 ms/帧。stream 拷贝复用映射锁使锁次数减半但无可测收益，已撤回，§4 对该锁的 perf 归因偏高。
+    - multiblock 暂停安全：新 `LoopHeaderPollPass` 在区域内每个被向后跳转命中的 guest 块开头插一次写中断页 +8，缺页处理按 RIP 表精确匹配定位循环头并停下；`EntryBackedgePass` 只处理跳回区域起点的边。另修调试单步越过 RET 会一路跑下去的旧问题（`MULTIBLOCK=0` 下返回点进过 L1 缓存时也会发生）：单步前清空 call-ret 栈与 L1。
+    - 设备测试 MULTIBLOCK=0/1：执行 258/0、调试器 86/0，新增 G51a–e 与 DBG25；反证为关 poll 时 G25 失败、去掉清缓存时 DBG25 失败。
+    - 游戏内（APK `44682188`）：poll 开 18.39 与关 18.20 FPS 无可测开销，multiblock 仍比 `MULTIBLOCK=0` 的 15.98 FPS 快约 15%；界面 Stop 正常，画面正常。
+    - multiblock 仍默认关（`debug.shadps4.fex_multiblock=1`），建议在 TMNT 等其他游戏检查后再改默认。设备属性已清空，会话 `user_stop`。
 - **Android 冻结 / 同步原语分平台实现（2026-09-27，`feature/malos/mhw_fix`）：** [根因与实测](docs/validation/android-native-host/hle-sync-core-20260927.md) §10、[接口与两端实现](docs/sync-core.md)。共用同步核心的 APK 在 Pocket DS 血源 Continue 后加载画面 FPS 0（两次，另一次在启动 logo 70 帧处）：root `debuggerd -b` 显示 GPU 命令线程空闲无提交、主线程与 23–36 个线程停在条件变量无超时等待，`hle_sync` 期间零 cond signal；从启动即 `upload_diag keep_gpu/read_cache off` 仍冻结（排除 video_core）。根因：共用 `ConditionVariable::Wait` 先释放 mutex 再计入 `queued`，`Signal/Broadcast` 在 `queued==0` 时不加锁直接返回，紧接着拿到 mutex 并发信号的线程丢失唤醒；原 Android 实现的通知方总要取条件锁，无此问题。另 `Parker` 唤醒不清零使 rwlock/sem_t 输掉竞争后忙等。核心已修（先入队计数再释放 mutex、`Park` 消费唤醒、sem_t 复读 seq_cst），新回归测试在旧头文件上 2 项失败、修后桌面 20769/0×3；用修复核心的 APK 加载画面 24 FPS 不再冻结。按用户决定：**同一接口（Orbis 同步 API 语义），桌面与 Android 分别实现、不共用代码**，避免两边优化互相影响；Android 恢复 `c7b02fc9` 原实现（kernel sema、sem_t、rwlock、cond/mutex、event flag、equeue 1 ms 轮询，恢复 `EqueueInternal::GetTriggeredEvents`），共用核心仅作桌面实现，Android 主机构建不再编 `sync_core_tests`。Pocket DS：kernel sema 588/0、cond 67/0、mutex 65499/0、rwlock 73/0、equeue 43/0、event flag 1205/0、smoke 511/0；血源 Continue 两轮 60 s 内分别 +985/+1120 帧，进中央亚楠约 15 FPS 画面正常。桌面编译与链接通过（链接输出到临时路径，正在运行的 MHW 占用 exe，关闭后需重新链接）。覆盖下一条“两端共用核心”的说法；GPU byte keeper 等 video_core 改动两端保留。
 
 - **HLE 同步共享核心 / MHW 锁争用与粒子修复（2026-09-27，`feature/malos/mhw_fix`）：** [架构](docs/sync-core.md)、[实测与验证](docs/validation/android-native-host/hle-sync-core-20260927.md)。MHW 桌面标题/菜单/粒子场景 2–4 FPS 的根因：`MemoryManager::Allocate`（游戏每秒约千次 16 KiB `sceKernelAllocateDirectMemory`）持写锁从 0 first-fit 遍历 `dmem_map`，每次约 3 ms，GPU 线程每次 `CopySparseMemory` 读锁被挡；加 `dmem_free_hint`、双锁改固定顺序 unmap_mutex→mutex、写锁 `Memory.WriteHold.*` scope，`SharedFirstMutex` 改单原子字（仅真等待记 `Memory.LockWait`）：标题 3→29、菜单 2→31、粒子 ~4→20 FPS，GPU 线程等锁 4.16 s/5.7 s→37 ms/10 s，粒子场景现为宿主 GPU 受限。桌面阻塞原语：区域/页跟踪锁 SpinLock→FutexMutex（Android PageManager 同改），pthread mutex 由 Win32 内核对象改共享三态 `Sync::LockWord`，Win32 Semaphore 改用户态计数+懒建内核对象，usleep 每线程高精度 timer，Liverpool 全队列等待时退避。**kernel sema、sem_t、rwlock、cond、event flag（表+参数规则）、mutex 锁字协议两端共用 `src/core/libraries/kernel/sync/` 核心**，平台只提供等待钩子（`ParkerWait` / 桌面取消点 `threads/wait_platform.h` / Android `CondPlatform`）与句柄绑定；语义取 Android 已验证版本（桌面修正 rwlock 类型与 EDEADLK/EPERM/EBUSY、sema/evf 删除 UAF、evf `UNREACHABLE`），桌面 sleepq 删除。`sync_core_tests` 桌面/AYANEO 20758/0，AYANEO kernel sema 588/0、cond 67/0（观察者 92/0）、mutex 65499/0、rwlock 73/0 与诊断 1233/0、smoke 511/0、event flag 1205/0（桌面同）；Android 探针退出时原有的 abort（静态 `SaveDialogUi` 析构锁已销毁的 ImGui 层注册表 mutex）已修：注册表改为首次使用创建、永不析构，invitation dialog 的 state 定义移到 UI 之前，探针全部 exit 0。**MHW 粒子巨型三角形与 TDR 根因**：readbacks 关闭时，游戏 CPU 每帧在 GPU 分段表（`cs 0x9656f1f1` 写 `0x22708aa0e0+0x4000`）同一 4 KiB 页的相邻字节写常量，整页被判 CPU 脏并用 guest 旧内存重传，GPU 结果被覆盖 → `end<start` 使 `cs 0xcefc8276` 回绕死循环（TDR），扩展 kernel 读错分段（四角来自不同粒子/垃圾坐标）；`gpu_memory status` 新增最近 16 个丢失地址定位，Relaxed readbacks（核显）画面正确但同步读回 2.7 s/6 s。修复 `GpuByteKeeper`：记录 GPU 写绑定的字节区间，CPU 故障落在其外时快照该页（64 槽固定池，故障路径不分配），上传只发非 GPU 字节与快照后被 CPU 改过的 GPU 字节；独显序章三轮无乱三角/TDR，保留 13805 页、CPU 改写 0，丢失事件同阶段 ~2000→74（`upload_diag keep_gpu`）。`Free`：解除映射移出写锁（持锁 0.44 ms→6 µs），全 VMA 扫描（主线程 3.3 s/8 s）改为 dmem 区映射计数+单映射 VA 反查，别名回退扫描，DebugBus `vm_free_index` 校验 0 不一致，并修正扫描越界多解映射。equeue：`WaitReady`/`TakeTriggered` 两端共用，小定时器睡到到期前 200 µs，桌面不再在小定时器期间忽略普通事件，Android 去掉 1 ms 轮询与无锁读，删除唤醒等待者；`guest_equeue_tests` AYANEO 43/0（首版漏掉等待中新增定时器的重算，已修）。**独显 stream buffer 改用系统内存**：GPU 命令线程每 draw ~19 µs 中缓冲绑定 ~12 µs，几乎全是每次约 2 µs 的小只读缓冲拷贝；分步计时显示瓶颈是经 PCIe BAR 写显存（本机仅数百 MB/s），非临时存储只把停顿推给调用方（已撤回），映射查找缓存 `GuestReadCache` 仅 ~5%；独显额外建 64 MiB 主机内存 stream buffer 并默认使用（`upload_diag stream_host`，核显/Android 不变），同会话交替 A/B 标题 33–50 ms→16.7 ms（27→60 FPS）。另：加载后期个别 Map/Unmap 持写锁 ~5 ms，已加 `AddressSpace.*` scope 待查；序章船舱新数据与 Android APK 实机游戏待测。

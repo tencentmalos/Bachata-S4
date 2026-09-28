@@ -1,0 +1,7 @@
+65bab4c37a104cf713c2aa87115054e790006bca8b043f487ff295ba07957050 *prof-a/9c2841a4-9123-file-1790563420925450-1.prof
+5f814afdb56b595ff95a08e0e566bfaa619748d8d2f40fa69e9f6c6b7e510c74 *kgsl-b-manual/kgsl_trace.txt.gz
+dcc00a94e74845f30b5db0eb4d9541a3a92337c3ae73814a0802873b6be90f93 *perf-a/perf.data
+# 2026-09-28 follow-up (GpuComm batch 1, multiblock loop polls)
+c53e2c6267405027158c6fd3059218e759184d663f5a02d0590b5b1439392223  APK (gpucomm-ab1/ab2, with the later-withdrawn read hold)
+446821886d95a3acd95cfe3c0da484d778fe4427541867d9bab8320d31e16049  APK (looppoll-ab: loop polls, step fix, fine scopes, stream-barrier skip)
+326abbb9197a148158f8c820d5e439e0a7bc919f91b518aabd6f8c192e022655  guest_execution_tests (final, multiblock-tests full-mb*/dbg4-mb*)

@@ -1,0 +1,72 @@
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu0/stats]
+entries: 414958
+overrun: 0
+commit overrun: 0
+bytes: 20558188
+oldest event ts: 1263388.453263
+now ts: 1263435.924896
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu1/stats]
+entries: 465663
+overrun: 0
+commit overrun: 0
+bytes: 23912184
+oldest event ts: 1263388.453227
+now ts: 1263435.947077
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu2/stats]
+entries: 452165
+overrun: 0
+commit overrun: 0
+bytes: 23288572
+oldest event ts: 1263388.453476
+now ts: 1263435.966552
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu3/stats]
+entries: 519776
+overrun: 0
+commit overrun: 0
+bytes: 25654668
+oldest event ts: 1263388.453266
+now ts: 1263435.986364
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu4/stats]
+entries: 508377
+overrun: 0
+commit overrun: 0
+bytes: 25313004
+oldest event ts: 1263388.454431
+now ts: 1263436.009086
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu5/stats]
+entries: 501551
+overrun: 0
+commit overrun: 0
+bytes: 24975152
+oldest event ts: 1263388.454420
+now ts: 1263436.034208
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu6/stats]
+entries: 505249
+overrun: 0
+commit overrun: 0
+bytes: 25186400
+oldest event ts: 1263388.453431
+now ts: 1263436.055688
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/kgsl_dbg_783b7bf88fb9/per_cpu/cpu7/stats]
+entries: 405118
+overrun: 0
+commit overrun: 0
+bytes: 20123536
+oldest event ts: 1263388.454727
+now ts: 1263436.077670
+dropped events: 0
+read events: 0

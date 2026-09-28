@@ -1,0 +1,2 @@
+    render_scale_percent=50.000000 texture_quality=medium legacy=false restart_required=true
+

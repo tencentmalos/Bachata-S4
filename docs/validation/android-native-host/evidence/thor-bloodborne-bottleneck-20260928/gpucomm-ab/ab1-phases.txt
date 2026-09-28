@@ -1,0 +1,24 @@
+== N1 read_hold=on fine=off
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== O1 read_hold=off fine=on
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== N2 read_hold=on fine=off
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== O2 read_hold=off fine=on
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== H1 read_hold=on fine=on
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== F1 read_hold=off fine=off
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== N3 read_hold=on fine=off
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+== O3 read_hold=off fine=on
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0
+SERVICE com.shadps4.android/.service.FexSessionService d44e5ca pid=3106 user=0

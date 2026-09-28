@@ -1,0 +1,6 @@
+gpuclk=550000000
+max_gpuclk=680000000
+thermal_pwrlevel=0
+throttling=0
+min_pwrlevel=4
+max_pwrlevel=0

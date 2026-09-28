@@ -1,0 +1,16 @@
+== installed-0.25: 20.1s presents=346 fps=17.24 gpubusy=65.8% gpuclk=401MHz cpu0-2=1724 cpu3-6=2803 cpu7=2815MHz
+   ctx: pid=6981 cpuset=/top-app focus=  mCurrentFocus=Window{3a9e848 u0 com.android.launcher3/com.android.launcher3.secondarydisplay.SecondaryDisplayLauncher} 94700
+   Guest-1                  tid=7132    68.8% cpu    39.9 ms/frame
+   shadPS4:GpuComm          tid=7171    66.4% cpu    38.5 ms/frame
+   Guest-21                 tid=7199    31.6% cpu    18.3 ms/frame
+   Guest-23                 tid=7201    31.0% cpu    18.0 ms/frame
+   Guest-25                 tid=7203    30.4% cpu    17.7 ms/frame
+   Guest-22                 tid=7200    30.2% cpu    17.5 ms/frame
+   Guest-24                 tid=7202    29.5% cpu    17.1 ms/frame
+   Guest-20                 tid=7170    20.9% cpu    12.1 ms/frame
+   shadPS4:VkRecor          tid=7175    16.8% cpu     9.7 ms/frame
+   Guest-17                 tid=7167     8.3% cpu     4.8 ms/frame
+   shadPS4:Present          tid=7198     5.8% cpu     3.4 ms/frame
+   Guest-36                 tid=7228     5.1% cpu     3.0 ms/frame
+   shadps4.android          tid=6981     4.4% cpu     2.6 ms/frame
+   Guest-59                 tid=7447     3.6% cpu     2.1 ms/frame

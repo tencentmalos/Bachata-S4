@@ -1,0 +1,38 @@
+== P1 multiblock=1 loop_poll=
+arrived: fps~18 stage=Running pid=15334
+launch took 156s
+09-28 14:14:16.211 15334 15510 W FexCore : debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled, loop-header polls on
+
+
+
+== Q1 multiblock=1 loop_poll=0
+stopped: Stopping after 339 ms (poll granularity ~1 s)
+arrived: fps~18 stage=Running pid=19144
+launch took 161s
+09-28 14:18:59.853 19144 19317 W FexCore : debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled, loop-header polls OFF (loops cannot be paused)
+
+
+
+== P2 multiblock=1 loop_poll=
+stopped: Stopping after 336 ms (poll granularity ~1 s)
+arrived: fps~18 stage=Running pid=23795
+launch took 161s
+09-28 14:23:44.126 23795 23970 W FexCore : debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled, loop-header polls on
+
+
+
+== Q2 multiblock=1 loop_poll=0
+stopped: Stopping after 392 ms (poll granularity ~1 s)
+arrived: fps~18 stage=Running pid=28118
+launch took 161s
+09-28 14:28:28.704 28118 28291 W FexCore : debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled, loop-header polls OFF (loops cannot be paused)
+
+
+
+== M0 multiblock=0 loop_poll=
+stopped: Stopping after 359 ms (poll granularity ~1 s)
+arrived: fps~15 stage=Running pid=31986
+launch took 161s
+
+
+

@@ -1,0 +1,17 @@
+== sched-0.5: 24.0s presents=380 fps=15.83 frame=63.2ms  (per frame: on-CPU / runnable / sleep; ctx switches vol/invol per frame; last cpu)
+   Guest-1              9303   on  43.5  runnable   9.0  sleep  10.7 ms   vol  137.0 invol  11.9  cpu1
+   shadPS4:GpuComm      9369   on  43.2  runnable   1.5  sleep  18.5 ms   vol    9.4 invol   6.2  cpu7
+   Guest-23             9397   on  19.7  runnable   7.5  sleep  35.9 ms   vol   76.5 invol  23.6  cpu5
+   Guest-21             9395   on  19.7  runnable   7.6  sleep  35.9 ms   vol   76.4 invol  22.8  cpu6
+   Guest-25             9399   on  19.4  runnable   8.0  sleep  35.7 ms   vol   80.9 invol  23.4  cpu5
+   Guest-22             9396   on  19.0  runnable   7.8  sleep  36.3 ms   vol   77.8 invol  25.0  cpu5
+   Guest-24             9398   on  18.4  runnable   8.4  sleep  36.4 ms   vol   80.6 invol  25.5  cpu4
+   Guest-20             9368   on  13.5  runnable   2.6  sleep  47.1 ms   vol   15.8 invol   7.9  cpu4
+   shadPS4:VkRecor      9373   on  11.5  runnable   5.0  sleep  46.7 ms   vol   46.2 invol  14.7  cpu4
+   Guest-17             9364   on   6.1  runnable   0.5  sleep  56.5 ms   vol    8.8 invol   1.2  cpu6
+   shadPS4:Present      9394   on   4.0  runnable   0.8  sleep  58.4 ms   vol   24.8 invol   0.5  cpu5
+   Guest-36             9424   on   3.3  runnable   1.7  sleep  58.2 ms   vol   17.1 invol   0.2  cpu5
+   shadps4.android      9123   on   2.8  runnable   1.4  sleep  59.0 ms   vol    9.0 invol   2.8  cpu6
+   Guest-59             9642   on   2.4  runnable   1.5  sleep  59.3 ms   vol   13.2 invol   0.1  cpu4
+   Guest-19             9366   on   2.2  runnable   1.0  sleep  60.0 ms   vol    8.3 invol   1.5  cpu6
+   Guest-35             9423   on   2.2  runnable   2.7  sleep  58.3 ms   vol   16.7 invol   0.2  cpu5

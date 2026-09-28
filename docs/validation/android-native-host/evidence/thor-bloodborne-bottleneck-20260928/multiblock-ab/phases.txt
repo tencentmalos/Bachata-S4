@@ -1,0 +1,10 @@
+== A1-off multiblock=0
+launch took 155s
+== B1-on multiblock=1
+launch took 164s
+09-28 12:02:41.096  6815  7013 W FexCore : debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled (measurement only)
+== A2-off multiblock=0
+launch took 164s
+== B2-on multiblock=1
+launch took 163s
+09-28 12:10:51.065 14127 14296 W FexCore : debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled (measurement only)

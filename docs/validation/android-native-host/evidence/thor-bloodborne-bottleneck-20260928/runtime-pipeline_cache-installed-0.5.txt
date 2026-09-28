@@ -1,0 +1,24 @@
+    settings: recipe cache on (store open), driver cache on
+    compile mode: async_graphics_skip (configured async_graphics_skip), 2 compile threads
+      deferred 0 graphics + 0 compute; queued 0 (peak depth 0), queue full 0; built by workers 232, by first user 0
+      binds that waited for a build: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+      skipped draws (lossy): 0 (0 held after their pipeline was built) of 0 pipelines, 0 resumed; 0 frames affected, longest run 0 frames
+      unbuilt draws kept instead of skipped: side effects 0, predicated 0, stream-out 0, clear/meta 0, skipped too long 0, skipping off 0
+    guest shaders translated: 4 in 1.4 ms (mean 0.34 ms, max 0.56 ms)
+    graphics pipelines created: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+        driver feedback 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), cache hits 0
+    compute pipelines created: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+        driver feedback 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), cache hits 0
+    tiling pipelines created: 13 in 0.2 ms (mean 0.02 ms, max 0.03 ms)
+        driver feedback 13 in 0.1 ms (mean 0.01 ms, max 0.02 ms), cache hits 13
+    preload: 233 stored, whole preload 104.6 ms on 4 threads
+      233 with usage records; recipes/modules/layouts 101.4 ms; 233 built before start in 3.1 ms, 0 left to workers (232 built so far, 0 promoted by a draw); usage saved 233; pipelines first used this session 212
+      graphics preloaded: 202 in 4.5 ms (mean 0.02 ms, max 0.33 ms)
+        driver feedback 202 in 0.8 ms (mean 0.00 ms, max 0.03 ms), cache hits 202
+      compute preloaded: 31 in 0.6 ms (mean 0.02 ms, max 0.10 ms)
+        driver feedback 31 in 0.3 ms (mean 0.01 ms, max 0.05 ms), cache hits 31
+    driver cache file: /data/user/0/com.shadps4.android/files/host/cache/CUSA03023_5143_43050a01.vkpipelines
+      identity: vendor 0x5143 device 0x43050a01 driver 0x6802063 uuid 014c4170640e5c14528527e0f6396307
+      at startup: loaded (3969789 bytes)
+      saves: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), last 0 bytes
+

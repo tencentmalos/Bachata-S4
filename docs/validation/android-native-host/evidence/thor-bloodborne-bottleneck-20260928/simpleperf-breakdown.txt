@@ -1,0 +1,234 @@
+
+=== Guest-1 tids=[9303]  42.0 ms/frame on-CPU (samples 13653)
+  buckets (innermost along call chain):
+    other:unknown               28.40 ms/frame   67.6%
+    hle_other                    4.79 ms/frame   11.4%
+    hle_sync                     2.74 ms/frame    6.5%
+    hle_gnm                      1.89 ms/frame    4.5%
+    write_fault                  1.44 ms/frame    3.4%
+    fex_dispatch                 0.91 ms/frame    2.2%
+    kernel(other)                0.86 ms/frame    2.0%
+    rasterizer                   0.32 ms/frame    0.8%
+    other:libshadps4_fex_session.so   0.19 ms/frame    0.5%
+    other:libc.so                0.14 ms/frame    0.3%
+    fex_jit_compile              0.10 ms/frame    0.2%
+    other:libsigchain.so         0.08 ms/frame    0.2%
+    other:libart.so              0.04 ms/frame    0.1%
+    buffer_cache                 0.04 ms/frame    0.1%
+    texture_cache                0.04 ms/frame    0.1%
+    other:linker64               0.01 ms/frame    0.0%
+  self by DSO:
+    unknown                                   28.42 ms/frame   67.7%
+    [kernel.kallsyms]                          6.15 ms/frame   14.6%
+    libshadps4_host.so                         3.49 ms/frame    8.3%
+    libc.so                                    1.59 ms/frame    3.8%
+    libshadps4_fex_session.so                  1.43 ms/frame    3.4%
+    [vdso]                                     0.34 ms/frame    0.8%
+    libc++_shared.so                           0.34 ms/frame    0.8%
+    linker64                                   0.09 ms/frame    0.2%
+  top self symbols:
+     67.7%  unknown  [unknown]
+     14.6%  unknown  [[kernel.kallsyms]]
+      2.3%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_s  [libshadps4_host.so]
+      0.8%  __kernel_clock_gettime  [[vdso]]
+      0.7%  Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle,  [libshadps4_fex_session.so]
+      0.7%  __aarch64_cas2_acq  [libc.so]
+      0.7%  @plt  [libshadps4_host.so]
+      0.4%  pthread_mutex_lock  [libc.so]
+      0.3%  profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::s  [libshadps4_host.so]
+      0.3%  memcpy_opt  [libc.so]
+      0.3%  std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unor  [libshadps4_fex_session.so]
+      0.3%  __aarch64_swp2_rel  [libc.so]
+      0.3%  Core::HostRuntime::(anonymous namespace)::FunctionAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&  [libshadps4_host.so]
+      0.3%  pthread_mutex_unlock  [libc.so]
+
+=== GpuComm tids=[9369]  37.8 ms/frame on-CPU (samples 12294)
+  buckets (innermost along call chain):
+    shader_lookup                8.68 ms/frame   22.9%
+    buffer_cache                 7.00 ms/frame   18.5%
+    texture_cache                6.25 ms/frame   16.5%
+    rasterizer                   6.08 ms/frame   16.1%
+    bind_resources               2.71 ms/frame    7.2%
+    write_fault                  2.22 ms/frame    5.9%
+    srt_flatten                  2.07 ms/frame    5.5%
+    pm4_decode                   1.81 ms/frame    4.8%
+    vk_recorder                  0.49 ms/frame    1.3%
+    driver                       0.33 ms/frame    0.9%
+    hle_other                    0.19 ms/frame    0.5%
+    hle_gnm                      0.00 ms/frame    0.0%
+  self by DSO:
+    libshadps4_host.so                        28.57 ms/frame   75.5%
+    libc.so                                    6.51 ms/frame   17.2%
+    [kernel.kallsyms]                          1.84 ms/frame    4.9%
+    [vdso]                                     0.34 ms/frame    0.9%
+    libc++_shared.so                           0.22 ms/frame    0.6%
+    linker64                                   0.20 ms/frame    0.5%
+    vulkan.ad07xx.so                           0.12 ms/frame    0.3%
+    libm.so                                    0.02 ms/frame    0.0%
+  top self symbols:
+      9.5%  memcpy_opt  [libc.so]
+      5.7%  __aarch64_ldadd4_acq_rel  [libshadps4_host.so]
+      4.9%  unknown  [[kernel.kallsyms]]
+      4.1%  VideoCore::TextureCache::FindImage(VideoCore::TextureCache::ImageDesc&, bool)  [libshadps4_host.so]
+      3.5%  profiler::sdk::detail::encode_span_end()  [libshadps4_host.so]
+      3.3%  Vulkan::BarrierTracker::InsertNode(Vulkan::AddressRange const&, unsigned int)  [libshadps4_host.so]
+      3.0%  profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::s  [libshadps4_host.so]
+      2.3%  @plt  [libshadps4_host.so]
+      1.9%  VideoCore::Image::FindView(VideoCore::ImageViewInfo const&, bool)  [libshadps4_host.so]
+      1.8%  VideoCore::BufferCache::SynchronizeMemory(VideoCore::Buffer const*, unsigned long, unsigned int, boo  [libshadps4_host.so]
+      1.8%  AmdGpu::Liverpool::ProcessGraphics(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, st  [libshadps4_host.so]
+      1.7%  Vulkan::Rasterizer::BindTextures(Shader::Info const&, Shader::Backend::Bindings&)  [libshadps4_host.so]
+      1.5%  __aarch64_cas4_acq  [libshadps4_host.so]
+      1.5%  VideoCore::ImageInfo::UpdateSize()  [libshadps4_host.so]
+
+=== workers Guest-21..25 tids=[9395, 9396, 9397, 9398, 9399]  94.1 ms/frame on-CPU (samples 30598)
+  buckets (innermost along call chain):
+    other:unknown               45.84 ms/frame   48.7%
+    hle_other                   19.66 ms/frame   20.9%
+    hle_gnm                      9.46 ms/frame   10.0%
+    write_fault                  6.88 ms/frame    7.3%
+    kernel(other)                4.51 ms/frame    4.8%
+    fex_dispatch                 2.49 ms/frame    2.6%
+    rasterizer                   1.66 ms/frame    1.8%
+    hle_sync                     0.81 ms/frame    0.9%
+    other:libshadps4_fex_session.so   0.70 ms/frame    0.7%
+    other:libc.so                0.60 ms/frame    0.6%
+    other:libsigchain.so         0.50 ms/frame    0.5%
+    fex_jit_compile              0.23 ms/frame    0.2%
+    other:linker64               0.22 ms/frame    0.2%
+    other:libart.so              0.19 ms/frame    0.2%
+    texture_cache                0.17 ms/frame    0.2%
+    buffer_cache                 0.13 ms/frame    0.1%
+  self by DSO:
+    unknown                                   45.91 ms/frame   48.8%
+    [kernel.kallsyms]                         20.82 ms/frame   22.1%
+    libshadps4_host.so                        12.78 ms/frame   13.6%
+    libc.so                                    6.54 ms/frame    6.9%
+    libshadps4_fex_session.so                  4.52 ms/frame    4.8%
+    [vdso]                                     1.18 ms/frame    1.3%
+    libc++_shared.so                           1.11 ms/frame    1.2%
+    libsigchain.so                             0.50 ms/frame    0.5%
+  top self symbols:
+     48.8%  unknown  [unknown]
+     22.1%  unknown  [[kernel.kallsyms]]
+      4.2%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_s  [libshadps4_host.so]
+      1.6%  Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle,  [libshadps4_fex_session.so]
+      1.5%  @plt  [libshadps4_host.so]
+      1.3%  __aarch64_cas2_acq  [libc.so]
+      1.3%  __kernel_clock_gettime  [[vdso]]
+      0.6%  pthread_mutex_lock  [libc.so]
+      0.5%  pthread_mutex_unlock  [libc.so]
+      0.5%  [linker]tlsdesc_resolver_dynamic  [linker64]
+      0.5%  memcpy_opt  [libc.so]
+      0.5%  __aarch64_swp2_rel  [libc.so]
+      0.5%  scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk  [libc.so]
+      0.4%  Core::HostRuntime::(anonymous namespace)::FunctionAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&  [libshadps4_host.so]
+
+=== Guest-20 tids=[9368, 9392]  13.6 ms/frame on-CPU (samples 4422)
+  buckets (innermost along call chain):
+    other:unknown                6.59 ms/frame   48.4%
+    hle_other                    3.95 ms/frame   29.0%
+    hle_gnm                      1.85 ms/frame   13.6%
+    pm4_decode                   0.31 ms/frame    2.3%
+    fex_dispatch                 0.28 ms/frame    2.1%
+    kernel(other)                0.18 ms/frame    1.3%
+    write_fault                  0.13 ms/frame    0.9%
+    other:libshadps4_fex_session.so   0.08 ms/frame    0.6%
+    hle_sync                     0.07 ms/frame    0.5%
+    other:libc.so                0.04 ms/frame    0.3%
+    fex_jit_compile              0.02 ms/frame    0.1%
+    other:libc++_shared.so       0.02 ms/frame    0.1%
+    other:linker64               0.02 ms/frame    0.1%
+    other:[vdso]                 0.02 ms/frame    0.1%
+    rasterizer                   0.01 ms/frame    0.1%
+    other:libshadps4_host.so     0.01 ms/frame    0.1%
+  self by DSO:
+    unknown                                    6.60 ms/frame   48.5%
+    libc.so                                    2.67 ms/frame   19.7%
+    libshadps4_host.so                         2.46 ms/frame   18.0%
+    [kernel.kallsyms]                          0.84 ms/frame    6.2%
+    libshadps4_fex_session.so                  0.54 ms/frame    4.0%
+    [vdso]                                     0.24 ms/frame    1.7%
+    libc++_shared.so                           0.18 ms/frame    1.3%
+    linker64                                   0.05 ms/frame    0.4%
+  top self symbols:
+     48.5%  unknown  [unknown]
+     14.0%  memcpy_opt  [libc.so]
+      8.9%  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_s  [libshadps4_host.so]
+      6.2%  unknown  [[kernel.kallsyms]]
+      1.7%  __kernel_clock_gettime  [[vdso]]
+      1.3%  __aarch64_cas2_acq  [libc.so]
+      1.0%  Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle,  [libshadps4_fex_session.so]
+      1.0%  @plt  [libshadps4_host.so]
+      0.8%  __aarch64_ldadd4_acq_rel  [libshadps4_host.so]
+      0.7%  scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk  [libc.so]
+      0.6%  Core::GuestCpu::GuestAddressSpace::CheckDataRequestsLocked(std::__ndk1::span<Core::GuestCpu::GuestAd  [libshadps4_host.so]
+      0.6%  profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::s  [libshadps4_host.so]
+      0.6%  AmdGpu::Liverpool::SubmitGfx(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__n  [libshadps4_host.so]
+      0.5%  pthread_mutex_unlock  [libc.so]
+
+=== VkRecorder tids=[9373]  10.0 ms/frame on-CPU (samples 3258)
+  buckets (innermost along call chain):
+    driver                       6.56 ms/frame   65.5%
+    bind_resources               1.58 ms/frame   15.7%
+    vk_recorder                  1.07 ms/frame   10.7%
+    other:libshadps4_host.so     0.51 ms/frame    5.1%
+    kernel(other)                0.14 ms/frame    1.4%
+    other:libc.so                0.12 ms/frame    1.2%
+    other:libc++_shared.so       0.02 ms/frame    0.2%
+    other:linker64               0.02 ms/frame    0.2%
+  self by DSO:
+    vulkan.ad07xx.so                           7.58 ms/frame   75.6%
+    libc.so                                    1.49 ms/frame   14.8%
+    libshadps4_host.so                         0.68 ms/frame    6.8%
+    [kernel.kallsyms]                          0.17 ms/frame    1.7%
+    libc++_shared.so                           0.06 ms/frame    0.6%
+    [vdso]                                     0.02 ms/frame    0.2%
+    linker64                                   0.02 ms/frame    0.2%
+    libm.so                                    0.01 ms/frame    0.1%
+  top self symbols:
+     11.4%  void tu_update_descriptor_sets<(chip)7>(tu_device const*, VkDescriptorSet_T*, unsigned int, VkWriteD  [vulkan.ad07xx.so]
+     10.4%  memcpy_opt  [libc.so]
+      5.8%  void fdl6_buffer_view_init<(chip)7>(unsigned int*, pipe_format, unsigned char const (&) [4], unsigne  [vulkan.ad07xx.so]
+      3.4%  vk_dynamic_graphics_state_copy  [vulkan.ad07xx.so]
+      3.3%  unsigned int tu_emit_draw_state<(chip)7>(tu_cmd_buffer*)  [vulkan.ad07xx.so]
+      2.7%  tu_CmdBindPipeline(VkCommandBuffer_T*, VkPipelineBindPoint, VkPipeline_T*)  [vulkan.ad07xx.so]
+      2.3%  Vulkan::CommandRecorder::Worker(std::__ndk1::stop_token)  [libshadps4_host.so]
+      2.3%  __aarch64_ldadd4_acq_rel  [vulkan.ad07xx.so]
+      2.0%  tu_cs_begin_sub_stream_aligned(tu_cs*, unsigned int, unsigned int, tu_cs*)  [vulkan.ad07xx.so]
+      1.9%  VkResult tu6_draw_common<(chip)7>(tu_cmd_buffer*, tu_cs*, bool, unsigned int)  [vulkan.ad07xx.so]
+      1.8%  fdl6_format_swiz  [vulkan.ad07xx.so]
+      1.7%  void tu_push_descriptor_set<(chip)7>(tu_cmd_buffer*, VkPushDescriptorSetInfo const*, VkPipelineBindP  [vulkan.ad07xx.so]
+      1.7%  tu_CmdBindVertexBuffers2(VkCommandBuffer_T*, unsigned int, unsigned int, VkBuffer_T* const*, unsigne  [vulkan.ad07xx.so]
+      1.7%  unknown  [[kernel.kallsyms]]
+
+=== Present tids=[9394]  3.8 ms/frame on-CPU (samples 1246)
+  buckets (innermost along call chain):
+    driver                       2.34 ms/frame   61.2%
+    hle_other                    1.36 ms/frame   35.4%
+    texture_cache                0.11 ms/frame    3.0%
+    bind_resources               0.02 ms/frame    0.5%
+  self by DSO:
+    [kernel.kallsyms]                          2.34 ms/frame   61.0%
+    libshadps4_host.so                         0.51 ms/frame   13.2%
+    vulkan.ad07xx.so                           0.41 ms/frame   10.7%
+    libc.so                                    0.18 ms/frame    4.7%
+    libgui.so                                  0.13 ms/frame    3.4%
+    libbinder.so                               0.04 ms/frame    1.0%
+    libui.so                                   0.04 ms/frame    1.0%
+    unknown                                    0.03 ms/frame    0.7%
+  top self symbols:
+     61.0%  unknown  [[kernel.kallsyms]]
+      4.7%  util_flush_range  [vulkan.ad07xx.so]
+      1.2%  @plt  [libshadps4_host.so]
+      1.1%  ImGui::Begin(char const*, bool*, int)  [libshadps4_host.so]
+      1.0%  @plt  [libgui.so]
+      0.9%  ImGui::NewFrame()  [libshadps4_host.so]
+      0.8%  scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk  [libc.so]
+      0.7%  unknown  [unknown]
+      0.6%  __strlen_aarch64  [libc.so]
+      0.6%  memcpy_opt  [libc.so]
+      0.5%  Vulkan::Presenter::Present(Vulkan::Frame*, bool, bool)  [libshadps4_host.so]
+      0.5%  __kernel_clock_gettime  [[vdso]]
+      0.5%  ImHashData(void const*, unsigned long, unsigned int)  [libshadps4_host.so]
+      0.5%  gralloc::BufferManager::SetMetadata(qtigralloc::private_handle_t*, long, android::hardware::hidl_vec  [libgralloccore.so]
