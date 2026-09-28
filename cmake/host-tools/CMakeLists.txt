@@ -17,6 +17,9 @@ set(protobuf_INSTALL OFF CACHE BOOL "" FORCE)
 set(protobuf_WITH_ZLIB OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_PROTOC_BINARIES ON CACHE BOOL "" FORCE)
+# abseil above uses the DLL CRT (/MD); protoc must link the same one or MSVC leaves
+# the CRT imports (__imp_modf, ...) unresolved in a fresh tools directory.
+set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
 add_subdirectory("${REPO_ROOT}/externals/protobuf" protobuf EXCLUDE_FROM_ALL)
 # Host shader compiler (src/video_core/host_shaders), glslang-standalone.
 set(SKIP_GLSLANG_INSTALL ON CACHE BOOL "" FORCE)
