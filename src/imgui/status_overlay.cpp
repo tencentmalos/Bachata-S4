@@ -64,7 +64,8 @@ void StatusOverlay::Save() {
                             {"text_size", int(text_size)},
                             {"status_anchor", int(status_anchor)},
                             {"opacity", theme.background.a},
-                            {"fps_opacity", theme.simple_background.a}};
+                            {"fps_opacity", theme.simple_background.a},
+                            {"perf_hud", spatial::perf::serializePerfHudSettings(perf_hud)}};
         auto temp = settings_path;
         temp += ".tmp";
         std::ofstream out(temp, std::ios::binary | std::ios::trunc);
@@ -112,6 +113,9 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
                     status_anchor = ov::StatusAnchor(std::clamp(json.value("status_anchor", 0), 0, 3));
                 theme.simple_background.a = std::clamp(json.value("fps_opacity", .55f), 0.f, 1.f);
                 theme.background.a = std::clamp(json.value("opacity", .94f), .25f, 1.f);
+                if (json.contains("perf_hud") && !spatial::perf::deserializePerfHudSettings(
+                                                     json.value("perf_hud", ""), perf_hud))
+                    LOG_WARNING(ImGui, "Ignoring invalid performance HUD preferences");
             }
         } catch (const std::exception& e) {
             LOG_WARNING(ImGui, "Ignoring invalid overlay preferences: {}", e.what());
@@ -132,12 +136,12 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
         width = w;
         height = h;
         pixel_density = density;
-        ov::PresentationEnvironment env;
-        env.output.extent = {float(w), float(h)};
-        env.views.push_back(env.output);
+        environment = {};
+        environment.output.extent = {float(w), float(h)};
+        environment.views.push_back(environment.output);
         // This overlay is composited once onto the physical host output, including SBS games.
-        env.scale.pixels_per_dp = pixel_density;
-        shell.setPresentation(env);
+        environment.scale.pixels_per_dp = pixel_density;
+        shell.setPresentation(environment);
     }
     const bool ime_active = Core::IsImeInputCaptured();
     if (ime_active != ime_captured) {
@@ -222,7 +226,9 @@ void StatusOverlay::Controls() {
     fps_opacity.float_minimum = 0.;
     fps_opacity.float_value = theme.simple_background.a;
     page.controls.push_back(fps_opacity);
-    snapshot.controls.pages = {std::move(page)};
+    snapshot.controls.pages = {std::move(page),
+                               ov::makePerfHudControlPage(perf_hud, shell.controller().statusMode(),
+                                                          shell.controller().statusOrientation())};
     snapshot.controls.initial_page = ov::StableId("overlay");
 }
 void StatusOverlay::Prepare(ov::StatusSnapshot status) {
@@ -243,7 +249,7 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
     }
     shell.setSdfPipelineEvidence(Vulkan::FontEvidence());
     shell.setResolvedFonts(resolved);
-    ov::measureOverlayStatus(snapshot, shell.fonts(), theme, metrics);
+    ov::measureOverlayStatus(snapshot, shell.fonts(), theme, metrics, environment);
     shell.setMetrics(metrics);
     if (!width || !height)
         return;
@@ -292,6 +298,15 @@ void StatusOverlay::ApplyCommands() {
         else if (command.kind == ov::OverlayCommandKind::CopyToClipboard)
             SetClipboardText(command.text.c_str());
         else if (command.kind == ov::OverlayCommandKind::ControlChanged) {
+            // The HUD page's layout choice is controller state; its other rows are settings.
+            const auto hud = ov::applyPerfHudControl(command, perf_hud);
+            if (hud.handled) {
+                for (const auto& intent : hud.intents)
+                    submit(intent);
+                if (hud.settings_changed)
+                    Save();
+                continue;
+            }
             const auto* value = std::get_if<ov::StableId>(&command.value);
             if (command.control == ov::StableId("mode") && value) {
                 if (value->value() == "0" || value->value() == "1" || value->value() == "2") {
@@ -341,6 +356,7 @@ void StatusOverlay::Draw() {
     draw.snapshot = &snapshot;
     draw.theme = &theme;
     draw.intents = this;
+    draw.status_appearance = ov::perfHudAppearance(perf_hud);
     draw.sectionOpen = [&](const ov::StableId& id, bool fallback) {
         return shell.controller().detailSectionOpen(id, fallback);
     };

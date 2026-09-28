@@ -18,7 +18,23 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
     overlay.Begin(width, height);
     ov::StatusSnapshot model;
     model.sampled_at = std::chrono::steady_clock::now();
-    model.presentation_fps = game_presents.Fps(now);
+    // The HUD owns the FPS reading (Simple chip and Summary row alike). A counter that stopped
+    // publishing means no new game frame, which reads as 0 rather than the last value.
+    std::optional<double> fps = frame_rate.fps();
+    if (const auto published = frame_rate.publishedAt();
+        published && model.sampled_at - *published > std::chrono::seconds(2))
+        fps = 0.0;
+    if (const auto sequence = device_metrics.sequence(); sequence != hud_sequence) {
+        // One history point per device sample, not per frame.
+        hud_sequence = sequence;
+        if (const auto device = device_metrics.latest())
+            hud.update(*device, fps);
+        else
+            hud.setFps(fps);
+    } else {
+        hud.setFps(fps);
+    }
+    hud.appendSummary(model, overlay.HudSettings());
     if (!publisher) {
         overlay.Prepare(std::move(model));
         return;
@@ -83,20 +99,20 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
                         coverage_sampled && window_flips &&
                             window_uploads - window_new_uploads >= 4 * window_flips);
     }
-    if (!overlay.WantsMetrics()) {
+    const auto last = game_presents.LastPresentNs();
+    const bool stalled = last && now >= last && now - last >= 1000000000;
+    if (stalled)
+        model.severity = ov::StatusSeverity::Warning;
+    // Summary is the device HUD; everything below is emulator detail.
+    if (!overlay.WantsDetail()) {
         overlay.Prepare(std::move(model));
         return;
     }
     const ov::ThemeColor green{.6f, .9f, .7f, 1.f}, orange{1.f, .65f, .25f, 1.f};
     const ov::ThemeColor dim{.62f, .72f, .82f, 1.f};
-    auto field = [&](const char* group, const char* id, const char* label, std::string value,
-                     bool summary = false, std::optional<ov::ThemeColor> color = {}) {
+    auto field = [&](const char* group, const char* label, std::string value,
+                     std::optional<ov::ThemeColor> color = {}) {
         ov::PropertyStyle style{color, {}};
-        if (summary)
-            model.summary_items.push_back({ov::StableId(id), ov::LocalizedText(label), value,
-                                           ov::StatusSeverity::Normal, style});
-        if (!overlay.WantsDetail())
-            return;
         auto section =
             std::find_if(model.detail_sections.begin(), model.detail_sections.end(),
                          [&](const auto& item) { return item.id == ov::StableId(group); });
@@ -115,22 +131,13 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
     frames.reserveCapacity(240);
     for (size_t i = 0; i < game_presents.Count(); ++i)
         frames.push(game_presents.At(i).milliseconds);
-    if (frames.count())
-        model.frame_time_ms = frames.current();
-    model.graphs.push_back(std::move(frames));
-    const auto last = game_presents.LastPresentNs();
-    if (last && now >= last && now - last >= 1000000000) {
-        model.severity = ov::StatusSeverity::Warning;
-        field("Frame timing", "stalled", "No new frame",
-              fmt::format("{:.1f} s", (now - last) / 1e9), true, orange);
-    }
-    field("Frame timing", "fps_meaning", "FPS source", "New game frames / successful present",
-          false, dim);
-    field("Frame timing", "guest_flip", "Guest flip", fmt::format("{:.1f}/s", guest_flip_fps),
-          true);
-    field("Frame timing", "all_present", "All presents",
-          fmt::format("{:.1f}/s", all_presents.Fps(now)));
-    field("Frame timing", "draws", "Draw / dispatch", fmt::format("{:.0f}/s", draws_per_second));
+    if (stalled)
+        field("Frame timing", "No new frame", fmt::format("{:.1f} s", (now - last) / 1e9), orange);
+    field("Frame timing", "FPS source", "New game frames / successful present", dim);
+    field("Frame timing", "Guest flip", fmt::format("{:.1f}/s", guest_flip_fps));
+    field("Frame timing", "All presents", fmt::format("{:.1f}/s", all_presents.Fps(now)));
+    field("Frame timing", "Draw / dispatch", fmt::format("{:.0f}/s", draws_per_second));
+    model.detail_sections.back().graphs.push_back(std::move(frames));
 #ifdef __ANDROID__
     constexpr const char* cpu = "FEX x86-64";
     constexpr const char* default_driver = "Unknown";
@@ -143,32 +150,30 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
         snapshot.driver_identity.find("source=system") != std::string::npos   ? "System"
         : snapshot.driver_identity.find("source=turnip") != std::string::npos ? "Turnip"
                                                                               : default_driver;
-    field("Renderer", "backend", "CPU / GPU", fmt::format("{} / Vulkan {}", cpu, driver), true);
+    field("Renderer", "CPU / GPU", fmt::format("{} / Vulkan {}", cpu, driver));
     if (!gpu_device.empty())
-        field("Renderer", "gpu_device", "GPU", gpu_device, multiple_gpus);
-    field("Renderer", "surface", "Surface", fmt::format("{} x {}", width, height));
-    field("Renderer", "scale", "Render scale",
-          fmt::format("x{:g}", scale_policy.render_eighths / 8.0));
-    field("Renderer", "texture", "Texture quality",
+        field("Renderer", "GPU", gpu_device);
+    field("Renderer", "Surface", fmt::format("{} x {}", width, height));
+    field("Renderer", "Render scale", fmt::format("x{:g}", scale_policy.render_eighths / 8.0));
+    field("Renderer", "Texture quality",
           std::string(VideoCore::TextureQualityName(scale_policy.texture)) +
               (scale_policy.legacy ? " (legacy)" : ""));
-    field("Renderer", "generation", "Session generation", fmt::format("{}", snapshot.generation));
+    field("Renderer", "Session generation", fmt::format("{}", snapshot.generation));
     if (coverage && scale_policy.render_eighths != 8) {
-        field("Scaling", "coverage", "Scaled draws / passes",
+        field("Scaling", "Scaled draws / passes",
               coverage_sampled && window_draws
                   ? fmt::format("{}/{} draws; {}/{} passes", window_scaled_draws, window_draws,
                                 window_scaled_passes, window_passes)
                   : "Sampling",
-              true,
               !coverage_sampled || !window_draws       ? dim
               : window_scaled_draws * 2 < window_draws ? orange
                                                        : green);
         const auto guest = window_passes - std::min(window_passes, window_resumed_passes);
-        field("Scaling", "split", "Guest / split passes",
-              fmt::format("{} / +{}", guest, window_resumed_passes), false,
+        field("Scaling", "Guest / split passes",
+              fmt::format("{} / +{}", guest, window_resumed_passes),
               window_resumed_passes > guest ? orange : green);
-        field("Scaling", "promotions", "Native promotions", fmt::format("+{}", window_promotions));
-        field("Scaling", "readbacks", "Upscaled readbacks", fmt::format("+{}", window_readbacks));
+        field("Scaling", "Native promotions", fmt::format("+{}", window_promotions));
+        field("Scaling", "Upscaled readbacks", fmt::format("+{}", window_readbacks));
     }
     if (coverage && coverage_sampled) {
         const double divisor = window_flips ? double(window_flips) : std::max(window_seconds, 1e-3);
@@ -177,79 +182,76 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
         // whose guest memory changed again. Only the latter indicates a problem.
         const double uploads = window_uploads / divisor;
         const double reuploads = (window_uploads - window_new_uploads) / divisor;
-        field("Texture uploads", "uploads", "Texture uploads",
+        field("Texture uploads", "Texture uploads",
               fmt::format("{:.1f}/{} ({:.1f} MiB, {:.1f} ms)", uploads, unit,
                           window_upload_bytes / divisor / (1024. * 1024.),
                           window_upload_ns / divisor / 1e6),
-              true, green);
-        field("Texture uploads", "reuploads", "Re-uploads",
-              fmt::format("{:.1f}/{}", reuploads, unit), true,
+              green);
+        field("Texture uploads", "Re-uploads", fmt::format("{:.1f}/{}", reuploads, unit),
               window_flips && reuploads >= 4 ? orange : green);
-        field("Texture uploads", "fills", "Fill clears",
-              fmt::format("{:.1f}/{}", window_fill_clears / divisor, unit), true, green);
-        field("Render passes", "tiles", "Tile load / clear / store",
+        field("Texture uploads", "Fill clears",
+              fmt::format("{:.1f}/{}", window_fill_clears / divisor, unit), green);
+        field("Render passes", "Tile load / clear / store",
               fmt::format("{:.0f} / {:.0f} / {:.0f} per {}", window_tiles.loads / divisor,
                           window_tiles.clears / divisor, window_tiles.stores / divisor, unit));
-        field("Render passes", "pixels", "Load / store pixels",
+        field("Render passes", "Load / store pixels",
               fmt::format("{:.1f} / {:.1f} MPix/{}", window_tiles.load_pixels / divisor / 1e6,
                           window_tiles.store_pixels / divisor / 1e6, unit));
-        field("Render passes", "passes", "Passes",
-              fmt::format("{:.1f}/{}", window_tiles.passes / divisor, unit), false,
+        field("Render passes", "Passes",
+              fmt::format("{:.1f}/{}", window_tiles.passes / divisor, unit),
               (window_tiles.empty + window_tiles.single) * 2 > window_tiles.passes ? orange
                                                                                    : green);
-        field("Render passes", "histogram", "Draws 0 / 1 / 2-7 / 8+",
+        field("Render passes", "Draws 0 / 1 / 2-7 / 8+",
               fmt::format("{:.0f} / {:.0f} / {:.0f} / {:.0f} per {}", window_tiles.empty / divisor,
                           window_tiles.single / divisor, window_tiles.few / divisor,
                           window_tiles.many / divisor, unit));
-        field("Render passes", "hoisted", "Hoisted",
+        field("Render passes", "Hoisted",
               fmt::format("{:.1f}/{}", window_tiles.hoisted / divisor, unit));
-        field("Render passes", "conflicts", "Kept break: conflict / no hold",
+        field("Render passes", "Kept break: conflict / no hold",
               fmt::format("{:.1f} / {:.1f} per {}", window_tiles.hoist_conflicts / divisor,
                           window_tiles.hoist_unavailable / divisor, unit));
     }
     if (!Common::Profiler::GpuTimingEnabled())
-        field("GPU timing", "gpu_state", "GPU timing", "Off", true, dim);
+        field("GPU timing", "GPU timing", "Off", dim);
     else if (gpu) {
         const auto timing = gpu->Read();
         using Stage = Common::Profiler::GpuStage;
         const auto& guest = timing.stages[size_t(Stage::GuestFrame)];
         const bool fresh =
             guest.count && now >= guest.observed_ns && now - guest.observed_ns <= 1000000000;
-        field("GPU timing", "gpu_guest", "GPU guest",
+        field("GPU timing", "GPU guest",
               !timing.supported ? "Unavailable"
               : !fresh          ? "Awaiting completed frame"
                                 : fmt::format("{:.2f} ms", guest.last_ms),
-              true, fresh ? green : dim);
+              fresh ? green : dim);
         if (timing.supported && fresh) {
-            field("GPU timing", "gpu_prepare", "Prepare",
+            field("GPU timing", "Prepare",
                   fmt::format("{:.2f} ms", timing.stages[size_t(Stage::Prepare)].last_ms));
-            field("GPU timing", "gpu_present", "Present / redraw",
+            field("GPU timing", "Present / redraw",
                   fmt::format("{:.2f} / {:.2f} ms", timing.stages[size_t(Stage::Present)].last_ms,
                               timing.stages[size_t(Stage::Redraw)].last_ms));
-            if (overlay.WantsDetail()) {
-                ov::MetricSeries series;
-                series.id = ov::StableId("gpu_guest");
-                series.label = ov::LocalizedText("GPU guest elapsed");
-                series.unit = ov::LocalizedText("ms");
-                series.reference_value = 33.333f;
-                const auto n =
-                    std::min<uint64_t>(timing.guest_history_count, timing.guest_history.size());
-                for (uint64_t i = 0; i < n; ++i)
-                    series.push(timing.guest_history[(timing.guest_history_count - n + i) %
-                                                     timing.guest_history.size()]);
-                model.detail_sections.back().graphs.push_back(std::move(series));
-            }
+            ov::MetricSeries series;
+            series.id = ov::StableId("gpu_guest");
+            series.label = ov::LocalizedText("GPU guest elapsed");
+            series.unit = ov::LocalizedText("ms");
+            series.reference_value = 33.333f;
+            const auto n =
+                std::min<uint64_t>(timing.guest_history_count, timing.guest_history.size());
+            for (uint64_t i = 0; i < n; ++i)
+                series.push(timing.guest_history[(timing.guest_history_count - n + i) %
+                                                 timing.guest_history.size()]);
+            model.detail_sections.back().graphs.push_back(std::move(series));
         }
-        field("GPU timing", "gpu_queries", "Pending / dropped / errors",
+        field("GPU timing", "Pending / dropped / errors",
               fmt::format("{} / {} / {}", timing.pending,
                           timing.dropped_batches + timing.dropped_zones, timing.errors),
-              false, timing.errors ? orange : dim);
-        field("GPU timing", "gpu_alignment", "Clock alignment",
+              timing.errors ? orange : dim);
+        field("GPU timing", "Clock alignment",
               timing.estimated_alignment
                   ? fmt::format("Estimated +/- {:.2f} ms", timing.calibration_deviation_ns / 1e6)
               : timing.calibrated ? "Calibrated"
                                   : "Duration only",
-              false, dim);
+              dim);
     }
     overlay.Prepare(std::move(model));
 }

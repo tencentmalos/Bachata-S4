@@ -4,6 +4,7 @@
 #include <optional>
 #pragma push_macro("assert_invariant")
 #include "spatial/imgui/overlay/OverlayComponents.hpp"
+#include "spatial/imgui/overlay/PerfHud.hpp"
 #undef assert_invariant
 #pragma pop_macro("assert_invariant")
 
@@ -18,6 +19,10 @@ public:
     void Draw();
     bool WantsMetrics() const;
     bool WantsDetail() const;
+    // Rows, graphs and appearance of the performance HUD shown in Summary; saved with the shell.
+    const spatial::perf::PerfHudSettings& HudSettings() const {
+        return perf_hud;
+    }
     void submit(const spatial::imgui::overlay::OverlayIntent& intent) override;
     void emit(const spatial::imgui::overlay::OverlayCommand& command) override;
 
@@ -34,6 +39,9 @@ private:
     spatial::imgui::overlay::ImeDialogState ime;
     spatial::imgui::overlay::OverlayTextSize text_size{
         spatial::imgui::overlay::OverlayTextSize::Medium};
+    spatial::perf::PerfHudSettings perf_hud{spatial::perf::defaultPerfHudSettings()};
+    // Output the shell lays out against; the horizontal Summary wraps to its safe width.
+    spatial::imgui::overlay::PresentationEnvironment environment;
     // Corner of the FPS chip / Summary panel. Android keeps the top left clear of the touch
     // controls in the bottom corners; the desktop defaults to the bottom left.
     spatial::imgui::overlay::StatusAnchor status_anchor{

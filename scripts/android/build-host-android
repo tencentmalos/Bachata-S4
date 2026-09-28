@@ -45,7 +45,7 @@ def source_identity():
     paths += [p for p in (ROOT / "foundation/modules/capture").rglob("*")
               if p.is_file() and (p.suffix in (".h", ".cpp", ".cmake") or p.name in ("CMakeLists.txt", "README.md"))]
     paths += [p for folder in ("foundation/modules/imgui", "foundation/modules/imgui_overlay",
-                               "foundation/third_party/imgui")
+                               "foundation/modules/perf_metrics", "foundation/third_party/imgui")
               for p in (ROOT / folder).rglob("*")
               if p.is_file() and p.suffix in (".h", ".hpp", ".cpp", ".c", ".cmake", ".txt", ".vert", ".frag")]
     return {"files": {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(paths))},

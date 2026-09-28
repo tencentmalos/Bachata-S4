@@ -20,14 +20,20 @@ public:
                          std::shared_ptr<Common::Profiler::GpuTimingState> gpu = {},
                          VideoCore::ScalePolicySnapshot policy = {},
                          std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage = {},
-                         std::string gpu_device = {}, bool multiple_gpus = false)
+                         std::string gpu_device = {}, bool /*multiple_gpus*/ = false)
         : publisher{std::move(publisher)}, gpu{std::move(gpu)}, scale_policy{policy},
-          coverage{std::move(coverage)}, gpu_device{std::move(gpu_device)},
-          multiple_gpus{multiple_gpus} {}
+          coverage{std::move(coverage)}, gpu_device{std::move(gpu_device)} {
+        device_metrics.start();
+    }
+    ~StatusLayer() {
+        device_metrics.stop();
+    }
     void Presented(uint64_t now, bool reused) {
         all_presents.Record(now);
-        if (!reused)
+        if (!reused) {
             game_presents.Record(now);
+            frame_rate.onFrame(std::chrono::steady_clock::now());
+        }
     }
     void Prepare(uint64_t now, unsigned width, unsigned height);
     void Draw();
@@ -35,15 +41,20 @@ public:
 private:
     StatusOverlay overlay;
     RuntimeTooltips tooltips;
+    // Performance HUD in Summary: device metrics sampled once a second on their own thread, and
+    // new game frames per second. Emulator-specific numbers stay in Detail.
+    spatial::perf::DeviceMetricsSampler device_metrics;
+    spatial::perf::FrameRateCounter frame_rate;
+    spatial::imgui::overlay::PerfHud hud;
+    uint64_t hud_sequence{};
     std::shared_ptr<::Core::Diagnostics::DiagnosticsPublisher> publisher;
     std::shared_ptr<Common::Profiler::GpuTimingState> gpu;
     ::Core::Diagnostics::FrameHistory game_presents, all_presents;
     ::Core::Diagnostics::DiagnosticsSnapshot snapshot;
     const VideoCore::ScalePolicySnapshot scale_policy;
     std::shared_ptr<VideoCore::ScaleCoverageCounters> coverage;
-    // Vulkan device the renderer runs on; with several GPUs it is also a summary item.
+    // Vulkan device the renderer runs on (Detail).
     const std::string gpu_device;
-    const bool multiple_gpus;
     VideoCore::ScaleCoverageCounters::Snapshot last_coverage{};
     // Windowed (500 ms) Render Scale coverage: share of attachment draws/passes that
     // rendered scaled, plus promotions and upscaled readbacks in the window.
