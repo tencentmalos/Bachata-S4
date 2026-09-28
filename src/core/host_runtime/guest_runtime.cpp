@@ -98,10 +98,16 @@
 #include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_rwlock_diagnostics.h"
 #include "core/host_runtime/guest_sync_abi.h"
+#include "core/host_runtime/guest_gnm_abi.h"
 #if __has_include("guest_sync_payload.h")
 // Generated from guest/runtime/sync by build-guest-payload at host build time.
 #include "guest_sync_payload.h"
 #define SHADPS4_HAS_GUEST_SYNC_PAYLOAD 1
+#endif
+#if __has_include("guest_gnm_payload.h")
+// Generated from guest/runtime/gnm by build-guest-payload at host build time.
+#include "guest_gnm_payload.h"
+#define SHADPS4_HAS_GUEST_GNM_PAYLOAD 1
 #endif
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/guest_semaphore.h"
@@ -496,6 +502,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     // blocks; its bounds are what the payload's `shad_sync_window` table gets.
     u64 sync_window_base{}, sync_window_limit{}, sync_window_next{};
     void InstallSyncFastPath();
+    // App-shipped guest Gnm shader-binding encoders (guest/runtime/gnm). Installed
+    // with the sync payload; `debug.shadps4.gnm_fastpath=0` keeps the HLE path.
+    bool gnm_fastpath_enabled{true}, gnm_fastpath_installed{};
+    u64 gnm_fastpath_base{}, gnm_fastpath_size{};
+    std::string gnm_fastpath_status{"not_installed"};
+    void InstallGnmFastPath();
     u64 stack_guard{}, progname_object{}, environ_object{}, heap_trace{};
     std::once_flag heap_trace_once;
     // Guest PCs copied from the libc heap table. Never install them in the
@@ -764,6 +776,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char fastpath_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.sync_fastpath", fastpath_property);
             sync_fastpath_enabled = std::string_view(fastpath_property) != "0";
+            char gnm_fastpath_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.gnm_fastpath", gnm_fastpath_property);
+            gnm_fastpath_enabled = std::string_view(gnm_fastpath_property) != "0";
             char hmd_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.hmd_log", hmd_property);
             hmd_diagnostics = std::string_view(hmd_property) == "1";
@@ -791,6 +806,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 hmd_diagnostics = std::string_view(value) == "1";
             if (const char* value = std::getenv("SHADPS4_SYNC_FASTPATH"))
                 sync_fastpath_enabled = std::string_view(value) != "0";
+            if (const char* value = std::getenv("SHADPS4_GNM_FASTPATH"))
+                gnm_fastpath_enabled = std::string_view(value) != "0";
 #endif
             sync_metrics = std::make_shared<SyncMetrics::Session>(cpu.ContextId());
             SyncMetrics::SetControl(sync_metrics);
@@ -1425,6 +1442,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             InstallSyncFastPath();
             SyncMetrics::SetFastPathStatus(sync_fastpath_status);
         }
+        if (!gnm_fastpath_installed)
+            InstallGnmFastPath();
         if (auto it = veneers.find(symbol.name); it != veneers.end())
             return it->second;
         const auto nid = symbol.name.substr(0, symbol.name.find('#'));
@@ -1908,6 +1927,53 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
              "Guest sync fast path {}: base={:#x} bytes={} image_sha256={} arena_window=[{:#x}, {:#x})",
              sync_fastpath_status, sync_fastpath_base, sizeof(Image), ImageSha256, sync_window_base,
              sync_window_limit);
+#endif
+}
+
+// Publishes the app-shipped x86-64 Gnm shader-binding encoders and routes their
+// libSceGnmDriver imports to it. They are pure PM4 encoders with no host state
+// or HLE fallback; only NIDs the graphics HLE admits are routed, so a session
+// without graphics keeps its unsupported imports.
+void GuestRuntime::Impl::InstallGnmFastPath() {
+    gnm_fastpath_installed = true;
+    if (!gnm_fastpath_enabled) {
+        gnm_fastpath_status = "disabled_by_property";
+        LOG_INFO(Core_Linker, "Guest Gnm fast path disabled by debug.shadps4.gnm_fastpath=0");
+        return;
+    }
+#if !defined(SHADPS4_HAS_GUEST_GNM_PAYLOAD)
+    gnm_fastpath_status = "unavailable_in_build";
+    return;
+#else
+    using namespace GuestGnmPayload;
+    const auto symbol = [](std::string_view name) {
+        for (const auto& s : Symbols)
+            if (name == s.name) return s;
+        throw std::runtime_error("guest Gnm payload lacks symbol " + std::string(name));
+    };
+    unsigned routed = 0;
+    {
+        CodePublication vm(*this);
+        gnm_fastpath_size = Common::AlignUp(u64{sizeof(Image)}, 0x4000ULL);
+        gnm_fastpath_base = Allocate(gnm_fastpath_size, "GuestGnmFastPath", 0x1800000000ULL);
+        std::memset(reinterpret_cast<void*>(gnm_fastpath_base), 0xcc, gnm_fastpath_size); // int3
+        std::memcpy(reinterpret_cast<void*>(gnm_fastpath_base), Image, sizeof(Image));
+        if (memory->Protect(gnm_fastpath_base, gnm_fastpath_size,
+                            MemoryProt::CpuRead | MemoryProt::CpuExec))
+            throw std::runtime_error("guest Gnm payload publication failed");
+    }
+    for (const auto& route : GnmFastPath::kRoutes) {
+        const auto entry = gnm_fastpath_base + symbol(route.export_name).offset;
+        if (!graphics_gnm_nids.contains(route.nid))
+            continue;
+        const auto name = std::string(route.nid) + GnmFastPath::kLibrarySuffix;
+        veneers.insert_or_assign(name, entry);
+        hle_status[name] = "guest_fastpath";
+        ++routed;
+    }
+    gnm_fastpath_status = routed ? "installed" : "installed_no_graphics";
+    LOG_INFO(Core_Linker, "Guest Gnm fast path {}: base={:#x} bytes={} image_sha256={} routed={}",
+             gnm_fastpath_status, gnm_fastpath_base, sizeof(Image), ImageSha256, routed);
 #endif
 }
 

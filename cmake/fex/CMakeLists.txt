@@ -388,6 +388,28 @@ if(V0_ENABLE_FEX)
         target_include_directories(guest_sync_fastpath_tests PRIVATE "${SYNC_FASTPATH_DIR}")
         target_link_libraries(guest_sync_fastpath_tests PRIVATE guest_cpu_fex Threads::Threads)
 
+        # Production guest Gnm shader-binding payload (guest/runtime/gnm) with a
+        # guest driver, executed by real FEX and compared with the native build
+        # of the same source.
+        set(GNM_FASTPATH_DIR "${CMAKE_CURRENT_BINARY_DIR}/gnm-fastpath-guest")
+        set(GNM_FASTPATH_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../../guest/runtime/gnm/shader.c")
+        set(GNM_FASTPATH_DRIVER "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/gnm_fastpath_guest/entry.c")
+        add_custom_command(OUTPUT "${GNM_FASTPATH_DIR}/gnm_fastpath_guest_payload.h"
+            COMMAND "${Python3_EXECUTABLE}" "${GUEST_PAYLOAD_BUILDER}"
+                --clang "${V0_GUEST_CLANG}"
+                --source "${GNM_FASTPATH_SOURCE}" --source "${GNM_FASTPATH_DRIVER}"
+                --output "${GNM_FASTPATH_DIR}" --header gnm_fastpath_guest_payload.h
+                --entry guest_entry --namespace GnmFastPathGuest
+            DEPENDS "${GUEST_PAYLOAD_BUILDER}" "${GNM_FASTPATH_SOURCE}" "${GNM_FASTPATH_DRIVER}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../guest-code/payload.ld"
+            VERBATIM)
+        add_executable(gnm_fastpath_guest_tests
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/gnm_fastpath_guest_tests.cpp"
+            "${GNM_FASTPATH_SOURCE}"
+            "${GNM_FASTPATH_DIR}/gnm_fastpath_guest_payload.h")
+        target_include_directories(gnm_fastpath_guest_tests PRIVATE "${GNM_FASTPATH_DIR}")
+        target_link_libraries(gnm_fastpath_guest_tests PRIVATE guest_cpu_fex)
+
     endif()
 endif()
 

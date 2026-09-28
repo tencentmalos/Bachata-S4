@@ -1740,6 +1740,22 @@ if(BUILD_HOST_CORE)
     add_custom_target(guest_sync_payload DEPENDS "${GUEST_SYNC_PAYLOAD_DIR}/guest_sync_payload.h")
     add_dependencies(shadps4 guest_sync_payload)
     target_include_directories(shadps4 PRIVATE "${GUEST_SYNC_PAYLOAD_DIR}")
+    # App-shipped guest Gnm shader-binding encoders (guest/runtime/gnm,
+    # src/core/host_runtime/guest_gnm_abi.h), published the same way.
+    set(GUEST_GNM_PAYLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/guest-gnm-payload")
+    add_custom_command(OUTPUT "${GUEST_GNM_PAYLOAD_DIR}/guest_gnm_payload.h"
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-guest-payload"
+            --clang "${CMAKE_C_COMPILER}"
+            --source "${CMAKE_CURRENT_SOURCE_DIR}/guest/runtime/gnm/shader.c"
+            --output "${GUEST_GNM_PAYLOAD_DIR}" --header guest_gnm_payload.h
+            --entry shad_sceGnmSetVsShader --namespace GuestGnmPayload --symbols
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-guest-payload"
+            "${CMAKE_CURRENT_SOURCE_DIR}/guest/runtime/gnm/shader.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/guest-code/payload.ld"
+        VERBATIM)
+    add_custom_target(guest_gnm_payload DEPENDS "${GUEST_GNM_PAYLOAD_DIR}/guest_gnm_payload.h")
+    add_dependencies(shadps4 guest_gnm_payload)
+    target_include_directories(shadps4 PRIVATE "${GUEST_GNM_PAYLOAD_DIR}")
     # Optional independent SDK checkout, matching Cemu's source SDK integration.
     set(SHADPS4_GPU_RESHAPE_SDK_ROOT "" CACHE PATH "GPU Reshape source SDK root (Android debug tooling)")
     set(SHADPS4_GPU_RESHAPE_LIBRARY "")
@@ -1890,6 +1906,12 @@ if(BUILD_HOST_CORE)
         target_link_libraries(srt_tests PRIVATE shadps4_host)
         target_include_directories(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_gnm_fastpath_tests tests/host_runtime/guest_gnm_fastpath_tests.cpp
+            guest/runtime/gnm/shader.c)
+        target_link_libraries(guest_gnm_fastpath_tests PRIVATE shadps4_host)
+        target_include_directories(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_dependencies(guest_gnm_fastpath_tests guest_gnm_payload)
         add_executable(guest_audio3d_tests tests/host_runtime/guest_audio3d_tests.cpp)
         target_link_libraries(guest_audio3d_tests PRIVATE shadps4_host)
         target_include_directories(guest_audio3d_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

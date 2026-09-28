@@ -7,6 +7,7 @@
 #include "core/guest_cpu/hle/scope.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
+#include "core/libraries/gnmdriver/gnmdriver_init.h"
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/videoout/driver.h"
 #include "core/libraries/videoout/videoout_error.h"
@@ -126,64 +127,115 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             return Ok();
         };
     };
-    auto encoder = [&]<auto Fn>(const char* nid, size_t register_words = 0, bool marker = false) {
+    // Command buffer encoders only write the caller's command buffer: no GPU
+    // submission, so no graphics admission lease and no renderer lookup. The
+    // pin below keeps the buffer's mapping alive for the write.
+    auto install_encoder = [&](std::string nid, unsigned argc, auto fn) {
+        gnm.insert(nid);
+        handlers[nid] = [argc, fn](HleCallFrame& frame) -> Status {
+            CallCursor cursor(frame);
+            Args args{};
+            for (unsigned i = 0; i < argc; ++i) {
+                auto value = cursor.NextInteger();
+                if (!value)
+                    return value.GetError();
+                args[i] = value.Value();
+            }
+            auto* scope = HleScope::Current();
+            if (scope && scope->CancellationToken().stop_requested())
+                return Ok();
+            frame.registers.Set(Gpr::Rax, fn(args));
+            return Ok();
+        };
+    };
+    // `max_words`: an upper bound of what the encoder writes whatever `size` is
+    // (0 = unknown). Encoders that accept any size above a minimum (the
+    // hardware-state init packets) are called with the caller's size, but only
+    // that bound is copied through the scratch buffer instead of the whole
+    // capacity the game passes.
+    auto encoder = [&]<auto Fn>(const char* nid, size_t register_words = 0, bool marker = false,
+                                u32 max_words = 0) {
         using S = decltype(Describe(Fn));
         const bool embedded_ps = std::string_view(nid) == "X9Omw9dwv5M";
-        install(nid, S::count,
-                [&, register_words, marker, embedded_ps](GuestGraphics&, const Args& a) -> u64 {
-                    if (!a[0] || !a[1] || a[1] > 0x100000 || (embedded_ps && a[1] < 40))
+        install_encoder(
+            nid, S::count,
+            [&space, nid, register_words, marker, embedded_ps, max_words](const Args& a) -> u64 {
+                // Bounded record of the calls this route refuses: a guest
+                // fast path that writes unconditionally differs exactly here.
+                const auto refused = [&](const char* why) {
+                    static std::atomic<u32> reports{};
+                    if (reports.fetch_add(1, std::memory_order_relaxed) < 64)
+                        LOG_WARNING(Lib_GnmDriver,
+                                    "encoder {} refused ({}): cmdbuf={:#x} size={:#x} regs={:#x}",
+                                    nid, why, a[0], a[1], a[2]);
+                    return u32(-1);
+                };
+                if (!a[0] || !a[1] || a[1] > 0x100000 || (embedded_ps && a[1] < 40))
+                    return refused("arguments");
+                std::array<u32, 16> registers{};
+                if (register_words && a[2]) {
+                    auto result = space.ReadData(
+                        GuestAddress{a[2]},
+                        std::as_writable_bytes(std::span{registers.data(), register_words}));
+                    if (!result)
+                        return refused("registers unreadable");
+                }
+                std::string text;
+                if (marker) {
+                    for (u64 i = 0; i < 1024; ++i) {
+                        char ch = Read<char>(space, a[2] + i);
+                        if (!ch)
+                            break;
+                        text += ch;
+                    }
+                    if (text.size() == 1024 || a[1] < (text.size() + 4) / 4 + 2)
                         return u32(-1);
-                    std::vector<u32> registers(register_words);
-                    if (register_words && a[2]) {
-                        auto result = space.ReadData(GuestAddress{a[2]},
-                                                     std::as_writable_bytes(std::span{registers}));
-                        if (!result)
-                            return u32(-1);
-                    }
-                    std::string text;
-                    if (marker) {
-                        for (u64 i = 0; i < 1024; ++i) {
-                            char ch = Read<char>(space, a[2] + i);
-                            if (!ch)
-                                break;
-                            text += ch;
-                        }
-                        if (text.size() == 1024 || a[1] < (text.size() + 4) / 4 + 2)
-                            return u32(-1);
-                    }
+                }
 
-                    // Validate the entire dword capacity and preserve unwritten padding.
-                    auto pin = AcquireGraphicsCommandBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
-                    if (!pin)
-                        return u32(-1);
-                    constexpr u32 guard = 0xa55a9187;
-                    std::vector<u32> encoded(std::max<u64>(a[1], 4096) + 64, guard);
-                    std::memcpy(encoded.data(), pin.Value().Bytes().data(), a[1] * 4);
-                    const auto result = EncoderCall<Fn>(
-                        encoded.data(), a, a[2] && register_words ? registers.data() : nullptr,
-                        marker ? text.c_str() : nullptr, std::make_index_sequence<S::count>{});
-                    if (!std::all_of(encoded.begin() + a[1], encoded.end(),
-                                     [](u32 value) { return value == guard; }))
-                        return u32(-1);
-                    std::memcpy(pin.Value().WritableBytes().data(), encoded.data(), a[1] * 4);
-                    return result;
-                });
+                // Validate the entire dword capacity and preserve unwritten padding.
+                auto pin =
+                    AcquireGraphicsCommandBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
+                if (!pin)
+                    return refused("command buffer not writable");
+                const u64 window = max_words ? std::min<u64>(a[1], max_words) : a[1];
+                constexpr u32 guard = 0xa55a9187;
+                constexpr u64 guard_words = 64;
+                // Reused per thread; the part the encoder may write is
+                // overwritten from the guest below, the rest is guard.
+                thread_local std::vector<u32> encoded;
+                const u64 capacity = std::max<u64>(window, 4096) + guard_words;
+                if (encoded.size() < capacity)
+                    encoded.resize(capacity);
+                std::memcpy(encoded.data(), pin.Value().Bytes().data(), window * 4);
+                std::fill(encoded.begin() + window, encoded.begin() + capacity, guard);
+                const auto result = EncoderCall<Fn>(
+                    encoded.data(), a, a[2] && register_words ? registers.data() : nullptr,
+                    marker ? text.c_str() : nullptr, std::make_index_sequence<S::count>{});
+                if (!std::all_of(encoded.begin() + window, encoded.begin() + capacity,
+                                 [](u32 value) { return value == guard; }))
+                    return refused("wrote past size");
+                std::memcpy(pin.Value().WritableBytes().data(), encoded.data(), window * 4);
+                return result;
+            });
     };
 #define ENCODE(nid, fn) encoder.template operator()<&GnmDriver::fn>(nid)
 #define SHADER(nid, fn, words) encoder.template operator()<&GnmDriver::fn>(nid, words)
+// Hardware-state init packets write exactly HwInitPacketSize dwords for any size >= it.
+#define HWINIT(nid, fn)                                                                            \
+    encoder.template operator()<&GnmDriver::fn>(nid, 0, false, GnmDriver::HwInitPacketSize)
     ENCODE("ffrNQOshows", sceGnmComputeWaitOnAddress);
     ENCODE("0BzLGljcwBo", sceGnmDispatchDirect);
     ENCODE("Z43vKp5k7r0", sceGnmDispatchIndirect);
     ENCODE("wED4ZXCFJT0", sceGnmDispatchIndirectOnMec);
-    ENCODE("nF6bFRUBRAU", sceGnmDispatchInitDefaultHardwareState);
+    HWINIT("nF6bFRUBRAU", sceGnmDispatchInitDefaultHardwareState);
     ENCODE("HlTPoZ-oY7Y", sceGnmDrawIndex);
     ENCODE("GGsn7jMTxw4", sceGnmDrawIndexAuto);
     ENCODE("ED9-Fjr8Ta4", sceGnmDrawIndexIndirect);
     ENCODE("thbPcG7E7qk", sceGnmDrawIndexIndirectCountMulti);
     ENCODE("oYM+YzfCm2Y", sceGnmDrawIndexOffset);
     ENCODE("4v+otIIdjqg", sceGnmDrawIndirect);
-    ENCODE("0H2vBYbTLHI", sceGnmDrawInitDefaultHardwareState200);
-    ENCODE("yb2cRhagD1I", sceGnmDrawInitDefaultHardwareState350);
+    HWINIT("0H2vBYbTLHI", sceGnmDrawInitDefaultHardwareState200);
+    HWINIT("yb2cRhagD1I", sceGnmDrawInitDefaultHardwareState350);
     ENCODE("im2ZuItabu4", sceGnmDrawInitToDefaultContextState400);
     ENCODE("NfvOrNzy6sk", sceGnmInsertDingDongMarker);
     ENCODE("7qZVNgEu+SY", sceGnmInsertPopMarker);
@@ -220,6 +272,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     SHADER("V31V01UiScY", sceGnmUpdateVsShader, 7);
 #undef ENCODE
 #undef SHADER
+#undef HWINIT
     // Match the desktop's retail/debug compatibility policy. These functions
     // have no pointer arguments in that implementation; no guest pointers pass
     // through this scalar adapter. Unsupported diagnostics retain their errors.
