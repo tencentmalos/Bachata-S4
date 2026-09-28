@@ -1,7 +1,12 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <chrono>
+#include <thread>
 #include <boost/preprocessor/stringize.hpp>
+#if defined(__ANDROID__)
+#include <sys/system_properties.h>
+#endif
 
 #include "common/arch.h"
 #include "common/assert.h"
@@ -345,6 +350,24 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submiss
 
     FIBER_EXIT;
 }
+
+namespace {
+// Fatal path only: the packet stream around an undecodable DCB packet, so the
+// writer of the corrupt dwords can be identified from the log.
+void LogBadPacket(const u32* begin, const u32* at, const u32* end, VAddr source) {
+    const auto offset = static_cast<u64>(at - begin);
+    LOG_CRITICAL(Render, "Bad PM4 packet at dword {} of DCB guest {:#x} ({} dwords)", offset,
+                 source, static_cast<u64>(end - begin));
+    const u32* from = at - std::min<u64>(offset, 96);
+    const u32* to = at + std::min<u64>(static_cast<u64>(end - at), 32);
+    for (const u32* p = from; p < to; p += 8) {
+        std::string line;
+        for (const u32* q = p; q < std::min(p + 8, to); ++q)
+            line += q == at ? fmt::format(" [{:08x}]", *q) : fmt::format(" {:08x}", *q);
+        LOG_CRITICAL(Render, "  {:+5}:{}", static_cast<s64>(p - at), line);
+    }
+}
+} // namespace
 
 Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission, VAddr source) {
     FIBER_ENTER(dcb_task_name);
@@ -1007,6 +1030,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 break;
             }
             default:
+                LogBadPacket(reinterpret_cast<const u32*>(base_addr),
+                             reinterpret_cast<const u32*>(header), dcb.data() + dcb.size(), source);
                 UNREACHABLE_MSG("Unknown PM4 type 3 opcode {:#x} with count {}",
                                 static_cast<u32>(opcode), count);
             }
@@ -1363,6 +1388,135 @@ Liverpool::Task Liverpool::ProcessOwnedGraphics(std::vector<u32> dcb, std::vecto
         std::rethrow_exception(task.handle.promise().error);
 }
 
+namespace {
+// Diagnostic (debug.shadps4.pm4_validate=1): check each submitted DCB copy for
+// undecodable packet headers. On a hit, log the packets around it and whether
+// guest memory still changes after the copy, which tells a producer that has
+// not finished writing (ordering/race) from wrongly written bytes.
+bool Pm4ValidateEnabled() {
+#if defined(__ANDROID__)
+    static const bool enabled = [] {
+        char value[PROP_VALUE_MAX]{};
+        __system_property_get("debug.shadps4.pm4_validate", value);
+        return std::string_view(value) == "1";
+    }();
+    return enabled;
+#else
+    return false;
+#endif
+}
+bool KnownType3Opcode(PM4ItOpcode op) {
+    switch (op) {
+    case PM4ItOpcode::Nop:
+    case PM4ItOpcode::SetBase:
+    case PM4ItOpcode::ClearState:
+    case PM4ItOpcode::IndexBufferSize:
+    case PM4ItOpcode::DispatchDirect:
+    case PM4ItOpcode::DispatchIndirect:
+    case PM4ItOpcode::AtomicGds:
+    case PM4ItOpcode::Atomic:
+    case PM4ItOpcode::OcclusionQuery:
+    case PM4ItOpcode::SetPredication:
+    case PM4ItOpcode::RegRmw:
+    case PM4ItOpcode::CondExec:
+    case PM4ItOpcode::PredExec:
+    case PM4ItOpcode::DrawIndirect:
+    case PM4ItOpcode::DrawIndexIndirect:
+    case PM4ItOpcode::IndexBase:
+    case PM4ItOpcode::DrawIndex2:
+    case PM4ItOpcode::ContextControl:
+    case PM4ItOpcode::IndexType:
+    case PM4ItOpcode::DrawIndirectMulti:
+    case PM4ItOpcode::DrawIndexAuto:
+    case PM4ItOpcode::NumInstances:
+    case PM4ItOpcode::DrawIndexMultiAuto:
+    case PM4ItOpcode::IndirectBufferConst:
+    case PM4ItOpcode::StrmoutBufferUpdate:
+    case PM4ItOpcode::DrawIndexOffset2:
+    case PM4ItOpcode::WriteData:
+    case PM4ItOpcode::DrawIndexIndirectMulti:
+    case PM4ItOpcode::MemSemaphore:
+    case PM4ItOpcode::WaitRegMem:
+    case PM4ItOpcode::IndirectBuffer:
+    case PM4ItOpcode::CopyData:
+    case PM4ItOpcode::CommandProcessorDma:
+    case PM4ItOpcode::PfpSyncMe:
+    case PM4ItOpcode::SurfaceSync:
+    case PM4ItOpcode::CondWrite:
+    case PM4ItOpcode::EventWrite:
+    case PM4ItOpcode::EventWriteEop:
+    case PM4ItOpcode::EventWriteEos:
+    case PM4ItOpcode::ReleaseMem:
+    case PM4ItOpcode::PreambleCntl:
+    case PM4ItOpcode::DmaData:
+    case PM4ItOpcode::ContextRegRmw:
+    case PM4ItOpcode::AcquireMem:
+    case PM4ItOpcode::Rewind:
+    case PM4ItOpcode::LoadShReg:
+    case PM4ItOpcode::LoadConfigReg:
+    case PM4ItOpcode::LoadContextReg:
+    case PM4ItOpcode::SetConfigReg:
+    case PM4ItOpcode::SetContextReg:
+    case PM4ItOpcode::SetContextRegIndirect:
+    case PM4ItOpcode::SetShReg:
+    case PM4ItOpcode::SetShRegOffset:
+    case PM4ItOpcode::SetQueueReg:
+    case PM4ItOpcode::SetUconfigReg:
+    case PM4ItOpcode::LoadConstRam:
+    case PM4ItOpcode::WriteConstRam:
+    case PM4ItOpcode::DumpConstRam:
+    case PM4ItOpcode::IncrementCeCounter:
+    case PM4ItOpcode::IncrementDeCounter:
+    case PM4ItOpcode::WaitOnCeCounter:
+    case PM4ItOpcode::WaitOnDeCounterDiff:
+    case PM4ItOpcode::GetLodStats:
+    case PM4ItOpcode::DrawIndexIndirectCountMulti:
+        return true;
+    default:
+        return false;
+    }
+}
+// Offset (dwords) of the first undecodable packet, or size when all decode.
+size_t FirstBadPacket(std::span<const u32> dcb) {
+    size_t i = 0;
+    while (i < dcb.size()) {
+        const auto* header = reinterpret_cast<const PM4Header*>(&dcb[i]);
+        if (header->type == 2) {
+            ++i;
+            continue;
+        }
+        if (header->type != 3 || !KnownType3Opcode(PM4ItOpcode(header->type3.opcode)))
+            return i;
+        i += header->type3.NumWords() + 1;
+    }
+    return dcb.size();
+}
+void ValidateSubmission(std::span<const u32> copy, std::span<const u32> live, VAddr source) {
+    const size_t bad = FirstBadPacket(copy);
+    if (bad >= copy.size())
+        return;
+    static std::atomic<u32> reports{};
+    if (reports.fetch_add(1) >= 8)
+        return;
+    LOG_CRITICAL(Render, "pm4_validate: undecodable packet in submitted DCB guest {:#x}", source);
+    LogBadPacket(copy.data(), copy.data() + bad, copy.data() + copy.size(), source);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    size_t differing = 0;
+    for (size_t i = 0; i < copy.size(); ++i) {
+        if (copy[i] == live[i])
+            continue;
+        if (differing++ < 12)
+            LOG_CRITICAL(Render, "pm4_validate: dword {} ({:+}) copy {:08x} now {:08x}", i,
+                         static_cast<s64>(i) - static_cast<s64>(bad), copy[i], live[i]);
+    }
+    LOG_CRITICAL(Render,
+                 "pm4_validate: {} of {} dwords changed 2 ms after the copy; live "
+                 "memory {} the bad packet",
+                 differing, copy.size(),
+                 FirstBadPacket(live) == bad ? "still has" : "no longer has");
+}
+} // namespace
+
 void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VAddr source) {
     auto& queue = mapped_queues[GfxQueueId];
     const auto submission = Core::Diagnostics::Handoff::NextId();
@@ -1374,8 +1528,15 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
         std::tie(dcb, ccb) = CopyCmdBuffers(dcb, ccb);
     }
 
+    std::vector<u32> owned_dcb;
+    if (owned_submissions) {
+        owned_dcb.assign(dcb.begin(), dcb.end());
+        if (Pm4ValidateEnabled())
+            ValidateSubmission(owned_dcb, dcb, source);
+    }
     auto task = owned_submissions
-                    ? ProcessOwnedGraphics({dcb.begin(), dcb.end()}, {ccb.begin(), ccb.end()}, submission, source)
+                    ? ProcessOwnedGraphics(std::move(owned_dcb), {ccb.begin(), ccb.end()},
+                                           submission, source)
                     : ProcessGraphics(dcb, ccb, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
     task.handle.promise().diagnostic_id = submission;
