@@ -514,3 +514,107 @@ fixture_debug_watch_nt:
     movntdq [rdi], xmm0
     int3
 fixture_debug_watch_nt_end:
+
+// MULTIBLOCK loop shapes (G51). With MULTIBLOCK=1 every loop below stays inside one FEX region
+// and jumps back to a guest block that is not the region start, so only LoopHeaderPollPass's
+// poll can stop it. [rdi] counts iterations, [rdi + 8] = 1 asks the loop to finish. With
+// MULTIBLOCK=0 each loop header starts its own region and the entry poll stops it instead.
+
+// Conditional jump back to a header after a first instruction.
+.globl fixture_mb_cond_loop
+.globl fixture_mb_cond_loop_end
+fixture_mb_cond_loop:
+    xor eax, eax
+.Lmb_cond_top:
+    inc qword ptr [rdi]
+    cmp qword ptr [rdi + 8], 1
+    jne .Lmb_cond_top
+    mov eax, 131
+    movabs r15, 0x1122334455667788
+    jmp r15
+fixture_mb_cond_loop_end:
+
+// Test at the top, unconditional jump back.
+.globl fixture_mb_jmp_loop
+.globl fixture_mb_jmp_loop_end
+fixture_mb_jmp_loop:
+    xor eax, eax
+.Lmb_jmp_top:
+    cmp qword ptr [rdi + 8], 1
+    je .Lmb_jmp_done
+    inc qword ptr [rdi]
+    jmp .Lmb_jmp_top
+.Lmb_jmp_done:
+    mov eax, 132
+    movabs r15, 0x1122334455667788
+    jmp r15
+fixture_mb_jmp_loop_end:
+
+// The loop header is the block after a CALL, a secondary entry point of the region.
+.globl fixture_mb_call_loop
+.globl fixture_mb_call_loop_end
+fixture_mb_call_loop:
+    xor eax, eax
+    call .Lmb_call_leaf
+.Lmb_call_top:
+    inc qword ptr [rdi]
+    cmp qword ptr [rdi + 8], 1
+    jne .Lmb_call_top
+    mov eax, 133
+    movabs r15, 0x1122334455667788
+    jmp r15
+.Lmb_call_leaf:
+    ret
+fixture_mb_call_loop_end:
+
+// Nested loops: two headers inside one region, the inner one a LOOP instruction.
+.globl fixture_mb_nested_loop
+.globl fixture_mb_nested_loop_end
+fixture_mb_nested_loop:
+    xor eax, eax
+.Lmb_nested_outer:
+    mov ecx, 64
+.Lmb_nested_inner:
+    inc qword ptr [rdi]
+    loop .Lmb_nested_inner
+    cmp qword ptr [rdi + 8], 1
+    jne .Lmb_nested_outer
+    mov eax, 134
+    movabs r15, 0x1122334455667788
+    jmp r15
+fixture_mb_nested_loop_end:
+
+// CF lives across the back edge: adc at the header reads the previous iteration's cmp. While
+// [rdi + 8] is 0 that cmp leaves CF = 1, so rax ends as iterations - 1 only if every pause at the
+// header preserved CF.
+.globl fixture_mb_carry_loop
+.globl fixture_mb_carry_loop_end
+fixture_mb_carry_loop:
+    xor eax, eax
+.Lmb_carry_top:
+    adc rax, 0
+    inc qword ptr [rdi]
+    mov rcx, qword ptr [rdi + 8]
+    cmp rcx, 1
+    jne .Lmb_carry_top
+    movabs r15, 0x1122334455667788
+    jmp r15
+fixture_mb_carry_loop_end:
+
+// DBG25: a CALL executed at full speed, a stop in the callee, then one step over its RET. With
+// MULTIBLOCK=1 the CALL pushed a host return address into the caller's region; the step must
+// still stop at the instruction after the CALL (offset 10) with eax = 2.
+.globl fixture_mb_step_ret
+.globl fixture_mb_step_ret_end
+fixture_mb_step_ret:
+    mov eax, 1
+    call .Lmb_step_leaf
+    add eax, 2
+    add eax, 4
+    movabs r15, 0x1122334455667788
+    jmp r15
+.Lmb_step_leaf:
+    inc eax
+    int3
+    ret
+fixture_mb_step_ret_end:

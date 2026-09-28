@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/guest_cpu/fex/entry_backedge_pass.h"
+#include "core/guest_cpu/fex/loop_header_poll_pass.h"
 #include "core/guest_cpu/fex/memory_watch_pass.h"
 #include "core/guest_cpu/fex/profile_pass.h"
 #include "common/fex_tsc_scale.h"
 #include "Interface/Context/Context.h"
+#include "Interface/Core/LookupCache.h"
+#include "Utils/variable_length_integer.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/api/access_fault.h"
 #include "core/guest_cpu/debug/rsp_server.h"
@@ -41,6 +44,7 @@
 
 #if defined(__ANDROID__)
 #include <android/log.h>
+#include <sys/system_properties.h>
 #endif
 
 #include <FEXCore/Config/Config.h>
@@ -278,10 +282,80 @@ void ForwardAction(int signal, siginfo_t *info, void *ucontext, const struct sig
     }
 }
 
+// Offset from the JIT STATE register of the entry probe's store (FEX's InterruptPageOffset).
+constexpr std::uint32_t kInterruptPageOffset =
+    offsetof(FEXCore::Core::InternalThreadState, InterruptFaultPage) -
+    offsetof(FEXCore::Core::InternalThreadState, BaseFrameState);
+// LoopHeaderPollPass stores 8 bytes further into the same page; FEX never stores there.
+constexpr std::uint32_t kLoopPollDelta = 8;
+static_assert(kInterruptPageOffset + kLoopPollDelta <= 32760);
+
+#if defined(__aarch64__)
+// A stop at a guest block boundary: the guest registers are in their host registers and the
+// flags in their canonical places. Hand them to the stop path and leave through stop_spill.
+void CaptureBoundaryStop(ThreadInterruptBinding* binding, ucontext_t* uc, std::uint64_t guest_rip) {
+    binding->guest_rip = guest_rip;
+    binding->pstate = uc->uc_mcontext.pstate;
+    for (std::size_t i = 0; i < binding->gprs.size(); ++i)
+        binding->gprs[i] = uc->uc_mcontext.regs[i];
+    binding->interrupted.store(true, std::memory_order_release);
+    uc->uc_mcontext.sp = binding->native->CurrentFrame->ReturningStackLocation;
+    uc->uc_mcontext.regs[28] = reinterpret_cast<std::uintptr_t>(binding->native->CurrentFrame);
+    uc->uc_mcontext.pc = binding->stop_spill;
+}
+
+// Guest RIP of a LoopHeaderPollPass poll at `pc`: its GuestOpcode marker is the region RIP
+// table entry whose host PC is exactly `pc`. The last exact match wins, since FEX can leave
+// entries of an abandoned compile attempt at the front of the table. False if the current
+// region does not contain `pc` or has no such entry.
+bool LoopPollGuestRip(ThreadInterruptBinding* binding, std::uintptr_t pc, std::uint64_t& rip) {
+    using Backend = FEXCore::CPU::CPUBackend;
+    const std::uintptr_t header = binding->native->CurrentFrame->State.InlineJITBlockHeader;
+    if (!header || pc < header || !binding->fex->IsAddressInCodeBuffer(binding->native, header))
+        return false;
+    const auto tail_address =
+        header + reinterpret_cast<const Backend::JITCodeHeader*>(header)->OffsetToBlockTail;
+    if (!binding->fex->IsAddressInCodeBuffer(binding->native, tail_address))
+        return false;
+    const auto* tail = reinterpret_cast<const Backend::JITCodeTail*>(tail_address);
+    if (pc >= header + tail->Size)
+        return false;
+    const auto* entry = reinterpret_cast<const std::uint8_t*>(tail) + tail->OffsetToRIPEntries;
+    std::uint64_t host = header, guest = tail->RIP;
+    bool found = false;
+    for (std::uint32_t i = 0; i < tail->NumberOfRIPEntries; ++i) {
+        const auto decoded = FEXCore::Utils::vl64pair::Decode(entry);
+        entry += decoded.Size;
+        host += decoded.IntegerARMPC;
+        guest += decoded.IntegerX86RIP;
+        if (host == pc) {
+            rip = guest;
+            found = true;
+        }
+    }
+    return found;
+}
+#endif
+
 void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
 #if defined(__aarch64__)
 
     auto *binding = t_binding;
+    if (binding && info && info->si_code == SEGV_ACCERR &&
+        reinterpret_cast<std::uintptr_t>(info->si_addr) == binding->fault_page + kLoopPollDelta) {
+        auto *uc = static_cast<ucontext_t *>(raw_context);
+        const auto pc = uc->uc_mcontext.pc;
+        std::uint64_t guest_rip = 0;
+        if (binding->fex->IsAddressInCodeBuffer(binding->native, pc) &&
+            LoopPollGuestRip(binding, pc, guest_rip)) {
+            CaptureBoundaryStop(binding, uc, guest_rip);
+            return;
+        }
+        // Not a poll this handler can resume from: skip the store and keep the page
+        // protected, so the next entry or loop poll stops instead.
+        uc->uc_mcontext.pc += 4;
+        return;
+    }
     if (binding && info && info->si_code == SEGV_ACCERR &&
         reinterpret_cast<std::uintptr_t>(info->si_addr) == binding->fault_page) {
 
@@ -302,8 +376,7 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
         // header is an entry safe point. Skip internal probes without unwinding
         // partially executed guest instructions. This encoding/layout is pinned
         // to the same FEX revision as the adapter, not a generic PC heuristic.
-        constexpr auto offset = offsetof(FEXCore::Core::InternalThreadState, InterruptFaultPage) -
-                                offsetof(FEXCore::Core::InternalThreadState, BaseFrameState);
+        constexpr auto offset = kInterruptPageOffset;
         static_assert(offset <= 32760 && offset % 8 == 0);
         constexpr std::uint32_t probe = 0xf9000000u | (offset / 8 << 10) | (28 << 5) | 31;
         const auto header = binding->native->CurrentFrame->State.InlineJITBlockHeader;
@@ -323,17 +396,10 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
             return;
         }
 
-        // MULTIBLOCK is disabled and the fault check is before guest operations.
+        // The region's first probe is its primary entry poll, before any guest operation.
         // InlineJITBlockHeader was installed by EmitEntryPoint immediately before
         // this store. Preserve NZCV/GPRs for FEX's flag reconstruction on return.
-        binding->guest_rip = binding->fex->GetGuestBlockEntry(binding->native);
-        binding->pstate = uc->uc_mcontext.pstate;
-        for (std::size_t i = 0; i < binding->gprs.size(); ++i)
-            binding->gprs[i] = uc->uc_mcontext.regs[i];
-        binding->interrupted.store(true, std::memory_order_release);
-        uc->uc_mcontext.sp = binding->native->CurrentFrame->ReturningStackLocation;
-        uc->uc_mcontext.regs[28] = reinterpret_cast<std::uintptr_t>(binding->native->CurrentFrame);
-        uc->uc_mcontext.pc = binding->stop_spill;
+        CaptureBoundaryStop(binding, uc, binding->fex->GetGuestBlockEntry(binding->native));
         return;
     }
     if (info && info->si_code == SEGV_ACCERR) {
@@ -1081,6 +1147,26 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         // Single basic blocks make its fault a restartable architectural boundary.
         FEXCore::Config::Set(FEXCore::Config::CONFIG_GDBSERVER, "1");
         FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, "0");
+#if defined(__ANDROID__)
+        // Experimental: debug.shadps4.fex_multiblock=1 lets FEX build multi-block JIT regions.
+        // A jump inside a region skips the entry poll above, so LoopHeaderPollPass adds a poll
+        // at every loop header inside a region. Not yet the default: single-step over RET into
+        // a multi-block caller and flags reported at such a stop are not validated.
+        if (char multiblock[PROP_VALUE_MAX] = {};
+            __system_property_get("debug.shadps4.fex_multiblock", multiblock) > 0 &&
+            multiblock[0] == '1') {
+            FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, "1");
+            // debug.shadps4.fex_loop_poll=0 drops the loop polls, for measuring their cost and
+            // as the negative control of G51; loops then cannot be paused.
+            char loop_poll[PROP_VALUE_MAX] = {};
+            multiblock_loop_poll_ =
+                !(__system_property_get("debug.shadps4.fex_loop_poll", loop_poll) > 0 &&
+                  loop_poll[0] == '0');
+            __android_log_print(ANDROID_LOG_WARN, "FexCore",
+                                "debug.shadps4.fex_multiblock=1: MULTIBLOCK enabled, loop-header polls %s",
+                                multiblock_loop_poll_ ? "on" : "OFF (loops cannot be paused)");
+        }
+#endif
 
         {
             // Read it back rather than assuming the write landed; a silently 32-bit context
@@ -1241,6 +1327,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         auto *native = context_->CreateThread(&state);
         if (native)
             native->PassManager->PrependPass(fextl::make_unique<MemoryWatchPass>(*watch_compile), "ShadDebugMemory");
+        if (native && multiblock_loop_poll_)
+            native->PassManager->InsertPass(
+                fextl::make_unique<LoopHeaderPollPass>(kInterruptPageOffset + kLoopPollDelta),
+                "ShadGuestLoopPoll");
         if (native)
             native->PassManager->InsertPass(fextl::make_unique<EntryBackedgePass>(),
                                             "ShadGuestEntryPoll");
@@ -1792,7 +1882,23 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         const auto saved_tf = tf;
         binding.native->CurrentFrame->SynchronousFaultData = {};
         sys_ptrs->DebugMemoryAccess = watching ? reinterpret_cast<std::uint64_t>(&ObserveGuestMemory) : 0;
-        if (instruction_step) tf = 1; // blocked once, then trap before the next instruction
+        if (instruction_step) {
+            tf = 1; // blocked once, then trap before the next instruction
+            // FEX's TF check sits at block entries and only single-step compiles have it. A
+            // stepped RET or indirect jump first tries the call-return stack and the thread's L1
+            // lookup cache and, on a hit, branches straight into cached code without that check,
+            // running past the step (always after a full-speed CALL with MULTIBLOCK=1, and with
+            // MULTIBLOCK=0 once the target is cached). Empty both, as FEX does when it
+            // invalidates code, so the target goes through the dispatcher, which sends TF to a
+            // single-step compile. Owner thread, outside JIT code; costs a lookup refill only.
+            auto* native = binding.native;
+            FEXCore::Allocator::VirtualDontNeed(native->CallRetStackBase,
+                                                FEXCore::Core::InternalThreadState::CALLRET_STACK_SIZE);
+            FEXCore::Allocator::VirtualDontNeed(
+                reinterpret_cast<void*>(native->LookupCache->GetL1Pointer()),
+                native->LookupCache->GetScaledL1PointerMask() + sizeof(FEXCore::LookupCache::LookupCacheEntry),
+                false);
+        }
         context_->ExecuteThread(binding.native);
         sys_ptrs->GuestSignal_SIGTRAP = saved_trap;
         sys_ptrs->GuestSignal_SIGILL = saved_ill;
@@ -3240,6 +3346,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     FEXCore::HostFeatures host_features_{};
     ReturnGate return_gate_;
     std::uint64_t host_page_size_{};
+    // FEX builds multi-block regions and threads get LoopHeaderPollPass.
+    bool multiblock_loop_poll_{};
     int fatal_log_fd_{-1};
 };
 

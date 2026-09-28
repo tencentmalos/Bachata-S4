@@ -994,6 +994,54 @@ void TestGuestDebugStep(Harness& harness) {
           hle.Value().snapshot.registers.rip == harness.code_base + 2 &&
           hle.Value().snapshot.registers.Get(Gpr::Rax) == 42);
     (void)harness.context->DestroyThread(thread.Value());
+
+    // The CALL runs at full speed (with MULTIBLOCK=1 it records a host return address into the
+    // caller's region), the callee stops at INT3, and one step over its RET must stop right
+    // after the CALL instead of running on through the caller.
+    // The second round runs after the return site was reached at full speed, so it is also in
+    // the thread's lookup cache.
+    if (!load("mb_step_ret")) return;
+    std::string step_detail;
+    auto describe = [&](const Result<RunResult>& r) {
+        return r ? std::string(ToString(r.Value().primary_reason)) + " rip+" +
+                       Hex(r.Value().snapshot.registers.rip - harness.code_base) + " eax=" +
+                       std::to_string(r.Value().snapshot.registers.Get(Gpr::Rax))
+                 : Describe(r.GetError());
+    };
+    auto run_to = [&](const char* what, StopReason reason) {
+        auto r = harness.context->Run(thread.Value(), {});
+        const bool ok = r && r.Value().primary_reason == reason;
+        if (!ok) step_detail = std::string(what) + ": " + describe(r);
+        return ok;
+    };
+    auto step_to = [&](const char* what, std::uint64_t offset, std::uint64_t eax) {
+        auto r = harness.context->Step(thread.Value(), {});
+        const bool ok = r && r.Value().primary_reason == StopReason::StepComplete &&
+                        r.Value().snapshot.registers.rip == harness.code_base + offset &&
+                        r.Value().snapshot.registers.Get(Gpr::Rax) == eax;
+        if (!ok) step_detail = std::string(what) + ": " + describe(r);
+        return ok;
+    };
+    auto restart = [&] {
+        auto stopped = harness.context->ReadRegisters(thread.Value());
+        RegisterPatch patch{};
+        patch.fields = RegisterValidity::Rip;
+        patch.values.rip = harness.code_base;
+        const bool ok = stopped && harness.context->WriteRegisters(thread.Value(), patch,
+                                                                   stopped.Value().stop_epoch);
+        if (!ok) step_detail = "restart failed";
+        return ok;
+    };
+    const bool cold = run_to("cold: to INT3", StopReason::Breakpoint) &&
+                      step_to("cold: ret", 10, 2) && step_to("cold: add", 13, 4) &&
+                      run_to("cold: finish", StopReason::Returned);
+    const bool warm = cold && restart() && run_to("warm-up: to INT3", StopReason::Breakpoint) &&
+                      run_to("warm-up: finish", StopReason::Returned) && restart() &&
+                      run_to("warm: to INT3", StopReason::Breakpoint) &&
+                      step_to("warm: ret", 10, 2) && step_to("warm: add", 13, 4);
+    Check("DBG25", "step over RET after a full-speed CALL stops after the CALL", cold && warm,
+          step_detail);
+    (void)harness.context->DestroyThread(thread.Value());
 }
 
 void TestGuestDebugFlags(Harness& h) {
@@ -4594,6 +4642,100 @@ void TestWarmEntryBackedge(Harness& h) {
           receipt ? "" : Describe(receipt.GetError()));
 }
 
+// G51: loops that MULTIBLOCK=1 keeps inside one FEX region, jumping back to a guest block that is
+// not the region start. Each must stop on Pause at a loop header, resume with the same state, and
+// return the right result. With MULTIBLOCK=0 the same holds through each header's entry poll.
+void TestMultiblockLoops(Harness& h) {
+    struct Case {
+        const char* id;
+        const char* fixture;
+        const char* what;
+        std::uint64_t result; // 0: rax must be iterations - 1 (carry fixture)
+    };
+    static constexpr Case cases[] = {
+        {"G51a", "mb_cond_loop", "jne back to a non-entry header", 131},
+        {"G51b", "mb_jmp_loop", "jmp back to a non-entry header", 132},
+        {"G51c", "mb_call_loop", "loop headed by the block after a CALL", 133},
+        {"G51d", "mb_nested_loop", "nested loops with a LOOP inner loop", 134},
+        {"G51e", "mb_carry_loop", "CF carried across the back edge survives pauses", 0},
+    };
+    constexpr int kPauses = 20;
+    for (const auto& c : cases) {
+        std::string detail;
+        const auto* fixture = FindFixture(c.fixture);
+        if (!fixture || !LoadFixture(h, *fixture, detail)) {
+            Check(c.id, "load multiblock loop fixture", false, detail);
+            continue;
+        }
+        const auto counter = PrepareProgress(h);
+        new (reinterpret_cast<void*>(counter + 8)) std::uint64_t{0};
+        TestOwner owner(h, counter);
+        auto run = owner.Run();
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (Progress(counter) < 10000 && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        bool ok = Progress(counter) >= 10000;
+        if (!ok) detail = "loop did not warm up";
+        int header_stops = 0;
+        for (int cycle = 0; ok && cycle < kPauses; ++cycle) {
+            const auto label = "pause " + std::to_string(cycle) + ": ";
+            auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+            auto receipt = ticket ? h.context->WaitStopped(ticket.Value(), 1'000'000'000)
+                                  : Result<StopReceipt>{ticket.GetError()};
+            if (!receipt) {
+                ok = false;
+                detail = label + Describe(receipt.GetError());
+                break;
+            }
+            auto paused = Await(run);
+            auto regs = h.context->ReadRegisters(owner.handle);
+            const auto count = Progress(counter);
+            if (!paused || paused.Value().primary_reason != StopReason::PauseRequested || !regs) {
+                ok = false;
+                detail = label + "not a PauseRequested stop with readable registers";
+                break;
+            }
+            const auto rip = regs.Value().registers.rip;
+            if (rip < h.code_base || rip >= h.code_base + fixture->bytes.size()) {
+                ok = false;
+                detail = label + "rip outside the fixture " + Hex(rip);
+                break;
+            }
+            if (c.result == 0 && regs.Value().registers.Get(Gpr::Rax) + 1 != count) {
+                ok = false;
+                detail = label + "rax " + std::to_string(regs.Value().registers.Get(Gpr::Rax)) +
+                         " iterations " + std::to_string(count);
+                break;
+            }
+            header_stops += rip != h.code_base;
+            if (!h.context->Resume(owner.handle, ticket.Value().epoch)) {
+                ok = false;
+                detail = label + "Resume refused";
+                break;
+            }
+            run = owner.Run();
+            if (!WaitProgress(counter, count)) {
+                ok = false;
+                detail = label + "no progress after resume";
+                break;
+            }
+        }
+        std::atomic_ref<std::uint64_t>(*reinterpret_cast<std::uint64_t*>(counter + 8)).store(1);
+        auto result = Await(run);
+        const auto count = Progress(counter);
+        const bool returned = result && result.Value().primary_reason == StopReason::Returned;
+        const auto rax = returned ? result.Value().snapshot.registers.Get(Gpr::Rax) : 0;
+        const auto expected = c.result ? c.result : count - 1;
+        if (ok && header_stops != kPauses)
+            detail = std::to_string(header_stops) + " of " + std::to_string(kPauses) +
+                     " stops at a loop header";
+        else if (ok && (!returned || rax != expected))
+            detail = returned ? "rax " + std::to_string(rax) + " expected " + std::to_string(expected)
+                              : std::string{"did not return"};
+        Check(c.id, c.what, ok && header_stops == kPauses && returned && rax == expected, detail);
+    }
+}
+
 void TestHighAddressPolicy() {
     AddressSpaceConfig config;
     config.preferred_base = 0x400000;
@@ -4907,6 +5049,7 @@ int main(int argc, char** argv) {
     TestConcurrentSyscallFaultIsolation(harness);
     TestCoordinatorRecovery(harness);
     TestWarmEntryBackedge(harness);
+    TestMultiblockLoops(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestInterruptInterleavings(harness);

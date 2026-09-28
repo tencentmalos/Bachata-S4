@@ -14,6 +14,10 @@ namespace Core::GuestCpu::Fex {
 // target includes the entry poll. Instruction-internal loops (REP, atomics, etc.)
 // have no guest EntryPoint and must retain their original semantics.
 //
+// Only the region start: with MULTIBLOCK=1 the block after a CALL is an EntryPoint
+// too, but its preamble probe is not the region's first, so the fault handler skips
+// it. Loops back to such a block get LoopHeaderPollPass's poll instead.
+//
 // Inserted after FEX's register allocator: these edge blocks use only an inline
 // RIP constant and ExitFunction, which allocate no virtual/physical registers.
 // This private pass interface is tied to the audited FEX gitlink.
@@ -33,7 +37,7 @@ public:
             for (auto [node, op] : ir.GetCode(block)) {
                 auto add = [&](IR::OrderedNodeWrapper target, bool conditional, bool true_edge) {
                     auto* destination = ir.GetOp<IR::IROp_CodeBlock>(target);
-                    if (destination->EntryPoint)
+                    if (destination->EntryPoint && destination->GuestEntryOffset == 0)
                         edges.push_back(
                             {node, conditional, true_edge, destination->GuestEntryOffset});
                 };
