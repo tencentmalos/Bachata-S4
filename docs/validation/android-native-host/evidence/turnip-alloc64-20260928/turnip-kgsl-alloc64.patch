@@ -1,0 +1,55 @@
+diff --git a/src/freedreno/vulkan/tu_knl_kgsl.cc b/src/freedreno/vulkan/tu_knl_kgsl.cc
+index 1b2b6b07c3b..efef7869e46 100644
+--- a/src/freedreno/vulkan/tu_knl_kgsl.cc
++++ b/src/freedreno/vulkan/tu_knl_kgsl.cc
+@@ -296,7 +296,7 @@ kgsl_bo_init(struct tu_device *dev,
+       }
+    }
+ 
+-   struct kgsl_gpumem_alloc_id req = {
++   struct kgsl_gpuobj_alloc req = {
+       .size = size,
+    };
+ 
+@@ -328,10 +328,30 @@ kgsl_bo_init(struct tu_device *dev,
+    int ret;
+ 
+    ret = safe_ioctl(dev->physical_device->local_fd,
+-                    IOCTL_KGSL_GPUMEM_ALLOC_ID, &req);
++                    IOCTL_KGSL_GPUOBJ_ALLOC, &req);
+    if (ret) {
+       return vk_errorf(dev, VK_ERROR_OUT_OF_DEVICE_MEMORY,
+-                       "GPUMEM_ALLOC_ID failed (%s)", strerror(errno));
++                       "GPUOBJ_ALLOC failed (%s)", strerror(errno));
++   }
++
++   struct kgsl_gpuobj_info info = {
++      .id = req.id,
++   };
++   ret = safe_ioctl(dev->physical_device->local_fd,
++                    IOCTL_KGSL_GPUOBJ_INFO, &info);
++   if (ret || ((flags & TU_BO_ALLOC_NO_32B_ROLLOVER) &&
++               !(flags & TU_BO_ALLOC_REPLAYABLE) &&
++               (info.gpuaddr >= (1ull << 32) ||
++                info.size > (1ull << 32) - info.gpuaddr))) {
++      const int error = ret ? errno : ERANGE;
++      struct kgsl_gpumem_free_id free_req = {
++         .id = req.id,
++      };
++      safe_ioctl(dev->physical_device->local_fd,
++                 IOCTL_KGSL_GPUMEM_FREE_ID, &free_req);
++      return vk_errorf(dev, VK_ERROR_OUT_OF_DEVICE_MEMORY,
++                       "GPUOBJ_INFO or IB address range failed (%s)",
++                       strerror(error));
+    }
+ 
+    struct tu_bo* bo = tu_device_lookup_bo(dev, req.id);
+@@ -340,7 +360,7 @@ kgsl_bo_init(struct tu_device *dev,
+    *bo = (struct tu_bo) {
+       .gem_handle = req.id,
+       .size = req.mmapsize,
+-      .iova = req.gpuaddr,
++      .iova = info.gpuaddr,
+       .name = tu_debug_bos_add(dev, req.mmapsize, name),
+       .refcnt = 1,
+       .shared_fd = -1,

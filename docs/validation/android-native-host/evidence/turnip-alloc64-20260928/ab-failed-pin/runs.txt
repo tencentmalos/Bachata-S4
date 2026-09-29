@@ -1,0 +1,3 @@
+== cand1 driver=[sha:ff7e99809018e2a73662f31edba072b9d2388ddb79629c7d789d108e280cac5b] uptime0=37574.00
+   pid=12803 arrived: fps~0 stage= pid=13892 cpuset=/top-app
+   result: gone survived_soak=-1s device_lost_lines=0 alloc_errors=0 fault=[none] 

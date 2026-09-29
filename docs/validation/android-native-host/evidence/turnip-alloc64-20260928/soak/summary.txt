@@ -1,0 +1,38 @@
+== s1-spawn: 17.9s presents=536 fps=29.98 (1s min 29.1 max 30.5) gpubusy=80.2% gpuclk=902MHz cpu0-5=2746 cpu6-7=768MHz
+   ctx: pid=23301 cpuset=/top-app prop=[0] focus=  mCurrentFocus=Window{50476ba u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000
+   total (threads >=2%): on-cpu   69.8 ms/frame  runq   23.9 ms/frame
+   Guest-1            tid=29787  nice=-10  76.8% cpu  on-cpu   25.6  runq   3.4 ms/frame
+   shadPS4:GpuComm    tid=29849  nice=-10  38.9% cpu  on-cpu   13.0  runq   0.8 ms/frame
+   Guest-20           tid=29848  nice=-10  12.8% cpu  on-cpu    4.3  runq   0.3 ms/frame
+   shadPS4:VkRecor    tid=29853  nice=-10  12.6% cpu  on-cpu    4.2  runq   2.4 ms/frame
+   Guest-17           tid=29837  nice=-10   9.0% cpu  on-cpu    3.0  runq   1.6 ms/frame
+   shadPS4:Present    tid=29873  nice=-10   7.0% cpu  on-cpu    2.3  runq   0.2 ms/frame
+   Guest-25           tid=29878  nice=-10   6.9% cpu  on-cpu    2.3  runq   1.6 ms/frame
+   Guest-23           tid=29876  nice=-10   6.7% cpu  on-cpu    2.2  runq   1.6 ms/frame
+   Guest-21           tid=29874  nice=-10   6.7% cpu  on-cpu    2.2  runq   1.6 ms/frame
+   Guest-22           tid=29875  nice=-10   6.7% cpu  on-cpu    2.2  runq   1.6 ms/frame
+   Guest-24           tid=29877  nice=-10   6.7% cpu  on-cpu    2.2  runq   1.6 ms/frame
+   Guest-36           tid=29895  nice=-10   3.3% cpu  on-cpu    1.1  runq   1.2 ms/frame
+   Guest-35           tid=29894  nice=-10   2.9% cpu  on-cpu    1.0  runq   1.2 ms/frame
+   Guest-34           tid=29893  nice=-10   2.6% cpu  on-cpu    0.9  runq   1.3 ms/frame
+   Guest-13           tid=29828  nice=-10   2.6% cpu  on-cpu    0.9  runq   0.5 ms/frame
+   shadps4.android    tid=23301  nice=-10   2.5% cpu  on-cpu    0.8  runq   0.1 ms/frame
+== s1-inner: 20.5s presents=610 fps=29.79 (1s min 29.0 max 30.6) gpubusy=93.8% gpuclk=902MHz cpu0-5=2746 cpu6-7=1098MHz
+   ctx: pid=23301 cpuset=/top-app prop=[0] focus=  mCurrentFocus=Window{50476ba u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000
+   total (threads >=2%): on-cpu   73.4 ms/frame  runq   43.8 ms/frame
+   Guest-1            tid=29787  nice=-10  63.7% cpu  on-cpu   21.4  runq   5.4 ms/frame
+   shadPS4:GpuComm    tid=29849  nice=-10  43.5% cpu  on-cpu   14.6  runq   2.2 ms/frame
+   shadPS4:VkRecor    tid=29853  nice=-10  14.6% cpu  on-cpu    4.9  runq   4.0 ms/frame
+   Guest-20           tid=29848  nice=-10  13.3% cpu  on-cpu    4.5  runq   0.4 ms/frame
+   shadps4.android    tid=23301  nice=-10  11.2% cpu  on-cpu    3.8  runq   0.8 ms/frame
+   Guest-17           tid=29837  nice=-10  10.2% cpu  on-cpu    3.4  runq   3.1 ms/frame
+   shadPS4:Present    tid=29873  nice=-10   7.2% cpu  on-cpu    2.4  runq   0.2 ms/frame
+   Guest-24           tid=29877  nice=-10   7.1% cpu  on-cpu    2.4  runq   2.7 ms/frame
+   Guest-25           tid=29878  nice=-10   7.1% cpu  on-cpu    2.4  runq   2.7 ms/frame
+   Guest-23           tid=29876  nice=-10   7.0% cpu  on-cpu    2.4  runq   2.7 ms/frame
+   Guest-22           tid=29875  nice=-10   6.9% cpu  on-cpu    2.3  runq   2.7 ms/frame
+   Guest-21           tid=29874  nice=-10   6.9% cpu  on-cpu    2.3  runq   2.8 ms/frame
+   Guest-36           tid=29895  nice=-10   3.3% cpu  on-cpu    1.1  runq   1.9 ms/frame
+   Guest-35           tid=29894  nice=-10   2.9% cpu  on-cpu    1.0  runq   1.9 ms/frame
+   Guest-34           tid=29893  nice=-10   2.6% cpu  on-cpu    0.9  runq   2.0 ms/frame
+   Guest-33           tid=29892  nice=-10   2.4% cpu  on-cpu    0.8  runq   1.9 ms/frame

@@ -1,0 +1,29 @@
+{
+  "base_commit": "a1c3d38728b02ada89f579ae5da7aca2550bcc95",
+  "patch_sha256": "f945adc3a7da4f7331b021820178cabfb2928525f5d666da1c158a2b5f384439",
+  "target": "Android arm64 API33, KGSL HAL",
+  "runtime_validation": "not performed; user chose offline deliverable",
+  "artifacts": [
+    {
+      "role": "control",
+      "library_sha256": "aadd7730ced028e28809b79d53a81332bcf715c08c421e93aa3b942f5ef772f2",
+      "build_id": "b4cda010e0fc2dbf3d03e257a55410a4ad18bb8a",
+      "library_bytes": 15704888,
+      "archive": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/turnip-cp-opcode-20260928/packages/Turnip-a1c3d387-kgsl-alloc64-control-android-arm64.zip",
+      "archive_sha256": "a522f18fbb6bb00ca8ef44fec8db7a605af4f1753826f49dd9f278c5c37f35b5"
+    },
+    {
+      "role": "candidate",
+      "library_sha256": "ff7e99809018e2a73662f31edba072b9d2388ddb79629c7d789d108e280cac5b",
+      "build_id": "2d71c610854bfe9619bfa7b6fef92dd5a6eab2c2",
+      "library_bytes": 15704944,
+      "archive": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/turnip-cp-opcode-20260928/packages/Turnip-a1c3d387-kgsl-alloc64-candidate-android-arm64.zip",
+      "archive_sha256": "cd544053b6d91836320d2dc0d2c9b00cf57fe61ba1147ee39596ca0235827f31"
+    }
+  ],
+  "tests": {
+    "alloc_fixed": "31 checks, 0 failures",
+    "alloc_original": "31 checks, 10 failures (expected negative control)",
+    "kgsl_wait": "37 passed"
+  }
+}

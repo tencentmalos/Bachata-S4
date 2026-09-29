@@ -1,0 +1,3 @@
+session: pid=12803 stage=
+No services match: com.shadps4.android/.service.FexSessionService
+Use -h for help.

@@ -1,0 +1,4 @@
+== cand1 driver=[] uptime0=
+   pid=13892 arrived: fps~0 stage= pid=13892 cpuset=/top-app
+   == cand1-spawn: 14.6s presents=0 fps=0.00 (1s min 0.0 max 0.0) gpubusy=66.8% gpuclk=460MHz cpu0-5=1488 cpu6-7=902MHz
+   result: alive survived_soak=120s device_lost_lines=0 alloc_errors=0 fault=[none] 

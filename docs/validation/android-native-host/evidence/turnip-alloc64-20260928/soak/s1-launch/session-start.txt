@@ -1,0 +1,20 @@
+session: pid=23301 stage=Running
+SERVICE com.shadps4.android/.service.FexSessionService 84f7e73 pid=23301 user=0
+  Client:
+    session: active
+    generation: 1
+    pid: 23301
+    phase: 3
+    run_uuid: 030927f6748a8948cd1adc60b839f22f
+    stage: Running
+    driver: unavailable
+    snapshot_ns: 39223198980974
+    guest_flip: unavailable
+    pm4_consumed: unavailable
+    host_draw: unavailable
+    queue_submit: unavailable
+    gpu_retire: unavailable
+    host_present: unavailable
+    overlay_redraw: unavailable
+    guest_submission: unavailable
+

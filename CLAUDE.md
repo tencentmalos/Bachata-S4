@@ -1,10 +1,16 @@
-- **Gnm 绑 shader 的 guest 快路径 / HLE 编码器减负 / multiblock 默认开（2026-09-28 续，已本地提交、未推送）：** [实现、对照与 Swan 实测](docs/validation/android-native-host/gnm-fastpath-20260928.md)。
+- **宿主线程优先级 / HUD 电池 / Turnip alloc64 候选验证（2026-09-28～29）：** [线程优先级实现、单测与游戏内](docs/validation/android-native-host/thread-priority-20260928.md)、[alloc64 候选驱动实机结果](docs/validation/android-native-host/evidence/turnip-alloc64-20260928/README.md)。
+  - **线程优先级原状态**：`Common::SetCurrentThreadPriority` 在 Linux/Android 上用非 0 的 SCHED_OTHER 优先级，返回 EINVAL；Windows 实现可用但全仓无调用点；guest `setschedparam/setprio` 两端都只存属性。
+  - **实现**：只用分时权重（nice / Windows 线程优先级级别），不映射 RT。`SetThreadNice` 的参数是相对进程起始 nice 的偏移（Swan 前台 app 的线程继承 -10，第一版按绝对值设反而把线程降级，已改），按 `RLIMIT_NICE` 夹下限，下限高于基准时整体不调。guest FIFO/RR 256–767 → -4/-2/0/+2，OTHER → +2/+4（`host_priority.h`）。模拟器线程 High（GpuCommandProcessor、VkRecord、VkSubmit、GpuDone、PresentThread、AudioOut）/ Low（管线编译、预载、cache 保存与 IO）。开关 `debug.shadps4.thread_priority=0` / `SHADPS4_THREAD_PRIORITY=0`，DebugBus `thread_priority status|reset`。
+  - **验证**：Swan 单测基准 0 与 -10 各 23/0，下限高于基准、关闭各 12/0。血源（绝对值版本）确认普通 app 能调 nice；30 FPS 封顶下开/关的 on-CPU 与排队时间无可测差别。修正后的版本未做游戏内 A/B。Windows 仅语法检查，macOS 未编译。
+  - **HUD 电池**：Swan 上 app 读不到 `/sys/class/power_supply`。服务每秒读 BatteryManager 与粘性电池广播，经 JNI `nativeSetHostBattery` → `Core::Diagnostics::PublishHostBattery` → `StatusLayer` `setBatteryOverride`，读不到的字段传缺失。已编译，未上机验收。foundation 更新到 `b05f80f`（kgsl `clock_mhz`、gpubusy "0 0" 保持、无 /proc/stat 时用本进程 CPU）。`capture_recorder.cpp` 不参与 unity 构建（带 scrcpy SDK 构建时 `vk::AndroidSurfaceCreateInfoKHR` 找不到）。
+  - **Turnip alloc64 候选（未采用）**：Turnip `kgsl_gpumem_alloc_id.flags` 是 32 位，`KGSL_MEMFLAGS_FORCE_32BIT` 被截掉，这点已核实。候选包基于 a1c3d387 而非 86ca。Swan 上 IB 已进入低 4 GiB，但 `CP opcode error opcode=0` 仍出现 2 次，特征不变（IB2 `…6A10`、剩余 `0x1a4`）。同时游戏面板全黑，出现着色器写地址 0 的新故障，scrcpy 录制建 swapchain 报 `ErrorInvalidExternalHandle`。驱动保持 86ca；用户决定暂缓 KGSL。
+- **Gnm 绑 shader 的 guest 快路径 / HLE 编码器减负 / multiblock 默认开（2026-09-28 续，已推送 `feature/malos/swan_performance`）：** [实现、对照与 Swan 实测](docs/validation/android-native-host/gnm-fastpath-20260928.md)。
   - **快路径**：`guest/runtime/gnm/shader.c` 逐字节复刻 15 个 `sceGnmSet*/Update*Shader` 编码器与 `IsUserPaEnabled`（含 HLE 包装的前置检查），首次 `Bind` 发布并按 `guest_gnm_abi.h` 路由；`debug.shadps4.gnm_fastpath=0` 关闭。血源导入其中 12 个。
   - **验证**：原生对生产编码器 127918/0（负对照 758 失败）；真实 FEX 下单线程、各 dword 相位、4 线程共 105 万例 0 不一致；游戏内 HLE 编码器零拒绝。
   - **Swan 血源（30 FPS 封顶，看 on-CPU）**：工作线程 Guest-20..25 合计约少 8.5 ms/帧；编码器减负（不取 admission、线程局部 scratch、HwInit 只拷 0x100 dword）再让 Guest-20 少约 1.5 ms/帧；Guest-1、GpuComm 不变，FPS 看不到变化。每种配置 1–2 个会话。
   - **multiblock 默认开**：`debug.shadps4.fex_multiblock=0` 关，`fex_loop_poll=0` 只关循环头 poll（仅测量用）。
   - **已有问题（与快路径无关）**：Swan 血源偶发 `CP opcode error opcode=0` → device lost，开快路径 2/10、关 2/6；Turnip 命令流读到 0，推测管线 draw-state 生命周期，已另起任务。Thor 首轮开快路径时一次坏 PM4 崩溃，单样本未归因；Thor 随后断开，属性 `gnm_fastpath=1` 未清。新增默认关闭的诊断：坏包转储、`debug.shadps4.pm4_validate=1`、编码器拒绝日志。
-- **血源 Thor 瓶颈归因 / Render Scale 0.25 为何不提帧（2026-09-28，基于 `60ec46d0`；归因只测量，后续改动见“同日续”，已本地提交、未推送）：** [报告](docs/validation/android-native-host/thor-bloodborne-bottleneck-20260928.md)。AYN Thor 读档出生点静止，Render Scale 0.5 与 0.25 对比：
+- **血源 Thor 瓶颈归因 / Render Scale 0.25 为何不提帧（2026-09-28，基于 `60ec46d0`；归因只测量，后续改动见“同日续”，已推送）：** [报告](docs/validation/android-native-host/thor-bloodborne-bottleneck-20260928.md)。AYN Thor 读档出生点静止，Render Scale 0.5 与 0.25 对比：
   - **GPU 不是瓶颈**：FPS 16.8→17.2；GPU busy 70%/498 MHz → 66%/401 MHz，每帧 GPU 工作量 −26%，按 680 MHz 满频折算只需 23–31 ms/帧。
   - **帧长由两条几乎等长的 CPU 路径决定**：
     - `Guest-1`：on-CPU 43 ms（其中 JIT 游戏代码 28 ms）+ 排队等 CPU 9 ms + 等任务线程 11 ms；
@@ -29,7 +35,7 @@
     - Litep `capture_kgsl` 在 Thor 上实际窗口达 39.7 s，被判超时；数据改为手工解析，未绑定 sidecar。
     - 服务对 shell 不导出，停止游戏走界面（返回 → Stop），之后对空闲 app 执行 force-stop 回到 Library。
   - **结论只适用于 Thor**：用户的设备（可能是 Pocket DS）与 Swan 均未复核。设置已按原始字节恢复，会话 `user_stop` 正常停止，设备临时文件已清理。
-  - **同日续（报告 §10–§11，已本地提交、未推送）**：
+  - **同日续（报告 §10–§11，已推送）**：
     - `GpuComm`：逐 draw 的细粒度 profiler scope 改为 `profiler_ring fine on` 时才记录（默认关），删掉遗留的 SBS 逐 draw 日志，约省 2.5 ms/帧；stream 缓冲区的只读绑定不再进屏障跟踪树（`upload_diag stream_barriers on` 恢复旧行为），5 个会话均省约 2.7 ms/帧。stream 拷贝复用映射锁使锁次数减半但无可测收益，已撤回，§4 对该锁的 perf 归因偏高。
     - multiblock 暂停安全：新 `LoopHeaderPollPass` 在区域内每个被向后跳转命中的 guest 块开头插一次写中断页 +8，缺页处理按 RIP 表精确匹配定位循环头并停下；`EntryBackedgePass` 只处理跳回区域起点的边。另修调试单步越过 RET 会一路跑下去的旧问题（`MULTIBLOCK=0` 下返回点进过 L1 缓存时也会发生）：单步前清空 call-ret 栈与 L1。
     - 设备测试 MULTIBLOCK=0/1：执行 258/0、调试器 86/0，新增 G51a–e 与 DBG25；反证为关 poll 时 G25 失败、去掉清缓存时 DBG25 失败。

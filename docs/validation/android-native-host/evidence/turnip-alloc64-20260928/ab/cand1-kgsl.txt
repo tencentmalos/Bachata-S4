@@ -1,0 +1,6 @@
+46727-[38768.326622] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:726000000
+46728-[38768.326639] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[18181]: ctx 57 ctx_type ANY ts 11607 policy 2
+46729-[38768.326648] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[18181]: cmdline: com.shadps4.android
+46730-[38768.326706] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+46731-[38768.326713] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 00c0/0168 ib1 0000000005265000/095d ib2 0000000006646A10/01a4 ib3 0000000000000000/0000
+46732-[38768.326723] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: BV: rb 00c0/0168 ib1 0000000005265000/5b94 ib2 0000000000000000/0000 ib3 0000000000000000/0000

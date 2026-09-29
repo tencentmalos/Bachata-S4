@@ -1,0 +1,86 @@
+SERVICE com.shadps4.android/.service.FexSessionService 84f7e73 pid=23301 user=0
+  Client:
+    thread_priority: enabled=false nice_base=-10 nice_floor=-20
+      29787 Guest-1                  guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29808 Guest-2                  guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29812 Guest-3                  guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29813 Guest-4                  guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29816 Guest-5                  guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29817 Guest-6                  guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29822 Guest-7                  guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29823 Guest-8                  guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29824 Guest-9                  guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29825 Guest-10                 guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29826 Guest-11                 guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29827 Guest-12                 guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29828 Guest-13                 guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29829 Guest-14                 guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29830 Guest-15                 guest policy 1 prio 765      offset=2 applied=none now=-10 changes=2
+      29833 Guest-16                 guest policy 1 prio 258      offset=-4 applied=none now=-10 changes=2
+      29837 Guest-17                 guest policy 1 prio 257      offset=-4 applied=none now=-10 changes=2
+      29838 Guest-18                 guest policy 1 prio 256      offset=-4 applied=none now=-10 changes=2
+      29839 Guest-19                 guest policy 1 prio 260      offset=-4 applied=none now=-10 changes=2
+      29848 Guest-20                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29849 shadPS4:GpuComm          host High                    offset=-4 applied=none now=-10 changes=1
+      29851 shadPS4:VkSubmi          host High                    offset=-4 applied=none now=-10 changes=1
+      29852 shadPS4:GpuDone          host High                    offset=-4 applied=none now=-10 changes=1
+      29853 shadPS4:VkRecor          host High                    offset=-4 applied=none now=-10 changes=1
+      29855 shadPS4:GpuDone          host High                    offset=-4 applied=none now=-10 changes=1
+      29857 shadPS4:GpuDone          host High                    offset=-4 applied=none now=-10 changes=1
+      29862 shadPS4:GpuDone          host High                    offset=-4 applied=none now=-10 changes=1
+      29863 shadPS4:Pipelin          host Low                     offset=4 applied=none now=-10 changes=1
+      29864 shadPS4:Pipelin          host Low                     offset=4 applied=none now=-10 changes=1
+      29865 shadPS4:Pipelin          host Low                     offset=4 applied=none now=-10 changes=1
+      29866 shadPS4:Pipelin          host Low                     offset=4 applied=none now=-10 changes=1
+      29867 shadPS4:Pipelin          host Low                     offset=4 applied=none now=gone changes=1
+      29868 shadPS4:Pipelin          host Low                     offset=4 applied=none now=gone changes=1
+      29869 shadPS4:Pipelin          host Low                     offset=4 applied=none now=gone changes=1
+      29870 shadPS4:Pipelin          host Low                     offset=4 applied=none now=gone changes=1
+      29873 shadPS4:Present          host High                    offset=-4 applied=none now=-10 changes=1
+      29874 Guest-21                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29875 Guest-22                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29876 Guest-23                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29877 Guest-24                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29878 Guest-25                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29879 Guest-26                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29880 Guest-27                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29881 Guest-28                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29882 Guest-29                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29883 Guest-30                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29884 Guest-31                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29891 Guest-32                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29892 Guest-33                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29893 Guest-34                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29894 Guest-35                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29895 Guest-36                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29896 Guest-37                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29897 Guest-38                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29898 Guest-39                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29899 Guest-40                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29900 Guest-41                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29901 Guest-42                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29902 Guest-43                 guest policy 1 prio 765      offset=2 applied=none now=-10 changes=2
+      29903 Guest-44                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29907 Guest-45                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29908 Guest-46                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29909 Guest-47                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29910 Guest-48                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29911 Guest-49                 guest policy 1 prio 700      offset=0 applied=none now=gone changes=1
+      29912 Guest-50                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29913 Guest-51                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=1
+      29916 Guest-52                 guest policy 1 prio 265      offset=-4 applied=none now=-10 changes=2
+      30039 Guest-53                 guest policy 1 prio 265      offset=-4 applied=none now=-10 changes=2
+      30092 Guest-54                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30094 Guest-55                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30097 Guest-56                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30098 Guest-57                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30099 Guest-58                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30100 Guest-59                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30101 Guest-60                 guest policy 1 prio 767      offset=2 applied=none now=-10 changes=2
+      30102 Guest-61                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30103 Guest-62                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30104 Guest-63                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30105 Guest-64                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30106 Guest-65                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+      30107 Guest-66                 guest policy 1 prio 700      offset=0 applied=none now=-10 changes=2
+

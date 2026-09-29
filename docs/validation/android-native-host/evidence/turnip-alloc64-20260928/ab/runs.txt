@@ -1,0 +1,4 @@
+== cand1 driver=[sha:ff7e99809018e2a73662f31edba072b9d2388ddb79629c7d789d108e280cac5b] uptime0=38667.23
+   pid=18181 arrived: fps~0 stage= pid= cpuset=
+   loaded: driver=source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-a1c3d38728) shaderInt64=1 api=4211051 sha256=ff7e99809018e2a73662f31edba072b9d2388ddb79629c7d789d108e280cac5b 
+   result: gone survived_soak=-1s device_lost_lines=2 alloc_errors=0 fault=[none] BR: rb 00c0/0168 ib1 0000000005265000/095d ib2 0000000006646A10/01a4

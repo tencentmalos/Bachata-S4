@@ -1,0 +1,3 @@
+09-28 02:17:02.465 18181 28151 I ProductionRuntime: run: terminal outcome=BackendFailed detail=BackendFailure in GuestRuntime::Run: vkQueueSubmit failed: ErrorDeviceLost
+09-28 02:17:02.609 18181 28151 E libc++abi: terminating due to uncaught exception of type std::runtime_error: vkQueueSubmit failed: ErrorDeviceLost
+09-28 02:17:06.549  3901  5008 I ActivityManager: Process com.shadps4.android (pid 18181) has died: cch+5 SVC 

@@ -1,0 +1,3 @@
+== cand1-spawn: 14.6s presents=0 fps=0.00 (1s min 0.0 max 0.0) gpubusy=66.8% gpuclk=460MHz cpu0-5=1488 cpu6-7=902MHz
+   ctx: pid=13892 cpuset=/top-app prop=[0] focus=  mCurrentFocus=Window{1afd131 u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000
+   total (threads >=2%): on-cpu    0.0 ms/frame  runq    0.0 ms/frame

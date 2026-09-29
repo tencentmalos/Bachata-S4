@@ -1,0 +1,7 @@
+== s1 thread_priority=[0] 20:51:20
+   pid=23301 arrived: fps~30 stage=Running pid=23301 cpuset=/top-app
+   loaded: info=Mesa 26.3.0-devel sha256=ff7e99809018e2a73662f31edba072b9d2388ddb79629c7d789d108e280cac5b 
+   == s1-spawn: 17.9s presents=536 fps=29.98 (1s min 29.1 max 30.5) gpubusy=80.2% gpuclk=902MHz cpu0-5=2746 cpu6-7=768MHz
+   == s1-inner: 20.5s presents=610 fps=29.79 (1s min 29.0 max 30.6) gpubusy=93.8% gpuclk=902MHz cpu0-5=2746 cpu6-7=1098MHz
+   result: gone survived_soak=10s device_lost_lines=0 alloc_errors=0 fault=[none] 
+== s2 thread_priority=[] 20:55:51

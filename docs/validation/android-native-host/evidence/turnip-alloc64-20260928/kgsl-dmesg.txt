@@ -1,0 +1,38 @@
+# Kernel lines read from Swan `dmesg` on 2026-09-28 while the sessions ran (the ring buffer has
+# since wrapped; these are copied from the command output of that time). Device clock CST = kernel
+# clock + 8 h. Snapshots on the device: /data/vendor/gpu_snapshot/ devcd9 (pid 2941),
+# devcd10 (pid 5722); none was saved for pid 18181 (gpu_snapshot_collector hit avc
+# dac_read_search/dac_override while writing it).
+
+## pid 18181 -- side-loaded patched driver (IBs in the low 4 GiB), CST 02:17:02
+[38768.326575] [18:17:02](7)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP opcode error interrupt | opcode=0x00000000
+[38768.326622] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:726000000
+[38768.326639] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[18181]: ctx 57 ctx_type ANY ts 11607 policy 2
+[38768.326706] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+[38768.326713] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 00c0/0168 ib1 0000000005265000/095d ib2 0000000006646A10/01a4 ib3 0000000000000000/0000
+[38768.326723] [18:17:02](6)[1433|kgsl_hwsched]kgsl kgsl-3d0: BV: rb 00c0/0168 ib1 0000000005265000/5b94 ib2 0000000000000000/0000 ib3 0000000000000000/0000
+[38768.554291] [18:17:02](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot froze 2816Kb of GPU buffers
+
+## pid 2941 -- bundled patched driver (APK 2c91a07d), CST 02:34:39, loading (devcd9)
+[39825.837498] [18:34:39](3)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP opcode error interrupt | opcode=0x00000000
+[39825.837519] [18:34:39](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:826000000
+[39825.837525] [18:34:39](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[2941]: ctx 49 ctx_type ANY ts 12047 policy 2
+[39825.837577] [18:34:39](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+[39825.837579] [18:34:39](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 066e/0787 ib1 0000000005265000/099b ib2 0000000005806A10/01a4 ib3 0000000000000000/0000
+
+## pid 5722 -- bundled patched driver + scrcpy SDK (APK fe714b6b), CST 02:46:13, loading (devcd10)
+## No CP opcode error: shader stores to address 0.
+[40519.547458] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl_iommu_print_fault: 141 callbacks suppressed
+[40519.547472] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 0 group id= 5722 name=shadps4.android drawctxt=51 context pid = 9877 ctx_type=ANY
+[40519.547494] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0x8a32dd000 (write translation fault)
+[40519.547511] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: BR_SP
+[40519.547553] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: **EMPTY**
+[40519.547556] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 0000000000000000
+[40519.547560] [18:46:13](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [0000000005200000 - 000000000521FFFF]   (pid = 5722) (any(0))
+
+## For comparison, 86ca driver the same day (thread priorities off): IBs above 4 GiB
+[36096.116457] [17:32:29](1)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000
+[36096.116539] [17:32:29](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 1d9c/1e44 ib1 00000041EA667000/0eab ib2 00000041EA6A9AB0/017f ib3 0000000000000000/0000
+[36446.280706] [17:38:19](1)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP opcode error interrupt | opcode=0x00000000
+[36446.280788] [17:38:19](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 098d/0a35 ib1 00000041DD25E000/0b0a ib2 00000041DBC76A10/01a4 ib3 0000000000000000/0000
+[36785.689412] [17:43:59](2)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000
