@@ -21,6 +21,7 @@ import kotlin.concurrent.thread
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import com.shadps4.android.runtime.session.AndroidTurnip
+import com.shadps4.android.runtime.session.HostBattery
 import com.shadps4.android.runtime.session.RuntimeSurface
 
 /**
@@ -43,6 +44,7 @@ class FexSessionService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var startJob: Job? = null
     private var surfaceJob: Job? = null
+    private var batteryJob: Job? = null
     @Volatile private var observer: Thread? = null
     // Set when a stop was requested for the live generation. Distinguishes "the
     // game is still running normally" (a WaitTerminal timeout is NOT a failure)
@@ -272,6 +274,24 @@ class FexSessionService : Service() {
                     }
                 }
             }
+            batteryJob?.cancel()
+            if (admitted) {
+                // Battery rows of the status HUD: the host cannot read power_supply on every
+                // device, so publish BatteryManager values once a second for this generation.
+                batteryJob = serviceScope.launch(Dispatchers.Default) {
+                    while (isActive && NativeFexSession.nativeCurrentGeneration() == generation) {
+                        try {
+                            HostBattery.publish(applicationContext)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Battery reading unavailable", e)
+                            break
+                        }
+                        delay(1000L)
+                    }
+                }
+            }
             surfaceJob?.cancel()
             boundSurface?.takeIf { admitted }?.let {
                 surfaceJob = serviceScope.launch {
@@ -347,6 +367,7 @@ class FexSessionService : Service() {
     private fun handleStop() {
         startJob?.cancel()
         surfaceJob?.cancel()
+        batteryJob?.cancel()
         val generation = NativeFexSession.nativeCurrentGeneration()
         if (generation == 0L) { stopSelf(); return }
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))

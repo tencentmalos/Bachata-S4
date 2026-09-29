@@ -31,6 +31,13 @@ object NativeFexSession {
     external fun nativeSetInternalScalePercent(percent: Float)
     external fun nativeSetConsoleLanguage(language: Int)
 
+    /**
+     * Battery reading for the status HUD (see [HostBattery]); present=false withdraws it.
+     * Missing values: NaN (floats), Long.MIN_VALUE (longs), -1 (charging).
+     */
+    external fun nativeSetHostBattery(present: Boolean, levelPercent: Float, currentMicroamps: Long,
+        voltageMicrovolts: Long, chargeMicroampHours: Long, temperatureCelsius: Float, charging: Int)
+
     external fun nativeIdentity(): String
 
     /** Validated effective param.sfo and optional icon; assets stay in the archive. */

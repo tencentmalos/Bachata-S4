@@ -28,7 +28,9 @@
 #include "core/file_sys/fs.h"
 
 #include <atomic>
+#include <cmath>
 #include <cstdio>
+#include <limits>
 #include <stdexcept>
 #include <string>
 
@@ -38,6 +40,7 @@
 #include <sys/system_properties.h>
 
 #include "core/diagnostics/diagnostics_service.h"
+#include "core/diagnostics/host_battery.h"
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/session_backend_fex.h"
 #include "core/host_runtime/session_core.h"
@@ -622,4 +625,26 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetConsoleLangua
     if (language < 0 || language > 30) return;
     try { EmulatorSettings.SetConsoleLanguage(language); }
     catch (...) { /* Never unwind across JNI. */ }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetHostBattery(
+    JNIEnv*, jclass, jboolean present, jfloat level_percent, jlong current_microamps,
+    jlong voltage_microvolts, jlong charge_microamp_hours, jfloat temperature_celsius,
+    jint charging) {
+    try {
+        if (!present) {
+            Core::Diagnostics::PublishHostBattery(std::nullopt);
+            return;
+        }
+        constexpr jlong missing = std::numeric_limits<jlong>::min();
+        Core::Diagnostics::HostBattery battery;
+        if (std::isfinite(level_percent)) battery.level_percent = level_percent;
+        if (current_microamps != missing) battery.current_microamps = current_microamps;
+        if (voltage_microvolts != missing) battery.voltage_microvolts = voltage_microvolts;
+        if (charge_microamp_hours != missing) battery.charge_microamp_hours = charge_microamp_hours;
+        if (std::isfinite(temperature_celsius)) battery.temperature_celsius = temperature_celsius;
+        if (charging >= 0) battery.charging = charging != 0;
+        Core::Diagnostics::PublishHostBattery(battery);
+    } catch (...) { /* Never unwind across JNI. */ }
 }

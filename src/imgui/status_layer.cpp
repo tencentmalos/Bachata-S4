@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include <imgui.h>
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/host_battery.h"
 #include "core/diagnostics/overlay_control.h"
 #include "core/emulator_settings.h"
 #include "imgui/status_layer.h"
@@ -24,6 +25,22 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
     if (const auto published = frame_rate.publishedAt();
         published && model.sampled_at - *published > std::chrono::seconds(2))
         fps = 0.0;
+    // Battery values from the platform frontend (Android BatteryManager); the sampler applies
+    // them on its next sample.
+    if (std::optional<HostBattery> battery; ReadHostBattery(battery_generation, battery)) {
+        std::optional<spatial::perf::BatteryReading> reading;
+        if (battery) {
+            reading = spatial::perf::BatteryReading{
+                .level_percent = battery->level_percent,
+                .current_microamps = battery->current_microamps,
+                .voltage_microvolts = battery->voltage_microvolts,
+                .charge_microamp_hours = battery->charge_microamp_hours,
+                .temperature_celsius = battery->temperature_celsius,
+                .charging = battery->charging,
+            };
+        }
+        device_metrics.setBatteryOverride(reading);
+    }
     if (const auto sequence = device_metrics.sequence(); sequence != hud_sequence) {
         // One history point per device sample, not per frame.
         hud_sequence = sequence;

@@ -47,6 +47,8 @@ private:
     spatial::perf::FrameRateCounter frame_rate;
     spatial::imgui::overlay::PerfHud hud;
     uint64_t hud_sequence{};
+    // Last Core::Diagnostics host battery reading applied to device_metrics.
+    uint64_t battery_generation{};
     std::shared_ptr<::Core::Diagnostics::DiagnosticsPublisher> publisher;
     std::shared_ptr<Common::Profiler::GpuTimingState> gpu;
     ::Core::Diagnostics::FrameHistory game_presents, all_presents;

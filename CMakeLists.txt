@@ -998,6 +998,8 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/debugger.cpp
          src/core/debugger.h
          src/core/diagnostics/diagnostics_hub.cpp
+         src/core/diagnostics/host_battery.cpp
+         src/core/diagnostics/host_battery.h
          src/core/diagnostics/pipeline_handoff.cpp
          src/core/diagnostics/diagnostics_hub.h
          src/core/diagnostics/diagnostics_hub_registry.cpp
