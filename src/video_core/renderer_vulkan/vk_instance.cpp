@@ -273,6 +273,7 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
     if (std::string_view(async_mode) != "0") {
         submissions = std::make_unique<SubmissionWorker>(16, [] {
             Common::SetCurrentThreadName("shadPS4:VkSubmit");
+            Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
         });
     }
     LOG_INFO(Render_Vulkan, "Vulkan submission worker: {} (capacity=16, GPU budget=8/scheduler)",

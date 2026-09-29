@@ -5,6 +5,7 @@
 
 #include "core/diagnostics/diagnostics_commands.h"
 #include "common/profiler.h"
+#include "common/thread.h"
 #include "common/gpu_timing.h"
 #include "common/logging/log_stats.h"
 #if defined(SHADPS4_TYPED_HLE_HOST)
@@ -169,6 +170,9 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("guest_patch", "Guest patch status | enable/disable <context ID>",
         [](const std::vector<std::string>& args) { return GuestPatch::Command(args); });
 #endif
+    registry.Register("thread_priority",
+        "Host scheduling weight (nice) of guest and emulator threads: status | reset",
+        [](const std::vector<std::string>& args) { return Common::ThreadPriorityCommand(args); });
     registry.Register("pad_vibration",
         "Controller vibration requested by the game: status | test LARGE SMALL [HANDLE]",
         [](const std::vector<std::string>& args) {

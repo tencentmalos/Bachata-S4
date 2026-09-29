@@ -289,6 +289,9 @@ struct Pthread {
     PthreadEntryFunc start_routine;
     void* arg;
     std::unique_ptr<Core::NativeThread> native_thr;
+    /// Common::NativeThreadRef of the host thread once it runs; 0 before. Written by the
+    /// thread itself, read by others changing its scheduling (under `lock`).
+    std::atomic<std::uintptr_t> host_ref{};
     PthreadAttr attr;
     std::atomic_bool cancel_enable;
     std::atomic_bool cancel_pending;

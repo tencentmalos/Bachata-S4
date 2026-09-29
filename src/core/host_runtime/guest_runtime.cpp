@@ -53,6 +53,7 @@
 #include "core/host_runtime/guest_reprojection.h"
 #include "core/host_runtime/guest_hmd_diagnostics.h"
 #include "core/libraries/kernel/threads/event_flag_state.h"
+#include "core/libraries/kernel/threads/host_priority.h"
 #include "core/host_runtime/guest_graphics.h"
 #include "core/host_runtime/guest_kernel_semaphore.h"
 #include "core/host_runtime/guest_libc_policy.h"
@@ -542,6 +543,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         u64 id{}, stack{}, stack_size{}, tls{}, tls_size{}, tcb{}, dtv{}, handle_va{};
         GuestThreadAttributes attributes{};
         std::string name;
+        // Host thread running this owner (Common::NativeThreadRef), 0 before Attach.
+        Common::NativeThreadRef host_ref{};
         int startup_error{};
         bool startup_done{};
         std::array<SpecificValue, 256> specific{};
@@ -1146,8 +1149,24 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             return scope->InvokeGuest(GuestCodeAddress{entry}, args);
         return cpu.InvokeGuest(Current()->handle, GuestCodeAddress{entry}, args, {});
     }
+    // Weights the owner's host thread by its guest scheduling attributes (threads_mutex held).
+    // Before Attach there is no host thread yet; Attach applies the attributes itself.
+    void ApplyHostPriority(Owner& o) {
+        const int nice =
+            Libraries::Kernel::GuestPriorityToHostNice(o.attributes.policy, o.attributes.priority);
+        const auto applied = Common::SetThreadNice(o.host_ref, nice);
+        Common::NoteThreadPriority(
+            o.host_ref, o.name,
+            fmt::format("guest policy {} prio {}", o.attributes.policy, o.attributes.priority),
+            nice, applied);
+    }
     void Attach(const std::shared_ptr<Owner>& o, u64 entry) {
-        { std::lock_guard lock(threads_mutex); Common::SetCurrentThreadName(o->name.c_str()); }
+        {
+            std::lock_guard lock(threads_mutex);
+            Common::SetCurrentThreadName(o->name.c_str());
+            o->host_ref = Common::CurrentNativeThreadRef();
+            ApplyHostPriority(*o);
+        }
         active_runtime = this;
         active_thread = o->id;
         SetTcbBase(reinterpret_cast<void*>(o->tcb));
@@ -3249,6 +3268,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         for (const auto& [id, owner] : owners) {
             if (owner->handle_va != a[0] || owner->finished) continue;
             owner->attributes.policy = a[1]; owner->attributes.priority = priority;
+            ApplyHostPriority(*owner);
             return 0;
         }
         return POSIX_ESRCH;
@@ -3276,8 +3296,9 @@ void GuestRuntime::Impl::InstallHandlers() {
         std::lock_guard lock(threads_mutex);
         for (const auto& [id,o] : owners) {
             if (o->handle_va!=a[0] || o->finished) continue;
-            // Desktop stores the guest priority; it does not promote Android owners to RT.
+            // Time-sharing only: the guest priority weights the host thread (nice), never RT.
             o->attributes.priority=s32(a[1]);
+            ApplyHostPriority(*o);
             return 0;
         }
         return POSIX_ESRCH;

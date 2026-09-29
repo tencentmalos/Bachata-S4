@@ -1,0 +1,111 @@
+[2026-09-28 01:25:19.039][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-1 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.267][Info][28470][Common](Guest-2) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-2 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.359][Info][28475][Common](Guest-3) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-3 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.359][Info][28477][Common](Guest-4) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-4 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.379][Info][28481][Common](Guest-5) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-5 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.431][Info][28482][Common](Guest-6) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-6 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.487][Info][28485][Common](Guest-7) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-7 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.487][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-7 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28486][Common](Guest-8) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-8 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-8 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28487][Common](Guest-9) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-9 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-9 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28488][Common](Guest-10) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-10 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-10 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28489][Common](Guest-11) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-11 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-11 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28490][Common](Guest-12) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-12 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-12 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28491][Common](Guest-13) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-13 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-13 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28492][Common](Guest-14) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-14 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-14 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.491][Info][28493][Common](Guest-15) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-15 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.491][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-15 (guest policy 1 prio 765) -> host nice 2
+[2026-09-28 01:25:20.595][Info][28498][Common](Guest-16) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-16 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.603][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-16 (guest policy 1 prio 258) -> host nice -4
+[2026-09-28 01:25:20.655][Info][28506][Common](Guest-17) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-17 (guest policy 1 prio 258) -> host nice -4
+[2026-09-28 01:25:20.655][Info][28498][Common](Guest-16) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-17 (guest policy 1 prio 257) -> host nice -4
+[2026-09-28 01:25:20.655][Info][28507][Common](Guest-18) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-18 (guest policy 1 prio 258) -> host nice -4
+[2026-09-28 01:25:20.655][Info][28498][Common](Guest-16) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-18 (guest policy 1 prio 256) -> host nice -4
+[2026-09-28 01:25:20.659][Info][28508][Common](Guest-19) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-19 (guest policy 1 prio 258) -> host nice -4
+[2026-09-28 01:25:20.659][Info][28498][Common](Guest-16) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-19 (guest policy 1 prio 260) -> host nice -4
+[2026-09-28 01:25:20.787][Info][28511][Common](Guest-20) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-20 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:20.791][Info][28512][Common](shadPS4:GpuComm) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:GpuComm (host High) -> host nice -4
+[2026-09-28 01:25:20.803][Info][28514][Common](shadPS4:VkSubmi) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:VkSubmi (host High) -> host nice -4
+[2026-09-28 01:25:20.803][Info][28516][Common](shadPS4:VkRecor) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:VkRecor (host High) -> host nice -4
+[2026-09-28 01:25:21.051][Info][28515][Common](shadPS4:GpuDone) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:GpuDone (host High) -> host nice -4
+[2026-09-28 01:25:21.147][Info][28525][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.147][Info][28524][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.147][Info][28526][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.147][Info][28527][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.311][Info][28528][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.311][Info][28531][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.311][Info][28529][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.311][Info][28530][Common](shadPS4:Pipelin) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Pipelin (host Low) -> host nice 4
+[2026-09-28 01:25:21.455][Info][28533][Common](shadPS4:Present) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:Present (host High) -> host nice -4
+[2026-09-28 01:25:21.459][Info][28518][Common](shadPS4:GpuDone) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:GpuDone (host High) -> host nice -4
+[2026-09-28 01:25:21.511][Info][28535][Common](Guest-21) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-21 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.511][Info][28536][Common](Guest-22) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-22 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.511][Info][28537][Common](Guest-23) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-23 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.511][Info][28538][Common](Guest-24) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-24 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.511][Info][28539][Common](Guest-25) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-25 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.555][Info][28540][Common](Guest-26) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-26 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.559][Info][28541][Common](Guest-27) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-27 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.559][Info][28542][Common](Guest-28) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-28 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.559][Info][28543][Common](Guest-29) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-29 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.563][Info][28545][Common](Guest-31) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-31 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.563][Info][28544][Common](Guest-30) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-30 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:21.591][Info][28520][Common](shadPS4:GpuDone) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:GpuDone (host High) -> host nice -4
+[2026-09-28 01:25:22.591][Info][28523][Common](shadPS4:GpuDone) thread.cpp:437 NoteThreadPriority: Thread priority: shadPS4:GpuDone (host High) -> host nice -4
+[2026-09-28 01:25:22.655][Info][28556][Common](Guest-33) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-33 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.655][Info][28555][Common](Guest-32) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-32 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.655][Info][28557][Common](Guest-34) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-34 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.655][Info][28558][Common](Guest-35) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-35 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.655][Info][28559][Common](Guest-36) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-36 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.711][Info][28561][Common](Guest-37) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-37 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.711][Info][28562][Common](Guest-38) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-38 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.711][Info][28563][Common](Guest-39) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-39 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.711][Info][28564][Common](Guest-40) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-40 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.711][Info][28565][Common](Guest-41) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-41 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.711][Info][28566][Common](Guest-42) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-42 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.735][Info][28567][Common](Guest-43) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-43 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:22.739][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-43 (guest policy 1 prio 765) -> host nice 2
+[2026-09-28 01:25:22.759][Info][28568][Common](Guest-44) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-44 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.103][Info][28573][Common](Guest-45) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-45 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.107][Info][28574][Common](Guest-46) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-46 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.111][Info][28575][Common](Guest-47) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-47 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.123][Info][28576][Common](Guest-48) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-48 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.127][Info][28577][Common](Guest-49) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-49 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.131][Info][28578][Common](Guest-50) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-50 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:24.147][Info][28579][Common](Guest-51) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-51 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:25:25.879][Info][28581][Common](Guest-52) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-52 (guest policy 1 prio 258) -> host nice -4
+[2026-09-28 01:25:25.879][Info][28498][Common](Guest-16) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-52 (guest policy 1 prio 265) -> host nice -4
+[2026-09-28 01:26:20.459][Info][28700][Common](Guest-53) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-53 (guest policy 1 prio 265) -> host nice -4
+[2026-09-28 01:26:20.459][Info][28581][Common](Guest-52) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-53 (guest policy 1 prio 265) -> host nice -4
+[2026-09-28 01:26:37.983][Info][28756][Common](Guest-54) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-54 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.983][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-54 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.987][Info][28757][Common](Guest-55) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-55 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.987][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-55 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.987][Info][28758][Common](Guest-56) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-56 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.987][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-56 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28759][Common](Guest-57) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-57 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-57 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28760][Common](Guest-58) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-58 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-58 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28761][Common](Guest-59) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-59 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-59 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28762][Common](Guest-60) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-60 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-60 (guest policy 1 prio 767) -> host nice 2
+[2026-09-28 01:26:37.991][Info][28763][Common](Guest-61) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-61 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.991][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-61 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28764][Common](Guest-62) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-62 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-62 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28765][Common](Guest-63) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-63 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-63 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28766][Common](Guest-64) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-64 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-64 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.995][Info][28767][Common](Guest-65) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-65 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.999][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-65 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.999][Info][28768][Common](Guest-66) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-66 (guest policy 1 prio 700) -> host nice 0
+[2026-09-28 01:26:37.999][Info][28450][Common](Guest-1) thread.cpp:437 NoteThreadPriority: Thread priority: Guest-66 (guest policy 1 prio 700) -> host nice 0

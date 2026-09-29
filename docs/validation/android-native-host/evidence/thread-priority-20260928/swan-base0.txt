@@ -1,0 +1,30 @@
+Pico/swan/swan:16/BQ2A.260122.002-BP2A.250705.008/20260922015006:user/test-keys
+[TP01] PASS mapping FIFO 256 -> -4
+[TP02] PASS mapping FIFO 500 -> -2
+[TP03] PASS mapping FIFO default 700 -> 0
+[TP04] PASS mapping RR 767 -> 2
+[TP05] PASS mapping OTHER 900 -> 4
+[TP06] PASS mapping out of range -> 0
+enabled=1 start_nice=0 RLIMIT_NICE=40 floor=-20 uid=0
+[TP07] PASS current thread ref is the kernel tid
+[TP08] PASS base is the starting nice
+[TP09] PASS offset -4 applied on the base
+[TP10] PASS offset +4 applied on the base
+[TP11] PASS offset 0 is the base again
+[TP12] PASS clamped to the floor
+[TP13] PASS other thread -2 applied
+[TP14] PASS main thread unchanged
+[TP15] PASS worker saw its own nice
+[TP16] PASS child inherits the creator's nice
+[TP17] PASS child offset 0 returns to the process base
+[TP18] PASS ThreadPriority::High -> base-4
+[TP19] PASS ThreadPriority::Low -> base+4
+[TP20] PASS SetThreadNice(0 ref) does nothing
+thread_priority: enabled=true nice_base=0 nice_floor=-20
+  7713 tp:High                  host High                    offset=-4 applied=-4 now=gone changes=1
+  7714 tp:Low                   host Low                     offset=4 applied=4 now=gone changes=1
+[TP21] PASS status reports the base
+[TP22] PASS status lists the emulator threads
+[TP23] PASS reset clears
+thread priority: 23 checks, 0 failures
+rc=0

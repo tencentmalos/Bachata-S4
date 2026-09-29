@@ -290,6 +290,7 @@ u32 PipelineCache::BuildPreloaded(std::vector<PreloadJob>& jobs) {
     for (u32 i = 0; i < threads; ++i) {
         workers.emplace_back([&] {
             Common::SetCurrentThreadName("shadPS4:PipelinePreload");
+            Common::SetCurrentThreadPriority(Common::ThreadPriority::Low);
             for (std::size_t index; (index = next.fetch_add(1)) < jobs.size();) {
                 build(jobs[index]);
             }

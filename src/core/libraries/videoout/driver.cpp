@@ -532,6 +532,7 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
                                                  EmulatorSettings.GetVblankFrequency());
 
     Common::SetCurrentThreadName("shadPS4:PresentThread");
+    Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
     Common::SetCurrentThreadRealtime(vblank_period);
 
     Common::AccurateTimer timer{vblank_period};

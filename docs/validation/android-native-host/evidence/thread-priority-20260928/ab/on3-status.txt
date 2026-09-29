@@ -1,0 +1,86 @@
+SERVICE com.shadps4.android/.service.FexSessionService 6e59e52 pid=6142 user=0
+  Client:
+    thread_priority: enabled=true nice_floor=-20
+      13937 Guest-1                  guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13963 Guest-2                  guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13966 Guest-3                  guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13967 Guest-4                  guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13968 Guest-5                  guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13969 Guest-6                  guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13974 Guest-7                  guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13975 Guest-8                  guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13976 Guest-9                  guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13977 Guest-10                 guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13978 Guest-11                 guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13979 Guest-12                 guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13980 Guest-13                 guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13981 Guest-14                 guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13982 Guest-15                 guest policy 1 prio 765      requested=2 applied=2 now=2 changes=2
+      13989 Guest-16                 guest policy 1 prio 258      requested=-4 applied=-4 now=-4 changes=2
+      13993 Guest-17                 guest policy 1 prio 257      requested=-4 applied=-4 now=-4 changes=2
+      13994 Guest-18                 guest policy 1 prio 256      requested=-4 applied=-4 now=-4 changes=2
+      13995 Guest-19                 guest policy 1 prio 260      requested=-4 applied=-4 now=-4 changes=2
+      13996 Guest-20                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      13997 shadPS4:GpuComm          host High                    requested=-4 applied=-4 now=-4 changes=1
+      13999 shadPS4:VkSubmi          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14000 shadPS4:GpuDone          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14001 shadPS4:VkRecor          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14003 shadPS4:GpuDone          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14006 shadPS4:GpuDone          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14009 shadPS4:GpuDone          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14011 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=4 changes=1
+      14012 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=4 changes=1
+      14013 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=4 changes=1
+      14014 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=4 changes=1
+      14020 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=gone changes=1
+      14021 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=gone changes=1
+      14022 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=gone changes=1
+      14023 shadPS4:Pipelin          host Low                     requested=4 applied=4 now=gone changes=1
+      14025 shadPS4:Present          host High                    requested=-4 applied=-4 now=-4 changes=1
+      14026 Guest-21                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14027 Guest-22                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14028 Guest-23                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14029 Guest-24                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14030 Guest-25                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14031 Guest-26                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14032 Guest-27                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14033 Guest-28                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14034 Guest-29                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14035 Guest-30                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14036 Guest-31                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14043 Guest-32                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14044 Guest-33                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14045 Guest-34                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14046 Guest-35                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14047 Guest-36                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14048 Guest-37                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14049 Guest-38                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14050 Guest-39                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14051 Guest-40                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14052 Guest-41                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14053 Guest-42                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14054 Guest-43                 guest policy 1 prio 765      requested=2 applied=2 now=2 changes=2
+      14055 Guest-44                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14059 Guest-45                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14060 Guest-46                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14062 Guest-47                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14063 Guest-48                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14064 Guest-49                 guest policy 1 prio 700      requested=0 applied=0 now=gone changes=1
+      14065 Guest-50                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14066 Guest-51                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=1
+      14071 Guest-52                 guest policy 1 prio 265      requested=-4 applied=-4 now=-4 changes=2
+      14180 Guest-53                 guest policy 1 prio 265      requested=-4 applied=-4 now=-4 changes=2
+      14236 Guest-54                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14237 Guest-55                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14238 Guest-56                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14239 Guest-57                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14240 Guest-58                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14241 Guest-59                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14242 Guest-60                 guest policy 1 prio 767      requested=2 applied=2 now=2 changes=2
+      14243 Guest-61                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14244 Guest-62                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14245 Guest-63                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14246 Guest-64                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14247 Guest-65                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+      14248 Guest-66                 guest policy 1 prio 700      requested=0 applied=0 now=0 changes=2
+

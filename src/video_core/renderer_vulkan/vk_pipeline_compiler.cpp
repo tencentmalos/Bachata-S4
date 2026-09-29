@@ -105,6 +105,7 @@ void PipelineCompiler::Stop() {
 
 void PipelineCompiler::Worker(std::stop_token token) {
     Common::SetCurrentThreadName("shadPS4:PipelineCompile");
+    Common::SetCurrentThreadPriority(Common::ThreadPriority::Low);
     for (;;) {
         const Pipeline* pipeline{};
         bool from_backlog{};

@@ -130,6 +130,7 @@ bool UnwrapBlob(std::vector<u8>& data) {
 
 void ProcessIO(const std::stop_token& stoken) {
     Common::SetCurrentThreadName("shadPS4:PipelineCacheIO");
+    Common::SetCurrentThreadPriority(Common::ThreadPriority::Low);
 
     for (;;) {
         std::function<void()> request;

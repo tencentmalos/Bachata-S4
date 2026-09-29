@@ -1,0 +1,1 @@
+pid=18120 cpuset=/top-app prop=[0] focus=  mCurrentFocus=Window{c518cc8 u0 com.shadps4.android/com.shadps4.android.MainActivity} 105000 

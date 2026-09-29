@@ -161,6 +161,7 @@ void CommandRecorder::ThrowIfFailed() {
 
 void CommandRecorder::Worker(std::stop_token stop) {
     Common::SetCurrentThreadName("shadPS4:VkRecord");
+    Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
     while (true) {
         std::unique_ptr<CommandChunk> chunk;
         vk::CommandBuffer cmdbuf;

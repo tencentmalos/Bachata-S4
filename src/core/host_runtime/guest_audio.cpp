@@ -115,6 +115,7 @@ struct GuestAudio::Impl {
     }
     void Worker(Port& port, std::stop_token stop) {
         Common::SetCurrentThreadName("shad:AudioOut");
+        Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
         const auto period = std::chrono::nanoseconds(1000000000ull * port.native.buffer_frames /
                                                      port.native.sample_rate);
         auto next = std::chrono::steady_clock::now();

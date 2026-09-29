@@ -368,6 +368,7 @@ set(KERNEL_LIB src/core/libraries/kernel/coredump/coredump.cpp
                src/core/libraries/kernel/threads/exception.cpp
                src/core/libraries/kernel/threads/exception.h
                src/core/libraries/kernel/threads/exception_codes.h
+               src/core/libraries/kernel/threads/host_priority.h
                src/core/libraries/kernel/threads/mutex.cpp
                src/core/libraries/kernel/threads/pthread_attr.cpp
                src/core/libraries/kernel/threads/pthread_clean.cpp
@@ -1912,6 +1913,10 @@ if(BUILD_HOST_CORE)
         target_include_directories(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_dependencies(guest_gnm_fastpath_tests guest_gnm_payload)
+        add_executable(thread_priority_tests tests/host_runtime/thread_priority_tests.cpp)
+        target_link_libraries(thread_priority_tests PRIVATE shadps4_host)
+        target_include_directories(thread_priority_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(thread_priority_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_audio3d_tests tests/host_runtime/guest_audio3d_tests.cpp)
         target_link_libraries(guest_audio3d_tests PRIVATE shadps4_host)
         target_include_directories(guest_audio3d_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

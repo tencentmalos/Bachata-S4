@@ -37,6 +37,7 @@ Semaphore::Semaphore(const Instance& instance_)
         [this, named = false](u64 tick, std::stop_token stop) mutable {
             if (!named) {
                 Common::SetCurrentThreadName("shadPS4:GpuDone");
+                Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
                 named = true;
             }
             const vk::SemaphoreWaitInfo info{

@@ -1,0 +1,21 @@
+== on1 thread_priority=[]
+arrived: fps~30 stage=Running pid=16349 cpuset=/top-app
+  Client:
+== off1 thread_priority=[0]
+arrived: fps~31 stage=Running pid=18120 cpuset=/top-app
+  Client:
+== on2 thread_priority=[]
+arrived: fps~30 stage=Running pid=20678 cpuset=/top-app
+  Client:
+== off2 thread_priority=[0]
+arrived: fps~0 stage= pid= cpuset=
+Use -h for help.
+== off3 thread_priority=[0]
+arrived: fps~0 stage= pid= cpuset=
+Use -h for help.
+== on3 thread_priority=[]
+arrived: fps~30 stage=Running pid=6142 cpuset=/top-app
+  Client:
+== off4 thread_priority=[0]
+arrived: fps~30 stage=Running pid=11377 cpuset=/top-app
+  Client:

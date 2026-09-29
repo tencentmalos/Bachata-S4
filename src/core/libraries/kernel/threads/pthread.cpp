@@ -14,6 +14,7 @@
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/threads.h"
+#include "core/libraries/kernel/threads/host_priority.h"
 #include "core/libraries/kernel/threads/pthread.h"
 #include "core/libraries/kernel/threads/thread_state.h"
 #include "core/libraries/libs.h"
@@ -56,6 +57,8 @@ static void ExitThread() {
 
     curthread->lock->lock();
     curthread->state = PthreadState::Dead;
+    // The host thread is going away: later priority changes must not reach a reused thread id.
+    curthread->host_ref = 0;
     ASSERT(False(curthread->flags & ThreadFlags::NeedSuspend));
 
     /*
@@ -249,6 +252,20 @@ void UnblockPthreadCancelSignal();
 } // namespace
 #endif
 
+// Applies a guest thread's scheduling attributes to its host thread as a nice offset. Called
+// with thread->lock held. Before the thread runs there is nothing to change yet: it applies its
+// attributes itself on start.
+static void ApplyHostPriority(Pthread* thread) {
+    const Common::NativeThreadRef ref =
+        thread == g_curthread ? Common::CurrentNativeThreadRef() : thread->host_ref.load();
+    const auto policy = static_cast<s32>(thread->attr.sched_policy);
+    const int nice = GuestPriorityToHostNice(policy, thread->attr.prio);
+    const auto applied = Common::SetThreadNice(ref, nice);
+    Common::NoteThreadPriority(ref, thread->name,
+                               fmt::format("guest policy {} prio {}", policy, thread->attr.prio),
+                               nice, applied);
+}
+
 #ifdef WIN32
 static DWORD RunThread(void* arg) {
 #else
@@ -261,6 +278,11 @@ static void* RunThread(void* arg) {
     Core::InitializeTLS();
 
     curthread->native_thr->Initialize();
+    {
+        std::scoped_lock lk{*curthread->lock};
+        curthread->host_ref = Common::CurrentNativeThreadRef();
+        ApplyHostPriority(curthread);
+    }
 
 #ifndef _WIN32
     UnblockPthreadCancelSignal();
@@ -577,16 +599,10 @@ int PS4_SYSV_ABI posix_pthread_setschedparam(PthreadT pthread, SchedPolicy polic
         return ret;
     }
 
-    if (pthread->attr.sched_policy == policy &&
-        (policy == SchedPolicy::Other || pthread->attr.prio == param->sched_priority)) {
-        pthread->attr.prio = param->sched_priority;
-        pthread->lock->unlock();
-        return 0;
-    }
-
-    // TODO: _thr_setscheduler
     pthread->attr.sched_policy = policy;
     pthread->attr.prio = param->sched_priority;
+    // The host keeps time-sharing scheduling; the guest priority weights the thread's CPU share.
+    ApplyHostPriority(pthread);
     pthread->lock->unlock();
     return 0;
 }
@@ -616,13 +632,8 @@ int PS4_SYSV_ABI posix_pthread_setprio(PthreadT thread, int prio) {
     }
 
     thread->lock->lock();
-    if (thread->attr.sched_policy == SchedPolicy::Other || thread->attr.prio == prio) {
-        thread->attr.prio = prio;
-    } else {
-        // TODO: _thr_setscheduler
-        thread->attr.prio = prio;
-    }
-
+    thread->attr.prio = prio;
+    ApplyHostPriority(thread);
     thread->lock->unlock();
     if (thread != g_curthread) {
         thread_state->RefDelete(thread);

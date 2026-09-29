@@ -1,0 +1,16 @@
+[TP01] PASS mapping FIFO 256 -> -4
+[TP02] PASS mapping FIFO 500 -> -2
+[TP03] PASS mapping FIFO default 700 -> 0
+[TP04] PASS mapping RR 767 -> 2
+[TP05] PASS mapping OTHER 900 -> 4
+[TP06] PASS mapping out of range -> 0
+enabled=0 RLIMIT_NICE=40 floor=-20 uid=0
+[TP07] PASS current thread ref is the kernel tid
+[TP08] PASS disabled: no change
+[TP09] PASS SetThreadNice(0 ref) does nothing
+thread_priority: enabled=false nice_floor=-20
+[TP10] PASS status lists the emulator threads
+[TP11] PASS reset clears
+thread priority: 11 checks, 0 failures
+rc=0
+prop=[]

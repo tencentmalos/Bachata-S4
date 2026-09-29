@@ -1,0 +1,27 @@
+Pico/swan/swan:16/BQ2A.260122.002-BP2A.250705.008/20260922015006:user/test-keys
+uid=0(root) gid=0(root) groups=0(root),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:su:s0
+[TP01] PASS mapping FIFO 256 -> -4
+[TP02] PASS mapping FIFO 500 -> -2
+[TP03] PASS mapping FIFO default 700 -> 0
+[TP04] PASS mapping RR 767 -> 2
+[TP05] PASS mapping OTHER 900 -> 4
+[TP06] PASS mapping out of range -> 0
+enabled=1 RLIMIT_NICE=40 floor=-20 uid=0
+[TP07] PASS current thread ref is the kernel tid
+[TP08] PASS current -4 applied
+[TP09] PASS current +4 applied
+[TP10] PASS current back to 0
+[TP11] PASS clamped to the floor
+[TP12] PASS other thread -2 applied
+[TP13] PASS main thread unchanged
+[TP14] PASS worker saw its own nice
+[TP15] PASS ThreadPriority::High -> -4
+[TP16] PASS ThreadPriority::Low -> +4
+[TP17] PASS SetThreadNice(0 ref) does nothing
+thread_priority: enabled=true nice_floor=-20
+  27243 tp:High                  host High                    requested=-4 applied=-4 now=gone changes=1
+  27244 tp:Low                   host Low                     requested=4 applied=4 now=gone changes=1
+[TP18] PASS status lists the emulator threads
+[TP19] PASS reset clears
+thread priority: 19 checks, 0 failures
+rc=0

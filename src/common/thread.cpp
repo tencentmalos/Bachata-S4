@@ -3,7 +3,14 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <atomic>
+#include <cerrno>
+#include <cstdlib>
 #include <ctime>
+#include <iterator>
+#include <map>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <thread>
@@ -35,7 +42,14 @@
 #include <sched.h>
 #endif
 #ifndef _WIN32
+#include <sys/resource.h>
 #include <unistd.h>
+#endif
+#if defined(__linux__) && !defined(__ANDROID__)
+#include <sys/syscall.h>
+#endif
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
 #endif
 
 #ifdef __FreeBSD__
@@ -88,32 +102,6 @@ void SetCurrentThreadRealtime(const std::chrono::nanoseconds period_ns) {
 
 #ifdef _WIN32
 
-void SetCurrentThreadPriority(ThreadPriority new_priority) {
-    auto handle = GetCurrentThread();
-    int windows_priority = 0;
-    switch (new_priority) {
-    case ThreadPriority::Low:
-        windows_priority = THREAD_PRIORITY_BELOW_NORMAL;
-        break;
-    case ThreadPriority::Normal:
-        windows_priority = THREAD_PRIORITY_NORMAL;
-        break;
-    case ThreadPriority::High:
-        windows_priority = THREAD_PRIORITY_ABOVE_NORMAL;
-        break;
-    case ThreadPriority::VeryHigh:
-        windows_priority = THREAD_PRIORITY_HIGHEST;
-        break;
-    case ThreadPriority::Critical:
-        windows_priority = THREAD_PRIORITY_TIME_CRITICAL;
-        break;
-    default:
-        windows_priority = THREAD_PRIORITY_NORMAL;
-        break;
-    }
-    SetThreadPriority(handle, windows_priority);
-}
-
 bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanoseconds* remaining,
                    const bool interruptible) {
     const auto begin_sleep = std::chrono::high_resolution_clock::now();
@@ -163,24 +151,6 @@ bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanosec
 }
 
 #else
-
-void SetCurrentThreadPriority(ThreadPriority new_priority) {
-    pthread_t this_thread = pthread_self();
-
-    const auto scheduling_type = SCHED_OTHER;
-    s32 max_prio = sched_get_priority_max(scheduling_type);
-    s32 min_prio = sched_get_priority_min(scheduling_type);
-    u32 level = std::max(static_cast<u32>(new_priority) + 1, 4U);
-
-    struct sched_param params;
-    if (max_prio > min_prio) {
-        params.sched_priority = min_prio + ((max_prio - min_prio) * level) / 4;
-    } else {
-        params.sched_priority = min_prio - ((min_prio - max_prio) * level) / 4;
-    }
-
-    pthread_setschedparam(this_thread, scheduling_type, &params);
-}
 
 bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanoseconds* remaining,
                    const bool interruptible) {
@@ -307,6 +277,228 @@ std::string GetCurrentThreadName() {
     }
     return std::string{name};
 #endif
+}
+
+// ---- Host thread priorities -------------------------------------------------------------------
+
+bool HostThreadPrioritiesEnabled() {
+    static const bool enabled = [] {
+#ifdef __ANDROID__
+        char value[PROP_VALUE_MAX]{};
+        __system_property_get("debug.shadps4.thread_priority", value);
+        return std::string_view(value) != "0";
+#else
+        const char* value = std::getenv("SHADPS4_THREAD_PRIORITY");
+        return !(value && std::string_view(value) == "0");
+#endif
+    }();
+    return enabled;
+}
+
+int ThreadPriorityNice(ThreadPriority priority) {
+    switch (priority) {
+    case ThreadPriority::Low:
+        return 4;
+    case ThreadPriority::Normal:
+        return 0;
+    case ThreadPriority::High:
+        return -4;
+    case ThreadPriority::VeryHigh:
+        return -6;
+    case ThreadPriority::Critical:
+        return -8;
+    }
+    return 0;
+}
+
+NativeThreadRef CurrentNativeThreadRef() {
+#ifdef _WIN32
+    return static_cast<NativeThreadRef>(GetCurrentThreadId());
+#elif defined(__APPLE__)
+    return reinterpret_cast<NativeThreadRef>(pthread_self());
+#elif defined(__ANDROID__)
+    return static_cast<NativeThreadRef>(gettid());
+#elif defined(__linux__)
+    return static_cast<NativeThreadRef>(syscall(SYS_gettid));
+#else
+    return 0;
+#endif
+}
+
+namespace {
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+// Lowest nice an unprivileged thread may set: 20 - RLIMIT_NICE (Android init raises the limit to
+// 40, so -20; a desktop Linux default of 0 gives 20, i.e. nice can only go up).
+int NiceFloor() {
+    rlimit limit{};
+    if (getrlimit(RLIMIT_NICE, &limit) != 0) {
+        return 0;
+    }
+    const rlim_t current =
+        limit.rlim_cur == RLIM_INFINITY ? 40 : std::min<rlim_t>(limit.rlim_cur, 40);
+    return 20 - static_cast<int>(current);
+}
+#endif
+
+} // namespace
+
+int ThreadNiceBase() {
+#if !defined(_WIN32) && !defined(__APPLE__)
+    static const int base = [] {
+        errno = 0;
+        const int value = getpriority(PRIO_PROCESS, static_cast<id_t>(CurrentNativeThreadRef()));
+        return errno == 0 ? value : 0;
+    }();
+    return base;
+#else
+    return 0;
+#endif
+}
+
+std::optional<int> SetThreadNice(NativeThreadRef thread, int offset) {
+    if (!HostThreadPrioritiesEnabled() || thread == 0) {
+        return std::nullopt;
+    }
+    int nice = std::clamp(offset, -20, 19);
+#ifdef _WIN32
+    int level = THREAD_PRIORITY_NORMAL;
+    if (nice <= -6) {
+        level = THREAD_PRIORITY_HIGHEST;
+    } else if (nice <= -3) {
+        level = THREAD_PRIORITY_ABOVE_NORMAL;
+    } else if (nice >= 10) {
+        level = THREAD_PRIORITY_LOWEST;
+    } else if (nice >= 3) {
+        level = THREAD_PRIORITY_BELOW_NORMAL;
+    }
+    const HANDLE handle =
+        OpenThread(THREAD_SET_LIMITED_INFORMATION, FALSE, static_cast<DWORD>(thread));
+    if (handle == nullptr) {
+        return std::nullopt;
+    }
+    const bool ok = SetThreadPriority(handle, level) != 0;
+    CloseHandle(handle);
+    return ok ? std::optional<int>(nice) : std::nullopt;
+#elif defined(__APPLE__)
+    // SCHED_OTHER priorities 15..47, default 31; a higher number runs first.
+    sched_param param{};
+    param.sched_priority = std::clamp(31 - nice, 15, 47);
+    if (pthread_setschedparam(reinterpret_cast<pthread_t>(thread), SCHED_OTHER, &param) != 0) {
+        return std::nullopt;
+    }
+    return nice;
+#else
+    const int base = ThreadNiceBase();
+    const int floor = NiceFloor();
+    if (floor > base) {
+        // A thread moved above the base could never be brought back (e.g. a guest thread that
+        // restores its priority): leave scheduling alone rather than make it one-way.
+        return std::nullopt;
+    }
+    const int target = std::clamp(base + nice, std::max(floor, -20), 19);
+    if (setpriority(PRIO_PROCESS, static_cast<id_t>(thread), target) != 0) {
+        return std::nullopt;
+    }
+    return target;
+#endif
+}
+
+std::optional<int> SetCurrentThreadNice(int offset) {
+    return SetThreadNice(CurrentNativeThreadRef(), offset);
+}
+
+void SetCurrentThreadPriority(ThreadPriority new_priority) {
+    static constexpr const char* Names[] = {"host Low", "host Normal", "host High", "host VeryHigh",
+                                            "host Critical"};
+    const int nice = ThreadPriorityNice(new_priority);
+    const auto applied = SetCurrentThreadNice(nice);
+    const auto index = static_cast<u32>(new_priority);
+    NoteThreadPriority(CurrentNativeThreadRef(), GetCurrentThreadName(),
+                       index < std::size(Names) ? Names[index] : "host", nice, applied);
+}
+
+namespace {
+
+struct PriorityRecord {
+    std::string name;
+    std::string source;
+    int requested{};
+    std::optional<int> applied;
+    u64 changes{};
+};
+
+struct PriorityRegistry {
+    std::mutex mutex;
+    std::map<NativeThreadRef, PriorityRecord> threads;
+    std::atomic<u32> logged{};
+};
+
+PriorityRegistry& Registry() {
+    // Never destroyed: threads may still report while statics are torn down.
+    static auto* registry = new PriorityRegistry;
+    return *registry;
+}
+
+} // namespace
+
+void NoteThreadPriority(NativeThreadRef thread, std::string_view name, std::string_view source,
+                        int requested, std::optional<int> applied) {
+    auto& registry = Registry();
+    if (registry.logged.fetch_add(1, std::memory_order_relaxed) < 128) {
+        if (applied) {
+            LOG_INFO(Common, "Thread priority: {} ({}) offset {} -> host {}", name, source,
+                     requested, *applied);
+        } else {
+            LOG_INFO(Common, "Thread priority: {} ({}) offset {} not applied{}", name, source,
+                     requested,
+                     HostThreadPrioritiesEnabled() ? "" : " (thread priorities disabled)");
+        }
+    }
+    if (thread == 0) {
+        return;
+    }
+    std::scoped_lock lock{registry.mutex};
+    if (registry.threads.size() >= 1024 && !registry.threads.contains(thread)) {
+        return;
+    }
+    auto& record = registry.threads[thread];
+    record.name = name;
+    record.source = source;
+    record.requested = requested;
+    record.applied = applied;
+    ++record.changes;
+}
+
+std::string ThreadPriorityCommand(const std::vector<std::string>& args) {
+    auto& registry = Registry();
+    if (!args.empty() && args[0] == "reset") {
+        std::scoped_lock lock{registry.mutex};
+        registry.threads.clear();
+        return "thread_priority: reset\n";
+    }
+    if (!args.empty() && args[0] != "status") {
+        return "usage: thread_priority status | reset\n";
+    }
+    std::string out = fmt::format("thread_priority: enabled={}", HostThreadPrioritiesEnabled());
+#if !defined(_WIN32) && !defined(__APPLE__)
+    out += fmt::format(" nice_base={} nice_floor={}", ThreadNiceBase(), NiceFloor());
+#endif
+    out += "\n";
+    std::scoped_lock lock{registry.mutex};
+    for (const auto& [thread, record] : registry.threads) {
+        std::string current = "?";
+#if !defined(_WIN32) && !defined(__APPLE__)
+        errno = 0;
+        const int value = getpriority(PRIO_PROCESS, static_cast<id_t>(thread));
+        current = errno == 0 ? std::to_string(value) : "gone";
+#endif
+        out += fmt::format("  {} {:<24} {:<28} offset={} applied={} now={} changes={}\n", thread,
+                           record.name, record.source, record.requested,
+                           record.applied ? std::to_string(*record.applied) : "none", current,
+                           record.changes);
+    }
+    return out;
 }
 
 } // namespace Common

@@ -150,6 +150,7 @@ void Liverpool::ProcessCommands() {
 
 void Liverpool::Process(std::stop_token stoken) {
     Common::SetCurrentThreadName("shadPS4:GpuCommandProcessor");
+    Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
     gpu_id = std::this_thread::get_id();
 
     while (!stoken.stop_requested()) {

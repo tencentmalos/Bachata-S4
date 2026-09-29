@@ -283,6 +283,7 @@ void DriverPipelineCache::RequestSave() {
 
 void DriverPipelineCache::Worker(std::stop_token token) {
     Common::SetCurrentThreadName("shadPS4:PipelineCacheSave");
+    Common::SetCurrentThreadPriority(Common::ThreadPriority::Low);
     for (;;) {
         {
             std::unique_lock lock{mutex};
