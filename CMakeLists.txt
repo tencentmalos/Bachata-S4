@@ -1527,6 +1527,10 @@ if (ANDROID)
         target_sources(shadps4 PRIVATE
             src/video_core/renderer_vulkan/capture_recorder.cpp
             src/video_core/renderer_vulkan/capture_recorder.h)
+        # Needs VK_USE_PLATFORM_ANDROID_KHR before vulkan.hpp is first included, which a unity
+        # batch cannot guarantee.
+        set_source_files_properties(src/video_core/renderer_vulkan/capture_recorder.cpp
+            PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
         target_compile_definitions(shadps4 PRIVATE SHADPS4_HAS_SCRCPY_CAPTURE_SDK=1)
         target_link_libraries(shadps4 PRIVATE spatial::foundation_capture)
     endif()
