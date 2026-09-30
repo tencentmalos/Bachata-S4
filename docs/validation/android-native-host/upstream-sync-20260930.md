@@ -45,6 +45,19 @@
 
 片元阶段先于顶点阶段绑定，顶点阶段的 `start.user_data` 取决于片元着色器用了多少 user data 寄存器。`StageSpecialization::operator==` 在两边都没有有效 sharp 时直接返回相等，只读 user data 的 VS 就可能复用按另一个 `start.user_data` 编译的模块，从 push constant 的错误位置读寄存器。现在这种情况下只要阶段读 user data 就比较 `start.user_data`。上游 #5181 把 user data 改为从 flat buffer 读取、从根本上去掉这层依赖，但同时改 push data 布局（fork 的 `image_scales` 偏移、内部缩放 flatbuf 插入都要跟着改），本轮只做这处窄修复。
 
+## 日志告警处理（AYN 首轮日志）
+
+| 提交 | 告警 | 处理 |
+| --- | --- | --- |
+| `dd6b7f02` | `Float16/Float64 denorm preserving is not supported by the GPU` | 上游旧逻辑：着色器只用 fp16 时也会同时给 fp64 设模式并告警；Android 无 fp64（Turnip `shaderFloat64=false`），fp64 已降级到 fp32，不会进入 SPIR-V。改为 fp16/fp64 各按实际使用设置。FP32 preserve 以前每次编译报 `Unknown FP denorm mode`，现支持时发 `DenormPreserve 32`（高通专有驱动沿用 FTZ 的屏蔽、保持默认），只刷输入或只刷输出的混合模式 SPIR-V 无法表达，每种类型告警一次。A7xx Turnip 本身只能 flush fp16 denorm（mesa `tu_device.cc`），游戏要求 preserve 时 fp16 告警一次属实。`ShaderBinaryVersion` 26→27。 |
+| `f83549a3` | `SanitizeCopyLayers: Coercing copy source layers N and destination layers N+1` | 来自 `ExpandImage`：数组图按层数增长重建（血源 1→6 层各一次），把旧图全部层拷进新图前几层是预期结果。只在目标层数少于源、确实丢层时告警。 |
+| `5c099096` | `[Error] GetInstanceLayers: Failed to query layer properties: Success` | 没有安装任何 instance layer 是 Android 常态，查询成功时不再报错；请求了但缺失的 layer 仍逐个报错。 |
+| `23b6344b` | `Session file nid=1G3lF1Gg1k8 error=2 result=-1`（Android）/ 桌面 `[Error] Opening path ... failed, file does not exist` | 游戏探测可选文件，不存在是正常结果。改为 `Kernel_Fs` Info 级、带操作名和路径；其它失败仍为告警并带路径。 |
+
+未改：`Skipping lowering for null buffer sharp`（上游 #5008，空 V# 读 0、写丢弃与 GCN 一致，每个着色器排列一次）、`RemoveUnreachableBlocks`、跳过模式的 `RecordEscape`（设计中的一次性回退提示）、加载器 `DT_FLAGS`/`Unimplemented type SCE ...` 与可选扩展缺失提示（均为上游、信息性且有界）。
+
+验证：桌面构建通过；桌面血源（新构建）进中央亚楠、30 FPS、画面正常，原 5 条层数告警消失，无 denorm/Render 错误，`config.json` 逐字节恢复。Android host/APK 构建通过，APK `07104e93…` 已装到 AYN（host `22ed1419…`）；装包时设备前台是其它应用（`com.tencentmalos.xrgamenative`），未启动游戏，Android 侧日志复核待设备空闲。
+
 ## 未合入
 
 | 上游 | 原因 |
