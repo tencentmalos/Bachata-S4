@@ -77,6 +77,18 @@ static int RwlockAcquire(PthreadRwlock* prwlock, bool write, const OrbisKernelTi
     return prwlock->lock.Lock(owner, write, false, wait);
 }
 
+// scePthreadRwlockTimed{rd,wr}lock and pthread_rwlock_reltimed{rd,wr}lock_np take a timeout
+// relative to now in microseconds, not an absolute timespec.
+static int RwlockAcquireRelative(PthreadRwlock* prwlock, bool write, u32 usec) {
+    const u64 owner = RwlockOwner();
+    Sync::ParkerWait no_wait{{}};
+    if (prwlock->lock.Lock(owner, write, true, no_wait) == 0) {
+        return 0;
+    }
+    Sync::ParkerWait wait{{}, std::chrono::steady_clock::now() + std::chrono::microseconds{usec}};
+    return prwlock->lock.Lock(owner, write, false, wait);
+}
+
 int PS4_SYSV_ABI posix_pthread_rwlock_destroy(PthreadRwlockT* rwlock) {
     PthreadRwlockT prwlock = *rwlock;
     if (prwlock == THR_RWLOCK_INITIALIZER) {
@@ -129,6 +141,18 @@ int PS4_SYSV_ABI posix_pthread_rwlock_timedrdlock(PthreadRwlockT* rwlock,
     PthreadRwlockT prwlock{};
     CHECK_AND_INIT_RWLOCK
     return prwlock->Rdlock(abstime);
+}
+
+int PS4_SYSV_ABI posix_pthread_rwlock_reltimedrdlock_np(PthreadRwlockT* rwlock, u32 usec) {
+    PthreadRwlockT prwlock{};
+    CHECK_AND_INIT_RWLOCK
+    return RwlockAcquireRelative(prwlock, false, usec);
+}
+
+int PS4_SYSV_ABI posix_pthread_rwlock_reltimedwrlock_np(PthreadRwlockT* rwlock, u32 usec) {
+    PthreadRwlockT prwlock{};
+    CHECK_AND_INIT_RWLOCK
+    return RwlockAcquireRelative(prwlock, true, usec);
 }
 
 int PS4_SYSV_ABI posix_pthread_rwlock_tryrdlock(PthreadRwlockT* rwlock) {
@@ -247,6 +271,10 @@ void RegisterRwlock(Core::Loader::SymbolsResolver* sym) {
     LIB_FUNCTION("xFebsA4YsFI", "libkernel", 1, "libkernel", posix_pthread_rwlockattr_init);
     LIB_FUNCTION("OuKg+kRDD7U", "libkernel", 1, "libkernel", posix_pthread_rwlockattr_setpshared);
     LIB_FUNCTION("8NuOHiTr1Vw", "libkernel", 1, "libkernel", posix_pthread_rwlockattr_settype_np);
+    LIB_FUNCTION("dYv-+If2GPk", "libkernel", 1, "libkernel",
+                 posix_pthread_rwlock_reltimedrdlock_np);
+    LIB_FUNCTION("RRnSj8h8VR4", "libkernel", 1, "libkernel",
+                 posix_pthread_rwlock_reltimedwrlock_np);
 
     // Posix
     LIB_FUNCTION("1471ajPzxh0", "libScePosix", 1, "libkernel", posix_pthread_rwlock_destroy);
@@ -264,6 +292,10 @@ void RegisterRwlock(Core::Loader::SymbolsResolver* sym) {
     LIB_FUNCTION("xFebsA4YsFI", "libScePosix", 1, "libkernel", posix_pthread_rwlockattr_init);
     LIB_FUNCTION("OuKg+kRDD7U", "libScePosix", 1, "libkernel", posix_pthread_rwlockattr_setpshared);
     LIB_FUNCTION("8NuOHiTr1Vw", "libScePosix", 1, "libkernel", posix_pthread_rwlockattr_settype_np);
+    LIB_FUNCTION("dYv-+If2GPk", "libScePosix", 1, "libkernel",
+                 posix_pthread_rwlock_reltimedrdlock_np);
+    LIB_FUNCTION("RRnSj8h8VR4", "libScePosix", 1, "libkernel",
+                 posix_pthread_rwlock_reltimedwrlock_np);
 
     // Orbis
     LIB_FUNCTION("i2ifZ3fS2fo", "libkernel", 1, "libkernel",
@@ -281,9 +313,9 @@ void RegisterRwlock(Core::Loader::SymbolsResolver* sym) {
     LIB_FUNCTION("6ULAa0fq4jA", "libkernel", 1, "libkernel", ORBIS(posix_pthread_rwlock_init));
     LIB_FUNCTION("Ox9i0c7L5w0", "libkernel", 1, "libkernel", ORBIS(posix_pthread_rwlock_rdlock));
     LIB_FUNCTION("iPtZRWICjrM", "libkernel", 1, "libkernel",
-                 ORBIS(posix_pthread_rwlock_timedrdlock));
+                 ORBIS(posix_pthread_rwlock_reltimedrdlock_np));
     LIB_FUNCTION("adh--6nIqTk", "libkernel", 1, "libkernel",
-                 ORBIS(posix_pthread_rwlock_timedwrlock));
+                 ORBIS(posix_pthread_rwlock_reltimedwrlock_np));
     LIB_FUNCTION("XD3mDeybCnk", "libkernel", 1, "libkernel", ORBIS(posix_pthread_rwlock_tryrdlock));
     LIB_FUNCTION("bIHoZCTomsI", "libkernel", 1, "libkernel", ORBIS(posix_pthread_rwlock_trywrlock));
     LIB_FUNCTION("+L98PIbGttk", "libkernel", 1, "libkernel", ORBIS(posix_pthread_rwlock_unlock));
