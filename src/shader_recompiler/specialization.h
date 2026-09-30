@@ -216,9 +216,10 @@ struct StageSpecialization {
         // For VS which only generates geometry and doesn't have any inputs, its start
         // bindings still may change as they depend on previously processed FS. The check below
         // handles this case and prevents generation of redundant permutations. This is also safe
-        // for other types of shaders with no bindings.
+        // for other types of shaders with no bindings. User data registers are still read from
+        // the push constant block at start.user_data, which also follows the previous stages.
         if (bitset.none() && other.bitset.none()) {
-            return true;
+            return info->ud_mask.NumRegs() == 0 || start.user_data == other.start.user_data;
         }
 
         if (start != other.start) {
