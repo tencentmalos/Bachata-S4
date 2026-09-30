@@ -20,6 +20,9 @@ using Sirit::Id;
 
 class EmitContext;
 
+// Pads storage image coordinates to the lowered (2D / 2D array) image layout.
+Id FixImageTexelCoords(EmitContext& ctx, u32 handle, Id coords);
+
 // Microinstruction emitters
 Id EmitPhi(EmitContext& ctx, IR::Inst* inst);
 void EmitVoid(EmitContext& ctx);
@@ -469,7 +472,10 @@ Id EmitImageAtomicXor32(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords,
 Id EmitImageAtomicExchange32(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id value);
 Id EmitImageAtomicCmpSwap32(EmitContext& ctx, IR::Inst* inst, u32 handle, Id address, Id value,
                             Id cmp_value);
-Id EmitCubeFaceIndex(EmitContext& ctx, IR::Inst* inst, Id cube_coords);
+Id EmitCubeFaceIndex(EmitContext& ctx, IR::Inst* inst, Id x, Id y, Id z);
+Id EmitCubeFaceCoordS(EmitContext& ctx, IR::Inst* inst, Id x, Id y, Id z);
+Id EmitCubeFaceCoordT(EmitContext& ctx, IR::Inst* inst, Id x, Id y, Id z);
+Id EmitCubeFaceMajorAxis(EmitContext& ctx, IR::Inst* inst, Id x, Id y, Id z);
 Id EmitLaneId(EmitContext& ctx);
 Id EmitWarpId(EmitContext& ctx);
 Id EmitQuadBroadcast(EmitContext& ctx, Id value, const IR::Value& index);
