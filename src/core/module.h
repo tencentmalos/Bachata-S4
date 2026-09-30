@@ -219,6 +219,7 @@ public:
     void LoadModuleToMemory(u32& max_tls_index);
     void LoadDynamicInfo();
     void LoadSymbols();
+    void RestorePreboundPltImports();
 
     void* FindByName(std::string_view name);
 

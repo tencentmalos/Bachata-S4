@@ -176,11 +176,12 @@ static uint32_t glsl_shader_frag_spv[] = {
     0x00000007, 0x0000001d, 0x00000012, 0x0000001c, 0x0003003e, 0x00000009, 0x0000001d, 0x000100fd,
     0x00010038};
 
-// Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui
-// contexts It is STRONGLY preferred that you use docking branch with multi-viewports (== single
-// Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
+// This backend belongs to the presenter's mirror context. TextureManager also
+// uses it on a worker: never resolve its owner through process-global GImGui,
+// which can temporarily refer to an XR layer with a different Vulkan backend.
+static VkData* host_backend{};
 static VkData* GetBackendData() {
-    return ImGui::GetCurrentContext() ? (VkData*)ImGui::GetIO().BackendRendererUserData : nullptr;
+    return host_backend;
 }
 
 static uint32_t FindMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits) {
@@ -322,7 +323,6 @@ ImTextureID AddTexture(vk::ImageView image_view, vk::ImageLayout image_layout,
 }
 UploadTextureData UploadTexture(const void* data, vk::Format format, u32 width, u32 height,
                                 size_t size) {
-    ImGuiIO& io = GetIO();
     VkData* bd = GetBackendData();
     const InitInfo& v = bd->init_info;
 
@@ -1131,6 +1131,8 @@ bool Init(InitInfo info) {
 
     // Setup backend capabilities flags
     auto* bd = IM_NEW(VkData)(info);
+    IM_ASSERT(host_backend == nullptr);
+    host_backend = bd;
     io.BackendRendererUserData = (void*)bd;
     io.BackendRendererName = "imgui_impl_vulkan_shadps4";
     // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
@@ -1152,6 +1154,7 @@ void Shutdown() {
     io.BackendRendererUserData = nullptr;
     io.BackendFlags &= ~(ImGuiBackendFlags_RendererHasVtxOffset | ImGuiBackendFlags_RendererHasTextures);
     IM_DELETE(bd);
+    host_backend = nullptr;
 }
 
 void OnSurfaceFormatChange(vk::Format surface_format) {

@@ -21,8 +21,8 @@ Addresses: a *module offset* is the ELF virtual address inside the module (shadP
 at `base + p_vaddr`, and PS4 modules start at vaddr 0), so `offset = runtime address - base`. The
 analysis ELF keeps those virtual addresses, which makes llvm-objdump print module offsets.
 
-The analysis ELF is for reading only: e_type is rewritten to ET_EXEC and a section table is
-synthesised so tools accept it. The module's own relocations (DT_SCE_RELA: R_X86_64_RELATIVE and
+The analysis ELF is for reading only: e_type is rewritten to ET_EXEC (ET_DYN with
+`elf --dynamic` for PS4 databases) and a section table is synthesised so tools accept it. The module's own relocations (DT_SCE_RELA: R_X86_64_RELATIVE and
 self-defined symbols) are applied as if the module were loaded at 0, so vtables and pointer tables
 read as the module offsets they hold at run time; imports stay unresolved but get named symbols
 (`__imp_<name>` on the GOT slot, `<name>` on the PLT stub) from the NID table. Use --raw for the
@@ -636,8 +636,8 @@ class EhIndex:
 # Analysis ELF
 
 
-def build_analysis_elf(module, eh=None, dyn=None, relocate=True, stats=None):
-    """ELF64 ET_EXEC with the loadable bytes at their original offsets, one section per loadable
+def build_analysis_elf(module, eh=None, dyn=None, relocate=True, stats=None, dynamic=False):
+    """ELF64 ET_EXEC (ET_DYN with dynamic=True), one section per loadable
     segment, an fn_<vaddr> symbol per EH-described function and, with `dyn`, the module's own
     relocations applied (load base 0) plus named import symbols."""
     eh = eh if eh is not None else EhIndex(module)
@@ -768,7 +768,7 @@ def build_analysis_elf(module, eh=None, dyn=None, relocate=True, stats=None):
     shoff = append_blob(b"".join(sections))
 
     ehdr = list(module.ehdr)
-    ehdr[1] = 2  # ET_EXEC: tools reject the SCE e_types
+    ehdr[1] = 3 if dynamic else 2  # Standard ELF types: tools reject the SCE e_types.
     ehdr[5] = EHDR.size
     ehdr[6] = shoff
     ehdr[9] = PHDR.size
@@ -899,7 +899,8 @@ def cmd_elf(args):
     eh = EhIndex(module)
     dyn = None if args.raw else DynamicInfo(module, nid_names(args.nid_table))
     stats = {}
-    elf = build_analysis_elf(module, eh, dyn, relocate=not args.raw, stats=stats)
+    elf = build_analysis_elf(module, eh, dyn, relocate=not args.raw, stats=stats,
+                             dynamic=args.dynamic)
     out = Path(args.output or Path(args.module).with_suffix(".analysis.elf"))
     out.write_bytes(elf)
     print(f"{out}: {module.kind} -> analysis ELF, {len(module.segments)} loadable segments, "
@@ -1280,6 +1281,7 @@ def main(argv=None):
     p = sub.add_parser("elf", help="SELF/ELF -> analysis ELF (for IDA, objdump, gdb)")
     p.add_argument("module")
     p.add_argument("-o", "--output")
+    p.add_argument("--dynamic", action="store_true", help="ET_DYN analysis ELF for PS4 databases")
     p.add_argument("--raw", action="store_true",
                    help="original loadable bytes only: no relocations, no import symbols")
     p.add_argument("--nid-table", help="STUB(\"nid\", name) table (default: src/core/aerolib/aerolib.inl)")

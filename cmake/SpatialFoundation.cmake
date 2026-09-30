@@ -1,5 +1,5 @@
-# Host profile: the debugbus registry, overlay/foveation/texture codec modules, and on
-# the desktop the basic module layer for the DebugBus TCP transport. See
+# Host profile: shared basic services and graphics modules, plus Lite Engine for
+# the Android XR status scene. See
 # docs/foundation-integration.md for the dependency closure of each part.
 include_guard(GLOBAL)
 
@@ -18,33 +18,33 @@ function(shadps4_add_foundation)
     set(CITRA_USE_UNITY_BUILD ${ENABLE_UNITY_BUILD})
 
     # The desktop DebugBus TCP transport (spatial::foundation_debugbus_tcp) runs on
-    # Foundation's NetSystemModule: the basic module layer (core, allocator, async,
-    # imodules) plus Foundation's vendored libevent, bound to shadPS4's fmt/Vulkan/
-    # VMA/zlib targets. Android reaches the same registry through dumpsys and keeps
-    # the registry-only profile. Directories are added before modules/debugbus so it
-    # declares the TCP transport.
-    if(NOT ANDROID)
-        include("${foundation_root}/cmake/FoundationSubdirectory.cmake")
-        include("${foundation_root}/cmake/FoundationHostDependencies.cmake")
-        foreach(layer third_party modules/property basic)
-            add_subdirectory("${foundation_root}/${layer}"
-                             "${CMAKE_CURRENT_BINARY_DIR}/foundation/${layer}" EXCLUDE_FROM_ALL)
-        endforeach()
-    endif()
+    # Foundation's NetSystemModule. Lite Engine uses the same basic services on
+    # Android, where commands remain accessible through dumpsys. These are
+    # libraries, not a second module-runtime/JNI initialization; JniHelper's
+    # environment target remains shared with the existing host entry point.
+    include("${foundation_root}/cmake/FoundationSubdirectory.cmake")
+    include("${foundation_root}/cmake/FoundationHostDependencies.cmake")
+    foreach(layer third_party modules/property basic)
+        add_subdirectory("${foundation_root}/${layer}"
+                         "${CMAKE_CURRENT_BINARY_DIR}/foundation/${layer}" EXCLUDE_FROM_ALL)
+    endforeach()
     add_subdirectory("${foundation_root}/modules/debugbus"
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/debugbus" EXCLUDE_FROM_ALL)
-    # Logging (common/logging) runs on Foundation's LogModule: the basic layer's copy on the
-    # desktop, the log-only profile on Android.
+    # Logging (common/logging) shares Foundation's LogModule with the engine.
     add_subdirectory("${foundation_root}/modules/log"
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/log" EXCLUDE_FROM_ALL)
 
     add_library(shadps4_foundation INTERFACE)
     add_library(shadps4::foundation ALIAS shadps4_foundation)
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus spatial::foundation_log)
-    if(TARGET spatial::foundation_debugbus_tcp)
+    if(NOT ANDROID AND TARGET spatial::foundation_debugbus_tcp)
         target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus_tcp)
         target_compile_definitions(shadps4_foundation INTERFACE SHADPS4_DEBUGBUS_TCP=1)
     endif()
+
+    add_subdirectory("${foundation_root}/modules/fsr1"
+                     "${CMAKE_CURRENT_BINARY_DIR}/foundation/fsr1" EXCLUDE_FROM_ALL)
+    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_fsr1)
 
     # The FDM module is graphics-only and its upstream CMake target pulls in
     # Foundation's full basic/core graph.  shadPS4 already owns those host
@@ -70,6 +70,26 @@ function(shadps4_add_foundation)
     target_compile_definitions(shadps4_foundation_foveation PRIVATE VULKAN_HPP_NO_TO_STRING)
     set_target_properties(shadps4_foundation_foveation PROPERTIES UNITY_BUILD OFF)
     target_link_libraries(shadps4_foundation INTERFACE shadps4_foundation_foveation)
+    add_library(spatial::foundation_foveation_vulkan ALIAS shadps4_foundation_foveation)
+    add_library(foundation_foveation_vulkan ALIAS shadps4_foundation_foveation)
+    if(ANDROID)
+        set(FOUNDATION_RENDER_VMA_IMPLEMENTATION OFF CACHE BOOL "" FORCE)
+        add_subdirectory("${foundation_root}/engine"
+                         "${CMAKE_CURRENT_BINARY_DIR}/foundation/engine" EXCLUDE_FROM_ALL)
+        add_library(shadps4_xr_scene STATIC
+            "${foundation_root}/modules/xr/src/XrSceneVulkanLayer.cpp"
+            "${foundation_root}/modules/xr/src/XrCamera.cpp")
+        target_include_directories(shadps4_xr_scene PUBLIC
+            "${foundation_root}/modules/xr/include"
+            "${foundation_root}/third_party/openxr/openxr_header")
+        target_link_libraries(shadps4_xr_scene PUBLIC spatial::foundation_engine
+            spatial::foundation_async_task Dear_ImGui)
+        target_compile_features(shadps4_xr_scene PUBLIC cxx_std_20)
+        set_target_properties(shadps4_xr_scene PROPERTIES UNITY_BUILD OFF)
+    endif()
+    add_subdirectory("${foundation_root}/modules/upscale"
+                     "${CMAKE_CURRENT_BINARY_DIR}/foundation/upscale" EXCLUDE_FROM_ALL)
+    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_upscale)
     add_subdirectory("${foundation_root}/modules/texture_codec"
                      "${CMAKE_CURRENT_BINARY_DIR}/foundation/texture_codec" EXCLUDE_FROM_ALL)
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_texture_codec)

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <array>
+#include "core/host_runtime/guest_vr_sensor.h"
 #include "video_core/amdgpu/resource.h"
 
 namespace VideoCore {
@@ -12,5 +13,9 @@ struct VrFrameSource {
     std::array<AmdGpu::Sampler, 4> samplers{};
     std::array<std::array<float, 4>, 4> uv{};
     u32 image_count{};
+    // ReprojectionStart2d supplies normalized rectangles, not a perspective view.
+    bool perspective{true};
+    std::array<Core::HostRuntime::GuestVrSensor::Pose, 2> render_eyes{};
+    std::array<std::array<float, 4>, 2> render_fov{}; // left/right/down/up radians
 };
 } // namespace VideoCore

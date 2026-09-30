@@ -36,6 +36,7 @@ public:
     void EndSession(std::uint64_t token);
     std::uint64_t CurrentToken() const;
     PadResult Submit(std::uint64_t token, int port, const PadSnapshot &snapshot);
+    PadResult SubmitXr(std::uint64_t token, const PadSnapshot& snapshot, bool connected);
     PadResult SetConnected(std::uint64_t token, int port, bool connected);
     // Physical device registration returns the Foundation epoch, not a slot id.
     std::uint64_t RegisterDevice(std::uint64_t token, int port, std::int64_t id,
@@ -96,6 +97,8 @@ private:
     struct Port {
         std::optional<spatial::input::DeviceIdentity> physical, overlay, debug;
         PadSnapshot touch{}, debug_touch{};
+        PadSnapshot xr{};
+        bool xr_connected{};
         std::shared_ptr<DebugReceipt> debug_receipt;
         Libraries::Pad::OrbisPadData data{};
         std::deque<Sample> history;
@@ -124,6 +127,7 @@ private:
     spatial::input::InputHub hub_;
     std::array<Port, kMaxPadPorts> ports_{};
     std::uint64_t token_{};
+    bool xr_input_focused_{true};
     std::uint64_t haptic_sequence_{};
     int next_handle_{1};
     bool initialized_{};

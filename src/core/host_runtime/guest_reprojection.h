@@ -14,6 +14,7 @@
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_data_batch.h"
+#include "core/host_runtime/vr_geometry.h"
 #include "core/libraries/hmd/hmd.h"
 #include "core/libraries/hmd/hmd_error.h"
 #include "video_core/vr_frame.h"
@@ -79,11 +80,36 @@ private:
     // The submitted vectors map view-ray tangents to texture coordinates.
     // Project the same virtual frustum advertised by GetFieldOfView into each
     // source independently. This preserves atlas cropping and dynamic size.
-    static std::array<float, 4> EyeUv(const float* transform, u32 eye) {
+    static std::array<float, 4> EyeUv(const ReprojectionFrame& frame, const float* transform, u32 eye) {
+        if (VrGeometry::ValidFov(frame.render_fov[eye]))
+            return VrGeometry::TangentUv(transform, frame.render_fov[eye]);
         const auto& f = Libraries::Hmd::SbsFieldOfView;
         const float left = eye ? f.tan_in : f.tan_out;
         return {transform[0] * (f.tan_out + f.tan_in), transform[1] * (f.tan_top + f.tan_bottom),
                 transform[2] - transform[0] * left, transform[3] - transform[1] * f.tan_bottom};
+    }
+
+    static void ReadRenderPose(ReprojectionFrame& frame,
+                               const Libraries::Hmd::OrbisHmdReprojectionTrackerState& state) {
+        const auto sensor = GuestVrSensor::Instance().Read();
+        if (!sensor.openxr)
+            return;
+        GuestVrSensor::Pose head;
+        std::copy_n(state.position, 3, head.position.begin());
+        std::copy_n(state.orientation, 4, head.orientation.begin());
+        float norm{};
+        for (auto v : head.orientation) norm += v*v;
+        if (!std::isfinite(norm) || norm < .5f || norm > 1.5f ||
+            !std::ranges::all_of(head.position, [](float v) { return std::isfinite(v); }))
+            return;
+        for (auto& v : head.orientation) v /= std::sqrt(norm);
+        head.orientation_valid = head.position_valid = true;
+        for (unsigned eye = 0; eye < 2; ++eye) {
+            frame.render_eyes[eye] = VrGeometry::RenderEye(
+                head, sensor.hardware.head, sensor.hardware.eyes[eye]);
+            if (VrGeometry::ValidFov(sensor.hardware.fov[eye]))
+                frame.render_fov[eye] = sensor.hardware.fov[eye];
+        }
     }
     u32 ReadEyePair(ReprojectionFrame& frame, const u64* textures, u64 sampler_address,
                     const float* transforms, bool tangent_space = true) {
@@ -103,7 +129,7 @@ private:
             if (!Read(textures[eye], frame.eyes[index]))
                 return ORBIS_HMD_ERROR_PARAMETER_NULL;
             const auto* t = transforms + eye * 4;
-            auto uv = tangent_space ? EyeUv(t, eye) : std::array<float, 4>{t[0], t[1], t[2], t[3]};
+            auto uv = tangent_space ? EyeUv(frame, t, eye) : std::array<float, 4>{t[0], t[1], t[2], t[3]};
             if (!ValidUv(uv))
                 return ORBIS_HMD_ERROR_PARAMETER_INVALID;
             frame.samplers[index] = sampler;
@@ -127,6 +153,7 @@ private:
                     return ORBIS_HMD_ERROR_PARAMETER_INVALID;
             frame.completion_label = p.release_label;
             frame.sequence = a[1];
+            frame.perspective = false;
             const u64 textures[2]{p.texture, p.texture};
             const float uv[8]{p.uv[0], p.uv[1], p.uv[2], p.uv[3],
                               p.uv[0], p.uv[1], p.uv[2], p.uv[3]};
@@ -136,8 +163,8 @@ private:
         if (a[overlay ? 4 : 3])
             return ORBIS_HMD_ERROR_PARAMETER_INVALID;
         OrbisHmdReprojectionStartParam p{};
-        std::array<u8, 0x38> pose{};
-        if (!Read(a[0], p) || !Read(a[1], pose) || !p.release_label)
+        OrbisHmdReprojectionTrackerState shared_record{};
+        if (!Read(a[0], p) || !Read(a[1], shared_record) || !p.release_label)
             return ORBIS_HMD_ERROR_PARAMETER_NULL;
         if ((p.release_label & 7) || p.selector < 2000 || p.selector > 7000 || p.selector50 > 1 ||
             (p.flags & 0xffffffff0ffffff0ULL) || (p.selector < 3000 && (p.flags & 1)))
@@ -147,6 +174,7 @@ private:
                 return ORBIS_HMD_ERROR_PARAMETER_INVALID;
         frame.completion_label = p.release_label;
         frame.sequence = a[2];
+        ReadRenderPose(frame, shared_record);
         if (auto error = ReadEyePair(frame, p.textures, p.sampler, &p.tan_to_uv[0][0]))
             return error;
         if (overlay) {
@@ -274,7 +302,7 @@ public:
             if (a[5] || !a[1] || a[1] > 3)
                 return ORBIS_HMD_ERROR_PARAMETER_INVALID;
             OrbisHmdReprojectionSubmission submit{};
-            std::array<u8, 0x38> shared{};
+            OrbisHmdReprojectionTrackerState shared{};
             if (!Read(a[2], submit) || !Read(a[3], shared) || !submit.root00)
                 return ORBIS_HMD_ERROR_PARAMETER_NULL;
             if ((submit.root00 & 7) || submit.selector08 < 2000 || submit.selector08 > 7000 ||
@@ -290,6 +318,7 @@ public:
                 return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
             frame.completion_label = submit.root00;
             frame.sequence = a[4];
+            ReadRenderPose(frame, shared);
             for (u32 i = 0; i < a[1]; ++i) {
                 OrbisHmdReprojectionLayer layer{};
                 if (a[0] > UINT64_MAX - (i + 1) * sizeof(layer) ||

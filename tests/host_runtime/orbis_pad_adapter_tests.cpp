@@ -2,6 +2,8 @@
 #include "core/host_runtime/orbis_pad_adapter.h"
 #include "core/libraries/pad/pad_errors.h"
 #include <cstdio>
+#include <chrono>
+#include "core/host_runtime/guest_vr_sensor.h"
 #include <limits>
 using namespace Core::HostRuntime;
 using namespace spatial::input;
@@ -61,6 +63,20 @@ int main() {
     CHECK(pad.GetHandle(1000, 0, 0) == h);
     CHECK(pad.Open(1000, 0, 0, 0) == ORBIS_PAD_ERROR_ALREADY_OPENED);
     CHECK(pad.Read(h, &d, 1, true) == 1 && u32(d.buttons) == 0x2200);
+    // OpenXR has its own state; Bluetooth wins axis ties and survives XR release.
+    CHECK(pad.SetConnected(t, 0, true) == PadResult::Ok);
+    PadSnapshot xr{}; xr.buttons = 0x8000; xr.left_x = 1; xr.left_trigger = .25f;
+    CHECK(pad.SubmitXr(t, xr, true) == PadResult::Ok);
+    CHECK(pad.ReadState(0, &d) && u32(d.buttons) == 0xa200 && d.leftStick.x == 0);
+    CHECK(d.analogButtons.l2 == 64 && d.analogButtons.r2 == 255);
+    CHECK(pad.SubmitXr(t, {}, false) == PadResult::Ok);
+    CHECK(pad.ReadState(0, &d) && u32(d.buttons) == 0x2200 && d.leftStick.x == 0);
+    CHECK(pad.SubmitXr(t + 1, xr, true) == PadResult::WrongSession);
+    auto xr_nan = xr; xr_nan.right_x = std::numeric_limits<float>::quiet_NaN();
+    CHECK(pad.SubmitXr(t, xr_nan, true) == PadResult::Rejected);
+    CHECK(pad.SetConnected(t, 0, false) == PadResult::Ok);
+    CHECK(pad.SubmitXr(t, xr, true) == PadResult::Ok);
+    CHECK(pad.ReadButtons(0) == 0x2200); // no reinjection while UI input focus is withdrawn
     // A short down/up between two guest polls remains present in bounded history.
     p.sequence = 2;
     p.events = {{.button = Button::South, .pressed = true}};
@@ -80,8 +96,24 @@ int main() {
     CHECK(saw_down && saw_up);
     OrbisPadControllerInformation info{};
     CHECK(pad.Information(h, &info) == 0 && info.connected);
+    auto& sensor = GuestVrSensor::Instance();
+    const auto xr_gen = sensor.BeginOpenXr();
+    GuestVrSensor::HardwareFrame hardware{};
+    hardware.generation = xr_gen;
+    hardware.received_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+    hardware.running = hardware.focused = true;
+    hardware.hands[0].active = hardware.hands[1].active = true;
+    CHECK(sensor.PublishOpenXr(hardware));
+    CHECK(pad.SetConnected(t, 0, true) == PadResult::Ok);
+    CHECK(pad.SubmitXr(t, {}, true) == PadResult::Ok);
     OrbisPadVibrationParam rumble{.largeMotor = 60, .smallMotor = 120};
     CHECK(pad.Vibrate(h, &rumble) == 0);
+    const auto xr_haptics = sensor.TakeHaptics(xr_gen);
+    CHECK(xr_haptics[0] == 60 / 255.f && xr_haptics[1] == 120 / 255.f);
+    CHECK(pad.SubmitXr(t, {}, false) == PadResult::Ok);
+    sensor.EndOpenXr(xr_gen);
+    CHECK(pad.SetConnected(t, 0, false) == PadResult::Ok);
     CHECK(pad.DrainHaptics(t + 1).empty());
     auto c = pad.DrainHaptics(t);
     CHECK(c.size() == 1 && c[0].device.backend_id == 100 && c[0].device.connection_epoch == a);

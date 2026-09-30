@@ -1,10 +1,12 @@
+#include "video_core/renderer_vulkan/openxr/runtime.h"
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 // App-owned JNI marshalling. The host DSO owns the sole adapter and scePad*
-// state. Foundation owns no native methods or Java references.
+// state. Foundation's platform layer retains the application Context for native metrics.
 
 #include <jni.h>
+#include "spatial/platform/android/JniHelper.h"
 #include "core/diagnostics/overlay_control.h"
 
 #include "common/path_util.h"
@@ -182,7 +184,7 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeSetVibration(JNIEnv *, jc
 
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_shadps4_android_runtime_input_NativePad_nativeInitializeHost(JNIEnv *env, jclass,
-                                                                      jstring path) {
+                                                                      jstring path, jobject context) {
     if (!path)
         return JNI_FALSE;
     const char *chars = env->GetStringUTFChars(path, nullptr);
@@ -196,6 +198,9 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeInitializeHost(JNIEnv *en
         Common::Profiler::Initialize();
         static std::once_flag logging;
         std::call_once(logging, [] { Common::Log::Setup("android-host.log"); });
+        if (context && !spatial::platform::JniHelper::initJniEnviroment(env, context)) {
+            __android_log_print(ANDROID_LOG_WARN, kTag, "Native metrics Context unavailable");
+        }
         return JNI_TRUE;
     } catch (...) {
         if (chars)
@@ -400,4 +405,23 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeOverlayControls(JNIEnv*, 
 extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_input_NativePad_nativeOverlayDensity(JNIEnv*, jclass, jfloat density) {
     Core::Diagnostics::StatusOverlayMailbox().SetPixelDensity(density);
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeConfigureOpenXr(JNIEnv* env, jobject,
+                                                                   jobject activity, jboolean enabled) {
+    return Vulkan::OpenXr::ConfigureActivity(env, activity, enabled);
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeReleaseOpenXr(JNIEnv* env, jobject, jobject activity) {
+    Vulkan::OpenXr::ReleaseActivity(env, activity);
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeOpenXrForeground(JNIEnv* env, jobject,
+                                                                    jobject activity, jboolean foreground) {
+    Vulkan::OpenXr::SetForeground(env, activity, foreground);
+}
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeIsOpenXrConfigured(JNIEnv*, jobject) {
+    return Vulkan::OpenXr::IsConfigured();
 }

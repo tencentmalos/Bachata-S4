@@ -16,9 +16,9 @@ class MainActivityRouteTest {
     }
 
     @Test
-    fun exposesGlobalGameDriverAndEditorRoutes() {
+    fun exposesGlobalGameAndSessionRoutes() {
         assertEquals("settings", BachataRoutes.Settings)
         assertEquals("settings/game/CUSA00001", BachataRoutes.gameSettings("CUSA00001"))
-        assertEquals("drivers", BachataRoutes.Drivers)
+        assertEquals("session/{id}", BachataRoutes.Session)
     }
 }

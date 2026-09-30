@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+"""Build the live Mesa submodule and bind its exact ELF to the native host/APK."""
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import shutil
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[2]
+LOCK = ROOT / "runtime/locks/turnip-bionic-mainline.json"
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def digest(path):
+    with Path(path).open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def write(path, data):
+    path = Path(path)
+    if path.is_file() and path.read_bytes() == data:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
+        stream.write(data)
+        temp = Path(stream.name)
+    temp.chmod(0o644)
+    temp.replace(path)
+
+
+def json_write(path, value):
+    write(path, (json.dumps(value, indent=2, sort_keys=True) + "\n").encode())
+
+
+def source_identity():
+    lock = json.loads(LOCK.read_text())
+    source = (ROOT / lock["source_path"]).resolve()
+    source.relative_to(ROOT)
+    def git(*args):
+        return subprocess.check_output(["git", "-C", str(source), *args])
+    subprocess.run(["git", "-C", str(source), "merge-base", "--is-ancestor",
+                    lock["base_commit"], "HEAD"], check=True)
+    patch = git("diff", "--binary", "HEAD")
+    untracked = {}
+    for raw in git("ls-files", "--others", "--exclude-standard", "-z").split(b"\0"):
+        if raw:
+            name = os.fsdecode(raw)
+            path = source / name
+            if path.is_file():
+                untracked[name] = digest(path)
+    state = {"source_commit": git("rev-parse", "HEAD").decode().strip(),
+             "source_diff_sha256": sha(patch), "untracked_files": untracked,
+             "source_dirty": bool(patch or untracked),
+             "recipe_sha256": digest(__file__), "lock_sha256": digest(LOCK)}
+    state["source_identity_sha256"] = sha(json.dumps(state, sort_keys=True).encode())
+    return source, lock, state, patch
+
+
+def checked_output(directory):
+    identity = json.loads((directory / "identity.json").read_text())
+    if digest(directory / identity["library"]) != identity["library_sha256"]:
+        raise ValueError("Built Turnip ELF does not match its identity")
+    if source_identity()[2]["source_identity_sha256"] != identity["source_identity_sha256"]:
+        raise ValueError("Mesa source changed: rebuild shadps4_host before packaging the APK")
+    return identity
+
+
+def build(args):
+    source, lock, state, patch = source_identity()
+    ndk = args.ndk.resolve()
+    if f"Pkg.Revision = {lock['ndk']}" not in (ndk / "source.properties").read_text():
+        raise ValueError("Turnip NDK must match the source recipe: " + lock["ndk"])
+    host = {"Darwin": "darwin-x86_64", "Linux": "linux-x86_64"}[platform.system()]
+    toolchain = ndk / "toolchains/llvm/prebuilt" / host
+    api = lock["api"]
+    build_root = ROOT / f"build/turnip-api{api}"
+    build_root.mkdir(parents=True, exist_ok=True)
+    with (build_root / "shadps4-source.lock").open("w") as guard:
+        fcntl.flock(guard, fcntl.LOCK_EX)
+        state_before = source_identity()[2]
+        if state_before != state:
+            raise ValueError("Mesa source changed while waiting for its build")
+        cross = build_root / "android-aarch64.ini"
+        lines = ["[binaries]"]
+        for key, value in {"c": f"aarch64-linux-android{api}-clang",
+                           "cpp": f"aarch64-linux-android{api}-clang++",
+                           "ar": "llvm-ar", "strip": "llvm-strip"}.items():
+            lines.append(f"{key} = '{toolchain / 'bin' / value}'")
+        lines += ["pkg-config = 'false'", "[host_machine]", "system = 'android'",
+                  "cpu_family = 'aarch64'", "cpu = 'armv8-a'", "endian = 'little'"]
+        write(cross, ("\n".join(lines) + "\n").encode())
+        local_meson = ROOT / "build/turnip-build-venv/bin/meson"
+        meson = os.environ.get("SHADPS4_TURNIP_MESON") or (
+            str(local_meson) if local_meson.is_file() else shutil.which("meson"))
+        if not meson or not shutil.which("ninja"):
+            raise ValueError("Install Meson, Ninja and Mesa's Python dependencies (Mako, PyYAML, packaging)")
+        environment = os.environ.copy()
+        if platform.system() == "Darwin":
+            brew_bins = [Path(prefix) / "opt" / package / "bin"
+                         for prefix in ("/opt/homebrew", "/usr/local")
+                         for package in ("bison", "flex")]
+            environment["PATH"] = os.pathsep.join(
+                [str(path) for path in brew_bins if path.is_dir()] + [environment["PATH"]])
+        bison = shutil.which("bison", path=environment["PATH"])
+        if not bison or subprocess.run([bison, "--help"], capture_output=True).stdout.find(
+                b"counterexamples") < 0:
+            raise ValueError("Mesa requires modern Bison (on macOS: brew install bison flex)")
+        native = build_root / "native"
+        options = ["--buildtype=release", "-Dplatforms=android", "-Dandroid-stub=true",
+                   "-Dandroid-libbacktrace=disabled", f"-Dplatform-sdk-version={api}",
+                   "-Dvulkan-drivers=freedreno", "-Dfreedreno-kmds=kgsl", "-Dgallium-drivers=",
+                   "-Degl=disabled", "-Dgles1=disabled", "-Dgles2=disabled", "-Dopengl=false",
+                   "-Dllvm=disabled", "-Dbuild-tests=false", "-Dzstd=disabled"]
+        configuration = {"source": str(source), "ndk": str(ndk), "options": options,
+                         "recipe": digest(__file__), "bison": bison,
+                         "flex": shutil.which("flex", path=environment["PATH"]), "meson": meson}
+        config_file = build_root / "shadps4-configuration.json"
+        previous = json.loads(config_file.read_text()) if config_file.is_file() else None
+        if previous != configuration or not (native / "build.ninja").is_file():
+            command = [meson, "setup"]
+            if (native / "meson-private/coredata.dat").is_file():
+                command += ["--reconfigure", "--clearcache"]
+            subprocess.run(command + [str(native), str(source), "--cross-file", str(cross)] + options,
+                           check=True, env=environment)
+            json_write(config_file, configuration)
+        subprocess.run(["ninja", "-C", str(native), "-j", os.environ.get("TURNIP_BUILD_JOBS", "6"),
+                        "src/freedreno/vulkan/libvulkan_freedreno.so"], check=True, env=environment)
+        if source_identity()[2] != state:
+            raise ValueError("Mesa source changed during compilation; rebuild required")
+        library = (native / "src/freedreno/vulkan/libvulkan_freedreno.so").read_bytes()
+        if library[:5] != b"\x7fELF\x02" or int.from_bytes(library[18:20], "little") != 183:
+            raise ValueError("Turnip output is not ELF64 AArch64")
+        identity = {**lock, **state, "library_sha256": sha(library),
+                    "libcxx_sha256": digest(toolchain / "sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"),
+                    "build_options": options}
+        write(args.out / lock["library"], library)
+        write(args.out / "source.patch", patch)
+        json_write(args.out / "identity.json", identity)
+        header = ('#pragma once\nnamespace TurnipBuild {\n'
+                  f'inline constexpr char Sha256[] = "{identity["library_sha256"]}";\n'
+                  f'inline constexpr char Source[] = "{state["source_identity_sha256"]}";\n}}\n')
+        write(args.out / "turnip_identity.h", header.encode())
+        write(args.out / "licenses/Mesa-license.rst", (source / "docs/license.rst").read_bytes())
+        for path in (source / "licenses").rglob("*"):
+            if path.is_file():
+                write(args.out / "licenses/Mesa" / path.relative_to(source / "licenses"), path.read_bytes())
+        print("TURNIP_SOURCE_PASS", identity["source_commit"], identity["library_sha256"],
+              "dirty=" + str(identity["source_dirty"]))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("mode", choices=["build", "bind-host", "package"])
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--ndk", type=Path)
+    parser.add_argument("--built", type=Path)
+    parser.add_argument("--host", type=Path)
+    args = parser.parse_args()
+    if args.mode == "build":
+        if not args.ndk:
+            parser.error("build requires --ndk")
+        build(args)
+        return
+    if not args.built or not args.host:
+        parser.error("bind-host/package require --built and --host")
+    identity = checked_output(args.built)
+    binding = {"host_sha256": digest(args.host), "library_sha256": identity["library_sha256"],
+               "source_identity_sha256": identity["source_identity_sha256"]}
+    if identity["library_sha256"].encode() not in args.host.read_bytes():
+        raise ValueError("Native host does not contain this Turnip pin; rebuild shadps4_host")
+    if args.mode == "bind-host":
+        json_write(args.out / "host-binding.json", binding)
+    else:
+        if json.loads((args.built / "host-binding.json").read_text()) != binding:
+            raise ValueError("Native host/Turnip binding is stale; rebuild shadps4_host")
+        for name in [identity["library"], "identity.json", "source.patch", "host-binding.json"]:
+            write(args.out / name, (args.built / name).read_bytes())
+        shutil.copytree(args.built / "licenses", args.out / "licenses", dirs_exist_ok=True)
+        print("TURNIP_PACKAGE_PASS", identity["library_sha256"])
+
+
+if __name__ == "__main__":
+    main()

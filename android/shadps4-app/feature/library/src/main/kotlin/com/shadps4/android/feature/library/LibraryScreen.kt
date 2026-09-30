@@ -110,6 +110,55 @@ fun LibraryScreen(
         EntryPointAccessors.fromApplication(context.applicationContext, LibraryDependencies::class.java)
     }
     val scope = rememberCoroutineScope()
+    val state by viewModel.state.collectAsState()
+    var launchOptions by remember { mutableStateOf(GameLaunchOptions()) }
+    var outputExtents by remember { mutableStateOf<List<Pair<Int, Int>>?>(null) }
+    LaunchedEffect(state.showDetailsGameId) {
+        val id = state.showDetailsGameId
+        launchOptions = GameLaunchOptions(gameId = id)
+        if (id == null) return@LaunchedEffect
+        try {
+            val profiles = dependencies.runtimeProfiles()
+            val game = requireNotNull(dependencies.gameRepository().getGame(id))
+            val global = profiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global)
+            val profile = profiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(id))
+            val display = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                com.shadps4.android.data.GameDisplayMode.resolve(context.filesDir, profiles, id, game.relativePath)
+            }
+            if (outputExtents == null) {
+                val activity = context.findActivity()
+                outputExtents = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val paths = com.shadps4.android.runtime.session.AndroidTurnip.prepare(context)
+                        val sizes = activity?.let {
+                            com.shadps4.android.runtime.session.NativeFexSession.nativeQueryXrOutputExtents(
+                                it, paths.hooks, paths.driver)
+                        }
+                        if (sizes?.size == 6 && sizes.all { it > 0 })
+                            sizes.toList().chunked(2).map { it[0] to it[1] } else emptyList()
+                    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                    catch (_: Exception) { emptyList() }
+                }
+            }
+            launchOptions = GameLaunchOptions(id, loaded = true, psvr = display.forcedByPsvr,
+                global = global, game = profile, outputExtents = outputExtents.orEmpty())
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+        catch (e: Exception) { launchOptions = launchOptions.copy(error = e.message ?: "Cannot read launch settings") }
+    }
+    LaunchedEffect(launchOptions) {
+        viewModel.setLaunchOptionCount(if (launchOptions.ready) launchOptions.specs().size else 0)
+    }
+    LaunchedEffect(viewModel) {
+        viewModel.adjustLaunchOption.collect { (index, offset) ->
+            if (launchOptions.ready) {
+                val spec = launchOptions.specs().getOrNull(index) ?: return@collect
+                val choices = spec.choices
+                val current = choices.indexOf(launchOptions.value(spec))
+                val next = Math.floorMod(current + offset, choices.size)
+                launchOptions = launchOptions.select(spec, choices[next])
+            }
+        }
+    }
     val importProgress by ImportManager.progress.collectAsState()
     var gameToDelete by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(dependencies) {
@@ -362,6 +411,24 @@ fun LibraryScreen(
     val onLaunchWithTracking: (String) -> Unit = { id ->
         if (id == "__import_card__") {
             requestImport()
+        } else if (state.showDetailsGameId == id) {
+            val snapshot = launchOptions
+            if (snapshot.gameId == id && snapshot.ready) {
+                launchOptions = snapshot.copy(saving = true)
+                scope.launch {
+                    try {
+                        dependencies.runtimeProfiles().update(
+                            com.shadps4.android.runtime.settings.ProfileScope.Game(id), snapshot::applyTo)
+                        if (viewModel.state.value.showDetailsGameId == id) {
+                            viewModel.showDetails(null)
+                            onLaunch(id)
+                        }
+                    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                    catch (e: Exception) {
+                        launchOptions = snapshot.copy(error = e.message ?: "Could not save launch settings")
+                    }
+                }
+            }
         } else {
             onLaunch(id)
         }
@@ -370,14 +437,9 @@ fun LibraryScreen(
         viewModel.attachNavListener()
         onDispose { GamepadInputManager.unregisterNavListener() }
     }
+    val latestLaunch by androidx.compose.runtime.rememberUpdatedState(onLaunchWithTracking)
     LaunchedEffect(viewModel) {
-        viewModel.launch.collect { id ->
-            if (id == "__import_card__") {
-                requestImport()
-            } else {
-                onLaunch(id)
-            }
-        }
+        viewModel.launch.collect { id -> latestLaunch(id) }
     }
     LaunchedEffect(viewModel) {
         viewModel.openSettings.collect { id ->
@@ -398,7 +460,6 @@ fun LibraryScreen(
             applyOrientation(UiOrientationPreference.toggle(UiOrientationPreference.read(context)))
         }
     }
-    val state by viewModel.state.collectAsState()
     LibraryContent(
         state = state,
         importProgress = importProgress,
@@ -412,6 +473,8 @@ fun LibraryScreen(
         onSelectGame = viewModel::selectGame,
         onImport = requestImport,
         onLaunch = onLaunchWithTracking,
+        launchOptions = launchOptions,
+        onLaunchOption = { spec, choice -> launchOptions = launchOptions.select(spec, choice) },
         onRequestDelete = { gameToDelete = it },
         onConfirmDelete = { id ->
             scope.launch {
@@ -444,6 +507,8 @@ fun LibraryContent(
     onShowDetails: (String?) -> Unit,
     onSetNumColumns: (Int) -> Unit,
     onAddPkgs: (String, String) -> Unit,
+    launchOptions: GameLaunchOptions = GameLaunchOptions(),
+    onLaunchOption: (com.shadps4.android.runtime.settings.RuntimeSettingSpec, String) -> Unit = { _, _ -> },
 ) {
     val selected = state.games.firstOrNull { it.id == state.selectedGameId }
     val context = LocalContext.current
@@ -781,10 +846,10 @@ fun LibraryContent(
                     if (detailsGame != null) {
                         GlassBottomSheet(
                             game = detailsGame,
-                            onLaunch = {
-                                onShowDetails(null)
-                                onLaunch(detailsGame.id)
-                            },
+                            onLaunch = { onLaunch(detailsGame.id) },
+                            launchOptions = launchOptions,
+                            launchOptionIndex = state.launchOptionIndex,
+                            onLaunchOption = onLaunchOption,
                             onCancel = { onShowDetails(null) },
                             onOpenGameSettings = {
                                 onShowDetails(null)
@@ -1298,6 +1363,9 @@ private fun ControllerKeyIcon(
 private fun GlassBottomSheet(
     game: com.shadps4.android.model.Game,
     onLaunch: () -> Unit,
+    launchOptions: GameLaunchOptions,
+    launchOptionIndex: Int,
+    onLaunchOption: (com.shadps4.android.runtime.settings.RuntimeSettingSpec, String) -> Unit,
     onCancel: () -> Unit,
     onOpenGameSettings: () -> Unit,
     onRequestDelete: () -> Unit,
@@ -1337,18 +1405,18 @@ private fun GlassBottomSheet(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
+                        .weight(1f, fill = false),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     GameCover(
                         relativePath = game.relativePath,
                         modifier = Modifier
-                            .fillMaxHeight()
+                            .width(120.dp)
                             .aspectRatio(0.75f),
                     )
                     Column(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         GameDetailsMeta(
@@ -1357,8 +1425,10 @@ private fun GlassBottomSheet(
                             textAlign = TextAlign.Start,
                             horizontalAlignment = Alignment.Start,
                         )
+                        GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption)
                         GameDetailsActions(
                             onLaunch = onLaunch,
+                            launchEnabled = launchOptions.ready,
                             onCancel = onCancel,
                             onOpenGameSettings = onOpenGameSettings,
                             onRequestDelete = onRequestDelete,
@@ -1388,9 +1458,11 @@ private fun GlassBottomSheet(
                         textAlign = TextAlign.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     )
+                    GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption)
                 }
                 GameDetailsActions(
                     onLaunch = onLaunch,
+                    launchEnabled = launchOptions.ready,
                     onCancel = onCancel,
                     onOpenGameSettings = onOpenGameSettings,
                     onRequestDelete = onRequestDelete,
@@ -1457,6 +1529,7 @@ private fun GameDetailsMeta(
 @Composable
 private fun GameDetailsActions(
     onLaunch: () -> Unit,
+    launchEnabled: Boolean,
     onCancel: () -> Unit,
     onOpenGameSettings: () -> Unit,
     onRequestDelete: () -> Unit,
@@ -1471,6 +1544,7 @@ private fun GameDetailsActions(
     ) {
         Button(
             onClick = onLaunch,
+            enabled = launchEnabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(launchHeight),
@@ -1632,4 +1706,5 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 @InstallIn(SingletonComponent::class)
 interface LibraryDependencies {
     fun gameRepository(): GameRepository
+    fun runtimeProfiles(): com.shadps4.android.data.RuntimeProfileStore
 }

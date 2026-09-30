@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
     if (argc != 3) return 2;
     Common::FS::InitializeAndroidUserPaths(argv[2]);
     Common::Log::Setup("sbs-compositor-probe");
+    struct LogLifetime { ~LogLifetime() { Common::Log::Shutdown(); } } log_lifetime;
     ProbeWindow window;
     auto driver = std::string_view(argv[1]) == "system" ? Vulkan::LoadAndroidSystemDriver()
         : Vulkan::LoadAndroidTurnip(argv[1], argv[2]);
@@ -48,10 +49,10 @@ int main(int argc, char** argv) {
         return b;
     };
     struct Image { vk::UniqueDeviceMemory memory; vk::UniqueImage image; };
-    const auto make_image = [&](u32 layers) {
+    const auto make_image = [&](u32 layers, vk::Format format = vk::Format::eR8G8B8A8Unorm) {
         Image image;
         image.image = Vulkan::Check(device.createImageUnique({.imageType = vk::ImageType::e2D,
-            .format = vk::Format::eR8G8B8A8Unorm, .extent = {W, H, 1}, .mipLevels = 1,
+            .format = format, .extent = {W, H, 1}, .mipLevels = 1,
             .arrayLayers = layers, .samples = vk::SampleCountFlagBits::e1,
             .tiling = vk::ImageTiling::eOptimal, .usage = vk::ImageUsageFlagBits::eSampled |
                 vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst |
@@ -179,6 +180,53 @@ int main(int argc, char** argv) {
                 if(std::abs(int(actual[(y*W+x)*4+c])-expected[c])>1) {
                     if(++failures<8)std::printf("FAIL explicit variant=%u flip=%u xy=%u,%u c=%u got=%u expected=%d\n",variant,flip,x,y,c,actual[(y*W+x)*4+c],expected[c]);
                 }
+            }
+        }
+    }
+    // XR publication: preserve the encoded mid-tones produced by PP. A direct
+    // UNORM -> sRGB blit is a negative control: it incorrectly encodes them twice.
+    auto mailbox = make_image(1), xr_image = make_image(1, vk::Format::eR8G8B8A8Srgb);
+    for (u32 transfer : {0u, 1u, 2u}) {
+        const bool wrong_direct_blit = transfer == 1;
+        barrier(*mailbox.image, 1, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+        barrier(*xr_image.image, 1, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+        vk::ImageBlit blit{.srcSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},
+            .srcOffsets=std::array{vk::Offset3D{},vk::Offset3D{W,H,1}},
+            .dstSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},
+            .dstOffsets=std::array{vk::Offset3D{},vk::Offset3D{W,H,1}}};
+        if (transfer == 2) {
+            // The full-resolution path has identical format/extent and copies
+            // PP bytes to the mailbox without a resize or a gamma conversion.
+            scheduler.CommandBuffer().copyImage(*output.image,vk::ImageLayout::eTransferSrcOptimal,
+                *mailbox.image,vk::ImageLayout::eTransferDstOptimal,vk::ImageCopy{
+                    .srcSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},
+                    .dstSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},.extent={W,H,1}});
+        } else {
+            scheduler.CommandBuffer().blitImage(*output.image,vk::ImageLayout::eTransferSrcOptimal,
+                wrong_direct_blit ? *xr_image.image : *mailbox.image,vk::ImageLayout::eTransferDstOptimal,
+                blit,vk::Filter::eNearest);
+        }
+        if (!wrong_direct_blit) {
+            barrier(*mailbox.image,1,vk::ImageLayout::eTransferDstOptimal,vk::ImageLayout::eTransferSrcOptimal);
+            scheduler.CommandBuffer().copyImage(*mailbox.image,vk::ImageLayout::eTransferSrcOptimal,
+                *xr_image.image,vk::ImageLayout::eTransferDstOptimal,vk::ImageCopy{
+                    .srcSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},
+                    .dstSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},.extent={W,H,1}});
+        }
+        barrier(*xr_image.image,1,vk::ImageLayout::eTransferDstOptimal,vk::ImageLayout::eTransferSrcOptimal);
+        scheduler.CommandBuffer().copyImageToBuffer(*xr_image.image,vk::ImageLayout::eTransferSrcOptimal,
+            *readback.buffer,vk::BufferImageCopy{.imageSubresource={vk::ImageAspectFlagBits::eColor,0,0,1},
+                                              .imageExtent={W,H,1}});
+        scheduler.Finish();
+        const auto* actual = static_cast<const u8*>(readback.mapped);
+        // Last pattern has the lower half at 128; same channel on both eyes.
+        const int expected = wrong_direct_blit ? 188 : 128;
+        for (u32 x=0; x<W; ++x) {
+            ++checks;
+            const auto value = actual[((H-1)*W+x)*4+(x>=W/2?1:0)];
+            if (std::abs(int(value)-expected)>1) {
+                ++failures;
+                std::printf("FAIL XR gamma negative=%d x=%u got=%u expected=%d\n", wrong_direct_blit,x,value,expected);
             }
         }
     }

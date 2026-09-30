@@ -165,13 +165,16 @@ GraphicsPipeline::GraphicsPipeline(
     if (!preloading) {
         const auto& fs_info = runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs;
         sdata.multisampling = {
-            .rasterizationSamples = LiverpoolToVK::NumSamples(
-                key.num_samples, instance.GetColorSampleCounts() & instance.GetDepthSampleCounts()),
+            // Global framebuffer masks are only the common format guarantee.
+            // Validate the concrete attachment formats below, without reducing samples.
+            .rasterizationSamples = static_cast<vk::SampleCountFlagBits>(key.num_samples),
             .sampleShadingEnable = !instance.IsMsaaDisabled() &&
                 (fs_info.addr_flags.persp_sample_ena || fs_info.addr_flags.linear_sample_ena),
         };
     }
     s.multisampling = sdata.multisampling;
+    // Recompute even for a cached recipe written by the old global-mask path.
+    s.multisampling.rasterizationSamples = static_cast<vk::SampleCountFlagBits>(key.num_samples);
 
     raster_samples = s.multisampling.rasterizationSamples;
     ASSERT_MSG(u32(raster_samples) == key.num_samples,
@@ -356,18 +359,31 @@ GraphicsPipeline::GraphicsPipeline(
         s.color_formats[i] = color_format;
     }
 
-    std::ranges::transform(key.color_samples, s.color_samples.begin(),
-                           [&instance](u8 num_samples) {
-                               return num_samples ? LiverpoolToVK::NumSamples(
-                                                        num_samples, instance.GetColorSampleCounts())
-                                                  : vk::SampleCountFlagBits::e1;
-                           });
+    const auto validate_samples = [&](vk::Format format, u32 samples, bool depth) {
+        const auto supported = instance.GetAttachmentSampleCounts(format, depth);
+        ASSERT_MSG(samples && std::has_single_bit(samples) && (u32(supported) & samples),
+                   "Unsupported attachment samples: format={} depth={} requested={} supported={:#x}",
+                   vk::to_string(format), depth, samples, u32(supported));
+        return static_cast<vk::SampleCountFlagBits>(samples);
+    };
+    for (u32 i = 0; i < key.num_color_attachments; ++i) {
+        s.color_samples[i] = key.color_samples[i] && s.color_formats[i] != vk::Format::eUndefined
+            ? validate_samples(s.color_formats[i], key.color_samples[i], false)
+            : vk::SampleCountFlagBits::e1;
+    }
+    const bool has_depth = key.z_format != AmdGpu::DepthBuffer::ZFormat::Invalid ||
+                           key.stencil_format != AmdGpu::DepthBuffer::StencilFormat::Invalid;
     s.mixed_samples = {
         .colorAttachmentCount = key.num_color_attachments,
         .pColorAttachmentSamples = s.color_samples.data(),
-        .depthStencilAttachmentSamples =
-            LiverpoolToVK::NumSamples(key.depth_samples, instance.GetDepthSampleCounts()),
+        .depthStencilAttachmentSamples = has_depth
+            ? validate_samples(depth_format, key.depth_samples, true)
+            : vk::SampleCountFlagBits::e1,
     };
+    if (!key.num_color_attachments && !has_depth) {
+        ASSERT_MSG(u32(instance.GetPhysicalDevice().getProperties().limits.framebufferNoAttachmentsSampleCounts) &
+                       key.num_samples, "Unsupported attachment-less raster sample count {}", key.num_samples);
+    }
 
     s.pipeline_rendering_ci = {
         .pNext = instance.IsMixedDepthSamplesSupported() ? &s.mixed_samples : nullptr,

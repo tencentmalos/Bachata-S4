@@ -260,16 +260,6 @@ void SetPosixErrno(s32 e) {
     g_posix_errno = NativeToPosixErrno(e);
 }
 
-struct OrbisKernelUuid {
-    u32 timeLow;
-    u16 timeMid;
-    u16 timeHiAndVersion;
-    u8 clockSeqHiAndReserved;
-    u8 clockSeqLow;
-    u8 node[6];
-};
-static_assert(sizeof(OrbisKernelUuid) == 0x10);
-
 s32 PS4_SYSV_ABI sceKernelUuidCreate(OrbisKernelUuid* orbisUuid) {
     if (!orbisUuid) {
         return ORBIS_KERNEL_ERROR_EINVAL;

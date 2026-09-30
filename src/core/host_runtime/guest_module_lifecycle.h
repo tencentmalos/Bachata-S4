@@ -22,6 +22,10 @@ inline bool IsGuestPluginFile(const std::filesystem::path& path, bool is_file) {
     return is_file && !name.empty() && name.front() != '.' &&
            (key.ends_with(".prx") || key.ends_with(".sprx"));
 }
+// Applies only to auto-discovered optional roots, never required dependencies.
+inline bool ShouldPreloadGuestPlugin(const std::filesystem::path& path, bool is_file, u64 bytes) {
+    return bytes != 0 && IsGuestPluginFile(path, is_file);
+}
 // All images, relocations and TLS layouts are frozen before guest owners exist.
 // Initialization is separate: a prepared plug-in runs DT_INIT only on demand.
 // No metadata lock or guest-memory pin survives a callback into the guest.

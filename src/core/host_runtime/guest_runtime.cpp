@@ -476,6 +476,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestSyncArena> sync_arena;
     std::unique_ptr<GuestSyncArena> rwlock_arena;
     std::unique_ptr<GuestRwlockDomain> rwlock_domain;
+    std::unique_ptr<GuestSyncArena> semaphore_arena;
     std::unique_ptr<GuestSemaphoreDomain> semaphore_domain;
     int backing_fd{-1};
     u8* backing{};
@@ -563,6 +564,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 next_event_flag{1};
     std::optional<GuestCallResult> child_fault;
     std::optional<Error> child_error;
+    std::atomic_flag fault_logged = ATOMIC_FLAG_INIT;
     bool prepared{}, has_system_libc{};
     std::vector<u32> init_order;
     GuestModuleLifecycle module_lifecycle;
@@ -1145,9 +1147,36 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     }
     Result<GuestCallResult> Call(u64 entry, const GuestCallArgs& args) {
         Common::Profiler::Scope profile{"Guest.Invoke"};
-        if (auto* scope = HleScope::Current())
-            return scope->InvokeGuest(GuestCodeAddress{entry}, args);
-        return cpu.InvokeGuest(Current()->handle, GuestCodeAddress{entry}, args, {});
+        auto* scope = HleScope::Current();
+        auto result = scope ? scope->InvokeGuest(GuestCodeAddress{entry}, args)
+                            : cpu.InvokeGuest(Current()->handle, GuestCodeAddress{entry}, args, {});
+        if (result) LogGuestFault(entry, result.Value());
+        return result;
+    }
+    void LogGuestFault(u64 entry, const GuestCallResult& result) {
+        if (result.reason == StopReason::GuestFault && !fault_logged.test_and_set()) {
+            const auto& snapshot = result.snapshot;
+            auto registers = snapshot.registers;
+            LOG_ERROR(Core_Linker, "GUEST_FAULT thread={} entry={:#x} rip={:#x} rsp={:#x} rbp={:#x} "
+                      "rax={:#x} rbx={:#x} rcx={:#x} rdx={:#x} rdi={:#x} rsi={:#x}",
+                      snapshot.thread_id, entry, registers.rip, registers.Get(Gpr::Rsp),
+                      registers.Get(Gpr::Rbp), registers.Get(Gpr::Rax), registers.Get(Gpr::Rbx),
+                      registers.Get(Gpr::Rcx), registers.Get(Gpr::Rdx), registers.Get(Gpr::Rdi),
+                      registers.Get(Gpr::Rsi));
+            // Capture before teardown destroys the worker and its guest stack.
+            // This is a fault trace, so RDI is not a backtrace text-prefix argument.
+            registers.Set(Gpr::Rdi, 0);
+            const auto trace = CaptureGuestBacktrace(space, registers);
+            for (size_t i = 0; i < trace.count; ++i) {
+                const auto pc = trace.addresses[i];
+                const auto* module = linker->FindByAddress(pc ? pc - 1 : 0);
+                LOG_ERROR(Core_Linker, "GUEST_FAULT {}={} pc={:#x} module={} offset={:#x}",
+                          i == 0 ? "stack_top" : "frame", i, pc, module ? module->name : "unknown",
+                          module ? pc - module->GetBaseAddress() : pc);
+            }
+            LOG_ERROR(Core_Linker, "GUEST_FAULT trace_end count={} stop={} at={:#x}",
+                      trace.count, trace.stop, trace.stopped_at);
+        }
     }
     // Weights the owner's host thread by its guest scheduling attributes (threads_mutex held).
     // Before Attach there is no host thread yet; Attach applies the attributes itself.
@@ -2144,10 +2173,20 @@ void GuestRuntime::Impl::InstallHandlers() {
                                                HleScope::Current()->CancellationToken());
         });
     }
-    semaphore_domain = std::make_unique<GuestSemaphoreDomain>(space, [this] {
-
-        return Allocate(0x4000, "GuestSemaphore");
+    // Only this domain allocates here, under its guard. Never reuse a destroyed
+    // handle within the session, but pack them instead of spending a page each.
+    semaphore_arena = std::make_unique<GuestSyncArena>([this] {
+        void* address{};
+        const auto result = memory->MapMemory(
+            &address, GuestRuntime::ServiceAllocationBase, GuestSyncArena::BlockSize,
+            MemoryProt::CpuReadWrite, MemoryMapFlags::NoFlags, VMAType::File,
+            "GuestSemaphoreObjects");
+        if (result == ORBIS_KERNEL_ERROR_ENOMEM) return u64{0};
+        if (result) throw std::runtime_error("GuestSemaphoreObjects mapping failed");
+        return reinterpret_cast<u64>(address);
     });
+    semaphore_domain = std::make_unique<GuestSemaphoreDomain>(
+        space, [this] { return semaphore_arena->Allocate(); });
     auto sem_bind = [&](const char* posix, const char* sce, auto fn) {
         bind({posix}, [this, fn](const auto& a) -> u64 {
             const int error = fn(a);
@@ -2628,6 +2667,11 @@ void GuestRuntime::Impl::InstallHandlers() {
          [](const auto&) -> u64 { return 0; });
     // Match the emulator's virtual process identity (GLOBAL_PID), not Android PID.
     bind({"HoLVWNanBBc"}, [](const auto&) -> u64 { return 0xBAD1; });
+    // Orbis pages remain 16 KiB regardless of the Android host's page size.
+    bind({"k+AXqu2-eBc"}, [](const auto&) -> u64 { return 0x4000; });
+    bind({"Xjoosiw+XPI"}, [this](const auto& a) -> u64 {
+        return DispatchKernelUuidCreate(space, a[0]);
+    });
     bind({"3PtV6p3QNX4"}, [](const auto& a) -> u64 { return a[0] == a[1]; });
     bind({"EI-5-jlq2dE"}, [this](const auto&) -> u64 { return Current()->id; });
     bind({"959qrazPIrg"},
@@ -4741,6 +4785,15 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     for (const auto* directory : {"/app0/Media/Plugins", "/app0/prx"})
     impl->mounts.IterateDirectory(directory, [&](const auto& path, bool is_file) {
         if (!IsGuestPluginFile(path, is_file)) return;
+        // Updates may mask removed plug-ins with empty files. Only optional
+        // discovery skips these; explicit roots/DT_NEEDED still fail normally.
+        // Read the effective mounted view: never resurrect the base-game image.
+        auto file = impl->mounts.Open(std::string(directory) + "/" + path.filename().string());
+        if (!file) throw std::runtime_error("cannot inspect plug-in: " + path.string());
+        if (!ShouldPreloadGuestPlugin(path, is_file, file->Size())) {
+            LOG_INFO(Core, "Skipping empty optional plug-in: {}", path.string());
+            return;
+        }
         const auto canonical = module_path(path);
         const auto relative = canonical.lexically_relative(content_root);
         if (relative.empty() || *relative.begin() == "..")
@@ -5266,6 +5319,7 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
         result.invocation_id = run.Value().invocation_id;
         result.stop_epoch = run.Value().snapshot.stop_epoch;
         owner->result = result;
+        impl->LogGuestFault(module->GetEntryAddress(), result);
         impl->Finish(owner);
         if (impl->graphics)
             impl->graphics->CheckHealth();

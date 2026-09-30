@@ -332,7 +332,7 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
     } else {
         const vk::RenderingFragmentDensityMapAttachmentInfoEXT fdm_attachment{
             .imageView = fdm_view,
-            .imageLayout = vk::ImageLayout::eFragmentDensityMapOptimalEXT,
+            .imageLayout = spatial::foveation::vulkan::FdmLayout,
         };
         const vk::RenderingInfo rendering_info{
             .pNext = (fdm_view && fdm_dynamic) ? &fdm_attachment : nullptr,

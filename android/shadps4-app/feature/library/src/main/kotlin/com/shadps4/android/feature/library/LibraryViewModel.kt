@@ -15,6 +15,7 @@ data class LibraryUiState(
     val games: List<Game> = emptyList(),
     val selectedGameId: String? = null,
     val showDetailsGameId: String? = null,
+    val launchOptionIndex: Int = -1,
 )
 
 @HiltViewModel
@@ -23,6 +24,14 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
     val state: StateFlow<LibraryUiState> = mutableState
     private var focusedIndex: Int = 0
     private var numColumns: Int = 1
+    private var launchOptionCount = 0
+    private val adjustLaunchOptionRequest = MutableSharedFlow<Pair<Int, Int>>(extraBufferCapacity = 8)
+    val adjustLaunchOption: SharedFlow<Pair<Int, Int>> = adjustLaunchOptionRequest
+    fun setLaunchOptionCount(count: Int) {
+        launchOptionCount = count
+        mutableState.value = mutableState.value.copy(launchOptionIndex =
+            mutableState.value.launchOptionIndex.coerceIn(-1, (count - 1).coerceAtLeast(-1)))
+    }
     private val openSettingsRequest = MutableSharedFlow<String>(extraBufferCapacity = 4)
     val openSettings: SharedFlow<String> = openSettingsRequest
     private val launchRequest = MutableSharedFlow<String>(extraBufferCapacity = 4)
@@ -81,7 +90,7 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
     }
 
     fun showDetails(id: String?) {
-        mutableState.value = mutableState.value.copy(showDetailsGameId = id)
+        mutableState.value = mutableState.value.copy(showDetailsGameId = id, launchOptionIndex = -1)
     }
 
     fun handleNavEvent(event: NavControllerEvent): Boolean {
@@ -89,6 +98,18 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
         val detailsId = currentState.showDetailsGameId
         if (detailsId != null) {
             return when {
+                event.control in listOf("dpad_up", "dpad_down") && event.pressed -> {
+                    val delta = if (event.control == "dpad_up") -1 else 1
+                    mutableState.value = currentState.copy(launchOptionIndex =
+                        (currentState.launchOptionIndex + delta).coerceIn(-1, (launchOptionCount - 1).coerceAtLeast(-1)))
+                    true
+                }
+                currentState.launchOptionIndex >= 0 && event.pressed &&
+                    event.control in listOf("dpad_left", "dpad_right", "cross") -> {
+                    adjustLaunchOptionRequest.tryEmit(currentState.launchOptionIndex to
+                        if (event.control == "dpad_left") -1 else 1)
+                    true
+                }
                 event.control == "cross" && event.pressed -> {
                     launchRequest.tryEmit(detailsId)
                     true

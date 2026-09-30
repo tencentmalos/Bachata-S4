@@ -10,7 +10,11 @@ object NativePad {
     init { System.loadLibrary("shadps4_fex_session") }
     object Result { const val OK=0; const val WRONG_SESSION=1; const val BAD_PORT=2; const val REJECTED=3; const val NO_SESSION=4 }
     const val MAX_PORTS = 4
-    external fun nativeInitializeHost(path: String): Boolean
+    external fun nativeInitializeHost(path: String, context: android.content.Context? = null): Boolean
+    external fun nativeConfigureOpenXr(activity: android.app.Activity, enabled: Boolean): Boolean
+    external fun nativeReleaseOpenXr(activity: android.app.Activity)
+    external fun nativeOpenXrForeground(activity: android.app.Activity, foreground: Boolean)
+    external fun nativeIsOpenXrConfigured(): Boolean
     external fun nativeBeginSession(): Long
     external fun nativeEndSession(token: Long)
     external fun nativeCurrentToken(): Long

@@ -1,3 +1,6 @@
+#if defined(__ANDROID__)
+#include "video_core/renderer_vulkan/openxr/runtime.h"
+#endif
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -13,6 +16,7 @@
 #include "core/devtools/layer.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/system/systemservice.h"
+#include "core/libraries/hmd/hmd.h"
 #include "frontend/window.h"
 #include "imgui/friends_layer.h"
 #include "imgui/invitation_prompt_layer.h"
@@ -414,11 +418,16 @@ static bool WritePng(const std::filesystem::path& path, const std::span<const u8
         return false;
     }
 
+    struct Output {
+        Common::FS::IOFile& file;
+        bool ok{true};
+    } output{file};
     auto callback = [](void* context, void* data, int size) {
-        const auto* f = static_cast<Common::FS::IOFile*>(context);
-        f->WriteRaw<u8>(data, size);
+        auto& out = *static_cast<Output*>(context);
+        if (out.file.WriteRaw<u8>(data, size) != static_cast<size_t>(size)) out.ok = false;
     };
-    return stbi_write_png_to_func(callback, &file, width, height, 4, rgba.data(), 0);
+    const bool encoded = stbi_write_png_to_func(callback, &output, width, height, 4, rgba.data(), 0);
+    return encoded && output.ok && file.Flush();
 }
 
 static void SavePendingScreenshot(const ScreenshotReadback& readback) {
@@ -526,6 +535,9 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
     fsr_pass.Create(instance, instance.GetAllocator(), num_images);
     pp_pass.Create(instance, swapchain.GetSurfaceFormat().format);
 
+#if defined(__ANDROID__)
+    if (instance.Xr()) instance.Xr()->Start(instance);
+#endif
     ImGui::Layer::AddLayer(Common::Singleton<Core::Devtools::Layer>::Instance());
     ImGui::Friends::Register();
     ImGui::ShadNetNotify::Register();
@@ -533,7 +545,13 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
 }
 
 Presenter::~Presenter() {
+#if defined(__ANDROID__)
+    if (instance.Xr()) instance.Xr()->Stop();
+#endif
     capture_binding.Close();
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    EmbeddedScreenshots().Close(instance.DiagnosticGeneration());
+#endif
     // Release any acquire that is (or becomes) blocked so teardown never wedges on
     // a surface the platform may already have taken (HN4 bounded-acquire stop).
     swapchain.RequestStop();
@@ -827,6 +845,7 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
     // Texture-cache views preserve the guest array slice and swizzle. No warp
     // shaders, intermediate eye copy or synchronous GPU/CPU readback are needed.
     std::array<vk::ImageView, 4> views{};
+    std::array<vk::Extent2D, 4> source_extents{};
     vk::Extent2D eye_size{};
     static std::atomic<u32> vr_samples{};
     const u32 vr_sample = vr_samples.fetch_add(1, std::memory_order_relaxed);
@@ -864,15 +883,38 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
         image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
                       vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.RawCommandBuffer());
         views[i] = *texture_cache.FindTexture(id, desc).image_view;
+        const auto physical_extent=image.HostExtent();
+        source_extents[i]={std::max(1u,physical_extent.width>>u32(eyes[i].base_level)),
+                           std::max(1u,physical_extent.height>>u32(eyes[i].base_level))};
         samplers[i] = texture_cache.GetSampler(source.samplers[i], {}, false);
+        if (vr_sample < 8) {
+            const auto extent = image.HostExtent();
+            LOG_INFO(Render_Vulkan, "XR source i={} host={}x{} mip={} layer={} uv={}x{}",
+                i, extent.width, extent.height, u32(eyes[i].base_level), u32(eyes[i].base_array),
+                source.uv[i][0], source.uv[i][1]);
+        }
         if (!i) eye_size = {u32(eyes[i].width + 1), u32(eyes[i].height + 1)};
     }
-    auto* frame = GetRenderFrame();
+    auto* frame = GetRenderFrame(true);
     if (!frame) {
         if (vr_sample < 8) LOG_ERROR(Render_Vulkan, "SBS VR no presentation frame");
         complete(false);
         return nullptr;
     }
+    if (vr_sample < 8) {
+        LOG_INFO(Render_Vulkan, "XR composition={}x{} per_eye={}x{} mirror_expected={}x{}",
+            frame->width, frame->height, frame->width / 2, frame->height,
+            expected_frame_width, expected_frame_height);
+    }
+    frame->xr_stereo = true;
+    frame->xr_perspective = source.perspective;
+    const auto& fov = Libraries::Hmd::SbsFieldOfView;
+    frame->xr_display_aspect = source.perspective
+        ? (fov.tan_out + fov.tan_in) / (fov.tan_top + fov.tan_bottom)
+        : float(eye_size.width) * std::abs(source.uv[0][0]) /
+              (float(eye_size.height) * std::abs(source.uv[0][1]));
+    frame->xr_render_eyes = source.render_eyes;
+    frame->xr_render_fov = source.render_fov;
     const vk::ImageMemoryBarrier2 barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
         .srcAccessMask = vk::AccessFlagBits2::eMemoryRead,
@@ -894,11 +936,26 @@ Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
     // submits a negative scale; UE submits a positive one). Do not flip twice.
     settings.flip_y = 0;
     settings.srgb_input = 0;
-    // Keep the guest-to-host composition at the existing single post-process
-    // draw. Coarse shading is injected in guest Scheduler::BeginRendering;
-    // applying FDM here would only reduce host post-processing work.
+#if defined(__ANDROID__)
+    if(instance.Xr()) {
+        const auto options=HostPasses::GetSpatialOptions();
+        if(options.filter!=HostPasses::SpatialFilter::Off || options.foveation!=spatial::foveation::Mode::Off) {
+            if(!spatial_pass)spatial_pass=std::make_unique<HostPasses::SpatialUpscalePass>(instance);
+            const auto foveation=instance.Xr()->Foveation(source.render_eyes,source.render_fov,source.perspective);
+            for(u32 eye=0;eye<2;++eye) {
+                if(auto view=spatial_pass->Render(draw_scheduler,frame->id*2+eye,views[eye],
+                    source_extents[eye],source.uv[eye],{frame->width/2,frame->height},options,foveation[eye])) {
+                    views[eye]=view;settings.eye_uv[eye]={1,1,0,0};samplers[eye]=nullptr;
+                }
+            }
+        }
+    }
+#endif
+    // Overlays stay at full rate and retain their original UVs/alpha. All base
+    // reconstruction and density-map work lives in Foundation's reusable pass.
     pp_pass.Render(draw_scheduler, views[0], eye_size, *frame, settings,
                    {views[1], views[2], views[3]}, {}, samplers);
+    RecordEmbeddedScreenshot(*frame, vr_sample);
     expected_ratio = 16.0f / 9.0f;
     DebugState.game_resolution = {u32(float(eye_size.width) * std::abs(source.uv[0][0]) * 2.f), eye_size.height};
     DebugState.output_resolution = {frame->width, frame->height};
@@ -931,6 +988,9 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     Frame* frame = GetRenderFrame();
     if (!frame)
         return nullptr;
+    frame->xr_stereo = false;
+    frame->xr_perspective = false;
+    frame->xr_render_eyes = {};
 
     const auto frame_subresources = vk::ImageSubresourceRange{
         .aspectMask = vk::ImageAspectFlagBits::eColor,
@@ -979,6 +1039,7 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     }();
     const vk::Extent2D image_size = {image.HostExtent().width, image.HostExtent().height};
     expected_ratio = static_cast<float>(image_size.width) / static_cast<float>(image_size.height);
+    frame->xr_display_aspect = expected_ratio;
 
     const u32 capture_game_only_count = VideoCore::ConsumeGameOnlyScreenshotRequests();
     std::optional<ScreenshotReadback> pending_screenshot;
@@ -999,6 +1060,7 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
                             readback);
     }
 
+    bool reconstructed_linear = false;
     // The ordinary VideoOut path stays single-image. SBS eye composition is
     // owned by PrepareVrFrame; it must not read back or blit this image.
     {
@@ -1008,8 +1070,25 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         {
             Common::Profiler::Scope scope{"Prepare.FSR"};
             const auto zone = draw_scheduler.GpuProfile().Begin(cmdbuf, GpuProfiler::Stage::Fsr);
+#if defined(__ANDROID__)
+            if(instance.Xr() && !frame->is_hdr) {
+                const auto options=HostPasses::GetSpatialOptions();
+                if(options.filter!=HostPasses::SpatialFilter::Off || options.foveation!=spatial::foveation::Mode::Off) {
+                    if(!spatial_pass)spatial_pass=std::make_unique<HostPasses::SpatialUpscalePass>(instance);
+                    const auto foveation=instance.Xr()->Foveation({}, {}, false);
+                    if(auto view=spatial_pass->Render(draw_scheduler,frame->id*2,image_view,image_size,
+                        {1,1,0,0},{frame->width,frame->height},options,foveation[0],
+                        attribute.attrib.pixel_format==Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb)) {
+                        image_view=view;
+                        reconstructed_linear=true;
+                    }
+                }
+            } else
+#endif
+            {
             image_view = fsr_pass.Render(draw_scheduler, image_view, image_size,
                                          {frame->width, frame->height}, fsr_settings, frame->is_hdr);
+            }
             draw_scheduler.GpuProfile().End(cmdbuf, zone);
         }
 
@@ -1017,6 +1096,9 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         // the post process pass still sRGB encoded and has to be decoded there instead.
         pp_settings.srgb_input =
             attribute.attrib.pixel_format == Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb;
+#if defined(__ANDROID__)
+        if(reconstructed_linear)pp_settings.srgb_input=0;
+#endif
         pp_settings.sbs = 0;
         // FDM changes fragment density only. It must not depend on the VR
         // sensor state or apply another texture-origin conversion to ordinary
@@ -1035,6 +1117,8 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
 
     DebugState.game_resolution = {image_size.width, image_size.height};
     DebugState.output_resolution = {frame->width, frame->height};
+
+    RecordEmbeddedScreenshot(*frame, diagnostic_id);
 
     if (pending_screenshot) {
         draw_scheduler.DeferPriorityOperation(
@@ -1064,11 +1148,95 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     return frame;
 }
 
+void Presenter::RecordEmbeddedScreenshot(Frame& target, u64 diagnostic_id) {
+    [[maybe_unused]] auto* frame = &target;
+    [[maybe_unused]] const auto cmdbuf = draw_scheduler.RawCommandBuffer();
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    if (auto request = EmbeddedScreenshots().Take(instance.DiagnosticGeneration(), diagnostic_id,
+                                                 Core::Diagnostics::DiagnosticNowNs())) {
+        try {
+            const auto source_format = swapchain.GetSurfaceFormat().format;
+            if (swapchain.GetHDR() ||
+                (source_format != vk::Format::eR8G8B8A8Unorm &&
+                 source_format != vk::Format::eB8G8R8A8Unorm &&
+                 source_format != vk::Format::eR8G8B8A8Srgb &&
+                 source_format != vk::Format::eB8G8R8A8Srgb))
+                throw std::runtime_error("original PNG requires an SDR 8-bit render target");
+            // A stereo canvas contains two eyes; keep the existing per-eye capture budget.
+            const u32 eye_count = frame->xr_stereo ? 2 : 1;
+            if (!frame->width || !frame->height || frame->width > 8192 * eye_count ||
+                frame->height > 8192 ||
+                static_cast<u64>(frame->width) * frame->height > 16'777'216 * eye_count)
+                throw std::runtime_error("snapshot dimensions exceed the capture limit");
+            auto readback = std::make_shared<ScreenshotReadback>(
+                instance, ScreenshotKind::GameOnly, std::vector<std::filesystem::path>{},
+                frame->width, frame->height, swapchain.GetSurfaceFormat().format, swapchain.GetHDR());
+            const vk::ImageSubresourceRange range{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
+            vk::ImageMemoryBarrier2 barrier{
+                .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+                .srcAccessMask = vk::AccessFlagBits2::eMemoryWrite,
+                .dstStageMask = vk::PipelineStageFlagBits2::eTransfer,
+                .dstAccessMask = vk::AccessFlagBits2::eTransferRead,
+                .oldLayout = vk::ImageLayout::eGeneral,
+                .newLayout = vk::ImageLayout::eTransferSrcOptimal,
+                .image = frame->image,
+                .subresourceRange = range,
+            };
+            cmdbuf.pipelineBarrier2(vk::DependencyInfo{.imageMemoryBarrierCount = 1,
+                                                      .pImageMemoryBarriers = &barrier});
+            CopyImageToReadback(cmdbuf, frame->image, vk::ImageLayout::eTransferSrcOptimal, *readback);
+            const vk::BufferMemoryBarrier2 to_host{
+                .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+                .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+                .dstStageMask = vk::PipelineStageFlagBits2::eHost,
+                .dstAccessMask = vk::AccessFlagBits2::eHostRead,
+                .buffer = readback->buffer.Handle(),
+                .size = VK_WHOLE_SIZE,
+            };
+            cmdbuf.pipelineBarrier2(vk::DependencyInfo{.bufferMemoryBarrierCount = 1,
+                                                      .pBufferMemoryBarriers = &to_host});
+            barrier.srcStageMask = vk::PipelineStageFlagBits2::eTransfer;
+            barrier.srcAccessMask = vk::AccessFlagBits2::eTransferRead;
+            barrier.dstStageMask = vk::PipelineStageFlagBits2::eFragmentShader;
+            barrier.dstAccessMask = vk::AccessFlagBits2::eShaderRead;
+            barrier.oldLayout = vk::ImageLayout::eTransferSrcOptimal;
+            barrier.newLayout = vk::ImageLayout::eGeneral;
+            cmdbuf.pipelineBarrier2(vk::DependencyInfo{.imageMemoryBarrierCount = 1,
+                                                      .pImageMemoryBarriers = &barrier});
+            draw_scheduler.DeferPriorityOperation([request = *request, readback] {
+                std::string error;
+                const std::filesystem::path path{request.path};
+                const auto partial = std::filesystem::path{request.path + ".partial"};
+                try {
+                    std::filesystem::create_directories(path.parent_path());
+                    std::vector<u8> rgba;
+                    if (!ConvertReadbackToRgba8(*readback, rgba) ||
+                        !WritePng(partial, rgba, readback->width, readback->height))
+                        throw std::runtime_error("PNG conversion or write failed");
+                    std::filesystem::rename(partial, path);
+                } catch (const std::exception& e) {
+                    error = e.what();
+                    std::error_code ignored;
+                    std::filesystem::remove(partial, ignored);
+                }
+                EmbeddedScreenshots().Complete(request.token, readback->width, readback->height,
+                                                std::move(error));
+            });
+        } catch (const std::exception& e) {
+            EmbeddedScreenshots().Complete(request->token, 0, 0, e.what());
+        }
+    }
+#endif
+}
+
 Frame* Presenter::PrepareBlankFrame(bool present_thread) {
     // Request a free presentation frame.
     Frame* frame = GetRenderFrame();
     if (!frame)
         return nullptr;
+    frame->xr_stereo = false;
+    frame->xr_perspective = false;
+    frame->xr_render_eyes = {};
 
     auto& scheduler = present_thread ? present_scheduler : draw_scheduler;
     scheduler.EndRendering(Vulkan::RenderBreak::Present);
@@ -1165,6 +1333,23 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
         return false;
     }
 
+#if defined(__ANDROID__)
+    if (instance.Xr()) {
+        const auto now = Core::Diagnostics::DiagnosticNowNs();
+        if (!is_reusing_frame && is_game_frame) {
+            instance.Xr()->Publish(*frame, static_cast<VkFormat>(swapchain.GetSurfaceFormat().format));
+            // XR presentation is independent of the Android mirror's Surface.
+            // Count new game frames once, even while the mirror is hidden.
+            status_layer->Presented(now, false);
+        }
+        // Battery/status samples continue on mirror redraws. Reused frames do
+        // not inflate game FPS or keep a stalled FPS measurement alive.
+        if (now - xr_status_updated_ns >= 250'000'000) {
+            instance.Xr()->PublishStatus(status_layer->Summary(true), status_layer->DeviceStatus());
+            xr_status_updated_ns = now;
+        }
+    }
+#endif
     // SurfaceView may withdraw its ANativeWindow without ending the Guest
     // session. Keep the frame pool moving until a replacement is published.
     if (!swapchain.CanPresent()) {
@@ -1456,7 +1641,11 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
         embedded_capture->Present();
 #endif
         presented = swapchain.SuccessfulPresents() > previous;
-        if (presented)
+        if (presented
+#if defined(__ANDROID__)
+            && !instance.Xr()
+#endif
+        )
             status_layer->Presented(Core::Diagnostics::DiagnosticNowNs(), is_reusing_frame);
     }
     // Recreate may wait for GPU resources. Do not prevent their producer from submitting.
@@ -1471,7 +1660,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
     return presented;
 }
 
-Frame* Presenter::GetRenderFrame() {
+Frame* Presenter::GetRenderFrame(bool stereo) {
     // Wait for free presentation frames
     Frame* frame;
     {
@@ -1512,9 +1701,27 @@ Frame* Presenter::GetRenderFrame() {
         }
     }
 
-    if (frame->width != expected_frame_width || frame->height != expected_frame_height ||
+    // Keep the eye boundary between texels. Rescaling an odd-width SBS atlas
+    // can otherwise put the middle (right-eye) texel in the left XR rectangle.
+    vk::Extent2D extent;
+#if defined(__ANDROID__)
+    if (instance.Xr()) {
+        const auto xr_extent = instance.Xr()->FrameExtent();
+        if(stereo)extent = {xr_extent.width, xr_extent.height};
+        else {
+            const float aspect=expected_ratio>0?expected_ratio:16.f/9.f;
+            const float height=std::min(float(xr_extent.height),float(xr_extent.width/2)/aspect);
+            extent={std::max(1u,u32(height*aspect)),std::max(1u,u32(height))};
+        }
+    } else
+#endif
+    {
+        extent = {stereo ? std::max(2u, expected_frame_width & ~1u) : expected_frame_width,
+                  expected_frame_height};
+    }
+    if (frame->width != extent.width || frame->height != extent.height ||
         frame->is_hdr != swapchain.GetHDR()) {
-        RecreateFrame(frame, expected_frame_width, expected_frame_height);
+        RecreateFrame(frame, extent.width, extent.height);
     }
 
     return frame;

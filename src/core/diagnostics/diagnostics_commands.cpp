@@ -1,9 +1,16 @@
+#include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
 #include "core/emulator_settings.h"
+#include "core/host_runtime/guest_vr_sensor.h"
+#include "core/host_runtime/vr_geometry.h"
 #include "core/diagnostics/overlay_control.h"
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/diagnostics/diagnostics_commands.h"
+#if defined(__ANDROID__)
+#include "video_core/renderer_vulkan/openxr/runtime.h"
+#include "video_core/renderer_vulkan/openxr/status_scene.h"
+#endif
 #include "common/profiler.h"
 #include "common/thread.h"
 #include "common/gpu_timing.h"
@@ -178,6 +185,58 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) {
             return Libraries::Pad::Vibration::Command(args);
         });
+#if defined(__ANDROID__)
+    registry.Register("xr_status", "PSV status: status | visible on/off | gi on/off | theme graphite/pearl/blue | recenter | indicator auto/off/running/standby/charging/charge_low/notification",
+        [](const auto& args) { return Vulkan::OpenXr::StatusSceneCommand(args); });
+    registry.Register("xr_render", "XR reconstruction: status | filter off/fsr1/sgsr1 | foveation off/fixed/eye_tracked", [](const auto& args) {
+        using namespace Vulkan::HostPasses;
+        auto options=GetSpatialOptions();
+        if(args.empty() || (args.size()==1 && args[0]=="status"))return SpatialStatus();
+        if(args.size()!=2)return BadArguments();
+        if(args[0]=="filter") {
+            if(args[1]=="off")options.filter=SpatialFilter::Off;
+            else if(args[1]=="fsr1")options.filter=SpatialFilter::Fsr1;
+            else if(args[1]=="sgsr1")options.filter=SpatialFilter::Sgsr1;
+            else return BadArguments();
+        } else if(args[0]=="foveation") {
+            if(args[1]=="off")options.foveation=spatial::foveation::Mode::Off;
+            else if(args[1]=="fixed")options.foveation=spatial::foveation::Mode::Fixed;
+            else if(args[1]=="eye_tracked")options.foveation=spatial::foveation::Mode::EyeTracked;
+            else return BadArguments();
+        } else if(args[0]=="density_debug") {
+            if(args[1]=="on")options.debug=true;
+            else if(args[1]=="off")options.debug=false;
+            else return BadArguments();
+        } else return BadArguments();
+        SetSpatialOptions(options);return SpatialStatus();
+    });
+    registry.Register("xr_tracking", "OpenXR head/eyes/grip/aim in LOCAL metres; status", [](const auto& args) {
+        if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
+        const auto s = HostRuntime::GuestVrSensor::Instance().Read();
+        std::ostringstream out;
+        out << "openxr=" << s.openxr << " running=" << s.hardware.running
+            << " focused=" << s.hardware.focused << " predicted_ns=" << s.hardware.predicted_ns << '\n';
+        const auto pose = [&](const char* name, const auto& p) {
+            out << name << " valid=" << p.orientation_valid << ',' << p.position_valid
+                << " p=" << p.position[0] << ',' << p.position[1] << ',' << p.position[2]
+                << " q=" << p.orientation[0] << ',' << p.orientation[1] << ','
+                << p.orientation[2] << ',' << p.orientation[3] << '\n';
+        };
+        pose("head", s.hardware.head);
+        for (unsigned i = 0; i < 2; ++i) {
+            out << (i ? "right" : "left") << " active=" << s.hardware.hands[i].active << '\n';
+            pose("eye", s.hardware.eyes[i]);
+            pose("grip (runtime palm)", s.hardware.hands[i].grip);
+            pose("Move (virtual sphere)", HostRuntime::VrGeometry::MoveSpherePose(s.hardware.hands[i].grip));
+            pose("aim (XR UI ray)", s.hardware.hands[i].aim);
+        }
+        return out.str();
+    });
+    registry.Register("xr_error", "XR error presentation status", [](const auto& args) {
+        if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
+        return Vulkan::OpenXr::ErrorStatus();
+    });
+#endif
     // debug_status: non-blocking hub snapshot.
     registry.Register(
         "debug_status", "Show session/advance status (non-blocking)",
@@ -425,6 +484,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     }
 
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    registry.Register("capture_screenshot", "request|status|cancel TOKEN -- final RT PNG without host overlays",
+        [&hub, clock](const std::vector<std::string>& args) {
+            DiagnosticsSnapshot snap;
+            hub.QuerySnapshot(snap, NowNs(clock));
+            return Vulkan::HandleEmbeddedScreenshotCommand(args, snap.has_session ? snap.generation : 0);
+        });
     registry.Register("capture_video", "capture_video [start|start_live TOKEN|stop|status] -- embedded final RT H.264",
         [](const std::vector<std::string>& args) {
             return Vulkan::HandleEmbeddedCaptureCommand(args);

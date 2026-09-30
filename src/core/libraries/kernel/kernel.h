@@ -13,6 +13,18 @@ class SymbolsResolver;
 
 namespace Libraries::Kernel {
 
+struct OrbisKernelUuid {
+    u32 timeLow;
+    u16 timeMid;
+    u16 timeHiAndVersion;
+    u8 clockSeqHiAndReserved;
+    u8 clockSeqLow;
+    u8 node[6];
+};
+static_assert(sizeof(OrbisKernelUuid) == 0x10);
+
+s32 PS4_SYSV_ABI sceKernelUuidCreate(OrbisKernelUuid* uuid);
+
 s32 PS4_SYSV_ABI _sigprocmask(); // Desktop compatibility: does not alter host signal masks.
 u64 PS4_SYSV_ABI sceKernelGetGPI();
 void ErrSceToPosix(s32 result);

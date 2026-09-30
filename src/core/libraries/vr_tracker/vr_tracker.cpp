@@ -1,9 +1,11 @@
+#include "core/libraries/move/move.h"
 // SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "common/logging/log.h"
 #include "core/libraries/error_codes.h"
 #include "core/host_runtime/guest_vr_sensor.h"
+#include "core/host_runtime/vr_geometry.h"
 #include "core/libraries/kernel/time.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/vr_tracker/vr_tracker.h"
@@ -292,6 +294,41 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         // A zero-filled quaternion is not an identity rotation; Unity also
         // copies this field separately from the device/eye poses.
         result->camera_orientation_w = 1.0f;
+        if (sensor.openxr) {
+            const auto& hardware = sensor.hardware;
+            const auto copy = [](auto& dst, const GuestVrSensor::Pose& src) {
+                dst.position_x = src.position[0]; dst.position_y = src.position[1];
+                dst.position_z = src.position[2];
+                dst.orientation_x = src.orientation[0]; dst.orientation_y = src.orientation[1];
+                dst.orientation_z = src.orientation[2]; dst.orientation_w = src.orientation[3];
+            };
+            const int hand_index = is_hmd ? 0 : Libraries::Move::HandIndexForHandle(param->handle);
+            if (hand_index < 0) return ORBIS_VR_TRACKER_ERROR_DEVICE_NOT_REGISTERED;
+            const auto pose = is_hmd ? hardware.head :
+                Core::HostRuntime::VrGeometry::MoveSpherePose(hardware.hands[hand_index].grip);
+            result->connected = hardware.running && (is_hmd || hardware.hands[hand_index].active);
+            result->orientation_quality = pose.orientation_valid ? ORBIS_VR_TRACKER_QUALITY_FULL : ORBIS_VR_TRACKER_QUALITY_NONE;
+            result->position_quality = pose.position_valid ? ORBIS_VR_TRACKER_QUALITY_FULL : ORBIS_VR_TRACKER_QUALITY_NONE;
+            result->status = result->connected && pose.orientation_valid ? ORBIS_VR_TRACKER_STATUS_TRACKING : ORBIS_VR_TRACKER_STATUS_NOT_TRACKING;
+            result->angular_velocity_x = pose.angular_velocity[0];
+            result->angular_velocity_y = pose.angular_velocity[1];
+            result->angular_velocity_z = pose.angular_velocity[2];
+            result->velocity_x = pose.linear_velocity[0];
+            result->velocity_y = pose.linear_velocity[1];
+            result->velocity_z = pose.linear_velocity[2];
+            if (is_hmd) {
+                GuestVrSensor::Instance().RecordHmdQuery(hardware);
+                copy(result->hmd_info.device_pose, pose);
+                copy(result->hmd_info.head_pose, pose);
+                copy(result->hmd_info.left_eye_pose, hardware.eyes[0]);
+                copy(result->hmd_info.right_eye_pose, hardware.eyes[1]);
+                result->hmd_info.sensor_read_system_timestamp = result->timestamp;
+            } else {
+                copy(result->move_info.device_pose, pose);
+            }
+            result->user_frame_number = param->user_frame_number;
+            return ORBIS_OK;
+        }
         if (is_hmd) {
             result->angular_velocity_x = sensor.angular_velocity_x;
             result->angular_velocity_y = sensor.angular_velocity_y;

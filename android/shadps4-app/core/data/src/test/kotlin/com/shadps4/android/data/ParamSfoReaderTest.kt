@@ -7,6 +7,37 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class ParamSfoReaderTest {
+    private fun withAttributes(value: Int): ByteArray {
+        val data = buildMinimalSfo(linkedMapOf("ATTRIBUTE" to "abc", "TITLE_ID" to "CUSA00001"))
+        val b = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN)
+        b.putShort(22, 0x0404.toShort())
+        b.putInt(b.getInt(12) + b.getInt(32), value)
+        return data
+    }
+
+    @Test fun detectsBothPsvrAttributeBitsAndIgnoresUnrelatedBits() {
+        for (bits in listOf(1 shl 14, 1 shl 26, (1 shl 14) or (1 shl 26), -1)) {
+            val metadata = ParamSfoReader.parse(withAttributes(bits))
+            assertEquals(bits, metadata.attributes)
+            assertEquals(true, metadata.isPsvr)
+            assertEquals("CUSA00001", metadata.titleId)
+        }
+        assertEquals(false, ParamSfoReader.parse(withAttributes(1 shl 13)).isPsvr)
+        assertEquals(false, ParamSfoReader.parse(buildMinimalSfo(mapOf("TITLE_ID" to "CUSA00001"))).isPsvr)
+    }
+
+    @Test fun malformedIntegerAndOverflowAreBounded() {
+        val wrongType = withAttributes(1 shl 14)
+        ByteBuffer.wrap(wrongType).order(ByteOrder.LITTLE_ENDIAN).putShort(22, 0x0204.toShort())
+        assertNull(ParamSfoReader.parse(wrongType).titleId)
+        val overflow = withAttributes(1 shl 14)
+        ByteBuffer.wrap(overflow).order(ByteOrder.LITTLE_ENDIAN).putInt(12, Int.MAX_VALUE)
+        assertNull(ParamSfoReader.parse(overflow).attributes)
+        val negative = withAttributes(1 shl 14)
+        ByteBuffer.wrap(negative).order(ByteOrder.LITTLE_ENDIAN).putInt(32, -4)
+        assertNull(ParamSfoReader.parse(negative).titleId)
+    }
+
     @Test
     fun parsesTitleAndTitleId() {
         val bytes = buildMinimalSfo(

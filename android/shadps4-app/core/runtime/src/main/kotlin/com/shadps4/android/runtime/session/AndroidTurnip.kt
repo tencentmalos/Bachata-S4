@@ -9,7 +9,13 @@ import java.security.MessageDigest
 object AndroidTurnip {
     private const val SHA = "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09"
     private const val LIBRARY = "vulkan.ad07xx.so"
-    private const val MAINLINE_SHA = "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1"
+    private fun mainlineSha(context: Context): String {
+        val manifest = context.assets.open("native-turnip-mainline/identity.json")
+            .bufferedReader().use { it.readText() }
+        return org.json.JSONObject(manifest).getString("library_sha256").also {
+            check(it.matches(Regex("[0-9a-f]{64}"))) { "Invalid built Turnip identity" }
+        }
+    }
 
     init { System.loadLibrary("shadps4_fex_session") }
 
@@ -29,7 +35,7 @@ object AndroidTurnip {
 
     @Synchronized fun prepare(context: Context): Paths {
         val mainline = useMainline()
-        val expectedSha = if (mainline) MAINLINE_SHA else SHA
+        val expectedSha = if (mainline) mainlineSha(context) else SHA
         val assetRoot = if (mainline) "native-turnip-mainline" else "native-turnip"
         val root = File(context.filesDir, "native-drivers/$expectedSha").apply { mkdirs() }
         val target = File(root, LIBRARY)

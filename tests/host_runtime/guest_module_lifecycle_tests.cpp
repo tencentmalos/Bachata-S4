@@ -41,6 +41,12 @@ int main() {
     CHECK(!unity.Start(2, 1, 0, 0, {}, unity_init).initialized);
     using Core::HostRuntime::IsGuestPluginFile;
     CHECK(IsGuestPluginFile("/app0/Media/Plugins/Plugin.prx", true));
+    using Core::HostRuntime::ShouldPreloadGuestPlugin;
+    CHECK(!ShouldPreloadGuestPlugin("/app0/Media/Plugins/Removed.prx", true, 0));
+    CHECK(ShouldPreloadGuestPlugin("/app0/Media/Plugins/Plugin.prx", true, 12854));
+    // Nonempty malformed files must reach the loader and report an error.
+    CHECK(ShouldPreloadGuestPlugin("/app0/Media/Plugins/Bad.prx", true, 1));
+    CHECK(!ShouldPreloadGuestPlugin("/app0/Media/Plugins/._Plugin.prx", true, 256));
     CHECK(IsGuestPluginFile("/app0/Media/Plugins/Plugin.sprx", true));
     CHECK(!IsGuestPluginFile("/app0/Media/Plugins/._Plugin.prx", true));
     CHECK(!IsGuestPluginFile("/app0/Media/Plugins/Plugin.prx", false));

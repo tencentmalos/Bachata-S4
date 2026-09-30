@@ -49,4 +49,18 @@ class InternalScaleTest {
             InternalScale.resolve(profile("invalid"), RuntimeProfile())
         }
     }
+
+    @Test fun xrDefaultsToFullScaleIndependentlyOfTwoD() {
+        val global = profile("0.5")
+        assertEquals(100f, InternalScale.resolve(global, RuntimeProfile(), xr = true))
+        assertEquals(50f, InternalScale.resolve(global, RuntimeProfile(), xr = false))
+        val xrGlobal = global.copy(values = global.values + (InternalScale.XR_ID to JsonPrimitive("0.75")))
+        val xrGame = RuntimeProfile(values = mapOf(InternalScale.XR_ID to JsonPrimitive("1.0")))
+        assertEquals(75f, InternalScale.resolve(xrGlobal, RuntimeProfile(), xr = true))
+        assertEquals(100f, InternalScale.resolve(xrGlobal, xrGame, xr = true))
+        assertEquals(50f, InternalScale.resolve(xrGlobal, xrGame, xr = false))
+        val spec = RuntimeSettingCatalog.loadAndroidSettings().single { it.id == InternalScale.XR_ID }
+        assertEquals(JsonPrimitive("1.0"), spec.defaultValue)
+        assertEquals(100f, InternalScale.defaultPercent(true))
+    }
 }

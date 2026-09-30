@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <nlohmann/json.hpp>
 #include "core/host_runtime/orbis_pad_adapter.h"
-#include "imgui/renderer/imgui_core.h"
+#include "imgui/input_capture.h"
 #include <algorithm>
 #include <charconv>
 #include <chrono>

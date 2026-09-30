@@ -28,7 +28,6 @@ class GuestSemaphoreDomain final {
     // Shared ownership lets Post notify after releasing the domain guard even
     // if Destroy erased the object meanwhile.
     std::map<u64, std::shared_ptr<Semaphore>> objects;
-    size_t allocations{};
     std::optional<u64> Handle(u64 slot) {
         u64 handle{};
         if (!space.ReadData(GuestCpu::GuestAddress{slot},
@@ -53,14 +52,22 @@ public:
             return POSIX_EFAULT;
         if (objects.contains(*previous))
             return POSIX_EBUSY;
-        if (allocations >= 4096)
-            return POSIX_ENOMEM;
+        // Session-unique handles are bounded by real allocation availability,
+        // not the number of semaphores ever initialized (Unity recycles many).
         const u64 handle = allocate(); // May quiesce VM: acquire output pin afterward.
-        ++allocations;
+        if (!handle) return POSIX_ENOMEM;
+        try {
+            auto sem = std::make_shared<Semaphore>();
+            sem->value = value;
+            if (!objects.emplace(handle, std::move(sem)).second) return POSIX_EINVAL;
+        } catch (const std::bad_alloc&) {
+            return POSIX_ENOMEM;
+        }
         auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
-        if (!output)
+        if (!output) {
+            objects.erase(handle);
             return POSIX_EFAULT;
-        objects.emplace(handle, std::make_shared<Semaphore>()).first->second->value = value;
+        }
         std::memcpy(output.Value().WritableBytes().data(), &handle, sizeof(handle));
         return 0;
     }

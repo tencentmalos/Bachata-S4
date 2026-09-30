@@ -12,6 +12,27 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LibraryViewModelTest {
+    @Test fun detailOptionNavigationDoesNotLaunchWhileChangingAChoice() = runTest {
+        val model = LibraryViewModel()
+        model.setGames(listOf(game("A", "Alpha")))
+        model.showDetails("A")
+        model.setLaunchOptionCount(5)
+        val changes = mutableListOf<Pair<Int, Int>>()
+        val launches = mutableListOf<String>()
+        backgroundScope.launch { model.adjustLaunchOption.collect { changes.add(it) } }
+        backgroundScope.launch { model.launch.collect { launches.add(it) } }
+        runCurrent()
+        model.handleNavEvent(NavControllerEvent("dpad_down", pressed = true))
+        model.handleNavEvent(NavControllerEvent("cross", pressed = true))
+        runCurrent()
+        assertEquals(listOf(0 to 1), changes)
+        assertTrue(launches.isEmpty())
+        model.handleNavEvent(NavControllerEvent("dpad_up", pressed = true))
+        model.handleNavEvent(NavControllerEvent("cross", pressed = true))
+        runCurrent()
+        assertEquals(listOf("A"), launches)
+    }
+
     @Test
     fun sortsGamesByTitleThenId() {
         val viewModel = LibraryViewModel()

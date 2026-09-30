@@ -7,6 +7,7 @@
 
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
+#include "scrcpy_capture/snapshot_session.h"
 
 namespace Vulkan {
 class Instance;
@@ -16,6 +17,8 @@ struct SubmitInfo;
 // Called by the Android diagnostics command registry. Requests are consumed at a
 // presentation boundary; this function never touches Vulkan or MediaCodec.
 std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args);
+std::string HandleEmbeddedScreenshotCommand(const std::vector<std::string>& args, u64 generation);
+scrcpy::capture::SnapshotSession& EmbeddedScreenshots();
 
 class CaptureRecorder final {
 public:

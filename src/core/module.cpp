@@ -15,6 +15,7 @@
 #include "core/cpu_patches.h"
 #include "core/libraries/error_codes.h"
 #include "core/loader/dwarf.h"
+#include "core/loader/plt_import.h"
 #include "core/memory.h"
 #include "core/module.h"
 #include "core/tls.h"
@@ -103,10 +104,51 @@ Module::Module(Core::MemoryManager* memory_, const std::filesystem::path& file_,
         LoadModuleToMemory(max_tls_index);
         LoadDynamicInfo();
         LoadSymbols();
+        if (memory->IsGuestBackend()) {
+            RestorePreboundPltImports();
+        }
     }
 }
 
 Module::~Module() = default;
+
+void Module::RestorePreboundPltImports() {
+    std::vector<u64> slots;
+    const auto headers = elf.GetProgramHeader();
+    ForEachRelocation([&](const elf_relocation* rel, u32, bool) {
+        if (rel->GetType() != R_X86_64_JUMP_SLOT || rel->rel_addend != 0 ||
+            !dynamic_info.symbol_table ||
+            rel->GetSymbol() >= dynamic_info.symbol_table_total_size / sizeof(elf_symbol))
+            return;
+        const auto& symbol = dynamic_info.symbol_table[rel->GetSymbol()];
+        if (symbol.GetType() != STT_FUN || symbol.st_shndx != 0 ||
+            (symbol.GetBind() != STB_GLOBAL && symbol.GetBind() != STB_WEAK))
+            return;
+        const bool contained = std::any_of(headers.begin(), headers.end(), [&](const auto& header) {
+            return (header.p_type == PT_LOAD || header.p_type == PT_SCE_RELRO) &&
+                   header.p_memsz >= 8 && rel->rel_offset >= header.p_vaddr &&
+                   rel->rel_offset - header.p_vaddr <= header.p_memsz - 8;
+        });
+        if (contained) slots.push_back(rel->rel_offset);
+    });
+    if (slots.size() < 3) return;
+    std::sort(slots.begin(), slots.end());
+    for (const auto& header : headers) {
+        if (header.p_type != PT_LOAD || !(header.p_flags & PF_EXEC) || !header.p_filesz)
+            continue;
+        const std::span<const u8> code{
+            reinterpret_cast<const u8*>(base_virtual_addr + header.p_vaddr), header.p_filesz};
+        for (const auto& repair : Loader::FindPreboundPltImports(
+                 code, header.p_vaddr, slots)) {
+            // Guest modules are still RW here, before execution permissions or JIT publication.
+            std::memcpy(reinterpret_cast<void*>(base_virtual_addr + repair.offset),
+                        repair.bytes.data(), repair.bytes.size());
+            LOG_INFO(Core_Linker, "Restored prebound PLT import: {} offset={:#x} got={:#x} "
+                     "previous_target={:#x}", name, repair.offset, repair.got,
+                     base_virtual_addr + repair.previous_target);
+        }
+    }
+}
 
 s32 Module::Start(u64 args, const void* argp, void* param) {
     if (!dynamic_info.has_init)

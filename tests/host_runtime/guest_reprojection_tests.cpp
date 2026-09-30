@@ -224,8 +224,43 @@ int main() {
     write(0xa00,mono);
     check("2D third reserved argument",call("q3e8+nEguyE",{base+0xa00,103,1})==u32(ORBIS_HMD_ERROR_PARAMETER_INVALID));
     check("2D mono submit",call("q3e8+nEguyE",{base+0xa00,103,0})==0);
+    check("2D submission cannot use perspective reprojection", !frames.back().perspective);
     check("2D duplicates image with explicit same rectangle",frames.back().image_count==2 && frames.back().eyes[0].base_address==frames.back().eyes[1].base_address && frames.back().uv[0]==frames.back().uv[1] && frames.back().uv[0][2]==.125f);
     completions.back()(true);
+    {
+        auto& sensor = GuestVrSensor::Instance();
+        const auto generation = sensor.BeginOpenXr();
+        GuestVrSensor::HardwareFrame hardware;
+        hardware.generation = generation;
+        hardware.received_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+        hardware.head.orientation_valid = hardware.head.position_valid = true;
+        hardware.head.position = {10, 2, 3};
+        hardware.eyes[0] = hardware.eyes[1] = hardware.head;
+        hardware.eyes[0].position[0] -= .032f;
+        hardware.eyes[1].position[0] += .034f;
+        hardware.fov[0] = {-std::atan(.8f),std::atan(1.1f),-std::atan(.9f),std::atan(1.2f)};
+        hardware.fov[1] = {-std::atan(1.1f),std::atan(.8f),-std::atan(.9f),std::atan(1.2f)};
+        sensor.PublishOpenXr(hardware);
+        OrbisHmdReprojectionTrackerState render{};
+        render.position[1] = 1.6f;
+        render.orientation[3] = 1.f;
+        write(0x700,render);
+        check("XR reads pose queued with image",call("dntZTJ7meIU",{base+0xb00,base+0x700,8193,0})==0);
+        const auto& xr = frames.back();
+        check("render pose is not latest located head", std::abs(xr.render_eyes[0].position[0]+.032f)<1e-5f &&
+            std::abs(xr.render_eyes[1].position[0]-.034f)<1e-5f && xr.render_eyes[0].position[1]==1.6f);
+        check("per-eye runtime frusta travel with image",xr.render_fov==hardware.fov);
+        check("device FOV crops guest atlas without changing ray directions",
+            std::abs(xr.uv[0][0]-(1.9f*lowered.tan_to_uv[0][0]))<1e-6f &&
+            std::abs(xr.uv[1][2]-(lowered.tan_to_uv[1][2]-1.1f*lowered.tan_to_uv[1][0]))<1e-6f);
+        completions.back()(true);
+        render.orientation[3]=0; write(0x700,render);
+        check("invalid render quaternion cannot produce projection",call("dntZTJ7meIU",{base+0xb00,base+0x700,8194,0})==0 &&
+            !frames.back().render_eyes[0].orientation_valid);
+        completions.back()(true);
+        sensor.EndOpenXr(generation);
+    }
     check("legacy finalize",call("ZrV5YIqD09I")==0);
     // Mapping generation captured before publication must reject replacement.
     GuestDataBatch stale;

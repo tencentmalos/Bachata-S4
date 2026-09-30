@@ -34,11 +34,12 @@ std::vector<u32> ComputeShader(const AmdGpu::Image& sharp, bool array, u32 sampl
     profile.internal_scale = true;
     profile.force_disable_msaa = disable_msaa;
     RuntimeInfo runtime{};
-    runtime.stage = Stage::Compute;
-    runtime.cs_info.workgroup_size = {1, 1, 1};
+    runtime.hw_stage = HwStage::Compute;
+    runtime.sw_stage = SwStage::Compute;
+    runtime.hw.cs.workgroup_size = {1, 1, 1};
     Info info{};
-    info.stage = Stage::Compute;
-    info.l_stage = LogicalStage::Compute;
+    info.hw_stage = HwStage::Compute;
+    info.sw_stage = SwStage::Compute;
     info.buffers.push_back({.used_types = IR::Type::U32, .is_written = true});
     info.buffers.push_back({.used_types = IR::Type::U32, .buffer_type = BufferType::Flatbuf});
     info.flattened_ud_buf.resize(8);
@@ -78,7 +79,7 @@ std::vector<u32> ComputeShader(const AmdGpu::Image& sharp, bool array, u32 sampl
     c.AddExecutionMode(main, spv::ExecutionMode::LocalSize, 1U, 1U, 1U);
     return c.Assemble();
 }
-int main(int argc, char** argv) {
+int Run(int argc, char** argv) {
     if (argc != 3 && argc != 4) return 2;
     const bool disable_msaa = argc == 4 && std::string_view(argv[3]) == "off";
     EmulatorSettings.SetMsaaDisabled(disable_msaa);
@@ -88,6 +89,23 @@ int main(int argc, char** argv) {
     auto driver = std::string_view(argv[1]) == "system" ? Vulkan::LoadAndroidSystemDriver()
         : Vulkan::LoadAndroidTurnip(argv[1], argv[2]);
     Vulkan::Instance instance(window, 0, false, false, driver);
+    if (argc == 4 && std::string_view(argv[3]) == "caps") {
+        const auto limits = instance.GetPhysicalDevice().getProperties().limits;
+        printf("common color=%u depth=%u stencil=%u\n", u32(limits.framebufferColorSampleCounts),
+            u32(limits.framebufferDepthSampleCounts), u32(limits.framebufferStencilSampleCounts));
+        for (auto format : {vk::Format::eR8G8B8A8Unorm, vk::Format::eR8G8B8A8Srgb,
+             vk::Format::eR16G16B16A16Sfloat, vk::Format::eR32G32B32A32Sfloat,
+             vk::Format::eD24UnormS8Uint, vk::Format::eD32Sfloat}) {
+            const bool depth = format == vk::Format::eD24UnormS8Uint || format == vk::Format::eD32Sfloat;
+            const auto caps = instance.GetPhysicalDevice().getImageFormatProperties2({
+                .format=format, .type=vk::ImageType::e2D, .tiling=vk::ImageTiling::eOptimal,
+                .usage=(depth?vk::ImageUsageFlagBits::eDepthStencilAttachment:vk::ImageUsageFlagBits::eColorAttachment) |
+                    vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst});
+            printf("%s result=%d sample_mask=%u\n",vk::to_string(format).c_str(),int(caps.result),
+                caps.result==vk::Result::eSuccess?u32(caps.value.imageFormatProperties.sampleCounts):0);
+        }
+        return 0;
+    }
     Vulkan::Scheduler scheduler(instance);
     VideoCore::BlitHelper blit(instance, scheduler);
     Common::SlotVector<VideoCore::ImageView> views;
@@ -153,7 +171,7 @@ void main() { result = color.value; }
             .flags=vk::ImageCreateFlagBits::eMutableFormat | vk::ImageCreateFlagBits::eExtendedUsage});
         check(caps.result == vk::Result::eSuccess);
         if (caps.result != vk::Result::eSuccess) continue;
-        for (u32 requested : {2u,4u}) {
+        for (u32 requested : {2u,4u,8u}) {
             if (!(u32(caps.value.imageFormatProperties.sampleCounts) & requested)) continue;
             VideoCore::ImageInfo info{};
             info.type=AmdGpu::ImageType::Color2D; info.pixel_format=format;
@@ -175,7 +193,7 @@ void main() { result = color.value; }
             }
         }
     }
-    for (const u32 requested : {2u, 4u}) for (const bool array : {false, true}) {
+    for (const u32 requested : {2u, 4u, 8u}) for (const bool array : {false, true}) {
         const u32 layers = array ? Layers : 1;
         VideoCore::ImageInfo info{};
         info.type=AmdGpu::ImageType::Color2D;
@@ -315,4 +333,9 @@ void main() { result = color.value; }
     device.unmapMemory(*output.memory); device.unmapMemory(*flat.memory);
     printf("msaa_image_probe (%s): %u checks / %u failures\n",disable_msaa?"off":"game",checks,failures);
     return failures?1:0;
+}
+int main(int argc, char** argv) {
+    const int result = Run(argc, argv);
+    Common::Log::Shutdown();
+    return result;
 }

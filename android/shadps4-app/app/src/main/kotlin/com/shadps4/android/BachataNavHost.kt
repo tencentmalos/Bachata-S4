@@ -2,6 +2,12 @@ package com.shadps4.android
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
@@ -37,10 +43,15 @@ object BachataRoutes {
 @InstallIn(SingletonComponent::class)
 interface BachataNavEntryPoint {
     fun gameRepository(): GameRepository
+    fun runtimeProfiles(): com.shadps4.android.data.RuntimeProfileStore
 }
 
 @Composable
-fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameRequest: Int = 0) {
+fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameRequest: Int = 0,
+                   requestedGameId: String? = null, onGameRequestConsumed: () -> Unit = {},
+                   openXrEnabled: Boolean = false,
+                   switchDisplayActivity: (String, Boolean) -> Unit = { _, _ -> },
+                   exitXrToLibrary: () -> Unit = {}) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val graph = remember {
@@ -48,6 +59,18 @@ fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameR
             context.applicationContext,
             BachataNavEntryPoint::class.java,
         )
+    }
+
+    LaunchedEffect(requestedGameId) {
+        val id = requestedGameId ?: return@LaunchedEffect
+        // This is only an identifier. The repository and installed-content gate below
+        // validate it before any session is created (including exported Activity intents).
+        val game = withContext(Dispatchers.IO) { graph.gameRepository().getGame(id) }
+        if (game != null && !sessionBusy()) navController.navigate("session/${android.net.Uri.encode(game.id)}") {
+            popUpTo(BachataRoutes.Library)
+            launchSingleTop = true
+        }
+        onGameRequestConsumed()
     }
 
     LaunchedEffect(openLastGameRequest) {
@@ -134,10 +157,62 @@ fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameR
             )
         }
         composable(BachataRoutes.Session) { entry ->
-            SessionScreen(
+            DisplayModeGate(
                 gameId = requireNotNull(entry.arguments?.getString("id")),
-                onExit = { navController.popBackStack() },
+                graph = graph, openXrEnabled = openXrEnabled,
+                switchActivity = switchDisplayActivity,
+                onExit = { if (openXrEnabled) exitXrToLibrary() else navController.popBackStack() },
             )
         }
+    }
+}
+
+private fun sessionBusy(): Boolean = when (ManagedSession.state.value) {
+    is ManagedSessionState.Preparing, is ManagedSessionState.Ready,
+    is ManagedSessionState.Running, is ManagedSessionState.Stopping -> true
+    else -> false
+}
+
+/** Resolve before composing SessionScreen: its ViewModel starts the native service. */
+@Composable
+private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrEnabled: Boolean,
+                            switchActivity: (String, Boolean) -> Unit, onExit: () -> Unit) {
+    val context = LocalContext.current
+    var admitted by remember(gameId) { mutableStateOf(false) }
+    var failure by remember(gameId) { mutableStateOf<String?>(null) }
+    LaunchedEffect(gameId) {
+        try {
+            // Activity recreation keeps an existing session's mode, even if settings changed.
+            val state = ManagedSession.state.value
+            val activeId = when (state) {
+                is ManagedSessionState.Running -> state.gameId
+                is ManagedSessionState.Ready -> state.gameId
+                is ManagedSessionState.Stopping -> state.gameId
+                else -> null
+            }
+            if (sessionBusy()) {
+                check(activeId == gameId || state is ManagedSessionState.Preparing) { "A game is already running" }
+                admitted = true
+                return@LaunchedEffect
+            }
+            val decision = withContext(Dispatchers.IO) {
+                val game = requireNotNull(graph.gameRepository().getGame(gameId)) { "Game not found" }
+                com.shadps4.android.data.GameDisplayMode.resolve(context.filesDir,
+                    graph.runtimeProfiles(), game.id, game.relativePath)
+            }
+            val xr = decision.effective == com.shadps4.android.runtime.settings.DisplayMode.Mode.XR
+            android.util.Log.i("DisplayMode", "$gameId preferred=${decision.preferred} effective=${decision.effective} PSVR=${decision.forcedByPsvr}")
+            if (xr == openXrEnabled) admitted = true
+            else {
+                check(!sessionBusy()) { "A game launch is already in progress" }
+                switchActivity(gameId, xr)
+            }
+        } catch (e: CancellationException) { throw e }
+        catch (e: Exception) { failure = e.message ?: "Could not select display mode" }
+    }
+    if (admitted) SessionScreen(gameId = gameId, onExit = onExit)
+    else Column {
+        Text(failure ?: "Preparing display mode…")
+        TextButton(onClick = onExit) { Text("Back") }
     }
 }

@@ -1,3 +1,4 @@
+#include "core/host_runtime/guest_vr_sensor.h"
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -12,6 +13,7 @@
 #include "imgui/status_layer.h"
 #include "video_core/renderer_vulkan/host_passes/fsr_pass.h"
 #include "video_core/renderer_vulkan/host_passes/pp_pass.h"
+#include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -42,6 +44,11 @@ struct Frame {
     vk::Semaphore ready_semaphore;
     u64 ready_tick;
     bool is_hdr{false};
+    bool xr_stereo{};
+    bool xr_perspective{};
+    float xr_display_aspect{16.f / 9.f}; // Mono image, or one eye; independent of mirror Surface.
+    std::array<Core::HostRuntime::GuestVrSensor::Pose, 2> xr_render_eyes{};
+    std::array<std::array<float, 4>, 2> xr_render_fov{};
     u8 id{};
 
     ImTextureID imgui_texture;
@@ -128,7 +135,7 @@ public:
     Frame* PrepareLastFrame();
 
 private:
-    Frame* GetRenderFrame();
+    Frame* GetRenderFrame(bool stereo = false);
 
     // Rebuilds the small FDM ring only when the output extent changes or the
     // user switches the global quality mode. The map itself is uniform: low
@@ -137,6 +144,7 @@ private:
     vk::ImageView RecordFdmUpload(Scheduler& scheduler, const Frame& frame);
 
     void RecreateFrame(Frame* frame, u32 width, u32 height);
+    void RecordEmbeddedScreenshot(Frame& frame, u64 diagnostic_id);
 
     void SetExpectedGameSize(s32 width, s32 height);
 
@@ -161,9 +169,11 @@ private:
     std::unique_ptr<CaptureRecorder> embedded_capture;
 #endif
     std::unique_ptr<ImGui::StatusLayer> status_layer;
+    u64 xr_status_updated_ns{};
     HostPasses::FsrPass fsr_pass;
     HostPasses::FsrPass::Settings fsr_settings{};
     HostPasses::PostProcessingPass::Settings pp_settings{};
+    std::unique_ptr<HostPasses::SpatialUpscalePass> spatial_pass;
     HostPasses::PostProcessingPass pp_pass;
     AmdGpu::Liverpool* liverpool;
     Scheduler draw_scheduler;

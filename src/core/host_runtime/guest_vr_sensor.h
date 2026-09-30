@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 #include <mutex>
 
 namespace Core::HostRuntime {
@@ -15,8 +15,33 @@ namespace Core::HostRuntime {
 // disabled and keep their existing no-device behavior.
 class GuestVrSensor final {
 public:
+    struct Pose {
+        std::array<float, 4> orientation{0, 0, 0, 1};
+        std::array<float, 3> position{};
+        std::array<float, 3> angular_velocity{};
+        std::array<float, 3> linear_velocity{};
+        bool orientation_valid{}, position_valid{};
+    };
+    struct Hand {
+        Pose grip{}, aim{};
+        bool active{};
+        std::uint64_t buttons{}; // PS4 face/option bits, independent per hand.
+        float stick_x{}, stick_y{}, trigger{}, squeeze{};
+    };
+    struct HardwareFrame {
+        std::uint64_t generation{}, received_ns{}, predicted_ns{};
+        bool running{}, focused{}, mounted{};
+        Pose head{};
+        std::array<Pose, 2> eyes{};
+        // Left/right/down/up angles, radians, exactly as located by the runtime.
+        std::array<std::array<float, 4>, 2> fov{};
+        std::array<Hand, 2> hands{};
+        std::uint32_t eye_width{}, eye_height{};
+    };
     struct Snapshot final {
         bool enabled{};
+        bool openxr{};
+        HardwareFrame hardware{};
         float orientation_x{};
         float orientation_y{};
         float orientation_z{};
@@ -54,6 +79,14 @@ public:
 
     static GuestVrSensor& Instance();
 
+    std::uint64_t BeginOpenXr();
+    void EndOpenXr(std::uint64_t generation);
+    bool PublishOpenXr(const HardwareFrame& frame);
+    void RecordHmdQuery(const HardwareFrame& frame);
+    std::array<Pose, 2> RenderEyes() const;
+    bool RequestHaptic(unsigned hand, float amplitude);
+    std::array<float, 2> TakeHaptics(std::uint64_t generation);
+
     void SetSbsEnabled(bool enabled);
     void UpdateGyro(float x, float y, float z, std::uint64_t timestamp_ns);
     void UpdateMoveInput(std::uint64_t buttons, float left_x, float left_y, float right_x,
@@ -67,6 +100,9 @@ private:
     mutable std::mutex mutex;
     Snapshot snapshot;
     MoveInputSnapshot move_input;
+    std::uint64_t xr_generation{};
+    std::array<Pose, 2> render_eyes{};
+    std::array<float, 2> haptics{-1, -1};
 };
 
 } // namespace Core::HostRuntime

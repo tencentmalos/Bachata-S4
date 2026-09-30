@@ -62,6 +62,11 @@ import androidx.compose.ui.text.font.FontWeight
 import com.shadps4.android.designsystem.theme.BachataPalette
 import com.shadps4.android.runtime.input.ControllerSnapshot
 import com.shadps4.android.runtime.input.Ps4Button
+import com.shadps4.android.runtime.session.NativeFexSession
+import com.shadps4.android.runtime.input.NativePad
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.platform.LocalDensity
@@ -80,6 +85,39 @@ fun SessionScreen(
     var touchLayout by remember { mutableStateOf(TouchLayout()) }
     val state by viewModel.state.collectAsState()
     val device by viewModel.deviceTelemetry.collectAsState()
+    // Terminal publication follows native teardown. This renderer owns no guest
+    // Surface and therefore also works when Prepare never produced a frame.
+    LaunchedEffect(state) {
+        val detail = when (val terminal = state) {
+            is ManagedSessionState.Failed -> terminal.detail
+            is ManagedSessionState.Stopped -> if (terminal.isUnexpected) terminal.toString() else null
+            else -> null
+        }
+        if (detail != null && NativePad.nativeIsOpenXrConfigured()) {
+            val token = NativeFexSession.nextXrErrorToken()
+            var action = 0
+            try {
+                val error = withContext(Dispatchers.IO) { NativeFexSession.nativeShowXrError(token, detail) }
+                if (error == null) {
+                    while (action == 0) {
+                        delay(50)
+                        action = withContext(Dispatchers.IO) { NativeFexSession.nativePollXrErrorAction(token) }
+                    }
+                    if (action < 0) android.util.Log.e("XrError", NativeFexSession.nativeXrErrorStatus())
+                } else {
+                    android.util.Log.e("XrError", error)
+                    // If OpenXR itself is unavailable, return to the ordinary
+                    // Activity, which can display the retained terminal detail.
+                    action = 2
+                }
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) { NativeFexSession.nativeHideXrError(token) }
+            }
+            if (action == 1) viewModel.launch(gameId)
+            else if (action != 0) onExit()
+        }
+    }
+
     val diagnosticState by diagnosticViewModel.uiState.collectAsState()
 
     val sessionUiPreferences = remember(context) {

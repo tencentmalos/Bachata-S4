@@ -16,12 +16,26 @@ object NativeFexSession {
         System.loadLibrary("shadps4_fex_session")
     }
 
+    /** Standalone ImGui XR error screen; show/hide run on a worker after terminal drain. */
+    private val xrErrorTokens = java.util.concurrent.atomic.AtomicLong()
+    fun nextXrErrorToken(): Long = xrErrorTokens.incrementAndGet()
+    external fun nativeShowXrError(token: Long, detail: String): String?
+    external fun nativeHideXrError(token: Long)
+    external fun nativePollXrErrorAction(token: Long): Int
+    external fun nativeXrErrorStatus(): String
+    external fun nativeXrErrorKey(key: Int, down: Boolean): Boolean
+
     /** page_size / pid / uid of the app process. */
     external fun nativeSaveDialogSnapshot(generation: Long): String?
     external fun nativeSaveDialogRespond(generation: Long, request: Long, action: Int, selection: Int): Boolean
 
     external fun nativeSetGuestShadingQuality(quality: Int)
     external fun nativeSetMsaaDisabled(disabled: Boolean)
+    external fun nativeSetXrRendering(upscaler: Int, foveation: Int, level: Int, sharpness: Int, outputResolution: Int)
+    external fun nativeSetXrStatus(layout: Int, psvr: Boolean)
+    /** Recommended/high/maximum width-height pairs, or null when unavailable. */
+    external fun nativeQueryXrOutputExtents(activity: android.app.Activity, hooks: String, driver: String): IntArray?
+    external fun nativeSetXrSwapMoveHands(swap: Boolean)
     external fun nativeSetPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetDriverPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetPipelineCompileMode(mode: Int)
@@ -31,17 +45,11 @@ object NativeFexSession {
     external fun nativeSetInternalScalePercent(percent: Float)
     external fun nativeSetConsoleLanguage(language: Int)
 
-    /**
-     * Battery reading for the status HUD (see [HostBattery]); present=false withdraws it.
-     * Missing values: NaN (floats), Long.MIN_VALUE (longs), -1 (charging).
-     */
-    external fun nativeSetHostBattery(present: Boolean, levelPercent: Float, currentMicroamps: Long,
-        voltageMicrovolts: Long, chargeMicroampHours: Long, temperatureCelsius: Float, charging: Int)
-
     external fun nativeIdentity(): String
 
     /** Validated effective param.sfo and optional icon; assets stay in the archive. */
     external fun nativeInspectArchive(path: String): Array<ByteArray>?
+    external fun nativeReadLaunchParamSfo(executable: String): ByteArray?
 
     /**
      * Dispatch a graphics/performance debugging toolkit command (e.g. "debug_status",

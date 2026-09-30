@@ -111,6 +111,27 @@ val packageNativeHooks = tasks.register("packageNativeHooks") {
 }
 tasks.named("preBuild").configure { dependsOn(packageNativeHooks) }
 
+// The host builds Mesa from its live submodule and pins that exact output.
+val turnipAssets = layout.buildDirectory.dir("generated/turnipSourceAssets")
+android.sourceSets.getByName("main").assets.srcDir(turnipAssets)
+val packageSourceTurnip = tasks.register<Exec>("packageSourceTurnip") {
+    val config = file(hostLoaderConfig)
+    val text = if (config.exists()) config.readText() else ""
+    fun sdkValue(name: String) = text.substringAfter("set($name [==[", "").substringBefore("]==])")
+    val built = sdkValue("SHADPS4_HOST_TURNIP_OUTPUT")
+    val host = sdkValue("SHADPS4_HOST_LOADER_LIBRARY")
+    outputs.dir(turnipAssets)
+    // Also reject unbuilt edits in the Mesa working tree, including new files.
+    outputs.upToDateWhen { false }
+    doFirst {
+        check(built.isNotBlank() && host.isNotBlank()) { "Rebuild shadps4_host with source Turnip support" }
+    }
+    commandLine("python3", rootProject.file("../../scripts/android/build-turnip-source").absolutePath,
+        "package", "--built", built, "--host", host,
+        "--out", turnipAssets.get().dir("native-turnip-mainline").asFile.absolutePath)
+}
+tasks.named("preBuild").configure { dependsOn(packageSourceTurnip) }
+
 // The generated host SDK is authoritative: package exactly the DSO host links.
 val gpuReshapeLibs = layout.buildDirectory.dir("generated/gpuReshapeJniLibs")
 android.sourceSets.getByName("main").jniLibs.srcDir(gpuReshapeLibs)

@@ -176,10 +176,14 @@ if(V0_BUILD_TESTS)
     # depends only on that header + the C++ stdlib (no FEX, no SDL, no guest_cpu), so
     # it builds and runs on the CI host and cross-compiles under the NDK.
     add_executable(orbis_pad_adapter_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/orbis_pad_debug.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/guest_vr_sensor.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/input_capture_stub.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/orbis_pad_adapter.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/profiler.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/orbis_pad_adapter_tests.cpp")
     target_include_directories(orbis_pad_adapter_tests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/json/single_include"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
     if(NOT TARGET foundation_input)
         add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../foundation/modules/input" foundation/input EXCLUDE_FROM_ALL)

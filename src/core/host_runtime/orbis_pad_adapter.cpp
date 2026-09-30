@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "core/host_runtime/orbis_pad_adapter.h"
+#include "core/host_runtime/guest_vr_sensor.h"
 #include "common/profiler.h"
 #include "core/libraries/pad/pad_errors.h"
 #include "core/libraries/pad/pad_vibration.h"
-#include "imgui/renderer/imgui_core.h"
+#include "imgui/input_capture.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -45,6 +46,7 @@ u64 OrbisPadAdapter::BeginSession() {
     std::lock_guard lock(mutex_);
     ResetDebugLocked();
     token_ = hub_.BeginSession();
+    xr_input_focused_ = true;
     initialized_ = false;
     for (auto &p : ports_) {
         p = {};
@@ -99,6 +101,14 @@ void OrbisPadAdapter::Publish(int port) {
             if (std::abs(state->axes[i]) >= std::abs(axes[i]))
                 axes[i] = state->axes[i];
     }
+    if (p.xr_connected) {
+        d.connected = true;
+        buttons |= static_cast<u32>(p.xr.buttons);
+        const std::array<float, 6> xr_axes{p.xr.left_x, p.xr.left_y, p.xr.right_x,
+            p.xr.right_y, p.xr.left_trigger, p.xr.right_trigger};
+        for (size_t i = 0; i < axes.size(); ++i)
+            if (std::abs(xr_axes[i]) > std::abs(axes[i])) axes[i] = xr_axes[i];
+    }
     if (axes[4] >= 0.5f)
         buttons |= 0x100;
     if (axes[5] >= 0.5f)
@@ -131,7 +141,7 @@ PadResult OrbisPadAdapter::SetConnected(u64 token, int port, bool connected) {
     if (auto r = Validate(token, port); r != PadResult::Ok)
         return r;
     auto &p = ports_[port];
-    if (port == 0) DebugFocusLocked(connected);
+    if (port == 0) { DebugFocusLocked(connected); xr_input_focused_ = connected; }
     else if (!connected) ReleaseDebugLocked("disconnected", true);
     if (connected && !p.overlay) {
         const auto epoch = hub_.RegisterDevice(token, Source::OnScreenOverlay, port, "overlay",
@@ -145,6 +155,19 @@ PadResult OrbisPadAdapter::SetConnected(u64 token, int port, bool connected) {
         p.touch = {};
     }
     Publish(port);
+    return PadResult::Ok;
+}
+PadResult OrbisPadAdapter::SubmitXr(u64 token, const PadSnapshot& value, bool connected) {
+    for (float v : {value.left_x, value.left_y, value.right_x, value.right_y,
+                    value.left_trigger, value.right_trigger})
+        if (!std::isfinite(v)) return PadResult::Rejected;
+    std::lock_guard lock(mutex_);
+    if (auto r = Validate(token, 0); r != PadResult::Ok) return r;
+    auto& p = ports_[0];
+    connected = connected && xr_input_focused_;
+    p.xr = connected ? value : PadSnapshot{};
+    p.xr_connected = connected;
+    Publish(0);
     return PadResult::Ok;
 }
 PadResult OrbisPadAdapter::Submit(u64 token, int port, const PadSnapshot &s) {
@@ -229,9 +252,11 @@ void OrbisPadAdapter::FocusLost(u64 token) {
     if (!token || token != token_)
         return;
     DebugFocusLocked(false);
+    xr_input_focused_ = false;
     for (int port = 0; port < kMaxPadPorts; ++port) {
         auto &p = ports_[port];
         p.touch = {};
+        p.xr = {}; p.xr_connected = false;
         for (auto *id : {&p.debug, &p.overlay, &p.physical}) {
             if (!*id)
                 continue;
@@ -268,8 +293,13 @@ bool OrbisPadAdapter::Connected(int port) const {
 }
 PadResult OrbisPadAdapter::VibrateLocked(int port, u8 small, u8 large) {
     auto &p = ports_[port];
+    bool xr_sent{};
+    if (p.xr_connected) {
+        xr_sent |= GuestVrSensor::Instance().RequestHaptic(0, large / 255.f);
+        xr_sent |= GuestVrSensor::Instance().RequestHaptic(1, small / 255.f);
+    }
     if (!p.physical)
-        return PadResult::Rejected; // no phone fallback for absent controller actuator
+        return xr_sent ? PadResult::Ok : PadResult::Rejected;
     HapticCommand command;
     command.session_token = token_;
     command.device = *p.physical;
@@ -278,7 +308,7 @@ PadResult OrbisPadAdapter::VibrateLocked(int port, u8 small, u8 large) {
     command.large_motor = large / 255.f;
     command.duration_ms = 1000;
     command.cancel = !small && !large;
-    return hub_.EnqueueHaptic(command) == InputResult::Ok ? PadResult::Ok : PadResult::Rejected;
+    return hub_.EnqueueHaptic(command) == InputResult::Ok || xr_sent ? PadResult::Ok : PadResult::Rejected;
 }
 PadResult OrbisPadAdapter::SetVibration(u64 token, int port, u8 small, u8 large) {
     std::lock_guard lock(mutex_);
@@ -426,7 +456,7 @@ int OrbisPadAdapter::Vibrate(int handle, const OrbisPadVibrationParam *v) {
         Vibration::Record(handle, v->largeMotor, v->smallMotor, Outcome::NotConnected);
         return ORBIS_PAD_ERROR_DEVICE_NOT_CONNECTED;
     }
-    if (!p->physical) {
+    if (!p->physical && !p->xr_connected) {
         Vibration::Record(handle, v->largeMotor, v->smallMotor, Outcome::NoActuator,
                           "no physical Android controller is bound to this pad");
         return ORBIS_PAD_ERROR_NOT_PERMITTED;

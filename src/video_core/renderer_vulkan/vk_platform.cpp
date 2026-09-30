@@ -35,6 +35,10 @@
 #include "core/emulator_settings.h"
 #include "frontend/window.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
+#if defined(__ANDROID__)
+#include "video_core/renderer_vulkan/openxr/runtime.h"
+#endif
+
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
@@ -222,9 +226,9 @@ std::vector<const char*> GetInstanceExtensions(Frontend::WindowSystemType window
         break;
     }
 
-    if (window_type != Frontend::WindowSystemType::Headless) {
-        extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-    }
+    // The logical device enables KHR_swapchain even for headless probes; its
+    // instance dependency must be enabled as well (no surface is created here).
+    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
     if (EmulatorSettings.IsHdrAllowed()) {
         extensions.push_back(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME);
@@ -296,7 +300,7 @@ std::vector<const char*> GetInstanceLayers(bool enable_validation, bool enable_c
 }
 
 vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool enable_validation,
-                                  bool enable_crash_diagnostic, const DriverLease& driver) {
+                                  bool enable_crash_diagnostic, const DriverLease& driver, OpenXr::Runtime* xr) {
     VideoCore::LoadRenderDoc();
     LOG_INFO(Render_Vulkan, "Creating vulkan instance");
 
@@ -345,7 +349,7 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
         .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
         .pEngineName = "shadPS4 Vulkan",
         .engineVersion = VK_MAKE_VERSION(1, 0, 0),
-        .apiVersion = available_version,
+        .apiVersion = xr ? TargetVulkanApiVersion : available_version,
     };
 
     const std::string extensions_string = fmt::format("{}", fmt::join(extensions, ", "));
@@ -485,6 +489,13 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
         },
     };
 
+#if defined(__ANDROID__)
+    if (xr) {
+        const auto raw = xr->CreateInstance(entry, static_cast<const VkInstanceCreateInfo&>(instance_ci_chain.get()));
+        VULKAN_HPP_DEFAULT_DISPATCHER.init(vk::Instance(raw));
+        return vk::UniqueInstance(vk::Instance(raw), {nullptr, VULKAN_HPP_DEFAULT_DISPATCHER});
+    }
+#endif
     auto [instance_result, instance] = vk::createInstanceUnique(instance_ci_chain.get());
     ASSERT_MSG(instance_result == vk::Result::eSuccess, "Failed to create instance: {}",
                vk::to_string(instance_result));

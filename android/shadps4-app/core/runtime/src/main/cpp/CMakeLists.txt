@@ -68,3 +68,9 @@ option(SHADPS4_ANDROID_DEBUG_COMMANDS "Enable local debug commands in a debug AP
 if(SHADPS4_ANDROID_DEBUG_COMMANDS)
     target_compile_definitions(shadps4_fex_session PRIVATE SHADPS4_ANDROID_DEBUG_COMMANDS=1)
 endif()
+
+# Package the same Foundation loader used by Citron. Runtime loads it only for VR.
+add_library(shadps4_openxr_loader SHARED IMPORTED)
+set_target_properties(shadps4_openxr_loader PROPERTIES IMPORTED_LOCATION
+    "${REPO_ROOT}/foundation/third_party/openxr/openxr_loader/${ANDROID_ABI}/libpico_openxr_loader.so")
+target_link_libraries(shadps4_fex_session PRIVATE shadps4_openxr_loader)

@@ -1,3 +1,7 @@
+#include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
+#if defined(__ANDROID__)
+#include "video_core/renderer_vulkan/openxr/runtime.h"
+#endif
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -178,8 +182,11 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
                    bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/,
                    DriverLease driver_)
     : scale_policy{CaptureScalePolicy()}, force_disable_msaa{EmulatorSettings.IsMsaaDisabled()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+#if defined(__ANDROID__)
+      xr_runtime{OpenXr::Runtime::Create()},
+#endif
       instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
-                              enable_crash_diagnostic, driver)},
+                              enable_crash_diagnostic, driver, xr_runtime.get())},
       physical_devices{EnumeratePhysicalDevices(instance)} {
     if (enable_validation) {
         debug_callback = CreateDebugCallback(*instance);
@@ -246,6 +253,9 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
         physical_device = physical_devices[physical_device_index];
     }
 
+#if defined(__ANDROID__)
+    if (xr_runtime) physical_device = xr_runtime->PhysicalDevice(*instance);
+#endif
     available_extensions = GetSupportedExtensions(physical_device);
     for (const auto& name : DisabledDeviceExtensions()) {
         if (std::erase(available_extensions, name) != 0) {
@@ -282,6 +292,9 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
 }
 
 Instance::~Instance() {
+#if defined(__ANDROID__)
+    if (xr_runtime) xr_runtime->Stop();
+#endif
     // Scheduler owners have drained before allocator, GUI and driver teardown.
     submissions.reset();
     if (device)
@@ -357,10 +370,9 @@ bool Instance::CreateDevice() {
 
     fdm_capabilities = spatial::foveation::vulkan::ProbeCapabilities(
         physical_device, VULKAN_HPP_DEFAULT_DISPATCHER);
-    // Reserved for future VR rendering. Do not enable FDM on this device:
-    // Vulkan forbids fragmentDensityMap together with pipelineFragmentShadingRate.
-    fdm_enabled = false;
-    LOG_INFO(Render_Vulkan, "FDM disabled (reserved for VR)");
+    fdm_enabled = HostPasses::GetSpatialOptions().foveation != spatial::foveation::Mode::Off &&
+                  fdm_capabilities.UsableOnExternalTargets();
+    LOG_INFO(Render_Vulkan, "XR presentation FDM enabled={}", fdm_enabled);
     LOG_INFO(Render_Vulkan,
              "FDM: extension={} map={} dynamic={} non_subsampled={} texel={}..{}",
              fdm_capabilities.extension_available, fdm_capabilities.fragment_density_map,
@@ -370,7 +382,7 @@ bool Instance::CreateDevice() {
 
     fragment_shading_rate_features =
         feature_chain.get<vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>();
-    fragment_shading_rate_enabled = std::ranges::any_of(
+    fragment_shading_rate_enabled = !fdm_enabled && std::ranges::any_of(
         available_extensions, [](const std::string& name) {
             return name == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME;
         });
@@ -805,7 +817,17 @@ bool Instance::CreateDevice() {
         static_cast<VkPhysicalDeviceFeatures&>(device_chain.get<vk::PhysicalDeviceFeatures2>().features),
         static_cast<const VkPhysicalDeviceVulkan12Features&>(vk12_features),
         static_cast<VkPhysicalDeviceVulkan12Features&>(device_chain.get<vk::PhysicalDeviceVulkan12Features>()));
-    auto [device_result, dev] = physical_device.createDeviceUnique(device_chain.get());
+    auto [device_result, dev] = [&]() -> vk::ResultValue<vk::UniqueDevice> {
+#if defined(__ANDROID__)
+        if (xr_runtime) {
+            const auto raw = xr_runtime->CreateDevice(VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr,
+                physical_device, static_cast<const VkDeviceCreateInfo&>(device_chain.get()));
+            VULKAN_HPP_DEFAULT_DISPATCHER.init(vk::Device(raw));
+            return {vk::Result::eSuccess, vk::UniqueDevice(vk::Device(raw), {nullptr, VULKAN_HPP_DEFAULT_DISPATCHER})};
+        }
+#endif
+        return physical_device.createDeviceUnique(device_chain.get());
+    }();
     if (device_result != vk::Result::eSuccess) {
         LOG_CRITICAL(Render_Vulkan, "Failed to create device: {}", vk::to_string(device_result));
         return false;

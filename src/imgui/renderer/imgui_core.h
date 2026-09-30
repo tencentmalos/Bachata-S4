@@ -4,6 +4,7 @@
 #pragma once
 
 #include <imgui.h>
+#include "imgui/input_capture.h"
 
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "vulkan/vulkan_handles.hpp"
@@ -29,7 +30,6 @@ bool ProcessEvent(SDL_Event* event);
 
 void AcquireGamepadInputCapture();
 void ReleaseGamepadInputCapture();
-bool IsGamepadInputCaptured();
 // PS4 IME retains its own ABI, keyboard and gamepad mappings. Its modal pointer
 // capture only routes host touch events into the shared ImGui context.
 void AcquireImeInputCapture();

@@ -48,6 +48,7 @@ public:
     const auto& GpuTiming() const { return gpu_timing; }
     bool HasCalibratedTimestamps() const { return calibrated_timestamps_enabled; }
 
+    OpenXr::Runtime* Xr() const { return xr_runtime.get(); }
     SubmissionWorker* Submissions() const { return submissions.get(); }
     std::mutex& QueueMutex() const { return queue_mutex; }
     void DrainSubmissions() const { if (submissions) submissions->Drain(); }
@@ -158,7 +159,7 @@ public:
         return maintenance_8;
     }
 
-    /// Reserved for VR; deliberately disabled in the current renderer.
+    /// FDM was enabled on this device for host presentation passes.
     bool IsFdmSupported() const {
         return fdm_enabled;
     }
@@ -357,6 +358,8 @@ public:
         return properties.driverVersion;
     }
 
+    DriverLease GetDriverLease() const { return driver; }
+
     /// Returns the current Vulkan API version provided in Vulkan-formatted version numbers.
     u32 ApiVersion() const {
         return properties.apiVersion;
@@ -514,6 +517,20 @@ public:
         return properties.limits.maxSamplerAllocationCount;
     }
 
+    // Same concrete attachment tuple used by Image after optional storage is removed.
+    vk::SampleCountFlags GetAttachmentSampleCounts(vk::Format format, bool depth) const {
+        if (format == vk::Format::eUndefined) return {};
+        const auto result = physical_device.getImageFormatProperties2({
+            .format = format, .type = vk::ImageType::e2D, .tiling = vk::ImageTiling::eOptimal,
+            .usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc |
+                     vk::ImageUsageFlagBits::eTransferDst | (depth
+                         ? vk::ImageUsageFlagBits::eDepthStencilAttachment
+                         : vk::ImageUsageFlagBits::eColorAttachment),
+            .flags = vk::ImageCreateFlagBits::eMutableFormat | vk::ImageCreateFlagBits::eExtendedUsage});
+        return result.result == vk::Result::eSuccess
+            ? result.value.imageFormatProperties.sampleCounts : vk::SampleCountFlags{};
+    }
+
     /// Returns the sample count flags supported by color buffers.
     vk::SampleCountFlags GetColorSampleCounts() const {
         return properties.limits.framebufferColorSampleCounts;
@@ -590,6 +607,7 @@ private:
     std::unique_lock<std::mutex> dispatcher_lease;
     std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     DriverLease driver; // Destroyed after every Vulkan child and the instance.
+    std::shared_ptr<OpenXr::Runtime> xr_runtime; // Session stops before Vulkan teardown.
     vk::UniqueInstance instance;
     vk::PhysicalDevice physical_device;
     vk::UniqueDevice device;

@@ -188,7 +188,7 @@
 [submodule "foundation"]
 	path = foundation
 	url = https://github.com/tencentmalos/foundation.git
-	branch = main
+	branch = codex/shadps4-xr-foundation
 [submodule "externals/ffmpeg"]
 	path = externals/ffmpeg
 	url = git@github.com:tencentmalos/FFmpeg.git
@@ -204,7 +204,7 @@
 [submodule "references/mesa-turnip"]
 	path = references/mesa-turnip
 	url = https://github.com/tencentmalos/mesa-mirror.git
-	branch = codex/kgsl-nonblocking-poll
+	branch = codex/shadps4-xr-turnip
 [submodule "references/mesa-turnip-xr-fdm2"]
 	path = references/mesa-turnip-xr-fdm2
 	url = git@github.com:tencentmalos/mesa-mirror.git

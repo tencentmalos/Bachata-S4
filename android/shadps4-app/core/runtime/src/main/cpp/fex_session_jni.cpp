@@ -1,3 +1,4 @@
+#include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -25,6 +26,8 @@
 
 #include <jni.h>
 #include "core/emulator_settings.h"
+#include "core/libraries/move/move.h"
+#include "video_core/renderer_vulkan/openxr/runtime.h"
 #include "core/file_sys/fs.h"
 
 #include <atomic>
@@ -40,7 +43,6 @@
 #include <sys/system_properties.h>
 
 #include "core/diagnostics/diagnostics_service.h"
-#include "core/diagnostics/host_battery.h"
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/session_backend_fex.h"
 #include "core/host_runtime/session_core.h"
@@ -67,6 +69,8 @@ SessionCore& Session() {
     return core;
 }
 
+std::mutex error_driver_mutex;
+Vulkan::DriverLease error_driver;
 std::mutex dialog_mutex;
 std::uint64_t dialog_generation{};
 std::weak_ptr<Core::HostRuntime::GuestSaveDialog> dialog_weak;
@@ -139,6 +143,33 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeInspectArchive(
         return result;
     } catch (const std::exception& e) {
         __android_log_print(ANDROID_LOG_ERROR, "GameArchive", "%s", e.what());
+        return nullptr;
+    } catch (...) { return nullptr; }
+}
+
+// Read through the same app0 overlay as GuestRuntime::Prepare, without starting a guest.
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeReadLaunchParamSfo(
+    JNIEnv* env, jobject, jstring path) {
+    if (!path) return nullptr;
+    const char* value = env->GetStringUTFChars(path, nullptr);
+    if (!value) return nullptr;
+    std::filesystem::path executable(value);
+    env->ReleaseStringUTFChars(path, value);
+    try {
+        Core::FileSys::MntPoints mount;
+        mount.Mount(std::filesystem::canonical(Core::FileSys::IsZArchiveFile(executable)
+                        ? executable : executable.parent_path()), "/app0", true);
+        auto file = mount.Open("/app0/sce_sys/param.sfo");
+        if (!file || !file->Size() || file->Size() > 1024 * 1024) return nullptr;
+        std::vector<u8> data(file->Size());
+        if (file->Read(data.data(), data.size()) != s64(data.size())) return nullptr;
+        auto result = env->NewByteArray(data.size());
+        if (result) env->SetByteArrayRegion(result, 0, data.size(),
+                                          reinterpret_cast<const jbyte*>(data.data()));
+        return result;
+    } catch (const std::exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, "DisplayMode", "%s", e.what());
         return nullptr;
     } catch (...) { return nullptr; }
 }
@@ -434,6 +465,7 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExe
     JNIEnv *env, jclass, jstring content_id, jstring executable_path,
     jobject surface, jstring hook_directory, jstring driver_directory) {
   try {
+    Vulkan::OpenXr::HideError(); // Drain UI before any new guest renderer can acquire Vulkan.
     auto copy = [&](jstring value) {
       if (!value)
         throw std::invalid_argument("Missing rendered-session argument");
@@ -481,7 +513,9 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExe
     params.load_graphics_driver = [hooks = copy(hook_directory),
                                    files = copy(driver_directory),
                                    system = driver_kind == "system"] {
+      { std::scoped_lock lock(error_driver_mutex); error_driver.reset(); }
       auto driver = system ? Vulkan::LoadAndroidSystemDriver() : Vulkan::LoadAndroidTurnip(hooks, files);
+      { std::scoped_lock lock(error_driver_mutex); error_driver = driver; }
       __android_log_print(ANDROID_LOG_INFO, kTag, "Selected Vulkan driver: %s", driver->identity.c_str());
       return driver;
     };
@@ -571,6 +605,61 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetSilentDialogs
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetXrRendering(
+    JNIEnv*, jobject, jint filter, jint foveation, jint level, jint sharpness, jint output_resolution) {
+    Vulkan::HostPasses::SetSpatialOptions({
+        .filter=static_cast<Vulkan::HostPasses::SpatialFilter>(filter),
+        .foveation=static_cast<spatial::foveation::Mode>(foveation),
+        .level=static_cast<spatial::foveation::Level>(level),.sharpness=static_cast<u32>(sharpness),
+        .output_resolution=static_cast<Vulkan::HostPasses::XrOutputResolution>(output_resolution)});
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetXrStatus(
+    JNIEnv*, jobject, jint layout, jboolean psvr) {
+    Vulkan::OpenXr::ConfigureStatus(layout, psvr == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeQueryXrOutputExtents(
+    JNIEnv* env, jobject, jobject activity, jstring hooks, jstring files) {
+    try {
+        char selected[PROP_VALUE_MAX]{};
+        __system_property_get("debug.shadps4.vulkan_driver", selected);
+        if (std::string_view(selected) == "system") return nullptr;
+        const auto copy = [env](jstring value) {
+            if (!value) throw std::invalid_argument("Missing driver path");
+            const char* chars = env->GetStringUTFChars(value, nullptr);
+            if (!chars) throw std::runtime_error("Cannot read driver path");
+            std::string result;
+            try { result = chars; }
+            catch (...) { env->ReleaseStringUTFChars(value, chars); throw; }
+            env->ReleaseStringUTFChars(value, chars);
+            return result;
+        };
+        auto driver = Vulkan::LoadAndroidTurnip(copy(hooks), copy(files));
+        const auto extents = Vulkan::OpenXr::Runtime::ProbeOutputExtents(env, activity, driver);
+        jint values[6];
+        for (size_t i = 0; i < extents.size(); ++i) {
+            values[i * 2] = static_cast<jint>(extents[i].width);
+            values[i * 2 + 1] = static_cast<jint>(extents[i].height);
+        }
+        const auto result = env->NewIntArray(6);
+        if (result) env->SetIntArrayRegion(result, 0, 6, values);
+        return result;
+    } catch (const std::exception& e) {
+        __android_log_print(ANDROID_LOG_WARN, kTag, "XR output query: %s", e.what());
+        return nullptr;
+    } catch (...) { return nullptr; }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetXrSwapMoveHands(
+    JNIEnv*, jobject, jboolean swap) {
+    Libraries::Move::SetXrSwapHands(swap == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetMsaaDisabled(
     JNIEnv*, jobject, jboolean disabled) {
     EmulatorSettings.SetMsaaDisabled(disabled == JNI_TRUE);
@@ -627,24 +716,39 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetConsoleLangua
     catch (...) { /* Never unwind across JNI. */ }
 }
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetHostBattery(
-    JNIEnv*, jclass, jboolean present, jfloat level_percent, jlong current_microamps,
-    jlong voltage_microvolts, jlong charge_microamp_hours, jfloat temperature_celsius,
-    jint charging) {
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeShowXrError(JNIEnv* env, jclass, jlong token, jstring detail) {
     try {
-        if (!present) {
-            Core::Diagnostics::PublishHostBattery(std::nullopt);
-            return;
-        }
-        constexpr jlong missing = std::numeric_limits<jlong>::min();
-        Core::Diagnostics::HostBattery battery;
-        if (std::isfinite(level_percent)) battery.level_percent = level_percent;
-        if (current_microamps != missing) battery.current_microamps = current_microamps;
-        if (voltage_microvolts != missing) battery.voltage_microvolts = voltage_microvolts;
-        if (charge_microamp_hours != missing) battery.charge_microamp_hours = charge_microamp_hours;
-        if (std::isfinite(temperature_celsius)) battery.temperature_celsius = temperature_celsius;
-        if (charging >= 0) battery.charging = charging != 0;
-        Core::Diagnostics::PublishHostBattery(battery);
-    } catch (...) { /* Never unwind across JNI. */ }
+        if (Session().CurrentGeneration()) throw std::runtime_error("Guest session has not drained");
+        if (!detail) throw std::runtime_error("Missing error detail");
+        const char* text = env->GetStringUTFChars(detail, nullptr);
+        if (!text) return nullptr; // pending JNI exception
+        std::string copy;
+        try { copy = text; } catch (...) { env->ReleaseStringUTFChars(detail, text); throw; }
+        env->ReleaseStringUTFChars(detail, text);
+        Vulkan::DriverLease driver;
+        { std::scoped_lock lock(error_driver_mutex); driver = error_driver; }
+        Vulkan::OpenXr::ShowError(std::move(copy), std::move(driver), token);
+        return nullptr;
+    } catch (const std::exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "XR error presentation: %s", e.what());
+        return env->NewStringUTF(e.what());
+    }
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeHideXrError(JNIEnv*, jclass, jlong token) {
+    Vulkan::OpenXr::HideError(token);
+}
+extern "C" JNIEXPORT jint JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativePollXrErrorAction(JNIEnv*, jclass, jlong token) {
+    return Vulkan::OpenXr::PollErrorAction(token);
+}
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeXrErrorKey(JNIEnv*, jclass, jint key, jboolean down) {
+    return Vulkan::OpenXr::ErrorKey(key, down);
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeXrErrorStatus(JNIEnv* env, jclass) {
+    return env->NewStringUTF(Vulkan::OpenXr::ErrorStatus().c_str());
 }

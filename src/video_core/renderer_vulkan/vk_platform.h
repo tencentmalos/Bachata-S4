@@ -19,13 +19,15 @@ struct WindowSystemInfo;
 } // namespace Frontend
 
 namespace Vulkan {
+namespace OpenXr { class Runtime; }
 
 constexpr u32 TargetVulkanApiVersion = VK_API_VERSION_1_3;
 
 vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::WindowSystemInfo& window_info);
 
 vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool enable_validation,
-                                  bool enable_crash_diagnostic, const DriverLease& driver = {});
+                                  bool enable_crash_diagnostic, const DriverLease& driver = {},
+                                  OpenXr::Runtime* xr = nullptr);
 
 /// Warnings and errors the driver reports on its own (outside validation), such as why a
 /// device was lost. Empty when VK_EXT_debug_utils is unavailable.

@@ -111,7 +111,7 @@ struct UploadJob {
     int tick = 0; // Used to skip the first frame when destroying to await the current frame to draw
 };
 
-static bool g_is_worker_running = false;
+static std::atomic_bool g_is_worker_running = false;
 static std::jthread g_worker_thread;
 static std::condition_variable g_worker_cv;
 
@@ -135,13 +135,13 @@ Inner::~Inner() {
 
 void WorkerLoop() {
     Common::SetCurrentThreadName("shadPS4:ImGuiTextureManager");
-    std::mutex mtx;
     while (g_is_worker_running) {
-        std::unique_lock lk{mtx};
-        g_worker_cv.wait(lk);
+        std::unique_lock lk{g_job_list_mtx};
+        g_worker_cv.wait(lk, [] { return !g_is_worker_running || !g_job_list.empty(); });
         if (!g_is_worker_running) {
             break;
         }
+        lk.unlock();
         while (true) {
             g_job_list_mtx.lock();
             if (g_job_list.empty()) {
@@ -191,14 +191,15 @@ void WorkerLoop() {
 
 void StartWorker() {
     ASSERT(!g_is_worker_running);
-    g_worker_thread = std::jthread(WorkerLoop);
     g_is_worker_running = true;
+    g_worker_thread = std::jthread(WorkerLoop);
 }
 
 void StopWorker() {
     ASSERT(g_is_worker_running);
-    g_is_worker_running = false;
+    { std::scoped_lock lock(g_job_list_mtx); g_is_worker_running = false; }
     g_worker_cv.notify_one();
+    if (g_worker_thread.joinable()) g_worker_thread.join();
 }
 
 void DecodePngTexture(std::vector<u8> data, Inner* core) {

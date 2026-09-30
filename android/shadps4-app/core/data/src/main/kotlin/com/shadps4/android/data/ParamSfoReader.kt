@@ -8,11 +8,15 @@ data class ParamSfoMetadata(
     val titleId: String?,
     val subtitle: String? = null,
     val detail: String? = null,
-)
+    val attributes: Int? = null,
+) {
+    // Same ATTRIBUTE bits as Common::ElfInfo's PSFAttributes (14 / 26).
+    val isPsvr: Boolean get() = ((attributes ?: 0) and ((1 shl 14) or (1 shl 26))) != 0
+}
 
 /**
  * Minimal PS4/PSF param.sfo reader for library metadata.
- * Matches desktop layout in `src/core/file_format/psf.*` for string keys.
+ * Matches desktop layout in `src/core/file_format/psf.*` for string keys and integer ATTRIBUTE flags.
  */
 object ParamSfoReader {
     private const val MAGIC = 0x00505346
@@ -43,11 +47,14 @@ object ParamSfoReader {
         val dataTableOffset = buf.int
         val count = buf.int
         if (count < 0 || count > 4096) return ParamSfoMetadata(null, null)
+        require(keyTableOffset >= HEADER_SIZE + count * INDEX_ENTRY_SIZE &&
+            dataTableOffset >= keyTableOffset && dataTableOffset <= bytes.size) { "Invalid PSF tables" }
 
         var title: String? = null
         var titleId: String? = null
         var subtitle: String? = null
         var detail: String? = null
+        var attributes: Int? = null
         for (i in 0 until count) {
             val entryPos = HEADER_SIZE + i * INDEX_ENTRY_SIZE
             if (entryPos + INDEX_ENTRY_SIZE > bytes.size) return ParamSfoMetadata(null, null)
@@ -58,9 +65,18 @@ object ParamSfoReader {
             val len = buf.int
             buf.int // maxLen
             val dataOffset = buf.int
+            val keyStart = keyTableOffset.toLong() + keyOffset
+            val dataStart = dataTableOffset.toLong() + dataOffset
+            require(keyStart in keyTableOffset.toLong() until dataTableOffset.toLong() &&
+                dataOffset >= 0 && dataStart <= bytes.size && len >= 0 &&
+                len.toLong() <= bytes.size - dataStart) { "Invalid PSF entry" }
+            val key = readCString(bytes, keyStart.toInt(), dataTableOffset - keyStart.toInt()) ?: continue
+            if (key == "ATTRIBUTE") {
+                require(attributes == null && fmt == 0x0404 && len == 4) { "Invalid PSF ATTRIBUTE" }
+                attributes = buf.getInt(dataStart.toInt())
+            }
             if (fmt != FMT_TEXT) continue
-            val key = readCString(bytes, keyTableOffset + keyOffset) ?: continue
-            val value = readCString(bytes, dataTableOffset + dataOffset, maxLen = len) ?: continue
+            val value = readCString(bytes, dataStart.toInt(), maxLen = len) ?: continue
             when (key) {
                 "TITLE" -> title = value.ifBlank { null }
                 "TITLE_ID" -> titleId = value.ifBlank { null }
@@ -68,12 +84,12 @@ object ParamSfoReader {
                 "DETAIL" -> detail = value.ifBlank { null }
             }
         }
-        return ParamSfoMetadata(title = title, titleId = titleId, subtitle = subtitle, detail = detail)
+        return ParamSfoMetadata(title = title, titleId = titleId, subtitle = subtitle, detail = detail, attributes = attributes)
     }
 
     private fun readCString(bytes: ByteArray, start: Int, maxLen: Int = Int.MAX_VALUE): String? {
         if (start < 0 || start >= bytes.size) return null
-        val endLimit = minOf(bytes.size, if (maxLen == Int.MAX_VALUE) bytes.size else start + maxLen.coerceAtLeast(0))
+        val endLimit = start + minOf(bytes.size - start, maxLen.coerceAtLeast(0))
         var end = start
         while (end < endLimit && bytes[end] != 0.toByte()) end++
         if (end == start) return ""

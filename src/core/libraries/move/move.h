@@ -12,6 +12,10 @@ class SymbolsResolver;
 
 namespace Libraries::Move {
 
+// Session configuration; captured by sceMoveInit. Move indices are device
+// enumeration slots, not OpenXR left/right identities.
+void SetXrSwapHands(bool swap);
+
 struct OrbisMoveDeviceInfo {
     float sphere_radius;
     float accelerometer_offset[3];
@@ -69,6 +73,9 @@ s32 PS4_SYSV_ABI sceMoveReadStateRecent(s32 handle, s64 timestamp, OrbisMoveData
 s32 PS4_SYSV_ABI sceMoveSetVibration(s32 handle, u8 intensity);
 s32 PS4_SYSV_ABI sceMoveSetLightSphere(s32 handle, u8 red, u8 green, u8 blue);
 s32 PS4_SYSV_ABI sceMoveTerm();
+
+// Shared identity for tracker registration, independent of open/register order.
+int HandIndexForHandle(s32 handle);
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Move

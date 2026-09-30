@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import com.shadps4.android.designsystem.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,8 +27,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+open class MainActivity : ComponentActivity() {
+    internal open val openXrEnabled = false
     @Inject lateinit var legacyRuntimeSettingsMigration: LegacyRuntimeSettingsMigration
+    private var requestedGameId by mutableStateOf<String?>(null)
     private var openLastGameRequest by mutableIntStateOf(0)
 
     private fun consumeLaunchIntent(value: Intent) {
@@ -35,7 +38,30 @@ class MainActivity : ComponentActivity() {
             value.getBooleanExtra("--open_last_game", false)
         value.removeExtra("open_last_game")
         value.removeExtra("--open_last_game")
-        if (requested) openLastGameRequest++
+        val direct = value.getStringExtra(DirectGameLaunchRequest.EXTRA_GAME_ID)
+        value.removeExtra(DirectGameLaunchRequest.EXTRA_GAME_ID)
+        if (direct != null) requestedGameId = direct
+        else if (requested) openLastGameRequest++
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (openXrEnabled) com.shadps4.android.runtime.input.NativePad.nativeOpenXrForeground(this, true)
+    }
+
+    override fun onPause() {
+        if (openXrEnabled) com.shadps4.android.runtime.input.NativePad.nativeOpenXrForeground(this, false)
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        com.shadps4.android.runtime.input.NativePad.nativeReleaseOpenXr(this)
+        super.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("pending_game", requestedGameId)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -52,7 +78,7 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG && args?.firstOrNull() == "debugbus") {
             try {
                 val ready = com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(
-                    java.io.File(filesDir, "host").absolutePath)
+                    java.io.File(filesDir, "host").absolutePath, applicationContext)
                 if (!ready) {
                     writer.println("debug-command-error: host paths unavailable")
                     return
@@ -87,11 +113,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val nativePad = com.shadps4.android.runtime.input.NativePad
+        check(nativePad.nativeInitializeHost(java.io.File(filesDir, "host").absolutePath, applicationContext))
+        // A launcher tap must bring the running mode forward, never reconfigure its Vulkan device.
+        if (com.shadps4.android.runtime.session.NativeFexSession.nativeCurrentGeneration() != 0L &&
+            nativePad.nativeIsOpenXrConfigured() != openXrEnabled) {
+            startActivity(Intent(this, if (openXrEnabled) MainActivity::class.java else OpenXrActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+            finish()
+            return
+        }
+        check(nativePad.nativeConfigureOpenXr(this, openXrEnabled))
+        requestedGameId = savedInstanceState?.getString("pending_game")
         if (savedInstanceState == null) consumeLaunchIntent(intent)
         val uiOrientation = UiOrientationPreference.read(this)
         // A recreated session already owns its landscape request. Reapplying the
         // library preference here can bounce portrait/landscape indefinitely.
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !openXrEnabled) {
             requestedOrientation = UiOrientationPreference.toActivityOrientation(uiOrientation)
         }
         lifecycleScope.launch { legacyRuntimeSettingsMigration.migrate() }
@@ -105,6 +143,18 @@ class MainActivity : ComponentActivity() {
                     BachataNavHost(
                         startDestination = initialRouteForSoc(Build.SOC_MODEL, isRuntimeInstalled),
                         openLastGameRequest = openLastGameRequest,
+                        requestedGameId = requestedGameId,
+                        onGameRequestConsumed = { requestedGameId = null },
+                        openXrEnabled = openXrEnabled,
+                        exitXrToLibrary = {
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        },
+                        switchDisplayActivity = { gameId, xr ->
+                            startActivity(Intent(this, if (xr) OpenXrActivity::class.java else MainActivity::class.java)
+                                .putExtra(DirectGameLaunchRequest.EXTRA_GAME_ID, gameId))
+                            finish()
+                        },
                     )
                 }
             }

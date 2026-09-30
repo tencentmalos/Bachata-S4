@@ -1,5 +1,151 @@
 [
 {
+  "id": "gpu.xr_status_layer",
+  "nativeKey": "Vulkan.xr_status_layer",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "Status Layer",
+  "help": "Arrange the PSVR status panel in the upper left. Cinema keeps the PSV status display. None hides status in both modes.",
+  "kind": "ENUM",
+  "defaultValue": "horizontal",
+  "choices": ["horizontal", "vertical", "none"],
+  "choiceLabels": ["Horizontal", "Vertical", "None"],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+{
+  "id": "gpu.xr_output_resolution",
+  "nativeKey": "Vulkan.xr_output_resolution",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "XR Output Resolution",
+  "help": "Recommended uses OpenXR suggested dimensions. High is the midpoint to the effective runtime/GPU limit; Ultra uses that limit. Changes output resolution, not game source resolution. Restart required.",
+  "kind": "ENUM",
+  "defaultValue": "recommended",
+  "choices": ["recommended", "high", "maximum"],
+  "choiceLabels": ["Recommended", "High", "Ultra"],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+{
+  "id": "gpu.xr_upscaler",
+  "nativeKey": "Vulkan.xr_upscaler",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "XR Upscaler",
+  "help": "Reconstruct each eye or cinema image at headset resolution. Both upscalers support eye-tracked foveation. Does not change guest render scale.",
+  "kind": "ENUM",
+  "defaultValue": "fsr1",
+  "choices": [
+    "off",
+    "fsr1",
+    "sgsr1"
+  ],
+  "choiceLabels": [
+    "Off (Bilinear)",
+    "AMD FSR 1",
+    "Qualcomm SGSR 1"
+  ],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+{
+  "id": "gpu.xr_foveation",
+  "nativeKey": "Vulkan.xr_foveation",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "XR Foveated Rendering",
+  "help": "Reduce shading outside the gaze region in presentation and upscaling. Missing or stale gaze falls back to the fixed centre; unsupported drivers use full rate. Does not reduce guest game rendering. Restart required.",
+  "kind": "ENUM",
+  "defaultValue": "eye_tracked",
+  "choices": [
+    "off",
+    "fixed",
+    "eye_tracked"
+  ],
+  "choiceLabels": [
+    "Off",
+    "Fixed",
+    "Eye Tracked"
+  ],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+{
+  "id": "gpu.xr_foveation_level",
+  "nativeKey": "Vulkan.xr_foveation_level",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "XR Foveation Strength",
+  "help": "Low preserves a larger full-resolution region for text. Applies to both FSR and SGSR.",
+  "kind": "ENUM",
+  "defaultValue": "low",
+  "choices": [
+    "low",
+    "balanced",
+    "high"
+  ],
+  "choiceLabels": [
+    "Low",
+    "Balanced",
+    "High"
+  ],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+{
+  "id": "gpu.xr_upscale_sharpness",
+  "nativeKey": "Vulkan.xr_upscale_sharpness",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "XR Upscale Sharpness",
+  "help": "FSR uses RCAS sharpening; SGSR adjusts its integrated edge sharpness. Does not change render scale.",
+  "kind": "ENUM",
+  "defaultValue": "50",
+  "choices": [
+    "0",
+    "25",
+    "50",
+    "75",
+    "100"
+  ],
+  "choiceLabels": [
+    "0%",
+    "25%",
+    "50%",
+    "75%",
+    "100%"
+  ],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+  {
+    "id": "input.xr_swap_move_hands",
+    "nativeKey": "Input.xr_swap_move_hands",
+    "section": "Input",
+    "category": "System",
+    "title": "Swap XR Move Controllers",
+    "help": "Swap the two Move controller slots for PSVR games that assign hands in the opposite order. Moves pose, buttons, triggers and vibration together. Does not swap headset eyes, XR menu pointers or Bluetooth gamepads. Restart the game to apply.",
+    "kind": "BOOLEAN",
+    "defaultValue": false,
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true
+  },
+  {
+    "id": "android.display_mode",
+    "nativeKey": "Android.display_mode",
+    "section": "General",
+    "category": "System",
+    "title": "Display Mode",
+    "help": "Choose XR Cinema to play ordinary games on a large screen in the headset. PSVR games always use immersive XR, including when 2D Screen is selected. Changes apply next launch.",
+    "kind": "ENUM",
+    "defaultValue": "2d",
+    "choices": ["2d", "xr"],
+    "choiceLabels": ["2D Screen", "XR Cinema"],
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true
+  },
+{
   "id": "general.silent_dialogs",
   "nativeKey": "General.silent_dialogs",
   "section": "General",
@@ -177,8 +323,8 @@
     "nativeKey": "GPU.internal_scale_percent",
     "section": "GPU",
     "category": "GPU",
-    "title": "Render Scale",
-    "help": "Scale render targets relative to the game resolution. Texture Quality controls asset detail separately. Default: 0.5. Restart the game to apply.",
+    "title": "2D Render Scale",
+    "help": "Scale render targets in 2D mode. XR and PSVR use XR Render Scale instead. Texture Quality controls asset detail separately. Default: 0.5. Restart the game to apply.",
     "kind": "ENUM",
     "defaultValue": "0.5",
     "minimum": null,
@@ -189,6 +335,21 @@
     "restartRequired": true,
     "risk": "NORMAL",
     "readOnlyReason": null
+  },
+  {
+    "id": "gpu.xr_internal_scale",
+    "nativeKey": "GPU.xr_internal_scale_percent",
+    "section": "GPU",
+    "category": "GPU",
+    "title": "XR Render Scale",
+    "help": "Scale game render targets in XR mode, including PSVR and cinema games. Default: 1.0. Independent of 2D Render Scale. Restart the game to apply.",
+    "kind": "ENUM",
+    "defaultValue": "1.0",
+    "choices": ["0.25", "0.375", "0.5", "0.75", "1.0"],
+    "nativeEnumValues": [25, 37.5, 50, 75, 100],
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true,
+    "risk": "NORMAL"
   },
   {
     "id": "gpu.shading_quality",

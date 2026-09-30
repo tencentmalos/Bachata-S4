@@ -18,6 +18,28 @@ int main() {
     const auto base = space->ReservationBase().value;
     CHECK(space->Map({{base}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
     {
+        std::array<u8, 48> bytes{};
+        bytes.fill(0xa5);
+        CHECK(space->WriteData({base}, std::as_bytes(std::span{bytes})));
+        CHECK(DispatchKernelUuidCreate(*space, 0) == u32(ORBIS_KERNEL_ERROR_EINVAL));
+        CHECK(DispatchKernelUuidCreate(*space, UINT64_MAX) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(DispatchKernelUuidCreate(*space, base + 0x3ff8) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(DispatchKernelUuidCreate(*space, base + 17) == 0); // Unaligned guest output.
+        std::array<u8, 48> after{};
+        CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{after})));
+        CHECK(std::equal(after.begin(), after.begin() + 17, bytes.begin()));
+        CHECK(std::equal(after.begin() + 33, after.end(), bytes.begin() + 33));
+        CHECK(DispatchKernelUuidCreate(*space, base + 17) == 0);
+        std::array<u8, 48> next{};
+        CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{next})));
+        CHECK(!std::equal(after.begin() + 17, after.begin() + 33, next.begin() + 17));
+        CHECK(space->Protect({{base}, 0x4000}, GuestPermission::Read));
+        CHECK(DispatchKernelUuidCreate(*space, base) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{after})));
+        CHECK(after == next);
+        CHECK(space->Protect({{base}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+    }
+    {
         std::array<u8, 64> sentinel{}; sentinel.fill(0xa5);
         auto reset = [&] {
             CHECK(space->WriteData({base}, std::as_bytes(std::span{sentinel})));

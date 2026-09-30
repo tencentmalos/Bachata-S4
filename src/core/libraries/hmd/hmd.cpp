@@ -9,6 +9,7 @@
 #include "core/libraries/kernel/process.h"
 #include "core/libraries/libs.h"
 #include "core/host_runtime/guest_vr_sensor.h"
+#include "core/host_runtime/vr_geometry.h"
 
 namespace Libraries::Hmd {
 
@@ -88,11 +89,28 @@ s32 PS4_SYSV_ABI sceHmdGet2DEyeOffset(s32 handle, OrbisHmdEyeOffset* left_offset
         return ORBIS_HMD_ERROR_PARAMETER_NULL;
     }
 
-    // Return default values
-    left_offset->offset_x = -0.0315;
+    const auto sensor = GuestVrSensor::Instance().Read();
+    if (sensor.openxr && sensor.hardware.head.orientation_valid &&
+        sensor.hardware.head.position_valid && sensor.hardware.eyes[0].position_valid &&
+        sensor.hardware.eyes[1].position_valid) {
+        // Convert runtime eye positions from LOCAL into head-local offsets.
+        for (unsigned i = 0; i < 2; ++i) {
+            auto* out = i ? right_offset : left_offset;
+            *out = {};
+            const auto offset = Core::HostRuntime::VrGeometry::HeadLocalEye(
+                sensor.hardware.head, sensor.hardware.eyes[i]);
+            out->offset_x = offset[0];
+            out->offset_y = offset[1];
+            out->offset_z = offset[2];
+        }
+        return ORBIS_OK;
+    }
+    // Return legacy fallback values when runtime tracking is unavailable.
+    constexpr float half_ipd = .0315f;
+    left_offset->offset_x = -half_ipd;
     left_offset->offset_y = 0;
     left_offset->offset_z = 0;
-    right_offset->offset_x = 0.0315;
+    right_offset->offset_x = half_ipd;
     right_offset->offset_y = 0;
     right_offset->offset_z = 0;
 
@@ -121,7 +139,8 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformation(OrbisHmdDeviceInformation* info) {
     }
 
     memset(info, 0, sizeof(OrbisHmdDeviceInformation));
-    info->status = GuestVrSensor::Instance().Read().enabled
+    const auto sensor = GuestVrSensor::Instance().Read();
+    info->status = sensor.enabled && (!sensor.openxr || sensor.hardware.running)
                        ? OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_READY
                        : OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_NOT_DETECTED;
     info->user_id = g_user_id;
@@ -129,7 +148,9 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformation(OrbisHmdDeviceInformation* info) {
         info->device_info.panel_resolution = {.width = 1920, .height = 1080};
         info->device_info.flip_to_display_latency = {.refresh_rate_90hz = 1,
                                                       .refresh_rate_120hz = 1};
-        info->hmu_mount = 1;
+        info->hmu_mount = sensor.openxr ? sensor.hardware.mounted : 1;
+        if (sensor.openxr) info->device_info.panel_resolution = {
+            sensor.hardware.eye_width * 2, sensor.hardware.eye_height};
     }
     return ORBIS_OK;
 }
@@ -153,7 +174,8 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformationByHandle(s32 handle, OrbisHmdDeviceIn
     }
 
     memset(info, 0, sizeof(OrbisHmdDeviceInformation));
-    info->status = GuestVrSensor::Instance().Read().enabled
+    const auto sensor = GuestVrSensor::Instance().Read();
+    info->status = sensor.enabled && (!sensor.openxr || sensor.hardware.running)
                        ? OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_READY
                        : OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_NOT_DETECTED;
     info->user_id = g_user_id;
@@ -161,7 +183,9 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformationByHandle(s32 handle, OrbisHmdDeviceIn
         info->device_info.panel_resolution = {.width = 1920, .height = 1080};
         info->device_info.flip_to_display_latency = {.refresh_rate_90hz = 1,
                                                       .refresh_rate_120hz = 1};
-        info->hmu_mount = 1;
+        info->hmu_mount = sensor.openxr ? sensor.hardware.mounted : 1;
+        if (sensor.openxr) info->device_info.panel_resolution = {
+            sensor.hardware.eye_width * 2, sensor.hardware.eye_height};
     }
     return ORBIS_OK;
 }
@@ -210,6 +234,8 @@ s32 PS4_SYSV_ABI sceHmdGetInertialSensorData(s32 handle, void* data, s32 unk) {
         return ORBIS_HMD_ERROR_HANDLE_INVALID;
     }
 
+    if (GuestVrSensor::Instance().Read().openxr)
+        return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
     if (GuestVrSensor::Instance().Read().enabled)
         return ORBIS_OK;
     return ORBIS_HMD_ERROR_DEVICE_DISCONNECTED;

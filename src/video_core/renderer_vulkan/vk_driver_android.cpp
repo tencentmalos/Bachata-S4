@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "video_core/renderer_vulkan/vk_driver.h"
+#include "turnip_identity.h"
 
 #include <array>
 #include <filesystem>
@@ -16,7 +17,7 @@ namespace Vulkan {
 namespace {
 constexpr auto DriverFile = "vulkan.ad07xx.so";
 constexpr auto DriverSha = "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09";
-constexpr auto MainlineDriverSha = "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1";
+constexpr auto MainlineDriverSha = TurnipBuild::Sha256;
 
 void SelectLoader(bool system) {
     static std::mutex mutex;

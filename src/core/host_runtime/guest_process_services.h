@@ -8,9 +8,23 @@
 #include "core/libraries/kernel/coredump/coredump_error.h"
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/process.h"
+#include "core/libraries/kernel/kernel.h"
 #include "core/module.h"
 
 namespace Core::HostRuntime {
+// Generate into native storage, then publish the complete 16-byte result through
+// a checked guest pin. No guest address is passed to the host UUID provider.
+inline u32 DispatchKernelUuidCreate(GuestCpu::GuestAddressSpace& space, u64 address) {
+    if (!address) return ORBIS_KERNEL_ERROR_EINVAL;
+    auto output = space.AcquireDataSpan({{address}, sizeof(Libraries::Kernel::OrbisKernelUuid)}, true);
+    if (!output) return ORBIS_KERNEL_ERROR_EFAULT;
+    Libraries::Kernel::OrbisKernelUuid uuid{};
+    const auto result = Libraries::Kernel::sceKernelUuidCreate(&uuid);
+    if (result) return result;
+    std::memcpy(output.Value().WritableBytes().data(), &uuid, sizeof(uuid));
+    return 0;
+}
+
 inline constexpr std::array<std::string_view, 4> CoredumpUnavailableNids{
     "8zLSfEfW5AU", "fFkhOgztiCA", "Uxqkdta7wEg", "Dbbkj6YHWdo"};
 

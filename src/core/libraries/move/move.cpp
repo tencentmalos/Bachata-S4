@@ -8,6 +8,7 @@
 #include <cmath>
 #include "core/libraries/error_codes.h"
 #include "core/host_runtime/guest_vr_sensor.h"
+#include "core/host_runtime/vr_geometry.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/move/move.h"
 #include "core/libraries/move/move_error.h"
@@ -18,6 +19,12 @@ namespace Libraries::Move {
 static bool g_library_initialized = false;
 static std::array<s32, 2> g_virtual_handles{-1, -1};
 static s32 g_next_handle = 0x30b0000;
+static std::atomic_bool g_xr_swap_hands{false};
+static bool g_active_swap_hands{};
+
+void SetXrSwapHands(bool swap) {
+    g_xr_swap_hands.store(swap, std::memory_order_relaxed);
+}
 
 constexpr u64 kPadTriangle = 0x1000;
 constexpr u64 kPadCircle = 0x2000;
@@ -27,11 +34,12 @@ constexpr u64 kPadSquare = 0x8000;
 enum class VirtualHand : u8 { Left = 0, Right = 1 };
 
 VirtualHand HandForHandle(s32 handle) {
-    return handle == g_virtual_handles[1] ? VirtualHand::Right : VirtualHand::Left;
+    const bool second = handle == g_virtual_handles[1];
+    return second != g_active_swap_hands ? VirtualHand::Right : VirtualHand::Left;
 }
 
 bool IsVirtualHandle(s32 handle) {
-    return handle == g_virtual_handles[0] || handle == g_virtual_handles[1];
+    return handle > 0 && (handle == g_virtual_handles[0] || handle == g_virtual_handles[1]);
 }
 
 u16 AxisToMove(u16 value) {
@@ -54,6 +62,18 @@ u16 FaceButtonsToMove(u64 buttons) {
 
 void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
     data = {};
+    const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
+    if (sensor.openxr) {
+        const auto& state = sensor.hardware.hands[static_cast<unsigned>(hand)];
+        data.button_data.button_data = FaceButtonsToMove(state.buttons);
+        data.button_data.trigger_data = static_cast<u16>(std::lround(state.trigger * 255.f));
+        // XrSpaceVelocity is expressed in LOCAL; a Move IMU reports body axes.
+        const auto gyro = Core::HostRuntime::VrGeometry::LocalAngularVelocity(state.grip);
+        std::copy(gyro.begin(), gyro.end(), data.gyro);
+        data.timestamp = sensor.timestamp_ns / 1000;
+        data.count = 1;
+        return;
+    }
     const auto input = Core::HostRuntime::GuestVrSensor::Instance().ReadMoveInput();
     const auto quantize = [](float value) {
         return static_cast<u64>(std::clamp<int>(
@@ -95,12 +115,22 @@ s32 PS4_SYSV_ABI sceMoveInit() {
     if (g_library_initialized) {
         return ORBIS_MOVE_ERROR_ALREADY_INIT;
     }
-    if (!VirtualSbsEnabled())
+    const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
+    g_active_swap_hands = sensor.openxr && g_xr_swap_hands.load(std::memory_order_relaxed);
+    if (sensor.openxr)
+        LOG_INFO(Lib_Move, "OpenXR Move order: index 0={}, index 1={} (pose/buttons/haptics)",
+                 g_active_swap_hands ? "right" : "left", g_active_swap_hands ? "left" : "right");
+    else if (!VirtualSbsEnabled())
         LOG_WARNING(Lib_Move, "Move controllers are not supported yet");
     else
         LOG_INFO(Lib_Move, "virtual SBS Move provider initialized (gyro only)");
     g_library_initialized = true;
     return ORBIS_OK;
+}
+
+int HandIndexForHandle(s32 handle) {
+    if (!IsVirtualHandle(handle)) return -1;
+    return static_cast<int>(HandForHandle(handle));
 }
 
 s32 PS4_SYSV_ABI sceMoveOpen(Libraries::UserService::OrbisUserServiceUserId user_id, s32 type,
@@ -112,11 +142,14 @@ s32 PS4_SYSV_ABI sceMoveOpen(Libraries::UserService::OrbisUserServiceUserId user
     // Keep desktop's stable synthetic-handle behavior.  In SBS, retain the
     // left/right identity so both Move records and tracker results line up.
     if (VirtualSbsEnabled()) {
+        if (index < 0 || index > 1) return ORBIS_MOVE_ERROR_INVALID_ARG;
         const int slot = index == 1 ? 1 : 0;
         if (g_virtual_handles[slot] >= 0)
             return ORBIS_MOVE_ERROR_ALREADY_OPENED;
         const s32 handle = ++g_next_handle;
         g_virtual_handles[slot] = handle;
+        LOG_INFO(Lib_Move, "Move open index={} handle={:#x} physical_hand={}", index, handle,
+                 HandForHandle(handle) == VirtualHand::Left ? "left" : "right");
         return handle;
     }
     return ++g_next_handle;
@@ -131,6 +164,7 @@ s32 PS4_SYSV_ABI sceMoveGetDeviceInfo(s32 handle, OrbisMoveDeviceInfo* info) {
         return ORBIS_MOVE_ERROR_INVALID_ARG;
     }
     if (VirtualSbsEnabled()) {
+        if (!IsVirtualHandle(handle)) return ORBIS_MOVE_ERROR_INVALID_HANDLE;
         *info = {};
         info->sphere_radius = 0.04f;
         return ORBIS_OK;
@@ -156,6 +190,9 @@ s32 PS4_SYSV_ABI sceMoveReadStateLatest(s32 handle, OrbisMoveData* data) {
                      handle, HandForHandle(handle) == VirtualHand::Left ? "left" : "right",
                      input.buttons, input.left_x, input.left_y, input.right_x, input.right_y);
         }
+        const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
+        if (sensor.openxr && !sensor.hardware.hands[static_cast<unsigned>(HandForHandle(handle))].active)
+            return ORBIS_MOVE_ERROR_NO_CONTROLLER_CONNECTED;
         FillVirtualState(*data, HandForHandle(handle));
         return ORBIS_OK;
     }
@@ -181,6 +218,9 @@ s32 PS4_SYSV_ABI sceMoveReadStateRecent(s32 handle, s64 timestamp, OrbisMoveData
                      handle, HandForHandle(handle) == VirtualHand::Left ? "left" : "right",
                      input.buttons, input.left_x, input.left_y, input.right_x, input.right_y);
         }
+        const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
+        if (sensor.openxr && !sensor.hardware.hands[static_cast<unsigned>(HandForHandle(handle))].active)
+            return ORBIS_MOVE_ERROR_NO_CONTROLLER_CONNECTED;
         FillVirtualState(*data, HandForHandle(handle));
         if (data->timestamp == 0)
             data->timestamp = timestamp;
@@ -210,6 +250,12 @@ s32 PS4_SYSV_ABI sceMoveSetVibration(s32 handle, u8 intensity) {
     LOG_TRACE(Lib_Move, "called");
     if (!g_library_initialized) {
         return ORBIS_MOVE_ERROR_NOT_INIT;
+    }
+    if (Core::HostRuntime::GuestVrSensor::Instance().Read().openxr) {
+        if (!IsVirtualHandle(handle)) return ORBIS_MOVE_ERROR_INVALID_HANDLE;
+        return Core::HostRuntime::GuestVrSensor::Instance().RequestHaptic(
+            static_cast<unsigned>(HandForHandle(handle)), intensity / 255.f)
+            ? ORBIS_OK : ORBIS_MOVE_ERROR_NO_CONTROLLER_CONNECTED;
     }
     if (VirtualSbsEnabled())
         return ORBIS_OK;
@@ -256,6 +302,7 @@ s32 PS4_SYSV_ABI sceMoveTerm() {
     }
     g_library_initialized = false;
     g_virtual_handles = {-1, -1};
+    g_active_swap_hands = false;
     return ORBIS_OK;
 }
 

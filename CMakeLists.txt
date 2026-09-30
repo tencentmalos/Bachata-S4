@@ -998,8 +998,6 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/debugger.cpp
          src/core/debugger.h
          src/core/diagnostics/diagnostics_hub.cpp
-         src/core/diagnostics/host_battery.cpp
-         src/core/diagnostics/host_battery.h
          src/core/diagnostics/pipeline_handoff.cpp
          src/core/diagnostics/diagnostics_hub.h
          src/core/diagnostics/diagnostics_hub_registry.cpp
@@ -1245,6 +1243,7 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/renderer_vulkan/swapchain_acquire.h
                src/video_core/renderer_vulkan/host_passes/fsr_pass.cpp
                src/video_core/renderer_vulkan/host_passes/fsr_pass.h
+               src/video_core/renderer_vulkan/host_passes/spatial_upscale.cpp
                src/video_core/renderer_vulkan/host_passes/pp_pass.cpp
                src/video_core/renderer_vulkan/host_passes/pp_pass.h
                src/video_core/texture_cache/blit_helper.cpp
@@ -1454,6 +1453,51 @@ if(BUILD_HOST_CORE)
     # OBJECT library needs PIC so the final SHARED .so can embed it.
     set_target_properties(shadps4 PROPERTIES POSITION_INDEPENDENT_CODE ON)
     add_library(shadps4_host_objects ALIAS shadps4)
+    if(ANDROID)
+        # Same XR ImGui swapchain renderer used by Azahar. Keep its Vulkan-Hpp
+        # exception policy separate from shadPS4's no-exceptions wrapper.
+        add_library(shadps4_xr_imgui STATIC
+            foundation/modules/xr/src/XrImguiVulkanLayer.cpp
+            foundation/modules/xr/src/VulkanOffscreenImages.cpp
+            foundation/modules/xr/src/XrMath.cpp
+            foundation/third_party/imgui/backends/imgui_impl_vulkan.cpp)
+        target_include_directories(shadps4_xr_imgui PUBLIC
+            foundation/modules/xr/include foundation/third_party/openxr/openxr_header
+            PRIVATE src foundation/third_party/imgui/backends foundation/basic/modules/implements/profiler/public)
+        target_link_libraries(shadps4_xr_imgui PRIVATE Dear_ImGui shadps4::foundation)
+        target_compile_definitions(shadps4_xr_imgui PRIVATE
+            IMGUI_USER_CONFIG="${PROJECT_SOURCE_DIR}/src/imgui/imgui_config.h"
+            IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
+        target_compile_options(shadps4_xr_imgui PRIVATE
+            -include "${PROJECT_SOURCE_DIR}/src/common/foundation_profiler_scope.h")
+        target_compile_features(shadps4_xr_imgui PRIVATE cxx_std_20)
+        set_target_properties(shadps4_xr_imgui PROPERTIES UNITY_BUILD OFF)
+        target_link_libraries(shadps4 PRIVATE shadps4_xr_imgui)
+        add_library(shadps4_xr_status STATIC
+            src/video_core/renderer_vulkan/openxr/status_scene.cpp)
+        target_link_libraries(shadps4_xr_status PUBLIC shadps4_xr_scene
+            spatial::foundation_imgui_overlay PRIVATE spatial::foundation_platform)
+        target_include_directories(shadps4_xr_status PRIVATE foundation/third_party/imgui)
+        target_compile_features(shadps4_xr_status PRIVATE cxx_std_20)
+        set_target_properties(shadps4_xr_status PROPERTIES UNITY_BUILD OFF)
+        target_link_libraries(shadps4 PRIVATE shadps4_xr_status)
+        target_sources(shadps4 PRIVATE
+            src/video_core/renderer_vulkan/openxr/runtime.cpp
+            src/video_core/renderer_vulkan/openxr/status_panel.cpp
+            src/video_core/renderer_vulkan/openxr/error_panel.cpp
+            foundation/modules/xr/src/XrInputSystem.cpp
+            foundation/modules/xr/src/XrEyeGazeTracker.cpp
+            foundation/modules/xr/src/InputActions.cpp
+            foundation/modules/xr/src/InputBindings.cpp
+            foundation/modules/xr/src/ControllerSnapshot.cpp)
+        target_include_directories(shadps4 PRIVATE
+            foundation/modules/xr/include foundation/third_party/openxr/openxr_header)
+        set_source_files_properties(src/video_core/renderer_vulkan/openxr/runtime.cpp
+            src/video_core/renderer_vulkan/openxr/status_panel.cpp
+            src/video_core/renderer_vulkan/openxr/error_panel.cpp
+            src/core/emulator_settings.cpp
+            PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+    endif()
     target_sources(shadps4 PRIVATE src/frontend/android_window.cpp
         src/core/host_runtime/application_control.cpp)
 else()
@@ -1732,6 +1776,16 @@ if(BUILD_HOST_CORE)
     # compiled by the NDK clang's x86 backend and embedded into the host DSO
     # (guest/runtime/sync, src/core/host_runtime/guest_sync_abi.h).
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(SHADPS4_TURNIP_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/turnip-source")
+    add_custom_target(shadps4_turnip_source
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-turnip-source"
+            build --ndk "${CMAKE_ANDROID_NDK}" --out "${SHADPS4_TURNIP_OUTPUT}"
+        BYPRODUCTS "${SHADPS4_TURNIP_OUTPUT}/turnip_identity.h"
+                   "${SHADPS4_TURNIP_OUTPUT}/identity.json"
+                   "${SHADPS4_TURNIP_OUTPUT}/vulkan.ad07xx.so"
+        VERBATIM)
+    add_dependencies(shadps4 shadps4_turnip_source)
+    target_include_directories(shadps4 PRIVATE "${SHADPS4_TURNIP_OUTPUT}")
     set(GUEST_SYNC_PAYLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/guest-sync-payload")
     add_custom_command(OUTPUT "${GUEST_SYNC_PAYLOAD_DIR}/guest_sync_payload.h"
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-guest-payload"
@@ -1784,6 +1838,11 @@ if(BUILD_HOST_CORE)
     add_library(shadps4_host_dependencies INTERFACE)
     target_link_libraries(shadps4_host_dependencies INTERFACE ${host_dependencies})
     add_library(shadps4_host SHARED $<TARGET_OBJECTS:shadps4>)
+    add_custom_command(TARGET shadps4_host POST_BUILD
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-turnip-source"
+            bind-host --built "${SHADPS4_TURNIP_OUTPUT}" --out "${SHADPS4_TURNIP_OUTPUT}"
+            --host "$<TARGET_FILE:shadps4_host>"
+        VERBATIM)
     target_link_libraries(shadps4_host PRIVATE shadps4_host_dependencies)
     add_dependencies(shadps4_host host_shaders ImGui_Resources)
     # linkernsbypass declares data pointers named like Android linker functions.
@@ -1794,9 +1853,11 @@ if(BUILD_HOST_CORE)
     # The APK and load audit consume the real host DSO and the exact header
     # environment of this target, without duplicating host source/archive lists.
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shadps4-host-loader.cmake"
-        CONTENT "set(SHADPS4_HOST_GPU_RESHAPE_LIBRARY [==[${SHADPS4_GPU_RESHAPE_LIBRARY}]==])\nset(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==[$<TARGET_FILE:hook_impl>;$<TARGET_FILE:main_hook>;$<TARGET_FILE:file_redirect_hook>;$<TARGET_FILE:gsl_alloc_hook>]==])\nset(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
+        CONTENT "set(SHADPS4_HOST_TURNIP_OUTPUT [==[${SHADPS4_TURNIP_OUTPUT}]==])\nset(SHADPS4_HOST_GPU_RESHAPE_LIBRARY [==[${SHADPS4_GPU_RESHAPE_LIBRARY}]==])\nset(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==[$<TARGET_FILE:hook_impl>;$<TARGET_FILE:main_hook>;$<TARGET_FILE:file_redirect_hook>;$<TARGET_FILE:gsl_alloc_hook>]==])\nset(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
     option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
     if(HOST_BUILD_PROBES)
+        add_executable(plt_import_tests tests/host_runtime/plt_import_tests.cpp)
+        target_include_directories(plt_import_tests PRIVATE src)
         add_executable(submission_worker_tests tests/host_runtime/submission_worker_tests.cpp)
         target_include_directories(submission_worker_tests PRIVATE src)
         add_executable(android_submission_probe tests/video_core/android_submission_probe.cpp)
@@ -1842,6 +1903,17 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_internal_scale_probe PRIVATE shadps4_host)
         target_include_directories(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_library(foundation_upscale_device_tests STATIC foundation/modules/upscale/tests/VulkanUpscalerDeviceTests.cpp)
+        target_link_libraries(foundation_upscale_device_tests PUBLIC spatial::foundation_upscale)
+        set_target_properties(foundation_upscale_device_tests PROPERTIES UNITY_BUILD OFF)
+        add_executable(android_foveation_probe foundation/modules/foveation/tests/FoveationTests.cpp)
+        target_link_libraries(android_foveation_probe PRIVATE shadps4_host)
+        target_include_directories(android_foveation_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_foveation_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_upscale_probe tests/video_core/android_upscale_probe.cpp)
+        target_link_libraries(android_upscale_probe PRIVATE shadps4_host foundation_upscale_device_tests)
+        target_include_directories(android_upscale_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_upscale_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(android_sbs_compositor_probe tests/video_core/android_sbs_compositor_probe.cpp)
         add_executable(android_msaa_image_probe tests/video_core/android_msaa_image_probe.cpp)
         target_link_libraries(android_msaa_image_probe PRIVATE shadps4_host)
@@ -1905,6 +1977,13 @@ if(BUILD_HOST_CORE)
         add_executable(guest_vr_abi_tests tests/host_runtime/guest_vr_abi_tests.cpp)
         target_include_directories(guest_vr_abi_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_vr_abi_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(openxr_input_tests tests/host_runtime/openxr_input_tests.cpp
+            foundation/modules/xr/src/XrInputSystem.cpp
+            foundation/modules/xr/src/ControllerSnapshot.cpp
+            foundation/modules/xr/src/InputActions.cpp
+            foundation/modules/xr/src/InputBindings.cpp)
+        target_include_directories(openxr_input_tests PRIVATE src
+            foundation/modules/xr/include foundation/third_party/openxr/openxr_header)
         add_executable(guest_vr_sensor_tests tests/host_runtime/guest_vr_sensor_tests.cpp
             src/core/host_runtime/guest_vr_sensor.cpp)
         target_include_directories(guest_vr_sensor_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1957,6 +2036,10 @@ if(BUILD_HOST_CORE)
         target_compile_definitions(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_np_tests tests/host_runtime/guest_np_tests.cpp)
         add_executable(guest_reprojection_tests tests/host_runtime/guest_reprojection_tests.cpp)
+        add_executable(openxr_pose_tests tests/host_runtime/openxr_pose_tests.cpp)
+        target_link_libraries(openxr_pose_tests PRIVATE shadps4_host)
+        target_include_directories(openxr_pose_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(openxr_pose_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         target_link_libraries(guest_reprojection_tests PRIVATE shadps4_host)
         target_include_directories(guest_reprojection_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_reprojection_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)

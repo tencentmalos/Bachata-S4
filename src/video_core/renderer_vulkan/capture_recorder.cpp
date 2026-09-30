@@ -44,6 +44,41 @@ std::string ResultString(vk::Result result) {
 }
 }  // namespace
 
+scrcpy::capture::SnapshotSession& EmbeddedScreenshots() {
+    static scrcpy::capture::SnapshotSession session;
+    return session;
+}
+
+std::string HandleEmbeddedScreenshotCommand(const std::vector<std::string>& args, u64 generation) {
+    if (args.size() != 2 || !scrcpy::capture::SnapshotSession::ValidToken(args[1]))
+        return "status: bad-arguments\nusage: capture_screenshot request|status|cancel TOKEN\n";
+    auto& session = EmbeddedScreenshots();
+    if (args[0] == "request") {
+        if (!generation) return "status: failed\nerror: no active game session\n";
+        const auto path = Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) /
+                          ("snapshot-" + args[1] + ".png");
+        const auto error = session.Request({args[1], path.string(), generation});
+        if (!error.empty()) return "status: rejected\nerror: " + error + "\n";
+    } else if (args[0] == "cancel") {
+        session.Cancel(args[1]);
+    } else if (args[0] != "status") {
+        return "status: bad-arguments\n";
+    }
+    const auto state = session.Status();
+    if (state.request.token != args[1]) return "status: unknown-request\n";
+    std::ostringstream out;
+    out << "status: " << state.phase << '\n'
+        << "request_id: " << state.request.token << '\n'
+        << "generation: " << state.request.generation << '\n'
+        << "source: shadps4.final_render_target\nview: canvas\nencoding: png\n"
+        << "width: " << state.width << "\nheight: " << state.height << '\n'
+        << "producer_frame: " << state.producer_frame << '\n'
+        << "recorded_monotonic_ns: " << state.recorded_ns << '\n';
+    if (state.phase == "ready") out << "file: " << state.request.path << '\n';
+    if (!state.error.empty()) out << "error: " << state.error << '\n';
+    return out.str();
+}
+
 std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args) {
     auto& state = Control();
     std::scoped_lock lock(state.mutex);

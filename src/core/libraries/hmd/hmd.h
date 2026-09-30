@@ -133,6 +133,21 @@ struct OrbisHmdReprojectionSubmission {
     u64 reserved28[5];
 };
 
+// Firmware 11.00 +0x9834..0x9865 copies position[3], quaternion XYZW
+// at +0x0c, two opaque timestamps at +0x20, and a word at +0x30.
+// Beat Saber queues this record with its rendered textures, independently of
+// subsequent tracker queries. Do not replace it with a display-time head pose.
+struct OrbisHmdReprojectionTrackerState {
+    float position[3];
+    float orientation[4];
+    u32 opaque1c;
+    u64 opaque20, opaque28;
+    u32 opaque30, opaque34;
+};
+static_assert(sizeof(OrbisHmdReprojectionTrackerState) == 0x38);
+static_assert(offsetof(OrbisHmdReprojectionTrackerState, orientation) == 0x0c);
+static_assert(offsetof(OrbisHmdReprojectionTrackerState, opaque20) == 0x20);
+
 // Firmware 11.00: +0x161e0, +0x16c90 and +0x17690. Numeric addresses
 // reference 32-byte texture descriptors and a 16-byte GNM sampler.
 struct OrbisHmdReprojectionStartParam {

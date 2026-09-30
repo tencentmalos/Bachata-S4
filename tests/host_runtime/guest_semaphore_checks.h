@@ -45,4 +45,26 @@ static void CheckGuestSemaphores() {
     CHECK(sem.Post(base) == POSIX_EINVAL);
     CHECK(sem.Destroy(base) == POSIX_EINVAL);
     CHECK(sem.Destroy(base + 8) == 0);
+    // Repeated init/destroy must not exhaust a lifetime counter. Keep an alias
+    // to the retired token to ensure recycling the slot does not revive it.
+    CHECK(sem.Init(base, 0, 1) == 0);
+    u64 retired{};
+    CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{&retired, 1})));
+    CHECK(space->WriteData({base + 16}, std::as_bytes(std::span{&retired, 1})));
+    CHECK(sem.Destroy(base) == 0);
+    for (unsigned i = 0; i < 10000; ++i) {
+        const int initialized = sem.Init(base, 0, 1);
+        CHECK(initialized == 0);
+        if (initialized) break; // Old implementation fails after 4096 total creates.
+        CHECK(sem.Wait(base, true, {}) == 0);
+        CHECK(sem.Destroy(base) == 0);
+    }
+    CHECK(sem.Post(base + 16) == POSIX_EINVAL);
+    // A genuine allocation failure leaves the caller's original bytes intact.
+    GuestSemaphoreDomain exhausted(*space, [] { return u64{0}; });
+    CHECK(exhausted.Init(base + 16, 0, 0) == POSIX_ENOMEM);
+    u64 unchanged{};
+    CHECK(space->ReadData({base + 16}, std::as_writable_bytes(std::span{&unchanged, 1})));
+    CHECK(unchanged == retired);
+
 }

@@ -21,7 +21,6 @@ import kotlin.concurrent.thread
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import com.shadps4.android.runtime.session.AndroidTurnip
-import com.shadps4.android.runtime.session.HostBattery
 import com.shadps4.android.runtime.session.RuntimeSurface
 
 /**
@@ -44,7 +43,6 @@ class FexSessionService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var startJob: Job? = null
     private var surfaceJob: Job? = null
-    private var batteryJob: Job? = null
     @Volatile private var observer: Thread? = null
     // Set when a stop was requested for the live generation. Distinguishes "the
     // game is still running normally" (a WaitTerminal timeout is NOT a failure)
@@ -91,7 +89,7 @@ class FexSessionService : Service() {
             var boundSurface: RuntimeSurface? = null
             val gameId = intent.getStringExtra(ManagedSession.EXTRA_GAME_ID) ?: "smoke"
 
-            if (!com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(java.io.File(filesDir,"host").absolutePath)) {
+            if (!com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(java.io.File(filesDir,"host").absolutePath, applicationContext)) {
                 Log.e(TAG,"Host paths failed to initialize")
                 return@launch
             }
@@ -115,14 +113,18 @@ class FexSessionService : Service() {
                 Log.w(TAG, "Invalid shading profile, using high quality", it)
                 2
             }
+            // Activity routing has already selected XR, including forced PSVR launches.
+            // Keep its scale separate from the ordinary 2D profile.
+            val xrConfigured = com.shadps4.android.runtime.input.NativePad.nativeIsOpenXrConfigured()
             val internalScale = runCatching {
                 com.shadps4.android.runtime.settings.InternalScale.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                    xr = xrConfigured,
                 )
             }.getOrElse {
-                Log.w(TAG, "Invalid internal scale profile, using default 0.5", it)
-                com.shadps4.android.runtime.settings.InternalScale.DEFAULT_PERCENT
+                Log.w(TAG, "Invalid internal scale profile, using display-mode default (XR=$xrConfigured)", it)
+                com.shadps4.android.runtime.settings.InternalScale.defaultPercent(xrConfigured)
             }
             val textureQuality = runCatching {
                 com.shadps4.android.runtime.settings.TextureQuality.resolve(
@@ -155,6 +157,30 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetMsaaDisabled(disableMsaa)
             Log.i(TAG, "Guest force disable MSAA=$disableMsaa")
+            val xrRendering = runCatching {
+                com.shadps4.android.runtime.settings.XrRendering.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                    xrConfigured,
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid XR rendering profile, keeping bilinear/full rate", it)
+                com.shadps4.android.runtime.settings.XrRendering.Options(upscaler = 0, foveation = 0)
+            }
+            NativeFexSession.nativeSetXrRendering(xrRendering.upscaler, xrRendering.foveation,
+                xrRendering.level, xrRendering.sharpness, xrRendering.outputResolution)
+            Log.i(TAG, "XR rendering=$xrRendering")
+            val swapMoveHands = runCatching {
+                com.shadps4.android.runtime.settings.XrMoveHands.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid XR Move hand order, preserving default order", it)
+                false
+            }
+            NativeFexSession.nativeSetXrSwapMoveHands(swapMoveHands)
+            Log.i(TAG, "Guest XR swap Move hands=$swapMoveHands")
             val pipelineCache = runCatching {
                 com.shadps4.android.runtime.settings.PipelineCache.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
@@ -200,7 +226,7 @@ class FexSessionService : Service() {
             NativeFexSession.nativeSetTextureQuality(textureQuality)
             Log.i(TAG, "Guest texture quality=$textureQuality")
             NativeFexSession.nativeSetInternalScalePercent(internalScale)
-            Log.i(TAG, "Guest internal scale=$internalScale percent")
+            Log.i(TAG, "Guest internal scale=$internalScale percent XR=$xrConfigured")
             NativeFexSession.nativeSetGuestShadingQuality(shadingQuality)
             Log.i(TAG, "Guest shading quality=$shadingQuality; FDM disabled")
             val relativePath = intent.getStringExtra(ManagedSession.EXTRA_GAME_PATH)
@@ -218,6 +244,23 @@ class FexSessionService : Service() {
                 }.getOrElse {
                     Log.e(TAG, "Invalid installed game path", it)
                     if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
+                    return@launch
+                }
+                try {
+                    val decision = withContext(Dispatchers.IO) {
+                        com.shadps4.android.data.GameDisplayMode.resolve(filesDir, runtimeProfiles, gameId, relativePath)
+                    }
+                    val xr = decision.effective == com.shadps4.android.runtime.settings.DisplayMode.Mode.XR
+                    check(xr == com.shadps4.android.runtime.input.NativePad.nativeIsOpenXrConfigured()) {
+                        "Display mode changed. Return to the library and launch again. PSVR requires XR."
+                    }
+                    NativeFexSession.nativeSetXrStatus(if (xr) xrRendering.statusLayer else 2, decision.forcedByPsvr)
+                } catch (e: CancellationException) { throw e }
+                catch (e: Exception) {
+                    ManagedSession.update(ManagedSessionState.Failed(
+                        com.shadps4.android.model.RuntimeErrorCode.CONTENT_INVALID,
+                        e.message ?: "Cannot select display mode"))
+                    stopSelf(startId)
                     return@launch
                 }
                 val paths = try {
@@ -271,24 +314,6 @@ class FexSessionService : Service() {
                         throw e
                     } catch (e: Exception) {
                         Log.w(TAG, "Could not record launch history", e)
-                    }
-                }
-            }
-            batteryJob?.cancel()
-            if (admitted) {
-                // Battery rows of the status HUD: the host cannot read power_supply on every
-                // device, so publish BatteryManager values once a second for this generation.
-                batteryJob = serviceScope.launch(Dispatchers.Default) {
-                    while (isActive && NativeFexSession.nativeCurrentGeneration() == generation) {
-                        try {
-                            HostBattery.publish(applicationContext)
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Battery reading unavailable", e)
-                            break
-                        }
-                        delay(1000L)
                     }
                 }
             }
@@ -367,7 +392,6 @@ class FexSessionService : Service() {
     private fun handleStop() {
         startJob?.cancel()
         surfaceJob?.cancel()
-        batteryJob?.cancel()
         val generation = NativeFexSession.nativeCurrentGeneration()
         if (generation == 0L) { stopSelf(); return }
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))

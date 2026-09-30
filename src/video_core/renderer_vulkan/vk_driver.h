@@ -7,7 +7,7 @@
 
 namespace Vulkan {
 // The loader and its namespace outlive every instance/device using this entry.
-// Android has no implicit system-driver fallback.
+// Loader selection is made before initialization; there is no load-failure fallback.
 struct Driver final {
     PFN_vkGetInstanceProcAddr entry{};
     std::string identity;
