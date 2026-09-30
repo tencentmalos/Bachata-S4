@@ -100,11 +100,11 @@ bool IsExecuteError(void* ctx) {
     // Access violation information[0]: 0 read, 1 write, 8 DEP (execute).
     return ((EXCEPTION_POINTERS*)ctx)->ExceptionRecord->ExceptionInformation[0] == 8;
 #elif defined(__APPLE__) && defined(ARCH_X86_64)
-    return ((ucontext_t*)ctx)->uc_mcontext->__es.__err & 0x16;
+    return ((ucontext_t*)ctx)->uc_mcontext->__es.__err & 0x10;
 #elif defined(__FreeBSD__) && defined(ARCH_X86_64)
-    return ((ucontext_t*)ctx)->uc_mcontext.mc_err & 0x16;
+    return ((ucontext_t*)ctx)->uc_mcontext.mc_err & 0x10;
 #elif defined(ARCH_X86_64)
-    return ((ucontext_t*)ctx)->uc_mcontext.gregs[REG_ERR] & 0x16;
+    return ((ucontext_t*)ctx)->uc_mcontext.gregs[REG_ERR] & 0x10;
 #elif defined(__APPLE__) && defined(ARCH_ARM64)
     // Exception class 0x20/0x21: instruction abort from a lower/the same exception level.
     const u64 ec = (((ucontext_t*)ctx)->uc_mcontext->__es.__esr >> 26) & 0x3f;
