@@ -181,7 +181,8 @@ SharpLocation SharpLocationFromSource(const IR::Inst* inst) {
 
 template <typename T>
 SharpFetch<T> ConstructSharpFetch(const SharpReference& sharp) {
-    SharpFetch<T> sharp_fetch{};
+    using Fetch = SharpFetch<T>;
+    Fetch sharp_fetch{};
     for (u32 i = 0; i < sharp.num_dwords; i++) {
         auto dword = sharp.dwords[i];
         if (dword.IsImmediate()) {
@@ -191,6 +192,19 @@ SharpFetch<T> ConstructSharpFetch(const SharpReference& sharp) {
             sharp_fetch.load_mask |= (1 << i);
         }
     }
+    // A single copy is only equivalent when every dword of T comes from the flat buffer: an
+    // immediate dword, or a sharp shorter than T (a 128-bit T#), must keep its own value.
+    constexpr u32 full_mask = (1u << Fetch::N) - 1;
+    if (sharp.num_dwords != Fetch::N || sharp_fetch.load_mask != full_mask) {
+        return sharp_fetch;
+    }
+    for (u32 i = 0; i < Fetch::N; i++) {
+        if (sharp_fetch.offsets[i] == UNKNOWN_LOCATION ||
+            u32(sharp_fetch.offsets[i]) != u32(sharp_fetch.offsets[0]) + i) {
+            return sharp_fetch;
+        }
+    }
+    sharp_fetch.summary = Fetch::Summary::SingleLoad;
     return sharp_fetch;
 }
 
