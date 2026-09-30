@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <array>
 #include <mutex>
 #include <span>
 #include <type_traits>
@@ -449,23 +450,58 @@ void DefineEntryPoint(const Info& info, EmitContext& ctx, Id main) {
     ctx.AddEntryPoint(execution_model, main, "main", interfaces);
 }
 
+// Applies one guest FLOAT_MODE denorm field to the floating-point type of the given width.
+// SPIR-V can only flush or preserve both inputs and outputs; the driver default is kept when
+// the host cannot express the mode.
+static void SetupDenormMode(EmitContext& ctx, Id main_func, AmdGpu::FpDenormMode mode, u32 width,
+                            bool supports_flush, bool supports_preserve) {
+    const u32 type = width == 16 ? 0 : width == 32 ? 1 : 2;
+    const auto warn_once = [&](u32 kind, auto&& message) {
+        static std::array<std::once_flag, 9> logged;
+        std::call_once(logged[type * 3 + kind], message);
+    };
+    switch (mode) {
+    case AmdGpu::FpDenormMode::InOutFlush:
+        if (supports_flush) {
+            ctx.AddCapability(spv::Capability::DenormFlushToZero);
+            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormFlushToZero, width);
+        } else {
+            warn_once(0, [width] {
+                LOG_WARNING(Render_Vulkan, "Float{} denorm flushing is not supported by the GPU",
+                            width);
+            });
+        }
+        break;
+    case AmdGpu::FpDenormMode::InOutAllow:
+        if (supports_preserve) {
+            ctx.AddCapability(spv::Capability::DenormPreserve);
+            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormPreserve, width);
+        } else {
+            warn_once(1, [width] {
+                LOG_WARNING(Render_Vulkan,
+                            "Float{} denorm preserving is not supported by the GPU", width);
+            });
+        }
+        break;
+    default:
+        warn_once(2, [width, mode] {
+            LOG_WARNING(Render_Vulkan,
+                        "Float{} denorm mode {} flushes only inputs or only outputs, which "
+                        "SPIR-V cannot express; using the driver default",
+                        width, magic_enum::enum_name(mode));
+        });
+        break;
+    }
+}
+
 void SetupDenormFlushMode(EmitContext& ctx, const Profile& profile, const RuntimeInfo& runtime_info,
                           Id main_func) {
     const auto fp32_denorm_mode = runtime_info.props.fp_denorm_mode32;
-    if (fp32_denorm_mode == AmdGpu::FpDenormMode::InOutFlush) {
-        if (profile.support_fp32_denorm_flush) {
-            ctx.AddCapability(spv::Capability::DenormFlushToZero);
-            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormFlushToZero, 32U);
-        } else {
-            static std::once_flag logged;
-            std::call_once(logged, [] {
-                LOG_WARNING(Render_Vulkan, "Float32 denorm flushing is not supported by the GPU");
-            });
-        }
-    } else {
-        LOG_WARNING(Render_Vulkan, "Unknown FP denorm mode {}", u32(fp32_denorm_mode));
-    }
+    SetupDenormMode(ctx, main_func, fp32_denorm_mode, 32, profile.support_fp32_denorm_flush,
+                    profile.support_fp32_denorm_preserve);
 
+    // The Float16/64 field only matters for the types the shader uses. Without host Float64
+    // support those operations were lowered to Float32 and follow its mode instead.
     if (!ctx.info.uses_fp16 && !ctx.info.uses_fp64) {
         return;
     }
@@ -481,46 +517,13 @@ void SetupDenormFlushMode(EmitContext& ctx, const Profile& profile, const Runtim
         return;
     }
 
-    if (fp16_64_denorm_mode == AmdGpu::FpDenormMode::InOutFlush) {
-        if (profile.support_fp16_denorm_flush) {
-            ctx.AddCapability(spv::Capability::DenormFlushToZero);
-            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormFlushToZero, 16U);
-        } else {
-            static std::once_flag logged;
-            std::call_once(logged, [] {
-                LOG_WARNING(Render_Vulkan, "Float16 denorm flushing is not supported by the GPU");
-            });
-        }
-        if (profile.support_fp64_denorm_flush) {
-            ctx.AddCapability(spv::Capability::DenormFlushToZero);
-            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormFlushToZero, 64U);
-        } else {
-            static std::once_flag logged;
-            std::call_once(logged, [] {
-                LOG_WARNING(Render_Vulkan, "Float64 denorm flushing is not supported by the GPU");
-            });
-        }
-    } else if (fp16_64_denorm_mode == AmdGpu::FpDenormMode::InOutAllow) {
-        if (profile.support_fp16_denorm_preserve) {
-            ctx.AddCapability(spv::Capability::DenormPreserve);
-            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormPreserve, 16U);
-        } else {
-            static std::once_flag logged;
-            std::call_once(logged, [] {
-                LOG_WARNING(Render_Vulkan, "Float16 denorm preserving is not supported by the GPU");
-            });
-        }
-        if (profile.support_fp64_denorm_preserve) {
-            ctx.AddCapability(spv::Capability::DenormPreserve);
-            ctx.AddExecutionMode(main_func, spv::ExecutionMode::DenormPreserve, 64U);
-        } else {
-            static std::once_flag logged;
-            std::call_once(logged, [] {
-                LOG_WARNING(Render_Vulkan, "Float64 denorm preserving is not supported by the GPU");
-            });
-        }
-    } else {
-        LOG_WARNING(Render_Vulkan, "Unknown Float16/64 denorm mode {}", u32(fp16_64_denorm_mode));
+    if (ctx.info.uses_fp16) {
+        SetupDenormMode(ctx, main_func, fp16_64_denorm_mode, 16, profile.support_fp16_denorm_flush,
+                        profile.support_fp16_denorm_preserve);
+    }
+    if (ctx.info.uses_fp64) {
+        SetupDenormMode(ctx, main_func, fp16_64_denorm_mode, 64, profile.support_fp64_denorm_flush,
+                        profile.support_fp64_denorm_preserve);
     }
 }
 

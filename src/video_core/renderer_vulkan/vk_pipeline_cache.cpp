@@ -355,7 +355,10 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .support_fp16_denorm_preserve = bool(vk12_props.shaderDenormPreserveFloat16),
         .support_fp16_denorm_flush = bool(vk12_props.shaderDenormFlushToZeroFloat16),
         .support_fp16_round_to_zero = bool(vk12_props.shaderRoundingModeRTZFloat16),
-        .support_fp32_denorm_preserve = bool(vk12_props.shaderDenormPreserveFloat32),
+        // Not validated on the driver whose FP32 float controls are known to miscompile:
+        // keep its default there, as for FTZ.
+        .support_fp32_denorm_preserve =
+            bool(vk12_props.shaderDenormPreserveFloat32) && !broken_fp32_denorm_flush,
         .support_fp32_denorm_flush =
             bool(vk12_props.shaderDenormFlushToZeroFloat32) && !broken_fp32_denorm_flush,
         .support_fp32_round_to_zero = bool(vk12_props.shaderRoundingModeRTZFloat32),

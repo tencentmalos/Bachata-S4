@@ -21,7 +21,7 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 26u; // upstream 0930 sync: 1D/cube lowering, F64 ops
+static constexpr u32 ShaderBinaryVersion = 27u; // per-type Float16/64 and Float32 preserve denorm modes
 #ifdef ARCH_X86_64
 static constexpr u32 ShaderMetaVersion = 15u; // sharp fetch summary, no is_cube
 #else
