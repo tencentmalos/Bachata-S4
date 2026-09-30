@@ -1,0 +1,26 @@
+{
+  "app": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "core/data": {
+    "tests": 82,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "core/runtime": {
+    "tests": 140,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "feature/library": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

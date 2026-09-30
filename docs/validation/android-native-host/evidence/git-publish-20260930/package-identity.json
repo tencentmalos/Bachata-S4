@@ -1,0 +1,10 @@
+{
+  "source_commit": "c74a08ec65ab2001fa7474014eb4c23a7902a577",
+  "apk_sha256": "f9f9ed99c3dd4206dc912cf58b534e95cf38afb2d4d886c37469c65fedcf82d5",
+  "host_sha256": "2c2c0c9e580bbc5cf7a821f9e71c85ad89bfa9ade8c1e46c1c65b22022bda619",
+  "turnip_sha256": "ff4464820fdd43824bb057e631d8393ad14ade7a901aa5a2fdcbcee4b1a6b31a",
+  "turnip_source_commit": "351a4847a04dbcc9e18de3b609adacae6d3c796a",
+  "turnip_source_dirty": false,
+  "apk_host_driver_binding": "PASS",
+  "installed": false
+}
