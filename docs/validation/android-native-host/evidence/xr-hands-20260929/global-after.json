@@ -1,0 +1,14 @@
+{
+    "schemaVersion": 1,
+    "values": {
+        "general.console_language": "简体中文",
+        "gpu.internal_scale": "0.5",
+        "gpu.texture_quality": "medium"
+    },
+    "unknownShadPs4": {},
+    "guestBackend": null,
+    "driverId": null,
+    "maliGpuOptimizations": null,
+    "controllerSlots": [],
+    "touchLayoutId": null
+}

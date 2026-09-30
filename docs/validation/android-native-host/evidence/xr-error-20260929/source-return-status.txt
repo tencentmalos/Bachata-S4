@@ -1,0 +1,3 @@
+TASK 10152:com.shadps4.android id=267 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.MainActivity b7ac20e pid=12099 userId=0 uid=10152 displayId=0(type=INTERNAL)
+XR error panel inactive

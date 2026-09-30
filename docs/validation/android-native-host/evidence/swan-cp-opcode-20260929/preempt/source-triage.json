@@ -1,0 +1,17 @@
+{
+  "KMD_build_id": "37b31e3606d5e5827de3cb5154312f44d6827c95",
+  "source_evidence": "semantic_only_target_build_unverified",
+  "reference_clean_head": "cd8a361e34bbd7e0bbe0eac9bdf3098234bec32d",
+  "clean_blob_sha256": {
+    "adreno_hfi.h": "4d720f71de23fa6e1301520425408314a2b2b7389ca1c38c3f59c68a1164e834",
+    "adreno_gen8_hwsched_hfi.c": "a4ea163b80ea2b7c2ba4071ac9ff1da5a8bf56acc9f633359b6e92ef40e9d83d",
+    "adreno_drawctxt.c": "63049dc8695ccae8c2a12393b4c2112b51093c7f4602c4b4c605eebb3eaae0a7"
+  },
+  "findings": [
+    "UAPI and HFI preemption style mask both bits 25..27, values 0/1/2",
+    "No evidence that KGSL requested/returned style1 removes observed preemptions",
+    "Static affected draws in devcd13/14 are DIRECT_RENDER; not a demonstrated bin-restore defect",
+    "Current tu_emit_cache_flush already emits WFI before CP_CCHE_INVALIDATE"
+  ],
+  "candidate": "Explicit style2 request only, default off; hardware semantics unverified"
+}

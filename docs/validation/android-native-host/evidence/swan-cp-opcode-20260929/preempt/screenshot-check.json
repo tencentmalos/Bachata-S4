@@ -1,0 +1,326 @@
+{
+  "total_successful_captures": 21,
+  "counts": {
+    "b1-rb-cold": 9,
+    "a1-default-cold": 7,
+    "b2-rb-cold": 5
+  },
+  "scope": "Only completed encoded captures; failed capture attempts are excluded",
+  "captures": [
+    {
+      "run": "b1-rb-cold",
+      "name": "continue",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "continue.h264": "2af94585068912c0dbb97311a38ccf5e0e9a1743686cc58340141f9e1122ab04",
+        "continue.h264.frames.csv": "16ed4158c5a877571e332c062fc47be15964c090ebfe02e78c945fc96d5c1e4a",
+        "continue.png": "df8c6ca4bddecfa12f18d6e9f1299eb453485d43caa294454d3f2364e9933e17"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102609722232939.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102609722232939.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "late-world",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "late-world.h264": "71b884f7cb8dfa6e6297e88c9184372098e1c6f9edffab60e1b7181cf5bfa68f",
+        "late-world.h264.frames.csv": "a6cb2fb299fea245155ee5031c92ceaa0d247bcc26610b51e93b5cab05385ea8",
+        "late-world.png": "3748196abb2bac52cc15a305398f0a253ca1571b2ad7ba59cd4b27faa1b57830"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102993665096908.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102993665096908.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "loading",
+      "eos": true,
+      "encoded_samples": 13,
+      "files": {
+        "loading.h264": "898e2f63200ab0ef2f35728c8433bcbb4b92f0d3c6c4eb699d4082dcc7f2e43a",
+        "loading.h264.frames.csv": "4091ec913ede250690ec9df2128f938556eac632c081cfeb1aa1ae9a6528b55a",
+        "loading.png": "eab6a8432e18b88b75d3fa22730b80814eb655bfa553a19d5c8d1f2bca4207d5"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102659856538441.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102659856538441.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "menu1",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "menu1.h264": "7bfafb28aaadd61401130fd5cae6ee85a13923793bf522a0697f3161f2fac786",
+        "menu1.h264.frames.csv": "85ae8dd4b5e868ed7d0cd124d184cea5fd14cf2ef1161f2bfbedc96b178809b2",
+        "menu1.png": "d8691a286f178e594064005a2e2882370d26ebc3ee72df92edd8a511f4b85b54"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102485569255174.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102485569255174.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "menu2",
+      "eos": true,
+      "encoded_samples": 42,
+      "files": {
+        "menu2.h264": "a4cb27c9d3a0de00c4d01d7872636a829267be40594ea77e594ecdab9db72dda",
+        "menu2.h264.frames.csv": "31915b6757059e8b81c03bedd4a6e971112137189d2fcb396c725b7549146fe1",
+        "menu2.png": "5961fef25e60c0b047868217695f7800671e9faf118019dd9927293c4aebfbfe"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102533804034375.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102533804034375.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "moved",
+      "eos": true,
+      "encoded_samples": 44,
+      "files": {
+        "moved.h264": "dfc571d188a600aa02230118664c21bcbd0c3ecf4e2530c046f0e7c967a0c9bd",
+        "moved.h264.frames.csv": "def8db93c8156df888f5549306e16eb327fa5241ae5f6dfbeeec655b983c3d21",
+        "moved.png": "ff6a8242076cf867aa4055f7a6c4d231b1ab762944cdfb05346633d72f7fccb7"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102758759001789.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102758759001789.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "start",
+      "eos": true,
+      "encoded_samples": 2,
+      "files": {
+        "start.h264": "7f8a12b8df4ea3659103dab1be523ca92abdf9dfd2dbde66e6b5ba97284bb350",
+        "start.h264.frames.csv": "21b25bc95942a824a815b6c62b048cae0ca7a252ddf93768bfa2b9a30fe0eff6",
+        "start.png": "11358eeb725bcb6d25a4b32db4c5d2d1a46eab72da47265a60940078aeaba79b"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102459703689038.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102459703689038.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "title",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "title.h264": "87988b94e876ebe9a09900cd2bd73581e518528914de1e5b93c1fe576b970cb1",
+        "title.h264.frames.csv": "dd6d05d6b6e7fd42747a06bb8277f9dbd7d895619cbabac8c93ea54a2e061178",
+        "title.png": "6ed0d8040c87fa64708dd0ff832dec47431a6b0bbba3c3d9d4098ac512e9c620"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102575638203838.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102575638203838.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b1-rb-cold",
+      "name": "world",
+      "eos": true,
+      "encoded_samples": 44,
+      "files": {
+        "world.h264": "644b3dac785a7214b5973b7df1b1f72d2f50e28496364a3fb7c83b270e6e66bd",
+        "world.h264.frames.csv": "a50dfc43dba44fd76080b4e5570b92759b5a2d4f735f1104494197d7342407f8",
+        "world.png": "ad0341b040365e94d4ae414d8ad8243289b52d4bb800b30258566828606999c8"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102705690944986.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-102705690944986.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "continue",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "continue.h264": "df4adcd22baade1351b3b621f219a54b44dbd1be6d5e87c307b87f49682c1a4f",
+        "continue.h264.frames.csv": "efb8076c6a1a70816f82fb965369f6d2b92526434081e40cf19153370aa07286",
+        "continue.png": "88be524911f2b1bf4175127adebb1bc9d67da1705e2d2d7e00c9dd99a8741352"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103427524047107.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103427524047107.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "loading",
+      "eos": true,
+      "encoded_samples": 13,
+      "files": {
+        "loading.h264": "a4cb8514a22d12698b5078dec8ce6181dbf1abe5fa7196d5d685ed8ff53aaf16",
+        "loading.h264.frames.csv": "a23450986ec37309e09c9c632d9f6c77738f04cd17e3e5b3f9c7ce8683fd75e1",
+        "loading.png": "e714c118b5c7d6f2d447e39611f1cd6f67688ed05bacd74de7bb77f1a73d343a"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103470725342142.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103470725342142.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "logos",
+      "eos": true,
+      "encoded_samples": 35,
+      "files": {
+        "logos.h264": "19e6a120626cf3b2bd09e93932e1bec975d9e7229f0d2f6ec9234ed5389f7048",
+        "logos.h264.frames.csv": "3a23e88b7e306692694178cc282200a4ddb90da187ad0f062a78dec7c13d99dc",
+        "logos.png": "c942eaf02ab2809aaadcf967503f3575e1a8edb63b60f2146edca1479b6b2000"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103343655315993.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103343655315993.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "moved",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "moved.h264": "7905bccafd4085cf9e1447d77068fb346a113d96607e8e3adb3b21f581ca7560",
+        "moved.h264.frames.csv": "db34acc40c62ee5d45a93a85f3f8eba7bd3576ee4f271fae2b621873fc814fe3",
+        "moved.png": "da09b14f3c1119d769ee8f650e25c50888447cef14cc957a27385e78d5148338"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103591079638138.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103591079638138.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "start",
+      "eos": true,
+      "encoded_samples": 42,
+      "files": {
+        "start.h264": "a547f70b9fe4660762be23cdac8c0fb9945bd0c662fbe0dcaa1f93cb8bcc9d9c",
+        "start.h264.frames.csv": "7863de9f316ebb5452eb865418a15adb4feff09e00911bee31cb897f259f1bbd",
+        "start.png": "5a87c15f8974a2b7f430c4f3f5c5483297251b0c8834554c3777f524d245e369"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103306520955278.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103306520955278.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "title",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "title.h264": "3e8b5f50e2793160036e0af05ed9b9980ca4013543bce726f1b2d7bed321bd9d",
+        "title.h264.frames.csv": "18d5b053d4fc18242c130c81c54ea8ff24fcf92b5505c397912eb65e063c5bb8",
+        "title.png": "d9a04eb150214242ea88802db2d492c8b7349c71a08898345ffa2a4e1902d9bc"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103401440065762.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103401440065762.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "a1-default-cold",
+      "name": "world",
+      "eos": true,
+      "encoded_samples": 44,
+      "files": {
+        "world.h264": "8ff6c21ee674a5fb14a6033274d916e3559f2a0468e422ae36791dedbf5877f2",
+        "world.h264.frames.csv": "67ad9bd2773979c1700f3866bfae30b7c9cb9750983ac2c2f013456bca1d701d",
+        "world.png": "0e5863c49ebf30665b799ee3ed2f52f75f4be752473bd24d1fa5019a2651f61d"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103545745015968.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-103545745015968.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b2-rb-cold",
+      "name": "continue-ready",
+      "eos": true,
+      "encoded_samples": 42,
+      "files": {
+        "continue-ready.h264": "dd04759a3d0b606770ff4e38060bc6e41bef3e715197a77599ff8e2dd2faed81",
+        "continue-ready.h264.frames.csv": "51883eaf42dfb1fe1dda25d4b7cec13791b67dd2cab071e366e96a49e9e40aad",
+        "continue-ready.png": "0b253fb0773911ac0db2b67da90d47238c3999774454262b06d13e9f8b324d2c"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104426531529538.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104426531529538.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b2-rb-cold",
+      "name": "continue",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "continue.h264": "9008173b136c9c7cdaa5b46795490bb3aa91ea006d3f3b22417f52d1a56cbeac",
+        "continue.h264.frames.csv": "b55a1de5301793d53cad239d0a817e59029b1343bb8a324fcc7efd9dc5c20aee",
+        "continue.png": "b0decdbeeceaafc840231f053b994deaa1d0af7976c366fadbb52f5439e3b3d3"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104331462101449.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104331462101449.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b2-rb-cold",
+      "name": "logos",
+      "eos": true,
+      "encoded_samples": 42,
+      "files": {
+        "logos.h264": "a4cb27c9d3a0de00c4d01d7872636a829267be40594ea77e594ecdab9db72dda",
+        "logos.h264.frames.csv": "0d763c6c09626d096444b88b9e4e4c3149bd2471adf306b64c8b3e22ddf124d2",
+        "logos.png": "5961fef25e60c0b047868217695f7800671e9faf118019dd9927293c4aebfbfe"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104166374346564.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104166374346564.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b2-rb-cold",
+      "name": "start",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "start.h264": "fdedf2e7e7869b7ede61d422d9ffc2529556a5f8c66e1b835c89e29a47f2221b",
+        "start.h264.frames.csv": "58c54b0df7173fa82444003fc2d1977ca05b6bb2e92d1ad6be878737a6332329",
+        "start.png": "f433d33e5a3327ca4e8e51136d7261173293df621d5631b08263947915c4a6cb"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104116323028615.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104116323028615.h264.frames.csv"
+      ]
+    },
+    {
+      "run": "b2-rb-cold",
+      "name": "title",
+      "eos": true,
+      "encoded_samples": 43,
+      "files": {
+        "title.h264": "3388f0fa2b376667c8b1bd5d5e317726c6bbe44d29817bbb1b52b788708c8b77",
+        "title.h264.frames.csv": "db3d93a310ddab3d02fd058dc5a30dca6a8b03669f0a924722d8a939cab51b0e",
+        "title.png": "a7c785637f973d57b4b4d9231d1ff394cf24f3978dbdd91ba7878f8d803a3bd8"
+      },
+      "remote": [
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104265660349235.h264",
+        "/data/user/0/com.shadps4.android/files/host/captures/embedded-104265660349235.h264.frames.csv"
+      ]
+    }
+  ]
+}

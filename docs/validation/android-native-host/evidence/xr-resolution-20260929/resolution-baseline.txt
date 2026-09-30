@@ -1,0 +1,25 @@
+[2026-09-29 02:12:01.671][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.671][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.671][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:01.691][Info][6470][Render_Vulkan](Thread-12) runtime.cpp:690 Run: OpenXR PSVR Projection Layer: submitted head pose, runtime eye extrinsics/FOV; L=(-0.82900697, 0.82900697, -0.75046945, 0.75046945) R=(-0.82900697, 0.82900697, -0.75046945, 0.75046945)
+[2026-09-29 02:12:01.819][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.819][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.819][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:01.987][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.987][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.987][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:01.999][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.999][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:01.999][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:02.019][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.019][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.019][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:02.031][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.031][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.031][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:02.051][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.051][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.051][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607
+[2026-09-29 02:12:02.067][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=0 host=960x1080 mip=0 layer=0 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.067][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:890 PrepareVrFrame: XR source i=1 host=960x1080 mip=0 layer=1 uv=0.91365194x0.7383755
+[2026-09-29 02:12:02.067][Info][6198][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:903 PrepareVrFrame: XR composition=1080x607 per_eye=540x607 mirror_expected=1080x607

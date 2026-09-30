@@ -1,0 +1,135 @@
+{
+  "snapshot_sha256": "1cfef9aa784fcfb09112bb238ace75ed68594b7b96b4392ac460a6b989b82c64",
+  "BR_IB1_cursor": {
+    "cursor_index": 0,
+    "source_mvc_section_indices": "101",
+    "aperture_key": "0:0:1:4294967295:4294967295:4294967295:4294967295",
+    "hardware_context_id": 0,
+    "cluster_id": 0,
+    "pipe_id": 1,
+    "pipe_name": "BR",
+    "location_id": 4294967295,
+    "slice_id": 4294967295,
+    "sp_id": 4294967295,
+    "usptp_id": 4294967295,
+    "ib_level": 1,
+    "base_register_offset": 2304,
+    "base_register_offset_hex": "0x00000900",
+    "gpu_address": 283409158144,
+    "gpu_address_hex": "0x00000041fc809000",
+    "remaining_dwords": 32873,
+    "initial_dwords": 37513,
+    "nonzero_state": 1,
+    "captured_ib_match_count": 1,
+    "captured_ib_section_index": 1425,
+    "captured_ib_offset": 0,
+    "memory_match_count": 1,
+    "memory_allocation_index": 375,
+    "memory_offset": 0,
+    "register_profile": "gen8_cp_pipe_ib_0x900_v1",
+    "evidence_level": "mvc_cp_pipe_register_candidate_requires_target_build_mapping",
+    "captured_ib_base_hex": "0x00000041fc809000",
+    "captured_ib_size_dwords": 37513,
+    "captured_ib_ptbase_hex": "0x00000000b6f25000",
+    "memory_base_hex": "0x00000041fc809000",
+    "memory_size_bytes": 262144,
+    "memory_type": 0,
+    "memory_type_name": "OBJECTANY",
+    "source_evidence_level": "kernel_build_identified_source_unmapped"
+  },
+  "BR_IB2_address": "0x41fcaab1ec",
+  "pm4_packet_count": 11193,
+  "pm4_header_parity_and_length": "pass",
+  "all_matching_calls": [
+    {
+      "ib_call": {
+        "dw": 4388,
+        "op": 63,
+        "words": [
+          "0xfcaab1ec",
+          "0x41",
+          "0x573"
+        ]
+      },
+      "preceding_marker": {
+        "dw": 4370,
+        "op": 101,
+        "words": [
+          "0x1"
+        ]
+      },
+      "nearby": [
+        {
+          "dw": 4378,
+          "op": null,
+          "words": [
+            "0x0"
+          ]
+        },
+        {
+          "dw": 4380,
+          "op": null,
+          "words": [
+            "0x0"
+          ]
+        },
+        {
+          "dw": 4382,
+          "op": null,
+          "words": [
+            "0x2"
+          ]
+        },
+        {
+          "dw": 4384,
+          "op": 70,
+          "words": [
+            "0x1015",
+            "0x5db19740",
+            "0x41"
+          ]
+        },
+        {
+          "dw": 4388,
+          "op": 63,
+          "words": [
+            "0xfcaab1ec",
+            "0x41",
+            "0x573"
+          ]
+        },
+        {
+          "dw": 4392,
+          "op": 70,
+          "words": [
+            "0x21"
+          ]
+        },
+        {
+          "dw": 4394,
+          "op": 70,
+          "words": [
+            "0x33"
+          ]
+        },
+        {
+          "dw": 4396,
+          "op": 38,
+          "words": []
+        },
+        {
+          "dw": 4397,
+          "op": 29,
+          "words": [
+            "0x0"
+          ]
+        }
+      ]
+    }
+  ],
+  "marker_histogram": {
+    "0x1": 149,
+    "0x8": 14
+  },
+  "boundary": "Static IB1 packet sequence with type/parity/length checks, no exact execution PC inferred. Not a full opcode semantic validator."
+}

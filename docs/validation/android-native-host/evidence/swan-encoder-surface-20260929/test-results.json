@@ -1,0 +1,26 @@
+{
+  "mapper_metadata": {
+    "normal": {
+      "checks": 1402,
+      "exit_code": 0
+    },
+    "ubsan": {
+      "checks": 1402,
+      "exit_code": 0
+    },
+    "asan_ubsan": {
+      "status": "terminated_after_no_output",
+      "exit_code": 143,
+      "result": "not_verified"
+    }
+  },
+  "snapshot_lifecycle": {
+    "exit_code": 0
+  },
+  "png_validation": {
+    "checks": 6,
+    "exit_code": 0
+  },
+  "final_apk_installed_sha256": "e7e85584a41309110fb1ee67472f93c6f601fe22b8dd01d827552d195b83b66c",
+  "default_published_pin_rebuild": "host_and_apk_pass_not_installed"
+}

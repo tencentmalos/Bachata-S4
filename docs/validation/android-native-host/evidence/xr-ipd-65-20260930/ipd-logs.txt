@@ -1,0 +1,2 @@
+[2026-09-29 20:00:55.727][Info][19043][Render_Vulkan](Thread-12) runtime.cpp:766 Run: OpenXR IPD override: runtime=63.520 mm effective=65.000 mm
+[2026-09-29 20:00:56.383][Info][19043][Render_Vulkan](Thread-12) runtime.cpp:867 Run: OpenXR PSVR Projection Layer: submitted head pose, calibrated eye extrinsics/runtime FOV; IPD=65.000 mm L=(-0.82900697, 0.82900697, -0.75046945, 0.75046945) R=(-0.82900697, 0.82900697, -0.75046945, 0.75046945)

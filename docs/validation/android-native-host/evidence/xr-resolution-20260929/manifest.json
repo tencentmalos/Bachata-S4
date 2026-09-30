@@ -1,0 +1,34 @@
+{
+  "device": "PB3110PGL6240001G",
+  "game": "CUSA12878",
+  "version": "02.04",
+  "driver_sha256": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094",
+  "installed_apk_sha256_verified": true,
+  "settings_unchanged": true,
+  "render_scale_percent": 100,
+  "texture_quality": "medium",
+  "artifacts": {
+    "before.png": {
+      "path": "build/validation/xr-resolution-20260929/before.png",
+      "sha256": "11a647ea2a32b94adf4796df08e47127cae87b227a366abb684e782f47e47c23",
+      "width": 1080,
+      "height": 607
+    },
+    "after.png": {
+      "path": "build/validation/xr-resolution-20260929/after.png",
+      "sha256": "78aa16d2bd06ffec3b414866f3b9b93f229c474091ed13f19356d44a26201dad",
+      "width": 5184,
+      "height": 2400
+    },
+    "headset-fixed.png": {
+      "path": "build/validation/xr-resolution-20260929/headset-fixed.png",
+      "sha256": "9b91ca6d8146b378c933993a175642d8592cc9410b858abfcc136cd4028e6b79",
+      "width": 65536,
+      "height": 4293001752
+    }
+  },
+  "package_native_sha256": {
+    "libshadps4_host.so": "c2e55e3f45e9f54960d63dcb5956c14f326f82196f12bc3bc2ab11fc839bbf6b",
+    "libshadps4_fex_session.so": "8d8ecde70f499beedd2e0f8a84445b3ffe5a38a6e45108debe9fb9ec881a9c10"
+  }
+}

@@ -1,0 +1,5 @@
+09-29 00:05:30.459 11107 14345 E PxrRuntime:so_process: gl_format_to_vk format 44 is not supported
+09-29 00:05:30.459 11107 14345 E APxrRuntime: client_vk_swapchain - Got too little memory 3710976 vs 3691700
+09-29 00:05:30.459 11107 14345 E APxrRuntime: Specified swapchain format is not supported,XRT_ERROR_VULKAN
+09-29 00:05:30.459 11107 14345 E ShadOpenXR: OpenXR stopped: XR ImGui layer creation failed
+09-29 00:05:30.515 11107 11107 E XrError : XR error panel: frames=0 failed=1 detail=XR ImGui layer creation failed

@@ -1,0 +1,33 @@
+{
+  "first": {
+    "pid": "3617",
+    "generation": "1",
+    "run_uuid": "875ab65ed3a978d5e31825f3a88a88ab",
+    "stage": "Preparing",
+    "session": "active",
+    "driver": "unavailable",
+    "guest_flip": "unavailable",
+    "queue_submit": "unavailable",
+    "host_present": "unavailable",
+    "snapshot_ns": "98940692365016",
+    "host_time_ns": 1790659615073561000,
+    "faultcount": "12"
+  },
+  "last": {
+    "pid": "3617",
+    "generation": "1",
+    "run_uuid": "875ab65ed3a978d5e31825f3a88a88ab",
+    "stage": "Running",
+    "session": "active",
+    "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=c35946a8758de0400899b69f28b2158a06931eccf7d9d44cd454022a5fb81b23 ",
+    "guest_flip": "4488 (age_ns=7394167)",
+    "queue_submit": "23025 (age_ns=6959792)",
+    "host_present": "4487 (age_ns=32131146)",
+    "snapshot_ns": "99102618851413",
+    "host_time_ns": 1790659776990864000,
+    "faultcount": "12"
+  },
+  "samples": 24,
+  "faultcount_end": "13",
+  "observed_seconds": 161.926486397
+}

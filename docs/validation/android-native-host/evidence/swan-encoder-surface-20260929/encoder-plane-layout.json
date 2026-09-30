@@ -1,0 +1,80 @@
+[
+  {
+    "components": [
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 1024,
+        "offset": 0,
+        "bits": 8
+      },
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 2048,
+        "offset": 8,
+        "bits": 8
+      },
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 4096,
+        "offset": 16,
+        "bits": 8
+      },
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 1073741824,
+        "offset": 24,
+        "bits": 8
+      }
+    ],
+    "offset": 36864,
+    "increment": 32,
+    "stride": 7680,
+    "width": 1920,
+    "height": 1080,
+    "total": 8355840,
+    "sub_x": 1,
+    "sub_y": 1
+  },
+  {
+    "components": [
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 1024,
+        "offset": 0,
+        "bits": 0
+      },
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 2048,
+        "offset": 0,
+        "bits": 0
+      },
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 4096,
+        "offset": 0,
+        "bits": 0
+      },
+      {
+        "type": "android.hardware.graphics.common.PlaneLayoutComponentType",
+        "kind": 1073741824,
+        "offset": 0,
+        "bits": 0
+      },
+      {
+        "type": "QTI",
+        "kind": -2147483648,
+        "offset": 0,
+        "bits": 0
+      }
+    ],
+    "offset": 0,
+    "increment": 0,
+    "stride": 128,
+    "width": 1920,
+    "height": 1080,
+    "total": 36864,
+    "sub_x": 0,
+    "sub_y": 0
+  }
+]

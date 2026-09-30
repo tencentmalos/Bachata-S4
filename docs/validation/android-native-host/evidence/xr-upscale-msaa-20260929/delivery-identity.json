@@ -1,0 +1,43 @@
+{
+  "apk": "cb153e1596f2048cc1f9dd66c30e0e078bc9b6c54b698c5d9c9decf71ffca7c9",
+  "built_host": "293af74882f4409d4571cb2ac74e08d3d92a5db85585421c93e04ee145a10835",
+  "lib/arm64-v8a/libshadps4_fex_session.so": "064c3243cbc8019eb35e7c64cf02d2c9084cd9dc08c9cead81226a4028a8ff65",
+  "lib/arm64-v8a/libshadps4_host.so": "293af74882f4409d4571cb2ac74e08d3d92a5db85585421c93e04ee145a10835",
+  "assets/native-turnip-mainline/vulkan.ad07xx.so": "48adf9b624dfd2f5b93b3e5e941018faa836f6241ffb9d98f99089841b165af8",
+  "turnip": {
+    "abi": "android-arm64-bionic",
+    "api": 33,
+    "base_commit": "1b588fceef705b65495e84df274a7dfeb09412fc",
+    "build_options": [
+      "--buildtype=release",
+      "-Dplatforms=android",
+      "-Dandroid-stub=true",
+      "-Dandroid-libbacktrace=disabled",
+      "-Dplatform-sdk-version=33",
+      "-Dvulkan-drivers=freedreno",
+      "-Dfreedreno-kmds=kgsl",
+      "-Dgallium-drivers=",
+      "-Degl=disabled",
+      "-Dgles1=disabled",
+      "-Dgles2=disabled",
+      "-Dopengl=false",
+      "-Dllvm=disabled",
+      "-Dbuild-tests=false",
+      "-Dzstd=disabled"
+    ],
+    "libcxx_sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+    "library": "vulkan.ad07xx.so",
+    "library_sha256": "48adf9b624dfd2f5b93b3e5e941018faa836f6241ffb9d98f99089841b165af8",
+    "lock_sha256": "92f1991cf091de316f5f0aee042c66425453fda9eccb5bb9ed5c48a814f909ad",
+    "ndk": "29.0.14206865",
+    "recipe_sha256": "26a2944760084051474d19780b970a4cc11af90f21634de293f831ca8808e15f",
+    "scope": "Build current Mesa submodule from source, including working changes, with source/patch/ELF identity. Azahar Swan XR baseline; iterate GPU hang fixes here. No system-driver fallback.",
+    "source": "https://github.com/tencentmalos/mesa-mirror",
+    "source_commit": "1b588fceef705b65495e84df274a7dfeb09412fc",
+    "source_diff_sha256": "af521fc54e573c3d6d298ec19bd1e4568d693b3a18a290c1fb3ac6d491c96977",
+    "source_dirty": true,
+    "source_identity_sha256": "bc005813e2c96d3b27d63c63f68247fe25d77b1e3edfee62aab76eb31ed470c9",
+    "source_path": "references/mesa-turnip",
+    "untracked_files": {}
+  }
+}

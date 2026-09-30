@@ -1,0 +1,152 @@
+         gmu_f2h-3779    (   3779) [003] ..... 103751.190681: adreno_cmdbatch_retired: ctx=13 ctx_prio=0 ts=3264037920 inflight=0 recovery=none flags=none start=1992343327110 retire=1992343339396 rb_id=0, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343327075 retired_on_gmu=1992343339597 active=12286
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190683: adreno_cmdbatch_done: ctx=13 ctx_prio=0 ts=3264037920
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190777: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202440 queued=1 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190798: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202440 requeue_cnt=0
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190802: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202441 queued=1 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190808: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202440 inflight=4 flags=CTX_SWITCH ticks=1992343342588 time=103751.190805 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190810: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202441 requeue_cnt=0
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190811: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202442 queued=1 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190816: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202441 inflight=5 flags=CTX_SWITCH ticks=1992343342771 time=103751.190815 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190818: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202442 requeue_cnt=0
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190819: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202443 queued=1 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190822: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202442 inflight=6 flags=CTX_SWITCH ticks=1992343342894 time=103751.190821 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190823: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202443 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [002] ..... 103751.190830: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202443 inflight=7 flags=CTX_SWITCH ticks=1992343343023 time=103751.190829 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190830: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=0 queued=1 flags=none
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190830: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202444 queued=2 flags=MARKER
+      Eng-Render-4629    (   3906) [004] ...1. 103751.190896: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202445 queued=2 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.190920: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202444 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.190926: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202444 inflight=8 flags=MARKER ticks=1992343344880 time=103751.190925 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.190928: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202445 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.190932: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202445 inflight=9 flags=CTX_SWITCH ticks=1992343345013 time=103751.190931 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+         gmu_f2h-3779    (   3779) [006] ..... 103751.191384: adreno_cmdbatch_retired: ctx=13 ctx_prio=0 ts=3264044160 inflight=0 recovery=none flags=none start=1992343339440 retire=1992343352474 rb_id=0, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343327603 retired_on_gmu=1992343352736 active=13034
+    kgsl_hwsched-1433    (   1433) [007] ..... 103751.191384: adreno_cmdbatch_done: ctx=13 ctx_prio=0 ts=3264044160
+         gmu_f2h-3779    (   3779) [005] ..... 103751.191677: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202440 inflight=0 recovery=none flags=none start=1992343354678 retire=1992343358522 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343343068 retired_on_gmu=1992343358643 active=3844
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.191678: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202440
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.191679: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202441
+         gmu_f2h-3779    (   3779) [005] ..... 103751.191684: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202441 inflight=0 recovery=none flags=none start=1992343358562 retire=1992343358870 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343343348 retired_on_gmu=1992343358981 active=308
+         gmu_f2h-3779    (   3779) [005] ..... 103751.191687: adreno_preempt_trigger: trigger from id=0 to id=1 cntl=341 ticks=1992343352973
+         gmu_f2h-3779    (   3779) [005] ..... 103751.191694: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202442 inflight=0 recovery=none flags=none start=1992343358908 retire=1992343359392 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343343657 retired_on_gmu=1992343359508 active=484
+         gmu_f2h-3779    (   3779) [005] ..... 103751.191695: adreno_preempt_done: done switch to id=1 from id=0 level=0 ticks=1992343354776
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.191705: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202442
+ kgsl_devfreq_no-1432    (   1432) [001] ..... 103751.193928: kgsl_pwrstats: d_name=kgsl-3d0 total=11104 busy=11006 ram_time=9972889 ram_wait=3140678 context_count=5 ticks=0
+         gmu_f2h-3779    (   3779) [005] ..... 103751.194117: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202443 inflight=0 recovery=none flags=none start=1992343359431 retire=1992343405537 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343343931 retired_on_gmu=1992343405687 active=46106
+    kgsl_hwsched-1433    (   1433) [000] ..... 103751.194122: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202443
+         gmu_f2h-3779    (   3779) [005] ..... 103751.194123: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202444 inflight=0 recovery=none flags=none start=1992343405570 retire=1992343405592 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343345249 retired_on_gmu=1992343405809 active=22
+    kgsl_hwsched-1433    (   1433) [000] ..... 103751.194124: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202444
+    kgsl_hwsched-1433    (   1433) [000] ..... 103751.194126: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202445
+         gmu_f2h-3779    (   3779) [005] ..... 103751.194130: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202445 inflight=0 recovery=none flags=none start=1992343405626 retire=1992343405735 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343345486 retired_on_gmu=1992343405934 active=109
+         gmu_f2h-3779    (   3779) [000] ..... 103751.195205: adreno_cmdbatch_retired: ctx=51 ctx_prio=8 ts=69977 inflight=0 recovery=none flags=none start=1992342885693 retire=1992343426420 rb_id=2, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992342885586 retired_on_gmu=1992343426552 active=262341
+         gmu_f2h-3779    (   3779) [000] ..... 103751.195212: adreno_cmdbatch_retired: ctx=51 ctx_prio=8 ts=69978 inflight=0 recovery=none flags=none start=1992343426505 retire=1992343426600 rb_id=2, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992342887624 retired_on_gmu=1992343426701 active=95
+         gmu_f2h-3779    (   3779) [000] ..... 103751.195214: adreno_preempt_trigger: trigger from id=1 to id=2 cntl=341 ticks=1992343406118
+         gmu_f2h-3779    (   3779) [000] ..... 103751.195217: adreno_preempt_done: done switch to id=2 from id=1 level=0 ticks=1992343409497
+    kgsl_hwsched-1433    (   1433) [006] ..... 103751.195227: adreno_cmdbatch_done: ctx=51 ctx_prio=8 ts=69977
+    kgsl_hwsched-1433    (   1433) [006] ..... 103751.195229: adreno_cmdbatch_done: ctx=51 ctx_prio=8 ts=69978
+    kgsl_hwsched-1433    (   1433) [006] ..... 103751.195314: adreno_cmdbatch_ready: ctx=51 ctx_prio=8 ts=69979 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [006] ..... 103751.195326: adreno_cmdbatch_submitted: ctx=51 ctx_prio=8 ts=69979 inflight=1 flags=none ticks=1992343429308 time=103751.195322 rb_id=2 r/w=0/0, q_inflight=0 dq_id=-1
+ shadPS4:GpuDone-9370    (  20698) [004] ..... 103751.195341: adreno_drawctxt_wait_done: rb=4294967295 ctx=51 ts=69977 status=0
+ shadPS4:GpuDone-9370    (  20698) [004] .n... 103751.195343: kgsl_waittimestamp_exit: d_name=kgsl-3d0 curr_ts=69978 result=0
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.196468: adreno_cmdbatch_done: ctx=51 ctx_prio=8 ts=69979
+         gmu_f2h-3779    (   3779) [001] ..... 103751.196473: adreno_cmdbatch_retired: ctx=51 ctx_prio=8 ts=69979 inflight=0 recovery=none flags=none start=1992343430007 retire=1992343450443 rb_id=2, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343429990 retired_on_gmu=1992343450609 active=20436
+ shadPS4:GpuDone-9373    (  20698) [001] ..... 103751.196505: adreno_drawctxt_wait_done: rb=4294967295 ctx=51 ts=69979 status=0
+ shadPS4:GpuDone-9373    (  20698) [001] ..... 103751.196506: kgsl_waittimestamp_exit: d_name=kgsl-3d0 curr_ts=69979 result=0
+ shadPS4:Present-9385    (  20698) [003] ..... 103751.196510: adreno_drawctxt_wait_done: rb=4294967295 ctx=51 ts=69979 status=0
+ shadPS4:Present-9385    (  20698) [003] ..... 103751.196511: kgsl_waittimestamp_exit: d_name=kgsl-3d0 curr_ts=69979 result=0
+           <...>-9369    (  20698) [001] ...1. 103751.196566: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=69980 queued=1 flags=none
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.196586: adreno_cmdbatch_ready: ctx=51 ctx_prio=8 ts=69980 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.196594: adreno_cmdbatch_submitted: ctx=51 ctx_prio=8 ts=69980 inflight=1 flags=none ticks=1992343453695 time=103751.196592 rb_id=2 r/w=0/0, q_inflight=0 dq_id=-1
+ shadPS4:GpuDone-9375    (  20698) [004] ..... 103751.196606: kgsl_waittimestamp_entry: d_name=kgsl-3d0 ctx=51 curr_ts=69979 ts=69980 timeout=50
+ shadPS4:GpuDone-9375    (  20698) [004] ..... 103751.196607: adreno_drawctxt_wait_start: rb=4294967295 ctx=51 ts=69980
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.196658: adreno_cmdbatch_done: ctx=51 ctx_prio=8 ts=69980
+         gmu_f2h-3779    (   3779) [001] ..... 103751.196663: adreno_cmdbatch_retired: ctx=51 ctx_prio=8 ts=69980 inflight=0 recovery=none flags=none start=1992343454292 retire=1992343454384 rb_id=2, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343454275 retired_on_gmu=1992343454511 active=92
+ shadPS4:GpuDone-9375    (  20698) [004] ..... 103751.196697: adreno_drawctxt_wait_done: rb=4294967295 ctx=51 ts=69980 status=0
+ shadPS4:GpuDone-9375    (  20698) [004] ..... 103751.196697: kgsl_waittimestamp_exit: d_name=kgsl-3d0 curr_ts=69980 result=0
+           <...>-9369    (  20698) [001] ...1. 103751.197561: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=0 queued=1 flags=none
+           <...>-9369    (  20698) [001] ...1. 103751.197562: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=69981 queued=2 flags=none
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.197582: adreno_cmdbatch_ready: ctx=51 ctx_prio=8 ts=69981 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.197589: adreno_cmdbatch_submitted: ctx=51 ctx_prio=8 ts=69981 inflight=1 flags=none ticks=1992343472816 time=103751.197588 rb_id=2 r/w=0/0, q_inflight=0 dq_id=-1
+ shadPS4:GpuDone-9373    (  20698) [003] ..... 103751.197590: kgsl_waittimestamp_entry: d_name=kgsl-3d0 ctx=51 curr_ts=69980 ts=69981 timeout=50
+ shadPS4:GpuDone-9373    (  20698) [003] ..... 103751.197591: adreno_drawctxt_wait_start: rb=4294967295 ctx=51 ts=69981
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.198970: adreno_cmdbatch_done: ctx=51 ctx_prio=8 ts=69981
+         gmu_f2h-3779    (   3779) [001] ..... 103751.198975: adreno_cmdbatch_retired: ctx=51 ctx_prio=8 ts=69981 inflight=0 recovery=none flags=none start=1992343476812 retire=1992343498676 rb_id=2, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343476705 retired_on_gmu=1992343498888 active=21862
+ shadPS4:GpuDone-9373    (  20698) [001] ..... 103751.198992: adreno_drawctxt_wait_done: rb=4294967295 ctx=51 ts=69981 status=0
+ shadPS4:GpuDone-9373    (  20698) [001] ..... 103751.198993: kgsl_waittimestamp_exit: d_name=kgsl-3d0 curr_ts=69981 result=0
+ shadPS4:GpuComm-9367    (  20698) [005] ..... 103751.199753: kgsl_waittimestamp_entry: d_name=kgsl-3d0 ctx=51 curr_ts=69981 ts=69948 timeout=50
+ shadPS4:GpuComm-9367    (  20698) [005] ..... 103751.199753: adreno_drawctxt_wait_start: rb=4294967295 ctx=51 ts=69948
+ shadPS4:GpuComm-9367    (  20698) [005] ..... 103751.199761: adreno_drawctxt_wait_done: rb=4294967295 ctx=51 ts=69948 status=0
+ shadPS4:GpuComm-9367    (  20698) [005] ..... 103751.199761: kgsl_waittimestamp_exit: d_name=kgsl-3d0 curr_ts=69981 result=0
+           <...>-9369    (  20698) [004] ...1. 103751.199865: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=69982 queued=1 flags=none
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.199889: adreno_cmdbatch_ready: ctx=51 ctx_prio=8 ts=69982 requeue_cnt=0
+ shadPS4:GpuDone-9370    (  20698) [002] ..... 103751.199895: kgsl_waittimestamp_entry: d_name=kgsl-3d0 ctx=51 curr_ts=69981 ts=69982 timeout=50
+ shadPS4:GpuDone-9370    (  20698) [002] ..... 103751.199896: adreno_drawctxt_wait_start: rb=4294967295 ctx=51 ts=69982
+    kgsl_hwsched-1433    (   1433) [003] ..... 103751.199896: adreno_cmdbatch_submitted: ctx=51 ctx_prio=8 ts=69982 inflight=1 flags=none ticks=1992343517099 time=103751.199895 rb_id=2 r/w=0/0, q_inflight=0 dq_id=-1
+           <...>-9369    (  20698) [005] ...1. 103751.200206: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=69983 queued=1 flags=none
+    kgsl_hwsched-1433    (   1433) [001] ..... 103751.200251: adreno_cmdbatch_ready: ctx=51 ctx_prio=8 ts=69983 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [001] ..... 103751.200259: adreno_cmdbatch_submitted: ctx=51 ctx_prio=8 ts=69983 inflight=2 flags=none ticks=1992343524071 time=103751.200257 rb_id=2 r/w=0/0, q_inflight=0 dq_id=-1
+      compositor-5771    (   5653) [004] ...1. 103751.200271: adreno_cmdbatch_queued: ctx=8 ctx_prio=0 ts=18471597 queued=1 flags=CTX_SWITCH|0x10
+      compositor-5771    (   5653) [004] ..... 103751.200273: adreno_cmdbatch_ready: ctx=8 ctx_prio=0 ts=18471597 requeue_cnt=0
+      compositor-5771    (   5653) [004] ..... 103751.200279: adreno_cmdbatch_submitted: ctx=8 ctx_prio=0 ts=18471597 inflight=3 flags=CTX_SWITCH|0x10 ticks=1992343524452 time=103751.200277 rb_id=0 r/w=0/0, q_inflight=0 dq_id=-1
+         gmu_f2h-3779    (   3779) [005] ..... 103751.200376: adreno_preempt_trigger: trigger from id=2 to id=0 cntl=341 ticks=1992343525633
+      compositor-5771    (   5653) [004] ...1. 103751.200567: adreno_cmdbatch_queued: ctx=8 ctx_prio=0 ts=18471598 queued=1 flags=CTX_SWITCH|0x10
+      compositor-5771    (   5653) [004] ..... 103751.200568: adreno_cmdbatch_ready: ctx=8 ctx_prio=0 ts=18471598 requeue_cnt=0
+      compositor-5771    (   5653) [004] ..... 103751.200573: adreno_cmdbatch_submitted: ctx=8 ctx_prio=0 ts=18471598 inflight=4 flags=CTX_SWITCH|0x10 ticks=1992343530111 time=103751.200572 rb_id=0 r/w=0/0, q_inflight=0 dq_id=-1
+      compositor-5771    (   5653) [004] ...1. 103751.200625: adreno_cmdbatch_queued: ctx=13 ctx_prio=0 ts=0 queued=1 flags=none
+      compositor-5771    (   5653) [004] ...1. 103751.200625: adreno_cmdbatch_queued: ctx=13 ctx_prio=0 ts=3264050400 queued=2 flags=CTX_SWITCH|0x10
+      compositor-5771    (   5653) [004] ..... 103751.200626: adreno_input_hw_fence: ctx=13 id=8 seqno=18471598 flags=KGSL name=kgsl-3d0_8-.openxr_runtime(5653
+      compositor-5771    (   5653) [004] ..... 103751.200631: adreno_cmdbatch_ready: ctx=13 ctx_prio=0 ts=3264050400 requeue_cnt=0
+      compositor-5771    (   5653) [004] ..... 103751.200637: adreno_cmdbatch_submitted: ctx=13 ctx_prio=0 ts=3264050400 inflight=6 flags=CTX_SWITCH|0x10 ticks=1992343531319 time=103751.200635 rb_id=0 r/w=0/0, q_inflight=0 dq_id=-1
+         gmu_f2h-3779    (   3779) [005] ..... 103751.200642: adreno_preempt_done: done switch to id=0 from id=2 level=1 ticks=1992343531194
+      compositor-5771    (   5653) [004] ...1. 103751.200717: adreno_cmdbatch_queued: ctx=13 ctx_prio=0 ts=0 queued=1 flags=none
+      compositor-5771    (   5653) [004] ...1. 103751.200718: adreno_cmdbatch_queued: ctx=13 ctx_prio=0 ts=3264056640 queued=2 flags=CTX_SWITCH|0x10
+      compositor-5771    (   5653) [004] ..... 103751.200719: adreno_input_hw_fence: ctx=13 id=8 seqno=18471598 flags=KGSL name=kgsl-3d0_8-.openxr_runtime(5653
+      compositor-5771    (   5653) [004] ..... 103751.200725: adreno_cmdbatch_ready: ctx=13 ctx_prio=0 ts=3264056640 requeue_cnt=0
+      compositor-5771    (   5653) [004] ..... 103751.200729: adreno_cmdbatch_submitted: ctx=13 ctx_prio=0 ts=3264056640 inflight=8 flags=CTX_SWITCH|0x10 ticks=1992343533106 time=103751.200728 rb_id=0 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [000] ..... 103751.200905: adreno_cmdbatch_done: ctx=8 ctx_prio=0 ts=18471597
+    kgsl_hwsched-1433    (   1433) [000] ..... 103751.200908: adreno_cmdbatch_done: ctx=8 ctx_prio=0 ts=18471598
+         gmu_f2h-3779    (   3779) [007] ..... 103751.200915: adreno_cmdbatch_retired: ctx=8 ctx_prio=0 ts=18471597 inflight=0 recovery=none flags=none start=1992343530963 retire=1992343535394 rb_id=0, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343525392 retired_on_gmu=1992343535720 active=4430
+         gmu_f2h-3779    (   3779) [007] ..... 103751.200939: adreno_cmdbatch_retired: ctx=8 ctx_prio=0 ts=18471598 inflight=0 recovery=none flags=none start=1992343535466 retire=1992343536011 rb_id=0, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343530788 retired_on_gmu=1992343536240 active=545
+         gmu_f2h-3779    (   3779) [003] ..... 103751.201612: adreno_cmdbatch_retired: ctx=13 ctx_prio=0 ts=3264050400 inflight=0 recovery=none flags=none start=1992343536920 retire=1992343549194 rb_id=0, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343536884 retired_on_gmu=1992343549384 active=12274
+    kgsl_hwsched-1433    (   1433) [000] ..... 103751.201631: adreno_cmdbatch_done: ctx=13 ctx_prio=0 ts=3264050400
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201883: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202446 queued=1 flags=CTX_SWITCH
+           <...>-9369    (  20698) [003] ...1. 103751.201904: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=0 queued=1 flags=none
+           <...>-9369    (  20698) [003] ...1. 103751.201904: adreno_cmdbatch_queued: ctx=51 ctx_prio=8 ts=69984 queued=2 flags=none
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201904: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202447 queued=2 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201907: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202446 requeue_cnt=0
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201912: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202448 queued=2 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201915: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202446 inflight=4 flags=CTX_SWITCH ticks=1992343555857 time=103751.201913 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201916: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202447 requeue_cnt=0
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201919: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202449 queued=2 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201921: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202447 inflight=5 flags=CTX_SWITCH ticks=1992343555990 time=103751.201920 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201923: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202448 requeue_cnt=0
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201928: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=0 queued=2 flags=none
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201928: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202448 inflight=6 flags=CTX_SWITCH ticks=1992343556131 time=103751.201927 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201928: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202450 queued=3 flags=MARKER
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201929: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202449 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201934: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202449 inflight=7 flags=CTX_SWITCH ticks=1992343556240 time=103751.201933 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+ shadPS4:GpuDone-9373    (  20698) [003] ..... 103751.201935: kgsl_waittimestamp_entry: d_name=kgsl-3d0 ctx=51 curr_ts=69981 ts=69984 timeout=50
+ shadPS4:GpuDone-9373    (  20698) [003] ..... 103751.201936: adreno_drawctxt_wait_start: rb=4294967295 ctx=51 ts=69984
+      Eng-Render-4629    (   3906) [004] ...1. 103751.201970: adreno_cmdbatch_queued: ctx=6 ctx_prio=4 ts=31202451 queued=2 flags=CTX_SWITCH
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201991: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202450 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201995: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202450 inflight=8 flags=MARKER ticks=1992343557422 time=103751.201994 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.201997: adreno_cmdbatch_ready: ctx=6 ctx_prio=4 ts=31202451 requeue_cnt=0
+    kgsl_hwsched-1433    (   1433) [005] ..... 103751.202001: adreno_cmdbatch_submitted: ctx=6 ctx_prio=4 ts=31202451 inflight=9 flags=CTX_SWITCH ticks=1992343557537 time=103751.202000 rb_id=1 r/w=0/0, q_inflight=0 dq_id=-1
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.202289: adreno_cmdbatch_done: ctx=13 ctx_prio=0 ts=3264056640
+         gmu_f2h-3779    (   3779) [002] ..... 103751.202294: adreno_cmdbatch_retired: ctx=13 ctx_prio=0 ts=3264056640 inflight=0 recovery=none flags=none start=1992343549244 retire=1992343562264 rb_id=0, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343537352 retired_on_gmu=1992343562532 active=13020
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.202604: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202446
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.202604: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202447
+         gmu_f2h-3779    (   3779) [005] ..... 103751.202606: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202446 inflight=0 recovery=none flags=none start=1992343564505 retire=1992343568390 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343556346 retired_on_gmu=1992343568514 active=3885
+         gmu_f2h-3779    (   3779) [005] ..... 103751.202610: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202447 inflight=0 recovery=none flags=none start=1992343568433 retire=1992343568755 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343556596 retired_on_gmu=1992343568866 active=322
+         gmu_f2h-3779    (   3779) [005] ..... 103751.202613: adreno_preempt_trigger: trigger from id=0 to id=1 cntl=341 ticks=1992343562772
+         gmu_f2h-3779    (   3779) [005] ..... 103751.202615: adreno_preempt_done: done switch to id=1 from id=0 level=0 ticks=1992343564605
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.202617: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202448
+         gmu_f2h-3779    (   3779) [000] ..... 103751.202645: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202448 inflight=0 recovery=none flags=none start=1992343568789 retire=1992343569272 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343556851 retired_on_gmu=1992343569385 active=483
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.205048: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202449
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.205050: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202450
+    kgsl_hwsched-1433    (   1433) [004] ..... 103751.205050: adreno_cmdbatch_done: ctx=6 ctx_prio=4 ts=31202451
+ kgsl_devfreq_no-1432    (   1432) [002] ..... 103751.205055: kgsl_pwrstats: d_name=kgsl-3d0 total=11143 busy=8450 ram_time=7331905 ram_wait=1546556 context_count=5 ticks=0
+         gmu_f2h-3779    (   3779) [005] ..... 103751.205059: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202449 inflight=0 recovery=none flags=none start=1992343569308 retire=1992343615244 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343557115 retired_on_gmu=1992343615390 active=45935
+         gmu_f2h-3779    (   3779) [005] ..... 103751.205066: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202450 inflight=0 recovery=none flags=none start=1992343615278 retire=1992343615300 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343557781 retired_on_gmu=1992343615515 active=22
+         gmu_f2h-3779    (   3779) [005] ..... 103751.205071: adreno_cmdbatch_retired: ctx=6 ctx_prio=4 ts=31202451 inflight=0 recovery=none flags=none start=1992343615334 retire=1992343615447 rb_id=1, r/w=0/0, q_inflight=0, dq_id=4294967295, submitted_to_rb=1992343558017 retired_on_gmu=1992343615615 active=113
+         gmu_f2h-3779    (   3779) [003] ..... 103751.205346: adreno_preempt_trigger: trigger from id=1 to id=2 cntl=341 ticks=1992343615772
+         gmu_f2h-3779    (   3779) [003] ..... 103751.205350: adreno_preempt_done: done switch to id=2 from id=1 level=0 ticks=1992343619436
+    kgsl_hwsched-1433    (   1433) [001] ..... 103751.205465: adreno_gpu_fault: ctx=51 ts=69982 rb_id=2 status=880005 RB=9D9/931 IB1=41FC809000/1128 IB2=41FCAAB1EC/17C

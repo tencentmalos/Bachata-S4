@@ -1,0 +1,213 @@
+{
+  "artifact_root": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/beatsaber-guest-fault-20260929",
+  "files": {
+    "rsp-second-round.json": {
+      "size": 259363,
+      "sha256": "2ffb4afb4bef8b5d7896adddbfa98512ad5d1a7650cc40cd0b8d6fb1ee49704b"
+    },
+    "build-candidate-6-apk.log": {
+      "size": 20821,
+      "sha256": "177027e87fcd424819d7eb510e676b090c34dae03f93d7c9fdfc56afa5baaa6c"
+    },
+    "eboot-worker-disassembly.txt": {
+      "size": 4760,
+      "sha256": "861260fbcfc016800a8d593329e9f4b93637ec496c2d20241261eb70c968f292"
+    },
+    "build-candidate-3-host.log": {
+      "size": 21935,
+      "sha256": "86af045213693fb8c163b87f090c9258bfdbb3cbbd998532965e7634a1973d82"
+    },
+    "host-candidate-7-restart.log": {
+      "size": 5243431,
+      "sha256": "c3a0a5e8fe9ca5f380bf8ca77bbedca5407dff03bea73674bc2767f1c0864c16"
+    },
+    "candidate-7-headset.png": {
+      "size": 950699,
+      "sha256": "b79f6c1a8640218c466c7694b843b9a53b2a838d15cf1d4b6b851501d72b7a79"
+    },
+    "build-candidate-7-apk.log": {
+      "size": 20821,
+      "sha256": "45c191e2ac4ee1c220b13a7ee895166a00073200531738b1e5a41088946a8117"
+    },
+    "rsp-round-logcat.txt": {
+      "size": 864025,
+      "sha256": "acff0c598a48b807dc847da727ad4faf0f80ad7a40845ad2e77cec69ea6b0e51"
+    },
+    "rsp-first-round.json": {
+      "size": 193627,
+      "sha256": "20614fedf2210c56b9e2a25e99fefb3b9128a35f790e0fe6abc1d501c822378f"
+    },
+    "host-candidate-4-msaa-off.log": {
+      "size": 432956,
+      "sha256": "6fc17072d524eafa8ec95f392a72a6666317bbadb4754a053ec7aff81a00268a"
+    },
+    "global-before-msaa.json": {
+      "size": 341,
+      "sha256": "47d1d96c84d6b4b576782de625555d8014ef2e4185064edc30d94b6c83d2cd9f"
+    },
+    "uuid-process-tests-device.txt": {
+      "size": 53,
+      "sha256": "9531e4e3217238409e22970b64c331792356de830f1b329f4414be48367d2a65"
+    },
+    "build-apk.log": {
+      "size": 20821,
+      "sha256": "e16b9c022f9353a844f6fde4893b37a371a42163caa93112980c9f33022867cd"
+    },
+    "candidate-7-restart-headset.png": {
+      "size": 948118,
+      "sha256": "b3d9591650aed52a82818d7aacb26871ea5dfa3b38086b3416be89378a89b4e9"
+    },
+    "host-candidate-7-final.log": {
+      "size": 3564510,
+      "sha256": "d7a57d6b6175427db603e5d25ec1f234131c6954a9a7bad906e487cbb4631054"
+    },
+    "status-candidate-7-stopped.txt": {
+      "size": 4981,
+      "sha256": "8fdb9b77efea9da57f43450a8fd329dc1c2a4971f84aceedcab6fd53a90fe7b0"
+    },
+    "build-candidate-5-apk.log": {
+      "size": 20821,
+      "sha256": "a5efad514d4d24c28ba819d935e30dd0697a1d57b3031aba1e64a444e11962d1"
+    },
+    "build-fault-stack.log": {
+      "size": 1000,
+      "sha256": "c267f3c2254c775f689ec0cc12049a7119545717381284f6e8d0305c10229bb6"
+    },
+    "build-host.log": {
+      "size": 31672,
+      "sha256": "486e3f20bb38aa93c36d7211b9af9242afde58a5133a3af5064ce49de71625bb"
+    },
+    "build-candidate-4-apk.log": {
+      "size": 20821,
+      "sha256": "2ab3d840e6506a70628a5dd0f0972a8124aa621a9421b15ffe2327032a4906fd"
+    },
+    "game-msaa-test.json": {
+      "size": 79,
+      "sha256": "27a560de809acb68f17e89951da0db11c3c7c409820e1d402de8ab5b31604118"
+    },
+    "status-candidate-7.txt": {
+      "size": 816,
+      "sha256": "63c918b3488a875136940180aad78495a1eb068a20a31a7e88e365f1a6067a9c"
+    },
+    "candidate-5-identity.json": {
+      "size": 593,
+      "sha256": "26b8c8fa8cb7bcb7e5bc05890c6bfbb227b45b541d2b0dcf7500a1edff069c1b"
+    },
+    "build-candidate-5-host.log": {
+      "size": 21896,
+      "sha256": "1d0f4ef09d3e1806bd21ef416939bb92ec4e34e3520e6ffd1c574b28294de7a0"
+    },
+    "build-candidate-4-host.log": {
+      "size": 1000,
+      "sha256": "c267f3c2254c775f689ec0cc12049a7119545717381284f6e8d0305c10229bb6"
+    },
+    "fault-before.txt": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "semaphore-old-device.txt": {
+      "size": 160,
+      "sha256": "058c6ead2f35f42ff4901d37c92f4919cdcfc53401e596a373f82848be6e657b"
+    },
+    "candidate-identity.json": {
+      "size": 687,
+      "sha256": "a7c2ff934cce2b064520b34e2ca7d62d59e86f04a984524d85ed1a911b46f246"
+    },
+    "build-fault-stack-apk.log": {
+      "size": 20821,
+      "sha256": "45c191e2ac4ee1c220b13a7ee895166a00073200531738b1e5a41088946a8117"
+    },
+    "prebound-plt-scan.json": {
+      "size": 3032,
+      "sha256": "dae71515b69e24b460273eb16a1288477d52b885540afc1545a6c3a5372b3912"
+    },
+    "candidate-4-identity.json": {
+      "size": 593,
+      "sha256": "8a4276d9d2e719a967a0bb47f0b8d44e0fb4e1f7b8b7cf8a2cba98e8758053fb"
+    },
+    "rsp-third-round.json": {
+      "size": 32281,
+      "sha256": "1b21283d6b40f790138b29eda43337fcca249070a47bed058dbdde7e3d5f5f38"
+    },
+    "status-candidate-7-restart.txt": {
+      "size": 820,
+      "sha256": "15473664e6873146077886af5881f8053e23b03326a94d433b6b3a729a4710b5"
+    },
+    "semaphore-new-device.txt": {
+      "size": 47,
+      "sha256": "e3cb52ff933f238e3f132372c80de4ef26ae0329e0aa769b051b75729b2f1171"
+    },
+    "candidate-7-identity.json": {
+      "size": 687,
+      "sha256": "927dae2a9da5b1f19382f384bcc44a9b5572ace4058654cc5015b92ce7ffbfc8"
+    },
+    "logcat-candidate-3.txt": {
+      "size": 440529,
+      "sha256": "5369563fb3b085f7f1abf92e2af4a14f3e5af252146faf42654b452f8104c8c1"
+    },
+    "host-candidate-2.log": {
+      "size": 183887,
+      "sha256": "5e91ea8e52905be303c043f934567e5a115c689c12034bb931ac4b4eaec32d7b"
+    },
+    "host-candidate-3.log": {
+      "size": 183597,
+      "sha256": "ecd92ff0db9a738d77296352184bde0d4dd4a4311a03168b29984146d278edcf"
+    },
+    "host-before.log": {
+      "size": 307071,
+      "sha256": "378ba40c433cb839ced66594c0f4b9ac1988d39a14eb209261d8c4435eeff29f"
+    },
+    "build-candidate-6-host.log": {
+      "size": 1000,
+      "sha256": "d558d929e1e3dc442fbcdcfd2de5f5aff40cf4f7c87fa15146173857f5467cdb"
+    },
+    "build-candidate-7-host.log": {
+      "size": 1509,
+      "sha256": "3420e018fa9720d84a080ff7f614e02d1cc629d96a5cffd9c0715576cd083cd5"
+    },
+    "host-candidate-1.log": {
+      "size": 184029,
+      "sha256": "da0bc3493c9fcda42339f31cca2b8d1e3fae72c24655072540ce5476b1b2817e"
+    },
+    "host-rsp-third.log": {
+      "size": 106214,
+      "sha256": "a666b345495f670eb56bf8860e06c5353591c745acdc83696994243f24386323"
+    },
+    "eboot-sem-wrapper-disassembly.txt": {
+      "size": 6650,
+      "sha256": "30fe2666b9577f8428f7b7f080d5052b33338c77062dca19de915cb66b04ae39"
+    },
+    "logcat-candidate-1.txt": {
+      "size": 294079,
+      "sha256": "7fc2cfd388774b43d7fd5cb4d086a65fc3a2f2104df255578ee4c6906629ffa9"
+    },
+    "logcat-candidate-5.txt": {
+      "size": 766292,
+      "sha256": "465db0377cd4642705ab74fbdf9a7334caa12c98e7a84f050fbbf8ba808b6e6e"
+    },
+    "host-candidate-4.log": {
+      "size": 266757,
+      "sha256": "05fa664e57f20a0dde0e19a80b8206efc35da5304d34a7f9bc6a2cb5d0f122f9"
+    },
+    "host-candidate-5.log": {
+      "size": 995166,
+      "sha256": "00d83ea55fcc900cdac4a783c7595615a89c875e58c97c9771206d26b2f68922"
+    },
+    "logcat-candidate-4.txt": {
+      "size": 284514,
+      "sha256": "8d991630dc4cfb37e9259f14b9085db05203498df41b600d6155f6bc376a8a50"
+    },
+    "host-candidate-7.log": {
+      "size": 1303868,
+      "sha256": "d424cc560f4402f4de088924273267bb6a69a7ec6e1c9c95e2037dbbba7ea434"
+    },
+    "build-candidate-3-apk.log": {
+      "size": 20821,
+      "sha256": "399e9d5f9516ed56d0f657debe15ea3270419b7042f7040a79e7fe1f939c1312"
+    },
+    "host-candidate-6.log": {
+      "size": 973317,
+      "sha256": "897fe4365b565514964a0d18ffcad363850fe4cfe789d965f7b631919ea2a578"
+    }
+  }
+}

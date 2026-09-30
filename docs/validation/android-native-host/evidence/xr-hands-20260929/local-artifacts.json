@@ -1,0 +1,62 @@
+{
+  "kotlin-tests.log": {
+    "bytes": 3357,
+    "sha256": "b1c09e0602a7d7564263bd6e4867a3cc133f1af139f71d93265f628248772a46"
+  },
+  "status-final.txt": {
+    "bytes": 819,
+    "sha256": "99a3f41d57d87e63f465acf7c90da5bcd174e1b8c497ae15abf21b7f6326961d"
+  },
+  "global-after.json": {
+    "bytes": 341,
+    "sha256": "47d1d96c84d6b4b576782de625555d8014ef2e4185064edc30d94b6c83d2cd9f"
+  },
+  "global-before.json": {
+    "bytes": 341,
+    "sha256": "47d1d96c84d6b4b576782de625555d8014ef2e4185064edc30d94b6c83d2cd9f"
+  },
+  "build-apk-tests.log": {
+    "bytes": 25342,
+    "sha256": "434b8737c433280885c287bd06c4d7faa2bca53acbdde3b2c58138146d2886d3"
+  },
+  "build-host.log": {
+    "bytes": 1415,
+    "sha256": "ee261e6a3f3d47d72693ab7b678b1f78569ca4698a628da503325b08ca5ba15a"
+  },
+  "installed-sha.txt": {
+    "bytes": 157,
+    "sha256": "92436aa9395b2b03e8f3e6a28afd68b249e89a8d09155dd1222fa15789b82ebb"
+  },
+  "identity.json": {
+    "bytes": 451,
+    "sha256": "71cec8f7f652ffa50fa1e70d22f647053bcc53898664f4c35136fb737a676292"
+  },
+  "pose-tests.txt": {
+    "bytes": 42,
+    "sha256": "61c29c59825fb12041c2701437eb60faa0be056acf8fe3bed2c9393035a8f3c4"
+  },
+  "game-before.json": {
+    "bytes": 79,
+    "sha256": "27a560de809acb68f17e89951da0db11c3c7c409820e1d402de8ab5b31604118"
+  },
+  "game-after.json": {
+    "bytes": 117,
+    "sha256": "c276cf318b22b3a2f232df4cf8531509bc7da02a246980497b369e7b56630e86"
+  },
+  "move-open.asm": {
+    "bytes": 11460,
+    "sha256": "be341a0bc84de085a7f906496041d0bc4246050b27874c6fedd72518b8ebe699"
+  },
+  "host-final.log": {
+    "bytes": 1142504,
+    "sha256": "169a6d867a5f262126cc3931054c9792e5ec909d1978cab35e6397e2cab49e66"
+  },
+  "cleanup-pending.json": {
+    "bytes": 991,
+    "sha256": "07ed1a4fe8c0bba2784e4a33a1de4532fa9276532940340169f176fbd60d78f5"
+  },
+  "status-reconnect.txt": {
+    "bytes": 820,
+    "sha256": "34b2a5b8ed54d4e1e879adab14d33185c618a1849f6b1fd58096bb2fdc1de7cc"
+  }
+}

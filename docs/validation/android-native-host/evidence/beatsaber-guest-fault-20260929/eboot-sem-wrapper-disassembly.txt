@@ -1,0 +1,121 @@
+
+build/validation/openxr-20260929/beatsaber-startup/executables/app0/elf/eboot.bin.elf:	file format elf64-x86-64
+
+Disassembly of section PT_LOAD#0:
+
+0000000000000000 <PT_LOAD#0>:
+ 1b4cee0: 55                           	push	rbp
+ 1b4cee1: 48 89 e5                     	mov	rbp, rsp
+ 1b4cee4: 41 57                        	push	r15
+ 1b4cee6: 41 56                        	push	r14
+ 1b4cee8: 53                           	push	rbx
+ 1b4cee9: 50                           	push	rax
+ 1b4ceea: bb 16 00 02 80               	mov	ebx, 0x80020016
+ 1b4ceef: 85 f6                        	test	esi, esi
+ 1b4cef1: 75 1a                        	jne	0x1b4cf0d <PT_LOAD#0+0x1b4cf0d>
+ 1b4cef3: 31 f6                        	xor	esi, esi
+ 1b4cef5: 49 89 cf                     	mov	r15, rcx
+ 1b4cef8: 49 89 fe                     	mov	r14, rdi
+ 1b4cefb: 31 db                        	xor	ebx, ebx
+ 1b4cefd: e8 5e 00 00 00               	call	0x1b4cf60 <PT_LOAD#0+0x1b4cf60>
+ 1b4cf02: 85 c0                        	test	eax, eax
+ 1b4cf04: 74 14                        	je	0x1b4cf1a <PT_LOAD#0+0x1b4cf1a>
+ 1b4cf06: 05 00 00 02 80               	add	eax, 0x80020000
+ 1b4cf0b: 89 c3                        	mov	ebx, eax
+ 1b4cf0d: 89 d8                        	mov	eax, ebx
+ 1b4cf0f: 48 83 c4 08                  	add	rsp, 0x8
+ 1b4cf13: 5b                           	pop	rbx
+ 1b4cf14: 41 5e                        	pop	r14
+ 1b4cf16: 41 5f                        	pop	r15
+ 1b4cf18: 5d                           	pop	rbp
+ 1b4cf19: c3                           	ret
+ 1b4cf1a: 4d 85 ff                     	test	r15, r15
+ 1b4cf1d: 74 ee                        	je	0x1b4cf0d <PT_LOAD#0+0x1b4cf0d>
+ 1b4cf1f: 4c 89 ff                     	mov	rdi, r15
+ 1b4cf22: 4c 89 f6                     	mov	rsi, r14
+ 1b4cf25: ba 06 01 00 00               	mov	edx, 0x106
+ 1b4cf2a: e8 71 59 cd ff               	call	0x18228a0 <PT_LOAD#0+0x18228a0>
+ 1b4cf2f: 83 f8 ff                     	cmp	eax, -0x1
+ 1b4cf32: 74 07                        	je	0x1b4cf3b <PT_LOAD#0+0x1b4cf3b>
+ 1b4cf34: 66 41 89 46 02               	mov	word ptr [r14 + 0x2], ax
+ 1b4cf39: eb d2                        	jmp	0x1b4cf0d <PT_LOAD#0+0x1b4cf0d>
+ 1b4cf3b: 4c 89 f7                     	mov	rdi, r14
+ 1b4cf3e: e8 5d 49 cd ff               	call	0x18218a0 <PT_LOAD#0+0x18218a0>
+ 1b4cf43: e8 38 4b cd ff               	call	0x1821a80 <PT_LOAD#0+0x1821a80>
+ 1b4cf48: 8b 00                        	mov	eax, dword ptr [rax]
+ 1b4cf4a: 8d 98 00 00 02 80            	lea	ebx, [rax - 0x7ffe0000]
+ 1b4cf50: 85 c0                        	test	eax, eax
+ 1b4cf52: 0f 44 d8                     	cmove	ebx, eax
+ 1b4cf55: eb b6                        	jmp	0x1b4cf0d <PT_LOAD#0+0x1b4cf0d>
+ 1b4cf57: 90                           	nop
+ 1b4cf58: 90                           	nop
+ 1b4cf59: 90                           	nop
+ 1b4cf5a: 90                           	nop
+ 1b4cf5b: 90                           	nop
+ 1b4cf5c: 90                           	nop
+ 1b4cf5d: 90                           	nop
+ 1b4cf5e: 90                           	nop
+ 1b4cf5f: 90                           	nop
+ 1b4cf60: 55                           	push	rbp
+ 1b4cf61: 48 89 e5                     	mov	rbp, rsp
+ 1b4cf64: 85 d2                        	test	edx, edx
+ 1b4cf66: 78 2b                        	js	0x1b4cf93 <PT_LOAD#0+0x1b4cf93>
+ 1b4cf68: 31 c0                        	xor	eax, eax
+ 1b4cf6a: 85 f6                        	test	esi, esi
+ 1b4cf6c: 48 c7 47 04 00 00 00 00      	mov	qword ptr [rdi + 0x4], 0x0
+ 1b4cf74: c7 07 6d 73 ff ff            	mov	dword ptr [rdi], 0xffff736d
+ 1b4cf7a: 89 57 08                     	mov	dword ptr [rdi + 0x8], edx
+ 1b4cf7d: c7 47 04 00 00 00 00         	mov	dword ptr [rdi + 0x4], 0x0
+ 1b4cf84: 0f 95 c0                     	setne	al
+ 1b4cf87: 89 47 0c                     	mov	dword ptr [rdi + 0xc], eax
+ 1b4cf8a: e8 21 00 00 00               	call	0x1b4cfb0 <PT_LOAD#0+0x1b4cfb0>
+ 1b4cf8f: 31 c0                        	xor	eax, eax
+ 1b4cf91: 5d                           	pop	rbp
+ 1b4cf92: c3                           	ret
+ 1b4cf93: e8 e8 4a cd ff               	call	0x1821a80 <PT_LOAD#0+0x1821a80>
+ 1b4cf98: c7 00 16 00 00 00            	mov	dword ptr [rax], 0x16
+ 1b4cf9e: b8 ff ff ff ff               	mov	eax, 0xffffffff
+ 1b4cfa3: 5d                           	pop	rbp
+ 1b4cfa4: c3                           	ret
+ 1b4cfa5: 90                           	nop
+ 1b4cfa6: 90                           	nop
+ 1b4cfa7: 90                           	nop
+ 1b4cfa8: 90                           	nop
+ 1b4cfa9: 90                           	nop
+ 1b4cfaa: 90                           	nop
+ 1b4cfab: 90                           	nop
+ 1b4cfac: 90                           	nop
+ 1b4cfad: 90                           	nop
+ 1b4cfae: 90                           	nop
+ 1b4cfaf: 90                           	nop
+ 1b4cfb0: c7 05 0a 3a 2b 00 01 00 00 00	mov	dword ptr [rip + 0x2b3a0a], 0x1 # 0x1e009c4 <PT_LOAD#0+0x1e009c4>
+ 1b4cfba: c3                           	ret
+ 1b4cfbb: 90                           	nop
+ 1b4cfbc: 90                           	nop
+ 1b4cfbd: 90                           	nop
+ 1b4cfbe: 90                           	nop
+ 1b4cfbf: 90                           	nop
+ 1b4cfc0: 55                           	push	rbp
+ 1b4cfc1: 48 89 e5                     	mov	rbp, rsp
+ 1b4cfc4: 53                           	push	rbx
+ 1b4cfc5: 50                           	push	rax
+ 1b4cfc6: 48 89 fb                     	mov	rbx, rdi
+ 1b4cfc9: 0f 1f 80 00 00 00 00         	nop	dword ptr [rax]
+ 1b4cfd0: 48 89 df                     	mov	rdi, rbx
+ 1b4cfd3: e8 08 49 cd ff               	call	0x18218e0 <PT_LOAD#0+0x18218e0>
+ 1b4cfd8: 85 c0                        	test	eax, eax
+ 1b4cfda: 74 1e                        	je	0x1b4cffa <PT_LOAD#0+0x1b4cffa>
+ 1b4cfdc: e8 9f 4a cd ff               	call	0x1821a80 <PT_LOAD#0+0x1821a80>
+ 1b4cfe1: 83 38 04                     	cmp	dword ptr [rax], 0x4
+ 1b4cfe4: 74 ea                        	je	0x1b4cfd0 <PT_LOAD#0+0x1b4cfd0>
+ 1b4cfe6: e8 95 4a cd ff               	call	0x1821a80 <PT_LOAD#0+0x1821a80>
+ 1b4cfeb: 8b 08                        	mov	ecx, dword ptr [rax]
+ 1b4cfed: 8d 81 00 00 02 80            	lea	eax, [rcx - 0x7ffe0000]
+ 1b4cff3: 85 c9                        	test	ecx, ecx
+ 1b4cff5: 0f 44 c1                     	cmove	eax, ecx
+ 1b4cff8: eb 02                        	jmp	0x1b4cffc <PT_LOAD#0+0x1b4cffc>
+ 1b4cffa: 31 c0                        	xor	eax, eax
+ 1b4cffc: 48 83 c4 08                  	add	rsp, 0x8
+ 1b4d000: 5b                           	pop	rbx
+ 1b4d001: 5d                           	pop	rbp
+ 1b4d002: c3                           	ret

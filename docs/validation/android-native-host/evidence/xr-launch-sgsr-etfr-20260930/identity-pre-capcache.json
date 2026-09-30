@@ -1,0 +1,6 @@
+{
+  "apk": "6442872ba59ad4e151499746b582b78d4bf0db4fc976c0080b47eb35c62ccf5f",
+  "lib/arm64-v8a/libshadps4_host.so": "478d72c0a6f01907dc8437998ea722a0c5fd5e11d70fe74a7e926fea14002585",
+  "lib/arm64-v8a/libshadps4_fex_session.so": "8348dd277eb713614721adfb766ba237301faf9f5410fcbd9f0303f00ef4fb79",
+  "assets/native-turnip-mainline/vulkan.ad07xx.so": "48adf9b624dfd2f5b93b3e5e941018faa836f6241ffb9d98f99089841b165af8"
+}

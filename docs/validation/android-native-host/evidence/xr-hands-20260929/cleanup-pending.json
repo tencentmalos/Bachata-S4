@@ -1,0 +1,29 @@
+{
+  "serial": "PB3110PGL6240001G",
+  "reason": "Device reconnected; this round cleanup and identity/config checks completed.",
+  "installed_candidate_apk_sha256": "9a5ec50c40b4a405a030768e8a99910e099270173f3e164f4bfbdd0df4224219",
+  "pending": [],
+  "intentional_profile_change": {
+    "game": "CUSA12878",
+    "input.xr_swap_move_hands": true
+  },
+  "preserve_existing": [
+    "gpu.force_disable_msaa=true in CUSA12878",
+    "debug.mesa.tu.debug=kgsl_preempt_rb",
+    "debug.spruntime.etfr.subsample=0",
+    "Earlier GPU cache/devcd15 CleanupPending"
+  ],
+  "last_observed_session": {
+    "pid": 9609,
+    "generation": 1,
+    "run_uuid": "534fa07148b9dec8cb5513112b980d97",
+    "guest_flip": 20315,
+    "stage": "Running"
+  },
+  "resolved": [
+    "Removed owned native pose probe directory",
+    "Installed APK SHA matches candidate",
+    "Global profile byte-identical to baseline"
+  ],
+  "physical_hand_validation": "Pending user confirmation; software/device-log validation complete"
+}

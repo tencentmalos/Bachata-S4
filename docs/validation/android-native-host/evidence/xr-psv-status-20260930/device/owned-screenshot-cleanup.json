@@ -1,0 +1,27 @@
+[
+  {
+    "device_file": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-17.48.25.jpeg",
+    "sha256": "367e62eb3c9a631230d20f99e685a423a0f038f9a67a4366e1e7d79cb6dbc27e",
+    "local_copy": "build/validation/xr-psv-status-20260930/bloodborne-cinema-running.png"
+  },
+  {
+    "device_file": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-17.46.53.jpeg",
+    "sha256": "f3d8cfd0b29c2bee6585fa5a76e1f8a24549ed0cec77e7ecd9a5b88cd51b3f8d",
+    "local_copy": "build/validation/xr-psv-status-20260930/bloodborne-cinema-status.jpg.png"
+  },
+  {
+    "device_file": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-17.45.39.jpeg",
+    "sha256": "ba2d49cd5f4b83d4ff4f6b402e58fbbc4cec8a7d345fcd9b8f5e6220852b144a",
+    "local_copy": "build/validation/xr-psv-status-20260930/psvr-graphite-gi-on.png"
+  },
+  {
+    "device_file": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-17.45.24.jpeg",
+    "sha256": "6b8fa5c9d05395c52fcd07605274e95e8cd4b7ede6ff8a3d2e644dc5dc639ad3",
+    "local_copy": "build/validation/xr-psv-status-20260930/psvr-graphite-gi-off.png"
+  },
+  {
+    "device_file": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-17.44.01.jpeg",
+    "sha256": "b848fa4296aa519d4ef86390293282d5d681ba7319ed7abc8db4063a09031ee9",
+    "local_copy": "build/validation/xr-psv-status-20260930/psvr-pearl-charge.png"
+  }
+]

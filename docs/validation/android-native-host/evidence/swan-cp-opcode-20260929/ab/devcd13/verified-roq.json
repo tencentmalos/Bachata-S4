@@ -1,0 +1,122 @@
+{
+  "snapshot": 13,
+  "sha256": "e361f44aa55cfd4ddec87907bd89828355e1b1ab4fbc4c9d9b132095401db4ca",
+  "size_bytes": 12868724,
+  "source_evidence": "kernel_build_identified_source_unmapped",
+  "verified_payloads": 25,
+  "completeness": {
+    "id": 1,
+    "has_end_section": 1,
+    "has_os_section": 1,
+    "has_eventlog_section": 1,
+    "has_memlist_section": 1,
+    "has_ib_section": 1,
+    "is_complete_device_snapshot": 1,
+    "parsed_bytes": 12868724,
+    "missing_tail_bytes": 0,
+    "missing_core_sections": ""
+  },
+  "comparisons": [
+    {
+      "pipe": "BR",
+      "level": 1,
+      "address": "0x41e28f9000",
+      "count": 35742,
+      "inferred_region": [
+        256,
+        512
+      ],
+      "rotation": 64,
+      "equally_best_rotations": 1,
+      "nonzero_equal": 216,
+      "zero_mismatches": 0,
+      "other_mismatches": 0,
+      "zero_pages": []
+    },
+    {
+      "pipe": "BR",
+      "level": 2,
+      "address": "0x41e288a3f8",
+      "count": 1514,
+      "inferred_region": [
+        512,
+        1024
+      ],
+      "rotation": 2,
+      "equally_best_rotations": 1,
+      "nonzero_equal": 464,
+      "zero_mismatches": 0,
+      "other_mismatches": 0,
+      "zero_pages": [],
+      "pm4_packets": 132,
+      "pm4_exact_end": true,
+      "roq_remaining": 508,
+      "consumed_candidate": 998,
+      "candidate_is_packet_boundary": false,
+      "nearby_packets": [
+        {
+          "dword": 957,
+          "end": 961,
+          "address": "0x41e288b2ec",
+          "header": "0x70438003",
+          "opcode": "0x43"
+        },
+        {
+          "dword": 961,
+          "end": 989,
+          "address": "0x41e288b2fc",
+          "header": "0x7043801b",
+          "opcode": "0x43"
+        },
+        {
+          "dword": 989,
+          "end": 997,
+          "address": "0x41e288b36c",
+          "header": "0x70380007",
+          "opcode": "0x38"
+        },
+        {
+          "dword": 997,
+          "end": 1031,
+          "address": "0x41e288b38c",
+          "header": "0x70438021",
+          "opcode": "0x43"
+        },
+        {
+          "dword": 1031,
+          "end": 1035,
+          "address": "0x41e288b414",
+          "header": "0x70438003",
+          "opcode": "0x43"
+        },
+        {
+          "dword": 1035,
+          "end": 1066,
+          "address": "0x41e288b424",
+          "header": "0x7043801e",
+          "opcode": "0x43"
+        }
+      ],
+      "candidate_memory": "0x700019",
+      "candidate_roq": "0x700019"
+    },
+    {
+      "pipe": "BV",
+      "level": 1,
+      "address": "0x4032d39000",
+      "count": 5,
+      "inferred_region": [
+        256,
+        512
+      ],
+      "rotation": 0,
+      "equally_best_rotations": 256,
+      "nonzero_equal": 0,
+      "zero_mismatches": 5,
+      "other_mismatches": 0,
+      "zero_pages": [
+        "0x4032d39000"
+      ]
+    }
+  ]
+}

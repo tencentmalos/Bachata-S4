@@ -1,0 +1,200 @@
+[
+  {
+    "file": "encoder-fixed-autosave.h264",
+    "status": {
+      "status": "stopped",
+      "revision": "2",
+      "source": "shadps4.final_render_target",
+      "mode": "file",
+      "view": "canvas",
+      "submitted": "72",
+      "skipped": "0",
+      "encoded_samples": "73",
+      "encoded_bytes": "137591",
+      "first_codec_pts_us": "94754936308",
+      "last_codec_pts_us": "94757260806",
+      "metadata_association": "codec_pts_only",
+      "eos": "true",
+      "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94754892260936.h264",
+      "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94754892260936.h264.frames.csv"
+    },
+    "decode": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "nb_read_frames": "72"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  {
+    "file": "encoder-fixed-load.h264",
+    "status": {
+      "status": "stopped",
+      "revision": "10",
+      "source": "shadps4.final_render_target",
+      "mode": "file",
+      "view": "canvas",
+      "submitted": "347",
+      "skipped": "133",
+      "encoded_samples": "348",
+      "encoded_bytes": "5237768",
+      "first_codec_pts_us": "94893075050",
+      "last_codec_pts_us": "94913381094",
+      "metadata_association": "codec_pts_only",
+      "eos": "true",
+      "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94893029259216.h264",
+      "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94893029259216.h264.frames.csv"
+    },
+    "decode": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "nb_read_frames": "347"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  {
+    "file": "encoder-fixed-menu.h264",
+    "status": {
+      "status": "stopped",
+      "revision": "6",
+      "source": "shadps4.final_render_target",
+      "mode": "file",
+      "view": "canvas",
+      "submitted": "71",
+      "skipped": "0",
+      "encoded_samples": "72",
+      "encoded_bytes": "344669",
+      "first_codec_pts_us": "94821719292",
+      "last_codec_pts_us": "94824013122",
+      "metadata_association": "codec_pts_only",
+      "eos": "true",
+      "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94821677204452.h264",
+      "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94821677204452.h264.frames.csv"
+    },
+    "decode": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "nb_read_frames": "71"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  {
+    "file": "encoder-fixed-offline.h264",
+    "status": {
+      "status": "stopped",
+      "revision": "8",
+      "source": "shadps4.final_render_target",
+      "mode": "file",
+      "view": "canvas",
+      "submitted": "73",
+      "skipped": "0",
+      "encoded_samples": "74",
+      "encoded_bytes": "354830",
+      "first_codec_pts_us": "94849236025",
+      "last_codec_pts_us": "94851563486",
+      "metadata_association": "codec_pts_only",
+      "eos": "true",
+      "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94849194605014.h264",
+      "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94849194605014.h264.frames.csv"
+    },
+    "decode": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "nb_read_frames": "73"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  {
+    "file": "encoder-fixed-title.h264",
+    "status": {
+      "status": "stopped",
+      "revision": "4",
+      "source": "shadps4.final_render_target",
+      "mode": "file",
+      "view": "canvas",
+      "submitted": "72",
+      "skipped": "0",
+      "encoded_samples": "73",
+      "encoded_bytes": "92437",
+      "first_codec_pts_us": "94796879495",
+      "last_codec_pts_us": "94799228554",
+      "metadata_association": "codec_pts_only",
+      "eos": "true",
+      "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94796826608784.h264",
+      "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94796826608784.h264.frames.csv"
+    },
+    "decode": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "nb_read_frames": "72"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  {
+    "file": "encoder-fixed-world.h264",
+    "status": {
+      "status": "stopped",
+      "revision": "12",
+      "source": "shadps4.final_render_target",
+      "mode": "file",
+      "view": "canvas",
+      "submitted": "71",
+      "skipped": "0",
+      "encoded_samples": "72",
+      "encoded_bytes": "607444",
+      "first_codec_pts_us": "94936431060",
+      "last_codec_pts_us": "94938742472",
+      "metadata_association": "codec_pts_only",
+      "eos": "true",
+      "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94936380021335.h264",
+      "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94936380021335.h264.frames.csv"
+    },
+    "decode": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "nb_read_frames": "71"
+        }
+      ]
+    },
+    "stderr": ""
+  }
+]

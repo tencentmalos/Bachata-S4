@@ -1,0 +1,23 @@
+{
+  "sha256": "92d6582b4bd806a87e0b7486a1f0aebc1a50c1cae96d192e62600b779a6d9e82",
+  "base": "86ca472fc22b88a1241bb2eece5c2c128c2f48ae",
+  "local_changes": "QCOM Mapper 5 RGB UBWC metadata normalization",
+  "apk_sha256": "8cc79274e0c20881dbe8b242e51bd5c23989a91905008d99a26aa6464f1f40e4",
+  "apk": "shadps4-b0778a7f-encoder-fix.apk",
+  "final_apk": "shadps4-b0778a7f-encoder-final.apk",
+  "final_apk_sha256": "e7e85584a41309110fb1ee67472f93c6f601fe22b8dd01d827552d195b83b66c",
+  "final_host_sha256": "2da5cbc2654632e99266334f4795649738f27e5e59d464253c2d2f7f322831a8",
+  "embedded_driver_identity": {
+    "source": "https://github.com/tencentmalos/mesa-mirror",
+    "source_commit": "86ca472fc22b88a1241bb2eece5c2c128c2f48ae",
+    "upstream_commit": "e1f3f372c4a661cd0e71a0cdafc4d469d56ecf35",
+    "release": "local-swan-encoder-20260929",
+    "library": "vulkan.ad07xx.so",
+    "library_sha256": "92d6582b4bd806a87e0b7486a1f0aebc1a50c1cae96d192e62600b779a6d9e82",
+    "abi": "android-arm64-bionic",
+    "scope": "86ca plus local QCOM Mapper 5 RGB UBWC import fix; local test APK, not a published driver release",
+    "diagnostic_only": true,
+    "source_dirty": true,
+    "local_patch_sha256": "ecf45d5ea240bc23d8a43229e3451274ca1146348cab73b911afbf4374264c38"
+  }
+}

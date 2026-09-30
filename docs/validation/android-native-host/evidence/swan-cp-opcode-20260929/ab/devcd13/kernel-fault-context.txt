@@ -1,0 +1,77 @@
+[99104.736441] [11:02:38](5)[20808|Guest-20][lsfpga]: set event:8
+[99104.736488] [11:02:38](4)[1394|lsfpga_main_thr][lsfpga]: process event:HMD_HEARTBEAT_EVENT
+[99104.736522] [11:02:38](3)[13135|kworker/u37:0]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[99104.736625] [11:02:38](3)[13135|kworker/u37:0]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[99104.741909] [11:02:38](3)[1394|lsfpga_main_thr][lsfpga]: box:fpga_id:0x0105 sync_state:1 crc_err_cnt:0 sync_loss_cnt:0 power_loss:0x009c spi_speed:0 i2c_sts1:0x0000 i2c_sts2:0x0000 2v5_en:0x0100
+[99104.744815] [11:02:38](2)[1394|lsfpga_main_thr][lsfpga]: hmd:fpga_id:0x0097 sync_state:1 crc_err_cnt:0 sync_loss_cnt:0 power_loss:0x009c spi_speed:0 i2c_sts1:0x0000 i2c_sts2:0x0000
+[99104.749704] [11:02:38](5)[1394|lsfpga_main_thr]state: event=8, curr[2]:WORKING, next[2]:WORKING, status=0x0
+[99104.992464] [11:02:38](7)[12467|kworker/7:1][drm:panel_temp_work_handler [msm_drm]] [BD_DISP_DEBUG]: send panel temp work handler
+[99104.996395] [11:02:38](5)[1466|vst_comm_thread][drm:bd_disp_copro_vst_comm_thread_fn [msm_drm]] [BD_DISP_DEBUG]: Do send panel temp l_temp=46750 r_temp=46750
+[99104.996929] [11:02:38](5)[1466|vst_comm_thread][drm:rpc_disp_msg_send [msm_drm]] [BD_DISP_DEBUG]: display literpc send literpc message start
+[99104.998263] [11:02:38](5)[1466|vst_comm_thread][drm:rpc_disp_msg_send [msm_drm]] [BD_DISP_DEBUG]: display literpc send literpc message end
+[99104.998661] [11:02:38](5)[1466|vst_comm_thread][drm:bd_disp_copro_vst_comm_thread_fn [msm_drm]] [BD_DISP_DEBUG]: send panel temp l_temp=46750 r_temp=46750
+[99105.024459] [11:02:38](7)[12467|kworker/7:1]battery_min_vol_check entry min_vol = 8200000
+[99105.072138] [11:02:38](2)[5501|scheduler_threa][schedu][0x1bb1bd9eef6][11:02:39.192951] peach_v2: [5501:I:OSIF] vdev 0, scan id 41585 type COMPLETED(1) reason COMPLETED(1) scan found 65 bss
+[99105.074808] [11:02:38](0)[4379|WifiScanningSer]alarm_ext canceled: process[WifiScanningSer] PID[4379] cnt[5]
+[99105.074823] [11:02:38](0)[4379|WifiScanningSer]Associated alarm_ext with process[WifiScanningSer] PID[4379] cnt[6]
+[99105.085171] [11:02:38](3)[2623|binder:2570_1][binder][0x1bb1bddc072][11:02:39.205985] peach_v2: [2623:E:OSIF] wlan_hdd_set_station_stats_request_pending: peer is null
+[99105.219896] [11:02:38](1)[1332|logd.auditd]type=1400 audit(1790593359.335:951863): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+[99105.248545] [11:02:39](5)[15727|kworker/u37:1]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[99105.248556] [11:02:39](5)[15727|kworker/u37:1]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[99105.382710] [11:02:39](0)[0|swapper/0][copro][reset-debug][cphb_ipcmsg_callback][0   ]AP GET COPRO HEARTBEAT:0x60c4, msgid:0x22231003, cmdid:0x2, datalen:0x1c, subsys:0x0, status:0x0
+[99105.382743] [11:02:39](1)[3429|kworker/u32:1][copro][reset-info][ktm_sync_worker][3429]
+[99105.382746] [11:02:39](1)[3429|kworker/u32:1][copro][reset-info][ktm_sync_worker][3429]ktimens:99105360755266, ktimerlns:1790593359485984017, tz_minuteswest:0, ktimeqtns:99122052378750, apsyqtns:99122051408020, vsyns:99116100755520, vktmsyns:99116101726250, ktimerlns UTC TIME:2026-09-28-19-02-39.485984017
+[99105.720361] [11:02:39](0)[1332|logd.auditd]type=1400 audit(1790593359.835:951864): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+[99105.724781] [11:02:39](3)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000
+[99105.724808] [11:02:39](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:902000000
+[99105.724816] [11:02:39](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[3617]: ctx 48 ctx_type ANY ts 23573 policy 2
+[99105.724820] [11:02:39](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[3617]: cmdline: com.shadps4.android
+[99105.724870] [11:02:39](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+[99105.724873] [11:02:39](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 1d53/1dfb ib1 00000041E28F9000/2a00 ib2 00000041E288A3F8/03e6 ib3 0000000000000000/0000
+[99105.724877] [11:02:39](2)[1433|kgsl_hwsched]kgsl kgsl-3d0: BV: rb 1d57/1dfb ib1 0000004032D39000/0000 ib2 0000000000000000/0000 ib3 0000000000000000/0000
+[99105.760545] [11:02:39](0)[13135|kworker/u37:0]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[99105.760554] [11:02:39](0)[13135|kworker/u37:0]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[99105.768284] [11:02:39](7)[12467|kworker/7:1]battery_avg_cur_get battery power is 3991 mW, usb power is 30612 mW, current is -7005 mA in 3.8V
+[99105.768296] [11:02:39](7)[12467|kworker/7:1]battery_avg_cur_check send RS_WARN_TYPE_CURRENT_BAT current = -7005
+[99105.826108] [11:02:39](0)[1332|logd.auditd]type=1400 audit(1790593359.943:951865): avc:  denied  { write } for  comm="crash_dump64" name="syseventsw" dev="tmpfs" ino=1664 scontext=u:r:crash_dump:s0:c152,c256,c512,c768 tcontext=u:object_r:syseventsw_socket:s0 tclass=sock_file permissive=0 app=com.shadps4.android
+[99105.826187] [11:02:39](0)[1332|logd.auditd]type=1400 audit(1790593359.943:951866): avc:  denied  { write } for  comm="crash_dump64" name="syseventsw" dev="tmpfs" ino=1664 scontext=u:r:crash_dump:s0:c152,c256,c512,c768 tcontext=u:object_r:syseventsw_socket:s0 tclass=sock_file permissive=0 app=com.shadps4.android
+[99105.829653] [11:02:39](1)[1339|collect_log]android time is 2026-09-28 19:02:39.948, boot time is 99105822 ms
+[99105.880214] [11:02:39](2)[5734|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_RIGHT] sof_meta return_used_index 4 ipc_call_timestamp 99105875783391 sof_timestamp 99116615724780 sofmeta_timestamp 99105874809384 frame_id: 203580 org_frameid 8200420 event type: 800000c dac: 425 coe: 99116614174645
+[99105.907710] [11:02:39](3)[6031|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_LEFT] sof_meta return_used_index 4 ipc_call_timestamp 99105903283339 sof_timestamp 99116643502320 sofmeta_timestamp 99105902588343 frame_id: 203580 org_frameid 8200443 event type: 800000c dac: 379 coe: 99116641950639
+[99105.926962] [11:02:39](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot froze 3840Kb of GPU buffers
+[99105.926979] [11:02:39](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot created at pa d3c00000++0x644a50
+[99105.926986] [11:02:39](4)[1433|kgsl_hwsched]Entry name already exist
+[99105.928249] [11:02:39](1)[1433|kgsl_hwsched]adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU
+[99105.958845] [11:02:39](3)[2725|PERFLOCKSD]store_scaling_min_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 384000
+[99105.958964] [11:02:39](3)[2725|PERFLOCKSD]store_scaling_min_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 1900800
+[99105.962729] [11:02:39](4)[2725|PERFLOCKSD]min_freq_store, pid: 2613, comm: PERFLOCKSD, freq: 726000000
+[99105.963882] [11:02:39](4)[2725|PERFLOCKSD]store_scaling_max_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 2745600
+[99105.978275] [11:02:39](3)[4557|binder:3901_7]audit: audit_lost=890627 audit_rate_limit=5 audit_backlog_limit=64
+[99105.978286] [11:02:39](3)[4557|binder:3901_7]audit: rate limit exceeded
+[99105.978552] [11:02:39](0)[1332|logd.auditd]type=1400 audit(1790593360.095:951867): avc:  denied  { read } for  comm="binder:3901_7" name="u:object_r:vendor_coprocds_prop:s0" dev="tmpfs" ino=481 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_coprocds_prop:s0 tclass=file permissive=0
+[99105.978765] [11:02:39](0)[1332|logd.auditd]type=1400 audit(1790593360.095:951868): avc:  denied  { read } for  comm="binder:3901_7" name="u:object_r:vendor_coprocds_prop:s0" dev="tmpfs" ino=481 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_coprocds_prop:s0 tclass=file permissive=0
+[99105.978996] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:display, vote:1
+[99105.978998] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:audio, vote:2
+[99105.979000] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:camera, vote:1
+[99105.979001] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:copro, vote:1
+[99105.979002] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_mcu, vote:1
+[99105.979003] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_hmd, vote:1
+[99105.979004] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_spi_test, vote:0
+[99105.979005] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_len_hood, vote:0
+[99105.979006] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_ctrl, vote:1
+[99105.979007] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_tracker, vote:0
+[99105.979008] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:lsfpga, vote:0
+[99105.979008] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:debug, vote:0
+[99105.979009] [11:02:39](3)[4557|binder:3901_7][hmd_pm]: client:station_switch, vote:0
+[99105.986087] [11:02:39](3)[12471|kworker/3:0]kgsl kgsl-3d0: snapshot: objects released
+[99105.994288] [11:02:39](1)[320|init]init: Unable to set property 'sys.full_dump.enable' from uid:0 gid:0 pid:21589: SELinux permission check failed
+[99106.032718] [11:02:39](0)[320|init]init: Unable to set property 'sys.full_dump.enable' from uid:0 gid:0 pid:21589: SELinux permission check failed
+[99106.038704] [11:02:39](6)[1401|sta_host_rx]mcu_thermal_sensor_cb tlv->node = 16 tlv->type = 1 tlv->reserve = 3 tlv->length = 12
+[99106.040343] [11:02:39](0)[1307|logd.reader]logd: logdr: UID=0 GID=0 PID=21600 n tail=20000 logMask=1 pid=0 start=0ns deadline=0ns
+[99106.082345] [11:02:39](1)[1307|logd.reader]logd: logdr: UID=1000 GID=1000 PID=21605 n tail=50000 logMask=3ff pid=0 start=0ns deadline=0ns
+[99106.272867] [11:02:40](1)[13135|kworker/u37:0]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[99106.272875] [11:02:40](1)[13135|kworker/u37:0]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[99106.347929] [11:02:40](2)[22843|kworker/2:4][kworke][0x1bb1d4fb353][11:02:40.468743] peach_v2: [22843:I:PMO] pmo_core_psoc_bus_suspend_req: fw took total time 25466 microseconds to enable wow wow_mode_selected: 1
+[99106.377001] [11:02:40](2)[22843|kworker/2:4]msm_pcie_dsp_link_control: PCIe: RC0: DSP(0000:02:01.0)<->EP(0000:03:00.0) Link is disabled
+[99106.381771] [11:02:40](2)[22843|kworker/2:4]pcie_switch: __pcie_switch_config_perst: PERST assert for dsp_port 1 done, gpio_reset=0x00000008
+[99106.723172] [11:02:40](1)[1332|logd.auditd]type=1400 audit(1790593360.839:951882): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android

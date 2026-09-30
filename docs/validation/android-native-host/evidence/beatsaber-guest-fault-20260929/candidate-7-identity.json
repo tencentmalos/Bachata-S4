@@ -1,0 +1,10 @@
+{
+  "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+  "apk_sha256": "5ba2b3732418e72d0756af10ebd99bf340a7144598832f8f64de79903aa605b2",
+  "files": {
+    "lib/arm64-v8a/libshadps4_host.so": "cfb61a4cae2c18e0659abf2c124b7bfb55c38044ed47a90f4cbfcaead5d18bdc",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "0bcf356675fb1214935934d9d4bd739e78971a30320f3c4759c44597405693a9",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094"
+  },
+  "installed_apk_sha256": "5ba2b3732418e72d0756af10ebd99bf340a7144598832f8f64de79903aa605b2"
+}

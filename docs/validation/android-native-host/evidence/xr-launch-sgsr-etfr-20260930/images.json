@@ -1,0 +1,27 @@
+[
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-sgsr-etfr-20260930/tmnt-cinema-source.png",
+    "bytes": 6540262,
+    "sha256": "eca6d5599b78b120ea8992919c3985c3d41f9d95471f72e049d244cdf5b1abd2"
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-sgsr-etfr-20260930/tmnt-cinema-composite.png",
+    "bytes": 7697834,
+    "sha256": "7d9f653fe015b4037bbca04ce9924de019885bfb131455f4aead320a335e9ebf"
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-sgsr-etfr-20260930/delivery-nearmax-source.png",
+    "bytes": 12980394,
+    "sha256": "6cfb9df32615d7060a5cc03f0371f845525cc82751af26dec6a8792dd582d93a"
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-sgsr-etfr-20260930/ultra-source.png",
+    "bytes": 16883789,
+    "sha256": "09877e5cfe9fbca1b1e87355d3038d3c8cfb4016b655dfa779a45505f4039c0a"
+  },
+  {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-sgsr-etfr-20260930/final-options.png",
+    "bytes": 1587211,
+    "sha256": "a80c74b0861dda83cc64c76f5695892c5f6a73c63b670fb0c0e1d768e9c98ef7"
+  }
+]

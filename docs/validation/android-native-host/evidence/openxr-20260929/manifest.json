@@ -1,0 +1,63 @@
+{
+  "date": "2026-09-29",
+  "base_commit": "b0778a7ff7e85585cf6afcfe986e35e23b46a558",
+  "branch": "feature/malos/swan_performance",
+  "reference_citron_commit": "3da08ee52defc5003d23683b0c233b0dac88722f",
+  "workspace_dirty": true,
+  "apk": "build/validation/openxr-20260929/shadps4-b0778a7f-openxr-candidate.apk",
+  "apk_sha256": "e8dbbb5baa6f77b0d11036a25bccb93a38a75ba75bbdd39d506f1099339660ca",
+  "apk_members_sha256": {
+    "lib/arm64-v8a/libshadps4_host.so": "64e5c56c2d398c79e3989a53898390976a8fe1f2c92b9618ae24eb6f6222a11a",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "2e6d0ebd61b11be10b48a4cded3a62e07e5907fe20589bcad557f7b3f8ae9889",
+    "lib/arm64-v8a/libpico_openxr_loader.so": "4bff43f2de795e4b1ff215cb714d9c139b4cae4d53ef14ce789bc45eaeaed4b7",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1"
+  },
+  "driver_identity": {
+    "source": "https://github.com/tencentmalos/mesa-mirror",
+    "source_commit": "86ca472fc22b88a1241bb2eece5c2c128c2f48ae",
+    "upstream_commit": "e1f3f372c4a661cd0e71a0cdafc4d469d56ecf35",
+    "release": "turnip-26.3-86ca472f",
+    "url": "https://github.com/tencentmalos/mesa-mirror/releases/download/turnip-26.3-86ca472f/Turnip-26.3-86ca472f-android-arm64.zip",
+    "archive_sha256": "035fecd1c1a52db5d865c50d063dd1659824e5f2d3e19e0c7fa46ad726db63dd",
+    "library": "vulkan.ad07xx.so",
+    "library_sha256": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+    "build_id": "5a27ad743d3e5541d89aafeeba255d9814e13ce2",
+    "abi": "android-arm64-bionic",
+    "scope": "Default Turnip profile for every device (KGSL poll fix, QCOM Mapper 5); debug.shadps4.vulkan_driver=turnip selects the historical R8 pin, system the vendor driver."
+  },
+  "checks": {
+    "sensor": "54/0 UBSan",
+    "openxr_input_mapping": "34/0 UBSan",
+    "pad_adapter": "62/0 UBSan",
+    "android_host_build": "passed",
+    "android_sensor_input_targets": "built, not run",
+    "apk_build": "passed",
+    "android_instrumentation_kotlin": "compiled, not run",
+    "package_native_hashes": "matched"
+  },
+  "device": {
+    "adb_devices": [],
+    "installed": false,
+    "runtime_executed": false
+  },
+  "psvr_precise_projection": "not implemented; default stereo cinema; last-HLE-snapshot approximation opt-in only",
+  "prior_gpu_cleanup": "unchanged, see swan-cp-opcode-20260929/preempt/cleanup-pending.json",
+  "source_sha256": {
+    "src/video_core/renderer_vulkan/openxr/runtime.cpp": "9a4a9cb5dd868b35d2464ca403096e5ba8a438b9cd23c757c4b6b7455de62113",
+    "src/video_core/renderer_vulkan/openxr/runtime.h": "ad322eed8a4e8cc3e59612124a6dbaec4a63dfe6a3f7c3c0ba4d9643e5b98e43",
+    "src/core/host_runtime/guest_vr_sensor.cpp": "768a9635e5a51bb099c2008c2dec22ceca6773b3cdfc67f44c0e42d031156a5d",
+    "src/core/host_runtime/openxr_pad_mapping.h": "f673dcffcc2cc87d6e496c51fc66412b27eb418973749b5b06c51ddfa1053d26",
+    "src/core/host_runtime/orbis_pad_adapter.cpp": "64e31387a11e7561a643a1a4436a8cac9829ed0a6b52a31d793011293a07d7f9",
+    "src/core/libraries/hmd/hmd.cpp": "8328f419956f071146890f9bffd8129350014aadc1c699bd26859beb0df4ab0b",
+    "src/core/libraries/move/move.cpp": "35bb4a6b1b3337565890891614aacad446717d9ddf7f0f0f4db76bcd2f448ae4",
+    "src/core/libraries/vr_tracker/vr_tracker.cpp": "7aad6aa2d3616e4c83e70bf8b0da031936944dfdd9cc318be3a388c702892a92",
+    "src/core/host_runtime/guest_reprojection.h": "b6263b2cc195d61b1f7ae642c5952ecc6fda87f8d92bb76f8a25782d2202959d",
+    "src/video_core/renderer_vulkan/vk_presenter.cpp": "a8a7c844fc0f1d59263be8935323a71628d775d9cdf2d13e3898c34a00ae16c0",
+    "foundation/modules/xr/src/XrInputSystem.cpp": "6a22c91720c86bbaa3ca243bf26a657b5a98625da45ec1b1f4b5556f03f720d8",
+    "foundation/modules/xr/src/InputActions.cpp": "0a9d87aa2edb18d60cf21531b3c58c1d2153441499bc45763a0f6a1fddaa42af",
+    "foundation/modules/xr/src/InputBindings.cpp": "2ff031f987729e55ac846472929d1bbc73fe352bee7b00d7e3fff558e196fad7",
+    "android/shadps4-app/app/src/main/AndroidManifest.xml": "2e4fcea16a2fdfc05515a236449bbfad500b9bc3cbf27170f5e4a6a2993c1070",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/OpenXrActivity.kt": "2a6e026f59102efd584a95821d22d4c908cf062f8b04ffedadaecdacbc204899",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/MainActivity.kt": "74ec1cf61edf39d302ca126e563ee32a74c56379b421dc82997f7f0cb5c865ac"
+  }
+}

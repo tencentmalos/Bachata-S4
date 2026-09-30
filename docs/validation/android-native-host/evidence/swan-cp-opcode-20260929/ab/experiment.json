@@ -1,0 +1,18 @@
+{
+  "device": "PB3110PGL6240001G",
+  "boot": "20c5024e-15c5-4f6a-981f-7630a933df4c",
+  "apk_sha256": "bfc3e34609f1ca8436cb2ddfc31c38e42226efda528730cc0f976dd81cd1c625",
+  "driver_sha256": "c35946a8758de0400899b69f28b2158a06931eccf7d9d44cd454022a5fb81b23",
+  "host_sha256": "8bfd013b59bea54b118aefee5f169f72c4245abb460ba623380de5abf312dbdb",
+  "variable": "debug.mesa.tu.debug empty versus sds_page_align; fresh process each run",
+  "cold_definition": "Host recipe and VkPipelineCache directory absent at startup; not a claim of all OS/driver caches cold",
+  "a1_input_limit": "Only recorded DebugBus actions are ours; transition into world also included external input",
+  "b1_input_limit": "First two yaw requests were superseded before full requested duration; not a matched movement workload",
+  "saves": "Original home backed up before installation; no save restore or external edit",
+  "runs": [
+    "a1-off",
+    "b1-on",
+    "a2-off-cold",
+    "b2-on-cold"
+  ]
+}

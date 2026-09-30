@@ -1,0 +1,13 @@
+TASK 10152:com.shadps4.android id=467 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 5deddcb pid=10974 userId=0 uid=10152 displayId=0(type=INTERNAL)
+openxr=1 running=1 focused=1 predicted_ns=190747654249127
+head valid=1,1 p=-0.089709,-0.221918,-0.0318588 q=-0.0953247,-0.328926,-0.126113,-0.93103
+left active=1
+eye valid=1,1 p=-0.114143,-0.231588,-0.0127346 q=-0.089733,-0.369224,-0.13015,-0.915796
+grip (Move/VrTracker) valid=1,1 p=-0.0707222,-0.179605,0.0151805 q=-0.909075,0.22603,0.298083,0.18341
+aim (XR UI ray) valid=1,1 p=-0.0364209,-0.161956,0.0487323 q=-0.922977,0.129003,0.351143,-0.0903921
+right active=1
+eye valid=1,1 p=-0.0652753,-0.212248,-0.050983 q=-0.100735,-0.288002,-0.121834,-0.944491
+grip (Move/VrTracker) valid=1,1 p=0.0127987,-0.233407,0.0836077 q=0.423984,0.340977,0.413483,0.730071
+aim (XR UI ray) valid=1,1 p=-0.00339609,-0.235458,0.0351588 q=0.192005,0.205187,0.495108,0.822132
+

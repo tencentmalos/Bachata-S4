@@ -1,0 +1,6 @@
+FAIL 57: initialized == 0
+FAIL 65: exhausted.Init(base + 16, 0, 0) == POSIX_ENOMEM
+FAIL 68: unchanged == retired
+SEMAPHORE checks=12309 failures=3
+
+exit_code=1

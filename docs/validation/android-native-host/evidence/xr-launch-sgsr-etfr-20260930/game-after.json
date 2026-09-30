@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "values": {
+    "input.xr_swap_move_hands": true,
+    "gpu.xr_upscaler": "sgsr1",
+    "gpu.xr_output_resolution": "maximum"
+  },
+  "unknownShadPs4": {},
+  "guestBackend": null,
+  "driverId": null,
+  "maliGpuOptimizations": null,
+  "controllerSlots": [],
+  "touchLayoutId": null
+}

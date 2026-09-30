@@ -1,0 +1,16 @@
+[2026-09-29 01:03:19.727][Info][22146][Core.Linker](shadps4.android) module.cpp:153 RestoreExternalPltImports: Restored external PLT import: Il2cppUserAssemblies.prx offset=0x1228 got=0x428a1e0 previous_target=0x84070ee0
+[2026-09-29 01:03:19.727][Info][22146][Core.Linker](shadps4.android) module.cpp:153 RestoreExternalPltImports: Restored external PLT import: Il2cppUserAssemblies.prx offset=0x1258 got=0x428a1f8 previous_target=0x84071070
+[2026-09-29 01:03:19.727][Info][22146][Core.Linker](shadps4.android) module.cpp:153 RestoreExternalPltImports: Restored external PLT import: Il2cppUserAssemblies.prx offset=0x1398 got=0x428a298 previous_target=0x84071040
+[2026-09-29 01:03:19.727][Info][22146][Core.Linker](shadps4.android) module.cpp:153 RestoreExternalPltImports: Restored external PLT import: Il2cppUserAssemblies.prx offset=0x13c8 got=0x428a2b0 previous_target=0x840710a0
+[2026-09-29 01:03:19.727][Info][22146][Core.Linker](shadps4.android) module.cpp:153 RestoreExternalPltImports: Restored external PLT import: Il2cppUserAssemblies.prx offset=0x1538 got=0x428a368 previous_target=0x84071010
+[2026-09-29 01:03:19.727][Info][22146][Core.Linker](shadps4.android) module.cpp:153 RestoreExternalPltImports: Restored external PLT import: Il2cppUserAssemblies.prx offset=0x1568 got=0x428a380 previous_target=0x84070fc0
+[2026-09-29 01:03:20.403][Info][22146][Core.Linker](Guest-1) guest_runtime.cpp:5252 Run: Guest module libSceFios2.prx: DT_INIT completed
+[2026-09-29 01:03:20.411][Info][22146][Core.Linker](Guest-1) guest_runtime.cpp:5252 Run: Guest module libc.prx: DT_INIT completed
+[2026-09-29 01:03:20.411][Info][22146][Core.Linker](Guest-1) guest_runtime.cpp:5252 Run: Guest module PS4Util.prx: DT_INIT completed
+[2026-09-29 01:03:20.411][Info][22146][Core.Linker](Guest-1) guest_runtime.cpp:5252 Run: Guest module Il2cppUserAssemblies.prx: DT_INIT completed
+[2026-09-29 01:03:20.467][Error][22173][Core.Linker](Guest-7) guest_runtime.cpp:1160 Call: GUEST_FAULT thread=7 entry=0x100b74760 rip=0x0 rsp=0x1c0037ff18 rbp=0x1c0037ff30 rax=0x80020016 rbx=0x210715b10 rcx=0x16 rdx=0x1c00383fc0 rdi=0x0 rsi=0xaf00
+[2026-09-29 01:03:20.467][Error][22173][Core.Linker](Guest-7) guest_runtime.cpp:1170 Call: GUEST_FAULT frame=0 pc=0x100a76474 module=eboot.bin offset=0xa76474
+[2026-09-29 01:03:20.467][Error][22173][Core.Linker](Guest-7) guest_runtime.cpp:1170 Call: GUEST_FAULT frame=1 pc=0x100b7497d module=eboot.bin offset=0xb7497d
+[2026-09-29 01:03:20.467][Error][22173][Core.Linker](Guest-7) guest_runtime.cpp:1170 Call: GUEST_FAULT frame=2 pc=0x7fc0000000 module=unknown offset=0x7fc0000000
+[2026-09-29 01:03:20.467][Error][22173][Core.Linker](Guest-7) guest_runtime.cpp:1173 Call: GUEST_FAULT trace_end count=3 stop=complete at=0x0
+[2026-09-29 01:03:20.627][Info][22187][Render_Vulkan](DefaultDispatch) runtime.cpp:744 Run: OpenXR ImGui error panel submitted: guest fault: guest return=0 guest_rip=0 context=0 thread=7 generation=0 invocation=0 category=0

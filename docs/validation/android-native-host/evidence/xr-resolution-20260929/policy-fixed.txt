@@ -1,0 +1,4 @@
+TASK 10152:com.shadps4.android id=329 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 736aa8 pid=7406 userId=0 uid=10152 displayId=0(type=INTERNAL)
+render_scale_percent=100.000000 texture_quality=medium legacy=false restart_required=true
+

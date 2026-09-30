@@ -1,0 +1,1 @@
+                 U spatial::platform::JniHelper::initJniEnviroment(void*, void*)

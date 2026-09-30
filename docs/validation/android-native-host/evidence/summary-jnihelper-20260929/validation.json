@@ -1,0 +1,82 @@
+{
+  "date": "2026-09-29",
+  "main_base": "b0778a7f",
+  "foundation_base": "b05f80fb",
+  "state": "uncommitted",
+  "result": "unified on original JniHelper; removed separate JniContext",
+  "tests": {
+    "jni": {
+      "checks": 253,
+      "failures": 0,
+      "reads": 2000,
+      "idempotent_reinitializations": 200,
+      "vm": "real JDK 17, -Xcheck:jni",
+      "result": "passed"
+    },
+    "legacy_platform_sources": "NDK arm64 API33 syntax checks passed for JniHelper, AndroidHelper, JniInvoker",
+    "builds": [
+      "shadps4_host",
+      "assemblePlaystoreDebug",
+      "core:runtime:compileDebugAndroidTestKotlin"
+    ],
+    "perf": "219 assertions in 33 cases passed in preceding task; algorithm unchanged, not rerun"
+  },
+  "failure_resolved": "pthread destructor ordering left native threads registered in host JVM; C++ TLS cleanup resolves it; final DestroyJavaVM returned successfully",
+  "device_installed": false,
+  "device_runtime_validated": false,
+  "raw_artifacts": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/summary-jnihelper-20260929",
+  "files": {
+    "apk-identity.json": {
+      "bytes": 681,
+      "sha256": "517b3fb0443fa57aca0135fb1a659143d02290f5956a9dd6948ca5c8f185b155"
+    },
+    "build-apk.log": {
+      "bytes": 25803,
+      "sha256": "c83612ed91bc2159f56bbfbf6f114b846a41caaa0a9995e48efc689d920967f9"
+    },
+    "build-host.log": {
+      "bytes": 828,
+      "sha256": "c3d7c1af0a728fcbe1abac96cba8366086fccbb8f8cf177f83562a3af7b87e89"
+    },
+    "build-jni.log": {
+      "bytes": 282,
+      "sha256": "1ca4570f7c6433f5b616c27a698110951c9123bb8e53ecbdaacb19709b9f81fe"
+    },
+    "build-legacy-helper.log": {
+      "bytes": 65,
+      "sha256": "7723067a6460d58dc90db05f54379e142cfe9606ee441ab19f9d593d0ca9ba6e"
+    },
+    "configure-jni.log": {
+      "bytes": 178,
+      "sha256": "2805a1dd60c4ae25ead103fe8e7039d828f1ca0241523317e67580d2e88993a6"
+    },
+    "first-test-threads.log": {
+      "bytes": 5216,
+      "sha256": "06d6dcdeb50b8ca7ca75ae63ad29f47aa5ce3328edc11848091ba12603f33e7e"
+    },
+    "host-symbols.txt": {
+      "bytes": 753,
+      "sha256": "93a4f7c16c3524c0535dbed0c7d28210577ba71222f374f11c3e2445afe756a9"
+    },
+    "jni-symbols.txt": {
+      "bytes": 81,
+      "sha256": "d9b86d19425082e51450788843175f41d5d3503372c0509adf06570b8a0cf69b"
+    },
+    "jni-test-detail.log": {
+      "bytes": 903,
+      "sha256": "f37819555ad502405e55d03c7c52f1a16d7dcd2548af88947e2211bcdabfa44b"
+    },
+    "libshadps4_fex_session.so": {
+      "bytes": 35803160,
+      "sha256": "7b08604de1a91bb732545d36ffc23d7c8332c47bf3982b590161649a6523e572"
+    },
+    "shadps4-b0778a7f-jnihelper.apk": {
+      "bytes": 211557496,
+      "sha256": "2325cf2ba0a1ba5c50f7e1a2027afd33e4ec027587b1645ae683c58300addd88"
+    },
+    "test-jni.log": {
+      "bytes": 260,
+      "sha256": "e4aed8f8c1fcad1a37be3292339e8bd645d3056c75228029f9d7206dc5860538"
+    }
+  }
+}

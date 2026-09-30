@@ -1,0 +1,35 @@
+TASK 10152:com.shadps4.android id=189 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.MainActivity c97087c pid=29580 userId=0 uid=10152 displayId=0(type=INTERNAL)
+settings: recipe cache on (store open), driver cache on
+compile mode: async_graphics_skip (configured async_graphics_skip), 2 compile threads
+  deferred 157 graphics + 30 compute; queued 187 (peak depth 3), queue full 0; built by workers 176, by first user 11
+  binds that waited for a build: 96 in 2483.7 ms (mean 25.87 ms, max 470.29 ms)
+  skipped draws (lossy): 31 (0 held after their pipeline was built) of 22 pipelines, 22 resumed; 14 frames affected, longest run 2 frames; skipping off for the session (missing content was read in a later frame)
+  unbuilt draws kept instead of skipped: side effects 0, predicated 0, stream-out 0, clear/meta 0, skipped too long 0, skipping off 478
+  attachments missing content from skipped draws (3 recorded, by draws):
+    color 0x24ebf8000: 24 draws, frames 44..1888
+    color 0x24d408000: 1 draws, frames 0..0
+    color 0x24e3f8000: 1 draws, frames 44..44
+  missing content: 3 ranges, 34.1 MiB marked; 29 marks from skipped draws, 25 carried by reads, 11 cleared by whole overwrites; no longer followed (skipping is off)
+    reached a later frame: 1 times, first at 0x24fcf0000 in frame 2258
+    0x24d408000..0x24ebf0000 (24480 KiB): lost in frame 0, last marked in frame 1888, carried by reads
+    0x24ebf8000..0x24f3f0000 (8160 KiB): lost in frame 2, last marked in frame 2258, carried by reads
+    0x24fcf0000..0x24ff30000 (2304 KiB): lost in frame 2, last marked in frame 2258
+guest shaders translated: 257 in 785.2 ms (mean 3.06 ms, max 212.29 ms)
+graphics pipelines created: 157 in 2183.7 ms (mean 13.91 ms, max 91.78 ms)
+    driver feedback 157 in 2174.8 ms (mean 13.85 ms, max 91.75 ms), cache hits 157
+compute pipelines created: 30 in 1357.5 ms (mean 45.25 ms, max 470.62 ms)
+    driver feedback 30 in 1357.3 ms (mean 45.24 ms, max 470.62 ms), cache hits 0
+tiling pipelines created: 14 in 227.2 ms (mean 16.23 ms, max 23.69 ms)
+    driver feedback 14 in 227.1 ms (mean 16.22 ms, max 23.69 ms), cache hits 0
+preload: 0 stored, whole preload 0.0 ms on 0 threads
+  0 with usage records; recipes/modules/layouts 0.0 ms; 0 built before start in 0.0 ms, 0 left to workers (0 built so far, 0 promoted by a draw); usage saved 31; pipelines first used this session 186
+  graphics preloaded: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+    driver feedback 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), cache hits 0
+  compute preloaded: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+    driver feedback 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), cache hits 0
+driver cache file: /data/user/0/com.shadps4.android/files/host/cache/CUSA03023_5143_44050a31.vkpipelines
+  identity: vendor 0x5143 device 0x44050a31 driver 0x6802063 uuid 67f8dd7ad1036163621964ab2d222465
+  at startup: no file (0 bytes)
+  saves: 2 in 4.8 ms (mean 2.42 ms, max 3.14 ms), last 312005 bytes
+

@@ -1,0 +1,18 @@
+[
+  {
+    "case": "matching production source/driver/host",
+    "pass": true
+  },
+  {
+    "case": "unbuilt source edit rejected",
+    "pass": true
+  },
+  {
+    "case": "modified ELF rejected",
+    "pass": true
+  },
+  {
+    "case": "other host with same driver pin rejected",
+    "pass": true
+  }
+]

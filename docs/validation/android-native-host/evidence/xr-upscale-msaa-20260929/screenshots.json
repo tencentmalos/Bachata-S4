@@ -1,0 +1,46 @@
+[
+  {
+    "file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-upscale-20260929/game-fsr.png",
+    "sha256": "effccb149dfbf520f1e24493a6b7154fe41860e3ed811ff80f57506b789e3227",
+    "bytes": 20574257,
+    "width": 5184,
+    "height": 2400,
+    "producer_frame": 1073,
+    "session_pid": 19467,
+    "driver_prefix": "e118fd41",
+    "inspection": "viewed; stereo safety warning rendered, no partial-target loss"
+  },
+  {
+    "file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-upscale-20260929/game-sgsr.png",
+    "sha256": "8fe78d4e20a88a6f5564fc040064b63db183cf40242c9d1fe21976ef401fe9c9",
+    "bytes": 17793946,
+    "width": 5184,
+    "height": 2400,
+    "producer_frame": 2531,
+    "session_pid": 19467,
+    "driver_prefix": "e118fd41",
+    "inspection": "viewed; stereo safety warning rendered, no partial-target loss"
+  },
+  {
+    "file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-upscale-20260929/game-sgsr-density.png",
+    "sha256": "232e9881a687c9fb617aba9b64333e26ff9cd13ba90a5c75631f52df3281aaf5",
+    "bytes": 17480037,
+    "width": 5184,
+    "height": 2400,
+    "producer_frame": 3279,
+    "session_pid": 19467,
+    "driver_prefix": "e118fd41",
+    "inspection": "viewed; stereo safety warning rendered, no partial-target loss"
+  },
+  {
+    "file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-upscale-20260929/game-delivery.png",
+    "sha256": "2cafe19d88301fb86c0114e7c365ae254b382bd85411b09b45c17cc1b41d64ba",
+    "bytes": 20592511,
+    "width": 5184,
+    "height": 2400,
+    "producer_frame": 1448,
+    "session_pid": 20848,
+    "driver_prefix": "48adf9b6",
+    "inspection": "viewed; stereo safety warning rendered, FSR1, diagnostic tint off"
+  }
+]

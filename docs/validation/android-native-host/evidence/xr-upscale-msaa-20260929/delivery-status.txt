@@ -1,0 +1,36 @@
+TASK 10152:com.shadps4.android id=351 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 6630a01 pid=20848 userId=0 uid=10152 displayId=0(type=INTERNAL)
+session: active
+generation: 1
+pid: 20848
+phase: 3
+run_uuid: 25e1c92391ea28883eb9b550295ff6ca
+stage: Running
+driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-1b588fceef) shaderInt64=1 api=4211051 sha256=48adf9b624dfd2f5b93b3e5e941018faa836f6241ffb9d98f99089841b165af8 
+snapshot_ns: 130767725856625
+guest_flip: 3550 (age_ns=12068594)
+pm4_consumed: 7762507 (age_ns=13175625)
+host_draw: 152117 (age_ns=13202864)
+queue_submit: 12277 (age_ns=10486458)
+gpu_retire: unavailable
+host_present: 3548 (age_ns=23253281)
+overlay_redraw: 4257 (age_ns=18789583)
+guest_submission: 7111 (age_ns=14625677)
+
+TASK 10152:com.shadps4.android id=351 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 6630a01 pid=20848 userId=0 uid=10152 displayId=0(type=INTERNAL)
+upscaler=1 foveation=2 level=0 sharpness=50 draws=7101 fdm_draws=7101 tracked_draws=0 uploads=17 unchanged=7084 fdm_enabled=true gaze_supported=true gaze_fresh=false gaze_valid=0 gaze_invalid=3072 scope=host-presentation
+
+TASK 10152:com.shadps4.android id=351 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 6630a01 pid=20848 userId=0 uid=10152 displayId=0(type=INTERNAL)
+openxr=1 running=1 focused=1 predicted_ns=130767845035898
+head valid=1,1 p=-0.483279,-0.251053,-0.730768 q=-0.0125689,0.232613,-0.0761833,0.969499
+left active=1
+eye valid=1,1 p=-0.511422,-0.246143,-0.716408 q=-0.00923386,0.274681,-0.0766591,0.95843
+grip (Move/VrTracker) valid=1,1 p=-0.449328,-0.262797,-0.49038 q=-0.272213,0.0950188,-0.449639,-0.845397
+aim (XR UI ray) valid=1,1 p=-0.421199,-0.263543,-0.533065 q=-0.0131478,0.222329,-0.402211,-0.888045
+right active=1
+eye valid=1,1 p=-0.455135,-0.255964,-0.745129 q=-0.01588,0.190103,-0.0755626,0.978723
+grip (Move/VrTracker) valid=1,1 p=-0.312212,-0.222691,-0.528184 q=-0.0287117,-0.114148,0.246359,-0.962005
+aim (XR UI ray) valid=1,1 p=-0.339132,-0.252643,-0.559679 q=0.253806,-0.181189,0.202221,-0.928364
+

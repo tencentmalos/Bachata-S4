@@ -1,0 +1,13 @@
+{
+  "status": "ready",
+  "request_id": "a78831d264cbc1e4ec779e2dc5e0183c",
+  "generation": "1",
+  "source": "shadps4.final_render_target",
+  "view": "canvas",
+  "encoding": "png",
+  "width": "1920",
+  "height": "1080",
+  "producer_frame": "21706",
+  "recorded_monotonic_ns": "94833704383614",
+  "file": "/data/user/0/com.shadps4.android/files/host/captures/snapshot-a78831d264cbc1e4ec779e2dc5e0183c.png"
+}

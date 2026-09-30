@@ -1,0 +1,17 @@
+{
+  "status": "stopped",
+  "revision": "2",
+  "source": "shadps4.final_render_target",
+  "mode": "file",
+  "view": "canvas",
+  "submitted": "72",
+  "skipped": "0",
+  "encoded_samples": "73",
+  "encoded_bytes": "137591",
+  "first_codec_pts_us": "94754936308",
+  "last_codec_pts_us": "94757260806",
+  "metadata_association": "codec_pts_only",
+  "eos": "true",
+  "file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94754892260936.h264",
+  "metadata_file": "/data/user/0/com.shadps4.android/files/host/captures/embedded-94754892260936.h264.frames.csv"
+}

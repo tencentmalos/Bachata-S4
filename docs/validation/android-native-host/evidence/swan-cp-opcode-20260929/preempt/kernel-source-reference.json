@@ -1,0 +1,14 @@
+{
+  "root": "/Users/bytedance/workspace/swan_source/oak_vendor/vendor/qcom/opensource/graphics-kernel",
+  "head": "cd8a361e34bbd7e0bbe0eac9bdf3098234bec32d",
+  "worktree_status": " M adreno_drawctxt.c\n M adreno_drawctxt.h\n M adreno_gen8.c\n M adreno_gen8_hwsched_hfi.c\n M adreno_hwsched.c\n M adreno_hwsched.h\n",
+  "loaded_kmd_build_id": "37b31e3606d5e5827de3cb5154312f44d6827c95",
+  "source_evidence": "semantic_only_target_build_unverified",
+  "files": {
+    "adreno_drawctxt.c": "63049dc8695ccae8c2a12393b4c2112b51093c7f4602c4b4c605eebb3eaae0a7",
+    "adreno_gen8_hwsched_hfi.c": "a4ea163b80ea2b7c2ba4071ac9ff1da5a8bf56acc9f633359b6e92ef40e9d83d",
+    "kgsl_gmu_core.c": "76d541aab955fba5c6c23918ea36802ffb3f143665b953a494085a95cae1b80d",
+    "adreno_hfi.h": "4d720f71de23fa6e1301520425408314a2b2b7389ca1c38c3f59c68a1164e834",
+    "include/uapi/linux/msm_kgsl.h": "348d8e9096884d56bdacc5852c6e85a00bd08a13e6e9565c474c22ff6f5bdb53"
+  }
+}

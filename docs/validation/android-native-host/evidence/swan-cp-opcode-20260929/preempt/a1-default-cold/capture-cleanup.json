@@ -1,0 +1,86 @@
+[
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103427524047107.h264",
+    "local": "a1-default-cold/continue.h264",
+    "sha256": "df4adcd22baade1351b3b621f219a54b44dbd1be6d5e87c307b87f49682c1a4f",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103427524047107.h264.frames.csv",
+    "local": "a1-default-cold/continue.h264.frames.csv",
+    "sha256": "efb8076c6a1a70816f82fb965369f6d2b92526434081e40cf19153370aa07286",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103470725342142.h264",
+    "local": "a1-default-cold/loading.h264",
+    "sha256": "a4cb8514a22d12698b5078dec8ce6181dbf1abe5fa7196d5d685ed8ff53aaf16",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103470725342142.h264.frames.csv",
+    "local": "a1-default-cold/loading.h264.frames.csv",
+    "sha256": "a23450986ec37309e09c9c632d9f6c77738f04cd17e3e5b3f9c7ce8683fd75e1",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103343655315993.h264",
+    "local": "a1-default-cold/logos.h264",
+    "sha256": "19e6a120626cf3b2bd09e93932e1bec975d9e7229f0d2f6ec9234ed5389f7048",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103343655315993.h264.frames.csv",
+    "local": "a1-default-cold/logos.h264.frames.csv",
+    "sha256": "3a23e88b7e306692694178cc282200a4ddb90da187ad0f062a78dec7c13d99dc",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103591079638138.h264",
+    "local": "a1-default-cold/moved.h264",
+    "sha256": "7905bccafd4085cf9e1447d77068fb346a113d96607e8e3adb3b21f581ca7560",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103591079638138.h264.frames.csv",
+    "local": "a1-default-cold/moved.h264.frames.csv",
+    "sha256": "db34acc40c62ee5d45a93a85f3f8eba7bd3576ee4f271fae2b621873fc814fe3",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103306520955278.h264",
+    "local": "a1-default-cold/start.h264",
+    "sha256": "a547f70b9fe4660762be23cdac8c0fb9945bd0c662fbe0dcaa1f93cb8bcc9d9c",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103306520955278.h264.frames.csv",
+    "local": "a1-default-cold/start.h264.frames.csv",
+    "sha256": "7863de9f316ebb5452eb865418a15adb4feff09e00911bee31cb897f259f1bbd",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103401440065762.h264",
+    "local": "a1-default-cold/title.h264",
+    "sha256": "3e8b5f50e2793160036e0af05ed9b9980ca4013543bce726f1b2d7bed321bd9d",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103401440065762.h264.frames.csv",
+    "local": "a1-default-cold/title.h264.frames.csv",
+    "sha256": "18d5b053d4fc18242c130c81c54ea8ff24fcf92b5505c397912eb65e063c5bb8",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103545745015968.h264",
+    "local": "a1-default-cold/world.h264",
+    "sha256": "8ff6c21ee674a5fb14a6033274d916e3559f2a0468e422ae36791dedbf5877f2",
+    "removed": true
+  },
+  {
+    "remote": "/data/user/0/com.shadps4.android/files/host/captures/embedded-103545745015968.h264.frames.csv",
+    "local": "a1-default-cold/world.h264.frames.csv",
+    "sha256": "67ad9bd2773979c1700f3866bfae30b7c9cb9750983ac2c2f013456bca1d701d",
+    "removed": true
+  }
+]

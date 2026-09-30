@@ -1,0 +1,4 @@
+TASK 10152:com.shadps4.android id=459 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 9981958 pid=15088 userId=0 uid=10152 displayId=0(type=INTERNAL)
+visible=true theme=graphite gi=true indicator=auto
+mode=psvr-imgui model=disabled layout=vertical anchor=top-left canvas=384x576 space=VIEW distance=2.5m updates=72 reused=0 update_us=145 max_hz=4 nonblocking=true released=true

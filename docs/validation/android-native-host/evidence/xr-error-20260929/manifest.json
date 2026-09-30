@@ -1,0 +1,104 @@
+{
+  "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+  "apk_sha256": "8e11de1cf87d332d6578ebbc60b89a9ec935463a6ec63d72b2a177400bf76dda",
+  "files": {
+    "lib/arm64-v8a/libshadps4_host.so": "80b7bb6aa973fe71f5ce648c4e405d92bb2743ea1f8b09ff5d2b69674e989d76",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "40732e1d2e1b4571fe974ca708e28deaef92e2a98a7c635519c4e28e5925bcda",
+    "lib/arm64-v8a/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094"
+  },
+  "source": {
+    "abi": "android-arm64-bionic",
+    "api": 33,
+    "base_commit": "1b588fceef705b65495e84df274a7dfeb09412fc",
+    "build_options": [
+      "--buildtype=release",
+      "-Dplatforms=android",
+      "-Dandroid-stub=true",
+      "-Dandroid-libbacktrace=disabled",
+      "-Dplatform-sdk-version=33",
+      "-Dvulkan-drivers=freedreno",
+      "-Dfreedreno-kmds=kgsl",
+      "-Dgallium-drivers=",
+      "-Degl=disabled",
+      "-Dgles1=disabled",
+      "-Dgles2=disabled",
+      "-Dopengl=false",
+      "-Dllvm=disabled",
+      "-Dbuild-tests=false",
+      "-Dzstd=disabled"
+    ],
+    "libcxx_sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+    "library": "vulkan.ad07xx.so",
+    "library_sha256": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094",
+    "lock_sha256": "92f1991cf091de316f5f0aee042c66425453fda9eccb5bb9ed5c48a814f909ad",
+    "ndk": "29.0.14206865",
+    "recipe_sha256": "26a2944760084051474d19780b970a4cc11af90f21634de293f831ca8808e15f",
+    "scope": "Build current Mesa submodule from source, including working changes, with source/patch/ELF identity. Azahar Swan XR baseline; iterate GPU hang fixes here. No system-driver fallback.",
+    "source": "https://github.com/tencentmalos/mesa-mirror",
+    "source_commit": "1b588fceef705b65495e84df274a7dfeb09412fc",
+    "source_diff_sha256": "594348dc94683573e4ecb2db819910f1d2ed01526803ebba531b21217e6bce70",
+    "source_dirty": true,
+    "source_identity_sha256": "44d4e6cc4f09410e1eeec8165ef218d338709fd035795fa38b90062d4fe389a1",
+    "source_path": "references/mesa-turnip",
+    "untracked_files": {}
+  },
+  "host_binding": {
+    "host_sha256": "80b7bb6aa973fe71f5ce648c4e405d92bb2743ea1f8b09ff5d2b69674e989d76",
+    "library_sha256": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094",
+    "source_identity_sha256": "44d4e6cc4f09410e1eeec8165ef218d338709fd035795fa38b90062d4fe389a1"
+  },
+  "kotlin_tests": {
+    "app": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "runtime": {
+      "tests": 133,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "physical_device_test": {
+    "serial": "PB3110PGL6240001G",
+    "boot_id": "20c5024e-15c5-4f6a-981f-7630a933df4c",
+    "pid": 12099,
+    "loaded_source": "turnip",
+    "loaded_commit": "1b588fceef",
+    "loaded_sha256": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094",
+    "first_panel_frames": 708,
+    "retry_panel_frames": 1591,
+    "panel_failed": false,
+    "pico_composited_captures": [
+      "turnip-source-headset.png",
+      "turnip-source-retry-headset.png"
+    ],
+    "retry": "Injected D-pad Down, Left, A: second guest launch, same known GuestFault, second XR panel visible",
+    "return": "Injected B: MainActivity, XR panel inactive",
+    "physical_controller_test": false,
+    "guest_fault_rip": "0x84070ee0",
+    "gpu_hang_fixed": false,
+    "properties_preserved": {
+      "debug.shadps4.vulkan_driver": "",
+      "debug.mesa.tu.debug": "kgsl_preempt_rb",
+      "debug.spruntime.etfr.subsample": "0"
+    }
+  },
+  "installed_apk_sha256": "8e11de1cf87d332d6578ebbc60b89a9ec935463a6ec63d72b2a177400bf76dda",
+  "source_checks": {
+    "qcom_surface": 10667,
+    "fdm_sampling": 6,
+    "mapper5_metadata": 1402,
+    "failure_count": 0
+  },
+  "module_lifecycle_checks": {
+    "device": "Swan",
+    "checks": 249,
+    "failure_count": 0,
+    "note": "Earlier same module lifecycle source in this task; not rerun with final driver since no related source changes."
+  },
+  "preserved_apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/openxr-20260929/beatsaber-startup/shadps4-b0778a7f-turnip-source-xr.apk"
+}

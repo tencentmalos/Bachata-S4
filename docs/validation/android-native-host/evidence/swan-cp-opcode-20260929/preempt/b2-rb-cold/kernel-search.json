@@ -1,0 +1,77 @@
+{
+  "incident": 104470.369166,
+  "coverage_uptime": [
+    102032.479709,
+    104474.389091
+  ],
+  "analysis_window": [
+    104410.369166,
+    104590.369166
+  ],
+  "full_post_window": false,
+  "patterns": {
+    "opcode": "CP.*opcode.*error",
+    "fault_id": "Fault id:",
+    "page_fault": "GPU PAGE FAULT|SMMU.*fault|IOMMU.*fault",
+    "reclaim": "GPU write zram|kgsl_reclaim",
+    "gmu_reset": "GMU.*(timeout|fault|suspend|reset)|HFI.*(timeout|fault)|hwsched.*fault",
+    "wait": "waittimestamp|fence.*(timeout|fail)"
+  },
+  "hits": {
+    "opcode": [
+      "[104470.369166] [12:32:04](4)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000"
+    ],
+    "fault_id": [
+      "[104470.369190] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:578000000"
+    ],
+    "page_fault": [
+      "[104470.688562] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl_iommu_print_fault: 77 callbacks suppressed",
+      "[104470.688566] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76817C0 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688574] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688577] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688605] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76817c0",
+      "[104470.688657] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B764ED80 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688660] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688663] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688674] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b764ed80",
+      "[104470.688699] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76F1700 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688701] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688703] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688752] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76f1700",
+      "[104470.688821] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76D4B80 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688824] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688827] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688838] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76d4b80",
+      "[104470.688872] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76EDF40 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688875] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688877] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688888] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76edf40",
+      "[104470.688918] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76C7140 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688920] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688923] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688933] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76c7140",
+      "[104470.688964] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76E7DC0 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.688966] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.688969] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.688979] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76e7dc0",
+      "[104470.689013] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76E1780 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.689015] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.689018] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.689028] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76e1780",
+      "[104470.689058] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B776EB40 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.689061] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.689064] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.689075] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b776eb40",
+      "[104470.689104] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B776A580 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY",
+      "[104470.689107] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)",
+      "[104470.689110] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown",
+      "[104470.689120] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b776a580"
+    ],
+    "reclaim": [],
+    "gmu_reset": [
+      "[104470.369190] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:578000000",
+      "[104470.606802] [12:32:04](4)[1433|kgsl_hwsched]adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU"
+    ],
+    "wait": []
+  }
+}

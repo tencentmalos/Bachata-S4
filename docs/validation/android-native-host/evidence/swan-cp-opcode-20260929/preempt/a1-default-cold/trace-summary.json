@@ -1,0 +1,34 @@
+{
+  "header": [
+    "# entries-in-buffer/entries-written: 2121859/3880544   #P:8"
+  ],
+  "first_uptime": 103219.470402,
+  "last_uptime": 103751.205465,
+  "event_counts": {
+    "adreno_cmdbatch_queued": 375090,
+    "kgsl_waittimestamp_entry": 57326,
+    "adreno_drawctxt_wait_start": 57329,
+    "adreno_drawctxt_wait_done": 56548,
+    "kgsl_waittimestamp_exit": 56546,
+    "adreno_cmdbatch_retired": 318429,
+    "adreno_preempt_trigger": 78190,
+    "adreno_preempt_done": 78169,
+    "adreno_cmdbatch_done": 322590,
+    "adreno_cmdbatch_ready": 320909,
+    "adreno_cmdbatch_submitted": 320844,
+    "kgsl_pwrstats": 28088,
+    "adreno_input_hw_fence": 45215,
+    "kgsl_pwrlevel": 59,
+    "gpu_frequency": 59,
+    "kgsl_gpu_frequency": 59,
+    "gpu_work_period": 653,
+    "kgsl_gpubusy": 295,
+    "kgsl_mem_free": 1079,
+    "kgsl_mem_alloc": 3911,
+    "kgsl_mem_map": 470,
+    "adreno_gpu_fault": 1
+  },
+  "key_event_samples": [
+    "kgsl_hwsched-1433    (   1433) [001] ..... 103751.205465: adreno_gpu_fault: ctx=51 ts=69982 rb_id=2 status=880005 RB=9D9/931 IB1=41FC809000/1128 IB2=41FCAAB1EC/17C"
+  ]
+}

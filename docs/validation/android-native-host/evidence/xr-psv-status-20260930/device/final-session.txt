@@ -1,0 +1,19 @@
+TASK 10152:com.shadps4.android id=413 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 62fb8ae pid=16389 userId=0 uid=10152 displayId=0(type=INTERNAL)
+session: active
+generation: 1
+pid: 16389
+phase: 3
+run_uuid: cc58d1487f02edb1e8440dd2b9f5a00a
+stage: Running
+driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-1b588fceef) shaderInt64=1 api=4211051 sha256=a95b15df82ed9e49e7d2166a5e33f959b06a6655ec626f735cd6a2c98159dec3 
+snapshot_ns: 181315916435728
+guest_flip: 947 (age_ns=13616510)
+pm4_consumed: 1315762 (age_ns=15378125)
+host_draw: 24833 (age_ns=15398438)
+queue_submit: 3117 (age_ns=8920260)
+gpu_retire: unavailable
+host_present: 946 (age_ns=11040781)
+overlay_redraw: 1084 (age_ns=12549115)
+guest_submission: 1480 (age_ns=17287031)
+

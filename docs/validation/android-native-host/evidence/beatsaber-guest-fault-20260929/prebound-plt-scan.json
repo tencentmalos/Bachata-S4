@@ -1,0 +1,122 @@
+[
+  {
+    "module": "eboot.bin.elf",
+    "offset": "0x1822d20",
+    "bytes": "e9bba1320090",
+    "target": "0x1b4cee0",
+    "target_module_executable": true,
+    "got": null,
+    "name": null,
+    "three_jump_slots": false
+  },
+  {
+    "module": "eboot.bin.elf",
+    "offset": "0x1822d30",
+    "bytes": "e93ba3320090",
+    "target": "0x1b4d070",
+    "target_module_executable": true,
+    "got": null,
+    "name": null,
+    "three_jump_slots": false
+  },
+  {
+    "module": "eboot.bin.elf",
+    "offset": "0x1822e20",
+    "bytes": "e9eba1320090",
+    "target": "0x1b4d010",
+    "target_module_executable": true,
+    "got": "0x1c639b8",
+    "name": "scePthreadSemPost",
+    "three_jump_slots": true
+  },
+  {
+    "module": "eboot.bin.elf",
+    "offset": "0x1822ec0",
+    "bytes": "e97ba1320090",
+    "target": "0x1b4d040",
+    "target_module_executable": true,
+    "got": "0x1c63a08",
+    "name": "scePthreadSemTrywait",
+    "three_jump_slots": true
+  },
+  {
+    "module": "eboot.bin.elf",
+    "offset": "0x1822ee0",
+    "bytes": "e9bba1320090",
+    "target": "0x1b4d0a0",
+    "target_module_executable": true,
+    "got": "0x1c63a18",
+    "name": "scePthreadSemDestroy",
+    "three_jump_slots": true
+  },
+  {
+    "module": "eboot.bin.elf",
+    "offset": "0x1822f40",
+    "bytes": "e97ba0320090",
+    "target": "0x1b4cfc0",
+    "target_module_executable": true,
+    "got": "0x1c63a48",
+    "name": "scePthreadSemWait",
+    "three_jump_slots": true
+  },
+  {
+    "module": "Il2cppUserAssemblies.prx.elf",
+    "offset": "0x1228",
+    "bytes": "e9b3bc888190",
+    "target": "-0x7e773120",
+    "target_module_executable": false,
+    "got": "0x428a1e0",
+    "name": "scePthreadSemInit",
+    "three_jump_slots": true
+  },
+  {
+    "module": "Il2cppUserAssemblies.prx.elf",
+    "offset": "0x1258",
+    "bytes": "e913be888190",
+    "target": "-0x7e772f90",
+    "target_module_executable": false,
+    "got": "0x428a1f8",
+    "name": "scePthreadSemTimedwait",
+    "three_jump_slots": true
+  },
+  {
+    "module": "Il2cppUserAssemblies.prx.elf",
+    "offset": "0x1398",
+    "bytes": "e9a3bc888190",
+    "target": "-0x7e772fc0",
+    "target_module_executable": false,
+    "got": "0x428a298",
+    "name": "scePthreadSemTrywait",
+    "three_jump_slots": true
+  },
+  {
+    "module": "Il2cppUserAssemblies.prx.elf",
+    "offset": "0x13c8",
+    "bytes": "e9d3bc888190",
+    "target": "-0x7e772f60",
+    "target_module_executable": false,
+    "got": "0x428a2b0",
+    "name": "scePthreadSemDestroy",
+    "three_jump_slots": true
+  },
+  {
+    "module": "Il2cppUserAssemblies.prx.elf",
+    "offset": "0x1538",
+    "bytes": "e9d3ba888190",
+    "target": "-0x7e772ff0",
+    "target_module_executable": false,
+    "got": "0x428a368",
+    "name": "scePthreadSemPost",
+    "three_jump_slots": true
+  },
+  {
+    "module": "Il2cppUserAssemblies.prx.elf",
+    "offset": "0x1568",
+    "bytes": "e953ba888190",
+    "target": "-0x7e773040",
+    "target_module_executable": false,
+    "got": "0x428a380",
+    "name": "scePthreadSemWait",
+    "three_jump_slots": true
+  }
+]

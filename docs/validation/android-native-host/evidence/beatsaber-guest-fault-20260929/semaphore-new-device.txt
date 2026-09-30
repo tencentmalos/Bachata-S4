@@ -1,0 +1,3 @@
+SEMAPHORE checks=30029 failures=0
+
+exit_code=0

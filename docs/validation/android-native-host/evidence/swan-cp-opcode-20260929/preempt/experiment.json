@@ -1,0 +1,22 @@
+{
+  "apk_sha256": "2b0e7b7a5aa90ad4e591648d77ef2ef0b70079d3e73ea93bae05502341cda9f2",
+  "entries": {
+    "assets/native-turnip/vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+    "lib/arm64-v8a/libshadps4_host.so": "0a378a3ba261c421063d754d5eb9730e4e0f01c19302863811fc83db18015071",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa"
+  },
+  "device": "PB3110PGL6240001G",
+  "boot": "20c5024e-15c5-4f6a-981f-7630a933df4c",
+  "variable": "debug.mesa.tu.debug=kgsl_preempt_rb versus empty, both SDS_PAGE_ALIGN off",
+  "cold_definition": "Each process starts without host recipe/VkPipelineCache directory; original cache retained for exact restoration",
+  "scope": "KGSL context creation flags only; no global preemption control, firmware, KMD, priority or game config change",
+  "source_mapping": "semantic_only_target_build_unverified",
+  "default": "flag off",
+  "runs": [
+    "b1-rb-cold",
+    "a1-default-cold",
+    "b2-rb-cold"
+  ],
+  "status": "Ringbuffer candidate failed in B2; no cure demonstrated; device disconnected; user requested offline analysis and candidate package",
+  "candidate_next": "kgsl_preempt_fg, built only; same default behavior, no device test"
+}

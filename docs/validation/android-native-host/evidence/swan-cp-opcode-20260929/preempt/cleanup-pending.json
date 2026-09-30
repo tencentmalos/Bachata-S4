@@ -1,0 +1,78 @@
+{
+  "status": "CleanupPending",
+  "device": "PB3110PGL6240001G",
+  "expected_boot": "20c5024e-15c5-4f6a-981f-7630a933df4c",
+  "reason": "USB disconnected after faultcount reached 15; user chose offline analysis/package. No later restoration observed.",
+  "property": {
+    "name": "debug.mesa.tu.debug",
+    "original": "",
+    "last_observed": "kgsl_preempt_rb",
+    "restore_to": ""
+  },
+  "installed_apk_sha256": "2b0e7b7a5aa90ad4e591648d77ef2ef0b70079d3e73ea93bae05502341cda9f2",
+  "cache": {
+    "active": "/data/user/0/com.shadps4.android/files/host/cache",
+    "original_hold": "/data/user/0/com.shadps4.android/files/host/cp-preempt-original-20260929",
+    "expected_original_files": 1264,
+    "expected_hashes": "before-cache-hashes.txt",
+    "held_test_caches": [
+      "/data/user/0/com.shadps4.android/files/host/cp-preempt-b1-cache-20260929",
+      "/data/user/0/com.shadps4.android/files/host/cp-preempt-a1-cache-20260929"
+    ],
+    "active_is": "B2 test cache; preserve separately before restoring original; do not overwrite original hold"
+  },
+  "trace": {
+    "instance": "kgsl_dbg_0929065136_4382",
+    "state_file": "b2-rb-cold/trace/provenance/trace_ring_state.tsv",
+    "expected": "fault-trigger frozen, not verified after disconnection",
+    "pending": [
+      "collect",
+      "restore owned instance"
+    ]
+  },
+  "pending_captures": [
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104426531529538.h264",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104426531529538.h264.frames.csv",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104331462101449.h264",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104331462101449.h264.frames.csv",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104166374346564.h264",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104166374346564.h264.frames.csv",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104116323028615.h264",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104116323028615.h264.frames.csv",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104265660349235.h264",
+    "/data/user/0/com.shadps4.android/files/host/captures/embedded-104265660349235.h264.frames.csv"
+  ],
+  "owned_xml": "/data/local/tmp/codex-cp-preempt-ui.xml",
+  "saves": {
+    "baseline_directory": "before-home",
+    "baseline_hashes": "before-home-hashes.txt",
+    "files": 33,
+    "instruction": "Only compare changes; do not restore or externally edit saves."
+  },
+  "evidence_pending": [
+    "persistent normal devcd15 snapshot file, if present; exact filename unknown",
+    "B2 trace",
+    "B2 host log and native tombstone",
+    "full post-fault kernel log coverage if retained"
+  ],
+  "reconnect_order": [
+    "Verify exact serial, boot and app identity; use full com.shadps4.android process name, not truncated comm.",
+    "Pull persistent snapshot file and frozen owned trace before changing state; no live snapshot/dump reads.",
+    "Restore original Mesa property; verify game stopped before cache moves.",
+    "Preserve B2 test cache, restore original cache and verify 1264 relative-path hashes.",
+    "Verify local/remote hashes before removing only owned capture files; remove owned trace instance/XML.",
+    "Compare home against baseline without rolling saves back."
+  ],
+  "already_completed": {
+    "b1_trace_restore": true,
+    "a1_trace_restore": true,
+    "b1_remote_captures_removed": 18,
+    "a1_remote_captures_removed": 14
+  },
+  "not_changed": [
+    "KMD",
+    "firmware",
+    "global preemption controls",
+    "other app lifecycle"
+  ]
+}

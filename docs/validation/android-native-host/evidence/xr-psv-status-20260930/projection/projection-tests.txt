@@ -1,0 +1,1 @@
+PASS: 3600 corner/ray checks, canted eyes, 50/64/78 mm IPD, yaw/pitch/roll, vertical fallback, invalid bounds

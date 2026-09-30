@@ -1,0 +1,2 @@
+libc++abi: terminating due to uncaught exception of type std::runtime_error: Missing pinned bionic Turnip: /data/local/tmp/shad-xr-resolution-20260929/vulkan.ad07xx.so
+Aborted (core dumped) 

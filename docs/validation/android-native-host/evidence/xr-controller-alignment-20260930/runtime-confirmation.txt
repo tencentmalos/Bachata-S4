@@ -1,0 +1,2 @@
+[2026-09-29 20:35:15.907][Info][22616][Lib.Move](Thread-12) move.cpp:122 sceMoveInit: OpenXR Move order: index 0=right, index 1=left (pose/buttons/haptics)
+[2026-09-29 20:35:16.543][Info][22953][Render_Vulkan](Thread-12) runtime.cpp:849 Run: OpenXR PSVR Projection Layer: submitted head pose, runtime eye extrinsics/FOV; IPD=63.520 mm L=(-0.82900697, 0.82900697, -0.75046945, 0.75046945) R=(-0.82900697, 0.82900697, -0.75046945, 0.75046945)

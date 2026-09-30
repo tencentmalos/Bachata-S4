@@ -1,0 +1,4 @@
+TASK 10152:com.shadps4.android id=455 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity be1d729 pid=10135 userId=0 uid=10152 displayId=0(type=INTERNAL)
+visible=false theme=graphite gi=true indicator=auto
+PSVR ImGui status pending; model disabled

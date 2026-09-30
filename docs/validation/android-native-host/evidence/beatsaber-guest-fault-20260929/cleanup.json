@@ -1,0 +1,15 @@
+{
+  "debug.shadps4.guest_debug_port": "",
+  "debug.shadps4.guest_debug_wait": "",
+  "debug.shadps4.vulkan_driver": "",
+  "debug.mesa.tu.debug": "kgsl_preempt_rb",
+  "debug.spruntime.etfr.subsample": "0",
+  "forwards": "",
+  "global_settings_unchanged": true,
+  "game_settings": {
+    "schemaVersion": 1,
+    "values": {
+      "gpu.force_disable_msaa": true
+    }
+  }
+}

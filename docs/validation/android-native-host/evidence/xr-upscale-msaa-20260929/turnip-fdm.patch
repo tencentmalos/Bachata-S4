@@ -1,0 +1,43 @@
+diff --git a/src/freedreno/common/freedreno_devices.py b/src/freedreno/common/freedreno_devices.py
+index 168a344b37c..7c98f1e4153 100644
+--- a/src/freedreno/common/freedreno_devices.py
++++ b/src/freedreno/common/freedreno_devices.py
+@@ -1461,7 +1461,10 @@ add_gpus([
+     ], A6xxGPUInfo(
+         CHIP.A8XX,
+         [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen2,
+-         GPUProps(shading_rate_matches_vk = True)],
++         GPUProps(
++            shading_rate_matches_vk = True,
++            has_hw_bin_scaling = False,
++         )],
+         num_ccu = 6,
+         num_slices = 3,
+         tile_align_w = 96,
+diff --git a/src/freedreno/vulkan/tu_cmd_buffer.cc b/src/freedreno/vulkan/tu_cmd_buffer.cc
+index f2fbe00ad24..35738d4091f 100644
+--- a/src/freedreno/vulkan/tu_cmd_buffer.cc
++++ b/src/freedreno/vulkan/tu_cmd_buffer.cc
+@@ -1848,7 +1848,7 @@ tu6_emit_tile_select(struct tu_cmd_buffer *cmd,
+           * on the actual offset, and signficantly changing the performance
+           * could result in jank between frames as the offset changes.
+           */
+-         bool non_subsampled_use_fast_store = !fdm_offsets && !bin_scale_en;
++         bool non_subsampled_use_fast_store = !fdm_offsets && !bin_is_scaled;
+          bool subsampled_use_fast_store = non_subsampled_use_fast_store ||
+             (tile->subsampled_views == tile->visible_views &&
+              !tile->subsampled_border);
+diff --git a/src/freedreno/vulkan/tu_formats.cc b/src/freedreno/vulkan/tu_formats.cc
+index 14d227961cb..5831d2304ad 100644
+--- a/src/freedreno/vulkan/tu_formats.cc
++++ b/src/freedreno/vulkan/tu_formats.cc
+@@ -217,7 +217,8 @@ tu_physical_device_get_format_properties(
+        * to use, which means two channels and not something weird like
+        * luminance-alpha.
+        */
+-      if (vk_format_is_float(vk_format) && desc->nr_channels == 2 &&
++      if ((vk_format_is_float(vk_format) || vk_format == VK_FORMAT_R8G8_UNORM) &&
++          desc->nr_channels == 2 &&
+           desc->swizzle[0] == PIPE_SWIZZLE_X &&
+           desc->swizzle[1] == PIPE_SWIZZLE_Y) {
+          optimal |= VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT;

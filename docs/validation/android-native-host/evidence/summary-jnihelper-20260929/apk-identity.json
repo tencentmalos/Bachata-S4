@@ -1,0 +1,11 @@
+{
+  "apk_sha256": "2325cf2ba0a1ba5c50f7e1a2027afd33e4ec027587b1645ae683c58300addd88",
+  "entries": {
+    "lib/arm64-v8a/libshadps4_host.so": "4d80178f05dba61a29290e5aebd0c9eac43a9f80b0068d58557e0a8712191c7b",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "7b08604de1a91bb732545d36ffc23d7c8332c47bf3982b590161649a6523e572",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1"
+  },
+  "environment_owner": "JniHelper in host DSO only; JNI DSO imports original initJniEnviroment",
+  "removed_context_manager": "no JniContext or setApplicationContext dynamic symbols",
+  "device_validation": "not run; no install"
+}

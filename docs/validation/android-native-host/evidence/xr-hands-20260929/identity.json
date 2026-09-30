@@ -1,0 +1,12 @@
+{
+  "apk": "9a5ec50c40b4a405a030768e8a99910e099270173f3e164f4bfbdd0df4224219",
+  "libshadps4_host.so": "f07e7e527d5d6cade04b512ed677b60e1bc75a9a0d34254fb7382a4c586d3738",
+  "libshadps4_fex_session.so": "d2a2c75cfee11800d2af8493f0a335e315b82a532fa510fc6447b91451802271",
+  "vulkan.ad07xx.so": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094",
+  "kotlin": {
+    "tests": 136,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

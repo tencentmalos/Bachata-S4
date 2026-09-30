@@ -1,0 +1,74 @@
+{
+  "serial": "PB3110PGL6240001G",
+  "files": [
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.17.51.jpeg",
+      "sha256": "157f4b327b3618c3fc367ececbc12ae2cb7f86168936003da15f5d84d5cbb52e",
+      "preserved": "psv-before-crop.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.23.03.jpeg",
+      "sha256": "59ec989623ba5a5152bb8cd67b373e9eb27e77a540f80af0cdd6b4b5029c6387",
+      "preserved": "psv-cropped-projection.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.23.18.jpeg",
+      "sha256": "0f3ca60cfa4751cdc3d5b865c495e18a75fda86daddbdf702d17ca932fe6b61f",
+      "preserved": "psv-full-projection-ab.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.27.44.jpeg",
+      "sha256": "9f0b0b30314517aff9a897bad9219c493d8d79f5621de63ffced4b22763b9316",
+      "preserved": "psv-fixed-cropped-final.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.27.59.jpeg",
+      "sha256": "43e73f7d2acf9933e6f874b16ecd4228e99d450270c1d06ab7d9979c068a346d",
+      "preserved": "psv-fixed-full-final-ab.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.33.40.jpeg",
+      "sha256": "e3b7d160f1f00afc032c6dcbe16aeb2008b2ba42642dcbdd8a71ac181f82d461",
+      "preserved": "psv-diag-full.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.33.41.jpeg",
+      "sha256": "36ef4fb7878e1b60a4b7d0bf7c5cec8164e53f5584bc6e5f24733bcf14300635",
+      "preserved": "psv-diag-shared.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.33.43.jpeg",
+      "sha256": "43376bd6a326ab9b56f5e44fceedc7b49f02d491b8f790925c379194a3dea920",
+      "preserved": "psv-diag-symmetric.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.33.44.jpeg",
+      "sha256": "3ec2e929d9204d30797afca389f8f4539af326ac6a9cc5d0037d634aacd62f4a",
+      "preserved": "psv-diag-axis.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.36.56.jpeg",
+      "sha256": "bd990494eea748dfcf3efeaa825334f96d41cc9223dc9334ea43b1a32e65e1f8",
+      "preserved": "psv-symmetric-release.jpg",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-18.36.58.jpeg",
+      "sha256": "31bbf802d25207578becca311093d7c878bd1c7973153ddccadbf2326c38b47d",
+      "preserved": "psv-full-release-ab.jpg",
+      "removed": true
+    }
+  ],
+  "preserved_settings": true,
+  "controller_input_injected": false,
+  "debugger_or_forward_created": false
+}

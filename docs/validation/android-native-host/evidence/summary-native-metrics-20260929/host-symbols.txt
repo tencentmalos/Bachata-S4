@@ -1,0 +1,6 @@
+00000000036b2c48 T spatial::perf::platformBatterySource()
+00000000036b3d64 T spatial::platform::ScopedJniContext::ScopedJniContext()
+00000000036b3d64 T spatial::platform::ScopedJniContext::ScopedJniContext()
+00000000036b3ee4 T spatial::platform::ScopedJniContext::~ScopedJniContext()
+00000000036b3ee4 T spatial::platform::ScopedJniContext::~ScopedJniContext()
+00000000036b3960 T spatial::platform::setApplicationContext(_JNIEnv*, _jobject*)

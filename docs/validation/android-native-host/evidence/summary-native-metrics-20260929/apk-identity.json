@@ -1,0 +1,11 @@
+{
+  "apk_sha256": "ff2cfbb2a00627d8328704adda94cf80ff29827e6dc5a45685d976bb5a01733b",
+  "entries": {
+    "lib/arm64-v8a/libshadps4_host.so": "6b0f25db02c5a130bc577bb9c6f393778d9b7b576e477a8923f19b779c62e687",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "13de40824b10efb9806bff2bcbaaee80f6f3c29d947dab7dba46fae2b60d4a00",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1"
+  },
+  "runtime_context_owner": "host DSO only; JNI DSO imports setApplicationContext",
+  "removed_battery_publisher": "absent from host symbols and APK DEX",
+  "device_validation": "not run; adb has no connected devices"
+}

@@ -1,0 +1,14 @@
+{
+  "owned_pngs_removed": [
+    "files/host/captures/snapshot-a030202609304dbe9911000000000050.png",
+    "files/host/captures/snapshot-a030202609304dbe9911000000000052.png",
+    "files/host/captures/snapshot-a030202609304dbe9911000000000053.png"
+  ],
+  "owned_ui_dump_removed": true,
+  "global_profile_unchanged": true,
+  "final_ui": "Beat Saber Launch options",
+  "selected_output": "maximum",
+  "selected_upscaler": "sgsr1",
+  "game_running": false,
+  "notes": "Runtime capabilities cache retained. Existing GPU properties and older CleanupPending untouched."
+}

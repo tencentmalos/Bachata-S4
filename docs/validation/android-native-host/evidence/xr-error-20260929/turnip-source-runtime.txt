@@ -1,0 +1,12 @@
+09-29 00:37:11.456 12099 18375 I AndroidTurnip: Turnip profile: mainline (property='')
+09-29 00:37:11.568 12099 18431 I FexSession: Selected Vulkan driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-1b588fceef) shaderInt64=1 api=4211051 sha256=87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094 
+09-29 00:37:12.401 12099 18431 I ProductionModule: DT_INIT path=libSceFios2.prx handle=4 bytes=0 argp=0 result=0 deferred=0
+09-29 00:37:12.407 12099 18431 I ProductionModule: DT_INIT path=libc.prx handle=3 bytes=0 argp=0 result=0 deferred=0
+09-29 00:37:12.407 12099 18431 I ProductionModule: DT_INIT path=PS4Util.prx handle=5 bytes=0 argp=0 result=0 deferred=0
+09-29 00:37:12.408 12099 18431 I ProductionRuntime: run: terminal outcome=Faulted reason=GuestFault detail=guest return=0 guest_rip=2215055072 context=0 thread=1 generation=0 invocation=0 category=0
+09-29 00:38:00.275 12099 18373 I AndroidTurnip: Turnip profile: mainline (property='')
+09-29 00:38:00.394 12099 18624 I FexSession: Selected Vulkan driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-1b588fceef) shaderInt64=1 api=4211051 sha256=87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094 
+09-29 00:38:01.924 12099 18624 I ProductionModule: DT_INIT path=libSceFios2.prx handle=4 bytes=0 argp=0 result=0 deferred=0
+09-29 00:38:01.933 12099 18624 I ProductionModule: DT_INIT path=libc.prx handle=3 bytes=0 argp=0 result=0 deferred=0
+09-29 00:38:01.933 12099 18624 I ProductionModule: DT_INIT path=PS4Util.prx handle=5 bytes=0 argp=0 result=0 deferred=0
+09-29 00:38:01.936 12099 18624 I ProductionRuntime: run: terminal outcome=Faulted reason=GuestFault detail=guest return=0 guest_rip=2215055072 context=0 thread=1 generation=0 invocation=0 category=0

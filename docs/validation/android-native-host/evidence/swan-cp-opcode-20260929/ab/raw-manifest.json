@@ -1,0 +1,1027 @@
+[
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/actions.jsonl",
+    "bytes": 4447,
+    "sha256": "33d2ebb6809df81d3c1892cc6edf8b5d4a8515fd69db9f7e28a173830c6ba64d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/after-ack.h264",
+    "bytes": 382462,
+    "sha256": "1005750cce31cad25c1279c5a7eeba01d498a9bbdb2fc94d9d58f5284a683e24"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/after-ack.h264.status.json",
+    "bytes": 569,
+    "sha256": "c5ca7979e4ae05f4493014fbf8d7af4dc2961a811d052ca8dc398d74bbe63b00"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/after-ack.png",
+    "bytes": 60860,
+    "sha256": "d4a5a6249138bbe8e093bf4a0d67bea28d62a4cb7fce9c9a335fea6b21b39b32"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/android-host.log",
+    "bytes": 399698,
+    "sha256": "fe727968761f9686edcca5e4f1e16366b378e59a9996fb7b94c3385d767fb9d2"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/collect.log",
+    "bytes": 134,
+    "sha256": "e43787ce891c3f185020453d5cd5e476e4b3675f2d619ecd2ca887c1ebf4a153"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/current-window-kernel-hits.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/debug-status-end.txt",
+    "bytes": 823,
+    "sha256": "c1a4be8618a9bfd9cb824c76627370e1c5aa5340f2eed5e1b5bfa17a13576e5e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/dmesg-end.txt",
+    "bytes": 8419148,
+    "sha256": "2f7074463b304bdeaaa77e32c03d9f16e6eef8ecbb22d661fc9e91c5057119a0"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/dmesg-world.txt",
+    "bytes": 8421435,
+    "sha256": "31e7640b588b7ac2cd743ac4e350933abe1cfe6b2f76fb410eb485b53a4950ba"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/faultcount-end.txt",
+    "bytes": 3,
+    "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/logcat-end.txt",
+    "bytes": 240790442,
+    "sha256": "896537c0583b9287714a758b9ca87c8b58766ee0bb398c58d97a4de058db2398"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/mesa-options.json",
+    "bytes": 210,
+    "sha256": "44d5a89be11b8c59b0f75311b9aee31d06f1c8240138494888307d8606b2fb30"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/observations.jsonl",
+    "bytes": 18920,
+    "sha256": "a8325b980af8cb56a9ef689d3384be690bc998cad54062f8551850aef8866bd9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/observer.log",
+    "bytes": 16709,
+    "sha256": "2d984b0e01acf17afdfadab516d4be4a8d8bf02cdbcf5af078b71da824342be9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/pad-end.txt",
+    "bytes": 1077,
+    "sha256": "44b38c3fb25f11c0c7bf5ab07c906e414b999a387c328d83473e1ae5395b8dc8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/pad-final.txt",
+    "bytes": 1077,
+    "sha256": "44b38c3fb25f11c0c7bf5ab07c906e414b999a387c328d83473e1ae5395b8dc8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/restore.log",
+    "bytes": 50,
+    "sha256": "609ef2f46907e0aa7c7b5e5829b1e4b803374f8d05a2ed1d9e995e6873e9b96b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/sds-executed.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/start.h264",
+    "bytes": 37773,
+    "sha256": "3bdbed379be6d8ffa526f56ec41bebc556c331a51e78b1004619a2916ec57f1c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/start.h264.status.json",
+    "bytes": 568,
+    "sha256": "288b8fe33d828fbb7313d07513e5c02eb03191303309337d878c5fbfe90a9551"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/start.png",
+    "bytes": 70939,
+    "sha256": "3151b03f0d0586a7ec79b65b8f533e41d2376bf474e472dded59ef501e6e8d8b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/status-latest.txt",
+    "bytes": 819,
+    "sha256": "db30fdbae8dc42410561b21b0c5e92cde018621787ef1dc0c8d5f50f1e1ca562"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/stop-status.txt",
+    "bytes": 818,
+    "sha256": "7c09255fb8658f3d566cca9404eeb05f6ec9f4df2ab49b3e5f8085ba32991836"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/summary.json",
+    "bytes": 1311,
+    "sha256": "80c47616179c52a922c384a48e6a570f513d228c0113a4c29f5842268f4122e5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/title.h264",
+    "bytes": 519776,
+    "sha256": "63af58c4b6a8b5b2e6e93118e136d6b8f2c035043102c2ac7157b21c5d038b18"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/title.h264.status.json",
+    "bytes": 569,
+    "sha256": "28803903ca5e2cdbff8b714a168aa2aa7bc5d77d096441a49f4f60c0277340d7"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/title.png",
+    "bytes": 3153039,
+    "sha256": "73773d0628409b6b8ea1b97e3eb47b817b9694ec8144997bebbe5120bf27ea4d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/kgsl_trace.txt.gz",
+    "bytes": 48647165,
+    "sha256": "a5408ad03632eaaeb6f04c2cc2426f49758648aa33c90a4ad5fe5a7895b67b81"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/device_clock_and_build_before.txt",
+    "bytes": 305,
+    "sha256": "9ec9935e26503fe324fb5578f330c152127565e22a6cc9b5b6ccf76bf42ea1ab"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/host_clock_before.txt",
+    "bytes": 30,
+    "sha256": "039969c29b020821d6ab9651b5d0d1f051943b9805ee9379ea10a07f178f0a08"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_collect_state.txt",
+    "bytes": 140,
+    "sha256": "9c0f8e351fd7895dc10c5b32e25d1be66c8acb16b88e0ded219ff33cae9ed945"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_collection_complete.txt",
+    "bytes": 138,
+    "sha256": "a6dd496557aae20fcab4b88c7c1ead995a8222180352d74becfaca293e9acebc"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_enabled_events.txt",
+    "bytes": 3246,
+    "sha256": "3e7c70fa5414b7724be18abcb6f3625a40e5b31a31b164511bb0d2e871bbf676"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_event_formats.txt",
+    "bytes": 29839,
+    "sha256": "a37c7ad5e573d39b0b5d2e9121ebe41d62d1a86f053dff24530836915eb04793"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_events_requested.txt",
+    "bytes": 968,
+    "sha256": "411961ccc16b4acb81d5d8f0f0a4d10f1ae16308f021bccd57edc84bb82cf2ef"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_instance_released.txt",
+    "bytes": 51,
+    "sha256": "42da94ebaa09a15b298f6e92f4d55027d423171488586d4bbb464cd3feef640b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_optional_events_missing.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_per_cpu_stats.txt",
+    "bytes": 1800,
+    "sha256": "a1d6a94c0b170c4d347fb8b9d5457110dd9e2ee3b85c924b005d8bbaf2c03335"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace/provenance/trace_preflight.txt",
+    "bytes": 947,
+    "sha256": "1545cf90f94b02722533ee4583f8512380e36460fbabd3a66252f1b0c71e6a3d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/trace-summary.json",
+    "bytes": 960,
+    "sha256": "22a7e0ae3ae0df8cc31b27d1963dca232347c6958651af1f7a9aa29e6531cf7c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/world-check.h264",
+    "bytes": 1464614,
+    "sha256": "b1985a6715068248a32ca49d984e3b374cfdeef46fe1f46d268abcb3857668e2"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/world-check.h264.status.json",
+    "bytes": 570,
+    "sha256": "1696b3a7f67b4431f11563679de40d90a84fc8398c84fa8949f6baeabdde4a33"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/world-check.png",
+    "bytes": 2507491,
+    "sha256": "deaeea74f25d8cbfe46449aab921615ae713e7a5c3471568862d5ab28f84a956"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/world-end.h264",
+    "bytes": 505603,
+    "sha256": "c2cda449fe412d610b05fd44452f2e1de73034daa3bfe3cd445553dbec120e1a"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/world-end.h264.status.json",
+    "bytes": 570,
+    "sha256": "df7297dd8541298dfb67678147830e14f322a7882ad76b883b5d4d9d8e169484"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a1-off/world-end.png",
+    "bytes": 3216233,
+    "sha256": "9fc033958c42778965ed8a72db24865801653d570bf01337c300c8992fb457d6"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/actions.jsonl",
+    "bytes": 6645,
+    "sha256": "7172a02759799a7555526c52753e281905109b92a8270954fcaf27edd9fadf1c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/after-ack.h264",
+    "bytes": 83775,
+    "sha256": "a9eebb47419be7a2c988eafea4782c2a6af0f8bb53bce1b7a6aca17ddc3bdc05"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/after-ack.h264.status.json",
+    "bytes": 568,
+    "sha256": "0bde81d6006c154c6e1dbcbc9b12cf0252e906c6adfe361258c561cecb16193b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/after-ack.png",
+    "bytes": 47824,
+    "sha256": "523ba88ffba3ee0db004d25fef32722bd390478b7bf5f15c83be4c795bbf55af"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/android-host.log",
+    "bytes": 400028,
+    "sha256": "0c22eab0559694b76faa4013a7dfb14dffec849af8ed514cf5ef408299640f0c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/collect.log",
+    "bytes": 133,
+    "sha256": "600eb60b4f8c792079dd757ce51978496fe508c33c1c8550565f98c581e6bd3f"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/current-window-kernel-hits.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/debug-status-end.txt",
+    "bytes": 819,
+    "sha256": "ac19b86543cb113e30aaf711d447f207b948a4e2f32bf80ed697d71a9ce39160"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/dmesg-end.txt",
+    "bytes": 8420614,
+    "sha256": "85e13b564b8077479fdcc332313896814ea06b647a0614b564aa21e830e83662"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/faultcount-end.txt",
+    "bytes": 3,
+    "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/loading.h264",
+    "bytes": 908368,
+    "sha256": "2f27550eb9a89a9044c0510cdd25a69331f69fc169f02fa4c0bb8329335c7e03"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/loading.h264.status.json",
+    "bytes": 570,
+    "sha256": "de6683a1d884c1a79ca00d9fd79fa69bfed5a2f36a31aa90a31a4000b93f1099"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/loading.png",
+    "bytes": 1482263,
+    "sha256": "24c31db520bc77a3a25ab9a4806cc8c0820f6ca4d0868f6cdebe4708dc7407bf"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/logcat-end.txt",
+    "bytes": 233892792,
+    "sha256": "575ea76023573d807308e2a9d5b2aed057f2964c5d122f06f5e4a7245746c238"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/menu.h264",
+    "bytes": 287819,
+    "sha256": "714882368b84aa041fc6da154b53b54b6716ed83c76dd84709d29996038ef58c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/menu.h264.status.json",
+    "bytes": 569,
+    "sha256": "8b4c44c9ec6943972b80e7e690cb97e88fb148abd7609d0dd5a5e2d41a69888f"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/menu.png",
+    "bytes": 1504311,
+    "sha256": "73e701cb126044bedb7d636be1c2769aecf3cb42d2105d473838281343f4d641"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/mesa-log.txt",
+    "bytes": 109,
+    "sha256": "b40fb5b77501521a35f0d40fbaade1637114518af5405f2f4aa23cbce39b72d5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/observations.jsonl",
+    "bytes": 21124,
+    "sha256": "6587c48c82c06b218b6dc9522ae0af47cfb7cb5ac6bba8b342761ff63c982bdf"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/observer.log",
+    "bytes": 16698,
+    "sha256": "b1d87f61fde6ec0d63e7a3432e5b857589c81298af71e2b1f2366fd06e3f838b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/pad-end.txt",
+    "bytes": 1047,
+    "sha256": "a1e7eacef40fe825a9511335a45e724d665a36669ea9e3b752a3b1ac93b48d26"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/pipeline-cache.txt",
+    "bytes": 2129,
+    "sha256": "414f88a913adfd55d2110f0cf424ebf326169308ab79ab206d0c4f792f769c40"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/process-log.txt",
+    "bytes": 328716,
+    "sha256": "e9b69eb3e45fc46fa7854d5d00feb72f934fe6b1108ac1c9b90fdf2434612342"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/restore.log",
+    "bytes": 50,
+    "sha256": "a7f2c6731d03accc072fa5207778a1de36363f926281a4b920008fb658ac29f9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/sds-executed.txt",
+    "bytes": 380,
+    "sha256": "5284c69a17a85b63035887717d259b9f4f6c5fd909915512706715dddcd8112e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/start.h264",
+    "bytes": 75597,
+    "sha256": "9950ee97d3b8c8cc22b97bf0cca7729192c72b79d255126c20cf1f3d941b9d70"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/start.h264.status.json",
+    "bytes": 568,
+    "sha256": "826ec82253cedf063257cbd5d47e9a3688d201cc3aa54344415b01c318ca7ac5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/start.png",
+    "bytes": 125513,
+    "sha256": "2a8fb81a1b67acc17d3f57074480d0f90f5d86b5768376ca84485a3f36b99db3"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/status-latest.txt",
+    "bytes": 819,
+    "sha256": "5472e584ec59f3b277c4ef1b623bac62ea7a2bad6d799957934caf5fb05848bd"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/stop-status.txt",
+    "bytes": 4975,
+    "sha256": "541cdff2ea3cb583e75c17813114a2b415b2004aa5e6f6bd96cdf6b178c44b79"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/summary.json",
+    "bytes": 1312,
+    "sha256": "7ac449d00190276e7ada6dfc537b9ff908b48087cb1bdfb38f8c2e6e5bb794f5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/title.h264",
+    "bytes": 279116,
+    "sha256": "90417e66c6acc097d99718be79a478a74c129611afbc3a08f86cc769a7d6473e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/title.h264.status.json",
+    "bytes": 569,
+    "sha256": "055bf9e77aa6530b3942541943662763d3a494a93fc0762d484653ae48e39af8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/title.png",
+    "bytes": 1492772,
+    "sha256": "c7c8cc03bbaf0e4fc027f7efded8bc1adc3c7872f41296c80354090885a0f91d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/kgsl_trace.txt.gz",
+    "bytes": 48326833,
+    "sha256": "ab8d6537eb400b6541af3049d42cbeb7b1f9d55072e6204fd9f181efa6ec23d9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/device_clock_and_build_before.txt",
+    "bytes": 305,
+    "sha256": "82710a88492ec020041f663d230a3de4e47b01ac5f14d53caa19e1db9c786cd7"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/host_clock_before.txt",
+    "bytes": 30,
+    "sha256": "59fc8a08cb364c6dd71990ea383f326cf7a81c3bd4c769497dc0d357369743f8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_collect_state.txt",
+    "bytes": 140,
+    "sha256": "810966fad1d4a93d934357e82d787702a18fa6bd1b8bb5bed3c192bd6724e5ef"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_collection_complete.txt",
+    "bytes": 138,
+    "sha256": "6e4d013a658083e4e5367bd4d853864ac4de4876e475c04484d76a70db6bf6d5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_enabled_events.txt",
+    "bytes": 3246,
+    "sha256": "0aa13e9d10f5b509ab31555651312a1d15242469d412cd00a15144d73ef968d5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_event_formats.txt",
+    "bytes": 29839,
+    "sha256": "a37c7ad5e573d39b0b5d2e9121ebe41d62d1a86f053dff24530836915eb04793"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_events_requested.txt",
+    "bytes": 968,
+    "sha256": "411961ccc16b4acb81d5d8f0f0a4d10f1ae16308f021bccd57edc84bb82cf2ef"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_instance_released.txt",
+    "bytes": 51,
+    "sha256": "0ea0ac83330f33f73d5382cd15f4996e613e24ef8f309a6d5d1278239d22d26c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_optional_events_missing.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_per_cpu_stats.txt",
+    "bytes": 1796,
+    "sha256": "f4fa4253016dccffffe0a3c4144c9dd3fb1537b74f34c310be949449a5f6ee13"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace/provenance/trace_preflight.txt",
+    "bytes": 947,
+    "sha256": "6cdbb27058ae54cb1a25de7349916f59991d53ab9ec264a27f9b555fe84564c8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/trace-summary.json",
+    "bytes": 900,
+    "sha256": "b218e787729178cefd87afb7d2609e162fbae863d5e5aef263b402c1868ddfa1"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/world.h264",
+    "bytes": 588702,
+    "sha256": "2a17cbb30a69e7938bcc7115a690830eb4882a8b004d1ee81a983c06dfa42471"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/world.h264.status.json",
+    "bytes": 570,
+    "sha256": "7bf23f70008d0227a1c5beac35b3b0c2ca1025965e196cf29acefafa32b5a92c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b1-on/world.png",
+    "bytes": 2754657,
+    "sha256": "e430a15fe5b3ba9cb9c9b40d58d5e6861acabd5932efead5e1dd985727d12729"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/actions.jsonl",
+    "bytes": 7829,
+    "sha256": "e94c4d89cde616c04b592b23811b20f00d218b830a0f32ba7eaf30d7fbd86cfd"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/android-host.log",
+    "bytes": 483908,
+    "sha256": "e8355f361b1a0bcdd9eb8af7d3b21819820062ae6fb00a1213a8db419aa02f3c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/collect.log",
+    "bytes": 139,
+    "sha256": "239a13a6d49b3e86b2d579062780cc60def996d7ffe5555f9f747c857604a794"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/current-window-kernel-hits.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/debug-status-end.txt",
+    "bytes": 828,
+    "sha256": "d555a4f18424edc55c4b9fc0ccdbca192e5c4b7f638b282ee72b4fbc313ea27a"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/dmesg-end.txt",
+    "bytes": 8421342,
+    "sha256": "a07bd50de2ea61131439cc9bedff876e49a0675a24b683cb33553627de97f4c0"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/faultcount-end.txt",
+    "bytes": 3,
+    "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/logcat-end.txt",
+    "bytes": 235664882,
+    "sha256": "91998d8f31d7a96f7c373320f787589d5a23d4e883d461d4b75a0b2853157d2c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/menu.h264",
+    "bytes": 284333,
+    "sha256": "cb1c5fa32d8ab76b846fcbb4627d31f461a9de1c83dd9ed90fcc0bd7394b664d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/menu.h264.status.json",
+    "bytes": 569,
+    "sha256": "f32afd1631f761ab00b5cb92f9b55ebc15147dfd80d7e47d1f0b5707618ac344"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/menu.png",
+    "bytes": 1502869,
+    "sha256": "c47fbeade780ed9f3cd678b39cbbb299456162100945a5fb024415fa42f807d6"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/observations.jsonl",
+    "bytes": 23568,
+    "sha256": "d8a35558e9a7046e7d44f6c07c8c5bb5542ba3da7cdae2c54788ccd05b92d9bc"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/observer.log",
+    "bytes": 16928,
+    "sha256": "d003502fc1d357d5d0be6f4cec673212ca8d774cb9347fc219eda0bae4746f85"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/pad-end.txt",
+    "bytes": 1047,
+    "sha256": "08630e4f538c18dee9f977b3086d6042af3ec179dfcc4531b72e20b634571a2f"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/pipeline-cache-start.txt",
+    "bytes": 2637,
+    "sha256": "6ba47a4d582f877964af2cf3526ea778c7aa42449db78b73dc3c19075892ebe1"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/pipeline-cache-world.txt",
+    "bytes": 2972,
+    "sha256": "4b5afcc51d87456a3cf5d5802af16437690b97ae39717080788385857fd67a4a"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/process-log.txt",
+    "bytes": 358192,
+    "sha256": "1361ca251e7b1c16a9318876debb2b377fb398cb54d2e466b62983b4331b9a63"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/ready.h264",
+    "bytes": 77325,
+    "sha256": "7bfafb28aaadd61401130fd5cae6ee85a13923793bf522a0697f3161f2fac786"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/ready.h264.status.json",
+    "bytes": 568,
+    "sha256": "1b85a67cdc93837396760465a4d8c6dd23250321cdc474bbfef6f9fcecf2856b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/ready.png",
+    "bytes": 129154,
+    "sha256": "d8691a286f178e594064005a2e2882370d26ebc3ee72df92edd8a511f4b85b54"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/restore.log",
+    "bytes": 50,
+    "sha256": "fe2b111693647e33cd559e6192c89d2607606d821fc4791cd36ddcc204522a98"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/sds-executed.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/start.h264",
+    "bytes": 2634,
+    "sha256": "a41d4f751168af26c7d1864f8b0712a8599b779dbf3095fd65bbc2888b7f60c5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/start.h264.status.json",
+    "bytes": 565,
+    "sha256": "4b35c5abf43d5c767f93198a6c5c491639f6ba065438822fb34f1f8a02309622"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/start.png",
+    "bytes": 7215,
+    "sha256": "07133f63292c3a178260f4677fc1ff98d2832faed333609165660f4cc6bcd491"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/status-latest.txt",
+    "bytes": 817,
+    "sha256": "c47af307282b009364b27943c28845a2fd6f6506f98002d5d20aa86a6ecd4592"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/stop-status.txt",
+    "bytes": 4977,
+    "sha256": "2cefa929fa94dd49c5152f66fae236370e43d8e597b100c53ef7fbaca91bfe49"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/summary.json",
+    "bytes": 1097,
+    "sha256": "40a54c9f00612492dd81e63322fccfc15888c65b8b6e7b0c919f79638d1408d8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/title.h264",
+    "bytes": 281778,
+    "sha256": "947589133694ed8069a581f700ec71d8e89ab4da7bd4fd6436ea3279bb9f9d64"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/title.h264.status.json",
+    "bytes": 569,
+    "sha256": "f14360f036bf05aef3b5389af41940a1951cf8818ff54570f8872756c106eeab"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/title.png",
+    "bytes": 1502389,
+    "sha256": "c617462c5b3054b6d30a66f56604771151b842e6aaccf78edc89e884021ddad5"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/kgsl_trace.txt.gz",
+    "bytes": 45548570,
+    "sha256": "735e6c88c7480581642179bbc7c14307c9785bd15f06d057b91f921bb9d3a5c1"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/device_clock_and_build_before.txt",
+    "bytes": 305,
+    "sha256": "381cd5d8c8d7517329f36c2af948206ab970d249af850fd1c6d92e2acd1bddec"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/host_clock_before.txt",
+    "bytes": 30,
+    "sha256": "66489a9aaf19c5d9c91475a5cd17850786d6404b83143310909d8db4e9b0405d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_collect_state.txt",
+    "bytes": 140,
+    "sha256": "378e6e8f8a5ee57f69899321aec1c1a5ce23bca6ea76a25c6a986e46ed22599e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_collection_complete.txt",
+    "bytes": 138,
+    "sha256": "455b6c4fe8c5a45c2fa74c614b4433568ad7abceaa45172915f3c11731bb066a"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_enabled_events.txt",
+    "bytes": 3246,
+    "sha256": "2d01150c7773e8f4c47d8f9be43cda7c4a87962346360718106b60cfffbf05e2"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_event_formats.txt",
+    "bytes": 29839,
+    "sha256": "a37c7ad5e573d39b0b5d2e9121ebe41d62d1a86f053dff24530836915eb04793"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_events_requested.txt",
+    "bytes": 968,
+    "sha256": "411961ccc16b4acb81d5d8f0f0a4d10f1ae16308f021bccd57edc84bb82cf2ef"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_instance_released.txt",
+    "bytes": 51,
+    "sha256": "f002a908ef5764e4d36d14d6091d87df2c7ce30b8d90a3931a1bb92f09cbbde4"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_optional_events_missing.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_per_cpu_stats.txt",
+    "bytes": 1788,
+    "sha256": "1ee70fb5b9f61c3235314b10b2cb73f8ef04e4d36891fedf5628642c9957ae84"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace/provenance/trace_preflight.txt",
+    "bytes": 947,
+    "sha256": "182923e8fab30e8f15a711b1fd2ce628895415c0d0dedd14d115a17d2cdb29a6"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/trace-summary.json",
+    "bytes": 901,
+    "sha256": "e905f1a49579dfeedb969cfc6dc88d7da62cca771b4da48cf39ec05ad4a88096"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/tu-debug-property.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/world-end.h264",
+    "bytes": 597611,
+    "sha256": "2b27f581b54f56d7730e4e8b6174fb8c4a897d783c07fb6939d89cc04e6e5048"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/world-end.h264.status.json",
+    "bytes": 570,
+    "sha256": "cbd70998b737247ab1d226f561a8416fd344ce725fd898c34de5387333421909"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/world-end.png",
+    "bytes": 2804920,
+    "sha256": "79d6e19da442fff731196086286f63d9d8ba74bd10386d592ee5f5f9cd352efc"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/world.h264",
+    "bytes": 616423,
+    "sha256": "a66b96fe04fb8c5e1532508c1f61c59086156bfe666fb70fa7bcdb79d50ee37b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/world.h264.status.json",
+    "bytes": 570,
+    "sha256": "247ce7e61079899cad04364f534bae5bfff45d4104d78d0c99c63cacf5ad239a"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/a2-off-cold/world.png",
+    "bytes": 2699570,
+    "sha256": "72ac6a15a96bbd6bd09d6487b547aac71719e32dd4b9b14afff65d177359b3d4"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/actions.jsonl",
+    "bytes": 3330,
+    "sha256": "87e36266261852c00d65cc8d3a19ee4d46fb93fcd8a8d8ae4cc963723ec6977f"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/android-host.log",
+    "bytes": 423510,
+    "sha256": "3d8f287870d9d22095a68f76ebaf6da13838e52131b0e17ab09304553bcb4f6f"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/collect.log",
+    "bytes": 138,
+    "sha256": "fc6dbdd9fb8e249af5f1029b55e3e3c1e0a887b36effaf69ca53367aa1777e82"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/current-window-kernel-hits.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/debug-status-end.txt",
+    "bytes": 148,
+    "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/dmesg-end.txt",
+    "bytes": 8425039,
+    "sha256": "57fc8359a5daafc5a87e2ac6d3209df031a457497ca46ec8c425e47ba2769249"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/dmesg-fault.txt",
+    "bytes": 8423294,
+    "sha256": "081b9897af41b4b86bec0a1e5045e3f6eafea3e2d45457e1e66059aaf69e3ce9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/devcd13.sqlite3",
+    "bytes": 68472832,
+    "sha256": "aeec3c05838e93cffad81f84fd69f9839424b699baff46e9e5f60bc158967ce9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/dmesg-after.txt",
+    "bytes": 8427108,
+    "sha256": "40f5f886372cf60515a5db7a36d82fdedcb8251cdae2cf2c2c4e7131701658fb"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/dmesg.txt",
+    "bytes": 8423732,
+    "sha256": "f665965a4c58cdfcbae777ac65ac06166406e012b6768eb19570c63cb692d244"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/draw-state-check.json",
+    "bytes": 32961,
+    "sha256": "c9d9a38f80ba0b2b7d13d50d2e66f0d12656582ce26d7ef2344ce1d3a6113282"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/draw_state_check.py",
+    "bytes": 2016,
+    "sha256": "543993eea990fabd64cbd575d20ab7bd291f2a93ea3283adf768876371a8d973"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/kgsl-1790593360-devcd13.bin",
+    "bytes": 12868724,
+    "sha256": "e361f44aa55cfd4ddec87907bd89828355e1b1ab4fbc4c9d9b132095401db4ca"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/logcat.txt",
+    "bytes": 236768310,
+    "sha256": "c02f31b603fc039a3917505df424631b532b566be5843336a1baed3353994f3a"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/snapshot-files.txt",
+    "bytes": 852,
+    "sha256": "927e47a47508e95592027c1d3bae94aa360a93e461763aaa6f135c60b63c1b7d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/verified-roq.json",
+    "bytes": 2828,
+    "sha256": "238f8f047af8f9e104a6af3bcbee74f1aa74cec9ddcad61858c123230d5073d6"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/fault-13/verify_devcd13.py",
+    "bytes": 4820,
+    "sha256": "42ef7b7822a9fe49447baeeded9b7f54b639884efc365ad71f2fdc70bfc5b043"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/faultcount-end.txt",
+    "bytes": 3,
+    "sha256": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/logcat-end.txt",
+    "bytes": 236764923,
+    "sha256": "2c23bce1ac77d799ff4a89075b886f54af5dd1984cacd30c5fcc586f746f1808"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/logcat-fault.txt",
+    "bytes": 236092390,
+    "sha256": "423df4d69ed3ab1ddc0b34ec25adafd080b56b35256e94fefc418cf125dc6d49"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/menu.h264",
+    "bytes": 287863,
+    "sha256": "83b50f00e896f7990b483def32cc4004b23879a0c678960560ee5423b3e3409e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/menu.h264.status.json",
+    "bytes": 569,
+    "sha256": "372818e3e8511c4d60f227f29b8ece0f8d14d3dedf2df86c37c78a5615ec1074"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/menu.png",
+    "bytes": 1498951,
+    "sha256": "d985772528487d5bc6c72e6eb93bddcdbf18a419464e70ad03b1248f2f8e026d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/observations.jsonl",
+    "bytes": 12037,
+    "sha256": "4e9076a2bc69aefe352b5966442a3cb9f36a7283eb4728e03ba5ae3bf3ebf124"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/observer.log",
+    "bytes": 9221,
+    "sha256": "d0c7cb32d4bf5dbab570642ea6df998a56201f6e12ce0260d18f94a8ea6cfa97"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/pad-end.txt",
+    "bytes": 148,
+    "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/pipeline-cache-start.txt",
+    "bytes": 2634,
+    "sha256": "7794ec72ef5ec890e12cc44ade3148ebcb099de7c78cf01ccdcd7729fffb9eb3"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/pipeline-cache-world.txt",
+    "bytes": 2973,
+    "sha256": "8fd97e6784cea82f3f536af60c990a807224ba55076bc777741db3961c95a6ed"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/process-log.txt",
+    "bytes": 234973,
+    "sha256": "1c99cbe09dab05748b23ae647f13ef5ac9863db769071a82306df5bdc25ad610"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/ready.h264",
+    "bytes": 75321,
+    "sha256": "2ebdccbd99bda2f22245876ea802ca46fd3855c4019a53171fc413feea70acdc"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/ready.h264.status.json",
+    "bytes": 568,
+    "sha256": "bfdcbc74bdfcc8af863e41fab34a4d32d08e7d74dc98e8d5b9ff2d376d5173c2"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/ready.png",
+    "bytes": 123682,
+    "sha256": "6cfa457e0863fad63efab8e67bb0a1663455e29d35e93063ce611a1f5423097e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/restore.log",
+    "bytes": 50,
+    "sha256": "194539ff0d3425ed2e0133d90a659bbef4889b3ae57d487bc94fcf3c83e97da6"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/sds-executed.txt",
+    "bytes": 380,
+    "sha256": "1073e9b5e1c1ca2e2bb41b36519c97af567843d2b322b5fc393694c76403af0b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/snapshot-files.txt",
+    "bytes": 852,
+    "sha256": "927e47a47508e95592027c1d3bae94aa360a93e461763aaa6f135c60b63c1b7d"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/status-latest.txt",
+    "bytes": 148,
+    "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/summary.json",
+    "bytes": 1093,
+    "sha256": "88e28dcb2abc1bd13230f0e50812c9279e4c3e5bf775945a8f54c3dedefa8669"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/title.h264",
+    "bytes": 282704,
+    "sha256": "3fdd4d9d437c5c0dccc9a62e3a59406ee577ea9e5a613c24c68d9fe2d18b6fe6"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/title.h264.status.json",
+    "bytes": 569,
+    "sha256": "243a5bdcd4a474381fbbc05d3ae9945cf74bcfac64aee1b6d4b9aab4478a96f8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/title.png",
+    "bytes": 1501368,
+    "sha256": "54dc80cbd62944edef37dea8098708b90cb1aea8af4817c6972c8e04c8fbb021"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/kgsl_trace.txt.gz",
+    "bytes": 26534441,
+    "sha256": "64cbf5a21996abe3ccc7cc58036d68c485668c06954570b20338c9003bca2253"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/device_clock_and_build_before.txt",
+    "bytes": 305,
+    "sha256": "6597dad921ab5e02071e46298846d1102aef355cdc97e632f76cb8d9050a05c9"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/host_clock_before.txt",
+    "bytes": 30,
+    "sha256": "ae91247c34095a36fd7113a475a6a72f925b4b5b0a0ba9ad319565b2aaef45fa"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_collect_state.txt",
+    "bytes": 140,
+    "sha256": "b17c49d2ba10ea3923655a32e58ed9b1f0ce35a2ef0964628a69421a2dd04f7b"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_collection_complete.txt",
+    "bytes": 138,
+    "sha256": "c8371e98d60e50fdb0ab321592f8c9685747f1580de17bca87dde1570fe52a79"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_enabled_events.txt",
+    "bytes": 3246,
+    "sha256": "fbd06610743cbcf3745b0b38fb73d820f6da37c6f11f369b85c9cffca3026bc8"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_event_formats.txt",
+    "bytes": 29839,
+    "sha256": "a37c7ad5e573d39b0b5d2e9121ebe41d62d1a86f053dff24530836915eb04793"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_events_requested.txt",
+    "bytes": 968,
+    "sha256": "411961ccc16b4acb81d5d8f0f0a4d10f1ae16308f021bccd57edc84bb82cf2ef"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_instance_released.txt",
+    "bytes": 51,
+    "sha256": "a99be6fae6043051e429350c916092c2c9c2735436f7cf8b7ec96e8312310e85"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_optional_events_missing.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_per_cpu_stats.txt",
+    "bytes": 1768,
+    "sha256": "9802e9cd8991863fd2ac0d100a415c3a60b20570c5a4079a33d7aff036eafd71"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace/provenance/trace_preflight.txt",
+    "bytes": 947,
+    "sha256": "c26f6f0507d6e6d8ba1cb90e5d441aee0c3b4f417885864858f5e222bbdc8f7c"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/trace-summary.json",
+    "bytes": 1361,
+    "sha256": "bd8331f8b3dfa427c614a1bc5d9cb04e85f60b9d47cb526135fdbfe0102e81a2"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/tu-debug-property.txt",
+    "bytes": 15,
+    "sha256": "8a18a354604ef38b50df88b877dfc6111e9b394d5ddc950ad8c18bb176232856"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/world.h264",
+    "bytes": 775567,
+    "sha256": "d10fdb7c78604ee88b43867351e1b9a7cc2ad0b49045b11bba26e891a7b5940e"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/world.h264.status.json",
+    "bytes": 569,
+    "sha256": "f897ea853dd5a12eacda8e280b92fb5af4227d1dbc34d679f0a76e66b5829ba1"
+  },
+  {
+    "path": "build/validation/swan-cp-ab-20260929/b2-on-cold/world.png",
+    "bytes": 2760060,
+    "sha256": "020cea6367e6613df4c813355cd0b672e5ec66a74c50236e3bd182596b3a0d8c"
+  }
+]

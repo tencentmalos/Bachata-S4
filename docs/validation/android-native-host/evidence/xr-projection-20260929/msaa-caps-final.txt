@@ -1,0 +1,7 @@
+common color=7 depth=7 stencil=7
+R8G8B8A8Unorm result=0 sample_mask=15
+R8G8B8A8Srgb result=0 sample_mask=15
+R16G16B16A16Sfloat result=0 sample_mask=15
+R32G32B32A32Sfloat result=0 sample_mask=7
+D24UnormS8Uint result=0 sample_mask=15
+D32Sfloat result=0 sample_mask=15

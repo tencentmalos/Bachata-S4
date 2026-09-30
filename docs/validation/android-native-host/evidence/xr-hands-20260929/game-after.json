@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "values": {
+    "gpu.force_disable_msaa": true,
+    "input.xr_swap_move_hands": true
+  }
+}

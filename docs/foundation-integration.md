@@ -1,7 +1,24 @@
 # Spatial Foundation 接入记录与 V0 复用要求
 
+2026-09-30：XR/指标改动已保存到 owned `codex/shadps4-xr-foundation`，固定提交 [82b09a1302cc499f1fc8e085e3c500e550afb743](https://github.com/tencentmalos/foundation/tree/82b09a1302cc499f1fc8e085e3c500e550afb743)。包含共享 JniHelper/原生电池采样、FSR1/SGSR1/FDM、左右控制器状态和独立 XR ImGui 层；以下旧版本记录保留其历史语境。
+
 日期：2026-09-07。这是初始基线 `a7128893` 之后的依赖准备里程碑；不改写初始基线记录。
 主仓原先只有桌面核心，本次增加基础设施的构建入口，尚未提供 Android app 或 guest backend。
+
+## 2026-09-29：Summary 电池与设备指标由 Foundation 采样
+
+Android 电池采集下沉到 `modules/perf_metrics`：C++ 经公开 JNI API 读取 BatteryManager 与
+sticky battery Intent，缺项逐字段回退 sysfs。原 Kotlin 轮询、JNI 电池发布、宿主中转结构和
+StatusLayer 复制链路已删除；既有 host 初始化只传一次 application Context。统一使用原有
+`JniHelper::initJniEnviroment/getJniEnv/getActivityContext`：同一 application 重复初始化不重建
+Context/ClassLoader，native 线程持续复用环境并在线程退出时 detach。环境部分编入
+`spatial::foundation_jni_helper`，与完整 platform 共用源码/状态；已删除首版独立 JniContext，
+不引入完整 basic 层。GPU 主频仍用 C++ 读 KGSL/Mali/devfreq，增加每次采样的候选回退与溢出检查。
+
+Foundation 指标测试 33 cases / 219 assertions（UBSan）、真实 JVM 的 253 checks
+（`-Xcheck:jni`）通过；Android host、APK 与 instrumented test Kotlin 编译通过。
+设备未连接，实际读数与 HUD 尚未验收。详见[指标实现](validation/android-native-host/summary-native-metrics-20260929.md)和
+[JniHelper 统一与最新验证](validation/android-native-host/summary-jnihelper-20260929.md)。
 
 ## 2026-09-26：日志迁移到 Foundation LogModule，移除 spdlog
 

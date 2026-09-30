@@ -1,0 +1,5 @@
+09-28 17:50:09.022 21406 23472 I CCodec  : setting up 'default' as default (vendor) store
+09-28 17:50:09.026 21406 23472 I CCodec  : Created component [c2.qti.avc.encoder] for [c2.qti.avc.encoder]
+09-28 17:50:09.033 21406 23472 I CCodecConfig: query failed after returning 27 values (BAD_INDEX)
+09-28 17:50:09.038 21406 23472 I CCodecConfig: query failed after returning 28 values (BAD_INDEX)
+09-28 17:50:09.051 21406 23472 I CCodecBufferChannel: [c2.qti.avc.encoder#196] Created output block pool with allocatorID 16 => poolID 104 - OK

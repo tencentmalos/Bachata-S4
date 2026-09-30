@@ -1,0 +1,8 @@
+TASK 10152:com.shadps4.android id=429 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 75d647 pid=28487 userId=0 uid=10152 displayId=0(type=INTERNAL)
+visible=true theme=graphite gi=true indicator=auto
+frames=1900 reused=false mode=psvr eye=2592x2400 triangles=52228 voxels=8463 probes=1260 invalid=10 skipped=0 sweeps=193 rebuilds=1 rect_transfers=2524 gi_ms=0.000/0.279/0.378 variants=12/3 failed=0 indicator=running brightness=1.00
+
+projection=cropped-symmetric samples=1 screen=960x544 anchor=local-fixed offset=0,-0.42,-1.15 world_position=-0.831,-0.726,-1.662
+eye0 fov_deg=L-26.56,R26.56,U29.16,D-29.16
+eye1 fov_deg=L-26.69,R26.69,U28.90,D-28.90

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "values": {
+    "gpu.force_disable_msaa": true
+  }
+}

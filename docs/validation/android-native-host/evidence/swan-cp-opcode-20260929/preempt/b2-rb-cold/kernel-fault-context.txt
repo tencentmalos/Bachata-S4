@@ -1,0 +1,164 @@
+[104470.313765] [12:32:04](2)[1|init]init: starting service 'freeze_kernel_helper'...
+[104470.316758] [12:32:04](3)[1|init]init: ... started service 'freeze_kernel_helper' has pid 15941
+[104470.326926] [12:32:04](1)[1|init]init: Service 'freeze_kernel_helper' (pid 15941) exited with status 0
+[104470.326945] [12:32:04](1)[1|init]init: Sending signal 9 to service 'freeze_kernel_helper' (pid 15941) process group...
+[104470.347154] [12:32:04](0)[1332|logd.auditd]type=1400 audit(1790598724.463:959546): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+[104470.366881] [12:32:04](0)[5734|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_RIGHT] sof_meta return_used_index 4 ipc_call_timestamp 104470362408115 sof_timestamp 104480921050780 sofmeta_timestamp 104470361767214 frame_id: 686340 org_frameid 8683180 event type: 800000c dac: 401 coe: 104480920332319
+[104470.369166] [12:32:04](4)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000
+[104470.369190] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:578000000
+[104470.369198] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[20901]: ctx 51 ctx_type ANY ts 54656 policy 2
+[104470.369203] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[20901]: cmdline: com.shadps4.android
+[104470.369287] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+[104470.369290] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 1991/1a39 ib1 000000413B48A000/05ef ib2 000000413B5929EC/0000 ib3 0000000000000000/0000
+[104470.369295] [12:32:04](5)[1433|kgsl_hwsched]kgsl kgsl-3d0: BV: rb 1995/1a39 ib1 000000413B48A000/0000 ib2 0000000000000000/0000 ib3 0000000000000000/0000
+[104470.389068] [12:32:04](2)[6031|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_LEFT] sof_meta return_used_index 4 ipc_call_timestamp 104470384621136 sof_timestamp 104480943279200 sofmeta_timestamp 104470383996677 frame_id: 686340 org_frameid 8683203 event type: 800000c dac: 343 coe: 104480942553799
+[104470.496496] [12:32:04](0)[2100|kworker/u37:6]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[104470.496506] [12:32:04](0)[2100|kworker/u37:6]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[104470.500447] [12:32:04](5)[15945|crash_dump64][lsfpga]: set event:8
+[104470.500473] [12:32:04](0)[1394|lsfpga_main_thr][lsfpga]: process event:HMD_HEARTBEAT_EVENT
+[104470.503479] [12:32:04](0)[1394|lsfpga_main_thr][lsfpga]: box:fpga_id:0x0105 sync_state:1 crc_err_cnt:0 sync_loss_cnt:0 power_loss:0x009c spi_speed:0 i2c_sts1:0x0000 i2c_sts2:0x0000 2v5_en:0x0100
+[104470.506369] [12:32:04](4)[1394|lsfpga_main_thr][lsfpga]: hmd:fpga_id:0x0097 sync_state:1 crc_err_cnt:0 sync_loss_cnt:0 power_loss:0x009c spi_speed:0 i2c_sts1:0x0000 i2c_sts2:0x0000
+[104470.511247] [12:32:04](5)[1394|lsfpga_main_thr]state: event=8, curr[2]:WORKING, next[2]:WORKING, status=0x0
+[104470.516474] [12:32:04](0)[1332|logd.auditd]type=1400 audit(1790598724.631:959547): avc:  denied  { write } for  comm="crash_dump64" name="syseventsw" dev="tmpfs" ino=1664 scontext=u:r:crash_dump:s0:c152,c256,c512,c768 tcontext=u:object_r:syseventsw_socket:s0 tclass=sock_file permissive=0 app=com.shadps4.android
+[104470.516832] [12:32:04](0)[1332|logd.auditd]type=1400 audit(1790598724.631:959548): avc:  denied  { write } for  comm="crash_dump64" name="syseventsw" dev="tmpfs" ino=1664 scontext=u:r:crash_dump:s0:c152,c256,c512,c768 tcontext=u:object_r:syseventsw_socket:s0 tclass=sock_file permissive=0 app=com.shadps4.android
+[104470.519102] [12:32:04](1)[1339|collect_log]android time is 2026-09-28 20:32:04.637, boot time is 104470511 ms
+[104470.605661] [12:32:04](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot froze 304Kb of GPU buffers
+[104470.605679] [12:32:04](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot created at pa d3c00000++0x621118
+[104470.605686] [12:32:04](4)[1433|kgsl_hwsched]Entry name already exist
+[104470.606802] [12:32:04](4)[1433|kgsl_hwsched]adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU
+[104470.620121] [12:32:04](4)[1433|kgsl_hwsched]kgsl_online_alarm_instructions: 154 callbacks suppressed
+[104470.620127] [12:32:04](4)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+[104470.621627] [12:32:04](4)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+[104470.628003] [12:32:04](0)[1332|logd.auditd]type=1400 audit(1790598724.743:959549): avc:  denied  { read } for  comm="binder:3901_8" name="u:object_r:vendor_coprocds_prop:s0" dev="tmpfs" ino=481 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_coprocds_prop:s0 tclass=file permissive=0
+[104470.628013] [12:32:04](2)[4558|binder:3901_8]audit: audit_lost=894433 audit_rate_limit=5 audit_backlog_limit=64
+[104470.628016] [12:32:04](2)[4558|binder:3901_8]audit: rate limit exceeded
+[104470.628225] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:display, vote:1
+[104470.628227] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:audio, vote:2
+[104470.628228] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:camera, vote:1
+[104470.628230] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:copro, vote:1
+[104470.628231] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_mcu, vote:1
+[104470.628232] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_hmd, vote:1
+[104470.628233] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_spi_test, vote:0
+[104470.628235] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_len_hood, vote:0
+[104470.628236] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_ctrl, vote:1
+[104470.628237] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_tracker, vote:0
+[104470.628238] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:lsfpga, vote:0
+[104470.628240] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:debug, vote:0
+[104470.628241] [12:32:04](2)[4558|binder:3901_8][hmd_pm]: client:station_switch, vote:0
+[104470.646080] [12:32:04](1)[2725|PERFLOCKSD]store_scaling_max_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 2745600
+[104470.650224] [12:32:04](1)[320|init]init: Unable to set property 'sys.full_dump.enable' from uid:0 gid:0 pid:15947: SELinux permission check failed
+[104470.664428] [12:32:04](0)[320|init]init: Unable to set property 'sys.full_dump.enable' from uid:0 gid:0 pid:15947: SELinux permission check failed
+[104470.666585] [12:32:04](1)[2725|PERFLOCKSD]store_scaling_min_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 384000
+[104470.666677] [12:32:04](1)[2725|PERFLOCKSD]store_scaling_min_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 1900800
+[104470.671737] [12:32:04](1)[1307|logd.reader]logd: logdr: UID=0 GID=0 PID=15959 n tail=20000 logMask=1 pid=0 start=0ns deadline=0ns
+[104470.685995] [12:32:04](5)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+[104470.688562] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl_iommu_print_fault: 77 callbacks suppressed
+[104470.688566] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76817C0 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688574] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688577] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688581] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688582] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688584] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688603] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688605] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76817c0
+[104470.688607] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.688657] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B764ED80 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688660] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688663] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688664] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688665] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688667] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688672] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688674] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b764ed80
+[104470.688675] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.688699] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76F1700 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688701] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688703] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688705] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688729] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688731] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688750] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688752] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76f1700
+[104470.688754] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.688821] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76D4B80 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688824] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688827] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688828] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688830] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688831] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688836] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688838] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76d4b80
+[104470.688839] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.688872] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76EDF40 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688875] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688877] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688879] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688880] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688882] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688886] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688888] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76edf40
+[104470.688890] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.688918] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76C7140 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688920] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688923] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688924] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688926] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688928] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688932] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688933] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76c7140
+[104470.688935] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.688964] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76E7DC0 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.688966] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.688969] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.688970] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.688971] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.688973] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.688977] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.688979] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76e7dc0
+[104470.688981] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.689013] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B76E1780 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.689015] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.689018] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.689019] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.689020] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.689022] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.689026] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.689028] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b76e1780
+[104470.689030] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.689058] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B776EB40 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.689061] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.689064] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.689066] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.689067] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.689069] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.689073] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.689075] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b776eb40
+[104470.689077] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.689104] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: GPU PAGE FAULT: addr = 40B776A580 group id= 20901 name=shadps4.android drawctxt=51 context pid = 14654 ctx_type=ANY
+[104470.689107] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: context=gfx3d_user TTBR0=0xa9cc01000 (read translation fault)
+[104470.689110] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: FAULTING BLOCK: UCHE: Unknown
+[104470.689111] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- premature free ----
+[104470.689113] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [40B63B6000-40BA3B6000] (any(0)) was already freed by pid 20901
+[104470.689114] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: ---- nearby memory ----
+[104470.689118] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040B63B4000 - 00000040B63B5FFF]   (pid = 20901) (any(0))
+[104470.689120] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: <- fault @ 00000040b776a580
+[104470.689122] [12:32:04](0)[1388|irq/56-arm-smmu]kgsl kgsl-3d0: [00000040BA3B6000 - 00000040BA3B9FFF]   (pid = 20901) (any(0))
+[104470.694423] [12:32:04](3)[12471|kworker/3:0]kgsl kgsl-3d0: snapshot: objects released
+[104470.696939] [12:32:04](4)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+[104470.714391] [12:32:04](0)[1307|logd.reader]logd: logdr: UID=1000 GID=1000 PID=15960 n tail=50000 logMask=3ff pid=0 start=0ns deadline=0ns
+[104470.753236] [12:32:04](7)[12467|kworker/7:1][drm:panel_temp_work_handler [msm_drm]] [BD_DISP_DEBUG]: send panel temp work handler
+[104470.753661] [12:32:04](1)[2725|PERFLOCKSD]max_freq_store, pid: 2613, comm: PERFLOCKSD, freq: 726000000
+[104470.754039] [12:32:04](4)[2725|PERFLOCKSD]max_freq_store, pid: 2613, comm: PERFLOCKSD, freq: 902000000
+[104470.754157] [12:32:04](4)[2725|PERFLOCKSD]min_freq_store, pid: 2613, comm: PERFLOCKSD, freq: 342000000
+[104470.754183] [12:32:04](4)[2725|PERFLOCKSD]min_freq_store, pid: 2613, comm: PERFLOCKSD, freq: 726000000
+[104470.757161] [12:32:04](4)[1466|vst_comm_thread][drm:bd_disp_copro_vst_comm_thread_fn [msm_drm]] [BD_DISP_DEBUG]: Do send panel temp l_temp=49250 r_temp=47750
+[104470.757461] [12:32:04](4)[1466|vst_comm_thread][drm:rpc_disp_msg_send [msm_drm]] [BD_DISP_DEBUG]: display literpc send literpc message start
+[104470.759891] [12:32:04](4)[1466|vst_comm_thread][drm:rpc_disp_msg_send [msm_drm]] [BD_DISP_DEBUG]: display literpc send literpc message end
+[104470.760152] [12:32:04](4)[1466|vst_comm_thread][drm:bd_disp_copro_vst_comm_thread_fn [msm_drm]] [BD_DISP_DEBUG]: send panel temp l_temp=49250 r_temp=47750
+[104470.830525] [12:32:04](0)[0|swapper/0][copro][reset-debug][cphb_ipcmsg_callback][0   ]AP GET COPRO HEARTBEAT:0x6601, msgid:0x22231003, cmdid:0x2, datalen:0x1c, subsys:0x0, status:0x0
+[104470.830548] [12:32:04](3)[10477|kworker/u32:2][copro][reset-info][ktm_sync_worker][10477]
+[104470.830551] [12:32:04](3)[10477|kworker/u32:2][copro][reset-info][ktm_sync_worker][10477]ktimens:104470816776657, ktimerlns:1790598724942005408, tz_minuteswest:0, ktimeqtns:104487508401770, apsyqtns:104487507763437, vsyns:104481375446100, vktmsyns:104481376084433, ktimerlns UTC TIME:2026-09-28-20-32-04.942005408
+[104471.008550] [12:32:05](1)[2100|kworker/u37:6]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[104471.008559] [12:32:05](1)[2100|kworker/u37:6]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[104471.350398] [12:32:05](0)[1332|logd.auditd]type=1400 audit(1790598725.467:959564): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+[104471.366917] [12:32:05](2)[5734|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_RIGHT] sof_meta return_used_index 6 ipc_call_timestamp 104471362469313 sof_timestamp 104481921013060 sofmeta_timestamp 104471361763406 frame_id: 686430 org_frameid 8683270 event type: 800000c dac: 401 coe: 104481920252721

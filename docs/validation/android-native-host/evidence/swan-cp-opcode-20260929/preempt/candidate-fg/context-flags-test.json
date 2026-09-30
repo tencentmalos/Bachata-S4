@@ -1,0 +1,6 @@
+{
+  "production_source": "references/mesa-turnip/src/freedreno/vulkan/tu_knl_kgsl.cc",
+  "production_function_sha256": "9e14803b230f612871e5027e37ba34cee4eb118b8d5e4ef43d1987263b8f1cd6",
+  "result": "40 checks / 0 failures",
+  "scope": "Host test extracts production function and real UAPI constants; mocked ioctl. Does not validate KMD/GMU behavior or GPU stability."
+}

@@ -1,0 +1,1 @@
+cases=196608 padded=1584 rollover=65536 crossing_controls=4752 failures=0

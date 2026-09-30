@@ -1,0 +1,26 @@
+TASK 10152:com.shadps4.android id=187 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.MainActivity 5ce1e7c pid=26142 userId=0 uid=10152 displayId=0(type=INTERNAL)
+settings: recipe cache on (store open), driver cache on
+compile mode: async_graphics_skip (configured async_graphics_skip), 2 compile threads
+  deferred 0 graphics + 0 compute; queued 0 (peak depth 0), queue full 0; built by workers 361, by first user 0
+  binds that waited for a build: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+  skipped draws (lossy): 0 (0 held after their pipeline was built) of 0 pipelines, 0 resumed; 0 frames affected, longest run 0 frames
+  unbuilt draws kept instead of skipped: side effects 0, predicated 0, stream-out 0, clear/meta 0, skipped too long 0, skipping off 0
+guest shaders translated: 1 in 0.8 ms (mean 0.81 ms, max 0.81 ms)
+graphics pipelines created: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+    driver feedback 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), cache hits 0
+compute pipelines created: 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms)
+    driver feedback 0 in 0.0 ms (mean 0.00 ms, max 0.00 ms), cache hits 0
+tiling pipelines created: 8 in 0.1 ms (mean 0.01 ms, max 0.02 ms)
+    driver feedback 8 in 0.1 ms (mean 0.01 ms, max 0.02 ms), cache hits 8
+preload: 362 stored, whole preload 213.2 ms on 4 threads
+  362 with usage records; recipes/modules/layouts 202.7 ms; 362 built before start in 10.4 ms, 0 left to workers (361 built so far, 0 promoted by a draw); usage saved 362; pipelines first used this session 28
+  graphics preloaded: 330 in 18.2 ms (mean 0.06 ms, max 5.68 ms)
+    driver feedback 330 in 11.5 ms (mean 0.03 ms, max 5.67 ms), cache hits 330
+  compute preloaded: 32 in 0.5 ms (mean 0.01 ms, max 0.07 ms)
+    driver feedback 32 in 0.4 ms (mean 0.01 ms, max 0.07 ms), cache hits 32
+driver cache file: /data/user/0/com.shadps4.android/files/host/cache/CUSA03023_5143_44050a31.vkpipelines
+  identity: vendor 0x5143 device 0x44050a31 driver 0x6802063 uuid 67f8dd7ad1036163621964ab2d222465
+  at startup: loaded (3729241 bytes)
+  saves: 1 in 12.0 ms (mean 11.96 ms, max 11.96 ms), last 3749721 bytes
+

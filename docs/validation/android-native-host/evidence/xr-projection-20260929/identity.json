@@ -1,0 +1,15 @@
+{
+  "apk": "013367fcab4ab685472c638d89abbde3cd5064c156bd86a69adb3a5a5b63fb3d",
+  "libshadps4_host.so": "6dc9b50012427277f4f0c21868ccf6939ea90e23bea3c21627819bfda751bed6",
+  "libshadps4_fex_session.so": "683a08ed7a2867227161c00cd864210ce250358773a05849c6b38a78d6efb47a",
+  "driver": "87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094",
+  "device": "PB3110PGL6240001G",
+  "game": "CUSA12878",
+  "version": "02.04",
+  "pid": 32588,
+  "generation": 1,
+  "run_uuid": "3430c7905872416dd5c84a5d5c6fcdb2",
+  "installed_apk_sha256_verified": true,
+  "probe_host_sha256": "66e5d95cba25f98e5628bc6b85313d6cac1d5a51a3442079deb89f6846e0b517",
+  "probe_note": "Probe host precedes final runtime mailbox mode recheck; HLE and geometry code identical. Final host/APK built and exercised in Beat Saber."
+}

@@ -1,0 +1,4 @@
+TASK 10152:com.shadps4.android id=381 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 22f870d pid=2930 userId=0 uid=10152 displayId=0(type=INTERNAL)
+upscaler=2 foveation=2 level=0 sharpness=50 draws=2429 fdm_draws=2429 tracked_draws=0 uploads=17 unchanged=2412 fdm_enabled=true gaze_supported=true gaze_fresh=false gaze_valid=0 gaze_invalid=1152 output_resolution=2 eye_output=4160x3552 eye_recommended=2592x2400 eye_limit=4160x3552 scope=host-presentation
+

@@ -1,0 +1,7 @@
+2882: [2026-09-29 15:54:40.671][Info][3192][Render_Vulkan](shadPS4:GpuComm) vk_pipeline_cache.cpp:483 GetGraphicsPipeline: Compiling graphics pipeline 0xcac022f232477777
+2883: [2026-09-29 15:54:40.675][Info][3265][Render_Vulkan](shadPS4:Pipelin) vk_pipeline_cache.cpp:469 NotePipeline: Created graphics pipeline 0xcac022f232477777 in 2.36 ms (driver cache hit)
+2884: [2026-09-29 15:54:41.263][Critical][3192][Debug](shadPS4:GpuComm) vk_presenter.cpp:1680 GetRenderFrame: Assertion Failed!
+2885: Device lost during waiting for a frame
+2886: [2026-09-29 15:54:41.299][Info][3379][Lib.SaveData](Guest-50) guest_runtime.cpp:2138 lambda: Session storage nid=32HQAQdwM2o result=0x0
+2887: [2026-09-29 15:54:41.319][Info][3379][Lib.SaveData](Guest-50) guest_runtime.cpp:2138 lambda: Session storage nid=BMR4F-Uek3E result=0x0
+2888: [2026-09-29 15:54:41.639][Info][3185][Lib.AudioOut](Guest-16) oboe_audio_out.cpp:35 Observe: Oboe gen=1 api=2 perf=12 share=1 rate=48000 ch=2 burst=192 capacity=1536 size=384 sources=2 callbacks=22914 frames=4140672 consumed=4140288 starved=0 xruns=4 timestamp_result=0 presented=4139088 reconnects=0 error=0

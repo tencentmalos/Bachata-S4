@@ -1,0 +1,13 @@
+{
+    "schemaVersion": 1,
+    "values": {
+        "android.display_mode": "xr",
+        "gpu.xr_upscaler": "sgsr1"
+    },
+    "unknownShadPs4": {},
+    "guestBackend": null,
+    "driverId": null,
+    "maliGpuOptimizations": null,
+    "controllerSlots": [],
+    "touchLayoutId": null
+}

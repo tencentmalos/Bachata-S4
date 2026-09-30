@@ -1,0 +1,347 @@
+diff --git a/src/freedreno/vulkan/tu_cs.cc b/src/freedreno/vulkan/tu_cs.cc
+index 48b5a018d56..25120b3d3b8 100644
+--- a/src/freedreno/vulkan/tu_cs.cc
++++ b/src/freedreno/vulkan/tu_cs.cc
+@@ -529,6 +529,37 @@ tu_cs_reserve_space(struct tu_cs *cs, uint32_t reserved_size)
+    return VK_SUCCESS;
+ }
+ 
++void
++tu_cs_align_draw_state(struct tu_cs *cs, uint16_t cnt)
++{
++   if (!cnt || cnt >= 1024 || cs->status != VK_SUCCESS)
++      return;
++
++   tu_cs_reserve(cs, cnt + 1);
++   if (cs->status != VK_SUCCESS)
++      return;
++
++   uint32_t remaining = 1024 - ((tu_cs_get_cur_iova(cs) & 4095) / 4);
++   if (remaining >= cnt + 1)
++      return;
++
++   tu_cs_reserve(cs, remaining + cnt + 1);
++   if (cs->status != VK_SUCCESS)
++      return;
++   remaining = 1024 - ((tu_cs_get_cur_iova(cs) & 4095) / 4);
++   if (remaining >= cnt + 1)
++      return;
++
++   static std::atomic<uint32_t> logged{0};
++   if (logged.fetch_add(1, std::memory_order_relaxed) < 4)
++      mesa_logi("SDS page align: iova=0x%" PRIx64 " payload=%u pad=%u",
++                tu_cs_get_cur_iova(cs), cnt, remaining);
++
++   tu_cs_emit(cs, pm4_pkt7_hdr(CP_NOP, remaining - 1));
++   for (uint32_t i = 1; i < remaining; i++)
++      tu_cs_emit(cs, 0);
++}
++
+ /**
+  * Reset a command stream to its initial state.  This discards all comand
+  * packets in \a cs, but does not necessarily release all resources.
+diff --git a/src/freedreno/vulkan/tu_cs.h b/src/freedreno/vulkan/tu_cs.h
+index 0a94086e643..2aef69ad030 100644
+--- a/src/freedreno/vulkan/tu_cs.h
++++ b/src/freedreno/vulkan/tu_cs.h
+@@ -11,6 +11,7 @@
+ #include "freedreno_pm4.h"
+ 
+ #include "tu_knl.h"
++#include "tu_util.h"
+ 
+ /* For breadcrumbs we may open a network socket based on the envvar,
+  * it's not something that should be enabled by default.
+@@ -482,6 +483,8 @@ tu_cs_emit_pkt4(struct tu_cs *cs, uint16_t regindx, uint16_t cnt)
+    tu_cs_emit(cs, pm4_pkt4_hdr(regindx, cnt));
+ }
+ 
++void tu_cs_align_draw_state(struct tu_cs *cs, uint16_t cnt);
++
+ /**
+  * Emit a type-7 command packet header into a command stream.
+  */
+@@ -493,6 +496,10 @@ tu_cs_emit_pkt7(struct tu_cs *cs, uint8_t opcode, uint16_t cnt)
+    tu_cs_emit_sync_breadcrumb(cs, opcode, cnt + 1);
+ #endif
+ 
++   if (opcode == CP_SET_DRAW_STATE && cs->mode == TU_CS_MODE_GROW &&
++       TU_DEBUG_START(SDS_PAGE_ALIGN))
++      tu_cs_align_draw_state(cs, cnt);
++
+    tu_cs_reserve(cs, cnt + 1);
+    tu_cs_emit(cs, pm4_pkt7_hdr(opcode, cnt));
+ }
+diff --git a/src/freedreno/vulkan/tu_knl_kgsl.cc b/src/freedreno/vulkan/tu_knl_kgsl.cc
+index 1b2b6b07c3b..c04597b3ee0 100644
+--- a/src/freedreno/vulkan/tu_knl_kgsl.cc
++++ b/src/freedreno/vulkan/tu_knl_kgsl.cc
+@@ -56,7 +56,34 @@ kgsl_submitqueue_new(struct tu_device *dev, struct tu_queue *queue)
+               KGSL_CONTEXT_PREAMBLE,
+    };
+ 
++   const bool preempt_rb = TU_DEBUG_START(KGSL_PREEMPT_RB);
++   const bool preempt_fg = TU_DEBUG_START(KGSL_PREEMPT_FG);
++   if (preempt_rb && preempt_fg) {
++      mesa_loge("KGSL preemption: kgsl_preempt_rb and kgsl_preempt_fg "
++                "cannot be enabled together");
++      errno = EINVAL;
++      return -1;
++   }
++   const uint32_t preempt_style =
++      preempt_rb ? KGSL_CONTEXT_PREEMPT_STYLE_RINGBUFFER :
++      preempt_fg ? KGSL_CONTEXT_PREEMPT_STYLE_FINEGRAIN :
++                   KGSL_CONTEXT_PREEMPT_STYLE_DEFAULT;
++   req.flags |= preempt_style << KGSL_CONTEXT_PREEMPT_STYLE_SHIFT;
++   const uint32_t requested_flags = req.flags;
++
+    int ret = safe_ioctl(dev->physical_device->local_fd, IOCTL_KGSL_DRAWCTXT_CREATE, &req);
++   if (preempt_rb || preempt_fg) {
++      const int saved_errno = errno;
++      mesa_logi("KGSL preemption: requested_flags=0x%x returned_flags=0x%x "
++                "requested_style=%u returned_style=%u context=%u "
++                "result=%d errno=%d",
++                requested_flags, req.flags, preempt_style,
++                (req.flags & KGSL_CONTEXT_PREEMPT_STYLE_MASK) >>
++                   KGSL_CONTEXT_PREEMPT_STYLE_SHIFT,
++                ret ? 0 : req.drawctxt_id, ret,
++                ret ? saved_errno : 0);
++      errno = saved_errno;
++   }
+    if (ret)
+       return ret;
+ 
+diff --git a/src/freedreno/vulkan/tu_util.cc b/src/freedreno/vulkan/tu_util.cc
+index ae558a53b5b..bd5e65f40f5 100644
+--- a/src/freedreno/vulkan/tu_util.cc
++++ b/src/freedreno/vulkan/tu_util.cc
+@@ -58,6 +58,9 @@ static const struct debug_control tu_debug_options[] = {
+    { "forcecb", TU_DEBUG_FORCE_CONCURRENT_BINNING },
+    { "computeroundrobin", TU_DEBUG_COMPUTE_ROUND_ROBIN },
+    { "gmem_warmup", TU_DEBUG_GMEM_WARMUP },
++   { "sds_page_align", TU_DEBUG_SDS_PAGE_ALIGN },
++   { "kgsl_preempt_rb", TU_DEBUG_KGSL_PREEMPT_RB },
++   { "kgsl_preempt_fg", TU_DEBUG_KGSL_PREEMPT_FG },
+    { NULL, 0 }
+ };
+ 
+diff --git a/src/freedreno/vulkan/tu_util.h b/src/freedreno/vulkan/tu_util.h
+index 8fc6b49fcb2..d7ac09a31a6 100644
+--- a/src/freedreno/vulkan/tu_util.h
++++ b/src/freedreno/vulkan/tu_util.h
+@@ -76,6 +76,9 @@ enum tu_debug_flags : uint64_t
+    TU_DEBUG_FORCE_CONCURRENT_BINNING = BITFIELD64_BIT(36),
+    TU_DEBUG_COMPUTE_ROUND_ROBIN      = BITFIELD64_BIT(37),
+    TU_DEBUG_GMEM_WARMUP              = BITFIELD64_BIT(38),
++   TU_DEBUG_SDS_PAGE_ALIGN           = BITFIELD64_BIT(39),
++   TU_DEBUG_KGSL_PREEMPT_RB          = BITFIELD64_BIT(40),
++   TU_DEBUG_KGSL_PREEMPT_FG          = BITFIELD64_BIT(41),
+ };
+ 
+ struct tu_env {
+diff --git a/src/util/u_gralloc/tests/mapper5_metadata_test.cpp b/src/util/u_gralloc/tests/mapper5_metadata_test.cpp
+index e3aadc219c1..5c7da93dcc5 100644
+--- a/src/util/u_gralloc/tests/mapper5_metadata_test.cpp
++++ b/src/util/u_gralloc/tests/mapper5_metadata_test.cpp
+@@ -9,6 +9,19 @@ template<class T> void put(T v) { auto p=reinterpret_cast<uint8_t*>(&v); bytes.i
+ void text(const char*s){put<int64_t>(strlen(s));bytes.insert(bytes.end(),s,s+strlen(s));}
+ void header(int64_t key){bytes.clear();text("android.hardware.graphics.common.StandardMetadataType");put(key);}
+ void layout(){header(15);put<int64_t>(1);put<int64_t>(1);text("android.hardware.graphics.common.PlaneLayoutComponentType");put<int64_t>(1024);put<int64_t>(0);put<int64_t>(8);for(int64_t v:{0,32,7680,1920,1080,8294400,1,1})put(v);}
++void ubwc_layout(){
++ header(15);put<int64_t>(2);
++ for(int i=0;i<2;++i){
++  put<int64_t>(i?5:4);
++  for(int c=0;c<4;++c){
++   text("android.hardware.graphics.common.PlaneLayoutComponentType");
++   put<int64_t>(c==3?1073741824:1024<<c);put<int64_t>(i?0:c*8);put<int64_t>(i?0:8);
++  }
++  if(i){text("QTI");put<int64_t>(INT32_MIN);put<int64_t>(0);put<int64_t>(0);}
++  if(i){for(int64_t v:{0,0,128,1920,1080,36864,0,0})put(v);}
++  else {for(int64_t v:{36864,32,7680,1920,1080,8355840,1,1})put(v);}
++ }
++}
+ #define CHECK(x) do { ++checks; if(!(x)){std::printf("FAIL %d %s\n",__LINE__,#x);return 1;} }while(0)
+ int main(){
+  unsigned checks=0; uint64_t val=9;
+@@ -29,5 +42,35 @@ int main(){
+  layout();n=INT64_MAX;memcpy(bytes.data()+85,&n,8);CHECK(!planes(bytes.data(),bytes.size(),8298496,p));
+  layout();n=0;memcpy(bytes.data()+bytes.size()-48,&n,8);CHECK(!planes(bytes.data(),bytes.size(),8298496,p));
+  layout();n=-1;memcpy(bytes.data()+bytes.size()-64,&n,8);CHECK(!planes(bytes.data(),bytes.size(),8298496,p));
++ ubwc_layout();
++ CHECK(bytes.size()==968);
++ CHECK(planes(bytes.data(),bytes.size(),8396800,p));
++ CHECK(p.count==2 && !p.qti_metadata[0] && p.qti_metadata[1]);
++ auto saved=p;
++ CHECK(qti_rgb32_ubwc(p));
++ CHECK(p.count==1 && p.offsets[0]==0 && p.strides[0]==7680 && p.sizes[0]==8392704);
++ for(size_t i=0;i<bytes.size();++i) CHECK(!planes(bytes.data(),i,8396800,p));
++ CHECK(!planes(bytes.data(),bytes.size(),8392703,p));
++ for(int change=0;change<9;++change){
++  p=saved;
++  switch(change){
++   case 0:p.offsets[0]+=4096;break;
++   case 1:p.offsets[1]=4096;break;
++   case 2:p.strides[1]=64;break;
++   case 3:p.sizes[1]+=4096;break;
++   case 4:p.sizes[0]-=4096;break;
++   case 5:p.widths[1]=1919;break;
++   case 6:p.qti_metadata[1]=false;break;
++   case 7:p.increments[0]=16;break;
++   case 8:p.strides[0]=7679;break;
++  }
++  CHECK(!qti_rgb32_ubwc(p));
++ }
++ ubwc_layout();bytes[std::string(reinterpret_cast<const char *>(bytes.data()),bytes.size()).find("QTI")]='X';
++ CHECK(!planes(bytes.data(),bytes.size(),8396800,p));
++ header(12);text("QTI");put<int64_t>(10);int64_t compression=0;
++ CHECK(extendable(bytes.data(),bytes.size(),12,"QTI",compression) && compression==10);
++ CHECK(!extendable(bytes.data(),bytes.size(),12,"unknown",compression));
++ for(size_t i=0;i<bytes.size();++i)CHECK(!extendable(bytes.data(),i,12,"QTI",compression));
+  std::printf("MAPPER5_METADATA_PASS checks=%u\n",checks);
+ }
+diff --git a/src/util/u_gralloc/u_gralloc_mapper5_metadata.h b/src/util/u_gralloc/u_gralloc_mapper5_metadata.h
+index 08bd6246f72..2dd4c186aaa 100644
+--- a/src/util/u_gralloc/u_gralloc_mapper5_metadata.h
++++ b/src/util/u_gralloc/u_gralloc_mapper5_metadata.h
+@@ -5,6 +5,7 @@
+ #include <cstring>
+ #include <climits>
+ #include <cstddef>
++#include <string_view>
+ 
+ namespace mapper5_metadata {
+ /* Android StandardMetadataType encoding uses fixed-width values and a checked
+@@ -18,13 +19,16 @@ struct Reader {
+       if (!valid || sizeof(T) > left) return valid = false;
+       memcpy(&v, p, sizeof(T)); p += sizeof(T); left -= sizeof(T); return true;
+    }
+-   bool string(const char *expected = nullptr) {
++   bool string(std::string_view &out) {
+       int64_t n;
+       if (!read(n) || n < 0 || uint64_t(n) > left || n > 256) return valid = false;
+-      if (expected && (size_t(n) != strlen(expected) || memcmp(p, expected, n)))
+-         return valid = false;
++      out = {reinterpret_cast<const char *>(p), size_t(n)};
+       p += n; left -= n; return true;
+    }
++   bool string(const char *expected = nullptr) {
++      std::string_view value;
++      return string(value) && (!expected || value == expected);
++   }
+    bool header(int64_t type) {
+       int64_t actual;
+       return string("android.hardware.graphics.common.StandardMetadataType") &&
+@@ -37,24 +41,35 @@ bool scalar(const void *data, size_t size, int64_t type, T &out) {
+    Reader r{static_cast<const uint8_t *>(data),size};
+    return r.header(type) && r.read(out) && r.done();
+ }
++inline bool extendable(const void *data, size_t size, int64_t type,
++                       const char *name, int64_t &value) {
++   Reader r{static_cast<const uint8_t *>(data), size};
++   return r.header(type) && r.string(name) && r.read(value) && r.done();
++}
+ struct Planes {
+    int count;
+    int offsets[4];
+    int strides[4];
+    uint64_t sizes[4];
++   bool qti_metadata[4]{};
++   int64_t widths[4], heights[4], increments[4];
+ };
+ inline bool planes(const void *data, size_t size, uint64_t allocation, Planes &out) {
+    Reader r{static_cast<const uint8_t *>(data),size};
+    int64_t count;
+    if (!r.header(15) || !r.read(count) || count < 1 || count > 4) return false;
++   out = {};
+    out.count = count;
+    for (int i = 0; i < out.count; ++i) {
+       int64_t components;
+       if (!r.read(components) || components < 0 || components > 16) return false;
+       for (int64_t c = 0; c < components; ++c) {
+          int64_t kind, offset, bits;
+-         if (!r.string() || !r.read(kind) || !r.read(offset) || !r.read(bits) ||
++         std::string_view name;
++         if (!r.string(name) || !r.read(kind) || !r.read(offset) || !r.read(bits) ||
+              offset < 0 || bits < 0) return false;
++         if (name == "QTI" && (kind == INT32_MIN || kind == uint64_t(1) << 31))
++            out.qti_metadata[i] = true;
+       }
+       int64_t offset, increment, stride, width, height, total, sub_x, sub_y;
+       if (!r.read(offset) || !r.read(increment) || !r.read(stride) ||
+@@ -62,11 +77,35 @@ inline bool planes(const void *data, size_t size, uint64_t allocation, Planes &o
+           !r.read(sub_x) || !r.read(sub_y)) return false;
+       if (offset < 0 || offset > INT_MAX || stride <= 0 || stride > INT_MAX ||
+           increment < 0 || width <= 0 || height <= 0 || total <= 0 ||
+-          sub_x <= 0 || sub_y <= 0 || uint64_t(offset) > allocation ||
++          (out.qti_metadata[i] ? (increment != 0 || sub_x != 0 || sub_y != 0)
++                               : (sub_x <= 0 || sub_y <= 0)) ||
++          uint64_t(offset) > allocation ||
+           uint64_t(total) > allocation - uint64_t(offset)) return false;
+       out.offsets[i] = offset; out.strides[i] = stride; out.sizes[i] = total;
++      out.widths[i] = width; out.heights[i] = height; out.increments[i] = increment;
+    }
+    return r.done();
+ }
++inline bool qti_rgb32_ubwc(Planes &p) {
++   if (p.count != 2 || p.qti_metadata[0] || !p.qti_metadata[1] ||
++       p.offsets[1] != 0 || p.increments[0] != 32 ||
++       p.widths[0] > INT_MAX || p.heights[0] > INT_MAX ||
++       p.widths[0] != p.widths[1] || p.heights[0] != p.heights[1] ||
++       p.strides[0] % 256 || uint64_t(p.strides[0]) < uint64_t(p.widths[0]) * 4)
++      return false;
++   auto align = [](uint64_t n, uint64_t a) { return (n + a - 1) / a * a; };
++   const uint64_t meta_pitch = align((p.widths[0] + 15) / 16, 64);
++   const uint64_t meta_height = align((p.heights[0] + 3) / 4, 16);
++   const uint64_t meta_size = align(meta_pitch * meta_height, 4096);
++   const uint64_t pixel_size = align(uint64_t(p.strides[0]) * align(p.heights[0], 16), 4096);
++   if (uint64_t(p.strides[1]) != meta_pitch || p.sizes[1] != meta_size ||
++       uint64_t(p.offsets[0]) != meta_size || p.sizes[0] != pixel_size)
++      return false;
++   p.offsets[0] = 0;
++   p.sizes[0] += p.sizes[1];
++   p.count = 1;
++   return true;
++}
++
+ }
+ #endif
+diff --git a/src/util/u_gralloc/u_gralloc_qcom_mapper5.cpp b/src/util/u_gralloc/u_gralloc_qcom_mapper5.cpp
+index 0b413fb2448..a5e6c8fcab7 100644
+--- a/src/util/u_gralloc/u_gralloc_qcom_mapper5.cpp
++++ b/src/util/u_gralloc/u_gralloc_qcom_mapper5.cpp
+@@ -6,6 +6,7 @@
+ #include <dlfcn.h>
+ #include <android/hardware/graphics/mapper/IMapper.h>
+ #include "util/log.h"
++#include "drm-uapi/drm_fourcc.h"
+ #include "u_gralloc_internal.h"
+ #include "u_gralloc_mapper5_metadata.h"
+ 
+@@ -58,6 +59,27 @@ get_buffer_info(u_gralloc *base, u_gralloc_buffer_handle *hnd,
+    size = get(15); /* PLANE_LAYOUTS */
+    if (!size || !planes(metadata, size, out->alloc_size, layout)) return -EINVAL;
+ 
++   bool has_qti_meta = false;
++   for (int i = 0; i < layout.count; ++i)
++      has_qti_meta |= layout.qti_metadata[i];
++   if (has_qti_meta) {
++      size = get(12);
++      int64_t compression = 0;
++      if (!size || !extendable(metadata, size, 12, "QTI", compression) ||
++          compression != 10 || out->layer_count != 1 ||
++          (out->modifier != DRM_FORMAT_MOD_LINEAR &&
++           out->modifier != DRM_FORMAT_MOD_QCOM_COMPRESSED) ||
++          (hnd->hal_format != 1 && hnd->hal_format != 2 && hnd->hal_format != 5) ||
++          !qti_rgb32_ubwc(layout))
++         return -ENOTSUP;
++      out->modifier = DRM_FORMAT_MOD_QCOM_COMPRESSED;
++   }
++   if (!out->drm_fourcc) {
++      int fourcc = get_fourcc_from_hal_format(hnd->hal_format);
++      if (fourcc == -1) return -ENOTSUP;
++      out->drm_fourcc = fourcc;
++   }
++
+    int fd_index = 0;
+    out->num_planes = layout.count;
+    for (int i = 0; i < layout.count; ++i) {

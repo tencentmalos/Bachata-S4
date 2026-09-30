@@ -1,0 +1,58 @@
+[
+  {
+    "snapshot": 3,
+    "ib2": "0x413c71653c",
+    "count": 905,
+    "rotation": 351,
+    "best_count": 1,
+    "inferred_consumed": 711,
+    "pending_dwords": 194,
+    "pending_all_zero": true,
+    "pending_nonzero_cpu": 175,
+    "zero_run_start_dw": 689,
+    "zero_run_start_va": "0x413c717000",
+    "zero_run_start_page_offset": "0x0"
+  },
+  {
+    "snapshot": 4,
+    "ib2": "0x41cad76a10",
+    "count": 533,
+    "rotation": 136,
+    "best_count": 1,
+    "inferred_consumed": 419,
+    "pending_dwords": 114,
+    "pending_all_zero": true,
+    "pending_nonzero_cpu": 102,
+    "zero_run_start_dw": 380,
+    "zero_run_start_va": "0x41cad77000",
+    "zero_run_start_page_offset": "0x0"
+  },
+  {
+    "snapshot": 9,
+    "ib2": "0x5806a10",
+    "count": 533,
+    "rotation": 136,
+    "best_count": 1,
+    "inferred_consumed": 419,
+    "pending_dwords": 114,
+    "pending_all_zero": true,
+    "pending_nonzero_cpu": 76,
+    "zero_run_start_dw": 380,
+    "zero_run_start_va": "0x5807000",
+    "zero_run_start_page_offset": "0x0"
+  },
+  {
+    "snapshot": 12,
+    "ib2": "0x41bf626a10",
+    "count": 533,
+    "rotation": 504,
+    "best_count": 1,
+    "inferred_consumed": 419,
+    "pending_dwords": 114,
+    "pending_all_zero": true,
+    "pending_nonzero_cpu": 102,
+    "zero_run_start_dw": 380,
+    "zero_run_start_va": "0x41bf627000",
+    "zero_run_start_page_offset": "0x0"
+  }
+]

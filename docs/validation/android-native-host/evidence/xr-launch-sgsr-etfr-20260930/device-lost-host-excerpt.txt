@@ -1,0 +1,13 @@
+7476: [2026-09-29 15:44:20.023][Info][538][Render_Vulkan](shadPS4:VkSubmi) vk_platform.cpp:74 DebugUtilsCallback: ../../../references/mesa-turnip/src/freedreno/vulkan/tu_knl_kgsl.cc:1738: submit failed: Protocol error
+7477:  (VK_ERROR_DEVICE_LOST)
+7478: [2026-09-29 15:44:20.023][Error][538][Render_Vulkan](shadPS4:VkSubmi) vk_scheduler.cpp:618 lambda: GPU_SUBMIT_FAILED result=ErrorDeviceLost generation=1 scheduler=2 tick=1255 cached_retired=1254 host_serial=3677 elapsed_ns=293125 waits=2 signals=2
+7479: [2026-09-29 15:44:20.039][Error][566][Render_Vulkan](Thread-12) runtime.cpp:817 Run: OpenXR stopped: XR submit copy: -4
+7480: [2026-09-29 15:44:20.039][Error][588][Core](Guest-46) guest_runtime.cpp:346 Invoke: Production HLE operation 49 failed: vkQueueSubmit failed: ErrorDeviceLost
+7481: [2026-09-29 15:44:20.059][Error][588][Core.Linker](Guest-46) guest_runtime.cpp:1165 LogGuestFault: GUEST_FAULT thread=46 entry=0x10103dff0 rip=0x18000c800d rsp=0x1c0103bbf8 rbp=0x1c0103bfe0 rax=0x31 rbx=0x101ee3030 rcx=0x18000c800f rdx=0x1 rdi=0x40000009 rsi=0x1c0103bc18
+7482: [2026-09-29 15:44:20.059][Error][588][Core.Linker](Guest-46) guest_runtime.cpp:1175 LogGuestFault: GUEST_FAULT stack_top=0 pc=0x10103e08e module=eboot.bin offset=0x103e08e
+7483: [2026-09-29 15:44:20.059][Error][588][Core.Linker](Guest-46) guest_runtime.cpp:1175 LogGuestFault: GUEST_FAULT frame=1 pc=0x7fc0000000 module=unknown offset=0x7fc0000000
+7484: [2026-09-29 15:44:20.059][Error][588][Core.Linker](Guest-46) guest_runtime.cpp:1178 LogGuestFault: GUEST_FAULT trace_end count=2 stop=complete at=0x0
+7486: [2026-09-29 15:44:20.087][Info][32639][Lib.Http](Thread-12) http.cpp:2125 sceHttpTerm: last context terminated, clearing state
+7487: [2026-09-29 15:44:20.091][Error][32639][Render_Vulkan](Thread-12) runtime.cpp:846 ShutdownSession: OpenXR teardown device drain: -4
+7488: [2026-09-29 15:44:20.239][Error][32639][Render_Vulkan](Thread-12) vk_presenter.cpp:575 ~Presenter: Renderer drain after submission failure: vkQueueSubmit failed: ErrorDeviceLost
+7489: [2026-09-29 15:44:20.239][Error][32639][Render_Vulkan](Thread-12) vk_presenter.cpp:580 ~Presenter: Device drain during failed teardown: ErrorDeviceLost

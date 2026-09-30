@@ -1,0 +1,34 @@
+09-29 19:16:43.018 32051 10115 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x14 in tid 10115 (shadPS4:Present), pid 32051 (shadps4.android)
+09-29 19:16:43.704 10121 10121 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-29 19:16:43.704 10121 10121 F DEBUG   : Build fingerprint: 'Pico/swan/swan:16/BQ2A.260122.002-BP2A.250705.008/20260922015006:user/test-keys'
+09-29 19:16:43.704 10121 10121 F DEBUG   : Revision: '0'
+09-29 19:16:43.704 10121 10121 F DEBUG   : ABI: 'arm64'
+09-29 19:16:43.704 10121 10121 F DEBUG   : Timestamp: 2026-09-29 19:16:43.098902924+0800
+09-29 19:16:43.704 10121 10121 F DEBUG   : Process uptime: 2443s
+09-29 19:16:43.704 10121 10121 F DEBUG   : Cmdline: com.shadps4.android
+09-29 19:16:43.704 10121 10121 F DEBUG   : pid: 32051, tid: 10115, name: shadPS4:Present  >>> com.shadps4.android <<<
+09-29 19:16:43.704 10121 10121 F DEBUG   : uid: 10152
+09-29 19:16:43.704 10121 10121 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-29 19:16:43.704 10121 10121 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-29 19:16:43.704 10121 10121 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0000000000000014
+09-29 19:16:43.704 10121 10121 F DEBUG   : Cause: null pointer dereference
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x0  0000000000000000  x1  b4000076459086e0  x2  b4000076459086e8  x3  0000000000000001
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x4  00000000000000e4  x5  b4000077b58433b4  x6  0000001000000012  x7  0000001100000011
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x8  0000000000000000  x9  eaeb970ac83571dd  x10 0000000000000000  x11 0000000000000000
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x12 4340000044900000  x13 4340000043e58000  x14 0000001500000015  x15 0000001000000011
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x16 0000007479aec160  x17 0000007479257238  x18 0000006531a04000  x19 0000000000000000
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x20 b4000076d589f5f0  x21 0000a97bbb96d0ce  x22 b4000077458968a8  x23 0000000000000000
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x24 0000000000000960  x25 0000000000000a20  x26 0000006533af3bc0  x27 0000006533af4640
+09-29 19:16:43.704 10121 10121 F DEBUG   :     x28 2e8ba2e8ba2e8ba3  x29 0000006533af36f0
+09-29 19:16:43.704 10121 10121 F DEBUG   :     lr  000000747834fe08  sp  0000006533af36f0  pc  0000007479257254  pst 0000000080001000
+09-29 19:16:43.704 10121 10121 F DEBUG   : 9 total frames
+09-29 19:16:43.704 10121 10121 F DEBUG   : backtrace:
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #00 pc 00000000049ee254  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (ImFont::GetFontBaked(float, float)+28) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #01 pc 0000000003ae6e04  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (Vulkan::OpenXr::StatusPanel::Update(spatial::imgui::overlay::StatusSnapshot const&, unsigned int, unsigned int, int)+376) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #02 pc 0000000003adc6e4  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (Vulkan::OpenXr::Runtime::PublishStatus(spatial::imgui::overlay::StatusSnapshot, std::__ndk1::optional<spatial::perf::DeviceMetrics>)+584) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #03 pc 000000000306bd14  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (Vulkan::Presenter::Present(Vulkan::Frame*, bool, bool)+356) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #04 pc 0000000003370170  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (Libraries::VideoOut::VideoOutDriver::Flip(Libraries::VideoOut::VideoOutDriver::Request const&)+212) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #05 pc 0000000003371510  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (Libraries::VideoOut::VideoOutDriver::PresentThread(std::__ndk1::stop_token)+756) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #06 pc 0000000003415af4  /data/app/~~IRICkf10MkebJ8tyqGwLXg==/com.shadps4.android-LUrlOHwA7WZx3qeDR7dXQg==/lib/arm64/libshadps4_host.so (void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct>>, Libraries::VideoOut::VideoOutDriver::VideoOutDriver(unsigned int, unsigned int, std::__ndk1::function<unsigned long ()>, std::__ndk1::function<unsigned long ()>, unsigned long*, std::__ndk1::function<void (std::exception_ptr)>)::$_0, std::__ndk1::stop_token>>(void*)+100) (BuildId: 73ee930224b8f68e2843b64f41af9c39785a638b)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #07 pc 0000000000082950  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+184) (BuildId: 005aa6e5f3389a8290aec9c2aa9b307a)
+09-29 19:16:43.704 10121 10121 F DEBUG   :       #08 pc 0000000000074b98  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: 005aa6e5f3389a8290aec9c2aa9b307a)

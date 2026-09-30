@@ -1,0 +1,12 @@
+{
+  "serial": "PB3110PGL6240001G",
+  "remote": "/data/local/tmp/shad-xr-mode-5LWNwu",
+  "cleanup": "removed owned directory",
+  "sha256": {
+    "libshadps4_host.so": "33ce22c09d2de3de2774aa70d31dd96435eaaad44c2273c2a8f0e3daeaa1e38a",
+    "guest_vr_sensor_tests": "61bc8096a051ac550b594ac7b505c56c4a6b772e54acbb4b9f4df4cf3aafa8c5",
+    "guest_reprojection_tests": "c6cec9e3aa0a38113399abf6c2adebb67aafe6216ebcc05902141d10a8dd42d7",
+    "android_sbs_compositor_probe": "ed1f0b04c1df51f7bbed0aed27803d98e7d13090f751591559caf2d6e7912d1b",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  }
+}

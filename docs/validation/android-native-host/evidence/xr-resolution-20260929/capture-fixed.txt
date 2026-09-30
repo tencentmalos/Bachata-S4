@@ -1,0 +1,14 @@
+TASK 10152:com.shadps4.android id=329 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 736aa8 pid=7406 userId=0 uid=10152 displayId=0(type=INTERNAL)
+status: ready
+request_id: a029202609294dbe9911000000000003
+generation: 1
+source: shadps4.final_render_target
+view: canvas
+encoding: png
+width: 5184
+height: 2400
+producer_frame: 1580
+recorded_monotonic_ns: 125064889326717
+file: /data/user/0/com.shadps4.android/files/host/captures/snapshot-a029202609294dbe9911000000000003.png
+

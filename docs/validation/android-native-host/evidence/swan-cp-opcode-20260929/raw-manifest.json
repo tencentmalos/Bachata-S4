@@ -1,0 +1,30 @@
+{
+  "build/validation/swan-cp-live-20260929/fault-01/kgsl-1790589921-devcd12.bin": {
+    "size": 13654316,
+    "sha256": "75c4f3150191b371d9c30d30ad52cff5a05f5286e4f554ea4ed025924f8eec5f"
+  },
+  "build/validation/swan-cp-live-20260929/fault-01/devcd12.sqlite3": {
+    "size": 68067328,
+    "sha256": "f0de8136de81daa76f41138aed44569a37e64cbb3f67982173080f4bc6521531"
+  },
+  "build/validation/swan-cp-live-20260929/fault-01/dmesg.txt": {
+    "size": 8422422,
+    "sha256": "075d56a9883974ef6963e9ab17f9b63490719a9b83d27ee697deb972c13d0d8e"
+  },
+  "build/validation/swan-cp-live-20260929/fault-01/dmesg-after.txt": {
+    "size": 8419999,
+    "sha256": "2d626bdafe06b47d5373d9e49de3e2265cd86d379172290bcc820b1a06e02361"
+  },
+  "build/validation/swan-cp-live-20260929/fault-01/logcat.txt": {
+    "size": 243507751,
+    "sha256": "07b87f7e78da54b44cc979caff65fcc59aaea0d8dd330ed13133984baaca81eb"
+  },
+  "build/validation/swan-cp-live-20260929/fault-01/msm_kgsl.ko": {
+    "size": 3337976,
+    "sha256": "6196e49e43a7da5c4cf5284c077323def7c50f2b7c29044b15bad1087f7009d6"
+  },
+  "build/validation/swan-cp-live-20260929/repro-02-trace/kgsl_trace.txt.gz": {
+    "size": 44769063,
+    "sha256": "30200c39b3d8a447153e89c5b39a43b245336e4f3b482419e4d0dd64827eaeab"
+  }
+}

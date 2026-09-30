@@ -1,0 +1,33 @@
+{
+  "first": {
+    "pid": "25923",
+    "generation": "1",
+    "run_uuid": "5163b7ce27121e7c7e1b4ed9e4a6126c",
+    "stage": "Running",
+    "session": "active",
+    "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=c35946a8758de0400899b69f28b2158a06931eccf7d9d44cd454022a5fb81b23 ",
+    "guest_flip": "27 (age_ns=63236823)",
+    "queue_submit": "320 (age_ns=3425469)",
+    "host_present": "27 (age_ns=53034844)",
+    "snapshot_ns": "97563125715594",
+    "host_time_ns": 1790658237702299000,
+    "faultcount": "12"
+  },
+  "last": {
+    "pid": "25923",
+    "generation": "1",
+    "run_uuid": "5163b7ce27121e7c7e1b4ed9e4a6126c",
+    "stage": "Running",
+    "session": "active",
+    "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=c35946a8758de0400899b69f28b2158a06931eccf7d9d44cd454022a5fb81b23 ",
+    "guest_flip": "8437 (age_ns=20615052)",
+    "queue_submit": "41097 (age_ns=16123229)",
+    "host_present": "8437 (age_ns=15682604)",
+    "snapshot_ns": "97853146362514",
+    "host_time_ns": 1790658527564765000,
+    "faultcount": "12"
+  },
+  "samples": 35,
+  "faultcount_end": "12",
+  "observed_seconds": 290.02064692
+}

@@ -1,0 +1,18 @@
+[2026-09-29 01:24:58.783][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822d20 got=0x1c63938 previous_target=0x101b4cee0
+[2026-09-29 01:24:58.783][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822d30 got=0x1c63940 previous_target=0x101b4d070
+[2026-09-29 01:24:58.783][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822e20 got=0x1c639b8 previous_target=0x101b4d010
+[2026-09-29 01:24:58.783][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822ec0 got=0x1c63a08 previous_target=0x101b4d040
+[2026-09-29 01:24:58.783][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822ee0 got=0x1c63a18 previous_target=0x101b4d0a0
+[2026-09-29 01:24:58.783][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822f40 got=0x1c63a48 previous_target=0x101b4cfc0
+[2026-09-29 01:24:58.927][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1228 got=0x428a1e0 previous_target=0x84070ee0
+[2026-09-29 01:24:58.927][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1258 got=0x428a1f8 previous_target=0x84071070
+[2026-09-29 01:24:58.927][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1398 got=0x428a298 previous_target=0x84071040
+[2026-09-29 01:24:58.927][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x13c8 got=0x428a2b0 previous_target=0x840710a0
+[2026-09-29 01:24:58.927][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1538 got=0x428a368 previous_target=0x84071010
+[2026-09-29 01:24:58.927][Info][28363][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1568 got=0x428a380 previous_target=0x84070fc0
+[2026-09-29 01:24:59.595][Info][28363][Core.Linker](Guest-1) guest_runtime.cpp:5271 Run: Guest module libSceFios2.prx: DT_INIT completed
+[2026-09-29 01:24:59.603][Info][28363][Core.Linker](Guest-1) guest_runtime.cpp:5271 Run: Guest module libc.prx: DT_INIT completed
+[2026-09-29 01:24:59.603][Info][28363][Core.Linker](Guest-1) guest_runtime.cpp:5271 Run: Guest module PS4Util.prx: DT_INIT completed
+[2026-09-29 01:24:59.603][Info][28363][Core.Linker](Guest-1) guest_runtime.cpp:5271 Run: Guest module Il2cppUserAssemblies.prx: DT_INIT completed
+[2026-09-29 01:25:00.983][Info][28724][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:858 PrepareVrFrame: SBS VR eye sample=0 count=2 L=0x23af580 960x1080 pitch=1024 type=13 fmt=10/9 R=0x23af580 960x1080 pitch=1024 type=13 fmt=10/9
+[2026-09-29 01:25:01.015][Info][28754][Render_Vulkan](Thread-12) runtime.cpp:703 Run: OpenXR PSVR uses stereo cinema; accurate per-image render pose is not yet available

@@ -1,0 +1,81 @@
+
+build/validation/openxr-20260929/beatsaber-startup/executables/app0/elf/eboot.bin.elf:	file format elf64-x86-64
+
+Disassembly of section PT_LOAD#0:
+
+0000000000000000 <PT_LOAD#0>:
+  a76410: 55                           	push	rbp
+  a76411: 48 89 e5                     	mov	rbp, rsp
+  a76414: 41 56                        	push	r14
+  a76416: 53                           	push	rbx
+  a76417: b8 01 00 00 00               	mov	eax, 0x1
+  a7641c: f0                           	lock
+  a7641d: 0f c1 87 c0 00 00 00         	xadd	dword ptr [rdi + 0xc0], eax
+  a76424: 48 89 fb                     	mov	rbx, rdi
+  a76427: 85 c0                        	test	eax, eax
+  a76429: 0f 88 a5 00 00 00            	js	0xa764d4 <PT_LOAD#0+0xa764d4>
+  a7642f: 3d ff ff 01 00               	cmp	eax, 0x1ffff
+  a76434: 0f 83 ab 00 00 00            	jae	0xa764e5 <PT_LOAD#0+0xa764e5>
+  a7643a: 80 bb 18 01 00 00 00         	cmp	byte ptr [rbx + 0x118], 0x0
+  a76441: 0f 84 86 00 00 00            	je	0xa764cd <PT_LOAD#0+0xa764cd>
+  a76447: 41 be ff ff 00 00            	mov	r14d, 0xffff
+  a7644d: 0f 1f 00                     	nop	dword ptr [rax]
+  a76450: b8 ff ff ff ff               	mov	eax, 0xffffffff
+  a76455: f0                           	lock
+  a76456: 0f c1 43 70                  	xadd	dword ptr [rbx + 0x70], eax
+  a7645a: 85 c0                        	test	eax, eax
+  a7645c: 7e 39                        	jle	0xa76497 <PT_LOAD#0+0xa76497>
+  a7645e: 80 bb 18 01 00 00 00         	cmp	byte ptr [rbx + 0x118], 0x0
+  a76465: 74 66                        	je	0xa764cd <PT_LOAD#0+0xa764cd>
+  a76467: 48 8b bb 10 01 00 00         	mov	rdi, qword ptr [rbx + 0x110]
+  a7646e: ff 93 08 01 00 00            	call	qword ptr [rbx + 0x108]
+  a76474: b8 01 00 00 00               	mov	eax, 0x1
+  a76479: f0                           	lock
+  a7647a: 0f c1 83 c0 00 00 00         	xadd	dword ptr [rbx + 0xc0], eax
+  a76481: 85 c0                        	test	eax, eax
+  a76483: 78 26                        	js	0xa764ab <PT_LOAD#0+0xa764ab>
+  a76485: 3d ff ff 01 00               	cmp	eax, 0x1ffff
+  a7648a: 73 2d                        	jae	0xa764b9 <PT_LOAD#0+0xa764b9>
+  a7648c: 80 bb 18 01 00 00 00         	cmp	byte ptr [rbx + 0x118], 0x0
+  a76493: 75 bb                        	jne	0xa76450 <PT_LOAD#0+0xa76450>
+  a76495: eb 36                        	jmp	0xa764cd <PT_LOAD#0+0xa764cd>
+  a76497: 48 8b 7b 68                  	mov	rdi, qword ptr [rbx + 0x68]
+  a7649b: e8 a0 ca da 00               	call	0x1822f40 <PT_LOAD#0+0x1822f40>
+  a764a0: 80 bb 18 01 00 00 00         	cmp	byte ptr [rbx + 0x118], 0x0
+  a764a7: 75 be                        	jne	0xa76467 <PT_LOAD#0+0xa76467>
+  a764a9: eb 22                        	jmp	0xa764cd <PT_LOAD#0+0xa764cd>
+  a764ab: 48 8b bb b8 00 00 00         	mov	rdi, qword ptr [rbx + 0xb8]
+  a764b2: e8 69 c9 da 00               	call	0x1822e20 <PT_LOAD#0+0x1822e20>
+  a764b7: eb d3                        	jmp	0xa7648c <PT_LOAD#0+0xa7648c>
+  a764b9: f0                           	lock
+  a764ba: 44 0f b1 b3 c0 00 00 00      	cmpxchg	dword ptr [rbx + 0xc0], r14d
+  a764c2: 74 c8                        	je	0xa7648c <PT_LOAD#0+0xa7648c>
+  a764c4: 3d fe ff 01 00               	cmp	eax, 0x1fffe
+  a764c9: 7e c1                        	jle	0xa7648c <PT_LOAD#0+0xa7648c>
+  a764cb: eb ec                        	jmp	0xa764b9 <PT_LOAD#0+0xa764b9>
+  a764cd: 31 c0                        	xor	eax, eax
+  a764cf: 5b                           	pop	rbx
+  a764d0: 41 5e                        	pop	r14
+  a764d2: 5d                           	pop	rbp
+  a764d3: c3                           	ret
+  a764d4: 48 8b bb b8 00 00 00         	mov	rdi, qword ptr [rbx + 0xb8]
+  a764db: e8 40 c9 da 00               	call	0x1822e20 <PT_LOAD#0+0x1822e20>
+  a764e0: e9 55 ff ff ff               	jmp	0xa7643a <PT_LOAD#0+0xa7643a>
+  a764e5: b9 ff ff 00 00               	mov	ecx, 0xffff
+  a764ea: f0                           	lock
+  a764eb: 0f b1 8b c0 00 00 00         	cmpxchg	dword ptr [rbx + 0xc0], ecx
+  a764f2: 0f 84 42 ff ff ff            	je	0xa7643a <PT_LOAD#0+0xa7643a>
+  a764f8: 3d fe ff 01 00               	cmp	eax, 0x1fffe
+  a764fd: 0f 8e 37 ff ff ff            	jle	0xa7643a <PT_LOAD#0+0xa7643a>
+  a76503: eb e5                        	jmp	0xa764ea <PT_LOAD#0+0xa764ea>
+  a76505: 90                           	nop
+  a76506: 90                           	nop
+  a76507: 90                           	nop
+  a76508: 90                           	nop
+  a76509: 90                           	nop
+  a7650a: 90                           	nop
+  a7650b: 90                           	nop
+  a7650c: 90                           	nop
+  a7650d: 90                           	nop
+  a7650e: 90                           	nop
+  a7650f: 90                           	nop

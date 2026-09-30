@@ -1,0 +1,85 @@
+{
+  "artifacts": [
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.15.48.jpeg",
+      "local": "build/validation/xr-status-imgui-20260930/baseline-off.png",
+      "sha256": "7f4d65b02caf1d1c493fa02e6dae838f41484610ba2c288956838b581e41009d",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.19.50.jpeg",
+      "local": "docs/validation/android-native-host/evidence/xr-status-imgui-20260930/psvr-imgui-on.jpg",
+      "sha256": "0441d8a5e34c15e77d6623dd819feedc966950e12fcf735d9437ca10d8730f35",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.20.38.jpeg",
+      "local": "docs/validation/android-native-host/evidence/xr-status-imgui-20260930/psvr-imgui-off.jpg",
+      "sha256": "fcb4d5e25e1c4adf996e95e099d75411126cbfaa231f47403c7b2ecb0bee33e2",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.30.45.jpeg",
+      "local": "docs/validation/android-native-host/evidence/xr-status-imgui-20260930/cinema-psv-retained.png",
+      "sha256": "f169a390959c674e7451318dd6fd1a4292469b5b8d2a08c388e29835c9bbf155",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.40.04.jpeg",
+      "local": "docs/validation/android-native-host/evidence/xr-status-imgui-20260930/after-none-stop.png",
+      "sha256": "ead70871ed91fb6ee6c665c1c49d51e16a38b1c561b7eee0b560dd5a56127d8c",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.42.15.jpeg",
+      "local": "docs/validation/android-native-host/evidence/xr-status-imgui-20260930/layout-vertical.png",
+      "sha256": "95f2ecae6b26fcf6760e21c4f10d5a380c0cc96822985846a44b4257ce98b4d5",
+      "removed": true
+    },
+    {
+      "device": "/sdcard/DCIM/Screenshots/Screenshot_2026.09.29-19.44.21.jpeg",
+      "local": "docs/validation/android-native-host/evidence/xr-status-imgui-20260930/layout-horizontal.png",
+      "sha256": "cd132d66161505c33f1b402831719c896f94dbfb126dec21a2073a202f791d3c",
+      "removed": true
+    },
+    {
+      "device": "/data/user/0/com.shadps4.android/files/host/log/profiler/file-1790680496837955-1.prof",
+      "local": "build/validation/xr-status-imgui-20260930/old-model-off.prof",
+      "sha256": "a9ee0730fc599da4a15e209fb7fe983d05d84a72d0be60e4bda095ccd19d94ee",
+      "removed": true
+    },
+    {
+      "device": "/data/user/0/com.shadps4.android/files/host/log/profiler/file-1790680791034171-1.prof",
+      "local": "build/validation/xr-status-imgui-20260930/imgui-on-1.prof",
+      "sha256": "eaf7f118885d57927d6f48575414948bb2ec0250e9ac36a2e435791c799f21c4",
+      "removed": true
+    },
+    {
+      "device": "/data/user/0/com.shadps4.android/files/host/log/profiler/file-1790680824785750-2.prof",
+      "local": "build/validation/xr-status-imgui-20260930/imgui-off.prof",
+      "sha256": "d216993309470aafd24309cda52a3982e84679b03b03b37fa45d88dc2bef6a27",
+      "removed": true
+    },
+    {
+      "device": "/data/user/0/com.shadps4.android/files/host/log/profiler/file-1790680869914604-3.prof",
+      "local": "build/validation/xr-status-imgui-20260930/imgui-on-2.prof",
+      "sha256": "664ab700da5c664ac5e2109a1e74ebe85e314f40427e1c3f61f4b540f6dd9fcf",
+      "removed": true
+    },
+    {
+      "device": "/data/user/0/com.shadps4.android/files/host/log/profiler/file-1790680948814346-4.prof",
+      "local": "build/validation/xr-status-imgui-20260930/imgui-off-2.prof",
+      "sha256": "c908731258bb6bcb32d3813dc52f5b00f0627e4938cf7173f861b12dedf92577",
+      "removed": true
+    },
+    {
+      "device": "/data/user/0/com.shadps4.android/files/host/log/profiler/file-1790680997936659-5.prof",
+      "local": "build/validation/xr-status-imgui-20260930/imgui-on-3.prof",
+      "sha256": "686268c3423bcb25b7c73c24595bbe23cd40135378a8d7c614aeb02699daebb7",
+      "removed": true
+    }
+  ],
+  "ui_dump_removed": true,
+  "capture_active": false,
+  "note": "Only SHA-matched artifacts from this turn removed. Old GPU cleanup pending and properties unchanged."
+}

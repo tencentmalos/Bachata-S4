@@ -1,0 +1,8 @@
+[2026-09-28 23:38:44.935][Info][9095][Core](shadps4.android) guest_runtime.cpp:4750 lambda: Skipping empty optional plug-in: /app0/Media/Plugins/PS4NativeUserSwitchPlugin.prx
+[2026-09-28 23:38:44.935][Info][9095][Core](shadps4.android) guest_runtime.cpp:4750 lambda: Skipping empty optional plug-in: /app0/Media/Plugins/PSNCommon.prx
+[2026-09-28 23:38:44.935][Info][9095][Core](shadps4.android) guest_runtime.cpp:4750 lambda: Skipping empty optional plug-in: /app0/Media/Plugins/PSNCore.prx
+[2026-09-28 23:38:45.579][Info][9095][Core.Linker](Guest-1) guest_runtime.cpp:5227 Run: Guest module libSceFios2.prx: DT_INIT completed
+[2026-09-28 23:38:45.583][Info][9095][Core.Linker](Guest-1) guest_runtime.cpp:5227 Run: Guest module libc.prx: DT_INIT completed
+[2026-09-28 23:38:45.583][Info][9095][Core.Linker](Guest-1) guest_runtime.cpp:5227 Run: Guest module PS4Util.prx: DT_INIT completed
+[2026-09-28 23:38:45.583][Info][9095][Core.Linker](Guest-1) module.cpp:114 Start: Module started : Il2cppUserAssemblies.prx
+[2026-09-28 23:38:45.607][Info][9095][ImGui](Guest-1) log.cpp:282 WriteOverlayEvent: [OVERLAY_EVENT] tag=session.terminal pid=8961 generation=1 run_uuid=ecdfefd7eddaec7fd3dfc3aec9d4f0e2 mono_ns=115671487951446 phase=6 reason=Faulted detail=guest return=0 guest_rip=2215055072 context=0 thread=1 generation=0 invocation=0 category=0 production Linker/VM; owners=1 veneers=1097 HLE_STATUS android_bridge=630 HLE_STATUS android_bridge_audio_input_no_provider=4 HLE_STATUS android_bridge_guest_device_no_provider=3 HLE_STATUS android_bridge_guest_file_mapping=1 HLE_STATUS android_bridge_guest_vr_sbs_virtual=58 HLE_STATUS android_bridge_remote_service_no_provider=4 HLE_STATUS desktop_stub_no_residency=1 HLE_STATUS guest_fastpath=31 HLE_STATUS unsupporte

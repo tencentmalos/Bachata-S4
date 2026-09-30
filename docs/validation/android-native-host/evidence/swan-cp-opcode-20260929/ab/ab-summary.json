@@ -1,0 +1,291 @@
+{
+  "runs": [
+    {
+      "name": "a1-off",
+      "pid": "25923",
+      "uuid": "5163b7ce27121e7c7e1b4ed9e4a6126c",
+      "window_start_uptime": 97563.125715594,
+      "window_end_uptime": 97853.146362514,
+      "recorded_seconds": 290.021,
+      "first_running_uptime": 97563.125715594,
+      "last_running_uptime": 97853.146362514,
+      "first_flip": 27,
+      "last_flip": 8437,
+      "faultcounts": [
+        "12"
+      ],
+      "faultcount_end": "12",
+      "sds_log_count": 0,
+      "kernel_coverage": [
+        95635.48311,
+        97917.40852
+      ],
+      "kernel_current_window_hits": [],
+      "trace_header": [
+        "# entries-in-buffer/entries-written: 2095993/2985263   #P:8"
+      ],
+      "trace_first_last": [
+        97464.872824,
+        97885.647207
+      ],
+      "reclaim_events": 0,
+      "gpu_fault_events": 0,
+      "captures": [
+        {
+          "file": "after-ack.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "24",
+          "first_pts_us": "97589983506",
+          "last_pts_us": "97591323296"
+        },
+        {
+          "file": "start.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "25",
+          "first_pts_us": "97562980660",
+          "last_pts_us": "97564255924"
+        },
+        {
+          "file": "title.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "97629774996",
+          "last_pts_us": "97631074320"
+        },
+        {
+          "file": "world-check.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "44",
+          "first_pts_us": "97689825598",
+          "last_pts_us": "97691192677"
+        },
+        {
+          "file": "world-end.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "42",
+          "first_pts_us": "97813265929",
+          "last_pts_us": "97814562785"
+        }
+      ]
+    },
+    {
+      "name": "b1-on",
+      "pid": "26142",
+      "uuid": "43e84176ceaf6cc55f3cae65a28149d4",
+      "window_start_uptime": 98023.546110574,
+      "window_end_uptime": 98432.946259741,
+      "recorded_seconds": 409.4,
+      "first_running_uptime": 98023.546110574,
+      "last_running_uptime": 98432.946259741,
+      "first_flip": 108,
+      "last_flip": 12297,
+      "faultcounts": [
+        "12"
+      ],
+      "faultcount_end": "12",
+      "sds_log_count": 4,
+      "kernel_coverage": [
+        96167.992883,
+        98463.201075
+      ],
+      "kernel_current_window_hits": [],
+      "trace_header": [
+        "# entries-in-buffer/entries-written: 2078087/2864400   #P:8"
+      ],
+      "trace_first_last": [
+        97976.986954,
+        98433.58376
+      ],
+      "reclaim_events": 0,
+      "gpu_fault_events": 0,
+      "captures": [
+        {
+          "file": "after-ack.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "42",
+          "first_pts_us": "98067549138",
+          "last_pts_us": "98068894151"
+        },
+        {
+          "file": "loading.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "42",
+          "first_pts_us": "98170666223",
+          "last_pts_us": "98173014043"
+        },
+        {
+          "file": "menu.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98155396145",
+          "last_pts_us": "98156697112"
+        },
+        {
+          "file": "start.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98025863490",
+          "last_pts_us": "98027176484"
+        },
+        {
+          "file": "title.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "42",
+          "first_pts_us": "98113381563",
+          "last_pts_us": "98114678675"
+        },
+        {
+          "file": "world.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98210646833",
+          "last_pts_us": "98211964845"
+        }
+      ]
+    },
+    {
+      "name": "a2-off-cold",
+      "pid": "29580",
+      "uuid": "7c525d8e854373722b86a5e80833ef32",
+      "window_start_uptime": 98548.864763499,
+      "window_end_uptime": 98848.95056776,
+      "recorded_seconds": 300.086,
+      "first_running_uptime": 98558.954804328,
+      "last_running_uptime": 98848.95056776,
+      "first_flip": 127,
+      "last_flip": 8638,
+      "faultcounts": [
+        "12"
+      ],
+      "faultcount_end": "12",
+      "sds_log_count": 0,
+      "kernel_coverage": [
+        96573.102265,
+        98891.401824
+      ],
+      "kernel_current_window_hits": [],
+      "trace_header": [
+        "# entries-in-buffer/entries-written: 1956463/2081239   #P:8"
+      ],
+      "trace_first_last": [
+        98533.091758,
+        98862.398257
+      ],
+      "reclaim_events": 0,
+      "gpu_fault_events": 0,
+      "captures": [
+        {
+          "file": "menu.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "42",
+          "first_pts_us": "98617747914",
+          "last_pts_us": "98619045140"
+        },
+        {
+          "file": "ready.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98568129545",
+          "last_pts_us": "98569460563"
+        },
+        {
+          "file": "start.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "3",
+          "first_pts_us": "98551442682",
+          "last_pts_us": "98552476643"
+        },
+        {
+          "file": "title.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98602429488",
+          "last_pts_us": "98603761428"
+        },
+        {
+          "file": "world-end.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "44",
+          "first_pts_us": "98857713449",
+          "last_pts_us": "98859069388"
+        },
+        {
+          "file": "world.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98650281383",
+          "last_pts_us": "98651597460"
+        }
+      ]
+    },
+    {
+      "name": "b2-on-cold",
+      "pid": "3617",
+      "uuid": "875ab65ed3a978d5e31825f3a88a88ab",
+      "window_start_uptime": 98940.692365016,
+      "window_end_uptime": 99102.618851413,
+      "recorded_seconds": 161.926,
+      "first_running_uptime": 98950.786330221,
+      "last_running_uptime": 99102.618851413,
+      "first_flip": 123,
+      "last_flip": 4488,
+      "faultcounts": [
+        "12",
+        "13"
+      ],
+      "faultcount_end": "13",
+      "sds_log_count": 4,
+      "kernel_coverage": [
+        96867.556249,
+        99158.785212
+      ],
+      "kernel_current_window_hits": [],
+      "trace_header": [
+        "# entries-in-buffer/entries-written: 1145968/1145968   #P:8"
+      ],
+      "trace_first_last": [
+        98923.191967,
+        99105.720468
+      ],
+      "reclaim_events": 0,
+      "gpu_fault_events": 1,
+      "captures": [
+        {
+          "file": "menu.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "44",
+          "first_pts_us": "99047235316",
+          "last_pts_us": "99048601492"
+        },
+        {
+          "file": "ready.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "98967539640",
+          "last_pts_us": "98968865493"
+        },
+        {
+          "file": "title.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "99033186703",
+          "last_pts_us": "99034517452"
+        },
+        {
+          "file": "world.h264.status.json",
+          "eos": "true",
+          "encoded_samples": "43",
+          "first_pts_us": "99086132688",
+          "last_pts_us": "99087452885"
+        }
+      ],
+      "fault_uptime": 99105.724781,
+      "start_to_fault_seconds": 165.032416,
+      "fault_type": "CP DDE BR opcode error | opcode=0x00000000"
+    }
+  ],
+  "total_recorded_seconds": 1161.433,
+  "total_observed_flip_delta": 33475,
+  "limitation": "Independent repeated sessions; scene/input timing not deterministic. Trace rings may overwrite; no-fault runs cannot establish efficacy without reproduction in controls.",
+  "conclusion": "SDS page-align candidate failed hardware validation. A1/B1/A2 no fault; B2 ctx48 ts23573 fault. No claim of identical lower-level cause to devcd3/4/9/12."
+}

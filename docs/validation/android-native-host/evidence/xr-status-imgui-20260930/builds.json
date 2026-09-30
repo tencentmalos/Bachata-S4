@@ -1,0 +1,16 @@
+{
+  "ui": {
+    "core_runtime_tests": 140,
+    "library_tests": 11,
+    "failures": 0
+  },
+  "build_logs": "build/validation/xr-status-imgui-20260930",
+  "profile_apk_sha256": "52b88eb1a79363873307708914f0d66782d7cb8032b28ab03b7e7a5123eed1ac",
+  "profile_host_sha256": "aba3e6eb53bc33aed45af9a00bcad7f68f6aa33b946c48a756184089b7d6c287",
+  "release_difference": "perf.memory -> perf.ram; upper-left anchor; horizontal/vertical/none enum with boolean migration; no scheduling changes",
+  "driver_sha256": "a95b15df82ed9e49e7d2166a5e33f959b06a6655ec626f735cd6a2c98159dec3",
+  "intermediate_memory_fix_apk_sha256": "8125431b031465bdd1af20ab3832c8048d705a0554da70809837aa02a66fa841",
+  "intermediate_memory_fix_host_sha256": "1c2499dc717c8beeaf8d49681b1ec7f79b6882b9dcde63a0136d6b2e42bcee06",
+  "release_apk_sha256": "58ab9c70bfafc29f6ef77c0566da32fc2b8a46f1e986d80ce40df6a17f230b79",
+  "release_host_sha256": "fa85cb212df7e3b8f3fe235f09467de62f5017670faad18a57fd9690cc881478"
+}

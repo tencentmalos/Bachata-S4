@@ -1,0 +1,81 @@
+TASK 10152:com.shadps4.android id=361 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity cf20b15 pid=29978 userId=0 uid=10152 displayId=0(type=INTERNAL)
+session: none
+generation: 1
+pid: 29978
+phase: 5
+run_uuid: 95533ad2ba13f90accbd9f37c212903a
+stage: Stopped
+stop_reason: user_stop
+driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-1b588fceef) shaderInt64=1 api=4211051 sha256=48adf9b624dfd2f5b93b3e5e941018faa836f6241ffb9d98f99089841b165af8 
+terminal_detail: guest return=2147614724
+production Linker/VM; owners=29 veneers=635
+HLE_STATUS android_bridge=422
+HLE_STATUS android_bridge_audio_input_no_provider=4
+HLE_STATUS desktop_stub_no_residency=1
+HLE_STATUS guest_fastpath=31
+HLE_STATUS unsupported_import=145
+UNSUPPORTED_IMPORT Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function
+UNSUPPORTED_IMPORT H8wG9Bk-nPc#libSceNpAuth#1#libSceNpAuth#Function
+UNSUPPORTED_IMPORT N+mr7GjTvr8#libSceNpAuth#1#libSceNpAuth#Function
+UNSUPPORTED_IMPORT KI4dHLlTNl0#libSceNpAuth#1#libSceNpAuth#Function
+UNSUPPORTED_IMPORT gjSyfzSsDcE#libSceNpAuth#1#libSceNpAuth#Function
+UNSUPPORTED_IMPORT +o9816YQhqQ#libSceNpWebApi2#1#libSceNpWebApi2#Function
+UNSUPPORTED_IMPORT sk54bi6FtYM#libSceNpWebApi2#1#libSceNpWebApi2#Function
+UNSUPPORTED_IMPORT RujUxbr3haM#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT cK6bYHf-Q5E#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT i-XwZjw0OOY#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT bEvXpcEk200#libSceNpWebApi2#1#libSceNpWebApi2#Function
+UNSUPPORTED_IMPORT WSOuge5IsCg#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT Eu95jmqn5Rw#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT WVZBP4IyM+E#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT PR5k1penBLM#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT -hJRce8wn1U#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT 9X9+cneTGUU#libSceNpWebApi2#1#libSceNpWebApi2#Function
+UNSUPPORTED_IMPORT IXW-z8pggfg#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT I2QC8PYhJWY#libSceJson2#1#libSceJson#Function
+UNSUPPORTED_IMPORT EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT 4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT 4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT 6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function
+UNSUPPORTED_IMPORT Ou3iL1abvng#libkernel#1#libkernel#Function
+UNSUPPORTED_IMPORT mTBZfEal2Bw#libScePosix#1#libkernel#Function
+UNSUPPORTED_IMPORT YQOfxL4QfeU#libScePosix#1#libkernel#Function
+UNSUPPORTED_IMPORT OG4RsDwLguo#libScePosix#1#libkernel#Function
+UNSUPPORTED_IMPORT nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function
+UNSUPPORTED_IMPORT +Y1acHGomGQ#libSceNpFriendListDialog#1#libSceNpFriendListDialog#Function
+UNSUPPORTED_IMPORT h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function
+UNSUPPORTED_IMPORT B6HVJtDYxEE#lib
+snapshot_ns: 173172130373105
+guest_flip: 4874 (age_ns=13530024630)
+pm4_consumed: 5542831 (age_ns=13530020203)
+host_draw: 155909 (age_ns=13530318744)
+queue_submit: 14923 (age_ns=13478265515)
+gpu_retire: unavailable
+host_present: 4874 (age_ns=13512524578)
+overlay_redraw: 5014 (age_ns=13515145932)
+guest_submission: 4874 (age_ns=13531099161)
+

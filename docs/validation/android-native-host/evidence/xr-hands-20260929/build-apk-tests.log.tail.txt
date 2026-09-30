@@ -1,0 +1,18 @@
+> Task :app:mergePlaystoreDebugNativeLibs
+> Task :app:compilePlaystoreDebugKotlin
+> Task :app:compilePlaystoreDebugJavaWithJavac
+> Task :app:hiltAggregateDepsPlaystoreDebug UP-TO-DATE
+> Task :app:stripPlaystoreDebugDebugSymbols
+> Task :app:hiltJavaCompilePlaystoreDebug
+> Task :app:processPlaystoreDebugJavaRes UP-TO-DATE
+> Task :app:transformPlaystoreDebugClassesWithAsm
+> Task :app:dexBuilderPlaystoreDebug
+> Task :app:mergePlaystoreDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeProjectDexPlaystoreDebug
+> Task :app:mergePlaystoreDebugJavaResource
+> Task :app:packagePlaystoreDebug
+> Task :app:createPlaystoreDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assemblePlaystoreDebug
+
+BUILD SUCCESSFUL in 36s
+295 actionable tasks: 42 executed, 253 up-to-date

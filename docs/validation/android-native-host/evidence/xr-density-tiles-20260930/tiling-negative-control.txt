@@ -1,0 +1,31 @@
+FAIL check 2
+FAIL check 7
+FAIL check 12
+FAIL check 17
+FAIL check 22
+FAIL check 27
+FAIL check 32
+FAIL check 37
+FAIL check 42
+FAIL check 47
+FAIL check 52
+FAIL check 57
+FAIL check 62
+FAIL check 67
+FAIL check 72
+FAIL check 82
+FAIL check 87
+FAIL check 97
+FAIL check 102
+FAIL check 112
+FAIL check 117
+non-FDM tile=1344x2976
+production FDM tiling: 121 checks / 21 failures
+Traceback (most recent call last):
+  File "/Users/bytedance/workspace/emulations/ps4/shadps4/tests/video_core/turnip_fdm_tiling_tests.py", line 89, in <module>
+    subprocess.run([str(binary)], check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpo01jwxmi/test']' returned non-zero exit status 1.

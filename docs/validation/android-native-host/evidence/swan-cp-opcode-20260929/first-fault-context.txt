@@ -1,0 +1,43 @@
+47650: [95660.301342] [10:05:13](0)[1332|logd.auditd]type=1400 audit(1790589914.419:941047): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47682: [95660.803934] [10:05:14](0)[1332|logd.auditd]type=1400 audit(1790589914.919:941048): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47689: [95661.305142] [10:05:14](0)[1332|logd.auditd]type=1400 audit(1790589915.423:941049): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47695: [95661.805586] [10:05:15](0)[1332|logd.auditd]type=1400 audit(1790589915.923:941050): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47718: [95662.330201] [10:05:15](0)[1332|logd.auditd]type=1400 audit(1790589916.447:941051): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47725: [95662.831370] [10:05:16](0)[1332|logd.auditd]type=1400 audit(1790589916.947:941052): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47730: [95663.332193] [10:05:16](0)[1332|logd.auditd]type=1400 audit(1790589917.447:941053): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47747: [95663.831635] [10:05:17](1)[1332|logd.auditd]type=1400 audit(1790589917.947:941055): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47757: [95664.334498] [10:05:17](0)[1332|logd.auditd]type=1400 audit(1790589918.451:941056): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47807: [95664.837150] [10:05:18](0)[1332|logd.auditd]type=1400 audit(1790589918.951:941057): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47826: [95665.337612] [10:05:18](0)[1332|logd.auditd]type=1400 audit(1790589919.455:941059): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47837: [95665.839339] [10:05:19](0)[1332|logd.auditd]type=1400 audit(1790589919.955:941060): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47849: [95666.339368] [10:05:19](1)[1332|logd.auditd]type=1400 audit(1790589920.455:941061): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47878: [95666.928926] [10:05:20](0)[2262|lmkd][HYPERHOLD]LRU write zram begin, memcg[id=12, name=10153]:
+47879: [95667.015947] [10:05:20](1)[2262|lmkd][HYPERHOLD]LRU write zram end, memcg[id=12, name=10153]. reclaimed 8793 pages(36016128 Bytes), took 84 ms
+47880: [95667.015958] [10:05:20](1)[2262|lmkd][HYPERHOLD]GPU write zram begin, memcg[id=12, name=10153]:
+47895: [95667.383071] [10:05:20](6)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP opcode error interrupt | opcode=0x00000000
+47896: [95667.383099] [10:05:20](0)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:902000000
+47897: [95667.383111] [10:05:20](0)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[23274]: ctx 48 ctx_type ANY ts 3927 policy 2
+47898: [95667.383115] [10:05:20](0)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[23274]: cmdline: com.shadps4.android
+47899: [95667.383180] [10:05:20](0)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+47900: [95667.383183] [10:05:20](0)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 0a8c/0b34 ib1 00000041BF6A6000/0a19 ib2 00000041BF626A10/01a4 ib3 0000004146017878/0000
+47901: [95667.383186] [10:05:20](0)[1433|kgsl_hwsched]kgsl kgsl-3d0: BV: rb 0a8c/0b34 ib1 00000041BF6A6000/6ebc ib2 000000415A8B7000/0000 ib3 000000415A8A7020/0000
+47902: [95667.567030] [10:05:20](1)[2262|lmkd][HYPERHOLD]GPU write zram end, memcg[id=12, name=10153]. reclaimed 249265 pages(1020989440 Bytes), took 552 ms
+47903: [95667.597874] [10:05:20](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot froze 4488Kb of GPU buffers
+47904: [95667.597903] [10:05:20](4)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot created at pa d3c00000++0x662630
+47905: [95667.597909] [10:05:20](4)[1433|kgsl_hwsched]Entry name already exist
+47906: [95667.599024] [10:05:20](0)[1433|kgsl_hwsched]adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU
+47907: [95667.610388] [10:05:20](4)[1433|kgsl_hwsched]kgsl_online_alarm_instructions: 278 callbacks suppressed
+47908: [95667.610391] [10:05:20](4)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+47930: [95667.651066] [10:05:20](5)[20535|kworker/5:0]kgsl kgsl-3d0: snapshot: objects released
+47931: [95667.666872] [10:05:21](4)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+47932: [95667.667008] [10:05:21](7)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+47933: [95667.667031] [10:05:21](7)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+47934: [95667.668673] [10:05:21](3)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+47935: [95667.668921] [10:05:21](7)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+47936: [95667.669463] [10:05:21](3)[1433|kgsl_hwsched]online_alarm_instructions not find_task_by_pid_ns.
+47938: [95667.674943] [10:05:21](5)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+47939: [95667.674953] [10:05:21](5)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+47944: [95667.715976] [10:05:21](4)[3779|gmu_f2h]online_alarm_instructions not find_task_by_pid_ns.
+47952: [95668.872814] [10:05:22](1)[1332|logd.auditd]type=1400 audit(1790589922.991:941115): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47959: [95669.373928] [10:05:22](1)[1332|logd.auditd]type=1400 audit(1790589923.491:941116): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+47974: [95669.875298] [10:05:23](0)[1332|logd.auditd]type=1400 audit(1790589923.991:941117): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android

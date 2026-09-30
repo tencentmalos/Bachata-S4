@@ -1,0 +1,23 @@
+TASK 10152:com.shadps4.android id=347 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 48d3a56 pid=19467 userId=0 uid=10152 displayId=0(type=INTERNAL)
+session: active
+generation: 1
+pid: 19467
+phase: 3
+run_uuid: 45335cdcb990d1f8057a4496d25801b0
+stage: Running
+driver: source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-1b588fceef) shaderInt64=1 api=4211051 sha256=e118fd419002a7b0bfca0f58ed2bc55153766d8afe288b9a80de30d41884123f 
+snapshot_ns: 130389921543123
+guest_flip: 6734 (age_ns=13661822)
+pm4_consumed: 15902173 (age_ns=15060416)
+host_draw: 312580 (age_ns=15069895)
+queue_submit: 23780 (age_ns=10467447)
+gpu_retire: unavailable
+host_present: 6733 (age_ns=17290885)
+overlay_redraw: 8228 (age_ns=13918645)
+guest_submission: 14240 (age_ns=16202187)
+
+TASK 10152:com.shadps4.android id=347 userId=0 displayId=0(type=INTERNAL)
+  ACTIVITY com.shadps4.android/.OpenXrActivity 48d3a56 pid=19467 userId=0 uid=10152 displayId=0(type=INTERNAL)
+upscaler=1 foveation=2 level=0 sharpness=50 draws=13469 fdm_draws=13469 tracked_draws=0 uploads=17 unchanged=13452 fdm_enabled=true gaze_supported=true gaze_fresh=false gaze_valid=0 gaze_invalid=5884 scope=host-presentation
+

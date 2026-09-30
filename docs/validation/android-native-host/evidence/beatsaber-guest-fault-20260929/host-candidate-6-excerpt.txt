@@ -1,0 +1,34 @@
+[2026-09-29 01:21:30.567][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822d20 got=0x1c63938 previous_target=0x101b4cee0
+[2026-09-29 01:21:30.567][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822d30 got=0x1c63940 previous_target=0x101b4d070
+[2026-09-29 01:21:30.567][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822e20 got=0x1c639b8 previous_target=0x101b4d010
+[2026-09-29 01:21:30.567][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822ec0 got=0x1c63a08 previous_target=0x101b4d040
+[2026-09-29 01:21:30.567][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822ee0 got=0x1c63a18 previous_target=0x101b4d0a0
+[2026-09-29 01:21:30.567][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: eboot.bin offset=0x1822f40 got=0x1c63a48 previous_target=0x101b4cfc0
+[2026-09-29 01:21:30.711][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1228 got=0x428a1e0 previous_target=0x84070ee0
+[2026-09-29 01:21:30.711][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1258 got=0x428a1f8 previous_target=0x84071070
+[2026-09-29 01:21:30.711][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1398 got=0x428a298 previous_target=0x84071040
+[2026-09-29 01:21:30.711][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x13c8 got=0x428a2b0 previous_target=0x840710a0
+[2026-09-29 01:21:30.711][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1538 got=0x428a368 previous_target=0x84071010
+[2026-09-29 01:21:30.711][Info][27422][Core.Linker](shadps4.android) module.cpp:148 RestorePreboundPltImports: Restored prebound PLT import: Il2cppUserAssemblies.prx offset=0x1568 got=0x428a380 previous_target=0x84070fc0
+[2026-09-29 01:21:31.403][Info][27422][Core.Linker](Guest-1) guest_runtime.cpp:5260 Run: Guest module libSceFios2.prx: DT_INIT completed
+[2026-09-29 01:21:31.411][Info][27422][Core.Linker](Guest-1) guest_runtime.cpp:5260 Run: Guest module libc.prx: DT_INIT completed
+[2026-09-29 01:21:31.411][Info][27422][Core.Linker](Guest-1) guest_runtime.cpp:5260 Run: Guest module PS4Util.prx: DT_INIT completed
+[2026-09-29 01:21:31.411][Info][27422][Core.Linker](Guest-1) guest_runtime.cpp:5260 Run: Guest module Il2cppUserAssemblies.prx: DT_INIT completed
+[2026-09-29 01:21:32.747][Info][27729][Render_Vulkan](shadPS4:GpuComm) vk_presenter.cpp:858 PrepareVrFrame: SBS VR eye sample=0 count=2 L=0x23af580 960x1080 pitch=1024 type=13 fmt=10/9 R=0x23af580 960x1080 pitch=1024 type=13 fmt=10/9
+[2026-09-29 01:21:32.771][Info][27761][Render_Vulkan](Thread-12) runtime.cpp:703 Run: OpenXR PSVR uses stereo cinema; accurate per-image render pose is not yet available
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1164 LogGuestFault: GUEST_FAULT thread=1 entry=0x100013550 rip=0x1085667d4 rsp=0x1c001b5570 rbp=0x1c001b5570 rax=0x8002000c rbx=0x1c001b55f0 rcx=0x18005d400f rdx=0x0 rdi=0x1c001b5648 rsi=0x0
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=0 pc=0x1c001b55a0 module=unknown offset=0x1c001b55a0
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=1 pc=0x1007d2930 module=eboot.bin offset=0x7d2930
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=2 pc=0x1008cc67a module=eboot.bin offset=0x8cc67a
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=3 pc=0x100883e61 module=eboot.bin offset=0x883e61
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=4 pc=0x10089cdbb module=eboot.bin offset=0x89cdbb
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=5 pc=0x10089c674 module=eboot.bin offset=0x89c674
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=6 pc=0x100a909bf module=eboot.bin offset=0xa909bf
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=7 pc=0x100a78f31 module=eboot.bin offset=0xa78f31
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=8 pc=0x100a78f86 module=eboot.bin offset=0xa78f86
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=9 pc=0x10137d771 module=eboot.bin offset=0x137d771
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=10 pc=0x101388728 module=eboot.bin offset=0x1388728
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=11 pc=0x10001358f module=eboot.bin offset=0x1358f
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1174 LogGuestFault: GUEST_FAULT frame=12 pc=0x1 module=unknown offset=0x1
+[2026-09-29 01:21:46.235][Error][27422][Core.Linker](Thread-12) guest_runtime.cpp:1177 LogGuestFault: GUEST_FAULT trace_end count=13 stop=complete at=0x0
+[2026-09-29 01:21:46.939][Info][27857][Render_Vulkan](DefaultDispatch) runtime.cpp:744 Run: OpenXR ImGui error panel submitted: guest fault: guest return=2147614732 guest_rip=4434847700 context=0 thread=1 generation=0 invocation=0 category=0

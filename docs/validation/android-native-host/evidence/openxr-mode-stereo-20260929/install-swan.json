@@ -1,0 +1,9 @@
+{
+  "serial": "PB3110PGL6240001G",
+  "package": "com.shadps4.android",
+  "installed_apk": "/data/app/~~MpoYn8CdTERqO_UgrZn4dQ==/com.shadps4.android-beRWAbDcF1D9fAeHa1HOLA==/base.apk",
+  "apk_sha256": "42db1f49f356b27fc0d8743ee6785ebfbd56427dcc1674ea1c1fbda8430e044b",
+  "install": "adb install -r: Success",
+  "launch": "Starting: Intent { cmp=com.shadps4.android/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.shadps4.android/.MainActivity\nTotalTime: 480\nWaitTime: 482\nComplete",
+  "prior_gpu_property": "kgsl_preempt_rb"
+}

@@ -1,0 +1,127 @@
+{
+  "result": "NOT_FIXED",
+  "SDS_page_alignment": "Failed prior devcd13 run",
+  "ringbuffer_style": "Failed B2 faultcount 14->15; B1 nonfailure does not establish reliability",
+  "runs": [
+    {
+      "name": "b1-rb-cold",
+      "first": {
+        "pid": "16380",
+        "generation": "1",
+        "run_uuid": "6f6d86b4e65b82a5f9a933e5795f73fa",
+        "stage": "Running",
+        "session": "active",
+        "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+        "guest_flip": "303 (age_ns=32334896)",
+        "queue_submit": "1744 (age_ns=14323334)",
+        "host_present": "303 (age_ns=30773959)",
+        "snapshot_ns": "102473317777471",
+        "host_time_ns": 1790663148006286000,
+        "faultcount": "13"
+      },
+      "last": {
+        "pid": "16380",
+        "generation": "1",
+        "run_uuid": "6f6d86b4e65b82a5f9a933e5795f73fa",
+        "stage": "Running",
+        "session": "active",
+        "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+        "guest_flip": "18424 (age_ns=26270417)",
+        "queue_submit": "92458 (age_ns=20003437)",
+        "host_present": "18424 (age_ns=19840000)",
+        "snapshot_ns": "103084305075050",
+        "host_time_ns": 1790663758998172000,
+        "faultcount": "13"
+      },
+      "samples": 72,
+      "faultcount_end": "13",
+      "observed_seconds": 610.987297579
+    },
+    {
+      "name": "a1-default-cold",
+      "first": {
+        "pid": "20698",
+        "generation": "1",
+        "run_uuid": "66369bdf4828bdedfe7659ecb11a9388",
+        "stage": "Preparing",
+        "session": "active",
+        "driver": "unavailable",
+        "guest_flip": "unavailable",
+        "queue_submit": "unavailable",
+        "host_present": "unavailable",
+        "snapshot_ns": "103269519929511",
+        "host_time_ns": 1790663944212071000,
+        "faultcount": "13"
+      },
+      "last": {
+        "pid": "20698",
+        "generation": "1",
+        "run_uuid": "66369bdf4828bdedfe7659ecb11a9388",
+        "stage": "Running",
+        "session": "active",
+        "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+        "guest_flip": "14019 (age_ns=35513854)",
+        "queue_submit": "69654 (age_ns=96250)",
+        "host_present": "14019 (age_ns=32575625)",
+        "snapshot_ns": "103749567933390",
+        "host_time_ns": 1790664424266405000,
+        "faultcount": "13"
+      },
+      "samples": 56,
+      "faultcount_end": "14",
+      "observed_seconds": 480.048003879
+    },
+    {
+      "name": "b2-rb-cold",
+      "first": {
+        "pid": "20901",
+        "generation": "1",
+        "run_uuid": "1441cf3a1af93f845e098d536a04c976",
+        "stage": "Running",
+        "session": "active",
+        "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+        "guest_flip": "113 (age_ns=6823854)",
+        "queue_submit": "819 (age_ns=6329948)",
+        "host_present": "112 (age_ns=31540729)",
+        "snapshot_ns": "104108106402472",
+        "host_time_ns": 1790664782806913000,
+        "faultcount": "14"
+      },
+      "last": {
+        "pid": "20901",
+        "generation": "1",
+        "run_uuid": "1441cf3a1af93f845e098d536a04c976",
+        "stage": "Running",
+        "session": "active",
+        "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+        "guest_flip": "10714 (age_ns=3686979)",
+        "queue_submit": "53334 (age_ns=3326250)",
+        "host_present": "10713 (age_ns=25645000)",
+        "snapshot_ns": "104461692907077",
+        "host_time_ns": 1790665136117091000,
+        "faultcount": "14"
+      },
+      "faultcount_end": "15",
+      "fault_uptime": 104470.369166,
+      "fault_elapsed_from_first_status_seconds": 362.2627635280078,
+      "status": "failed; trace/snapshot collection and device cleanup pending after disconnect",
+      "input_boundary": "Only actions 1 and 2 sent; duplicate action 2 queried its receipt; action 3 was rejected before injection because no Running session. Last two captures still show offline title menu."
+    }
+  ],
+  "limitations": [
+    "B1/A1 entered Hunters Dream, B2 failed at offline menu; not identical routes or FPS benchmark.",
+    "Trace events are asynchronous GMU F2H delivery timestamps, not exact GPU execution times.",
+    "Snapshots MVC/ROQ/IB copied separately, so no exact fault PC established.",
+    "B2 snapshot/trace missing after USB disconnect.",
+    "KMD Build-ID known but exact source revision unmapped."
+  ],
+  "next_candidate": {
+    "apk_sha256": "d272bb0e422bbb531ad7b61266e75a196fbb5f341687fe7e03fbca47bed23af3",
+    "entries": {
+      "assets/native-turnip/vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+      "lib/arm64-v8a/libshadps4_host.so": "aa7a5a4375cce8c2c5a7914571242c972cf4163cf9dd53e63fea931de8df0518",
+      "assets/native-turnip-mainline/vulkan.ad07xx.so": "c1a77fde0d5b25300e55f0eb9cc59313818c9e96a707ab9b59ab6da4e37f3d82"
+    }
+  },
+  "next_candidate_tested_on_device": false
+}

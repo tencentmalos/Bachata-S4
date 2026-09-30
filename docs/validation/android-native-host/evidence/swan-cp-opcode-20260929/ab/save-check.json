@@ -1,0 +1,13 @@
+{
+  "before_count": 33,
+  "after_count": 33,
+  "added": [],
+  "removed": [],
+  "changed": [
+    "1000/savedata/CUSA01363/SPRJ0005/userdata0010",
+    "1000/savedata/CUSA01363/SPRJ0005/backup0010",
+    "1000/savedata/CUSA01363/SPRJ0005/backup0000",
+    "1000/savedata/CUSA01363/SPRJ0005/userdata0000"
+  ],
+  "restored_save_data": false
+}

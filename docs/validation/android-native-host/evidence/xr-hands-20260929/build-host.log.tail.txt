@@ -1,0 +1,14 @@
+[1/12] cd /Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native && /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 /Users/bytedance/workspace/emulations/ps4/shadps4/scripts/android/build-turnip-source build --ndk /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865 --out /Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/turnip-source
+ninja: Entering directory `/Users/bytedance/workspace/emulations/ps4/shadps4/build/turnip-api33/native'
+[1/5] Generating src/git_sha1.h with a custom command
+TURNIP_SOURCE_PASS 1b588fceef705b65495e84df274a7dfeb09412fc 87aeb4058774aac7d22fc802f140d04259d0967e890de0182c20b4f9adba5094 dirty=True
+[2/11] Performing build step for 'ffmpeg_android_build'
+[3/11] No install step for 'ffmpeg_android_build'
+[4/11] Completed 'ffmpeg_android_build'
+[5/11] Building CXX object CMakeFiles/openxr_pose_tests.dir/tests/host_runtime/openxr_pose_tests.cpp.o
+[6/11] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/move/move.cpp.o
+[7/11] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/vr_tracker/vr_tracker.cpp.o
+[8/11] Building CXX object CMakeFiles/shadps4.dir/Unity/unity_4_cxx.cxx.o
+[9/11] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_runtime.cpp.o
+[10/11] Linking CXX shared library libshadps4_host.so
+[11/11] Linking CXX executable openxr_pose_tests

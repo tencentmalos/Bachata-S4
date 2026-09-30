@@ -1,0 +1,34 @@
+{
+  "coverage_uptime": [
+    101486.694276,
+    104020.448576
+  ],
+  "incident": 103751.209756,
+  "analysis_window": [
+    103691.209756,
+    103871.209756
+  ],
+  "patterns": {
+    "opcode": "CP.*opcode.*error",
+    "fault_id": "Fault id:",
+    "page_fault": "GPU PAGE FAULT|SMMU.*fault|IOMMU.*fault",
+    "reclaim": "GPU write zram|kgsl_reclaim",
+    "gmu_reset": "GMU.*(timeout|fault|suspend|reset)|HFI.*(timeout|fault)|hwsched.*fault",
+    "wait": "waittimestamp|fence.*(timeout|fail)"
+  },
+  "hits": {
+    "opcode": [
+      "[103751.209756] [12:20:05](3)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000"
+    ],
+    "fault_id": [
+      "[103751.209783] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:902000000"
+    ],
+    "page_fault": [],
+    "reclaim": [],
+    "gmu_reset": [
+      "[103751.209783] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:902000000",
+      "[103751.413968] [12:20:05](3)[1433|kgsl_hwsched]adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU"
+    ],
+    "wait": []
+  }
+}

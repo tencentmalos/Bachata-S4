@@ -1,0 +1,26 @@
+{
+  "guest_vr_sensor_tests": {
+    "exit": 0,
+    "result": [
+      "guest_vr_sensor_tests: 73 checks / 0 failures"
+    ]
+  },
+  "guest_reprojection_tests": {
+    "exit": 0,
+    "result": [
+      "guest_reprojection_tests: 96 checks / 0 failures"
+    ]
+  },
+  "openxr_input_tests": {
+    "exit": 0,
+    "result": [
+      "openxr_input_tests: 34 checks / 0 failures"
+    ]
+  },
+  "openxr_pose_tests": {
+    "exit": 0,
+    "result": [
+      "openxr_pose_tests: 33 checks / 0 failures"
+    ]
+  }
+}

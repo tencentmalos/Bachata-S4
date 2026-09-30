@@ -1,0 +1,1 @@
+                 U spatial::platform::setApplicationContext(_JNIEnv*, _jobject*)

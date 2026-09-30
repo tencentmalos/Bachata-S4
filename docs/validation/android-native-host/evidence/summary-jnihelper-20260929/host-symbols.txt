@@ -1,0 +1,11 @@
+00000000049e3db8 B spatial::platform::JniHelper::msClassloader
+00000000049e3db0 B spatial::platform::JniHelper::msActivityObject
+00000000036b46e0 T spatial::platform::JniHelper::releaseThreadEnv()
+00000000036b3e10 T spatial::platform::JniHelper::initJniEnviroment(void*, void*)
+00000000036b4404 T spatial::platform::JniHelper::getActivityContext()
+00000000036b4830 T spatial::platform::JniHelper::shutdownJniEnvironment(_JNIEnv*)
+00000000049e3dc0 B spatial::platform::JniHelper::msLoadclassMethodMethodID
+00000000036b44a4 T spatial::platform::JniHelper::cacheEnv(_JavaVM*)
+00000000049e3da8 B spatial::platform::JniHelper::msJavaVM
+00000000036b4364 T spatial::platform::JniHelper::getJavaVM()
+00000000036b46cc T spatial::platform::JniHelper::getJniEnv()

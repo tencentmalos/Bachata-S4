@@ -1,0 +1,2 @@
+Provenance: exact line observed in the tool response to adb -s PB3110PGL6240001G shell logcat -d -s TU near runtime status snapshot_ns=102473317777471; end-of-run logcat has rolled past it. This file is a transcript excerpt, not a retained original logcat file.
+09-28 19:58:33.335 16380 31782 I TU      : KGSL preemption: requested_flags=0x2000013 returned_flags=0x2008052 context=51 result=0 errno=0

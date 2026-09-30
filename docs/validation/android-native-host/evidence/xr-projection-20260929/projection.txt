@@ -1,0 +1,1 @@
+[2026-09-29 01:56:17.843][Info][763][Render_Vulkan](Thread-12) runtime.cpp:690 Run: OpenXR PSVR Projection Layer: submitted head pose, runtime eye extrinsics/FOV; L=(-0.82900697, 0.82900697, -0.75046945, 0.75046945) R=(-0.82900697, 0.82900697, -0.75046945, 0.75046945)

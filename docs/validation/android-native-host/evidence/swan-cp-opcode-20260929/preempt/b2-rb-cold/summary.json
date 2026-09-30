@@ -1,0 +1,35 @@
+{
+  "first": {
+    "pid": "20901",
+    "generation": "1",
+    "run_uuid": "1441cf3a1af93f845e098d536a04c976",
+    "stage": "Running",
+    "session": "active",
+    "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+    "guest_flip": "113 (age_ns=6823854)",
+    "queue_submit": "819 (age_ns=6329948)",
+    "host_present": "112 (age_ns=31540729)",
+    "snapshot_ns": "104108106402472",
+    "host_time_ns": 1790664782806913000,
+    "faultcount": "14"
+  },
+  "last": {
+    "pid": "20901",
+    "generation": "1",
+    "run_uuid": "1441cf3a1af93f845e098d536a04c976",
+    "stage": "Running",
+    "session": "active",
+    "driver": "source=turnip device=Adreno (TM) 840 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-86ca472fc2) shaderInt64=1 api=4211051 sha256=13625257e968e9d81a2197dc66850000c82718f7940926b40106b6a1f680acaa ",
+    "guest_flip": "10714 (age_ns=3686979)",
+    "queue_submit": "53334 (age_ns=3326250)",
+    "host_present": "10713 (age_ns=25645000)",
+    "snapshot_ns": "104461692907077",
+    "host_time_ns": 1790665136117091000,
+    "faultcount": "14"
+  },
+  "faultcount_end": "15",
+  "fault_uptime": 104470.369166,
+  "fault_elapsed_from_first_status_seconds": 362.2627635280078,
+  "status": "failed; trace/snapshot collection and device cleanup pending after disconnect",
+  "input_boundary": "Only actions 1 and 2 sent; duplicate action 2 queried its receipt; action 3 was rejected before injection because no Running session. Last two captures still show offline title menu."
+}

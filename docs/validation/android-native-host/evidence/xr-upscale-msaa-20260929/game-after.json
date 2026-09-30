@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "values": {
+    "input.xr_swap_move_hands": true
+  }
+}

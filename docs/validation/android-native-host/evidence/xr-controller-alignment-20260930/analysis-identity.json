@@ -1,0 +1,17 @@
+{
+  "main": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/openxr-20260929/beatsaber-startup/executables/app0/elf/eboot.bin.elf",
+    "sha256": "d52264192561529ebb500ff6b88495f46203e9faec22d01e8409e37c4b1b62a5",
+    "e_type": "0xfe10"
+  },
+  "plugin": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/xr-controller-alignment-20260930/beatsaber-psvr-plugin.elf",
+    "sha256": "3c6c814d550e78eba4919ba48e793bd89984e75a5a04e23f53e91bd4febc4a7a",
+    "e_type": "0xfe18"
+  },
+  "firmware": {
+    "path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceVrTracker.sprx",
+    "sha256": "3a8718d1fa72768d173bfc6d6211934b573c1cc94d3543124cc2e0bc8b050163",
+    "e_type": "0xfe18"
+  }
+}

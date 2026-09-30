@@ -1,0 +1,99 @@
+{
+  "date": "2026-09-29",
+  "task": "Foundation native Summary battery and GPU frequency",
+  "source": {
+    "main_branch": "feature/malos/swan_performance",
+    "main_base": "b0778a7f",
+    "foundation_base": "b05f80fbba9677143e40a008a54ef54b0ceb98c8",
+    "state": "local uncommitted changes in both repositories"
+  },
+  "tests": {
+    "perf": {
+      "cases": 33,
+      "assertions": 219,
+      "result": "passed",
+      "sanitizer": "undefined, no-recover",
+      "filter": "[perf]"
+    },
+    "jni": {
+      "checks": 239,
+      "failures": 0,
+      "repeated_reads": 2000,
+      "concurrent_context_replacements": 200,
+      "runtime": "JDK 17 real JVM with -Xcheck:jni",
+      "android_framework": "test fixtures; not actual Android service"
+    },
+    "builds": [
+      "Android arm64 API33 shadps4_host",
+      "assemblePlaystoreDebug",
+      "core:runtime:compileDebugAndroidTestKotlin"
+    ]
+  },
+  "device": {
+    "connected": false,
+    "installed": false,
+    "hud_visual_validation": false,
+    "battery_service_validation": false,
+    "gpu_app_uid_node_validation": false
+  },
+  "raw_artifacts": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/summary-native-metrics-20260929",
+  "files": {
+    "apk-identity.json": {
+      "bytes": 669,
+      "sha256": "b133b786056c0855d31cbdc54472205d9f6d10c1e3ebe3429b076f3f5fea77a7"
+    },
+    "build-apk.log": {
+      "bytes": 25463,
+      "sha256": "ca72b38edc95eacdee8a33923fe59b6fddba157a6790b2d8fcdaafcf5710b544"
+    },
+    "build-host.log": {
+      "bytes": 125458,
+      "sha256": "eede279458f9fcdd1c071ac54bb7eecaedab9d0ef1d114a775964492bff42afb"
+    },
+    "build-jni-tests.log": {
+      "bytes": 560,
+      "sha256": "e26c26c032038c71f07c8bc41ba0647c655d35d90608899841241583a59edf8d"
+    },
+    "build-overlay-tests.log": {
+      "bytes": 90903,
+      "sha256": "f365813325683213b5b077e6c689b4a0e17b1b4bad2152cc022a7044e2ecf666"
+    },
+    "configure-jni.log": {
+      "bytes": 815,
+      "sha256": "57f0d86ca9fb02add574dcc5b924f558846e23d2c5c62d7c00eeff0258eb5ca2"
+    },
+    "configure-overlay-tests.log": {
+      "bytes": 576,
+      "sha256": "a331f545f5918bfaa23683fc5066bfe462ec9fd4704dde490a2e36845f03c09e"
+    },
+    "host-symbols.txt": {
+      "bytes": 441,
+      "sha256": "7ab97a22c44d525cd8c2f9fb8ed61cae33f78c8a99a3335739da71b367316874"
+    },
+    "jni-symbols.txt": {
+      "bytes": 81,
+      "sha256": "f8feb61bc9623fbfb9a2f08cdf03b9532af6feb1334cc8cafbde8dbdd64631be"
+    },
+    "jni-test-detail.log": {
+      "bytes": 903,
+      "sha256": "87096bc2a17e44a6d336c605a7413e4dc55b29fcc77ee86279a8672964d74539"
+    },
+    "libshadps4_fex_session.so": {
+      "bytes": 35803336,
+      "sha256": "13de40824b10efb9806bff2bcbaaee80f6f3c29d947dab7dba46fae2b60d4a00"
+    },
+    "shadps4-b0778a7f-native-metrics.apk": {
+      "bytes": 211557496,
+      "sha256": "ff2cfbb2a00627d8328704adda94cf80ff29827e6dc5a45685d976bb5a01733b"
+    },
+    "test-jni.log": {
+      "bytes": 260,
+      "sha256": "19ab0c6bd37000c46e5f7d6f6ceaa0c790cd7aa624a6d92247b497ee2ce55ce5"
+    },
+    "test-perf.log": {
+      "bytes": 181,
+      "sha256": "94d8bd6ce07256c859e84ed3b5eef90ae480e23bc41bce4afdf5844f67087932"
+    }
+  },
+  "prior_gpu_cleanup": "Unchanged; see ../swan-cp-opcode-20260929/preempt/cleanup-pending.json"
+}

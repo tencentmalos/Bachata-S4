@@ -1,0 +1,1 @@
+XR output extent: 42 boundary checks passed

@@ -1,0 +1,56 @@
+[103751.136545] [12:20:05](1)[30820|kworker/u37:3]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[103751.136554] [12:20:05](1)[30820|kworker/u37:3]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[103751.209756] [12:20:05](3)[3779|gmu_f2h]adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000
+[103751.209783] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: Fault id:2 and GX is ON with Curr GPU freq:902000000
+[103751.209790] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[20698]: ctx 51 ctx_type ANY ts 69982 policy 2
+[103751.209794] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: shadps4.android[20698]: cmdline: com.shadps4.android
+[103751.209884] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+[103751.209887] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: BR: rb 0931/09d9 ib1 00000041FC809000/1128 ib2 00000041FCAAB1EC/017c ib3 0000000000000000/0000
+[103751.209891] [12:20:05](1)[1433|kgsl_hwsched]kgsl kgsl-3d0: BV: rb 0935/09d9 ib1 0000004032D39000/0000 ib2 0000000000000000/0000 ib3 0000000000000000/0000
+[103751.317343] [12:20:05](1)[1332|logd.auditd]type=1400 audit(1790598005.435:957646): avc:  denied  { write } for  comm="crash_dump64" name="syseventsw" dev="tmpfs" ino=1664 scontext=u:r:crash_dump:s0:c152,c256,c512,c768 tcontext=u:object_r:syseventsw_socket:s0 tclass=sock_file permissive=0 app=com.shadps4.android
+[103751.317434] [12:20:05](1)[1332|logd.auditd]type=1400 audit(1790598005.435:957647): avc:  denied  { write } for  comm="crash_dump64" name="syseventsw" dev="tmpfs" ino=1664 scontext=u:r:crash_dump:s0:c152,c256,c512,c768 tcontext=u:object_r:syseventsw_socket:s0 tclass=sock_file permissive=0 app=com.shadps4.android
+[103751.321131] [12:20:05](0)[1339|collect_log]android time is 2026-09-28 20:20:05.439, boot time is 103751314 ms
+[103751.366917] [12:20:05](4)[5734|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_RIGHT] sof_meta return_used_index 6 ipc_call_timestamp 103751362469639 sof_timestamp 103761945246120 sofmeta_timestamp 103751361713836 frame_id: 621630 org_frameid 8618470 event type: 800000c dac: 401 coe: 103761944633499
+[103751.389027] [12:20:05](3)[6031|cam_event_worke][vvd][INF] BUFFER:(handle_sof_event:510): [RGB_LEFT] sof_meta return_used_index 6 ipc_call_timestamp 103751384583702 sof_timestamp 103761967474580 sofmeta_timestamp 103751383943422 frame_id: 621630 org_frameid 8618493 event type: 800000c dac: 343 coe: 103761966854879
+[103751.412813] [12:20:05](3)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot froze 3712Kb of GPU buffers
+[103751.412829] [12:20:05](3)[1433|kgsl_hwsched]kgsl kgsl-3d0: GPU snapshot created at pa d3c00000++0x6466c8
+[103751.412835] [12:20:05](3)[1433|kgsl_hwsched]Entry name already exist
+[103751.413968] [12:20:05](3)[1433|kgsl_hwsched]adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU
+[103751.452694] [12:20:05](5)[2725|PERFLOCKSD]store_scaling_max_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 2745600
+[103751.461779] [12:20:05](1)[1332|logd.auditd]type=1400 audit(1790598005.579:957648): avc:  denied  { read } for  comm="binder:3901_4" name="u:object_r:vendor_coprocds_prop:s0" dev="tmpfs" ino=481 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_coprocds_prop:s0 tclass=file permissive=0
+[103751.461808] [12:20:05](3)[4217|binder:3901_4]audit: audit_lost=893403 audit_rate_limit=5 audit_backlog_limit=64
+[103751.461810] [12:20:05](3)[4217|binder:3901_4]audit: rate limit exceeded
+[103751.461850] [12:20:05](1)[1332|logd.auditd]type=1400 audit(1790598005.579:957649): avc:  denied  { read } for  comm="binder:3901_4" name="u:object_r:vendor_coprocds_prop:s0" dev="tmpfs" ino=481 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_coprocds_prop:s0 tclass=file permissive=0
+[103751.462041] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:display, vote:1
+[103751.462043] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:audio, vote:2
+[103751.462044] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:camera, vote:1
+[103751.462045] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:copro, vote:1
+[103751.462046] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_mcu, vote:1
+[103751.462047] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_hmd, vote:1
+[103751.462048] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_spi_test, vote:0
+[103751.462049] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_len_hood, vote:0
+[103751.462049] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_ctrl, vote:1
+[103751.462050] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_tracker, vote:0
+[103751.462051] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:lsfpga, vote:0
+[103751.462052] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:debug, vote:0
+[103751.462053] [12:20:05](3)[4217|binder:3901_4][hmd_pm]: client:station_switch, vote:0
+[103751.476862] [12:20:05](4)[6121|cam_event_worke][vvd][INF] BUFFER:(handle_eof_event:726): [SIXDOF_ML] sof_meta return (CoproFID=6157357) AP_FID=3078630, Index=6, IPC_TS=103751472416566, SOF_TS=103762046430520, EXPOSURE=551, FRAME_TYPE=0, INF_COUNT=7
+[103751.478662] [12:20:05](5)[6131|cam_event_worke][vvd][INF] BUFFER:(handle_eof_event:726): [SIXDOF_MR] sof_meta return (CoproFID=6157353) AP_FID=3078630, Index=6, IPC_TS=103751474220212, SOF_TS=103762046430560, EXPOSURE=551, FRAME_TYPE=0, INF_COUNT=7
+[103751.479276] [12:20:05](2)[6146|cam_event_worke][vvd][INF] BUFFER:(handle_eof_event:726): [SIXDOF_TL] sof_meta return (CoproFID=6157333) AP_FID=3078630, Index=6, IPC_TS=103751474834587, SOF_TS=103762046914660, EXPOSURE=306, FRAME_TYPE=0, INF_COUNT=7
+[103751.479897] [12:20:05](2)[6147|cam_event_worke][vvd][INF] BUFFER:(handle_eof_event:726): [SIXDOF_TR] sof_meta return (CoproFID=6157329) AP_FID=3078630, Index=6, IPC_TS=103751475455994, SOF_TS=103762047950980, EXPOSURE=446, FRAME_TYPE=0, INF_COUNT=7
+[103751.480511] [12:20:05](1)[6136|cam_event_worke][vvd][INF] BUFFER:(handle_eof_event:726): [SIXDOF_BL] sof_meta return (CoproFID=6157349) AP_FID=3078630, Index=6, IPC_TS=103751476068077, SOF_TS=103762048018900, EXPOSURE=455, FRAME_TYPE=0, INF_COUNT=7
+[103751.481124] [12:20:05](4)[6143|cam_event_worke][vvd][INF] BUFFER:(handle_eof_event:726): [SIXDOF_BR] sof_meta return (CoproFID=6157341) AP_FID=3078630, Index=6, IPC_TS=103751476678598, SOF_TS=103762048023760, EXPOSURE=455, FRAME_TYPE=0, INF_COUNT=7
+[103751.536827] [12:20:05](0)[25136|kworker/0:2]kgsl kgsl-3d0: snapshot: objects released
+[103751.553511] [12:20:05](0)[320|init]init: Unable to set property 'sys.full_dump.enable' from uid:0 gid:0 pid:11076: SELinux permission check failed
+[103751.555028] [12:20:05](1)[1307|logd.reader]logd: logdr: UID=1000 GID=1000 PID=11087 n tail=50000 logMask=3ff pid=0 start=0ns deadline=0ns
+[103751.583745] [12:20:05](5)[2725|PERFLOCKSD]store_scaling_min_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 384000
+[103751.583856] [12:20:05](5)[2725|PERFLOCKSD]store_scaling_min_freq, pid: 2613, comm: PERFLOCKSD, policy: 0, freq: 1900800
+[103751.597111] [12:20:05](1)[320|init]init: Unable to set property 'sys.full_dump.enable' from uid:0 gid:0 pid:11076: SELinux permission check failed
+[103751.652518] [12:20:05](2)[2100|kworker/u37:6]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[103751.652526] [12:20:05](2)[2100|kworker/u37:6]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[103751.775832] [12:20:05](5)[2725|PERFLOCKSD]min_freq_store, pid: 2613, comm: PERFLOCKSD, freq: 578000000
+[103751.936486] [12:20:05](7)[12467|kworker/7:1]battery_min_vol_check entry min_vol = 8200000
+[103752.090245] [12:20:05](1)[1332|logd.auditd]type=1400 audit(1790598006.207:957663): avc:  denied  { read } for  comm="shadps4.android" name="gpu_busy_percentage" dev="sysfs" ino=171355 scontext=u:r:untrusted_app:s0:c152,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=0 app=com.shadps4.android
+[103752.160514] [12:20:06](2)[2100|kworker/u37:6]pmu_dcvs: node 310b7400.qcom,bwmon-llcc-prime second_ab_scale 0 -> 0
+[103752.160552] [12:20:06](2)[2100|kworker/u37:6]pmu_dcvs: node 310b3400.qcom,bwmon-llcc-gold second_ab_scale 0 -> 0
+[103752.208532] [12:20:06](1)[1307|logd.reader]logd: logdr: UID=0 GID=0 PID=11093 n tail=20000 logMask=1 pid=0 start=0ns deadline=0ns

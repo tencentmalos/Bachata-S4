@@ -1,0 +1,2 @@
+ shadPS4:GpuComm-20809   (   3617) [002] ..... 99074.658177: kgsl_mem_alloc: gpuaddr=0x41e2879000 size=524288 tgid=3617 usage=any(0) id=525 flags=0x10c0000
+ shadPS4:GpuComm-20809   (   3617) [002] ..... 99074.659217: kgsl_mem_alloc: gpuaddr=0x41e2939000 size=2097152 tgid=3617 usage=any(0) id=527 flags=0x10c0000

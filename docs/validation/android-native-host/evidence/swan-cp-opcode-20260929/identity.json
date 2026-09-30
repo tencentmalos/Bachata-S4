@@ -1,0 +1,13 @@
+{
+  "source": "https://github.com/tencentmalos/mesa-mirror",
+  "source_commit": "86ca472fc22b88a1241bb2eece5c2c128c2f48ae",
+  "upstream_commit": "e1f3f372c4a661cd0e71a0cdafc4d469d56ecf35",
+  "release": "local-86ca-mapper5-sds-page-align",
+  "library": "vulkan.ad07xx.so",
+  "library_sha256": "c35946a8758de0400899b69f28b2158a06931eccf7d9d44cd454022a5fb81b23",
+  "build_id": "5a27ad743d3e5541d89aafeeba255d9814e13ce2",
+  "abi": "android-arm64-bionic",
+  "scope": "Default Turnip profile for every device (KGSL poll fix, QCOM Mapper 5); debug.shadps4.vulkan_driver=turnip selects the historical R8 pin, system the vendor driver.",
+  "source_dirty": true,
+  "patch_sha256": "470f429bb8c7a02b1b7a60c4134b188b3b314134986c4f7fcf45e5d97810baec"
+}

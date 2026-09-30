@@ -1,0 +1,250 @@
+[2026-09-29 20:33:19.243][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.247][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.251][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.267][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.267][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.291][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.291][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.295][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.299][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.303][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.303][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.323][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.323][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.347][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.347][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.351][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.355][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.359][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.359][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.375][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.375][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.383][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.383][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.403][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.403][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.427][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.427][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.431][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.435][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.439][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.439][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.459][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.459][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.463][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.467][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.483][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.483][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.511][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.511][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.515][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.515][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.519][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.523][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.543][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.543][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.563][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.563][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.567][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.571][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.575][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.579][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.595][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.595][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.599][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.603][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.619][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.619][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.643][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.643][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.647][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.651][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.655][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.659][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.675][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.675][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.683][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.683][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.699][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.699][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.727][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.727][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.727][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.731][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.735][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.739][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.755][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.755][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.763][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.763][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.779][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.779][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.807][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.807][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.811][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.811][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.815][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.819][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.835][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.835][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.843][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.843][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.863][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.863][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.887][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.887][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.891][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.895][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.895][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.899][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.919][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.919][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.923][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.923][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.943][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.943][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.967][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.971][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:19.975][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.975][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.979][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.979][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:19.999][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:19.999][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.003][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.007][Info][19057][Lib.AudioOut](Thread-12) oboe_audio_out.cpp:35 Observe: Oboe gen=1 api=2 perf=12 share=1 rate=48000 ch=2 burst=192 capacity=1536 size=384 sources=2 callbacks=516371 frames=93311232 consumed=93310848 starved=0 xruns=0 timestamp_result=0 presented=93309648 reconnects=0 error=0
+[2026-09-29 20:33:20.007][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.023][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.023][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.051][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.051][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.055][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.055][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.059][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.063][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.079][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.079][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.087][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.087][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.107][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.107][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.131][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.131][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.135][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.139][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.163][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.163][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.167][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.171][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.191][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.191][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.195][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.199][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.223][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.223][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.227][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.227][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.255][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.255][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.259][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.263][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.291][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.291][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.295][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.295][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.319][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.319][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.327][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.331][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.331][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.335][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.351][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.351][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.375][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.375][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.383][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.383][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.387][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.391][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.407][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.407][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.415][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.419][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.431][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.431][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.459][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.459][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.463][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.467][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.471][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.471][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.491][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.491][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.495][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.499][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.515][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.515][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.539][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.539][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.543][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.547][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.571][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.571][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.575][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.579][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.579][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.583][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.599][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.599][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.603][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.607][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.623][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.623][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.631][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.635][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.651][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.651][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.679][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.679][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.679][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.683][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.687][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.687][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.707][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.707][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.711][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.715][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.731][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.731][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.759][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.759][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.763][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.763][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.767][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.771][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.787][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.787][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.791][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.795][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.811][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.811][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.839][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.839][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.843][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.843][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.847][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.851][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.867][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.867][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.875][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.879][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.891][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.891][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.919][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.919][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:398 sceVrTrackerGpuWait: (STUBBED) called
+[2026-09-29 20:33:20.923][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.927][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.931][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.935][Info][18691][Lib.Camera](Thread-12) guest_runtime.cpp:4420 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[2026-09-29 20:33:20.951][Error][19069][Lib.VrTracker](Guest-45) vr_tracker.cpp:383 sceVrTrackerGpuSubmit: (STUBBED) called
+[2026-09-29 20:33:20.975][Info][18691][Lib.Http](Thread-12) http.cpp:2111 sceHttpTerm: called libhttpCtxId=1

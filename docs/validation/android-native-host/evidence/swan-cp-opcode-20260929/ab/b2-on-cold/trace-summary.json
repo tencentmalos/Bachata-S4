@@ -1,0 +1,38 @@
+{
+  "header": [
+    "# entries-in-buffer/entries-written: 1145968/1145968   #P:8"
+  ],
+  "first_uptime": 98923.191967,
+  "last_uptime": 99105.720468,
+  "event_counts": {
+    "adreno_cmdbatch_done": 171036,
+    "adreno_cmdbatch_retired": 171036,
+    "kgsl_pwrstats": 13147,
+    "adreno_cmdbatch_queued": 220114,
+    "adreno_cmdbatch_ready": 171036,
+    "adreno_cmdbatch_submitted": 171036,
+    "adreno_preempt_trigger": 39068,
+    "adreno_preempt_done": 39068,
+    "adreno_input_hw_fence": 25470,
+    "gpu_work_period": 383,
+    "kgsl_context_detach": 1,
+    "kgsl_mem_free": 3170,
+    "kgsl_context_destroy": 1,
+    "kgsl_gpubusy": 183,
+    "kgsl_mem_map": 778,
+    "kgsl_mem_alloc": 5284,
+    "kgsl_pwrlevel": 417,
+    "gpu_frequency": 417,
+    "kgsl_gpu_frequency": 417,
+    "kgsl_waittimestamp_entry": 28477,
+    "adreno_drawctxt_wait_start": 28477,
+    "adreno_drawctxt_wait_done": 28475,
+    "kgsl_waittimestamp_exit": 28475,
+    "kgsl_context_create": 1,
+    "adreno_gpu_fault": 1
+  },
+  "key_event_samples": [
+    "Guest-20-20808   (   3617) [004] ..... 98942.685206: kgsl_context_create: d_name=kgsl-3d0 ctx=48 flags=NO_GMEM_ALLOC|PREAMBLE|PER_CONTEXT_TS priority=8 type=ANY",
+    "kgsl_hwsched-1433    (   1433) [002] ..... 99105.720468: adreno_gpu_fault: ctx=48 ts=23573 rb_id=2 status=880005 RB=1DFB/1D53 IB1=41E28F9000/2A00 IB2=41E288A3F8/3E6"
+  ]
+}

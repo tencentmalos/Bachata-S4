@@ -4,6 +4,26 @@
 StatusLayer 使用 Foundation OverlayShell 的 Simple/Summary/Detail/Controls；
 `RuntimeTooltips` 是额外的 `ImGui::Layer`，用于短暂提示，二者共享 context 和 SDF atlas。
 
+## XR Status Layer
+
+Launcher 的 Launch options 提供 **Status Layer** 横向平铺选项：Horizontal / Vertical / None，默认 Horizontal，
+启动时保存到每游戏配置 `gpu.xr_status_layer`；取消面板不保存。普通 2D 模式不显示此选项。
+
+- PSVR：独立、只显示的 ImGui 状态层，固定在视野左上角；VIEW 空间双眼共享 quad。
+  横向 1152×192（3 列 × 2 行，1.2×0.2 m），纵向 384×576（1 列 × 6 行，0.4×0.6 m）；
+  均距眼 2.5 m，共用左上角 (-1.7, 1.1, -2.5) m。PSVR 标题的 2D 开场也不创建 PSV 模型/GI。
+- 普通游戏影院：保留固定在 LOCAL 空间的 PSV 模型与原有主题/灯光/GI；
+  Horizontal / Vertical 均保留机模，None 隐藏。旧布尔配置 true → Horizontal、false → None。
+- 状态数据共用 Foundation PerfHud 的快照，游戏 FPS 不计状态层刷新。
+  ImGui 在 PresentThread 最多每秒更新 4 次，合成器复用已释放图像；GPU 忙或
+  swapchain 零超时等待未就绪时跳过更新，不等待状态层 fence。
+- `xr_status visible on|off` 只作本会话开关，`xr_status status` 查看实际路径与更新次数。
+  PSVR 状态条不接管手柄、鼠标或键盘。原有错误 ImGui 面板不受 Status Layer 选项影响。
+
+初次创建字体/管线以及会话销毁仍可同步；同一 GPU 上的绘制与合成本身也有成本，
+不能称零开销。原有 XR guest mailbox 同步未改变。
+实现与实测见[PSVR ImGui 状态层](../validation/android-native-host/xr-status-imgui-20260930.md)。
+
 ## 操作
 
 - Only FPS 条与 Summary 标题行是同一组控制：柱状图图标开关 Detail，滑杆图标开关 Controls；
@@ -36,6 +56,15 @@ Android 点击边沿经带 owner 生命周期的有界 mailbox 送到渲染线�
 路由命中面板。按下后即使移出面板，抬起也被捕获；失焦/销毁/溢出会取消。
 PS4 IME 打开时独占触屏，直接进入现有 ImGui 输入框/键盘/关闭按钮，隐藏触控手柄后
 仍可操作。同一帧真实 pointer 输入优先于同时到来的手柄导航；原有 PS4 映射不变。
+
+## Summary 设备指标
+
+CPU/GPU 频率、负载、温度及电池数据由 Foundation 工作线程每秒采样；渲染线程只读取快照。
+Android 电池通过 Foundation C++ 调用公共 BatteryManager/Intent API，缺项回退 sysfs，
+统一复用原有 JniHelper 的初始化与线程环境，不需要宿主 Kotlin 电池轮询。
+GPU 主频直接读取 KGSL/Mali/devfreq 的可用节点；内核权限
+禁止读取时不显示频率，不填假值。充电、数据缺失或状态未知时不沿用旧续航估计。
+这次下沉已通过离线测试与 Android 构建，设备显示待验收，见[验证记录](../validation/android-native-host/summary-native-metrics-20260929.md)。
 
 ## SDF 与颜色
 

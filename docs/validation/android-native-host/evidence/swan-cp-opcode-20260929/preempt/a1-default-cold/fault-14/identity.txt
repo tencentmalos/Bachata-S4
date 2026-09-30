@@ -1,0 +1,8 @@
+20c5024e-15c5-4f6a-981f-7630a933df4c
+103900.04 454127.14
+14
+total 48508
+-rw-rw-r-- 1 tombstoned system 1811849 2026-09-28 20:20 tombstone_23
+-rw-rw-r-- 1 tombstoned system 1238420 2026-09-28 20:20 tombstone_23.pb
+-rw-rw-r-- 1 tombstoned system 1741141 2026-09-28 19:02 tombstone_22
+-rw-rw-r-- 1 tombstoned system 1166781 2026-09-28 19:02 tombstone_22.pb

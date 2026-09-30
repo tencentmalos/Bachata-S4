@@ -1,0 +1,7 @@
+{
+  "driver_and_header_mtime_unchanged": true,
+  "host_sha_unchanged": true,
+  "binding_unchanged": true,
+  "host_mtime_changed": true,
+  "note": "Host target relinked without compiling host objects; resulting bytes identical. Source driver and generated header unchanged."
+}

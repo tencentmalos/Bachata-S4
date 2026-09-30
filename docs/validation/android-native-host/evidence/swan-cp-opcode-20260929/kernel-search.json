@@ -1,0 +1,15 @@
+{
+  "pattern": "GPU PAGE FAULT|SMMU.*fault|IOMMU.*fault|translation fault|permission fault|FAULTING BLOCK|MISC: GPU hang|GPU hang detected|Fault id|GMU.*(fault|timeout|snapshot|reset)|HFI.*(fault|timeout)|hwsched.*(fault|timeout|stuck)|dispatcher.*fault|context_bad|Ack timeout|CP_IB[123]_BASE|ringbuffer|RB: rb|BR: rb|BV: rb|possible gpu syncpoint deadlock|adreno_drawctxt_wait|waittimestamp|retire.*timeout|unfired fences|CP opcode error",
+  "files": {
+    "dmesg.txt": {
+      "uptime_start": 93733.325885,
+      "uptime_end": 95740.247326,
+      "hit_count": 210
+    },
+    "dmesg-after.txt": {
+      "uptime_start": 94619.104583,
+      "uptime_end": 96790.946356,
+      "hit_count": 228
+    }
+  }
+}

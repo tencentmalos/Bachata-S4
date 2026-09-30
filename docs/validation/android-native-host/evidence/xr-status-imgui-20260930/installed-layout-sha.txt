@@ -1,0 +1,2 @@
+58ab9c70bfafc29f6ef77c0566da32fc2b8a46f1e986d80ce40df6a17f230b79  /data/app/~~biGjTpIrcrwrvzpuFf6mtw==/com.shadps4.android-2mN9Wx0qlwiyBWh3Yjd45A==/base.apk
+fa85cb212df7e3b8f3fe235f09467de62f5017670faad18a57fd9690cc881478  /data/app/~~biGjTpIrcrwrvzpuFf6mtw==/com.shadps4.android-2mN9Wx0qlwiyBWh3Yjd45A==/lib/arm64/libshadps4_host.so

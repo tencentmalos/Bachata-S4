@@ -1,0 +1,205 @@
+{
+  "path": "build/validation/xr-status-imgui-20260930/imgui-on-3.prof",
+  "sha256": "686268c3423bcb25b7c73c24595bbe23cd40135378a8d7c614aeb02699daebb7",
+  "sdk_source": "0b467a861569345a64fd88cb2e5daa8ff542c14f",
+  "pid": 4983,
+  "events": 463982,
+  "chunks_ok": 47,
+  "chunks_skipped": 0,
+  "truncated": true,
+  "diagnostics": [
+    "unbalanced span end on tid 10965",
+    "unbalanced span end on tid 10968",
+    "unbalanced span end on tid 10954",
+    "unbalanced span end on tid 10954",
+    "unbalanced span end on tid 10898",
+    "unbalanced span end on tid 10899",
+    "unbalanced span end on tid 10900",
+    "unbalanced span end on tid 10982",
+    "unbalanced span end on tid 10897",
+    "unbalanced span end on tid 10901",
+    "unbalanced span end on tid 10962",
+    "unbalanced span end on tid 10970",
+    "unbalanced span end on tid 10928",
+    "unbalanced span end on tid 10930",
+    "unbalanced span end on tid 11012",
+    "1 unclosed spans on tid 10965",
+    "1 unclosed spans on tid 10964",
+    "1 unclosed spans on tid 10954",
+    "2 unclosed spans on tid 10920",
+    "2 unclosed spans on tid 10969",
+    "1 unclosed spans on tid 10968",
+    "1 unclosed spans on tid 10898",
+    "1 unclosed spans on tid 10899",
+    "1 unclosed spans on tid 10900",
+    "1 unclosed spans on tid 10982",
+    "1 unclosed spans on tid 10929",
+    "1 unclosed spans on tid 10897",
+    "1 unclosed spans on tid 10901",
+    "1 unclosed spans on tid 10962",
+    "1 unclosed spans on tid 11011",
+    "1 unclosed spans on tid 10970",
+    "1 unclosed spans on tid 10981",
+    "1 unclosed spans on tid 10953",
+    "1 unclosed spans on tid 11012",
+    "1 unclosed spans on tid 10933",
+    "1 unclosed spans on tid 10958"
+  ],
+  "unmatched_end": 15,
+  "unclosed_begin": 23,
+  "frames": {
+    "count": 361,
+    "total_ms": 9979.958802,
+    "mean_ms": 27.64531524099723,
+    "p50_ms": 28.291927,
+    "p95_ms": 50.277604,
+    "max_ms": 52.066771
+  },
+  "frame_cadence_fps": 36.172494011463755,
+  "scopes": {
+    "Present.QueueLock [tid=10954 shadPS4:Present]": {
+      "count": 448,
+      "total_ms": 0.179691,
+      "mean_ms": 0.00040109598214285714,
+      "p50_ms": 0.000208,
+      "p95_ms": 0.000677,
+      "max_ms": 0.024219
+    },
+    "Present.DriverCall [tid=10954 shadPS4:Present]": {
+      "count": 448,
+      "total_ms": 109.800836,
+      "mean_ms": 0.24509115178571428,
+      "p50_ms": 0.198281,
+      "p95_ms": 0.5175,
+      "max_ms": 0.663073
+    },
+    "Present.FreeFrameWait [tid=10920 shadPS4:GpuComm]": {
+      "count": 361,
+      "total_ms": 0.38838,
+      "mean_ms": 0.0010758448753462604,
+      "p50_ms": 0.000834,
+      "p95_ms": 0.002135,
+      "max_ms": 0.017864
+    },
+    "Present.FrameFenceWait [tid=10920 shadPS4:GpuComm]": {
+      "count": 361,
+      "total_ms": 8.322545,
+      "mean_ms": 0.023054141274238226,
+      "p50_ms": 0.017083,
+      "p95_ms": 0.048177,
+      "max_ms": 0.725677
+    },
+    "XR.Mailbox.PublishSubmitWait [tid=10954 shadPS4:Present]": {
+      "count": 362,
+      "total_ms": 5845.033651,
+      "mean_ms": 16.14650179834254,
+      "p50_ms": 22.430469,
+      "p95_ms": 25.149635,
+      "max_ms": 44.10974
+    },
+    "Present.AcquireImage [tid=10954 shadPS4:Present]": {
+      "count": 448,
+      "total_ms": 6.963534,
+      "mean_ms": 0.015543602678571428,
+      "p50_ms": 0.01375,
+      "p95_ms": 0.026146,
+      "max_ms": 0.076094
+    },
+    "Present.Frame [tid=10954 shadPS4:Present]": {
+      "count": 447,
+      "total_ms": 9124.462611,
+      "mean_ms": 20.412668033557047,
+      "p50_ms": 20.811979,
+      "p95_ms": 49.776145,
+      "max_ms": 51.179427
+    },
+    "XR.Mailbox.ConsumeSubmitWait [tid=10953 Thread-12]": {
+      "count": 282,
+      "total_ms": 3224.177509,
+      "mean_ms": 11.433253578014185,
+      "p50_ms": 3.951094,
+      "p95_ms": 25.176667,
+      "max_ms": 41.185104
+    },
+    "Present.RedrawFenceWait [tid=10954 shadPS4:Present]": {
+      "count": 86,
+      "total_ms": 219.57016,
+      "mean_ms": 2.5531413953488373,
+      "p50_ms": 2.510573,
+      "p95_ms": 4.061198,
+      "max_ms": 4.474167
+    },
+    "Present.PrepareLastFrame [tid=10954 shadPS4:Present]": {
+      "count": 86,
+      "total_ms": 222.048381,
+      "mean_ms": 2.581957918604651,
+      "p50_ms": 2.53474,
+      "p95_ms": 4.093646,
+      "max_ms": 4.498229
+    },
+    "OpenXR ImGui Vulkan Render [tid=10954 shadPS4:Present]": {
+      "count": 30,
+      "total_ms": 5.204373,
+      "mean_ms": 0.1734791,
+      "p50_ms": 0.127396,
+      "p95_ms": 0.349896,
+      "max_ms": 0.392552
+    },
+    "XR.Status.ImGuiUpdate [tid=10954 shadPS4:Present]": {
+      "count": 30,
+      "total_ms": 6.883492,
+      "mean_ms": 0.22944973333333332,
+      "p50_ms": 0.179322,
+      "p95_ms": 0.43099,
+      "max_ms": 0.456042
+    }
+  },
+  "counters": {
+    "Audio.QueuedFrames": {
+      "samples": 1878,
+      "first": 768,
+      "last": 768
+    },
+    "VideoOut.PresentedGuestFrames": {
+      "samples": 363,
+      "first": 9422,
+      "last": 9784
+    },
+    "VR.PassthroughFrames": {
+      "samples": 361,
+      "first": 9424,
+      "last": 9784
+    },
+    "Audio.DeviceFrames": {
+      "samples": 10,
+      "first": 12619968,
+      "last": 13055232
+    },
+    "Audio.ConsumedFrames": {
+      "samples": 10,
+      "first": 12619584,
+      "last": 13054848
+    },
+    "Audio.SourceStarvedFrames": {
+      "samples": 10,
+      "first": 0,
+      "last": 0
+    },
+    "Audio.EditFrames": {
+      "samples": 10,
+      "first": 0,
+      "last": 0
+    },
+    "Audio.DeviceQueuedFrames": {
+      "samples": 10,
+      "first": 704,
+      "last": 640
+    },
+    "Audio.DeviceBufferFrames": {
+      "samples": 10,
+      "first": 384,
+      "last": 384
+    }
+  },
+  "limits": "Elapsed scopes, not on-CPU or GPU execution time. Capture-boundary scopes excluded. SDK frame marks are not headset refreshes."
+}

@@ -1,0 +1,2 @@
+--------- beginning of main
+09-28 20:25:54.494 20901 14654 I TU      : KGSL preemption: requested_flags=0x2000013 returned_flags=0x2008052 context=51 result=0 errno=0

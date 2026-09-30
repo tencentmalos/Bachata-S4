@@ -1,0 +1,13 @@
+FAIL 69: Near(p.position_x,(i?.4f:-.3f)-.075f) && Near(p.position_y,1.2f) && Near(p.position_z,-.7f)
+FAIL 71: result.user_frame_number==37 && Near(result.velocity_x,1) && Near(result.velocity_y,2.15f) && Near(result.velocity_z,3)
+FAIL 84: sceVrTrackerGetResult(&query,&result)==0 && result.orientation_quality==ORBIS_VR_TRACKER_QUALITY_NONE && result.position_quality==ORBIS_VR_TRACKER_QUALITY_NONE
+FAIL 69: Near(p.position_x,(i?.4f:-.3f)-.075f) && Near(p.position_y,1.2f) && Near(p.position_z,-.7f)
+FAIL 71: result.user_frame_number==37 && Near(result.velocity_x,1) && Near(result.velocity_y,2.15f) && Near(result.velocity_z,3)
+FAIL 84: sceVrTrackerGetResult(&query,&result)==0 && result.orientation_quality==ORBIS_VR_TRACKER_QUALITY_NONE && result.position_quality==ORBIS_VR_TRACKER_QUALITY_NONE
+FAIL 69: Near(p.position_x,(i?.4f:-.3f)-.075f) && Near(p.position_y,1.2f) && Near(p.position_z,-.7f)
+FAIL 71: result.user_frame_number==37 && Near(result.velocity_x,1) && Near(result.velocity_y,2.15f) && Near(result.velocity_z,3)
+FAIL 84: sceVrTrackerGetResult(&query,&result)==0 && result.orientation_quality==ORBIS_VR_TRACKER_QUALITY_NONE && result.position_quality==ORBIS_VR_TRACKER_QUALITY_NONE
+FAIL 69: Near(p.position_x,(i?.4f:-.3f)-.075f) && Near(p.position_y,1.2f) && Near(p.position_z,-.7f)
+FAIL 71: result.user_frame_number==37 && Near(result.velocity_x,1) && Near(result.velocity_y,2.15f) && Near(result.velocity_z,3)
+FAIL 84: sceVrTrackerGetResult(&query,&result)==0 && result.orientation_quality==ORBIS_VR_TRACKER_QUALITY_NONE && result.position_quality==ORBIS_VR_TRACKER_QUALITY_NONE
+openxr_pose_tests: 95 checks / 12 failures

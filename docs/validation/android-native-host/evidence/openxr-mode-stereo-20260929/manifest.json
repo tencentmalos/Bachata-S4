@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-29",
+  "base": "b0778a7f",
+  "branch": "feature/malos/swan_performance",
+  "dirty": true,
+  "apk": "build/validation/openxr-20260929/shadps4-b0778a7f-openxr-mode-stereo.apk",
+  "apk_sha256": "42db1f49f356b27fc0d8743ee6785ebfbd56427dcc1674ea1c1fbda8430e044b",
+  "apk_members_sha256": {
+    "lib/arm64-v8a/libshadps4_host.so": "da15e7dc06503e3bd3eb088da6694d3efa7f686e510c53f0bdeba7b980db5fb2",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "ec278487a51c5dd11a1b1e2f2bb285a85888f93c68f6c21a6f137e3315573d0e",
+    "lib/arm64-v8a/libpico_openxr_loader.so": "4bff43f2de795e4b1ff215cb714d9c139b4cae4d53ef14ce789bc45eaeaed4b7",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1"
+  },
+  "azahar_reference_commit": "5b39a31eb9c81a88e89c9c5c5b2c567a87320ffc",
+  "tests": {
+    "kotlin_runtime": 133,
+    "kotlin_data": 82,
+    "kotlin_app": 14,
+    "kotlin_failures": 0,
+    "swan_sensor": "64/0 exit 0",
+    "swan_reprojection": "91/0 exit 0",
+    "swan_system_gpu": "17440/0 exit 0",
+    "gpu_first_run": "17440/0 but exit 134; missing explicit logger shutdown; fixed and rerun"
+  },
+  "device": {
+    "serial": "PB3110PGL6240001G",
+    "boot_id": "20c5024e-15c5-4f6a-981f-7630a933df4c",
+    "standalone_probes": true,
+    "apk_installed": true,
+    "real_xr_runtime_tested": false,
+    "game_or_save_modified": false,
+    "prior_gpu_cleanup": "still pending; debug.mesa.tu.debug=kgsl_preempt_rb unchanged",
+    "owned_probe_directories": "removed, logs pulled",
+    "android_main_activity": "am start -W: Status ok; cold launch 480 ms",
+    "installation_evidence": "install-swan.json"
+  },
+  "cinema": {
+    "distance_m": 2.5,
+    "width_m": 3.2,
+    "placement": "initial head position plus horizontal forward; world locked; recenter at LOCAL changeTime"
+  },
+  "psvr": "forced XR by ATTRIBUTE bits 14 or 26; default stereo cinema; exact render-pose association remains unimplemented",
+  "builds": "host, APK, instrumentation Kotlin compiled; packaged host matches final host"
+}

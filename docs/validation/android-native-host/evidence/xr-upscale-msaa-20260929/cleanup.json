@@ -1,0 +1,32 @@
+{
+  "serial": "PB3110PGL6240001G",
+  "apk_sha256": "cb153e1596f2048cc1f9dd66c30e0e078bc9b6c54b698c5d9c9decf71ffca7c9",
+  "installed_apk_sha_verified": true,
+  "probe_processes_remaining": false,
+  "owned_probe_directory_removed": true,
+  "owned_screenshot_files_removed": [
+    40,
+    41,
+    42,
+    43,
+    44
+  ],
+  "held_inputs": false,
+  "debugger_attached": false,
+  "adb_forwards": [],
+  "global_settings_byte_identical": true,
+  "game_changes": {
+    "removed": "gpu.force_disable_msaa=true",
+    "preserved": "input.xr_swap_move_hands=true"
+  },
+  "runtime": {
+    "filter": "fsr1",
+    "foveation": "eye_tracked",
+    "level": "low",
+    "sharpness": 50,
+    "density_debug": false,
+    "real_gaze_permission_granted": false
+  },
+  "game": "Running, stereo safety page",
+  "old_gpu_cleanup_pending": "untouched"
+}

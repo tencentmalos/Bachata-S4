@@ -1,0 +1,1 @@
+09-29 01:56:15.480 32588 32588 I FexSessionService: Guest internal scale=100.0 percent XR=true

@@ -1,0 +1,31 @@
+{
+  "header": [
+    "# entries-in-buffer/entries-written: 2199728/5100013   #P:8"
+  ],
+  "first_uptime": 102393.414163,
+  "last_uptime": 103090.794258,
+  "event_counts": {
+    "adreno_cmdbatch_queued": 374690,
+    "kgsl_waittimestamp_entry": 56895,
+    "adreno_drawctxt_wait_start": 56888,
+    "adreno_drawctxt_wait_done": 57287,
+    "kgsl_waittimestamp_exit": 57286,
+    "adreno_cmdbatch_retired": 335443,
+    "adreno_cmdbatch_done": 357979,
+    "adreno_preempt_trigger": 81808,
+    "adreno_preempt_done": 81720,
+    "adreno_cmdbatch_ready": 329826,
+    "adreno_cmdbatch_submitted": 329759,
+    "kgsl_pwrstats": 30640,
+    "adreno_input_hw_fence": 44905,
+    "kgsl_pwrlevel": 34,
+    "gpu_frequency": 34,
+    "kgsl_gpu_frequency": 34,
+    "kgsl_gpubusy": 319,
+    "gpu_work_period": 616,
+    "kgsl_mem_alloc": 3112,
+    "kgsl_mem_free": 155,
+    "kgsl_mem_map": 298
+  },
+  "key_event_samples": []
+}
