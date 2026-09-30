@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include <boost/container/small_vector.hpp>
 #include "common/assert.h"
 #include "common/debug.h"
@@ -400,15 +401,19 @@ struct SignalImpl : public PageManager::Impl {
 
     static bool GuestFaultSignalHandler(void* context, void* fault_address) {
         const auto addr = reinterpret_cast<VAddr>(fault_address);
+        // Probe at most to the end of the faulting page: a spill into the next page can fail
+        // IsMapped at the end of a GPU mapping, or take over GPU bytes of a page the CPU did
+        // not write.
+        const u64 size = std::min<u64>(8, PageManager::GetNextPageAddr(addr) - addr);
         auto& space = Core::Memory::Instance()->GetAddressSpace();
         const bool write = Common::IsWriteError(context);
         // Faults on guest memory the GPU does not watch belong to the guest runtime.
         if (space.IsGuestBackend() && !space.IsGpuWatchFault(addr, write))
             return false;
         if (write) {
-            return rasterizer->InvalidateMemoryFromWriteFault(addr, 8);
+            return rasterizer->InvalidateMemoryFromWriteFault(addr, size);
         } else {
-            return rasterizer->ReadMemory(addr, 8);
+            return rasterizer->ReadMemory(addr, size);
         }
     }
 };
