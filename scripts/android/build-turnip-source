@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Build the live Mesa submodule and bind its exact ELF to the native host/APK."""
+"""Build the live Mesa submodule and bind its exact ELF to the native host/APK.
+
+`prebuilt --lock` instead binds a checksum-pinned release archive (an opt-in for hosts that
+cannot build Mesa); bind-host/package then check that pin rather than the Mesa source.
+"""
 import argparse
-import fcntl
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -10,6 +14,7 @@ import platform
 import shutil
 import subprocess
 import tempfile
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 LOCK = ROOT / "runtime/locks/turnip-bionic-mainline.json"
@@ -64,13 +69,59 @@ def source_identity():
     return source, lock, state, patch
 
 
+def prebuilt_identity(lock_path):
+    lock = json.loads(Path(lock_path).read_text())
+    state = {"prebuilt_lock": str(Path(lock_path).resolve()), "lock_sha256": digest(lock_path),
+             "recipe_sha256": digest(__file__)}
+    state["source_identity_sha256"] = sha(json.dumps(state, sort_keys=True).encode())
+    return lock, state
+
+
 def checked_output(directory):
     identity = json.loads((directory / "identity.json").read_text())
     if digest(directory / identity["library"]) != identity["library_sha256"]:
         raise ValueError("Built Turnip ELF does not match its identity")
-    if source_identity()[2]["source_identity_sha256"] != identity["source_identity_sha256"]:
+    if identity.get("prebuilt"):
+        expected = prebuilt_identity(identity["prebuilt_lock"])[1]["source_identity_sha256"]
+        if expected != identity["source_identity_sha256"]:
+            raise ValueError("Turnip prebuilt lock changed: rebuild shadps4_host before packaging the APK")
+    elif source_identity()[2]["source_identity_sha256"] != identity["source_identity_sha256"]:
         raise ValueError("Mesa source changed: rebuild shadps4_host before packaging the APK")
     return identity
+
+
+def prebuilt(args):
+    lock, state = prebuilt_identity(args.lock)
+    cache = ROOT / "build/drivers" / (lock["archive_sha256"] + ".zip")
+    if not cache.is_file():
+        raise ValueError(f"Prebuilt Turnip archive is not cached: {cache} (scripts/android/"
+                         "prepare-bionic-turnip --lock downloads and verifies it)")
+    archive = cache.read_bytes()
+    if sha(archive) != lock["archive_sha256"]:
+        raise ValueError("Turnip archive SHA256 mismatch")
+    with zipfile.ZipFile(io.BytesIO(archive)) as source:
+        if source.namelist().count(lock["library"]) != 1:
+            raise ValueError("Missing or duplicate Turnip ELF")
+        library = source.read(lock["library"])
+    if sha(library) != lock["library_sha256"]:
+        raise ValueError("Turnip ELF SHA256 mismatch")
+    if library[:5] != b"\x7fELF\x02" or int.from_bytes(library[18:20], "little") != 183:
+        raise ValueError("Turnip output is not ELF64 AArch64")
+    identity = {**lock, **state, "prebuilt": True}
+    write(args.out / lock["library"], library)
+    write(args.out / "source.patch", b"")
+    json_write(args.out / "identity.json", identity)
+    header = ('#pragma once\nnamespace TurnipBuild {\n'
+              f'inline constexpr char Sha256[] = "{identity["library_sha256"]}";\n'
+              f'inline constexpr char Source[] = "{state["source_identity_sha256"]}";\n}}\n')
+    write(args.out / "turnip_identity.h", header.encode())
+    # The release archive carries only the ELF; Mesa's license texts come from the submodule.
+    mesa = ROOT / json.loads(LOCK.read_text())["source_path"]
+    write(args.out / "licenses/Mesa-license.rst", (mesa / "docs/license.rst").read_bytes())
+    for path in (mesa / "licenses").rglob("*"):
+        if path.is_file():
+            write(args.out / "licenses/Mesa" / path.relative_to(mesa / "licenses"), path.read_bytes())
+    print("TURNIP_PREBUILT_PASS", lock.get("release", ""), identity["library_sha256"])
 
 
 def build(args):
@@ -83,6 +134,7 @@ def build(args):
     api = lock["api"]
     build_root = ROOT / f"build/turnip-api{api}"
     build_root.mkdir(parents=True, exist_ok=True)
+    import fcntl  # POSIX only; the prebuilt, bind and package modes also run on Windows
     with (build_root / "shadps4-source.lock").open("w") as guard:
         fcntl.flock(guard, fcntl.LOCK_EX)
         state_before = source_identity()[2]
@@ -158,12 +210,18 @@ def build(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=["build", "bind-host", "package"])
+    parser.add_argument("mode", choices=["build", "prebuilt", "bind-host", "package"])
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--ndk", type=Path)
     parser.add_argument("--built", type=Path)
     parser.add_argument("--host", type=Path)
+    parser.add_argument("--lock", type=Path)
     args = parser.parse_args()
+    if args.mode == "prebuilt":
+        if not args.lock:
+            parser.error("prebuilt requires --lock")
+        prebuilt(args)
+        return
     if args.mode == "build":
         if not args.ndk:
             parser.error("build requires --ndk")

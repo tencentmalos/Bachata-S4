@@ -1779,9 +1779,16 @@ if(BUILD_HOST_CORE)
     # (guest/runtime/sync, src/core/host_runtime/guest_sync_abi.h).
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     set(SHADPS4_TURNIP_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/turnip-source")
+    # Opt-in for hosts that cannot build Mesa: bind a checksum-pinned release archive instead.
+    set(SHADPS4_TURNIP_PREBUILT_LOCK "" CACHE FILEPATH "Prebuilt Turnip lock (empty: build the Mesa submodule)")
+    if(SHADPS4_TURNIP_PREBUILT_LOCK)
+        set(turnip_mode prebuilt --lock "${SHADPS4_TURNIP_PREBUILT_LOCK}")
+    else()
+        set(turnip_mode build --ndk "${CMAKE_ANDROID_NDK}")
+    endif()
     add_custom_target(shadps4_turnip_source
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-turnip-source"
-            build --ndk "${CMAKE_ANDROID_NDK}" --out "${SHADPS4_TURNIP_OUTPUT}"
+            ${turnip_mode} --out "${SHADPS4_TURNIP_OUTPUT}"
         BYPRODUCTS "${SHADPS4_TURNIP_OUTPUT}/turnip_identity.h"
                    "${SHADPS4_TURNIP_OUTPUT}/identity.json"
                    "${SHADPS4_TURNIP_OUTPUT}/vulkan.ad07xx.so"
