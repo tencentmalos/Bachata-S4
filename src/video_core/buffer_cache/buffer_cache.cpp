@@ -513,7 +513,7 @@ const Buffer* BufferCache::GetArena(u64 first_block, u64 last_block) {
                 .resourceOffset = (start - base_block) << block_shift,
                 .size = (stop - start) << block_shift,
                 .memory = backing.memory,
-                .memoryOffset = backing.offset + ((start - backing.start) << block_shift),
+                .memoryOffset = (backing.offset + start - backing.start) << block_shift,
             });
         });
     }
@@ -554,7 +554,7 @@ void BufferCache::EnsureResident(const Buffer* arena, u64 first_block, u64 last_
         backing.start = range.start;
         backing.end = range.end;
         backing.memory = device_memory;
-        backing.offset = memory_offset;
+        backing.offset = memory_offset >> block_shift; // blocks, as SubRange/CanMergeWith use
         resident_ranges.Add(backing);
 
         LOG_INFO(Render, "Making range start={}, end={} resident", backing.start, backing.end);

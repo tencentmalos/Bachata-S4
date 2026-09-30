@@ -985,8 +985,15 @@ void Instance::CollectPhysicalMemoryInfo() {
     }
     // Leave at least 8 GB for the system on integrated GPUs.
     const s64 available_memory = static_cast<s64>(total_memory_budget - device_initial_usage);
+#ifdef __ANDROID__
+    // Mobile UMA: the device-local heap already is the driver's share of RAM and there are no
+    // 8 GB to leave; keep the heap as the texture GC budget (about 11 GiB on Swan and Thor).
     total_memory_budget =
         static_cast<u64>(std::max<s64>(available_memory - 8_GB, static_cast<s64>(local_memory)));
+#else
+    total_memory_budget =
+        static_cast<u64>(std::max<s64>(available_memory - 8_GB, static_cast<s64>(2_GB)));
+#endif
 }
 
 void Instance::CollectImageFormatInfo() {
