@@ -160,7 +160,8 @@ s32 PS4_SYSV_ABI open(const char* raw_path, s32 flags, u16 mode) {
         // If we're not creating a file, and it doesn't exist, return ENOENT
         h->DeleteHandle(handle);
         *__Error() = POSIX_ENOENT;
-        LOG_ERROR(Kernel_Fs, "Opening path {} failed, file does not exist", raw_path);
+        // Games probe for optional files; a missing one is an ordinary result.
+        LOG_INFO(Kernel_Fs, "Open {}: not found", raw_path);
         return -1;
     }
 

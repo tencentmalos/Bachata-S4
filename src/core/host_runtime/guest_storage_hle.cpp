@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <cerrno>
 #include <cstring>
 #if defined(__ANDROID__)
 #include <android/log.h>
 #include <sys/system_properties.h>
 #endif
+#include <magic_enum/magic_enum.hpp>
 #include "common/logging/log.h"
 #include "common/elf_info.h"
 #include "common/profiler.h"
@@ -71,10 +73,22 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         return e.posix ? posix_failure(posix)
                        : static_cast<u64>(s64(Libraries::Kernel::ErrnoToSceKernelError(posix)));
     };
-    auto io = [&](GuestStorage::IoResult r) -> u64 {
-        if (r.error)
-            LOG_WARNING(Lib_SaveData, "Session file nid={} error={} result={}", e.nid, r.error,
-                        r.value);
+    // A path lookup that finds nothing is an ordinary result (games probe optional files);
+    // any other failure is unexpected. `path` names the guest path of path operations.
+    auto io = [&](GuestStorage::IoResult r, std::string_view path = {}) -> u64 {
+        if (r.error) {
+            const auto op = magic_enum::enum_name(e.op);
+            const auto separator = path.empty() ? "" : " ";
+            if (r.error == ENOENT && !path.empty()) {
+                LOG_INFO(Kernel_Fs, "{} {}: not found", op, path);
+            } else if (e.save) {
+                LOG_WARNING(Lib_SaveData, "{}{}{} failed: errno {} (nid={})", op, separator, path,
+                            r.error, e.nid);
+            } else {
+                LOG_WARNING(Kernel_Fs, "{}{}{} failed: errno {} (nid={})", op, separator, path,
+                            r.error, e.nid);
+            }
+        }
         return r.error ? error(r.error) : u64(r.value);
     };
     // No guest pin crosses filesystem work. Re-admit every output with all
@@ -300,7 +314,7 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
                 Libraries::Kernel::OrbisKernelStat value{};
                 // Reuse the session namespace: ZAR overlays, save/temporary
                 // mounts and admitted devices must agree with open/stat.
-                return io(slow([&] { return storage.Stat(path, value); }));
+                return io(slow([&] { return storage.Stat(path, value); }), path);
             }
             path += c;
         }
@@ -314,17 +328,19 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
             return error(EFAULT);
         Stat value{};
         GuestStorage::IoResult result{};
+        std::string path;
         if (e.op == StorageOp::Stat) {
-            auto path = String(space, a[0], 1024);
-            if (!path)
+            auto guest_path = String(space, a[0], 1024);
+            if (!guest_path)
                 return error(EFAULT);
-            result = slow([&] { return storage.Stat(*path, value); });
+            path = std::move(*guest_path);
+            result = slow([&] { return storage.Stat(path, value); });
         } else {
             result = slow([&] { return storage.Fstat(s32(a[0]), value); });
         }
         if (!result.error)
             std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(value));
-        return io(result);
+        return io(result, path);
     }
     case StorageOp::Truncate:
         return io(slow([&] { return storage.Truncate(s32(a[0]), s64(a[1])); }));
@@ -577,18 +593,18 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
                 __android_log_print(ANDROID_LOG_INFO, "GuestStorage", "open path=%s flags=%x fd=%lld error=%d",
                                     path->c_str(), u32(a[1]), (long long)result.value, result.error);
 #endif
-            return io(result);
+            return io(result, *path);
         }
         if (e.op == StorageOp::Mkdir)
-            return io(slow([&] { return storage.Mkdir(*path, a[1]); }));
+            return io(slow([&] { return storage.Mkdir(*path, a[1]); }), *path);
         if (e.op == StorageOp::Rmdir)
-            return io(slow([&] { return storage.Rmdir(*path); }));
+            return io(slow([&] { return storage.Rmdir(*path); }), *path);
         if (e.op == StorageOp::Unlink)
-            return io(slow([&] { return storage.Unlink(*path); }));
+            return io(slow([&] { return storage.Unlink(*path); }), *path);
         auto to = String(space, a[1], 1024);
         if (!to)
             return error(EFAULT);
-        return io(slow([&] { return storage.Rename(*path, *to); }));
+        return io(slow([&] { return storage.Rename(*path, *to); }), *path + " -> " + *to);
     }
     case StorageOp::Close:
         return io(slow([&] { return storage.Close(s32(a[0])); }));
