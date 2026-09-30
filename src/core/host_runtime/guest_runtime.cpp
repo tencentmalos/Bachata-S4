@@ -2438,9 +2438,12 @@ void GuestRuntime::Impl::InstallHandlers() {
     pthread_bind("ytQULN-nhL4", "6ULAa0fq4jA", [this](const auto& a) { return rwlock_domain->Init(a[0], a[1]); });
     pthread_bind("1471ajPzxh0", "BB+kb08Tl9A", [this](const auto& a) { return rwlock_domain->Destroy(a[0]); });
     pthread_bind("EgmLo6EWgso", "+L98PIbGttk", [this](const auto& a) { return rwlock_domain->Unlock(a[0], Current()->id); });
-    auto rw_lock = [this](const auto& a, bool write, bool attempt, bool timed) {
+    // The POSIX timed locks take an absolute timespec; scePthreadRwlockTimed{rd,wr}lock and
+    // pthread_rwlock_reltimed{rd,wr}lock_np take a timeout relative to now in microseconds.
+    enum class RwTimeout { None, Absolute, RelativeUs };
+    auto rw_lock = [this](const auto& a, bool write, bool attempt, RwTimeout timeout) {
         std::optional<std::chrono::system_clock::time_point> deadline;
-        if (timed) {
+        if (timeout == RwTimeout::Absolute) {
             Libraries::Kernel::OrbisKernelTimespec ts{};
             if (!space.ReadData(GuestAddress{a[1]}, std::as_writable_bytes(std::span{&ts, 1})))
                 return POSIX_EFAULT;
@@ -2448,15 +2451,19 @@ void GuestRuntime::Impl::InstallHandlers() {
             if (!GuestClock::Duration(ts, duration)) return POSIX_EINVAL;
             deadline = std::chrono::system_clock::time_point(
                 std::chrono::duration_cast<std::chrono::system_clock::duration>(duration));
+        } else if (timeout == RwTimeout::RelativeUs) {
+            deadline = std::chrono::system_clock::now() + std::chrono::microseconds{u32(a[1])};
         }
         return rwlock_domain->Lock(a[0], Current()->id, write, attempt, HleScope::Current()->CancellationToken(), deadline);
     };
-    pthread_bind("iGjsr1WAtI0", "Ox9i0c7L5w0", [rw_lock](const auto& a) { return rw_lock(a, false, false, false); });
-    pthread_bind("sIlRvQqsN2Y", "mqdNorrB+gI", [rw_lock](const auto& a) { return rw_lock(a, true, false, false); });
-    pthread_bind("SFxTMOfuCkE", "XD3mDeybCnk", [rw_lock](const auto& a) { return rw_lock(a, false, true, false); });
-    pthread_bind("XhWHn6P5R7U", "bIHoZCTomsI", [rw_lock](const auto& a) { return rw_lock(a, true, true, false); });
-    pthread_bind("lb8lnYo-o7k", "iPtZRWICjrM", [rw_lock](const auto& a) { return rw_lock(a, false, false, true); });
-    pthread_bind("9zklzAl9CGM", "adh--6nIqTk", [rw_lock](const auto& a) { return rw_lock(a, true, false, true); });
+    pthread_bind("iGjsr1WAtI0", "Ox9i0c7L5w0", [rw_lock](const auto& a) { return rw_lock(a, false, false, RwTimeout::None); });
+    pthread_bind("sIlRvQqsN2Y", "mqdNorrB+gI", [rw_lock](const auto& a) { return rw_lock(a, true, false, RwTimeout::None); });
+    pthread_bind("SFxTMOfuCkE", "XD3mDeybCnk", [rw_lock](const auto& a) { return rw_lock(a, false, true, RwTimeout::None); });
+    pthread_bind("XhWHn6P5R7U", "bIHoZCTomsI", [rw_lock](const auto& a) { return rw_lock(a, true, true, RwTimeout::None); });
+    bind({"lb8lnYo-o7k"}, [rw_lock](const auto& a) -> u64 { return rw_lock(a, false, false, RwTimeout::Absolute); });
+    bind({"9zklzAl9CGM"}, [rw_lock](const auto& a) -> u64 { return rw_lock(a, true, false, RwTimeout::Absolute); });
+    pthread_bind("dYv-+If2GPk", "iPtZRWICjrM", [rw_lock](const auto& a) { return rw_lock(a, false, false, RwTimeout::RelativeUs); });
+    pthread_bind("RRnSj8h8VR4", "adh--6nIqTk", [rw_lock](const auto& a) { return rw_lock(a, true, false, RwTimeout::RelativeUs); });
     // The guest fast path only touches objects inside one arena window whose
     // bounds it learns at publication (InstallSyncFastPath). Reserve that window
     // here, before any object exists: address space only, pages are committed as
