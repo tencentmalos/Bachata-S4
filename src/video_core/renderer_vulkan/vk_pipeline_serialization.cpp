@@ -21,11 +21,11 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 25u; // GDS instructions add the M0 base
+static constexpr u32 ShaderBinaryVersion = 26u; // upstream 0930 sync: 1D/cube lowering, F64 ops
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 14u; // sample coverage in fragment runtime info
+static constexpr u32 ShaderMetaVersion = 15u; // sharp fetch summary, no is_cube
 #else
-static constexpr u32 ShaderMetaVersion = 15u; // sample coverage in fragment runtime info
+static constexpr u32 ShaderMetaVersion = 16u; // sharp fetch summary, no is_cube
 #endif
 static constexpr u32 PipelineKeyVersion = 6u; // indirect draw base vertex/instance parameters
 } // namespace Serialization
