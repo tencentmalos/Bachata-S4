@@ -53,10 +53,11 @@
 | `f83549a3` | `SanitizeCopyLayers: Coercing copy source layers N and destination layers N+1` | 来自 `ExpandImage`：数组图按层数增长重建（血源 1→6 层各一次），把旧图全部层拷进新图前几层是预期结果。只在目标层数少于源、确实丢层时告警。 |
 | `5c099096` | `[Error] GetInstanceLayers: Failed to query layer properties: Success` | 没有安装任何 instance layer 是 Android 常态，查询成功时不再报错；请求了但缺失的 layer 仍逐个报错。 |
 | `23b6344b` | `Session file nid=1G3lF1Gg1k8 error=2 result=-1`（Android）/ 桌面 `[Error] Opening path ... failed, file does not exist` | 游戏探测可选文件，不存在是正常结果。改为 `Kernel_Fs` Info 级、带操作名和路径；其它失败仍为告警并带路径。 |
+| `b7f4a58a` | `[Error] ZArchive .../CUSA09554.zar has no directory 'update'`（血源会话里出现的是 MHW 包） | App 启动时库重扫经 `Mount` 读取每个归档的有效 `param.sfo`；all-in-one 包的 `update/` 是可选层（MHW 15.23 为合并包），`Mount` 却总去建该层。改为探测布局后仅在目录存在时挂载，与安装元数据检查一致。 |
 
 未改：`Skipping lowering for null buffer sharp`（上游 #5008，空 V# 读 0、写丢弃与 GCN 一致，每个着色器排列一次）、`RemoveUnreachableBlocks`、跳过模式的 `RecordEscape`（设计中的一次性回退提示）、加载器 `DT_FLAGS`/`Unimplemented type SCE ...` 与可选扩展缺失提示（均为上游、信息性且有界）。
 
-验证：桌面构建通过；桌面血源（新构建）进中央亚楠、30 FPS、画面正常，原 5 条层数告警消失，无 denorm/Render 错误，`config.json` 逐字节恢复。Android host/APK 构建通过，APK `07104e93…` 已装到 AYN（host `22ed1419…`）；装包时设备前台是其它应用（`com.tencentmalos.xrgamenative`），未启动游戏，Android 侧日志复核待设备空闲。
+验证：桌面构建通过；桌面血源（新构建）进中央亚楠、30 FPS、画面正常，原 5 条层数告警消失，无 denorm/Render 错误，`config.json` 逐字节恢复。Android host/APK 构建通过，APK `07104e93…` 已装到 AYN（host `22ed1419…`）；装包时设备前台是其它应用（`com.tencentmalos.xrgamenative`），未启动游戏，随后设备空闲时复测（APK `17c004e2…`，host `948fe410…`，含上表全部改动，Turnip 86ca）：血源经上次会话提示框、离线游玩、继续进入中央亚楠，约 24 FPS，走动约 1 分钟画面正常；fp16 denorm 提示只出现一次、fp64 与层数告警消失、`layer properties` 错误消失，缺失文件以 Info 带路径记录（与桌面同一批文件）。TMNT 标题 60 FPS → 继续冒险进巢穴 60 FPS、移动正常，ZArchive `update` 错误消失。两局均由界面 Stop 结束（`user_stop`），无崩溃；存档仅血源 4 个、TMNT 4 个文件正常推进，无新增删除，`global.json` 不变。现在带路径后可见的两条既有告警未改：TMNT 对 `save://` 的 `stat`/`mkdir` 得到 EINVAL（相对路径，真机返回值无参照，游戏照常继续），TMNT 在开始播放后立刻调用 `sceAvPlayerResume` 记 `Could not resume playback`（上游行为，桌面相同，视频正常播放）。
 
 ## 未合入
 
