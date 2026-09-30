@@ -88,16 +88,31 @@ std::optional<std::filesystem::path> ResolveGameRoot(const std::filesystem::path
     return std::nullopt;
 }
 
-bool IsAllInOneArchive(const std::filesystem::path& path) {
+namespace {
+struct AllInOneLayout {
+    bool all_in_one{};
+    bool has_update{};
+};
+
+AllInOneLayout ProbeAllInOneArchive(const std::filesystem::path& path) {
     if (!IsZArchiveFile(path)) {
-        return false;
+        return {};
     }
     ZArchiveBackend probe{path};
     if (!probe.IsOpen()) {
-        return false;
+        return {};
     }
     // sce_sys at the root means the archive *is* the game directory.
-    return !probe.Exists("sce_sys") && probe.IsDirectory(AllInOneApp);
+    if (probe.Exists("sce_sys") || !probe.IsDirectory(AllInOneApp)) {
+        return {};
+    }
+    // The update is optional: a merged package has none.
+    return {true, probe.IsDirectory(AllInOneUpdate)};
+}
+} // namespace
+
+bool IsAllInOneArchive(const std::filesystem::path& path) {
+    return ProbeAllInOneArchive(path).all_in_one;
 }
 
 std::vector<std::filesystem::path> ExpandBundleRoots(const std::filesystem::path& archive) {
@@ -211,15 +226,17 @@ void MntPoints::Mount(const std::filesystem::path& host_folder, const std::strin
         return CreateBackend(OverlayPath(base, suffix), /*ro=*/true);
     };
 
-    const bool all_in_one = eligible_for_overlays && IsAllInOneArchive(host_folder);
+    const auto layout =
+        eligible_for_overlays ? ProbeAllInOneArchive(host_folder) : AllInOneLayout{};
+    const bool all_in_one = layout.all_in_one;
     // check for mods , updates,patch
     if (eligible_for_overlays) {
         if (auto mods = probe_overlay(host_folder, ModsSuffix)) {
             stack.push_back(std::move(mods));
         }
         if (!ignore_game_patches) {
-            // An all-in-one archive carries its update inside, as "update/".
-            if (all_in_one) {
+            // An all-in-one archive may carry its update inside, as "update/".
+            if (layout.has_update) {
                 if (auto patch = CreateBackend(host_folder / AllInOneUpdate, /*ro=*/true)) {
                     stack.push_back(std::move(patch));
                 }
