@@ -1020,14 +1020,15 @@ static std::pair<u32, u32> SanitizeCopyLayers(const ImageInfo& src_info, const I
         dst_layers = 1;
     }
 
-    // If the image type is equal, layer count must match. Take the minimum of both.
+    // If the image type is equal, layer count must match: copy the layers both images have.
+    // A larger destination (an expanded image) receives every source layer.
     if (vk_src_type == vk_dst_type) {
-        if (src_layers != dst_layers) {
+        if (src_layers > dst_layers) {
             LOG_WARNING(Render_Vulkan,
-                        "Coercing copy source layers {} and destination layers {} to minimum.",
-                        src_layers, dst_layers);
-            src_layers = dst_layers = std::min(src_layers, dst_layers);
+                        "Copy drops source layers {}..{}: the destination has {} layers",
+                        dst_layers, src_layers - 1, dst_layers);
         }
+        src_layers = dst_layers = std::min(src_layers, dst_layers);
     } else {
         // For 2D <-> 3D copies, 2D layer count must equal 3D depth.
         if (vk_src_type == vk::ImageType::e2D && vk_dst_type == vk::ImageType::e3D &&
