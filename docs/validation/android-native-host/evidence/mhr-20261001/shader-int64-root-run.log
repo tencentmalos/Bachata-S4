@@ -1,0 +1,23 @@
+PROBE device=Turnip Adreno (TM) 740 nativeInt64=1 BDA=40000a6000
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=false
+generation=0
+driver=source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.3.0-devel (git-351a4847a0) shaderInt64=1 api=4211051 sha256=ff4464820fdd43824bb057e631d8393ad14ade7a901aa5a2fdcbcee4b1a6b31a 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+
+INT64_DEVICE 24580 checks / 0 failures
+FORTIFY: pthread_mutex_destroy called on a destroyed mutex (0xb400007b2b9ab7e8)
+Aborted 

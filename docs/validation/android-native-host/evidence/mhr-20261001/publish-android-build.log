@@ -1,0 +1,421 @@
+Picked up JAVA_TOOL_OPTIONS: -Djava.io.tmpdir=/private/tmp
+> Task :foundation-input-android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :foundation-input-android:preBuild UP-TO-DATE
+> Task :foundation-input-android:preDebugBuild UP-TO-DATE
+> Task :foundation-input-android:generateDebugResValues UP-TO-DATE
+> Task :foundation-input-android:generateDebugResources UP-TO-DATE
+> Task :foundation-input-android:packageDebugResources UP-TO-DATE
+> Task :foundation-input-android:processDebugNavigationResources UP-TO-DATE
+> Task :foundation-input-android:parseDebugLocalResources UP-TO-DATE
+> Task :foundation-input-android:generateDebugRFile UP-TO-DATE
+> Task :foundation-input-android:compileDebugKotlin UP-TO-DATE
+> Task :foundation-input-android:javaPreCompileDebug UP-TO-DATE
+> Task :foundation-input-android:compileDebugJavaWithJavac NO-SOURCE
+> Task :foundation-input-android:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :foundation-input-android:processDebugJavaRes UP-TO-DATE
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:preBuild UP-TO-DATE
+> Task :core:model:preDebugBuild UP-TO-DATE
+> Task :core:model:generateDebugResValues UP-TO-DATE
+> Task :core:model:generateDebugResources UP-TO-DATE
+> Task :core:model:packageDebugResources UP-TO-DATE
+> Task :core:model:processDebugNavigationResources UP-TO-DATE
+> Task :core:model:parseDebugLocalResources UP-TO-DATE
+> Task :core:model:generateDebugRFile UP-TO-DATE
+> Task :core:model:compileDebugKotlin UP-TO-DATE
+> Task :core:model:javaPreCompileDebug UP-TO-DATE
+> Task :core:model:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:model:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:model:processDebugJavaRes UP-TO-DATE
+> Task :foundation-input-android:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:model:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:runtime:packageGpuReshape UP-TO-DATE
+> Task :core:runtime:packageNativeHooks UP-TO-DATE
+
+> Task :core:runtime:packageSourceTurnip
+TURNIP_PACKAGE_PASS ff4464820fdd43824bb057e631d8393ad14ade7a901aa5a2fdcbcee4b1a6b31a
+
+> Task :core:runtime:preBuild
+> Task :core:runtime:preDebugBuild
+> Task :core:runtime:generateDebugResValues UP-TO-DATE
+> Task :core:runtime:generateDebugResources UP-TO-DATE
+> Task :core:runtime:packageDebugResources UP-TO-DATE
+> Task :core:runtime:processDebugNavigationResources UP-TO-DATE
+> Task :core:runtime:parseDebugLocalResources UP-TO-DATE
+> Task :core:runtime:generateDebugRFile UP-TO-DATE
+> Task :core:runtime:compileDebugKotlin UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebug UP-TO-DATE
+> Task :core:runtime:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:runtime:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:runtime:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:preDebugUnitTestBuild
+> Task :core:runtime:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:runtime:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:runtime:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:runtime:processDebugJavaRes UP-TO-DATE
+> Task :core:runtime:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:runtime:testDebugUnitTest UP-TO-DATE
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:generateDebugResValues UP-TO-DATE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:database:generateDebugResValues UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:database:processDebugNavigationResources UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:database:compileDebugKotlin UP-TO-DATE
+> Task :core:database:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:database:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:data:kspDebugKotlin UP-TO-DATE
+> Task :core:data:compileDebugKotlin UP-TO-DATE
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:data:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:data:transformDebugClassesWithAsm UP-TO-DATE
+> Task :core:data:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+> Task :core:database:processDebugJavaRes UP-TO-DATE
+> Task :core:designsystem:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:designsystem:preBuild UP-TO-DATE
+> Task :core:designsystem:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:generateDebugResValues UP-TO-DATE
+> Task :core:designsystem:generateDebugResources UP-TO-DATE
+> Task :core:designsystem:packageDebugResources UP-TO-DATE
+> Task :core:designsystem:processDebugNavigationResources UP-TO-DATE
+> Task :core:designsystem:parseDebugLocalResources UP-TO-DATE
+> Task :core:designsystem:generateDebugRFile UP-TO-DATE
+> Task :core:designsystem:compileDebugKotlin UP-TO-DATE
+> Task :core:designsystem:javaPreCompileDebug UP-TO-DATE
+> Task :core:designsystem:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:designsystem:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:designsystem:processDebugJavaRes UP-TO-DATE
+> Task :feature:session:preBuild UP-TO-DATE
+> Task :feature:session:preDebugBuild UP-TO-DATE
+> Task :core:data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:designsystem:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:session:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:session:generateDebugResValues UP-TO-DATE
+> Task :feature:session:generateDebugResources UP-TO-DATE
+> Task :feature:session:packageDebugResources UP-TO-DATE
+> Task :feature:session:processDebugNavigationResources UP-TO-DATE
+> Task :feature:session:parseDebugLocalResources UP-TO-DATE
+> Task :feature:session:generateDebugRFile UP-TO-DATE
+> Task :feature:session:kspDebugKotlin UP-TO-DATE
+> Task :feature:session:compileDebugKotlin UP-TO-DATE
+> Task :feature:session:javaPreCompileDebug UP-TO-DATE
+> Task :feature:session:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:session:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:session:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:session:processDebugJavaRes UP-TO-DATE
+> Task :feature:settings:preBuild UP-TO-DATE
+> Task :feature:settings:preDebugBuild UP-TO-DATE
+> Task :feature:session:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:settings:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:settings:generateDebugResValues UP-TO-DATE
+> Task :feature:settings:generateDebugResources UP-TO-DATE
+> Task :feature:settings:packageDebugResources UP-TO-DATE
+> Task :feature:settings:processDebugNavigationResources UP-TO-DATE
+> Task :feature:settings:parseDebugLocalResources UP-TO-DATE
+> Task :feature:settings:generateDebugRFile UP-TO-DATE
+> Task :feature:settings:kspDebugKotlin UP-TO-DATE
+> Task :feature:settings:compileDebugKotlin UP-TO-DATE
+> Task :feature:settings:javaPreCompileDebug UP-TO-DATE
+> Task :feature:settings:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:settings:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:settings:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:settings:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:settings:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :feature:settings:processDebugJavaRes UP-TO-DATE
+> Task :feature:settings:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:settings:kspDebugUnitTestKotlin UP-TO-DATE
+> Task :feature:settings:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:prepareNativeTurnip UP-TO-DATE
+> Task :app:prepareXrStatusFont UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:prePlaystoreDebugBuild UP-TO-DATE
+> Task :app:mergePlaystoreDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generatePlaystoreDebugBuildConfig UP-TO-DATE
+> Task :foundation-input-android:writeDebugAarMetadata UP-TO-DATE
+> Task :core:data:writeDebugAarMetadata UP-TO-DATE
+> Task :core:database:writeDebugAarMetadata UP-TO-DATE
+> Task :core:designsystem:writeDebugAarMetadata UP-TO-DATE
+> Task :core:model:writeDebugAarMetadata UP-TO-DATE
+> Task :core:runtime:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:drivers:preBuild UP-TO-DATE
+> Task :feature:drivers:preDebugBuild UP-TO-DATE
+> Task :feature:drivers:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:library:preBuild UP-TO-DATE
+> Task :feature:library:preDebugBuild UP-TO-DATE
+> Task :feature:library:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:session:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:settings:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:setup:preBuild UP-TO-DATE
+> Task :feature:setup:preDebugBuild UP-TO-DATE
+> Task :feature:setup:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkPlaystoreDebugAarMetadata UP-TO-DATE
+> Task :feature:drivers:processDebugNavigationResources UP-TO-DATE
+> Task :feature:library:processDebugNavigationResources UP-TO-DATE
+> Task :feature:setup:processDebugNavigationResources UP-TO-DATE
+> Task :app:processPlaystoreDebugNavigationResources UP-TO-DATE
+> Task :app:compilePlaystoreDebugNavigationResources UP-TO-DATE
+> Task :app:generatePlaystoreDebugResValues UP-TO-DATE
+> Task :feature:drivers:generateDebugResValues UP-TO-DATE
+> Task :feature:drivers:generateDebugResources UP-TO-DATE
+> Task :feature:drivers:packageDebugResources UP-TO-DATE
+> Task :feature:library:generateDebugResValues UP-TO-DATE
+> Task :feature:library:generateDebugResources UP-TO-DATE
+> Task :feature:library:packageDebugResources UP-TO-DATE
+> Task :feature:setup:generateDebugResValues UP-TO-DATE
+> Task :feature:setup:generateDebugResources UP-TO-DATE
+> Task :feature:setup:packageDebugResources UP-TO-DATE
+> Task :app:mapPlaystoreDebugSourceSetPaths UP-TO-DATE
+> Task :app:generatePlaystoreDebugResources UP-TO-DATE
+> Task :app:mergePlaystoreDebugResources UP-TO-DATE
+> Task :app:packagePlaystoreDebugResources UP-TO-DATE
+> Task :app:parsePlaystoreDebugLocalResources UP-TO-DATE
+> Task :app:createPlaystoreDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksPlaystoreDebug UP-TO-DATE
+> Task :foundation-input-android:extractDeepLinksDebug UP-TO-DATE
+> Task :foundation-input-android:processDebugManifest UP-TO-DATE
+> Task :core:data:extractDeepLinksDebug UP-TO-DATE
+> Task :core:data:processDebugManifest UP-TO-DATE
+> Task :core:database:extractDeepLinksDebug UP-TO-DATE
+> Task :core:database:processDebugManifest UP-TO-DATE
+> Task :core:designsystem:extractDeepLinksDebug UP-TO-DATE
+> Task :core:designsystem:processDebugManifest UP-TO-DATE
+> Task :core:model:extractDeepLinksDebug UP-TO-DATE
+> Task :core:model:processDebugManifest UP-TO-DATE
+> Task :core:runtime:extractDeepLinksDebug UP-TO-DATE
+> Task :core:runtime:processDebugManifest UP-TO-DATE
+> Task :feature:drivers:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:drivers:processDebugManifest UP-TO-DATE
+> Task :feature:library:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:library:processDebugManifest UP-TO-DATE
+> Task :feature:session:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:session:processDebugManifest UP-TO-DATE
+> Task :feature:settings:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:settings:processDebugManifest UP-TO-DATE
+> Task :feature:setup:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:setup:processDebugManifest UP-TO-DATE
+> Task :app:processPlaystoreDebugMainManifest UP-TO-DATE
+> Task :app:processPlaystoreDebugManifest UP-TO-DATE
+> Task :app:processPlaystoreDebugManifestForPackage UP-TO-DATE
+> Task :foundation-input-android:compileDebugLibraryResources UP-TO-DATE
+> Task :core:data:compileDebugLibraryResources UP-TO-DATE
+> Task :core:database:compileDebugLibraryResources UP-TO-DATE
+> Task :core:designsystem:compileDebugLibraryResources UP-TO-DATE
+> Task :core:model:compileDebugLibraryResources UP-TO-DATE
+> Task :core:runtime:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:drivers:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:drivers:parseDebugLocalResources UP-TO-DATE
+> Task :feature:drivers:generateDebugRFile UP-TO-DATE
+> Task :feature:library:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:library:parseDebugLocalResources UP-TO-DATE
+> Task :feature:library:generateDebugRFile UP-TO-DATE
+> Task :feature:session:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:settings:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:setup:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:setup:parseDebugLocalResources UP-TO-DATE
+> Task :feature:setup:generateDebugRFile UP-TO-DATE
+> Task :app:processPlaystoreDebugResources UP-TO-DATE
+> Task :feature:drivers:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:drivers:kspDebugKotlin UP-TO-DATE
+> Task :feature:drivers:compileDebugKotlin UP-TO-DATE
+> Task :feature:drivers:javaPreCompileDebug UP-TO-DATE
+> Task :feature:drivers:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:drivers:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:drivers:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:library:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:library:kspDebugKotlin UP-TO-DATE
+> Task :feature:library:compileDebugKotlin UP-TO-DATE
+> Task :feature:library:javaPreCompileDebug UP-TO-DATE
+> Task :feature:library:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:library:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:library:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:setup:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:setup:kspDebugKotlin UP-TO-DATE
+> Task :feature:setup:compileDebugKotlin UP-TO-DATE
+> Task :feature:setup:javaPreCompileDebug UP-TO-DATE
+> Task :feature:setup:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:setup:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:setup:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:kspPlaystoreDebugKotlin UP-TO-DATE
+> Task :app:compilePlaystoreDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompilePlaystoreDebug UP-TO-DATE
+> Task :app:compilePlaystoreDebugJavaWithJavac UP-TO-DATE
+> Task :app:mergePlaystoreDebugShaders UP-TO-DATE
+> Task :app:compilePlaystoreDebugShaders NO-SOURCE
+> Task :app:generatePlaystoreDebugAssets UP-TO-DATE
+> Task :foundation-input-android:mergeDebugShaders UP-TO-DATE
+> Task :foundation-input-android:compileDebugShaders NO-SOURCE
+> Task :foundation-input-android:generateDebugAssets UP-TO-DATE
+> Task :foundation-input-android:mergeDebugAssets UP-TO-DATE
+> Task :core:data:mergeDebugShaders UP-TO-DATE
+> Task :core:data:compileDebugShaders NO-SOURCE
+> Task :core:data:generateDebugAssets UP-TO-DATE
+> Task :core:data:mergeDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugShaders UP-TO-DATE
+> Task :core:database:compileDebugShaders NO-SOURCE
+> Task :core:database:generateDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugAssets UP-TO-DATE
+> Task :core:designsystem:mergeDebugShaders UP-TO-DATE
+> Task :core:designsystem:compileDebugShaders NO-SOURCE
+> Task :core:designsystem:generateDebugAssets UP-TO-DATE
+> Task :core:designsystem:mergeDebugAssets UP-TO-DATE
+> Task :core:model:mergeDebugShaders UP-TO-DATE
+> Task :core:model:compileDebugShaders NO-SOURCE
+> Task :core:model:generateDebugAssets UP-TO-DATE
+> Task :core:model:mergeDebugAssets UP-TO-DATE
+> Task :core:runtime:mergeDebugShaders UP-TO-DATE
+> Task :core:runtime:compileDebugShaders NO-SOURCE
+> Task :core:runtime:generateDebugAssets UP-TO-DATE
+> Task :core:runtime:mergeDebugAssets
+> Task :feature:drivers:mergeDebugShaders UP-TO-DATE
+> Task :feature:drivers:compileDebugShaders NO-SOURCE
+> Task :feature:drivers:generateDebugAssets UP-TO-DATE
+> Task :feature:drivers:mergeDebugAssets UP-TO-DATE
+> Task :feature:library:mergeDebugShaders UP-TO-DATE
+> Task :feature:library:compileDebugShaders NO-SOURCE
+> Task :feature:library:generateDebugAssets UP-TO-DATE
+> Task :feature:library:mergeDebugAssets UP-TO-DATE
+> Task :feature:session:mergeDebugShaders UP-TO-DATE
+> Task :feature:session:compileDebugShaders NO-SOURCE
+> Task :feature:session:generateDebugAssets UP-TO-DATE
+> Task :feature:session:mergeDebugAssets UP-TO-DATE
+> Task :feature:settings:mergeDebugShaders UP-TO-DATE
+> Task :feature:settings:compileDebugShaders NO-SOURCE
+> Task :feature:settings:generateDebugAssets UP-TO-DATE
+> Task :feature:settings:mergeDebugAssets UP-TO-DATE
+> Task :feature:setup:mergeDebugShaders UP-TO-DATE
+> Task :feature:setup:compileDebugShaders NO-SOURCE
+> Task :feature:setup:generateDebugAssets UP-TO-DATE
+> Task :feature:setup:mergeDebugAssets UP-TO-DATE
+> Task :app:mergePlaystoreDebugAssets
+> Task :app:checkPlaystoreDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarPlaystoreDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexPlaystoreDebug UP-TO-DATE
+> Task :feature:setup:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:library:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:settings:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:session:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:drivers:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:designsystem:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:data:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:runtime:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:model:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:compressPlaystoreDebugAssets
+> Task :foundation-input-android:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:setup:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:library:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:drivers:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:drivers:processDebugJavaRes UP-TO-DATE
+> Task :app:hiltAggregateDepsPlaystoreDebug UP-TO-DATE
+> Task :app:mergeLibDexPlaystoreDebug UP-TO-DATE
+> Task :app:hiltJavaCompilePlaystoreDebug UP-TO-DATE
+> Task :app:transformPlaystoreDebugClassesWithAsm UP-TO-DATE
+> Task :app:dexBuilderPlaystoreDebug UP-TO-DATE
+> Task :app:mergePlaystoreDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processPlaystoreDebugJavaRes UP-TO-DATE
+> Task :feature:library:processDebugJavaRes UP-TO-DATE
+> Task :feature:setup:processDebugJavaRes UP-TO-DATE
+> Task :app:mergePlaystoreDebugJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexPlaystoreDebug UP-TO-DATE
+> Task :app:mergePlaystoreDebugJniLibFolders UP-TO-DATE
+> Task :foundation-input-android:mergeDebugJniLibFolders UP-TO-DATE
+> Task :foundation-input-android:mergeDebugNativeLibs NO-SOURCE
+> Task :foundation-input-android:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:data:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:data:mergeDebugNativeLibs NO-SOURCE
+> Task :core:data:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:database:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:database:mergeDebugNativeLibs NO-SOURCE
+> Task :core:database:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:designsystem:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:designsystem:mergeDebugNativeLibs NO-SOURCE
+> Task :core:designsystem:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:model:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:model:mergeDebugNativeLibs NO-SOURCE
+> Task :core:model:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:runtime:configureCMakeRelWithDebInfo[arm64-v8a]
+
+> Task :feature:settings:compileDebugUnitTestKotlin FAILED
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:41:49 No value passed for parameter 'games'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:41:49 No value passed for parameter 'context'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:47:39 No value passed for parameter 'games'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:47:39 No value passed for parameter 'context'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:68:39 No value passed for parameter 'games'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:68:39 No value passed for parameter 'context'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:87:39 No value passed for parameter 'games'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:87:39 No value passed for parameter 'context'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:106:43 No value passed for parameter 'games'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:106:43 No value passed for parameter 'context'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:140:39 No value passed for parameter 'games'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/SettingsViewModelTest.kt:140:39 No value passed for parameter 'context'.
+
+> Task :core:runtime:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C++: ninja: Entering directory `/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/.cxx/RelWithDebInfo/2l6c2f5c/arm64-v8a'
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp:1:
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/host_passes/spatial_upscale.h:9:
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/Foveation.h:10:
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:8:
+C/C++: /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/basic/underlying/math/public/spatial/math/Half.hpp:202:64: warning: 'denorm_absent' is deprecated [-Wdeprecated-declarations]
+C/C++:   202 |         static constexpr const float_denorm_style has_denorm = denorm_absent;
+C/C++:       |                                                                ^
+C/C++: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/limits:131:6: note: 'float_denorm_style' has been explicitly marked deprecated here
+C/C++:   131 | enum _LIBCPP_DEPRECATED_IN_CXX23 float_denorm_style {
+C/C++:       |      ^
+C/C++: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:737:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX23'
+C/C++:   737 | #    define _LIBCPP_DEPRECATED_IN_CXX23 _LIBCPP_DEPRECATED
+C/C++:       |                                         ^
+C/C++: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:698:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+C/C++:   698 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+C/C++:       |                                                 ^
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp:1:
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/host_passes/spatial_upscale.h:9:
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/cmake/../foundation/modules/foveation/include/spatial/foveation/Foveation.h:10:
+C/C++: In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/basic/underlying/math/public/spatial/math/SpatialMath.hpp:8:
+C/C++: /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/basic/underlying/math/public/spatial/math/Half.hpp:202:32: warning: 'float_denorm_style' is deprecated [-Wdeprecated-declarations]
+C/C++:   202 |         static constexpr const float_denorm_style has_denorm = denorm_absent;
+C/C++:       |                                ^
+C/C++: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/limits:131:6: note: 'float_denorm_style' has been explicitly marked deprecated here
+C/C++:   131 | enum _LIBCPP_DEPRECATED_IN_CXX23 float_denorm_style {
+C/C++:       |      ^
+C/C++: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:737:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX23'
+C/C++:   737 | #    define _LIBCPP_DEPRECATED_IN_CXX23 _LIBCPP_DEPRECATED
+C/C++:       |                                         ^
+C/C++: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__config:698:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+C/C++:   698 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+C/C++:       |                                                 ^
+C/C++: 2 warnings generated.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':feature:settings:compileDebugUnitTestKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 9s
+280 actionable tasks: 7 executed, 273 up-to-date

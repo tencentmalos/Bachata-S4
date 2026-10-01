@@ -1,0 +1,10 @@
+DMA probe base=7e441dc000 maxStorageBufferRange=134217728
+DMA read int64=1 round=0 table_offset=fc88488 entry=406ed63000
+DMA read int64=1 round=1 table_offset=fc88488 entry=406ed63000
+DMA read int64=1 round=2 table_offset=fc88488 entry=406ed63000
+DMA read int64=1 round=3 table_offset=fc88488 entry=406ed63000
+DMA read int64=0 round=0 table_offset=fc884a0 entry=406ed6f000
+DMA read int64=0 round=1 table_offset=fc884a0 entry=406ed6f000
+DMA read int64=0 round=2 table_offset=fc884a0 entry=406ed6f000
+DMA read int64=0 round=3 table_offset=fc884a0 entry=406ed6f000
+dma residency: 25358 checks, 0 failures

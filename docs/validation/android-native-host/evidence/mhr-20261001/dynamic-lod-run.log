@@ -1,0 +1,10 @@
+2d failures=0
+2d-bias-plus failures=0
+2d-bias-minus failures=0
+1d failures=0
+1d-array failures=0
+2d-array failures=0
+cube failures=0
+depth failures=0
+depth-bias failures=0
+DYNAMIC_LOD 6912 checks / 0 failures

@@ -1,0 +1,20 @@
+FAIL reported count stays within allocation
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL all pages eventually drained
+FAIL reported count stays within allocation
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAIL all pages eventually drained
+FAIL reported count stays within allocation
+FAIL overflow bitmap retains every unreported page
+FAIL overflow bitmap retains every unreported page
+FAULT_BUFFER_GPU checks=8840 failures=24

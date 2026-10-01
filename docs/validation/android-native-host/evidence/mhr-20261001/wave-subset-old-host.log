@@ -1,0 +1,27 @@
+FAIL old umin case=1 seed=12345678 lane=0 field=1 got=00000000 want=000847df
+FAIL old umin case=1 seed=12345678 lane=1 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=2 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=3 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=4 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=5 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=6 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=7 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=8 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=9 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=10 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=11 field=1 got=0003960d want=000847df
+FAIL new or-exec-subset case=1 seed=12345678 lane=0 field=1 got=00000000 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=1 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=2 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=3 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=4 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=5 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=6 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=7 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=8 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=9 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=10 field=1 got=92be3ba3 want=02606126
+FAIL new or-exec-subset case=1 seed=12345678 lane=11 field=1 got=92be3ba3 want=02606126
+WAVE_REDUCTION old 27648 checks / 4665 failures, new 27650 checks / 2354 failures
+FORTIFY: pthread_mutex_destroy called on a destroyed mutex (0xb400007af6c1c728)
+Aborted 

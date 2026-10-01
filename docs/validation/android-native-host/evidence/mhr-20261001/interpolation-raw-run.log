@@ -1,0 +1,15 @@
+affine failures=0
+perspective failures=0
+clip-block failures=0
+centroid failures=0
+sample failures=0
+pull-model failures=0
+raw-positive-nan failures=0
+raw-negative-nan failures=0
+raw-signaling-nan failures=0
+raw-positive-infinity failures=0
+raw-negative-infinity failures=0
+raw-subnormal failures=0
+raw-negative-zero failures=0
+raw-all-ones failures=0
+INTERPOLATION_DEVICE 4480 checks / 0 failures

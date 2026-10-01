@@ -1,0 +1,18 @@
+DMA probe base=220000000 maxStorageBufferRange=134217728
+DMA read int64=1 round=0 table_offset=4400d0 entry=404ab84000
+DMA read int64=1 round=1 lane=0 got=00000000 expected=9722a9e1
+DMA read int64=1 round=1 lane=1 got=00000000 expected=355a239a
+DMA read int64=1 round=1 lane=2 got=00000000 expected=d3919d53
+DMA read int64=1 round=1 lane=3 got=00000000 expected=71c9170c
+DMA read int64=1 round=1 lane=4 got=00000000 expected=100090c5
+DMA read int64=1 round=1 lane=5 got=00000000 expected=ae380a7e
+DMA read int64=1 round=1 lane=6 got=00000000 expected=4c6f8437
+DMA read int64=1 round=1 lane=7 got=00000000 expected=eaa6fdf0
+DMA read int64=1 round=1 table_offset=4400d0 entry=404ab84000
+DMA read int64=1 round=2 table_offset=4400d0 entry=404ab84000
+DMA read int64=1 round=3 table_offset=4400d0 entry=404ab84000
+DMA read int64=0 round=0 table_offset=4400e8 entry=404ab90000
+DMA read int64=0 round=1 table_offset=4400e8 entry=404ab90000
+DMA read int64=0 round=2 table_offset=4400e8 entry=404ab90000
+DMA read int64=0 round=3 table_offset=4400e8 entry=404ab90000
+dma residency: 25101 checks, 384 failures

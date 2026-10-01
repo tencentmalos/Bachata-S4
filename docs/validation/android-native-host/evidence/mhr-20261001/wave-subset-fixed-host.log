@@ -1,0 +1,13 @@
+FAIL old umin case=1 seed=12345678 lane=0 field=1 got=3da62985 want=000847df
+FAIL old umin case=1 seed=12345678 lane=1 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=2 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=3 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=4 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=5 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=6 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=7 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=8 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=9 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=10 field=1 got=0003960d want=000847df
+FAIL old umin case=1 seed=12345678 lane=11 field=1 got=0003960d want=000847df
+WAVE_REDUCTION old 27648 checks / 4881 failures, new 27650 checks / 0 failures

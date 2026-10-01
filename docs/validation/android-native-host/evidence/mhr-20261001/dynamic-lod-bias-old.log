@@ -1,0 +1,25 @@
+maxSamplerLodBias=15.9961
+2d failures=0
+2d-bias-plus failures=0
+2d-bias-minus failures=0
+1d failures=0
+1d-array failures=0
+2d-array failures=0
+cube failures=0
+depth failures=0
+depth-bias failures=0
+bias-positive-limit guarded=0 pix=0 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=1 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=2 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=3 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=4 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=5 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=6 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=7 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=8 c=0 got=0.5 expected=0.25
+bias-positive-limit guarded=0 pix=9 c=0 got=0.5 expected=0.25
+bias-positive-limit failures=128
+bias-negative-limit failures=128
+bias-positive-cancel failures=0
+bias-negative-cancel failures=0
+DYNAMIC_LOD 9984 checks / 256 failures
