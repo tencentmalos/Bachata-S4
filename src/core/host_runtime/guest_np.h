@@ -11,9 +11,9 @@
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view NpOfflineNids[]{
-    "rbknaUjpqWo", "p-o74CnoNzY", "XDncXQIJUSk", "eQH7nWPcAgc", "e-ZuhGEoeC4",
-    "oPO9U42YpgI", "VgYczPGB5ss", "F6E4ycq9Dbg", "Oad3rvY-NJQ", "a8R9-75u4iM",
-    "IPb1hd1wAGc", "3Zl8BePTh9Y", "JELHf4xPufo", "A2CQ3kgSopQ", "Ec63y59l9tw"};
+    "rbknaUjpqWo", "p-o74CnoNzY", "XDncXQIJUSk", "eQH7nWPcAgc", "e-ZuhGEoeC4", "oPO9U42YpgI",
+    "VgYczPGB5ss", "F6E4ycq9Dbg", "Oad3rvY-NJQ", "a8R9-75u4iM", "IPb1hd1wAGc", "3Zl8BePTh9Y",
+    "JELHf4xPufo", "A2CQ3kgSopQ", "Ec63y59l9tw", "JT+t00a3TxA"};
 inline bool IsNpOfflineNid(std::string_view nid) {
     return IsNpControlNid(nid) || std::ranges::find(NpOfflineNids, nid) != std::end(NpOfflineNids);
 }
@@ -41,6 +41,16 @@ public:
         static_assert(sizeof(OrbisNpId) == 36 && sizeof(OrbisNpOnlineId) == 20 &&
                       sizeof(OrbisNpState) == 4 && sizeof(OrbisNpReachabilityState) == 4 &&
                       sizeof(OrbisNpGamePresenseStatus) == 4 && sizeof(bool) == 1);
+        if (nid == "JT+t00a3TxA") {
+            // Match desktop account-country validation and preserve its output
+            // on an absent local user / signed-out account. No country is invented.
+            if (s32(a[0]) == -1 || !a[1] ||
+                !space.ValidateRange({GuestAddress{a[1]}, sizeof(OrbisNpCountryCode)},
+                                     GuestPermission::Write))
+                return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+            return u32(signup.contains(s32(a[0])) ? ORBIS_NP_ERROR_SIGNED_OUT
+                                                  : ORBIS_NP_ERROR_USER_NOT_FOUND);
+        }
         if (nid == "A2CQ3kgSopQ") {
             // Desktop validates this local policy; it does not start an NP request.
             struct Restriction { u64 size; s8 age; u8 pad[3]; s32 count; u64 entries; } value{};

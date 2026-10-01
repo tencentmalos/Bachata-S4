@@ -1,5 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // ELF assembled by generate-production-runtime-fixture; no game bytes.
+// The small main TLS image reproduces a 4-byte initializer in a 16-byte,
+// 8-aligned executable TLS block. The dependency remains 64 bytes / align 32.
+#ifdef SMALL_MAIN_TLS
+#define MAIN_TLS_OFFSET 16
+#define DEPENDENCY_TLS_OFFSET 96
+#else
+#define MAIN_TLS_OFFSET 64
+#define DEPENDENCY_TLS_OFFSET 128
+#endif
 .intel_syntax noprefix
 .text
 .global _start
@@ -29,12 +38,12 @@ dependency_wait:
     jmp dependency_wait
 #endif
 #ifdef BOOTSTRAP_LIBC
-    cmp qword ptr fs:[-128], 0x567a
+    cmp qword ptr fs:[-DEPENDENCY_TLS_OFFSET], 0x567a
 #else
-    cmp qword ptr fs:[-128], 0x5678
+    cmp qword ptr fs:[-DEPENDENCY_TLS_OFFSET], 0x5678
 #endif
     jne dependency_bad
-    inc qword ptr fs:[-128]
+    inc qword ptr fs:[-DEPENDENCY_TLS_OFFSET]
     xor eax, eax
     ret
 dependency_bad:
@@ -50,14 +59,14 @@ malloc_wait:
     call qword ptr [rip+got_sleep]
     jmp malloc_wait
 #endif
-    cmp qword ptr fs:[-128],0x5678
+    cmp qword ptr fs:[-DEPENDENCY_TLS_OFFSET],0x5678
     jne dependency_bad
-    inc qword ptr fs:[-128]
+    inc qword ptr fs:[-DEPENDENCY_TLS_OFFSET]
     xor eax,eax
     ret
     .org 0x200
 mutex_enable:
-    inc qword ptr fs:[-128]
+    inc qword ptr fs:[-DEPENDENCY_TLS_OFFSET]
     ret
 #endif
 #else
@@ -84,9 +93,9 @@ wait_loop:
     jne failed
     cmp qword ptr [rip + tls_relocations + 8], 0
     jne failed
-    cmp qword ptr [rip + tls_relocations + 16], -64
+    cmp qword ptr [rip + tls_relocations + 16], -MAIN_TLS_OFFSET
     jne failed
-    mov rax, qword ptr fs:[-64]
+    mov rax, qword ptr fs:[-MAIN_TLS_OFFSET]
     cmp rax, 0x1234
     jne failed
 #ifdef EXPECT_DEPENDENCY
@@ -153,7 +162,7 @@ child_started:
     jne failed
     cmp qword ptr [rip + child_result], 0x1276
     jne failed
-    cmp qword ptr fs:[-64], 0x1234
+    cmp qword ptr fs:[-MAIN_TLS_OFFSET], 0x1234
     jne failed
     call qword ptr [rip + got_errno]
     cmp dword ptr [rax], 22
@@ -163,7 +172,7 @@ child_started:
     call qword ptr [rip + got_once]
     test eax, eax
     jne failed
-    cmp qword ptr fs:[-64], 0x1235
+    cmp qword ptr fs:[-MAIN_TLS_OFFSET], 0x1235
     jne failed
     mov eax, 0xcafe
     jmp done
@@ -184,9 +193,9 @@ child_spin:
     inc qword ptr [rip + child_ready]
     cmp qword ptr [rip + child_release], 1
     jne child_spin
-    mov rax, qword ptr fs:[-64]
+    mov rax, qword ptr fs:[-MAIN_TLS_OFFSET]
     add rax, rbx
-    mov qword ptr fs:[-64], 0x7777
+    mov qword ptr fs:[-MAIN_TLS_OFFSET], 0x7777
     pop rbx
     ret
 child_bad:

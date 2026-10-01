@@ -38,6 +38,8 @@ inline constexpr std::string_view NpControlNids[]{
     "GImICnh+boA", // sceNpRegisterPlusEventCallback
     "xViqJdDgKl0", // sceNpUnregisterPlusEventCallback
     "uFJpaKNBAj4", // sceNpRegisterGamePresenceCallback
+    "KswxLxk4c1Y", // sceNpRegisterGamePresenceCallbackA
+    "aJZyCcHxzu4", // sceNpUnregisterGamePresenceCallbackA
 };
 inline bool IsNpControlNid(std::string_view nid) {
     return std::ranges::find(NpControlNids, nid) != std::end(NpControlNids);
@@ -51,6 +53,7 @@ class GuestNpControl {
     struct Slot { u64 function{}, argument{}, revision{}; } state, toolkit, plus, presence, reachability;
     struct StateASlot { Slot binding; s32 native_id{}; };
     std::array<StateASlot, 8> state_a{}; // Same capacity as desktop NP Manager.
+    std::array<StateASlot, 8> presence_a{};
     u64 next_revision{1};
     bool checking{};
 public:
@@ -113,6 +116,9 @@ public:
         if (reachability.function) sceNpUnregisterNpReachabilityStateCallback();
         if (plus.function) sceNpUnregisterPlusEventCallback();
         if (presence.function) sceNpRegisterGamePresenceCallback(nullptr,nullptr);
+        for (const auto& entry : presence_a)
+            if (entry.native_id > 0)
+                sceNpUnregisterGamePresenceCallbackA(entry.native_id);
         for (const auto id : requests) sceNpDeleteRequest(id);
     }
     std::optional<std::vector<Callback>> BeginCallbacks() {
@@ -144,6 +150,33 @@ public:
         };
         std::lock_guard native_lock(native_calls);
         std::lock_guard lock(mutex);
+        if (nid == "KswxLxk4c1Y") {
+            if (!a[0] || !space.ValidateRange({GuestAddress{a[0]}, 1}, GuestPermission::Execute))
+                return bad;
+            // Unlike StateA, desktop presence registration permits repeated
+            // function addresses. Offline mode produces no presence events;
+            // retain every guest binding and release each real native handle.
+            for (auto& entry : presence_a) {
+                if (entry.native_id)
+                    continue;
+                const auto id = sceNpRegisterGamePresenceCallbackA(Presence, this);
+                if (id > 0)
+                    entry = {{a[0], a[1], next_revision++}, id};
+                return u32(id);
+            }
+            return u32(ORBIS_NP_ERROR_CALLBACK_MAX);
+        }
+        if (nid == "aJZyCcHxzu4") {
+            for (auto& entry : presence_a) {
+                if (entry.native_id <= 0 || entry.native_id != s32(a[0]))
+                    continue;
+                const auto result = sceNpUnregisterGamePresenceCallbackA(entry.native_id);
+                if (!result)
+                    entry = {};
+                return u32(result);
+            }
+            return u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED);
+        }
         if (nid == "qQJfO8HAiaY") {
             if (!a[0] || !space.ValidateRange({GuestAddress{a[0]}, 1}, GuestPermission::Execute))
                 return bad;

@@ -229,7 +229,75 @@ struct PassLog {
     bool collecting{};
     std::unordered_map<u64, u64> gpu_ns;
 } pass_log;
+constexpr u64 DrawTagBit = u64{1} << 63;
+struct DrawLogEntry {
+    u64 tag, vs, fs;
+    u32 count, instances;
+    bool indexed, indirect, software_interpolation;
+    std::optional<u64> ns;
+};
+struct DrawLog {
+    std::mutex mutex;
+    std::atomic<u32> remaining{};
+    u64 next_tag{DrawTagBit};
+    std::vector<DrawLogEntry> entries;
+    std::unordered_map<u64, size_t> indices;
+} draw_log;
 } // namespace
+
+u64 Scheduler::RegisterDrawTiming(u64 vs, u64 fs, u32 count, u32 instances, bool indexed,
+                                  bool indirect, bool software_interpolation) {
+    if (!draw_log.remaining.load(std::memory_order_relaxed) ||
+        !Common::Profiler::GpuTimingDetailed())
+        return 0;
+    std::scoped_lock lock{draw_log.mutex};
+    const auto remaining = draw_log.remaining.load(std::memory_order_relaxed);
+    if (!remaining)
+        return 0;
+    const u64 tag = ++draw_log.next_tag;
+    draw_log.indices.emplace(tag, draw_log.entries.size());
+    draw_log.entries.push_back(
+        {tag, vs, fs, count, instances, indexed, indirect, software_interpolation, {}});
+    draw_log.remaining.store(remaining - 1, std::memory_order_relaxed);
+    return tag;
+}
+
+std::string Scheduler::DrawLogCommand(const std::vector<std::string>& args) {
+    const auto cmd = args.empty() ? std::string{"status"} : args[0];
+    std::scoped_lock lock{draw_log.mutex};
+    if (cmd == "start") {
+        if (!Common::Profiler::GpuTimingDetailed())
+            return "enable gpu_timing detail first\n";
+        u32 n = 1024;
+        if (args.size() > 1)
+            n = static_cast<u32>(std::clamp<unsigned long>(std::stoul(args[1]), 1, 4096));
+        draw_log.entries.clear();
+        draw_log.entries.reserve(n);
+        draw_log.indices.clear();
+        draw_log.remaining.store(n, std::memory_order_relaxed);
+        return fmt::format("draw_log armed for {} draws; timestamps may perturb tile rendering\n",
+                           n);
+    }
+    if (cmd == "stop") {
+        draw_log.remaining.store(0, std::memory_order_relaxed);
+        return "draw_log stopped (pending timestamp results retained)\n";
+    }
+    if (cmd != "status" && cmd != "dump")
+        return "usage: draw_log start [draws <= 4096] | status | dump | stop\n";
+    const auto timed = std::count_if(draw_log.entries.begin(), draw_log.entries.end(),
+                                     [](const auto& e) { return e.ns.has_value(); });
+    std::string out = fmt::format("draw_log remaining={} entries={} timed={}\n",
+                                  draw_log.remaining.load(std::memory_order_relaxed),
+                                  draw_log.entries.size(), timed);
+    if (cmd == "dump")
+        for (const auto& e : draw_log.entries)
+            out += fmt::format(
+                "draw {} vs={:#x} fs={:#x} count={} instances={} indexed={} indirect={} "
+                "software_interp={} gpu_us={}\n",
+                e.tag, e.vs, e.fs, e.count, e.instances, e.indexed, e.indirect,
+                e.software_interpolation, e.ns ? *e.ns / 1000.0 : -1.0);
+    return out;
+}
 
 bool Scheduler::PassLogActive() noexcept {
     return pass_log.remaining.load(std::memory_order_relaxed) != 0;
@@ -253,6 +321,12 @@ void Scheduler::NoteBarrierSource(const char* kind, u64 address, u64 size,
 }
 
 void RecordTaggedGpuTime(uint64_t tag, uint64_t ns) {
+    if (tag & DrawTagBit) {
+        std::scoped_lock lock{draw_log.mutex};
+        if (const auto it = draw_log.indices.find(tag); it != draw_log.indices.end())
+            draw_log.entries[it->second].ns = ns;
+        return;
+    }
     std::scoped_lock lk{pass_log.mutex};
     if (pass_log.collecting && pass_log.gpu_ns.size() < 4 * pass_log.entries.capacity())
         pass_log.gpu_ns[tag] = ns;

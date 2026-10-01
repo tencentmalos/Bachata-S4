@@ -40,6 +40,7 @@ object NativeFexSession {
     external fun nativeSetDriverPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetPipelineCompileMode(mode: Int)
     external fun nativeSetCommandRecorder(enabled: Boolean)
+    external fun nativeSetDirectMemoryAccess(enabled: Boolean)
     external fun nativeSetSilentDialogs(enabled: Boolean)
     external fun nativeSetTextureQuality(quality: Int)
     external fun nativeSetInternalScalePercent(percent: Float)

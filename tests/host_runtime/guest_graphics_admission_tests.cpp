@@ -40,20 +40,41 @@ int main() {
     {
         const GuestRange command{{address + 0x3ff4}, 28};
         CHECK(!space->AcquireDataSpan(command, true)); // old contract rejected valid stream
-        auto output = AcquireGraphicsCommandBuffer(*space, command, true);
+        auto output = AcquireGraphicsByteBuffer(*space, command, true);
         CHECK(output && output.Value().WritableBytes().size() == 28);
         if (output) std::memset(output.Value().WritableBytes().data(), 0x6b, 28);
     }
     {
-        auto input = AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, false);
+        auto input = AcquireGraphicsByteBuffer(*space, {{address + 0x3ff4}, 28}, false);
         CHECK(input && std::ranges::all_of(input.Value().Bytes(), [](auto b) { return b == std::byte{0x6b}; }));
     }
     CHECK(space->Protect({{address + 0x4000}, 0x4000}, GuestPermission::Read));
-    CHECK(!AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, true));
-    CHECK(AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, false));
+    CHECK(!AcquireGraphicsByteBuffer(*space, {{address + 0x3ff4}, 28}, true));
+    CHECK(AcquireGraphicsByteBuffer(*space, {{address + 0x3ff4}, 28}, false));
     CHECK(space->Unmap({{address + 0x4000}, 0x4000}));
-    CHECK(!AcquireGraphicsCommandBuffer(*space, {{address + 0x3ff4}, 28}, false));
-    CHECK(!AcquireGraphicsCommandBuffer(*space, {{~u64(0) - 3}, 28}, true));
+    CHECK(!AcquireGraphicsByteBuffer(*space, {{address + 0x3ff4}, 28}, false));
+    CHECK(!AcquireGraphicsByteBuffer(*space, {{~u64(0) - 3}, 28}, true));
+    // MHR's 1920x1080 tiled display surface is 0x7f8000 bytes across
+    // separately mapped 4 MiB chunks. Scalar records remain single-mapping.
+    {
+        const u64 surface = address + (8 << 20);
+        const GuestRange first{{surface}, 4 << 20};
+        const GuestRange second{{surface + (4 << 20)}, 4 << 20};
+        const GuestRange image{{surface}, 0x7f8000};
+        CHECK(space->Map(first, GuestPermission::Read | GuestPermission::Write));
+        CHECK(space->Map(second, GuestPermission::Read));
+        CHECK(!space->ValidateRange(image, GuestPermission::Read)); // old negative control
+        CHECK(AcquireGraphicsByteBuffer(*space, image, false));
+        CHECK(!AcquireGraphicsByteBuffer(*space, image, true));
+        CHECK(space->Protect(second, GuestPermission::Write));
+        CHECK(!AcquireGraphicsByteBuffer(*space, image, false));
+        CHECK(space->Unmap(second));
+        CHECK(!AcquireGraphicsByteBuffer(*space, image, false));
+        CHECK(space->Map(second, GuestPermission::Read));
+        CHECK(AcquireGraphicsByteBuffer(*space, image, false));
+        CHECK(!AcquireGraphicsByteBuffer(*space, {{surface}, 0}, false));
+        CHECK(!AcquireGraphicsByteBuffer(*space, {{~u64(0) - 0x1000}, 0x7f8000}, false));
+    }
     {
         VideoOut::Mode mode{};
         VideoOut::sceVideoOutModeSetAny_(&mode, sizeof(mode));

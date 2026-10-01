@@ -457,13 +457,25 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
         }
     }
 
-
-    if (is_indexed) {
-        cmdbuf.drawIndexed(regs.num_indices, regs.num_instances.NumInstances(), 0,
-                           s32(vertex_offset), instance_offset);
-    } else {
-        cmdbuf.draw(regs.num_indices, regs.num_instances.NumInstances(), vertex_offset,
-                    instance_offset);
+    {
+        const auto stages = pipeline->GetStages();
+        const auto hash = [&](Shader::SwStage stage) {
+            const auto* info = stages[u32(stage)];
+            return info ? info->pgm_hash : u64{};
+        };
+        const GpuZoneScope draw_timing{
+            scheduler, GpuProfiler::Stage::Draw,
+            Scheduler::RegisterDrawTiming(hash(Shader::SwStage::Vertex),
+                                          hash(Shader::SwStage::Fragment), regs.num_indices,
+                                          regs.num_instances.NumInstances(), is_indexed, false,
+                                          pipeline->UsesSoftwareInterpolation())};
+        if (is_indexed) {
+            cmdbuf.drawIndexed(regs.num_indices, regs.num_instances.NumInstances(), 0,
+                               s32(vertex_offset), instance_offset);
+        } else {
+            cmdbuf.draw(regs.num_indices, regs.num_instances.NumInstances(), vertex_offset,
+                        instance_offset);
+        }
     }
     DebugState.IncDrawCall();
     if (const auto& diag = instance.Diagnostics())
@@ -558,33 +570,45 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
         }
     }
 
+    {
+        const auto stages = pipeline->GetStages();
+        const auto hash = [&](Shader::SwStage stage) {
+            const auto* info = stages[u32(stage)];
+            return info ? info->pgm_hash : u64{};
+        };
+        const GpuZoneScope draw_timing{
+            scheduler, GpuProfiler::Stage::Draw,
+            Scheduler::RegisterDrawTiming(hash(Shader::SwStage::Vertex),
+                                          hash(Shader::SwStage::Fragment), max_count, 0, is_indexed,
+                                          true, pipeline->UsesSoftwareInterpolation())};
+        if (is_indexed) {
+            ASSERT(sizeof(VkDrawIndexedIndirectCommand) == stride);
 
-    if (is_indexed) {
-        ASSERT(sizeof(VkDrawIndexedIndirectCommand) == stride);
-
-        if (count_address != 0) {
-            cmdbuf.drawIndexedIndirectCount(buffer->Handle(), base, count_buffer->Handle(),
-                                            count_offset, max_count, stride);
+            if (count_address != 0) {
+                cmdbuf.drawIndexedIndirectCount(buffer->Handle(), base, count_buffer->Handle(),
+                                                count_offset, max_count, stride);
+            } else {
+                cmdbuf.drawIndexedIndirect(buffer->Handle(), base, max_count, stride);
+            }
+            DebugState.IncDrawCall();
+            if (const auto& diag = instance.Diagnostics())
+                diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw,
+                              Core::Diagnostics::DiagnosticNowNs());
         } else {
-            cmdbuf.drawIndexedIndirect(buffer->Handle(), base, max_count, stride);
-        }
-        DebugState.IncDrawCall();
-    if (const auto& diag = instance.Diagnostics())
-        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
-    } else {
-        ASSERT(sizeof(VkDrawIndirectCommand) == stride);
+            ASSERT(sizeof(VkDrawIndirectCommand) == stride);
 
-        if (count_address != 0) {
-            cmdbuf.drawIndirectCount(buffer->Handle(), base, count_buffer->Handle(), count_offset,
-                                     max_count, stride);
-        } else {
-            cmdbuf.drawIndirect(buffer->Handle(), base, max_count, stride);
+            if (count_address != 0) {
+                cmdbuf.drawIndirectCount(buffer->Handle(), base, count_buffer->Handle(),
+                                         count_offset, max_count, stride);
+            } else {
+                cmdbuf.drawIndirect(buffer->Handle(), base, max_count, stride);
+            }
+            DebugState.IncDrawCall();
+            if (const auto& diag = instance.Diagnostics())
+                diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw,
+                              Core::Diagnostics::DiagnosticNowNs());
         }
-        DebugState.IncDrawCall();
-    if (const auto& diag = instance.Diagnostics())
-        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
     }
-
     ResetBindings(false);
 }
 
@@ -851,6 +875,9 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
 
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
     Common::Profiler::FineScope profile_scope{"Rasterizer.BindResources"};
+    // A loading frame can issue thousands of draws before TickFrame. Allow requested
+    // allocation snapshots there too, without waiting for the frame or GPU to finish.
+    texture_cache.PublishMemoryDiagnostics();
     const char* replaced = nullptr;
     {
         Common::Profiler::FineScope hle_scope{"Bind.HleCheck"};
@@ -871,6 +898,8 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     image_infos.clear();
 
     bool uses_dma = false;
+    bool dma_unbounded = false;
+    boost::container::small_vector<VideoCore::BufferCache::DmaRange, 16> dma_ranges;
     render_scale_eighths = 8;
     if (instance.ScalePolicy().ShaderMapping()) {
         Common::Profiler::FineScope scale_scope{"Bind.ScaleCheck"};
@@ -1008,11 +1037,41 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
             BindTextures(*stage, binding);
         }
         uses_dma |= stage->uses_dma;
+        if (stage->uses_dma) {
+            dma_unbounded |= stage->dma_unbounded || stage->dma_read_bases.empty();
+            for (const auto& fetch : stage->dma_read_bases) {
+                u64 base{};
+                // EmitContext::DefineReadConst shifts the U32 dword offset before
+                // widening: every read lies in [base, base + 4 GiB). Do not trim
+                // an overlapping resident range; its existing image alias handling
+                // may need the entire image, including aligned prefix/suffix pages.
+                bool valid = true;
+                for (u32 i = 0; i < 2; ++i)
+                    if ((fetch.load_mask & (1U << i)) &&
+                        fetch.offsets[i] >= stage->flattened_ud_buf.size())
+                        valid = false;
+                if (!valid || !fetch.Fetch(stage->flattened_ud_buf.data(), &base) ||
+                    base >= VideoCore::BufferCache::DmaAddressSpaceSize ||
+                    base > VideoCore::BufferCache::DmaAddressSpaceSize - (u64{1} << 32)) {
+                    dma_unbounded = true;
+                    break;
+                }
+                const VideoCore::BufferCache::DmaRange range{base, base + (u64{1} << 32)};
+                if (std::ranges::find(dma_ranges, range) == dma_ranges.end())
+                    dma_ranges.push_back(range);
+            }
+        }
     }
 
     if (uses_dma) {
         Common::Profiler::Scope dma_scope{"Bind.DmaSync"};
-        buffer_cache.SynchronizeDmaBuffers();
+        const auto dma_reads = buffer_cache.SynchronizeDmaBuffers(
+            dma_unbounded ? std::span<const VideoCore::BufferCache::DmaRange>{}
+                          : std::span<const VideoCore::BufferCache::DmaRange>{dma_ranges.data(),
+                                                                              dma_ranges.size()});
+        for (const auto& read : dma_reads) {
+            TrackRead(read.buffer, read.offset, read.size);
+        }
         fault_process_pending = true;
     }
 
@@ -1402,7 +1461,7 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                     buffer_infos.emplace_back(vk_buffer.Handle(), offset, ubo_size);
                 }
             } else if (desc.buffer_type == Shader::BufferType::BdaPagetable) {
-                const auto* bda_buffer = buffer_cache.GetBdaPageTableBuffer();
+                const auto* bda_buffer = buffer_cache.GetBdaPageTableRootBuffer();
                 buffer_infos.emplace_back(bda_buffer->Handle(), 0, bda_buffer->SizeBytes());
             } else if (desc.buffer_type == Shader::BufferType::FaultBuffer) {
                 const auto* fault_buffer = buffer_cache.GetFaultBuffer();

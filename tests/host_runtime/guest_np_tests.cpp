@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
+#include <thread>
 #include "core/host_runtime/guest_np.h"
+#include "core/host_runtime/guest_np_auth.h"
 #include "core/host_runtime/guest_np_score.h"
 #include "core/host_runtime/guest_np_tus.h"
-#include "core/libraries/np/np_tus/np_tus.h"
 #include "core/libraries/np/np_score/np_score.h"
+#include "core/libraries/np/np_tus/np_tus.h"
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
 using namespace Libraries::Np;
@@ -51,6 +53,12 @@ int main() {
         return current.Dispatch(*space, nid, {user, out ? out : output});
     };
     constexpr u32 bad = ORBIS_NP_ERROR_INVALID_ARGUMENT, offline = ORBIS_NP_ERROR_SIGNED_OUT;
+    reset();
+    CHECK(call("JT+t00a3TxA", 1000) == offline);
+    CHECK(call("JT+t00a3TxA", 1001) == offline);
+    CHECK(call("JT+t00a3TxA", 1002) == u32(ORBIS_NP_ERROR_USER_NOT_FOUND));
+    CHECK(call("JT+t00a3TxA", invalid_user) == bad);
+    unchanged();
     for (auto nid : NpOfflineNids) {
         CHECK(AdmitsNpOffline(nid, "#libSceNpManager#1#libSceNpManager#Function", true));
         CHECK(!AdmitsNpOffline(nid, "#libSceNpManager#1#libSceNpManager#Function", false));
@@ -204,6 +212,35 @@ int main() {
     CHECK(ctl("S7QTn72PrDw",{request})==0);
     CHECK(ctl("jyi5p9XWUSs",{request,output})==u32(ORBIS_NP_ERROR_REQUEST_NOT_FOUND));
     CHECK(space->Map({GuestAddress{base+0x8000},0x4000},GuestPermission::Read|GuestPermission::Execute));
+    CHECK(IsNpControlNid("KswxLxk4c1Y") && IsNpControlNid("aJZyCcHxzu4"));
+    for (auto invalid : {u64(0), base, base + 0x10000, UINT64_MAX})
+        CHECK(ctl("KswxLxk4c1Y", {invalid, 123}) == bad);
+    std::array<u64, 8> presence_ids{};
+    for (auto& id : presence_ids) {
+        id = ctl("KswxLxk4c1Y", {base + 0x8000, 123});
+        CHECK(s32(id) > 0); // duplicate callback function is a distinct registration
+    }
+    CHECK(ctl("KswxLxk4c1Y", {base + 0x8000, 123}) == u32(ORBIS_NP_ERROR_CALLBACK_MAX));
+    {
+        GuestNpControl other_presence;
+        CHECK(other_presence.Dispatch(*space, "aJZyCcHxzu4", {presence_ids[0]}) ==
+              u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    }
+    CHECK(ctl("aJZyCcHxzu4", {presence_ids[0]}) == 0);
+    CHECK(ctl("aJZyCcHxzu4", {presence_ids[0]}) == u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    const auto replacement_presence = ctl("KswxLxk4c1Y", {base + 0x8000, 456});
+    CHECK(s32(replacement_presence) > 0 && replacement_presence != presence_ids[0]);
+    CHECK(ctl("aJZyCcHxzu4", {replacement_presence}) == 0);
+    for (size_t i = 1; i < presence_ids.size(); ++i)
+        CHECK(ctl("aJZyCcHxzu4", {presence_ids[i]}) == 0);
+    {
+        GuestNpControl temporary;
+        for (size_t i = 0; i < 8; ++i)
+            CHECK(s32(temporary.Dispatch(*space, "KswxLxk4c1Y", {base + 0x8000, i})) > 0);
+    } // Destructor must release the native registration slots.
+    const auto after_presence_cleanup = ctl("KswxLxk4c1Y", {base + 0x8000, 789});
+    CHECK(s32(after_presence_cleanup) > 0);
+    CHECK(ctl("aJZyCcHxzu4", {after_presence_cleanup}) == 0);
     CHECK(ctl("VfRSmPmj8Q8",{base,123})==bad);
     CHECK(ctl("VfRSmPmj8Q8",{base+0x8000,123})==0);
     CHECK(ctl("VfRSmPmj8Q8",{base+0x8000,456})==u32(ORBIS_NP_ERROR_CALLBACK_ALREADY_REGISTERED));
@@ -373,6 +410,132 @@ int main() {
     }
     for (const auto nid : {"sRVb2Cf0GHg", "6GKDdRCFx8c", "KMlHj+tgfdQ", "-SUR+UoLS6c"})
         CHECK(!IsNpTusOfflineNid(nid));
+    {
+        using namespace Libraries::Np::NpAuth;
+        constexpr u32 bad_auth = ORBIS_NP_AUTH_ERROR_INVALID_ARGUMENT;
+        constexpr u32 missing_auth = ORBIS_NP_AUTH_ERROR_REQUEST_NOT_FOUND;
+        GuestNpAuthOffline auth, other;
+        auto auth_call = [&](std::string_view nid, std::array<u64, 6> args = {}) {
+            return auth.Dispatch(*space, nid, args);
+        };
+        for (auto nid : GuestNpAuthOffline::Nids) {
+            CHECK(GuestNpAuthOffline::Admits(nid, "#libSceNpAuth#1#libSceNpAuth#Function", true));
+            CHECK(!GuestNpAuthOffline::Admits(nid, "#libSceNpAuth#1#libSceNpAuth#Function", false));
+            CHECK(!GuestNpAuthOffline::Admits(nid, "#libSceNpManager#1#libSceNpManager#Function",
+                                              true));
+        }
+        auto put = [&]<typename T>(u64 address, const T& value) {
+            CHECK(space->WriteData({address}, std::as_bytes(std::span{&value, 1})));
+        };
+        OrbisNpAuthCreateAsyncRequestParameter create{24, 0, 700, {}};
+        for (u64 address : {u64{0}, u64{1}, base + 0x8000 - 8, UINT64_MAX})
+            CHECK(auth_call("N+mr7GjTvr8", {address}) == bad_auth);
+        create.size = 8;
+        put(base, create);
+        CHECK(auth_call("N+mr7GjTvr8", {base}) == u32(ORBIS_NP_AUTH_ERROR_INVALID_SIZE));
+        create.size = 24;
+        put(base, create);
+        const u32 async = auth_call("N+mr7GjTvr8", {base});
+        CHECK(s32(async) > 0);
+        reset();
+        CHECK(auth_call("gjSyfzSsDcE", {async, output}) == u32(ORBIS_NP_AUTH_ERROR_INVALID_ID));
+        unchanged();
+        CHECK(other.Dispatch(*space, "H8wG9Bk-nPc", {async}) == missing_auth);
+        struct Code {
+            u64 size;
+            s32 user;
+            u32 pad;
+            u64 client, scope;
+        } code{32, 1000, 0, base + 512, base + 2048};
+        struct Token {
+            u64 size;
+            s32 user;
+            u32 pad;
+            u64 client, secret, scope;
+        } token{40, 1000, 0, base + 512, base + 1024, base + 2048};
+        put(base + 64, code);
+        put(base + 128, token);
+        OrbisNpClientId client{};
+        OrbisNpClientSecret secret{};
+        put(base + 512, client);
+        put(base + 1024, secret);
+        const std::array<char, 5> scope{'t', 'e', 's', 't', 0};
+        put(base + 2048, scope);
+        // Output protection and all-or-nothing admission before mutating the request.
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, base + 0x4000}) == bad_auth);
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, output, base + 0x8000 - 2}) == bad_auth);
+        auto invalid_code = code;
+        invalid_code.client = UINT64_MAX;
+        put(base + 64, invalid_code);
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, output}) == bad_auth);
+        invalid_code = code;
+        invalid_code.scope = UINT64_MAX;
+        put(base + 64, invalid_code);
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, output}) == bad_auth);
+        // Use a non-terminated writable scope so it reaches the explicit bound.
+        std::array<char, 1025> long_scope;
+        long_scope.fill('x');
+        put(base + 2048, long_scope);
+        put(base + 64, code);
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, output}) == bad_auth);
+        put(base + 2048, scope);
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, output, output + 60}) == 0);
+        unchanged(); // Async launch succeeds but no credential or issuer is fabricated.
+        CHECK(auth_call("gjSyfzSsDcE", {async, output}) == 0);
+        prefix(s32(ORBIS_NP_ERROR_SIGNED_OUT));
+        CHECK(auth_call("cE7wIsqXdZ8", {async}) == 0); // complete remains signed out
+        reset();
+        CHECK(auth_call("SK-S7daqJSE", {async, output}) == 0);
+        prefix(s32(ORBIS_NP_ERROR_SIGNED_OUT));
+        CHECK(auth_call("qAUXQ9GdWp8", {async, base + 64, output}) == bad_auth);
+        CHECK(auth_call("H8wG9Bk-nPc", {async}) == 0);
+        CHECK(auth_call("H8wG9Bk-nPc", {async}) == missing_auth);
+        const u32 aborted = auth_call("N+mr7GjTvr8", {base});
+        CHECK(auth_call("cE7wIsqXdZ8", {aborted}) == 0);
+        reset();
+        CHECK(auth_call("gjSyfzSsDcE", {aborted, output}) == 0);
+        prefix(s32(ORBIS_NP_AUTH_ERROR_ABORTED));
+        CHECK(auth_call("H8wG9Bk-nPc", {aborted}) == 0);
+        // Token has a larger output; ensure offline leaves every byte and its guard unchanged.
+        std::array<u8, 4112> token_sentinel;
+        token_sentinel.fill(0xa5);
+        put(base + 8192, token_sentinel);
+        const u32 token_request = auth_call("N+mr7GjTvr8", {base});
+        CHECK(auth_call("CocbHVIKPE8", {token_request, base + 128, base + 8192}) == 0);
+        std::array<u8, 4112> token_read{};
+        CHECK(space->ReadData({base + 8192}, std::as_writable_bytes(std::span{token_read})));
+        CHECK(token_read == token_sentinel);
+        reset();
+        CHECK(auth_call("gjSyfzSsDcE", {token_request, output}) == 0);
+        prefix(s32(ORBIS_NP_ERROR_SIGNED_OUT));
+        CHECK(auth_call("H8wG9Bk-nPc", {token_request}) == 0);
+        const u32 sync = auth_call("6bwFkosYRQg");
+        reset();
+        CHECK(auth_call("qAUXQ9GdWp8", {sync, base + 64, output}) == offline);
+        unchanged();
+        CHECK(auth_call("gjSyfzSsDcE", {sync, output}) == u32(ORBIS_NP_AUTH_ERROR_INVALID_ID));
+        CHECK(auth_call("H8wG9Bk-nPc", {sync}) == 0);
+        for (u64 id : {0ULL, 1ULL, 0xffffffffULL, 0x10000000ULL}) {
+            CHECK(auth_call("cE7wIsqXdZ8", {id}) == missing_auth);
+            CHECK(auth_call("H8wG9Bk-nPc", {id}) == missing_auth);
+        }
+        // Native capacity must be atomic even across independently owned domains.
+        std::array<s32, 32> ids{};
+        std::vector<std::thread> creators;
+        for (size_t i = 0; i < ids.size(); ++i)
+            creators.emplace_back([&, i] { ids[i] = sceNpAuthCreateRequest(); });
+        for (auto& t : creators)
+            t.join();
+        CHECK(std::ranges::count_if(ids, [](s32 id) { return id > 0; }) == 16);
+        CHECK(std::ranges::count(ids, s32(ORBIS_NP_AUTH_ERROR_REQUEST_MAX)) == 16);
+        for (auto id : ids)
+            if (id > 0)
+                CHECK(sceNpAuthDeleteRequest(id) == 0);
+        for (int session = 0; session < 32; ++session) {
+            GuestNpAuthOffline scoped;
+            CHECK(s32(scoped.Dispatch(*space, "6bwFkosYRQg", {})) > 0);
+        } // destructor releases every session request
+    }
     std::printf("NP offline: %u checks, %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

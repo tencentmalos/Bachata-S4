@@ -212,7 +212,8 @@ private:
     };
     // Shader buffers plus the fixed-function reads (vertex, index, indirect args and count), so
     // a later write to any of them waits for this draw.
-    boost::container::static_vector<BoundBuffer, Shader::NUM_BUFFERS + MaxVertexBufferCount + 3>
+    // DMA can read many disjoint resident ranges beyond the descriptor count.
+    boost::container::small_vector<BoundBuffer, Shader::NUM_BUFFERS + MaxVertexBufferCount + 3>
         bound_buffers;
 
     u32 set_write_index{};

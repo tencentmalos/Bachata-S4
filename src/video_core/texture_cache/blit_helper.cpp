@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <bit>
+#include "spatial/texture_codec/AstcEncoder.h"
+#include "spatial/texture_codec/Bc7Encoder.h"
+#include "video_core/buffer_cache/buffer.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
 #include "video_core/texture_cache/blit_helper.h"
 #include "video_core/texture_cache/image.h"
-#include "video_core/buffer_cache/buffer.h"
-#include "spatial/texture_codec/AstcEncoder.h"
-#include "spatial/texture_codec/Bc7Encoder.h"
+#include "video_core/vma_diagnostics.h"
 
 #include "video_core/host_shaders/color_to_ms_depth_frag.h"
 #include "video_core/host_shaders/fs_tri_vert.h"
@@ -68,8 +70,29 @@ void BlitHelper::EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format sou
     const auto& encoder = *slot;
     const AstcRequest request{width, height, layers, u32(srgb), block_dim};
     ASSERT(request.Valid());
-    auto blocks = std::make_shared<Buffer>(instance, 0, request.Bytes(), MemoryType::DeviceLocal,
-                                           "BlitHelper:BlockEncode");
+    // Each dispatch's blocks are copied into the destination immediately. Reuse
+    // one ordered scratch allocation instead of retaining one per texture/mip
+    // until the loading frame is submitted.
+    if (!block_encode_scratch || block_encode_scratch->SizeBytes() < request.Bytes()) {
+        const u64 limit = instance.MaxBufferSize() ? instance.MaxBufferSize()
+                                                   : instance.MaxMemoryAllocationSize();
+        if (!request.Bytes() || request.Bytes() > limit) {
+            throw std::runtime_error("Block encode scratch exceeds device buffer size limit");
+        }
+        const u64 capacity =
+            std::min<u64>(std::bit_ceil(std::max<u64>(request.Bytes(), 16384)), limit);
+        auto replacement = std::make_unique<Buffer>(instance, 0, capacity, MemoryType::DeviceLocal,
+                                                    "BlitHelper:BlockEncode");
+        VmaDiagnostics::Tag(instance.GetAllocator(), replacement->buffer.allocation,
+                            "scratch/block-encode");
+        if (block_encode_scratch) {
+            VmaDiagnostics::Tag(instance.GetAllocator(), block_encode_scratch->buffer.allocation,
+                                nullptr, true);
+            scheduler.DeferOperation([retired = std::move(block_encode_scratch)] {});
+        }
+        block_encode_scratch = std::move(replacement);
+    }
+    const auto* blocks = block_encode_scratch.get();
     const vk::ImageViewUsageCreateInfo usage{.usage = vk::ImageUsageFlagBits::eSampled};
     const auto [result, view] = instance.GetDevice().createImageView({
         .pNext = &usage, .image = source, .viewType = vk::ImageViewType::e2DArray,
@@ -88,13 +111,28 @@ void BlitHelper::EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format sou
     scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, encoder.PipelineLayout(),
                                    encoder.DescriptorLayout(), writes);
     const auto cmd = scheduler.RawCommandBuffer();
+    const vk::BufferMemoryBarrier2 reuse{
+        .srcStageMask = vk::PipelineStageFlagBits2::eCopy,
+        .srcAccessMask = vk::AccessFlagBits2::eTransferRead,
+        .dstStageMask = vk::PipelineStageFlagBits2::eComputeShader,
+        .dstAccessMask = vk::AccessFlagBits2::eShaderWrite,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = blocks->Handle(),
+        .size = request.Bytes(),
+    };
+    cmd.pipelineBarrier2(
+        vk::DependencyInfo{.bufferMemoryBarrierCount = 1, .pBufferMemoryBarriers = &reuse});
     ASSERT(encoder.Record(cmd, VK_NULL_HANDLE, request));
     const vk::BufferMemoryBarrier2 barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eComputeShader,
         .srcAccessMask = vk::AccessFlagBits2::eShaderWrite,
         .dstStageMask = vk::PipelineStageFlagBits2::eCopy,
         .dstAccessMask = vk::AccessFlagBits2::eTransferRead,
-        .buffer = blocks->Handle(), .size = request.Bytes(),
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = blocks->Handle(),
+        .size = request.Bytes(),
     };
     cmd.pipelineBarrier2(vk::DependencyInfo{.bufferMemoryBarrierCount = 1, .pBufferMemoryBarriers = &barrier});
     const vk::BufferImageCopy copy{
@@ -102,7 +140,8 @@ void BlitHelper::EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format sou
         .imageExtent = {width, height, 1},
     };
     cmd.copyBufferToImage(blocks->Handle(), dest, vk::ImageLayout::eTransferDstOptimal, copy);
-    scheduler.DeferOperation([blocks, device = instance.GetDevice(), view] { device.destroyImageView(view); });
+    scheduler.DeferOperation(
+        [device = instance.GetDevice(), view] { device.destroyImageView(view); });
 }
 
 void BlitHelper::ReinterpretColorAsMsDepth(u32 width, u32 height, u32 num_samples,

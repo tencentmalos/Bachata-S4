@@ -72,7 +72,7 @@ int main() {
     GuestAudio audio(*space, clock,
                      [state](PortOut& port) { return std::make_unique<Sink>(state, port); });
     GuestAudio3d engine(*space, audio);
-    auto call = [&](std::string_view nid, std::array<u64, 6> a = {}) {
+    auto call = [&](std::string_view nid, std::array<u64, 7> a = {}) {
         return u32(engine.Dispatch(nid, a));
     };
     CHECK(call("lw0qrdSjZt8", {1}) == u32(ORBIS_AUDIO3D_ERROR_NOT_READY));
@@ -171,7 +171,7 @@ int main() {
         CHECK(state->cv.wait_for(lock, std::chrono::seconds(3),
                                  [&] { return state->blocks.size() > 2; }));
     }
-    CHECK(call("VEVhZ9qd4ZY", {port, 0}) == u32(ORBIS_AUDIO3D_ERROR_NOT_READY));
+    CHECK(call("VEVhZ9qd4ZY", {port, 0}) == 0); // request accepted; Close cancels it
     CHECK(call("OyVqOeVNtSk", {port}) == 0);
     CHECK(flush.wait_for(std::chrono::seconds(3)) == std::future_status::ready);
     CHECK(s32(flush.get()) < 0);
@@ -180,6 +180,149 @@ int main() {
     CHECK(call("UmCvjSmuZIw") == 0);
     engine.RequestStop();
     CHECK(call("UmCvjSmuZIw") == u32(ORBIS_AUDIO3D_ERROR_NOT_READY));
+    // Explicit Audio3d AudioOut handles own copied PCM until Push/Flush and
+    // participate in port cancellation, without sharing arbitrary AudioOut handles.
+    {
+        std::lock_guard lock(state->mutex);
+        state->block = false;
+        state->blocks.clear();
+    }
+    GuestAudio3d associated(*space, audio);
+    auto assoc = [&](std::string_view nid, std::array<u64, 7> a = {}) {
+        return u32(associated.Dispatch(nid, a));
+    };
+    CHECK(assoc("UmCvjSmuZIw") == 0);
+    CHECK(assoc("Im+jOoa5WAI", {b}) == 0);
+    write(b + 8, u32(512)); // Explicit granularity; defaults are 256 samples.
+    CHECK(assoc("XeDDK0xJWQA", {255, b, b + 0x100}) == 0);
+    const u32 ap = read(b + 0x100);
+    CHECK(assoc("ucEsi62soTo", {ap, 255, 0, 0, 256, 48000, 1}) ==
+          u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
+    CHECK(s32(assoc("ucEsi62soTo", {ap, 255, 0, 0, 512, 48000, 255})) < 0);
+    const u32 ah = assoc("ucEsi62soTo", {ap, 255, 0, 0, 512, 48000, 1});
+    CHECK(s32(ah) > 0);
+    std::array<s16, 1024> copied;
+    copied.fill(1234);
+    write(b + 0x3000, copied);
+    CHECK(assoc("7NYEzJ9SJbM", {ah, 0}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
+    CHECK(assoc("7NYEzJ9SJbM", {ah, b + 0x9000}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
+    CHECK(assoc("7NYEzJ9SJbM", {ah, b + 0x3001}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
+    CHECK(assoc("7NYEzJ9SJbM", {ah, b + 0x3000}) == 1024);
+    CHECK(assoc("7NYEzJ9SJbM", {ah, b + 0x3000}) == 1024);
+    CHECK(assoc("7NYEzJ9SJbM", {ah, b + 0x3000}) == u32(ORBIS_AUDIO3D_ERROR_NOT_READY));
+    copied.fill(4321);
+    write(b + 0x3000, copied);
+    CHECK(assoc("ZOGrxWLgQzE", {ap}) == 0);
+    {
+        std::lock_guard lock(state->mutex);
+        CHECK(state->blocks.size() == 2);
+        for (const auto& block : state->blocks)
+            for (auto sample : block)
+                CHECK(sample == 1234);
+    }
+    struct AudioRequest {
+        u32 handle, pad;
+        u64 address;
+    } request{ah, 0, b + 0x3000};
+    write(b + 0x280, request);
+    CHECK(assoc("HbxYY27lK6E", {b + 0x280, 1}) == 0);
+    CHECK(assoc("HbxYY27lK6E", {b + 0x280, 26}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
+    CHECK(assoc("pZlOm1aF3aA", {ah}) == 0); // queued PCM is discarded on close
+    CHECK(assoc("pZlOm1aF3aA", {ah}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PORT));
+    CHECK(assoc("ZOGrxWLgQzE", {ap}) == 0);
+    CHECK(assoc("7NYEzJ9SJbM", {ah, b + 0x3000}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PORT));
+    const u32 blocked_handle = assoc("ucEsi62soTo", {ap, 255, 0, 0, 512, 48000, 1});
+    CHECK(s32(blocked_handle) > 0);
+    CHECK(assoc("7NYEzJ9SJbM", {blocked_handle, b + 0x3000}) == 1024);
+    {
+        std::lock_guard lock(state->mutex);
+        state->block = true;
+    }
+    auto associated_flush =
+        std::async(std::launch::async, [&] { return assoc("ZOGrxWLgQzE", {ap}); });
+    {
+        std::unique_lock lock(state->mutex);
+        CHECK(state->cv.wait_for(lock, std::chrono::seconds(3),
+                                 [&] { return state->blocks.size() == 3; }));
+    }
+    CHECK(assoc("OyVqOeVNtSk", {ap}) == 0);
+    CHECK(associated_flush.wait_for(std::chrono::seconds(3)) == std::future_status::ready);
+    CHECK(s32(associated_flush.get()) < 0);
+    CHECK(assoc("pZlOm1aF3aA", {blocked_handle}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PORT));
+    CHECK(assoc("WW1TS2iz5yc") == 0);
+    // Async Push must retain an accepted output request across sink backpressure.
+    // The guest may only retry Advance after Push; it must not need another Push
+    // to release a full mix queue when the device starts consuming again.
+    {
+        std::lock_guard lock(state->mutex);
+        state->block = true;
+        state->blocks.clear();
+    }
+    GuestAudio3d asynchronous(*space, audio);
+    auto async_call = [&](std::string_view nid, std::array<u64, 7> a = {}) {
+        return u32(asynchronous.Dispatch(nid, a));
+    };
+    CHECK(async_call("UmCvjSmuZIw") == 0);
+    CHECK(async_call("Im+jOoa5WAI", {b}) == 0);
+    CHECK(async_call("XeDDK0xJWQA", {255, b, b + 0x100}) == 0);
+    const u32 async_port = read(b + 0x100);
+    auto level = [&] {
+        CHECK(async_call("YaaDbDwKpFM", {async_port, b + 0x110, 0}) == 0);
+        return read(b + 0x110);
+    };
+    auto wait_level = [&](u32 maximum) {
+        const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (level() > maximum && std::chrono::steady_clock::now() < end)
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        return level() <= maximum;
+    };
+    unsigned frames{};
+    bool saturated{};
+    for (; frames < 16;) {
+        stereo.fill(s16(1000 + frames * 100));
+        write(b + 0x3000, stereo);
+        CHECK(async_call("9tEwE0GV0qo", {async_port, 2, 0, b + 0x3000, 256}) == 0);
+        CHECK(async_call("lw0qrdSjZt8", {async_port}) == 0);
+        ++frames;
+        CHECK(async_call("VEVhZ9qd4ZY", {async_port, 0}) == 0);
+        if (!wait_level(1)) {
+            saturated = true;
+            break;
+        }
+    }
+    CHECK(saturated && frames >= 4 && frames < 16);
+    {
+        std::lock_guard lock(state->mutex);
+        state->block = false;
+    }
+    state->cv.notify_all();
+    CHECK(wait_level(1)); // No second Push to recover the accepted request.
+    CHECK(async_call("ZOGrxWLgQzE", {async_port}) == 0);
+    {
+        std::lock_guard lock(state->mutex);
+        CHECK(state->blocks.size() == frames);
+        for (size_t i = 0; i < state->blocks.size(); ++i)
+            CHECK(state->blocks[i][0] == s16(999 + i * 100));
+    }
+    {
+        std::lock_guard lock(state->mutex);
+        state->block = true;
+    }
+    bool blocked_consumer{};
+    for (unsigned i = 0; i < 16; ++i) {
+        CHECK(async_call("lw0qrdSjZt8", {async_port}) == 0);
+        CHECK(async_call("VEVhZ9qd4ZY", {async_port, 0}) == 0);
+        if (!wait_level(1)) {
+            blocked_consumer = true;
+            break;
+        }
+    }
+    CHECK(blocked_consumer);
+    auto async_close =
+        std::async(std::launch::async, [&] { return async_call("OyVqOeVNtSk", {async_port}); });
+    CHECK(async_close.wait_for(std::chrono::seconds(3)) == std::future_status::ready);
+    CHECK(async_close.get() == 0);
+    CHECK(async_call("lw0qrdSjZt8", {async_port}) == u32(ORBIS_AUDIO3D_ERROR_INVALID_PORT));
     std::printf("checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

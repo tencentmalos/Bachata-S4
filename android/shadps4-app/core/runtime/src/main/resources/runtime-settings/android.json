@@ -1,5 +1,22 @@
 [
 {
+  "id": "gpu.direct_memory_access_enabled",
+  "nativeKey": "GPU.direct_memory_access_enabled",
+  "section": "GPU",
+  "category": "GPU",
+  "title": "GPU Direct Memory Access",
+  "help": "Allow shaders to read dynamically indexed game memory. Required by games such as Monster Hunter Rise. Restart required.",
+  "kind": "BOOLEAN",
+  "defaultValue": false,
+  "minimum": null,
+  "maximum": null,
+  "choices": [],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true,
+  "risk": "NORMAL",
+  "readOnlyReason": null
+},
+{
   "id": "gpu.xr_status_layer",
   "nativeKey": "Vulkan.xr_status_layer",
   "section": "Vulkan",

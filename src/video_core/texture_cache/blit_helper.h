@@ -19,6 +19,7 @@ class Scheduler;
 namespace VideoCore {
 
 class Image;
+class Buffer;
 class ImageView;
 struct ImageInfo;
 
@@ -60,6 +61,7 @@ private:
     // Both run on the codec module's encoder class; they differ only in their shader.
     std::unique_ptr<spatial::texture_codec::VulkanAstcEncoder> astc_encoder;
     std::unique_ptr<spatial::texture_codec::VulkanAstcEncoder> bc7_encoder;
+    std::unique_ptr<Buffer> block_encode_scratch;
     const Vulkan::Instance& instance;
     Vulkan::Scheduler& scheduler;
     vk::UniqueDescriptorSetLayout single_texture_descriptor_set_layout;

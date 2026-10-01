@@ -21,13 +21,13 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 27u; // per-type Float16/64 and Float32 preserve denorm modes
+static constexpr u32 ShaderBinaryVersion = 34u; // BDA root / guarded implicit sample gradients
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 15u; // sharp fetch summary, no is_cube
+static constexpr u32 ShaderMetaVersion = 23u; // dynamic image slot masks
 #else
-static constexpr u32 ShaderMetaVersion = 16u; // sharp fetch summary, no is_cube
+static constexpr u32 ShaderMetaVersion = 24u; // dynamic image slot masks
 #endif
-static constexpr u32 PipelineKeyVersion = 6u; // indirect draw base vertex/instance parameters
+static constexpr u32 PipelineKeyVersion = 7u; // indirect draw base vertex/instance parameters
 } // namespace Serialization
 
 namespace Vulkan {
@@ -196,6 +196,7 @@ void GraphicsPipeline::SerializationSupport::Serialize(Serialization::Archive& a
     sdata.Write(multisampling);
     sdata.Write(tcs);
     sdata.Write(tes);
+    sdata.Write(interpolation_gs);
 }
 
 bool GraphicsPipeline::SerializationSupport::Deserialize(Serialization::Archive& ar) {
@@ -207,6 +208,7 @@ bool GraphicsPipeline::SerializationSupport::Deserialize(Serialization::Archive&
     sdata.Read(multisampling);
     sdata.Read(tcs);
     sdata.Read(tes);
+    sdata.Read(interpolation_gs);
     return true;
 }
 
@@ -300,55 +302,38 @@ u32 PipelineCache::BuildPreloaded(std::vector<PreloadJob>& jobs) {
 }
 
 bool PipelineCache::LoadPipelineStage(Serialization::Archive& ar, size_t stage) {
-    auto program = std::make_unique<Program>();
+    auto info = std::make_unique<Shader::Info>();
     Shader::StageSpecialization spec{};
-    spec.info = &program->info;
+    spec.info = info.get();
     size_t perm_idx{};
-    if (!LoadShaderMeta(ar, program->info, fetch_shader, spec, perm_idx)) {
+    if (!LoadShaderMeta(ar, *info, fetch_shader, spec, perm_idx))
         return false;
-    }
-
+    // A malformed cache must not allocate an unbounded sparse module vector.
+    if (perm_idx > 4095)
+        return false;
     std::vector<u32> spv{};
     Storage::DataBase::Instance().Load(Storage::BlobType::ShaderBinary,
-                                       fmt::format("{:#018x}_{}", program->info.pgm_hash, perm_idx),
-                                       spv);
-    if (spv.empty()) {
+                                       fmt::format("{:#018x}_{}", info->pgm_hash, perm_idx), spv);
+    if (spv.empty())
         return false;
+
+    auto [it_pgm, new_program] = program_cache.try_emplace(info->pgm_hash);
+    if (new_program)
+        it_pgm.value() = std::make_unique<Program>();
+    auto& program = *it_pgm.value();
+    if (perm_idx < program.modules.size() && program.modules[perm_idx].info) {
+        // Never replace a loaded Info: earlier preload jobs/pipelines retain it.
+        const auto& existing = program.modules[perm_idx];
+        if (!(existing.spec == spec))
+            return false;
+        infos[stage] = existing.info.get();
+        modules[stage] = existing.module;
+        return true;
     }
-
-    // Permutation hash depends on shader variation index. To prevent collisions, we need insert it
-    // at the exact position rather than append
-
-    vk::ShaderModule module{};
-
-    auto [it_pgm, new_program] = program_cache.try_emplace(program->info.pgm_hash);
-    if (new_program) {
-        module = CompileSPV(spv, instance.GetDevice());
-        it_pgm.value() = std::move(program);
-    } else {
-        const auto& it = std::ranges::find(it_pgm.value()->modules, spec, &Program::Module::spec);
-        if (it != it_pgm.value()->modules.end()) {
-            // A matching permutation is valid only at its original index. A different index means
-            // the store holds entries from more than one cache generation, so this pipeline is
-            // left to compile at runtime.
-            const auto idx = std::distance(it_pgm.value()->modules.begin(), it);
-            if (perm_idx != idx) {
-                LOG_WARNING(Render_Vulkan,
-                            "Cached permutation {} of {}_{:x} conflicts with index {}, skipping "
-                            "preload",
-                            perm_idx, program->info.hw_stage, program->info.pgm_hash, idx);
-                return false;
-            }
-            module = it->module;
-        } else {
-            module = CompileSPV(spv, instance.GetDevice());
-        }
-    }
-    it_pgm.value()->InsertPermut(module, std::move(spec), perm_idx);
-
-    infos[stage] = &it_pgm.value()->info;
+    const auto module = CompileSPV(spv, instance.GetDevice());
+    program.InsertPermut(module, std::move(info), std::move(spec), perm_idx);
+    infos[stage] = program.modules[perm_idx].info.get();
     modules[stage] = module;
-
     return true;
 }
 
@@ -618,10 +603,12 @@ void PipelineCache::SaveUsage() {
         }
     };
     for (const auto& [key, pipeline] : graphics_pipelines) {
-        note(*pipeline, std::hash<GraphicsPipelineKey>{}(key));
+        if (pipeline)
+            note(*pipeline, std::hash<GraphicsPipelineKey>{}(key));
     }
     for (const auto& [key, pipeline] : compute_pipelines) {
-        note(*pipeline, key.value);
+        if (pipeline)
+            note(*pipeline, key.value);
     }
 
     // The map key folds the kind into the hash; recover both for the file.
@@ -701,6 +688,10 @@ void Info::Serialize(Serialization::Archive& ar) const {
     info.Write(this, sizeof(InfoPersistent));
     info.Write(uses_lane_id);
     info.Write(uses_group_ballot);
+    info.Write(loads.flags.data(), sizeof(loads.flags));
+    info.Write(stores.flags.data(), sizeof(stores.flags));
+    info.Write(fs_interpolation.data(), sizeof(fs_interpolation));
+    info.Write(translation_failed);
     info.Write(flattened_ud_buf);
     srt_info.Serialize(ar);
 }
@@ -711,6 +702,10 @@ bool Info::Deserialize(Serialization::Archive& ar) {
     info.Read(this, sizeof(Shader::InfoPersistent));
     info.Read(uses_lane_id);
     info.Read(uses_group_ballot);
+    info.Read(loads.flags.data(), sizeof(loads.flags));
+    info.Read(stores.flags.data(), sizeof(stores.flags));
+    info.Read(fs_interpolation.data(), sizeof(fs_interpolation));
+    info.Read(translation_failed);
     info.Read(flattened_ud_buf);
 
     return srt_info.Deserialize(ar);
@@ -800,6 +795,9 @@ void StageSpecialization::Serialize(Serialization::Archive& ar) const {
     spec.Write(runtime_info);
 
     spec.Write(bitset.to_string());
+    for (const u32 mask : dynamic_image_masks) {
+        spec.Write(mask);
+    }
 
     if (fetch_shader_data) {
         spec.Write(sizeof(*fetch_shader_data));
@@ -824,6 +822,9 @@ bool StageSpecialization::Deserialize(Serialization::Archive& ar) {
     std::string bits{};
     spec.Read(bits);
     bitset = std::bitset<MaxStageResources>(bits);
+    for (u32& mask : dynamic_image_masks) {
+        spec.Read(mask);
+    }
 
     u64 fetch_data_size{};
     spec.Read(fetch_data_size);

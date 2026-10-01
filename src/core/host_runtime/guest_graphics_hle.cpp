@@ -3,9 +3,10 @@
 #include <cstring>
 #include <tuple>
 #include <vector>
+#include "common/logging/log.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/guest_cpu/api/address_space.h"
 #include "core/guest_cpu/hle/scope.h"
-#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/gnmdriver/gnmdriver_init.h"
 #include "core/libraries/kernel/orbis_error.h"
@@ -68,8 +69,8 @@ u64 EncoderCall(u32* output, const Args& a, const u32* regs, const char* marker,
     return static_cast<u32>(Fn(argument.template operator()<I>()...));
 }
 } // namespace
-Result<PinnedSpan> AcquireGraphicsCommandBuffer(GuestAddressSpace& space, GuestRange range,
-                                                 bool writable, std::stop_token stop) {
+Result<PinnedSpan> AcquireGraphicsByteBuffer(GuestAddressSpace& space, GuestRange range,
+                                             bool writable, std::stop_token stop) {
     GuestAddressSpace::DataRequest request{range,
         writable ? GuestPermission::Write : GuestPermission::Read, {}, true};
     auto pins = space.AcquireDataBatch(std::span{&request, 1}, stop);
@@ -193,8 +194,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                 }
 
                 // Validate the entire dword capacity and preserve unwritten padding.
-                auto pin =
-                    AcquireGraphicsCommandBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
+                auto pin = AcquireGraphicsByteBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
                 if (!pin)
                     return refused("command buffer not writable");
                 const u64 window = max_words ? std::min<u64>(a[1], max_words) : a[1];
@@ -246,7 +246,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
         auto* port = graphics.VideoOut().GetPort(a[2]);
         if (!port || !port->is_open || a[3] >= VideoOut::MaxDisplayBuffers || a[1] != 7)
             return u32(-1);
-        auto result = AcquireGraphicsCommandBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
+        auto result = AcquireGraphicsByteBuffer(space, {GuestAddress{a[0]}, a[1] * 4}, true);
         if (!result) return u32(-1);
         auto pin = std::move(result).Value();
         return u32(GnmDriver::sceGnmInsertWaitFlipDone(
@@ -333,9 +333,20 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             for (s32 i = 0; i < count; ++i) {
                 const auto address = Read<u64>(space, a[2] + i * 8);
                 VideoCore::ImageInfo info(BufferAttributeGroup{true, attribute}, address);
-                if (address % 256 || !space.ValidateRange({GuestAddress{address}, info.guest_size},
-                                                          GuestPermission::Read))
+                // A surface can span several adjacent direct-memory mappings (MHR
+                // uses 4 MiB chunks). Validate every segment through the byte-
+                // buffer path; the surrounding graphics admission lease keeps
+                // VM replacement from racing publication to the presenter.
+                auto validation = AcquireGraphicsByteBuffer(
+                    space, {GuestAddress{address}, info.guest_size}, false);
+                if (address % 256 || !validation) {
+                    LOG_ERROR(Lib_VideoOut,
+                              "Buffer registration rejected: handle={} slot={} address={:#x} "
+                              "size={:#x} aligned={} validation={}",
+                              a[0], start + i, address, info.guest_size, address % 256 == 0,
+                              validation ? "ok" : Describe(validation.GetError()));
                     return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS);
+                }
                 addresses[i] = reinterpret_cast<void*>(address);
             }
             return u32(graphics.VideoOut().RegisterBuffers(port, start, addresses.data(), count,
@@ -386,12 +397,15 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         ccbs[i].resize(cs[i] / 4);
                         source_addresses[i] = Read<u64>(space, a[1] + i * 8);
                         {
-                            auto pin = AcquireGraphicsCommandBuffer(space, {GuestAddress{source_addresses[i]}, ds[i]}, false);
+                            auto pin = AcquireGraphicsByteBuffer(
+                                space, {GuestAddress{source_addresses[i]}, ds[i]}, false);
                             if (!pin) return 0x80d11000u;
                             std::memcpy(dcbs[i].data(), pin.Value().Bytes().data(), ds[i]);
                         }
                         if (cs[i]) {
-                            auto pin = AcquireGraphicsCommandBuffer(space, {GuestAddress{Read<u64>(space, a[3] + i * 8)}, cs[i]}, false);
+                            auto pin = AcquireGraphicsByteBuffer(
+                                space, {GuestAddress{Read<u64>(space, a[3] + i * 8)}, cs[i]},
+                                false);
                             if (!pin) return 0x80d11000u;
                             std::memcpy(ccbs[i].data(), pin.Value().Bytes().data(), cs[i]);
                         }

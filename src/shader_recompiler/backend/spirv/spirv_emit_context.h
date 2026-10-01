@@ -333,6 +333,7 @@ public:
     Id bary_coord_pull_model{};
     Id bary_coord_nopersp{};
     Id bary_coord_nopersp_sample{};
+    Id bary_coord_nopersp_centroid{};
 
     struct TextureDefinition {
         const VectorIds* data_types;

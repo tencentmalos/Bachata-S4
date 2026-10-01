@@ -21,17 +21,31 @@ layout(std430, binding = 1) buffer output_buf32 {
 
 void main() {
     const uint id = gl_GlobalInvocationID.x;
+    if (id >= fault_buffer.length()) {
+        return;
+    }
     uint word = fault_buffer[id];
-    fault_buffer[id] = 0u;
     const uint base_bit = id * 32u;
     while (word != 0u) {
-        const uint store_index = atomicAdd(download_buffer32[0], 1u) + 1u;
-        if (store_index >= MAX_PAGE_FAULTS) {
-            return;
+        // Reserve without growing the count beyond the output descriptor. Keep
+        // unconsumed bits for the next pass instead of losing overflow faults.
+        uint count = atomicAdd(download_buffer32[0], 0u);
+        bool reserved = false;
+        while (count < MAX_PAGE_FAULTS - 1u) {
+            const uint previous = atomicCompSwap(download_buffer32[0], count, count + 1u);
+            if (previous == count) {
+                reserved = true;
+                break;
+            }
+            count = previous;
+        }
+        if (!reserved) {
+            break;
         }
         const uint bit = findLSB(word);
         word &= word - 1;
         const uint page = base_bit + bit;
-        download_buffer[store_index] = uvec2(page << CACHING_PAGEBITS, page >> (32 - CACHING_PAGEBITS));
+        download_buffer[count + 1u] = uvec2(page << CACHING_PAGEBITS, page >> (32 - CACHING_PAGEBITS));
     }
+    fault_buffer[id] = word;
 }

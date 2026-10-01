@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <atomic>
 #include <cmath>
+#include <condition_variable>
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <thread>
 #include <utility>
 #include "common/logging/log.h"
+#include "common/thread.h"
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_audio.h"
 #include "core/host_runtime/guest_audio3d.h"
@@ -72,7 +75,12 @@ struct GuestAudio3d::Impl {
         // Serializes output submission only. Stop/Close never wait for this mutex.
         std::mutex submit;
         std::stop_source cancel;
+        std::mutex close;
+        std::condition_variable_any output_changed;
+        bool output_requested{};
+        s32 output_error{};
         bool closed{};
+        std::jthread output_worker;
         ~SessionPort() {
             Clear(mix.bed_queue);
             Clear(mix.mixed_queue);
@@ -111,17 +119,132 @@ struct GuestAudio3d::Impl {
     }
     void Check(const SessionPort& p) {
         Require(!p.closed, ORBIS_AUDIO3D_ERROR_INVALID_PORT);
+        Require(!p.output_error, p.output_error);
     }
     void Close(const std::shared_ptr<SessionPort>& p) {
+        std::lock_guard close(p->close);
         s32 handle;
+        std::vector<AssociatedAudioOutPort> associated;
         {
             std::lock_guard lock(p->mix.mutex);
             p->closed = true;
             p->cancel.request_stop();
             handle = std::exchange(p->mix.audio_out_handle, -1);
+            associated.swap(p->mix.audioout_ports);
         }
+        p->output_changed.notify_all();
         if (handle >= 0)
             audio.Dispatch("s1--uE9mBFw", {u32(handle)});
+        for (const auto& port : associated)
+            audio.Dispatch("s1--uE9mBFw", {u32(port.handle)});
+        if (p->output_worker.joinable())
+            p->output_worker.join();
+    }
+    std::shared_ptr<SessionPort> FindAssociated(u32 handle) {
+        std::lock_guard lock(mutex);
+        Alive();
+        for (const auto& [id, p] : ports) {
+            std::lock_guard port_lock(p->mix.mutex);
+            if (!p->closed && std::ranges::any_of(p->mix.audioout_ports, [handle](const auto& out) {
+                    return u32(out.handle) == handle;
+                }))
+                return p;
+        }
+        throw Failure{ORBIS_AUDIO3D_ERROR_INVALID_PORT};
+    }
+    static auto Associated(SessionPort& p, u32 handle) {
+        return std::ranges::find_if(
+            p.mix.audioout_ports, [handle](const auto& out) { return u32(out.handle) == handle; });
+    }
+    u64 OpenAssociated(const std::array<u64, 7>& a, std::stop_token stop) {
+        auto p = Find(a[0]);
+        {
+            std::lock_guard lock(p->mix.mutex);
+            Check(*p);
+            Require(u32(a[4]) == p->mix.parameters.granularity);
+        }
+        const s32 handle =
+            audio.Dispatch("ekNvsT22rsY", {a[1], a[2], a[3], a[4], a[5], a[6]}, stop);
+        Require(handle >= 0, handle);
+        try {
+            const auto info = Libraries::AudioOut::GetFormatInfo(
+                Libraries::AudioOut::OrbisAudioOutParamFormat(u32(a[6]) & 255));
+            AssociatedAudioOutPort out{};
+            out.handle = handle;
+            out.buffer_bytes = u32(a[4]) * info.FrameSize();
+            out.samples_per_buffer = u32(a[4]) * info.num_channels;
+            out.is_float = info.is_float;
+            std::lock_guard lock(p->mix.mutex);
+            Check(*p);
+            p->mix.audioout_ports.push_back(std::move(out));
+        } catch (...) {
+            audio.Dispatch("s1--uE9mBFw", {u32(handle)});
+            throw;
+        }
+        return u32(handle);
+    }
+    u64 OutputAssociated(u32 handle, u64 address, std::stop_token stop) {
+        Require(address != 0);
+        auto p = FindAssociated(handle);
+        u32 bytes, samples;
+        {
+            std::lock_guard lock(p->mix.mutex);
+            Check(*p);
+            auto it = Associated(*p, handle);
+            Require(it != p->mix.audioout_ports.end(), ORBIS_AUDIO3D_ERROR_INVALID_PORT);
+            Require(!(address & (it->is_float ? 3 : 1)));
+            Require(it->pending.size() < p->mix.parameters.queue_depth,
+                    ORBIS_AUDIO3D_ERROR_NOT_READY);
+            bytes = it->buffer_bytes;
+            samples = it->samples_per_buffer;
+        }
+        std::vector<u8> buffer(bytes);
+        Read(address, buffer, stop);
+        std::lock_guard lock(p->mix.mutex);
+        Check(*p);
+        auto it = Associated(*p, handle);
+        Require(it != p->mix.audioout_ports.end(), ORBIS_AUDIO3D_ERROR_INVALID_PORT);
+        Require(it->pending.size() < p->mix.parameters.queue_depth, ORBIS_AUDIO3D_ERROR_NOT_READY);
+        it->pending.push_back(std::move(buffer));
+        return samples;
+    }
+    void DrainAssociated(SessionPort& p, bool flush, u32 blocking) {
+        for (;;) {
+            s32 handle;
+            std::vector<u8> buffer;
+            {
+                std::lock_guard lock(p.mix.mutex);
+                Check(p);
+                auto it = std::ranges::find_if(
+                    p.mix.audioout_ports, [](const auto& out) { return !out.pending.empty(); });
+                if (it == p.mix.audioout_ports.end())
+                    break;
+                handle = it->handle;
+                buffer = it->pending.front(); // Close may retire the queue while output waits.
+            }
+            const s32 result =
+                audio.OutputHost(handle, buffer, p.cancel.get_token(), !flush && !blocking);
+            Require(result != ORBIS_AUDIO_OUT_ERROR_BUSY, ORBIS_AUDIO3D_ERROR_NOT_READY);
+            Require(result >= 0, result);
+            std::lock_guard lock(p.mix.mutex);
+            Check(p);
+            auto it = Associated(p, handle);
+            Require(it != p.mix.audioout_ports.end(), ORBIS_AUDIO3D_ERROR_INVALID_PORT);
+            it->pending.pop_front();
+        }
+        if (flush) {
+            std::vector<s32> handles;
+            {
+                std::lock_guard lock(p.mix.mutex);
+                Check(p);
+                for (const auto& out : p.mix.audioout_ports)
+                    handles.push_back(out.handle);
+            }
+            for (const auto handle : handles) {
+                const s32 result = audio.OutputHost(handle, {}, p.cancel.get_token());
+                Require(result >= 0, result);
+            }
+        }
     }
     void Stop(bool final) {
         std::map<u32, std::shared_ptr<SessionPort>> retired;
@@ -155,7 +278,7 @@ struct GuestAudio3d::Impl {
         std::memcpy(result.data.sample_buffer, pins.Value()[0].Bytes().data(), request.range.size);
         return result;
     }
-    u64 Open(const std::array<u64, 6>& a, bool create, std::stop_token stop) {
+    u64 Open(const std::array<u64, 7>& a, bool create, std::stop_token stop) {
         OrbisAudio3dOpenParameters params{
             0x28, 256, OrbisAudio3dRate(0), 512, 2, OrbisAudio3dBufferMode(0), 0, 2};
         const u64 output = create ? a[3] : a[2];
@@ -191,6 +314,45 @@ struct GuestAudio3d::Impl {
         const u32 id = next_id.fetch_add(1);
         Require(id && id < 0x7fffffff, ORBIS_AUDIO3D_ERROR_OUT_OF_RESOURCES);
         ports.emplace(id, p);
+        try {
+            // The map owns the port until Close cancels and joins this consumer.
+            p->output_worker = std::jthread([this, port = p.get()] {
+                Common::SetCurrentThreadName("shad:Audio3d");
+                Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
+                std::unique_lock lock(port->mix.mutex);
+                while (!port->closed) {
+                    port->output_changed.wait(lock, port->cancel.get_token(), [&] {
+                        return port->output_requested || port->closed;
+                    });
+                    if (port->closed || port->cancel.stop_requested())
+                        break;
+                    port->output_requested = false;
+                    lock.unlock();
+                    s32 error{};
+                    try {
+                        Push(*port, false, 1, {});
+                    } catch (Failure failure) {
+                        error = failure.error;
+                    } catch (const std::bad_alloc&) {
+                        error = ORBIS_AUDIO3D_ERROR_OUT_OF_MEMORY;
+                    } catch (...) {
+                        error = ORBIS_AUDIO3D_ERROR_UNKNOWN;
+                    }
+                    lock.lock();
+                    if (error && !port->closed) {
+                        port->output_error = error;
+                        LOG_ERROR(Lib_Audio3d, "Async output failed: {:#x}", u32(error));
+                        break;
+                    }
+                }
+            });
+        } catch (const std::system_error&) {
+            ports.erase(id);
+            throw Failure{ORBIS_AUDIO3D_ERROR_OUT_OF_RESOURCES};
+        } catch (...) {
+            ports.erase(id);
+            throw;
+        }
         std::memcpy(pin.WritableBytes().data(), &id, 4);
         return 0;
     }
@@ -257,47 +419,57 @@ struct GuestAudio3d::Impl {
             item.pcm.data.sample_buffer = nullptr;
         return 0;
     }
-    u64 Push(const std::shared_ptr<SessionPort>& p, bool flush, u32 blocking,
-             std::stop_token stop) {
+    u64 Push(SessionPort& p, bool flush, u32 blocking, std::stop_token stop) {
         Require(flush || blocking <= 1);
-        std::stop_callback cancelled(stop, [&] { p->cancel.request_stop(); });
-        std::unique_lock submit(p->submit, std::defer_lock);
-        if (!flush && !blocking)
-            Require(submit.try_lock(), ORBIS_AUDIO3D_ERROR_NOT_READY);
-        else
-            submit.lock();
+        if (!flush && !blocking) {
+            std::lock_guard lock(p.mix.mutex);
+            Check(p);
+            Require(u32(p.mix.parameters.buffer_mode) == 2, ORBIS_AUDIO3D_ERROR_NOT_SUPPORTED);
+            p.output_requested = true;
+            p.output_changed.notify_one();
+            return 0;
+        }
+        std::stop_callback cancelled(stop, [&] { p.cancel.request_stop(); });
+        std::unique_lock submit(p.submit);
+        {
+            std::lock_guard lock(p.mix.mutex);
+            Check(p);
+            Require(flush || u32(p.mix.parameters.buffer_mode) == 2,
+                    ORBIS_AUDIO3D_ERROR_NOT_SUPPORTED);
+        }
+        DrainAssociated(p, flush, blocking);
         s32 handle;
         {
-            std::lock_guard lock(p->mix.mutex);
-            Check(*p);
-            Require(flush || u32(p->mix.parameters.buffer_mode) == 2,
+            std::lock_guard lock(p.mix.mutex);
+            Check(p);
+            Require(flush || u32(p.mix.parameters.buffer_mode) == 2,
                     ORBIS_AUDIO3D_ERROR_NOT_SUPPORTED);
-            handle = p->mix.audio_out_handle;
-            if (flush && p->mix.mixed_queue.empty() &&
-                (!p->mix.bed_queue.empty() ||
-                 std::ranges::any_of(p->mix.objects,
-                                     [](const auto& x) { return !x.second.pcm_queue.empty(); }))) {
-                const auto result = ProcessMixQueue(p->mix);
+            handle = p.mix.audio_out_handle;
+            if (flush && p.mix.mixed_queue.empty() &&
+                (!p.mix.bed_queue.empty() || std::ranges::any_of(p.mix.objects, [](const auto& x) {
+                    return !x.second.pcm_queue.empty();
+                }))) {
+                const auto result = ProcessMixQueue(p.mix);
                 Require(result == 0, result);
             }
-            if (p->mix.mixed_queue.empty() ||
-                (!flush && p->mix.mixed_queue.size() < p->mix.parameters.queue_depth))
+            if (p.mix.mixed_queue.empty() ||
+                (!flush && p.mix.mixed_queue.size() < p.mix.parameters.queue_depth))
                 return 0;
         }
         if (handle < 0) {
             handle =
                 s32(audio.Dispatch("ekNvsT22rsY",
                                    {255, u32(Libraries::AudioOut::OrbisAudioOutPort::Audio3d), 0,
-                                    p->mix.parameters.granularity, 48000,
+                                    p.mix.parameters.granularity, 48000,
                                     u32(Libraries::AudioOut::OrbisAudioOutParamFormat::S16Stereo)},
-                                   p->cancel.get_token()));
+                                   p.cancel.get_token()));
             Require(handle >= 0, handle);
             bool closed;
             {
-                std::lock_guard lock(p->mix.mutex);
-                closed = p->closed;
+                std::lock_guard lock(p.mix.mutex);
+                closed = p.closed;
                 if (!closed)
-                    p->mix.audio_out_handle = handle;
+                    p.mix.audio_out_handle = handle;
             }
             if (closed) {
                 audio.Dispatch("s1--uE9mBFw", {u32(handle)});
@@ -307,33 +479,31 @@ struct GuestAudio3d::Impl {
         for (;;) {
             AudioData frame;
             {
-                std::lock_guard lock(p->mix.mutex);
-                Check(*p);
-                if (p->mix.mixed_queue.empty() ||
-                    (!flush && p->mix.mixed_queue.size() < p->mix.parameters.queue_depth))
+                std::lock_guard lock(p.mix.mutex);
+                Check(p);
+                if (p.mix.mixed_queue.empty() ||
+                    (!flush && p.mix.mixed_queue.size() < p.mix.parameters.queue_depth))
                     break;
-                frame = p->mix.mixed_queue.front();
+                frame = p.mix.mixed_queue.front();
             }
             auto result =
                 s32(audio.OutputHost(handle, {frame.sample_buffer, size_t(frame.num_samples) * 4},
-                                     p->cancel.get_token(), !flush && !blocking));
+                                     p.cancel.get_token()));
             Require(result != ORBIS_AUDIO_OUT_ERROR_BUSY, ORBIS_AUDIO3D_ERROR_NOT_READY);
             Require(result >= 0, result);
             {
-                std::lock_guard lock(p->mix.mutex);
+                std::lock_guard lock(p.mix.mutex);
                 std::free(frame.sample_buffer);
-                p->mix.mixed_queue.pop_front();
+                p.mix.mixed_queue.pop_front();
             }
-            if (!flush && !blocking)
-                break;
         }
         if (flush) {
-            const auto result = s32(audio.OutputHost(handle, {}, p->cancel.get_token()));
+            const auto result = s32(audio.OutputHost(handle, {}, p.cancel.get_token()));
             Require(result >= 0, result);
         }
         return 0;
     }
-    u64 Dispatch(std::string_view nid, const std::array<u64, 6>& a, std::stop_token stop) {
+    u64 Dispatch(std::string_view nid, const std::array<u64, 7>& a, std::stop_token stop) {
         try {
             Require(!stop.stop_requested(), ORBIS_AUDIO3D_ERROR_NOT_READY);
             if (nid == "UmCvjSmuZIw") {
@@ -362,6 +532,35 @@ struct GuestAudio3d::Impl {
             }
             if (nid == "XeDDK0xJWQA" || nid == "UHFOgVNz0kk")
                 return Open(a, nid == "UHFOgVNz0kk", stop);
+            if (nid == "ucEsi62soTo")
+                return OpenAssociated(a, stop);
+            if (nid == "7NYEzJ9SJbM")
+                return OutputAssociated(a[0], a[1], stop);
+            if (nid == "HbxYY27lK6E") {
+                struct Request {
+                    u32 handle, padding;
+                    u64 address;
+                };
+                Require(a[1] && a[1] <= 25);
+                std::vector<Request> requests(a[1]);
+                Read(a[0],
+                     {reinterpret_cast<u8*>(requests.data()), requests.size() * sizeof(Request)},
+                     stop);
+                for (const auto& request : requests)
+                    OutputAssociated(request.handle, request.address, stop);
+                return 0;
+            }
+            if (nid == "pZlOm1aF3aA") {
+                auto p = FindAssociated(a[0]);
+                {
+                    std::lock_guard lock(p->mix.mutex);
+                    Check(*p);
+                    auto it = Associated(*p, a[0]);
+                    Require(it != p->mix.audioout_ports.end(), ORBIS_AUDIO3D_ERROR_INVALID_PORT);
+                    p->mix.audioout_ports.erase(it);
+                }
+                return audio.Dispatch("s1--uE9mBFw", {a[0]}, stop);
+            }
             auto p = Find(a[0]);
             if (nid == "OyVqOeVNtSk") {
                 {
@@ -428,7 +627,7 @@ struct GuestAudio3d::Impl {
                 return ProcessMixQueue(p->mix);
             }
             if (nid == "VEVhZ9qd4ZY" || nid == "ZOGrxWLgQzE")
-                return Push(p, nid == "ZOGrxWLgQzE", a[1], stop);
+                return Push(*p, nid == "ZOGrxWLgQzE", a[1], stop);
             if (nid == "YaaDbDwKpFM") {
                 Require(a[1] || a[2]);
                 std::vector<GuestAddressSpace::DataRequest> requests;
@@ -495,7 +694,7 @@ GuestAudio3d::GuestAudio3d(GuestAddressSpace& space, GuestAudio& audio)
 GuestAudio3d::~GuestAudio3d() {
     impl->Stop(true);
 }
-u64 GuestAudio3d::Dispatch(std::string_view nid, const std::array<u64, 6>& args,
+u64 GuestAudio3d::Dispatch(std::string_view nid, const std::array<u64, 7>& args,
                            std::stop_token stop) {
     return impl->Dispatch(nid, args, stop);
 }

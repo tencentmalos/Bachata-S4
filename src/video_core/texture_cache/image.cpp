@@ -1211,7 +1211,23 @@ bool Image::BlitCopy(Image& src_image) {
     return true;
 }
 
-void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset) {
+u64 Image::CopyBufferSizeUpperBound() const {
+    u64 size{};
+    const u32 block = info.props.is_block ? 4 : 1;
+    for (u32 mip = 0; mip < info.resources.levels; ++mip) {
+        const auto host = HostExtent(mip);
+        const u32 width = std::max(host.width, std::max(info.size.width >> mip, 1u));
+        const u32 height = std::max(host.height, std::max(info.size.height >> mip, 1u));
+        const u32 depth = std::max(host.depth, std::max(info.size.depth >> mip, 1u));
+        size = Common::AlignUp(size + u64(Common::DivCeil(width, block)) *
+                                          Common::DivCeil(height, block) * depth *
+                                          info.resources.layers * (info.num_bits / 8),
+                               u64(16));
+    }
+    return size;
+}
+
+void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset, u64 buffer_size) {
     NoteWrite();
     if (!InheritCopyPlan(src_image, true)) {
         if (BlitCopy(src_image)) return;
@@ -1259,6 +1275,9 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
             Common::DivCeil(mip_h, block) * mip_d * num_layers * (src_info.num_bits / 8);
         mip_offset = Common::AlignUp(mip_offset + mip_bytes, u64(16));
     }
+    ASSERT_MSG(mip_offset - offset <= buffer_size,
+               "Image reinterpretation needs {} bytes, scratch has {}", mip_offset - offset,
+               buffer_size);
 
     const vk::BufferMemoryBarrier2 pre_copy_barrier = {
         .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
@@ -1267,7 +1286,7 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
         .dstAccessMask = vk::AccessFlagBits2::eTransferWrite,
         .buffer = buffer,
         .offset = offset,
-        .size = VK_WHOLE_SIZE,
+        .size = mip_offset - offset,
     };
 
     const vk::BufferMemoryBarrier2 post_copy_barrier = {
@@ -1277,7 +1296,7 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
         .dstAccessMask = vk::AccessFlagBits2::eTransferRead,
         .buffer = buffer,
         .offset = offset,
-        .size = VK_WHOLE_SIZE,
+        .size = mip_offset - offset,
     };
 
     scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);

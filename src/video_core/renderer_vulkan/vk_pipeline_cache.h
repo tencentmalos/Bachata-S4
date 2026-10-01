@@ -43,27 +43,28 @@ class ShaderCache;
 
 struct Program {
     struct Module {
-        vk::ShaderModule module;
+        vk::ShaderModule module{};
+        // Pipeline objects and specialization keys retain pointers into this object.
+        // Own one stable copy per permutation, including after vector growth/preload.
+        std::unique_ptr<Shader::Info> info;
         Shader::StageSpecialization spec;
     };
     static constexpr size_t MaxPermutations = 8;
     using ModuleList = boost::container::small_vector<Module, MaxPermutations>;
-
-    Shader::Info info;
     ModuleList modules{};
 
-    Program() = default;
-    Program(Shader::HwStage stage, Shader::SwStage l_stage, Shader::ShaderParams params)
-        : info{stage, l_stage, params} {}
-
-    void AddPermut(vk::ShaderModule module, Shader::StageSpecialization&& spec) {
-        modules.emplace_back(module, std::move(spec));
+    void AddPermut(vk::ShaderModule module, std::unique_ptr<Shader::Info> info,
+                   Shader::StageSpecialization&& spec) {
+        spec.info = info.get();
+        modules.emplace_back(module, std::move(info), std::move(spec));
     }
 
-    void InsertPermut(vk::ShaderModule module, Shader::StageSpecialization&& spec,
-                      size_t perm_idx) {
-        modules.resize(std::max(modules.size(), perm_idx + 1)); // <-- beware of realloc
-        modules[perm_idx] = {module, std::move(spec)};
+    void InsertPermut(vk::ShaderModule module, std::unique_ptr<Shader::Info> info,
+                      Shader::StageSpecialization&& spec, size_t perm_idx) {
+        modules.resize(std::max(modules.size(), perm_idx + 1));
+        ASSERT(!modules[perm_idx].info); // Existing pipelines may retain that pointer.
+        spec.info = info.get();
+        modules[perm_idx] = {module, std::move(info), std::move(spec)};
     }
 };
 

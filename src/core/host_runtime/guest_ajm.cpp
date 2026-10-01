@@ -87,6 +87,7 @@ struct GuestAjm::Impl {
         BatchError error;
     };
     struct Context {
+        bool closing{};
         std::array<bool, 3> codecs{};
         std::map<u32, std::shared_ptr<Instance>> instances;
         std::map<u64, u64> memory;
@@ -363,7 +364,7 @@ struct GuestAjm::Impl {
                 return u32(ORBIS_AJM_ERROR_INVALID_ADDRESS);
         }
         std::unique_lock lock(mutex);
-        if (!contexts.contains(u32(a[0])))
+        if (!contexts.contains(u32(a[0])) || contexts.at(u32(a[0])).closing)
             return u32(ORBIS_AJM_ERROR_INVALID_CONTEXT);
         auto it = batches.find(u32(a[1]));
         if (it == batches.end() || it->second->context != u32(a[0]))
@@ -372,12 +373,16 @@ struct GuestAjm::Impl {
         if (batch->waiting)
             return u32(ORBIS_AJM_ERROR_BUSY);
         batch->waiting = true;
-        const auto ready = [&] { return batch->done || stopping; };
+        const auto ready = [&] {
+            auto context = contexts.find(u32(a[0]));
+            return batch->done || stopping || context == contexts.end() || context->second.closing;
+        };
         if (u32(a[2]) == UINT32_MAX)
             changed.wait(lock, stop, ready);
         else
             changed.wait_for(lock, stop, std::chrono::milliseconds(u32(a[2])), ready);
-        if (stop.stop_requested() || stopping) {
+        if (stop.stop_requested() || stopping || !contexts.contains(u32(a[0])) ||
+            contexts.at(u32(a[0])).closing) {
             batch->waiting = false;
             return u32(ORBIS_AJM_ERROR_CANCELLED);
         }
@@ -474,7 +479,7 @@ struct GuestAjm::Impl {
         const bool builder = nid == "dmDybN--Fn8" || nid == "stlghnic3Jc" || nid == "ElslOCpOIns" ||
                              nid == "7jdAXK+2fMo";
 
-        std::lock_guard lock(mutex);
+        std::unique_lock lock(mutex);
         if (stopping || stop.stop_requested())
             return builder ? 0 : u32(ORBIS_AJM_ERROR_CANCELLED);
         try {
@@ -507,6 +512,48 @@ struct GuestAjm::Impl {
             auto found = contexts.find(u32(a[0]));
             Need(found != contexts.end(), ORBIS_AJM_ERROR_INVALID_CONTEXT);
             auto& context = found->second;
+            if (nid == "MHur6qCsUus") {
+                // Closing the firmware's AJM descriptor releases its context.
+                // Cancel and retire owned jobs before freeing decoder/output state;
+                // an already waiting caller retains its Batch and observes cancellation.
+                Need(!context.closing, ORBIS_AJM_ERROR_BUSY);
+                context.closing = true;
+                for (auto& [id, batch] : batches)
+                    if (batch->context == u32(a[0]))
+                        batch->cancel.request_stop();
+                changed.notify_all();
+                changed.wait(lock, stop, [&] {
+                    return stopping || std::ranges::none_of(batches, [&](const auto& entry) {
+                               return entry.second->context == u32(a[0]) && !entry.second->done;
+                           });
+                });
+                if (stopping || stop.stop_requested()) {
+                    context.closing = false;
+                    return u32(ORBIS_AJM_ERROR_CANCELLED);
+                }
+                for (auto it = batches.begin(); it != batches.end();) {
+                    if (it->second->context == u32(a[0])) {
+                        resident -= it->second->bytes;
+                        it = batches.erase(it);
+                    } else
+                        ++it;
+                }
+                contexts.erase(found);
+                return 0;
+            }
+            Need(!context.closing, ORBIS_AJM_ERROR_INVALID_CONTEXT);
+            if (nid == "Wi7DtlLV+KI") {
+                Need(u32(a[1]) <= 22, ORBIS_AJM_ERROR_INVALID_PARAMETER);
+                Need(u32(a[1]) < context.codecs.size() && context.codecs[u32(a[1])],
+                     ORBIS_AJM_ERROR_CODEC_NOT_REGISTERED);
+                Need(std::ranges::none_of(context.instances,
+                                          [&](const auto& instance) {
+                                              return u32(instance.second->codec) == u32(a[1]);
+                                          }),
+                     ORBIS_AJM_ERROR_BUSY);
+                context.codecs[u32(a[1])] = false;
+                return 0;
+            }
             if (nid == "Q3dyFuwGn64") {
                 Need(!a[2], ORBIS_AJM_ERROR_INVALID_PARAMETER);
                 Need(u32(a[1]) < 3, ORBIS_AJM_ERROR_CODEC_NOT_SUPPORTED);

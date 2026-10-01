@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <limits>
+#include <xxhash.h>
+#include "core/memory.h"
 #include "shader_recompiler/info.h"
 #include "shader_recompiler/ir/basic_block.h"
 #include "shader_recompiler/ir/breadth_first_search.h"
@@ -14,6 +16,70 @@
 #include "shader_recompiler/ir/reinterpret.h"
 #include "shader_recompiler/profile.h"
 #include "video_core/amdgpu/resource.h"
+
+namespace Shader {
+void Info::RefreshDynamicImageTables() {
+    dynamic_image_snapshots.resize(dynamic_image_tables.size());
+    for (size_t n = 0; n < dynamic_image_tables.size(); ++n) {
+        const auto& table = dynamic_image_tables[n];
+        auto& snapshot = dynamic_image_snapshots[n];
+        AmdGpu::Buffer buffer{};
+        if (!table.buffer_fetch.Fetch(flattened_ud_buf.data(), &buffer) || !buffer.Valid() ||
+            buffer.swizzle_enable || buffer.add_tid_enable || buffer.stride != table.stride ||
+            buffer.num_records > DynamicImageTable::MaxRecords || table.stride < 32 ||
+            table.image_offset > table.stride - 32 ||
+            u64(table.flat_base) + DynamicImageTable::Capacity * 8 > flattened_ud_buf.size())
+            throw std::runtime_error("Unsupported dynamic image table layout");
+        const u64 size = u64(buffer.num_records) * table.stride;
+        if (size > 2 * 1024 * 1024 || u64(buffer.base_address) > UINT64_MAX - size)
+            throw std::runtime_error("Dynamic image table exceeds the bounded snapshot size");
+        snapshot.bytes.resize(size);
+#ifndef ARCH_X86_64
+        SrtGuestReader reader;
+#endif
+        for (u64 offset = 0; offset < size; offset += 256) {
+            const auto count = std::min<u64>(256, size - offset);
+#ifndef ARCH_X86_64
+            const bool read =
+                reader(buffer.base_address + offset, snapshot.bytes.data() + offset, count);
+#else
+            const bool read = Core::Memory::Instance()->TryReadSrtMemory(
+                buffer.base_address + offset, snapshot.bytes.data() + offset, count);
+#endif
+            if (!read)
+                throw std::runtime_error(fmt::format("Cannot read dynamic image table at {:#x}",
+                                                     u64(buffer.base_address) + offset));
+        }
+        const auto hash = XXH3_64bits(snapshot.bytes.data(), snapshot.bytes.size());
+        if (!snapshot.valid || snapshot.hash != hash) {
+            snapshot.images = {};
+            u32 count{};
+            for (u32 i = 0; i < buffer.num_records; ++i) {
+                AmdGpu::Image image{};
+                std::memcpy(&image,
+                            snapshot.bytes.data() + u64(i) * table.stride + table.image_offset,
+                            sizeof(image));
+                // Buffer descriptors and empty entries may share the heap with images.
+                if (!image.Valid() || !image.Address())
+                    continue;
+                if (std::ranges::any_of(std::span(snapshot.images).first(count),
+                                        [&](const auto& old) {
+                                            return std::memcmp(&old, &image, sizeof(image)) == 0;
+                                        }))
+                    continue;
+                if (count == DynamicImageTable::Capacity)
+                    throw std::runtime_error(
+                        "Dynamic image table has more than 32 distinct images");
+                snapshot.images[count++] = image;
+            }
+            snapshot.hash = hash;
+            snapshot.valid = true;
+        }
+        std::memcpy(flattened_ud_buf.data() + table.flat_base, snapshot.images.data(),
+                    sizeof(snapshot.images));
+    }
+}
+} // namespace Shader
 
 namespace Shader::Optimization {
 namespace {
@@ -147,6 +213,9 @@ private:
         const auto it{std::ranges::find_if(descriptors, pred)};
         if (it != descriptors.end()) {
             return static_cast<u32>(std::distance(descriptors.begin(), it));
+        }
+        if (descriptors.size() == descriptors.capacity()) {
+            throw std::runtime_error("Shader exceeds the supported resource binding capacity");
         }
         descriptors.push_back(desc);
         return static_cast<u32>(descriptors.size()) - 1;
@@ -641,7 +710,7 @@ void PatchBufferArgs(IR::Inst& inst, Info& info) {
 void PatchImageSampleArgs(IR::Inst& inst, Info& info, const ImageResource& image_res,
                           const AmdGpu::Image& image) {
     const auto handle = inst.Arg(0);
-    const auto& sampler_res = info.samplers[(handle.U32() >> 16) & 0xFFFF];
+    const auto& sampler_res = info.samplers[(ResourceBinding(handle) >> 16) & 0xFFFF];
     const auto sampler = sampler_res.GetSharp(info);
 
     IR::IREmitter ir{*inst.GetParent(), IR::Block::InstructionList::s_iterator_to(inst)};
@@ -841,7 +910,7 @@ void PatchImageArgs(IR::Inst& inst, Info& info) {
     }
 
     const auto image_handle = inst.Arg(0);
-    const auto binding_index = image_handle.U32() & 0xFFFF;
+    const auto binding_index = ResourceBinding(image_handle) & 0xFFFF;
     const auto& image_res = info.images[binding_index];
     auto image = image_res.GetSharp(info);
 
@@ -931,17 +1000,94 @@ void PatchImageArgs(IR::Inst& inst, Info& info) {
     }
 }
 
+void PatchDynamicImage(const ResourceDiscovery& usage, Info& info, Descriptors& descriptors,
+                       const Profile& profile, ResourceDiscoveryList& expanded) {
+    auto& inst = *usage.user;
+    if (inst.GetOpcode() != IR::Opcode::ImageSampleRaw)
+        throw std::runtime_error("Dynamic image tables currently require a sampled image");
+    const auto fetch = ConstructSharpFetch<AmdGpu::Buffer>(usage.image_table_buffer);
+    AmdGpu::Buffer buffer{};
+    if (!fetch.Fetch(info.flattened_ud_buf.data(), &buffer) || !buffer.Valid() || !buffer.stride ||
+        (usage.image_table_stride && usage.image_table_stride != buffer.stride))
+        throw std::runtime_error("Dynamic image table stride does not match its source buffer");
+    const u32 stride = buffer.stride;
+    auto table = std::ranges::find_if(info.dynamic_image_tables, [&](const auto& t) {
+        return t.buffer_fetch == fetch && t.image_offset == usage.image_table_offset &&
+               t.stride == stride;
+    });
+    if (table == info.dynamic_image_tables.end()) {
+        if (info.dynamic_image_tables.size() == info.dynamic_image_tables.capacity())
+            throw std::runtime_error("Too many dynamic image tables in one shader");
+        const u32 base = info.srt_info.flattened_bufsize_dw;
+        if (base + DynamicImageTable::Capacity * 8 >= UNKNOWN_LOCATION)
+            throw std::runtime_error("Dynamic image table exceeds flat-buffer capacity");
+        info.dynamic_image_tables.emplace_back(
+            DynamicImageTable{.buffer_fetch = fetch,
+                              .stride = stride,
+                              .image_offset = usage.image_table_offset,
+                              .flat_base = base});
+        table = std::prev(info.dynamic_image_tables.end());
+        info.srt_info.flattened_bufsize_dw += DynamicImageTable::Capacity * 8;
+        info.flattened_ud_buf.resize(info.srt_info.flattened_bufsize_dw);
+        info.RefreshDynamicImageTables();
+    }
+    const u32 base = table->flat_base;
+    auto* block = inst.GetParent();
+    const auto insert = IR::Block::InstructionList::s_iterator_to(inst);
+    IR::IREmitter ir{*block, insert};
+    const auto dummy_pointer = ir.CompositeConstruct(ir.Imm32(0U), ir.Imm32(0U));
+    auto result = ir.CompositeConstruct(ir.Imm32(0.f), ir.Imm32(0.f), ir.Imm32(0.f), ir.Imm32(0.f));
+    for (u32 slot = 0; slot < DynamicImageTable::Capacity; ++slot) {
+        AmdGpu::Image current{};
+        std::memcpy(&current, info.flattened_ud_buf.data() + base + slot * 8, sizeof(current));
+        // StageSpecialization keys the full slot-validity mask, including slots
+        // which are not present in info.images after this pruning.
+        if (!current.Valid() || !current.Address()) {
+            continue;
+        }
+        ResourceDiscovery candidate = usage;
+        candidate.image_table_buffer = {};
+        const auto address_hi = ir.BitwiseAnd(IR::U32{usage.sharps[0].dwords[1]}, ir.Imm32(63U));
+        IR::U1 matches = ir.INotEqual(ir.BitwiseOr(IR::U32{usage.sharps[0].dwords[0]}, address_hi),
+                                      ir.Imm32(0U));
+        for (u32 word = 0; word < 8; ++word) {
+            auto value = ir.ReadConst(dummy_pointer, ir.Imm32(0U));
+            value.Inst()->SetFlags<SharpLocation>(base + slot * 8 + word);
+            candidate.sharps[0].dwords[word] = value;
+            matches =
+                ir.LogicalAnd(matches, ir.IEqual(IR::U32{usage.sharps[0].dwords[word]}, value));
+        }
+        auto& clone = *block->PrependNewInst(insert, inst);
+        candidate.user = &clone;
+        PatchImageSharp(candidate, info, descriptors, profile);
+        auto guard = block->PrependNewInst(IR::Block::InstructionList::s_iterator_to(clone),
+                                           IR::Opcode::GuardedResource, {clone.Arg(0), matches});
+        clone.SetArg(0, IR::Value{&*guard});
+        std::array<IR::Value, 4> components;
+        for (u32 c = 0; c < 4; ++c)
+            components[c] = ir.Select(matches, ir.CompositeExtract(IR::Value{&clone}, c),
+                                      ir.CompositeExtract(result, c));
+        result = ir.CompositeConstruct(components[0], components[1], components[2], components[3]);
+        expanded.push_back(candidate);
+    }
+    inst.ReplaceUsesWith(result);
+}
+
 void ResourcePatchingPass(Shader::Info& info, const ResourceDiscoveryList& resources,
                           const Profile& profile) {
     // Iterate over discovered resources and patch them after finding the sharp.
     // Pass 1: Track resource sharps
     Descriptors descriptors{info};
+    ResourceDiscoveryList expanded;
     for (const auto& usage : resources) {
         IR::Inst& inst = *usage.user;
         if (IsBufferInstruction(inst)) {
             PatchBufferSharp(usage, info, descriptors, profile);
         } else if (IsImageInstruction(inst)) {
-            PatchImageSharp(usage, info, descriptors, profile);
+            if (usage.image_table_buffer.num_dwords)
+                PatchDynamicImage(usage, info, descriptors, profile, expanded);
+            else
+                PatchImageSharp(usage, info, descriptors, profile);
         }
     }
 
@@ -956,6 +1102,8 @@ void ResourcePatchingPass(Shader::Info& info, const ResourceDiscoveryList& resou
             PatchGlobalDataShareAccess(inst, info, descriptors, profile);
         }
     }
+    for (const auto& usage : expanded)
+        PatchImageArgs(*usage.user, info);
 }
 
 } // namespace Shader::Optimization

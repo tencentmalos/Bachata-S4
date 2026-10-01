@@ -117,6 +117,17 @@ struct BufferResource {
 };
 using BufferResourceList = boost::container::static_vector<BufferResource, NUM_BUFFERS>;
 
+// Bounded compatibility path for images fetched through a guest buffer. Slots contain
+// distinct live T# values, not the indices of the potentially much larger guest heap.
+struct DynamicImageTable {
+    static constexpr u32 Capacity = 32;
+    static constexpr u32 MaxRecords = 32768;
+    SharpFetch<AmdGpu::Buffer> buffer_fetch{};
+    u32 stride{};
+    u32 image_offset{};
+    u32 flat_base{};
+};
+
 enum class MipStorageFallbackMode : u16 {
     None,
     DynamicIndex,

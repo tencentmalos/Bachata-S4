@@ -43,6 +43,8 @@ struct Profile {
     bool supports_workgroup_explicit_memory_layout{};
     bool supports_amd_shader_explicit_vertex_parameter{};
     bool supports_fragment_shader_barycentric{};
+    /// Experimental GS bridge for devices without native per-vertex fragment inputs.
+    bool emulate_fragment_interpolation{};
     bool supports_shader_subgroup_clock{};
     /// Clustered integer/bitwise subgroup reductions in compute and fragment shaders.
     bool supports_subgroup_clustered_reduce{};
@@ -56,6 +58,7 @@ struct Profile {
     bool supports_shader_stencil_export{};
     bool internal_scale{};
     bool force_disable_msaa{};
+    bool direct_memory_access{};
 
     bool operator==(const Profile&) const = default;
 };

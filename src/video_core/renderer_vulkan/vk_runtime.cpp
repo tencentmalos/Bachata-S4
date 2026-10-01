@@ -8,6 +8,9 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/blit_helper.h"
 #include "video_core/texture_cache/image.h"
+#include "video_core/vma_diagnostics.h"
+
+#include <bit>
 
 #include <vulkan/vulkan_format_traits.hpp>
 
@@ -158,7 +161,7 @@ void Runtime::CopyImageWithBuffer(VideoCore::Image* src, VideoCore::Image* dst,
     if (IsBufferAccessed(buffer, offset, size, true)) {
         FlushBarriers();
     }
-    dst->CopyImageWithBuffer(*src, buffer->Handle(), offset);
+    dst->CopyImageWithBuffer(*src, buffer->Handle(), offset, size);
     AccessBuffer(buffer, offset, size, vk::PipelineStageFlagBits2::eCopy,
                  vk::AccessFlagBits2::eTransferWrite | vk::AccessFlagBits2::eTransferRead);
 }
@@ -174,10 +177,29 @@ void Runtime::CopyColorAndDepth(VideoCore::Image* src, VideoCore::Image* dst) {
             CopyImage(src, dst);
         } else {
             // Perform depth from/to color copy using the intermediate copy buffer.
-            static constexpr size_t COPY_BUFFER_SIZE = 128_MB;
-            const auto copy_ref =
-                staging_pool.Request(COPY_BUFFER_SIZE, VideoCore::MemoryType::DeviceLocal);
-            CopyImageWithBuffer(src, dst, copy_ref.buffer, copy_ref.offset);
+            const u64 required = src->CopyBufferSizeUpperBound();
+            if (!depth_color_scratch || depth_color_scratch->SizeBytes() < required) {
+                const u64 limit = instance.MaxBufferSize() ? instance.MaxBufferSize()
+                                                           : instance.MaxMemoryAllocationSize();
+                if (!required || required > limit)
+                    throw std::runtime_error("Depth/color copy exceeds device buffer size limit");
+                const u64 capacity =
+                    std::min<u64>(std::bit_ceil(std::max<u64>(required, 16384)), limit);
+                auto replacement = std::make_unique<VideoCore::Buffer>(
+                    instance, 0, capacity, VideoCore::MemoryType::DeviceLocal,
+                    "Depth/color scratch");
+                VideoCore::VmaDiagnostics::Tag(instance.GetAllocator(),
+                                               replacement->buffer.allocation,
+                                               "scratch/depth-color-copy");
+                if (depth_color_scratch) {
+                    VideoCore::VmaDiagnostics::Tag(instance.GetAllocator(),
+                                                   depth_color_scratch->buffer.allocation, nullptr,
+                                                   true);
+                    scheduler.DeferOperation([retired = std::move(depth_color_scratch)] {});
+                }
+                depth_color_scratch = std::move(replacement);
+            }
+            CopyImageWithBuffer(src, dst, depth_color_scratch.get(), 0);
         }
     } else if (src->info.num_samples == 1 && dst->info.num_samples > 1 &&
                dst->info.props.is_depth) {

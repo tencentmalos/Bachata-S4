@@ -48,7 +48,6 @@ class TileManager {
     };
 
 public:
-    using ScratchBuffer = std::pair<vk::Buffer, VmaAllocation>;
     using Result = std::pair<vk::Buffer, u32>;
 
     explicit TileManager(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler,
@@ -82,7 +81,7 @@ private:
     // the scaled backing. Returns false when the image/format is outside the fused path.
     bool TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer out_buffer,
                              u64 out_offset);
-    ScratchBuffer GetScratchBuffer(u32 size);
+    vk::Buffer GetScratchBuffer(u32 size);
 
 private:
     const Vulkan::Instance& instance;
@@ -91,6 +90,9 @@ private:
     // Detiled texture data lives here until copied into the image: device-local ring blocks
     // reused once the GPU is done with them, not an allocation per upload.
     Vulkan::StagingBufferPool& staging_pool;
+    // Download -> tiling dispatch is ordered on this scheduler. Reuse its linear
+    // intermediate after the read/write barriers in Image::Download; no CPU wait.
+    std::unique_ptr<Buffer> tiling_scratch;
     vk::UniqueDescriptorSetLayout desc_layout;
     vk::UniquePipelineLayout pl_layout;
     std::unordered_map<TilingKey, vk::UniquePipeline, TilingKey::Hash> tiling_pipelines;

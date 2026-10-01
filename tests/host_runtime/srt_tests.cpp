@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <sys/mman.h>
 #include "common/serdes.h"
+#include "core/emulator_settings.h"
 #include "core/memory.h"
+#include "shader_recompiler/backend/spirv/emit_spirv.h"
 #include "shader_recompiler/ir/ir_emitter.h"
 #include "shader_recompiler/ir/passes/ir_passes.h"
+#include "shader_recompiler/ir/passes/resource_pass.h"
 #include "shader_recompiler/ir/program.h"
+#include "shader_recompiler/specialization.h"
 #include "video_core/texture_cache/image_info.h"
 #include "video_core/texture_cache/tile.h"
 using namespace Shader;
@@ -126,7 +131,24 @@ int main() {
     const auto hi_alias = ir.ReadConstBuffer(root, ir.Imm32(1u), flags);
     const auto nested_alias = ir.CompositeConstruct(lo_alias, hi_alias);
     const auto alias_child = ir.ReadConst(nested_alias, ir.Imm32(2u));
+    // Shader loop indices cannot be evaluated by the CPU SRT walker. Keep the
+    // read (and reads through that pointer) on the GPU, while flattening the
+    // independent constant/user-data loads from the same table.
+    auto* phi = &*block.PrependNewInst(block.begin(), IR::Opcode::Phi);
+    phi->SetFlags(IR::Type::U32);
+    phi->AddPhiOperand(&block, ir.Imm32(0u));
+    const auto next = IR::U32{ir.IAdd(IR::U32{IR::Value{phi}}, ir.Imm32(1u))};
+    phi->AddPhiOperand(&block, next);
+    const auto loop_offset = IR::U32{ir.IAdd(ir.Imm32(2u), IR::U32{IR::Value{phi}})};
+    const auto gpu_lo = ir.ReadConst(root, loop_offset);
+    const auto gpu_hi = ir.ReadConst(root, next);
+    const auto gpu_pointer = ir.CompositeConstruct(gpu_lo, gpu_hi);
+    const auto gpu_child = ir.ReadConst(gpu_pointer, ir.Imm32(0u));
+    const auto dependent = ir.ReadConst(root, gpu_lo);
+    EmulatorSettings.SetDirectMemoryAccessEnabled(true);
     Optimization::FlattenExtendedUserdataPass(program);
+    CHECK(gpu_lo.Inst()->Flags<u16>() == 0 && gpu_hi.Inst()->Flags<u16>() == 0);
+    CHECK(gpu_child.Inst()->Flags<u16>() == 0 && dependent.Inst()->Flags<u16>() == 0);
     CHECK(info.srt_info.portable.Validate(info.srt_info.flattened_bufsize_dw));
     auto value = [&](auto v) { return info.flattened_ud_buf[v.Inst()->template Flags<u16>()]; };
     CHECK(value(c0) == 55 && value(c1) == 66 && value(dynamic) == 77);
@@ -293,6 +315,285 @@ int main() {
         texture.props.is_block = false;
         texture.UpdateSize();
         CHECK(texture.micro_mip_mask == 0x7f0); // pixel units: transition at mip 4
+    }
+    // Without GPU direct reads, report the required capability instead of
+    // returning flat[0] for an expression that changes during shader execution.
+    {
+        Info no_dma_info;
+        no_dma_info.user_data = ud;
+        IR::Block dynamic_block(pool);
+        IR::IREmitter dynamic_ir(dynamic_block);
+        IR::Program dynamic_program(no_dma_info);
+        dynamic_program.post_order_blocks.push_back(&dynamic_block);
+        const auto root = dynamic_ir.CompositeConstruct(dynamic_ir.GetUserData(IR::ScalarReg(0)),
+                                                        dynamic_ir.GetUserData(IR::ScalarReg(1)));
+        auto* dynamic_phi = &*dynamic_block.PrependNewInst(dynamic_block.begin(), IR::Opcode::Phi);
+        dynamic_phi->SetFlags(IR::Type::U32);
+        dynamic_phi->AddPhiOperand(&dynamic_block, dynamic_ir.Imm32(1u));
+        [[maybe_unused]] const auto read =
+            dynamic_ir.ReadConst(root, IR::U32{IR::Value{dynamic_phi}});
+        EmulatorSettings.SetDirectMemoryAccessEnabled(false);
+        bool rejected{};
+        try {
+            Optimization::FlattenExtendedUserdataPass(dynamic_program);
+        } catch (const std::runtime_error& e) {
+            rejected = std::string_view(e.what()).find("requires direct memory access") !=
+                       std::string_view::npos;
+        }
+        CHECK(rejected);
+    }
+
+    // Dynamic constant reads: retain the GPU offset while proving only its base
+    // from user/flat data. A GPU-generated pointer must keep full synchronization.
+    EmulatorSettings.SetDirectMemoryAccessEnabled(true);
+    for (u32 kind = 0; kind < 5; ++kind) {
+        Info dma_info{};
+        dma_info.flattened_ud_buf.resize(32);
+        dma_info.flattened_ud_buf[0] = 0x12345678;
+        dma_info.flattened_ud_buf[1] = 0x20;
+        dma_info.flattened_ud_buf[16] = 0x87654321;
+        dma_info.flattened_ud_buf[17] = 0x21;
+        IR::Block dma_block(pool);
+        IR::IREmitter emit(dma_block);
+        IR::Program dma_program(dma_info);
+        dma_program.post_order_blocks.push_back(&dma_block);
+        const auto root = emit.CompositeConstruct(emit.GetUserData(IR::ScalarReg(0)),
+                                                  emit.GetUserData(IR::ScalarReg(1)));
+        IR::Value pointer = root;
+        if (kind == 1 || kind == 4) {
+            auto lo = emit.ReadConst(root, emit.Imm32(0u));
+            auto hi = emit.ReadConst(root, emit.Imm32(1u));
+            if (kind == 1) {
+                lo.Inst()->SetFlags(16u);
+                hi.Inst()->SetFlags(17u);
+            }
+            pointer = emit.CompositeConstruct(lo, hi);
+        } else if (kind == 2) {
+            pointer = emit.CompositeConstruct(emit.Imm32(0x44440000u), emit.Imm32(0x22u));
+        } else if (kind == 3) {
+            auto* phi = &*dma_block.PrependNewInst(dma_block.begin(), IR::Opcode::Phi);
+            phi->SetFlags(IR::Type::U32);
+            phi->AddPhiOperand(&dma_block, emit.Imm32(0u));
+            pointer = emit.CompositeConstruct(IR::U32{IR::Value{phi}}, emit.Imm32(0x23u));
+        }
+        (void)emit.ReadConst(pointer, emit.Imm32(3u));
+        (void)emit.ReadConst(pointer, emit.Imm32(7u));
+        Optimization::CollectShaderInfoPass(dma_program, Profile{});
+        CHECK(dma_info.uses_dma);
+        CHECK(dma_info.dma_unbounded == (kind >= 3));
+        if (kind < 3) {
+            CHECK(dma_info.dma_read_bases.size() == 1);
+            u64 address{};
+            CHECK(
+                dma_info.dma_read_bases.front().Fetch(dma_info.flattened_ud_buf.data(), &address));
+            CHECK(address == (kind == 0   ? 0x2012345678ull
+                              : kind == 1 ? 0x2187654321ull
+                                          : 0x2244440000ull));
+        }
+    }
+
+    // Sparse image heaps: retain live T# values, deduplicate aliases, preserve changing
+    // format/address words and reject layouts or populations we cannot bind faithfully.
+    {
+        Info heap_info{};
+        const u64 heap = base + 0x1000;
+        AmdGpu::Buffer heap_buffer{};
+        heap_buffer.base_address = heap;
+        heap_buffer.stride = 48;
+        heap_buffer.num_records = 40;
+        DynamicImageTable layout{};
+        std::memcpy(layout.buffer_fetch.immediates.data(), &heap_buffer, sizeof(heap_buffer));
+        layout.stride = 48;
+        layout.image_offset = 16;
+        layout.flat_base = 16;
+        heap_info.dynamic_image_tables.push_back(layout);
+        heap_info.flattened_ud_buf.resize(16 + DynamicImageTable::Capacity * 8);
+        auto write = [&](u32 slot, const AmdGpu::Image& image) {
+            std::memcpy(reinterpret_cast<void*>(heap + slot * 48 + 16), &image, sizeof(image));
+        };
+        auto make_image = [](u32 id) {
+            auto image = AmdGpu::Image::Null(false);
+            image.base_address = 0x1000 + id * 256;
+            image.width = 31;
+            image.height = 31;
+            image.pitch = 31;
+            return image;
+        };
+        std::memset(reinterpret_cast<void*>(heap), 0, 40 * 48);
+        const auto a = make_image(1), b = make_image(2);
+        write(1, a);
+        write(5, b);
+        write(17, a);
+        auto buffer_record = b;
+        buffer_record.type = 2; // occupied but not a T#
+        write(6, buffer_record);
+        heap_info.RefreshDynamicImageTables();
+        CHECK(heap_info.dynamic_image_snapshots[0].images[0].Address() == a.Address());
+        CHECK(heap_info.dynamic_image_snapshots[0].images[1].Address() == b.Address());
+        CHECK(!heap_info.dynamic_image_snapshots[0].images[2].Valid());
+        auto moved = b;
+        moved.base_address += 1024;
+        write(5, moved);
+        heap_info.RefreshDynamicImageTables();
+        CHECK(heap_info.dynamic_image_snapshots[0].images[1].Address() == moved.Address());
+        write(1, {});
+        write(17, {});
+        heap_info.RefreshDynamicImageTables();
+        CHECK(heap_info.dynamic_image_snapshots[0].images[0].Address() == moved.Address());
+        CHECK(!heap_info.dynamic_image_snapshots[0].images[1].Valid());
+        for (u32 n = 0; n < 32; ++n)
+            write(n, make_image(n));
+        heap_info.RefreshDynamicImageTables();
+        CHECK(heap_info.dynamic_image_snapshots[0].images[31].Address() ==
+              make_image(31).Address());
+        auto rejects = [&] {
+            try {
+                heap_info.RefreshDynamicImageTables();
+                return false;
+            } catch (const std::runtime_error&) {
+                return true;
+            }
+        };
+        write(32, make_image(32));
+        CHECK(rejects());
+        write(32, {});
+        heap_info.dynamic_image_tables[0].image_offset = 17;
+        CHECK(rejects());
+        heap_info.dynamic_image_tables[0].image_offset = 16;
+        heap_buffer.base_address = base + 0x4000;
+        std::memcpy(heap_info.dynamic_image_tables[0].buffer_fetch.immediates.data(), &heap_buffer,
+                    sizeof(heap_buffer));
+        CHECK(rejects());
+        // Actual IR patterns: scalar constant-buffer loads and vector-load/ReadLane
+        // waterfall both refer to the same 48-byte records at +16, never a fixed entry.
+        for (bool lane_load : {false, true}) {
+            std::memset(reinterpret_cast<void*>(heap), 0, 40 * 48);
+            write(2, a);
+            write(8, b);
+            heap_buffer.base_address = heap;
+            std::array<u32, 16> regs{};
+            std::memcpy(regs.data(), &heap_buffer, sizeof(heap_buffer));
+            Info images_info{};
+            images_info.user_data = regs;
+            images_info.hw_stage = HwStage::Compute;
+            images_info.sw_stage = SwStage::Compute;
+            IR::Block images_block(pool);
+            IR::IREmitter emit(images_block);
+            IR::Program images_program(images_info);
+            images_program.blocks.push_back(&images_block);
+            images_program.post_order_blocks.push_back(&images_block);
+            images_program.syntax_list.push_back(
+                {.data = {.block = &images_block}, .type = IR::AbstractSyntaxNode::Type::Block});
+            images_program.syntax_list.push_back({.type = IR::AbstractSyntaxNode::Type::Return});
+            const auto vsharp = emit.CompositeConstruct(
+                emit.GetUserData(IR::ScalarReg(0)), emit.GetUserData(IR::ScalarReg(1)),
+                emit.GetUserData(IR::ScalarReg(2)), emit.GetUserData(IR::ScalarReg(3)));
+            IR::BufferInstInfo load_flags{};
+            load_flags.index_enable.Assign(1);
+            const auto index = IR::U32{emit.LoadBufferU32(
+                1, vsharp, emit.CompositeConstruct(emit.Imm32(0U), emit.Imm32(0U), emit.Imm32(0U)),
+                load_flags)};
+            std::array<IR::Value, 8> words;
+            if (lane_load) {
+                for (u32 half = 0; half < 2; ++half) {
+                    load_flags.inst_offset.Assign(16 + half * 16);
+                    const auto loaded = emit.LoadBufferU32(
+                        4, vsharp, emit.CompositeConstruct(index, emit.Imm32(0U), emit.Imm32(0U)),
+                        load_flags);
+                    for (u32 n = 0; n < 4; ++n)
+                        words[half * 4 + n] = emit.ReadLane(
+                            IR::U32{emit.CompositeExtract(loaded, n)}, emit.Imm32(0U));
+                }
+            } else {
+                const auto bytes =
+                    IR::U32{emit.IAdd(emit.IMul(index, emit.Imm32(48U)), emit.Imm32(16U))};
+                const auto dwords = emit.ShiftRightLogical(bytes, emit.Imm32(2U));
+                for (u32 n = 0; n < 8; ++n)
+                    words[n] =
+                        emit.ReadConstBuffer(vsharp, IR::U32{emit.IAdd(dwords, emit.Imm32(n))}, {});
+            }
+            const auto handle =
+                emit.ImageHandle(emit.CompositeConstruct(words[0], words[1], words[2], words[3]),
+                                 emit.CompositeConstruct(words[4], words[5], words[6], words[7]));
+            const auto sampler = emit.CompositeConstruct(emit.Imm32(73U), emit.Imm32(16773120U),
+                                                         emit.Imm32(105906176U), emit.Imm32(0U));
+            const auto coords = emit.CompositeConstruct(emit.Imm32(.5f), emit.Imm32(.5f),
+                                                        emit.Imm32(0.f), emit.Imm32(0.f));
+            IR::TextureInstInfo texture_flags{};
+            texture_flags.has_lod.Assign(1);
+            const auto color = emit.ImageSampleRaw(handle, sampler, coords, coords, coords,
+                                                   emit.Imm32(0.f), texture_flags);
+            load_flags.inst_offset.Assign(0);
+            emit.StoreBufferU32(
+                4, vsharp, emit.CompositeConstruct(emit.Imm32(39U), emit.Imm32(0U), emit.Imm32(0U)),
+                emit.CompositeConstruct(
+                    emit.BitCast<IR::U32>(IR::F32{emit.CompositeExtract(color, 0)}),
+                    emit.BitCast<IR::U32>(IR::F32{emit.CompositeExtract(color, 1)}),
+                    emit.BitCast<IR::U32>(IR::F32{emit.CompositeExtract(color, 2)}),
+                    emit.BitCast<IR::U32>(IR::F32{emit.CompositeExtract(color, 3)})),
+                load_flags);
+            Profile profile{};
+            profile.supported_spirv = 0x10600;
+            profile.subgroup_size = 64;
+            const auto resources = Optimization::ResourceDiscoverPass(images_program, profile);
+            const auto found = std::ranges::find_if(
+                resources, [](const auto& r) { return r.image_table_buffer.num_dwords != 0; });
+            CHECK(found != resources.end());
+            if (found == resources.end())
+                continue;
+            CHECK(found->image_table_offset == 16);
+            CHECK(found->image_table_stride == (lane_load ? 0 : 48));
+            EmulatorSettings.SetDirectMemoryAccessEnabled(true);
+            Optimization::FlattenExtendedUserdataPass(images_program);
+            images_info.RefreshFlatBuf();
+            Optimization::ResourcePatchingPass(images_info, resources, profile);
+            CHECK(images_info.dynamic_image_tables.size() == 1);
+            CHECK(images_info.images.size() == 2);
+            Optimization::DeadCodeEliminationPass(images_program);
+            Optimization::CollectShaderInfoPass(images_program, profile);
+            RuntimeInfo runtime{};
+            runtime.Initialize(HwStage::Compute, SwStage::Compute);
+            runtime.hw.cs.workgroup_size = {1, 1, 1};
+            const StageSpecialization initial_spec(images_info, runtime, profile, {});
+            CHECK(initial_spec.dynamic_image_masks[0] == 3);
+            // Inserting into an omitted slot must invalidate the previous binary,
+            // even though its resource list has no descriptor for the new image.
+            auto extra = images_info.dynamic_image_snapshots[0].images[0];
+            extra.base_address += 0x1000;
+            const u32 table_base = images_info.dynamic_image_tables[0].flat_base;
+            std::memcpy(images_info.flattened_ud_buf.data() + table_base + 16, &extra,
+                        sizeof(extra));
+            const StageSpecialization inserted_spec(images_info, runtime, profile, {});
+            CHECK(inserted_spec.dynamic_image_masks[0] == 7);
+            CHECK(!(initial_spec == inserted_spec));
+            CHECK(!(inserted_spec == initial_spec));
+            std::fill_n(images_info.flattened_ud_buf.data() + table_base + 8, 16, 0U);
+            const StageSpecialization removed_spec(images_info, runtime, profile, {});
+            CHECK(removed_spec.dynamic_image_masks[0] == 1);
+            CHECK(!(initial_spec == removed_spec));
+            CHECK(!(removed_spec == initial_spec));
+            images_info.RefreshFlatBuf();
+            CHECK(initial_spec == StageSpecialization(images_info, runtime, profile, {}));
+            Backend::Bindings bindings{};
+            const auto spirv =
+                Backend::SPIRV::EmitSPIRV(profile, runtime, images_program, bindings);
+            CHECK(spirv.size() > 5 && spirv[0] == 0x07230203);
+            std::ofstream output(lane_load ? "dynamic-image-lane.spv" : "dynamic-image-scalar.spv",
+                                 std::ios::binary);
+            output.write(reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(u32));
+            std::ofstream flat("dynamic-image-flat.bin", std::ios::binary);
+            flat.write(reinterpret_cast<const char*>(images_info.flattened_ud_buf.data()),
+                       images_info.flattened_ud_buf.size() * 4);
+            std::ofstream heap_file("dynamic-image-heap.bin", std::ios::binary);
+            heap_file.write(reinterpret_cast<const char*>(heap), 40 * 48);
+            std::ofstream user_file("dynamic-image-user.bin", std::ios::binary);
+            user_file.write(reinterpret_cast<const char*>(regs.data()), 16 * 4);
+            const std::array<u32, 3> layout{u32(images_info.buffers.size()),
+                                            u32(images_info.images.size()),
+                                            u32(images_info.samplers.size())};
+            std::ofstream layout_file("dynamic-image-layout.bin", std::ios::binary);
+            layout_file.write(reinterpret_cast<const char*>(layout.data()), sizeof(layout));
+        }
     }
     std::printf("srt checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;

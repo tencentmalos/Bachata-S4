@@ -98,6 +98,9 @@ std::string Summary() {
     out += fmt::format("raw_sync: off={} syncs={} bytes={} stale_images_skipped={}\n",
                        raw_sync_off.load() ? 1 : 0, raw_syncs.load(), raw_sync_bytes.load(),
                        raw_sync_stale.load());
+    out += fmt::format("dma_bounds: enabled={} bounded_calls={} full_calls={} ranges_skipped={}\n",
+                       dma_bounds.load() ? 1 : 0, dma_bounded_calls.load(), dma_full_calls.load(),
+                       dma_ranges_skipped.load());
     out += fmt::format("raw_copy: off={} image_copies={} bytes={} dispatched={}\n",
                        raw_copy_off.load() ? 1 : 0, raw_copies.load(), raw_copy_bytes.load(),
                        raw_copy_fallbacks.load());
@@ -312,6 +315,11 @@ std::string Command(const std::vector<std::string>& args) {
         raw_sync_off.store(args[1] == "off");
         return fmt::format("raw_sync={} (raw buffer reads of GPU-written images {})\n", args[1],
                            args[1] == "on" ? "tile the image back first" : "read the buffer as is");
+    }
+    if (sub == "dma_bounds" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        dma_bounds.store(args[1] == "on");
+        return fmt::format("dma_bounds={} (candidate; off synchronizes all resident ranges)\n",
+                           args[1]);
     }
     if (sub == "raw_copy" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         raw_copy_off.store(args[1] == "off");

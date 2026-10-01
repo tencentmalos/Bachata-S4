@@ -43,6 +43,7 @@ struct InfoPersistent {
     ImageResourceList images;
     SamplerResourceList samplers;
     FMaskResourceList fmasks;
+    boost::container::static_vector<DynamicImageTable, 2> dynamic_image_tables;
 
     struct UserDataMask {
         void Set(IR::ScalarReg reg) noexcept {
@@ -75,6 +76,10 @@ struct InfoPersistent {
     bool has_fetch_shader{};
     bool has_bitwise_xor{};
     bool uses_dma{};
+    // ReadConst uses a known CPU-bound base plus a 32-bit byte offset. Unknown
+    // pointer producers must retain full residency synchronization.
+    bool dma_unbounded{};
+    boost::container::static_vector<SharpFetch<u64>, 16> dma_read_bases;
 
     InfoPersistent() = default;
     InfoPersistent(HwStage hw_stage_, SwStage sw_stage_, u64 pgm_hash_)
@@ -120,6 +125,13 @@ struct Info : InfoPersistent {
     std::span<const u32> user_data;
     std::vector<u32> flattened_ud_buf;
     PersistentSrtInfo srt_info;
+    struct DynamicImageSnapshot {
+        std::vector<u8> bytes;
+        std::array<AmdGpu::Image, DynamicImageTable::Capacity> images{};
+        u64 hash{};
+        bool valid{};
+    };
+    std::vector<DynamicImageSnapshot> dynamic_image_snapshots;
 
     AttributeFlags loads{};
     AttributeFlags stores{};
@@ -201,17 +213,22 @@ struct Info : InfoPersistent {
         ASSERT(user_data.size() <= NUM_USER_DATA_REGS);
         std::memcpy(flattened_ud_buf.data(), user_data.data(), user_data.size_bytes());
 #ifndef ARCH_X86_64
-        SrtGuestReader reader; // one mapping lock, each table resolved once
-        srt_info.portable.Run(user_data, flattened_ud_buf,
-                              [&reader](u64 address, void* data, size_t size) {
-                                  return reader(address, data, size);
-                              });
+        {
+            SrtGuestReader reader; // Release this lease before refreshing dynamic tables.
+            srt_info.portable.Run(user_data, flattened_ud_buf,
+                                  [&reader](u64 address, void* data, size_t size) {
+                                      return reader(address, data, size);
+                                  });
+        }
 #else
         if (srt_info.walker_func) {
             srt_info.walker_func(user_data.data(), flattened_ud_buf.data());
         }
 #endif
+        RefreshDynamicImageTables();
     }
+
+    void RefreshDynamicImageTables();
 
     void ReadTessConstantBuffer(TessellationDataConstantBuffer& tess_constants) const {
         ASSERT(tess_consts_dword_offset >= 0); // We've already tracked the V# UD

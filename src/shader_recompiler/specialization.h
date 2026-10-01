@@ -82,6 +82,9 @@ struct StageSpecialization {
     const Info* info{};
     RuntimeInfo runtime_info{};
     std::bitset<MaxStageResources> bitset{};
+    // Dynamic image lowering omits empty slots. A later insertion/removal must
+    // select a new permutation even when the old resource list cannot see it.
+    std::array<u32, 2> dynamic_image_masks{};
     std::optional<Gcn::FetchShaderData> fetch_shader_data{};
     boost::container::small_vector<VsAttribSpecialization, 32> vs_attribs;
     boost::container::small_vector<BufferSpecialization, 16> buffers;
@@ -94,6 +97,16 @@ struct StageSpecialization {
     StageSpecialization(const Info& info_, RuntimeInfo runtime_info_, const Profile& profile_,
                         Backend::Bindings start_)
         : info{&info_}, runtime_info{runtime_info_}, start{start_} {
+        for (size_t table = 0; table < info->dynamic_image_tables.size(); ++table) {
+            const u32 base = info->dynamic_image_tables[table].flat_base;
+            for (u32 slot = 0; slot < DynamicImageTable::Capacity; ++slot) {
+                AmdGpu::Image image{};
+                std::memcpy(&image, info->flattened_ud_buf.data() + base + slot * 8, sizeof(image));
+                if (image.Valid() && image.Address()) {
+                    dynamic_image_masks[table] |= 1U << slot;
+                }
+            }
+        }
         fetch_shader_data = Gcn::ParseFetchShader(info_);
         if (info_.sw_stage == SwStage::Vertex && fetch_shader_data) {
             // Specialize shader on VS input number types to follow spec.
@@ -195,6 +208,13 @@ struct StageSpecialization {
             return false;
         }
 
+        if (!other.Valid() || buffers.size() != other.buffers.size() ||
+            images.size() != other.images.size() || samplers.size() != other.samplers.size()) {
+            return false;
+        }
+        if (dynamic_image_masks != other.dynamic_image_masks) {
+            return false;
+        }
         if (vs_attribs != other.vs_attribs) {
             return false;
         }

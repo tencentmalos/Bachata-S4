@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <array>
+#include <bit>
 #include <memory>
 #include <span>
+#include <stdexcept>
 #include "common/div_ceil.h"
 #include "common/profiler.h"
 #include "video_core/buffer_cache/buffer.h"
@@ -311,28 +313,29 @@ TileManager::TileManager(const Vulkan::Instance& instance, Vulkan::Scheduler& sc
 
 TileManager::~TileManager() = default;
 
-TileManager::ScratchBuffer TileManager::GetScratchBuffer(u32 size) {
-    constexpr auto usage =
-        vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eStorageBuffer |
-        vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst;
-
-    const vk::BufferCreateInfo buffer_ci = {
-        .size = size,
-        .usage = usage,
-    };
-
-    const VmaAllocationCreateInfo alloc_info{
-        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
-    };
-
-    VkBuffer buffer;
-    VmaAllocation allocation;
-    const auto buffer_ci_unsafe = static_cast<VkBufferCreateInfo>(buffer_ci);
-    const auto result = VideoCore::VmaDiagnostics::CreateBuffer(instance.GetAllocator(), &buffer_ci_unsafe, &alloc_info,
-                                        &buffer, &allocation, nullptr, "scratch/detile-tile");
-    ASSERT(result == VK_SUCCESS);
-    VmaDiagnostics::Tag(instance.GetAllocator(), allocation, nullptr, true);
-    return {buffer, allocation};
+vk::Buffer TileManager::GetScratchBuffer(u32 size) {
+    if (!tiling_scratch || tiling_scratch->SizeBytes() < size) {
+        // Geometric growth bounds the old buffers awaiting retirement as well as the
+        // live allocation. Every readback used to allocate another full image here;
+        // one long loading frame could accumulate gigabytes before its first submit.
+        const u64 limit = instance.MaxBufferSize() ? instance.MaxBufferSize()
+                                                   : instance.MaxMemoryAllocationSize();
+        if (!size || size > limit) {
+            throw std::runtime_error("Tiling scratch exceeds device buffer size limit");
+        }
+        const u64 capacity = std::min<u64>(std::bit_ceil(std::max<u64>(size, 16384)), limit);
+        auto replacement = std::make_unique<Buffer>(instance, 0, capacity, MemoryType::DeviceLocal,
+                                                    "Tiling linear scratch");
+        VmaDiagnostics::Tag(instance.GetAllocator(), replacement->buffer.allocation,
+                            "scratch/detile-tile");
+        if (tiling_scratch) {
+            VmaDiagnostics::Tag(instance.GetAllocator(), tiling_scratch->buffer.allocation, nullptr,
+                                true);
+            scheduler.DeferOperation([retired = std::move(tiling_scratch)] {});
+        }
+        tiling_scratch = std::move(replacement);
+    }
+    return tiling_scratch->Handle();
 }
 
 vk::Pipeline TileManager::GetTilingPipeline(const ImageInfo& info, bool is_tiler) {
@@ -528,10 +531,10 @@ void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buff
         .range = sizeof(params),
     };
 
-    const auto [temp_buffer, temp_allocation] = GetScratchBuffer(info.guest_size);
-    scheduler.DeferOperation([this, temp_buffer, temp_allocation]() {
-        VideoCore::VmaDiagnostics::DestroyBuffer(instance.GetAllocator(), temp_buffer, temp_allocation);
-    });
+    const auto temp_buffer = GetScratchBuffer(info.guest_size);
+    // Download's pre-barrier orders the previous tiler's shader reads before this
+    // copy overwrites the shared scratch; its post-barrier exposes this copy to the
+    // following tiler. These dependencies also apply across scheduler submissions.
 
     const auto cmdbuf = scheduler.CommandBuffer();
     in_image.Download(buffer_copies, temp_buffer, 0, copy_size);

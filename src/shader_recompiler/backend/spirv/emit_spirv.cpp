@@ -16,6 +16,7 @@
 #include "shader_recompiler/backend/spirv/spirv_emit_context.h"
 #include "shader_recompiler/frontend/translate/translate.h"
 #include "shader_recompiler/ir/basic_block.h"
+#include "shader_recompiler/ir/passes/resource_pass.h"
 #include "shader_recompiler/ir/program.h"
 #include "shader_recompiler/runtime_info.h"
 
@@ -55,9 +56,34 @@ static constexpr spv::ExecutionMode GetOutputPrimitiveType(AmdGpu::GsOutputPrimi
     }
 }
 
+Id TypeId(const EmitContext& ctx, IR::Type type);
+
 template <auto func, typename... Args>
 void SetDefinition(EmitContext& ctx, IR::Inst* inst, Args... args) {
-    inst->SetDefinition<Id>(func(ctx, std::forward<Args>(args)...));
+    auto* guard = inst->NumArgs() ? inst->Arg(0).TryInst() : nullptr;
+    if (guard && guard->GetOpcode() == IR::Opcode::GuardedResource) {
+        if (inst->GetOpcode() == IR::Opcode::ImageSampleImplicitLod ||
+            inst->GetOpcode() == IR::Opcode::ImageSampleDrefImplicitLod) {
+            inst->SetDefinition<Id>(EmitGuardedImageSample(ctx, inst));
+            return;
+        }
+        // A resource is sampled only by the lanes selecting this exact T#. This avoids
+        // eagerly executing every sparse-table candidate (including incompatible views).
+        const Id before = ctx.last_label;
+        const Id body = ctx.OpLabel();
+        const Id merge = ctx.OpLabel();
+        ctx.OpSelectionMerge(merge, spv::SelectionControlMask::MaskNone);
+        ctx.OpBranchConditional(ctx.Def(guard->Arg(1)), body, merge);
+        ctx.AddLabel(body);
+        const Id value = func(ctx, std::forward<Args>(args)...);
+        const Id after = ctx.last_label;
+        ctx.OpBranch(merge);
+        ctx.AddLabel(merge);
+        const Id type = TypeId(ctx, inst->Type());
+        inst->SetDefinition<Id>(ctx.OpPhi(type, ctx.ConstantNull(type), before, value, after));
+    } else {
+        inst->SetDefinition<Id>(func(ctx, std::forward<Args>(args)...));
+    }
 }
 
 template <typename ArgType>
@@ -67,7 +93,7 @@ ArgType Arg(EmitContext& ctx, const IR::Value& arg) {
     } else if constexpr (std::is_same_v<ArgType, const IR::Value&>) {
         return arg;
     } else if constexpr (std::is_same_v<ArgType, u32>) {
-        return arg.U32();
+        return Optimization::ResourceBinding(arg);
     } else if constexpr (std::is_same_v<ArgType, u64>) {
         return arg.U64();
     } else if constexpr (std::is_same_v<ArgType, bool>) {
@@ -146,6 +172,12 @@ Id TypeId(const EmitContext& ctx, IR::Type type) {
         return ctx.U32[4];
     case IR::Type::F32:
         return ctx.F32[1];
+    case IR::Type::F32x2:
+        return ctx.F32[2];
+    case IR::Type::F32x3:
+        return ctx.F32[3];
+    case IR::Type::F32x4:
+        return ctx.F32[4];
     case IR::Type::U64:
         return ctx.U64;
     default:
@@ -336,11 +368,14 @@ void SetupCapabilities(const Info& info, const Profile& profile, const RuntimeIn
             ctx.AddCapability(spv::Capability::FragmentBarycentricKHR);
             ctx.AddCapability(spv::Capability::InterpolationFunction);
         }
+        if (profile.emulate_fragment_interpolation)
+            ctx.AddCapability(spv::Capability::InterpolationFunction);
         if (info.loads.Get(IR::Attribute::SampleIndex) ||
             runtime_info.hw.fs.addr_flags.linear_sample_ena ||
             runtime_info.hw.fs.addr_flags.persp_sample_ena ||
             (!profile.supports_amd_shader_explicit_vertex_parameter &&
-             profile.supports_fragment_shader_barycentric &&
+             (profile.supports_fragment_shader_barycentric ||
+              profile.emulate_fragment_interpolation) &&
              info.loads.Get(IR::Attribute::BaryCoordSmoothSample))) {
             ctx.AddCapability(spv::Capability::SampleRateShading);
         }

@@ -1,5 +1,8 @@
 package com.shadps4.android.feature.settings
 
+import android.content.Context
+import android.content.SharedPreferences
+import com.shadps4.android.data.GameRepository
 import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.runtime.settings.ProfileScope
 import com.shadps4.android.runtime.settings.ConsoleLanguage
@@ -22,6 +25,8 @@ import org.junit.Rule
 import org.junit.Before
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
@@ -38,13 +43,19 @@ class SettingsViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel() = SettingsViewModel(RuntimeProfileStore(temporaryFolder.root))
+    private fun viewModel(store: RuntimeProfileStore = RuntimeProfileStore(temporaryFolder.root)): SettingsViewModel {
+        val context = mock(Context::class.java)
+        val preferences = mock(SharedPreferences::class.java)
+        `when`(context.getSharedPreferences(com.shadps4.android.data.ZarLibraryFolder.FILE_NAME, Context.MODE_PRIVATE))
+            .thenReturn(preferences)
+        return SettingsViewModel(store, mock(GameRepository::class.java), context)
+    }
 
     @Test
     fun languageEditorFeedsNamedSelectionToNativeAndInheritsGlobal() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
         store.update(ProfileScope.Global) { it.copy(values = mapOf(ConsoleLanguage.ID to JsonPrimitive("繁體中文"))) }
-        val model = SettingsViewModel(store)
+        val model = viewModel(store)
         val scope = ProfileScope.Game("CUSA03023")
         model.selectScope(scope)
         advanceUntilIdle()
@@ -63,9 +74,9 @@ class SettingsViewModelTest {
     @Test
     fun rejectsLegacySettingsAndInvalidChoicesWithoutLosingStoredData() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
-        val legacy = RuntimeSettingCatalog.loadFromResources().shadPs4.single { it.id == "gpu.direct_memory_access_enabled" }
+        val legacy = RuntimeSettingCatalog.loadFromResources().shadPs4.single { it.id == "gpu.copy_gpu_buffers" }
         store.update(ProfileScope.Global) { it.copy(values = mapOf(legacy.id to JsonPrimitive(true))) }
-        val model = SettingsViewModel(store)
+        val model = viewModel(store)
         advanceUntilIdle()
         assertFalse(model.state.value.settings.any { it.id == legacy.id })
         model.setValue(legacy, JsonPrimitive(false))
@@ -84,7 +95,7 @@ class SettingsViewModelTest {
     fun gameEditorShowsActualInheritedValueAndUpdatesAfterReset() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
         store.update(ProfileScope.Global) { it.copy(values = mapOf(InternalScale.ID to JsonPrimitive("0.75"))) }
-        val model = SettingsViewModel(store)
+        val model = viewModel(store)
         model.selectScope(ProfileScope.Game("CUSA50828"))
         advanceUntilIdle()
         val spec = model.state.value.settings.single { it.id == InternalScale.ID }
@@ -103,7 +114,7 @@ class SettingsViewModelTest {
     @Test
     fun internalScaleIsEditableInGpuSettingsAndPersistsAcrossScopes() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
-        val viewModel = SettingsViewModel(store)
+        val viewModel = viewModel(store)
         advanceUntilIdle()
         val spec = viewModel.state.value.settings.single { it.id == InternalScale.ID }
         assertEquals(listOf("0.25", "0.375", "0.5", "0.75", "1.0"), spec.choices)
@@ -137,7 +148,7 @@ class SettingsViewModelTest {
     @Test
     fun booleanMsaaEditorPersistsAndResetsGameOverride() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
-        val model = SettingsViewModel(store)
+        val model = viewModel(store)
         advanceUntilIdle()
         val id = com.shadps4.android.runtime.settings.ForceDisableMsaa.ID
         val spec = model.state.value.settings.single { it.id == id }

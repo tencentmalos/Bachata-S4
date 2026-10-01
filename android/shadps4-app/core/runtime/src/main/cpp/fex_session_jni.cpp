@@ -695,6 +695,12 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetCommandRecord
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetDirectMemoryAccess(
+    JNIEnv *, jobject, jboolean enabled) {
+  EmulatorSettings.SetDirectMemoryAccessEnabled(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetTextureQuality(
     JNIEnv*, jclass, jint quality) {
     try { EmulatorSettings.SetTextureQuality(static_cast<u32>(quality)); }

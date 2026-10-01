@@ -2216,7 +2216,9 @@ static inline s32 PatchFlipRequest(u32* cmdbuf, u32 size, u32 vo_handle, u32 buf
             LOG_ERROR(Lib_GnmDriver, "Flip queue is full");
             return 0x80d11081;
         } else {
-            LOG_ERROR(Lib_GnmDriver, "Flip request failed");
+            LOG_ERROR(Lib_GnmDriver,
+                      "Flip request failed: result={:#x} handle={} buffer={} mode={} arg={}",
+                      u32(flip_result), vo_handle, buf_idx, flip_mode, flip_arg);
             return flip_result;
         }
     }

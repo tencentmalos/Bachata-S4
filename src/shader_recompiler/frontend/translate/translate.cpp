@@ -175,7 +175,8 @@ void Translator::EmitPrologue(IR::Block* first_block) {
         dst_vreg =
             IterateBarycentrics(runtime_info, [this](u32 vreg, IR::Attribute attrib, u32 comp) {
                 if (profile.supports_amd_shader_explicit_vertex_parameter ||
-                    profile.supports_fragment_shader_barycentric) {
+                    profile.supports_fragment_shader_barycentric ||
+                    profile.emulate_fragment_interpolation) {
                     ir.SetVectorReg(IR::VectorReg(vreg), ir.GetAttribute(attrib, comp));
                 }
             });
@@ -1324,9 +1325,39 @@ size_t Translator::TranslateWaveReduction(std::span<const GcnInst> list, size_t 
         fill.src[2].field == OperandField::Undefined
             ? saved.field == OperandField::VccLo
             : fill.src[2].field == saved.field && fill.src[2].code == saved.code;
+    // RE Engine also intersects EXEC with an earlier coverage mask before
+    // enabling the wave. The fill then uses that subset, rather than SAVE.
+    // Prove the nearby producer and permit only instructions that cannot change
+    // EXEC, SCC, VCC or the scalar pair in between. An arbitrary mask is unsafe:
+    // absent Vulkan invocations might otherwise contribute non-identity values.
+    bool fill_uses_exec_subset = false;
+    const auto& mask = fill.src[2];
+    const bool scalar_mask =
+        mask.field == OperandField::ScalarGPR || mask.field == OperandField::VccLo;
+    const bool overlaps_saved = mask.field == saved.field &&
+                                (mask.field == OperandField::ScalarGPR
+                                     ? (mask.code < saved.code + 2 && saved.code < mask.code + 2)
+                                     : true);
+    if (!fill_uses_saved && scalar_mask && !overlaps_saved && IsPlainOperand(mask)) {
+        size_t previous = start;
+        while (previous > 0 && start - previous < 8) {
+            const auto& producer = list[--previous];
+            if (IsSchedulingHint(producer) ||
+                (producer.opcode == Opcode::V_MUL_U32_U24 && WritesPlainVgpr(producer))) {
+                continue;
+            }
+            fill_uses_exec_subset = producer.opcode == Opcode::S_AND_B64 &&
+                                    producer.dst[0].field == mask.field &&
+                                    producer.dst[0].code == mask.code &&
+                                    (producer.src[0].field == OperandField::ExecLo ||
+                                     producer.src[1].field == OperandField::ExecLo);
+            break;
+        }
+    }
     const auto fill_identity = InlineInteger(fill.src[0]);
-    if (fill.opcode != Opcode::V_CNDMASK_B32 || !WritesPlainVgpr(fill) || !fill_uses_saved ||
-        !fill_identity || !IsPlainOperand(fill.src[1])) {
+    if (fill.opcode != Opcode::V_CNDMASK_B32 || !WritesPlainVgpr(fill) ||
+        (!fill_uses_saved && !fill_uses_exec_subset) || !fill_identity ||
+        !IsPlainOperand(fill.src[1])) {
         return 0;
     }
     const u32 value_reg = fill.dst[0].code;

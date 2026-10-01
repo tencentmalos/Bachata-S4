@@ -12,6 +12,7 @@
 #include "common/assert.h"
 #include "common/profiler.h"
 #include "shader_recompiler/backend/spirv/emit_spirv_discard_frag.h"
+#include "shader_recompiler/backend/spirv/emit_spirv_interpolation.h"
 #include "shader_recompiler/backend/spirv/emit_spirv_quad_rect.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_graphics_pipeline.h"
@@ -254,6 +255,33 @@ GraphicsPipeline::GraphicsPipeline(
             .module = modules[stage],
             .pName = "main",
         });
+    }
+    if (!preloading && profile.emulate_fragment_interpolation && fragment &&
+        Shader::Backend::SPIRV::MakeSoftwareInterpolationLayout(
+            *fragment, runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs)
+            .needed) {
+        const auto* vertex = infos[u32(Shader::SwStage::Vertex)];
+        if (!vertex || infos[u32(Shader::SwStage::Geometry)] ||
+            infos[u32(Shader::SwStage::TessellationControl)] ||
+            infos[u32(Shader::SwStage::TessellationEval)] ||
+            (key.prim_type != AmdGpu::PrimitiveType::TriangleList &&
+             key.prim_type != AmdGpu::PrimitiveType::TriangleStrip))
+            throw std::runtime_error("software interpolation currently requires VS-only triangles");
+        const auto limits = instance.GetPhysicalDevice().getProperties().limits;
+        sdata.interpolation_gs = Shader::Backend::SPIRV::EmitSoftwareInterpolationGeometry(
+            *vertex, runtime_infos[u32(Shader::SwStage::Vertex)], *fragment,
+            runtime_infos[u32(Shader::SwStage::Fragment)].hw.fs,
+            std::min(limits.maxGeometryOutputComponents, limits.maxFragmentInputComponents),
+            limits.maxGeometryTotalOutputComponents);
+        LOG_INFO(Render_Vulkan, "Software interpolation GS: vs={:#x} fs={:#x} words={}",
+                 vertex->pgm_hash, fragment->pgm_hash, sdata.interpolation_gs.size());
+    }
+    if (!sdata.interpolation_gs.empty()) {
+        software_interpolation = true;
+        s.shader_stages.emplace_back(
+            vk::PipelineShaderStageCreateInfo{.stage = vk::ShaderStageFlagBits::eGeometry,
+                                              .module = aux_module(sdata.interpolation_gs),
+                                              .pName = "main"});
     }
     stage = u32(Shader::SwStage::Geometry);
     if (infos[stage]) {

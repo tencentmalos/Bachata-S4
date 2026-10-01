@@ -334,6 +334,17 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         LOG_WARNING(Render_Vulkan,
                     "Disabling broken Qualcomm FP32 DenormFlushToZero execution mode");
     }
+    bool software_interpolation = false;
+#ifdef __ANDROID__
+    char interpolation_property[PROP_VALUE_MAX]{};
+    software_interpolation =
+        __system_property_get("debug.shadps4.software_interp", interpolation_property) > 0 &&
+        std::string_view(interpolation_property) == "1";
+#endif
+    software_interpolation &= instance.IsGeometryStageSupported() &&
+                              !instance.IsFragmentShaderBarycentricSupported() &&
+                              !instance.IsAmdShaderExplicitVertexParameterSupported();
+    LOG_INFO(Render_Vulkan, "Guest software interpolation: {}", software_interpolation);
     profile = Shader::Profile{
         .max_viewport_width = instance.GetMaxViewportWidth(),
         .max_viewport_height = instance.GetMaxViewportHeight(),
@@ -384,6 +395,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .supports_amd_shader_explicit_vertex_parameter =
             instance_.IsAmdShaderExplicitVertexParameterSupported(),
         .supports_fragment_shader_barycentric = instance_.IsFragmentShaderBarycentricSupported(),
+        .emulate_fragment_interpolation = software_interpolation,
         .supports_shader_subgroup_clock = instance_.IsShaderSubgroupClockSupported(),
         .supports_subgroup_clustered_reduce = clustered_reduce,
         .needs_manual_interpolation = instance.IsFragmentShaderBarycentricSupported() &&
@@ -396,6 +408,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .supports_shader_stencil_export = instance_.IsShaderStencilExportSupported(),
         .internal_scale = instance.ScalePolicy().ShaderMapping(),
         .force_disable_msaa = instance.IsMsaaDisabled(),
+        .direct_memory_access = EmulatorSettings.IsDirectMemoryAccessEnabled(),
     };
     PipelineStats::Reset();
     MissingContent::Reset();
@@ -491,9 +504,14 @@ const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectPar
 
         GraphicsPipeline::SerializationSupport sdata{};
         const bool defer = DeferBuilds();
-        it.value() = std::make_unique<GraphicsPipeline>(
-            instance, scheduler, desc_heap, profile, graphics_key, driver_cache->Handle(), infos,
-            runtime_infos, fetch_shader, modules, sdata, false, defer);
+        try {
+            it.value() = std::make_unique<GraphicsPipeline>(
+                instance, scheduler, desc_heap, profile, graphics_key, driver_cache->Handle(),
+                infos, runtime_infos, fetch_shader, modules, sdata, false, defer);
+        } catch (...) {
+            graphics_pipelines.erase(it);
+            throw;
+        }
         if (defer) {
             SubmitBuild(*it.value(), pipeline_hash);
         } else {
@@ -534,9 +552,14 @@ const ComputePipeline* PipelineCache::GetPreparedComputePipeline() {
 
         ComputePipeline::SerializationSupport sdata{};
         const bool defer = DeferBuilds();
-        it.value() = std::make_unique<ComputePipeline>(instance, scheduler, desc_heap, profile,
-                                                       driver_cache->Handle(), compute_key,
-                                                       *infos[0], modules[0], sdata, false, defer);
+        try {
+            it.value() = std::make_unique<ComputePipeline>(
+                instance, scheduler, desc_heap, profile, driver_cache->Handle(), compute_key,
+                *infos[0], modules[0], sdata, false, defer);
+        } catch (...) {
+            compute_pipelines.erase(it);
+            throw;
+        }
         if (defer) {
             SubmitBuild(*it.value(), pipeline_hash);
         } else {
@@ -852,47 +875,42 @@ PipelineCache::Result PipelineCache::GetProgram(HwStage hw_stage, SwStage sw_sta
                                                 Shader::Backend::Bindings& binding) {
     auto runtime_info = BuildRuntimeInfo(hw_stage, sw_stage);
     auto [it_pgm, new_program] = program_cache.try_emplace(params.hash);
-    if (new_program) {
-        it_pgm.value() = std::make_unique<Program>(hw_stage, sw_stage, params);
-        auto& program = it_pgm.value();
-        auto start = binding;
-        const auto module = CompileModule(program->info, runtime_info, params.code, 0, binding);
-        auto spec = Shader::StageSpecialization(program->info, runtime_info, profile, start);
-        const auto perm_hash = HashCombine(params.hash, 0);
-
-        RegisterShaderMeta(program->info, spec.fetch_shader_data, spec, perm_hash, 0);
-        program->AddPermut(module, std::move(spec));
-        return std::make_tuple(&program->info, module, program->modules[0].spec.fetch_shader_data,
-                               perm_hash);
-    }
-
-    auto& program = it_pgm.value();
-    auto& info = program->info;
-    info.pgm_base = params.Base(); // Needs to be actualized for inline cbuffer address fixup
-    info.user_data = params.user_data;
-    info.RefreshFlatBuf();
-    auto spec = Shader::StageSpecialization(info, runtime_info, profile, binding);
-
-    size_t perm_idx = program->modules.size();
-    u64 perm_hash = HashCombine(params.hash, perm_idx);
-
-    vk::ShaderModule module{};
-
-    const auto it = std::ranges::find(program->modules, spec, &Program::Module::spec);
-    if (it == program->modules.end()) {
-        auto new_info = Shader::Info(hw_stage, sw_stage, params);
-        module = CompileModule(new_info, runtime_info, params.code, perm_idx, binding);
-
-        RegisterShaderMeta(info, spec.fetch_shader_data, spec, perm_hash, perm_idx);
-        program->AddPermut(module, std::move(spec));
-    } else {
+    if (new_program)
+        it_pgm.value() = std::make_unique<Program>();
+    auto& program = *it_pgm.value();
+    for (size_t i = 0; i < program.modules.size(); ++i) {
+        auto& candidate = program.modules[i];
+        if (!candidate.info)
+            continue; // Sparse disk permutation indices.
+        auto& info = *candidate.info;
+        // Runtime layouts differ before resource specialization. Tessellation fills
+        // additional runtime fields from the constant buffer inside specialization.
+        if (sw_stage != SwStage::TessellationControl && sw_stage != SwStage::TessellationEval &&
+            candidate.spec.runtime_info != runtime_info)
+            continue;
+        info.pgm_base = params.Base();
+        info.user_data = params.user_data;
+        info.RefreshFlatBuf();
+        const Shader::StageSpecialization spec(info, runtime_info, profile, binding);
+        if (!(candidate.spec == spec))
+            continue;
         info.AddBindings(binding);
-        module = it->module;
-        perm_idx = std::distance(program->modules.begin(), it);
-        perm_hash = HashCombine(params.hash, perm_idx);
+        return std::make_tuple(&info, candidate.module, candidate.spec.fetch_shader_data,
+                               HashCombine(params.hash, i));
     }
-    return std::make_tuple(&program->info, module,
-                           program->modules[perm_idx].spec.fetch_shader_data, perm_hash);
+
+    const size_t perm_idx = program.modules.size();
+    const u64 perm_hash = HashCombine(params.hash, perm_idx);
+    auto info = std::make_unique<Shader::Info>(hw_stage, sw_stage, params);
+    const auto start = binding;
+    const auto module = CompileModule(*info, runtime_info, params.code, perm_idx, binding);
+    // Translation may discover a different resource or interpolation interface.
+    // Save the metadata that actually produced this binary, not permutation zero's.
+    auto spec = Shader::StageSpecialization(*info, runtime_info, profile, start);
+    RegisterShaderMeta(*info, spec.fetch_shader_data, spec, perm_hash, perm_idx);
+    program.AddPermut(module, std::move(info), std::move(spec));
+    const auto& stored = program.modules.back();
+    return std::make_tuple(stored.info.get(), module, stored.spec.fetch_shader_data, perm_hash);
 }
 
 std::optional<vk::ShaderModule> PipelineCache::ReplaceShader(vk::ShaderModule module,

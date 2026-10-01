@@ -34,11 +34,10 @@ struct NpAuthRequest {
 static std::vector<NpAuthRequest> g_auth_requests;
 
 s32 CreateNpAuthRequest(bool async) {
-    if (g_active_auth_requests == ORBIS_NP_AUTH_REQUEST_LIMIT) {
+    std::scoped_lock lk{g_auth_request_mutex};
+    if (g_active_auth_requests >= ORBIS_NP_AUTH_REQUEST_LIMIT) {
         return ORBIS_NP_AUTH_ERROR_REQUEST_MAX;
     }
-
-    std::scoped_lock lk{g_auth_request_mutex};
 
     s32 req_index = 0;
     while (req_index < g_auth_requests.size()) {
@@ -47,6 +46,7 @@ s32 CreateNpAuthRequest(bool async) {
             // There is no request at this index, set the index to ready then break.
             g_auth_requests[req_index].state = NpAuthRequestState::Ready;
             g_auth_requests[req_index].async = async;
+            g_auth_requests[req_index].result = 0;
             break;
         }
         req_index++;
@@ -296,6 +296,7 @@ s32 PS4_SYSV_ABI sceNpAuthAbortRequest(s32 req_id) {
     }
 
     g_auth_requests[req_index].state = NpAuthRequestState::Aborted;
+    g_auth_requests[req_index].result = ORBIS_NP_AUTH_ERROR_ABORTED;
     return ORBIS_OK;
 }
 

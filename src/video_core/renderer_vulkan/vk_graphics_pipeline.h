@@ -79,6 +79,7 @@ public:
         vk::PipelineMultisampleStateCreateInfo multisampling{};
         std::vector<u32> tcs{};
         std::vector<u32> tes{};
+        std::vector<u32> interpolation_gs{};
         std::vector<u32> fragment{};
 
         void Serialize(Serialization::Archive& ar) const;
@@ -101,6 +102,10 @@ public:
 
     const GraphicsPipelineKey& GetGraphicsKey() const {
         return key;
+    }
+
+    bool UsesSoftwareInterpolation() const noexcept {
+        return software_interpolation;
     }
 
     /// No stage writes buffers or images, uses atomics or failed to translate: the only effects
@@ -141,6 +146,7 @@ private:
     mutable std::unique_ptr<CreateState> create_state;
     vk::SampleCountFlagBits raster_samples{vk::SampleCountFlagBits::e1};
     bool requires_full_fragment_rate{};
+    bool software_interpolation{};
     bool skip_eligible{};
     mutable SkipState skip_state{};
     GraphicsPipelineKey key;

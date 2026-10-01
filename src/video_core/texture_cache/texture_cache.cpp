@@ -1,39 +1,42 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "common/profiler.h"
-#include <xxhash.h>
 #include <algorithm>
 #include <bit>
 #include <chrono>
 #include <cstring>
+#include <fstream>
 #include <map>
 #include <optional>
 #include <span>
 #include <sstream>
+#include <xxhash.h>
+#include "common/profiler.h"
 
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/div_ceil.h"
 #include "common/hash.h"
+#include "common/path_util.h"
 #include "common/scope_exit.h"
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
-#include "core/memory.h"
 #include "core/guest_write_watch.h"
+#include "core/memory.h"
 #include "video_core/buffer_cache/buffer_cache.h"
-#include "video_core/page_manager.h"
 #include "video_core/memory_diagnostics.h"
-#include "video_core/renderer_vulkan/vk_instance.h"
-#include "video_core/renderer_vulkan/vk_runtime.h"
+#include "video_core/page_manager.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
+#include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_missing_content.h"
+#include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/host_compatibility.h"
 #include "video_core/texture_cache/texture_cache.h"
-#include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/texture_cache/tile_manager.h"
 
 #include <vk_mem_alloc.h>
+#include <vulkan/vulkan_format_traits.hpp>
 #include "video_core/vma_diagnostics.h"
 
 namespace VideoCore {
@@ -129,6 +132,7 @@ void TextureCache::RecordAttachmentDraw(std::span<const ImageId> attachments, u6
 }
 
 void TextureCache::PublishMemoryDiagnostics() {
+    PublishImageDiagnostics();
     const auto request = MemoryDiagnostics::requested.load(std::memory_order_acquire);
     if (request == MemoryDiagnostics::completed.load(std::memory_order_acquire)) return;
     const auto cov = coverage->Read();
@@ -250,6 +254,111 @@ void TextureCache::PublishMemoryDiagnostics() {
            " cached_images_include_pending_cache_deletion; host_snapshot_is_not_GPU_idle\n";
     buffer_cache.AppendMemoryDiagnostics(out);
     MemoryDiagnostics::Publish(memory_diagnostics_epoch, request, out.str());
+}
+
+void TextureCache::PublishImageDiagnostics() {
+    const auto request = MemoryDiagnostics::image_requested.load(std::memory_order_acquire);
+    if (request == MemoryDiagnostics::image_completed.load(std::memory_order_acquire))
+        return;
+    u64 uid{};
+    {
+        std::scoped_lock lock{MemoryDiagnostics::mutex};
+        if (!MemoryDiagnostics::active || MemoryDiagnostics::epoch != memory_diagnostics_epoch)
+            return;
+        uid = MemoryDiagnostics::image_uid;
+    }
+    const auto now = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                         std::chrono::steady_clock::now().time_since_epoch())
+                         .count();
+    std::ostringstream out;
+    out << "sample_ns=" << now << " cache_epoch=" << memory_diagnostics_epoch
+        << " selector=mip0-layer0 physical_backing=true final_output_equivalence=unverified\n";
+    Image* selected{};
+    u32 count{};
+    for (auto& image : slot_images) {
+        if (!image.backing)
+            continue;
+        if (image.image_uid == uid)
+            selected = &image;
+        if (uid && image.image_uid != uid)
+            continue;
+        ++count;
+        if (count > 1024)
+            continue;
+        const auto& ci = image.backing->image.image_ci;
+        out << "image_uid=" << image.image_uid << " address=" << image.info.guest_address
+            << " width=" << ci.extent.width << " height=" << ci.extent.height
+            << " depth=" << ci.extent.depth << " format=" << vk::to_string(ci.format)
+            << " samples=" << image.backing->num_samples << " layers=" << ci.arrayLayers
+            << " mips=" << ci.mipLevels << " write_epoch=" << image.write_epoch
+            << " flags=" << u32(image.flags)
+            << " layout=" << vk::to_string(image.backing->state.layout) << '\n';
+    }
+    if (!uid) {
+        out << "status=listed total=" << count << " truncated=" << (count > 1024) << '\n';
+    } else if (!selected) {
+        out << "status=not-found (image may have retired)\n";
+    } else {
+        auto& image = *selected;
+        const auto ci = image.backing->image.image_ci;
+        const auto block = vk::blockExtent(ci.format);
+        const u64 bytes = u64(ci.extent.width) * ci.extent.height * vk::blockSize(ci.format);
+        if (ci.imageType != vk::ImageType::e2D || ci.extent.depth != 1 ||
+            ci.samples != vk::SampleCountFlagBits::e1 ||
+            image.aspect_mask != vk::ImageAspectFlagBits::eColor || block[0] != 1 ||
+            block[1] != 1 || block[2] != 1 || !bytes || bytes > 32_MB ||
+            image.backing->state.layout == vk::ImageLayout::eUndefined ||
+            !(ci.usage & vk::ImageUsageFlagBits::eTransferSrc)) {
+            out << "status=unsupported (requires initialized single-sample uncompressed 2D color, "
+                   "<=32 MiB)\n";
+        } else {
+            // Diagnostic readback of the existing physical backing: no scale promotion,
+            // guest-memory writeback, format conversion, or mutation of content versions.
+            Buffer output(instance, 0, bytes, MemoryType::HostCached, "GPU image diagnostic");
+            scheduler.EndRendering(Vulkan::RenderBreak::Download);
+            image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead,
+                          SubresourceRange{{0, 0}, {1, 1}});
+            const vk::BufferImageCopy copy{
+                .imageSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1},
+                .imageExtent = ci.extent};
+            scheduler.CommandBuffer().copyImageToBuffer(
+                image.GetImage(), vk::ImageLayout::eTransferSrcOptimal, output.Handle(), copy);
+            const vk::MemoryBarrier2 barrier{.srcStageMask = vk::PipelineStageFlagBits2::eCopy,
+                                             .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+                                             .dstStageMask = vk::PipelineStageFlagBits2::eHost,
+                                             .dstAccessMask = vk::AccessFlagBits2::eHostRead};
+            scheduler.CommandBuffer().pipelineBarrier2(
+                {.memoryBarrierCount = 1, .pMemoryBarriers = &barrier});
+            scheduler.Finish();
+            output.Invalidate(0, bytes);
+            try {
+                const auto directory =
+                    Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) / "gpu-images";
+                std::filesystem::create_directories(directory);
+                const auto path = directory / fmt::format("image-{}-{}-{}.bin", now, request, uid);
+                std::ofstream file(path, std::ios::binary);
+                file.write(reinterpret_cast<const char*>(output.mapped_data.data()), bytes);
+                file.close();
+                if (!file)
+                    throw std::runtime_error("raw file write failed");
+                const auto ready =
+                    fmt::format("status=ready bytes={} path={}\n", bytes, path.string());
+                std::ofstream metadata(path.string() + ".txt");
+                metadata << out.str() << ready;
+                metadata.close();
+                if (!metadata)
+                    throw std::runtime_error("metadata write failed");
+                out << ready;
+            } catch (const std::exception& error) {
+                out << "status=failed error=" << error.what() << '\n';
+            }
+        }
+    }
+    std::scoped_lock lock{MemoryDiagnostics::mutex};
+    if (MemoryDiagnostics::active && MemoryDiagnostics::epoch == memory_diagnostics_epoch) {
+        MemoryDiagnostics::image_snapshot = out.str();
+        MemoryDiagnostics::image_completed.store(request, std::memory_order_release);
+    }
 }
 
 void TextureCache::ProcessDownloadImages() {

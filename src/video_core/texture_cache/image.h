@@ -148,7 +148,9 @@ struct Image {
     // Set while Image::Download runs so the blit/copy/tiling zones it issues are
     // attributed to GPU.HostReadback instead of the generic transfer lane.
     bool in_readback{};
-    void CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset);
+    // Includes native dimensions in case byte reinterpretation promotes a scaled backing.
+    u64 CopyBufferSizeUpperBound() const;
+    void CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset, u64 buffer_size);
     void CopyMip(Image& src_image, u32 mip, u32 slice);
 
     void Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_range,

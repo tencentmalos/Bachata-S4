@@ -221,6 +221,17 @@ class FexSessionService : Service() {
                 true
             }
             NativeFexSession.nativeSetCommandRecorder(commandRecorder)
+            val directMemoryAccess = runCatching {
+                com.shadps4.android.runtime.settings.DirectMemoryAccess.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid direct memory access profile, using the default", it)
+                false
+            }
+            NativeFexSession.nativeSetDirectMemoryAccess(directMemoryAccess)
+            Log.i(TAG, "Guest direct memory access=$directMemoryAccess")
             Log.i(TAG, "Pipeline compile mode=$compileMode recording thread=$commandRecorder")
             Log.i(TAG, "Shader cache=$pipelineCache driver pipeline cache=$driverPipelineCache")
             NativeFexSession.nativeSetTextureQuality(textureQuality)

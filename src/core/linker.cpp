@@ -677,7 +677,11 @@ void Linker::PrepareGuest() {
     for (auto& module : m_modules) {
         if (!module->tls.image_size)
             continue;
-        const u64 alignment = std::max<u64>(module->tls.align, 32);
+        // Local-exec TLS accesses encode offsets from the thread pointer. Extra
+        // padding here moves the executable's image away from those offsets
+        // (e.g. a 16-byte, align-8 image must remain at FS-16, not FS-32).
+        // Align the complete allocation below, not every module to a host minimum.
+        const u64 alignment = std::max<u64>(module->tls.align, 1);
         static_tls_size = Common::AlignUp(static_tls_size + module->tls.image_size, alignment);
         if (static_tls_size > 64_MB)
             throw std::runtime_error("static TLS exceeds guest policy");

@@ -61,6 +61,11 @@ int main(int argc, char** argv) {
     CHECK(call("AxoDrINp4J8", {ctx, 0, 1, 1}) == u32(ORBIS_AJM_ERROR_INVALID_ADDRESS));
     CHECK(call("AxoDrINp4J8", {ctx, 0, 1, base + 4}) == 0);
     const u32 instance = read.operator()<u32>(base + 4);
+    CHECK(IsAjmNid("MHur6qCsUus") && IsAjmNid("Wi7DtlLV+KI"));
+    CHECK(call("MHur6qCsUus", {ctx + 1}) == u32(ORBIS_AJM_ERROR_INVALID_CONTEXT));
+    CHECK(call("Wi7DtlLV+KI", {ctx, 23}) == u32(ORBIS_AJM_ERROR_INVALID_PARAMETER));
+    CHECK(call("Wi7DtlLV+KI", {ctx, 22}) == u32(ORBIS_AJM_ERROR_CODEC_NOT_REGISTERED));
+    CHECK(call("Wi7DtlLV+KI", {ctx, 0}) == u32(ORBIS_AJM_ERROR_BUSY));
     CHECK(call("diXjQNiMu-s", {instance}) == 0);
     const u64 batch = base + 0x1000, output = base + 0x3000, error = base + 0x100, idout = base + 8;
     const u64 end = call("dmDybN--Fn8", {batch, instance, 1, 0, 0, output, 8, 0});
@@ -216,6 +221,47 @@ int main(int argc, char** argv) {
     CHECK(call("RbLbuKv8zho", {ctx, aac}) == 0);
     CHECK(call("RbLbuKv8zho", {ctx, instance}) == 0);
     CHECK(call("RbLbuKv8zho", {ctx, instance}) == u32(ORBIS_AJM_ERROR_INVALID_INSTANCE));
+    CHECK(call("Wi7DtlLV+KI", {ctx, 0}) == 0);
+    CHECK(call("Wi7DtlLV+KI", {ctx, 0}) == u32(ORBIS_AJM_ERROR_CODEC_NOT_REGISTERED));
+    CHECK(call("AxoDrINp4J8", {ctx, 0, 1, base + 4}) == u32(ORBIS_AJM_ERROR_CODEC_NOT_REGISTERED));
+    CHECK(call("Q3dyFuwGn64", {ctx, 0, 0}) == 0);
+    CHECK(call("AxoDrINp4J8", {ctx, 0, 1, base + 4}) == 0);
+    const u32 closing_instance = read.operator()<u32>(base + 4);
+    CHECK(call("dmDybN--Fn8", {batch, closing_instance, 1, 0, 0, output, 8, 0}) == batch + 48);
+    // Finalize must cancel a worker blocked on VM publication without waiting
+    // for the guest owner to release the old mapping. A concurrent BatchWait
+    // must not consume/debit the retired batch a second time.
+    auto retained = space->AcquireDataSpan({{output}, 0x1000}, true);
+    CHECK(retained);
+    std::stop_source edit_stop;
+    auto edit = std::async(std::launch::async, [&] {
+        return space->UpdateDataMapping(GuestAddressSpace::VmOperation::Map, {{output}, 0x1000}, rw,
+                                        -1, 0, edit_stop.get_token());
+    });
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!space->Counts().retiring_ranges && std::chrono::steady_clock::now() < deadline)
+        std::this_thread::yield();
+    if (!space->Counts().retiring_ranges)
+        std::_Exit(3);
+    CHECK(start() == 0);
+    id = read.operator()<u32>(idout);
+    auto waiter = std::async(std::launch::async, [&] { return wait(id, UINT32_MAX); });
+    auto finalize = std::async(std::launch::async, [&] { return call("MHur6qCsUus", {ctx}); });
+    if (finalize.wait_for(std::chrono::seconds(2)) != std::future_status::ready)
+        std::_Exit(4);
+    CHECK(finalize.get() == 0);
+    const auto waited = waiter.get();
+    CHECK(waited == u32(ORBIS_AJM_ERROR_CANCELLED) ||
+          waited == u32(ORBIS_AJM_ERROR_INVALID_CONTEXT));
+    edit_stop.request_stop();
+    retained = MakeError(ErrorCategory::InvalidArgument, "test", "release");
+    CHECK(!edit.get());
+    CHECK(call("MHur6qCsUus", {ctx}) == u32(ORBIS_AJM_ERROR_INVALID_CONTEXT));
+    CHECK(call("Q3dyFuwGn64", {ctx, 0, 0}) == u32(ORBIS_AJM_ERROR_INVALID_CONTEXT));
+    CHECK(call("dl+4eHSzUu4", {0, base}) == 0);
+    const u32 recreated = read.operator()<u32>(base);
+    CHECK(recreated != ctx);
+    CHECK(call("MHur6qCsUus", {recreated}) == 0);
     ajm.RequestStop();
     CHECK(call("dl+4eHSzUu4", {0, base}) == u32(ORBIS_AJM_ERROR_CANCELLED));
     std::printf("GUEST_AJM checks=%u failures=%u\n", checks, failures);

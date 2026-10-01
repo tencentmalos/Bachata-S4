@@ -62,9 +62,15 @@ public:
         return &gds_buffer;
     }
 
-    /// Retrieves the device local DBA page table buffer.
+    /// Retrieves the device local BDA page table buffer for uploads and barriers.
     [[nodiscard]] Buffer* GetBdaPageTableBuffer() noexcept {
         return bda_pagetable_buffer.get();
+    }
+
+    /// Shader descriptor containing the table's device address. The full table can
+    /// exceed maxStorageBufferRange and must not be bound as a single SSBO.
+    [[nodiscard]] Buffer* GetBdaPageTableRootBuffer() noexcept {
+        return bda_pagetable_root.get();
     }
 
     /// Retrieves the fault buffer.
@@ -113,6 +119,12 @@ public:
                                                              bool is_written,
                                                              bool is_texel_buffer = false);
 
+    /// Establish page-table residency even for small read-only ranges. DMA faults
+    /// cannot be serviced by a temporary stream copy that is absent from the table.
+    [[nodiscard]] std::pair<const Buffer*, u64> ObtainResidentBuffer(VAddr device_addr, u32 size,
+                                                                     bool is_written,
+                                                                     bool is_texel_buffer = false);
+
     /// Attempts to obtain a buffer without modifying the cache contents.
     [[nodiscard]] std::pair<const Buffer*, u64> ObtainBufferForImage(VAddr device_addr, u32 size);
 
@@ -126,7 +138,19 @@ public:
     void ProcessFaultBuffer();
 
     /// Synchronizes all buffers needed for DMA.
-    void SynchronizeDmaBuffers();
+    // Empty means unbounded. Bounds are conservative half-open guest ranges.
+    static constexpr u64 DmaAddressSpaceSize = u64{1} << ADDRESS_SPACE_BITS;
+    using DmaRange = std::pair<VAddr, VAddr>;
+    struct DmaBufferRead {
+        const Buffer* buffer;
+        u64 offset;
+        u32 size;
+    };
+    // Returned reads must join the draw/dispatch's ordinary buffer access tracking,
+    // after all uploads have been recorded. A BDA descriptor alone does not track
+    // the buffers reached through its page table.
+    boost::container::small_vector<DmaBufferRead, 16> SynchronizeDmaBuffers(
+        std::span<const DmaRange> ranges = {});
 
     /// Commits pending sparse buffer memory binds. Must be called before every scheduler submit.
     void SubmitPendingArenaBinds(Vulkan::SubmitInfo& info);
@@ -191,6 +215,7 @@ private:
 
     std::unique_ptr<FaultManager> fault_manager;
     std::unique_ptr<Buffer> bda_pagetable_buffer;
+    std::unique_ptr<Buffer> bda_pagetable_root;
 
     std::array<const Buffer*, MAX_ARENA_PAGES> address_space{};
     std::deque<Buffer> arenas;

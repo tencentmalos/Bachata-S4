@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include "common/assert.h"
 #include "common/div_ceil.h"
+#include "shader_recompiler/backend/spirv/emit_spirv_interpolation.h"
 #include "shader_recompiler/backend/spirv/emit_spirv_quad_rect.h"
 #include "shader_recompiler/backend/spirv/spirv_emit_context.h"
 #include "shader_recompiler/frontend/fetch_shader.h"
@@ -388,41 +389,47 @@ void EmitContext::DefineInputs() {
             sample_mask_in = DefineVariable(TypeArray(U32[1], u32_one_value),
                                             spv::BuiltIn::SampleMask, spv::StorageClass::Input);
         }
+        const auto software_layout = MakeSoftwareInterpolationLayout(info, runtime_info.hw.fs);
+        const bool software = profile.emulate_fragment_interpolation && software_layout.needed;
+        const auto smooth_coord = [&] {
+            return software ? DefineInput(F32[3], *software_layout.smooth)
+                            : DefineVariable(F32[3], spv::BuiltIn::BaryCoordKHR,
+                                             spv::StorageClass::Input);
+        };
         if (info.loads.GetAny(IR::Attribute::BaryCoordSmooth)) {
             if (profile.supports_amd_shader_explicit_vertex_parameter) {
                 bary_coord_smooth = DefineVariable(F32[2], spv::BuiltIn::BaryCoordSmoothAMD,
                                                    spv::StorageClass::Input);
-            } else if (profile.supports_fragment_shader_barycentric && !ValidId(bary_coord)) {
-                bary_coord =
-                    DefineVariable(F32[3], spv::BuiltIn::BaryCoordKHR, spv::StorageClass::Input);
+            } else if ((profile.supports_fragment_shader_barycentric || software) &&
+                       !ValidId(bary_coord)) {
+                bary_coord = smooth_coord();
             }
         }
         if (info.loads.GetAny(IR::Attribute::BaryCoordPullModel)) {
             if (profile.supports_amd_shader_explicit_vertex_parameter) {
                 bary_coord_pull_model = DefineVariable(F32[3], spv::BuiltIn::BaryCoordPullModelAMD,
                                                        spv::StorageClass::Input);
-            } else if (profile.supports_fragment_shader_barycentric && !ValidId(bary_coord)) {
-                bary_coord =
-                    DefineVariable(F32[3], spv::BuiltIn::BaryCoordKHR, spv::StorageClass::Input);
+            } else if ((profile.supports_fragment_shader_barycentric || software) &&
+                       !ValidId(bary_coord)) {
+                bary_coord = smooth_coord();
             }
         }
         if (info.loads.GetAny(IR::Attribute::BaryCoordSmoothCentroid)) {
             if (profile.supports_amd_shader_explicit_vertex_parameter) {
                 bary_coord_smooth_centroid = DefineVariable(
                     F32[2], spv::BuiltIn::BaryCoordSmoothCentroidAMD, spv::StorageClass::Input);
-            } else if (profile.supports_fragment_shader_barycentric && !ValidId(bary_coord)) {
-                bary_coord =
-                    DefineVariable(F32[3], spv::BuiltIn::BaryCoordKHR, spv::StorageClass::Input);
+            } else if ((profile.supports_fragment_shader_barycentric || software) &&
+                       !ValidId(bary_coord)) {
+                bary_coord = smooth_coord();
             }
         }
         if (info.loads.GetAny(IR::Attribute::BaryCoordSmoothSample)) {
             if (profile.supports_amd_shader_explicit_vertex_parameter) {
                 bary_coord_smooth_sample = DefineVariable(
                     F32[2], spv::BuiltIn::BaryCoordSmoothSampleAMD, spv::StorageClass::Input);
-            } else if (profile.supports_fragment_shader_barycentric) {
+            } else if ((profile.supports_fragment_shader_barycentric || software)) {
                 if (!ValidId(bary_coord)) {
-                    bary_coord = DefineVariable(F32[3], spv::BuiltIn::BaryCoordKHR,
-                                                spv::StorageClass::Input);
+                    bary_coord = smooth_coord();
                 }
                 // we would need sample_index to interpolate the bary_coord later
                 if (!ValidId(sample_index)) {
@@ -432,22 +439,39 @@ void EmitContext::DefineInputs() {
                 }
             }
         }
-        if (info.loads.GetAny(IR::Attribute::BaryCoordNoPersp)) {
+        if (info.loads.GetAny(IR::Attribute::BaryCoordNoPerspCentroid) &&
+            profile.supports_amd_shader_explicit_vertex_parameter) {
+            bary_coord_nopersp_centroid = DefineVariable(
+                F32[2], spv::BuiltIn::BaryCoordNoPerspCentroidAMD, spv::StorageClass::Input);
+        }
+        if (info.loads.GetAny(IR::Attribute::BaryCoordNoPersp) ||
+            ((software || profile.supports_fragment_shader_barycentric) &&
+             info.loads.GetAny(IR::Attribute::BaryCoordNoPerspCentroid))) {
             if (profile.supports_amd_shader_explicit_vertex_parameter) {
                 bary_coord_nopersp = DefineVariable(F32[2], spv::BuiltIn::BaryCoordNoPerspAMD,
                                                     spv::StorageClass::Input);
-            } else if (profile.supports_fragment_shader_barycentric) {
-                bary_coord_nopersp = DefineVariable(F32[3], spv::BuiltIn::BaryCoordNoPerspKHR,
-                                                    spv::StorageClass::Input);
+            } else if ((profile.supports_fragment_shader_barycentric || software)) {
+                bary_coord_nopersp = software
+                                         ? DefineInput(F32[3], *software_layout.linear)
+                                         : DefineVariable(F32[3], spv::BuiltIn::BaryCoordNoPerspKHR,
+                                                          spv::StorageClass::Input);
+                if (software)
+                    Decorate(bary_coord_nopersp, spv::Decoration::NoPerspective);
             }
         }
         if (info.loads.GetAny(IR::Attribute::BaryCoordNoPerspSample)) {
             if (profile.supports_amd_shader_explicit_vertex_parameter) {
                 bary_coord_nopersp_sample = DefineVariable(
                     F32[2], spv::BuiltIn::BaryCoordNoPerspSampleAMD, spv::StorageClass::Input);
-            } else if (profile.supports_fragment_shader_barycentric) {
-                bary_coord_nopersp_sample = DefineVariable(
-                    F32[3], spv::BuiltIn::BaryCoordNoPerspKHR, spv::StorageClass::Input);
+            } else if ((profile.supports_fragment_shader_barycentric || software)) {
+                bary_coord_nopersp_sample =
+                    software ? DefineInput(F32[3], *software_layout.linear_sample)
+                             : DefineVariable(F32[3], spv::BuiltIn::BaryCoordNoPerspKHR,
+                                              spv::StorageClass::Input);
+                if (software) {
+                    Decorate(bary_coord_nopersp_sample, spv::Decoration::NoPerspective);
+                    Decorate(bary_coord_nopersp_sample, spv::Decoration::Sample);
+                }
                 // Decorate(bary_coord_nopersp_sample, spv::Decoration::Sample);
             }
         }
@@ -462,27 +486,32 @@ void EmitContext::DefineInputs() {
                 continue;
             }
             const IR::Attribute param = IR::Attribute::Param0 + i;
+            if (software && !info.loads.GetAny(param))
+                continue;
             const u32 num_components = info.loads.NumComponents(param);
             const auto [primary, auxiliary] = info.fs_interpolation[i];
             const Id type = F32[num_components];
             const Id attr_id = [&] {
-                const auto bind_location = input.param_index + (has_clip_distance_inputs ? 1 : 0);
+                const auto bind_location =
+                    software ? software_layout.locations[i]
+                             : input.param_index + (has_clip_distance_inputs ? 1 : 0);
                 if (primary == Qualifier::PerVertex &&
-                    profile.supports_fragment_shader_barycentric) {
+                    (profile.supports_fragment_shader_barycentric || software)) {
                     return Name(DefineInput(TypeArray(type, ConstU32(3U)), bind_location),
                                 fmt::format("fs_in_attr{}_p", i));
                 }
                 return Name(DefineInput(type, bind_location), fmt::format("fs_in_attr{}", i));
             }();
             if (primary == Qualifier::PerVertex) {
-                Decorate(attr_id, profile.supports_amd_shader_explicit_vertex_parameter
+                Decorate(attr_id, software ? spv::Decoration::Flat
+                                  : profile.supports_amd_shader_explicit_vertex_parameter
                                       ? spv::Decoration::ExplicitInterpAMD
                                       : spv::Decoration::PerVertexKHR);
             } else if (primary != Qualifier::Smooth) {
                 Decorate(attr_id, primary == Qualifier::Flat ? spv::Decoration::Flat
                                                              : spv::Decoration::NoPerspective);
             }
-            if (auxiliary != Qualifier::None) {
+            if (auxiliary != Qualifier::None && !(software && primary == Qualifier::PerVertex)) {
                 Decorate(attr_id, auxiliary == Qualifier::Centroid ? spv::Decoration::Centroid
                                                                    : spv::Decoration::Sample);
             }
@@ -1266,6 +1295,17 @@ Id EmitContext::DefineGetBdaPointer() {
     Name(func, "get_bda_pointer");
     AddLabel();
 
+    // BufferCache covers a 40-bit guest address space. Physical storage loads
+    // have no descriptor bounds check, so reject addresses outside that table.
+    const auto lookup_label{OpLabel()};
+    const auto invalid_label{OpLabel()};
+    const auto valid{LessU64(address, ConstU64(u64{1} << 40))};
+    OpSelectionMerge(lookup_label, spv::SelectionControlMask::MaskNone);
+    OpBranchConditional(valid, lookup_label, invalid_label);
+    AddLabel(invalid_label);
+    OpReturnValue(u64_zero_value);
+    AddLabel(lookup_label);
+
     const auto fault_label{OpLabel()};
     const auto available_label{OpLabel()};
     const auto merge_label{OpLabel()};
@@ -1275,8 +1315,17 @@ Id EmitContext::DefineGetBdaPointer() {
     const auto page32{NarrowU64(page)};
     const auto& bda_buffer{buffers[bda_pagetable_index]};
     const auto [bda_buffer_id, bda_pointer_type] = bda_buffer.Alias(PointerType::U64);
-    const auto bda_ptr{OpAccessChain(bda_pointer_type, bda_buffer_id, u32_zero_value, page32)};
-    const auto bda{OpLoad(U64, bda_ptr)};
+    // A 16 KiB sparse page produces a 512 MiB table, larger than some devices'
+    // maxStorageBufferRange (128 MiB on A740). Bind only its 8-byte root and use
+    // the already-required physical storage addressing for the table entries.
+    const auto root_ptr{
+        OpAccessChain(bda_pointer_type, bda_buffer_id, u32_zero_value, u32_zero_value)};
+    const auto root{OpLoad(U64, root_ptr)};
+    const auto entry_address{AddU64(root, ShiftU64(page, ConstU32(3U), true))};
+    const auto physical_pointer{TypePointer(spv::StorageClass::PhysicalStorageBuffer, U64)};
+    const auto bda_ptr{profile.support_int64 ? OpConvertUToPtr(physical_pointer, entry_address)
+                                             : OpBitcast(physical_pointer, entry_address)};
+    const auto bda{OpLoad(U64, bda_ptr, spv::MemoryAccessMask::Aligned, 8u)};
 
     // Check if page is GPU cached
     const auto is_fault{EqualU64(bda, u64_zero_value)};

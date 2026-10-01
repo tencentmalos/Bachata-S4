@@ -48,6 +48,7 @@ struct Variant {
     u32 low_sgpr;
     u32 high_sgpr;
     bool is_min; // UMin with -1 fill, otherwise Or with 0 fill.
+    u64 contribution_mask = ~u64{0};
 };
 
 // cs 0xa38aae6c at 0xc48 (Monster Hunter: World), min-reduction of v4.
@@ -63,18 +64,37 @@ static const Variant MinVariant{"umin",
                                 5,
                                 true};
 // fs 0x15e44dcc at 0xaac, or-reduction of v24 (the restore uses vcc instead of s[6:7]).
-static const Variant OrVariant{"or",
-                               {0xbeea287e, 0xbf8c0f70, 0x00043080, 0xd8d4401f, 0x01000002,
-                                0xbf8c007f, 0x38040302, 0xd8d4201f, 0x01000002, 0xbf8c007f,
-                                0x38040302, 0xd8d4101f, 0x01000002, 0xbf8c007f, 0x38040302,
-                                0xd8d4081f, 0x01000002, 0xbf8c007f, 0x38040302, 0xd8d4041f,
-                                0x01000002, 0xbf8c007f, 0x38040302, 0x02053f02, 0x02077f02,
-                                0xbefe046a},
-                               24,
-                               2,
-                               2,
-                               3,
-                               false};
+static const Variant OrVariant{
+    "or",
+    {0xbeea287e, 0xbf8c0f70, 0x00043080, 0xd8d4401f, 0x01000002, 0xbf8c007f, 0x38040302,
+     0xd8d4201f, 0x01000002, 0xbf8c007f, 0x38040302, 0xd8d4101f, 0x01000002, 0xbf8c007f,
+     0x38040302, 0xd8d4081f, 0x01000002, 0xbf8c007f, 0x38040302, 0xd8d4041f, 0x01000002,
+     0xbf8c007f, 0x38040302, 0x02053f02, 0x02077f02, 0xbefe046a},
+    24,
+    2,
+    2,
+    3,
+    false};
+
+// MHR fs b0260f9a at 0x580: the fill uses EXEC & s[68:69], not the saved VCC.
+static const Variant OrSubsetVariant{
+    "or-exec-subset",
+    {0x8784447e, 0xbeea287e, 0xbf8c0f70, 0xd2000004, 0x00120a80, 0xd8d4401f, 0x05000004,
+     0xbf8c007f, 0x38080b04, 0xd8d4201f, 0x05000004, 0xbf8c007f, 0x38080b04, 0xd8d4101f,
+     0x05000004, 0xbf8c007f, 0x38080b04, 0xd8d4081f, 0x05000004, 0xbf8c007f, 0x38080b04,
+     0xd8d4041f, 0x05000004, 0xbf8c007f, 0x38080b04, 0x02093f04, 0x020b7f04, 0xbefe046a},
+    5,
+    4,
+    4,
+    5,
+    false,
+    0x55ff00ff7f0f00ffULL};
+static const Variant OrSubsetGapVariant = [] {
+    auto variant = OrSubsetVariant;
+    variant.name = "or-exec-subset-gap";
+    variant.words.insert(variant.words.begin() + 1, {0xd2160034, 0x00005ca0});
+    return variant;
+}();
 
 static u32 InputOf(const Variant& v, u32 lane, u32 seed) {
     const u32 hash = (lane + 1) * 0x9e3779b1u ^ seed;
@@ -84,12 +104,13 @@ static u32 InputOf(const Variant& v, u32 lane, u32 seed) {
 static IR::U1 MaskBit(IR::IREmitter& ir, const IR::U32& lane, u64 mask) {
     const IR::U32 word{ir.Select(ir.ILessThan(lane, ir.Imm32(32u), false), ir.Imm32(u32(mask)),
                                  ir.Imm32(u32(mask >> 32)))};
-    const IR::U32 bit{ir.BitwiseAnd(
-        ir.ShiftRightLogical(word, ir.BitwiseAnd(lane, ir.Imm32(31u))), ir.Imm32(1u))};
+    const IR::U32 bit{ir.BitwiseAnd(ir.ShiftRightLogical(word, ir.BitwiseAnd(lane, ir.Imm32(31u))),
+                                    ir.Imm32(1u))};
     return ir.INotEqual(bit, ir.Imm32(0u));
 }
 
-static std::vector<u32> Build(const Variant& v, u64 present, u64 exec, u32 seed, bool clustered) {
+static std::vector<u32> Build(const Variant& v, u64 present, u64 exec, u32 seed, bool clustered,
+                              u32* reduction_count = nullptr) {
     Profile profile{};
     profile.supported_spirv = 0x10600;
     profile.subgroup_size = 64;
@@ -104,7 +125,7 @@ static std::vector<u32> Build(const Variant& v, u64 present, u64 exec, u32 seed,
     RuntimeInfo runtime{};
     runtime.Initialize(HwStage::Compute, SwStage::Compute);
     runtime.hw.cs.workgroup_size = {64, 1, 1};
-    runtime.props.num_allocated_vgprs = 32;
+    runtime.props.num_allocated_vgprs = 64;
     Pools pools;
     IR::Program p{info};
     auto* entry = pools.block_pool.Create(pools.inst_pool);
@@ -116,19 +137,22 @@ static std::vector<u32> Build(const Variant& v, u64 present, u64 exec, u32 seed,
 
     IR::IREmitter ir{*entry};
     const IR::U32 lane = ir.LaneId();
-    const IR::U32 hash{ir.BitwiseXor(ir.IMul(ir.IAdd(lane, ir.Imm32(1u)), ir.Imm32(0x9e3779b1u)),
-                                     ir.Imm32(seed))};
+    const IR::U32 hash{
+        ir.BitwiseXor(ir.IMul(ir.IAdd(lane, ir.Imm32(1u)), ir.Imm32(0x9e3779b1u)), ir.Imm32(seed))};
     const IR::U32 input =
-        v.is_min ? ir.ShiftRightLogical(hash, ir.Imm32(8u))
-                 : ir.BitwiseOr(
-                       ir.ShiftLeftLogical(ir.Imm32(1u), ir.BitFieldExtract(hash, ir.Imm32(27u),
-                                                                            ir.Imm32(5u))),
-                       ir.BitwiseAnd(hash, ir.Imm32(0x100u)));
+        v.is_min
+            ? ir.ShiftRightLogical(hash, ir.Imm32(8u))
+            : ir.BitwiseOr(ir.ShiftLeftLogical(
+                               ir.Imm32(1u), ir.BitFieldExtract(hash, ir.Imm32(27u), ir.Imm32(5u))),
+                           ir.BitwiseAnd(hash, ir.Imm32(0x100u)));
     ir.SetVectorReg(IR::VectorReg(v.input_vgpr), input);
     // Lanes of the wave the guest disabled before this region never enter the SPIR-V body;
     // present lanes outside exec model a narrowing without a control-flow split.
-    const IR::U1 enter = MaskBit(ir, lane, present);
+    const IR::U1 enter = ir.ConditionRef(MaskBit(ir, lane, present));
     ir.SetExec(MaskBit(ir, lane, exec));
+    ir.SetScalarReg(IR::ScalarReg(68), ir.Imm32(u32(v.contribution_mask)));
+    ir.SetScalarReg(IR::ScalarReg(69), ir.Imm32(u32(v.contribution_mask >> 32)));
+    ir.SetScalarReg(IR::ScalarReg(46), ir.Imm32(1U));
 
     std::vector<Gcn::GcnInst> insts;
     Gcn::GcnCodeSlice slice(v.words.data(), v.words.data() + v.words.size());
@@ -183,11 +207,18 @@ static std::vector<u32> Build(const Variant& v, u64 present, u64 exec, u32 seed,
     Optimization::ConstantPropagationPass(p.post_order_blocks);
     Optimization::DeadCodeEliminationPass(p);
     Optimization::CollectShaderInfoPass(p, profile);
+    if (reduction_count) {
+        *reduction_count = 0;
+        for (auto* block : p.blocks)
+            for (const auto& inst : block->Instructions())
+                *reduction_count += inst.GetOpcode() == IR::Opcode::ClusteredOr32 ||
+                                    inst.GetOpcode() == IR::Opcode::ClusteredUMin32;
+    }
     Backend::Bindings bindings{};
     return Backend::SPIRV::EmitSPIRV(profile, runtime, p, bindings);
 }
 
-int main(int argc, char** argv) {
+static int Run(int argc, char** argv) {
     if (argc != 3)
         return 2;
     setbuf(stdout, nullptr);
@@ -248,18 +279,33 @@ int main(int argc, char** argv) {
         u64 exec;
     };
     const Case cases[] = {
-        {~u64{0}, ~u64{0}},                                   // whole wave
-        {0x000000ffffffffffULL, 0x000000ffffffffffULL},       // lanes 0..39
-        {0xaaaaaaaaaaaaaaaaULL, 0xaaaaaaaaaaaaaaaaULL},       // odd lanes
-        {0xfffffffe00000000ULL, 0xfffffffe00000000ULL},       // high half except lane 32
-        {0x0000000000000020ULL, 0x0000000000000020ULL},       // one lane in the low half
-        {0x8000000000000001ULL, 0x8000000000000001ULL},       // lanes 0 and 63
-        {~u64{0}, 0x0f0f0f0f0f0f0f0fULL},                     // narrowing without a split
-        {0x7fffffff7fffffffULL, 0x3fffffff3fffffffULL},       // lanes 31/63 absent
-        {0x00ff00ff00ff00ffULL, 0x00f000ff00f000ffULL},       // mixed
+        {~u64{0}, ~u64{0}},                             // whole wave
+        {0x000000ffffffffffULL, 0x000000ffffffffffULL}, // lanes 0..39
+        {0xaaaaaaaaaaaaaaaaULL, 0xaaaaaaaaaaaaaaaaULL}, // odd lanes
+        {0xfffffffe00000000ULL, 0xfffffffe00000000ULL}, // high half except lane 32
+        {0x0000000000000020ULL, 0x0000000000000020ULL}, // one lane in the low half
+        {0x8000000000000001ULL, 0x8000000000000001ULL}, // lanes 0 and 63
+        {~u64{0}, 0x0f0f0f0f0f0f0f0fULL},               // narrowing without a split
+        {0x7fffffff7fffffffULL, 0x3fffffff3fffffffULL}, // lanes 31/63 absent
+        {0x00ff00ff00ff00ffULL, 0x00f000ff00f000ffULL}, // mixed
     };
     u32 checks[2]{}, failures[2]{};
-    for (const Variant* v : {&MinVariant, &OrVariant}) {
+    for (bool overwrite : {false, true}) {
+        auto unrelated_mask = OrSubsetVariant;
+        if (overwrite) {
+            unrelated_mask.words.insert(unrelated_mask.words.begin() + 1, 0x8884447e);
+        } else {
+            unrelated_mask.words[0] = 0x8884447e; // OR with EXEC is not a subset proof.
+        }
+        u32 reductions{};
+        Build(unrelated_mask, ~u64{0}, ~u64{0}, 1U, true, &reductions);
+        ++checks[1];
+        if (reductions) {
+            ++failures[1];
+            printf("FAIL non-subset/overwritten mask accepted\n");
+        }
+    }
+    for (const Variant* v : {&MinVariant, &OrVariant, &OrSubsetVariant, &OrSubsetGapVariant}) {
         for (u32 c = 0; c < std::size(cases); ++c) {
             for (u32 seed : {0x12345678u, 0xdeadbeefu, 0x0u}) {
                 for (bool clustered : {false, true}) {
@@ -288,6 +334,12 @@ int main(int argc, char** argv) {
                     cmd.bindPipeline(vk::PipelineBindPoint::eCompute, *pipe);
                     cmd.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *pl, 0, sets, {});
                     cmd.dispatch(1, 1, 1);
+                    cmd.pipelineBarrier(
+                        vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eHost,
+                        {},
+                        vk::MemoryBarrier{.srcAccessMask = vk::AccessFlagBits::eShaderWrite,
+                                          .dstAccessMask = vk::AccessFlagBits::eHostRead},
+                        {}, {});
                     Vulkan::Check(cmd.end());
                     vk::SubmitInfo submit{.commandBufferCount = 1, .pCommandBuffers = &cmd};
                     Vulkan::Check(instance.GetGraphicsQueue().submit(submit, *fence));
@@ -298,10 +350,11 @@ int main(int argc, char** argv) {
                     const u32 identity = v->is_min ? ~0u : 0u;
                     u32 half[2] = {identity, identity};
                     for (u32 lane = 0; lane < Lanes; ++lane) {
-                        if ((present >> lane & 1) && (exec >> lane & 1)) {
+                        if ((present >> lane & 1) && (exec >> lane & 1) &&
+                            (v->contribution_mask >> lane & 1)) {
                             const u32 x = InputOf(*v, lane, seed);
-                            half[lane >> 5] = v->is_min ? std::min(half[lane >> 5], x)
-                                                        : half[lane >> 5] | x;
+                            half[lane >> 5] =
+                                v->is_min ? std::min(half[lane >> 5], x) : half[lane >> 5] | x;
                         }
                     }
                     for (u32 lane = 0; lane < Lanes; ++lane) {
@@ -330,4 +383,15 @@ int main(int argc, char** argv) {
     std::printf("WAVE_REDUCTION old %u checks / %u failures, new %u checks / %u failures\n",
                 checks[0], failures[0], checks[1], failures[1]);
     return failures[1] ? 1 : 0;
+}
+
+int main(int argc, char** argv) {
+    int result = 3;
+    try {
+        result = Run(argc, argv);
+    } catch (const std::exception& e) {
+        std::fprintf(stderr, "%s\n", e.what());
+    }
+    Common::Log::Shutdown();
+    return result;
 }

@@ -16,6 +16,160 @@ static bool IsSharpSource(const IR::Inst* inst) {
            inst->GetOpcode() == IR::Opcode::ReadConstBuffer;
 }
 
+namespace {
+bool GpuDependent(IR::Value value, u32 depth = 0) {
+    if (value.IsImmediate() || value.IsEmpty())
+        return false;
+    if (depth == 32)
+        return true;
+    const auto* inst = value.Inst();
+    switch (inst->GetOpcode()) {
+    case IR::Opcode::Phi:
+    case IR::Opcode::ReadLane:
+    case IR::Opcode::ReadFirstLane:
+        return true;
+    case IR::Opcode::GetUserData:
+        return false;
+    default:
+        if (IsBufferInstruction(*inst) && inst->GetOpcode() != IR::Opcode::ReadConstBuffer)
+            return true;
+        for (size_t i = 0; i < inst->NumArgs(); ++i)
+            if (GpuDependent(inst->Arg(i), depth + 1))
+                return true;
+        return false;
+    }
+}
+
+struct AffineOffset {
+    IR::Value index;
+    u64 scale{}, constant{};
+    bool valid{};
+};
+
+// Only accept exact integer affine forms. In particular, do not turn a shifted arbitrary
+// value into a truncated index, or combine unrelated GPU values into one table index.
+AffineOffset ImageTableOffset(IR::Value value, u32 depth = 0) {
+    if (depth == 16 || value.IsEmpty())
+        return {};
+    if (value.IsImmediate())
+        return {{}, 0, value.U32(), true};
+    const auto* inst = value.Inst();
+    const auto op = inst->GetOpcode();
+    if (op == IR::Opcode::IAdd32) {
+        auto a = ImageTableOffset(inst->Arg(0), depth + 1);
+        auto b = ImageTableOffset(inst->Arg(1), depth + 1);
+        if (!a.valid || !b.valid || (a.scale && b.scale))
+            return {};
+        return {a.scale ? a.index : b.index, a.scale + b.scale, a.constant + b.constant,
+                a.constant + b.constant <= UINT32_MAX};
+    }
+    if (op == IR::Opcode::IMul32 || op == IR::Opcode::ShiftLeftLogical32 ||
+        op == IR::Opcode::ShiftRightLogical32) {
+        IR::Value input = inst->Arg(0), amount = inst->Arg(1);
+        if (op == IR::Opcode::IMul32 && input.IsImmediate())
+            std::swap(input, amount);
+        if (!amount.IsImmediate())
+            return {value, 1, 0, true};
+        auto a = ImageTableOffset(input, depth + 1);
+        if (!a.valid)
+            return {};
+        const u64 factor = op == IR::Opcode::IMul32 ? amount.U32() : u64{1} << (amount.U32() & 31);
+        if (op == IR::Opcode::ShiftRightLogical32) {
+            if (a.scale % factor || a.constant % factor)
+                return {};
+            a.scale /= factor;
+            a.constant /= factor;
+        } else {
+            a.scale *= factor;
+            a.constant *= factor;
+        }
+        a.valid = a.scale <= UINT32_MAX && a.constant <= UINT32_MAX;
+        return a;
+    }
+    return {value, 1, 0, true};
+}
+
+bool SameBufferHandle(const IR::Inst* a, const IR::Inst* b) {
+    if (!a || !b || a->GetOpcode() != IR::Opcode::CompositeConstructU32x4 ||
+        b->GetOpcode() != IR::Opcode::CompositeConstructU32x4)
+        return false;
+    for (u32 i = 0; i < 4; ++i)
+        if (a->Arg(i) != b->Arg(i))
+            return false;
+    return true;
+}
+
+bool DiscoverDynamicImageTable(ResourceDiscovery& resource) {
+    const auto& sharp = resource.sharps[0];
+    if (sharp.num_dwords != 8 || sharp.post_op != SharpFetchPostOp::None)
+        return false;
+    auto* first = sharp.dwords[0].TryInst();
+    if (!first)
+        return false;
+    IR::Inst* buffer{};
+    u32 image_offset{}, stride{};
+    if (first->GetOpcode() == IR::Opcode::ReadConstBuffer && GpuDependent(first->Arg(1))) {
+        const auto base = ImageTableOffset(first->Arg(1));
+        if (!base.valid || !base.scale || base.scale > 1024 || base.constant >= base.scale)
+            return false;
+        buffer = first->Arg(0).TryInst();
+        for (u32 i = 0; i < 8; ++i) {
+            auto* source = sharp.dwords[i].TryInst();
+            if (!source || source->GetOpcode() != IR::Opcode::ReadConstBuffer ||
+                !SameBufferHandle(buffer, source->Arg(0).TryInst()))
+                return false;
+            const auto offset = ImageTableOffset(source->Arg(1));
+            if (!offset.valid || offset.index != base.index || offset.scale != base.scale ||
+                offset.constant != base.constant + i)
+                return false;
+        }
+        image_offset = base.constant * 4;
+        stride = base.scale * 4;
+    } else if (first->GetOpcode() == IR::Opcode::ReadLane) {
+        IR::Value lane = first->Arg(1), index;
+        for (u32 i = 0; i < 8; ++i) {
+            auto* source = sharp.dwords[i].TryInst();
+            if (!source || source->GetOpcode() != IR::Opcode::ReadLane || source->Arg(1) != lane)
+                return false;
+            auto* extract = source->Arg(0).TryInst();
+            if (!extract || extract->GetOpcode() != IR::Opcode::CompositeExtractU32x4 ||
+                !extract->Arg(1).IsImmediate())
+                return false;
+            auto* load = extract->Arg(0).TryInst();
+            if (!load || load->GetOpcode() != IR::Opcode::LoadBufferU32x4)
+                return false;
+            const auto flags = load->Flags<IR::BufferInstInfo>();
+            auto* address = load->Arg(1).TryInst();
+            if (!flags.index_enable || flags.voffset_enable || !address ||
+                address->GetOpcode() != IR::Opcode::CompositeConstructU32x3 ||
+                !address->Arg(1).IsImmediate() || address->Arg(1).U32() != 0 ||
+                !address->Arg(2).IsImmediate() || address->Arg(2).U32() != 0)
+                return false;
+            const u32 offset = flags.inst_offset + extract->Arg(1).U32() * 4;
+            if (i == 0) {
+                buffer = load->Arg(0).TryInst();
+                index = address->Arg(0);
+                image_offset = offset;
+            }
+            if (!SameBufferHandle(buffer, load->Arg(0).TryInst()) || address->Arg(0) != index ||
+                offset != image_offset + i * 4)
+                return false;
+        }
+        // Indexed buffer loads get their stride from the actual V# at bind time.
+    } else {
+        return false;
+    }
+    if (!buffer || image_offset > 4096 - 32)
+        return false;
+    resource.image_table_buffer.num_dwords = 4;
+    for (u32 i = 0; i < 4; ++i)
+        resource.image_table_buffer.dwords[i] = buffer->Arg(i);
+    resource.image_table_stride = stride;
+    resource.image_table_offset = image_offset;
+    return true;
+}
+} // namespace
+
 struct StridePatchResult {
     IR::Value vsharp_dw1;
     u32 dw1_mask;
@@ -254,7 +408,10 @@ void MarkReadConstBufferSharpSources(const SharpReference& sharp) {
         if (!source) {
             continue;
         }
-        ASSERT(IsSharpSource(source));
+        if (!IsSharpSource(source)) {
+            throw std::runtime_error(
+                fmt::format("Unsupported resource descriptor word {}: {}", i, source->GetOpcode()));
+        }
         if (source->GetOpcode() == IR::Opcode::ReadConstBuffer) {
             auto flags = source->Flags<IR::BufferInstInfo>();
             flags.sharp_source.Assign(1u);
@@ -317,7 +474,11 @@ void DiscoverImageSharp(IR::Block& block, IR::Inst& inst, ResourceDiscoveryList&
         tsharp.dwords[4] = tsharp_dw4;
     }
 
-    MarkReadConstBufferSharpSources(tsharp);
+    if (DiscoverDynamicImageTable(resource)) {
+        MarkReadConstBufferSharpSources(resource.image_table_buffer);
+    } else {
+        MarkReadConstBufferSharpSources(tsharp);
+    }
 
     if (inst.GetOpcode() != IR::Opcode::ImageSampleRaw) {
         return;

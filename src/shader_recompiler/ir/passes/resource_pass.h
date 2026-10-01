@@ -5,14 +5,18 @@
 
 #include <boost/container/small_vector.hpp>
 
+#include "shader_recompiler/ir/microinstruction.h"
 #include "shader_recompiler/ir/opcodes.h"
 #include "shader_recompiler/ir/value.h"
+#include "shader_recompiler/resource.h"
 
 namespace Shader {
 enum class SharpFetchPostOp : u8;
 }
 
 namespace Shader::Optimization {
+
+SharpLocation SharpLocationFromSource(const IR::Inst* inst);
 
 union PostOpData {
     u32 dw1_mask;
@@ -29,7 +33,18 @@ struct SharpReference {
 struct ResourceDiscovery {
     IR::Inst* user{};
     std::array<SharpReference, 2> sharps;
+    SharpReference image_table_buffer;
+    u32 image_table_stride{};
+    u32 image_table_offset{};
 };
+
+inline u32 ResourceBinding(const IR::Value& handle) {
+    if (handle.IsImmediate())
+        return handle.U32();
+    auto* inst = handle.Inst();
+    ASSERT(inst->GetOpcode() == IR::Opcode::GuardedResource);
+    return inst->Arg(0).U32();
+}
 using ResourceDiscoveryList = boost::container::small_vector<ResourceDiscovery, 32>;
 
 inline bool IsBufferAtomic(const IR::Inst& inst) {

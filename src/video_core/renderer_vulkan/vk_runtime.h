@@ -81,6 +81,9 @@ private:
     Scheduler& scheduler;
     std::unique_ptr<VideoCore::BlitHelper> blit_helper;
     StagingBufferPool staging_pool;
+    // Image -> buffer -> image copies execute serially, so the intermediate can
+    // be reused after its transfer-read/write dependencies without a CPU wait.
+    std::unique_ptr<VideoCore::Buffer> depth_color_scratch;
     BarrierTracker barrier_tracker;
     VideoCore::Image::Barriers image_barriers;
     vk::MemoryBarrier2 memory_barrier{};

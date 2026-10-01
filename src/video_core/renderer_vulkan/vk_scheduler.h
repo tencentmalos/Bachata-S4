@@ -470,6 +470,11 @@ public:
     }
     /// pass_log start [passes] | status | dump | stop (default off).
     static std::string PassLogCommand(const std::vector<std::string>& args);
+    /// Bounded per-draw timestamp diagnostic. Timestamps can perturb tile rendering;
+    /// use to locate expensive shader pairs, not as an uninstrumented FPS result.
+    static std::string DrawLogCommand(const std::vector<std::string>& args);
+    static u64 RegisterDrawTiming(u64 vs, u64 fs, u32 count, u32 instances, bool indexed,
+                                  bool indirect, bool software_interpolation);
     /// pass_log only: records which buffer barrier a draw/dispatch needs, so a pass the
     /// barrier ends carries its source (buffer, previous writer, new access, shader).
     static bool PassLogActive() noexcept;
@@ -646,10 +651,13 @@ private:
 // the destructor skips the end timestamp instead of writing into the new batch.
 class GpuZoneScope {
 public:
-    GpuZoneScope(Scheduler& scheduler_, GpuProfiler::Stage stage) : scheduler{scheduler_} {
+    GpuZoneScope(Scheduler& scheduler_, GpuProfiler::Stage stage, u64 tag = 0)
+        : scheduler{scheduler_} {
         if (!Common::Profiler::GpuTimingDetailed()) return;
+        if (stage == GpuProfiler::Stage::Draw && !tag)
+            return;
         serial = scheduler.GpuProfile().BatchSerial();
-        zone = scheduler.GpuProfile().BeginWith(stage, scheduler.TimestampWriter());
+        zone = scheduler.GpuProfile().BeginWith(stage, scheduler.TimestampWriter(), tag);
     }
     ~GpuZoneScope() {
         if (zone != GpuProfiler::Invalid && scheduler.GpuProfile().BatchSerial() == serial)

@@ -5,6 +5,7 @@
 #include "shader_recompiler/backend/spirv/emit_spirv_instructions.h"
 #include "shader_recompiler/backend/spirv/spirv_emit_context.h"
 #include "shader_recompiler/ir/microinstruction.h"
+#include "shader_recompiler/ir/passes/resource_pass.h"
 
 namespace Shader::Backend::SPIRV {
 
@@ -196,6 +197,69 @@ struct ImageOperands {
     spv::ImageOperandsMask mask{};
     boost::container::static_vector<Id, 4> operands;
 };
+
+Id EmitGuardedImageSample(EmitContext& ctx, IR::Inst* inst) {
+    // Selecting a dynamic T# introduces per-lane divergence. Compute derivatives
+    // at the original sample site, before that selection, while the quad is intact.
+    // Leave the actual texture access guarded (other candidates can be incompatible).
+    ASSERT(ctx.info.sw_stage == SwStage::Fragment);
+    const auto* guard = inst->Arg(0).Inst();
+    const u32 handle = Optimization::ResourceBinding(inst->Arg(0));
+    const auto& texture = ctx.images[handle & 0xffff];
+    const Id coords = FixImageCoords<true>(ctx, ctx.Def(inst->Arg(1)), texture.view_type);
+    const bool dref = inst->GetOpcode() == IR::Opcode::ImageSampleDrefImplicitLod;
+    const bool volume = texture.view_type == AmdGpu::ImageType::Color3D;
+    // Cube is already lowered to a 2D array. Array layer / cube face must never
+    // contribute to the footprint, even when neighboring lanes use different layers.
+    const bool array = texture.view_type == AmdGpu::ImageType::Color1DArray ||
+                       texture.view_type == AmdGpu::ImageType::Color2DArray ||
+                       texture.view_type == AmdGpu::ImageType::Cube;
+    const Id gradient_coords =
+        array ? ctx.OpVectorShuffle(ctx.F32[2], coords, coords, 0U, 1U) : coords;
+    const Id gradient_type = ctx.F32[volume ? 3 : 2];
+    Id dx = ctx.OpDPdx(gradient_type, gradient_coords);
+    Id dy = ctx.OpDPdy(gradient_type, gradient_coords);
+    const auto& bias = inst->Arg(dref ? 3 : 2);
+    if (!bias.IsEmpty()) {
+        // A one-level bias doubles the footprint. Sampler bias remains applied
+        // by the texture unit; scaling gradients preserves anisotropic sampling.
+        const Id scale = ctx.OpExp2(ctx.F32[1], ctx.Def(bias));
+        dx = ctx.OpVectorTimesScalar(gradient_type, dx, scale);
+        dy = ctx.OpVectorTimesScalar(gradient_type, dy, scale);
+    }
+    const Id before = ctx.last_label;
+    const Id body = ctx.OpLabel();
+    const Id merge = ctx.OpLabel();
+    ctx.OpSelectionMerge(merge, spv::SelectionControlMask::MaskNone);
+    ctx.OpBranchConditional(ctx.Def(guard->Arg(1)), body, merge);
+    ctx.AddLabel(body);
+    const Id image = ctx.OpLoad(texture.image_type, texture.id);
+    const Id sampler = ctx.OpLoad(ctx.sampler_type, ctx.samplers[handle >> 16]);
+    const Id sampled = ctx.OpSampledImage(texture.sampled_type, image, sampler);
+    ImageOperands operands;
+    // Coordinates are already lowered, including 1D padding.
+    operands.Add(spv::ImageOperandsMask::Grad, dx, dy);
+    operands.AddOffset(ctx, texture.view_type, inst->Arg(dref ? 4 : 3));
+    const Id type = texture.data_types->Get(dref ? 1 : 4);
+    Id value = dref ? ctx.OpImageSampleDrefExplicitLod(type, sampled, coords, ctx.Def(inst->Arg(2)),
+                                                       operands.mask, operands.operands)
+                    : ctx.OpImageSampleExplicitLod(type, sampled, coords, operands.mask,
+                                                   operands.operands);
+    if (texture.is_integer)
+        value = ctx.OpBitcast(ctx.F32[dref ? 1 : 4], value);
+    if (dref)
+        value = ctx.OpCompositeConstruct(ctx.F32[4], value, ctx.f32_zero_value, ctx.f32_zero_value,
+                                         ctx.f32_zero_value);
+    const Id after = ctx.last_label;
+    ctx.OpBranch(merge);
+    ctx.AddLabel(merge);
+    return ctx.OpPhi(ctx.F32[4], ctx.ConstantNull(ctx.F32[4]), before, value, after);
+}
+
+Id EmitGuardedResource(EmitContext& ctx, u32 binding, Id) {
+    // The consumer emits the selection branch. Keep the condition as an SSA dependency.
+    return ctx.ConstU32(binding);
+}
 
 Id EmitImageHandle(EmitContext& ctx, Id, Id) {
     UNREACHABLE_MSG("Unreachable instruction");

@@ -24,82 +24,85 @@
 #if defined(__linux__)
 #include <sched.h>
 #endif
+#include <openssl/sha.h>
 #include <unistd.h>
 #include "common/alignment.h"
-#include "common/profiler.h"
-#include "common/thread.h"
 #include "common/elf_info.h"
 #include "common/path_util.h"
-#include "common/string_util.h"
+#include "common/profiler.h"
 #include "common/singleton.h"
+#include "common/string_util.h"
+#include "common/thread.h"
 #include "core/aerolib/aerolib.h"
-#include "core/libraries/kernel/kernel.h"
+#include "core/diagnostics/executable_export.h"
 #include "core/file_format/psf.h"
+#include "core/file_format/trophy_support.h"
 #include "core/file_sys/fs.h"
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
-#include "core/host_runtime/guest_ajm.h"
 #include "core/host_runtime/guest_aio.h"
+#include "core/host_runtime/guest_ajm.h"
 #include "core/host_runtime/guest_app_content.h"
 #include "core/host_runtime/guest_audio.h"
 #include "core/host_runtime/guest_audio3d.h"
 #include "core/host_runtime/guest_audio_input.h"
-#include "core/host_runtime/guest_live_streaming.h"
-#include "core/host_runtime/guest_remote_services.h"
+#include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_avplayer.h"
-#include "core/host_runtime/guest_clock.h"
-#include "core/host_runtime/guest_gettimeofday.h"
-#include "core/host_runtime/guest_camera.h"
-#include "core/host_runtime/guest_reprojection.h"
-#include "core/host_runtime/guest_hmd_diagnostics.h"
-#include "core/libraries/kernel/threads/event_flag_state.h"
-#include "core/libraries/kernel/threads/host_priority.h"
-#include "core/host_runtime/guest_graphics.h"
-#include "core/host_runtime/guest_kernel_semaphore.h"
-#include "core/host_runtime/guest_libc_policy.h"
-#include "core/host_runtime/guest_memory_hle.h"
-#include "core/host_runtime/guest_direct_memory_hle.h"
-#include "core/host_runtime/guest_page_states.h"
-#include "core/host_runtime/guest_process_services.h"
 #include "core/host_runtime/guest_backtrace.h"
-#include "core/host_runtime/guest_kernel_time.h"
-#include "core/libraries/sysmodule/sysmodule_internal.h"
-#include "core/host_runtime/guest_video_event_hle.h"
-#include "core/host_runtime/guest_mouse.h"
-#include "core/host_runtime/guest_mutex.h"
-#include "core/host_runtime/guest_module_lifecycle.h"
-#include "core/host_runtime/guest_module_policy.h"
-#include "core/host_runtime/guest_playgo.h"
-#include "core/host_runtime/guest_matching2.h"
-#include "core/host_runtime/guest_trophy.h"
-#include "core/file_format/trophy_support.h"
-#include "core/host_runtime/guest_sync_arena.h"
-#include "core/host_runtime/guest_sync_metrics.h"
-#include "core/host_runtime/guest_network.h"
+#include "core/host_runtime/guest_camera.h"
+#include "core/host_runtime/guest_capture_services.h"
+#include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_direct_memory_hle.h"
+#include "core/host_runtime/guest_gettimeofday.h"
+#include "core/host_runtime/guest_gnm_abi.h"
+#include "core/host_runtime/guest_graphics.h"
+#include "core/host_runtime/guest_hmd_diagnostics.h"
+#include "core/host_runtime/guest_hmd_geometry.h"
 #include "core/host_runtime/guest_http.h"
 #include "core/host_runtime/guest_http2.h"
 #include "core/host_runtime/guest_http2_compat.h"
-#include <openssl/sha.h>
+#include "core/host_runtime/guest_kernel_semaphore.h"
+#include "core/host_runtime/guest_kernel_time.h"
+#include "core/host_runtime/guest_libc_policy.h"
+#include "core/host_runtime/guest_live_streaming.h"
+#include "core/host_runtime/guest_matching2.h"
+#include "core/host_runtime/guest_memory_hle.h"
+#include "core/host_runtime/guest_module_lifecycle.h"
+#include "core/host_runtime/guest_module_policy.h"
+#include "core/host_runtime/guest_mouse.h"
+#include "core/host_runtime/guest_mutex.h"
+#include "core/host_runtime/guest_network.h"
 #include "core/host_runtime/guest_np.h"
+#include "core/host_runtime/guest_np_auth.h"
 #include "core/host_runtime/guest_np_score.h"
 #include "core/host_runtime/guest_np_tus.h"
 #include "core/host_runtime/guest_np_utility.h"
 #include "core/host_runtime/guest_np_webapi.h"
-#include "core/host_runtime/guest_user_callbacks.h"
 #include "core/host_runtime/guest_pad.h"
+#include "core/host_runtime/guest_page_states.h"
+#include "core/host_runtime/guest_patch.h"
 #include "core/host_runtime/guest_platform.h"
-#include "core/host_runtime/guest_system_service.h"
-#include "core/host_runtime/guest_video_mode.h"
-#include "core/host_runtime/guest_hmd_geometry.h"
+#include "core/host_runtime/guest_playgo.h"
+#include "core/host_runtime/guest_process_services.h"
+#include "core/host_runtime/guest_remote_services.h"
+#include "core/host_runtime/guest_reprojection.h"
 #include "core/host_runtime/guest_rtc.h"
 #include "core/host_runtime/guest_runtime.h"
-#include "core/host_runtime/guest_patch.h"
-#include "core/diagnostics/executable_export.h"
-#include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_rwlock_diagnostics.h"
 #include "core/host_runtime/guest_sync_abi.h"
-#include "core/host_runtime/guest_gnm_abi.h"
+#include "core/host_runtime/guest_sync_arena.h"
+#include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_system_service.h"
+#include "core/host_runtime/guest_trophy.h"
+#include "core/host_runtime/guest_user_callbacks.h"
+#include "core/host_runtime/guest_video_event_hle.h"
+#include "core/host_runtime/guest_video_mode.h"
+#include "core/host_runtime/guest_vr_service_dialog.h"
+#include "core/libraries/kernel/kernel.h"
+#include "core/libraries/kernel/threads/event_flag_state.h"
+#include "core/libraries/kernel/threads/host_priority.h"
+#include "core/libraries/sysmodule/sysmodule_internal.h"
 #if __has_include("guest_sync_payload.h")
 // Generated from guest/runtime/sync by build-guest-payload at host build time.
 #include "guest_sync_payload.h"
@@ -399,6 +402,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestMatching2Offline> matching2;
     std::unique_ptr<GuestTrophy> trophy;
     std::unique_ptr<GuestNpOffline> np;
+    std::unique_ptr<GuestNpAuthOffline> np_auth;
     std::unique_ptr<GuestNpUtility> np_utility;
     std::unique_ptr<GuestNpWebApiControl> np_webapi;
     std::unique_ptr<GuestUserCallbacks> user_callbacks;
@@ -1596,25 +1600,35 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const bool random_nid = nid == "PI7jIZj4pcE";
         const bool coredump_nid = std::ranges::find(CoredumpUnavailableNids, nid) != CoredumpUnavailableNids.end();
         const bool kernel_nid =
-            !coredump_nid && !IsAudioInputNid(nid) && !IsLiveStreamingUnavailableNid(nid) && !FindRemoteService(nid) &&
-            !random_nid && !posix_net_nid && !np_nid && !IsNpScoreOfflineNid(nid) && !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) && !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) && !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsAudioNid(nid) && !IsAudio3dNid(nid) && !IsAjmNid(nid) &&
-            !IsPadNid(nid) && !IsMouseNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) &&
-            !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
+            !coredump_nid && !IsAudioInputNid(nid) && !IsLiveStreamingUnavailableNid(nid) &&
+            !FindRemoteService(nid) && !GuestVrServiceDialog::IsNid(nid) &&
+            !FindCaptureService(nid) && !random_nid && !posix_net_nid && !np_nid &&
+            !GuestNpAuthOffline::IsNid(nid) && !IsNpScoreOfflineNid(nid) &&
+            !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) &&
+            !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) &&
+            !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsAudioNid(nid) &&
+            !IsAudio3dNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsMouseNid(nid) &&
+            !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
+            !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
             !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
             !gnmdriver_functions.contains(nid) && !hmd_functions.contains(nid) &&
-            !hmd_setup_dialog_functions.contains(nid) &&
-            !vr_tracker_functions.contains(nid) && !IsCameraNid(nid) &&
-            !move_functions.contains(nid) && !GuestImeKeyboard::IsNid(nid) && !GuestErrorDialog::IsNid(nid) && !ime_dialog_nid && !GuestSigninDialog::IsNid(nid) &&
+            !hmd_setup_dialog_functions.contains(nid) && !vr_tracker_functions.contains(nid) &&
+            !IsCameraNid(nid) && !move_functions.contains(nid) && !GuestImeKeyboard::IsNid(nid) &&
+            !GuestErrorDialog::IsNid(nid) && !ime_dialog_nid && !GuestSigninDialog::IsNid(nid) &&
             !GuestMsgDialog::IsNid(nid) && !GuestCommerceDialog::IsNid(nid) && nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
             ((avplayer && IsAvPlayerNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAvPlayer#1#libSceAvPlayer#Function") ||
-             (IsAudioInputNid(nid) && symbol.name.substr(nid.size()) == "#libSceAudioIn#1#libSceAudioIn#Function") ||
+             (IsAudioInputNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceAudioIn#1#libSceAudioIn#Function") ||
              AdmitsLiveStreamingUnavailable(nid, symbol.name.substr(nid.size())) ||
              AdmitsRemoteService(nid, symbol.name.substr(nid.size())) ||
+             AdmitsCaptureService(nid, symbol.name.substr(nid.size())) ||
+             (GuestVrServiceDialog::IsNid(nid) &&
+              symbol.name.substr(nid.size()) == GuestVrServiceDialog::Suffix) ||
              (audio && IsAudioNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAudioOut#1#libSceAudioOut#Function") ||
              (audio3d && IsAudio3dNid(nid) &&
@@ -1626,22 +1640,30 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
              (IsMouseNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceMouse#1#libSceMouse#Function") ||
              (np && AdmitsNpOffline(nid, symbol.name.substr(nid.size()), np_offline)) ||
+             (np_auth &&
+              GuestNpAuthOffline::Admits(nid, symbol.name.substr(nid.size()), np_offline)) ||
              AdmitsNpScoreOffline(nid, symbol.name.substr(nid.size()), np_offline) ||
              AdmitsNpTusOffline(nid, symbol.name.substr(nid.size()), np_offline) ||
              (np_webapi && np_offline && IsNpWebApiControlNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceNpWebApi#1#libSceNpWebApi#Function") ||
              (np_utility && np_offline && IsNpUtilityNid(nid) &&
               (symbol.name.substr(nid.size()) == "#libSceNpUtility#1#libSceNpUtility#Function" ||
-               (nid == "r9BgI0PfJZg" && symbol.name.substr(nid.size()) == "#libSceNpUtilityCompat#1#libSceNpUtility#Function"))) ||
-             (random_nid && symbol.name.substr(nid.size()) == "#libSceRandom#1#libSceRandom#Function") ||
-             (network && posix_net_nid && (symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function" ||
-                                          symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function")) ||
-             (ssl && ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
+               (nid == "r9BgI0PfJZg" &&
+                symbol.name.substr(nid.size()) ==
+                    "#libSceNpUtilityCompat#1#libSceNpUtility#Function"))) ||
+             (random_nid &&
+              symbol.name.substr(nid.size()) == "#libSceRandom#1#libSceRandom#Function") ||
+             (network && posix_net_nid &&
+              (symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function" ||
+               symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function")) ||
+             (ssl && ssl_nid &&
+              symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
              (http && AdmitsHttp(nid, symbol.name.substr(nid.size()), true)) ||
              (trophy && IsTrophyNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceNpTrophy#1#libSceNpTrophy#Function") ||
              (matching2 && np_offline && IsMatching2Nid(nid) &&
-              symbol.name.substr(nid.size()) == "#libSceNpMatching2#1#libSceNpMatching2#Function") ||
+              symbol.name.substr(nid.size()) ==
+                  "#libSceNpMatching2#1#libSceNpMatching2#Function") ||
              (playgo && IsPlayGoNid(nid) &&
               symbol.name.substr(nid.size()) == "#libScePlayGo#1#libScePlayGo#Function") ||
              (http2 && AdmitsHttp2(nid, symbol.name.substr(nid.size()), true)) ||
@@ -1650,7 +1672,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
              (network && IsNetCtlNid(nid) &&
               (symbol.name.substr(nid.size()) == "#libSceNetCtl#1#libSceNetCtl#Function" ||
                ((nid == "u5oqtlIP+Fw" || nid == "wIsKy+TfeLs" || nid == "2oUqKR5odGc") &&
-                symbol.name.substr(nid.size()) == "#libSceNetCtlForNpToolkit#1#libSceNetCtl#Function"))) ||
+                symbol.name.substr(nid.size()) ==
+                    "#libSceNetCtlForNpToolkit#1#libSceNetCtl#Function"))) ||
              (app_content && IsAppContentNid(nid) &&
               symbol.name.substr(nid.size()) ==
                   "#libSceAppContent#1#libSceAppContentUtil#Function") ||
@@ -1658,12 +1681,14 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libSceRtc#1#libSceRtc#Function") ||
              (IsDiscMapNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceDiscMap#1#libSceDiscMap#Function") ||
-             (coredump_nid && symbol.name.substr(nid.size()) == "#libSceCoredump#1#libkernel#Function") ||
-             (nid == "f7KBOafysXo" && symbol.name.substr(nid.size()) == "#libkernel_psmkit#1#libkernel#Function") ||
+             (coredump_nid &&
+              symbol.name.substr(nid.size()) == "#libSceCoredump#1#libkernel#Function") ||
+             (nid == "f7KBOafysXo" &&
+              symbol.name.substr(nid.size()) == "#libkernel_psmkit#1#libkernel#Function") ||
              // IsProspero also has this desktop-registered platform export.
              // Keep the alias scoped to its NID, library version and module.
-             (nid == "mpxAdqW7dKY" &&
-              symbol.name.substr(nid.size()) == "#libkernel_cpumode_platform#1#libkernel#Function") ||
+             (nid == "mpxAdqW7dKY" && symbol.name.substr(nid.size()) ==
+                                          "#libkernel_cpumode_platform#1#libkernel#Function") ||
              (kernel_nid &&
               (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
                symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function")) ||
@@ -1687,20 +1712,25 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
              (nid == "QwOO7vegnV8" &&
               symbol.name.substr(nid.size()) == "#libSceSaveData#1#libSceSaveData#Function") ||
              (GuestImeKeyboard::Admits(nid, symbol.name.substr(nid.size()))) ||
-             (GuestErrorDialog::IsNid(nid) && symbol.name.substr(nid.size()) == "#libSceErrorDialog#1#libSceErrorDialog#Function") ||
+             (GuestErrorDialog::IsNid(nid) &&
+              symbol.name.substr(nid.size()) ==
+                  "#libSceErrorDialog#1#libSceErrorDialog#Function") ||
              (ime_dialog && ime_dialog_nid &&
               symbol.name.substr(nid.size()) == "#libSceImeDialog#1#libSceImeDialog#Function") ||
              (signin_dialog && GuestSigninDialog::IsNid(nid) &&
-              symbol.name.substr(nid.size()) == "#libSceSigninDialog#1#libSceSigninDialog#Function") ||
+              symbol.name.substr(nid.size()) ==
+                  "#libSceSigninDialog#1#libSceSigninDialog#Function") ||
              (msg_dialog && GuestMsgDialog::IsNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceMsgDialog#1#libSceMsgDialog#Function") ||
              (commerce_dialog && GuestCommerceDialog::IsNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceNpCommerce#1#libSceNpCommerce#Function") ||
              (symbol.name.substr(nid.size()) == "#libSceSysmodule#1#libSceSysmodule#Function" &&
               sysmodule_functions.contains(nid)) ||
-             ((symbol.name.substr(nid.size()) == "#libSceUserService#1#libSceUserService#Function" ||
+             ((symbol.name.substr(nid.size()) ==
+                   "#libSceUserService#1#libSceUserService#Function" ||
                ((nid == "wuI7c7UNk0A" || nid == "spW--yoLQ9o") &&
-                symbol.name.substr(nid.size()) == "#libSceUserServiceForNpToolkit#1#libSceUserService#Function")) &&
+                symbol.name.substr(nid.size()) ==
+                    "#libSceUserServiceForNpToolkit#1#libSceUserService#Function")) &&
               userservice_functions.contains(nid)) ||
              (symbol.name.substr(nid.size()) ==
                   "#libSceSystemService#1#libSceSystemService#Function" &&
@@ -1712,7 +1742,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               videoout_functions.contains(nid)) ||
              (hmd_functions.contains(nid) &&
               (symbol.name.substr(nid.size()) == "#libSceHmd#1#libSceHmd#Function" ||
-               (nid == "8gH1aLgty5I" && symbol.name.substr(nid.size()) ==
+               (nid == "8gH1aLgty5I" &&
+                symbol.name.substr(nid.size()) ==
                     "#libsceHmdReprojectionMultilayer#1#libSceHmd#Function"))) ||
              (hmd_setup_dialog_functions.contains(nid) &&
               symbol.name.substr(nid.size()) ==
@@ -1723,23 +1754,24 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libSceCamera#1#libSceCamera#Function") ||
              (move_functions.contains(nid) &&
               symbol.name.substr(nid.size()) == "#libSceMove#1#libSceMove#Function") ||
-             symbol.name == "NWtTN10cJzE#libSceLibcInternalExt#1#libSceLibcInternal#Function"))
-        {
+             symbol.name == "NWtTN10cJzE#libSceLibcInternalExt#1#libSceLibcInternal#Function")) {
             if (it != handlers.end()) {
                 adapter = std::make_shared<FunctionAdapter>(it->second);
                 hle_status[symbol.name] =
                     hmd_functions.contains(nid) || vr_tracker_functions.contains(nid) ||
-                        hmd_setup_dialog_functions.contains(nid) || IsCameraNid(nid) ||
-                        move_functions.contains(nid)
+                            hmd_setup_dialog_functions.contains(nid) || IsCameraNid(nid) ||
+                            move_functions.contains(nid)
                         ? "android_bridge_guest_vr_sbs_virtual"
-                        : IsMouseNid(nid)
-                            ? "android_bridge_guest_device_no_provider"
-                            : IsAudioInputNid(nid) ? "android_bridge_audio_input_no_provider"
-                            : FindRemoteService(nid) ? "android_bridge_remote_service_no_provider"
-                            : IsLiveStreamingUnavailableNid(nid) ? "android_bridge_broadcast_no_provider"
-                            : coredump_nid ? "android_bridge_coredump_no_provider"
-                            : nid == "VjBtg5Btl94" ? "android_bridge_fsst_no_provider"
-                            : MemoryServiceStatus(nid);
+                    : IsMouseNid(nid)      ? "android_bridge_guest_device_no_provider"
+                    : IsAudioInputNid(nid) ? "android_bridge_audio_input_no_provider"
+                    : GuestVrServiceDialog::IsNid(nid)
+                        ? "android_bridge_vr_service_dialog_no_provider"
+                    : FindCaptureService(nid) ? "android_bridge_capture_service_no_provider"
+                    : FindRemoteService(nid)  ? "android_bridge_remote_service_no_provider"
+                    : IsLiveStreamingUnavailableNid(nid) ? "android_bridge_broadcast_no_provider"
+                    : coredump_nid                       ? "android_bridge_coredump_no_provider"
+                    : nid == "VjBtg5Btl94"               ? "android_bridge_fsst_no_provider"
+                                                         : MemoryServiceStatus(nid);
             }
         }
         if (!adapter) {
@@ -3007,6 +3039,22 @@ void GuestRuntime::Impl::InstallHandlers() {
             return aio->Dispatch(nid, args, HleScope::Current()->CancellationToken());
         });
     }
+    for (const auto nid : GuestVrServiceDialog::Nids) {
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 {
+            std::array<u64, 6> args{};
+            std::copy_n(a.begin(), 6, args.begin());
+            return GuestVrServiceDialog::Invoke(space, nid, args);
+        });
+    }
+    for (const auto& entry : CaptureServiceEntries) {
+        bind({entry.nid.data()}, [this, entry](const auto& a) -> u64 {
+            std::array<u64, 6> args{};
+            std::copy_n(a.begin(), 6, args.begin());
+            s32 sdk = -1;
+            (void)Libraries::Kernel::sceKernelGetCompiledSdkVersion(&sdk);
+            return DispatchCaptureService(space, entry, args, u32(sdk));
+        });
+    }
     for (const auto& entry : RemoteServiceEntries) {
         bind({entry.nid.data()}, [this, entry](const auto& a) -> u64 {
             std::array<u64, 6> args{}; std::copy_n(a.begin(), 6, args.begin());
@@ -3640,8 +3688,20 @@ void GuestRuntime::Impl::InstallHandlers() {
     }
     for (auto nid : Audio3dNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
-            std::array<u64, 6> args{};
-            for (size_t i = 0; i < args.size(); ++i) args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            std::array<u64, 7> args{};
+            for (size_t i = 0; i < 6; ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            // Audio3dAudioOutOpen adds a port ID before AudioOutOpen's six
+            // parameters, so its format word lives on the guest stack.
+            if (nid == "ucEsi62soTo") {
+                CallCursor cursor(frame);
+                for (auto& arg : args) {
+                    auto value = cursor.NextInteger();
+                    if (!value)
+                        return Status(value.GetError());
+                    arg = value.Value();
+                }
+            }
             frame.registers.Set(Gpr::Rax, audio3d->Dispatch(nid, args, HleScope::Current()->CancellationToken()));
             return Ok();
         };
@@ -3649,12 +3709,15 @@ void GuestRuntime::Impl::InstallHandlers() {
     for (auto nid : AjmNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
             std::array<u64, 10> args{};
-            const size_t count = nid == "dmDybN--Fn8" ? 8 :
-                (nid == "ElslOCpOIns" || nid == "7jdAXK+2fMo") ? 10 :
-                nid == "fFFkk0xfGWs" ? 6 :
-                (nid == "stlghnic3Jc" || nid == "-qLsfDAywIY" || nid == "AxoDrINp4J8" || nid == "eDFeTyi+G3Y") ? 4 :
-                (nid == "Q3dyFuwGn64" || nid == "bkRHEYG6lEM") ? 3 :
-                nid == "diXjQNiMu-s" ? 1 : 2;
+            const size_t count = nid == "dmDybN--Fn8"                             ? 8
+                                 : (nid == "ElslOCpOIns" || nid == "7jdAXK+2fMo") ? 10
+                                 : nid == "fFFkk0xfGWs"                           ? 6
+                                 : (nid == "stlghnic3Jc" || nid == "-qLsfDAywIY" ||
+                                    nid == "AxoDrINp4J8" || nid == "eDFeTyi+G3Y")
+                                     ? 4
+                                 : (nid == "Q3dyFuwGn64" || nid == "bkRHEYG6lEM") ? 3
+                                 : (nid == "diXjQNiMu-s" || nid == "MHur6qCsUus") ? 1
+                                                                                  : 2;
             CallCursor cursor(frame);
             for (size_t i = 0; i < count; ++i) {
                 auto value = cursor.NextInteger();
@@ -3699,6 +3762,9 @@ void GuestRuntime::Impl::InstallHandlers() {
         });
     for (const auto nid : NpScoreOfflineNids)
         bind({nid.data()}, [nid](const auto& a) -> u64 { return DispatchNpScoreOffline(nid, a); });
+    for (const auto nid : GuestNpAuthOffline::Nids)
+        bind({nid.data()},
+             [this, nid](const auto& a) -> u64 { return np_auth->Dispatch(space, nid, a); });
     for (const auto nid : NpUtilityNids)
         bind({nid.data()}, [this, nid](const auto& a) -> u64 { return np_utility->Dispatch(space,nid,a); });
     for (const auto nid : NpWebApiControlNids) {
@@ -4995,7 +5061,9 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->sysmodules.Publish("libScePad", 0x1000000d);
     impl->audio = std::make_unique<GuestAudio>(impl->space, impl->clock);
     impl->audio3d = std::make_unique<GuestAudio3d>(impl->space, *impl->audio);
+    impl->sysmodules.Publish("libSceAudio3d", 0x10000024);
     impl->ajm = std::make_unique<GuestAjm>(impl->space);
+    impl->sysmodules.Publish("libSceAjm", 0x10000025);
     impl->avplayer =
         std::make_unique<GuestAvPlayer>(impl->space, [p = impl.get()] { return p->CallbackOwner("AvPlayerCallbackScratch"); });
     impl->sysmodules.Publish("libSceAvPlayer", 0x1000000e);
@@ -5013,6 +5081,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         if (local_users.empty()) local_users.push_back(1000);
         impl->signin_dialog = std::make_unique<GuestSigninDialog>(std::move(local_users));
         impl->sysmodules.Publish("libSceSigninDialog", 0x1000001b);
+        impl->np_auth = std::make_unique<GuestNpAuthOffline>();
+        impl->sysmodules.Publish("libSceNpAuth", 0x9d);
         impl->np_utility = std::make_unique<GuestNpUtility>(s32(sdk));
         impl->sysmodules.Publish("libSceNpUtility", 0x10000019);
         impl->sysmodules.Publish("libSceNpScoreRanking", 0x10000020);

@@ -109,11 +109,17 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
     bda_pagetable_buffer = std::make_unique<Buffer>(
         instance, 0, bda_pagetable_size, MemoryType::DeviceLocal, "BDA Page Table Buffer");
     runtime.FillBuffer(bda_pagetable_buffer.get(), 0u, bda_pagetable_size, 0u);
+    bda_pagetable_root = std::make_unique<Buffer>(instance, 0, sizeof(vk::DeviceAddress),
+                                                  MemoryType::DeviceLocal, "BDA Page Table Root");
+    const auto table_address = bda_pagetable_buffer->BufferDeviceAddress();
+    runtime.InlineData(bda_pagetable_root.get(), 0, static_cast<u32>(table_address));
+    runtime.InlineData(bda_pagetable_root.get(), 4, static_cast<u32>(table_address >> 32));
     for (const auto& [buffer, category] :
          std::initializer_list<std::pair<const Buffer*, const char*>>{
              {&stream_buffer, "buffer/stream-pool"},
              {&gds_buffer, "buffer/gds"},
-             {bda_pagetable_buffer.get(), "buffer/bda-page-table"}}) {
+             {bda_pagetable_buffer.get(), "buffer/bda-page-table"},
+             {bda_pagetable_root.get(), "buffer/bda-page-table-root"}}) {
         VmaDiagnostics::Tag(instance.GetAllocator(), buffer->buffer.allocation, category);
     }
     if (instance.IsDiscrete()) {
@@ -387,11 +393,11 @@ void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 siz
 
 std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 size,
                                                         bool is_written, bool is_texel_buffer) {
-    Vulkan::MissingContent::Access(device_addr, size, is_written);
     // For read-only buffers use device local stream buffer to reduce renderpass breaks.
     const u64 stream_max = std::min<u64>(
         STREAM_THRESHOLD, UploadDiagnostics::stream_max.load(std::memory_order_relaxed));
     if (!is_written && size <= stream_max && !IsRegionGpuModified(device_addr, size)) {
+        Vulkan::MissingContent::Access(device_addr, size, false);
         ++stream_copies;
         stream_bytes += size;
         ++stream_sizes[size <= 256 ? 0 : size <= 1024 ? 1 : size <= 4096 ? 2 : 3];
@@ -407,6 +413,13 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
         }
         return {&stream, offset};
     }
+    return ObtainResidentBuffer(device_addr, size, is_written, is_texel_buffer);
+}
+
+std::pair<const Buffer*, u64> BufferCache::ObtainResidentBuffer(VAddr device_addr, u32 size,
+                                                                bool is_written,
+                                                                bool is_texel_buffer) {
+    Vulkan::MissingContent::Access(device_addr, size, is_written);
     // Pass dependency tracking: the draw being prepared reads/writes this GPU range.
     scheduler.StageAccess(device_addr, size, is_written);
     const u64 first_block = device_addr >> block_shift;
@@ -444,19 +457,46 @@ void BufferCache::ProcessFaultBuffer() {
     fault_manager->ProcessFaultBuffer();
 }
 
-void BufferCache::SynchronizeDmaBuffers() {
+boost::container::small_vector<BufferCache::DmaBufferRead, 16> BufferCache::SynchronizeDmaBuffers(
+    std::span<const DmaRange> ranges) {
+    boost::container::small_vector<DmaBufferRead, 16> reads;
+    if (!UploadDiagnostics::dma_bounds.load(std::memory_order_relaxed))
+        ranges = {};
+    (ranges.empty() ? UploadDiagnostics::dma_full_calls : UploadDiagnostics::dma_bounded_calls)
+        .fetch_add(1, std::memory_order_relaxed);
+    u64 skipped{};
     for (const auto& range : resident_ranges) {
+        const u64 begin = range.start << block_shift;
+        const u64 end_address = range.end << block_shift;
+        if (!ranges.empty() && std::ranges::none_of(ranges, [&](const auto& read) {
+                return begin < read.second && read.first < end_address;
+            })) {
+            ++skipped;
+            continue;
+        }
         // Per arena page, and in pieces a u32 size can hold.
         const u64 max_blocks = u64{1} << (31 - block_shift);
         for (u64 block = range.start; block < range.end;) {
             const u64 page = block >> blocks_per_arena_page_shift;
             const u64 end = std::min<u64>({range.end, (page + 1) << blocks_per_arena_page_shift,
                                            block + max_blocks});
-            SynchronizeMemory(address_space[page], block << block_shift,
-                              static_cast<u32>((end - block) << block_shift), false, false);
+            const auto* arena = address_space[page];
+            const VAddr address = block << block_shift;
+            const u32 size = static_cast<u32>((end - block) << block_shift);
+            SynchronizeMemory(arena, address, size, false, false);
+            scheduler.StageAccess(address, size, false);
+            reads.push_back({arena, arena->Offset(address), size});
             block = end;
         }
     }
+    UploadDiagnostics::dma_ranges_skipped.fetch_add(skipped, std::memory_order_relaxed);
+    // EnsureResident may have uploaded new page-table entries while other resources
+    // were bound. Include that read only after the last possible upload.
+    reads.push_back(
+        {bda_pagetable_buffer.get(), 0, static_cast<u32>(bda_pagetable_buffer->SizeBytes())});
+    reads.push_back(
+        {bda_pagetable_root.get(), 0, static_cast<u32>(bda_pagetable_root->SizeBytes())});
+    return reads;
 }
 
 const Buffer* BufferCache::GetArena(u64 first_block, u64 last_block) {

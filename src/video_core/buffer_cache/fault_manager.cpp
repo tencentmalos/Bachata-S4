@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include "common/div_ceil.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/buffer_cache/fault_manager.h"
@@ -82,6 +83,25 @@ FaultManager::FaultManager(const Vulkan::Instance& instance, Vulkan::Scheduler& 
     Vulkan::SetObjectName(device, *fault_process_pipeline, "Fault Buffer Parser Pipeline");
 
     device.destroyShaderModule(module);
+
+    // Device-local allocations have undefined contents until explicitly cleared.
+    // Publish the zero bitmap before any guest shader can atomically mark a page.
+    scheduler.EndRendering(Vulkan::RenderBreak::Barrier);
+    const auto cmdbuf = scheduler.CommandBuffer();
+    cmdbuf.fillBuffer(fault_buffer.Handle(), 0, fault_buffer_size, 0);
+    const vk::BufferMemoryBarrier2 initialized = {
+        .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+        .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+        .dstAccessMask = vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = fault_buffer.Handle(),
+        .offset = 0,
+        .size = fault_buffer_size,
+    };
+    cmdbuf.pipelineBarrier2(
+        vk::DependencyInfo{.bufferMemoryBarrierCount = 1, .pBufferMemoryBarriers = &initialized});
 }
 
 void FaultManager::ProcessFaultBuffer() {
@@ -92,13 +112,14 @@ void FaultManager::ProcessFaultBuffer() {
 
     const u32 offset = current_area * PageFaultAreaSize;
     u8* mapped = download_buffer.mapped_data.data() + offset;
-    std::memset(mapped, 0, PageFaultAreaSize);
 
     const vk::BufferMemoryBarrier2 pre_barrier = {
         .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
         .srcAccessMask = vk::AccessFlagBits2::eShaderWrite,
         .dstStageMask = vk::PipelineStageFlagBits2::eComputeShader,
-        .dstAccessMask = vk::AccessFlagBits2::eShaderRead,
+        .dstAccessMask = vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .buffer = fault_buffer.Handle(),
         .offset = 0,
         .size = fault_buffer_size,
@@ -107,7 +128,9 @@ void FaultManager::ProcessFaultBuffer() {
         .srcStageMask = vk::PipelineStageFlagBits2::eComputeShader,
         .srcAccessMask = vk::AccessFlagBits2::eShaderWrite,
         .dstStageMask = vk::PipelineStageFlagBits2::eAllCommands,
-        .dstAccessMask = vk::AccessFlagBits2::eShaderWrite,
+        .dstAccessMask = vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .buffer = fault_buffer.Handle(),
         .offset = 0,
         .size = fault_buffer_size,
@@ -142,36 +165,71 @@ void FaultManager::ProcessFaultBuffer() {
     }};
     scheduler.EndRendering(Vulkan::RenderBreak::Barrier);
     const auto cmdbuf = scheduler.CommandBuffer();
+    // Clear the count on the GPU, including its high word. CPU memset would also
+    // require a non-coherent flush and a host-write dependency on reuse.
+    cmdbuf.fillBuffer(download_buffer.Handle(), offset, sizeof(u64), 0);
+    const vk::BufferMemoryBarrier2 counter_ready = {
+        .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+        .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eComputeShader,
+        .dstAccessMask = vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = download_buffer.Handle(),
+        .offset = offset,
+        .size = sizeof(u64),
+    };
+    const std::array pre_barriers{pre_barrier, counter_ready};
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
-        .dependencyFlags = vk::DependencyFlagBits::eByRegion,
-        .bufferMemoryBarrierCount = 1,
-        .pBufferMemoryBarriers = &pre_barrier,
+        .bufferMemoryBarrierCount = u32(pre_barriers.size()),
+        .pBufferMemoryBarriers = pre_barriers.data(),
     });
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, *fault_process_pipeline);
     scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, *fault_process_pipeline_layout, *fault_process_desc_layout, writes);
-    // 1 bit per page, 32 pages per workgroup
+    // 1 bit per page, 32 pages per invocation
     const u32 num_threads = sparse_num_pages / 32;
     const u32 num_workgroups = Common::DivCeil(num_threads, 64u);
     cmdbuf.dispatch(num_workgroups, 1, 1);
 
-    cmdbuf.pipelineBarrier2(vk::DependencyInfo{
-        .dependencyFlags = vk::DependencyFlagBits::eByRegion,
-        .bufferMemoryBarrierCount = 1,
-        .pBufferMemoryBarriers = &post_barrier,
-    });
+    const vk::BufferMemoryBarrier2 download_ready = {
+        .srcStageMask = vk::PipelineStageFlagBits2::eComputeShader,
+        .srcAccessMask = vk::AccessFlagBits2::eShaderWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eHost,
+        .dstAccessMask = vk::AccessFlagBits2::eHostRead,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = download_buffer.Handle(),
+        .offset = offset,
+        .size = PageFaultAreaSize,
+    };
+    const std::array post_barriers{post_barrier, download_ready};
+    cmdbuf.pipelineBarrier2(
+        vk::DependencyInfo{.bufferMemoryBarrierCount = u32(post_barriers.size()),
+                           .pBufferMemoryBarriers = post_barriers.data()});
 
-    scheduler.DeferOperation([this, mapped, area = current_area] {
+    scheduler.DeferOperation([this, mapped, offset, area = current_area] {
+        download_buffer.Invalidate(offset, PageFaultAreaSize);
         fault_ranges.Clear();
         const u64* fault_buf = std::bit_cast<const u64*>(mapped);
-        const u32 fault_count = fault_buf[0];
+        const u64 reported_count = fault_buf[0];
+        const u32 fault_count = std::min<u64>(reported_count, MaxPageFaults - 1);
+        if (reported_count > MaxPageFaults - 1) {
+            LOG_ERROR(Render_Vulkan, "Invalid DMA fault count {} (capacity {})", reported_count,
+                      MaxPageFaults - 1);
+        }
         for (u32 i = 1; i <= fault_count; ++i) {
+            if (fault_buf[i] / sparse_pagesize >= sparse_num_pages ||
+                (fault_buf[i] & (sparse_pagesize - 1)) != 0) {
+                LOG_ERROR(Render_Vulkan, "Invalid DMA fault address {:#x}", fault_buf[i]);
+                continue;
+            }
             fault_ranges.Add(fault_buf[i], sparse_pagesize);
             LOG_INFO(Render_Vulkan, "Accessed non-GPU cached memory at {:#x}", fault_buf[i]);
         }
         fault_ranges.ForEach([&](VAddr start, VAddr end) {
             ASSERT_MSG((end - start) <= std::numeric_limits<u32>::max(),
                        "Buffer size is too large");
-            (void)buffer_cache.ObtainBuffer(start, end - start, false);
+            (void)buffer_cache.ObtainResidentBuffer(start, end - start, false);
         });
         fault_areas[area] = 0;
     });

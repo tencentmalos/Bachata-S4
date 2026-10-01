@@ -83,6 +83,11 @@ inline std::atomic<bool> fill_clear_off{false};
 inline std::atomic<bool> raw_sync_off{false};
 inline std::atomic<u64> raw_syncs{0}, raw_sync_bytes{0}, raw_sync_stale{0};
 
+// Candidate DMA synchronization bounds, off until the game/device A/B is complete.
+// Off restores synchronization of every resident range, including image aliases.
+inline std::atomic<bool> dma_bounds{false};
+inline std::atomic<u64> dma_bounded_calls{0}, dma_full_calls{0}, dma_ranges_skipped{0};
+
 // Raw dword copy kernels between two same-layout images replaced by an image copy
 // (Rasterizer::TryComputeRawImageCopy); `upload_diag raw_copy on|off`.
 inline std::atomic<bool> raw_copy_off{false};

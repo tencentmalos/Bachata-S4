@@ -271,6 +271,9 @@ bool AvPlayerSource::Start() {
                            stream->duration, 0);
         const auto decoder = avcodec_find_decoder(stream->codecpar->codec_id);
         if (decoder == nullptr) {
+            LOG_ERROR(Lib_AvPlayer, "No video decoder: stream={} codec={} ({})", stream_index,
+                      avcodec_get_name(stream->codecpar->codec_id),
+                      int(stream->codecpar->codec_id));
             return false;
         }
         m_video_codec_context =
@@ -294,6 +297,9 @@ bool AvPlayerSource::Start() {
         for (u64 index = 0; index < m_max_num_video_framebuffers; ++index) {
             GuestBuffer buffer(m_memory_replacement, 0x100, size, true);
             if (!buffer.GetBuffer()) {
+                LOG_ERROR(Lib_AvPlayer,
+                          "Video allocation failed: buffer={} size={} pitch={} height={}", index,
+                          size, pitch, height);
                 m_video_buffers.Clear();
                 return false;
             }
@@ -307,6 +313,9 @@ bool AvPlayerSource::Start() {
                            stream->duration, 0);
         const auto decoder = avcodec_find_decoder(stream->codecpar->codec_id);
         if (decoder == nullptr) {
+            LOG_ERROR(Lib_AvPlayer, "No audio decoder: stream={} codec={} ({})", stream_index,
+                      avcodec_get_name(stream->codecpar->codec_id),
+                      int(stream->codecpar->codec_id));
             return false;
         }
         m_audio_codec_context =
@@ -327,6 +336,7 @@ bool AvPlayerSource::Start() {
         for (u64 index = 0; index < (m_max_num_video_framebuffers * 2); ++index) {
             GuestBuffer buffer(m_memory_replacement, 0x10, size, false);
             if (!buffer.GetBuffer()) {
+                LOG_ERROR(Lib_AvPlayer, "Audio allocation failed: buffer={} size={}", index, size);
                 m_audio_buffers.Clear();
                 m_video_buffers.Clear();
                 return false;

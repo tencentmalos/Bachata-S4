@@ -109,7 +109,8 @@ Id EmitGetAttribute(EmitContext& ctx, IR::Attribute attr, u32 comp, u32 index) {
         return param.is_integer ? ctx.OpBitcast(ctx.F32[1], value) : value;
     }
     if (IR::IsBarycentricCoord(attr) && attr != IR::Attribute::BaryCoordPullModel &&
-        ctx.profile.supports_fragment_shader_barycentric) {
+        (ctx.profile.supports_fragment_shader_barycentric ||
+         ctx.profile.emulate_fragment_interpolation)) {
         ++comp;
     }
     switch (attr) {
@@ -166,6 +167,13 @@ Id EmitGetAttribute(EmitContext& ctx, IR::Attribute attr, u32 comp, u32 index) {
     case IR::Attribute::BaryCoordNoPersp:
         return ctx.OpLoad(ctx.F32[1], ctx.OpAccessChain(ctx.input_f32, ctx.bary_coord_nopersp,
                                                         ctx.ConstU32(comp)));
+    case IR::Attribute::BaryCoordNoPerspCentroid:
+        if (ctx.profile.supports_amd_shader_explicit_vertex_parameter)
+            return ctx.OpLoad(ctx.F32[1],
+                              ctx.OpAccessChain(ctx.input_f32, ctx.bary_coord_nopersp_centroid,
+                                                ctx.ConstU32(comp)));
+        return ctx.OpCompositeExtract(
+            ctx.F32[1], ctx.OpInterpolateAtCentroid(ctx.F32[3], ctx.bary_coord_nopersp), comp);
     case IR::Attribute::BaryCoordNoPerspSample:
         return ctx.OpLoad(
             ctx.F32[1],

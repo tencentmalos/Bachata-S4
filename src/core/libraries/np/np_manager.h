@@ -154,5 +154,8 @@ s32 PS4_SYSV_ABI sceNpRegisterPlusEventCallback(OrbisNpPlusEventCallback callbac
 s32 PS4_SYSV_ABI sceNpUnregisterPlusEventCallback();
 void PS4_SYSV_ABI sceNpRegisterGamePresenceCallback(OrbisNpGamePresenceCallback callback,
                                                     void* userdata);
+s32 PS4_SYSV_ABI sceNpRegisterGamePresenceCallbackA(OrbisNpGamePresenceCallback callback,
+                                                    void* userdata);
+s32 PS4_SYSV_ABI sceNpUnregisterGamePresenceCallbackA(s32 callback_id);
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Np::NpManager

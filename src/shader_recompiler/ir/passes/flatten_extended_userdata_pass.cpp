@@ -707,7 +707,11 @@ static u32 AddExpression(PortableSrt& plan, PortableSrt::Expr expr) {
     plan.expressions.push_back(expr);
     return plan.expressions.size() - 1;
 }
-static u32 CompileOffset(PortableSrt& plan, PassInfo& info, const IR::Value& value, u32 depth = 0) {
+// No value means that the shader must evaluate this offset. In particular a Phi
+// may select a different address on every loop iteration; it cannot be evaluated
+// once on the CPU when binding a draw.
+static std::optional<u32> CompileOffset(PortableSrt& plan, PassInfo& info, const IR::Value& value,
+                                        u32 depth = 0) {
     if (depth >= PortableSrt::MaxDepth)
         throw std::runtime_error("SRT expression recursion bound");
     if (value.IsImmediate())
@@ -719,7 +723,7 @@ static u32 CompileOffset(PortableSrt& plan, PassInfo& info, const IR::Value& val
         inst->GetOpcode() == IR::Opcode::ReadConstBuffer) {
         const u16 offset = GetFlatbufOffset(info.ResolveLoad(inst));
         if (!offset)
-            throw std::runtime_error("SRT offset depends on a value not yet flattened");
+            return std::nullopt;
         return AddExpression(plan, {SrtOp::Flat, offset});
     }
     SrtOp op;
@@ -761,20 +765,36 @@ static u32 CompileOffset(PortableSrt& plan, PassInfo& info, const IR::Value& val
         op = SrtOp::Extract;
         break;
     default:
-        throw std::runtime_error("unsupported SRT dynamic offset opcode " +
-                                 std::to_string(u32(inst->GetOpcode())));
+        return std::nullopt;
     }
-    const u32 a = CompileOffset(plan, info, inst->Arg(0), depth + 1);
-    const u32 b = op == SrtOp::Not ? 0 : CompileOffset(plan, info, inst->Arg(1), depth + 1);
-    const u32 c = op == SrtOp::Extract ? CompileOffset(plan, info, inst->Arg(2), depth + 1) : 0;
-    return AddExpression(plan, {op, a, b, c});
+    const auto a = CompileOffset(plan, info, inst->Arg(0), depth + 1);
+    if (!a)
+        return std::nullopt;
+    const auto b = op == SrtOp::Not ? std::optional<u32>{0}
+                                    : CompileOffset(plan, info, inst->Arg(1), depth + 1);
+    if (!b)
+        return std::nullopt;
+    const auto c = op == SrtOp::Extract ? CompileOffset(plan, info, inst->Arg(2), depth + 1)
+                                        : std::optional<u32>{0};
+    if (!c)
+        return std::nullopt;
+    return AddExpression(plan, {op, *a, *b, *c});
 }
 static void VisitPortablePointer(const IR::Value& offset, IR::Inst* subtree, PassInfo& info,
                                  PortableSrt& plan, u32 depth = 0) {
     if (depth >= PortableSrt::MaxDepth || plan.commands.size() >= PortableSrt::MaxEntries)
         throw std::runtime_error("SRT pointer recursion/command bound exceeded");
-    const u32 expression = CompileOffset(plan, info, offset);
-    plan.commands.push_back({SrtKind::Push, expression});
+    if ((subtree->GetOpcode() == IR::Opcode::ReadConst ||
+         subtree->GetOpcode() == IR::Opcode::ReadConstBuffer) &&
+        !GetFlatbufOffset(subtree))
+        return;
+    const auto checkpoint = plan.expressions.size();
+    const auto expression = CompileOffset(plan, info, offset);
+    if (!expression) {
+        plan.expressions.resize(checkpoint);
+        return;
+    }
+    plan.commands.push_back({SrtKind::Push, *expression});
     auto* uses = info.GetUsesAsPointer(subtree);
     if (!uses)
         throw std::runtime_error("SRT pointer has no uses");
@@ -782,8 +802,18 @@ static void VisitPortablePointer(const IR::Value& offset, IR::Inst* subtree, Pas
     for (auto [source, use] : *uses) {
         if (info.dst_off_dw >= PortableSrt::MaxEntries)
             throw std::runtime_error("SRT flattened buffer bound exceeded");
-        plan.commands.push_back(
-            {SrtKind::Copy, CompileOffset(plan, info, source), info.dst_off_dw});
+        const auto checkpoint = plan.expressions.size();
+        const auto expression = CompileOffset(plan, info, source);
+        if (!expression) {
+            plan.expressions.resize(checkpoint);
+            if (!EmulatorSettings.IsDirectMemoryAccessEnabled())
+                throw std::runtime_error("shader dynamic SRT load requires direct memory access");
+            // Match the desktop walker: offset 0 selects the existing GPU DMA
+            // load. Do not allocate a fake flat slot or traverse this pointer.
+            SetFlatbufOffset(use, 0);
+            continue;
+        }
+        plan.commands.push_back({SrtKind::Copy, *expression, info.dst_off_dw});
         SetFlatbufOffset(use, info.dst_off_dw++);
     }
     for (auto [source, use] : *uses)

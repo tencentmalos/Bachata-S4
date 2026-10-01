@@ -55,5 +55,17 @@ struct OrbisNpAuthGetIdTokenParameterA {
     const char* scope;
 };
 
+s32 PS4_SYSV_ABI sceNpAuthCreateRequest();
+s32 PS4_SYSV_ABI sceNpAuthCreateAsyncRequest(const OrbisNpAuthCreateAsyncRequestParameter* param);
+s32 PS4_SYSV_ABI
+sceNpAuthGetAuthorizationCodeA(s32 id, const OrbisNpAuthGetAuthorizationCodeParameterA* param,
+                               OrbisNpAuthorizationCode* code, s32* issuer);
+s32 PS4_SYSV_ABI sceNpAuthGetIdTokenA(s32 id, const OrbisNpAuthGetIdTokenParameterA* param,
+                                      OrbisNpIdToken* token);
+s32 PS4_SYSV_ABI sceNpAuthAbortRequest(s32 id);
+s32 PS4_SYSV_ABI sceNpAuthWaitAsync(s32 id, s32* result);
+s32 PS4_SYSV_ABI sceNpAuthPollAsync(s32 id, s32* result);
+s32 PS4_SYSV_ABI sceNpAuthDeleteRequest(s32 id);
+
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Np::NpAuth

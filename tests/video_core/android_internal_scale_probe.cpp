@@ -234,7 +234,7 @@ int main(int argc, char** argv) {
             copy_source = std::make_unique<VideoCore::Image>(instance, scheduler, blit, views, info, nullptr,
                 VideoCore::ScaleUse::Texture, probe_policy);
             copy_source->Upload(copies, *upload.buffer, 0);
-            image.CopyImageWithBuffer(*copy_source, *upload.buffer, 0);
+            image.CopyImageWithBuffer(*copy_source, *upload.buffer, 0, W * H * Layers * 8);
         } else if (source_image) {
             image.Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
             for (u32 mip=0; mip<Levels; ++mip) {

@@ -32,7 +32,7 @@ struct Window : Frontend::Window {
     }
     void ReleaseKeyboard() override {}
 };
-constexpr u32 Rows = 256, Stride = 96, DataOffset = 512;
+constexpr u32 Rows = 256, Stride = 96, DataOffset = 1024;
 struct Expected {
     u32 offset;
     u32 value;
@@ -43,16 +43,17 @@ std::vector<u32> Build(bool native, std::vector<u32>& data, bool fp64 = false) {
     Profile profile{};
     profile.supported_spirv = 0x10600;
     profile.support_int64 = native;
+    profile.sparse_page_shift = 14;
     RuntimeInfo runtime{};
-    runtime.stage = Stage::Compute;
-    runtime.cs_info.workgroup_size = {1, 1, 1};
+    runtime.Initialize(HwStage::Compute, SwStage::Compute);
+    runtime.hw.cs.workgroup_size = {1, 1, 1};
     Info info{};
-    info.stage = Stage::Compute;
-    info.l_stage = LogicalStage::Compute;
+    info.hw_stage = HwStage::Compute;
+    info.sw_stage = SwStage::Compute;
     info.uses_dma = true;
     info.uses_fp64 = fp64;
     info.shared_types = IR::Type::U64;
-    runtime.cs_info.shared_memory_size = 8;
+    runtime.hw.cs.shared_memory_size = 8;
     info.buffers.push_back({.used_types = IR::Type::U64, .buffer_type = BufferType::BdaPagetable});
     info.buffers.push_back(
         {.used_types = IR::Type::U32, .buffer_type = BufferType::FaultBuffer, .is_written = true});
@@ -147,7 +148,7 @@ std::vector<u32> Build(bool native, std::vector<u32>& data, bool fp64 = false) {
     if (!native) {
         for (auto mode : {AmdGpu::FpRoundMode::ToZero, AmdGpu::FpRoundMode::PlusInf,
                           AmdGpu::FpRoundMode::MinInf}) {
-            runtime.fp_round_mode32 = mode;
+            runtime.props.fp_round_mode32 = mode;
             for (bool sign : {false, true}) {
                 check32(c.OpBitcast(c.U32[1], c.U64ToFloat(a, sign, false)), "directed-f32",
                         [mode, sign](u64 x, u64, u32) {
@@ -163,7 +164,7 @@ std::vector<u32> Build(bool native, std::vector<u32>& data, bool fp64 = false) {
                         });
             }
         }
-        runtime.fp_round_mode32 = AmdGpu::FpRoundMode::NearestEven;
+        runtime.props.fp_round_mode32 = AmdGpu::FpRoundMode::NearestEven;
     }
     if (fp64) {
         // Validation-only on Adreno (shaderFloat64=0); do not dispatch this module.
@@ -241,11 +242,11 @@ std::vector<u32> BuildThroughIR() {
     Profile p{};
     p.supported_spirv = 0x10600;
     RuntimeInfo r{};
-    r.stage = Stage::Compute;
-    r.cs_info.workgroup_size = {1, 1, 1};
+    r.Initialize(HwStage::Compute, SwStage::Compute);
+    r.hw.cs.workgroup_size = {1, 1, 1};
     Info i{};
-    i.stage = Stage::Compute;
-    i.l_stage = LogicalStage::Compute;
+    i.hw_stage = HwStage::Compute;
+    i.sw_stage = SwStage::Compute;
     i.buffers.push_back({.used_types = IR::Type::U64, .is_written = true});
     Common::ObjectPool<IR::Inst> pool;
     IR::Block block(pool);
@@ -261,7 +262,7 @@ std::vector<u32> BuildThroughIR() {
     Shader::Backend::Bindings bindings{};
     return EmitSPIRV(p, r, program, bindings);
 }
-int main(int argc, char** argv) {
+int Run(int argc, char** argv) {
     if (argc < 3)
         return 2;
     Common::FS::InitializeAndroidUserPaths(argv[2]);
@@ -318,7 +319,7 @@ int main(int argc, char** argv) {
     auto sets = Vulkan::Check(d.allocateDescriptorSets(
         {.descriptorPool = *pool, .descriptorSetCount = 1, .pSetLayouts = &*layout}));
     std::array<vk::DescriptorBufferInfo, 3> bi{
-        {{*buffer, 0, 256}, {*buffer, 256, 4}, {*buffer, DataOffset, Rows * Stride * 4}}};
+        {{*buffer, 512, 8}, {*buffer, 256, 4}, {*buffer, DataOffset, Rows * Stride * 4}}};
     for (u32 i = 0; i < 3; i++) {
         vk::WriteDescriptorSet wr{.dstSet = sets[0],
                                   .dstBinding = i,
@@ -361,6 +362,7 @@ int main(int argc, char** argv) {
         std::memset(mapped, 0, DataOffset);
         std::memcpy(mapped + DataOffset / 4, data.data(), data.size() * 4);
         const u64 backed_page = bda + 272;
+        std::memcpy(mapped + 512 / 4, &bda, 8);
         std::memcpy(mapped, &backed_page, 8);
         mapped[288 / 4] = 0x1234abcd;
         auto sm = Vulkan::Check(
@@ -401,11 +403,12 @@ int main(int argc, char** argv) {
         Profile p{};
         p.supported_spirv = 0x10600;
         Info i{};
-        i.stage = Stage::Compute;
-        i.l_stage = LogicalStage::Compute;
+        i.hw_stage = HwStage::Compute;
+        i.sw_stage = SwStage::Compute;
         i.uses_buffer_int64_atomics = !shared;
         i.uses_shared_int64_atomics = shared;
         RuntimeInfo r{};
+        r.Initialize(HwStage::Compute, SwStage::Compute);
         Shader::Backend::Bindings b{};
         ++checks;
         try {
@@ -428,4 +431,10 @@ int main(int argc, char** argv) {
     std::printf("%s\n", instance.GpuReshapeAdapter().StatusText().c_str());
     std::printf("INT64_DEVICE %u checks / %u failures\n", checks, failures);
     return failures ? 1 : 0;
+}
+
+int main(int argc, char** argv) {
+    const int result = Run(argc, argv);
+    Common::Log::Shutdown();
+    return result;
 }

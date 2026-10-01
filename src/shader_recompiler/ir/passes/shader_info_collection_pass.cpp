@@ -2,11 +2,51 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/emulator_settings.h"
+#include "shader_recompiler/ir/passes/resource_pass.h"
 #include "shader_recompiler/ir/program.h"
 #include "shader_recompiler/profile.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 
 namespace Shader::Optimization {
+
+namespace {
+void CollectDmaBase(Info& info, const IR::Inst& read) {
+    const auto* pointer = read.Arg(0).TryInst();
+    if (!pointer || pointer->GetOpcode() != IR::Opcode::CompositeConstructU32x2) {
+        info.dma_unbounded = true;
+        return;
+    }
+    SharpFetch<u64> base{};
+    for (u32 i = 0; i < 2; ++i) {
+        const auto value = pointer->Arg(i);
+        if (value.IsImmediate()) {
+            base.immediates[i] = value.U32();
+            continue;
+        }
+        const auto* source = value.TryInst();
+        if (!source || (source->GetOpcode() != IR::Opcode::GetUserData &&
+                        source->GetOpcode() != IR::Opcode::ReadConst &&
+                        source->GetOpcode() != IR::Opcode::ReadConstBuffer)) {
+            info.dma_unbounded = true;
+            return;
+        }
+        const auto location = SharpLocationFromSource(source);
+        if (location == UNKNOWN_LOCATION) {
+            info.dma_unbounded = true;
+            return;
+        }
+        base.offsets[i] = location;
+        base.load_mask |= 1U << i;
+    }
+    if (std::ranges::find(info.dma_read_bases, base) != info.dma_read_bases.end())
+        return;
+    if (info.dma_read_bases.size() == info.dma_read_bases.capacity()) {
+        info.dma_unbounded = true;
+        return;
+    }
+    info.dma_read_bases.push_back(base);
+}
+} // namespace
 
 void Visit(Info& info, const IR::Inst& inst) {
     switch (inst.GetOpcode()) {
@@ -155,6 +195,7 @@ void Visit(Info& info, const IR::Inst& inst) {
             info.readconst_types |= Info::ReadConstType::Immediate;
             info.readconst_types |= Info::ReadConstType::Dynamic;
             info.uses_dma = true;
+            CollectDmaBase(info, inst);
         }
         break;
     case IR::Opcode::PackUfloat10_11_11:
@@ -189,7 +230,7 @@ void CollectShaderInfoPass(IR::Program& program, const Profile& profile) {
             default: break;
             }
             if (exact_lod || (offset_arg && !inst.Arg(*offset_arg).IsEmpty())) {
-                info.images[inst.Arg(0).U32() & 0xffff].requires_native_scale = true;
+                info.images[ResourceBinding(inst.Arg(0)) & 0xffff].requires_native_scale = true;
             }
 
         }

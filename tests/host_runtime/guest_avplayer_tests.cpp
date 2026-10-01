@@ -104,7 +104,10 @@ int main(int argc, char** argv) {
                     std::lock_guard table(allocations_mutex);
                     const u64 va = next;
                     next += bytes;
-                    CHECK(space->Map({GuestAddress{va}, bytes}, rw));
+                    // Real guest allocations can span independently mapped pages.
+                    // Texture and PCM ownership must cover every mapping identity.
+                    for (u64 offset = 0; offset < bytes; offset += 4096)
+                        CHECK(space->Map({GuestAddress{va + offset}, 4096}, rw));
                     allocations.emplace(va, bytes);
                     ++allocs;
                     return va;
@@ -116,7 +119,8 @@ int main(int argc, char** argv) {
                     auto it = allocations.find(args[1]);
                     CHECK(it != allocations.end());
                     if (it != allocations.end()) {
-                        CHECK(space->Unmap({GuestAddress{it->first}, it->second}));
+                        for (u64 offset = 0; offset < it->second; offset += 4096)
+                            CHECK(space->Unmap({GuestAddress{it->first + offset}, 4096}));
                         allocations.erase(it);
                     }
                     ++frees;

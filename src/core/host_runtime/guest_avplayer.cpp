@@ -30,9 +30,7 @@ void Need(bool ok, s32 code = ORBIS_AVPLAYER_ERROR_INVALID_PARAMS,
 constexpr size_t MaxBuffer = 64 << 20, MaxResident = 256 << 20;
 thread_local void* callback_player{};
 thread_local bool event_callback{};
-struct Identity {
-    u64 begin, end, generation;
-};
+using Identity = GuestAddressSpace::MappingIdentity;
 static_assert(sizeof(AvPlayerInitData) == 120);
 static_assert(sizeof(AvPlayerInitDataEx) == 176);
 static_assert(sizeof(AvPlayerFrameInfo) == 40);
@@ -83,7 +81,11 @@ struct GuestAvPlayer::Impl {
         throw Failure{ORBIS_AVPLAYER_ERROR_INVALID_PARAMS};
     }
     std::vector<Identity> Identify(u64 at, size_t n) {
-        Need(Valid(at, n, GuestPermission::Read | GuestPermission::Write));
+        Need(at && n);
+        const GuestAddressSpace::DataRequest request{
+            {GuestAddress{at}, n}, GuestPermission::Read | GuestPermission::Write, {}, true};
+        auto pinned = space.AcquireDataBatch(std::span{&request, 1});
+        Need(bool(pinned));
         std::vector<Identity> result;
         for (const u64 end = at + n; at < end;) {
             auto mapping = space.Query(GuestAddress{at});
@@ -96,17 +98,13 @@ struct GuestAvPlayer::Impl {
         return result;
     }
     void Check(const std::vector<Identity>& identity) {
-        for (const auto& part : identity) {
-            Need(Valid(part.begin, part.end - part.begin,
-                       GuestPermission::Read | GuestPermission::Write));
-            for (u64 at = part.begin; at < part.end;) {
-                auto map = space.Query(GuestAddress{at});
-                Need(map && map.Value().mapping_generation == part.generation);
-                const u64 next = std::min(part.end, map.Value().range.End());
-                Need(next > at);
-                at = next;
-            }
-        }
+        Need(!identity.empty());
+        const GuestAddressSpace::DataRequest request{
+            {GuestAddress{identity.front().begin}, identity.back().end - identity.front().begin},
+            GuestPermission::Read | GuestPermission::Write,
+            identity,
+            true};
+        Need(bool(space.AcquireDataBatch(std::span{&request, 1})));
     }
     struct Player {
         Impl& owner;
@@ -291,6 +289,7 @@ struct GuestAvPlayer::Impl {
             return static_cast<Player*>(p)->Alloc(a, n, true);
         }
         void* Alloc(u32 align, u32 size, bool texture) noexcept {
+            u64 guest_address{};
             try {
                 Need(size && size <= MaxBuffer && align && !(align & (align - 1)));
                 {
@@ -316,6 +315,7 @@ struct GuestAvPlayer::Impl {
                             reinterpret_cast<u64>(texture ? m.allocate_texture : m.allocate),
                             {reinterpret_cast<u64>(m.object_ptr), align, size});
                     });
+                    guest_address = b.guest;
                     Need(b.guest && !(b.guest & (align - 1)));
 
                     b.identity = owner.Identify(b.guest, size);
@@ -327,7 +327,17 @@ struct GuestAvPlayer::Impl {
                     throw;
                 }
                 return host;
+            } catch (const Failure& error) {
+                LOG_ERROR(Lib_AvPlayer,
+                          "Guest allocation rejected: player={} texture={} size={} align={} "
+                          "address={:#x} error={:#x} {}",
+                          handle, texture, size, align, guest_address, u32(error.code),
+                          error.reason);
+                return nullptr;
             } catch (...) {
+                LOG_ERROR(Lib_AvPlayer,
+                          "Guest allocation failed: player={} texture={} size={} address={:#x}",
+                          handle, texture, size, guest_address);
                 return nullptr;
             }
         }
@@ -489,14 +499,21 @@ struct GuestAvPlayer::Impl {
             auto it = buffers.find(frame.p_data);
             Need(it != buffers.end());
             const auto& b = it->second;
-            owner.Check(b.identity);
+            const GuestAddressSpace::DataRequest requests[]{
+                {{GuestAddress{b.guest}, b.size},
+                 GuestPermission::Read | GuestPermission::Write,
+                 b.identity,
+                 true},
+                {{GuestAddress{output}, sizeof(T)}, GuestPermission::Write}};
+            auto pins = owner.space.AcquireDataBatch(requests);
+            Need(bool(pins));
             // Keep native current-frame ownership until the next polling call;
             // decoder threads cannot reuse it while this short copy executes.
-            owner.Put(b.guest, b.host.get(), b.size);
+            std::memcpy(pins.Value()[0].WritableBytes().data(), b.host.get(), b.size);
             if (callbacks.invalidate)
                 callbacks.invalidate(b.guest, b.size);
             frame.p_data = reinterpret_cast<decltype(frame.p_data)>(b.guest);
-            owner.Put(output, frame);
+            std::memcpy(pins.Value()[1].WritableBytes().data(), &frame, sizeof(frame));
         }
     };
     void Stop() {

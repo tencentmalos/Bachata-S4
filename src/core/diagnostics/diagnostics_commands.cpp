@@ -261,6 +261,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("pass_log",
         "Render pass instance log (default off): start [passes] | status | dump | stop",
         [](const std::vector<std::string>& args) { return Vulkan::Scheduler::PassLogCommand(args); });
+    registry.Register("draw_log",
+                      "Bounded per-draw GPU diagnostic (requires gpu_timing detail): start [draws] "
+                      "| status | dump | stop",
+                      [](const std::vector<std::string>& args) {
+                          return Vulkan::Scheduler::DrawLogCommand(args);
+                      });
     registry.Register("pipeline_cache",
         "Shader/pipeline compile counts and times, driver pipeline cache hits, disk preload and "
         "driver cache file: status",
@@ -345,6 +351,27 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             if (args.size() > 1 || (!args.empty() && args[0] != "request" && args[0] != "status"))
                 return BadArguments();
             return VideoCore::MemoryDiagnostics::Read(args.empty() || args[0] == "request");
+        });
+
+    registry.Register(
+        "gpu_images",
+        "Cached GPU images: list | dump <image-uid> | status; dump waits for GPU, max 32 MiB",
+        [](const std::vector<std::string>& args) {
+            if (args.size() == 1 && args[0] == "status")
+                return VideoCore::MemoryDiagnostics::Images(false);
+            if (args.size() == 1 && args[0] == "list")
+                return VideoCore::MemoryDiagnostics::Images(true);
+            if (args.size() != 2 || args[0] != "dump")
+                return BadArguments();
+            try {
+                size_t used{};
+                const auto address = std::stoull(args[1], &used, 0);
+                if (!address || used != args[1].size())
+                    return BadArguments();
+                return VideoCore::MemoryDiagnostics::Images(true, address);
+            } catch (const std::exception&) {
+                return BadArguments();
+            }
         });
 
     registry.Register("shading_quality", "Transient guest shading quality: low | medium | high | status (FDM stays off)",

@@ -1062,6 +1062,8 @@ set(SHADER_RECOMPILER src/shader_recompiler/profile.h
                       src/shader_recompiler/backend/spirv/emit_spirv_integer.cpp
     src/shader_recompiler/backend/spirv/spirv_int64.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv_logical.cpp
+                      src/shader_recompiler/backend/spirv/emit_spirv_interpolation.cpp
+                      src/shader_recompiler/backend/spirv/emit_spirv_interpolation.h
                       src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.h
                       src/shader_recompiler/backend/spirv/emit_spirv_select.cpp
@@ -1997,6 +1999,21 @@ if(BUILD_HOST_CORE)
             src/core/host_runtime/guest_vr_sensor.cpp)
         target_include_directories(guest_vr_sensor_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_vr_sensor_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        foreach(probe IN ITEMS
+                android_tiling_scratch_probe
+                android_block_scratch_probe
+                android_depth_copy_scratch_probe
+                android_dma_residency_probe
+                android_dynamic_image_probe
+                android_dynamic_lod_probe
+                android_fault_buffer_probe
+                android_interpolation_cache_probe
+                android_interpolation_probe)
+            add_executable(${probe} tests/video_core/${probe}.cpp)
+            target_link_libraries(${probe} PRIVATE shadps4_host)
+            target_include_directories(${probe} PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+            target_compile_definitions(${probe} PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        endforeach()
         add_executable(srt_tests tests/host_runtime/srt_tests.cpp)
         target_link_libraries(srt_tests PRIVATE shadps4_host)
         target_include_directories(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -2015,6 +2032,14 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_audio3d_tests PRIVATE shadps4_host)
         target_include_directories(guest_audio3d_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_audio3d_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_vr_service_dialog_tests tests/host_runtime/guest_vr_service_dialog_tests.cpp)
+        target_link_libraries(guest_vr_service_dialog_tests PRIVATE shadps4_host)
+        target_include_directories(guest_vr_service_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_vr_service_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_capture_services_tests tests/host_runtime/guest_capture_services_tests.cpp)
+        target_link_libraries(guest_capture_services_tests PRIVATE shadps4_host)
+        target_include_directories(guest_capture_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_capture_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_audio_tests tests/host_runtime/guest_audio_tests.cpp)
         target_link_libraries(guest_audio_tests PRIVATE shadps4_host)
         target_include_directories(guest_audio_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

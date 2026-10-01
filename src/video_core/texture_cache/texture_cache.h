@@ -173,6 +173,7 @@ public:
     // presenter can distinguish a black guest render target from a bad host
     // composition without changing the normal frame path.
     void ReadbackImageForDiagnostics(ImageId image_id);
+    void PublishImageDiagnostics();
 
     /// Resolves overlap between existing cache image and pending merged image
     [[nodiscard]] std::tuple<ImageId, int, int> ResolveOverlap(const ImageInfo& info,
@@ -350,8 +351,10 @@ public:
         }
     }
 
-private:
+    // Renderer-thread only; a no-op unless a diagnostic snapshot was requested.
     void PublishMemoryDiagnostics();
+
+private:
     unsigned long long memory_diagnostics_epoch{};
     /// Iterate over all page indices in a range
     template <typename Func>
