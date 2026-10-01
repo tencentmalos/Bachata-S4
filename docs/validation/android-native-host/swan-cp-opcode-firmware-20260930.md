@@ -145,6 +145,24 @@ rb2 的抢占记录 `info` 字段在七份中都是 `0x80000011`（devcd15 为 `
    - 对照高通 UMD 在 sysmem 直接渲染里如何标记可抢占点、处理 draw-state；
    - 最终方案可能是只在 sysmem render pass 内关闭抢占，而不是整条命令缓冲。
 
+## 第 1 步实现：`TU_DEBUG=cmd_no_preempt`（2026-10-01，已构建，未上机对照）
+
+- **Mesa**：`codex/shadps4-xr-turnip` 上的 `9b8a35676e0`（基于 `351a4847a04`）。
+  - 新增调试位 `cmd_no_preempt`，默认关闭。
+  - 开启后，通用队列的每个应用主命令缓冲：`tu_init_hw` 之后发 `CP_SCOPE_CNTL(disable_preemption=true, scope=INTERRUPTS)`，`tu_EndCommandBuffer` 的 `tu_cs_end` 之前发 `false`。
+  - 只写入 BR 主流 `cmd_buffer->cs`；不写入 draw-state 组、二级命令缓冲和驱动内部命令缓冲；只在 A7XX 及以上生效。
+  - 建 KGSL context 时打印一次 `Turnip: cmd_no_preempt wraps ...`，可在日志中确认开关生效。
+- **产物**：
+  - 云机构建驱动 `10377f4e`（`TURNIP_REMOTE_PASS`，dirty=False）；
+  - host 构建通过，APK `97a63679` 打包核对 `TURNIP_PACKAGE_PASS 10377f4e`，已装到 Swan。
+  - 父仓 `references/mesa-turnip` gitlink 同步到 `9b8a35676e0`。
+- **对照方法**：同一 APK、冷启动血源影院，进猎人梦境后静置或移动，每轮至少 10 分钟。
+  - 开启：`adb shell setprop debug.mesa.tu.debug cmd_no_preempt`
+  - 关闭：`adb shell setprop debug.mesa.tu.debug ""`
+  - 开、关交替各跑多轮，记录 `/sys/class/kgsl/kgsl-3d0` 的 faultcount 与 devcoredump 类型（SQE `0x03cd` / DDE `0x078f`）、发生时间，并同时观察 XR 合成是否卡顿。
+  - 用完恢复属性为空。
+- **未做**：头显前摄像头被遮挡，系统一直停在追踪丢失提示、Dock 抢占前台，无法冷启动游戏，开关两组都尚未运行。没有因果结论，GPU hang 未修复。
+
 ## 现场恢复（上一轮的 CleanupPending）
 
 完整记录见 [cleanup-and-identity.json](evidence/swan-cp-opcode-20260930/cleanup-and-identity.json)。
