@@ -1,0 +1,22 @@
+# devcd15 (PID20901/ctx51, kgsl_preempt_rb requested) -- owned tracefs instance kgsl_dbg_0929065136_4382, frozen by adreno_gpu_fault traceoff trigger,
+# collected 2026-09-30 after reconnect. Source: kgsl_trace.txt.gz sha256 46496c0510f4b3d2cf38164836ee1be7eb368325d2e26a5f9fea10b0d3051973
+# Lines: preempt trigger/done and gpu_fault in the last 10 ms before the fault (trace clock; dmesg reports the same fault at 104470.369166).
+gmu_f2h-3779    (   3779) [005] ..... 104470.342942: adreno_preempt_trigger: trigger from id=1 to id=2 cntl=341 ticks=2006151033478
+gmu_f2h-3779    (   3779) [005] ..... 104470.342947: adreno_preempt_done: done switch to id=2 from id=1 level=0 ticks=2006151035957
+gmu_f2h-3779    (   3779) [005] ..... 104470.345533: adreno_preempt_trigger: trigger from id=2 to id=0 cntl=341 ticks=2006151108086
+gmu_f2h-3779    (   3779) [005] ..... 104470.345538: adreno_preempt_done: done switch to id=0 from id=2 level=0 ticks=2006151110438
+gmu_f2h-3779    (   3779) [003] ..... 104470.348755: adreno_preempt_trigger: trigger from id=0 to id=1 cntl=341 ticks=2006151161747
+gmu_f2h-3779    (   3779) [003] ..... 104470.348759: adreno_preempt_done: done switch to id=1 from id=0 level=0 ticks=2006151164291
+gmu_f2h-3779    (   3779) [004] ..... 104470.353136: adreno_preempt_trigger: trigger from id=1 to id=2 cntl=341 ticks=2006151256058
+gmu_f2h-3779    (   3779) [004] ..... 104470.353139: adreno_preempt_done: done switch to id=2 from id=1 level=0 ticks=2006151258499
+gmu_f2h-3779    (   3779) [004] ..... 104470.353348: adreno_preempt_trigger: trigger from id=2 to id=1 cntl=341 ticks=2006151259984
+gmu_f2h-3779    (   3779) [004] ..... 104470.353351: adreno_preempt_done: done switch to id=1 from id=2 level=0 ticks=2006151262270
+gmu_f2h-3779    (   3779) [002] ..... 104470.354899: adreno_preempt_trigger: trigger from id=1 to id=2 cntl=341 ticks=2006151262872
+gmu_f2h-3779    (   3779) [002] ..... 104470.354902: adreno_preempt_done: done switch to id=2 from id=1 level=0 ticks=2006151265175
+gmu_f2h-3779    (   3779) [002] ..... 104470.356103: adreno_preempt_trigger: trigger from id=2 to id=0 cntl=341 ticks=2006151315387
+gmu_f2h-3779    (   3779) [004] ..... 104470.356602: adreno_preempt_done: done switch to id=0 from id=2 level=1 ticks=2006151323409
+gmu_f2h-3779    (   3779) [002] ..... 104470.359778: adreno_preempt_trigger: trigger from id=0 to id=1 cntl=341 ticks=2006151373242
+gmu_f2h-3779    (   3779) [002] ..... 104470.359782: adreno_preempt_done: done switch to id=1 from id=0 level=0 ticks=2006151375807
+gmu_f2h-3779    (   3779) [004] ..... 104470.364751: adreno_preempt_trigger: trigger from id=1 to id=2 cntl=341 ticks=2006151465947
+gmu_f2h-3779    (   3779) [004] ..... 104470.364754: adreno_preempt_done: done switch to id=2 from id=1 level=0 ticks=2006151471029
+kgsl_hwsched-1433    (   1433) [005] ..... 104470.364867: adreno_gpu_fault: ctx=51 ts=54656 rb_id=2 status=880005 RB=1A39/1991 IB1=413B48A000/5EF IB2=413B5929EC/0

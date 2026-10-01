@@ -1,0 +1,54 @@
+{
+ "device": "PB3110PGL6240001G",
+ "boot_id": "20c5024e-15c5-4f6a-981f-7630a933df4c",
+ "rom": "Pico/swan/swan:16/BQ2A.260122.002-BP2A.250705.008/20260922015006:user/test-keys",
+ "installed_apk_sha256_at_reconnect": "4ec9b9a6b0c5f985a393254074ad61773b8f77c87658b64eaeaeccfebdf6848e (XR session build; not changed this round)",
+ "kgsl_sysfs_read_only": {
+  "ft_pagefault_policy": "0x0",
+  "ft_policy": "0xC2",
+  "ft_long_ib_detect": "1",
+  "preemption": "1",
+  "preempt_info": {
+   "L0": "0x1e823b7",
+   "L1A": "0x1a67ee",
+   "L1B": "0x84d5a3"
+  },
+  "preempt_count": "0x2876148"
+ },
+ "snapshots_pulled": {
+  "devcd15": "3edf153d85379d4de9e7f063875c8d011883475c1260c550b9671045b8077aea (old investigation, B2 fault)",
+  "devcd16_28": "user-triggered for other analyses; pulled and hashed only, not analysed here",
+  "all": {
+   "kgsl-1790598724-devcd15.bin": "3edf153d85379d4de9e7f063875c8d011883475c1260c550b9671045b8077aea",
+   "kgsl-1790667860-devcd16.bin": "eb311b43075051754872228ca5ecd11ec8969c5fced2eafed48ad7a5271c7787",
+   "kgsl-1790668481-devcd17.bin": "bbf9540f4d26c29bd2ead9b9ab4cb9d1b5ca29d0f717fbd7d65072c28ef1ccca",
+   "kgsl-1790678778-devcd18.bin": "57fb6ae45a4833ecf64e1c8ac3019c5a211c10d03a018a13242ec23a73ffdbdf",
+   "kgsl-1790689854-devcd19.bin": "13f4794d4495feebef23993d9f01bccb347fa1e5de2181afd2676d3b922c9823",
+   "kgsl-1790691168-devcd20.bin": "a645797830dfd7d3a877f1f0e96e0c1e741edc878c22398bc0d65f5a74384b88",
+   "kgsl-1790691394-devcd21.bin": "9f525ebbc583acf08144e07abfd216146f9161b350426b3a19786ddfb8f34e48",
+   "kgsl-1790691861-devcd22.bin": "71c2bc84668343f5b32f0ab1de346959c3429b1fe316396ebea137f42c20db55",
+   "kgsl-1790691905-devcd23.bin": "9391e7e8d03c87f370118a9a339da0a3d8e84518a4050466d425d051c0c24b27",
+   "kgsl-1790691910-devcd24.bin": "15bf218df5c6416600c82491906bc6a299a4b3dbf946f7e99ffce05f7e4fdad2",
+   "kgsl-1790691912-devcd25.bin": "e2853960c11782ae457b7ba0c57ce0f99060300c8312668f9420df1e5db4d6f6",
+   "kgsl-1790691914-devcd26.bin": "810bd434a0937792f14df5e38a95c1ad7f1b96df18809242893c1eba35904cdb",
+   "kgsl-1790691916-devcd27.bin": "b59e7c9a459872c2be001ec42db83cd8f10ea05488dd4b79468b687902eeab22",
+   "kgsl-1790691920-devcd28.bin": "8a9e6a2395bd6fe8e799390567d00a6943495dd0cb91a57c934f8a0c3c256cd5"
+  }
+ },
+ "cleanup_pending_from_20260929": {
+  "trace_instance": "kgsl_dbg_0929065136_4382 was frozen (tracing_on=0); collected (sha in b2-trace-summary.json), then tracing_on=0 + rmdir",
+  "debug.mesa.tu.debug": "kgsl_preempt_rb -> '' (original)",
+  "debug.spruntime.etfr.subsample": "0 (left by an earlier DumpLayer capture) -> '' (original)",
+  "cache": "active cache (B2 + later XR sessions, 1711 files) moved to files/host/cp-preempt-b2-plus-xr-cache-20260930 with identical hashes; files/host/cp-preempt-original-20260929 moved back to files/host/cache, 1264 per-file SHA-256 identical before/after the move. The 09-29 before-cache-hashes.txt baseline lives on another host and was not re-compared.",
+  "captures": "10 embedded-*.h264(.frames.csv) + codex-cp-preempt-ui.xml pulled, SHA-256 matched device, then removed from the device",
+  "saves": "not compared: the 09-29 before-home baseline hashes are on another host; no rollback or external edit",
+  "not_changed": [
+   "KMD",
+   "firmware",
+   "global preemption controls",
+   "ft_pagefault_policy",
+   "other app lifecycle",
+   "installed APK/driver"
+  ]
+ }
+}

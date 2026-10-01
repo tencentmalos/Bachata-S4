@@ -1,0 +1,25 @@
+{
+ "trace_sha256": "46496c0510f4b3d2cf38164836ee1be7eb368325d2e26a5f9fea10b0d3051973",
+ "first_event_ts": 104026.00416,
+ "last_event_ts": 104470.364867,
+ "per_cpu_oldest_event_ts": [
+  104027.925996,
+  104164.790887,
+  104218.811787,
+  104224.97747,
+  104247.989195,
+  104244.188936,
+  104026.00416,
+  104026.0309
+ ],
+ "common_retained_start": 104247.989195,
+ "fault_trace_ts": 104470.364867,
+ "rb2_switch_out_levels": {
+  "0": 20456,
+  "1": 2172,
+  "3": 6
+ },
+ "kgsl_mmu_pagefault_events": 0,
+ "kgsl_mmu_pagefault_enabled": true,
+ "overrun_note": "per-CPU overruns present (ring overwrite); only the common retained window is complete"
+}
