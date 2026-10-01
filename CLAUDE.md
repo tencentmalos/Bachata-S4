@@ -1,3 +1,10 @@
+- **截图/录像图源选择：XR 双目场景（2026-10-01）：** [记录 v10](docs/validation/android-native-host/xr-cinema-editor-20261001.md)。
+  - **切换**：DebugBus `capture_source [canvas|xr|status]`，默认 canvas。录像进行中或截图挂起时返回 busy；用完需切回 canvas。
+  - **xr 图源**：运行时把自己提交的各层逐眼射线合成为无畸变左右并排图（每眼为运行时眼分辨率的一半，Swan 1296×1200），合成顺序为环境层 → 影院 quad 或 PSVR 眼投影 → PSV 状态层，不依赖系统合成器。
+  - **实现**：Foundation `530a60a`（`XrSceneVulkanLayer::SetCaptureTarget`）；`openxr/xr_capture.cpp` 与 `xr_capture.comp`。
+  - **工具**：capturectl `--source`；MCP 的 `capture_app_screenshot` / `record_app_video` 新增 `source` 参数。
+  - **Swan 实测**：血源影院双眼及单眼 PNG 正常；8 s 录像 239 帧、0 跳帧；Beat Saber 投影路径正常；切回 canvas 后截图正常。
+  - **未验收**：未做 FPS A/B；未佩戴验收。
 - **XR 影院环境 + 无畸变截图/录像（2026-10-01，已提交 feature/malos/swan_performance）：** [记录 v2–v9](docs/validation/android-native-host/xr-cinema-editor-20261001.md)、skill `scrcpy-sdk-capture`。Lite Editor World（`assets/xr/cinema` 五套：tv-lounge/dusk-terrace/dark-room/seaside/void，`tools/xr/*` 生成+布局校验）经 `cinema_environment` 作底层不透明投影层，影院屏 4.4 m/3.0 m/+0.10 m，PSV 落在 World 底座；`xr_cinema status|world` 切换。PS4 Pro 立式+灯效、两只黑色 DS4（照 Commons 正视照重做）、回音壁、三张光盘盒平铺（血源真封面在 git 忽略的 models/local，MHW/MHR 缺 sce_sys 仍占位）。贴图作者端 1024 PNG，打包时 `compress_cinema_textures.py` 转 ASTC 4×4 KTX2+mip（Swan 环境层 GL +37/EGL +18 MiB，加载约 0.4–1.1 s）。Turnip 用 `scripts/android/build-turnip-remote` 在 bug_reports Ubuntu 云机 docker 构建（Mesa 351a4847→`d767cd73`），Windows 以 `SHADPS4_TURNIP_PREBUILT` 绑定。截图/录像：my_mcp_tools `08a0356`（master）补齐 SDK `SnapshotSession`+单双目 eye 选择，宿主内嵌截图恢复编译；`capture_screenshot request TOKEN [left|right|both]`、`capture_video start [EYE]` 报 `layout mono|stereo_sbs`；scrcpy MCP 新增 capture_app_screenshot/record_app_video/capture_headset_view/record_headset_view（本机 local.20261001.undistort1）。Swan 实测：Beat Saber 5184×2400 双目/左/右 PNG 与左眼/全宽录像，血源 mono 2592×1458 PNG/录像，头显合成图与录像；头显未佩戴时为黑帧+paused 警告。Foundation `bc3ed7b`（RGB 环境光、nlohmann 宏）。未佩戴验收视觉/舒适度；无 GPU hang 修复或性能收益声明。
 
 - **Swan GPU opcode 故障：固件 PC 映射 / L1 抢占恢复关联（2026-09-30，仅离线分析老记录，本地未提交）：** [报告](docs/validation/android-native-host/swan-cp-opcode-firmware-20260930.md)。

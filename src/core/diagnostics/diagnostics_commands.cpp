@@ -524,6 +524,11 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) {
             return Vulkan::HandleEmbeddedCaptureCommand(args);
         });
+    registry.Register("capture_source", "capture_source [canvas|xr|status] -- what capture_screenshot/"
+                      "capture_video encode: game canvas, or the XR cinema per eye (undistorted)",
+        [](const std::vector<std::string>& args) {
+            return Vulkan::HandleCaptureSourceCommand(args);
+        });
 #endif
 
     // Commands whose backends are not built yet. Registered so help/schema is

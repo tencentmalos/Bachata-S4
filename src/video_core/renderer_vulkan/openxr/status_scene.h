@@ -8,6 +8,7 @@
 #include <openxr/openxr.h>
 #include "spatial/xr/SwapchainFunctions.h"
 #include "spatial/xr/XrImguiVulkanLayer.h"
+#include "spatial/xr/XrSceneVulkanLayer.h"
 #include "spatial/imgui/overlay/OverlayModel.hpp"
 #include "spatial/perf/PerfMetrics.hpp"
 
@@ -35,6 +36,8 @@ public:
                 const std::optional<spatial::perf::DeviceMetrics>& device, bool active,
                 bool psvr, uint32_t output_width, uint32_t output_height);
     const XrCompositionLayerProjection* Layer() const;
+    // The Lite layer behind Layer(), for the undistorted XR capture.
+    spatial::xr::XrSceneVulkanLayer& SceneLayer();
 private:
     struct Impl;
     std::unique_ptr<Impl> impl;

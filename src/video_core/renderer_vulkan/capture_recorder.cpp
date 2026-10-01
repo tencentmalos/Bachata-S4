@@ -52,6 +52,46 @@ scrcpy::capture::SnapshotSession& EmbeddedScreenshots() {
     return session;
 }
 
+namespace {
+std::atomic<CaptureSource> g_capture_source{CaptureSource::Canvas};
+const char* SourceName(CaptureSource source) {
+    return source == CaptureSource::Xr ? "shadps4.xr_composite" : "shadps4.final_render_target";
+}
+const char* ViewName(CaptureSource source) {
+    return source == CaptureSource::Xr ? "xr_eyes" : "canvas";
+}
+}  // namespace
+
+CaptureSource CurrentCaptureSource() {
+    return g_capture_source.load(std::memory_order_acquire);
+}
+
+std::string HandleCaptureSourceCommand(const std::vector<std::string>& args) {
+    if (args.size() > 1 || (args.size() == 1 && args[0] != "canvas" && args[0] != "xr" &&
+                            args[0] != "status"))
+        return "status: bad-arguments\nusage: capture_source [canvas|xr|status]\n";
+    if (args.size() == 1 && args[0] != "status") {
+        const auto wanted = args[0] == "xr" ? CaptureSource::Xr : CaptureSource::Canvas;
+        if (wanted != CurrentCaptureSource()) {
+            auto& state = Control();
+            std::scoped_lock lock(state.mutex);
+            const auto shot = EmbeddedScreenshots().Status().phase;
+            // A capture in flight keeps the source it started with.
+            // (A screenshot nobody produces can be cancelled with capture_screenshot.)
+            if (state.wanted || state.phase == "recording" || shot == "pending" ||
+                shot == "capturing")
+                return std::string("status: busy\nerror: stop the recording / wait for the "
+                                   "screenshot first\nsource: ") +
+                       (CurrentCaptureSource() == CaptureSource::Xr ? "xr" : "canvas") + "\n";
+            g_capture_source.store(wanted, std::memory_order_release);
+        }
+    }
+    const auto source = CurrentCaptureSource();
+    return std::string("status: ok\nsource: ") + (source == CaptureSource::Xr ? "xr" : "canvas") +
+           "\nproducer: " + SourceName(source) + "\nview: " + ViewName(source) +
+           "\nsources: canvas xr\n";
+}
+
 std::string HandleEmbeddedScreenshotCommand(const std::vector<std::string>& args, u64 generation) {
     const bool with_eye = args.size() == 3 && args[0] == "request";
     if ((args.size() != 2 && !with_eye) || !scrcpy::capture::SnapshotSession::ValidToken(args[1]) ||
@@ -77,7 +117,8 @@ std::string HandleEmbeddedScreenshotCommand(const std::vector<std::string>& args
     out << "status: " << state.phase << '\n'
         << "request_id: " << state.request.token << '\n'
         << "generation: " << state.request.generation << '\n'
-        << "source: shadps4.final_render_target\nview: canvas\nencoding: png\n"
+        << "source: " << SourceName(CurrentCaptureSource()) << "\nview: "
+        << ViewName(CurrentCaptureSource()) << "\nencoding: png\n"
         << "eye: " << state.request.eye << '\n'
         << "layout: " << (state.layout.empty() ? "unknown" : state.layout) << '\n'
         << "width: " << state.width << "\nheight: " << state.height << '\n'
@@ -133,9 +174,9 @@ std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args) {
     std::ostringstream out;
     out << "status: " << state.phase << '\n'
         << "revision: " << state.revision.load(std::memory_order_relaxed) << '\n'
-        << "source: shadps4.final_render_target\n"
+        << "source: " << SourceName(CurrentCaptureSource()) << '\n'
         << "mode: " << (state.live ? "live" : "file") << '\n'
-        << "view: canvas\n"
+        << "view: " << ViewName(CurrentCaptureSource()) << '\n'
         << "eye: " << state.eye << '\n'
         << "layout: " << (state.layout.empty() ? "unknown" : state.layout) << '\n'
         << "width: " << state.encoded_width << "\nheight: " << state.encoded_height << '\n'
@@ -157,7 +198,7 @@ std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args) {
 
 class CaptureRecorder::Impl {
 public:
-    explicit Impl(const Instance& instance_) : instance(instance_) {}
+    Impl(const Instance& instance_, CaptureSource source_) : instance(instance_), source(source_) {}
 
     bool SameSource(const Frame& frame, vk::Format source_format) const {
         return frame.width == width && frame.height == height && frame.xr_stereo == stereo &&
@@ -165,6 +206,11 @@ public:
     }
 
     void SyncRequest(const Frame& frame, vk::Format source_format, u32 frame_pool_size) {
+        // The other source's recorder owns the shared state; stay out of it.
+        if (!active && CurrentCaptureSource() != source) {
+            seen_revision = Control().revision.load(std::memory_order_acquire);
+            return;
+        }
         if (Control().revision.load(std::memory_order_acquire) == seen_revision &&
             (!active || (SameSource(frame, source_format)))) return;
         u64 new_revision{};
@@ -391,6 +437,11 @@ public:
         }
     }
 
+    std::pair<vk::Semaphore, vk::Semaphore> SubmitSemaphores() const {
+        if (!acquired) return {};
+        return {image_acquired[frame_index], image_ready[image_index]};
+    }
+
     void Present() {
         if (!acquired) return;
         const vk::PresentInfoKHR info{
@@ -457,6 +508,7 @@ public:
     }
 
     const Instance& instance;
+    CaptureSource source;
     scrcpy::capture::EncoderSession encoder;
     vk::SurfaceKHR surface{};
     vk::SwapchainKHR swapchain{};
@@ -472,7 +524,8 @@ public:
     bool active{}, acquired{};
 };
 
-CaptureRecorder::CaptureRecorder(const Instance& instance) : impl_(std::make_unique<Impl>(instance)) {}
+CaptureRecorder::CaptureRecorder(const Instance& instance, CaptureSource source)
+    : impl_(std::make_unique<Impl>(instance, source)) {}
 CaptureRecorder::~CaptureRecorder() = default;
 void CaptureRecorder::SyncRequest(const Frame& frame, vk::Format format, u32 frame_pool_size) {
     impl_->SyncRequest(frame, format, frame_pool_size);
@@ -480,6 +533,9 @@ void CaptureRecorder::SyncRequest(const Frame& frame, vk::Format format, u32 fra
 bool CaptureRecorder::Acquire(const Frame& frame) { return impl_->Acquire(frame); }
 void CaptureRecorder::Record(vk::CommandBuffer cmd, const Frame& frame) { impl_->Record(cmd, frame); }
 void CaptureRecorder::AddSubmitSync(SubmitInfo& info) const { impl_->AddSubmitSync(info); }
+std::pair<vk::Semaphore, vk::Semaphore> CaptureRecorder::SubmitSemaphores() const {
+    return impl_->SubmitSemaphores();
+}
 void CaptureRecorder::Present() { impl_->Present(); }
 void CaptureRecorder::Close() { impl_->Close(); }
 }  // namespace Vulkan

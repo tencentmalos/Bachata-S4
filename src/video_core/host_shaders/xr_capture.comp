@@ -1,0 +1,113 @@
+// SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+// Undistorted binocular capture of the XR cinema: for every pixel of each
+// output eye (side by side), cast the eye's view ray through the layers the
+// OpenXR runtime composites, bottom to top:
+//   1. environment projection layer (opaque),
+//   2. game quad (opaque, the cinema screen) or the PSVR eye projection,
+//   3. status projection layer (premultiplied alpha).
+// Projection layers are rendered from (nearly) the same eye positions, so
+// they are reprojected by rotation only; the quad is ray-plane intersected.
+// All images are sampled through UNORM views and written raw, so the bytes
+// keep the swapchains' sRGB encoding.
+
+#version 450
+layout(local_size_x = 8, local_size_y = 8) in;
+
+struct Projection {
+    vec4 world_to_view[3];  // rows of the layer view's world->view rotation
+    vec4 tan_fov;           // tan(left), tan(right), tan(down), tan(up)
+    vec4 rect;              // normalized uv offset (xy) and size (zw) in the image
+    vec4 misc;              // array layer, enabled
+};
+
+struct Quad {
+    vec4 world_to_quad[3];  // rows of the quad's world->local rotation
+    vec4 center;            // quad centre (world)
+    vec4 size;              // width, height (metres)
+    vec4 rect;              // normalized uv offset/size in the image
+    vec4 misc;              // array layer, enabled
+};
+
+struct Eye {
+    vec4 view_to_world[3];  // rows of the output eye's view->world rotation
+    vec4 tan_fov;
+    vec4 position;          // eye position (world)
+    Projection environment;
+    Quad screen;           // ordinary game: the cinema quad
+    Projection game;       // PSVR projection game: the eye images instead
+    Projection status;
+};
+
+layout(std140, binding = 0) uniform Constants {
+    Eye eyes[2];
+    ivec4 extent;  // eye width, height, eye count
+};
+layout(binding = 1) uniform sampler2DArray environment_image;
+layout(binding = 2) uniform sampler2DArray screen_image;
+layout(binding = 3) uniform sampler2DArray status_image;
+layout(binding = 4, rgba8) uniform writeonly image2D target;
+
+vec3 Rotate(vec4 rows[3], vec3 v) {
+    return vec3(dot(rows[0].xyz, v), dot(rows[1].xyz, v), dot(rows[2].xyz, v));
+}
+
+// uv of a world direction inside a projection view, or a negative value.
+vec2 ProjectionUv(Projection p, vec3 dir) {
+    vec3 v = Rotate(p.world_to_view, dir);
+    if (v.z >= -1e-6) return vec2(-1.0);
+    vec2 t = v.xy / -v.z;
+    vec2 uv = vec2((t.x - p.tan_fov.x) / (p.tan_fov.y - p.tan_fov.x),
+                   (p.tan_fov.w - t.y) / (p.tan_fov.w - p.tan_fov.z));
+    return uv;
+}
+
+bool Inside(vec2 uv) {
+    return all(greaterThanEqual(uv, vec2(0.0))) && all(lessThanEqual(uv, vec2(1.0)));
+}
+
+vec4 SampleProjection(Projection p, sampler2DArray image, vec3 dir) {
+    if (p.misc.y < 0.5) return vec4(0.0);
+    vec2 uv = ProjectionUv(p, dir);
+    if (!Inside(uv)) return vec4(0.0);
+    return texture(image, vec3(p.rect.xy + uv * p.rect.zw, p.misc.x));
+}
+
+void main() {
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    int eye_index = pixel.x / extent.x;
+    if (eye_index >= extent.z || pixel.y >= extent.y) return;
+    Eye e = eyes[eye_index];
+    vec2 uv = (vec2(pixel.x - eye_index * extent.x, pixel.y) + 0.5) / vec2(extent.xy);
+    vec3 view_dir = vec3(mix(e.tan_fov.x, e.tan_fov.y, uv.x), mix(e.tan_fov.w, e.tan_fov.z, uv.y), -1.0);
+    vec3 dir = normalize(Rotate(e.view_to_world, view_dir));
+
+    vec3 color = vec3(0.0);
+    vec4 environment = SampleProjection(e.environment, environment_image, dir);
+    if (e.environment.misc.y > 0.5) color = environment.rgb;
+
+    if (e.screen.misc.y > 0.5) {
+        vec3 origin = Rotate(e.screen.world_to_quad, e.position.xyz - e.screen.center.xyz);
+        vec3 d = Rotate(e.screen.world_to_quad, dir);
+        if (abs(d.z) > 1e-6) {
+            float t = -origin.z / d.z;
+            if (t > 0.0) {
+                vec2 hit = origin.xy + t * d.xy;
+                vec2 q = vec2(hit.x / e.screen.size.x + 0.5, 0.5 - hit.y / e.screen.size.y);
+                if (Inside(q))
+                    color = texture(screen_image, vec3(e.screen.rect.xy + q * e.screen.rect.zw,
+                                                       e.screen.misc.x)).rgb;
+            }
+        }
+    }
+
+    if (e.game.misc.y > 0.5) {
+        vec4 game = SampleProjection(e.game, screen_image, dir);
+        if (Inside(ProjectionUv(e.game, dir))) color = game.rgb;
+    }
+
+    vec4 status = SampleProjection(e.status, status_image, dir);
+    color = status.rgb + color * (1.0 - status.a);
+    imageStore(target, pixel, vec4(color, 1.0));
+}

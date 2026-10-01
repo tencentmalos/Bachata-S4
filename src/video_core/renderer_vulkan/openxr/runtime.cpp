@@ -27,6 +27,9 @@
 #include "video_core/renderer_vulkan/openxr/cinema_environment.h"
 #include "video_core/renderer_vulkan/openxr/status_panel.h"
 #include "video_core/renderer_vulkan/openxr/output_extent.h"
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+#include "video_core/renderer_vulkan/openxr/xr_capture.h"
+#endif
 #include <sys/system_properties.h>
 #include <vk_mem_alloc.h>
 #include "common/logging/log.h"
@@ -653,6 +656,10 @@ struct Runtime::Impl {
     void Run(std::stop_token stop) {
         try {
             std::unique_ptr<ErrorPanel> panel;
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+            // Declared before the scenes: they hold its images as copy targets.
+            auto xr_capture = std::make_unique<XrCapture>(*vk);
+#endif
             std::unique_ptr<StatusScene> status_scene;
             std::unique_ptr<CinemaEnvironment> cinema_env;
             std::string cinema_env_failed_key, cinema_env_wanted = CinemaWorld();
@@ -755,6 +762,12 @@ struct Runtime::Impl {
                         "xrLocateViews");
                 UpdateInput(frame.predictedDisplayTime, eyes,
                             count == 2 ? view_state.viewStateFlags : 0);
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                // capture_source xr: this frame's layers are copied as submitted
+                // and composed per eye after xrEndFrame.
+                const bool capturing = !panel && frame.shouldRender && count == 2 &&
+                                       xr_capture->Begin(eye_width, eye_height);
+#endif
                 {
                 std::scoped_lock cinema_lock(mailbox_mutex);
                 if (recenter_time && frame.predictedDisplayTime >= recenter_time) {
@@ -818,6 +831,14 @@ struct Runtime::Impl {
                     VKF(CmdCopyImage)
                     (consumer.command, mailbox, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                      images[index].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                    if (capturing)
+                        xr_capture->CopyScreen(consumer.command, mailbox,
+                                               format == VK_FORMAT_R8G8B8A8_SRGB
+                                                   ? VK_FORMAT_R8G8B8A8_UNORM
+                                                   : VK_FORMAT_B8G8R8A8_UNORM,
+                                               width, height);
+#endif
                     Barrier(consumer.command, images[index].image,
                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -845,6 +866,9 @@ struct Runtime::Impl {
                         projection.views = pv.data();
                         layers[0] = reinterpret_cast<XrCompositionLayerBaseHeader*>(&projection);
                         layer_count = 1;
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                        if (capturing) xr_capture->ScreenProjection(projection);
+#endif
                         if (!logged_projection) {
                             LOG_INFO(Render_Vulkan, "OpenXR PSVR Projection Layer: submitted head pose, runtime eye extrinsics/FOV; IPD={:.3f} mm L=({}, {}, {}, {}) R=({}, {}, {}, {})",
                                 spatial::xr::math::EyeSeparation(XrPose(render_eyes[0]).position,
@@ -869,6 +893,9 @@ struct Runtime::Impl {
                             quad.size = {Core::HostRuntime::VrGeometry::CinemaWidth,
                                          Core::HostRuntime::VrGeometry::CinemaHeight(display_aspect)};
                             layers[i] = reinterpret_cast<XrCompositionLayerBaseHeader*>(&quad);
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                            if (capturing) xr_capture->ScreenQuad(stereo ? 1u << i : 3u, quad);
+#endif
                         }
                     }
                     end.layerCount = layer_count;
@@ -907,6 +934,9 @@ struct Runtime::Impl {
                                       cinema_env_wanted, e.what());
                         }
                     }
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                    if (cinema_env) xr_capture->Attach(XrCapture::Scene::Environment, cinema_env->SceneLayer());
+#endif
                     if (cinema_env && end.layerCount + 1 < layers.size() &&
                         cinema_env->Render(eyes, local, cinema_pose)) {
                         for (uint32_t i = end.layerCount; i > 0; --i) layers[i] = layers[i - 1];
@@ -914,6 +944,10 @@ struct Runtime::Impl {
                         ++end.layerCount;
                         end.layers = layers.data();
                         cinema_env_drawn = true;
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                        xr_capture->Submitted(XrCapture::Scene::Environment, cinema_env->SceneLayer(),
+                                              *cinema_env->Layer());
+#endif
                     }
                 }
                 if (!panel && !immersive_frame && end.layerCount && status_config.visible &&
@@ -933,11 +967,18 @@ struct Runtime::Impl {
                     { std::scoped_lock status_lock(status_mutex); status = status_snapshot; device = status_device; }
                     status_scene->Place(cinema_env_drawn
                         ? std::optional<XrPosef>(CinemaAuthoredOrigin(cinema_pose)) : std::nullopt);
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                    xr_capture->Attach(XrCapture::Scene::Status, status_scene->SceneLayer());
+#endif
                     if (status_scene->Render(eyes, local, status, device,
                                             state == XR_SESSION_STATE_FOCUSED,
                                             false, eye_width, eye_height)) {
                         layers[end.layerCount++] = reinterpret_cast<const XrCompositionLayerBaseHeader*>(status_scene->Layer());
                         end.layers = layers.data();
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                        xr_capture->Submitted(XrCapture::Scene::Status, status_scene->SceneLayer(),
+                                              *status_scene->Layer());
+#endif
                     }
                 }
                 if (panel && frame.shouldRender && cinema_anchored) {
@@ -982,6 +1023,9 @@ struct Runtime::Impl {
                 }
                 CheckXr(QueueCall(EndFrame, session, &end), "xrEndFrame");
                 status_panel_lock.unlock();
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                if (capturing) xr_capture->Compose(eyes);
+#endif
                 if (panel && end.layerCount) ++ui_frames;
                 if (panel && end.layerCount && !panel_submitted) {
                     LOG_INFO(Render_Vulkan, "OpenXR ImGui error panel submitted: {}", error_detail);

@@ -9,6 +9,7 @@
 #include <openxr/openxr.h>
 #include "spatial/xr/SwapchainFunctions.h"
 #include "spatial/xr/XrImguiVulkanLayer.h"
+#include "spatial/xr/XrSceneVulkanLayer.h"
 
 namespace Vulkan::OpenXr {
 // The cinema environment: a Lite Editor World (assets/xr/cinema, packaged
@@ -37,6 +38,8 @@ public:
     const std::string& WorldKey() const;
     bool Render(std::span<const XrView> views, XrSpace space, const XrPosef& screen_pose);
     const XrCompositionLayerProjection* Layer() const;
+    // The Lite layer behind Layer(), for the undistorted XR capture.
+    spatial::xr::XrSceneVulkanLayer& SceneLayer();
 
 private:
     struct Impl;

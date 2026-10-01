@@ -120,6 +120,25 @@ v1 的根因：全部材质是 `KHR_materials_unlit` + 顶点色，场景完全�
 - **Swan 实测**（APK `e8159f50`）：Beat Saber 安全页 PNG 5184×2400 / 左 2592×2400 / 右 2592×2400，录像左眼 2592×2400 119 帧、全宽 5184×2400 97 帧；血源 PNG 2592×1458（eye=left 报 mono）、录像 65 帧；头显截图/3 s 录像成功（未佩戴为黑帧，正确告警）。本机无 ffmpeg，`--mp4` 需另行转换。
 - **仍未完成**：佩戴后的视觉/对齐验收；MHW/MHR 真封面（需 sce_sys）；GPU hang 未修。
 
+## v10：截图/录像图源选择——XR 双目场景（2026-10-01）
+
+- **DebugBus**：新增 `capture_source [canvas|xr|status]`（默认 canvas）。`capture_screenshot` / `capture_video` 按所选图源产出，状态行 `source: shadps4.final_render_target|shadps4.xr_composite`、`view: canvas|xr_eyes`。录像进行中或截图挂起时切换返回 `status: busy`；图源保持到切回为止。
+- **xr 图源实现**：运行时自己把提交给 OpenXR 的各层再合成一遍，不依赖系统合成器（应用拿不到已释放的 swapchain 图）。
+  - Foundation `XrSceneVulkanLayer::SetCaptureTarget/CaptureSerial`：在 Render 的同一命令缓冲里，release 前把场景 swapchain 复制到调用方图像。
+  - 游戏图在 mailbox→swapchain 复制时顺带复制一份。
+  - `openxr/xr_capture.cpp` + `xr_capture.comp`（xrEndFrame 之后执行）：按每只眼的真实 FOV/姿态逐像素投射视线，依次合成环境层（不透明）→ 影院 quad（平面求交）或 PSVR 眼投影 → PSV 状态层（预乘 alpha）。投影层只做旋转重投影，按 UNORM 读写，保留 sRGB 编码字节。
+  - 输出为左右并排图，每眼为运行时眼分辨率的一半（Swan 1296×1200），然后进入 PNG 回读或独立的 `CaptureRecorder(CaptureSource::Xr)`。录像隔帧取一帧，约 36 fps。
+  - 只在 xr 图源有请求时才工作；canvas 路径完全不变。
+  - 不含：PSVR 沉浸模式的 VIEW 状态 quad、错误面板。
+- **工具**：`capturectl.py source [canvas|xr]`，`screenshot|record|snapshot --source xr`；MCP `capture_app_screenshot/record_app_video` 新增 `source`；29 项单测（新增 4 项）。
+- **Swan 实测**（APK `a0d3844e` / host `9e32bbec`，血源影院 tv-lounge 标题页，头显未佩戴静置）：
+  - xr 双眼 PNG 2592×1200：房间、屏幕边框、回音壁、PS4/手柄与游戏画面逐眼对齐。
+  - 右眼 1296×1200、capturectl 左眼 1296×1200。
+  - 8 s 录像：2592×1200，239 帧，0 跳帧，PyAV 解码帧正常。
+  - 录像中切回 canvas 返回 busy；切回后 canvas 截图 2592×1458 mono 正常。
+- **PSVR 投影路径**：同包冷启动 Beat Saber（热切换卡在旧 XR Activity，按既有已知问题 force-stop 空闲应用后重进），xr 截图 2592×1200 健康警告页逐眼正确，四角黑为游戏渲染 FOV 之外。
+- **未验收**：佩戴时的运动画面；对 FPS 的影响（未做 A/B）。终态：图源已切回 canvas，会话已正常停止。
+
 ## 早期设备基线与清理
 
 在用户增加 Editor 确认门槛之前，已对既有 Swan 安装启动 Bloodborne 影院并读取状态，通过 `my_mcp_tools` 中的 scrcpy MCP 实现建立持久会话、抓取现状。它证明的是旧包基线，不是这些新场景上机。

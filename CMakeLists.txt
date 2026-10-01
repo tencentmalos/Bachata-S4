@@ -1586,6 +1586,12 @@ if (ANDROID)
         target_sources(shadps4 PRIVATE
             src/video_core/renderer_vulkan/capture_recorder.cpp
             src/video_core/renderer_vulkan/capture_recorder.h)
+        # capture_source xr: undistorted per-eye composite of the XR cinema layers.
+        target_sources(shadps4 PRIVATE
+            src/video_core/renderer_vulkan/openxr/xr_capture.cpp
+            src/video_core/renderer_vulkan/openxr/xr_capture.h)
+        set_source_files_properties(src/video_core/renderer_vulkan/openxr/xr_capture.cpp
+            PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
         # Needs VK_USE_PLATFORM_ANDROID_KHR before vulkan.hpp is first included, which a unity
         # batch cannot guarantee.
         set_source_files_properties(src/video_core/renderer_vulkan/capture_recorder.cpp

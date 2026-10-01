@@ -148,6 +148,7 @@ CinemaEnvironment::CinemaEnvironment() : impl(std::make_unique<Impl>()) {}
 CinemaEnvironment::~CinemaEnvironment() = default;
 const std::string& CinemaEnvironment::WorldKey() const { return impl->key; }
 const XrCompositionLayerProjection* CinemaEnvironment::Layer() const { return &impl->projection; }
+spatial::xr::XrSceneVulkanLayer& CinemaEnvironment::SceneLayer() { return impl->layer; }
 
 bool CinemaEnvironment::Create(XrSession session, const spatial::xr::SwapchainFunctions& functions,
                                const spatial::xr::XrImguiVulkanBinding& binding, uint32_t w,

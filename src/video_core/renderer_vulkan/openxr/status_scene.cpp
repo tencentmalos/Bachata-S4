@@ -376,4 +376,5 @@ bool StatusScene::Render(std::span<const XrView> eyes,XrSpace space,const ov::St
     return true;
 }
 const XrCompositionLayerProjection* StatusScene::Layer()const{return &impl->projection;}
+spatial::xr::XrSceneVulkanLayer& StatusScene::SceneLayer(){return impl->layer;}
 } // namespace Vulkan::OpenXr

@@ -1153,8 +1153,10 @@ void Presenter::RecordEmbeddedScreenshot(Frame& target, u64 diagnostic_id) {
     [[maybe_unused]] auto* frame = &target;
     [[maybe_unused]] const auto cmdbuf = draw_scheduler.RawCommandBuffer();
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-    if (auto request = EmbeddedScreenshots().Take(instance.DiagnosticGeneration(), diagnostic_id,
-                                                 Core::Diagnostics::DiagnosticNowNs())) {
+    // With the XR source selected the XR frame thread takes the request.
+    if (auto request = CurrentCaptureSource() != CaptureSource::Canvas ? std::nullopt :
+            EmbeddedScreenshots().Take(instance.DiagnosticGeneration(), diagnostic_id,
+                                       Core::Diagnostics::DiagnosticNowNs())) {
         try {
             const auto source_format = swapchain.GetSurfaceFormat().format;
             if (swapchain.GetHDR() ||

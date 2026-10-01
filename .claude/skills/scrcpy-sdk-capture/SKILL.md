@@ -1,6 +1,6 @@
 ---
 name: scrcpy-sdk-capture
-description: Take screenshots and recordings of a running shadPS4 game on Swan/Android without lens distortion — lossless PNG and H.264 of the game render target via the embedded scrcpy capture SDK (mono canvas, or one/both eyes of a PSVR side-by-side canvas), or the headset's composited XR view (cinema room, game screen, PSV layer). Use instead of adb screencap / scrcpy panel crops, which are distorted on Swan.
+description: Take screenshots and recordings of a running shadPS4 game on Swan/Android without lens distortion — lossless PNG and H.264 of the game render target via the embedded scrcpy capture SDK (mono canvas, or one/both eyes of a PSVR side-by-side canvas), the XR cinema per eye (room + screen + PSV, undistorted; DebugBus `capture_source xr`), or the headset's OS composite. Use instead of adb screencap / scrcpy panel crops, which are distorted on Swan.
 ---
 
 # Screenshots and recordings of a running game (scrcpy capture SDK)
@@ -11,13 +11,29 @@ description: Take screenshots and recordings of a running shadPS4 game on Swan/A
 |---|---|---|---|
 | Game image, lossless still | embedded SDK `SnapshotSession` | `capture_app_screenshot(serial, eye)` | `capturectl.py screenshot OUT [--eye]` |
 | Game image, video | embedded SDK `EncoderSession` (H.264) | `record_app_video(serial, durationSeconds, eye)` | `capturectl.py record OUT --seconds N [--eye]` |
-| What the wearer sees (room + game quad + PSV/status), still | Pico OS system composite | `capture_headset_view(serial)` | `tools/xr/swan_xr_screenshot.py` |
+| XR scene per eye (room + screen + PSV), still / video | embedded SDK, `capture_source xr` | `capture_app_screenshot(serial, eye, source="xr")` / `record_app_video(..., source="xr")` | `capturectl.py screenshot` or `record OUT --source xr [--eye]` |
+| What the wearer sees, OS composite, still | Pico OS system composite | `capture_headset_view(serial)` | `tools/xr/swan_xr_screenshot.py` |
 | Same, video | Pico OS system recording | `record_headset_view(serial, durationSeconds)` | — |
 | Panel debugging (eye crops, flicker, timing) | scrcpy panel mirror | `capture_eye_screenshot` / `start_recording` | — **lens-distorted on Swan** |
 
-The SDK path is shadPS4's own final render target (`view: canvas`): no host
-overlays and none of the OpenXR compositor layers (cinema room, PSV). Use the
-headset tools for the XR scene. The headset tools always give one mono view.
+The SDK path encodes the **capture source** selected over DebugBus
+(`capture_source [canvas|xr|status]`, default `canvas`; `capturectl.py source [canvas|xr]`):
+
+- `canvas` (`source: shadps4.final_render_target`, `view: canvas`): the game's
+  own final render target, no host overlays, no OpenXR layers.
+- `xr` (`source: shadps4.xr_composite`, `view: xr_eyes`): the XR session's layers
+  as submitted (cinema environment, game quad or PSVR eye projection, PSV status)
+  ray-cast per eye into an undistorted side-by-side image, `layout: stereo_sbs`,
+  each eye half the runtime eye resolution (Swan 1296×1200, both 2592×1200),
+  with the eye's real FOV and pose. Recording runs at ~36 fps (every other XR
+  frame). Only produced while an XR session renders: in 2D mode nothing comes,
+  so cancel the screenshot / stop the recording. Not included: the PSVR
+  immersive status quad and the error panel.
+
+Switching is refused (`status: busy`) while a recording runs or a screenshot is
+pending; the source stays selected until switched back, so restore `canvas`
+after XR work. The headset tools always give one mono view (OS composite,
+current head pose).
 
 ## Mono / stereo (单目 / 双目)
 
@@ -46,8 +62,10 @@ accepts the full 5184×2400 stereo canvas.
 - Code lives in `C:/workspace/my_mcp_tools/dev_tools/mcp/scrcpy`:
   `capture-sdk/native` (C++ SDK), `capture-sdk/tools/capturectl.py`,
   `mcp/scrcpy_mcp/undistorted.py` (MCP tools). shadPS4 side:
-  `src/video_core/renderer_vulkan/capture_recorder.cpp` (commands, encoder) and
-  `Presenter::RecordEmbeddedScreenshot` (PNG readback/crop).
+  `src/video_core/renderer_vulkan/capture_recorder.cpp` (commands, source switch,
+  encoder), `Presenter::RecordEmbeddedScreenshot` (canvas PNG readback/crop) and
+  `openxr/xr_capture.cpp` + `host_shaders/xr_capture.comp` (xr source: layer
+  copies through Foundation `XrSceneVulkanLayer::SetCaptureTarget`, per-eye compose).
 
 ## Screenshot
 
