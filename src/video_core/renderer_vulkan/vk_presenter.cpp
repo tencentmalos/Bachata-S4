@@ -1084,6 +1084,25 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
                         reconstructed_linear=true;
                     }
                 }
+            } else if(!instance.Xr() && !frame->is_hdr &&
+                      (image_size.width<frame->width || image_size.height<frame->height)) {
+                // Ordinary 2D screen: the same FSR1/SGSR1 reconstruction into
+                // the swapchain size, without foveation. It records into this
+                // presenter command buffer before the post-process pass: no
+                // extra submit or CPU wait, and the per-frame slot is reused
+                // only after GetRenderFrame waited that frame's fence. Skipped
+                // when the guest image already covers the output.
+                auto options=HostPasses::GetSpatialOptions();
+                options.foveation=spatial::foveation::Mode::Off;
+                if(options.filter!=HostPasses::SpatialFilter::Off) {
+                    if(!spatial_pass)spatial_pass=std::make_unique<HostPasses::SpatialUpscalePass>(instance);
+                    if(auto view=spatial_pass->Render(draw_scheduler,frame->id*2,image_view,image_size,
+                        {1,1,0,0},{frame->width,frame->height},options,{},
+                        attribute.attrib.pixel_format==Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb)) {
+                        image_view=view;
+                        reconstructed_linear=true;
+                    }
+                }
             } else
 #endif
             {

@@ -1,3 +1,9 @@
+- **2D 屏幕超分 FSR1/SGSR1（2026-10-01）：** [实现与 Swan 验证](docs/validation/android-native-host/screen-upscaler-20261001.md)。
+  - **设置**：新 `gpu.screen_upscaler`（Off/FSR1/SGSR1，默认 Off，全局/每游戏），Launch 面板 2D 模式显示 “Screen Upscaler”，与 XR Upscaler 独立。
+  - **宿主**：Presenter 2D 路径在 guest 图小于输出帧时调用 Foundation `SpatialUpscalePass`（无 foveation），录入本帧已有命令缓冲，不新增 submit 或 CPU 等待，不与 guest 提交串行。
+  - **Swan 血源 2D**：同会话 Off/FSR1/SGSR1 在 30 FPS 封顶下帧率无差别（28.4–28.8），FSR/SGSR 边缘更锐、色彩一致；APK `59bf2b50`。HDR 仍为双线性，AYN 与其他游戏未测。
+- **GPU hang 抢占对照暂停（2026-10-01）：** Mesa `9b8a35676e0` 新增默认关闭的 `TU_DEBUG=cmd_no_preempt`（驱动 `10377f4e`）。Swan 开/关各轮 12–13 分钟均无故障，无法区分开关作用；按用户要求暂停，属性已清空、恢复正常抢占，详见 [固件报告](docs/validation/android-native-host/swan-cp-opcode-firmware-20260930.md)。GPU hang 未修复。
+
 - **截图/录像图源选择：XR 双目场景（2026-10-01）：** [记录 v10](docs/validation/android-native-host/xr-cinema-editor-20261001.md)。
   - **切换**：DebugBus `capture_source [canvas|xr|status]`，默认 canvas。录像进行中或截图挂起时返回 busy；用完需切回 canvas。
   - **xr 图源**：运行时把自己提交的各层逐眼射线合成为无畸变左右并排图（每眼为运行时眼分辨率的一半，Swan 1296×1200），合成顺序为环境层 → 影院 quad 或 PSVR 眼投影 → PSV 状态层，不依赖系统合成器。

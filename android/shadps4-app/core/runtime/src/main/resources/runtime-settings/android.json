@@ -67,6 +67,28 @@
   "restartRequired": true
 },
 {
+  "id": "gpu.screen_upscaler",
+  "nativeKey": "Vulkan.screen_upscaler",
+  "section": "Vulkan",
+  "category": "GPU",
+  "title": "Screen Upscaler",
+  "help": "2D screen only: reconstruct the guest image at the window resolution when Render Scale is below the screen size. Runs once per presented frame on the GPU after the game; does not change guest render scale.",
+  "kind": "ENUM",
+  "defaultValue": "off",
+  "choices": [
+    "off",
+    "fsr1",
+    "sgsr1"
+  ],
+  "choiceLabels": [
+    "Off (Bilinear)",
+    "AMD FSR 1",
+    "Qualcomm SGSR 1"
+  ],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true
+},
+{
   "id": "gpu.xr_foveation",
   "nativeKey": "Vulkan.xr_foveation",
   "section": "Vulkan",

@@ -45,6 +45,28 @@ class XrRenderingTest {
         val ultra = RuntimeProfile(values=mapOf(XrRendering.OUTPUT to JsonPrimitive("maximum")))
         assertEquals(2, XrRendering.resolve(high,ultra,true).outputResolution)
     }
+    @Test fun screenUpscalerAppliesOnlyOutsideXrWithoutFoveation() {
+        val empty = RuntimeProfile()
+        assertEquals(0, XrRendering.resolve(empty, empty, false).upscaler)
+        val xrOnly = RuntimeProfile(values = mapOf(XrRendering.UPSCALER to JsonPrimitive("sgsr1"),
+            XrRendering.FOVEATION to JsonPrimitive("fixed")))
+        assertEquals(0, XrRendering.resolve(xrOnly, empty, false).upscaler)
+        val global = RuntimeProfile(values = mapOf(XrRendering.SCREEN_UPSCALER to JsonPrimitive("fsr1"),
+            XrRendering.SHARPNESS to JsonPrimitive("75")))
+        val game = RuntimeProfile(values = mapOf(XrRendering.SCREEN_UPSCALER to JsonPrimitive("sgsr1")))
+        val screen = XrRendering.resolve(global, game, false)
+        assertEquals(2, screen.upscaler)
+        assertEquals(0, screen.foveation)
+        assertEquals(75, screen.sharpness)
+        assertEquals(1, XrRendering.resolve(global, empty, true).upscaler) // XR keeps its own key
+        val spec = RuntimeSettingCatalog.loadAndroidSettings().single { it.id == XrRendering.SCREEN_UPSCALER }
+        assertEquals("off", (spec.defaultValue as kotlinx.serialization.json.JsonPrimitive).content)
+        assertTrue(spec.restartRequired)
+        assertThrows(IllegalArgumentException::class.java) {
+            XrRendering.resolve(RuntimeProfile(), RuntimeProfile(values = mapOf(
+                XrRendering.SCREEN_UPSCALER to JsonPrimitive("not-a-choice"))), false)
+        }
+    }
     @Test fun invalidValuesRejected() {
         for(id in listOf(XrRendering.OUTPUT,XrRendering.UPSCALER,XrRendering.FOVEATION,XrRendering.LEVEL,XrRendering.SHARPNESS)) {
             val broken=RuntimeProfile(values=mapOf(id to JsonPrimitive("not-a-choice")))

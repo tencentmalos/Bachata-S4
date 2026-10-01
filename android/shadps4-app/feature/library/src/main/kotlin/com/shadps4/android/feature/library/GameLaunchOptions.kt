@@ -45,6 +45,7 @@ data class GameLaunchOptions(
             if (!psvr) add(DisplayMode.ID)
             add(if (xr) InternalScale.XR_ID else InternalScale.ID)
             if (xr) addAll(listOf(XrRendering.UPSCALER, XrRendering.OUTPUT, XrRendering.FOVEATION, XrRendering.STATUS))
+            else add(XrRendering.SCREEN_UPSCALER)
         }
         val catalog = RuntimeSettingCatalog.loadAndroidSettings().associateBy { it.id }
         return ids.map { catalog.getValue(it) }

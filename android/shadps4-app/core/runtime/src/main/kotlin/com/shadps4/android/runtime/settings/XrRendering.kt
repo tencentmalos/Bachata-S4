@@ -5,6 +5,8 @@ import kotlinx.serialization.json.JsonElement
 
 object XrRendering {
     const val UPSCALER = "gpu.xr_upscaler"
+    /** Ordinary 2D screen: FSR1/SGSR1 from the guest image to the window size. */
+    const val SCREEN_UPSCALER = "gpu.screen_upscaler"
     const val OUTPUT = "gpu.xr_output_resolution"
     const val STATUS = "gpu.xr_status_layer"
     const val FOVEATION = "gpu.xr_foveation"
@@ -20,13 +22,16 @@ object XrRendering {
         else -> throw IllegalArgumentException("Invalid $STATUS: $raw")
     }
     fun resolve(global: RuntimeProfile, game: RuntimeProfile, xr: Boolean): Options {
-        if (!xr) return Options(upscaler = 0, foveation = 0, statusLayer = 2)
         fun select(id: String, choices: List<String>, default: Int): Int {
             val raw = game.values[id] ?: global.values[id] ?: return default
             val index = choices.indexOf((raw as? JsonPrimitive)?.content)
             require(index >= 0) { "Invalid $id: $raw" }
             return index
         }
+        if (!xr) return Options(
+            upscaler = select(SCREEN_UPSCALER, listOf("off", "fsr1", "sgsr1"), 0), foveation = 0,
+            sharpness = listOf(0, 25, 50, 75, 100)[select(SHARPNESS, listOf("0", "25", "50", "75", "100"), 2)],
+            statusLayer = 2)
         return Options(
             select(UPSCALER, listOf("off", "fsr1", "sgsr1"), 1),
             select(FOVEATION, listOf("off", "fixed", "eye_tracked"), 2),
