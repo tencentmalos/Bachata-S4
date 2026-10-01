@@ -10,6 +10,7 @@
 #if defined(__ANDROID__)
 #include "video_core/renderer_vulkan/openxr/runtime.h"
 #include "video_core/renderer_vulkan/openxr/status_scene.h"
+#include "video_core/renderer_vulkan/openxr/cinema_environment.h"
 #endif
 #include "common/profiler.h"
 #include "common/thread.h"
@@ -186,6 +187,8 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             return Libraries::Pad::Vibration::Command(args);
         });
 #if defined(__ANDROID__)
+    registry.Register("xr_cinema", "Cinema environment World: status | world <tv-lounge|dusk-terrace|dark-room|seaside|void|off>",
+        [](const auto& args) { return Vulkan::OpenXr::CinemaEnvironmentCommand(args); });
     registry.Register("xr_status", "PSV status: status | visible on/off | gi on/off | theme graphite/pearl/blue | recenter | indicator auto/off/running/standby/charging/charge_low/notification",
         [](const auto& args) { return Vulkan::OpenXr::StatusSceneCommand(args); });
     registry.Register("xr_render", "XR reconstruction: status | filter off/fsr1/sgsr1 | foveation off/fixed/eye_tracked", [](const auto& args) {

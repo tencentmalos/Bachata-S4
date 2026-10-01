@@ -1,0 +1,51 @@
+{
+  "change": "Three environment candidates with the unchanged cinema subject: dark room, seaside sunset, void",
+  "assets": {
+    "assets/xr/cinema/dark-room.world.json": "86ff432be510a1e7e24d7399b6645198e080518db23377a6d7fa1d12847cb06f",
+    "assets/xr/cinema/dusk-terrace.world.json": "deea6bdf7d8c138a030766be45be26b15fdacbc733669ecd9e951c257c8c7139",
+    "assets/xr/cinema/models/area-rug.glb": "a757840d16244d825a044ea2fe733265ce5a860c0d3b62b280e1c2dcc77b31c4",
+    "assets/xr/cinema/models/coffee-table.glb": "6fdfa696df360d2154e40ee1f635b206418f90682e843f3886dea5d612c9dd93",
+    "assets/xr/cinema/models/contact-shadow.glb": "6364ef5462558d7433e34f112cea58a30ef079cde53976c238df8ae4e9a06ac4",
+    "assets/xr/cinema/models/dark-room.glb": "225c8e33791e644ed2acf0d519ee049cd31e502a7da70dabb448b0096ef8993d",
+    "assets/xr/cinema/models/dualshock4.glb": "1a5cbd64eb547106721d5e35d9bc09355885ba2bda3eee94d1a1e4e467e7b600",
+    "assets/xr/cinema/models/dusk-sky-dome.glb": "bb4f05cf19073f9a29ca2c99c23eb7f33501068078dea0ef932ecbf5194cd602",
+    "assets/xr/cinema/models/grass-planter.glb": "2b971159803966c9247ca30136914c1d62cd292628cf787e9b58ee1fb7ac8864",
+    "assets/xr/cinema/models/lounge-room.glb": "3a3f1db36b7a1610de10c6ad03fbe22f63b49f3fea967fd5304ea5b101a83e9c",
+    "assets/xr/cinema/models/media-console.glb": "64ac9a0192a3f720a61e2c1a2f6564402260268d0866ad620335f538664a10e7",
+    "assets/xr/cinema/models/outdoor-screen.glb": "09b666e1c662606411ec8760bc7a2a0072bbbd1e1a8bc443f3735aec1442b616",
+    "assets/xr/cinema/models/plant.glb": "2c99c15ccd6bc2d59fe037912bb954c26694d0beb1812ef3a80793b9b91501a7",
+    "assets/xr/cinema/models/plinth.glb": "8ae6f09b51c84ecbbc1cf8ebbcd2fa4f380b8597843fad61e895d6c6735a66c0",
+    "assets/xr/cinema/models/ps4.glb": "8c50980e3bb9e76da7b7ad0240a3e98190534644fa826016b7847a393db06106",
+    "assets/xr/cinema/models/psv-dock.glb": "b1371de91a465879a748bd0006dc9e04d9698299663615cf5876eed4aee089e1",
+    "assets/xr/cinema/models/psv-preview.glb": "77ad60650394fcbc96ecde004a1f70b8f09aa66a1af1516e880b6c9ee23b6ad4",
+    "assets/xr/cinema/models/screen-preview.glb": "391963a5b1cbd9229afeb2cfa8eb1cda5af31b203cc4dcf37cfcdbcd2146872f",
+    "assets/xr/cinema/models/screen-preview.png": "6b0616bfc17a84ded57889370e05e1860b59b58eb42777e51f3672c1104fa98f",
+    "assets/xr/cinema/models/seaside.glb": "b0a0c0db9d7f8acf4d5b0666adb7b3fa2d4167cdeaf370d66fe2b15f7486f8d5",
+    "assets/xr/cinema/models/side-cabinet.glb": "7d4437a559d18d54214abb50ead1ed957015df0cba8fcad369ad6482fb3c3af3",
+    "assets/xr/cinema/models/terrace.glb": "120e33196d434b6ad7e8fa5f2ccc5a9303354c681707223d77226ca925b56a53",
+    "assets/xr/cinema/models/tower-speaker.glb": "88dc2f2a740b7e02e19af2d9976073d54b148de94af96f6cd4ca6780d79c7699",
+    "assets/xr/cinema/models/tv.glb": "0113a6c259cb4c23c2ce741306db4d6945468bc1879b3a188a505472f5820157",
+    "assets/xr/cinema/models/void-space.glb": "b40fb9fa99d40b39c3b19522480c1d261b4db873af6e8414a5ba64bb541b1ac6",
+    "assets/xr/cinema/README.md": "ef0bab4689adc1551104dff250dc54a5e4ea16c5687f16ad5338cfef286dd8b6",
+    "assets/xr/cinema/seaside.world.json": "51cba541ed1a590b23c112b93551cc3966e6dd3243225216fb0ecf0e9e111609",
+    "assets/xr/cinema/tv-lounge.world.json": "59057754b52bcc38d9ff8202599a51ebb07eb971197fb35fab839dbd6b89856c",
+    "assets/xr/cinema/void.world.json": "8ed292439f1953a9152ec108eb13fde0ed91a4307f54043e6a2da1d859b9a5bb"
+  },
+  "tools": {
+    "tools/xr/blender_cinema_assets.py": "c0735a69b8e49736ec1e1d5511964898debc9d142833e7e073fe6893bd55f2ac",
+    "tools/xr/build_cinema_scenes.py": "2e1c687c86cf8b1c6caf889f8b24b635af9ad619f3731c7093ea1cd739a6bd71",
+    "tools/xr/build_psv_model.py": "d7149fae1a5c2aba233c1ad07abfd768a71ebfadfc4278742fbacde21d72a3e0",
+    "tools/xr/cinema_textures.py": "185f287bdcf2b365b877c0bb2094bfa7287a51cc4c596292b0117fdf29070ff7",
+    "tools/xr/review_cinema_editor.py": "4e77514aba2c259729b3cce001b837d79cf97aef09f88673cad0a5e9c68e4358",
+    "tools/xr/validate_cinema_layouts.py": "e0be62385f09dffce3917d78fccf9ec58e0c72b2d3c66752f4e1a5169448ab9d"
+  },
+  "screenshots": {
+    "dark-room-seated.png": "c27add0c1a56eec4fc1a2c408b096acd8d6da26de7e2eec20cde4dec6134910a",
+    "dark-room-side.png": "dd798477750f0a5ffdb967435df6af1f135669a76c1f22ace826c5a9bf02f8d1",
+    "seaside-seated.png": "a11d7f5bd14048aec3e4dbd98b59bd2b8e27ad1b84416de6afda0f86ca7d6077",
+    "seaside-side.png": "43b620e5356f58a752060bf252ea1ab391db37c770b3d5453db88c0539845dac",
+    "void-seated.png": "a1f10b933268c176a1a40d5fe5d073552f76ce55c3a569a9a2d6e997bb19cdce",
+    "void-side.png": "c7f9c8750b88f7a3d7a4ae360d33fe8cbf96fcdc5609cb675e02d805284de05e"
+  },
+  "device_installation": "Not performed"
+}

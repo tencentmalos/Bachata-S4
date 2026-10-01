@@ -1,0 +1,44 @@
+{
+  "change": "PS4 standing beside the screen on a vertical stand; blue light bar (emissive + front segment + unlit halo card + 0.6 cd point light)",
+  "assets": {
+    "assets/xr/cinema/dusk-terrace.world.json": "deea6bdf7d8c138a030766be45be26b15fdacbc733669ecd9e951c257c8c7139",
+    "assets/xr/cinema/models/area-rug.glb": "a757840d16244d825a044ea2fe733265ce5a860c0d3b62b280e1c2dcc77b31c4",
+    "assets/xr/cinema/models/coffee-table.glb": "6fdfa696df360d2154e40ee1f635b206418f90682e843f3886dea5d612c9dd93",
+    "assets/xr/cinema/models/contact-shadow.glb": "6364ef5462558d7433e34f112cea58a30ef079cde53976c238df8ae4e9a06ac4",
+    "assets/xr/cinema/models/dualshock4.glb": "1a5cbd64eb547106721d5e35d9bc09355885ba2bda3eee94d1a1e4e467e7b600",
+    "assets/xr/cinema/models/dusk-sky-dome.glb": "04c80a425e2d8f74c1d1f9aca76742b80e5557a8b868583c0010b59bbcf64ada",
+    "assets/xr/cinema/models/grass-planter.glb": "2b971159803966c9247ca30136914c1d62cd292628cf787e9b58ee1fb7ac8864",
+    "assets/xr/cinema/models/lounge-room.glb": "3a3f1db36b7a1610de10c6ad03fbe22f63b49f3fea967fd5304ea5b101a83e9c",
+    "assets/xr/cinema/models/media-console.glb": "64ac9a0192a3f720a61e2c1a2f6564402260268d0866ad620335f538664a10e7",
+    "assets/xr/cinema/models/outdoor-screen.glb": "09b666e1c662606411ec8760bc7a2a0072bbbd1e1a8bc443f3735aec1442b616",
+    "assets/xr/cinema/models/plant.glb": "2c99c15ccd6bc2d59fe037912bb954c26694d0beb1812ef3a80793b9b91501a7",
+    "assets/xr/cinema/models/ps4.glb": "8c50980e3bb9e76da7b7ad0240a3e98190534644fa826016b7847a393db06106",
+    "assets/xr/cinema/models/psv-dock.glb": "b1371de91a465879a748bd0006dc9e04d9698299663615cf5876eed4aee089e1",
+    "assets/xr/cinema/models/psv-preview.glb": "77ad60650394fcbc96ecde004a1f70b8f09aa66a1af1516e880b6c9ee23b6ad4",
+    "assets/xr/cinema/models/screen-preview.glb": "391963a5b1cbd9229afeb2cfa8eb1cda5af31b203cc4dcf37cfcdbcd2146872f",
+    "assets/xr/cinema/models/screen-preview.png": "6b0616bfc17a84ded57889370e05e1860b59b58eb42777e51f3672c1104fa98f",
+    "assets/xr/cinema/models/side-cabinet.glb": "7d4437a559d18d54214abb50ead1ed957015df0cba8fcad369ad6482fb3c3af3",
+    "assets/xr/cinema/models/terrace.glb": "4f264bfd8bfc1d63c4e628169f7980bad560fee9c30eb50a5da0c8c9908bd5c7",
+    "assets/xr/cinema/models/tower-speaker.glb": "88dc2f2a740b7e02e19af2d9976073d54b148de94af96f6cd4ca6780d79c7699",
+    "assets/xr/cinema/models/tv.glb": "0113a6c259cb4c23c2ce741306db4d6945468bc1879b3a188a505472f5820157",
+    "assets/xr/cinema/README.md": "cc21ead37aab96aad203413683f265ba4b45dbcc4bf3c3004fb0afed99127ae4",
+    "assets/xr/cinema/tv-lounge.world.json": "59057754b52bcc38d9ff8202599a51ebb07eb971197fb35fab839dbd6b89856c"
+  },
+  "tools": {
+    "tools/xr/blender_cinema_assets.py": "cb1800ebf7be602cb9ec3f2d6d31bd6029524ec215338c6f1067b3f993899bf1",
+    "tools/xr/build_cinema_scenes.py": "bf526e248459611d1dfec81408285a6fa5346a3df84a77fc449cd80d1181aee6",
+    "tools/xr/build_psv_model.py": "d7149fae1a5c2aba233c1ad07abfd768a71ebfadfc4278742fbacde21d72a3e0",
+    "tools/xr/cinema_textures.py": "73c3bcbcc3ed0c8453bdcc62568b456afe182922b17176581413213e75ac0ad6",
+    "tools/xr/review_cinema_editor.py": "4e77514aba2c259729b3cce001b837d79cf97aef09f88673cad0a5e9c68e4358",
+    "tools/xr/validate_cinema_layouts.py": "a00f451f3edb44d71d880b41107d816d58eb162967a86c4d2f265a8db88590bf"
+  },
+  "screenshots": {
+    "dusk-terrace-ps4t.png": "7b0fdaf14ca8dca5091e8f654b3aabd40cb045d77ab1c080f14b634d74d4f75f",
+    "dusk-terrace-seated.png": "555b69abbd1f6502409438009022c5ff80364585ad9983b97560f99e367b98e7",
+    "dusk-terrace-side.png": "6012d605c1b50ea0e1d580b571464f589f1030f92dd0f6bdea50ea9322e7fd5e",
+    "tv-lounge-ps4v.png": "7268bbe31ecef8b9b39dfd23a13ed2299b54abe7d01d5bd14ce621d09b10ad17",
+    "tv-lounge-seated.png": "f6a4430cf10f258936f662a69981ac3f038673d41ad0b44cfbe6b68c9044c6eb",
+    "tv-lounge-side.png": "a569ed214cfd13eaf8fa07a36799e6bdb14e4cfa54689bcd1e99e9e8fad916c2"
+  },
+  "device_installation": "Not performed"
+}

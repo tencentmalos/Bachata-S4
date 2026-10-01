@@ -1,0 +1,47 @@
+{
+  "editor_exe_sha256": "ea45b60d7e62f70dfdee3644d4142c66c71ad330bb700897d0b3b3a098630db1",
+  "blender": "5.2.2 LTS d13f752e3b9c (C:/workspace/tools/blender, headless)",
+  "assets": {
+    "assets/xr/cinema/dusk-terrace.world.json": "882093ef8e25ba3203bcaa6ef7a2438312b04387f499f2430ba81deec07b5a82",
+    "assets/xr/cinema/models/area-rug.glb": "a757840d16244d825a044ea2fe733265ce5a860c0d3b62b280e1c2dcc77b31c4",
+    "assets/xr/cinema/models/coffee-table.glb": "6fdfa696df360d2154e40ee1f635b206418f90682e843f3886dea5d612c9dd93",
+    "assets/xr/cinema/models/contact-shadow.glb": "6364ef5462558d7433e34f112cea58a30ef079cde53976c238df8ae4e9a06ac4",
+    "assets/xr/cinema/models/dualshock4.glb": "1a5cbd64eb547106721d5e35d9bc09355885ba2bda3eee94d1a1e4e467e7b600",
+    "assets/xr/cinema/models/dusk-sky-dome.glb": "42e605c1d03dfe0df06215cd9e9bc1195fe34bc54135a8628c1bddcb07fc7674",
+    "assets/xr/cinema/models/grass-planter.glb": "2b971159803966c9247ca30136914c1d62cd292628cf787e9b58ee1fb7ac8864",
+    "assets/xr/cinema/models/lounge-room.glb": "3a3f1db36b7a1610de10c6ad03fbe22f63b49f3fea967fd5304ea5b101a83e9c",
+    "assets/xr/cinema/models/media-console.glb": "5ccec7315db4aa79fd6358a8c221e1f04c7d26f25b9ad5ad70b98be26ace6860",
+    "assets/xr/cinema/models/outdoor-screen.glb": "09b666e1c662606411ec8760bc7a2a0072bbbd1e1a8bc443f3735aec1442b616",
+    "assets/xr/cinema/models/plant.glb": "2c99c15ccd6bc2d59fe037912bb954c26694d0beb1812ef3a80793b9b91501a7",
+    "assets/xr/cinema/models/ps4.glb": "e55fa55fc719451874e2726d1d061a7dddb110c2fab673959ff75c80f046485f",
+    "assets/xr/cinema/models/psv-dock.glb": "b1371de91a465879a748bd0006dc9e04d9698299663615cf5876eed4aee089e1",
+    "assets/xr/cinema/models/psv-preview.glb": "77ad60650394fcbc96ecde004a1f70b8f09aa66a1af1516e880b6c9ee23b6ad4",
+    "assets/xr/cinema/models/screen-preview.glb": "391963a5b1cbd9229afeb2cfa8eb1cda5af31b203cc4dcf37cfcdbcd2146872f",
+    "assets/xr/cinema/models/screen-preview.png": "6b0616bfc17a84ded57889370e05e1860b59b58eb42777e51f3672c1104fa98f",
+    "assets/xr/cinema/models/terrace.glb": "a5744d7899f26cadbb94689d7b90b5f63b243a34939daffd59d9af3b4d31deda",
+    "assets/xr/cinema/models/tower-speaker.glb": "88dc2f2a740b7e02e19af2d9976073d54b148de94af96f6cd4ca6780d79c7699",
+    "assets/xr/cinema/models/tv.glb": "0113a6c259cb4c23c2ce741306db4d6945468bc1879b3a188a505472f5820157",
+    "assets/xr/cinema/README.md": "206db47f74246ebb1fc6dd31516042e071e7811c857e87147f1182eb5d380d45",
+    "assets/xr/cinema/tv-lounge.world.json": "1e58a7eac6f4fdf59c4b8efc276fbd2269a622b91098fec99b8009e7d66a9985"
+  },
+  "tools": {
+    "tools/xr/blender_cinema_assets.py": "5fe53b1c35c5b2579acd0e5085f981b8d48c8063fc2727cc09832f65439307ba",
+    "tools/xr/build_cinema_scenes.py": "dc908ace302e5f235e7bd6f3b40dccdb5a61e4be36b768ae802dcf6a03efbc96",
+    "tools/xr/build_psv_model.py": "d7149fae1a5c2aba233c1ad07abfd768a71ebfadfc4278742fbacde21d72a3e0",
+    "tools/xr/cinema_textures.py": "dc5422fe53c3925c0d163394a8029044a609b05b453cd67fdad6d353cdc93e50",
+    "tools/xr/review_cinema_editor.py": "4e77514aba2c259729b3cce001b837d79cf97aef09f88673cad0a5e9c68e4358",
+    "tools/xr/validate_cinema_layouts.py": "b5566c73c3ad187dcd8fa74a6a94e9a73b541944e89e45342cc7e535185e25bb"
+  },
+  "screenshots": {
+    "dusk-terrace-seated.png": "84fc94706228e198a8b9a6a571ca83ef34c63ff2e8c95fa54c793cc699957622",
+    "dusk-terrace-side.png": "2f529c47c4d70149d7efbfc417c3df9879658708558cc7752bfce0eff1a8705c",
+    "dusk-terrace-table.png": "ed27c422aca08b5bfee89d39e64f9506f76806e36d3c17735685bb179650cff1",
+    "tv-lounge-pad.png": "0ab77224a3252028e2ad110c04dcc6d633ab1c6a7767c57055872ddf165d509f",
+    "tv-lounge-ps4.png": "c99a557e917bece5439703c9eee0057c914ade41e9f9cbd02ea62e4ec75689a8",
+    "tv-lounge-seated.png": "55b8c3b6ef743a454697c1e404b60178ec465a7c679abc330d5670712f4dee6a",
+    "tv-lounge-side.png": "1dd16602338c7e7c7b4d3ee22455510e4d84b1e94fbedec7dd57d0af580dba71",
+    "tv-lounge-table.png": "b9998e6e9483ed82cd069be50b0a957425315dfb9a78f08325a89ada8b31b848"
+  },
+  "models_total_bytes": 28140528,
+  "device_installation": "Not performed; awaiting user approval of the revised Editor scenes"
+}

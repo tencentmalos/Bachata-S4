@@ -1478,9 +1478,10 @@ if(BUILD_HOST_CORE)
         set_target_properties(shadps4_xr_imgui PROPERTIES UNITY_BUILD OFF)
         target_link_libraries(shadps4 PRIVATE shadps4_xr_imgui)
         add_library(shadps4_xr_status STATIC
-            src/video_core/renderer_vulkan/openxr/status_scene.cpp)
+            src/video_core/renderer_vulkan/openxr/status_scene.cpp
+            src/video_core/renderer_vulkan/openxr/cinema_environment.cpp)
         target_link_libraries(shadps4_xr_status PUBLIC shadps4_xr_scene
-            spatial::foundation_imgui_overlay PRIVATE spatial::foundation_platform)
+            spatial::foundation_imgui_overlay spatial::foundation_world PRIVATE spatial::foundation_platform)
         target_include_directories(shadps4_xr_status PRIVATE foundation/third_party/imgui)
         target_compile_features(shadps4_xr_status PRIVATE cxx_std_20)
         set_target_properties(shadps4_xr_status PROPERTIES UNITY_BUILD OFF)
@@ -1571,7 +1572,17 @@ if (ANDROID)
         target_sources(shadps4 PRIVATE src/video_core/renderer_vulkan/vk_driver_android.cpp)
     endif()
     target_link_libraries(shadps4 PRIVATE log android)
+    # The embedded screenshot path needs the SDK's SnapshotSession; an SDK
+    # checkout without it still builds, minus embedded screenshots.
+    set(shadps4_capture_snapshot OFF)
     if(TARGET spatial::foundation_capture)
+        if(EXISTS "${SPATIAL_SCRCPY_CAPTURE_SDK_ROOT}/dev_tools/mcp/scrcpy/capture-sdk/native/include/scrcpy_capture/snapshot_session.h" OR EXISTS "${SPATIAL_SCRCPY_CAPTURE_SDK_ROOT}/include/scrcpy_capture/snapshot_session.h")
+            set(shadps4_capture_snapshot ON)
+        else()
+            message(WARNING "scrcpy capture SDK has no snapshot_session.h: embedded screenshots disabled")
+        endif()
+    endif()
+    if(shadps4_capture_snapshot)
         target_sources(shadps4 PRIVATE
             src/video_core/renderer_vulkan/capture_recorder.cpp
             src/video_core/renderer_vulkan/capture_recorder.h)

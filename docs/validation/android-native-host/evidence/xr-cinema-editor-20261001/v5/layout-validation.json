@@ -1,0 +1,192 @@
+[
+  {
+    "scene": "tv-lounge.world.json",
+    "objects": 26,
+    "models": 14,
+    "foreground_objects": [
+      "Coffee table",
+      "DualSense controller",
+      "Media console",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Plant",
+      "Soundbar",
+      "Xbox controller"
+    ],
+    "corner_checks": 11664,
+    "min_vertical_gap_degrees_below_screen": 0.276,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "dusk-terrace.world.json",
+    "objects": 22,
+    "models": 14,
+    "foreground_objects": [
+      "Coffee table",
+      "DualSense controller",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Planter L",
+      "Planter R",
+      "Side cabinet",
+      "Xbox controller"
+    ],
+    "corner_checks": 11664,
+    "min_vertical_gap_degrees_below_screen": 2.358,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "dark-room.world.json",
+    "objects": 21,
+    "models": 13,
+    "foreground_objects": [
+      "Coffee table",
+      "DualSense controller",
+      "Media console",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Soundbar",
+      "Xbox controller"
+    ],
+    "corner_checks": 10368,
+    "min_vertical_gap_degrees_below_screen": 0.276,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "seaside.world.json",
+    "objects": 21,
+    "models": 12,
+    "foreground_objects": [
+      "Coffee table",
+      "DualSense controller",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Side cabinet",
+      "Xbox controller"
+    ],
+    "corner_checks": 9072,
+    "min_vertical_gap_degrees_below_screen": 2.358,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "void.world.json",
+    "objects": 18,
+    "models": 12,
+    "foreground_objects": [
+      "Coffee table",
+      "DualSense controller",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Side plinth",
+      "Xbox controller"
+    ],
+    "corner_checks": 9072,
+    "min_vertical_gap_degrees_below_screen": 2.632,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  }
+]

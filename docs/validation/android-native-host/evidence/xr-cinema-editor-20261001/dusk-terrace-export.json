@@ -1,0 +1,40 @@
+{
+  "document": {
+    "asset_root": "C:/workspace/emulations/shadps4/assets/xr/cinema",
+    "can_redo": true,
+    "can_undo": false,
+    "dirty": false,
+    "epoch": 4,
+    "error": "",
+    "kind": "world",
+    "label": "Cinema review camera",
+    "name": "02 / Dusk Cinema Terrace",
+    "objects": 85,
+    "ok": true,
+    "path": "C:\\workspace\\emulations\\shadps4\\assets\\xr\\cinema\\dusk-terrace.world.json",
+    "revision": 4,
+    "runtime_node_count": 85,
+    "selection": [],
+    "viewport": {
+      "camera": "ea54fd76-4eb6-52ba-8615-141b0ed644a9",
+      "error": "",
+      "frames": 41,
+      "shading": "solid",
+      "unavailable": "",
+      "wireframe_supported": true
+    }
+  },
+  "error": "",
+  "export_report": {
+    "bytes": 1995456,
+    "cameras": 1,
+    "meshes": 26,
+    "missing_models": [],
+    "nodes": 92,
+    "path": "C:\\workspace\\emulations\\shadps4\\build\\validation\\xr-cinema-20261001\\dusk-terrace-editor-export.glb",
+    "skipped_cameras": 0,
+    "skipped_lights": 1,
+    "textures_dropped": 2
+  },
+  "ok": true
+}

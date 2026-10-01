@@ -295,7 +295,33 @@ val prepareXrStatusFont = tasks.register<Copy>("prepareXrStatusFont") {
     from(fixtureRepo.resolve("src/imgui/renderer/fonts/NotoSans-Regular.ttf"))
     into(xrStatusAssets.map { it.dir("xr") })
 }
-tasks.named("preBuild").configure { dependsOn(prepareXrStatusFont) }
+// Cinema environment Worlds (Lite Editor documents + models, assets/xr/cinema).
+// models/local holds cases with the user's own game covers: it is git-ignored
+// and only packaged when present in this checkout.
+val xrCinemaAssets = layout.buildDirectory.dir("generated/xrCinemaAssets")
+android.sourceSets.getByName("main").assets.srcDir(xrCinemaAssets)
+// The headset gets the cinema GLBs with ASTC 4x4 KTX2 textures; the authored
+// PNG GLBs stay for Lite Editor (tools/xr/compress_cinema_textures.py).
+val xrCinemaAstcModels = layout.buildDirectory.dir("generated/xrCinemaAstcModels")
+val compressXrCinemaTextures = tasks.register<Exec>("compressXrCinemaTextures") {
+    inputs.dir(fixtureRepo.resolve("assets/xr/cinema/models"))
+    inputs.file(fixtureRepo.resolve("tools/xr/compress_cinema_textures.py"))
+    outputs.dir(xrCinemaAstcModels)
+    commandLine(if (System.getProperty("os.name").startsWith("Windows")) "python" else "python3",
+        fixtureRepo.resolve("tools/xr/compress_cinema_textures.py").absolutePath,
+        "--out", xrCinemaAstcModels.get().asFile.absolutePath)
+}
+val prepareXrCinemaAssets = tasks.register<Sync>("prepareXrCinemaAssets") {
+    dependsOn(compressXrCinemaTextures)
+    from(fixtureRepo.resolve("assets/xr/cinema")) {
+        include("*.world.json")
+    }
+    from(xrCinemaAstcModels) {
+        into("models")
+    }
+    into(xrCinemaAssets.map { it.dir("xr/cinema") })
+}
+tasks.named("preBuild").configure { dependsOn(prepareXrStatusFont, prepareXrCinemaAssets) }
 val nativeTurnipAssets = layout.buildDirectory.dir("generated/nativeTurnipR8Assets")
 android.sourceSets.getByName("main").assets.srcDir(nativeTurnipAssets)
 val prepareNativeTurnip = tasks.register<Exec>("prepareNativeTurnip") {

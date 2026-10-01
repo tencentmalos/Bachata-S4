@@ -1,0 +1,45 @@
+{
+  "editor": {
+    "exe": "C:\\workspace\\emulations\\3ds\\azahar\\foundation\\editor\\build\\windows-editor\\Lite Editor\\lite_editor.exe",
+    "exe_sha256": "ea45b60d7e62f70dfdee3644d4142c66c71ad330bb700897d0b3b3a098630db1",
+    "build_identity_sha256": "6153fc333eef4649d0dc36768fd7ab51210b292735fb813f5c29df286fe66905"
+  },
+  "assets": {
+    "assets/xr/cinema/dusk-terrace.world.json": "2dc494c4f48d62229e7daf47a605a5324ca3b31a30dcbcd614e3506a7cd46fda",
+    "assets/xr/cinema/models/button.glb": "5684e75c9b46b7d6d15a71376c14d22b9e5e97aed665f61796e1169c80c38353",
+    "assets/xr/cinema/models/button_round.glb": "1f1fb4f36dcb64e183d1081775671c4fc5d3c373ac3999d426e24713ed54d0c5",
+    "assets/xr/cinema/models/contact-shadow.glb": "49b3d2a9674b7eb9ebbdb247dbbf9741122f5bddf3a128f97d407ce4515e9a9b",
+    "assets/xr/cinema/models/cyan.glb": "1fc2dd3f8d0738ae9b483ac1df5bc3f8180fa0a494e5f153c4c66bde3c076a44",
+    "assets/xr/cinema/models/dark.glb": "00def8643935671c101fa3e1949eaf59b6877c5f66d994010c999fe1805b1efc",
+    "assets/xr/cinema/models/dark_round.glb": "8c2bf06b3968032fc8818e83592411cecf579e23c0f0991b85346898dffa297b",
+    "assets/xr/cinema/models/dusk-sky.glb": "0559d13b12a41cc2581b300176297a5b296974b60211cb1930c08fffddbd04c5",
+    "assets/xr/cinema/models/floor.glb": "705f68b1150fc771e014394004098eeaeb2788c3981eb8c52596260bc3e49378",
+    "assets/xr/cinema/models/graphite.glb": "c84e082e1b1a22a5b2ee31d7553278052f43c859f5b6bd00dbfd69698a38c965",
+    "assets/xr/cinema/models/graphite_round.glb": "5d2bb769d95b7a2371b0190f47789957fdb2545a0b4360ca14e582e74d7db396",
+    "assets/xr/cinema/models/metal.glb": "a1512f6957199c9b80c57b585d4f57ff2bb055dbdd1799f2a7e506b9da9963bf",
+    "assets/xr/cinema/models/psv-preview.glb": "77ad60650394fcbc96ecde004a1f70b8f09aa66a1af1516e880b6c9ee23b6ad4",
+    "assets/xr/cinema/models/rug.glb": "b50d39845f2d2cbcb864ef834c16d2c9b7673c906936bff8ea1ba025f6a034d9",
+    "assets/xr/cinema/models/screen-preview.glb": "391963a5b1cbd9229afeb2cfa8eb1cda5af31b203cc4dcf37cfcdbcd2146872f",
+    "assets/xr/cinema/models/wall.glb": "69312dc1253beff741f103d3f960ce1d2e2b951d8b39c008b81863a4cc08b939",
+    "assets/xr/cinema/models/warm.glb": "72806dc60e52b87e31c9ef7a079f267a32878b2ee3d48f074b027148362a5cc9",
+    "assets/xr/cinema/models/wood.glb": "62225a2f5f0cc7c29dcead9bcc0eaf4d19f525a3f90e16130895e619409e9e55",
+    "assets/xr/cinema/README.md": "206db47f74246ebb1fc6dd31516042e071e7811c857e87147f1182eb5d380d45",
+    "assets/xr/cinema/tv-lounge.world.json": "068ef5bf3e8f6998e73e6bb8fa458dae600b02f66f758863b4bfba70c93dd1dc"
+  },
+  "screenshots": {
+    "dusk-terrace-seated.png": "8dd12e8bb221c668bbdc0dd56aee5f17344be5dea9b80e0c0f5384746797a591",
+    "dusk-terrace-side.png": "80b01886615cd02154de31133bb299f3e5a3466769f10c58ca5b0a6bf29103e6",
+    "dusk-terrace-table.png": "698f3e5f4a03d847ccd411b7e51de4b77d7a26ef46865cefeab7e4c66bca5e93",
+    "tv-lounge-seated.png": "cfac210ac48cb5432713a4473392db8e85bb18d9338f8118d6dc5effa11e47bd",
+    "tv-lounge-side.png": "69f3e38c4577e9371472b352c0c0e562e4fa27d7bdf7e6e888b73b2a34c1a34c",
+    "tv-lounge-table.png": "c4fab4d2f8dd0bd5f552bc115d5bad9b8d6316ffcc59ded3ea8ed3578bc8cc1b"
+  },
+  "device_installation": "Not performed; awaiting user approval of Editor scenes",
+  "scrcpy_baseline_session": "73a14b67156a4bfa80f8f401c8f096e3 stopped gracefully; nativeExitCode=0",
+  "baseline_game_stop": "normal UI stop, session none, Stopped, guest return=0",
+  "authoring_tools": {
+    "tools/xr/build_cinema_scenes.py": "5416d17df4efed19157480c6db9139053b8ad9f30e20014cd75767dc038831bb",
+    "tools/xr/review_cinema_editor.py": "4e77514aba2c259729b3cce001b837d79cf97aef09f88673cad0a5e9c68e4358",
+    "tools/xr/validate_cinema_layouts.py": "25ef07c1f7796e50cf44567c1949f0211890ca072fcd4451fb4b7934f6f0e299"
+  }
+}

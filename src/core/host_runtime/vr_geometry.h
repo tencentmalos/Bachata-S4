@@ -5,12 +5,15 @@
 #include "core/host_runtime/guest_vr_sensor.h"
 
 namespace Core::HostRuntime::VrGeometry {
-inline constexpr float CinemaDistance = 2.5f;
-inline constexpr float CinemaWidth = 3.2f;
+// A 4.40 m (16:9, ~200 in) screen 3.0 m away, its centre 0.10 m above the
+// seated eye: ~72 x 45 degrees, matching the cinema Worlds in assets/xr/cinema.
+inline constexpr float CinemaDistance = 3.0f;
+inline constexpr float CinemaWidth = 4.4f;
+inline constexpr float CinemaLift = .10f;
 inline float CinemaHeight(float aspect) {
     return CinemaWidth / ((std::isfinite(aspect) && aspect > 0) ? aspect : 16.f / 9.f);
 }
-// Anchor once at eye height, looking horizontally along the viewer's initial yaw.
+// Anchor once just above eye height, looking horizontally along the viewer's initial yaw.
 // This makes the distance relative to the person, not the runtime's LOCAL origin.
 inline GuestVrSensor::Pose CinemaPlacement(const GuestVrSensor::Pose& head) {
     const auto& q = head.orientation;
@@ -20,7 +23,7 @@ inline GuestVrSensor::Pose CinemaPlacement(const GuestVrSensor::Pose& head) {
     const float yaw = length > 1e-4f ? std::atan2(-forward_x, -forward_z) : 0.f;
     GuestVrSensor::Pose out;
     out.orientation = {0, std::sin(yaw / 2), 0, std::cos(yaw / 2)};
-    out.position = {head.position[0] - std::sin(yaw) * CinemaDistance, head.position[1],
+    out.position = {head.position[0] - std::sin(yaw) * CinemaDistance, head.position[1] + CinemaLift,
                     head.position[2] - std::cos(yaw) * CinemaDistance};
     out.orientation_valid = out.position_valid = true;
     return out;

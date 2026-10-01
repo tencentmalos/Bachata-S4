@@ -28,6 +28,9 @@ struct ControlState {
     bool wanted{};
     bool live{};
     std::string live_token;
+    std::string eye{"both"};  // requested eye of a stereo canvas
+    std::string layout;       // layout of the canvas being encoded
+    u32 encoded_width{}, encoded_height{};
     std::string phase{"idle"};
     std::string path;
     std::string error;
@@ -50,14 +53,18 @@ scrcpy::capture::SnapshotSession& EmbeddedScreenshots() {
 }
 
 std::string HandleEmbeddedScreenshotCommand(const std::vector<std::string>& args, u64 generation) {
-    if (args.size() != 2 || !scrcpy::capture::SnapshotSession::ValidToken(args[1]))
-        return "status: bad-arguments\nusage: capture_screenshot request|status|cancel TOKEN\n";
+    const bool with_eye = args.size() == 3 && args[0] == "request";
+    if ((args.size() != 2 && !with_eye) || !scrcpy::capture::SnapshotSession::ValidToken(args[1]) ||
+        (with_eye && !scrcpy::capture::ValidEye(args[2])))
+        return "status: bad-arguments\nusage: capture_screenshot request TOKEN [left|right|both] | "
+               "status|cancel TOKEN\n";
     auto& session = EmbeddedScreenshots();
     if (args[0] == "request") {
         if (!generation) return "status: failed\nerror: no active game session\n";
         const auto path = Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) /
                           ("snapshot-" + args[1] + ".png");
-        const auto error = session.Request({args[1], path.string(), generation});
+        const auto error = session.Request({args[1], path.string(), generation,
+                                            with_eye ? args[2] : std::string{"both"}});
         if (!error.empty()) return "status: rejected\nerror: " + error + "\n";
     } else if (args[0] == "cancel") {
         session.Cancel(args[1]);
@@ -71,6 +78,8 @@ std::string HandleEmbeddedScreenshotCommand(const std::vector<std::string>& args
         << "request_id: " << state.request.token << '\n'
         << "generation: " << state.request.generation << '\n'
         << "source: shadps4.final_render_target\nview: canvas\nencoding: png\n"
+        << "eye: " << state.request.eye << '\n'
+        << "layout: " << (state.layout.empty() ? "unknown" : state.layout) << '\n'
         << "width: " << state.width << "\nheight: " << state.height << '\n'
         << "producer_frame: " << state.producer_frame << '\n'
         << "recorded_monotonic_ns: " << state.recorded_ns << '\n';
@@ -83,17 +92,26 @@ std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args) {
     auto& state = Control();
     std::scoped_lock lock(state.mutex);
     const std::string action = args.empty() ? "status" : args.front();
-    const bool start_file = action == "start" && args.size() == 1;
-    const bool start_live = action == "start_live" && args.size() == 2 &&
-        args[1].size() == 32 &&
-        std::all_of(args[1].begin(), args[1].end(), [](unsigned char c) {
+    // Optional trailing eye (left|right|both, default both) for a stereo canvas.
+    std::vector<std::string> rest = args;
+    std::string eye = "both";
+    if (rest.size() >= 2 && scrcpy::capture::ValidEye(rest.back()) &&
+        (action == "start" || (action == "start_live" && rest.size() == 3))) {
+        eye = rest.back();
+        rest.pop_back();
+    }
+    const bool start_file = action == "start" && rest.size() == 1;
+    const bool start_live = action == "start_live" && rest.size() == 2 &&
+        rest[1].size() == 32 &&
+        std::all_of(rest[1].begin(), rest[1].end(), [](unsigned char c) {
             return std::isdigit(c) || (c >= 'a' && c <= 'f');
         });
     if (start_file || start_live) {
         if (!state.wanted) {
             state.wanted = true;
             state.live = start_live;
-            state.live_token = start_live ? args[1] : std::string{};
+            state.live_token = start_live ? rest[1] : std::string{};
+            state.eye = eye;
             ++state.revision;
             state.phase = "pending";
             state.error.clear();
@@ -109,7 +127,8 @@ std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args) {
             state.phase = "stopping";
         }
     } else if (action != "status" || args.size() > 1) {
-        return "status: bad-arguments\nusage: capture_video [start|start_live TOKEN|stop|status]\n";
+        return "status: bad-arguments\nusage: capture_video [start [EYE]|start_live TOKEN [EYE]|"
+               "stop|status] (EYE: left|right|both)\n";
     }
     std::ostringstream out;
     out << "status: " << state.phase << '\n'
@@ -117,6 +136,9 @@ std::string HandleEmbeddedCaptureCommand(const std::vector<std::string>& args) {
         << "source: shadps4.final_render_target\n"
         << "mode: " << (state.live ? "live" : "file") << '\n'
         << "view: canvas\n"
+        << "eye: " << state.eye << '\n'
+        << "layout: " << (state.layout.empty() ? "unknown" : state.layout) << '\n'
+        << "width: " << state.encoded_width << "\nheight: " << state.encoded_height << '\n'
         << "submitted: " << state.submitted << '\n'
         << "skipped: " << state.skipped << '\n'
         << "encoded_samples: " << state.encoder.encoded_samples << '\n'
@@ -137,13 +159,17 @@ class CaptureRecorder::Impl {
 public:
     explicit Impl(const Instance& instance_) : instance(instance_) {}
 
+    bool SameSource(const Frame& frame, vk::Format source_format) const {
+        return frame.width == width && frame.height == height && frame.xr_stereo == stereo &&
+               source_format == format;
+    }
+
     void SyncRequest(const Frame& frame, vk::Format source_format, u32 frame_pool_size) {
         if (Control().revision.load(std::memory_order_acquire) == seen_revision &&
-            (!active || (frame.width == width && frame.height == height &&
-                         source_format == format))) return;
+            (!active || (SameSource(frame, source_format)))) return;
         u64 new_revision{};
         bool new_wanted{}, new_live{};
-        std::string new_token;
+        std::string new_token, new_eye;
         {
             auto& state = Control();
             std::scoped_lock lock(state.mutex);
@@ -151,9 +177,10 @@ public:
             new_wanted = state.wanted;
             new_live = state.live;
             new_token = state.live_token;
+            new_eye = state.eye;
         }
         if (new_revision == seen_revision && (!active ||
-            (frame.width == width && frame.height == height && source_format == format))) return;
+            SameSource(frame, source_format))) return;
         Close();
         seen_revision = new_revision;
         if (!new_wanted) {
@@ -170,13 +197,23 @@ public:
         }
         width = frame.width;
         height = frame.height;
+        stereo = frame.xr_stereo;
         format = source_format;
+        // A stereo canvas holds both eyes side by side; encode the requested one.
+        span = scrcpy::capture::SelectEye(width, stereo ? 2 : 1, new_eye);
+        {
+            auto& state = Control();
+            std::scoped_lock lock(state.mutex);
+            state.layout = scrcpy::capture::LayoutName(stereo ? 2 : 1);
+            state.encoded_width = span.width;
+            state.encoded_height = height;
+        }
         try {
             const auto path = new_live ? std::filesystem::path{} :
                 Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) /
                 ("embedded-" + std::to_string(std::chrono::steady_clock::now()
                     .time_since_epoch().count()) + ".h264");
-            scrcpy::capture::EncoderConfig config{.width = static_cast<int>(width),
+            scrcpy::capture::EncoderConfig config{.width = static_cast<int>(span.width),
                 .height = static_cast<int>(height), .fps = 60, .bitrate = 8'000'000,
                 .output_path = path.string(), .live_token = new_token};
             std::string error;
@@ -210,7 +247,7 @@ public:
             if (selected.format != vk::Format::eR8G8B8A8Unorm &&
                 selected.format != vk::Format::eB8G8R8A8Unorm)
                 throw std::runtime_error("encoder Surface has no SDR 8-bit format");
-            const vk::Extent2D requested{width, height};
+            const vk::Extent2D requested{span.width, height};
             const auto extent = caps.currentExtent.width == std::numeric_limits<u32>::max()
                 ? requested : caps.currentExtent;
             if (extent != requested) throw std::runtime_error("encoder Surface extent differs from RT");
@@ -315,9 +352,11 @@ public:
             .pImageMemoryBarriers = before.data()});
         const vk::ImageBlit blit{
             .srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1},
-            .srcOffsets = std::array{vk::Offset3D{0, 0, 0}, vk::Offset3D{static_cast<s32>(width), static_cast<s32>(height), 1}},
+            .srcOffsets = std::array{vk::Offset3D{static_cast<s32>(span.x), 0, 0},
+                vk::Offset3D{static_cast<s32>(span.x + span.width), static_cast<s32>(height), 1}},
             .dstSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1},
-            .dstOffsets = std::array{vk::Offset3D{0, 0, 0}, vk::Offset3D{static_cast<s32>(width), static_cast<s32>(height), 1}},
+            .dstOffsets = std::array{vk::Offset3D{0, 0, 0},
+                vk::Offset3D{static_cast<s32>(span.width), static_cast<s32>(height), 1}},
         };
         cmd.blitImage(frame.image, vk::ImageLayout::eTransferSrcOptimal,
             images[image_index], vk::ImageLayout::eTransferDstOptimal, blit, vk::Filter::eNearest);
@@ -425,7 +464,9 @@ public:
     std::vector<vk::Semaphore> image_acquired;
     std::vector<vk::Semaphore> image_ready;
     u64 seen_revision{};
-    u32 width{}, height{};
+    u32 width{}, height{};  // source canvas
+    bool stereo{};
+    scrcpy::capture::EyeSpan span{};  // encoded part of the canvas
     vk::Format format{};
     u32 frame_index{}, image_index{};
     bool active{}, acquired{};

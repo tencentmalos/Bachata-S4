@@ -1,0 +1,40 @@
+{
+  "document": {
+    "asset_root": "C:/workspace/emulations/shadps4/assets/xr/cinema",
+    "can_redo": true,
+    "can_undo": false,
+    "dirty": false,
+    "epoch": 5,
+    "error": "",
+    "kind": "world",
+    "label": "Cinema review camera",
+    "name": "01 / Quiet TV Lounge",
+    "objects": 83,
+    "ok": true,
+    "path": "C:\\workspace\\emulations\\shadps4\\assets\\xr\\cinema\\tv-lounge.world.json",
+    "revision": 4,
+    "runtime_node_count": 83,
+    "selection": [],
+    "viewport": {
+      "camera": "5110251d-5f9e-5b1f-aa52-f207c07273ba",
+      "error": "",
+      "frames": 53,
+      "shading": "solid",
+      "unavailable": "",
+      "wireframe_supported": true
+    }
+  },
+  "error": "",
+  "export_report": {
+    "bytes": 1895312,
+    "cameras": 1,
+    "meshes": 26,
+    "missing_models": [],
+    "nodes": 90,
+    "path": "C:\\workspace\\emulations\\shadps4\\build\\validation\\xr-cinema-20261001\\tv-lounge-editor-export.glb",
+    "skipped_cameras": 0,
+    "skipped_lights": 1,
+    "textures_dropped": 2
+  },
+  "ok": true
+}

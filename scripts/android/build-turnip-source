@@ -124,7 +124,43 @@ def prebuilt(args):
     print("TURNIP_PREBUILT_PASS", lock.get("release", ""), identity["library_sha256"])
 
 
+def same_source_prebuilt(args, directory):
+    """Reuse a Turnip ELF built elsewhere (Linux/macOS, the cloud host via
+    build-turnip-remote) from the same Mesa source tree: hosts without Mesa's
+    build tools (Windows) bind that exact ELF via SHADPS4_TURNIP_PREBUILT. The
+    current tree must equal the prebuilt's source byte for byte."""
+    source, lock, state, patch = source_identity()
+    directory = Path(directory)
+    original = json.loads((directory / "identity.json").read_text())
+    library = (directory / original["library"]).read_bytes()
+    if sha(library) != original["library_sha256"]:
+        raise ValueError("Prebuilt Turnip ELF does not match its identity")
+    if state["source_dirty"] or original["untracked_files"]:
+        raise ValueError("Prebuilt Turnip needs a clean Mesa tree and a prebuilt without untracked files")
+    tree_diff = subprocess.check_output(["git", "-C", str(source), "diff", "--binary",
+                                         original["source_commit"], "HEAD"])
+    if sha(tree_diff) != original["source_diff_sha256"]:
+        raise ValueError("Mesa HEAD differs from the prebuilt Turnip source; rebuild on Linux/macOS")
+    identity = {**original, **state, "library_sha256": sha(library),
+                "prebuilt_source_identity_sha256": original["source_identity_sha256"]}
+    write(args.out / lock["library"], library)
+    write(args.out / "source.patch", patch)
+    json_write(args.out / "identity.json", identity)
+    header = ('#pragma once\nnamespace TurnipBuild {\n'
+              f'inline constexpr char Sha256[] = "{identity["library_sha256"]}";\n'
+              f'inline constexpr char Source[] = "{state["source_identity_sha256"]}";\n}}\n')
+    write(args.out / "turnip_identity.h", header.encode())
+    write(args.out / "licenses/Mesa-license.rst", (source / "docs/license.rst").read_bytes())
+    for path in (source / "licenses").rglob("*"):
+        if path.is_file():
+            write(args.out / "licenses/Mesa" / path.relative_to(source / "licenses"), path.read_bytes())
+    print("TURNIP_SOURCE_PREBUILT", identity["source_commit"], identity["library_sha256"])
+
+
 def build(args):
+    if os.environ.get("SHADPS4_TURNIP_PREBUILT"):
+        same_source_prebuilt(args, os.environ["SHADPS4_TURNIP_PREBUILT"])
+        return
     source, lock, state, patch = source_identity()
     ndk = args.ndk.resolve()
     if f"Pkg.Revision = {lock['ndk']}" not in (ndk / "source.properties").read_text():

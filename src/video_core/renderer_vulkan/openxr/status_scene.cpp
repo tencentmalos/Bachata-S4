@@ -199,7 +199,8 @@ struct StatusScene::Impl {
     PsvIndicator indicator_state{PsvIndicator::Running};
     std::array<float,4> indicator_emission{-1,-1,-1,-1};
     int theme{-1};
-    bool last_gi{true}, rendered_cropped{true}, anchored{};
+    bool last_gi{true}, rendered_cropped{true}, anchored{}, in_world{};
+    std::optional<XrPosef> world_origin;
     float heading{};
     XrPosef anchor{spatial::xr::math::IdentityPose()};
     XrPosef rendered_anchor{spatial::xr::math::IdentityPose()};
@@ -267,6 +268,23 @@ bool StatusScene::Create(XrSession session,const spatial::xr::SwapchainFunctions
     return true;
 }
 void StatusScene::Recenter(){impl->anchored=false;}
+void StatusScene::Place(const std::optional<XrPosef>& origin) {
+    auto& p=*impl;
+    p.world_origin=origin;
+    const bool in_world=origin.has_value();
+    if(in_world==p.in_world)return;
+    p.in_world=in_world;
+    // Authored cinema coordinates (assets/xr/cinema): the PSV stands on its
+    // dock at 0.66 m, 1.05 m in front of the seated eye, scale 2.5.
+    if(in_world) {
+        p.root->SetPosition({0,.66f,-1.05f});p.root->SetScale(2.5f,2.5f,2.5f);
+        p.lamp->SetPosition({-.25f,1.48f,-.60f});
+    } else {
+        p.root->SetPosition({0,-.42f,-1.15f});p.root->SetScale(3.8f,3.8f,3.8f);
+        p.lamp->SetPosition({-.25f,.03f,-.60f});
+    }
+    p.anchored=false;
+}
 bool StatusScene::Render(std::span<const XrView> eyes,XrSpace space,const ov::StatusSnapshot& status,
                          const std::optional<spatial::perf::DeviceMetrics>& device,bool active,
                          bool psvr,uint32_t output_width,uint32_t output_height) {
@@ -275,7 +293,10 @@ bool StatusScene::Render(std::span<const XrView> eyes,XrSpace space,const ov::St
     if(!config.visible || eyes.size()!=2)return false;
     if(p.recenters!=config.recenter){p.recenters=config.recenter;p.anchored=false;}
     const std::array<XrView,2> located{eyes[0],eyes[1]};
-    if(!p.anchored) {
+    if(p.world_origin) {
+        p.anchor=*p.world_origin; // follows the cinema anchor and its recenter
+        p.anchored=true;
+    } else if(!p.anchored) {
         p.anchor=StatusProjection::Anchor(located,p.heading);
         p.anchored=true;
     }

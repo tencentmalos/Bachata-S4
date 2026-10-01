@@ -1,0 +1,1116 @@
+{
+  "header": {
+    "magic": "SPWD",
+    "format_version": 1,
+    "type": "world"
+  },
+  "id": "7166f243-9f60-54b1-a485-a96a3d8300d6",
+  "name": "01 / Quiet TV Lounge",
+  "environment": {
+    "sky_colour": [
+      0.24,
+      0.2,
+      0.16
+    ],
+    "ground_colour": [
+      0.13,
+      0.09,
+      0.06
+    ],
+    "ambient_intensity": 0.3,
+    "gi": true,
+    "skybox": false,
+    "exposure": 1.6,
+    "gi_voxel_size": 0.12,
+    "gi_probes_per_frame": 512,
+    "gi_hysteresis": 0.7
+  },
+  "graph": {
+    "objects": [
+      {
+        "id": "5110251d-5f9e-5b1f-aa52-f207c07273ba",
+        "name": "Viewer - seated",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          1.45,
+          0
+        ],
+        "rotation": [
+          -0.04997916927067833,
+          0.0,
+          0.0,
+          0.9987502603949663
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "bfe35282-417b-5000-ac10-e708f900d200",
+        "name": "Game screen - preview",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          1.55,
+          -2.9985
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          4.4,
+          2.475,
+          1
+        ]
+      },
+      {
+        "id": "d9094aaa-7354-559b-8fa6-2eff0dfaaeea",
+        "name": "Screen light",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          1.55,
+          -2.997
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          6.123233995736766e-17
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "083b49e2-fb8a-50d3-9ed1-d9eef223f6c6",
+        "name": "Rug",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0,
+          -0.95
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "c60586e9-15cf-5df2-b123-4a49cd017f25",
+        "name": "Table contact shadow",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0.0105,
+          -1.1
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.62,
+          0.004,
+          0.78
+        ]
+      },
+      {
+        "id": "5fa19671-3d91-5bf1-9f0f-b789b736b408",
+        "name": "Coffee table",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0,
+          -1.1
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "39f4add3-1f25-555e-8578-3ff4d0906dd7",
+        "name": "PSV dock",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0.52,
+          -1.05
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "d5dbc78f-ea1e-5a5d-8bb1-d5767110b505",
+        "name": "PSV status display",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0.66,
+          -1.05
+        ],
+        "rotation": [
+          -0.159318206614246,
+          0.0,
+          0.0,
+          0.987227283375627
+        ],
+        "scale": [
+          2.5,
+          2.5,
+          2.5
+        ]
+      },
+      {
+        "id": "ba53ac9f-6d2f-5290-8dcf-9b081b1e9a62",
+        "name": "DualShock 4 L",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -0.38,
+          0.52,
+          -1.06
+        ],
+        "rotation": [
+          0.0,
+          0.13954311464423652,
+          0.0,
+          0.9902159962126372
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "03e44a38-feea-5952-9aa0-149c05a620bf",
+        "name": "DualShock 4 L contact shadow",
+        "parent": "ba53ac9f-6d2f-5290-8dcf-9b081b1e9a62",
+        "enabled": true,
+        "translation": [
+          0,
+          0.0004,
+          0.004
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          0.2,
+          0.003,
+          0.13
+        ]
+      },
+      {
+        "id": "099d4e40-e6b9-53eb-b363-7513f2ad0f15",
+        "name": "DualShock 4 R",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0.38,
+          0.52,
+          -1.06
+        ],
+        "rotation": [
+          0.0,
+          -0.14943813247359924,
+          0.0,
+          0.9887710779360424
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "40c5f18e-53b9-5813-98c3-bc90644124f6",
+        "name": "DualShock 4 R contact shadow",
+        "parent": "099d4e40-e6b9-53eb-b363-7513f2ad0f15",
+        "enabled": true,
+        "translation": [
+          0,
+          0.0004,
+          0.004
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          0.2,
+          0.003,
+          0.13
+        ]
+      },
+      {
+        "id": "b2161020-5128-53ce-8c73-1400d4306105",
+        "name": "Game case table 0",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -0.615,
+          0.52,
+          -1.27
+        ],
+        "rotation": [
+          0.0,
+          0.034992854604336196,
+          0.0,
+          0.9993875625234886
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "7c9f42d0-8f3f-5a6d-a4e3-e817c00f5412",
+        "name": "Game case table 1",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -0.465,
+          0.52,
+          -1.262
+        ],
+        "rotation": [
+          0.0,
+          -0.01499943750632809,
+          0.0,
+          0.9998875021093592
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "7120655c-b5e1-5450-a896-80edd5ba35a2",
+        "name": "Game case table 2",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -0.315,
+          0.52,
+          -1.274
+        ],
+        "rotation": [
+          0.0,
+          0.024997395914712332,
+          0.0,
+          0.9996875162757026
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "a0a5a1b7-6ebb-5c3c-bb4f-3d2e4d990a5a",
+        "name": "Room",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "d4b13e57-66b5-51bd-97c6-d7523f9d1310",
+        "name": "TV",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          1.55,
+          -3.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "1d038b9b-5411-50ba-8927-f1185fb628c0",
+        "name": "Media console",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0,
+          -2.865
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "0a4e506d-d77b-5873-b6f3-648fd5a04fe4",
+        "name": "PS4 console",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -2.45,
+          0.3,
+          -2.865
+        ],
+        "rotation": [
+          0.0,
+          -0.07492970727274234,
+          0.0,
+          0.9971888181122075
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "c806b122-45a8-5520-bb77-29dd12a860d5",
+        "name": "PS4 contact shadow",
+        "parent": "0a4e506d-d77b-5873-b6f3-648fd5a04fe4",
+        "enabled": true,
+        "translation": [
+          0,
+          0.0004,
+          0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          0.2,
+          0.003,
+          0.38
+        ]
+      },
+      {
+        "id": "d3b5aa49-2f61-5483-8c17-b0abdcc21728",
+        "name": "PS4 light strip glow",
+        "parent": "0a4e506d-d77b-5873-b6f3-648fd5a04fe4",
+        "enabled": true,
+        "translation": [
+          -0.02,
+          0.16,
+          0.26
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "caf41f62-dbd8-51ee-b8d2-a5b2b01b9007",
+        "name": "Soundbar",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0.3,
+          -2.7550000000000003
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "e37e8d17-5bab-5bad-9994-465cfa8a9b59",
+        "name": "Game case console 0",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          2.27,
+          0.3,
+          -2.845
+        ],
+        "rotation": [
+          0.0,
+          -0.10480716882888248,
+          0.0,
+          0.9944925627484974
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "455e672a-25d4-5641-bc03-55958742fbc0",
+        "name": "Game case console 1",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          2.27,
+          0.3141,
+          -2.845
+        ],
+        "rotation": [
+          0.0,
+          -0.059964006479444595,
+          0.0,
+          0.9982005399352042
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "f5bd5264-c5cc-5955-8d5a-b076163fe5e0",
+        "name": "Game case console 2",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          2.27,
+          0.3282,
+          -2.845
+        ],
+        "rotation": [
+          0.0,
+          -0.01499943750632809,
+          0.0,
+          0.9998875021093592
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "8e47307b-0910-5dff-bb8b-e48f2fb51ed9",
+        "name": "Plant",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -2.9,
+          0,
+          -1.6
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "dc88157f-6aea-5481-8429-42c8b96cad80",
+        "name": "Cove wash",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          3.0,
+          -2.75
+        ],
+        "rotation": [
+          -0.847043544958354,
+          0.0,
+          0.0,
+          0.5315235017799165
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "12e98208-9e24-574f-9218-8f57c6a7ebdb",
+        "name": "Downlight 0",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -2.0,
+          3.08,
+          -1.4
+        ],
+        "rotation": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "bdbd4ee5-1c82-5fff-9893-e19e0ce12ab1",
+        "name": "Downlight 1",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          2.0,
+          3.08,
+          -1.4
+        ],
+        "rotation": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "8e9bc515-75dc-5b57-afa3-78f3f128ac7e",
+        "name": "Downlight 2",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          -2.0,
+          3.08,
+          0.6
+        ],
+        "rotation": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "bfe34bcc-8c75-54f3-a31c-049fb42c12e8",
+        "name": "Downlight 3",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          2.0,
+          3.08,
+          0.6
+        ],
+        "rotation": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "8b2a7e73-9bbc-5170-8e90-d6c6a42a5859",
+        "name": "Console glow",
+        "parent": "",
+        "enabled": true,
+        "translation": [
+          0,
+          0.05,
+          -2.805
+        ],
+        "rotation": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    ],
+    "mesh_renderers": [
+      {
+        "object": "bfe35282-417b-5000-ac10-e708f900d200",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/screen-preview.glb"
+        }
+      },
+      {
+        "object": "083b49e2-fb8a-50d3-9ed1-d9eef223f6c6",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/area-rug.glb"
+        }
+      },
+      {
+        "object": "c60586e9-15cf-5df2-b123-4a49cd017f25",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/contact-shadow.glb"
+        }
+      },
+      {
+        "object": "5fa19671-3d91-5bf1-9f0f-b789b736b408",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/coffee-table.glb"
+        }
+      },
+      {
+        "object": "39f4add3-1f25-555e-8578-3ff4d0906dd7",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/psv-dock.glb"
+        }
+      },
+      {
+        "object": "d5dbc78f-ea1e-5a5d-8bb1-d5767110b505",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/psv-preview.glb"
+        }
+      },
+      {
+        "object": "ba53ac9f-6d2f-5290-8dcf-9b081b1e9a62",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/dualshock4.glb"
+        }
+      },
+      {
+        "object": "03e44a38-feea-5952-9aa0-149c05a620bf",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/contact-shadow.glb"
+        }
+      },
+      {
+        "object": "099d4e40-e6b9-53eb-b363-7513f2ad0f15",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/dualshock4.glb"
+        }
+      },
+      {
+        "object": "40c5f18e-53b9-5813-98c3-bc90644124f6",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/contact-shadow.glb"
+        }
+      },
+      {
+        "object": "b2161020-5128-53ce-8c73-1400d4306105",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/disc-case-a.glb"
+        }
+      },
+      {
+        "object": "7c9f42d0-8f3f-5a6d-a4e3-e817c00f5412",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/disc-case-c.glb"
+        }
+      },
+      {
+        "object": "7120655c-b5e1-5450-a896-80edd5ba35a2",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/local/disc-case-CUSA03023.glb"
+        }
+      },
+      {
+        "object": "a0a5a1b7-6ebb-5c3c-bb4f-3d2e4d990a5a",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/lounge-room.glb"
+        }
+      },
+      {
+        "object": "d4b13e57-66b5-51bd-97c6-d7523f9d1310",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/tv.glb"
+        }
+      },
+      {
+        "object": "1d038b9b-5411-50ba-8927-f1185fb628c0",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/media-console.glb"
+        }
+      },
+      {
+        "object": "0a4e506d-d77b-5873-b6f3-648fd5a04fe4",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/ps4-pro.glb"
+        }
+      },
+      {
+        "object": "c806b122-45a8-5520-bb77-29dd12a860d5",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/contact-shadow.glb"
+        }
+      },
+      {
+        "object": "caf41f62-dbd8-51ee-b8d2-a5b2b01b9007",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/soundbar.glb"
+        }
+      },
+      {
+        "object": "e37e8d17-5bab-5bad-9994-465cfa8a9b59",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/disc-case-c.glb"
+        }
+      },
+      {
+        "object": "455e672a-25d4-5641-bc03-55958742fbc0",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/local/disc-case-CUSA03023.glb"
+        }
+      },
+      {
+        "object": "f5bd5264-c5cc-5955-8d5a-b076163fe5e0",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/disc-case-b.glb"
+        }
+      },
+      {
+        "object": "8e47307b-0910-5dff-bb8b-e48f2fb51ed9",
+        "component": {
+          "enabled": true,
+          "primitive": {
+            "shape": "none"
+          },
+          "model": "models/plant.glb"
+        }
+      }
+    ],
+    "cameras": [
+      {
+        "object": "5110251d-5f9e-5b1f-aa52-f207c07273ba",
+        "component": {
+          "projection": "perspective",
+          "vfov_degrees": 86,
+          "near_meters": 0.03,
+          "far_meters": 400,
+          "is_main": true
+        }
+      }
+    ],
+    "lights": [
+      {
+        "object": "d9094aaa-7354-559b-8fa6-2eff0dfaaeea",
+        "component": {
+          "enabled": true,
+          "type": "rect",
+          "colour": [
+            1,
+            1,
+            1
+          ],
+          "intensity": 1.4,
+          "width": 4.4,
+          "height": 2.475,
+          "range": 10,
+          "screen_source": "image",
+          "screen_image": "models/screen-preview.png",
+          "screen_grid": [
+            4,
+            3
+          ]
+        }
+      },
+      {
+        "object": "d3b5aa49-2f61-5483-8c17-b0abdcc21728",
+        "component": {
+          "enabled": true,
+          "type": "point",
+          "colour": [
+            0.18,
+            0.48,
+            1.0
+          ],
+          "intensity": 0.5,
+          "range": 1.2
+        }
+      },
+      {
+        "object": "dc88157f-6aea-5481-8429-42c8b96cad80",
+        "component": {
+          "enabled": true,
+          "type": "rect",
+          "colour": [
+            1,
+            0.72,
+            0.45
+          ],
+          "intensity": 14,
+          "width": 6.6,
+          "height": 0.08,
+          "range": 5
+        }
+      },
+      {
+        "object": "12e98208-9e24-574f-9218-8f57c6a7ebdb",
+        "component": {
+          "enabled": true,
+          "type": "spot",
+          "colour": [
+            1,
+            0.84,
+            0.66
+          ],
+          "intensity": 9,
+          "range": 6,
+          "inner_cone_degrees": 18,
+          "outer_cone_degrees": 42
+        }
+      },
+      {
+        "object": "bdbd4ee5-1c82-5fff-9893-e19e0ce12ab1",
+        "component": {
+          "enabled": true,
+          "type": "spot",
+          "colour": [
+            1,
+            0.84,
+            0.66
+          ],
+          "intensity": 9,
+          "range": 6,
+          "inner_cone_degrees": 18,
+          "outer_cone_degrees": 42
+        }
+      },
+      {
+        "object": "8e9bc515-75dc-5b57-afa3-78f3f128ac7e",
+        "component": {
+          "enabled": true,
+          "type": "spot",
+          "colour": [
+            1,
+            0.84,
+            0.66
+          ],
+          "intensity": 6,
+          "range": 6,
+          "inner_cone_degrees": 18,
+          "outer_cone_degrees": 42
+        }
+      },
+      {
+        "object": "bfe34bcc-8c75-54f3-a31c-049fb42c12e8",
+        "component": {
+          "enabled": true,
+          "type": "spot",
+          "colour": [
+            1,
+            0.84,
+            0.66
+          ],
+          "intensity": 6,
+          "range": 6,
+          "inner_cone_degrees": 18,
+          "outer_cone_degrees": 42
+        }
+      },
+      {
+        "object": "8b2a7e73-9bbc-5170-8e90-d6c6a42a5859",
+        "component": {
+          "enabled": true,
+          "type": "rect",
+          "colour": [
+            1,
+            0.7,
+            0.42
+          ],
+          "intensity": 3,
+          "width": 5.0,
+          "height": 0.06,
+          "range": 1.2
+        }
+      }
+    ],
+    "opaque_components": [],
+    "prefab_instances": []
+  }
+}

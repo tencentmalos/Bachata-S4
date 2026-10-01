@@ -24,6 +24,7 @@
 #include <openxr/openxr_platform.h>
 #include "video_core/renderer_vulkan/openxr/error_panel.h"
 #include "video_core/renderer_vulkan/openxr/status_scene.h"
+#include "video_core/renderer_vulkan/openxr/cinema_environment.h"
 #include "video_core/renderer_vulkan/openxr/status_panel.h"
 #include "video_core/renderer_vulkan/openxr/output_extent.h"
 #include <sys/system_properties.h>
@@ -653,6 +654,9 @@ struct Runtime::Impl {
         try {
             std::unique_ptr<ErrorPanel> panel;
             std::unique_ptr<StatusScene> status_scene;
+            std::unique_ptr<CinemaEnvironment> cinema_env;
+            std::string cinema_env_failed_key, cinema_env_wanted = CinemaWorld();
+            uint64_t cinema_env_checks{};
             const spatial::xr::XrImguiVulkanBinding scene_binding{
                 .api_version = VK_API_VERSION_1_3,
                 .instance = vk->GetInstance(), .physical_device = vk->GetPhysicalDevice(),
@@ -777,7 +781,7 @@ struct Runtime::Impl {
                 std::unique_lock lock(mailbox_mutex);
                 std::array<XrCompositionLayerQuad, 2> quads{
                     {{XR_TYPE_COMPOSITION_LAYER_QUAD}, {XR_TYPE_COMPOSITION_LAYER_QUAD}}};
-                std::array<const XrCompositionLayerBaseHeader*, 3> layers{};
+                std::array<const XrCompositionLayerBaseHeader*, 6> layers{};
                 XrCompositionLayerProjection projection{XR_TYPE_COMPOSITION_LAYER_PROJECTION};
                 std::array<XrCompositionLayerProjectionView, 2> pv{
                     {{XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW},
@@ -873,6 +877,45 @@ struct Runtime::Impl {
                 lock.unlock();
                 const auto status_config = ReadStatusSettings();
                 const bool immersive_frame = status_config.psvr_title || projection.viewCount == 2;
+                // Cinema environment: the World behind the game's quad (bottom,
+                // opaque layer). Ordinary cinema only, like the PSV scene; a
+                // failure leaves the plain cinema running.
+                bool cinema_env_drawn = false;
+                if (!panel && !immersive_frame && cinema_anchored && frame.shouldRender && count == 2 &&
+                    (view_state.viewStateFlags & (XR_VIEW_STATE_POSITION_VALID_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT)) ==
+                        (XR_VIEW_STATE_POSITION_VALID_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT)) {
+                    if (++cinema_env_checks % 72 == 0) cinema_env_wanted = CinemaWorld();
+                    if (cinema_env && cinema_env->WorldKey() != cinema_env_wanted) cinema_env.reset();
+                    if (!cinema_env && cinema_env_wanted != "off" && cinema_env_wanted != cinema_env_failed_key) {
+                        try {
+                            char scale_text[PROP_VALUE_MAX]{};
+                            float scale = __system_property_get("debug.shadps4.xr_cinema_scale", scale_text) > 0
+                                ? std::strtof(scale_text, nullptr) : .5f;
+                            scale = std::clamp(std::isfinite(scale) ? scale : .5f, .25f, 1.f);
+                            const auto cache = Common::FS::GetUserPath(Common::FS::PathType::CacheDir);
+                            auto env = std::make_unique<CinemaEnvironment>();
+                            env->Create(session, scene_functions, scene_binding,
+                                        std::max(64u, uint32_t(std::min(eye_width, 2592u) * scale)),
+                                        std::max(64u, uint32_t(std::min(eye_height, 2400u) * scale)),
+                                        cache.string(), cinema_env_wanted);
+                            cinema_env = std::move(env);
+                            LOG_INFO(Render_Vulkan, "OpenXR cinema environment {} created (scale {:.2f})",
+                                     cinema_env_wanted, scale);
+                        } catch (const std::exception& e) {
+                            cinema_env_failed_key = cinema_env_wanted;
+                            LOG_ERROR(Render_Vulkan, "OpenXR cinema environment {} failed: {}",
+                                      cinema_env_wanted, e.what());
+                        }
+                    }
+                    if (cinema_env && end.layerCount + 1 < layers.size() &&
+                        cinema_env->Render(eyes, local, cinema_pose)) {
+                        for (uint32_t i = end.layerCount; i > 0; --i) layers[i] = layers[i - 1];
+                        layers[0] = reinterpret_cast<const XrCompositionLayerBaseHeader*>(cinema_env->Layer());
+                        ++end.layerCount;
+                        end.layers = layers.data();
+                        cinema_env_drawn = true;
+                    }
+                }
                 if (!panel && !immersive_frame && end.layerCount && status_config.visible &&
                     frame.shouldRender && count == 2 &&
                     (view_state.viewStateFlags & (XR_VIEW_STATE_POSITION_VALID_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT)) ==
@@ -888,6 +931,8 @@ struct Runtime::Impl {
                     spatial::imgui::overlay::StatusSnapshot status;
                     std::optional<spatial::perf::DeviceMetrics> device;
                     { std::scoped_lock status_lock(status_mutex); status = status_snapshot; device = status_device; }
+                    status_scene->Place(cinema_env_drawn
+                        ? std::optional<XrPosef>(CinemaAuthoredOrigin(cinema_pose)) : std::nullopt);
                     if (status_scene->Render(eyes, local, status, device,
                                             state == XR_SESSION_STATE_FOCUSED,
                                             false, eye_width, eye_height)) {

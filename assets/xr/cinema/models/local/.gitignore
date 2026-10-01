@@ -1,0 +1,4 @@
+# Case models built from the user's own game art (tools/xr/game_covers.py).
+# Publisher artwork: never commit.
+*
+!.gitignore

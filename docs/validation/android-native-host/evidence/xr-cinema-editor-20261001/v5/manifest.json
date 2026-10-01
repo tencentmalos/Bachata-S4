@@ -1,0 +1,60 @@
+{
+  "change": "Fat PS4 rebuilt from reference photos; DualSense + Xbox controllers; soundbar replaces tower speakers; terrace string lights removed and skyline toned down; ambient from World sky/ground only",
+  "references": [
+    "https://commons.wikimedia.org/wiki/File:Sony-PlayStation-4-PS4-Console-FL.jpg",
+    "https://commons.wikimedia.org/wiki/File:Sony-PlayStation-4-PS4-Console-FR.jpg",
+    "https://commons.wikimedia.org/wiki/File:PS4-Console-wDS4.jpg",
+    "https://www.pushsquare.com/news/2013/11/hardware_review_playstation_4_-_for_the_players"
+  ],
+  "assets": {
+    "assets/xr/cinema/dark-room.world.json": "c343064d8b3f640c498c2314e98c14e880a9fb67ee8960d04b9dc8378ea0a745",
+    "assets/xr/cinema/dusk-terrace.world.json": "9f2966902d0e53382f37dc52e8cced14b3f849299f3728590c4adbd02c66f5c8",
+    "assets/xr/cinema/models/area-rug.glb": "a757840d16244d825a044ea2fe733265ce5a860c0d3b62b280e1c2dcc77b31c4",
+    "assets/xr/cinema/models/coffee-table.glb": "6fdfa696df360d2154e40ee1f635b206418f90682e843f3886dea5d612c9dd93",
+    "assets/xr/cinema/models/contact-shadow.glb": "6364ef5462558d7433e34f112cea58a30ef079cde53976c238df8ae4e9a06ac4",
+    "assets/xr/cinema/models/dark-room.glb": "225c8e33791e644ed2acf0d519ee049cd31e502a7da70dabb448b0096ef8993d",
+    "assets/xr/cinema/models/dualsense.glb": "b492df37693f150ae3019b2cf53d31f982f2159ef8782e24ffbc97b7d5c76f23",
+    "assets/xr/cinema/models/dusk-sky-dome.glb": "ff2d14f7a568c333bb3e40071e718a4fff1018119bb70b5e0c5f26ff7e67f8e2",
+    "assets/xr/cinema/models/grass-planter.glb": "2b971159803966c9247ca30136914c1d62cd292628cf787e9b58ee1fb7ac8864",
+    "assets/xr/cinema/models/lounge-room.glb": "3a3f1db36b7a1610de10c6ad03fbe22f63b49f3fea967fd5304ea5b101a83e9c",
+    "assets/xr/cinema/models/media-console.glb": "64ac9a0192a3f720a61e2c1a2f6564402260268d0866ad620335f538664a10e7",
+    "assets/xr/cinema/models/outdoor-screen.glb": "09b666e1c662606411ec8760bc7a2a0072bbbd1e1a8bc443f3735aec1442b616",
+    "assets/xr/cinema/models/plant.glb": "2c99c15ccd6bc2d59fe037912bb954c26694d0beb1812ef3a80793b9b91501a7",
+    "assets/xr/cinema/models/plinth.glb": "8ae6f09b51c84ecbbc1cf8ebbcd2fa4f380b8597843fad61e895d6c6735a66c0",
+    "assets/xr/cinema/models/ps4.glb": "a3164f6af7d13e98f8572756c81268c31dcbcb51dc55682ab4aeec3484cda81d",
+    "assets/xr/cinema/models/psv-dock.glb": "b1371de91a465879a748bd0006dc9e04d9698299663615cf5876eed4aee089e1",
+    "assets/xr/cinema/models/psv-preview.glb": "77ad60650394fcbc96ecde004a1f70b8f09aa66a1af1516e880b6c9ee23b6ad4",
+    "assets/xr/cinema/models/screen-preview.glb": "391963a5b1cbd9229afeb2cfa8eb1cda5af31b203cc4dcf37cfcdbcd2146872f",
+    "assets/xr/cinema/models/screen-preview.png": "6b0616bfc17a84ded57889370e05e1860b59b58eb42777e51f3672c1104fa98f",
+    "assets/xr/cinema/models/seaside.glb": "494b5a856a5896d72d46bb01cbd417a66430359a176fe85dbd9e8b090f4336d4",
+    "assets/xr/cinema/models/side-cabinet.glb": "7d4437a559d18d54214abb50ead1ed957015df0cba8fcad369ad6482fb3c3af3",
+    "assets/xr/cinema/models/soundbar.glb": "3848380fd5ebb86fa5990bab82348761e375c94eb55d927db38e9951f44f4daa",
+    "assets/xr/cinema/models/terrace.glb": "f08fdf188a1f090e345e303a31df4ed34a50ec8e04fad92240363438bbbcdd7e",
+    "assets/xr/cinema/models/tv.glb": "0113a6c259cb4c23c2ce741306db4d6945468bc1879b3a188a505472f5820157",
+    "assets/xr/cinema/models/void-space.glb": "fcab36c43b5b1e590be26864663650b75ea54752a39b5facbfac21f6616ba0b2",
+    "assets/xr/cinema/models/xbox-controller.glb": "afef20ec92e810bd9bc13ce24c407c5d8da6019480ce1bf6ff8c059638a69537",
+    "assets/xr/cinema/README.md": "df79610cb980e7a8b6760fd035e03bdd4ec55a65bf978390b565023ddddad962",
+    "assets/xr/cinema/seaside.world.json": "5b913c4b868c93a3e4b49355b8c96ed1b66639d88d7a2f1c044887706aee0189",
+    "assets/xr/cinema/tv-lounge.world.json": "c3373c0fce1897c2eb27917ae9318fd495a11eec899fe1e4fe532a70afef8cb1",
+    "assets/xr/cinema/void.world.json": "c19072037f1f9aa9909cb95ccd423f67dbfb6a1531ec31b70af5cfd3cae975a2"
+  },
+  "tools": {
+    "tools/xr/blender_cinema_assets.py": "d45f5f47837fbc4b6d187cf707d64c01b6ff7fc0d0dd6216d9d8cb9baa8c2937",
+    "tools/xr/build_cinema_scenes.py": "8c2e9c05000feaaa66a75533e2fef3db12fdf0f7408905e46c801c0809501ae1",
+    "tools/xr/build_psv_model.py": "d7149fae1a5c2aba233c1ad07abfd768a71ebfadfc4278742fbacde21d72a3e0",
+    "tools/xr/cinema_textures.py": "ffb7ea6767fd6ac0684aa2167623f9c53a44ad6c018820f1e03b7a6eeea5a07b",
+    "tools/xr/review_cinema_editor.py": "4e77514aba2c259729b3cce001b837d79cf97aef09f88673cad0a5e9c68e4358",
+    "tools/xr/validate_cinema_layouts.py": "4a5961cec2a5e221119d06f3c65eec0f4cd265453e837f67ad08da7a834313fd"
+  },
+  "screenshots": {
+    "dark-room-seated.png": "645484d75bef6693a227719b51c7fc133db4b6dff85b33a6542823ee8b68c6a0",
+    "dusk-terrace-seated.png": "5954a7b9a062b93e9b157ad567418aae6402f80f076592157ea79289c7d9d74c",
+    "seaside-seated.png": "91084f23c15f666d6889d9ebad82f255b147248e0950e99d2422d8447ac96caa",
+    "tv-lounge-ds.png": "865f7781f787518e0e229603afbae56027e4bf93f3ac5591e14781889c77b045",
+    "tv-lounge-ps4f.png": "3d51e98a27ba4778faaaf74e9e9ec5eebd0bac66fc4762384277397402f3d12f",
+    "tv-lounge-seated.png": "66b69ebd1f598fc2fd89f6e1f1ceb000e72f218ebbb6dc757f7654d94258a517",
+    "tv-lounge-xb.png": "2f64ef3d6b3dd8f4e847afe15be2128baa6f02bc2531f7d3cc9e10e52d7b80fc",
+    "void-seated.png": "3fb20f523e24d5fe272a8699e9fac2d7a8d267c6d9ea8e50d3f55413d5b26825"
+  },
+  "device_installation": "Not performed"
+}

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -25,6 +26,10 @@ public:
                 const spatial::xr::XrImguiVulkanBinding& binding,
                 uint32_t eye_width, uint32_t eye_height, std::string cache_dir);
     void Recenter();
+    // Inside a cinema environment the PSV sits on the World's dock: the
+    // authored origin (floor under the seated eye) in LOCAL space; none = the
+    // standalone head-anchored placement.
+    void Place(const std::optional<XrPosef>& authored_origin);
     bool Render(std::span<const XrView> views, XrSpace space,
                 const spatial::imgui::overlay::StatusSnapshot& status,
                 const std::optional<spatial::perf::DeviceMetrics>& device, bool active,

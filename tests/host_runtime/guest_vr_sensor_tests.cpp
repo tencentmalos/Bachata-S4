@@ -58,13 +58,13 @@ int main() {
         Core::HostRuntime::GuestVrSensor::Pose head;
         head.position = {2, 1.6f, -3};
         const auto front = Core::HostRuntime::VrGeometry::CinemaPlacement(head);
-        CHECK(Near(front.position[0], 2) && Near(front.position[1], 1.6f) && Near(front.position[2], -5.5f));
+        CHECK(Near(front.position[0], 2) && Near(front.position[1], 1.7f) && Near(front.position[2], -6.f));
         head.orientation = {0, std::sqrt(.5f), 0, std::sqrt(.5f)};
         const auto left = Core::HostRuntime::VrGeometry::CinemaPlacement(head);
-        CHECK(Near(left.position[0], -.5f) && Near(left.position[1], 1.6f) && Near(left.position[2], -3));
+        CHECK(Near(left.position[0], -1.f) && Near(left.position[1], 1.7f) && Near(left.position[2], -3));
     }
-    CHECK(Near(Core::HostRuntime::VrGeometry::CinemaHeight(16.f/9.f), 1.8f));
-    CHECK(Near(Core::HostRuntime::VrGeometry::CinemaDistance, 2.5f));
+    CHECK(Near(Core::HostRuntime::VrGeometry::CinemaHeight(16.f/9.f), 2.475f));
+    CHECK(Near(Core::HostRuntime::VrGeometry::CinemaDistance, 3.f));
     {
         using namespace Core::HostRuntime;
         GuestVrSensor::Pose calibration, render;

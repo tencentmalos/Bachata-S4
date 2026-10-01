@@ -1,0 +1,213 @@
+[
+  {
+    "scene": "tv-lounge.world.json",
+    "objects": 31,
+    "models": 17,
+    "screen": "Game screen - preview",
+    "foreground_objects": [
+      "Coffee table",
+      "DualShock 4 L",
+      "DualShock 4 R",
+      "Game case console 0",
+      "Game case console 1",
+      "Game case console 2",
+      "Game case table 0",
+      "Game case table 1",
+      "Media console",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Plant",
+      "Soundbar"
+    ],
+    "sample_checks": 2794500,
+    "min_vertical_gap_degrees_below_screen": 0.276,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "dusk-terrace.world.json",
+    "objects": 24,
+    "models": 15,
+    "screen": "Game screen - preview",
+    "foreground_objects": [
+      "Coffee table",
+      "DualShock 4 L",
+      "DualShock 4 R",
+      "Game case table 0",
+      "Game case table 1",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Planter L",
+      "Planter R",
+      "Side cabinet"
+    ],
+    "sample_checks": 2632500,
+    "min_vertical_gap_degrees_below_screen": 4.942,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "dark-room.world.json",
+    "objects": 26,
+    "models": 16,
+    "screen": "Game screen - preview",
+    "foreground_objects": [
+      "Coffee table",
+      "DualShock 4 L",
+      "DualShock 4 R",
+      "Game case console 0",
+      "Game case console 1",
+      "Game case console 2",
+      "Game case table 0",
+      "Game case table 1",
+      "Media console",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Soundbar"
+    ],
+    "sample_checks": 2713500,
+    "min_vertical_gap_degrees_below_screen": 0.276,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "seaside.world.json",
+    "objects": 23,
+    "models": 13,
+    "screen": "Game screen - preview",
+    "foreground_objects": [
+      "Coffee table",
+      "DualShock 4 L",
+      "DualShock 4 R",
+      "Game case table 0",
+      "Game case table 1",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Side cabinet"
+    ],
+    "sample_checks": 2511000,
+    "min_vertical_gap_degrees_below_screen": 4.942,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  },
+  {
+    "scene": "void.world.json",
+    "objects": 20,
+    "models": 13,
+    "screen": "Game screen - preview",
+    "foreground_objects": [
+      "Coffee table",
+      "DualShock 4 L",
+      "DualShock 4 R",
+      "Game case table 0",
+      "Game case table 1",
+      "PS4 console",
+      "PSV dock",
+      "PSV status display",
+      "Side plinth"
+    ],
+    "sample_checks": 2409750,
+    "min_vertical_gap_degrees_below_screen": 4.942,
+    "support_contacts": "pass",
+    "foreground_occlusion": "pass",
+    "head_motion_m": {
+      "x": [
+        -0.2,
+        0.2
+      ],
+      "y": [
+        -0.15,
+        0.15
+      ],
+      "z": [
+        -0.2,
+        0.2
+      ]
+    },
+    "ipd_m": [
+      0.05,
+      0.064,
+      0.078
+    ]
+  }
+]

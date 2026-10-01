@@ -1,0 +1,4 @@
+d4a4be77b8ab80399fe2a506e8f9ef5e3abe2c633dc24a93a82dfde5da9a07f7 *android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk
+7849514e4e4561d6834a626d1133822feb506a665c535c0349ebe536f82093dc *build/android-host-api33/native/libshadps4_host.so
+d767cd730ce819658378663e090083b5f1b76d58fc73f08490c9bb9b8cb89f3c *build/turnip-remote/vulkan.ad07xx.so
+ba54a0e7328d460591c59afa492cffbac67a0e95468f5d831561e18d0d0f4741 *assets/xr/cinema/models/dualshock4.glb

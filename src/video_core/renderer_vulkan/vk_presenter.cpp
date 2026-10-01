@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <cstring>
 #include <stdexcept>
 #include "common/debug.h"
 #include "core/diagnostics/pipeline_handoff.h"
@@ -1203,24 +1204,35 @@ void Presenter::RecordEmbeddedScreenshot(Frame& target, u64 diagnostic_id) {
             barrier.newLayout = vk::ImageLayout::eGeneral;
             cmdbuf.pipelineBarrier2(vk::DependencyInfo{.imageMemoryBarrierCount = 1,
                                                       .pImageMemoryBarriers = &barrier});
-            draw_scheduler.DeferPriorityOperation([request = *request, readback] {
+            draw_scheduler.DeferPriorityOperation([request = *request, readback, eye_count] {
                 std::string error;
                 const std::filesystem::path path{request.path};
                 const auto partial = std::filesystem::path{request.path + ".partial"};
+                // A stereo canvas holds the eyes side by side; a mono canvas ignores the eye.
+                const auto span = scrcpy::capture::SelectEye(readback->width, eye_count, request.eye);
                 try {
                     std::filesystem::create_directories(path.parent_path());
                     std::vector<u8> rgba;
-                    if (!ConvertReadbackToRgba8(*readback, rgba) ||
-                        !WritePng(partial, rgba, readback->width, readback->height))
-                        throw std::runtime_error("PNG conversion or write failed");
+                    if (!ConvertReadbackToRgba8(*readback, rgba))
+                        throw std::runtime_error("PNG conversion failed");
+                    if (span.width != readback->width) {
+                        std::vector<u8> eye(static_cast<size_t>(span.width) * readback->height * 4);
+                        for (u32 y = 0; y < readback->height; ++y)
+                            std::memcpy(eye.data() + static_cast<size_t>(y) * span.width * 4,
+                                        rgba.data() + (static_cast<size_t>(y) * readback->width + span.x) * 4,
+                                        static_cast<size_t>(span.width) * 4);
+                        rgba = std::move(eye);
+                    }
+                    if (!WritePng(partial, rgba, span.width, readback->height))
+                        throw std::runtime_error("PNG write failed");
                     std::filesystem::rename(partial, path);
                 } catch (const std::exception& e) {
                     error = e.what();
                     std::error_code ignored;
                     std::filesystem::remove(partial, ignored);
                 }
-                EmbeddedScreenshots().Complete(request.token, readback->width, readback->height,
-                                                std::move(error));
+                EmbeddedScreenshots().Complete(request.token, span.width, readback->height,
+                                                std::move(error), eye_count);
             });
         } catch (const std::exception& e) {
             EmbeddedScreenshots().Complete(request->token, 0, 0, e.what());
