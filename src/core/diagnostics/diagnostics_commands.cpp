@@ -28,11 +28,17 @@
 #endif
 
 #include <charconv>
+#include <chrono>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "spatial/debugbus/DebugCommandRegistry.h"
+#if !defined(__ANDROID__)
+#include "common/singleton.h"
+#include "input/controller.h"
+#endif
 
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/libraries/pad/pad_vibration.h"
@@ -187,6 +193,60 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("guest_patch", "Guest patch status | enable [name] | disable [name]",
         [](const std::vector<std::string>& args) {
             return GuestPatch::Desktop::Command(args);
+        });
+#endif
+#if !defined(__ANDROID__)
+    // Desktop counterpart of the Android `pad` command for unattended tests: the
+    // window does not need focus. Buttons go to Player 1 like a physical press.
+    registry.Register("desk_pad",
+        "Press Player 1 buttons: <button[,button...]> [hold_ms<=2000] (cross circle square "
+        "triangle up down left right options l1 r1 l2 r2 l3 r3 touchpad)",
+        [](const std::vector<std::string>& args) -> std::string {
+            using Libraries::Pad::OrbisPadButtonDataOffset;
+            if (args.empty() || args.size() > 2)
+                return BadArguments();
+            static const std::pair<std::string_view, OrbisPadButtonDataOffset> names[] = {
+                {"cross", OrbisPadButtonDataOffset::Cross},
+                {"circle", OrbisPadButtonDataOffset::Circle},
+                {"square", OrbisPadButtonDataOffset::Square},
+                {"triangle", OrbisPadButtonDataOffset::Triangle},
+                {"up", OrbisPadButtonDataOffset::Up},
+                {"down", OrbisPadButtonDataOffset::Down},
+                {"left", OrbisPadButtonDataOffset::Left},
+                {"right", OrbisPadButtonDataOffset::Right},
+                {"options", OrbisPadButtonDataOffset::Options},
+                {"l1", OrbisPadButtonDataOffset::L1},
+                {"r1", OrbisPadButtonDataOffset::R1},
+                {"l2", OrbisPadButtonDataOffset::L2},
+                {"r2", OrbisPadButtonDataOffset::R2},
+                {"l3", OrbisPadButtonDataOffset::L3},
+                {"r3", OrbisPadButtonDataOffset::R3},
+                {"touchpad", OrbisPadButtonDataOffset::TouchPad}};
+            std::vector<OrbisPadButtonDataOffset> buttons;
+            std::string_view list = args[0];
+            while (!list.empty()) {
+                const auto comma = list.find(',');
+                const auto name = list.substr(0, comma);
+                const auto it = std::ranges::find_if(names, [&](const auto& n) { return n.first == name; });
+                if (it == std::end(names))
+                    return BadArguments();
+                buttons.push_back(it->second);
+                list = comma == std::string_view::npos ? std::string_view{} : list.substr(comma + 1);
+            }
+            u64 hold = 150;
+            if (args.size() == 2) {
+                const auto [end, ec] =
+                    std::from_chars(args[1].data(), args[1].data() + args[1].size(), hold);
+                if (ec != std::errc{} || end != args[1].data() + args[1].size() || hold > 2000)
+                    return BadArguments();
+            }
+            auto& controllers = *Common::Singleton<Input::GameControllers>::Instance();
+            for (const auto b : buttons)
+                controllers[0]->Button(b, true);
+            std::this_thread::sleep_for(std::chrono::milliseconds(hold));
+            for (const auto b : buttons)
+                controllers[0]->Button(b, false);
+            return "pressed " + args[0] + " for " + std::to_string(hold) + " ms\n";
         });
 #endif
     registry.Register("thread_priority",
