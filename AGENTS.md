@@ -1,3 +1,9 @@
+- **主干归档（2026-10-02）：** [合入范围与验证](docs/validation/android-native-host/git-publish-20261002.md)。本批统一归档 GPU query 回收、GCN 按游戏实验隔离、跨平台实现文档和血源瓶颈证据，目标为 fork 的 `malos/main`；my_mcp_tools 配套修复及遗留自动化源码归入 `master`。Foundation/Mesa 引用未改，子仓干净且引用已有远端分支。以下历史条目的“未提交/无 push”和当时进程状态保留为测量时点，当前源码状态以本条为准。设备复采暂停，无新性能收益或 GPU hang 修复结论。
+
+- **GCN 软件兼容路径清查（2026-10-02，源码已归档）：** [跨平台实现文档](docs/guides/gcn-emulation.md)、[完整清单与设备证据](docs/validation/android-native-host/gcn-software-audit-20261002.md)。AYN 血源 GuestFault 为 MHR 遗留全局 software_interp=1 触发 VS-only triangles 限制；已清空并重启，当前实际 cache profile=false。源码将该实验改为精确 CUSA ID opt-in（旧1忽略），Int64 native 日志改 driver SPIR-V。Turnip IR3 仍 lowering Int64，不能称硬件原生。真实 A740 能力32KiB LDS/compute64；1045 blobs校验、375 SPIR-V静态清查无LDS→SSBO/浮点atomic minmax回退，2模块非恒定64位结果、5 GDS；静态数量不是耗时。copy HLE仍CPU镜像+GPUcopy保证一致性；必要布局/指令转换未删。Android host/probe与Mac/Android隔离测试11/0通过；新包/安装状态看报告，无FPS收益结论。GPU query/LiteP修复及回归已完成；游戏内无干扰复采按用户要求暂停，等待共享设备空闲。
+
+- **血源当前运行瓶颈（2026-10-01，AYN Thor，仅分析）：** [同窗 PROF/KGSL/sched 与边界](docs/validation/android-native-host/bloodborne-live-bottleneck-20261001.md)。PID2736，装机APK34a5176f/host4c74de9f/Turnip351a4847；街道战斗主采样9.976s、140完整epoch，成功呈现14.15FPS。Guest-1执行32.36/排队4.08/睡眠34.62ms，GpuComm34.06/0.46/36.53ms；GPU busy69.25%。真实sched唤醒显示工作线程→Guest-1→Guest-20→GpuComm供给链；关键Guest-32..36约75–92%执行在小核、各排队7–8ms/epoch，VkRecorder77%在小核且排队9.57ms。细采样Park25.35ms，Guard+Lookup约0.91ms；资源绑定和可选HUD重绘值得A/B，未验证收益。新版LiteP已实际使用；打包脚本路径/SDK身份白名单以本地临时适配绕过；guest GPU query租约耗尽导致coverage不可用，不能把缺失当0或用旧GPU均值。两轮无trace覆盖/丢失，边界scope诊断保留，采集开关/独立tracefs/设备自有文件已清理，无运行时配置/生产源码修改、无commit/push。
+
 - **2D 屏幕超分 FSR1/SGSR1（2026-10-01）：** [实现与 Swan 验证](docs/validation/android-native-host/screen-upscaler-20261001.md)。
   - **设置**：新 `gpu.screen_upscaler`（Off/FSR1/SGSR1，默认 Off，全局/每游戏），Launch 面板 2D 模式显示 “Screen Upscaler”，与 XR Upscaler 独立。
   - **宿主**：Presenter 2D 路径在 guest 图小于输出帧时调用 Foundation `SpatialUpscalePass`（无 foveation），录入本帧已有命令缓冲，不新增 submit 或 CPU 等待，不与 guest 提交串行。

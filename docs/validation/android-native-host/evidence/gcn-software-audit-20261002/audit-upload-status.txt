@@ -11,4 +11,3 @@ SERVICE com.shadps4.android/.service.FexSessionService 4c18320 pid=13762 user=0
     uploads by writing shader (pgm_hash uploads):
     outcome_by_source (unchanged changed partial first gpu_resident):
     top images (addr size format WxHxD layers mips tile scaled | uploads unchanged changed partial first gpu_resident | dominant source last_writer):
-

@@ -14,5 +14,44 @@
     "audit-android-host.log": "d6043e12d092d7adc229ad6aef161576456cde5faf5cdd490f4b02c7e50629ba",
     "properties-audit.txt": "c588fe26364016bf3b12bfaac5ea4eb9845c52d2fccc339708558b7fdceab366",
     "audit-process-environ.bin": "469accf8c040d331a055c7fcaf3a443e21e016fab9fe99a2024e2a2200b8c04d"
-  }
+  },
+  "committed_evidence": {
+    "audit-final-status.txt": {
+      "sha256": "6070048188d9f7c97a3d15a9e168ea19ee5757e78385467bb27519a9dd7fd420",
+      "bytes": 799
+    },
+    "audit-pipeline-status.txt": {
+      "sha256": "1ec391c4265f5954c0e323fdea92265c2f1d563206554f431feca295a6a8d1b6",
+      "bytes": 3154
+    },
+    "audit-probe-library-sha.txt": {
+      "sha256": "cfff9f6b93dd9e3ebe97ae9780be16b6b4ce99395d99ab134e8850077cbcd8c7",
+      "bytes": 248
+    },
+    "audit-upload-status.txt": {
+      "sha256": "6997019f170551ed6c62e86dbf2c4c03f5eb633911b2e5b293d52f4afedc7103",
+      "bytes": 932
+    },
+    "debug-properties.json": {
+      "sha256": "3849060be697548520ca83ad9c0e0a2fe58ab9192b364cc318136f8125e3ffa1",
+      "bytes": 1297
+    },
+    "gcn-capabilities.txt": {
+      "sha256": "c6580e4b7c0f3e1ebc2acd19557dba23055295ba03038a3eae0aa653051411bc",
+      "bytes": 563
+    },
+    "package.json": {
+      "sha256": "8af47eb591283c400ddbb900af6544002b4795e33cffc6ef8401dad688ab601e",
+      "bytes": 851
+    },
+    "shader-cache-summary.json": {
+      "sha256": "664357de4935b1e0d86c445ac87c093ac99680d1a2f2509e55deb9416f900ada",
+      "bytes": 3090
+    },
+    "shader-experiment-tests.txt": {
+      "sha256": "b37631a1b50847a786fb359a2be242d7efe92aea0a9d29c7e3e362062e365625",
+      "bytes": 42
+    }
+  },
+  "display_normalization": "Status text display copies omit trailing whitespace; original local captures are preserved."
 }

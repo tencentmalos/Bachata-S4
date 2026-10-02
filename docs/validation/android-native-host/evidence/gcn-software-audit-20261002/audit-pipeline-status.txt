@@ -34,4 +34,3 @@ SERVICE com.shadps4.android/.service.FexSessionService 4c18320 pid=13762 user=0
       identity: vendor 0x5143 device 0x43050a01 driver 0x6802063 uuid 01b4056c03e0025e95e76fa27ed1b135
       at startup: loaded (3221805 bytes)
       saves: 3 in 98.8 ms (mean 32.93 ms, max 52.79 ms), last 5912669 bytes
-
