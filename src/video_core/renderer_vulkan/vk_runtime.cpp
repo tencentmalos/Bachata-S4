@@ -8,6 +8,7 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/blit_helper.h"
 #include "video_core/texture_cache/image.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/vma_diagnostics.h"
 
 #include <bit>
@@ -172,10 +173,15 @@ void Runtime::CopyMip(VideoCore::Image* src, VideoCore::Image* dst, u32 mip, u32
 
 void Runtime::CopyColorAndDepth(VideoCore::Image* src, VideoCore::Image* dst) {
     if (src->info.num_samples == 1 && dst->info.num_samples == 1) {
-        if (instance.IsMaintenance8Supported() ||
-            src->info.props.is_depth == dst->info.props.is_depth) {
+        const bool same_aspect = src->info.props.is_depth == dst->info.props.is_depth;
+        if (same_aspect || (instance.IsMaintenance8Supported() &&
+                            !VideoCore::UploadDiagnostics::depth_copy_buffer.load(
+                                std::memory_order_relaxed))) {
+            if (!same_aspect)
+                VideoCore::UploadDiagnostics::depth_copy_direct.fetch_add(1, std::memory_order_relaxed);
             CopyImage(src, dst);
         } else {
+            VideoCore::UploadDiagnostics::depth_copy_buffered.fetch_add(1, std::memory_order_relaxed);
             // Perform depth from/to color copy using the intermediate copy buffer.
             const u64 required = src->CopyBufferSizeUpperBound();
             if (!depth_color_scratch || depth_color_scratch->SizeBytes() < required) {
@@ -212,6 +218,7 @@ void Runtime::CopyColorAndDepth(VideoCore::Image* src, VideoCore::Image* dst) {
         blit_helper->ReinterpretColorAsMsDepth(
             dst->info.size.width, dst->info.size.height, dst->backing->num_samples,
             src->info.pixel_format, dst->info.pixel_format, src->GetImage(), dst->GetImage());
+        dst->NoteWrite();
     } else {
         LOG_WARNING(Render_Vulkan, "Unimplemented depth overlap copy");
     }
@@ -246,6 +253,7 @@ void Runtime::CopyDepthStencil(VideoCore::Image* src, VideoCore::Image* dst,
     cmdbuf.copyImage(src->GetImage(), vk::ImageLayout::eTransferSrcOptimal, dst->GetImage(),
                      vk::ImageLayout::eTransferDstOptimal, region);
 
+    dst->NoteWrite();
     dst->flags |= VideoCore::ImageFlagBits::GpuModified;
     dst->flags &= ~VideoCore::ImageFlagBits::Dirty;
 }

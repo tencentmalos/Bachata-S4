@@ -713,7 +713,20 @@ bool BufferCache::SynchronizeMemoryFromImage(const Buffer* arena, VAddr device_a
     if (!image_id) {
         return false;
     }
-    return TileImageIntoArena(arena, device_addr, size, texture_cache.GetImage(image_id));
+    // Same content versioning as SynchronizeMemoryFromGpuImage: a formatted read of contents
+    // already tiled back finds the arena current instead of tiling the whole image again
+    // (MHR's title screen issued ~765 such reads per frame, ~9.5 GB of tiling).
+    Image& image = texture_cache.GetImage(image_id);
+    const u64 version = image.write_epoch;
+    if (image.buffer_synced_version == version) {
+        UploadDiagnostics::texel_sync_skips.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+    if (!TileImageIntoArena(arena, device_addr, size, image)) {
+        return false;
+    }
+    image.buffer_synced_version = version;
+    return true;
 }
 
 bool BufferCache::TileImageIntoArena(const Buffer* arena, VAddr device_addr, u32 size,

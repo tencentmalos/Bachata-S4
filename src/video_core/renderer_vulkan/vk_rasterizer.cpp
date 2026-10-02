@@ -2331,6 +2331,7 @@ void Rasterizer::DepthStencilCopy(bool is_depth, bool is_stencil) {
     scheduler.CommandBuffer().copyImage(read_image.GetImage(), vk::ImageLayout::eTransferSrcOptimal,
                                         write_image.GetImage(),
                                         vk::ImageLayout::eTransferDstOptimal, region);
+    write_image.NoteWrite();
 
     ScopeMarkerEnd();
 }

@@ -38,8 +38,9 @@ int Run(int argc, char** argv) {
     Common::Log::Setup("depth-copy-scratch-probe");
     Window window;
     Vulkan::Instance instance(window, 0, false, false, Vulkan::LoadAndroidTurnip(argv[1], argv[2]));
-    if (instance.IsMaintenance8Supported())
-        return 2;
+    // With VK_KHR_maintenance8 the same calls are direct depth <-> color image copies; the
+    // pixel checks cover the driver's copy and the scratch bound stays trivially satisfied.
+    std::printf("mode=%s\n", instance.IsMaintenance8Supported() ? "direct-copy" : "scratch");
     Vulkan::Scheduler scheduler(instance);
     Vulkan::Runtime runtime(instance, scheduler);
     VideoCore::BlitHelper blit(instance, scheduler);

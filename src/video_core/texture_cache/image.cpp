@@ -1205,6 +1205,7 @@ bool Image::BlitCopy(Image& src_image) {
     Transit(vk::ImageLayout::eGeneral,
             vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
     ++scale_plan->content_version;
+    NoteWrite();
     scale_plan->history |= 1u << 8;
     src_image.scale_plan->history |= 1u << 7;
     if (owner) owner->RecordScaledBlitCopy();
@@ -1442,6 +1443,7 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
                                                 vk::ImageLayout::eTransferDstOptimal, region);
     }
 
+    NoteWrite();
     flags |= VideoCore::ImageFlagBits::GpuModified;
     flags &= ~VideoCore::ImageFlagBits::Dirty;
 }

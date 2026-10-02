@@ -98,6 +98,10 @@ std::string Summary() {
     out += fmt::format("raw_sync: off={} syncs={} bytes={} stale_images_skipped={}\n",
                        raw_sync_off.load() ? 1 : 0, raw_syncs.load(), raw_sync_bytes.load(),
                        raw_sync_stale.load());
+    out += fmt::format("texel_sync: current_contents_skipped={}\n", texel_sync_skips.load());
+    out += fmt::format("depth_copy: mode={} direct={} buffered={}\n",
+                       depth_copy_buffer.load() ? "buffer" : "maint8", depth_copy_direct.load(),
+                       depth_copy_buffered.load());
     out += fmt::format("dma_bounds: enabled={} bounded_calls={} full_calls={} ranges_skipped={}\n",
                        dma_bounds.load() ? 1 : 0, dma_bounded_calls.load(), dma_full_calls.load(),
                        dma_ranges_skipped.load());
@@ -318,8 +322,14 @@ std::string Command(const std::vector<std::string>& args) {
     }
     if (sub == "dma_bounds" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         dma_bounds.store(args[1] == "on");
-        return fmt::format("dma_bounds={} (candidate; off synchronizes all resident ranges)\n",
+        return fmt::format("dma_bounds={} (default on; off synchronizes all resident ranges)\n",
                            args[1]);
+    }
+    if (sub == "depth_copy" && args.size() == 2 && (args[1] == "maint8" || args[1] == "buffer")) {
+        depth_copy_buffer.store(args[1] == "buffer");
+        return fmt::format("depth_copy={} (depth<->color twins copied {})\n", args[1],
+                           args[1] == "buffer" ? "through the scratch buffer"
+                                               : "directly when maintenance8 is available");
     }
     if (sub == "raw_copy" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         raw_copy_off.store(args[1] == "off");

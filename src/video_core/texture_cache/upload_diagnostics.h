@@ -82,10 +82,20 @@ inline std::atomic<bool> fill_clear_off{false};
 // under them was written through the buffer path after them.
 inline std::atomic<bool> raw_sync_off{false};
 inline std::atomic<u64> raw_syncs{0}, raw_sync_bytes{0}, raw_sync_stale{0};
+// Formatted (texel buffer) reads of an image whose current contents were already tiled back.
+inline std::atomic<u64> texel_sync_skips{0};
 
-// Candidate DMA synchronization bounds, off until the game/device A/B is complete.
-// Off restores synchronization of every resident range, including image aliases.
-inline std::atomic<bool> dma_bounds{false};
+// DMA synchronization bounds: a shader whose pointer reads all come from known user-data bases
+// synchronizes only the 4 GiB window above each base (reads are base + u32 dword offset).
+// Unbounded shaders always synchronize every resident range. Off restores that for all
+// shaders; it re-tiled MHR's two 1080p render targets into the buffer arena on each of its
+// ~350 pointer-reading draws per frame.
+inline std::atomic<bool> dma_bounds{true};
+// Diagnostic: copy depth<->color twins through the scratch buffer even when the
+// driver reports VK_KHR_maintenance8 direct depth/color image copies.
+inline std::atomic<bool> depth_copy_buffer{false};
+inline std::atomic<u64> depth_copy_direct{};
+inline std::atomic<u64> depth_copy_buffered{};
 inline std::atomic<u64> dma_bounded_calls{0}, dma_full_calls{0}, dma_ranges_skipped{0};
 
 // Raw dword copy kernels between two same-layout images replaced by an image copy
