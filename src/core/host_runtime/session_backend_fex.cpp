@@ -19,6 +19,8 @@
 #include <fmt/format.h>
 #if defined(__ANDROID__)
 #include <android/log.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 #include <sys/system_properties.h>
 #endif
 #include <unistd.h>
@@ -67,6 +69,35 @@ constexpr std::uint64_t kReservationSize = std::uint64_t{1} << 28;
 constexpr std::uint64_t kMappingSize = 0x4000;
 constexpr std::uint64_t kCodeOffset = 0x10000;
 constexpr std::uint64_t kStackOffset = 0x20000;
+
+#if defined(__ANDROID__) && defined(SHADPS4_TYPED_HLE_HOST)
+// Under RenderDoc, Turnip allocates every capture/replay-able buffer as a KGSL SVM
+// buffer (CPU address == GPU address). KGSL picks that address top-down below its
+// 64-bit GPU VA size (256 GiB on Adreno 740), which the guest envelope otherwise
+// covers completely: the first such allocation then fails with out of device memory.
+// Returns the top of that window, or 0 when no capture layer is requested or KGSL
+// does not report it.
+std::uint64_t KgslSvmTopForCapture() {
+    char layer[PROP_VALUE_MAX]{};
+    if (__system_property_get("debug.shadps4.renderdoc_layer", layer) <= 0 || layer[0] != '1')
+        return 0;
+    struct KgslGetProperty {
+        unsigned int type;
+        void* value;
+        std::size_t size;
+    };
+    constexpr unsigned int KgslPropGpuVa64Size = 0x2C;
+    std::uint64_t va64 = 0;
+    KgslGetProperty request{KgslPropGpuVa64Size, &va64, sizeof(va64)};
+    const int fd = ::open("/dev/kgsl-3d0", O_RDWR | O_CLOEXEC);
+    if (fd < 0)
+        return 0;
+    const int result = ::ioctl(fd, _IOWR(0x09, 0x2, KgslGetProperty), &request);
+    ::close(fd);
+    return result == 0 ? va64 : 0;
+}
+constexpr std::uint64_t kKgslCaptureWindow = std::uint64_t{32} << 30;
+#endif
 
 // Bounded decrement loop; rdi = iteration count. Ends by jumping to the backend
 // return gate (StopReason::Returned). Large-but-finite so a Cancel can interrupt
@@ -138,6 +169,12 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         if (!available)
             return available.GetError();
         cfg.owned_ranges = std::move(available).Value();
+        if (const auto svm_top = KgslSvmTopForCapture();
+            svm_top > kKgslCaptureWindow && svm_top <= GuestRuntime::ReservationEnd) {
+            ExcludeRange(cfg.owned_ranges, svm_top - kKgslCaptureWindow, svm_top);
+            LOG_INFO(Core, "RenderDoc capture: guest VA {:#x}-{:#x} left to KGSL SVM buffers",
+                     svm_top - kKgslCaptureWindow, svm_top);
+        }
 #endif
     }
 #else

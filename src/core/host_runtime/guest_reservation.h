@@ -9,6 +9,23 @@
 #include "core/guest_cpu/api/address_space.h"
 
 namespace Core::HostRuntime {
+// Removes [lo, hi) from ordered, disjoint guest segments.
+inline void ExcludeRange(std::vector<GuestCpu::GuestRange>& ranges, std::uint64_t lo,
+                         std::uint64_t hi) {
+    std::vector<GuestCpu::GuestRange> remaining;
+    for (const auto range : ranges) {
+        const auto start = range.base.value;
+        const auto stop = range.End();
+        if (hi <= start || lo >= stop) {
+            remaining.push_back(range);
+        } else {
+            if (lo > start) remaining.push_back({{start}, lo - start});
+            if (hi < stop) remaining.push_back({{hi}, stop - hi});
+        }
+    }
+    ranges.swap(remaining);
+}
+
 // Android versions place ART's compressed-reference heap at different low
 // addresses. Exclude observed host mappings from the proposed guest segments.
 // This is only a plan: GuestAddressSpace still acquires each segment with an
@@ -39,18 +56,7 @@ inline GuestCpu::Result<std::vector<GuestCpu::GuestRange>> ExcludeHostMappings(
         // Some Android kernels expose an empty executable linker mapping.
         // It occupies no address and must not invalidate the snapshot.
         if (lo == hi) continue;
-        std::vector<GuestRange> remaining;
-        for (const auto range : result) {
-            const auto start = range.base.value;
-            const auto stop = range.End();
-            if (hi <= start || lo >= stop) {
-                remaining.push_back(range);
-            } else {
-                if (lo > start) remaining.push_back({{start}, lo - start});
-                if (hi < stop) remaining.push_back({{hi}, stop - hi});
-            }
-        }
-        result.swap(remaining);
+        ExcludeRange(result, lo, hi);
     }
     if (maps.bad() || !maps.eof() || count == 0 || result.empty())
         return MakeError(ErrorCategory::OutOfMemory, "GuestReservation",
