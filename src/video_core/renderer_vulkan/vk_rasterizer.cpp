@@ -26,6 +26,7 @@
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_missing_content.h"
+#include "video_core/renderer_vulkan/draw_skip.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
@@ -36,6 +37,18 @@
 #include "video_core/texture_cache/internal_scale.h"
 
 namespace Vulkan {
+
+static bool SkippedByShaderHash(const GraphicsPipeline& pipeline) {
+    if (DrawSkip::count.load(std::memory_order_relaxed) == 0) {
+        return false;
+    }
+    const auto stages = pipeline.GetStages();
+    const auto hash = [&](Shader::SwStage stage) {
+        const auto* info = stages[u32(stage)];
+        return info ? info->pgm_hash : u64{};
+    };
+    return DrawSkip::Matches(hash(Shader::SwStage::Vertex), hash(Shader::SwStage::Fragment));
+}
 
 static Shader::PushData MakeUserData(const AmdGpu::Regs& regs) {
     // TODO(roamic): Add support for multiple viewports and geometry shaders when ViewportIndex
@@ -389,6 +402,9 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
         return;
     }
 
+    if (SkippedByShaderHash(*pipeline)) {
+        return;
+    }
     const bool tracing = AmdGpu::Pm4Trace::Active();
     if (SkipUnbuiltDraw(*pipeline)) {
         if (HostMarkersEnabled())
@@ -505,6 +521,9 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
     if (!pipeline) {
         if (HostMarkersEnabled())
             InsertDroppedDrawTag(is_indexed, true);
+        return;
+    }
+    if (SkippedByShaderHash(*pipeline)) {
         return;
     }
 
@@ -928,8 +947,9 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                     memory->IsValidGpuMapping(sharp.Address(), 0)) {
                     VideoCore::TextureCache::ImageDesc desc{sharp, resource};
                     auto id = texture_cache.FindImage(desc);
+                    auto& image = texture_cache.GetImage(id);
                     // Distinct literals: the plan keeps the first trigger for diagnostics.
-                    texture_cache.GetImage(id).ForceNative(
+                    const char* reason =
                         resource.is_written ? "exact shader data access: written" :
                         resource.is_atomic ? "exact shader data access: atomic" :
                         resource.requires_native_scale ? "exact shader data access: requires native" :
@@ -937,7 +957,17 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                             ? "exact shader data access: cube as 2D array" :
                         descriptor >= Shader::PushData::MaxScaledBinding
                             ? "exact shader data access: binding beyond scale table" :
-                        "exact shader data access: integer format");
+                        "exact shader data access: integer format";
+                    // The promotion is one-way; name the shader that caused it.
+                    if (image.ScalePlan().domain != VideoCore::ScaleDomain::NativeRequired) {
+                        static std::atomic<u32> reports{};
+                        if (reports.fetch_add(1, std::memory_order_relaxed) < 64)
+                            LOG_INFO(Render_Vulkan,
+                                     "Internal scale: {} shader {:#x} pins image {:#x} native: {}",
+                                     magic_enum::enum_name(stage->sw_stage), stage->pgm_hash,
+                                     sharp.Address(), reason);
+                    }
+                    image.ForceNative(reason);
                 }
                 descriptor += resource.NumBindings(*stage);
             }

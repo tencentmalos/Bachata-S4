@@ -43,6 +43,7 @@
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/pm4_trace.h"
+#include "video_core/renderer_vulkan/draw_skip.h"
 #include "video_core/renderer_vulkan/vk_command_recorder.h"
 #include "video_core/renderer_vulkan/vk_pipeline_stats.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -356,22 +357,36 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             return VideoCore::MemoryDiagnostics::Read(args.empty() || args[0] == "request");
         });
 
+    registry.Register("draw_skip",
+                      "Drop draws by vertex/fragment shader hash (default none): status | add "
+                      "<hash>... | remove <hash>... | clear",
+                      [](const std::vector<std::string>& args) {
+                          return Vulkan::DrawSkip::Command(args);
+                      });
+
     registry.Register(
         "gpu_images",
-        "Cached GPU images: list | dump <image-uid> | status; dump waits for GPU, max 32 MiB",
+        "Cached GPU images: list | dump <image-uid> [layer] | status; dump waits for GPU, max 32 MiB",
         [](const std::vector<std::string>& args) {
             if (args.size() == 1 && args[0] == "status")
                 return VideoCore::MemoryDiagnostics::Images(false);
             if (args.size() == 1 && args[0] == "list")
                 return VideoCore::MemoryDiagnostics::Images(true);
-            if (args.size() != 2 || args[0] != "dump")
+            if ((args.size() != 2 && args.size() != 3) || args[0] != "dump")
                 return BadArguments();
             try {
                 size_t used{};
                 const auto address = std::stoull(args[1], &used, 0);
                 if (!address || used != args[1].size())
                     return BadArguments();
-                return VideoCore::MemoryDiagnostics::Images(true, address);
+                unsigned long long layer = 0;
+                if (args.size() == 3) {
+                    layer = std::stoull(args[2], &used, 0);
+                    if (used != args[2].size() || layer > 0xffff)
+                        return BadArguments();
+                }
+                return VideoCore::MemoryDiagnostics::Images(true, address,
+                                                            static_cast<unsigned>(layer));
             } catch (const std::exception&) {
                 return BadArguments();
             }

@@ -261,18 +261,21 @@ void TextureCache::PublishImageDiagnostics() {
     if (request == MemoryDiagnostics::image_completed.load(std::memory_order_acquire))
         return;
     u64 uid{};
+    u32 layer{};
     {
         std::scoped_lock lock{MemoryDiagnostics::mutex};
         if (!MemoryDiagnostics::active || MemoryDiagnostics::epoch != memory_diagnostics_epoch)
             return;
         uid = MemoryDiagnostics::image_uid;
+        layer = MemoryDiagnostics::image_layer;
     }
     const auto now = std::chrono::duration_cast<std::chrono::nanoseconds>(
                          std::chrono::steady_clock::now().time_since_epoch())
                          .count();
     std::ostringstream out;
     out << "sample_ns=" << now << " cache_epoch=" << memory_diagnostics_epoch
-        << " selector=mip0-layer0 physical_backing=true final_output_equivalence=unverified\n";
+        << " selector=mip0-layer" << layer
+        << " physical_backing=true final_output_equivalence=unverified\n";
     Image* selected{};
     u32 count{};
     for (auto& image : slot_images) {
@@ -303,23 +306,25 @@ void TextureCache::PublishImageDiagnostics() {
         const auto ci = image.backing->image.image_ci;
         const auto block = vk::blockExtent(ci.format);
         const u64 bytes = u64(ci.extent.width) * ci.extent.height * vk::blockSize(ci.format);
+        const bool color = image.aspect_mask == vk::ImageAspectFlagBits::eColor;
+        const bool depth_only = image.aspect_mask == vk::ImageAspectFlagBits::eDepth;
         if (ci.imageType != vk::ImageType::e2D || ci.extent.depth != 1 ||
-            ci.samples != vk::SampleCountFlagBits::e1 ||
-            image.aspect_mask != vk::ImageAspectFlagBits::eColor || block[0] != 1 ||
-            block[1] != 1 || block[2] != 1 || !bytes || bytes > 32_MB ||
+            ci.samples != vk::SampleCountFlagBits::e1 || !(color || depth_only) ||
+            block[0] != 1 || block[1] != 1 || block[2] != 1 || !bytes || bytes > 32_MB ||
+            layer >= ci.arrayLayers ||
             image.backing->state.layout == vk::ImageLayout::eUndefined ||
             !(ci.usage & vk::ImageUsageFlagBits::eTransferSrc)) {
-            out << "status=unsupported (requires initialized single-sample uncompressed 2D color, "
-                   "<=32 MiB)\n";
+            out << "status=unsupported (requires initialized single-sample uncompressed 2D color "
+                   "or depth-only layer, <=32 MiB)\n";
         } else {
             // Diagnostic readback of the existing physical backing: no scale promotion,
             // guest-memory writeback, format conversion, or mutation of content versions.
             Buffer output(instance, 0, bytes, MemoryType::HostCached, "GPU image diagnostic");
             scheduler.EndRendering(Vulkan::RenderBreak::Download);
             image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead,
-                          SubresourceRange{{0, 0}, {1, 1}});
+                          SubresourceRange{{0, layer}, {1, 1}});
             const vk::BufferImageCopy copy{
-                .imageSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1},
+                .imageSubresource = {image.aspect_mask, 0, layer, 1},
                 .imageExtent = ci.extent};
             scheduler.CommandBuffer().copyImageToBuffer(
                 image.GetImage(), vk::ImageLayout::eTransferSrcOptimal, output.Handle(), copy);
@@ -335,7 +340,8 @@ void TextureCache::PublishImageDiagnostics() {
                 const auto directory =
                     Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) / "gpu-images";
                 std::filesystem::create_directories(directory);
-                const auto path = directory / fmt::format("image-{}-{}-{}.bin", now, request, uid);
+                const auto path =
+                    directory / fmt::format("image-{}-{}-{}-L{}.bin", now, request, uid, layer);
                 std::ofstream file(path, std::ios::binary);
                 file.write(reinterpret_cast<const char*>(output.mapped_data.data()), bytes);
                 file.close();

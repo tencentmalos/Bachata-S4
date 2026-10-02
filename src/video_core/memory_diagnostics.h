@@ -17,6 +17,7 @@ inline std::string snapshot;
 inline ScalePolicySnapshot scale_policy;
 inline std::atomic<unsigned long long> image_requested{}, image_completed{};
 inline unsigned long long image_uid{};
+inline unsigned image_layer{};
 inline std::string image_snapshot;
 // Allocation events only, never sampled per draw. These count upload source images
 // until their scheduler-owned objects are destroyed, including GPU retirement.
@@ -75,8 +76,9 @@ inline std::string Read(bool request) {
         (snapshot.empty() ? "status=awaiting-renderer-sample\n" : snapshot);
 }
 // Explicit diagnostic only. UID 0 lists cached identities; a nonzero UID
-// reads one existing color image without copying data into guest memory.
-inline std::string Images(bool request, unsigned long long uid = 0) {
+// reads one layer (mip 0) of an existing color or depth-only image without
+// copying data into guest memory.
+inline std::string Images(bool request, unsigned long long uid = 0, unsigned layer = 0) {
     std::scoped_lock lock{mutex};
     if (!active)
         return "status=unavailable (no renderer)\n";
@@ -84,6 +86,7 @@ inline std::string Images(bool request, unsigned long long uid = 0) {
         if (image_requested.load() != image_completed.load())
             return "status=busy\n";
         image_uid = uid;
+        image_layer = layer;
         image_snapshot.clear();
         image_requested.fetch_add(1, std::memory_order_release);
     }
