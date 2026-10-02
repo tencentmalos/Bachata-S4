@@ -1,3 +1,5 @@
+**GCN 实现参考：[PC / Android GCN 模拟、fallback 与改进方向](guides/gcn-emulation.md)**（2026-10-02）：共用编译链、按驱动选择的兼容机制、精度/正确性边界、CPU/GPU成本与验证方法；[本轮A740清查证据](validation/android-native-host/gcn-software-audit-20261002.md)。
+
 **2026-09-25：[Guest GPU command trace / PM4 trace 操作入口](debugbus-gpu-command-trace.md)**（已合入主干）：有界采集、离线解码、KGSL 身份关联与错误现场保存；[MHW 实例](validation/android-native-host/mhw-gpu-trace-20260925.md)。后文 09-14 的“待实施”是历史状态。
 
 **2026-09-20 推荐 spec：[Internal Scale 资源分流、小贴图保护与动态尺寸](specs/internal-scale-resource-policy-20260920.md)。** 基于当前PS4实现及本地Citron对照，建议独立Render Scale/Texture Quality，补齐小图、streaming mip、RT用途转换和动态extent约束；仅设计，尚未实施或完成新策略验收。

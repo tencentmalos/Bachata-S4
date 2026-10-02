@@ -1,0 +1,2 @@
+9b93041c0496229349fdfe62168ee16c062dea5da67033a747a2ecbc32ccc7db  /data/local/tmp/shad-gpu-query-20261002/libshadps4_host.so
+8294375420b186838c17c710a191be8849701ddf51d2d530e534864a812f8794  /data/local/tmp/shad-gpu-query-20261002/vulkan.ad07xx.so

@@ -1,0 +1,18 @@
+{
+  "apk_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/gpu-query-recovery-20261002/shadps4-gcn-audit.apk",
+  "apk_sha256": "00de1f25f2d8ecc6bcc3b89b049cae80778805380b25e4853e152eb561d0d14e",
+  "host_sha256": "85a43613893651d6eb3c4a062edfaa9085f28c830f15020ba4465fd964644603",
+  "drivers": [
+    [
+      "assets/native-turnip/vulkan.ad07xx.so",
+      "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09"
+    ],
+    [
+      "assets/native-turnip-mainline/vulkan.ad07xx.so",
+      "8294375420b186838c17c710a191be8849701ddf51d2d530e534864a812f8794"
+    ]
+  ],
+  "installed": false,
+  "device_current_apk_sha256": "9483b4f48e4a749a3a90f6b649730f40200a9968ec1a1e42ee32eb89add6975f",
+  "validation": "Android native/APK build passed; title-gate tests passed 11/0 on Android and macOS; no new APK game validation"
+}

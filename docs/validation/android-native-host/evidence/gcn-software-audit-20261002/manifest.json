@@ -1,0 +1,18 @@
+{
+  "source_head": "85a39824d",
+  "app_pid": 13762,
+  "installed_apk_sha256": "9483b4f48e4a749a3a90f6b649730f40200a9968ec1a1e42ee32eb89add6975f",
+  "host_sha256": "9b93041c0496229349fdfe62168ee16c062dea5da67033a747a2ecbc32ccc7db",
+  "mesa_commit": "9b8a35676e",
+  "driver_sha256": "8294375420b186838c17c710a191be8849701ddf51d2d530e534864a812f8794",
+  "device": "AYN Thor / Adreno 740",
+  "capture": "Live compiler profile plus read-only cached modules; no GPU-time attribution",
+  "raw_local_directory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/gpu-query-recovery-20261002",
+  "raw_files": {
+    "bloodborne-cache-audit.tar": "e0ceb4c5f5ad1663fb8828c62f730bb04406427d0dd10e12447b6826a468f313",
+    "gcn-cache-audit.json": "92fadb082ca43ba3b2451325bc8199d61516412df337e617dc43308646428ae7",
+    "audit-android-host.log": "d6043e12d092d7adc229ad6aef161576456cde5faf5cdd490f4b02c7e50629ba",
+    "properties-audit.txt": "c588fe26364016bf3b12bfaac5ea4eb9845c52d2fccc339708558b7fdceab366",
+    "audit-process-environ.bin": "469accf8c040d331a055c7fcaf3a443e21e016fab9fe99a2024e2a2200b8c04d"
+  }
+}

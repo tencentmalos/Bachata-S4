@@ -348,7 +348,8 @@ bool Instance::CreateDevice() {
                           vk::PhysicalDeviceShaderClockFeaturesKHR>();
     features = feature_chain.get().features;
     LOG_INFO(Render_Vulkan, "Shader Int64 path: {}",
-             features.shaderInt64 ? "native" : "u32 pair lowering (including BDA)");
+             features.shaderInt64 ? "driver SPIR-V Int64 (not a native hardware claim)"
+                                  : "host u32 pair lowering (including BDA)");
 
     const vk::StructureChain properties_chain = physical_device.getProperties2<
         vk::PhysicalDeviceProperties2, vk::PhysicalDeviceVulkan11Properties,

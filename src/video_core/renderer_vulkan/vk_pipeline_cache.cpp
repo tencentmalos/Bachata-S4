@@ -16,6 +16,7 @@
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "shader_recompiler/backend/spirv/emit_spirv.h"
+#include "shader_recompiler/experimental_features.h"
 #include "shader_recompiler/info.h"
 #include "shader_recompiler/recompiler.h"
 #include "shader_recompiler/runtime_info.h"
@@ -301,7 +302,9 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         lower_int64 = true;
     }
 #endif
-    LOG_INFO(Render_Vulkan, "Guest shader Int64: {}", lower_int64 ? "u32-pair" : "native");
+    LOG_INFO(Render_Vulkan, "Guest shader Int64: {}",
+             lower_int64 ? "host u32-pair lowering"
+                         : "driver SPIR-V Int64 (hardware lowering is driver-owned)");
     // Whole-wave reductions as clustered subgroup operations. The diagnostic override
     // (debug.shadps4.wave_reduction / SHADPS4_WAVE_REDUCTION = 0) restores the shuffle
     // translation for same-build A/B; it cannot enable an unsupported capability.
@@ -337,9 +340,17 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
     bool software_interpolation = false;
 #ifdef __ANDROID__
     char interpolation_property[PROP_VALUE_MAX]{};
+    __system_property_get("debug.shadps4.software_interp", interpolation_property);
+    const std::string_view interpolation_title{interpolation_property};
+    const auto& current_title = Common::ElfInfo::Instance().GameSerial();
     software_interpolation =
-        __system_property_get("debug.shadps4.software_interp", interpolation_property) > 0 &&
-        std::string_view(interpolation_property) == "1";
+        Shader::IsTitleShaderExperimentEnabled(interpolation_title, current_title);
+    if (!interpolation_title.empty() && interpolation_title != "0" && !software_interpolation) {
+        LOG_WARNING(Render_Vulkan,
+                    "Ignoring software_interp='{}' for '{}': the experimental GS bridge requires "
+                    "this game's exact CUSA title ID, not a device-wide boolean",
+                    interpolation_title, current_title);
+    }
 #endif
     software_interpolation &= instance.IsGeometryStageSupported() &&
                               !instance.IsFragmentShaderBarycentricSupported() &&
@@ -410,6 +421,22 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .force_disable_msaa = instance.IsMsaaDisabled(),
         .direct_memory_access = EmulatorSettings.IsDirectMemoryAccessEnabled(),
     };
+    // Report selected compiler policies, not a claim that every shader uses them.
+    LOG_INFO(Render_Vulkan,
+             "Shader compatibility policy: fp64_to_fp32={} compute_subgroup={} "
+             "wave64_lds_bridge={} shared_limit={} shared_explicit_layout={} "
+             "manual_interpolation={} clip_discard={}",
+             !profile.support_float64, profile.subgroup_size, profile.subgroup_size != 64,
+             profile.max_shared_memory_size, profile.supports_workgroup_explicit_memory_layout,
+             profile.needs_manual_interpolation, profile.needs_clip_distance_emulation);
+    LOG_INFO(Render_Vulkan,
+             "Shader compatibility policy: cube_alu={} trinary_alu={} "
+             "storage_lod_views={} fp32_atomic_buffer_fallback={} fp32_atomic_image_fallback={} "
+             "int64_atomics_buffer={} int64_atomics_shared={}",
+             !profile.supports_native_cube_calc, !profile.supports_trinary_minmax,
+             !profile.supports_image_load_store_lod, !profile.supports_buffer_fp32_atomic_min_max,
+             !profile.supports_image_fp32_atomic_min_max, profile.supports_buffer_int64_atomics,
+             profile.supports_shared_int64_atomics);
     PipelineStats::Reset();
     MissingContent::Reset();
     // The driver cache must exist before preloading so preloaded pipelines populate and reuse it.

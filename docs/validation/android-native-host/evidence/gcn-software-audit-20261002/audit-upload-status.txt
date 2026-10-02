@@ -1,0 +1,14 @@
+SERVICE com.shadps4.android/.service.FexSessionService 4c18320 pid=13762 user=0
+  Client:
+    armed=0 uploads=0 images=0 frames=0 uploads_per_frame=0.00 dirty_notes=0 log_left=0
+    watch_coalesce=on watch_predict=on
+    ignore_storage_dirty=0 ignored_storage_dirty=0
+    raw_sync: off=0 syncs=0 bytes=0 stale_images_skipped=0
+    dma_bounds: enabled=0 bounded_calls=0 full_calls=0 ranges_skipped=0
+    raw_copy: off=0 image_copies=0 bytes=0 dispatched=0
+    compute_fill: off=0 images_cleared=0 bytes_cleared=0 cleared=0 no_image=0 partial=0 pattern=0 format=0 gpu_resident=0 disabled=0
+    image-writing dispatches=0 dispatch_log_left=0 (pgm_hash dispatches):
+    uploads by writing shader (pgm_hash uploads):
+    outcome_by_source (unchanged changed partial first gpu_resident):
+    top images (addr size format WxHxD layers mips tile scaled | uploads unchanged changed partial first gpu_resident | dominant source last_writer):
+
