@@ -11,6 +11,8 @@
 #include <fcntl.h>
 #endif
 
+#include <algorithm>
+#include <chrono>
 #include <core/libraries/kernel/kernel.h>
 #include <magic_enum/magic_enum.hpp>
 #include "common/assert.h"
@@ -968,6 +970,7 @@ int PS4_SYSV_ABI sceNetEpollControl(OrbisNetId epollid, OrbisNetEpollFlag op, Or
         return ORBIS_NET_ERROR_EINVAL;
     }
 
+    epoll->NotifyChange();
     return ORBIS_OK;
 }
 
@@ -1016,9 +1019,45 @@ int PS4_SYSV_ABI sceNetEpollWait(OrbisNetId epollid, OrbisNetEpollEvent* events,
     LOG_DEBUG(Lib_Net, "called, epollid = {} ({}), maxevents = {}, timeout = {}", epollid,
               epoll->name, maxevents, timeout);
 
-    int sockets_waited_on = (epoll->events.size() - epoll->async_resolutions.size()) > 0;
+    const auto socket_count = [&] {
+        return epoll->events.size() - epoll->async_resolutions.size();
+    };
+    // Nothing that can report (no socket, no pending resolution) until a registration changes:
+    // wait out the timeout (microseconds, negative is infinite) instead of returning at once,
+    // which turned a guest polling loop into a busy spin. Infinite waits re-check every 100 ms
+    // so they never hold up emulator shutdown.
+    if (timeout != 0 && socket_count() == 0 && epoll->async_resolutions.empty()) {
+        using Clock = std::chrono::steady_clock;
+        const auto deadline = timeout < 0 ? Clock::time_point::max()
+                                          : Clock::now() + std::chrono::microseconds(timeout);
+        u64 seen = epoll->Changes();
+        while (socket_count() == 0 && epoll->async_resolutions.empty()) {
+            if (epoll->Destroyed()) {
+                *sceNetErrnoLoc() = ORBIS_NET_EBADF;
+                return ORBIS_NET_ERROR_EBADF;
+            }
+            const auto now = Clock::now();
+            if (now >= deadline) {
+                LOG_TRACE(Lib_Net, "timed out");
+                return 0;
+            }
+            if (epoll->WaitForChange(seen, (std::min)(deadline, now + std::chrono::milliseconds(100)))) {
+                seen = epoll->Changes();
+            }
+        }
+        if (timeout > 0) {
+            // What is left of the timeout applies to the registrations that arrived.
+            const auto left = std::chrono::duration_cast<std::chrono::microseconds>(
+                deadline - Clock::now());
+            timeout = static_cast<int>((std::max<s64>)(left.count(), 0));
+        }
+    }
+    const int sockets_waited_on = socket_count() > 0;
 
-    std::vector<epoll_event> native_events{static_cast<size_t>(maxevents)};
+    thread_local std::vector<epoll_event> native_events;
+    if (sockets_waited_on && native_events.size() < static_cast<size_t>((std::max)(maxevents, 1))) {
+        native_events.resize((std::max)(maxevents, 1));
+    }
     int result = ORBIS_OK;
     if (sockets_waited_on) {
 #if defined(__linux__) && !defined(__ANDROID__)

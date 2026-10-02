@@ -6,7 +6,10 @@
 #include "common/types.h"
 #include "core/libraries/network/net.h"
 
+#include <chrono>
+#include <condition_variable>
 #include <deque>
+#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -60,10 +63,41 @@ struct Epoll {
 #endif
         name = "";
         destroyed = true;
+        NotifyChange();
+    }
+
+    /// Registrations changed or the epoll was destroyed: wakes waits on an empty epoll.
+    void NotifyChange() noexcept {
+        if (!wait) {
+            return; // Moved from.
+        }
+        {
+            std::scoped_lock lock{wait->mutex};
+            ++wait->changes;
+        }
+        wait->cv.notify_all();
+    }
+
+    [[nodiscard]] u64 Changes() {
+        std::scoped_lock lock{wait->mutex};
+        return wait->changes;
+    }
+
+    /// Waits until a change after `seen` or `deadline`; true when something changed.
+    bool WaitForChange(u64 seen, std::chrono::steady_clock::time_point deadline) {
+        std::unique_lock lock{wait->mutex};
+        return wait->cv.wait_until(lock, deadline, [&] { return wait->changes != seen; });
     }
 
 private:
+    struct WaitState {
+        std::mutex mutex;
+        std::condition_variable cv;
+        u64 changes{};
+    };
     bool destroyed{};
+    // Separate so an Epoll stays movable.
+    std::unique_ptr<WaitState> wait = std::make_unique<WaitState>();
 };
 
 u32 ConvertEpollEventsIn(u32 orbis_events);
