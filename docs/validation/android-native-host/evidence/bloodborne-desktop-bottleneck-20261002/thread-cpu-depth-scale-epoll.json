@@ -1,0 +1,1211 @@
+﻿{
+    "wall_ms":  10074.777,
+    "rows":  [
+                 {
+                     "tid":  19168,
+                     "name":  "shadPS4:GpuCommandProcessor",
+                     "cpu_ms":  8296.9,
+                     "kernel_ms":  1468.8,
+                     "user_ms":  6828.1,
+                     "busy_pct":  82.4,
+                     "gcycles":  16.414
+                 },
+                 {
+                     "tid":  46412,
+                     "name":  "Game:Main",
+                     "cpu_ms":  5000,
+                     "kernel_ms":  1250,
+                     "user_ms":  3750,
+                     "busy_pct":  49.6,
+                     "gcycles":  10.124
+                 },
+                 {
+                     "tid":  8484,
+                     "name":  "shadPS4:VkRecord",
+                     "cpu_ms":  1593.8,
+                     "kernel_ms":  656.2,
+                     "user_ms":  937.5,
+                     "busy_pct":  15.8,
+                     "gcycles":  3.762
+                 },
+                 {
+                     "tid":  20236,
+                     "name":  "SDLTimer",
+                     "cpu_ms":  1421.9,
+                     "kernel_ms":  656.2,
+                     "user_ms":  765.6,
+                     "busy_pct":  14.1,
+                     "gcycles":  2.556
+                 },
+                 {
+                     "tid":  32256,
+                     "name":  "GXWorker:4",
+                     "cpu_ms":  1281.2,
+                     "kernel_ms":  609.4,
+                     "user_ms":  671.9,
+                     "busy_pct":  12.7,
+                     "gcycles":  2.434
+                 },
+                 {
+                     "tid":  39520,
+                     "name":  "GXWorker:3",
+                     "cpu_ms":  1250,
+                     "kernel_ms":  578.1,
+                     "user_ms":  671.9,
+                     "busy_pct":  12.4,
+                     "gcycles":  2.436
+                 },
+                 {
+                     "tid":  41020,
+                     "name":  "GXWorker:2",
+                     "cpu_ms":  1171.9,
+                     "kernel_ms":  484.4,
+                     "user_ms":  687.5,
+                     "busy_pct":  11.6,
+                     "gcycles":  2.429
+                 },
+                 {
+                     "tid":  43080,
+                     "name":  "GXWorker:1",
+                     "cpu_ms":  1125,
+                     "kernel_ms":  578.1,
+                     "user_ms":  546.9,
+                     "busy_pct":  11.2,
+                     "gcycles":  2.464
+                 },
+                 {
+                     "tid":  12120,
+                     "name":  "GXWorker:5",
+                     "cpu_ms":  1125,
+                     "kernel_ms":  578.1,
+                     "user_ms":  546.9,
+                     "busy_pct":  11.2,
+                     "gcycles":  2.447
+                 },
+                 {
+                     "tid":  48592,
+                     "name":  "GXRenderThread",
+                     "cpu_ms":  625,
+                     "kernel_ms":  62.5,
+                     "user_ms":  562.5,
+                     "busy_pct":  6.2,
+                     "gcycles":  1.259
+                 },
+                 {
+                     "tid":  45860,
+                     "name":  "shadPS4:PresentThread",
+                     "cpu_ms":  625,
+                     "kernel_ms":  296.9,
+                     "user_ms":  328.1,
+                     "busy_pct":  6.2,
+                     "gcycles":  0.981
+                 },
+                 {
+                     "tid":  35740,
+                     "name":  "FMOD mixer thread",
+                     "cpu_ms":  453.1,
+                     "kernel_ms":  125,
+                     "user_ms":  328.1,
+                     "busy_pct":  4.5,
+                     "gcycles":  0.808
+                 },
+                 {
+                     "tid":  15680,
+                     "name":  "HavokWorkerThread",
+                     "cpu_ms":  343.8,
+                     "kernel_ms":  93.8,
+                     "user_ms":  250,
+                     "busy_pct":  3.4,
+                     "gcycles":  0.772
+                 },
+                 {
+                     "tid":  22132,
+                     "name":  "CSChrThread4",
+                     "cpu_ms":  312.5,
+                     "kernel_ms":  93.8,
+                     "user_ms":  218.8,
+                     "busy_pct":  3.1,
+                     "gcycles":  0.68
+                 },
+                 {
+                     "tid":  13416,
+                     "name":  "CSChrThread2",
+                     "cpu_ms":  296.9,
+                     "kernel_ms":  62.5,
+                     "user_ms":  234.4,
+                     "busy_pct":  2.9,
+                     "gcycles":  0.651
+                 },
+                 {
+                     "tid":  9036,
+                     "name":  "HavokWorkerThread",
+                     "cpu_ms":  296.9,
+                     "kernel_ms":  171.9,
+                     "user_ms":  125,
+                     "busy_pct":  2.9,
+                     "gcycles":  0.742
+                 },
+                 {
+                     "tid":  47040,
+                     "name":  "shadPS4:Main",
+                     "cpu_ms":  296.9,
+                     "kernel_ms":  265.6,
+                     "user_ms":  31.2,
+                     "busy_pct":  2.9,
+                     "gcycles":  0.53
+                 },
+                 {
+                     "tid":  19308,
+                     "name":  "CSChrThread1",
+                     "cpu_ms":  281.2,
+                     "kernel_ms":  109.4,
+                     "user_ms":  171.9,
+                     "busy_pct":  2.8,
+                     "gcycles":  0.64
+                 },
+                 {
+                     "tid":  15556,
+                     "name":  "HavokWorkerThread",
+                     "cpu_ms":  281.2,
+                     "kernel_ms":  109.4,
+                     "user_ms":  171.9,
+                     "busy_pct":  2.8,
+                     "gcycles":  0.686
+                 },
+                 {
+                     "tid":  37280,
+                     "name":  "CSChrThread3",
+                     "cpu_ms":  281.2,
+                     "kernel_ms":  93.8,
+                     "user_ms":  187.5,
+                     "busy_pct":  2.8,
+                     "gcycles":  0.659
+                 },
+                 {
+                     "tid":  12356,
+                     "name":  "CSChrThread5",
+                     "cpu_ms":  265.6,
+                     "kernel_ms":  93.8,
+                     "user_ms":  171.9,
+                     "busy_pct":  2.6,
+                     "gcycles":  0.73
+                 },
+                 {
+                     "tid":  31460,
+                     "name":  "CSChrThread0",
+                     "cpu_ms":  250,
+                     "kernel_ms":  62.5,
+                     "user_ms":  187.5,
+                     "busy_pct":  2.5,
+                     "gcycles":  0.62
+                 },
+                 {
+                     "tid":  7228,
+                     "name":  "HavokWorkerThread",
+                     "cpu_ms":  250,
+                     "kernel_ms":  109.4,
+                     "user_ms":  140.6,
+                     "busy_pct":  2.5,
+                     "gcycles":  0.726
+                 },
+                 {
+                     "tid":  16480,
+                     "name":  "HavokWorkerThread",
+                     "cpu_ms":  234.4,
+                     "kernel_ms":  78.1,
+                     "user_ms":  156.2,
+                     "busy_pct":  2.3,
+                     "gcycles":  0.691
+                 },
+                 {
+                     "tid":  43872,
+                     "name":  "EzWorkPool_TypeB3",
+                     "cpu_ms":  187.5,
+                     "kernel_ms":  62.5,
+                     "user_ms":  125,
+                     "busy_pct":  1.9,
+                     "gcycles":  0.351
+                 },
+                 {
+                     "tid":  19516,
+                     "name":  "EzWorkPool_TypeB1",
+                     "cpu_ms":  93.8,
+                     "kernel_ms":  93.8,
+                     "user_ms":  0,
+                     "busy_pct":  0.9,
+                     "gcycles":  0.14
+                 },
+                 {
+                     "tid":  31504,
+                     "name":  "EzWorkPool_TypeB2",
+                     "cpu_ms":  93.8,
+                     "kernel_ms":  31.2,
+                     "user_ms":  62.5,
+                     "busy_pct":  0.9,
+                     "gcycles":  0.171
+                 },
+                 {
+                     "tid":  9928,
+                     "name":  "shadPS4:AjmWorker",
+                     "cpu_ms":  78.1,
+                     "kernel_ms":  15.6,
+                     "user_ms":  62.5,
+                     "busy_pct":  0.8,
+                     "gcycles":  0.18
+                 },
+                 {
+                     "tid":  38488,
+                     "name":  "MOMainThread",
+                     "cpu_ms":  62.5,
+                     "kernel_ms":  0,
+                     "user_ms":  62.5,
+                     "busy_pct":  0.6,
+                     "gcycles":  0.105
+                 },
+                 {
+                     "tid":  38352,
+                     "name":  "FMOD AudioOut thread",
+                     "cpu_ms":  46.9,
+                     "kernel_ms":  15.6,
+                     "user_ms":  31.2,
+                     "busy_pct":  0.5,
+                     "gcycles":  0.081
+                 },
+                 {
+                     "tid":  44924,
+                     "name":  "Tracy Profiler",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  15.6,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.068
+                 },
+                 {
+                     "tid":  41792,
+                     "name":  "shadPS4:Log",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  0,
+                     "user_ms":  31.2,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.05
+                 },
+                 {
+                     "tid":  19912,
+                     "name":  "SDLAudioP15",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  15.6,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.045
+                 },
+                 {
+                     "tid":  30404,
+                     "name":  "NexusRevolution Main",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  15.6,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.068
+                 },
+                 {
+                     "tid":  38688,
+                     "name":  "shadPS4:GuestLog",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  0,
+                     "user_ms":  31.2,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.049
+                 },
+                 {
+                     "tid":  14140,
+                     "name":  "NexusRevolution Surveillance",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  15.6,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.021
+                 },
+                 {
+                     "tid":  37176,
+                     "name":  "CSClothThread4",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  15.6,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.043
+                 },
+                 {
+                     "tid":  45716,
+                     "name":  "FMOD stream thread",
+                     "cpu_ms":  31.2,
+                     "kernel_ms":  15.6,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.3,
+                     "gcycles":  0.194
+                 },
+                 {
+                     "tid":  38480,
+                     "name":  "CSClothThread3",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  15.6,
+                     "user_ms":  0,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.032
+                 },
+                 {
+                     "tid":  37872,
+                     "name":  "FMOD file thread",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  0,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.024
+                 },
+                 {
+                     "tid":  28380,
+                     "name":  "",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  15.6,
+                     "user_ms":  0,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.07
+                 },
+                 {
+                     "tid":  14380,
+                     "name":  "shadPS4:AudioOutputThread:0x6002ae8b1de0",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  15.6,
+                     "user_ms":  0,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.079
+                 },
+                 {
+                     "tid":  43704,
+                     "name":  "FsrmiWrapper.FsrmiManager",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  0,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.018
+                 },
+                 {
+                     "tid":  40124,
+                     "name":  "",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  15.6,
+                     "user_ms":  0,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.006
+                 },
+                 {
+                     "tid":  36924,
+                     "name":  "CSClothThread5",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  0,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.048
+                 },
+                 {
+                     "tid":  20824,
+                     "name":  "FMOD nonblocking thread (0)",
+                     "cpu_ms":  15.6,
+                     "kernel_ms":  0,
+                     "user_ms":  15.6,
+                     "busy_pct":  0.2,
+                     "gcycles":  0.001
+                 },
+                 {
+                     "tid":  47800,
+                     "name":  "CSClothThread2",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.023
+                 },
+                 {
+                     "tid":  16728,
+                     "name":  "CSTrophy::AsyncUpdateThread",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  26252,
+                     "name":  "shadPS4:ImGuiTextureManager",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  17884,
+                     "name":  "D3D Background Thread 0",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  11016,
+                     "name":  "SDL_joystick",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  16984,
+                     "name":  "EzWorkPool_TypeA0",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  27816,
+                     "name":  "shadPS4:PipelineCompile",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  29732,
+                     "name":  "Core.Res.TaskManager",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  33520,
+                     "name":  "CSChrBackInitialize1",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  8328,
+                     "name":  "DeviceHotplugThread",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30284,
+                     "name":  "SpClothVertexUpdate",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.009
+                 },
+                 {
+                     "tid":  31100,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  47448,
+                     "name":  "shadPS4:PipelineCacheSave",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  3648,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  14844,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  33548,
+                     "name":  "D3D Background Thread 1",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  26848,
+                     "name":  "shadPS4:GpuSchedPriorityPendingOpsRunner",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  28544,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  32480,
+                     "name":  "FsrmiWrapper.TcpServer",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  7152,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  18556,
+                     "name":  "Core.Res.CacheableFileLoader",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  12228,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30532,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  7872,
+                     "name":  "shadPS4:KernelServiceThread",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30160,
+                     "name":  "EzWorkPool_TypeD1",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30356,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  46504,
+                     "name":  "shadPS4:ZArchiveIO",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.001
+                 },
+                 {
+                     "tid":  40584,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  39400,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  42952,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  11432,
+                     "name":  "SpClothVertexUpdate",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.01
+                 },
+                 {
+                     "tid":  43544,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  37264,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  41132,
+                     "name":  "CSClothThread0",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.014
+                 },
+                 {
+                     "tid":  44948,
+                     "name":  "EzWorkPool_TypeC4",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  20080,
+                     "name":  "EzWorkPool_TypeA1",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  28328,
+                     "name":  "FaceGenMan",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30524,
+                     "name":  "EzWorkPool_TypeA2",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  3568,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  15984,
+                     "name":  "DLUserPreferenceNotifyServiceIm",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.007
+                 },
+                 {
+                     "tid":  6784,
+                     "name":  "NexusRevolution Socket",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.01
+                 },
+                 {
+                     "tid":  27016,
+                     "name":  "Network",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  40608,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30384,
+                     "name":  "Core.Res.PostProcessor_0",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  14984,
+                     "name":  "SLSession",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  17004,
+                     "name":  "Core.Res.PostProcessor_1",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  28092,
+                     "name":  "Core.Res.PostProcessor_2",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  34032,
+                     "name":  "shadPS4:AudioOutputThread:0x6002ae8b1f80",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.034
+                 },
+                 {
+                     "tid":  22016,
+                     "name":  "shadPS4:PipelineCompile",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  29760,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  26504,
+                     "name":  "SpClothVertexUpdate",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.01
+                 },
+                 {
+                     "tid":  18032,
+                     "name":  "D3D Background Thread 2",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  16720,
+                     "name":  "shadPS4:SaveData:BackupThread",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  8584,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  36160,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  46740,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  12936,
+                     "name":  "RMIMethodRunner0",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.013
+                 },
+                 {
+                     "tid":  18060,
+                     "name":  "shadPS4:PipelineCompile",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  44264,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  8808,
+                     "name":  "Core.Logging.BackgroundStrategy",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  42892,
+                     "name":  "SpClothVertexUpdate",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.001
+                 },
+                 {
+                     "tid":  49104,
+                     "name":  "NexusRevolution Event",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.003
+                 },
+                 {
+                     "tid":  12732,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  7612,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.016
+                 },
+                 {
+                     "tid":  16160,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  26328,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  16236,
+                     "name":  "Matching2:Dispatch",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  26676,
+                     "name":  "SDLWASAPIMgmt",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  30696,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  45592,
+                     "name":  "shadPS4:GpuSchedPriorityPendingOpsRunner",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  7176,
+                     "name":  "CSClothThread1",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.02
+                 },
+                 {
+                     "tid":  38980,
+                     "name":  "Core.Res.FileLoader",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  16228,
+                     "name":  "SpClothVertexUpdate",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.011
+                 },
+                 {
+                     "tid":  43112,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  5000,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  18712,
+                     "name":  "shadPS4:ZArchiveIO",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  44796,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  31028,
+                     "name":  "FD4JobWorker:0",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  45268,
+                     "name":  "EzWorkPool_TypeA3",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  45016,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  41916,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  7588,
+                     "name":  "shadPS4:PipelineCompile",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  8764,
+                     "name":  "D3D Background Thread 3",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  16636,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.001
+                 },
+                 {
+                     "tid":  10724,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  44808,
+                     "name":  "",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  25900,
+                     "name":  "shadPS4:GpuSchedPriorityPendingOpsRunner",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0
+                 },
+                 {
+                     "tid":  26332,
+                     "name":  "SpClothVertexUpdate",
+                     "cpu_ms":  0,
+                     "kernel_ms":  0,
+                     "user_ms":  0,
+                     "busy_pct":  0,
+                     "gcycles":  0.009
+                 }
+             ]
+}

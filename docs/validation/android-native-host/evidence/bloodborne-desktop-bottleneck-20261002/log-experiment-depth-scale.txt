@@ -1,0 +1,10 @@
+[2026-10-02 18:56:25.048][Info][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:373 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[2026-10-02 18:56:25.059][Warn][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:436 BlitBacking: Experiment depth scale: skipped blit into 960x540 D32SfloatS8Uint 0x24f3f0000 (upload/resample)
+[2026-10-02 18:57:04.189][Info][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:373 Image: Internal scale allocation: 960x540 D32SfloatS8Uint -> 480x270 D32SfloatS8Uint levels 1 -> 1 mode resample
+[2026-10-02 18:57:04.191][Warn][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:436 BlitBacking: Experiment depth scale: skipped blit into 480x270 D32SfloatS8Uint 0x269820000 (upload/resample)
+[2026-10-02 18:57:04.192][Info][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:373 Image: Internal scale allocation: 480x270 D32SfloatS8Uint -> 240x135 D32SfloatS8Uint levels 1 -> 1 mode resample
+[2026-10-02 18:57:04.193][Warn][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:436 BlitBacking: Experiment depth scale: skipped blit into 240x135 D32SfloatS8Uint 0x2e1298000 (upload/resample)
+[2026-10-02 18:57:04.250][Info][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:373 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[2026-10-02 18:57:04.252][Warn][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:436 BlitBacking: Experiment depth scale: skipped blit into 960x540 D32SfloatS8Uint 0x25a008000 (upload/resample)
+[2026-10-02 18:57:04.254][Info][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:373 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+[2026-10-02 18:57:04.259][Warn][5356][Render_Vulkan](shadPS4:GpuCommandProcessor) image.cpp:436 BlitBacking: Experiment depth scale: skipped blit into 960x540 D32SfloatS8Uint 0x25d118000 (upload/resample)

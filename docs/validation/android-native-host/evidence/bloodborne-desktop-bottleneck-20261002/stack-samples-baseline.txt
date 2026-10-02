@@ -1,0 +1,1045 @@
+pid=24872 elapsed=10.00s interval=2ms ticks=652 threads=15
+suspend avg=850.7us max=57347us
+
+=== 31644 NexusRevolution Socket: samples=652 running=652 (100.0%) blocked=0  tsc_cycles=19.324G
+  -- top self (running samples):
+     19.33%     126  ntdll.dll!RtlGetSystemTimePrecise
+     12.12%      79  shadps4.exe!Libraries::Net::sceNetEpollWait
+      9.82%      64  ntdll.dll!RtlAllocateHeap
+      7.82%      51  ntdll.dll!RtlReleaseSRWLockExclusive
+      5.98%      39  ntdll.dll!RtlFreeHeap
+      5.98%      39  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock
+      5.83%      38  shadps4.exe!Libraries::Kernel::posix_gettimeofday
+      5.06%      33  shadps4.exe!Common::Singleton<Core::FileSys::HandleTable>::Instance
+      5.06%      33  ntdll.dll!RtlAcquireSRWLockExclusive
+      2.30%      15  MSVCP140.dll!Mtx_lock
+      2.15%      14  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock
+      1.84%      12  shadps4.exe!Libraries::Kernel::Sync::LockWord::lock
+      1.23%       8  shadps4.exe!std::_Atomic_reinterpret_as<long,unsigned int>
+      1.07%       7  KERNEL32.DLL!GetCurrentThreadId
+      1.07%       7  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_lock>::wrap>::wrap
+      1.07%       7  [guest]eboot.bin+0x2080273
+      0.92%       6  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_unlock>::wrap>::wrap
+      0.77%       5  shadps4.exe!Common::Log::ShouldLog
+      0.61%       4  [guest]eboot.bin+0x2080270
+      0.61%       4  ucrtbase.dll!free
+      0.61%       4  [guest]eboot.bin+0x2080461
+      0.46%       3  [guest]eboot.bin+0x2bbec28
+      0.46%       3  shadps4.exe!Core::FileSys::HandleTable::GetEpoll
+      0.46%       3  MSVCP140.dll!Mtx_unlock
+      0.46%       3  [guest]eboot.bin+0x2715f20
+  -- top inclusive (running samples):
+    100.00%     652  [guest]eboot.bin+0x263b756
+     82.36%     537  [guest]eboot.bin+0xccb593
+     54.45%     355  [guest]eboot.bin+0xcdab2c
+     53.83%     351  shadps4.exe!Libraries::Net::sceNetEpollWait
+     53.83%     351  [guest]eboot.bin+0x2715f47
+     26.69%     174  [guest]eboot.bin+0xcdab37
+     25.61%     167  shadps4.exe!Libraries::Kernel::posix_gettimeofday
+     25.61%     167  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::posix_gettimeofday>::wrap
+     25.61%     167  [guest]eboot.bin+0x27181b4
+     19.79%     129  KERNELBASE.dll!GetSystemTimePreciseAsFileTime
+     19.33%     126  ntdll.dll!RtlGetSystemTimePrecise
+     13.34%      87  shadps4.exe!Common::Singleton<Core::FileSys::HandleTable>::Instance
+     10.58%      69  shadps4.exe!operator new
+     10.12%      66  ucrtbase.dll!malloc_base
+      9.82%      64  ntdll.dll!RtlAllocateHeap
+      9.36%      61  shadps4.exe!Core::FileSys::HandleTable::GetEpoll
+      9.05%      59  [guest]eboot.bin+0xccb43d
+      8.44%      55  MSVCP140.dll!Mtx_lock
+      8.28%      54  MSVCP140.dll!Mtx_unlock
+      7.98%      52  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_unlock>::wrap>::wrap
+      7.98%      52  [guest]eboot.bin+0x2080499
+      7.82%      51  ntdll.dll!RtlReleaseSRWLockExclusive
+      7.06%      46  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock
+      7.06%      46  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_unlock
+      6.60%      43  [guest]eboot.bin+0xccb2af
+      6.29%      41  ucrtbase.dll!free_base
+      5.98%      39  ntdll.dll!RtlFreeHeap
+      5.52%      36  [guest]eboot.bin+0x20802b9
+      5.37%      35  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_lock>::wrap>::wrap
+      5.06%      33  ntdll.dll!RtlAcquireSRWLockExclusive
+      4.29%      28  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock
+      4.14%      27  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock
+      1.99%      13  shadps4.exe!Libraries::Kernel::Sync::LockWord::lock
+      1.23%       8  shadps4.exe!std::_Atomic_reinterpret_as<long,unsigned int>
+      1.23%       8  shadps4.exe!Common::Log::ShouldLog
+      1.07%       7  KERNEL32.DLL!GetCurrentThreadId
+      1.07%       7  [guest]eboot.bin+0x2080273
+      0.61%       4  [guest]eboot.bin+0x2080270
+      0.61%       4  ucrtbase.dll!free
+      0.61%       4  [guest]eboot.bin+0x2080461
+      0.46%       3  [guest]eboot.bin+0x2bbec28
+      0.46%       3  [guest]eboot.bin+0x2715f20
+      0.46%       3  shadps4.exe!Common::Log::`anonymous namespace'::Loggers
+      0.31%       2  shadps4.exe!Mtx_unlock
+      0.31%       2  VCRUNTIME140.dll!memmove
+  -- top running chains (leaf <- callers):
+     19.33%     126  ntdll.dll!RtlGetSystemTimePrecise  <-  KERNELBASE.dll!GetSystemTimePreciseAsFileTime  <-  shadps4.exe!Libraries::Kernel::posix_gettimeofday  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::posix_gettimeofday>::wrap  <-  [guest]eboot.bin+0x27181b4
+     12.12%      79  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47  <-  [guest]eboot.bin+0xcdab2c  <-  [guest]eboot.bin+0xccb593  <-  [guest]eboot.bin+0x263b756
+      7.82%      51  ntdll.dll!RtlAllocateHeap  <-  ntdll.dll!RtlAllocateHeap  <-  ntdll.dll!RtlAllocateHeap  <-  ucrtbase.dll!malloc_base  <-  shadps4.exe!operator new
+      5.98%      39  ntdll.dll!RtlFreeHeap  <-  ucrtbase.dll!free_base  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47  <-  [guest]eboot.bin+0xcdab2c
+      5.98%      39  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_unlock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_unlock>::wrap>::wrap  <-  [guest]eboot.bin+0x2080499  <-  [guest]eboot.bin+0xccb43d
+      5.83%      38  shadps4.exe!Libraries::Kernel::posix_gettimeofday  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::posix_gettimeofday>::wrap  <-  [guest]eboot.bin+0x27181b4  <-  [guest]eboot.bin+0xcdab37  <-  [guest]eboot.bin+0xccb593
+      5.06%      33  shadps4.exe!Common::Singleton<Core::FileSys::HandleTable>::Instance  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47  <-  [guest]eboot.bin+0xcdab2c  <-  [guest]eboot.bin+0xccb593
+      4.60%      30  ntdll.dll!RtlReleaseSRWLockExclusive  <-  MSVCP140.dll!Mtx_unlock  <-  shadps4.exe!Common::Singleton<Core::FileSys::HandleTable>::Instance  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47
+      3.37%      22  ntdll.dll!RtlAcquireSRWLockExclusive  <-  MSVCP140.dll!Mtx_lock  <-  shadps4.exe!Core::FileSys::HandleTable::GetEpoll  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47
+      3.22%      21  ntdll.dll!RtlReleaseSRWLockExclusive  <-  MSVCP140.dll!Mtx_unlock  <-  shadps4.exe!Core::FileSys::HandleTable::GetEpoll  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47
+      2.15%      14  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_lock>::wrap>::wrap  <-  [guest]eboot.bin+0x20802b9  <-  [guest]eboot.bin+0xccb2af
+      1.84%      12  shadps4.exe!Libraries::Kernel::Sync::LockWord::lock  <-  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_lock>::wrap>::wrap  <-  [guest]eboot.bin+0x20802b9
+      1.69%      11  ntdll.dll!RtlAcquireSRWLockExclusive  <-  MSVCP140.dll!Mtx_lock  <-  shadps4.exe!Common::Singleton<Core::FileSys::HandleTable>::Instance  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47
+      1.38%       9  ntdll.dll!RtlAllocateHeap  <-  ntdll.dll!RtlAllocateHeap  <-  ucrtbase.dll!malloc_base  <-  shadps4.exe!operator new  <-  shadps4.exe!Libraries::Net::sceNetEpollWait
+      1.23%       8  MSVCP140.dll!Mtx_lock  <-  shadps4.exe!Common::Singleton<Core::FileSys::HandleTable>::Instance  <-  shadps4.exe!Libraries::Net::sceNetEpollWait  <-  [guest]eboot.bin+0x2715f47  <-  [guest]eboot.bin+0xcdab2c
+  -- top blocked sites:
+
+=== 41864 shadPS4:GpuCommandProcessor: samples=652 running=627 (96.2%) blocked=25  tsc_cycles=16.861G
+  -- top self (running samples):
+      9.89%      62  VCRUNTIME140.dll!_NLG_Return2
+      6.06%      38  shadps4.exe!VideoCore::TextureCache::FindImage
+      3.99%      25  shadps4.exe!VideoCore::Image::FindView
+      3.67%      23  ntdll.dll!RtlReleaseSRWLockExclusive
+      2.71%      17  ntdll.dll!NtProtectVirtualMemory
+      2.39%      15  shadps4.exe!VideoCore::ImageInfo::UpdateSize
+      2.23%      14  shadps4.exe!Common::FutexMutex::lock
+      2.07%      13  shadps4.exe!Vulkan::Rasterizer::BindTextures
+      2.07%      13  shadps4.exe!Core::MemoryManager::CopySparseMemory
+      1.59%      10  ntdll.dll!RtlAcquireSRWLockExclusive
+      1.59%      10  MSVCP140.dll!Mtx_lock
+      1.59%      10  VCRUNTIME140.dll!memmove
+      1.59%      10  shadps4.exe!VideoCore::ImageInfo::ImageInfo
+      1.44%       9  shadps4.exe!Vulkan::Rasterizer::BindBuffers
+      1.44%       9  shadps4.exe!VideoCore::TextureCache::TouchImage
+      1.28%       8  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory
+      1.28%       8  ntdll.dll!NtAlertThreadByThreadIdEx
+      1.28%       8  shadps4.exe!VideoCore::TextureCache::RecordAttachmentDraw
+      1.12%       7  shadps4.exe!std::_Fnv1a_append_value<unsigned long long>
+      1.12%       7  shadps4.exe!VideoCore::Image::ObserveUsage
+      1.12%       7  shadps4.exe!Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+      1.12%       7  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+      1.12%       7  shadps4.exe!std::operator==<AmdGpu::DepthRangeTransform,16>
+      1.12%       7  shadps4.exe!Vulkan::BarrierTracker::InsertNode
+      1.12%       7  ntdll.dll!RtlWaitOnAddress
+  -- top inclusive (running samples):
+     96.97%     608  shadps4.exe!AmdGpu::Liverpool::Process
+     96.97%     608  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\amdgpu\liverpool.cpp:97:35',std::stop_token>,0,1>
+     96.97%     608  ucrtbase.dll!wcsrchr
+     96.97%     608  KERNEL32.DLL!BaseThreadInitThunk
+     96.97%     608  ntdll.dll!RtlUserThreadStart
+     96.33%     604  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+     83.25%     522  shadps4.exe!Vulkan::Rasterizer::Draw
+     37.96%     238  shadps4.exe!Vulkan::Rasterizer::BindResources
+     23.76%     149  shadps4.exe!VideoCore::BufferCache::ObtainBuffer
+     20.89%     131  shadps4.exe!Vulkan::Rasterizer::BindTextures
+     15.47%      97  shadps4.exe!Vulkan::Rasterizer::BindBuffers
+     14.19%      89  shadps4.exe!Vulkan::PipelineCache::GetGraphicsPipeline
+     13.72%      86  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsKey
+     12.92%      81  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsStages::<lambda_0>::operator()
+     12.92%      81  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsStages
+     12.76%      80  shadps4.exe!Vulkan::PipelineCache::GetProgram
+     10.37%      65  shadps4.exe!VideoCore::BufferCache::ObtainResidentBuffer
+      9.89%      62  shadps4.exe!VideoCore::TextureCache::FindImage
+      9.89%      62  VCRUNTIME140.dll!_NLG_Return2
+      9.09%      57  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory
+      9.09%      57  shadps4.exe!Core::MemoryManager::CopySparseMemory
+      8.29%      52  shadps4.exe!Vulkan::Rasterizer::DispatchDirect
+      7.50%      47  shadps4.exe!Vulkan::ExecuteCopyShaderHLE
+      7.50%      47  shadps4.exe!Vulkan::ExecuteShaderHLE
+      6.22%      39  shadps4.exe!Shader::StageSpecialization::StageSpecialization
+      5.90%      37  shadps4.exe!Vulkan::Rasterizer::PrepareRenderState
+      5.58%      35  shadps4.exe!VideoCore::ImageInfo::ImageInfo
+      5.26%      33  shadps4.exe!Vulkan::Rasterizer::BindVertexBuffers
+      4.94%      31  shadps4.exe!VideoCore::TextureCache::FindTexture
+      4.94%      31  MSVCP140.dll!Mtx_unlock
+      4.78%      30  ntdll.dll!RtlReleaseSRWLockExclusive
+      4.78%      30  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>
+      4.78%      30  shadps4.exe!VideoCore::BufferCache::IsRegionGpuModified
+      3.99%      25  shadps4.exe!VideoCore::Image::FindView
+      3.67%      23  shadps4.exe!Vulkan::Rasterizer::BeginRendering
+      3.51%      22  shadps4.exe!VideoCore::RegionManager::UpdateProtection<1,0>
+      3.35%      21  MSVCP140.dll!Mtx_lock
+      3.35%      21  shadps4.exe!Common::FutexMutex::lock
+      3.03%      19  shadps4.exe!VideoCore::ImageInfo::UpdateSize
+      2.71%      17  ntdll.dll!NtProtectVirtualMemory
+      2.71%      17  KERNELBASE.dll!VirtualProtectEx
+      2.71%      17  shadps4.exe!Core::AddressSpace::Impl::Protect
+      2.71%      17  shadps4.exe!Core::AddressSpace::Protect
+      2.71%      17  shadps4.exe!Core::MemoryManager::ProtectGpu
+      2.71%      17  shadps4.exe!VideoCore::SignalImpl::Protect
+  -- top running chains (leaf <- callers):
+      3.99%      25  shadps4.exe!VideoCore::TextureCache::FindImage  <-  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+      3.99%      25  shadps4.exe!VideoCore::Image::FindView  <-  shadps4.exe!VideoCore::TextureCache::FindTexture  <-  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      3.67%      23  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindBuffers  <-  shadps4.exe!Vulkan::Rasterizer::BindResources
+      2.71%      17  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      2.39%      15  shadps4.exe!VideoCore::ImageInfo::UpdateSize  <-  shadps4.exe!VideoCore::ImageInfo::ImageInfo  <-  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      2.23%      14  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>  <-  shadps4.exe!VideoCore::BufferCache::IsRegionGpuModified  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindBuffers
+      2.07%      13  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      1.91%      12  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindBuffers  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      1.91%      12  shadps4.exe!VideoCore::TextureCache::FindImage  <-  shadps4.exe!Vulkan::Rasterizer::PrepareRenderState  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      1.75%      11  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindIndexBuffer  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      1.44%       9  shadps4.exe!Vulkan::Rasterizer::BindBuffers  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      1.44%       9  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainResidentBuffer  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer
+      1.28%       8  shadps4.exe!VideoCore::TextureCache::RecordAttachmentDraw  <-  shadps4.exe!Vulkan::Rasterizer::RecordAttachmentDraw  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      1.12%       7  shadps4.exe!VideoCore::Image::ObserveUsage  <-  shadps4.exe!VideoCore::TextureCache::FindImage  <-  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      1.12%       7  shadps4.exe!Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR  <-  shadps4.exe!Vulkan::Pipeline::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+  -- top blocked sites:
+     52.00%      13  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!IcdPresentBuffers  <-  amdvlk64.dll!IcdPresentBuffers
+     20.00%       5  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >
+     12.00%       3  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>  <-  shadps4.exe!VideoCore::BufferCache::IsRegionGpuModified
+      8.00%       2  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainResidentBuffer  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer
+      8.00%       2  shadps4.exe!Vulkan::Scheduler::SubmitExecution::<lambda_64>::operator()  <-  shadps4.exe!Vulkan::Scheduler::SubmitExecution  <-  shadps4.exe!Vulkan::Presenter::PrepareFrame  <-  shadps4.exe!Libraries::VideoOut::VideoOutDriver::SubmitFlipInternal
+
+=== 23508 Game:Main: samples=652 running=261 (40.0%) blocked=391  tsc_cycles=9.391G
+  -- top self (running samples):
+     11.49%      30  ntdll.dll!RtlGetSystemTimePrecise
+      4.21%      11  [guest]eboot.bin+0x21b99b0
+      2.68%       7  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock
+      2.68%       7  ntdll.dll!ZwAlertThreadByThreadId
+      2.30%       6  ntdll.dll!NtProtectVirtualMemory
+      2.30%       6  ntdll.dll!NtReleaseSemaphore
+      2.30%       6  [guest]eboot.bin+0x21b99c0
+      2.30%       6  [guest]eboot.bin+0x2035eb7
+      1.92%       5  [guest]libc.prx+0x2ff0b
+      1.92%       5  ntdll.dll!RtlWaitOnAddress
+      1.92%       5  shadps4.exe!Libraries::Kernel::posix_gettimeofday
+      1.53%       4  [guest]eboot.bin+0x21b99b3
+      1.15%       3  [guest]eboot.bin+0x2035e85
+      0.77%       2  [guest]eboot.bin+0x2086ce4
+      0.77%       2  [guest]eboot.bin+0x227f2e6
+      0.77%       2  [guest]eboot.bin+0x2288aec
+      0.77%       2  [guest]eboot.bin+0x2037e7e
+      0.77%       2  [guest]eboot.bin+0x2037e4f
+      0.77%       2  [guest]eboot.bin+0x26c179f
+      0.77%       2  KERNELBASE.dll!GetSystemTimePreciseAsFileTime
+      0.77%       2  ntdll.dll!KiUserExceptionDispatcher
+      0.77%       2  [guest]eboot.bin+0x2037d41
+      0.77%       2  MSVCP140.dll!Mtx_lock
+      0.77%       2  [guest]libc.prx+0x2ff0e
+      0.77%       2  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock
+  -- top inclusive (running samples):
+     77.39%     202  [guest]eboot.bin+0x1e4a8e5
+     76.25%     199  [guest]eboot.bin+0x1067849
+     75.48%     197  [guest]eboot.bin+0x103d591
+     75.10%     196  [guest]eboot.bin+0x103d708
+     75.10%     196  [guest]eboot.bin+0xdf
+     73.95%     193  [guest]eboot.bin+0x103e1cf
+     69.73%     182  [guest]eboot.bin+0xf8a75c
+     66.28%     173  [guest]eboot.bin+0xf88fbb
+     62.45%     163  [guest]eboot.bin+0x201a224
+     39.85%     104  [guest]eboot.bin+0x2294235
+     39.46%     103  [guest]eboot.bin+0x1ed8675
+     38.70%     101  [guest]eboot.bin+0x1d92318
+     29.50%      77  [guest]eboot.bin+0x21bab73
+     29.50%      77  [guest]eboot.bin+0x21b98b8
+     27.20%      71  [guest]eboot.bin+0xec5348
+     24.90%      65  [guest]eboot.bin+0x22b1a27
+     24.52%      64  [guest]eboot.bin+0xec76b0
+     24.14%      63  [guest]eboot.bin+0x21b8d22
+     24.14%      63  [guest]eboot.bin+0xec7c3f
+     21.84%      57  [guest]eboot.bin+0x295a786
+     21.46%      56  [guest]eboot.bin+0x22d2055
+     21.07%      55  [guest]eboot.bin+0xec7998
+     18.01%      47  [guest]eboot.bin+0x201a1d7
+     15.33%      40  [guest]eboot.bin+0xec800f
+     14.18%      37  shadps4.exe!Libraries::Kernel::posix_gettimeofday
+     14.18%      37  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::posix_gettimeofday>::wrap
+     14.18%      37  [guest]eboot.bin+0x2035e58
+     12.26%      32  KERNELBASE.dll!GetSystemTimePreciseAsFileTime
+     11.49%      30  [guest]eboot.bin+0x1938b92
+     11.49%      30  [guest]eboot.bin+0x195607e
+     11.49%      30  [guest]eboot.bin+0xec527c
+     11.49%      30  ntdll.dll!RtlGetSystemTimePrecise
+     10.73%      28  [guest]eboot.bin+0x225e009
+      9.20%      24  [guest]eboot.bin+0x2169e64
+      8.81%      23  [guest]eboot.bin+0x26ae115
+      8.81%      23  [guest]eboot.bin+0x225ef6a
+      8.43%      22  [guest]libc.prx+0x2ff0b
+      8.05%      21  [guest]eboot.bin+0x22562f4
+      7.28%      19  ntdll.dll!KiUserExceptionDispatcher
+      6.90%      18  [guest]eboot.bin+0x21d1065
+      6.51%      17  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+      6.51%      17  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+      6.51%      17  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+      6.51%      17  shadps4.exe!Core::SignalHandler
+      6.51%      17  ntdll.dll!RtlWow64GetCurrentMachine
+  -- top running chains (leaf <- callers):
+     11.49%      30  ntdll.dll!RtlGetSystemTimePrecise  <-  KERNELBASE.dll!GetSystemTimePreciseAsFileTime  <-  shadps4.exe!Libraries::Kernel::posix_gettimeofday  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::posix_gettimeofday>::wrap  <-  [guest]eboot.bin+0x2035e58
+      2.30%       6  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      2.30%       6  ntdll.dll!NtReleaseSemaphore  <-  KERNELBASE.dll!ReleaseSemaphore  <-  shadps4.exe!Libraries::Kernel::Win32::ReleaseSemaphoreObject  <-  shadps4.exe!Libraries::Kernel::Semaphore<2>::release  <-  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock
+      2.30%       6  ntdll.dll!ZwAlertThreadByThreadId  <-  ntdll.dll!RtlWakeConditionVariable  <-  MSVCP140.dll!Cnd_signal  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Signal  <-  shadps4.exe!Libraries::Kernel::sceKernelSignalSema
+      2.30%       6  [guest]eboot.bin+0x21b99b0  <-  [guest]eboot.bin+0xec527c  <-  [guest]eboot.bin+0x2294235  <-  [guest]eboot.bin+0x1ed8675  <-  [guest]eboot.bin+0x1d92318
+      2.30%       6  [guest]eboot.bin+0x2035eb7  <-  [guest]eboot.bin+0x201a1d7  <-  [guest]eboot.bin+0x1e4a8e5  <-  [guest]eboot.bin+0xdf
+      1.92%       5  ntdll.dll!RtlWaitOnAddress  <-  KERNELBASE.dll!WaitOnAddress  <-  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+      1.92%       5  shadps4.exe!Libraries::Kernel::posix_gettimeofday  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::posix_gettimeofday>::wrap  <-  [guest]eboot.bin+0x2035e58  <-  [guest]eboot.bin+0x201a1d7  <-  [guest]eboot.bin+0x1e4a8e5
+      1.53%       4  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_unlock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_unlock>::wrap>::wrap  <-  [guest]eboot.bin+0x2080499  <-  [guest]eboot.bin+0x2083c77
+      1.15%       3  [guest]eboot.bin+0x21b99c0  <-  [guest]eboot.bin+0xec527c  <-  [guest]eboot.bin+0x2294235  <-  [guest]eboot.bin+0x1ed8675  <-  [guest]eboot.bin+0x1d92318
+      1.15%       3  [guest]eboot.bin+0x21b99b0  <-  [guest]eboot.bin+0xec7c3f  <-  [guest]eboot.bin+0xec76b0  <-  [guest]eboot.bin+0x22b1a27  <-  [guest]eboot.bin+0xec5348
+      1.15%       3  [guest]eboot.bin+0x21b99b3  <-  [guest]eboot.bin+0xec527c  <-  [guest]eboot.bin+0x2294235  <-  [guest]eboot.bin+0x1ed8675  <-  [guest]eboot.bin+0x1d92318
+      1.15%       3  [guest]eboot.bin+0x21b99c0  <-  [guest]eboot.bin+0xec7c3f  <-  [guest]eboot.bin+0xec76b0  <-  [guest]eboot.bin+0x22b1a27  <-  [guest]eboot.bin+0xec5348
+      1.15%       3  [guest]eboot.bin+0x2035e85  <-  [guest]eboot.bin+0x201a1d7  <-  [guest]eboot.bin+0x1e4a8e5  <-  [guest]eboot.bin+0xdf
+      0.77%       2  [guest]eboot.bin+0x2288aec  <-  [guest]eboot.bin+0x2288ec4  <-  [guest]eboot.bin+0x2288ec4  <-  [guest]eboot.bin+0x2288ec4  <-  [guest]eboot.bin+0x2288ec4
+  -- top blocked sites:
+     96.16%     376  shadps4.exe!Libraries::Kernel::Pthread::Sleep  <-  shadps4.exe!Libraries::Kernel::CancellationPointWait::Park  <-  shadps4.exe!Libraries::Kernel::PthreadCond::Wait  <-  shadps4.exe!Libraries::Kernel::posix_pthread_cond_wait
+      2.56%      10  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+      0.51%       2  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x24c5597
+      0.51%       2  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu  <-  shadps4.exe!VideoCore::SignalImpl::Protect
+      0.26%       1  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x423a58
+
+=== 19956 shadPS4:VkRecord: samples=652 running=2 (0.3%) blocked=650  tsc_cycles=3.702G
+  -- top self (running samples):
+     50.00%       1  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+     50.00%       1  amdvlk64.dll!vk_icdNegotiateLoaderICDInterfaceVersion
+  -- top inclusive (running samples):
+    100.00%       2  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >
+    100.00%       2  shadps4.exe!Vulkan::CommandRecorder::Worker
+    100.00%       2  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_command_recorder.cpp:23:27',std::stop_token>,0,1>
+    100.00%       2  ucrtbase.dll!wcsrchr
+    100.00%       2  KERNEL32.DLL!BaseThreadInitThunk
+    100.00%       2  ntdll.dll!RtlUserThreadStart
+     50.00%       1  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+     50.00%       1  shadps4.exe!Vulkan::CommandChunk::TypedCommand<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_command_recorder.cpp:474:16'>::Execute
+     50.00%       1  amdvlk64.dll!vk_icdNegotiateLoaderICDInterfaceVersion
+     50.00%       1  shadps4.exe!Vulkan::CommandChunk::TypedCommand<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_command_recorder.h:242:14'>::Execute
+  -- top running chains (leaf <- callers):
+     50.00%       1  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+     50.00%       1  amdvlk64.dll!vk_icdNegotiateLoaderICDInterfaceVersion  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >  <-  shadps4.exe!Vulkan::CommandChunk::TypedCommand<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_command_recorder.h:242:14'>::Execute  <-  shadps4.exe!Vulkan::CommandRecorder::Worker  <-  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_command_recorder.cpp:23:27',std::stop_token>,0,1>
+  -- top blocked sites:
+    100.00%     650  shadps4.exe!Vulkan::CommandRecorder::Worker  <-  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_command_recorder.cpp:23:27',std::stop_token>,0,1>
+
+=== 10568 GXWorker:1: samples=652 running=75 (11.5%) blocked=577  tsc_cycles=2.576G
+  -- top self (running samples):
+     13.33%      10  [guest]libc.prx+0x2ff0b
+      9.33%       7  ntdll.dll!NtProtectVirtualMemory
+      6.67%       5  [guest]eboot.bin+0x28ed9d9
+      4.00%       3  ntdll.dll!KiUserExceptionDispatcher
+      2.67%       2  ntdll.dll!RtlSleepConditionVariableSRW
+      2.67%       2  ntdll.dll!RtlWaitOnAddress
+      1.33%       1  [guest]eboot.bin+0x21ca61b
+      1.33%       1  [guest]eboot.bin+0x227f2dd
+      1.33%       1  [guest]libc.prx+0x3033a
+      1.33%       1  [guest]eboot.bin+0x227f180
+      1.33%       1  [guest]libc.prx+0x3031b
+      1.33%       1  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock
+      1.33%       1  [guest]eboot.bin+0xe5571b
+      1.33%       1  [guest]eboot.bin+0xedd1af
+      1.33%       1  [guest]eboot.bin+0xe4c5ba
+      1.33%       1  [guest]eboot.bin+0xe55be9
+      1.33%       1  [guest]eboot.bin+0x2169e10
+      1.33%       1  [guest]eboot.bin+0x21c891a
+      1.33%       1  [guest]eboot.bin+0x261b443
+      1.33%       1  [guest]eboot.bin+0xeb2505
+      1.33%       1  [guest]eboot.bin+0x225eb2e
+      1.33%       1  [guest]eboot.bin+0xedfe32
+      1.33%       1  [guest]eboot.bin+0xe2dbe3
+      1.33%       1  [guest]libc.prx+0x30018
+      1.33%       1  [guest]eboot.bin+0x225ee26
+  -- top inclusive (running samples):
+     88.00%      66  [guest]eboot.bin+0x263b756
+     86.67%      65  [guest]eboot.bin+0x21ba961
+     80.00%      60  [guest]eboot.bin+0x21b8d22
+     65.33%      49  [guest]eboot.bin+0x295a786
+     56.00%      42  [guest]eboot.bin+0x22d2055
+     56.00%      42  [guest]eboot.bin+0xec7998
+     41.33%      31  [guest]eboot.bin+0xec800f
+     28.00%      21  [guest]libc.prx+0x2ff0b
+     25.33%      19  [guest]eboot.bin+0x2169e64
+     22.67%      17  [guest]eboot.bin+0x225e009
+     22.67%      17  [guest]eboot.bin+0x26ae115
+     21.33%      16  [guest]eboot.bin+0x22562f4
+     21.33%      16  [guest]eboot.bin+0x225ef6a
+     20.00%      15  ntdll.dll!KiUserExceptionDispatcher
+     20.00%      15  [guest]eboot.bin+0x21d1065
+     16.00%      12  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+     16.00%      12  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+     16.00%      12  shadps4.exe!Core::SignalHandler
+     16.00%      12  ntdll.dll!RtlWow64GetCurrentMachine
+     14.67%      11  [guest]eboot.bin+0xec8000
+     14.67%      11  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+     12.00%       9  shadps4.exe!Core::AddressSpace::Impl::Protect
+     12.00%       9  shadps4.exe!Core::AddressSpace::Protect
+     12.00%       9  shadps4.exe!Core::MemoryManager::ProtectGpu
+     12.00%       9  shadps4.exe!VideoCore::SignalImpl::Protect
+     12.00%       9  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>::<lambda_1>::operator()
+     12.00%       9  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>
+     12.00%       9  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<0,0>
+     12.00%       9  shadps4.exe!VideoCore::RegionManager::UpdateProtection<0,0>
+     12.00%       9  shadps4.exe!VideoCore::RegionManager::MarkWriteFault
+     12.00%       9  [guest]eboot.bin+0x28ed9d9
+     12.00%       9  [guest]eboot.bin+0xf1d2ef
+     10.67%       8  [guest]eboot.bin+0x28cca1a
+     10.67%       8  [guest]eboot.bin+0x28ca82f
+     10.67%       8  [guest]eboot.bin+0xe575fa
+      9.33%       7  ntdll.dll!NtProtectVirtualMemory
+      9.33%       7  KERNELBASE.dll!VirtualProtectEx
+      8.00%       6  [guest]eboot.bin+0x216abe6
+      8.00%       6  [guest]eboot.bin+0x21d201d
+      8.00%       6  [guest]eboot.bin+0x21d0ea3
+      8.00%       6  [guest]eboot.bin+0x22d1e28
+      8.00%       6  [guest]eboot.bin+0xec7914
+      6.67%       5  [guest]eboot.bin+0x26c1c86
+      6.67%       5  [guest]eboot.bin+0x22d4523
+      6.67%       5  [guest]eboot.bin+0x227c04b
+  -- top running chains (leaf <- callers):
+      9.33%       7  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      6.67%       5  [guest]eboot.bin+0x28ed9d9
+      4.00%       3  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26c1c86  <-  [guest]eboot.bin+0x216abe6  <-  [guest]eboot.bin+0x21d201d  <-  [guest]eboot.bin+0x21d0ea3
+      2.67%       2  ntdll.dll!RtlWaitOnAddress  <-  KERNELBASE.dll!WaitOnAddress  <-  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+      2.67%       2  ntdll.dll!KiUserExceptionDispatcher  <-  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x22d4523
+      1.33%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x2251c58  <-  [guest]eboot.bin+0xec8000
+      1.33%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26c16f0  <-  [guest]eboot.bin+0x216abe6  <-  [guest]eboot.bin+0x21d201d  <-  [guest]eboot.bin+0x21d0ea3
+      1.33%       1  [guest]eboot.bin+0x21ca61b  <-  [guest]eboot.bin+0x21cb3a6  <-  [guest]eboot.bin+0x21b8d22  <-  [guest]eboot.bin+0x21ba961  <-  [guest]eboot.bin+0x263b756
+      1.33%       1  [guest]eboot.bin+0x227f2dd  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x2281c59  <-  [guest]eboot.bin+0x227c04b  <-  [guest]eboot.bin+0x2296631
+      1.33%       1  ntdll.dll!RtlSleepConditionVariableSRW  <-  ntdll.dll!RtlAcquireSRWLockExclusive  <-  MSVCP140.dll!Mtx_lock  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect
+      1.33%       1  [guest]libc.prx+0x3033a  <-  [guest]libc.prx+0x2ff04  <-  [guest]eboot.bin+0x26c1c86  <-  [guest]eboot.bin+0x216abe6  <-  [guest]eboot.bin+0x21d201d
+      1.33%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0xf1bc62  <-  [guest]eboot.bin+0x29057dc
+      1.33%       1  [guest]eboot.bin+0x227f180  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec
+      1.33%       1  [guest]libc.prx+0x3031b  <-  [guest]libc.prx+0x2ff04  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x21ca786
+      1.33%       1  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_unlock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_unlock>::wrap>::wrap  <-  [guest]eboot.bin+0x2080499  <-  [guest]eboot.bin+0x26aa510
+  -- top blocked sites:
+     98.27%     567  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x263b37a
+      1.56%       9  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+      0.17%       1  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu  <-  shadps4.exe!VideoCore::SignalImpl::Protect
+
+=== 19912 GXWorker:5: samples=652 running=55 (8.4%) blocked=597  tsc_cycles=2.553G
+  -- top self (running samples):
+     21.82%      12  [guest]libc.prx+0x2ff0b
+      9.09%       5  ntdll.dll!NtProtectVirtualMemory
+      3.64%       2  ntdll.dll!RtlWaitOnAddress
+      3.64%       2  ntdll.dll!NtAlertThreadByThreadIdEx
+      3.64%       2  [guest]libc.prx+0x2ff0e
+      1.82%       1  [guest]eboot.bin+0x22556d5
+      1.82%       1  [guest]eboot.bin+0xf16057
+      1.82%       1  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock
+      1.82%       1  [guest]eboot.bin+0x225d68d
+      1.82%       1  [guest]eboot.bin+0xedcfc9
+      1.82%       1  [guest]eboot.bin+0x21c51a7
+      1.82%       1  [guest]eboot.bin+0x26aedb4
+      1.82%       1  [guest]eboot.bin+0x1d85940
+      1.82%       1  [guest]eboot.bin+0x26d4163
+      1.82%       1  [guest]eboot.bin+0xea4fd0
+      1.82%       1  ntdll.dll!RtlReleaseSRWLockExclusive
+      1.82%       1  [guest]eboot.bin+0x21d1b5e
+      1.82%       1  [guest]eboot.bin+0x21d19d3
+      1.82%       1  [guest]eboot.bin+0xe48344
+      1.82%       1  [guest]eboot.bin+0x21d0f68
+      1.82%       1  [guest]eboot.bin+0x2254c1b
+      1.82%       1  shadps4.exe!Libraries::Kernel::posix_pthread_self
+      1.82%       1  [guest]eboot.bin+0x22556c2
+      1.82%       1  [guest]eboot.bin+0x2291d17
+      1.82%       1  [guest]eboot.bin+0x1075597
+  -- top inclusive (running samples):
+    100.00%      55  [guest]eboot.bin+0x263b756
+     98.18%      54  [guest]eboot.bin+0x21ba961
+     94.55%      52  [guest]eboot.bin+0x21b8d22
+     85.45%      47  [guest]eboot.bin+0x295a786
+     81.82%      45  [guest]eboot.bin+0x22d2055
+     81.82%      45  [guest]eboot.bin+0xec7998
+     65.45%      36  [guest]eboot.bin+0xec800f
+     43.64%      24  [guest]eboot.bin+0x225e009
+     43.64%      24  [guest]eboot.bin+0x22562f4
+     40.00%      22  [guest]libc.prx+0x2ff0b
+     30.91%      17  [guest]eboot.bin+0x225ef6a
+     25.45%      14  [guest]eboot.bin+0x26ae115
+     25.45%      14  [guest]eboot.bin+0x2169e64
+     23.64%      13  [guest]eboot.bin+0x21d1065
+     23.64%      13  [guest]eboot.bin+0x21d0ea3
+     21.82%      12  [guest]eboot.bin+0x225f05b
+     20.00%      11  [guest]eboot.bin+0x21d201d
+     18.18%      10  ntdll.dll!RtlWow64GetCurrentMachine
+     18.18%      10  ntdll.dll!KiUserExceptionDispatcher
+     18.18%      10  [guest]eboot.bin+0xe575fa
+     16.36%       9  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+     16.36%       9  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+     16.36%       9  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+     16.36%       9  shadps4.exe!Core::SignalHandler
+     16.36%       9  [guest]eboot.bin+0xe2dc0f
+     16.36%       9  [guest]eboot.bin+0xec8000
+     16.36%       9  [guest]eboot.bin+0x216abe6
+     12.73%       7  [guest]eboot.bin+0xe57999
+     12.73%       7  [guest]eboot.bin+0x2251dd5
+     12.73%       7  [guest]eboot.bin+0x26c1c86
+     10.91%       6  [guest]eboot.bin+0xe4b3d4
+      9.09%       5  ntdll.dll!NtProtectVirtualMemory
+      9.09%       5  KERNELBASE.dll!VirtualProtectEx
+      9.09%       5  shadps4.exe!Core::AddressSpace::Impl::Protect
+      9.09%       5  shadps4.exe!Core::AddressSpace::Protect
+      9.09%       5  shadps4.exe!Core::MemoryManager::ProtectGpu
+      9.09%       5  shadps4.exe!VideoCore::SignalImpl::Protect
+      9.09%       5  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>::<lambda_1>::operator()
+      9.09%       5  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>
+      9.09%       5  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<0,0>
+      9.09%       5  shadps4.exe!VideoCore::RegionManager::UpdateProtection<0,0>
+      9.09%       5  shadps4.exe!VideoCore::RegionManager::MarkWriteFault
+      9.09%       5  [guest]eboot.bin+0x21c5201
+      9.09%       5  [guest]eboot.bin+0x225d789
+      7.27%       4  [guest]eboot.bin+0x216ad6d
+  -- top running chains (leaf <- callers):
+      9.09%       5  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      5.45%       3  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26c1c86  <-  [guest]eboot.bin+0x216ad6d  <-  [guest]eboot.bin+0x21d2031  <-  [guest]eboot.bin+0x21d0f0a
+      3.64%       2  ntdll.dll!RtlWaitOnAddress  <-  KERNELBASE.dll!WaitOnAddress  <-  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+      3.64%       2  ntdll.dll!NtAlertThreadByThreadIdEx  <-  ntdll.dll!RtlRaiseStatus  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+      3.64%       2  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26c1c86  <-  [guest]eboot.bin+0x216abe6  <-  [guest]eboot.bin+0x21d201d  <-  [guest]eboot.bin+0x21d0ea3
+      1.82%       1  [guest]eboot.bin+0x22556d5  <-  [guest]eboot.bin+0x2255be9  <-  [guest]eboot.bin+0x225f05b  <-  [guest]eboot.bin+0x225e009  <-  [guest]eboot.bin+0xec800f
+      1.82%       1  [guest]eboot.bin+0xf16057  <-  [guest]eboot.bin+0x2319483  <-  [guest]eboot.bin+0xf2cb60  <-  [guest]eboot.bin+0x2316d10  <-  [guest]eboot.bin+0x21b8d22
+      1.82%       1  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_lock>::wrap>::wrap  <-  [guest]eboot.bin+0x20802b9  <-  [guest]eboot.bin+0xe47e57
+      1.82%       1  [guest]eboot.bin+0x225d68d  <-  [guest]eboot.bin+0x225d0a2  <-  [guest]eboot.bin+0x225b14b  <-  [guest]eboot.bin+0x225080d  <-  [guest]eboot.bin+0x224ff45
+      1.82%       1  [guest]eboot.bin+0xedcfc9  <-  [guest]eboot.bin+0xedcf63  <-  [guest]eboot.bin+0xe57ac9  <-  [guest]eboot.bin+0xe575fa  <-  [guest]eboot.bin+0x21d1065
+      1.82%       1  [guest]eboot.bin+0x21c51a7  <-  [guest]eboot.bin+0xe57999  <-  [guest]eboot.bin+0xe575fa  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x22562f4
+      1.82%       1  [guest]eboot.bin+0x26aedb4  <-  [guest]eboot.bin+0x216ab20  <-  [guest]eboot.bin+0x22bd90f  <-  [guest]eboot.bin+0x22b6029  <-  [guest]eboot.bin+0xec800f
+      1.82%       1  [guest]eboot.bin+0x1d85940  <-  [guest]eboot.bin+0xe575e2  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x2251dd5  <-  [guest]eboot.bin+0xec8000
+      1.82%       1  [guest]eboot.bin+0x26d4163  <-  [guest]eboot.bin+0x26af785  <-  [guest]eboot.bin+0x1073330  <-  [guest]eboot.bin+0x26d2912  <-  [guest]eboot.bin+0x216aba7
+      1.82%       1  [guest]eboot.bin+0xea4fd0  <-  [guest]eboot.bin+0x22b5777  <-  [guest]eboot.bin+0xec800f  <-  [guest]eboot.bin+0x22d2055  <-  [guest]eboot.bin+0xec7998
+  -- top blocked sites:
+     97.65%     583  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x263b37a
+      2.18%      13  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+      0.17%       1  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu  <-  shadps4.exe!VideoCore::SignalImpl::Protect
+
+=== 30188 GXWorker:2: samples=652 running=58 (8.9%) blocked=594  tsc_cycles=2.542G
+  -- top self (running samples):
+     13.79%       8  ntdll.dll!NtProtectVirtualMemory
+     12.07%       7  [guest]libc.prx+0x2ff0b
+      5.17%       3  ntdll.dll!RtlWaitOnAddress
+      1.72%       1  [guest]eboot.bin+0x22134ed
+      1.72%       1  [guest]eboot.bin+0x2037d41
+      1.72%       1  [guest]eboot.bin+0x225f418
+      1.72%       1  [guest]eboot.bin+0xe4b4e9
+      1.72%       1  [guest]eboot.bin+0x21a097f
+      1.72%       1  [guest]eboot.bin+0xf1cb9b
+      1.72%       1  [guest]eboot.bin+0x224e99d
+      1.72%       1  [guest]eboot.bin+0x225ede9
+      1.72%       1  ntdll.dll!NtAlertThreadByThreadIdEx
+      1.72%       1  [guest]eboot.bin+0xe4b374
+      1.72%       1  [guest]eboot.bin+0x26c1a21
+      1.72%       1  [guest]eboot.bin+0x21c5231
+      1.72%       1  [guest]eboot.bin+0x10713ad
+      1.72%       1  [guest]eboot.bin+0x229389a
+      1.72%       1  [guest]eboot.bin+0x26bbf97
+      1.72%       1  [guest]eboot.bin+0x21a18ac
+      1.72%       1  [guest]eboot.bin+0xe55b63
+      1.72%       1  shadps4.exe!Core::AddressSpace::Impl::Protect
+      1.72%       1  [guest]eboot.bin+0x21d1a76
+      1.72%       1  [guest]eboot.bin+0x227f1c4
+      1.72%       1  [guest]eboot.bin+0x2abd0fb
+      1.72%       1  [guest]eboot.bin+0xe55bb6
+  -- top inclusive (running samples):
+     96.55%      56  [guest]eboot.bin+0x21ba961
+     96.55%      56  [guest]eboot.bin+0x263b756
+     87.93%      51  [guest]eboot.bin+0x21b8d22
+     77.59%      45  [guest]eboot.bin+0x295a786
+     72.41%      42  [guest]eboot.bin+0x22d2055
+     72.41%      42  [guest]eboot.bin+0xec7998
+     62.07%      36  [guest]eboot.bin+0xec800f
+     44.83%      26  [guest]eboot.bin+0x22562f4
+     41.38%      24  [guest]eboot.bin+0x225ef6a
+     37.93%      22  [guest]eboot.bin+0x225e009
+     36.21%      21  [guest]libc.prx+0x2ff0b
+     29.31%      17  [guest]eboot.bin+0x2169e64
+     27.59%      16  [guest]eboot.bin+0x26ae115
+     25.86%      15  ntdll.dll!KiUserExceptionDispatcher
+     24.14%      14  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+     24.14%      14  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+     24.14%      14  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+     24.14%      14  shadps4.exe!Core::SignalHandler
+     24.14%      14  ntdll.dll!RtlWow64GetCurrentMachine
+     22.41%      13  [guest]eboot.bin+0x21d1065
+     20.69%      12  [guest]eboot.bin+0x21d0ea3
+     18.97%      11  [guest]eboot.bin+0x21d201d
+     17.24%      10  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>
+     17.24%      10  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<0,0>
+     17.24%      10  shadps4.exe!VideoCore::RegionManager::UpdateProtection<0,0>
+     17.24%      10  shadps4.exe!VideoCore::RegionManager::MarkWriteFault
+     17.24%      10  [guest]eboot.bin+0x216abe6
+     15.52%       9  shadps4.exe!Core::AddressSpace::Impl::Protect
+     15.52%       9  shadps4.exe!Core::AddressSpace::Protect
+     15.52%       9  shadps4.exe!Core::MemoryManager::ProtectGpu
+     15.52%       9  shadps4.exe!VideoCore::SignalImpl::Protect
+     15.52%       9  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>::<lambda_1>::operator()
+     15.52%       9  [guest]eboot.bin+0x225d789
+     13.79%       8  ntdll.dll!NtProtectVirtualMemory
+     13.79%       8  KERNELBASE.dll!VirtualProtectEx
+     12.07%       7  [guest]eboot.bin+0xe575fa
+     10.34%       6  [guest]eboot.bin+0xe2dc0f
+     10.34%       6  [guest]eboot.bin+0xec8000
+     10.34%       6  [guest]eboot.bin+0x225f05b
+      8.62%       5  [guest]eboot.bin+0xe575e2
+      8.62%       5  [guest]eboot.bin+0x2296631
+      8.62%       5  [guest]eboot.bin+0x2251dd5
+      6.90%       4  [guest]eboot.bin+0xe4b3d4
+      6.90%       4  [guest]eboot.bin+0x21c5201
+      6.90%       4  [guest]eboot.bin+0xe57999
+  -- top running chains (leaf <- callers):
+     13.79%       8  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      5.17%       3  ntdll.dll!RtlWaitOnAddress  <-  KERNELBASE.dll!WaitOnAddress  <-  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+      1.72%       1  [guest]eboot.bin+0x22134ed  <-  [guest]eboot.bin+0xe4d796  <-  [guest]eboot.bin+0x21d0e52  <-  [guest]eboot.bin+0x22562f4  <-  [guest]eboot.bin+0x225ef6a
+      1.72%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x21ca908  <-  [guest]eboot.bin+0x21cb3a6
+      1.72%       1  [guest]eboot.bin+0x2037d41  <-  [guest]eboot.bin+0x1fc7315  <-  [guest]eboot.bin+0x225afae  <-  [guest]eboot.bin+0x225080d  <-  [guest]eboot.bin+0x2250041
+      1.72%       1  [guest]eboot.bin+0x225f418  <-  [guest]eboot.bin+0x225bea3  <-  [guest]eboot.bin+0x225cfa2  <-  [guest]eboot.bin+0x21b8d22  <-  [guest]eboot.bin+0x21ba961
+      1.72%       1  [guest]eboot.bin+0xe4b4e9  <-  [guest]eboot.bin+0xe57b3e  <-  [guest]eboot.bin+0xe575fa  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x2251dd5
+      1.72%       1  [guest]eboot.bin+0x21a097f  <-  [guest]eboot.bin+0x1d84623  <-  [guest]eboot.bin+0x1d85958  <-  [guest]eboot.bin+0xe55bbc  <-  [guest]eboot.bin+0xe575e2
+      1.72%       1  [guest]eboot.bin+0xf1cb9b  <-  [guest]eboot.bin+0x285d3ee  <-  [guest]eboot.bin+0x29096d6  <-  [guest]eboot.bin+0x2302445  <-  [guest]eboot.bin+0x227c9d6
+      1.72%       1  [guest]eboot.bin+0x224e99d  <-  [guest]eboot.bin+0x21d0f0a  <-  [guest]eboot.bin+0x22562f4  <-  [guest]eboot.bin+0x225f05b  <-  [guest]eboot.bin+0x225e009
+      1.72%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0xe55e28  <-  [guest]eboot.bin+0xe575e2
+      1.72%       1  [guest]eboot.bin+0x225ede9  <-  [guest]eboot.bin+0x225d789  <-  [guest]eboot.bin+0xec800f  <-  [guest]eboot.bin+0x22d2055  <-  [guest]eboot.bin+0xec7998
+      1.72%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26c16f0  <-  [guest]eboot.bin+0x216ad6d  <-  [guest]eboot.bin+0x21d2031  <-  [guest]eboot.bin+0x21d0f0a
+      1.72%       1  ntdll.dll!NtAlertThreadByThreadIdEx  <-  ntdll.dll!RtlRaiseStatus  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+      1.72%       1  [guest]eboot.bin+0xe4b374  <-  [guest]eboot.bin+0xe575fa  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x22562f4  <-  [guest]eboot.bin+0x225ef6a
+  -- top blocked sites:
+     97.14%     577  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x263b37a
+      2.02%      12  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+      0.67%       4  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu  <-  shadps4.exe!VideoCore::SignalImpl::Protect
+      0.17%       1  shadps4.exe!Libraries::Kernel::Win32::WaitOnAddress32  <-  shadps4.exe!Libraries::Kernel::Sync::LockWord::lock  <-  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock
+
+=== 32616 GXWorker:3: samples=652 running=51 (7.8%) blocked=601  tsc_cycles=2.539G
+  -- top self (running samples):
+     21.57%      11  [guest]libc.prx+0x2ff0b
+      7.84%       4  ntdll.dll!NtProtectVirtualMemory
+      3.92%       2  ntdll.dll!RtlWaitOnAddress
+      3.92%       2  ntdll.dll!RtlSleepConditionVariableSRW
+      1.96%       1  [guest]eboot.bin+0xe558bc
+      1.96%       1  [guest]eboot.bin+0x2086e6c
+      1.96%       1  [guest]eboot.bin+0x22f8601
+      1.96%       1  [guest]eboot.bin+0x2af73b1
+      1.96%       1  [guest]eboot.bin+0xe5571b
+      1.96%       1  [guest]eboot.bin+0x10766b3
+      1.96%       1  [guest]eboot.bin+0xe55bb6
+      1.96%       1  [guest]eboot.bin+0x1d2192c
+      1.96%       1  [guest]eboot.bin+0x22f8631
+      1.96%       1  [guest]eboot.bin+0x21a097f
+      1.96%       1  [guest]eboot.bin+0xf1d147
+      1.96%       1  [guest]eboot.bin+0x216a3ea
+      1.96%       1  [guest]eboot.bin+0x22556e3
+      1.96%       1  [guest]eboot.bin+0x22b2804
+      1.96%       1  [guest]eboot.bin+0x21c51a3
+      1.96%       1  [guest]eboot.bin+0x225b720
+      1.96%       1  [guest]eboot.bin+0x22556d5
+      1.96%       1  [guest]eboot.bin+0x21a2868
+      1.96%       1  [guest]eboot.bin+0x1d84620
+      1.96%       1  [guest]eboot.bin+0x1086f72
+      1.96%       1  shadps4.exe!boost::icl::contains<boost::icl::interval_set<unsigned long long,std::less,boost::icl::discrete_interval<unsigned long long,std::less>,std::allocator> >
+  -- top inclusive (running samples):
+     98.04%      50  [guest]eboot.bin+0x263b756
+     96.08%      49  [guest]eboot.bin+0x21ba961
+     94.12%      48  [guest]eboot.bin+0x21b8d22
+     88.24%      45  [guest]eboot.bin+0x295a786
+     78.43%      40  [guest]eboot.bin+0x22d2055
+     78.43%      40  [guest]eboot.bin+0xec7998
+     62.75%      32  [guest]eboot.bin+0xec800f
+     45.10%      23  [guest]eboot.bin+0x225e009
+     37.25%      19  [guest]eboot.bin+0x22562f4
+     37.25%      19  [guest]eboot.bin+0x225ef6a
+     35.29%      18  [guest]libc.prx+0x2ff0b
+     31.37%      16  [guest]eboot.bin+0x2169e64
+     27.45%      14  [guest]eboot.bin+0x26ae115
+     25.49%      13  [guest]eboot.bin+0x21d1065
+     15.69%       8  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+     15.69%       8  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+     15.69%       8  shadps4.exe!Core::SignalHandler
+     15.69%       8  ntdll.dll!RtlWow64GetCurrentMachine
+     15.69%       8  ntdll.dll!KiUserExceptionDispatcher
+     15.69%       8  [guest]eboot.bin+0xec8000
+     15.69%       8  [guest]eboot.bin+0x216abe6
+     15.69%       8  [guest]eboot.bin+0x21d201d
+     15.69%       8  [guest]eboot.bin+0x21d0ea3
+     11.76%       6  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+     11.76%       6  [guest]eboot.bin+0xe575fa
+     11.76%       6  [guest]eboot.bin+0x225f05b
+      9.80%       5  [guest]eboot.bin+0x22d1e28
+      9.80%       5  [guest]eboot.bin+0xec7914
+      7.84%       4  [guest]eboot.bin+0x22556b5
+      7.84%       4  [guest]eboot.bin+0xe57999
+      7.84%       4  [guest]eboot.bin+0xe575e2
+      7.84%       4  ntdll.dll!NtProtectVirtualMemory
+      7.84%       4  KERNELBASE.dll!VirtualProtectEx
+      7.84%       4  shadps4.exe!Core::AddressSpace::Impl::Protect
+      7.84%       4  shadps4.exe!Core::AddressSpace::Protect
+      7.84%       4  shadps4.exe!Core::MemoryManager::ProtectGpu
+      7.84%       4  shadps4.exe!VideoCore::SignalImpl::Protect
+      7.84%       4  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>::<lambda_1>::operator()
+      7.84%       4  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>
+      7.84%       4  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<0,0>
+      7.84%       4  shadps4.exe!VideoCore::RegionManager::UpdateProtection<0,0>
+      7.84%       4  shadps4.exe!VideoCore::RegionManager::MarkWriteFault
+      7.84%       4  [guest]eboot.bin+0x2251dd5
+      7.84%       4  [guest]eboot.bin+0x22d4523
+      7.84%       4  [guest]eboot.bin+0x2255db5
+  -- top running chains (leaf <- callers):
+      7.84%       4  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      5.88%       3  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x22d4523  <-  [guest]eboot.bin+0x22d1e28
+      3.92%       2  ntdll.dll!RtlWaitOnAddress  <-  KERNELBASE.dll!WaitOnAddress  <-  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+      3.92%       2  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x22556b5  <-  [guest]eboot.bin+0x2255db5
+      3.92%       2  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26c1c86  <-  [guest]eboot.bin+0x216abe6  <-  [guest]eboot.bin+0x21d201d  <-  [guest]eboot.bin+0x21d0ea3
+      1.96%       1  [guest]eboot.bin+0xe558bc  <-  [guest]eboot.bin+0xe575e9  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x22562f4  <-  [guest]eboot.bin+0x225ef6a
+      1.96%       1  [guest]eboot.bin+0x2086e6c  <-  [guest]eboot.bin+0x22d580f  <-  [guest]eboot.bin+0x22b6612  <-  [guest]eboot.bin+0x22bcc1c  <-  [guest]eboot.bin+0x21b8d22
+      1.96%       1  [guest]eboot.bin+0x22f8601  <-  [guest]eboot.bin+0x21c51b3  <-  [guest]eboot.bin+0xe57999  <-  [guest]eboot.bin+0xe575fa  <-  [guest]eboot.bin+0x21d1065
+      1.96%       1  [guest]eboot.bin+0x2af73b1  <-  [guest]eboot.bin+0x290562a  <-  [guest]eboot.bin+0x28cd58a  <-  [guest]eboot.bin+0x28cadbf  <-  [guest]eboot.bin+0xf1d2ef
+      1.96%       1  [guest]eboot.bin+0xe5571b  <-  [guest]eboot.bin+0xe575e9  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x22562f4  <-  [guest]eboot.bin+0x225ef6a
+      1.96%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0x22756f0  <-  [guest]eboot.bin+0x22b7a86
+      1.96%       1  [guest]eboot.bin+0x10766b3  <-  [guest]eboot.bin+0x26c0749  <-  [guest]eboot.bin+0x216ad6d  <-  [guest]eboot.bin+0x21d2031  <-  [guest]eboot.bin+0x21d0f0a
+      1.96%       1  [guest]eboot.bin+0xe55bb6  <-  [guest]eboot.bin+0xe575e2  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x22562f4  <-  [guest]eboot.bin+0x225ef6a
+      1.96%       1  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0xe559b9  <-  [guest]eboot.bin+0xe575e9
+      1.96%       1  [guest]eboot.bin+0x1d2192c  <-  [guest]eboot.bin+0x227f384  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec
+  -- top blocked sites:
+     97.34%     585  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x263b37a
+      2.66%      16  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+
+=== 21752 GXWorker:4: samples=652 running=50 (7.7%) blocked=602  tsc_cycles=2.536G
+  -- top self (running samples):
+     16.00%       8  [guest]libc.prx+0x2ff0b
+      8.00%       4  ntdll.dll!NtProtectVirtualMemory
+      6.00%       3  [guest]eboot.bin+0x21ce97d
+      4.00%       2  [guest]eboot.bin+0xe48355
+      2.00%       1  [guest]eboot.bin+0xeca1ed
+      2.00%       1  [guest]eboot.bin+0x22f6d8f
+      2.00%       1  [guest]eboot.bin+0xe48352
+      2.00%       1  [guest]eboot.bin+0x285f404
+      2.00%       1  [guest]eboot.bin+0x22556de
+      2.00%       1  [guest]eboot.bin+0x2086e43
+      2.00%       1  [guest]eboot.bin+0x261a910
+      2.00%       1  [guest]eboot.bin+0x227f2e6
+      2.00%       1  [guest]eboot.bin+0x224da9b
+      2.00%       1  [guest]eboot.bin+0xe4b3e8
+      2.00%       1  [guest]eboot.bin+0x21c891a
+      2.00%       1  shadps4.exe!boost::icl::contains<boost::icl::interval_set<unsigned long long,std::less,boost::icl::discrete_interval<unsigned long long,std::less>,std::allocator> >
+      2.00%       1  [guest]eboot.bin+0xea0cb0
+      2.00%       1  [guest]eboot.bin+0xe55b63
+      2.00%       1  [guest]eboot.bin+0x293ac42
+      2.00%       1  [guest]eboot.bin+0x26b310d
+      2.00%       1  [guest]eboot.bin+0x26b301b
+      2.00%       1  [guest]eboot.bin+0x26bcff0
+      2.00%       1  ntdll.dll!KiUserExceptionDispatcher
+      2.00%       1  [guest]eboot.bin+0x21d1fbb
+      2.00%       1  [guest]eboot.bin+0xec9e0e
+  -- top inclusive (running samples):
+     98.00%      49  [guest]eboot.bin+0x263b756
+     96.00%      48  [guest]eboot.bin+0x21ba961
+     90.00%      45  [guest]eboot.bin+0x21b8d22
+     78.00%      39  [guest]eboot.bin+0x295a786
+     74.00%      37  [guest]eboot.bin+0x22d2055
+     74.00%      37  [guest]eboot.bin+0xec7998
+     56.00%      28  [guest]eboot.bin+0xec800f
+     36.00%      18  [guest]eboot.bin+0x225ef6a
+     32.00%      16  [guest]eboot.bin+0x21d1065
+     30.00%      15  [guest]eboot.bin+0x22562f4
+     30.00%      15  [guest]libc.prx+0x2ff0b
+     24.00%      12  [guest]eboot.bin+0x2169e64
+     22.00%      11  [guest]eboot.bin+0x225d789
+     22.00%      11  [guest]eboot.bin+0x26ae115
+     18.00%       9  [guest]eboot.bin+0x225e009
+     18.00%       9  [guest]eboot.bin+0xec8000
+     16.00%       8  [guest]eboot.bin+0xe575fa
+     16.00%       8  [guest]eboot.bin+0x2251dd5
+     14.00%       7  ntdll.dll!KiUserExceptionDispatcher
+     12.00%       6  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+     12.00%       6  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+     12.00%       6  shadps4.exe!Core::SignalDispatch::DispatchAccessViolation
+     12.00%       6  shadps4.exe!Core::SignalHandler
+     12.00%       6  ntdll.dll!RtlWow64GetCurrentMachine
+     12.00%       6  [guest]eboot.bin+0xe575e2
+     12.00%       6  [guest]eboot.bin+0xe2dc0f
+     12.00%       6  [guest]eboot.bin+0x21d0ea3
+     10.00%       5  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>
+     10.00%       5  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<0,0>
+     10.00%       5  shadps4.exe!VideoCore::RegionManager::UpdateProtection<0,0>
+     10.00%       5  shadps4.exe!VideoCore::RegionManager::MarkWriteFault
+     10.00%       5  [guest]eboot.bin+0x216abe6
+     10.00%       5  [guest]eboot.bin+0x21d201d
+      8.00%       4  ntdll.dll!NtProtectVirtualMemory
+      8.00%       4  KERNELBASE.dll!VirtualProtectEx
+      8.00%       4  shadps4.exe!Core::AddressSpace::Impl::Protect
+      8.00%       4  shadps4.exe!Core::AddressSpace::Protect
+      8.00%       4  shadps4.exe!Core::MemoryManager::ProtectGpu
+      8.00%       4  shadps4.exe!VideoCore::SignalImpl::Protect
+      8.00%       4  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>::<lambda_1>::operator()
+      8.00%       4  [guest]eboot.bin+0xe4b3d4
+      8.00%       4  [guest]eboot.bin+0xe57999
+      6.00%       3  [guest]eboot.bin+0x22b5777
+      6.00%       3  [guest]eboot.bin+0x225cfa2
+      6.00%       3  [guest]eboot.bin+0x2296631
+  -- top running chains (leaf <- callers):
+      8.00%       4  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      4.00%       2  [guest]eboot.bin+0xe48355  <-  [guest]eboot.bin+0x225cfa2  <-  [guest]eboot.bin+0x21b8d22  <-  [guest]eboot.bin+0x21ba961  <-  [guest]eboot.bin+0x263b756
+      4.00%       2  [guest]libc.prx+0x2ff0b  <-  [guest]eboot.bin+0x26ae115  <-  [guest]eboot.bin+0x2169e64  <-  [guest]eboot.bin+0xe2dc0f  <-  [guest]eboot.bin+0xe4b3d4
+      2.00%       1  [guest]eboot.bin+0xeca1ed  <-  [guest]eboot.bin+0x22b5777  <-  [guest]eboot.bin+0xec800f  <-  [guest]eboot.bin+0x22d2055  <-  [guest]eboot.bin+0xec7998
+      2.00%       1  [guest]eboot.bin+0x22f6d8f
+      2.00%       1  [guest]eboot.bin+0xe48352  <-  [guest]eboot.bin+0x225cfa2  <-  [guest]eboot.bin+0x21b8d22  <-  [guest]eboot.bin+0x21ba961  <-  [guest]eboot.bin+0x263b756
+      2.00%       1  [guest]eboot.bin+0x285f404  <-  [guest]eboot.bin+0x2302445  <-  [guest]eboot.bin+0x227c9d6  <-  [guest]eboot.bin+0x2296631  <-  [guest]eboot.bin+0x21ba961
+      2.00%       1  [guest]eboot.bin+0x22556de  <-  [guest]eboot.bin+0x2255db5  <-  [guest]eboot.bin+0x225ef6a  <-  [guest]eboot.bin+0x225d789  <-  [guest]eboot.bin+0xec800f
+      2.00%       1  [guest]eboot.bin+0x2086e43  <-  [guest]eboot.bin+0x2256264  <-  [guest]eboot.bin+0x225f05b  <-  [guest]eboot.bin+0x225e009  <-  [guest]eboot.bin+0xec800f
+      2.00%       1  [guest]eboot.bin+0x261a910  <-  [guest]eboot.bin+0xea0eca  <-  [guest]eboot.bin+0x22bdb3c  <-  [guest]eboot.bin+0x22b619e  <-  [guest]eboot.bin+0xec800f
+      2.00%       1  [guest]eboot.bin+0x227f2e6  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec  <-  [guest]eboot.bin+0x227f2ec
+      2.00%       1  [guest]eboot.bin+0x224da9b  <-  [guest]eboot.bin+0x22559e7  <-  [guest]eboot.bin+0x225ef6a  <-  [guest]eboot.bin+0x225d789  <-  [guest]eboot.bin+0xec800f
+      2.00%       1  [guest]eboot.bin+0xe4b3e8  <-  [guest]eboot.bin+0xe57b3e  <-  [guest]eboot.bin+0xe575fa  <-  [guest]eboot.bin+0x21d1065  <-  [guest]eboot.bin+0x22562f4
+      2.00%       1  [guest]eboot.bin+0x21c891a  <-  [guest]eboot.bin+0x2251dd5  <-  [guest]eboot.bin+0xec8000  <-  [guest]eboot.bin+0x22d2055  <-  [guest]eboot.bin+0xec7998
+      2.00%       1  shadps4.exe!boost::icl::contains<boost::icl::interval_set<unsigned long long,std::less,boost::icl::discrete_interval<unsigned long long,std::less>,std::allocator> >  <-  shadps4.exe!Vulkan::Rasterizer::IsMapped  <-  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchers<0,0>  <-  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<0,0>  <-  shadps4.exe!VideoCore::RegionManager::UpdateProtection<0,0>
+  -- top blocked sites:
+     97.67%     588  shadps4.exe!Libraries::Kernel::Sync::Parker::Park  <-  shadps4.exe!Libraries::Kernel::Sync::KernelSemaphore::Wait  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitSema  <-  [guest]eboot.bin+0x263b37a
+      2.16%      13  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::BufferCache::InvalidateMemoryFromWriteFault  <-  shadps4.exe!Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+      0.17%       1  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu  <-  shadps4.exe!VideoCore::SignalImpl::Protect
+
+=== 44924 SDLTimer: samples=652 running=72 (11.0%) blocked=580  tsc_cycles=2.391G
+  -- top self (running samples):
+     94.44%      68  ntdll.dll!RtlWaitOnAddress
+      2.78%       2  shadps4.exe!Libraries::Kernel::ActiveClock
+      1.39%       1  shadps4.exe!SDL_GetTicksNS_REAL
+      1.39%       1  VCRUNTIME140.dll!memmove
+  -- top inclusive (running samples):
+    100.00%      72  shadps4.exe!SDL_TimerThread
+    100.00%      72  shadps4.exe!SDL_RunThread
+    100.00%      72  shadps4.exe!RunThread
+    100.00%      72  shadps4.exe!RunThreadViaBeginThreadEx
+    100.00%      72  ucrtbase.dll!wcsrchr
+    100.00%      72  KERNEL32.DLL!BaseThreadInitThunk
+    100.00%      72  ntdll.dll!RtlUserThreadStart
+     94.44%      68  ntdll.dll!RtlWaitOnAddress
+     94.44%      68  KERNELBASE.dll!WaitOnAddress
+     94.44%      68  shadps4.exe!SDL_WaitSemaphoreTimeoutNS_atom
+      4.17%       3  shadps4.exe!Input::GameController::PushStateLocked
+      4.17%       3  shadps4.exe!Input::GameController::PollState
+      4.17%       3  shadps4.exe!Frontend::PollController
+      2.78%       2  shadps4.exe!Libraries::Kernel::ActiveClock
+      2.78%       2  shadps4.exe!Libraries::Kernel::sceKernelGetProcessTime
+      1.39%       1  shadps4.exe!SDL_GetTicksNS_REAL
+      1.39%       1  VCRUNTIME140.dll!memmove
+  -- top running chains (leaf <- callers):
+     94.44%      68  ntdll.dll!RtlWaitOnAddress  <-  KERNELBASE.dll!WaitOnAddress  <-  shadps4.exe!SDL_WaitSemaphoreTimeoutNS_atom  <-  shadps4.exe!SDL_TimerThread  <-  shadps4.exe!SDL_RunThread
+      2.78%       2  shadps4.exe!Libraries::Kernel::ActiveClock  <-  shadps4.exe!Libraries::Kernel::sceKernelGetProcessTime  <-  shadps4.exe!Input::GameController::PushStateLocked  <-  shadps4.exe!Input::GameController::PollState  <-  shadps4.exe!Frontend::PollController
+      1.39%       1  shadps4.exe!SDL_GetTicksNS_REAL  <-  shadps4.exe!SDL_TimerThread  <-  shadps4.exe!SDL_RunThread  <-  shadps4.exe!RunThread  <-  shadps4.exe!RunThreadViaBeginThreadEx
+      1.39%       1  VCRUNTIME140.dll!memmove  <-  shadps4.exe!Input::GameController::PushStateLocked  <-  shadps4.exe!Input::GameController::PollState  <-  shadps4.exe!Frontend::PollController  <-  shadps4.exe!SDL_TimerThread
+  -- top blocked sites:
+    100.00%     580  shadps4.exe!SDL_WaitSemaphoreTimeoutNS_atom  <-  shadps4.exe!SDL_TimerThread  <-  shadps4.exe!SDL_RunThread  <-  shadps4.exe!RunThread
+
+=== 42448 shadPS4:PresentThread: samples=652 running=69 (10.6%) blocked=583  tsc_cycles=1.572G
+  -- top self (running samples):
+     13.04%       9  win32u.dll!NtDxgkSubmitPresentToHwQueue
+     11.59%       8  win32u.dll!NtGdiDdDDILock2
+      8.70%       6  win32u.dll!NtUserGetCursorPos
+      5.80%       4  amdxc64.dll!OpenShimInterface
+      4.35%       3  amdxc64.dll!GetSettingsBlobsAll
+      4.35%       3  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+      2.90%       2  win32u.dll!NtGdiDdDDISubmitCommandToHwQueue
+      2.90%       2  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt
+      1.45%       1  win32u.dll!NtGdiDdDDISubmitSignalSyncObjectsToHwQueue
+      1.45%       1  D3D12Core.dll+0x419b8
+      1.45%       1  shadps4.exe!ImGui::NavUpdateCreateMoveRequest
+      1.45%       1  shadps4.exe!Common::Singleton<Input::GameControllers>::Instance
+      1.45%       1  amdxx64.dll+0x83465
+      1.45%       1  shadps4.exe!Vulkan::Semaphore::KnownGpuTick
+      1.45%       1  shadps4.exe!ImGui::DockContextNewFrameUpdateDocking
+      1.45%       1  shadps4.exe!ImGui::ButtonBehavior
+      1.45%       1  shadps4.exe!ImGui::GetWindowAlwaysWantOwnTabBar
+      1.45%       1  shadps4.exe!Vulkan::Swapchain::AcquireNextImage
+      1.45%       1  USER32.dll!GetPhysicalCursorPos
+      1.45%       1  shadps4.exe!VideoCore::CaptureCoordinator::OnFrameBoundary
+      1.45%       1  ntdll.dll!RtlAllocateHeap
+      1.45%       1  win32u.dll!NtGdiDdDDISubmitCommand
+      1.45%       1  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >
+      1.45%       1  shadps4.exe!profiler::sdk::detail::encode_counter
+      1.45%       1  amdxx64.dll+0x5fc64
+  -- top inclusive (running samples):
+    100.00%      69  shadps4.exe!Libraries::VideoOut::VideoOutDriver::PresentThread
+    100.00%      69  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\core\libraries\videoout\driver.cpp:60:35',std::stop_token>,0,1>
+    100.00%      69  ucrtbase.dll!wcsrchr
+    100.00%      69  KERNEL32.DLL!BaseThreadInitThunk
+    100.00%      69  ntdll.dll!RtlUserThreadStart
+     94.20%      65  shadps4.exe!Vulkan::Presenter::Present
+     62.32%      43  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+     60.87%      42  amdvlk64.dll!IcdPresentBuffers
+     50.72%      35  shadps4.exe!Libraries::VideoOut::VideoOutDriver::Flip
+     44.93%      31  shadps4.exe!Vulkan::Swapchain::Present
+     43.48%      30  DXGI.DLL!CompatString
+     42.03%      29  DXGI.DLL!PIXBeginCapture
+     27.54%      19  d3d11.dll!D3D11CoreRegisterLayers
+     26.09%      18  amdxx64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >
+     21.74%      15  shadps4.exe!ImGui::Core::NewFrame
+     21.74%      15  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt
+     14.49%      10  shadps4.exe!ImGui::Core::Render
+     13.04%       9  shadps4.exe!ImGui::Vulkan::RenderDrawData
+     13.04%       9  win32u.dll!NtDxgkSubmitPresentToHwQueue
+     13.04%       9  d3d11.dll!D3DPerformance_GetStatus
+     13.04%       9  d3d11.dll!D3DPerformance_SetMarker
+     13.04%       9  amdxx64.dll+0x601c9
+     11.59%       8  win32u.dll!NtGdiDdDDILock2
+     11.59%       8  shadps4.exe!ImGui::Sdl::UpdateMouseData
+     11.59%       8  shadps4.exe!ImGui::Sdl::NewFrame
+     10.14%       7  shadps4.exe!WIN_GetGlobalMouseState
+     10.14%       7  shadps4.exe!SDL_GetGlobalMouseState_REAL
+     10.14%       7  amdxc64.dll!OpenShimInterface
+      8.70%       6  DXGI.DLL!DXGIDeclareAdapterRemovalSupport
+      8.70%       6  amdxx64.dll+0x62848
+      8.70%       6  amdxx64.dll+0x5fe03
+      8.70%       6  win32u.dll!NtUserGetCursorPos
+      7.25%       5  shadps4.exe!ImGui::NewFrame
+      5.80%       4  d3d11.dll!CreateDirect3D11DeviceFromDXGIDevice
+      5.80%       4  D3D12Core.dll!D3D12GetInterface
+      4.35%       3  amdxc64.dll!GetSettingsBlobsAll
+      4.35%       3  DXGI.DLL!DXGIGetDebugInterface1
+      4.35%       3  shadps4.exe!ImGui::Begin
+      4.35%       3  shadps4.exe!Vulkan::Swapchain::AcquireNextImage
+      2.90%       2  shadps4.exe!Vulkan::Scheduler::SubmitExecution
+      2.90%       2  shadps4.exe!ImGui::Sdl::UpdateGamepads
+      2.90%       2  win32u.dll!NtGdiDdDDISubmitCommandToHwQueue
+      2.90%       2  amdxx64.dll+0xa283f
+      2.90%       2  shadps4.exe!Vulkan::Presenter::PrepareLastFrame
+      2.90%       2  shadps4.exe!Libraries::VideoOut::VideoOutDriver::DrawLastFrame
+  -- top running chains (leaf <- callers):
+     13.04%       9  win32u.dll!NtDxgkSubmitPresentToHwQueue  <-  d3d11.dll!D3DPerformance_GetStatus  <-  d3d11.dll!D3DPerformance_SetMarker  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt
+     11.59%       8  win32u.dll!NtGdiDdDDILock2  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!IcdPresentBuffers  <-  shadps4.exe!ImGui::Vulkan::RenderDrawData
+      8.70%       6  win32u.dll!NtUserGetCursorPos  <-  shadps4.exe!WIN_GetGlobalMouseState  <-  shadps4.exe!SDL_GetGlobalMouseState_REAL  <-  shadps4.exe!ImGui::Sdl::UpdateMouseData  <-  shadps4.exe!ImGui::Sdl::NewFrame
+      2.90%       2  win32u.dll!NtGdiDdDDISubmitCommandToHwQueue  <-  d3d11.dll!CreateDirect3D11DeviceFromDXGIDevice  <-  d3d11.dll!CreateDirect3D11DeviceFromDXGIDevice  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt
+      2.90%       2  amdxc64.dll!OpenShimInterface  <-  D3D12Core.dll!D3D12GetInterface  <-  D3D12Core.dll!D3D12GetInterface  <-  DXGI.DLL!CompatString  <-  DXGI.DLL!CompatString
+      2.90%       2  amdxc64.dll!OpenShimInterface  <-  D3D12Core.dll+0x130f3  <-  D3D12Core.dll+0x12bdf  <-  DXGI.DLL!CompatString  <-  DXGI.DLL!CompatString
+      2.90%       2  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+      1.45%       1  win32u.dll!NtGdiDdDDISubmitSignalSyncObjectsToHwQueue  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+      1.45%       1  D3D12Core.dll+0x419b8  <-  d3d12.dll+0x14c2  <-  D3D12Core.dll+0x57e46  <-  DXGI.DLL!CreateDXGIFactory1  <-  DXGI.DLL!CompatString
+      1.45%       1  shadps4.exe!ImGui::NavUpdateCreateMoveRequest  <-  shadps4.exe!ImGui::NavUpdate  <-  shadps4.exe!ImGui::NewFrame  <-  shadps4.exe!ImGui::Core::NewFrame  <-  shadps4.exe!Vulkan::Presenter::Present
+      1.45%       1  shadps4.exe!Common::Singleton<Input::GameControllers>::Instance  <-  shadps4.exe!ImGui::Sdl::UpdateGamepads  <-  shadps4.exe!ImGui::Core::NewFrame  <-  shadps4.exe!Vulkan::Presenter::Present  <-  shadps4.exe!Libraries::VideoOut::VideoOutDriver::Flip
+      1.45%       1  amdxx64.dll+0x83465  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt
+      1.45%       1  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll+0x803b4  <-  amdxx64.dll+0xa285e  <-  amdxx64.dll+0x62848  <-  amdxx64.dll+0x5fe03
+      1.45%       1  shadps4.exe!Vulkan::Semaphore::KnownGpuTick  <-  shadps4.exe!Vulkan::Scheduler::AllocateWorkerCommandBuffers  <-  shadps4.exe!Vulkan::Scheduler::SubmitExecution  <-  shadps4.exe!Vulkan::Presenter::PrepareLastFrame  <-  shadps4.exe!Libraries::VideoOut::VideoOutDriver::DrawLastFrame
+      1.45%       1  amdxc64.dll!GetSettingsBlobsAll  <-  amdxc64.dll!GetSettingsBlobsAll  <-  amdxc64.dll!OpenShimInterface  <-  amdxc64.dll!OpenShimInterface  <-  amdxc64.dll!OpenShimInterface
+  -- top blocked sites:
+     51.80%     302  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >
+     46.66%     272  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!IcdPresentBuffers  <-  amdvlk64.dll!IcdPresentBuffers  <-  shadps4.exe!Vulkan::AcquireSwapchainImage<`lambda at D:\workspace\shadps4\src\video_core\renderer_vulkan\vk_swapchain.cpp:189:65'>
+      0.86%       5  amdxx64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >  <-  amdxx64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >  <-  amdxx64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >  <-  amdxx64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CBRCONSTVALUES> >
+      0.51%       3  d3d11.dll!D3D11CoreRegisterLayers  <-  d3d11.dll!D3D11CoreRegisterLayers  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt  <-  amdxx64.dll!AmdD3D11CreateDeviceAndSwapChainExt
+      0.17%       1  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG
+
+=== 48760 GXRenderThread: samples=652 running=49 (7.5%) blocked=603  tsc_cycles=1.194G
+  -- top self (running samples):
+      4.08%       2  [guest]eboot.bin+0x1f38da4
+      4.08%       2  [guest]eboot.bin+0xc80d44
+      4.08%       2  [guest]eboot.bin+0x2037e7e
+      2.04%       1  [guest]eboot.bin+0x26b7fee
+      2.04%       1  [guest]eboot.bin+0xc653ee
+      2.04%       1  [guest]eboot.bin+0x10972fa
+      2.04%       1  [guest]eboot.bin+0x83c44
+      2.04%       1  [guest]eboot.bin+0x10893b8
+      2.04%       1  [guest]eboot.bin+0xbea483
+      2.04%       1  shadps4.exe!std::_Atomic_address_as<long,std::_Atomic_padded<unsigned int> >
+      2.04%       1  [guest]libc.prx+0x3045a
+      2.04%       1  [guest]eboot.bin+0xa2d6b
+      2.04%       1  [guest]eboot.bin+0xa4680
+      2.04%       1  [guest]eboot.bin+0xbdbe90
+      2.04%       1  [guest]libc.prx+0x30018
+      2.04%       1  [guest]eboot.bin+0xc21e98
+      2.04%       1  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock
+      2.04%       1  [guest]eboot.bin+0x11d7a89
+      2.04%       1  [guest]eboot.bin+0xc7c3c3
+      2.04%       1  [guest]eboot.bin+0x33da51
+      2.04%       1  [guest]eboot.bin+0x26164e1
+      2.04%       1  [guest]eboot.bin+0x1f391c1
+      2.04%       1  [guest]eboot.bin+0x9621c
+      2.04%       1  [guest]eboot.bin+0xc6bcd8
+      2.04%       1  [guest]eboot.bin+0xc4a881
+  -- top inclusive (running samples):
+    100.00%      49  [guest]eboot.bin+0x263b756
+     97.96%      48  [guest]eboot.bin+0x219acde
+     97.96%      48  [guest]eboot.bin+0x21b7af5
+     89.80%      44  [guest]eboot.bin+0x21b5eea
+     46.94%      23  [guest]eboot.bin+0x21d6fe4
+     26.53%      13  [guest]eboot.bin+0xbe95eb
+     26.53%      13  [guest]eboot.bin+0xbb4e96
+     26.53%      13  [guest]eboot.bin+0x21d95cb
+     24.49%      12  [guest]eboot.bin+0xbe9938
+     20.41%      10  [guest]eboot.bin+0x1f5947d
+     18.37%       9  [guest]eboot.bin+0x965f7
+     16.33%       8  [guest]eboot.bin+0x1f5945b
+     14.29%       7  [guest]eboot.bin+0x83d58
+     14.29%       7  [guest]eboot.bin+0x83ab0
+     14.29%       7  [guest]eboot.bin+0x9612f
+     14.29%       7  [guest]eboot.bin+0x96a8c
+     14.29%       7  [guest]eboot.bin+0xdcf37
+     10.20%       5  [guest]eboot.bin+0x98d73
+     10.20%       5  [guest]eboot.bin+0xbee351
+      8.16%       4  [guest]eboot.bin+0xbe6f19
+      8.16%       4  [guest]eboot.bin+0xbec14b
+      8.16%       4  [guest]eboot.bin+0x21b5ebc
+      8.16%       4  [guest]eboot.bin+0x21d80b7
+      8.16%       4  [guest]eboot.bin+0xc089f3
+      8.16%       4  [guest]eboot.bin+0xad564
+      6.12%       3  [guest]eboot.bin+0xc4b7fb
+      6.12%       3  [guest]eboot.bin+0xc00fe1
+      6.12%       3  [guest]eboot.bin+0xda658
+      6.12%       3  [guest]eboot.bin+0xdcc6a
+      4.08%       2  [guest]eboot.bin+0xc661a2
+      4.08%       2  [guest]eboot.bin+0xc688bb
+      4.08%       2  [guest]eboot.bin+0xc6be75
+      4.08%       2  [guest]eboot.bin+0xbb510b
+      4.08%       2  shadps4.exe!Libraries::Kernel::Sync::LockWord::lock
+      4.08%       2  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock
+      4.08%       2  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock
+      4.08%       2  [guest]eboot.bin+0x1f38da4
+      4.08%       2  [guest]eboot.bin+0x23c83df
+      4.08%       2  [guest]eboot.bin+0xc576a
+      4.08%       2  [guest]eboot.bin+0x95e8a
+      4.08%       2  [guest]eboot.bin+0x24ba03e
+      4.08%       2  [guest]eboot.bin+0x986a1
+      4.08%       2  [guest]eboot.bin+0x96189
+      4.08%       2  [guest]eboot.bin+0xdcf51
+      4.08%       2  [guest]eboot.bin+0xda171
+  -- top running chains (leaf <- callers):
+      4.08%       2  [guest]eboot.bin+0x1f38da4  <-  [guest]eboot.bin+0x23c83df  <-  [guest]eboot.bin+0xc576a  <-  [guest]eboot.bin+0x95e8a  <-  [guest]eboot.bin+0x24ba03e
+      2.04%       1  [guest]eboot.bin+0x26b7fee  <-  [guest]eboot.bin+0x26d243a  <-  [guest]eboot.bin+0x2169a86  <-  [guest]eboot.bin+0x21d98f4  <-  [guest]eboot.bin+0x21d6fe4
+      2.04%       1  [guest]eboot.bin+0xc653ee  <-  [guest]eboot.bin+0xc661a2  <-  [guest]eboot.bin+0xc688bb  <-  [guest]eboot.bin+0xc6be75  <-  [guest]eboot.bin+0xbe6f19
+      2.04%       1  [guest]eboot.bin+0x10972fa  <-  [guest]eboot.bin+0x26b6dea  <-  [guest]eboot.bin+0x216be85  <-  [guest]eboot.bin+0x21b5ebc  <-  [guest]eboot.bin+0x219acde
+      2.04%       1  [guest]eboot.bin+0x83c44  <-  [guest]eboot.bin+0x83a74  <-  [guest]eboot.bin+0x1f5945b  <-  [guest]eboot.bin+0x21b5eea  <-  [guest]eboot.bin+0x219acde
+      2.04%       1  [guest]eboot.bin+0x10893b8  <-  [guest]eboot.bin+0xbb510b  <-  [guest]eboot.bin+0x21d80b7  <-  [guest]eboot.bin+0x21d6fe4  <-  [guest]eboot.bin+0x21b5eea
+      2.04%       1  [guest]eboot.bin+0xbea483  <-  [guest]eboot.bin+0xbe98dd  <-  [guest]eboot.bin+0xbe95eb  <-  [guest]eboot.bin+0xbb4e96  <-  [guest]eboot.bin+0x21d95cb
+      2.04%       1  shadps4.exe!std::_Atomic_address_as<long,std::_Atomic_padded<unsigned int> >  <-  shadps4.exe!Libraries::Kernel::Sync::LockWord::lock  <-  shadps4.exe!Libraries::Kernel::PthreadMutex::Lock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_lock  <-  [guest]eboot.bin+0x1f38d2c
+      2.04%       1  [guest]libc.prx+0x3045a  <-  [guest]libc.prx+0x29f99  <-  [guest]libc.prx+0x33195  <-  [guest]eboot.bin+0xbc1ba3  <-  [guest]eboot.bin+0xc4b07e
+      2.04%       1  [guest]eboot.bin+0xa2d6b  <-  [guest]eboot.bin+0xdc8c0  <-  [guest]eboot.bin+0x98d73  <-  [guest]eboot.bin+0x83d58  <-  [guest]eboot.bin+0x83ab0
+      2.04%       1  [guest]eboot.bin+0xa4680  <-  [guest]eboot.bin+0xdd252  <-  [guest]eboot.bin+0xe0dfb  <-  [guest]eboot.bin+0xda658  <-  [guest]eboot.bin+0xd6f8f
+      2.04%       1  [guest]eboot.bin+0xbdbe90  <-  [guest]eboot.bin+0x21da86a  <-  [guest]eboot.bin+0x21d6fe4  <-  [guest]eboot.bin+0x21b5eea  <-  [guest]eboot.bin+0x219acde
+      2.04%       1  [guest]libc.prx+0x30018  <-  [guest]eboot.bin+0xad5c2  <-  [guest]eboot.bin+0x9612f  <-  [guest]eboot.bin+0x96a8c  <-  [guest]eboot.bin+0xdcf37
+      2.04%       1  [guest]eboot.bin+0xc21e98  <-  [guest]eboot.bin+0xc4b3e2  <-  [guest]eboot.bin+0xc4b7fb  <-  [guest]eboot.bin+0xc00fe1  <-  [guest]eboot.bin+0xc089f3
+      2.04%       1  shadps4.exe!Libraries::Kernel::PthreadMutex::Unlock  <-  shadps4.exe!Libraries::Kernel::posix_pthread_mutex_unlock  <-  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::Kernel::OrbisWrapperImpl<&Libraries::Kernel::posix_pthread_mutex_unlock>::wrap>::wrap  <-  [guest]eboot.bin+0x2080499  <-  [guest]eboot.bin+0x26aa2a9
+  -- top blocked sites:
+     89.22%     538  shadps4.exe!Libraries::GnmDriver::WaitGpuIdle  <-  shadps4.exe!Libraries::GnmDriver::sceGnmSubmitCommandBuffersForWorkload  <-  [guest]eboot.bin+0x26b1138  <-  [guest]eboot.bin+0x26b0011
+      9.45%      57  shadps4.exe!Libraries::Kernel::EqueueInternal::WaitReady  <-  shadps4.exe!Libraries::Kernel::EqueueInternal::WaitForEvents  <-  shadps4.exe!Libraries::Kernel::sceKernelWaitEqueue  <-  [guest]eboot.bin+0x26d743b
+      0.66%       4  shadps4.exe!Libraries::Kernel::Pthread::Sleep  <-  shadps4.exe!Libraries::Kernel::CancellationPointWait::Park  <-  shadps4.exe!Libraries::Kernel::PthreadCond::Wait  <-  shadps4.exe!Libraries::Kernel::posix_pthread_cond_wait
+      0.33%       2  shadps4.exe!Libraries::GnmDriver::WaitGpuIdle  <-  shadps4.exe!Libraries::GnmDriver::sceGnmSubmitCommandBuffersForWorkload  <-  [guest]eboot.bin+0x26b1138  <-  [guest]eboot.bin+0x26af701
+      0.33%       2  shadps4.exe!Libraries::GnmDriver::WaitGpuIdle  <-  shadps4.exe!Libraries::GnmDriver::sceGnmSubmitCommandBuffersForWorkload  <-  [guest]eboot.bin+0x26b1138  <-  [guest]eboot.bin+0x26afed7
+
+=== 36168 NexusRevolution Main: samples=652 running=3 (0.5%) blocked=649  tsc_cycles=0.090G
+  -- top self (running samples):
+     33.33%       1  KERNELBASE.dll!WaitForSingleObjectEx
+     33.33%       1  [guest]eboot.bin+0xcbd280
+     33.33%       1  [guest]eboot.bin+0xcbb6a9
+  -- top inclusive (running samples):
+    100.00%       3  [guest]eboot.bin+0x263b756
+     33.33%       1  KERNELBASE.dll!WaitForSingleObjectEx
+     33.33%       1  shadps4.exe!Common::AccurateSleep
+     33.33%       1  shadps4.exe!Libraries::Kernel::posix_nanosleep_impl
+     33.33%       1  shadps4.exe!Libraries::Kernel::sceKernelNanosleep
+     33.33%       1  shadps4.exe!Libraries::Kernel::sceKernelUsleep
+     33.33%       1  [guest]eboot.bin+0xcbb6a5
+     33.33%       1  [guest]eboot.bin+0xcbd280
+     33.33%       1  [guest]eboot.bin+0xcbf606
+     33.33%       1  [guest]eboot.bin+0xc9db96
+     33.33%       1  [guest]eboot.bin+0xcbb6b4
+     33.33%       1  [guest]eboot.bin+0xcbb6a9
+  -- top running chains (leaf <- callers):
+     33.33%       1  KERNELBASE.dll!WaitForSingleObjectEx  <-  shadps4.exe!Common::AccurateSleep  <-  shadps4.exe!Libraries::Kernel::posix_nanosleep_impl  <-  shadps4.exe!Libraries::Kernel::sceKernelNanosleep  <-  shadps4.exe!Libraries::Kernel::sceKernelUsleep
+     33.33%       1  [guest]eboot.bin+0xcbd280  <-  [guest]eboot.bin+0xcbf606  <-  [guest]eboot.bin+0xc9db96  <-  [guest]eboot.bin+0xcbb6b4  <-  [guest]eboot.bin+0x263b756
+     33.33%       1  [guest]eboot.bin+0xcbb6a9  <-  [guest]eboot.bin+0x263b756
+  -- top blocked sites:
+    100.00%     649  shadps4.exe!Common::AccurateSleep  <-  shadps4.exe!Libraries::Kernel::posix_nanosleep_impl  <-  shadps4.exe!Libraries::Kernel::sceKernelNanosleep  <-  shadps4.exe!Libraries::Kernel::sceKernelUsleep
+
+=== 27728 NexusRevolution Surveillance: samples=652 running=1 (0.2%) blocked=651  tsc_cycles=0.042G
+  -- top self (running samples):
+    100.00%       1  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::NetCtl::sceNetCtlCheckCallback>::wrap
+  -- top inclusive (running samples):
+    100.00%       1  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::NetCtl::sceNetCtlCheckCallback>::wrap
+    100.00%       1  [guest]eboot.bin+0xcb8853
+    100.00%       1  [guest]eboot.bin+0xcbb6b4
+    100.00%       1  [guest]eboot.bin+0x263b756
+  -- top running chains (leaf <- callers):
+    100.00%       1  shadps4.exe!Core::HostCallWrapperImpl<&Libraries::NetCtl::sceNetCtlCheckCallback>::wrap  <-  [guest]eboot.bin+0xcb8853  <-  [guest]eboot.bin+0xcbb6b4  <-  [guest]eboot.bin+0x263b756
+  -- top blocked sites:
+    100.00%     651  shadps4.exe!Common::AccurateSleep  <-  shadps4.exe!Libraries::Kernel::posix_nanosleep_impl  <-  shadps4.exe!Libraries::Kernel::sceKernelNanosleep  <-  shadps4.exe!Libraries::Kernel::sceKernelUsleep
+
+=== 38056 NexusRevolution Event: samples=652 running=0 (0.0%) blocked=652  tsc_cycles=0.022G
+  -- top self (running samples):
+  -- top inclusive (running samples):
+  -- top running chains (leaf <- callers):
+  -- top blocked sites:
+    100.00%     652  shadps4.exe!Common::AccurateSleep  <-  shadps4.exe!Libraries::Kernel::posix_nanosleep_impl  <-  shadps4.exe!Libraries::Kernel::sceKernelNanosleep  <-  shadps4.exe!Libraries::Kernel::sceKernelUsleep

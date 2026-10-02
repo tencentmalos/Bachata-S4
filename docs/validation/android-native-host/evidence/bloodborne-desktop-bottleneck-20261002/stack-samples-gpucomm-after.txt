@@ -1,0 +1,101 @@
+pid=35396 elapsed=12.00s interval=2ms ticks=3443 threads=1
+suspend avg=942.9us max=48202us
+
+=== 29028 shadPS4:GpuCommandProcessor: samples=3443 running=3403 (98.8%) blocked=40  tsc_cycles=17.324G
+  -- top self (running samples):
+     11.52%     392  VCRUNTIME140.dll!_NLG_Return2
+      4.67%     159  shadps4.exe!Vulkan::Rasterizer::BindTextures
+      3.20%     109  shadps4.exe!Common::FutexMutex::lock
+      3.17%     108  ntdll.dll!RtlReleaseSRWLockExclusive
+      3.00%     102  shadps4.exe!VideoCore::Image::FindView
+      2.82%      96  ntdll.dll!NtProtectVirtualMemory
+      2.38%      81  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+      2.32%      79  shadps4.exe!Core::MemoryManager::CopySparseMemory
+      1.82%      62  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory
+      1.79%      61  VCRUNTIME140.dll!memmove
+      1.67%      57  shadps4.exe!Vulkan::Scheduler::BeginHoist
+      1.62%      55  shadps4.exe!Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+      1.53%      52  ntdll.dll!NtAlertThreadByThreadIdEx
+      1.44%      49  shadps4.exe!VideoCore::TextureCache::FindImage
+      1.44%      49  ntdll.dll!RtlAcquireSRWLockExclusive
+      1.44%      49  shadps4.exe!Vulkan::Rasterizer::BindResources
+      1.41%      48  shadps4.exe!Shader::StageSpecialization::ForEachSharp<boost::container::small_vector<Shader::VsAttribSpecialization,32,void,void>,boost::container::small_vector<Shader::Gcn::VertexAttribute,16,void,void>,`lambda at D:\workspace\shadps4\src\shader_recompiler\specialization.h:114:26'>
+      1.38%      47  shadps4.exe!Vulkan::Rasterizer::BindBuffers
+      1.35%      46  shadps4.exe!std::operator==<AmdGpu::DepthRangeTransform,16>
+      1.35%      46  shadps4.exe!VideoCore::TextureCache::TouchImage
+      1.32%      45  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>
+      1.18%      40  shadps4.exe!VideoCore::BufferCache::EnsureResident
+      1.06%      36  shadps4.exe!VideoCore::Image::ObserveUsage
+      1.03%      35  shadps4.exe!VideoCore::TextureCache::RecordAttachmentDraw
+      1.00%      34  shadps4.exe!Shader::StageSpecialization::operator==
+  -- top inclusive (running samples):
+     96.65%    3289  shadps4.exe!AmdGpu::Liverpool::Process
+     96.65%    3289  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\amdgpu\liverpool.cpp:97:35',std::stop_token>,0,1>
+     96.65%    3289  ucrtbase.dll!wcsrchr
+     96.65%    3289  KERNEL32.DLL!BaseThreadInitThunk
+     96.65%    3289  ntdll.dll!RtlUserThreadStart
+     95.68%    3256  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+     78.70%    2678  shadps4.exe!Vulkan::Rasterizer::Draw
+     36.26%    1234  shadps4.exe!Vulkan::Rasterizer::BindResources
+     25.12%     855  shadps4.exe!VideoCore::BufferCache::ObtainBuffer
+     17.01%     579  shadps4.exe!Vulkan::Rasterizer::BindBuffers
+     16.87%     574  shadps4.exe!Vulkan::Rasterizer::BindTextures
+     15.75%     536  shadps4.exe!Vulkan::PipelineCache::GetGraphicsPipeline
+     14.93%     508  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsKey
+     14.19%     483  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsStages
+     13.90%     473  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsStages::<lambda_0>::operator()
+     13.66%     465  shadps4.exe!Vulkan::PipelineCache::GetProgram
+     11.52%     392  VCRUNTIME140.dll!_NLG_Return2
+     10.70%     364  shadps4.exe!VideoCore::BufferCache::ObtainResidentBuffer
+      9.84%     335  shadps4.exe!Vulkan::Rasterizer::DispatchDirect
+      9.29%     316  shadps4.exe!Core::MemoryManager::CopySparseMemory
+      8.99%     306  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory
+      8.55%     291  shadps4.exe!Vulkan::ExecuteCopyShaderHLE
+      8.55%     291  shadps4.exe!Vulkan::ExecuteShaderHLE
+      6.14%     209  shadps4.exe!Shader::StageSpecialization::StageSpecialization
+      5.76%     196  shadps4.exe!Vulkan::Rasterizer::BindVertexBuffers
+      5.50%     187  shadps4.exe!VideoCore::BufferCache::IsRegionGpuModified
+      5.44%     185  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>
+      4.91%     167  MSVCP140.dll!Mtx_unlock
+      4.67%     159  ntdll.dll!RtlReleaseSRWLockExclusive
+      3.91%     133  shadps4.exe!VideoCore::TextureCache::FindTexture
+      3.82%     130  shadps4.exe!Vulkan::Rasterizer::BeginRendering
+      3.73%     127  shadps4.exe!Common::FutexMutex::lock
+      3.50%     119  shadps4.exe!Vulkan::Rasterizer::PrepareRenderState
+      3.23%     110  shadps4.exe!VideoCore::RegionManager::UpdateProtection<1,0>
+      3.00%     102  shadps4.exe!VideoCore::Image::FindView
+      3.00%     102  shadps4.exe!Vulkan::Rasterizer::BindIndexBuffer
+      3.00%     102  shadps4.exe!Shader::StageSpecialization::operator==
+      2.94%     100  shadps4.exe!VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<1,0>
+      2.85%      97  shadps4.exe!Core::AddressSpace::Impl::Protect
+      2.85%      97  shadps4.exe!Core::AddressSpace::Protect
+      2.85%      97  shadps4.exe!Core::MemoryManager::ProtectGpu
+      2.85%      97  shadps4.exe!VideoCore::SignalImpl::Protect
+      2.82%      96  ntdll.dll!NtProtectVirtualMemory
+      2.82%      96  KERNELBASE.dll!VirtualProtectEx
+      2.76%      94  shadps4.exe!Vulkan::Pipeline::BindResources
+  -- top running chains (leaf <- callers):
+      4.61%     157  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      3.47%     118  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindBuffers  <-  shadps4.exe!Vulkan::Rasterizer::BindResources
+      3.17%     108  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>  <-  shadps4.exe!VideoCore::BufferCache::IsRegionGpuModified  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindBuffers
+      2.82%      96  ntdll.dll!NtProtectVirtualMemory  <-  KERNELBASE.dll!VirtualProtectEx  <-  shadps4.exe!Core::AddressSpace::Impl::Protect  <-  shadps4.exe!Core::AddressSpace::Protect  <-  shadps4.exe!Core::MemoryManager::ProtectGpu
+      2.79%      95  shadps4.exe!VideoCore::Image::FindView  <-  shadps4.exe!VideoCore::TextureCache::FindTexture  <-  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      2.38%      81  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process  <-  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\amdgpu\liverpool.cpp:97:35',std::stop_token>,0,1>  <-  ucrtbase.dll!wcsrchr  <-  KERNEL32.DLL!BaseThreadInitThunk
+      2.15%      73  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindBuffers  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      2.09%      71  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Vulkan::Rasterizer::BindTextures  <-  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+      1.62%      55  shadps4.exe!Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR  <-  shadps4.exe!Vulkan::Pipeline::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      1.62%      55  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer  <-  shadps4.exe!Vulkan::Rasterizer::BindIndexBuffer  <-  shadps4.exe!Vulkan::Rasterizer::Draw
+      1.56%      53  VCRUNTIME140.dll!_NLG_Return2  <-  shadps4.exe!Core::MemoryManager::CopySparseMemory  <-  shadps4.exe!VideoCore::BufferCache::SynchronizeMemory  <-  shadps4.exe!VideoCore::BufferCache::ObtainResidentBuffer  <-  shadps4.exe!VideoCore::BufferCache::ObtainBuffer
+      1.56%      53  shadps4.exe!Vulkan::Scheduler::BeginHoist  <-  shadps4.exe!Vulkan::ExecuteCopyShaderHLE  <-  shadps4.exe!Vulkan::ExecuteShaderHLE  <-  shadps4.exe!Vulkan::Rasterizer::DispatchDirect  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics
+      1.44%      49  shadps4.exe!VideoCore::TextureCache::FindImage  <-  shadps4.exe!Vulkan::Rasterizer::PrepareRenderState  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      1.44%      49  shadps4.exe!Vulkan::Rasterizer::BindResources  <-  shadps4.exe!Vulkan::Rasterizer::Draw  <-  shadps4.exe!AmdGpu::Liverpool::ProcessGraphics  <-  shadps4.exe!AmdGpu::Liverpool::Process  <-  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\amdgpu\liverpool.cpp:97:35',std::stop_token>,0,1>
+      1.41%      48  shadps4.exe!Shader::StageSpecialization::ForEachSharp<boost::container::small_vector<Shader::VsAttribSpecialization,32,void,void>,boost::container::small_vector<Shader::Gcn::VertexAttribute,16,void,void>,`lambda at D:\workspace\shadps4\src\shader_recompiler\specialization.h:114:26'>  <-  shadps4.exe!Shader::StageSpecialization::StageSpecialization  <-  shadps4.exe!Vulkan::PipelineCache::GetProgram  <-  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsStages::<lambda_0>::operator()  <-  shadps4.exe!Vulkan::PipelineCache::RefreshGraphicsStages
+  -- top blocked sites:
+     47.50%      19  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::MemoryTracker::IteratePages<0,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:59:41'>  <-  shadps4.exe!VideoCore::BufferCache::IsRegionGpuModified
+     27.50%      11  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!IcdPresentBuffers  <-  amdvlk64.dll!IcdPresentBuffers
+      7.50%       3  shadps4.exe!Common::CondvarWait<std::condition_variable_any,std::mutex,`lambda at D:\workspace\shadps4\src\video_core\amdgpu\liverpool.cpp:161:33'>  <-  shadps4.exe!AmdGpu::Liverpool::Process  <-  shadps4.exe!std::thread::_Invoke<std::tuple<`lambda at D:\workspace\shadps4\src\video_core\amdgpu\liverpool.cpp:97:35',std::stop_token>,0,1>
+      7.50%       3  shadps4.exe!Vulkan::CommandRecorder::Sync  <-  shadps4.exe!Vulkan::Presenter::PrepareFrame  <-  shadps4.exe!Libraries::VideoOut::VideoOutDriver::SubmitFlipInternal  <-  shadps4.exe!Libraries::VideoOut::VideoOutDriver::SubmitFlip
+      2.50%       1  shadps4.exe!std::_Atomic_wait_direct<unsigned int,long>  <-  shadps4.exe!Common::FutexMutex::lock  <-  shadps4.exe!VideoCore::MemoryTracker::IteratePages<1,`lambda at D:\workspace\shadps4\src\video_core\buffer_cache\memory_tracker.h:50:41'>  <-  shadps4.exe!VideoCore::BufferCache::IsRegionCpuModified
+      2.50%       1  shadps4.exe!Vulkan::Scheduler::SubmitExecution::<lambda_65>::operator()  <-  shadps4.exe!Vulkan::Scheduler::SubmitExecution  <-  shadps4.exe!Vulkan::Rasterizer::Flush  <-  shadps4.exe!AmdGpu::Liverpool::Process
+      2.50%       1  shadps4.exe!Vulkan::Scheduler::SubmitExecution::<lambda_65>::operator()  <-  shadps4.exe!Vulkan::Scheduler::SubmitExecution  <-  shadps4.exe!Vulkan::Presenter::PrepareFrame  <-  shadps4.exe!Libraries::VideoOut::VideoOutDriver::SubmitFlipInternal
+      2.50%       1  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!vk_icdGetInstanceProcAddrSG  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >  <-  amdvlk64.dll!boost::serialization::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >::singleton<boost::serialization::extended_type_info_typeid<_SC_CONSTANTUSAGE> >

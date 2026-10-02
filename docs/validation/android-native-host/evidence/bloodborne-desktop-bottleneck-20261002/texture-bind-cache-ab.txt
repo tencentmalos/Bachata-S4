@@ -1,0 +1,8 @@
+on frames=422 fps=70.3 draws/flip=1572 gpucomm_ms_per_frame=12.00
+off frames=420 fps=70.0 draws/flip=1572 gpucomm_ms_per_frame=12.24
+on frames=421 fps=70.2 draws/flip=1576 gpucomm_ms_per_frame=11.43
+off frames=420 fps=70.0 draws/flip=1572 gpucomm_ms_per_frame=12.24
+on frames=419 fps=69.8 draws/flip=1572 gpucomm_ms_per_frame=11.41
+off frames=420 fps=70.0 draws/flip=1570 gpucomm_ms_per_frame=12.57
+on frames=419 fps=69.8 draws/flip=1577 gpucomm_ms_per_frame=11.56
+off frames=417 fps=69.5 draws/flip=1577 gpucomm_ms_per_frame=12.44

@@ -1,0 +1,4 @@
+      5 [ VUID-vkCmdCopyImage-srcImage-01551 ]
+      5 [ VUID-vkCmdCopyImage-srcImage-01548 ]
+      1 [ VUID_Undefined ]
+      1 [ VUID-VkDeviceCreateInfo-pNext-pNext ]

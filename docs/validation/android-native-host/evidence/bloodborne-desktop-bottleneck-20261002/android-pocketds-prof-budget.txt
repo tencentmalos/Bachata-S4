@@ -1,0 +1,54 @@
+AYANEO Pocket DS (01108YHE01017563, SG8275 / Adreno 740, Android 13), Bloodborne CUSA03023
+Central Yharnam start, character standing still, Internal Scale 0.5 (default), status overlay on.
+APK 3e8e160a682ac7fb5397262085a883dc65c411f4ffcbd7ff79293883e51b27fb
+host 590594e55d07b2ee1f4f5ed7e47ec87ca681848ff97d251ccba3130fee31bb63 (source 8d3082e31 + uncommitted tree)
+Turnip 01a3548fbd2695f3b27ad896bfbbbf0561e28c49ad1de8a19b05745acd01ba19 (351a4847 + barycentric)
+PID 23532, generation 1, run dcd56638917d46a1d18f33f013ae1844
+
+PROF: DebugBus profiler_capture file 384 MiB / 10 s
+  sha256 4d369dd8a88ac26589f9181daa944f2e33843148972d1971dd63f43be93fcc20, 17,150,970 bytes,
+  SDK 0b467a861569345a64fd88cb2e5daa8ff542c14f, 191 chunks ok / 0 skipped, 2,029,315 events.
+  Kept locally in build/validation/bb-pds-20261002 (not committed); the device copy was deleted.
+  Boundary spans at the capture edges are unbalanced/unclosed, as for any mid-run capture.
+  No GPU zones (GPU timing off) and no scheduler sidecar: unannotated time is not split into
+  on-CPU / runnable / sleep.
+
+Frames: 270 complete SDK frames on the frame-owner thread Guest-20 (tid 23688).
+  mean 37.09 ms, p50 36.64 ms, p90 41.37 ms (min 28.5, max 50.3). Durations are spread
+  continuously, not quantized at 33.3 ms: the game does not reach its 30 FPS cap.
+
+Guest-20 (render submit, frame owner), per frame:
+  scePthreadCondWait            1 call    29.10 ms   (waits for Guest-1's frame)
+  sceGnmSubmitCommandBuffers   10.4 calls  0.85 ms
+  sceGnmInsertPushMarker       43 calls    0.78 ms   (18 us per marker)
+  sceGnmInsertPopMarker        43 calls    0.25 ms
+  unannotated                              5.89 ms
+
+Guest-1 (main game thread), per frame:
+  HLE total                   449 calls   11.94 ms
+    scePthreadCondWait          5.7        4.08 ms
+    sceKernelWaitSema          41.6        2.86 ms
+    sceKernelSignalSema        53.5        1.85 ms   (35 us per call, elapsed incl. preemption)
+    pthread_cond_broadcast     49.0        1.18 ms   (24 us per call)
+    shadSyncWait               11.4        0.81 ms
+    shadSyncWake               32.9        0.25 ms
+    rwlock rd/unlock           61 + 61     0.31 ms
+    mutex/cond init/destroy    ~10 each    ~0.45 ms
+  unannotated (JIT game code + off-CPU)   25.15 ms
+
+shadPS4:GpuComm, per frame:
+  PM4.Resume                   73 resumes 22.84 ms inclusive (1.57 ms exclusive)
+    Rasterizer.Draw           900.5 draws 16.73 ms   (18.6 us per draw)
+    Rasterizer.Dispatch       145.4        3.66 ms
+    HLE.CopyShader             57.9        2.87 ms
+  VideoOut.Prepare              1          0.88 ms
+  unannotated (idle waiting for work + off-CPU) 14.23 ms
+
+Thread CPU (/proc/<pid>/task/*/stat over ~10.8 s windows, see android-pocketds-threads.txt):
+  Guest-1 25.3 ms/frame, GpuComm 21.5, Guest-17 12.8, VkRecorder 9.3, Guest-20..25 ~7 each,
+  Present 4.1; process 4.57 cores. kgsl gpubusy 81% at 680 MHz (the A740 maximum).
+
+Texture bind cache A/B in the same session (upload_diag texture_bind_cache off/on, 2 rounds):
+  off 27.09 / 26.82 FPS, GpuComm 21.52 / 21.83 ms/frame
+  on  26.42 / 26.83 FPS, GpuComm 21.74 / 21.59 ms/frame
+  hits 16,997,917 / misses 20,891 at the end; about 4,200 hits per frame. No measurable effect.

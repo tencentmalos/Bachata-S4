@@ -1,0 +1,809 @@
+pass_log remaining=0 entries=600 gpu_timed=2400
+pass 6118499 resumed begin=other end=other draws=79 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1269.2
+pass 6118500 resumed begin=other end=other draws=53 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1073.24 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118501 resumed begin=other end=other draws=97 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1022.68 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118502 resumed begin=other end=other draws=74 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=726.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118503 resumed begin=other end=other draws=36 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=275.6 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118504 resumed begin=other end=other draws=109 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=858.52 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118505 resumed begin=other end=other draws=72 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=524.04 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118506 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=412.32 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118507 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=422.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118508 resumed begin=other end=other draws=75 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=428.44 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118509 resumed begin=other end=other draws=28 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=215.96 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118510 guest begin=- end=attachment draws=2 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=23.12 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118511 guest begin=- end=image_copy draws=1 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=19.36 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118512 guest begin=- end=image_copy draws=2 loads=0 clears=0 load_px=0 hoists=0 gpu_us=0 1920x1080x1
+pass 6118513 resumed begin=image_copy end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=5 1920x1080x1
+pass 6118514 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=22.68 480x270x1 c0=0x277180000:R32Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x277180000-0x2773c0000, pass wrote it]
+pass 6118515 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=2 gpu_us=82.96 480x270x1 c0=0x2773c0000:R8G8B8A8Unorm:L
+pass 6118516 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=88.36 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x277840000-0x278038000, pass wrote it]
+pass 6118517 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=49.32 960x540x1 c0=0x278038000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x278038000-0x278830000, pass wrote it]
+pass 6118518 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=3 gpu_us=164.36 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118519 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=55.12 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118520 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=2.36 1920x1080x1
+pass 6118521 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=343.64 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118522 guest begin=- end=other draws=31 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=384.8 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118523 resumed begin=other end=other draws=135 loads=3 clears=0 load_px=6220800 hoists=3 gpu_us=527.32 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118524 resumed begin=other end=other draws=143 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=566.96 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118525 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=3 gpu_us=5.6 1920x1080x1
+pass 6118526 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=107.16 1920x1080x1 c0=0x275ad0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118527 guest begin=- end=sampled_image draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=28.92 1920x1080x1 c0=0x280ea0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x280ea0000-0x281e90000, pass wrote it]
+pass 6118528 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=21.16 1920x1080x1 c0=0x275ad0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118529 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=3 gpu_us=15.48 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118530 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=329.16 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118531 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=5.68 1920x1080x1
+pass 6118532 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=31.04 960x540x1 d=0x269820000:D32SfloatS8Uint:C:rw
+pass 6118533 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=3.48 960x540x1
+pass 6118534 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=19.88 480x270x1 d=0x2e1298000:D32SfloatS8Uint:C:rw
+pass 6118535 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=3.08 480x270x1
+pass 6118536 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=29.16 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118537 resumed begin=other end=attachment draws=4 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118538 guest begin=- end=buffer_upload draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=99.32 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118539 resumed begin=buffer_upload end=buffer_upload draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=31.28 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118540 resumed begin=buffer_upload end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=23.16 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118541 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=13.88 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118542 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=19.76 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118543 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=16.44 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118544 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=17.48 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118545 guest begin=- end=buffer_upload draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=3.88 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118546 guest begin=- end=other draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=22.88 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118547 resumed begin=other end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=20.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118548 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=18.12 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118549 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=19.92 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118550 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=4.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118551 guest begin=- end=buffer_upload draws=4 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=19.28 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118552 resumed begin=buffer_upload end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=24.56 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118553 guest begin=- end=buffer_upload draws=7 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=20.56 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118554 resumed begin=buffer_upload end=attachment draws=2 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=22.76 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118555 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=21 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118556 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=18.12 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118557 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=2.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118558 guest begin=- end=state_change draws=2 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0.72 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118559 guest begin=- end=buffer_upload draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=86.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118560 resumed begin=buffer_upload end=buffer_upload draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=40.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118561 resumed begin=buffer_upload end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=222.8 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118562 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=48.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118563 guest begin=- end=attachment draws=3 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=15.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118564 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=45.88 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118565 guest begin=- end=state_change draws=5 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=58.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118566 guest begin=- end=attachment draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118567 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=16.28 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118568 guest begin=- end=state_change draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=29.52 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118569 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118570 guest begin=- end=other draws=5 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=28.28 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118571 resumed begin=other end=buffer_upload draws=5 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=39.96 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118572 guest begin=- end=image_copy draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=5.84 1920x1080x1
+pass 6118573 guest begin=- end=attachment draws=21 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=109.12 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118574 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=26 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118575 guest begin=- end=other draws=3 loads=2 clears=0 load_px=1036800 hoists=1 gpu_us=26.6 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+pass 6118576 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=20.36 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118577 guest begin=- end=state_change draws=77 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=265.76 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+pass 6118578 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=3.64 960x540x1
+pass 6118579 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.68 480x270x1 c0=0x269d90000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x269d90000-0x269fd0000, pass wrote it]
+pass 6118580 guest begin=- end=other draws=1 loads=1 clears=0 load_px=518400 hoists=1 gpu_us=29.16 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118581 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=518400 hoists=1 gpu_us=77.28 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x263e80000-0x264e70000, pass wrote it]
+pass 6118582 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129360 hoists=0 gpu_us=22.44 588x220x1 c0=0x25a830000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25a830000-0x25ac90000, pass wrote it]
+pass 6118583 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129360 hoists=0 gpu_us=22.68 588x220x1 c0=0x25aed0000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25aed0000-0x25b330000, pass wrote it]
+pass 6118584 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=518400 hoists=2 gpu_us=55.8 960x540x1 c0=0x257010000:R16G16B16A16Sfloat:L
+pass 6118585 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=1 gpu_us=29.4 480x270x1 c0=0x25bb10000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25bb10000-0x25bf90000, pass wrote it]
+pass 6118586 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=30.6 960x540x1 c0=0x258010000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x258010000-0x259000000, pass wrote it]
+pass 6118587 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=29.72 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x263e80000-0x264e70000, pass wrote it]
+pass 6118588 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=29.76 960x540x1 c0=0x257010000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x257010000-0x258000000, pass wrote it]
+pass 6118589 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=23.04 480x270x1 c0=0x25db30000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25db30000-0x25dfb0000, pass wrote it]
+pass 6118590 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=32400 hoists=0 gpu_us=17.8 240x135x1 c0=0x25e450000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25e450000-0x25e590000, pass wrote it]
+pass 6118591 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=14.96 157x132x1 c0=0x2651c0000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x2651c0000-0x2652b0000, pass wrote it]
+pass 6118592 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.64 157x132x1 c0=0x259b80000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259b80000-0x259bf8000, pass wrote it]
+pass 6118593 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.2 157x132x1 c0=0x259b00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259b00000-0x259b78000, pass wrote it]
+pass 6118594 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.8 157x132x1 c0=0x259c80000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259c80000-0x259cf8000, pass wrote it]
+pass 6118595 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.24 157x132x1 c0=0x259c00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259c00000-0x259c78000, pass wrote it]
+pass 6118596 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=14.32 78x66x1 c0=0x259d00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d00000-0x259d30000, pass wrote it]
+pass 6118597 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=12.4 78x66x1 c0=0x256fa8000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x256fa8000-0x256fd8000, pass wrote it]
+pass 6118598 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=11.48 78x66x1 c0=0x2653b8000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x2653b8000-0x2653e8000, pass wrote it]
+pass 6118599 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=12 39x33x1 c0=0x259d68000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d68000-0x259d78000, pass wrote it]
+pass 6118600 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=11.88 39x33x1 c0=0x259d50000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d50000-0x259d60000, pass wrote it]
+pass 6118601 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=11.56 39x33x1 c0=0x259d38000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d38000-0x259d48000, pass wrote it]
+pass 6118602 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=5293 hoists=1 gpu_us=12.72 79x67x1 c0=0x259d80000:B10G11R11UfloatPack32:L
+pass 6118603 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=6 40x34x1 c0=0x259dc8000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259dc8000-0x259dd0000, pass wrote it]
+pass 6118604 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=12.04 40x34x1 c0=0x259db8000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259db8000-0x259dc0000, pass wrote it]
+pass 6118605 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=12.16 40x34x1 c0=0x2653f0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x2653f0000-0x2653f8000, pass wrote it]
+pass 6118606 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=1360 hoists=1 gpu_us=11.6 40x34x1 c0=0x259dd8000:B10G11R11UfloatPack32:L
+pass 6118607 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=3.04 20x17x1 c0=0x259e10000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e10000-0x259e18000, pass wrote it]
+pass 6118608 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=12.32 20x17x1 c0=0x259e00000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e00000-0x259e08000, pass wrote it]
+pass 6118609 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=12.44 20x17x1 c0=0x259df0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259df0000-0x259df8000, pass wrote it]
+pass 6118610 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=1360 hoists=1 gpu_us=14.2 40x34x1 c0=0x259e20000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+pass 6118611 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=3 10x9x1 c0=0x259e50000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e50000-0x259e58000, pass wrote it]
+pass 6118612 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=12.04 10x9x1 c0=0x259e40000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e40000-0x259e48000, pass wrote it]
+pass 6118613 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=12.28 10x9x1 c0=0x259e30000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e30000-0x259e38000, pass wrote it]
+pass 6118614 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=360 hoists=1 gpu_us=11.76 20x18x1 c0=0x259e60000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+pass 6118615 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=3.08 5x5x1 c0=0x259e90000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e90000-0x259e98000, pass wrote it]
+pass 6118616 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=11.96 5x5x1 c0=0x259e80000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e80000-0x259e88000, pass wrote it]
+pass 6118617 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=11.44 5x5x1 c0=0x259e70000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e70000-0x259e78000, pass wrote it]
+pass 6118618 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=100 hoists=4 gpu_us=14.4 10x10x1 c0=0x259ea0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259ea0000-0x259ea8000, pass wrote it]
+pass 6118619 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=17.84 157x132x1 c0=0x259eb0000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259eb0000-0x259f28000, pass wrote it]
+pass 6118620 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=13 157x132x1 c0=0x265338000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x265338000-0x2653b0000, pass wrote it]
+pass 6118621 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=83210 hoists=0 gpu_us=16.12 314x265x1 c0=0x259910000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259910000-0x259a78000, pass wrote it]
+pass 6118622 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=100.2 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118623 resumed begin=image_copy end=dispatch draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=195.16 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118624 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=19.92 960x540x1 c0=0x2508e0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass wrote it]
+pass 6118625 guest begin=- end=attachment draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=187.84 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass read it]
+pass 6118626 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=53.92 960x540x1 c0=0x2508e0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass wrote it]
+pass 6118627 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=26.04 480x270x1 c0=0x250460000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x250460000-0x2506a0000, pass wrote it]
+pass 6118628 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.72 480x270x1 c0=0x2506a0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2506a0000-0x2508e0000, pass wrote it]
+pass 6118629 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=20.96 480x270x1 c0=0x250460000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x250460000-0x2506a0000, pass wrote it]
+pass 6118630 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.72 480x270x1 c0=0x2506a0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2506a0000-0x2508e0000, pass wrote it]
+pass 6118631 guest begin=- end=other draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=145 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118632 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=18.2 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118633 guest begin=- end=state_change draws=13 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=41.92 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118634 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=3.4 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118635 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=8.36 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118636 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.28 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118637 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0.8 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118638 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.4 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118639 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=3.68 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118640 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=4.32 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118641 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.24 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118642 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=2.84 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118643 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.28 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118644 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=3.12 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118645 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=3.64 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118646 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=1.24 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118647 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=3.8 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118648 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.24 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118649 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=3.36 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118650 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=6.12 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118651 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.28 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118652 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=1.08 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118653 guest begin=- end=state_change draws=14 loads=1 clears=0 load_px=2073600 hoists=2 gpu_us=24.24 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118654 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=7.56 1920x1080x1
+pass 6118655 guest begin=- end=present draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=20.96 960x540x1 c0=0x24dc00000:R8G8B8A8Unorm:L
+pass 6118656 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=12.56 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:C:rw
+pass 6118657 guest begin=- end=state_change draws=1 loads=0 clears=1 load_px=0 hoists=0 gpu_us=27.72 2048x2048x1 d=0x27cda0000:D32Sfloat:C:rw
+pass 6118658 guest begin=- end=other draws=35 loads=1 clears=0 load_px=4194304 hoists=2 gpu_us=115.68 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118659 resumed begin=other end=other draws=5 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=18.32 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118660 resumed begin=other end=other draws=9 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=58.28 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118661 resumed begin=other end=other draws=11 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=55.24 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118662 resumed begin=other end=other draws=20 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=84.96 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118663 guest begin=- end=image_copy draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=22.84 4096x4096x1
+pass 6118664 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.28 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118665 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=13.44 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118666 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=9.48 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118667 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.6 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118668 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.08 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118669 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.84 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118670 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=6.56 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118671 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.64 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118672 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=5.88 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118673 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=13.4 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118674 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=6 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118675 guest begin=- end=other draws=1 loads=1 clears=0 load_px=4096 hoists=1 gpu_us=8.6 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118676 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=7.44 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118677 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=15.52 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118678 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.92 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118679 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=10.72 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118680 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=9.44 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118681 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.48 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118682 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.92 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118683 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.52 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118684 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=7.08 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118685 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.36 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118686 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=7 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118687 guest begin=- end=other draws=1 loads=1 clears=0 load_px=1024 hoists=1 gpu_us=8.48 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118688 guest begin=- end=state_change draws=1 loads=3 clears=4 load_px=6220800 hoists=0 gpu_us=119.48 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:C:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:C:rw
+pass 6118689 guest begin=- end=other draws=43 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=416.56 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118690 resumed begin=other end=other draws=79 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1268.92 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118691 resumed begin=other end=other draws=53 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1059.08 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118692 resumed begin=other end=other draws=97 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1042.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118693 resumed begin=other end=other draws=74 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=752.28 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118694 resumed begin=other end=other draws=36 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=274.16 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118695 resumed begin=other end=other draws=109 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=916.84 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118696 resumed begin=other end=other draws=72 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=518.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118697 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=419 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118698 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=418 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118699 resumed begin=other end=other draws=75 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=447.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118700 resumed begin=other end=other draws=28 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=219.92 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118701 guest begin=- end=attachment draws=2 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=21.28 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118702 guest begin=- end=image_copy draws=1 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=19.12 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118703 guest begin=- end=image_copy draws=2 loads=0 clears=0 load_px=0 hoists=0 gpu_us=0 1920x1080x1
+pass 6118704 resumed begin=image_copy end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=4.72 1920x1080x1
+pass 6118705 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=23 480x270x1 c0=0x277180000:R32Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x277180000-0x2773c0000, pass wrote it]
+pass 6118706 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=2 gpu_us=84.92 480x270x1 c0=0x2773c0000:R8G8B8A8Unorm:L
+pass 6118707 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=89.08 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x277840000-0x278038000, pass wrote it]
+pass 6118708 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=52.16 960x540x1 c0=0x278038000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x278038000-0x278830000, pass wrote it]
+pass 6118709 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=3 gpu_us=165.76 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118710 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=56.96 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118711 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=2.4 1920x1080x1
+pass 6118712 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=344.36 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118713 guest begin=- end=other draws=31 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=368.44 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118714 resumed begin=other end=other draws=135 loads=3 clears=0 load_px=6220800 hoists=3 gpu_us=559.16 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118715 resumed begin=other end=other draws=143 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=554.72 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118716 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=3 gpu_us=5.6 1920x1080x1
+pass 6118717 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=120.72 1920x1080x1 c0=0x275ad0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118718 guest begin=- end=sampled_image draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=28.96 1920x1080x1 c0=0x280ea0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x280ea0000-0x281e90000, pass wrote it]
+pass 6118719 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=22.48 1920x1080x1 c0=0x275ad0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118720 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=3 gpu_us=18.32 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118721 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=327.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118722 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=5.76 1920x1080x1
+pass 6118723 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=28.84 960x540x1 d=0x269820000:D32SfloatS8Uint:C:rw
+pass 6118724 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=3.48 960x540x1
+pass 6118725 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=19.56 480x270x1 d=0x2e1298000:D32SfloatS8Uint:C:rw
+pass 6118726 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=3.08 480x270x1
+pass 6118727 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=31.24 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118728 resumed begin=other end=attachment draws=4 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118729 guest begin=- end=attachment draws=4 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=42.72 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118730 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=22.92 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118731 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=17.24 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118732 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=14.04 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118733 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=12.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118734 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=6.48 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118735 guest begin=- end=other draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=10.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118736 resumed begin=other end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=15.04 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118737 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=17.76 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118738 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=18.8 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118739 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=5.32 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118740 guest begin=- end=other draws=4 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=9.12 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118741 resumed begin=other end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=20.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118742 guest begin=- end=other draws=7 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=16.92 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118743 resumed begin=other end=attachment draws=2 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=19.84 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118744 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=16.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118745 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=18 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118746 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0.2 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118747 guest begin=- end=state_change draws=2 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=4.04 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118748 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=9.8 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118749 resumed begin=other end=buffer_upload draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=33.76 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118750 resumed begin=buffer_upload end=buffer_upload draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=201.68 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118751 resumed begin=buffer_upload end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=46.24 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118752 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=41.48 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118753 guest begin=- end=attachment draws=3 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=20.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118754 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=42.8 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118755 guest begin=- end=buffer_upload draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=35.92 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118756 resumed begin=buffer_upload end=state_change draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=39.28 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118757 guest begin=- end=attachment draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118758 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=14.28 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118759 guest begin=- end=state_change draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=35.76 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118760 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118761 guest begin=- end=other draws=5 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=29.2 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118762 resumed begin=other end=buffer_upload draws=5 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=42.04 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118763 guest begin=- end=image_copy draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=5.4 1920x1080x1
+pass 6118764 guest begin=- end=attachment draws=3 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=31.76 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118765 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=13.56 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118766 guest begin=- end=other draws=13 loads=2 clears=0 load_px=1036800 hoists=1 gpu_us=73.6 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+pass 6118767 resumed begin=other end=attachment draws=6 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=34.32 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118768 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=25.76 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118769 guest begin=- end=state_change draws=79 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=267.48 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+pass 6118770 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=3.64 960x540x1
+pass 6118771 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.72 480x270x1 c0=0x269d90000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x269d90000-0x269fd0000, pass wrote it]
+pass 6118772 guest begin=- end=other draws=1 loads=1 clears=0 load_px=518400 hoists=1 gpu_us=28.12 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118773 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=518400 hoists=1 gpu_us=74.28 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x263e80000-0x264e70000, pass wrote it]
+pass 6118774 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129360 hoists=0 gpu_us=24.6 588x220x1 c0=0x25a830000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25a830000-0x25ac90000, pass wrote it]
+pass 6118775 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129360 hoists=0 gpu_us=24.52 588x220x1 c0=0x25aed0000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25aed0000-0x25b330000, pass wrote it]
+pass 6118776 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=518400 hoists=2 gpu_us=52.92 960x540x1 c0=0x257010000:R16G16B16A16Sfloat:L
+pass 6118777 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=1 gpu_us=26.88 480x270x1 c0=0x25bb10000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25bb10000-0x25bf90000, pass wrote it]
+pass 6118778 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=33.36 960x540x1 c0=0x258010000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x258010000-0x259000000, pass wrote it]
+pass 6118779 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=31.88 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x263e80000-0x264e70000, pass wrote it]
+pass 6118780 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=32.08 960x540x1 c0=0x257010000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x257010000-0x258000000, pass wrote it]
+pass 6118781 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=25.32 480x270x1 c0=0x25db30000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25db30000-0x25dfb0000, pass wrote it]
+pass 6118782 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=32400 hoists=0 gpu_us=19.8 240x135x1 c0=0x25e450000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25e450000-0x25e590000, pass wrote it]
+pass 6118783 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=15.28 157x132x1 c0=0x2651c0000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x2651c0000-0x2652b0000, pass wrote it]
+pass 6118784 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.76 157x132x1 c0=0x259b80000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259b80000-0x259bf8000, pass wrote it]
+pass 6118785 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=13.4 157x132x1 c0=0x259b00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259b00000-0x259b78000, pass wrote it]
+pass 6118786 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.92 157x132x1 c0=0x259c80000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259c80000-0x259cf8000, pass wrote it]
+pass 6118787 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=14.88 157x132x1 c0=0x259c00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259c00000-0x259c78000, pass wrote it]
+pass 6118788 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=11.92 78x66x1 c0=0x259d00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d00000-0x259d30000, pass wrote it]
+pass 6118789 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=12.08 78x66x1 c0=0x256fa8000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x256fa8000-0x256fd8000, pass wrote it]
+pass 6118790 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=11.64 78x66x1 c0=0x2653b8000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x2653b8000-0x2653e8000, pass wrote it]
+pass 6118791 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=11.96 39x33x1 c0=0x259d68000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d68000-0x259d78000, pass wrote it]
+pass 6118792 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=12.72 39x33x1 c0=0x259d50000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d50000-0x259d60000, pass wrote it]
+pass 6118793 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=11.8 39x33x1 c0=0x259d38000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d38000-0x259d48000, pass wrote it]
+pass 6118794 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=5293 hoists=1 gpu_us=13.76 79x67x1 c0=0x259d80000:B10G11R11UfloatPack32:L
+pass 6118795 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=3.44 40x34x1 c0=0x259dc8000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259dc8000-0x259dd0000, pass wrote it]
+pass 6118796 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=11.92 40x34x1 c0=0x259db8000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259db8000-0x259dc0000, pass wrote it]
+pass 6118797 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=11.6 40x34x1 c0=0x2653f0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x2653f0000-0x2653f8000, pass wrote it]
+pass 6118798 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=1360 hoists=1 gpu_us=11.68 40x34x1 c0=0x259dd8000:B10G11R11UfloatPack32:L
+pass 6118799 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=2.96 20x17x1 c0=0x259e10000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e10000-0x259e18000, pass wrote it]
+pass 6118800 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=12.28 20x17x1 c0=0x259e00000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e00000-0x259e08000, pass wrote it]
+pass 6118801 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=16.08 20x17x1 c0=0x259df0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259df0000-0x259df8000, pass wrote it]
+pass 6118802 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=1360 hoists=1 gpu_us=16.44 40x34x1 c0=0x259e20000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+pass 6118803 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=2.96 10x9x1 c0=0x259e50000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e50000-0x259e58000, pass wrote it]
+pass 6118804 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=11.84 10x9x1 c0=0x259e40000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e40000-0x259e48000, pass wrote it]
+pass 6118805 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=11.28 10x9x1 c0=0x259e30000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e30000-0x259e38000, pass wrote it]
+pass 6118806 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=360 hoists=1 gpu_us=11.72 20x18x1 c0=0x259e60000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+pass 6118807 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=3.04 5x5x1 c0=0x259e90000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e90000-0x259e98000, pass wrote it]
+pass 6118808 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=12.4 5x5x1 c0=0x259e80000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e80000-0x259e88000, pass wrote it]
+pass 6118809 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=13.84 5x5x1 c0=0x259e70000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e70000-0x259e78000, pass wrote it]
+pass 6118810 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=100 hoists=4 gpu_us=11.8 10x10x1 c0=0x259ea0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259ea0000-0x259ea8000, pass wrote it]
+pass 6118811 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=20.56 157x132x1 c0=0x259eb0000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259eb0000-0x259f28000, pass wrote it]
+pass 6118812 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=14.96 157x132x1 c0=0x265338000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x265338000-0x2653b0000, pass wrote it]
+pass 6118813 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=83210 hoists=0 gpu_us=13.96 314x265x1 c0=0x259910000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259910000-0x259a78000, pass wrote it]
+pass 6118814 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=100.92 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118815 resumed begin=image_copy end=dispatch draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=100.08 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118816 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=17.6 960x540x1 c0=0x2508e0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass wrote it]
+pass 6118817 guest begin=- end=attachment draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=188.04 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass read it]
+pass 6118818 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=51.72 960x540x1 c0=0x2508e0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass wrote it]
+pass 6118819 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=21.4 480x270x1 c0=0x250460000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x250460000-0x2506a0000, pass wrote it]
+pass 6118820 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=19.72 480x270x1 c0=0x2506a0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2506a0000-0x2508e0000, pass wrote it]
+pass 6118821 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=19.72 480x270x1 c0=0x250460000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x250460000-0x2506a0000, pass wrote it]
+pass 6118822 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.64 480x270x1 c0=0x2506a0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2506a0000-0x2508e0000, pass wrote it]
+pass 6118823 guest begin=- end=other draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=144.24 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118824 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=18.24 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118825 guest begin=- end=state_change draws=13 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=42.88 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118826 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=4 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118827 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=3.96 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118828 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.24 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118829 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=3.72 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118830 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=2.4 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118831 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.84 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118832 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=2.56 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118833 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.28 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118834 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=4.32 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118835 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=1.84 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118836 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.48 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118837 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=3.52 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118838 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.32 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118839 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=7.16 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118840 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.4 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118841 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.32 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118842 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=6.24 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118843 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=2.68 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118844 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=2.6 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118845 guest begin=- end=state_change draws=14 loads=1 clears=0 load_px=2073600 hoists=2 gpu_us=20.76 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118846 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=5.36 1920x1080x1
+pass 6118847 guest begin=- end=present draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=19.4 960x540x1 c0=0x24e3f8000:R8G8B8A8Unorm:L
+pass 6118848 guest begin=- end=other draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=13.64 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:C:rw
+pass 6118849 guest begin=- end=state_change draws=1 loads=0 clears=1 load_px=0 hoists=0 gpu_us=42.44 2048x2048x1 d=0x27cda0000:D32Sfloat:C:rw
+pass 6118850 guest begin=- end=other draws=10 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=21.2 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118851 resumed begin=other end=other draws=25 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=88.48 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118852 resumed begin=other end=other draws=5 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=16.48 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118853 resumed begin=other end=other draws=9 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=61 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118854 resumed begin=other end=other draws=11 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=53.2 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118855 resumed begin=other end=other draws=20 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=85.92 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6118856 guest begin=- end=image_copy draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=22.84 4096x4096x1
+pass 6118857 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.24 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118858 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=15.52 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118859 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.24 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118860 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.48 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118861 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=9.36 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118862 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.56 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118863 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118864 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.52 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118865 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.16 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118866 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.6 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118867 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.16 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6118868 guest begin=- end=other draws=1 loads=1 clears=0 load_px=4096 hoists=1 gpu_us=8.48 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118869 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=7.72 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118870 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=13.16 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118871 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=5.84 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118872 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=15.64 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118873 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=5.88 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118874 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=10.68 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118875 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=5.8 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118876 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.44 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118877 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.84 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118878 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.64 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118879 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.84 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6118880 guest begin=- end=other draws=1 loads=1 clears=0 load_px=1024 hoists=1 gpu_us=8.4 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6118881 guest begin=- end=state_change draws=1 loads=3 clears=4 load_px=6220800 hoists=0 gpu_us=124.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:C:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:C:rw
+pass 6118882 guest begin=- end=other draws=43 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=417.16 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118883 resumed begin=other end=other draws=79 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1260.64 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118884 resumed begin=other end=other draws=53 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=847.8 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118885 resumed begin=other end=other draws=97 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1330.76 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118886 resumed begin=other end=other draws=74 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=745.4 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118887 resumed begin=other end=other draws=36 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=268.24 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118888 resumed begin=other end=other draws=109 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=857.96 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118889 resumed begin=other end=other draws=72 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=502.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118890 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=430.4 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118891 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=424.44 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118892 resumed begin=other end=other draws=75 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=415.84 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118893 resumed begin=other end=other draws=28 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=209.92 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118894 guest begin=- end=attachment draws=2 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=38.48 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118895 guest begin=- end=image_copy draws=1 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=20 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118896 guest begin=- end=image_copy draws=2 loads=0 clears=0 load_px=0 hoists=0 gpu_us=0 1920x1080x1
+pass 6118897 resumed begin=image_copy end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=4.8 1920x1080x1
+pass 6118898 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=22.16 480x270x1 c0=0x277180000:R32Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x277180000-0x2773c0000, pass wrote it]
+pass 6118899 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=2 gpu_us=88.28 480x270x1 c0=0x2773c0000:R8G8B8A8Unorm:L
+pass 6118900 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=83.12 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x277840000-0x278038000, pass wrote it]
+pass 6118901 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=51.28 960x540x1 c0=0x278038000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x278038000-0x278830000, pass wrote it]
+pass 6118902 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=3 gpu_us=164.4 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118903 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=59.4 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118904 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=2.36 1920x1080x1
+pass 6118905 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=344 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118906 guest begin=- end=other draws=31 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=398.24 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118907 resumed begin=other end=other draws=135 loads=3 clears=0 load_px=6220800 hoists=3 gpu_us=535.52 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118908 resumed begin=other end=other draws=143 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=569.12 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118909 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=3 gpu_us=5.56 1920x1080x1
+pass 6118910 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=105.88 1920x1080x1 c0=0x275ad0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118911 guest begin=- end=sampled_image draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=31.04 1920x1080x1 c0=0x280ea0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x280ea0000-0x281e90000, pass wrote it]
+pass 6118912 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=23 1920x1080x1 c0=0x275ad0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118913 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=3 gpu_us=20.16 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118914 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=326.96 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118915 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=5.84 1920x1080x1
+pass 6118916 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=32.88 960x540x1 d=0x269820000:D32SfloatS8Uint:C:rw
+pass 6118917 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=3.44 960x540x1
+pass 6118918 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=22.76 480x270x1 d=0x2e1298000:D32SfloatS8Uint:C:rw
+pass 6118919 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=3.04 480x270x1
+pass 6118920 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=26.32 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118921 resumed begin=other end=attachment draws=4 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118922 guest begin=- end=attachment draws=4 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=41 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118923 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=15.96 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118924 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=19.56 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118925 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=15.2 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118926 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=22.84 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118927 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=2.44 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118928 guest begin=- end=other draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=5.16 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118929 resumed begin=other end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=17.68 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118930 guest begin=- end=attachment draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=20.24 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118931 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=18.68 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118932 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=7.32 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118933 guest begin=- end=other draws=4 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=12.64 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118934 resumed begin=other end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=21.6 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118935 guest begin=- end=other draws=7 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=17.72 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118936 resumed begin=other end=attachment draws=2 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=20.4 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118937 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=14.12 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118938 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=18.44 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118939 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0.04 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118940 guest begin=- end=state_change draws=2 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=4.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118941 guest begin=- end=other draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=13.6 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118942 resumed begin=other end=attachment draws=5 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=214.76 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118943 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=52.24 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118944 guest begin=- end=other draws=3 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=22.56 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118945 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=40.68 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118946 guest begin=- end=buffer_upload draws=2 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=37.2 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118947 resumed begin=buffer_upload end=state_change draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=41.04 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118948 guest begin=- end=attachment draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6118949 guest begin=- end=other draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=16.2 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6118950 guest begin=- end=state_change draws=3 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=38.8 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118951 guest begin=- end=state_change draws=1 loads=3 clears=0 load_px=6220800 hoists=0 gpu_us=0 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x271310000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118952 guest begin=- end=other draws=5 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=29.72 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118953 resumed begin=other end=buffer_upload draws=5 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=45.08 1920x1080x1 c0=0x26ab40000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6118954 guest begin=- end=image_copy draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=5.4 1920x1080x1
+pass 6118955 guest begin=- end=attachment draws=21 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=116.76 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118956 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=22.04 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118957 guest begin=- end=other draws=3 loads=2 clears=0 load_px=1036800 hoists=1 gpu_us=25.52 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+pass 6118958 guest begin=- end=attachment draws=1 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=20.16 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x269820000-0x269aa0000, pass wrote it]
+pass 6118959 guest begin=- end=state_change draws=77 loads=2 clears=0 load_px=1036800 hoists=0 gpu_us=262 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x269820000:D32SfloatS8Uint:L:rw
+pass 6118960 guest begin=- end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=3.68 960x540x1
+pass 6118961 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.8 480x270x1 c0=0x269d90000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x269d90000-0x269fd0000, pass wrote it]
+pass 6118962 guest begin=- end=other draws=1 loads=1 clears=0 load_px=518400 hoists=1 gpu_us=34.6 960x540x1 c0=0x269b50000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6118963 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=518400 hoists=1 gpu_us=76.12 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x263e80000-0x264e70000, pass wrote it]
+pass 6118964 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129360 hoists=0 gpu_us=22.44 588x220x1 c0=0x25a830000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25a830000-0x25ac90000, pass wrote it]
+pass 6118965 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129360 hoists=0 gpu_us=22.64 588x220x1 c0=0x25aed0000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25aed0000-0x25b330000, pass wrote it]
+pass 6118966 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=518400 hoists=2 gpu_us=51.32 960x540x1 c0=0x257010000:R16G16B16A16Sfloat:L
+pass 6118967 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=1 gpu_us=29.2 480x270x1 c0=0x25bb10000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25bb10000-0x25bf90000, pass wrote it]
+pass 6118968 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=31.04 960x540x1 c0=0x258010000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x258010000-0x259000000, pass wrote it]
+pass 6118969 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=32.88 960x540x1 c0=0x263e80000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x263e80000-0x264e70000, pass wrote it]
+pass 6118970 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=30 960x540x1 c0=0x257010000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x257010000-0x258000000, pass wrote it]
+pass 6118971 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=22.56 480x270x1 c0=0x25db30000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25db30000-0x25dfb0000, pass wrote it]
+pass 6118972 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=32400 hoists=0 gpu_us=17.52 240x135x1 c0=0x25e450000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x25e450000-0x25e590000, pass wrote it]
+pass 6118973 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=15.2 157x132x1 c0=0x2651c0000:R16G16B16A16Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x2651c0000-0x2652b0000, pass wrote it]
+pass 6118974 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.68 157x132x1 c0=0x259b80000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259b80000-0x259bf8000, pass wrote it]
+pass 6118975 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.4 157x132x1 c0=0x259b00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259b00000-0x259b78000, pass wrote it]
+pass 6118976 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=15.64 157x132x1 c0=0x259c80000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259c80000-0x259cf8000, pass wrote it]
+pass 6118977 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.4 157x132x1 c0=0x259c00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259c00000-0x259c78000, pass wrote it]
+pass 6118978 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=11.84 78x66x1 c0=0x259d00000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d00000-0x259d30000, pass wrote it]
+pass 6118979 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=12 78x66x1 c0=0x256fa8000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x256fa8000-0x256fd8000, pass wrote it]
+pass 6118980 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=5148 hoists=0 gpu_us=11.68 78x66x1 c0=0x2653b8000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x2653b8000-0x2653e8000, pass wrote it]
+pass 6118981 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=14.88 39x33x1 c0=0x259d68000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d68000-0x259d78000, pass wrote it]
+pass 6118982 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=11.92 39x33x1 c0=0x259d50000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d50000-0x259d60000, pass wrote it]
+pass 6118983 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1287 hoists=0 gpu_us=12.04 39x33x1 c0=0x259d38000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259d38000-0x259d48000, pass wrote it]
+pass 6118984 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=5293 hoists=1 gpu_us=12.4 79x67x1 c0=0x259d80000:B10G11R11UfloatPack32:L
+pass 6118985 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=5.32 40x34x1 c0=0x259dc8000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259dc8000-0x259dd0000, pass wrote it]
+pass 6118986 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=11.92 40x34x1 c0=0x259db8000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259db8000-0x259dc0000, pass wrote it]
+pass 6118987 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=1360 hoists=0 gpu_us=13.72 40x34x1 c0=0x2653f0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x2653f0000-0x2653f8000, pass wrote it]
+pass 6118988 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=1360 hoists=1 gpu_us=11.76 40x34x1 c0=0x259dd8000:B10G11R11UfloatPack32:L
+pass 6118989 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=2.96 20x17x1 c0=0x259e10000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e10000-0x259e18000, pass wrote it]
+pass 6118990 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=11.84 20x17x1 c0=0x259e00000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e00000-0x259e08000, pass wrote it]
+pass 6118991 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=340 hoists=0 gpu_us=11.8 20x17x1 c0=0x259df0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259df0000-0x259df8000, pass wrote it]
+pass 6118992 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=1360 hoists=1 gpu_us=12.48 40x34x1 c0=0x259e20000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+pass 6118993 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=3.08 10x9x1 c0=0x259e50000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e50000-0x259e58000, pass wrote it]
+pass 6118994 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=11.8 10x9x1 c0=0x259e40000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e40000-0x259e48000, pass wrote it]
+pass 6118995 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=90 hoists=0 gpu_us=13.92 10x9x1 c0=0x259e30000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e30000-0x259e38000, pass wrote it]
+pass 6118996 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=360 hoists=1 gpu_us=11.8 20x18x1 c0=0x259e60000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+pass 6118997 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=3.04 5x5x1 c0=0x259e90000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e90000-0x259e98000, pass wrote it]
+pass 6118998 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=11.8 5x5x1 c0=0x259e80000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e80000-0x259e88000, pass wrote it]
+pass 6118999 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=25 hoists=0 gpu_us=11.6 5x5x1 c0=0x259e70000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259e70000-0x259e78000, pass wrote it]
+pass 6119000 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=100 hoists=4 gpu_us=12.48 10x10x1 c0=0x259ea0000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  end_detail: [hoist conflict: copy writes 0x259ea0000-0x259ea8000, pass wrote it]
+pass 6119001 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=15.68 157x132x1 c0=0x259eb0000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259eb0000-0x259f28000, pass wrote it]
+pass 6119002 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=20724 hoists=0 gpu_us=12.6 157x132x1 c0=0x265338000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x265338000-0x2653b0000, pass wrote it]
+pass 6119003 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=83210 hoists=0 gpu_us=14.28 314x265x1 c0=0x259910000:B10G11R11UfloatPack32:L
+  end_detail: [hoist conflict: copy writes 0x259910000-0x259a78000, pass wrote it]
+pass 6119004 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=100.72 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119005 resumed begin=image_copy end=dispatch draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=93.12 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119006 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=18.84 960x540x1 c0=0x2508e0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass wrote it]
+pass 6119007 guest begin=- end=attachment draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=187.48 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass read it]
+pass 6119008 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=53.4 960x540x1 c0=0x2508e0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2508e0000-0x2510d8000, pass wrote it]
+pass 6119009 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=23.72 480x270x1 c0=0x250460000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x250460000-0x2506a0000, pass wrote it]
+pass 6119010 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.72 480x270x1 c0=0x2506a0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2506a0000-0x2508e0000, pass wrote it]
+pass 6119011 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.76 480x270x1 c0=0x250460000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x250460000-0x2506a0000, pass wrote it]
+pass 6119012 guest begin=- end=sampled_image draws=2 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=18.88 480x270x1 c0=0x2506a0000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x2506a0000-0x2508e0000, pass wrote it]
+pass 6119013 guest begin=- end=other draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=147.68 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119014 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=18.56 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119015 guest begin=- end=state_change draws=13 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=36.24 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119016 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=3.72 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119017 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=4.84 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119018 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.24 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119019 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=6.84 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119020 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.24 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119021 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.04 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119022 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=1.16 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119023 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=2.48 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119024 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=4.84 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119025 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.48 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119026 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.48 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119027 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=0.72 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119028 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=6.88 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119029 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=2 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119030 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.48 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119031 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.32 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119032 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=7.04 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119033 guest begin=- end=state_change draws=2 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=0.8 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119034 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=0 gpu_us=3 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119035 guest begin=- end=state_change draws=14 loads=1 clears=0 load_px=2073600 hoists=2 gpu_us=24.36 1920x1080x1 c0=0x24ebf8000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119036 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=1 gpu_us=7.2 1920x1080x1
+pass 6119037 guest begin=- end=present draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=21.64 960x540x1 c0=0x24d408000:R8G8B8A8Unorm:L
+pass 6119038 guest begin=- end=other draws=1 loads=1 clears=0 load_px=2073600 hoists=1 gpu_us=12.88 1920x1080x1 d=0x24f3f0000:D32SfloatS8Uint:C:rw
+pass 6119039 guest begin=- end=state_change draws=1 loads=0 clears=1 load_px=0 hoists=0 gpu_us=39.72 2048x2048x1 d=0x27cda0000:D32Sfloat:C:rw
+pass 6119040 guest begin=- end=other draws=23 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=56.04 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6119041 resumed begin=other end=other draws=12 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=56.92 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6119042 resumed begin=other end=other draws=5 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=14.84 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6119043 resumed begin=other end=other draws=9 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=55.24 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6119044 resumed begin=other end=other draws=11 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=59.12 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6119045 resumed begin=other end=other draws=20 loads=1 clears=0 load_px=4194304 hoists=1 gpu_us=80.48 2048x2048x1 d=0x27cda0000:D32Sfloat:L:rw
+pass 6119046 guest begin=- end=image_copy draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=22.88 4096x4096x1
+pass 6119047 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.2 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6119048 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=13.4 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119049 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=8.28 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6119050 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.48 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119051 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=5.88 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6119052 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.52 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119053 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=6.88 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6119054 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.76 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119055 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=7.08 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6119056 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=0 gpu_us=8.52 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119057 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=4096 hoists=2 gpu_us=6.96 64x64x1 d=0x2d2850000:D32Sfloat:L:rw
+pass 6119058 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=4096 hoists=1 gpu_us=10.72 64x64x1 c0=0x2d2878000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119059 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=7.44 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6119060 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=10.88 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119061 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=5.84 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6119062 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.64 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119063 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.8 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6119064 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.52 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119065 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.92 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6119066 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.4 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119067 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.92 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6119068 guest begin=- end=image_copy draws=1 loads=1 clears=0 load_px=1024 hoists=0 gpu_us=8.48 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119069 guest begin=- end=dispatch draws=1 loads=1 clears=0 load_px=1024 hoists=2 gpu_us=6.88 32x32x1 d=0x2d28d8000:D32Sfloat:L:rw
+pass 6119070 guest begin=- end=other draws=1 loads=1 clears=0 load_px=1024 hoists=1 gpu_us=8.44 32x32x1 c0=0x2d2900000:R16G16Sfloat:L:native(size-protect,0x0,-)
+pass 6119071 guest begin=- end=state_change draws=1 loads=3 clears=4 load_px=6220800 hoists=0 gpu_us=337.08 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:C:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:C:rw
+pass 6119072 guest begin=- end=other draws=43 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=421.36 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119073 resumed begin=other end=other draws=79 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1232.48 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119074 resumed begin=other end=other draws=53 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1090.92 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119075 resumed begin=other end=other draws=97 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=1021.56 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119076 resumed begin=other end=other draws=74 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=731.2 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119077 resumed begin=other end=other draws=36 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=279.68 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119078 resumed begin=other end=other draws=109 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=895.84 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119079 resumed begin=other end=other draws=72 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=517.68 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119080 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=386.72 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119081 resumed begin=other end=other draws=67 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=396.84 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119082 resumed begin=other end=other draws=75 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=408.92 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119083 resumed begin=other end=other draws=28 loads=7 clears=0 load_px=14515200 hoists=1 gpu_us=206.36 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119084 guest begin=- end=attachment draws=2 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=23.52 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+  end_detail: [hoist conflict: copy writes 0x24f3f0000-0x24fcf0000, pass wrote it]
+pass 6119085 guest begin=- end=image_copy draws=1 loads=7 clears=0 load_px=14515200 hoists=0 gpu_us=18.88 1920x1080x1 c0=0x26e090000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x26e890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x26f090000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x26f890000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2732f0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x274ae0000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119086 guest begin=- end=image_copy draws=2 loads=0 clears=0 load_px=0 hoists=0 gpu_us=0 1920x1080x1
+pass 6119087 resumed begin=image_copy end=state_change draws=1 loads=0 clears=0 load_px=0 hoists=2 gpu_us=4.96 1920x1080x1
+pass 6119088 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=129600 hoists=0 gpu_us=22.56 480x270x1 c0=0x277180000:R32Sfloat:L
+  end_detail: [hoist conflict: copy writes 0x277180000-0x2773c0000, pass wrote it]
+pass 6119089 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=129600 hoists=2 gpu_us=82.92 480x270x1 c0=0x2773c0000:R8G8B8A8Unorm:L
+pass 6119090 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=2073600 hoists=0 gpu_us=88.84 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  end_detail: [hoist conflict: copy writes 0x277840000-0x278038000, pass wrote it]
+pass 6119091 guest begin=- end=sampled_image draws=1 loads=1 clears=0 load_px=518400 hoists=0 gpu_us=54.16 960x540x1 c0=0x278038000:R8G8B8A8Unorm:L
+  end_detail: [hoist conflict: copy writes 0x278038000-0x278830000, pass wrote it]
+pass 6119092 guest begin=- end=state_change draws=1 loads=1 clears=0 load_px=2073600 hoists=3 gpu_us=162.92 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119093 guest begin=- end=state_change draws=2 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=56.56 1920x1080x1 c0=0x277840000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:rw
+pass 6119094 guest begin=- end=dispatch draws=1 loads=0 clears=0 load_px=0 hoists=0 gpu_us=2.36 1920x1080x1
+pass 6119095 guest begin=- end=state_change draws=1 loads=2 clears=0 load_px=4147200 hoists=1 gpu_us=341.8 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass)
+pass 6119096 guest begin=- end=other draws=31 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=389.52 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6119097 resumed begin=other end=other draws=135 loads=3 clears=0 load_px=6220800 hoists=3 gpu_us=528.08 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+pass 6119098 resumed begin=other end=other draws=143 loads=3 clears=0 load_px=6220800 hoists=1 gpu_us=546.92 1920x1080x1 c0=0x273ae8000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2742e0000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) d=0x24f3f0000:D32SfloatS8Uint:L:ro
+process_id=24872

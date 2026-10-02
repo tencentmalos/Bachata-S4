@@ -1,3 +1,24 @@
+- **晚间归档与 Android 实测（2026-10-02）：** [归档记录](docs/validation/android-native-host/git-publish-20261002.md)“晚间归档”一节、[Pocket DS 实测](docs/validation/android-native-host/bloodborne-desktop-bottleneck-20261002.md)第 10 节。
+  - **提交**：24 个代码提交加文档，含 10-01 MHR 会话遗留改动（AvPlayer seek、动态图像表、采样偏移、NaN 规则、DMA 同步默认开、256 线程填充/拷贝核、twin 复用、诊断命令、KGSL SVM 窗口）。Foundation `2e81e83`、Mesa `64817e11155`（barycentric）先推子仓。`feature/malos/swan_performance` 已推送并快进合入 `malos/main`。`externals/mesa-kosmickrisp` 与未跟踪的 imgui 目录不在本批。
+  - **Android（AYANEO Pocket DS，血源中央亚楠起点）**：APK `3e8e160a`、Turnip `01a3548f`，26.4–27.1 FPS（30 帧上限），GPU 81%（680 MHz 满频）。渲染提交线程每帧等 Guest-1 约 29 ms；Guest-1 约 25 ms 在 CPU 上（HLE 11.9 ms，`SignalSema` 35 µs/次），GpuComm 22.8 ms/帧（18.6 µs/draw）。降 render scale 不会提帧。纹理绑定缓存开/关无可测差别；Android 的 epoll 本来就按超时等待；深度重采样与传输队列在 Turnip 上不启用。
+  - **设备状态**：覆盖安装前 APK 为 `e0f199c9`，血源存档与设置的备份在本地 `build/validation/bb-pds-20261002/`。存档在读档与自动保存时被游戏改写，角色未移动。设备采集文件已删除，游戏留在运行状态。
+  - **本机限制**：没有 `astcenc`，APK 用 `-x compressXrCinemaTextures` 构建，不含 XR 影院贴图。
+- **血源桌面瓶颈与修复（2026-10-02，已提交）：** [报告](docs/validation/android-native-host/bloodborne-desktop-bottleneck-20261002.md)，第 9 节为实施结果。Windows / Ryzen AI 9 HX 370 + RX 7600M XT（外置，Thunderbolt 3 链路约 2.75 GB/s，显示接在 890M），中央亚楠起点。
+  - **结果**：51–52 FPS → 59–60 FPS（游戏 60 帧上限）；独显 3D 98% → 65–70%；GpuComm 13.5 → 11.8–12.7 ms/帧；进程 CPU 3.7 → 3.5 核。最终 exe `3d1bad3a` 已部署到 `D:\workspace\shadps4-win-bb`，原 exe `6694cb60` 备份在 `backup-20261002-metrics`。
+  - **深度缩放**：原因是 AMD Windows 驱动的 D32S8/D16S8 没有 `BLIT_DST`，主深度被迫原生，进而整条 G-buffer 被提升为原生分辨率。现由 `BlitHelper::ResampleDepthStencil` 的 shader pass（`gl_FragDepth`，模板用 stencil export）接管。仅在驱动不能 blit 时使用，Turnip 不变。mixed-pass 提升 15 → 0，+4.4 FPS。
+  - **stream DMA**：独显上创建拷贝专用队列；CPU 写主机副本，每次提交前在该队列把本批数据拷进显存镜像，图形提交等待 timeline。tile manager 仍用原主机 ring：它若也走 DMA，几乎每批都要等拷贝，而拷贝与跨适配器呈现共用同一拷贝引擎。开关 `upload_diag stream_dma`。顺带把图像上传偏移改为至少 16 字节对齐（VUID-07975）。
+  - **GpuComm**：纹理绑定按 T# 缓存，按 texture cache generation 失效，开关 `upload_diag texture_bind_cache`，−0.77 ms/帧；`FindView` 记住上次的 view。
+  - **epoll 空转**：无 socket 时按 timeout 等待，注册变化或销毁时唤醒；socket 线程 CPU 99.5% → 0.2%。
+  - **安全性**：传输队列提交时持有 `QueueMutex`；纹理缓存命中时在锁内确认图像仍处于已注册状态。
+  - **未改动**：小 buffer 上传为每帧 5.5 MB，受链路带宽限制，合并无效，新增 `arena_uploads` 计数；`StageSpecialization` 记忆化（约占 GpuComm 9%）须先审计全部输入。
+  - **测量注意**：掌机 CPU 长时间运行后会降频（3.4 → 2.6 GHz），A/B 须冷启动交替进行；桌面开 `gpu_timing detail` 会使帧率下降约 45%。Android 实测见上一条。
+- **桌面 StatusLayer：Windows CPU/GPU/内存/电池（2026-10-02，Foundation `2e81e83`）：** [实现与验证](docs/validation/android-native-host/desktop-status-metrics-20261002.md)。
+  - **实现**：`perf_metrics` 新增 `windows/WindowsMetrics.cpp`，由 `DeviceMetricsReader` 自动启用，shadPS4 侧不改。
+  - **CPU**：占用率用 `GetSystemTimes` 的忙时间，与 Android 同口径；任务管理器的“利用率”按频率折算，读数更高。频率用 `_Total` 忙时间加权（任务管理器“速度”），不取单核最大值。
+  - **GPU 与内存**：GPU 是 PDH 3D 引擎占用，取本进程所在适配器（独显）；RAM 用 `GlobalMemoryStatusEx`。
+  - **电池**：BAT/PWR/LEFT 用 `GetSystemPowerStatus` 加电池 IOCTL。接电时驱动报告速率 0，PWR 不显示；放电路径未验证。
+  - **实测**：血源世界中 HUD 显示 FPS 51.1、CPU 24% / 3.42 GHz、GPU 99%、RAM 23.3 GB，与 PDH 一致。采样线程每秒 2–7 ms；overlay 单测 275/2077 通过。
+  - **部署**：验证用 exe `6694cb60`。`D:\workspace\shadps4-win-bb`（用户 Big Picture 快捷方式所用目录）现为包含全部修复的 `3d1bad3a`。
 - **2D 屏幕超分 FSR1/SGSR1（2026-10-01）：** [实现与 Swan 验证](docs/validation/android-native-host/screen-upscaler-20261001.md)。
   - **设置**：新 `gpu.screen_upscaler`（Off/FSR1/SGSR1，默认 Off，全局/每游戏），Launch 面板 2D 模式显示 “Screen Upscaler”，与 XR Upscaler 独立。
   - **宿主**：Presenter 2D 路径在 guest 图小于输出帧时调用 Foundation `SpatialUpscalePass`（无 foveation），录入本帧已有命令缓冲，不新增 submit 或 CPU 等待，不与 guest 提交串行。
@@ -18,6 +39,8 @@
   - **抢占**：三次有 trace 的 DDE 故障都在 rb2 从 **level=1** 抢占恢复后 80–115 µs 内（rb2 切出中 level=1 约占 9.6%）。上一轮 `kgsl_preempt_rb` 返回 style=1，但仍被 level=1 抢占，那组对照没有检验这个假设。B2 trace 故障前 222 s 内无 `kgsl_mmu_pagefault`；`ft_pagefault_policy=0x0`。devcd12 的 draw-state 表残留已释放 VA，但与 DDE 故障的关联未建立。
   - **下一步（待用户确认）**：Turnip 默认关闭的开关，用 `CP_SCOPE_CNTL(disable_preemption)` 包住游戏命令缓冲（固件 SQE 已实现，Turnip 性能查询在用，只作用于游戏自身），做开/关对照。类型 A 无同窗 trace；GPU hang 未修复。
   - **现场**：清理了上一轮的 CleanupPending（trace 收回并 rmdir、`tu.debug` 与 `etfr.subsample` 恢复为空、原缓存 1264 个哈希恢复、B2+XR 缓存另存、截图临时文件拉回后删除）。devcd16–28 为他用抓取，未分析。
+- **血源 60 FPS C++ 补丁 / PC+Android 共用 guest patch（2026-10-02，已提交）：** [实现与验证](docs/validation/android-native-host/bloodborne-60fps-guest-patch-20261002.md)、[sdk_version 2 说明](docs/guest-function-patches.md)、[血源包](guest/games/CUSA03023/01.00/README.md)。包格式/trampoline/布局抽到 `guest_patch_format`（`BuildPlan`），Android Manager 与新桌面加载器 `guest_patch_desktop` 共用；新增 `sites`（任意指令边界 C/C++ 处理函数，before/replace，可写 GPR/flags/YMM）与同长度 `patches`，Relocator 接受 VEX。桌面用 `SHADPS4_GUEST_PATCH=<patch.json>`，模块加载末尾按序列号+模块 SHA+preimage 安装，DebugBus `guest_patch status|enable|disable [name]`。血源 1.00 包 7 个 replace site 复刻 XML v4a：桌面中央亚楠 51–53 FPS、frame_delta 16666 µs，disable 31/enable 52.8；builder 单测 15/15，Android host 用预编译 Turnip lock `HOST_LINK_PASS`。未上 Android 设备，before 模式未单独实跑，速度/声音待用户确认。
+
 - **上游同步 0930（2026-09-30，`feature/malos/upstream_0930`，基于 `swan_performance` `e6117383`；已推送并快进合入 `malos/main`，同时带入 swan_performance 的 17 个提交）：** [合入清单、fork 适配与未合入原因](docs/validation/android-native-host/upstream-sync-20260930.md)。上游 tip `2338a06f`（#5193）；本轮 35 个提交：32 个来自上游、涉及 36 个 PR（#5112、#5193 部分移植），含 F64/SCC/字面量等指令修复、#5126 compute 浮点模式、#5133/#5156/#5171 1D→2D 与独立 Cube 视图、#5169、#5175（桌面移植，Android rwlock 相对超时另行修正）、#5172、#5144、#5123。fork 适配：Render Scale 覆盖 Cube；`EmitImageRead` 先降级坐标再缩放重映射；非归一化采样保留层号/面号；图像原子补坐标；1D ConstOffset 直接生成常量；sharp 单次拷贝仅在 load_mask 全满且长度等于类型时启用（上游对立即数 dword 与 128 位 T# 会误判）。另修 fork 潜在错误：无有效 sharp 且读 user data 的阶段匹配 permutation 时比较 `start.user_data`（上游 #5181 的窄修复）。着色器缓存版本 binary 26、meta 15/16。未合入：#5112 其余（屏障 interval set 待 Swan/AYN GpuComm A/B；无锁页表会把文件映射读成零；fetch 解析重写与上游序言条件反写不可照抄）、#5181、#5165、#5157（已等价）、#5151（针对 #5100 结构）。验证：桌面构建通过，桌面血源进世界画面正常、310 个新 SPIR-V `spirv-val` 全过。基线 `12e8d00a` 的源码构建 Turnip 只支持 Darwin/Linux；按用户要求“turnip 先用旧的”，新增默认关闭的 `build-host-android --turnip-prebuilt-lock runtime/locks/turnip-bionic-mainline-86ca.json`（旧 mainline `git-86ca472fc2`/`ea4853bf`），Windows 上 host/APK 构建通过。AYN Thor 装 APK `6ad38d42`（原包已备份），血源实际加载 86ca、缓存按新版本重建，进中央亚楠约 23 FPS、走动/拾取画面正常、无 Render 错误；约 1.5 分钟后被 launcher force-stop（设备有人工操作），TMNT/MHW/Swan/高通未测。
 
 - **Swan XR 源码归档与主干同步（2026-09-30）：** [提交、子仓与验证记录](docs/validation/android-native-host/git-publish-20260930.md)。源码 `12e8d00a2`、历史证据 `c74a08ec6`；Foundation `82b09a1` / Mesa `351a4847a04` 已先推到对应 codex/shadps4-xr-* 分支，父仓固定引用。rebase 基线按既有约定为 `origin/malos/main=60ec46d05`，当前已包含，未改写历史；本地 `main` 独立同步官方 `94e217781`，未把官方另外86个提交混入 fork。Host/APK编译、240项Kotlin、JNI CTest、FDM121项及打包SHA检查通过，本轮未上机。以下“本地未提交/无commit/push”保留为当时记录，相关源码/证据现已归档；GPU hang与Move实物标定状态不变。

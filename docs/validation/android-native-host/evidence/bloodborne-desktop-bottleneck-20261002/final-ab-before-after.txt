@@ -1,0 +1,34 @@
+[FinalB1-before] window=8.00s fps=52.49 draws/s=82563 draws/flip=1573 submits/flip=3.00 pm4_dw/flip=43603
+[FinalB1-before] window=8.02s fps=51.86 draws/s=81538 draws/flip=1572 submits/flip=3.20 pm4_dw/flip=43577
+[FinalB1-before] window=8.00s fps=51.12 draws/s=80418 draws/flip=1573 submits/flip=3.21 pm4_dw/flip=43598
+[FinalB1-before] cpu_effective_ghz=3.29976109050042
+[FinalB1-before] process_cores=3.69 gpucomm_ms_per_frame=13.46
+[FinalB1-before] gpu3d_per_adapter=0.2 97.7
+[FinalB1-before] mixed_promotions=15
+[FinalB1-before] closed
+[FinalF1-after] window=8.00s fps=59.99 draws/s=94459 draws/flip=1575 submits/flip=3.00 pm4_dw/flip=43740
+[FinalF1-after] window=8.00s fps=59.99 draws/s=94534 draws/flip=1576 submits/flip=3.00 pm4_dw/flip=43762
+[FinalF1-after] window=8.00s fps=59.99 draws/s=94500 draws/flip=1575 submits/flip=3.00 pm4_dw/flip=43751
+[FinalF1-after] cpu_effective_ghz=3.43288485450593
+[FinalF1-after] process_cores=3.45 gpucomm_ms_per_frame=11.78
+[FinalF1-after] gpu3d_per_adapter=0.2 69.9
+[FinalF1-after] mixed_promotions=0
+[FinalF1-after] closed
+[FinalB2-before] window=8.00s fps=51.61 draws/s=81186 draws/flip=1573 submits/flip=3.00 pm4_dw/flip=43632
+[FinalB2-before] window=8.00s fps=51.74 draws/s=81408 draws/flip=1573 submits/flip=3.00 pm4_dw/flip=43634
+[FinalB2-before] window=8.02s fps=51.98 draws/s=81720 draws/flip=1572 submits/flip=3.00 pm4_dw/flip=43581
+[FinalB2-before] cpu_effective_ghz=3.31320181865491
+[FinalB2-before] process_cores=3.76 gpucomm_ms_per_frame=13.46
+[FinalB2-before] gpu3d_per_adapter=0.2 97.2
+[FinalB2-before] mixed_promotions=15
+[FinalB2-before] closed
+[FinalF2-after] window=8.02s fps=59.11 draws/s=92940 draws/flip=1572 submits/flip=3.03 pm4_dw/flip=43718
+[FinalF2-after] window=8.02s fps=59.84 draws/s=94150 draws/flip=1573 submits/flip=3.01 pm4_dw/flip=43733
+[FinalF2-after] window=8.02s fps=59.95 draws/s=94452 draws/flip=1576 submits/flip=3.00 pm4_dw/flip=43779
+[FinalF2-after] cpu_effective_ghz=3.43864398832402
+[FinalF2-after] process_cores=3.51 gpucomm_ms_per_frame=12.73
+[FinalF2-after] gpu3d_per_adapter=0.2 65.0
+[FinalF2-after] mixed_promotions=0
+[FinalF2-after] closed
+
+[exited with code 0]
