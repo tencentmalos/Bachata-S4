@@ -42,6 +42,40 @@ Id GuestDimensions(EmitContext& ctx, u32 handle, Id lod) {
     return ctx.OpCompositeConstruct(ctx.U32[2], dimension(0), dimension(14));
 }
 
+// The texel offset as a normalized-coordinate delta at guest `level` (see
+// OffsetAsCoordinateDelta), or an invalid id when the sample keeps its offset operand.
+Id OffsetDelta(EmitContext& ctx, u32 handle, const IR::Value& offset, u32 level) {
+    const auto& texture = ctx.images[handle & 0xffff];
+    if (offset.IsEmpty() || !SupportsScale(ctx, handle) ||
+        !OffsetAsCoordinateDelta(texture.view_type)) {
+        return {};
+    }
+    Id texels{};
+    if (!offset.IsImmediate() &&
+        offset.Inst()->GetOpcode() == IR::Opcode::CompositeConstructU32x2 &&
+        offset.Inst()->AreAllArgsImmediates()) {
+        texels = ctx.ConstF32(f32(static_cast<s32>(offset.Inst()->Arg(0).U32())),
+                              f32(static_cast<s32>(offset.Inst()->Arg(1).U32())));
+    } else if (!offset.IsImmediate() && offset.Type() == IR::Type::U32x2) {
+        texels = ctx.OpConvertSToF(ctx.F32[2], ctx.OpBitcast(ctx.S32[2], ctx.Def(offset)));
+    } else {
+        return {};
+    }
+    const Id size = ctx.OpConvertUToF(ctx.F32[2], GuestDimensions(ctx, handle, ctx.ConstU32(level)));
+    return ctx.OpFDiv(ctx.F32[2], texels, size);
+}
+
+Id ApplyOffsetDelta(EmitContext& ctx, Id coords, Id delta, AmdGpu::ImageType view_type) {
+    if (view_type == AmdGpu::ImageType::Color2D) {
+        return ctx.OpFAdd(ctx.F32[2], coords, delta);
+    }
+    const Id uv = ctx.OpFAdd(ctx.F32[2], ctx.OpVectorShuffle(ctx.F32[2], coords, coords, 0, 1),
+                             delta);
+    return ctx.OpCompositeConstruct(ctx.F32[3], ctx.OpCompositeExtract(ctx.F32[1], uv, 0U),
+                                    ctx.OpCompositeExtract(ctx.F32[1], uv, 1U),
+                                    ctx.OpCompositeExtract(ctx.F32[1], coords, 2U));
+}
+
 Id PhysicalLod(EmitContext& ctx, u32 handle, Id lod, bool floating) {
     if (!SupportsScale(ctx, handle)) return lod;
     const Id code = ctx.ImageScaleCode(ctx.images[handle & 0xffff].scale_binding);
@@ -293,10 +327,21 @@ Id EmitImageSampleExplicitLod(EmitContext& ctx, IR::Inst* inst, u32 handle, Id c
     const Id result_type = texture.data_types->Get(4);
     const Id sampler = ctx.OpLoad(ctx.sampler_type, ctx.samplers[handle >> 16]);
     const Id sampled_image = ctx.OpSampledImage(texture.sampled_type, image, sampler);
-    const Id fixed_coords = FixImageCoords<true>(ctx, coords, texture.view_type);
+    const IR::Value lod_value = inst->Arg(2);
+    const Id delta = lod_value.IsImmediate() && lod_value.Type() == IR::Type::F32 &&
+                             lod_value.F32() >= 0.f &&
+                             lod_value.F32() <= 15.f &&
+                             lod_value.F32() == f32(u32(lod_value.F32()))
+                         ? OffsetDelta(ctx, handle, offset, u32(lod_value.F32()))
+                         : Id{};
+    const Id fixed_coords = FixImageCoords<true>(
+        ctx, Sirit::ValidId(delta) ? ApplyOffsetDelta(ctx, coords, delta, texture.view_type) : coords,
+        texture.view_type);
     ImageOperands operands;
     operands.Add(spv::ImageOperandsMask::Lod, PhysicalLod(ctx, handle, lod, true));
-    operands.AddOffset(ctx, texture.view_type, offset);
+    if (!Sirit::ValidId(delta)) {
+        operands.AddOffset(ctx, texture.view_type, offset);
+    }
     const Id sample = ctx.OpImageSampleExplicitLod(result_type, sampled_image, fixed_coords,
                                                    operands.mask, operands.operands);
     return texture.is_integer ? ctx.OpBitcast(ctx.F32[4], sample) : sample;
@@ -345,10 +390,15 @@ Id EmitImageGather(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords,
     const Id result_type = texture.data_types->Get(4);
     const Id sampler = ctx.OpLoad(ctx.sampler_type, ctx.samplers[handle >> 16]);
     const Id sampled_image = ctx.OpSampledImage(texture.sampled_type, image, sampler);
-    const Id fixed_coords = FixImageCoords<true>(ctx, coords, texture.view_type);
+    const Id delta = OffsetDelta(ctx, handle, offset, 0);
+    const Id fixed_coords = FixImageCoords<true>(
+        ctx, Sirit::ValidId(delta) ? ApplyOffsetDelta(ctx, coords, delta, texture.view_type) : coords,
+        texture.view_type);
     const u32 comp = inst->Flags<IR::TextureInstInfo>().gather_comp.Value();
     ImageOperands operands;
-    operands.AddOffset(ctx, texture.view_type, offset, true);
+    if (!Sirit::ValidId(delta)) {
+        operands.AddOffset(ctx, texture.view_type, offset, true);
+    }
     const Id texels = ctx.OpImageGather(result_type, sampled_image, fixed_coords,
                                         ctx.ConstU32(comp), operands.mask, operands.operands);
     return texture.is_integer ? ctx.OpBitcast(ctx.F32[4], texels) : texels;
@@ -361,9 +411,14 @@ Id EmitImageGatherDref(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords,
     const Id result_type = texture.data_types->Get(4);
     const Id sampler = ctx.OpLoad(ctx.sampler_type, ctx.samplers[handle >> 16]);
     const Id sampled_image = ctx.OpSampledImage(texture.sampled_type, image, sampler);
-    const Id fixed_coords = FixImageCoords<true>(ctx, coords, texture.view_type);
+    const Id delta = OffsetDelta(ctx, handle, offset, 0);
+    const Id fixed_coords = FixImageCoords<true>(
+        ctx, Sirit::ValidId(delta) ? ApplyOffsetDelta(ctx, coords, delta, texture.view_type) : coords,
+        texture.view_type);
     ImageOperands operands;
-    operands.AddOffset(ctx, texture.view_type, offset, true);
+    if (!Sirit::ValidId(delta)) {
+        operands.AddOffset(ctx, texture.view_type, offset, true);
+    }
     const Id texels = ctx.OpImageDrefGather(result_type, sampled_image, fixed_coords, dref,
                                             operands.mask, operands.operands);
     return texture.is_integer ? ctx.OpBitcast(ctx.F32[4], texels) : texels;

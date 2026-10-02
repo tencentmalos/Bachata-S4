@@ -140,6 +140,15 @@ enum class MipStorageFallbackMode : u16 {
     ConstantIndex,
 };
 
+/// Texel offsets of a sample at a known guest level of a 2D (array) view are emitted as a
+/// normalized-coordinate delta of offset / guest level size, which keeps their meaning for
+/// any host extent of the image (render scale, dropped mips). Other offset samples, and LOD
+/// queries, need the image at its guest size.
+constexpr bool OffsetAsCoordinateDelta(AmdGpu::ImageType view_type) {
+    return view_type == AmdGpu::ImageType::Color2D ||
+           view_type == AmdGpu::ImageType::Color2DArray;
+}
+
 struct ImageResource {
     SharpFetch<AmdGpu::Image> sharp_fetch{};
     bool is_depth{};

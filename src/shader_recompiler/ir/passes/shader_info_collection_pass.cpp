@@ -209,6 +209,14 @@ void Visit(Info& info, const IR::Inst& inst) {
     }
 }
 
+static bool IsIntegralImmediateLod(const IR::Value& lod) {
+    if (!lod.IsImmediate() || lod.Type() != IR::Type::F32) {
+        return false;
+    }
+    const f32 value = lod.F32();
+    return value >= 0.f && value <= 15.f && value == static_cast<f32>(static_cast<u32>(value));
+}
+
 void CollectShaderInfoPass(IR::Program& program, const Profile& profile) {
     Info& info = program.info;
     for (IR::Block* const block : program.post_order_blocks) {
@@ -218,19 +226,33 @@ void CollectShaderInfoPass(IR::Program& program, const Profile& profile) {
             // be represented by merely changing the sampled image extent.
             std::optional<u32> offset_arg;
             bool exact_lod = false;
+            // The sampled guest level is known: the backend turns the offset into a
+            // coordinate delta (OffsetAsCoordinateDelta).
+            bool known_level = false;
             switch (inst.GetOpcode()) {
-            case IR::Opcode::ImageSampleImplicitLod:
-            case IR::Opcode::ImageSampleExplicitLod: offset_arg = 3; break;
+            case IR::Opcode::ImageSampleImplicitLod: offset_arg = 3; break;
+            case IR::Opcode::ImageSampleExplicitLod:
+                offset_arg = 3;
+                known_level = IsIntegralImmediateLod(inst.Arg(2));
+                break;
             case IR::Opcode::ImageSampleDrefImplicitLod:
             case IR::Opcode::ImageSampleDrefExplicitLod:
             case IR::Opcode::ImageGradient: offset_arg = 4; break;
             case IR::Opcode::ImageGather:
-            case IR::Opcode::ImageGatherDref: offset_arg = 2; break;
+            case IR::Opcode::ImageGatherDref:
+                // Gathers read the base level.
+                offset_arg = 2;
+                known_level = true;
+                break;
             case IR::Opcode::ImageQueryLod: exact_lod = true; break;
             default: break;
             }
             if (exact_lod || (offset_arg && !inst.Arg(*offset_arg).IsEmpty())) {
-                info.images[ResourceBinding(inst.Arg(0)) & 0xffff].requires_native_scale = true;
+                auto& image = info.images[ResourceBinding(inst.Arg(0)) & 0xffff];
+                const auto view_type = image.GetSharp(info).GetViewType(image.is_array);
+                if (exact_lod || !known_level || !OffsetAsCoordinateDelta(view_type)) {
+                    image.requires_native_scale = true;
+                }
             }
 
         }
