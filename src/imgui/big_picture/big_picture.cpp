@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <bit>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include <stb_image.h>
 
 #include "common/logging/log.h"
@@ -13,6 +14,7 @@
 #include "core/file_format/psf.h"
 #include "core/file_sys/fs.h"
 #include "core/file_sys/ifile.h"
+#include "core/guest_patch_desktop.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
 #include "imgui/big_picture/imgui_impl_sdl3_big_picture.h"
@@ -68,6 +70,207 @@ std::filesystem::path UpdateChecker(const std::string sceItem, std::filesystem::
     return updatedPath;
 }
 
+// Launch options: the desktop counterpart of the Android Launch sheet. Choosing a
+// game opens it; the draft is written to that game's custom config only on Launch,
+// so Back leaves every setting untouched.
+constexpr float kScaleChoices[] = {25.f, 37.5f, 50.f, 75.f, 100.f};
+constexpr const char* kScaleLabels[] = {"0.25", "0.375", "0.5", "0.75", "1.0"};
+
+struct LaunchDraft {
+    int game = -1; // index into gameIcons
+    bool ignorePatches = false;
+    float scale = 100.f;
+    bool fsr = false;
+    bool rcas = true;
+    // Guest function package (General.guest_patch): "" = off, else a file stem
+    // from user/guest_patches/<TITLE_ID>/. choices[0] is "" (Off).
+    std::string patch;
+    std::vector<std::string> patchChoices;
+    std::vector<std::string> patchLabels;
+    std::string error;
+};
+LaunchDraft launchDraft;
+bool openLaunchOptions = false;
+
+std::filesystem::path GameConfigPath(const std::string& serial) {
+    return Common::FS::GetUserPath(Common::FS::PathType::CustomConfigs) / (serial + ".json");
+}
+
+// Effective values for one game without loading its profile into the launcher's own
+// settings: the global value, replaced by whatever the game's custom config sets.
+void OpenLaunchOptions(int game, bool ignorePatches) {
+    launchDraft = {};
+    launchDraft.game = game;
+    launchDraft.ignorePatches = ignorePatches;
+    launchDraft.scale = EmulatorSettings.GetConfiguredInternalScalePercent();
+    launchDraft.fsr = EmulatorSettings.IsFsrEnabled();
+    launchDraft.rcas = EmulatorSettings.IsRcasEnabled();
+    launchDraft.patch = EmulatorSettings.GetGuestPatch();
+    try {
+        if (std::ifstream in{GameConfigPath(gameIcons[game].serial)}; in) {
+            const auto j = nlohmann::json::parse(in);
+            if (j.contains("GPU")) {
+                const auto& gpu = j.at("GPU");
+                launchDraft.scale = gpu.value("internal_scale_percent", launchDraft.scale);
+                launchDraft.fsr = gpu.value("fsr_enabled", launchDraft.fsr);
+                launchDraft.rcas = gpu.value("rcas_enabled", launchDraft.rcas);
+            }
+            if (j.contains("General")) {
+                launchDraft.patch = j.at("General").value("guest_patch", launchDraft.patch);
+            }
+        }
+    } catch (const std::exception& e) {
+        launchDraft.error = std::string("Cannot read this game's settings: ") + e.what();
+    }
+    // Same normalization the renderer applies (EmulatorSettings::GetInternalScalePercent).
+    if (std::ranges::find(kScaleChoices, launchDraft.scale) == std::end(kScaleChoices)) {
+        launchDraft.scale = 100.f;
+    }
+    launchDraft.patchChoices = {""};
+    launchDraft.patchLabels = {"Off"};
+    for (const auto& package : Core::GuestPatch::Desktop::ListPackages(gameIcons[game].serial)) {
+        launchDraft.patchChoices.push_back(package.name);
+        launchDraft.patchLabels.push_back(package.id);
+    }
+    // Keep a selection whose file is gone visible, so it can be switched off.
+    if (std::ranges::find(launchDraft.patchChoices, launchDraft.patch) ==
+        launchDraft.patchChoices.end()) {
+        launchDraft.patchChoices.push_back(launchDraft.patch);
+        launchDraft.patchLabels.push_back(launchDraft.patch + " (missing)");
+    }
+    openLaunchOptions = true;
+}
+
+// Merges only these keys into the game's custom config; other per-game and global
+// settings keep their current values and keep following later global changes.
+bool SaveLaunchDraft() {
+    const auto path = GameConfigPath(gameIcons[launchDraft.game].serial);
+    try {
+        nlohmann::json j = nlohmann::json::object();
+        if (std::ifstream in{path}; in) {
+            j = nlohmann::json::parse(in);
+        }
+        auto& gpu = j["GPU"];
+        gpu["internal_scale_percent"] = launchDraft.scale;
+        gpu["fsr_enabled"] = launchDraft.fsr;
+        gpu["rcas_enabled"] = launchDraft.rcas;
+        j["General"]["guest_patch"] = launchDraft.patch;
+        std::filesystem::create_directories(path.parent_path());
+        auto temp = path;
+        temp += ".tmp";
+        {
+            std::ofstream out{temp, std::ios::trunc};
+            out << j.dump(4) << '\n';
+            if (!out.flush()) {
+                throw std::runtime_error("write failed");
+            }
+        }
+        std::filesystem::rename(temp, path);
+        return true;
+    } catch (const std::exception& e) {
+        launchDraft.error = "Cannot save this game's settings: " + std::string(e.what());
+        LOG_ERROR(ImGui, "Launch options for {}: {}", path.string(), launchDraft.error);
+        return false;
+    }
+}
+
+void DrawLaunchOptions() {
+    if (openLaunchOptions) {
+        ImGui::OpenPopup("Launch Options");
+        openLaunchOptions = false;
+    }
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing,
+                            ImVec2(0.5f, 0.5f));
+    if (!ImGui::BeginPopupModal("Launch Options", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        return;
+    }
+    const auto& game = gameIcons[launchDraft.game];
+    ImGui::TextUnformatted(game.title.c_str());
+    ImGui::TextDisabled("%s", game.serial.c_str());
+    ImGui::Separator();
+
+    const float labelWidth = 300.f * uiScale;
+    const ImVec2 choiceSize(130.f * uiScale, 0.f);
+    // One horizontal row of choices; the selected one uses the header colour.
+    const auto row = [&](const char* name, int count, auto label, auto selected, auto select,
+                         bool enabled) {
+        ImGui::PushID(name);
+        ImGui::AlignTextToFramePadding();
+        ImGui::TextUnformatted(name);
+        ImGui::BeginDisabled(!enabled);
+        for (int c = 0; c < count; ++c) {
+            ImGui::SameLine(c == 0 ? labelWidth : 0.f);
+            const bool on = selected(c);
+            if (on) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+            }
+            ImGui::PushID(c);
+            const float fit =
+                ImGui::CalcTextSize(label(c)).x + ImGui::GetStyle().FramePadding.x * 2.f;
+            if (ImGui::Button(label(c), ImVec2(std::max(choiceSize.x, fit), 0.f))) {
+                select(c);
+            }
+            ImGui::PopID();
+            if (on) {
+                ImGui::PopStyleColor();
+            }
+        }
+        ImGui::EndDisabled();
+        ImGui::PopID();
+    };
+    static constexpr const char* kOffOn[] = {"Off", "On"};
+    static constexpr const char* kUpscalers[] = {"Off", "FSR1"};
+    row(
+        "Render Scale", int(std::size(kScaleChoices)), [](int c) { return kScaleLabels[c]; },
+        [](int c) { return launchDraft.scale == kScaleChoices[c]; },
+        [](int c) { launchDraft.scale = kScaleChoices[c]; }, true);
+    row(
+        "Screen Upscaler", 2, [](int c) { return kUpscalers[c]; },
+        [](int c) { return launchDraft.fsr == (c == 1); },
+        [](int c) { launchDraft.fsr = c == 1; }, true);
+    row(
+        "FSR Sharpening", 2, [](int c) { return kOffOn[c]; },
+        [](int c) { return launchDraft.rcas == (c == 1); },
+        [](int c) { launchDraft.rcas = c == 1; }, launchDraft.fsr);
+    row(
+        "Guest Patch", int(launchDraft.patchChoices.size()),
+        [](int c) { return launchDraft.patchLabels[c].c_str(); },
+        [](int c) { return launchDraft.patch == launchDraft.patchChoices[c]; },
+        [](int c) { launchDraft.patch = launchDraft.patchChoices[c]; }, true);
+    if (launchDraft.patchChoices.size() == 1) {
+        ImGui::TextDisabled("No patch packages in %s",
+                            Core::GuestPatch::Desktop::PackageDirectory(
+                                gameIcons[launchDraft.game].serial)
+                                .string()
+                                .c_str());
+    }
+
+    ImGui::Separator();
+    ImGui::TextDisabled("FSR runs only while the game image is smaller than the window.");
+    ImGui::TextDisabled("Saved for this game when you launch.");
+    if (!launchDraft.error.empty()) {
+        ImGui::TextColored(ImVec4(1.f, 0.4f, 0.4f, 1.f), "%s", launchDraft.error.c_str());
+    }
+
+    const ImVec2 buttonSize(200.f * uiScale, 0.f);
+    if (ImGui::Button("Launch", buttonSize) && SaveLaunchDraft()) {
+        Core::FileSys::MntPoints::ignore_game_patches = launchDraft.ignorePatches;
+        runEbootPath = game.ebootPath;
+        done = true;
+        ImGui::CloseCurrentPopup();
+    }
+    if (ImGui::IsWindowAppearing()) {
+        ImGui::SetItemDefaultFocus();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Back", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Escape) ||
+        ImGui::IsKeyPressed(ImGuiKey_GamepadFaceRight)) {
+        launchDraft.game = -1;
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::EndPopup();
+}
+
 void SetGameIcons(std::vector<IconInfo>& gameIcons) {
     ImGuiStyle& style = ImGui::GetStyle();
     const float maxAvailableWidth = ImGui::GetContentRegionAvail().x;
@@ -87,14 +290,14 @@ void SetGameIcons(std::vector<IconInfo>& gameIcons) {
         }
 
         ImTextureID id = gameIcons[i].textureId;
-        if (id != nullptr) {
-            if (ImGui::ImageButton(ButtonNameChar, id,
-                                   ImVec2(gameImageSize * uiScale, gameImageSize * uiScale))) {
-                done = true;
-                Core::FileSys::MntPoints::ignore_game_patches =
-                    ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-                runEbootPath = gameIcons[i].ebootPath;
-            }
+        const ImVec2 iconSize(gameImageSize * uiScale, gameImageSize * uiScale);
+        // A game without icon0.png still gets a selectable tile of the same size.
+        const bool pressed = id != nullptr
+                                 ? ImGui::ImageButton(ButtonNameChar, id, iconSize)
+                                 : ImGui::Button((std::string("No Icon##") + ButtonName).c_str(),
+                                                 iconSize);
+        if (pressed) {
+            OpenLaunchOptions(i, ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl));
         }
 
         if (buttonFocused) {
@@ -189,6 +392,31 @@ void GetGameIconInfo(std::vector<IconInfo>& icons) {
 
                 IconInfo icon;
                 PSF psf;
+                if (Core::FileSys::IsZArchiveFile(entry.path())) {
+                    // Same metadata view the runtime mounts: handles bundled app/ + update
+                    // archives and -UPDATE/-patch siblings, which a root sce_sys lookup misses.
+                    Core::FileSys::ArchiveInstallMetadata metadata;
+                    try {
+                        metadata = Core::FileSys::InspectArchiveInstall(entry.path());
+                    } catch (const std::exception& e) {
+                        LOG_WARNING(ImGui, "Skipping {}: {}", entry.path().string(), e.what());
+                        continue;
+                    }
+                    if (!psf.Open(metadata.param_sfo)) {
+                        continue;
+                    }
+                    icon.title = psf.GetString("TITLE").value_or("");
+                    icon.serial = psf.GetString("TITLE_ID").value_or("");
+                    icon.textureId =
+                        metadata.icon_png.empty()
+                            ? ImTextureID{}
+                            : ImTextureID(LoadSdlTextureData(std::move(metadata.icon_png)));
+                    icon.ebootPath = entry.path();
+                    icon.focusState = false;
+                    icons.push_back(icon);
+                    continue;
+                }
+
                 const std::string sfoFileName = "param.sfo";
                 std::filesystem::path sfoPath = UpdateChecker(sfoFileName, entry.path());
 
@@ -408,6 +636,8 @@ void Launch(char* executableName, bool sameProcess) {
 
             ImGui::EndPopup();
         }
+
+        DrawLaunchOptions();
 
         if (showSettings) {
             settingsWindow.DrawSettings(&showSettings, applySettings);
