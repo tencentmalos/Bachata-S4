@@ -6,6 +6,11 @@
 
 namespace Shader::Backend::SPIRV {
 
+// GLSL.std.450 NClamp: NaN gives min_value.
+static Id NClamp(EmitContext& ctx, Id type, Id value, Id min_value, Id max_value) {
+    return ctx.OpNMin(type, ctx.OpNMax(type, value, min_value), max_value);
+}
+
 Id Decorate(EmitContext& ctx, IR::Inst* inst, Id op) {
     ctx.Decorate(op, spv::Decoration::NoContraction);
     return op;
@@ -39,42 +44,52 @@ Id EmitFPFma64(EmitContext& ctx, IR::Inst* inst, Id a, Id b, Id c) {
     return Decorate(ctx, inst, ctx.OpFma(ctx.F64[1], a, b, c));
 }
 
+// GCN min/max return the operand that is not NaN, and an output clamp turns NaN into 0.
+// FMin/FMax/FClamp leave NaN undefined: drivers may fold a clamp into a saturate that passes
+// NaN through (Turnip), which games relying on the hardware rule then render as black or
+// as bright speckles. The N variants define the GCN result.
 Id EmitFPMax32(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpFMax(ctx.F32[1], a, b);
+    return ctx.OpNMax(ctx.F32[1], a, b);
 }
 
 Id EmitFPMax64(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpFMax(ctx.F64[1], a, b);
+    return ctx.OpNMax(ctx.F64[1], a, b);
 }
 
 Id EmitFPMin32(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpFMin(ctx.F32[1], a, b);
+    return ctx.OpNMin(ctx.F32[1], a, b);
 }
 
 Id EmitFPMin64(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpFMin(ctx.F64[1], a, b);
+    return ctx.OpNMin(ctx.F64[1], a, b);
 }
 
 Id EmitFPMinTri32(EmitContext& ctx, Id a, Id b, Id c) {
     if (ctx.profile.supports_trinary_minmax) {
         return ctx.OpFMin3AMD(ctx.F32[1], a, b, c);
     }
-    return ctx.OpFMin(ctx.F32[1], a, ctx.OpFMin(ctx.F32[1], b, c));
+    return ctx.OpNMin(ctx.F32[1], a, ctx.OpNMin(ctx.F32[1], b, c));
 }
 
 Id EmitFPMaxTri32(EmitContext& ctx, Id a, Id b, Id c) {
     if (ctx.profile.supports_trinary_minmax) {
         return ctx.OpFMax3AMD(ctx.F32[1], a, b, c);
     }
-    return ctx.OpFMax(ctx.F32[1], a, ctx.OpFMax(ctx.F32[1], b, c));
+    return ctx.OpNMax(ctx.F32[1], a, ctx.OpNMax(ctx.F32[1], b, c));
 }
 
 Id EmitFPMedTri32(EmitContext& ctx, Id a, Id b, Id c) {
     if (ctx.profile.supports_trinary_minmax) {
         return ctx.OpFMid3AMD(ctx.F32[1], a, b, c);
     }
-    const Id mmx{ctx.OpFMin(ctx.F32[1], ctx.OpFMax(ctx.F32[1], a, b), c)};
-    return ctx.OpFMax(ctx.F32[1], ctx.OpFMin(ctx.F32[1], a, b), mmx);
+    // V_MED3_F32: the minimum of the three when any input is NaN.
+    const Id lo{ctx.OpNMin(ctx.F32[1], a, b)};
+    const Id mmx{ctx.OpNMin(ctx.F32[1], ctx.OpNMax(ctx.F32[1], a, b), c)};
+    const Id med{ctx.OpNMax(ctx.F32[1], lo, mmx)};
+    const Id any_nan{ctx.OpLogicalOr(
+        ctx.U1[1], ctx.OpLogicalOr(ctx.U1[1], ctx.OpIsNan(ctx.U1[1], a), ctx.OpIsNan(ctx.U1[1], b)),
+        ctx.OpIsNan(ctx.U1[1], c))};
+    return ctx.OpSelect(ctx.F32[1], any_nan, ctx.OpNMin(ctx.F32[1], lo, c), med);
 }
 
 Id EmitFPMul32(EmitContext& ctx, IR::Inst* inst, Id a, Id b) {
@@ -148,21 +163,21 @@ Id EmitFPSqrt(EmitContext& ctx, Id value) {
 Id EmitFPSaturate32(EmitContext& ctx, Id value) {
     const Id zero{ctx.ConstF32(f32{0.0})};
     const Id one{ctx.ConstF32(f32{1.0})};
-    return ctx.OpFClamp(ctx.F32[1], value, zero, one);
+    return NClamp(ctx, ctx.F32[1], value, zero, one);
 }
 
 Id EmitFPSaturate64(EmitContext& ctx, Id value) {
     const Id zero{ctx.Constant(ctx.F64[1], f64{0.0})};
     const Id one{ctx.Constant(ctx.F64[1], f64{1.0})};
-    return ctx.OpFClamp(ctx.F64[1], value, zero, one);
+    return NClamp(ctx, ctx.F64[1], value, zero, one);
 }
 
 Id EmitFPClamp32(EmitContext& ctx, Id value, Id min_value, Id max_value) {
-    return ctx.OpFClamp(ctx.F32[1], value, min_value, max_value);
+    return NClamp(ctx, ctx.F32[1], value, min_value, max_value);
 }
 
 Id EmitFPClamp64(EmitContext& ctx, Id value, Id min_value, Id max_value) {
-    return ctx.OpFClamp(ctx.F64[1], value, min_value, max_value);
+    return NClamp(ctx, ctx.F64[1], value, min_value, max_value);
 }
 
 Id EmitFPRoundEven32(EmitContext& ctx, Id value) {
