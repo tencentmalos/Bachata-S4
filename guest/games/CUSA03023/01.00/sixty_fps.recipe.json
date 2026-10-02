@@ -1,0 +1,90 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "bloodborne_60fps_v1",
+  "title": "CUSA03023",
+  "module": "eboot.bin",
+  "module_sha256": "6764938b23539d29c936bca9880fc4a774e7b0099ce31c7e8c4b0f8bd0befb80",
+  "headers": [
+    "frame_manager.h"
+  ],
+  "sources": [
+    "sixty_fps.cpp"
+  ],
+  "bindings": [
+    {
+      "name": "bb_frame_manager_slot",
+      "kind": "data",
+      "offset": 89392328,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "BbFrameManager*",
+      "evidence": "eboot+0x55404c8 (RW data): frame manager singleton pointer. Loaded by the main step (eboot+0x201a1cb mov rbx,[r13] before calling eboot+0x2035ac0) and read the same way by Lance McDonald's 1.09 patch at the matching 1.09 global (0x55404f8, data shifted by +0x30)."
+    }
+  ],
+  "sites": [
+    {
+      "name": "pacer_mode03_frame_time",
+      "offset": 33774506,
+      "expected": "41c74424188988083d",
+      "mode": "replace",
+      "handler": "bb60_pacer_target_frame_time",
+      "evidence": "eboot+0x2035baa in the frame pacer eboot+0x2035ac0 (r12 = frame manager): mov dword [r12+0x18], 0x3d088889 (1/30) for pacing modes 0 and 3. Single instruction; mode 0 jumps to its start."
+    },
+    {
+      "name": "pacer_mode03_window",
+      "offset": 33774515,
+      "expected": "48b9010000001e000000",
+      "mode": "replace",
+      "handler": "bb60_pacer_window",
+      "evidence": "eboot+0x2035bb3: movabs rcx, 0x1e00000001; eboot+0x2035be1 stores rcx to [r12+0x268]. Not a branch target."
+    },
+    {
+      "name": "pacer_mode14_frame_time",
+      "offset": 33774542,
+      "expected": "41c74424188988083d",
+      "mode": "replace",
+      "handler": "bb60_pacer_target_frame_time",
+      "evidence": "eboot+0x2035bce: mov dword [r12+0x18], 1/30 for pacing modes 1 and 4 (mode 4 is the one observed live). Mode 1 jumps to its start; the following instruction is a separate branch target and stays outside this site."
+    },
+    {
+      "name": "pacer_mode124_window",
+      "offset": 33774551,
+      "expected": "48b9000000001e000000",
+      "mode": "replace",
+      "handler": "bb60_pacer_window",
+      "evidence": "eboot+0x2035bd7: movabs rcx, 0x1e00000000, shared by modes 1/4 and mode 2 (which jumps here after setting 1/60). Lance McDonald's 1.09 patch rewrites the same shared instruction."
+    },
+    {
+      "name": "main_step_delta",
+      "offset": 33661414,
+      "expected": "c745c88988083d",
+      "mode": "replace",
+      "handler": "bb60_main_step_delta",
+      "evidence": "eboot+0x201a1e6 in the main step eboot+0x201a0d0, after call eboot+0x2035ac0: mov dword [rbp-0x38], 1/30; block at rbp-0x40 is passed to eboot+0x2052690. Lance McDonald's 1.09 patch feeds the frame manager's +0x264 here."
+    },
+    {
+      "name": "update_17f9b40_delta",
+      "offset": 25140449,
+      "expected": "c745b88988083d",
+      "mode": "replace",
+      "handler": "bb60_update_17f9b40_delta",
+      "evidence": "eboot+0x17f9ce1 in eboot+0x17f9b40: mov dword [rbp-0x48], 1/30 into a local block, before call [vtable+0x48]. Corresponding 1.09 site is fed from the frame manager's +0x264 by Lance McDonald's patch."
+    },
+    {
+      "name": "ai_frames_to_seconds",
+      "offset": 31180024,
+      "expected": "c5fa5905c8ceb602",
+      "mode": "replace",
+      "handler": "bb60_ai_frames_to_seconds",
+      "evidence": "eboot+0x1dbc4f8 in SprjWorldAiManager frame bookkeeping: vmulss xmm0, xmm0, [rip+0x2b6cec8] where eboot+0x49293c8 holds 1/30, converting the frame count at [r13+0x250] to seconds. Without this site in-game audio skipped at 60 FPS (desktop test, XML v3 vs v4a)."
+    }
+  ],
+  "counters": [
+    {
+      "id": 1,
+      "name": "frame_delta_us"
+    }
+  ]
+}
