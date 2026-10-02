@@ -468,6 +468,29 @@ bool MemoryManager::SrtReadBatch::Read(VAddr address, void* data, u64 size) {
     return true;
 }
 
+bool MemoryManager::SrtReadBatch::ReadSpan(VAddr address, void* data, u64 size) {
+    constexpr u64 WindowSize = 64_KB; // ResolveSrtWindow's alignment
+    if (!data || address > UINT64_MAX - size)
+        return false;
+    auto* out = static_cast<u8*>(data);
+    while (size) {
+        const u64 chunk = std::min(size, WindowSize - address % WindowSize);
+        Window window;
+        if (memory.ResolveSrtWindow(address, chunk, window.begin, window.end, window.host)) {
+            std::memcpy(out, window.host + (address - window.begin), chunk);
+        } else {
+            for (u64 offset = 0; offset < chunk; offset += MaxReadBytes) {
+                if (!Read(address + offset, out + offset, std::min(MaxReadBytes, chunk - offset)))
+                    return false;
+            }
+        }
+        address += chunk;
+        out += chunk;
+        size -= chunk;
+    }
+    return true;
+}
+
 std::string MemoryManager::SrtReadBatch::Command(const std::vector<std::string>& args) {
     const std::string sub = args.empty() ? "status" : args[0];
     if ((sub == "on" || sub == "off") && args.size() == 1) {

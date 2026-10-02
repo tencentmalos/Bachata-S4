@@ -128,6 +128,12 @@ struct DynamicImageTable {
     u32 flat_base{};
 };
 
+// A table (up to 1.5 MiB of guest heap) is read at most once per epoch, shared by every shader
+// that uses it. The GPU command processor starts a new epoch each time it resumes a queue, so
+// draws decoded in one resume see one heap state: the guest must not rewrite descriptors that
+// a submitted command buffer still uses, and a wait on a label resumes in a new epoch.
+void AdvanceDynamicImageEpoch();
+
 enum class MipStorageFallbackMode : u16 {
     None,
     DynamicIndex,

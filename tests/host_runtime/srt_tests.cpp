@@ -419,6 +419,15 @@ int main() {
             image.pitch = 31;
             return image;
         };
+        // Slots as bound by the shader: the flattened buffer at the table's base.
+        auto slot = [&](const Info& info, u32 n) {
+            AmdGpu::Image image{};
+            std::memcpy(&image,
+                        info.flattened_ud_buf.data() + info.dynamic_image_tables[0].flat_base +
+                            n * 8,
+                        sizeof(image));
+            return image;
+        };
         std::memset(reinterpret_cast<void*>(heap), 0, 40 * 48);
         const auto a = make_image(1), b = make_image(2);
         write(1, a);
@@ -427,27 +436,38 @@ int main() {
         auto buffer_record = b;
         buffer_record.type = 2; // occupied but not a T#
         write(6, buffer_record);
+        AdvanceDynamicImageEpoch();
         heap_info.RefreshDynamicImageTables();
-        CHECK(heap_info.dynamic_image_snapshots[0].images[0].Address() == a.Address());
-        CHECK(heap_info.dynamic_image_snapshots[0].images[1].Address() == b.Address());
-        CHECK(!heap_info.dynamic_image_snapshots[0].images[2].Valid());
+        CHECK(slot(heap_info, 0).Address() == a.Address());
+        CHECK(slot(heap_info, 1).Address() == b.Address());
+        CHECK(!slot(heap_info, 2).Valid());
         auto moved = b;
         moved.base_address += 1024;
         write(5, moved);
+        // One epoch reads the heap once: a second shader in the same command processor
+        // resume shares that snapshot; the next resume sees the rewritten record.
+        Info other_info{};
+        other_info.dynamic_image_tables = heap_info.dynamic_image_tables;
+        other_info.flattened_ud_buf.resize(heap_info.flattened_ud_buf.size());
+        other_info.RefreshDynamicImageTables();
+        CHECK(slot(other_info, 1).Address() == b.Address());
+        AdvanceDynamicImageEpoch();
         heap_info.RefreshDynamicImageTables();
-        CHECK(heap_info.dynamic_image_snapshots[0].images[1].Address() == moved.Address());
+        CHECK(slot(heap_info, 1).Address() == moved.Address());
         write(1, {});
         write(17, {});
+        AdvanceDynamicImageEpoch();
         heap_info.RefreshDynamicImageTables();
-        CHECK(heap_info.dynamic_image_snapshots[0].images[0].Address() == moved.Address());
-        CHECK(!heap_info.dynamic_image_snapshots[0].images[1].Valid());
+        CHECK(slot(heap_info, 0).Address() == moved.Address());
+        CHECK(!slot(heap_info, 1).Valid());
         for (u32 n = 0; n < 32; ++n)
             write(n, make_image(n));
+        AdvanceDynamicImageEpoch();
         heap_info.RefreshDynamicImageTables();
-        CHECK(heap_info.dynamic_image_snapshots[0].images[31].Address() ==
-              make_image(31).Address());
+        CHECK(slot(heap_info, 31).Address() == make_image(31).Address());
         auto rejects = [&] {
             try {
+                AdvanceDynamicImageEpoch();
                 heap_info.RefreshDynamicImageTables();
                 return false;
             } catch (const std::runtime_error&) {
@@ -470,6 +490,7 @@ int main() {
             std::memset(reinterpret_cast<void*>(heap), 0, 40 * 48);
             write(2, a);
             write(8, b);
+            AdvanceDynamicImageEpoch();
             heap_buffer.base_address = heap;
             std::array<u32, 16> regs{};
             std::memcpy(regs.data(), &heap_buffer, sizeof(heap_buffer));
@@ -558,7 +579,7 @@ int main() {
             CHECK(initial_spec.dynamic_image_masks[0] == 3);
             // Inserting into an omitted slot must invalidate the previous binary,
             // even though its resource list has no descriptor for the new image.
-            auto extra = images_info.dynamic_image_snapshots[0].images[0];
+            auto extra = slot(images_info, 0);
             extra.base_address += 0x1000;
             const u32 table_base = images_info.dynamic_image_tables[0].flat_base;
             std::memcpy(images_info.flattened_ud_buf.data() + table_base + 16, &extra,

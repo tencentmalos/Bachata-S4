@@ -125,13 +125,6 @@ struct Info : InfoPersistent {
     std::span<const u32> user_data;
     std::vector<u32> flattened_ud_buf;
     PersistentSrtInfo srt_info;
-    struct DynamicImageSnapshot {
-        std::vector<u8> bytes;
-        std::array<AmdGpu::Image, DynamicImageTable::Capacity> images{};
-        u64 hash{};
-        bool valid{};
-    };
-    std::vector<DynamicImageSnapshot> dynamic_image_snapshots;
 
     AttributeFlags loads{};
     AttributeFlags stores{};

@@ -272,6 +272,8 @@ public:
     SrtGuestReader(const SrtGuestReader&) = delete;
     SrtGuestReader& operator=(const SrtGuestReader&) = delete;
     bool operator()(u64 address, void* data, size_t size);
+    // A range of any size (operator() reads at most 256 bytes).
+    bool Span(u64 address, void* data, size_t size);
 
 private:
     alignas(16) unsigned char storage[256];

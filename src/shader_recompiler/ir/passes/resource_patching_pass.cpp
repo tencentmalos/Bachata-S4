@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
 #include <limits>
-#include <xxhash.h>
+#include <mutex>
 #include "core/memory.h"
 #include "shader_recompiler/info.h"
 #include "shader_recompiler/ir/basic_block.h"
@@ -18,11 +19,44 @@
 #include "video_core/amdgpu/resource.h"
 
 namespace Shader {
+namespace {
+struct DynamicImageSnapshot {
+    VAddr base{};
+    u64 size{};
+    u32 stride{};
+    u32 image_offset{};
+    u64 epoch{};
+    u64 last_use{};
+    std::vector<u8> bytes;
+    std::array<AmdGpu::Image, DynamicImageTable::Capacity> images{};
+};
+
+std::atomic<u64> dynamic_image_epoch{1};
+std::mutex dynamic_image_mutex;
+std::array<DynamicImageSnapshot, 8> dynamic_image_snapshots; // LRU by last_use
+std::vector<u8> dynamic_image_scratch;
+u64 dynamic_image_uses{};
+
+bool ReadDynamicImageTable(VAddr address, u8* data, u64 size) {
+#ifndef ARCH_X86_64
+    return SrtGuestReader{}.Span(address, data, size);
+#else
+    for (u64 offset = 0; offset < size; offset += 256) {
+        if (!Core::Memory::Instance()->TryReadSrtMemory(address + offset, data + offset,
+                                                        std::min<u64>(256, size - offset)))
+            return false;
+    }
+    return true;
+#endif
+}
+} // namespace
+
+void AdvanceDynamicImageEpoch() {
+    dynamic_image_epoch.fetch_add(1, std::memory_order_relaxed);
+}
+
 void Info::RefreshDynamicImageTables() {
-    dynamic_image_snapshots.resize(dynamic_image_tables.size());
-    for (size_t n = 0; n < dynamic_image_tables.size(); ++n) {
-        const auto& table = dynamic_image_tables[n];
-        auto& snapshot = dynamic_image_snapshots[n];
+    for (const auto& table : dynamic_image_tables) {
         AmdGpu::Buffer buffer{};
         if (!table.buffer_fetch.Fetch(flattened_ud_buf.data(), &buffer) || !buffer.Valid() ||
             buffer.swizzle_enable || buffer.add_tid_enable || buffer.stride != table.stride ||
@@ -33,50 +67,59 @@ void Info::RefreshDynamicImageTables() {
         const u64 size = u64(buffer.num_records) * table.stride;
         if (size > 2 * 1024 * 1024 || u64(buffer.base_address) > UINT64_MAX - size)
             throw std::runtime_error("Dynamic image table exceeds the bounded snapshot size");
-        snapshot.bytes.resize(size);
-#ifndef ARCH_X86_64
-        SrtGuestReader reader;
-#endif
-        for (u64 offset = 0; offset < size; offset += 256) {
-            const auto count = std::min<u64>(256, size - offset);
-#ifndef ARCH_X86_64
-            const bool read =
-                reader(buffer.base_address + offset, snapshot.bytes.data() + offset, count);
-#else
-            const bool read = Core::Memory::Instance()->TryReadSrtMemory(
-                buffer.base_address + offset, snapshot.bytes.data() + offset, count);
-#endif
-            if (!read)
+
+        const u64 epoch = dynamic_image_epoch.load(std::memory_order_relaxed);
+        std::scoped_lock lock{dynamic_image_mutex};
+        const auto it = std::ranges::find_if(dynamic_image_snapshots, [&](const auto& s) {
+            return s.epoch && s.base == buffer.base_address && s.size == size &&
+                   s.stride == table.stride && s.image_offset == table.image_offset;
+        });
+        const bool found = it != dynamic_image_snapshots.end();
+        DynamicImageSnapshot* snapshot = found ? &*it : nullptr;
+        if (!found || snapshot->epoch != epoch) {
+            dynamic_image_scratch.resize(size);
+            if (!ReadDynamicImageTable(buffer.base_address, dynamic_image_scratch.data(), size))
                 throw std::runtime_error(fmt::format("Cannot read dynamic image table at {:#x}",
-                                                     u64(buffer.base_address) + offset));
-        }
-        const auto hash = XXH3_64bits(snapshot.bytes.data(), snapshot.bytes.size());
-        if (!snapshot.valid || snapshot.hash != hash) {
-            snapshot.images = {};
-            u32 count{};
-            for (u32 i = 0; i < buffer.num_records; ++i) {
-                AmdGpu::Image image{};
-                std::memcpy(&image,
-                            snapshot.bytes.data() + u64(i) * table.stride + table.image_offset,
-                            sizeof(image));
-                // Buffer descriptors and empty entries may share the heap with images.
-                if (!image.Valid() || !image.Address())
-                    continue;
-                if (std::ranges::any_of(std::span(snapshot.images).first(count),
-                                        [&](const auto& old) {
-                                            return std::memcmp(&old, &image, sizeof(image)) == 0;
-                                        }))
-                    continue;
-                if (count == DynamicImageTable::Capacity)
-                    throw std::runtime_error(
-                        "Dynamic image table has more than 32 distinct images");
-                snapshot.images[count++] = image;
+                                                     u64(buffer.base_address)));
+            if (!found) {
+                snapshot = &*std::ranges::min_element(dynamic_image_snapshots, {},
+                                                      &DynamicImageSnapshot::last_use);
+                *snapshot = {.base = buffer.base_address,
+                             .size = size,
+                             .stride = table.stride,
+                             .image_offset = table.image_offset};
             }
-            snapshot.hash = hash;
-            snapshot.valid = true;
+            if (!found || snapshot->bytes != dynamic_image_scratch) {
+                std::array<AmdGpu::Image, DynamicImageTable::Capacity> images{};
+                u32 count{};
+                for (u32 i = 0; i < buffer.num_records; ++i) {
+                    AmdGpu::Image image{};
+                    std::memcpy(&image,
+                                dynamic_image_scratch.data() + u64(i) * table.stride +
+                                    table.image_offset,
+                                sizeof(image));
+                    // Buffer descriptors and empty entries may share the heap with images.
+                    if (!image.Valid() || !image.Address())
+                        continue;
+                    if (std::ranges::any_of(std::span(images).first(count), [&](const auto& old) {
+                            return std::memcmp(&old, &image, sizeof(image)) == 0;
+                        }))
+                        continue;
+                    if (count == DynamicImageTable::Capacity) {
+                        snapshot->epoch = 0; // not usable; retry on the next refresh
+                        throw std::runtime_error(
+                            "Dynamic image table has more than 32 distinct images");
+                    }
+                    images[count++] = image;
+                }
+                snapshot->images = images;
+                snapshot->bytes.swap(dynamic_image_scratch);
+            }
+            snapshot->epoch = epoch;
         }
-        std::memcpy(flattened_ud_buf.data() + table.flat_base, snapshot.images.data(),
-                    sizeof(snapshot.images));
+        snapshot->last_use = ++dynamic_image_uses;
+        std::memcpy(flattened_ud_buf.data() + table.flat_base, snapshot->images.data(),
+                    sizeof(snapshot->images));
     }
 }
 } // namespace Shader

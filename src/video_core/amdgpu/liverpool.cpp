@@ -23,6 +23,7 @@
 #include "core/memory.h"
 #include "core/guest_write_watch.h"
 #include "core/platform.h"
+#include "shader_recompiler/resource.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/amdgpu/pm4_trace.h"
@@ -202,6 +203,7 @@ void Liverpool::Process(std::stop_token stoken) {
             const auto generation = diagnostics ? diagnostics->Generation() : 0;
             SHAD_HANDOFF(generation, "queue_resume", curr_qid, task.promise().diagnostic_id);
             waiting_yield = false;
+            Shader::AdvanceDynamicImageEpoch();
             {
                 Core::Diagnostics::Handoff::Scope scope{"PM4.Resume", generation,
                     static_cast<u64>(curr_qid), task.promise().diagnostic_id};

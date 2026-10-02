@@ -335,6 +335,9 @@ public:
         /// Largest single read: a run of consecutive sharp dwords (PortableSrt::MaxBatchDwords).
         static constexpr u64 MaxReadBytes = 256;
         bool Read(VAddr address, void* data, u64 size);
+        /// Copies a range of any size, one backing window at a time; the parts no window
+        /// serves take Read's per-read path.
+        bool ReadSpan(VAddr address, void* data, u64 size);
 
         // Runtime A/B switch (off: every read takes the per-read path) and a verification mode
         // that re-reads each batched value through the per-read path, counts mismatches and

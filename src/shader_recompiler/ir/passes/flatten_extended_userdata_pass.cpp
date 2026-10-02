@@ -1077,6 +1077,18 @@ bool SrtGuestReader::operator()(u64 address, void* data, size_t size) {
     return ReadSrtGuestMemory(address, data, size);
 }
 
+bool SrtGuestReader::Span(u64 address, void* data, size_t size) {
+    if (active)
+        return std::launder(reinterpret_cast<SrtReadBatch*>(storage))->ReadSpan(address, data, size);
+    auto* out = static_cast<u8*>(data);
+    for (size_t offset = 0; offset < size; offset += SrtReadBatch::MaxReadBytes) {
+        const size_t count = std::min<size_t>(SrtReadBatch::MaxReadBytes, size - offset);
+        if (!ReadSrtGuestMemory(address + offset, out + offset, count))
+            return false;
+    }
+    return true;
+}
+
 bool ReadSrtGuestMemory(u64 address, void* data, size_t size) {
     return Core::Memory::Instance()->TryReadSrtMemory(address, data, size);
 }
