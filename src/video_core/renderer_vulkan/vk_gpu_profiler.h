@@ -10,7 +10,9 @@ class Instance;
 // Receives the GPU time of tagged zones (render pass instance index) once retired.
 void RecordTaggedGpuTime(uint64_t tag, uint64_t ns);
 // Scheduler-owner only. Bounded query leases are reused only after successful
-// submission, timeline completion AND available results. No query WAIT bit.
+// submission and timeline completion. Unavailable results have bounded retries
+// and explicit loss accounting; a retired missing query cannot exhaust the pool.
+// No query WAIT bit.
 class GpuProfiler {
 public:
     using Stage = Common::Profiler::GpuStage;

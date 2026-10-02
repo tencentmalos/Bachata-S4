@@ -1,0 +1,10 @@
+{
+  "apk": "9483b4f48e4a749a3a90f6b649730f40200a9968ec1a1e42ee32eb89add6975f",
+  "host": "9b93041c0496229349fdfe62168ee16c062dea5da67033a747a2ecbc32ccc7db",
+  "drivers": {
+    "assets/native-turnip/vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+    "assets/native-turnip-mainline/vulkan.ad07xx.so": "8294375420b186838c17c710a191be8849701ddf51d2d530e534864a812f8794"
+  },
+  "source": "85a39824d + GPU query recovery patch",
+  "sdk": "08a0356f9a232bb320a20f9a1333f043db6bdb74"
+}

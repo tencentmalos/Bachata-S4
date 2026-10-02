@@ -183,23 +183,38 @@ void GpuProfiler::Collect(uint64_t completed) {
         const auto result = instance.GetDevice().getQueryPoolResults(*pool,
             index * ZonesPerBatch * 2, b.count * 2, sizeof(Result) * b.count * 2,
             results.data(), sizeof(Result), vk::QueryResultFlagBits::e64 | vk::QueryResultFlagBits::eWithAvailability);
-        if (result == vk::Result::eNotReady) break;
-        if (result != vk::Result::eSuccess) {
+        if (result != vk::Result::eSuccess && result != vk::Result::eNotReady) {
             disabled = true;
             std::lock_guard lock{stats->mutex}; ++stats->snapshot.errors; break;
         }
-        bool ready = true;
-        for (uint32_t q = 0; q < b.count * 2; ++q) ready &= results[q].available != 0;
-        if (!ready) break;
-        bool written = true;
-        for (uint32_t q = 0; q < b.count * 2; ++q) written &= GpuTimestampWritten(results[q].tick);
-        if (!written) {
+        uint32_t missing = 0, unwritten = 0, first_bad = Invalid;
+        for (uint32_t q = 0; q < b.count * 2; ++q) {
+            const bool unavailable = results[q].available == 0;
+            const bool invalid = !unavailable && !GpuTimestampWritten(results[q].tick);
+            missing += unavailable;
+            unwritten += invalid;
+            if ((unavailable || invalid) && first_bad == Invalid) first_bad = q;
+        }
+        if (result == vk::Result::eNotReady || missing || unwritten) {
             if (++b.partial_retries < 30) break;
-            // Bounded Adreno partial-readback recovery. Drop the batch instead
-            // of inventing a zero-duration pair, and invalidate its frame sum.
+            // The submission receipt and completed timeline prove this lease is
+            // no longer in flight. A missing timestamp cannot become valid by
+            // holding every later batch forever. Preserve the loss explicitly;
+            // never synthesize a zero-duration zone or a complete frame sum.
+            LOG_WARNING(Render_Vulkan,
+                        "GPU query batch discarded: lane={} tick={} completed={} generation={} "
+                        "result={} zones={} unavailable={} unwritten={} first_query={} stage={} endpoint={}",
+                        Lane(stage), b.tick, completed, b.generation, vk::to_string(result),
+                        b.count, missing, unwritten, first_bad,
+                        first_bad == Invalid ? "unknown" : GpuNames[size_t(b.zones[first_bad / 2].stage)],
+                        first_bad == Invalid ? "unknown" : first_bad % 2 ? "end" : "begin");
             std::lock_guard lock{stats->mutex};
             --stats->snapshot.pending; ++stats->snapshot.discarded;
-            ++stats->snapshot.errors; frame_incomplete = true; b = {};
+            ++stats->snapshot.errors; ++stats->snapshot.incomplete_batches;
+            stats->snapshot.unavailable_queries += missing;
+            stats->snapshot.unwritten_queries += unwritten;
+            Counter("GPU.IncompleteBatches", int64_t(stats->snapshot.incomplete_batches));
+            frame_incomplete = true; b = {};
             continue;
         }
         const auto now = Now();

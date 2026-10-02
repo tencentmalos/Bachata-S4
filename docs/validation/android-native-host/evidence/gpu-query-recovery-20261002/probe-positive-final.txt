@@ -1,0 +1,38 @@
+gpu_timing: enabled
+detailed: 0
+requested: 1
+ring_enabled: 1
+coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+generation: 0
+supported: 1
+calibrated: 0
+estimated_alignment: 1
+calibration_deviation_ns: 455079
+timestamp_valid_bits: 48
+timestamp_period_ns: 52.0833
+retired_batches: 45
+pending: 0
+dropped_batches: 1
+dropped_zones: 5
+discarded: 2
+errors: 1
+incomplete_batches: 1
+unavailable_queries: 1
+unwritten_queries: 0
+GPU.DrawBatch: count=44 last_ms=0.00432292 total_ms=0.190937 max_ms=0.004375 observed_ns=1598180191370330
+GPU.GuestCommands: count=44 last_ms=0.000885417 total_ms=0.0382292 max_ms=0.000885417 observed_ns=1598180191370330
+GPU.HostPrepare: count=44 last_ms=0.000833333 total_ms=0.0381771 max_ms=0.000885417 observed_ns=1598180191370330
+GPU.FSR: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.PostProcess: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.Present: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.OverlayRedraw: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.BlankFlip: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.GuestFrame: count=41 last_ms=0.000885417 total_ms=0.035625 max_ms=0.000885417 observed_ns=1598180191370330
+GPU.GuestRenderPass: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.GuestDispatch: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.HostTransfer: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.BufferUpload: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.HostReadback: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+GPU.GuestDraw: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+
+GPU_TIMING_DEVICE 159 checks / 0 failures

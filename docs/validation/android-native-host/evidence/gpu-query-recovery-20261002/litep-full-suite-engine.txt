@@ -1,0 +1,7 @@
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py:361: ResourceWarning: unclosed file <_io.FileIO name='/private/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpxuudkbwu/capture/kgsl-capture.log' mode='wb' closefd=True>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+----------------------------------------------------------------------
+Ran 120 tests in 2.870s
+
+OK

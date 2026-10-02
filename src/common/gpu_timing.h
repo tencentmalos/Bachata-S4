@@ -56,6 +56,7 @@ inline bool GpuTimestampWritten(uint64_t tick) {
 struct GpuTimingSnapshot {
     struct Sample { uint64_t count{}, observed_ns{}; double last_ms{}, total_ms{}, max_ms{}; };
     uint64_t generation{}, retired_batches{}, dropped_batches{}, dropped_zones{}, errors{}, discarded{}, calibration_deviation_ns{};
+    uint64_t incomplete_batches{}, unavailable_queries{}, unwritten_queries{};
     uint32_t pending{};
     uint8_t valid_bits{};
     double period{};

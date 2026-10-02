@@ -216,7 +216,10 @@ std::string GpuTimingControl(const std::vector<std::string>& args) {
         << "\ntimestamp_valid_bits: " << unsigned(s.valid_bits) << "\ntimestamp_period_ns: " << s.period
         << "\nretired_batches: " << s.retired_batches << "\npending: " << s.pending
         << "\ndropped_batches: " << s.dropped_batches << "\ndropped_zones: " << s.dropped_zones
-        << "\ndiscarded: " << s.discarded << "\nerrors: " << s.errors << '\n';
+        << "\ndiscarded: " << s.discarded << "\nerrors: " << s.errors
+        << "\nincomplete_batches: " << s.incomplete_batches
+        << "\nunavailable_queries: " << s.unavailable_queries
+        << "\nunwritten_queries: " << s.unwritten_queries << '\n';
     for (size_t i = 0; i < s.stages.size(); ++i) {
         const auto& p = s.stages[i];
         out << GpuNames[i] << ": count=" << p.count << " last_ms=" << p.last_ms

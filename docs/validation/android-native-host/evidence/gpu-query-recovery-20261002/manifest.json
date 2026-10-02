@@ -1,0 +1,25 @@
+{
+  "description": "Recorded validation for retired missing-query recovery; failure fixture is intentional",
+  "files": {
+    "probe-positive-final.txt": {
+      "sha256": "cb5789245c36253bd265461cc7aee3fa62168f425417f0dea0e1040d5c334885",
+      "bytes": 1741
+    },
+    "probe-negative.txt": {
+      "sha256": "27d6fe6a3040c3e5da944382c880086a3c94191107e11919b3e8fbc6102c797c",
+      "bytes": 4199
+    },
+    "unit-device.txt": {
+      "sha256": "4002c49581b745e6416cd84323f28b948f0717625096a7558eb1172fb7a78af4",
+      "bytes": 40
+    },
+    "package.json": {
+      "sha256": "de9c5d9b9661b9e3d205e1996b89555bf978f44b858f9fe40eb59b482634f758",
+      "bytes": 516
+    },
+    "litep-full-suite-engine.txt": {
+      "sha256": "c40065420fa090ec1dbcf25a296753c98ad9613eaa887332ba684b55e0ba2c2f",
+      "bytes": 496
+    }
+  }
+}

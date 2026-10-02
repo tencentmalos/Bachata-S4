@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
     using namespace Common::Profiler;
     Common::FS::InitializeAndroidUserPaths(argv[3]);
     Common::Log::Setup("gpu-timing");
+    struct LogLifetime { ~LogLifetime() { Common::Log::Shutdown(); } } log_lifetime;
     Common::Profiler::Initialize();
     Common::Profiler::Frame();
     Window window;
@@ -85,6 +86,45 @@ int main(int argc, char** argv) {
         TEST(stats->Read().stages[size_t(GpuStage::DrawBatch)].count == before);
         execute(4, false); execute(5, false);
         TEST(stats->Read().pending == 0); TEST(stats->Read().errors == 0);
+
+        // A deliberately omitted begin reproduces VK_NOT_READY after the GPU
+        // fence has signalled. The old collector never retired another batch.
+        auto cmd = cmds[0];
+        Vulkan::Check(cmd.begin(vk::CommandBufferBeginInfo{}));
+        live.BeginBatch(cmd, 5);
+        live.BeginWith(GpuStage::Transfer, [](vk::QueryPool, uint32_t) {});
+        live.Prepare(cmd); live.FrameEnd(); live.EndBatch(cmd);
+        Vulkan::Check(cmd.end());
+        auto receipt = std::make_shared<Vulkan::SubmissionReceipt>();
+        live.Queued(6, receipt);
+        vk::SubmitInfo info{.commandBufferCount = 1, .pCommandBuffers = &cmd};
+        Vulkan::Check(instance.GetGraphicsQueue().submit(info, *fence));
+        if (device.waitForFences(*fence, true, 2000000000ull) != vk::Result::eSuccess)
+            std::exit(3);
+        for (unsigned i = 0; i < 40; ++i) live.Collect(6);
+        TEST(stats->Read().pending == 1); // no submission receipt yet
+        TEST(stats->Read().incomplete_batches == 0);
+        receipt->submitted.store(true, std::memory_order_release);
+        for (unsigned i = 0; i < 40; ++i) live.Collect(5);
+        TEST(stats->Read().pending == 1); // no completion watermark yet
+        TEST(stats->Read().incomplete_batches == 0);
+        GpuTimingControl({"stop"}); // disabled recording must still drain leases
+        for (unsigned i = 0; i < 29; ++i) live.Collect(6);
+        TEST(stats->Read().pending == 1);
+        live.Collect(6);
+        TEST(stats->Read().pending == 0);
+        TEST(stats->Read().incomplete_batches == 1);
+        TEST(stats->Read().unavailable_queries == 1);
+        TEST(stats->Read().unwritten_queries == 0);
+        TEST(stats->Read().errors == 1);
+        Vulkan::Check(device.resetFences(*fence));
+        Vulkan::Check(device.resetCommandPool(*command_pool));
+        GpuTimingControl({"start"});
+        before = stats->Read().stages[size_t(GpuStage::DrawBatch)].count;
+        for (uint64_t tick = 7; tick < 47; ++tick) execute(tick, false);
+        TEST(stats->Read().stages[size_t(GpuStage::DrawBatch)].count == before + 40);
+        TEST(stats->Read().pending == 0);
+        TEST(stats->Read().incomplete_batches == 1);
     }
     puts(GpuTimingControl({}).c_str());
     GpuTimingControl({"stop"});
