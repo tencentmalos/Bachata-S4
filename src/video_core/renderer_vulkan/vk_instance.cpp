@@ -591,11 +591,33 @@ bool Instance::CreateDevice() {
         return false;
     }
 
+    // A discrete GPU reads host memory across PCIe. Its copy-only (DMA) family moves the small
+    // per-draw data the CPU writes into VRAM alongside the graphics queue.
+    std::optional<u32> transfer_family;
+    if (IsDiscrete()) {
+        for (std::size_t i = 0; i < family_properties.size(); i++) {
+            const auto flags = family_properties[i].queueFlags;
+            if ((flags & vk::QueueFlagBits::eTransfer) &&
+                !(flags & (vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute)) &&
+                family_properties[i].queueCount > 0) {
+                transfer_family = static_cast<u32>(i);
+                break;
+            }
+        }
+    }
+
     static constexpr std::array queue_priorities = {1.0f};
-    const vk::DeviceQueueCreateInfo queue_info = {
-        .queueFamilyIndex = queue_family_index,
-        .queueCount = static_cast<u32>(queue_priorities.size()),
-        .pQueuePriorities = queue_priorities.data(),
+    std::array<vk::DeviceQueueCreateInfo, 2> queue_infos{
+        vk::DeviceQueueCreateInfo{
+            .queueFamilyIndex = queue_family_index,
+            .queueCount = static_cast<u32>(queue_priorities.size()),
+            .pQueuePriorities = queue_priorities.data(),
+        },
+        vk::DeviceQueueCreateInfo{
+            .queueFamilyIndex = transfer_family.value_or(0),
+            .queueCount = 1,
+            .pQueuePriorities = queue_priorities.data(),
+        },
     };
 
     const auto vk11_features = feature_chain.get<vk::PhysicalDeviceVulkan11Features>();
@@ -603,8 +625,8 @@ bool Instance::CreateDevice() {
     vk13_features = feature_chain.get<vk::PhysicalDeviceVulkan13Features>();
     vk::StructureChain device_chain = {
         vk::DeviceCreateInfo{
-            .queueCreateInfoCount = 1u,
-            .pQueueCreateInfos = &queue_info,
+            .queueCreateInfoCount = transfer_family ? 2u : 1u,
+            .pQueueCreateInfos = queue_infos.data(),
             .enabledExtensionCount = static_cast<u32>(enabled_extensions.size()),
             .ppEnabledExtensionNames = enabled_extensions.data(),
         },
@@ -856,6 +878,11 @@ bool Instance::CreateDevice() {
 
     graphics_queue = device->getQueue(queue_family_index, 0);
     present_queue = device->getQueue(queue_family_index, 0);
+    if (transfer_family) {
+        transfer_queue = device->getQueue(*transfer_family, 0);
+        transfer_queue_family_index = transfer_family;
+        LOG_INFO(Render_Vulkan, "Dedicated transfer queue family {}", *transfer_family);
+    }
 
     if (TRACY_GPU_ENABLED && calibrated_timestamps) {
         const auto [time_domains_result, time_domains] =

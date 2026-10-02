@@ -38,6 +38,98 @@ static constexpr auto ARENA_USAGE =
     vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eVertexBuffer |
     vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
+// Copies the staged stream buffer's host writes of one graphics submission into its device copy
+// on the transfer queue; the graphics submission waits on the copy's timeline value. The stream
+// buffer's tick watches keep a range of both copies untouched until the graphics submission that
+// used it completes, which is after its copy completed.
+class BufferCache::StagedStreamCopier {
+public:
+    StagedStreamCopier(const Vulkan::Instance& instance_, u32 family)
+        : instance{instance_}, queue{instance_.GetTransferQueue()}, semaphore{instance_} {
+        const auto device = instance.GetDevice();
+        pool = Vulkan::Check<"create the stream copy command pool">(
+            device.createCommandPoolUnique(vk::CommandPoolCreateInfo{
+                .flags = vk::CommandPoolCreateFlagBits::eTransient |
+                         vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                .queueFamilyIndex = family,
+            }));
+        const auto buffers = Vulkan::Check<"allocate stream copy command buffers">(
+            device.allocateCommandBuffers(vk::CommandBufferAllocateInfo{
+                .commandPool = *pool,
+                .level = vk::CommandBufferLevel::ePrimary,
+                .commandBufferCount = static_cast<u32>(cmdbufs.size()),
+            }));
+        std::ranges::copy(buffers, cmdbufs.begin());
+    }
+
+    ~StagedStreamCopier() {
+        try {
+            semaphore.Wait(last_tick); // The command buffers go with the pool.
+        } catch (...) {
+            // A lost device runs nothing anymore.
+        }
+    }
+
+    void Submit(StreamBuffer& stream, Vulkan::SubmitInfo& info) {
+        const auto ranges = stream.TakeStagedRanges();
+        if (ranges.empty()) {
+            return;
+        }
+        const size_t slot = next++ % cmdbufs.size();
+        semaphore.Wait(slot_ticks[slot]);
+        const auto cmd = cmdbufs[slot];
+        Vulkan::Check(cmd.begin(vk::CommandBufferBeginInfo{
+            .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
+        }));
+        cmd.copyBuffer(stream.Staging().Handle(), stream.Handle(), ranges);
+        Vulkan::Check(cmd.end());
+
+        const u64 tick = semaphore.NextTick();
+        const auto handle = semaphore.Handle();
+        const vk::TimelineSemaphoreSubmitInfo timeline{
+            .signalSemaphoreValueCount = 1,
+            .pSignalSemaphoreValues = &tick,
+        };
+        const vk::SubmitInfo submit{
+            .pNext = &timeline,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &cmd,
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &handle,
+        };
+        {
+            // Only the GPU command thread submits to this queue, but vkDeviceWaitIdle callers
+            // (swapchain rebuilds) hold the queue mutex to synchronize every queue.
+            Common::Profiler::Scope scope{"Buffer.StreamCopySubmit"};
+            std::scoped_lock lock{instance.QueueMutex()};
+            Vulkan::Check<"submit the stream copy">(queue.submit(submit));
+        }
+        semaphore.Submitted(tick);
+        slot_ticks[slot] = last_tick = tick;
+        // Waiting semaphores make the copy visible to every command of the submission.
+        info.AddWait(handle, tick);
+
+        u64 bytes = 0;
+        for (const auto& range : ranges) {
+            bytes += range.size;
+        }
+        constexpr auto o = std::memory_order_relaxed;
+        UploadDiagnostics::stream_dma_submits.fetch_add(1, o);
+        UploadDiagnostics::stream_dma_regions.fetch_add(ranges.size(), o);
+        UploadDiagnostics::stream_dma_bytes.fetch_add(bytes, o);
+    }
+
+private:
+    const Vulkan::Instance& instance;
+    vk::Queue queue;
+    Vulkan::Semaphore semaphore;
+    vk::UniqueCommandPool pool;
+    std::array<vk::CommandBuffer, 16> cmdbufs{};
+    std::array<u64, 16> slot_ticks{};
+    size_t next{};
+    u64 last_tick{};
+};
+
 std::optional<u32> FindMemoryType(const vk::PhysicalDeviceMemoryProperties& properties,
                                   vk::MemoryPropertyFlags wanted, u32 memory_type_bits) {
     for (u32 i = 0; i < properties.memoryTypeCount; ++i) {
@@ -130,7 +222,30 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
         LOG_INFO(Render_Vulkan, "Discrete GPU: streamed data in host memory ({} MiB)",
                  host_stream_buffer->SizeBytes() >> 20);
     }
+    if (const auto transfer_family = instance.GetTransferQueueFamilyIndex()) {
+        const std::array families{instance.GetGraphicsQueueFamilyIndex(), *transfer_family};
+        staged_stream_buffer.emplace(instance, scheduler, STREAM_BUFFER_SIZE / 2, families,
+                                     StreamBuffer::Staged{});
+        VmaDiagnostics::Tag(instance.GetAllocator(), staged_stream_buffer->buffer.allocation,
+                            "buffer/stream-pool-dma");
+        VmaDiagnostics::Tag(instance.GetAllocator(),
+                            staged_stream_buffer->Staging().buffer.allocation,
+                            "buffer/stream-pool-dma-host");
+        staged_copier = std::make_unique<StagedStreamCopier>(instance, *transfer_family);
+        LOG_INFO(Render_Vulkan,
+                 "Discrete GPU: streamed data copied into VRAM on transfer queue family {} "
+                 "({} MiB)",
+                 *transfer_family, staged_stream_buffer->SizeBytes() >> 20);
+    }
     VerifySparseResidency();
+}
+
+void BufferCache::SubmitStagedStream(Vulkan::SubmitInfo& info) {
+    // Also when another stream buffer is selected now: ranges written earlier in this
+    // submission (and by holders of the staged buffer, e.g. the tile manager) still need it.
+    if (staged_copier) {
+        staged_copier->Submit(*staged_stream_buffer, info);
+    }
 }
 
 BufferCache::~BufferCache() = default;
@@ -274,6 +389,11 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
         << stream_sizes[2] << "/" << stream_sizes[3]
         << " max=" << UploadDiagnostics::stream_max.load(o) << " host_memory="
         << (host_stream_buffer && UploadDiagnostics::stream_host.load(o)) << "\n";
+    out << "stream_dma available=" << bool(staged_copier)
+        << " selected=" << (staged_stream_buffer && UploadDiagnostics::stream_dma.load(o))
+        << " submits=" << UploadDiagnostics::stream_dma_submits.load(o)
+        << " regions=" << UploadDiagnostics::stream_dma_regions.load(o)
+        << " bytes=" << UploadDiagnostics::stream_dma_bytes.load(o) << "\n";
     out << "stream_read_cache enabled=" << Core::MemoryManager::read_cache_enabled.load(o)
         << " hits=" << stream_read_cache.hits << " misses=" << stream_read_cache.misses << "\n";
     const auto& kept = memory_tracker->Keeper().GetCounters();

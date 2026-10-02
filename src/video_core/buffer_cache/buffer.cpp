@@ -138,14 +138,18 @@ void UniqueBuffer::Create(vk::BufferCreateInfo& buffer_ci, MemoryType mem_type,
 }
 
 Buffer::Buffer(const Vulkan::Instance& instance, VAddr cpu_addr_, u64 size_bytes_,
-               MemoryType mem_type_, std::string_view debug_name)
+               MemoryType mem_type_, std::string_view debug_name,
+               std::span<const u32> concurrent_families)
     : cpu_addr{cpu_addr_}, size_bytes{size_bytes_}, mem_type{mem_type_},
       buffer{instance.GetDevice(), instance.GetAllocator()} {
 
+    const bool concurrent = concurrent_families.size() > 1;
     vk::BufferCreateInfo buffer_ci = {
         .size = size_bytes,
         .usage = AllFlags,
-        .sharingMode = vk::SharingMode::eExclusive,
+        .sharingMode = concurrent ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive,
+        .queueFamilyIndexCount = concurrent ? static_cast<u32>(concurrent_families.size()) : 0u,
+        .pQueueFamilyIndices = concurrent ? concurrent_families.data() : nullptr,
     };
     VmaAllocationInfo alloc_info{};
     buffer.Create(buffer_ci, mem_type, &alloc_info);
@@ -198,8 +202,20 @@ StreamBuffer::StreamBuffer(const Vulkan::Instance& instance, Vulkan::Scheduler& 
                           BufferTypeName(mem_type), size_bytes);
 }
 
+StreamBuffer::StreamBuffer(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler_,
+                           u64 size_bytes, std::span<const u32> families, Staged)
+    : Buffer{instance, 0, size_bytes, MemoryType::DeviceLocal, "StreamBuffer(staged)", families},
+      staging{std::make_unique<Buffer>(instance, 0, size_bytes, MemoryType::HostUncached,
+                                       "StreamBuffer(staged host copy)")},
+      scheduler{scheduler_}, non_coherent_atom_size{instance.NonCoherentAtomSize()} {
+    ASSERT_MSG(!staging->mapped_data.empty(), "Staged stream host copy is not mapped");
+    ReserveWatches(current_watches, WATCHES_INITIAL_RESERVE);
+    ReserveWatches(previous_watches, WATCHES_INITIAL_RESERVE);
+}
+
 bool StreamBuffer::PrepareMap(u64 size, u64 alignment, bool allow_wait) {
-    if (!mapped_data.empty() && !is_coherent) {
+    const Buffer& target = WriteTarget();
+    if (!target.mapped_data.empty() && !target.is_coherent) {
         size = Common::AlignUp(size, non_coherent_atom_size);
         alignment =
             alignment > 0 ? std::lcm(alignment, non_coherent_atom_size) : non_coherent_atom_size;
@@ -237,12 +253,14 @@ std::pair<u8*, u64> StreamBuffer::Map(u64 size, u64 alignment, bool allow_wait) 
     if (!PrepareMap(size, alignment, allow_wait)) {
         return {nullptr, 0};
     }
-    u8* const data = mapped_data.empty() ? nullptr : mapped_data.data() + offset;
+    const auto written = WriteTarget().mapped_data;
+    u8* const data = written.empty() ? nullptr : written.data() + offset;
     return {data, offset};
 }
 
 void StreamBuffer::Commit(u64 used_size) {
-    if (!mapped_data.empty() && !is_coherent) {
+    const Buffer& target = WriteTarget();
+    if (!target.mapped_data.empty() && !target.is_coherent) {
         used_size = Common::AlignUp(used_size, non_coherent_atom_size);
     }
     ASSERT(used_size <= mapped_size);
@@ -253,7 +271,17 @@ void StreamBuffer::Commit(u64 used_size) {
 }
 
 void StreamBuffer::Commit() {
-    if (mem_type == MemoryType::HostCached) {
+    if (staging) {
+        staging->Flush(offset, mapped_size);
+        // The ring only moves forward between submissions, wrapping at most once (a wrap
+        // into data of the current submission waits for it, which submits it first). One
+        // span per lap covers every commit; the alignment padding it also copies is unused.
+        if (!staged_ranges.empty() && offset >= staged_ranges.back().srcOffset) {
+            staged_ranges.back().size = offset + mapped_size - staged_ranges.back().srcOffset;
+        } else if (mapped_size != 0) {
+            staged_ranges.push_back({offset, offset, mapped_size});
+        }
+    } else if (mem_type == MemoryType::HostCached) {
         Invalidate(offset, mapped_size);
     } else {
         Flush(offset, mapped_size);

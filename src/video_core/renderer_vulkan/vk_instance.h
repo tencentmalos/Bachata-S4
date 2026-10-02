@@ -4,6 +4,7 @@
 #pragma once
 
 #include <mutex>
+#include <optional>
 #include "video_core/texture_cache/scale_policy.h"
 #include "video_core/host_memory_policy.h"
 #include "common/gpu_timing.h"
@@ -101,6 +102,16 @@ public:
 
     vk::Queue GetPresentQueue() const {
         return present_queue;
+    }
+
+    /// Copy-only (DMA) queue of a discrete GPU, used by one owner thread (the buffer cache's
+    /// staged stream buffer). Unset on other GPUs.
+    std::optional<u32> GetTransferQueueFamilyIndex() const {
+        return transfer_queue_family_index;
+    }
+
+    vk::Queue GetTransferQueue() const {
+        return transfer_queue;
     }
 
     TracyVkCtx GetProfilerContext() const {
@@ -639,6 +650,8 @@ private:
     VmaAllocator allocator{};
     vk::Queue present_queue;
     vk::Queue graphics_queue;
+    vk::Queue transfer_queue;
+    std::optional<u32> transfer_queue_family_index;
     mutable std::mutex queue_mutex;
     std::unique_ptr<SubmissionWorker> submissions;
     std::vector<vk::PhysicalDevice> physical_devices;

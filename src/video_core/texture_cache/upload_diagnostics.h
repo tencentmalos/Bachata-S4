@@ -108,6 +108,11 @@ inline std::atomic<u32> stream_max{16384};
 // buffer in host memory instead of device memory the CPU writes through the PCIe BAR. On by
 // default there (`upload_diag stream_host on|off`); other GPUs have one stream buffer.
 inline std::atomic<bool> stream_host{true};
+// Discrete GPUs with a copy-only queue: streamed data written to host memory is copied into
+// VRAM on that queue before each submission, so shaders read it from VRAM. Takes precedence
+// over stream_host; on by default where available (`upload_diag stream_dma on|off`).
+inline std::atomic<bool> stream_dma{true};
+inline std::atomic<u64> stream_dma_submits{0}, stream_dma_bytes{0}, stream_dma_regions{0};
 // Reads of streamed buffers also go through the barrier tracker (`upload_diag stream_barriers
 // on|off`, off by default): an A/B switch for the earlier behaviour.
 inline std::atomic<bool> stream_barriers{false};

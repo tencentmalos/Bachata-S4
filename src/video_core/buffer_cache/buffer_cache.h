@@ -80,17 +80,31 @@ public:
 
     /// Retrieves the stream buffer.
     StreamBuffer& GetStreamBuffer() noexcept {
+        if (staged_stream_buffer && UploadDiagnostics::stream_dma.load(std::memory_order_relaxed)) {
+            return *staged_stream_buffer;
+        }
         if (host_stream_buffer && UploadDiagnostics::stream_host.load(std::memory_order_relaxed)) {
             return *host_stream_buffer;
         }
         return stream_buffer;
     }
 
+    /// For small parameters of internal passes held by their owner for the whole session: a
+    /// stream buffer the device reads where it is, so they never wait for a staged copy.
+    StreamBuffer& GetParameterStreamBuffer() noexcept {
+        return host_stream_buffer ? *host_stream_buffer : stream_buffer;
+    }
+
     /// Streamed buffers hold CPU snapshots (ObtainBuffer's small read-only ranges, per-draw
     /// constants) that the GPU only reads.
     [[nodiscard]] bool IsStreamBuffer(const Buffer* buffer) const noexcept {
-        return buffer == &stream_buffer || (host_stream_buffer && buffer == &*host_stream_buffer);
+        return buffer == &stream_buffer || (host_stream_buffer && buffer == &*host_stream_buffer) ||
+               (staged_stream_buffer && buffer == &*staged_stream_buffer);
     }
+
+    /// Copies the staged stream buffer's writes of this submission into device memory on the
+    /// transfer queue and makes the submission wait for it. Called on every submission.
+    void SubmitStagedStream(Vulkan::SubmitInfo& info);
 
     /// Returns minimum granularity of a sparse memory bind.
     u32 GetSparsePageShift() const noexcept {
@@ -202,8 +216,13 @@ private:
 
     StreamBuffer stream_buffer;
     // Discrete GPUs only: CPU writes through the PCIe BAR run at a few hundred MB/s on some
-    // systems, while the GPU reads small streamed data from host memory without trouble.
+    // systems. Shaders reading the data from host memory instead pay the PCIe latency.
     std::optional<StreamBuffer> host_stream_buffer;
+    // Discrete GPUs with a copy-only queue: the CPU writes host memory, and that queue copies
+    // each submission's data into VRAM before the submission runs (staged_copier).
+    std::optional<StreamBuffer> staged_stream_buffer;
+    class StagedStreamCopier;
+    std::unique_ptr<StagedStreamCopier> staged_copier;
     Buffer gds_buffer;
     RangeSet gpu_modified_ranges;
     // Mapping lookups saved for streamed buffer copies (GPU command thread only).

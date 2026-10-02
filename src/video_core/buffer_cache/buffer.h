@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -82,8 +83,11 @@ struct UniqueBuffer {
 };
 
 struct Buffer {
+    /// With two or more `concurrent_families` the buffer is shared between those queue
+    /// families without ownership transfers.
     explicit Buffer(const Vulkan::Instance& instance, VAddr cpu_addr_, u64 size_bytes_,
-                    MemoryType mem_type, std::string_view debug_name = "");
+                    MemoryType mem_type, std::string_view debug_name = "",
+                    std::span<const u32> concurrent_families = {});
 
     Buffer& operator=(const Buffer&) = delete;
     Buffer(const Buffer&) = delete;
@@ -133,6 +137,27 @@ struct Buffer {
 struct StreamBuffer : public Buffer {
     explicit StreamBuffer(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler,
                           MemoryType mem_type, u64 size_bytes);
+
+    /// Staged: the device reads this buffer (Handle()) from device memory, shared by
+    /// `families`, while the CPU writes a host copy of it. Committed ranges are copied over
+    /// before the submission that uses them; see TakeStagedRanges.
+    struct Staged {};
+    StreamBuffer(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler, u64 size_bytes,
+                 std::span<const u32> families, Staged);
+
+    [[nodiscard]] bool IsStaged() const noexcept {
+        return staging != nullptr;
+    }
+
+    /// Host copy written through Map in staged mode.
+    [[nodiscard]] const Buffer& Staging() const noexcept {
+        return *staging;
+    }
+
+    /// Ranges committed since the last call, in commit order; same offsets in both copies.
+    [[nodiscard]] std::vector<vk::BufferCopy> TakeStagedRanges() {
+        return std::exchange(staged_ranges, {});
+    }
 
     /// Reserves a region of memory from the stream buffer. Must be followed by Commit().
     std::pair<u8*, u64> Map(u64 size, u64 alignment = 0, bool allow_wait = true);
@@ -192,7 +217,14 @@ private:
     /// Waits pending watches until requested upper bound.
     bool WaitPendingOperations(u64 requested_upper_bound, bool allow_wait);
 
+    /// Memory the CPU writes: the host copy in staged mode, this buffer otherwise.
+    [[nodiscard]] Buffer& WriteTarget() noexcept {
+        return staging ? *staging : *this;
+    }
+
 private:
+    std::unique_ptr<Buffer> staging;
+    std::vector<vk::BufferCopy> staged_ranges;
     Vulkan::Scheduler& scheduler;
     vk::DeviceSize non_coherent_atom_size{};
     u64 offset{};

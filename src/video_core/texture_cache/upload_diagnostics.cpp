@@ -352,6 +352,12 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("stream_host={} (streamed data in {} memory)\n", args[1],
                            args[1] == "on" ? "host" : "device");
     }
+    if (sub == "stream_dma" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        stream_dma.store(args[1] == "on");
+        return fmt::format("stream_dma={} (streamed data {})\n", args[1],
+                           args[1] == "on" ? "copied into VRAM on the transfer queue where available"
+                                           : "as selected by stream_host");
+    }
     if (sub == "stream_max" && args.size() == 2) {
         u32 bytes = 0;
         const auto [end, ec] =
@@ -383,7 +389,7 @@ std::string Command(const std::vector<std::string>& args) {
     return "status=bad_arguments usage: start [log_lines] | status | stop | "
            "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
            "watch_predict on|off | keep_gpu on|off | read_cache on|off | stream_barriers on|off | "
-           "stream_max <bytes>\n";
+           "stream_max <bytes> | stream_host on|off | stream_dma on|off\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

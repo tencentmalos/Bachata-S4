@@ -49,7 +49,8 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
                            BufferCache& buffer_cache_, PageManager& tracker_)
     : instance{instance_}, scheduler{scheduler_}, runtime{runtime_}, liverpool{liverpool_},
       buffer_cache{buffer_cache_}, tracker{tracker_}, blit_helper{instance, scheduler},
-      tile_manager{instance, scheduler, buffer_cache.GetStreamBuffer(), runtime.GetStagingPool()},
+      tile_manager{instance, scheduler, buffer_cache.GetParameterStreamBuffer(),
+                   runtime.GetStagingPool()},
       readback_linear_images{EmulatorSettings.IsReadbackLinearImagesEnabled()} {
 
     memory_diagnostics_epoch = MemoryDiagnostics::Begin(instance.ScalePolicy());
