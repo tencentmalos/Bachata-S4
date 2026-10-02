@@ -675,6 +675,12 @@ struct GuestAvPlayer::Impl {
             return u32(player.Pause());
         if (nid == "w5moABNwnRY")
             return u32(player.Resume());
+        if (nid == "XC9wM+xULz8") {
+            const s32 rc = player.JumpToTime(a[1]);
+            LOG_INFO(Lib_AvPlayer, "Guest JumpToTime player={} time_ms={} rc={:#x}", p->handle,
+                     a[1], u32(rc));
+            return u32(rc);
+        }
         if (nid == "UbQoYawOsfY") {
             const bool active = player.IsActive();
             if (!p->queried_active || *p->queried_active != active) {

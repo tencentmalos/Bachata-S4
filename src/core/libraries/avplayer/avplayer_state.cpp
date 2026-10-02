@@ -228,6 +228,26 @@ bool AvPlayerState::Resume() {
     return true;
 }
 
+// Called inside GAME thread
+bool AvPlayerState::JumpToTime(u64 time_ms) {
+    std::shared_lock lock(m_source_mutex);
+    if (m_up_source == nullptr) {
+        return false;
+    }
+    const auto state = m_current_state.load();
+    const auto previous = m_previous_state.load();
+    if (!SetState(AvState::Jump)) {
+        return false;
+    }
+    const bool jumped = m_up_source->JumpToTime(time_ms);
+    // Playback (or a pause) continues from the new position; Resume still returns to the
+    // state that preceded a pause.
+    std::lock_guard guard(m_state_machine_mutex);
+    m_current_state.store(state);
+    m_previous_state.store(previous);
+    return jumped;
+}
+
 void AvPlayerState::SetAvSyncMode(AvPlayerAvSyncMode sync_mode) {
     m_sync_mode = sync_mode;
 }
@@ -547,6 +567,10 @@ bool AvPlayerState::IsStateTransitionValid(AvState state) {
         default:
             return true;
         }
+    }
+    case AvState::EndOfFile: {
+        // The demuxer stopped by a jump is restarted at the new position.
+        return m_current_state.load() != AvState::Jump;
     }
     case AvState::TrickMode: {
         switch (m_current_state.load()) {

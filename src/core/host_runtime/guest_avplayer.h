@@ -17,7 +17,7 @@ inline constexpr std::string_view AvPlayerNids[]{
     "KMcEa+rHsIo", "x8uvuFOPZhU", "NkJwDzKmIlw", "wwM99gjFf1Y", "ODJK2sn9w4A", "Wnp1OVcrZgk",
     "d8FcbzfAdQw", "o3+RWnHViSg", "JdksQu8pNdQ", "aS66RI0gGgo", "o9eWRkSL+M4", "UbQoYawOsfY",
     "9y5v+fGN4Wk", "HD1YKVU26-M", "w5moABNwnRY", "k-q+xOxdc3E", "eBTreZ84JFY", "OVths0xGfho",
-    "ET4Gr-Uu07s", "ZC17w3vB5Lo", "hdTyRzCXQeQ"};
+    "ET4Gr-Uu07s", "ZC17w3vB5Lo", "hdTyRzCXQeQ", "XC9wM+xULz8"};
 bool IsAvPlayerNid(std::string_view nid);
 
 // The native decoder sees only host buffers and host callbacks. Each player has

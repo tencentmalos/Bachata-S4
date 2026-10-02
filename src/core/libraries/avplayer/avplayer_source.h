@@ -160,6 +160,7 @@ public:
     bool Stop();
     void Pause();
     void Resume();
+    bool JumpToTime(u64 time_ms);
     bool GetAudioData(AvPlayerFrameInfo& audio_info);
     bool GetVideoData(AvPlayerFrameInfo& video_info);
     bool GetVideoData(AvPlayerFrameInfoEx& video_info);
@@ -189,6 +190,7 @@ private:
     void AudioDecoderThread(std::stop_token stop);
 
     bool HasRunningThreads() const;
+    void StartThreads();
 
     AVFramePtr ConvertAudioFrame(const AVFrame& frame);
     AVFramePtr ConvertVideoFrame(const AVFrame& frame);
@@ -213,6 +215,10 @@ private:
     std::atomic_bool m_is_paused = false;
     std::atomic_bool m_is_eof = false;
     std::atomic_bool m_video_done{true}, m_audio_done{true};
+    // Decoded frames before the last jump target are dropped instead of being shown
+    // late; IsActive stays true while the decoder threads are restarted.
+    std::atomic<u64> m_skip_before{0};
+    std::atomic_bool m_jumping = false;
 
     std::unique_ptr<IDataStreamer> m_up_data_streamer;
 

@@ -345,6 +345,12 @@ bool AvPlayerSource::Start() {
         }
     }
     m_start_time = std::chrono::high_resolution_clock::now();
+    m_skip_before = 0;
+    StartThreads();
+    return true;
+}
+
+void AvPlayerSource::StartThreads() {
     m_is_eof = false;
     m_video_done = !m_video_stream_index.has_value();
     m_audio_done = !m_audio_stream_index.has_value();
@@ -359,7 +365,64 @@ bool AvPlayerSource::Start() {
             m_audio_done = true;
         });
     m_demuxer_thread.Run([this](std::stop_token stop) { DemuxerThread(stop); });
-    return true;
+}
+
+bool AvPlayerSource::JumpToTime(u64 time_ms) {
+    Common::Profiler::Scope profile{"AvPlayer.JumpToTime"};
+    std::unique_lock lock(m_state_mutex);
+    const auto seek_index = m_video_stream_index ? m_video_stream_index : m_audio_stream_index;
+    if (!m_start_time.has_value() || !seek_index.has_value() || m_avformat_context == nullptr) {
+        return false;
+    }
+    m_jumping = true;
+    struct ClearJumping {
+        std::atomic_bool& flag;
+        ~ClearJumping() {
+            flag = false;
+        }
+    } clear_jumping{m_jumping};
+    m_video_decoder_thread.Stop();
+    m_audio_decoder_thread.Stop();
+    m_demuxer_thread.Stop();
+
+    // The frame the game currently holds stays owned until its next GetVideoData/GetAudioData.
+    m_video_packets.Clear();
+    m_audio_packets.Clear();
+    while (auto frame = m_video_frames.Pop()) {
+        m_video_buffers.Push(std::move(frame->buffer));
+    }
+    while (auto frame = m_audio_frames.Pop()) {
+        m_audio_buffers.Push(std::move(frame->buffer));
+    }
+    if (m_video_codec_context) {
+        avcodec_flush_buffers(m_video_codec_context.get());
+    }
+    if (m_audio_codec_context) {
+        avcodec_flush_buffers(m_audio_codec_context.get());
+    }
+
+    // Stream indices hold FFmpeg stream numbers (see EnableStream and the demuxer).
+    const auto stream = m_avformat_context->streams[seek_index.value()];
+    const auto target = av_rescale_q(s64(std::min<u64>(time_ms, INT64_MAX / 1000)),
+                                     AVRational{1, 1000}, stream->time_base);
+    // Land on the keyframe at or before the target; the decoders drop frames before it.
+    const int res = avformat_seek_file(m_avformat_context.get(), seek_index.value(), INT64_MIN,
+                                       target, target, 0);
+    if (res < 0) {
+        LOG_ERROR(Lib_AvPlayer, "Could not jump to {} ms: {}", time_ms, av_err2str(res));
+    } else {
+        LOG_INFO(Lib_AvPlayer, "Jumped to {} ms", time_ms);
+        m_skip_before = time_ms;
+        const auto now = std::chrono::high_resolution_clock::now();
+        m_start_time = now - std::chrono::milliseconds(time_ms);
+        m_last_audio_ts = time_ms;
+        m_last_data_time = now;
+        m_pause_time = now;
+        m_pause_duration = {};
+    }
+    // Even a failed seek keeps playing from wherever the demuxer is now.
+    StartThreads();
+    return res >= 0;
 }
 
 bool AvPlayerSource::Stop() {
@@ -547,7 +610,7 @@ u64 AvPlayerSource::CurrentTime() {
 }
 
 bool AvPlayerSource::IsActive() {
-    return !m_is_eof || !m_video_done || !m_audio_done || m_audio_packets.Size() != 0 ||
+    return m_jumping || !m_is_eof || !m_video_done || !m_audio_done || m_audio_packets.Size() != 0 ||
            m_video_packets.Size() != 0 || m_video_frames.Size() != 0 || m_audio_frames.Size() != 0;
 }
 
@@ -644,6 +707,11 @@ void AvPlayerSource::DemuxerThread(std::stop_token stop) {
         }
     }
 
+    if (stop.stop_requested()) {
+        // Stop and JumpToTime join the decoders first and reset the stream state themselves.
+        LOG_INFO(Lib_AvPlayer, "Demuxer Thread stopped");
+        return;
+    }
     m_is_eof = true;
 
     m_video_packets_cv.Notify();
@@ -813,6 +881,11 @@ void AvPlayerSource::VideoDecoderThread(std::stop_token stop) {
                     m_state.OnError();
                     return;
                 }
+                const auto stream = m_avformat_context->streams[m_video_stream_index.value()];
+                if (FrameTimestampMillis(*up_frame, stream->time_base) < m_skip_before) {
+                    m_video_buffers.Push(std::move(buffer.value()));
+                    continue;
+                }
                 if (up_frame->format != AV_PIX_FMT_NV12) {
                     const auto nv12_frame = ConvertVideoFrame(*up_frame);
                     if (nv12_frame == nullptr) {
@@ -949,6 +1022,11 @@ void AvPlayerSource::AudioDecoderThread(std::stop_token stop) {
                         buffer->Size()) {
                     m_state.OnError();
                     return;
+                }
+                const auto stream = m_avformat_context->streams[m_audio_stream_index.value()];
+                if (FrameTimestampMillis(*up_frame, stream->time_base) < m_skip_before) {
+                    m_audio_buffers.Push(std::move(buffer.value()));
+                    continue;
                 }
                 if (up_frame->format != AV_SAMPLE_FMT_S16) {
                     const auto pcm16_frame = ConvertAudioFrame(*up_frame);
