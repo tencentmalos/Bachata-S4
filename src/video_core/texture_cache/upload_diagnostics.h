@@ -113,6 +113,10 @@ inline std::atomic<bool> stream_host{true};
 // over stream_host; on by default where available (`upload_diag stream_dma on|off`).
 inline std::atomic<bool> stream_dma{true};
 inline std::atomic<u64> stream_dma_submits{0}, stream_dma_bytes{0}, stream_dma_regions{0};
+// Sampled-image bindings reuse FindImage's result for the same T# while the texture cache's
+// image set is unchanged (`upload_diag texture_bind_cache on|off`, on by default).
+inline std::atomic<bool> texture_bind_cache{true};
+inline std::atomic<u64> texture_bind_hits{0}, texture_bind_misses{0};
 // Reads of streamed buffers also go through the barrier tracker (`upload_diag stream_barriers
 // on|off`, off by default): an A/B switch for the earlier behaviour.
 inline std::atomic<bool> stream_barriers{false};

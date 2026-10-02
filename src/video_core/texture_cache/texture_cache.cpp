@@ -1694,6 +1694,7 @@ void TextureCache::RegisterImage(ImageId image_id) {
     image.lru_id = lru_cache.Insert(image_id, gc_tick);
     ForEachPage(image.info.guest_address, image.info.guest_size,
                 [this, image_id](u64 page) { page_table[page].push_back(image_id); });
+    image_set_generation.fetch_add(1, std::memory_order_acq_rel);
 }
 
 void TextureCache::UnregisterImage(ImageId image_id) {
@@ -1701,6 +1702,7 @@ void TextureCache::UnregisterImage(ImageId image_id) {
     ASSERT_MSG(True(image.flags & ImageFlagBits::Registered),
                "Trying to unregister an already unregistered image");
     image.flags &= ~ImageFlagBits::Registered;
+    image_set_generation.fetch_add(1, std::memory_order_acq_rel);
     lru_cache.Free(image.lru_id);
     total_used_memory -= Common::AlignUp(image.info.guest_size, 1024);
     ForEachPage(image.info.guest_address, image.info.guest_size, [this, image_id](u64 page) {
@@ -2041,6 +2043,21 @@ void TextureCache::RunGarbageCollector() {
 
 void TextureCache::TouchImage(const Image& image) {
     lru_cache.Touch(image.lru_id, gc_tick);
+}
+
+bool TextureCache::TouchFoundTexture(ImageId image_id) {
+    // The rest of FindImage (streaming and storage promotions) only acts on a first lookup:
+    // the same descriptor against the same image set changes nothing more.
+    std::scoped_lock lock{mutex};
+    if (!slot_images.is_allocated(image_id) ||
+        False(slot_images[image_id].flags & ImageFlagBits::Registered)) {
+        return false;
+    }
+    Image& image = slot_images[image_id];
+    image.ObserveUsage(BindingType::Texture);
+    image.tick_accessed_last = scheduler.CurrentTick();
+    TouchImage(image);
+    return true;
 }
 
 void TextureCache::ReleaseImageMetas(const Image& image) {

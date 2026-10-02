@@ -352,6 +352,12 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("stream_host={} (streamed data in {} memory)\n", args[1],
                            args[1] == "on" ? "host" : "device");
     }
+    if (sub == "texture_bind_cache" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        texture_bind_cache.store(args[1] == "on");
+        return fmt::format("texture_bind_cache={} (sampled-image lookups {}); hits={} misses={}\n",
+                           args[1], args[1] == "on" ? "reused per T#" : "resolved every draw",
+                           texture_bind_hits.load(), texture_bind_misses.load());
+    }
     if (sub == "stream_dma" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         stream_dma.store(args[1] == "on");
         return fmt::format("stream_dma={} (streamed data {})\n", args[1],
@@ -389,7 +395,8 @@ std::string Command(const std::vector<std::string>& args) {
     return "status=bad_arguments usage: start [log_lines] | status | stop | "
            "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
            "watch_predict on|off | keep_gpu on|off | read_cache on|off | stream_barriers on|off | "
-           "stream_max <bytes> | stream_host on|off | stream_dma on|off\n";
+           "stream_max <bytes> | stream_host on|off | stream_dma on|off | "
+           "texture_bind_cache on|off\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

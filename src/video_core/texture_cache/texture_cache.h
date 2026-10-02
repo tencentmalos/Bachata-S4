@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -245,6 +246,17 @@ public:
         return slot_image_views[id];
     }
 
+    /// Changes whenever an image is registered or unregistered, i.e. whenever FindImage could
+    /// resolve the same descriptor to another image.
+    [[nodiscard]] u64 ImageSetGeneration() const noexcept {
+        return image_set_generation.load(std::memory_order_acquire);
+    }
+
+    /// FindImage's per-use bookkeeping, for a sampled image the caller found with FindImage
+    /// earlier in the current ImageSetGeneration. False when the image has been freed since
+    /// (another thread unmapped it): the caller looks it up again.
+    bool TouchFoundTexture(ImageId image_id);
+
     /// Get the associated depth stencil image if it is still valid.
     ImageId GetAssociatedDepth(Image& image) {
         if (!image.depth_id) {
@@ -485,6 +497,7 @@ private:
     Common::LeastRecentlyUsedCache<u64, u64> sampler_lru_cache;
     bool readback_linear_images;
     PageTable page_table;
+    std::atomic<u64> image_set_generation{};
     std::mutex mutex;
     std::mutex samplers_mutex;
     std::mutex download_images_mutex;

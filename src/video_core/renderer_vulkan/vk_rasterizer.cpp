@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cstring>
 #include <cmath>
+#include <xxhash.h>
 
 #include "common/debug.h"
 #include "video_core/renderdoc.h"
@@ -2057,18 +2058,39 @@ void Rasterizer::NoteDispatchDiagnostics(const Shader::Info& cs,
     }
 }
 
+size_t Rasterizer::TextureBindKeyHash::operator()(const TextureBindKey& key) const noexcept {
+    return XXH3_64bits(&key, sizeof(key));
+}
+
+namespace {
+// Every field of a shader image resource that ImageDesc or FindImage depends on.
+u32 TextureBindResource(const Shader::ImageResource& desc) {
+    return u32(desc.is_depth) | u32(desc.is_atomic) << 1 | u32(desc.is_array) << 2 |
+           u32(desc.is_r128) << 3 | u32(desc.requires_native_scale) << 4 |
+           u32(desc.constant_mip_index) << 8 | u32(desc.mip_fallback_mode) << 16 |
+           u32(desc.post_op) << 24;
+}
+constexpr size_t MaxTextureBinds = 4096;
+} // namespace
+
 void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindings& binding) {
+    static_assert(std::has_unique_object_representations_v<TextureBindKey>);
     image_bindings.clear();
     const u32 first_image_idx = image_infos.size();
     // To emulate storing to explicit mip levels, build a descriptor array with each mip level.
     boost::container::small_vector<u32, 8> image_descriptor_array_sizes;
+    // A cached resolution stays valid while no image was registered or unregistered.
+    const auto refresh_texture_binds = [this] {
+        const u64 generation = texture_cache.ImageSetGeneration();
+        if (generation != texture_binds_generation || texture_binds.size() >= MaxTextureBinds) {
+            texture_binds.clear();
+            texture_binds_generation = generation;
+        }
+    };
+    refresh_texture_binds();
 
     for (const auto& image_desc : stage.images) {
         const auto tsharp = image_desc.GetSharp(stage);
-        if (texture_cache.IsMeta(tsharp.Address())) {
-            LOG_WARNING(Render_Vulkan, "Unexpected metadata read by a shader (texture)");
-        }
-
         const auto data_fmt = tsharp.GetDataFmt();
         const auto num_fmt = tsharp.GetNumberFmt();
         if (tsharp.Address() == 0 || data_fmt == AmdGpu::DataFormat::FormatInvalid) {
@@ -2077,35 +2099,79 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
             continue;
         }
 
-        if (!memory->IsValidGpuMapping(tsharp.Address(), 0) ||
-            !magic_enum::enum_contains(data_fmt) || !magic_enum::enum_contains(num_fmt)) {
-            LOG_WARNING(Render_Vulkan,
-                        "Rejecting invalid T# address={:#x}, pitch={}, width={}, "
-                        "data_format={}, num_format={}",
-                        tsharp.Address(), tsharp.pitch, tsharp.width, static_cast<u32>(data_fmt),
-                        static_cast<u32>(num_fmt));
-            image_bindings.emplace_back(std::piecewise_construct, std::tuple{}, std::tuple{});
-            image_descriptor_array_sizes.push_back(1);
-            continue;
+        // Storage bindings always take FindImage: it promotes and tracks them on every use.
+        const bool cacheable =
+            !image_desc.is_written &&
+            VideoCore::UploadDiagnostics::texture_bind_cache.load(std::memory_order_relaxed);
+        TextureBindKey key{std::bit_cast<std::array<u64, 4>>(tsharp),
+                           TextureBindResource(image_desc), 0};
+        // A T# with a cached resolution passed these checks when it was resolved; an unmap
+        // since then would have unregistered its image.
+        if (!cacheable || texture_binds.find(key) == texture_binds.end()) {
+            if (texture_cache.IsMeta(tsharp.Address())) {
+                LOG_WARNING(Render_Vulkan, "Unexpected metadata read by a shader (texture)");
+            }
+            if (!memory->IsValidGpuMapping(tsharp.Address(), 0) ||
+                !magic_enum::enum_contains(data_fmt) || !magic_enum::enum_contains(num_fmt)) {
+                LOG_WARNING(Render_Vulkan,
+                            "Rejecting invalid T# address={:#x}, pitch={}, width={}, "
+                            "data_format={}, num_format={}",
+                            tsharp.Address(), tsharp.pitch, tsharp.width,
+                            static_cast<u32>(data_fmt), static_cast<u32>(num_fmt));
+                image_bindings.emplace_back(std::piecewise_construct, std::tuple{}, std::tuple{});
+                image_descriptor_array_sizes.push_back(1);
+                continue;
+            }
         }
 
         const Shader::MipStorageFallbackMode mip_fallback_mode = image_desc.mip_fallback_mode;
         const u32 num_bindings = image_desc.NumBindings(stage);
 
-        for (auto i = 0; i < num_bindings; i++) {
-            auto& [image_id, desc] = image_bindings.emplace_back(
-                std::piecewise_construct, std::tuple{}, std::tuple{tsharp, image_desc});
-
-            if (mip_fallback_mode == Shader::MipStorageFallbackMode::ConstantIndex) {
-                ASSERT(num_bindings == 1);
-                desc.view_info.range.base.level += image_desc.constant_mip_index;
-                desc.view_info.range.extent.levels = 1;
-            } else if (mip_fallback_mode == Shader::MipStorageFallbackMode::DynamicIndex) {
-                desc.view_info.range.base.level += i;
-                desc.view_info.range.extent.levels = 1;
+        for (u32 i = 0; i < num_bindings; i++) {
+            key.element = i;
+            auto cached = cacheable ? texture_binds.find(key) : texture_binds.end();
+            if (cached != texture_binds.end()) {
+                if (const u64 tick = scheduler.CurrentTick(); cached->second.touched_tick != tick) {
+                    if (texture_cache.TouchFoundTexture(cached->second.binding.first)) {
+                        cached.value().touched_tick = tick;
+                    } else {
+                        // Unmapped by another thread since: nothing to sample for this draw,
+                        // and later draws resolve (and check) every T# again.
+                        texture_binds.clear();
+                        image_bindings.emplace_back(std::piecewise_construct, std::tuple{},
+                                                    std::tuple{});
+                        continue;
+                    }
+                }
             }
-
-            image_id = texture_cache.FindImage(desc);
+            if (cached != texture_binds.end()) {
+                image_bindings.emplace_back(cached->second.binding);
+                VideoCore::UploadDiagnostics::texture_bind_hits.fetch_add(
+                    1, std::memory_order_relaxed);
+            } else {
+                if (cacheable) {
+                    VideoCore::UploadDiagnostics::texture_bind_misses.fetch_add(
+                        1, std::memory_order_relaxed);
+                }
+                auto& [found_id, desc] = image_bindings.emplace_back(
+                    std::piecewise_construct, std::tuple{}, std::tuple{tsharp, image_desc});
+                if (mip_fallback_mode == Shader::MipStorageFallbackMode::ConstantIndex) {
+                    ASSERT(num_bindings == 1);
+                    desc.view_info.range.base.level += image_desc.constant_mip_index;
+                    desc.view_info.range.extent.levels = 1;
+                } else if (mip_fallback_mode == Shader::MipStorageFallbackMode::DynamicIndex) {
+                    desc.view_info.range.base.level += i;
+                    desc.view_info.range.extent.levels = 1;
+                }
+                found_id = texture_cache.FindImage(desc);
+                if (cacheable) {
+                    // FindImage may have changed the image set, invalidating earlier entries.
+                    refresh_texture_binds();
+                    texture_binds.emplace(key,
+                                          TextureBind{image_bindings.back(), scheduler.CurrentTick()});
+                }
+            }
+            auto& image_id = image_bindings.back().first;
             auto* image = &texture_cache.GetImage(image_id);
             if (auto depth_image_id = texture_cache.GetAssociatedDepth(*image)) {
                 // If this image has an associated depth image, it's a stencil attachment.

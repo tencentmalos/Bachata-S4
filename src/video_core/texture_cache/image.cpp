@@ -609,12 +609,16 @@ ImageView& Image::FindView(const ImageViewInfo& view_info, bool ensure_guest_sam
         SetBackingSamples(info.num_samples);
     }
     const auto& view_infos = backing->image_view_infos;
+    if (backing->last_view < view_infos.size() && view_infos[backing->last_view] == view_info) {
+        return (*slot_image_views)[backing->image_view_ids[backing->last_view]];
+    }
     const auto it = std::ranges::find(view_infos, view_info);
     if (it != view_infos.end()) {
-        const auto view_id = backing->image_view_ids[std::distance(view_infos.begin(), it)];
-        return (*slot_image_views)[view_id];
+        backing->last_view = static_cast<u32>(std::distance(view_infos.begin(), it));
+        return (*slot_image_views)[backing->image_view_ids[backing->last_view]];
     }
     const auto view_id = slot_image_views->insert(*instance, view_info, *this);
+    backing->last_view = static_cast<u32>(view_infos.size());
     backing->image_view_infos.emplace_back(view_info);
     backing->image_view_ids.emplace_back(view_id);
     return (*slot_image_views)[view_id];

@@ -228,6 +228,23 @@ private:
 
     using ImageBindingInfo = std::pair<VideoCore::ImageId, VideoCore::TextureCache::ImageDesc>;
     boost::container::static_vector<ImageBindingInfo, Shader::NUM_IMAGES> image_bindings;
+    // Sampled-image bindings already resolved by FindImage, by fetched T#, shader image resource
+    // and array element. Valid while the texture cache's image set is unchanged (generation).
+    struct TextureBindKey {
+        std::array<u64, 4> sharp;
+        u32 resource;
+        u32 element;
+        bool operator==(const TextureBindKey&) const noexcept = default;
+    };
+    struct TextureBindKeyHash {
+        size_t operator()(const TextureBindKey& key) const noexcept;
+    };
+    struct TextureBind {
+        ImageBindingInfo binding;
+        u64 touched_tick; // FindImage's per-use bookkeeping is redone once per scheduler tick.
+    };
+    tsl::robin_map<TextureBindKey, TextureBind, TextureBindKeyHash> texture_binds;
+    u64 texture_binds_generation{~u64{0}};
     bool fault_process_pending{};
     bool attachment_feedback_loop{};
     bool needs_barrier{};
