@@ -137,14 +137,20 @@ std::vector<u32> Vertex(const Case& test) {
                     std::array{id, position, packed, ordinary});
     return c.Assemble();
 }
-std::vector<u32> Fragment(bool negative, u32 mode) {
+// khr: the same fragment emitter on the driver's VK_KHR_fragment_shader_barycentric, no GS.
+std::vector<u32> Fragment(bool negative, u32 mode, bool khr) {
     Profile p{};
     p.supported_spirv = 0x10500;
-    p.emulate_fragment_interpolation = true;
+    p.emulate_fragment_interpolation = !khr;
+    p.supports_fragment_shader_barycentric = khr;
     auto info = FragmentInfo();
     auto r = FragmentRuntime();
     Shader::Backend::Bindings bindings{};
     EmitContext c(p, r, info, bindings);
+    if (khr) {
+        c.AddExtension("SPV_KHR_fragment_shader_barycentric");
+        c.AddCapability(spv::Capability::FragmentBarycentricKHR);
+    }
     c.AddCapability(spv::Capability::Int8);
     c.AddCapability(spv::Capability::Int16);
     c.AddCapability(spv::Capability::InterpolationFunction);
@@ -276,6 +282,11 @@ int Run(int argc, char** argv) {
             d.createShaderModuleUnique({.codeSize = words.size() * 4, .pCode = words.data()}));
     };
     const bool negative = std::getenv("INTERPOLATION_NEGATIVE") != nullptr;
+    const bool khr = std::getenv("INTERPOLATION_KHR") != nullptr;
+    printf("mode=%s driver_barycentric=%d\n", khr ? "khr" : "software-gs",
+           instance.IsFragmentShaderBarycentricSupported());
+    if (khr && !instance.IsFragmentShaderBarycentricSupported())
+        return 3;
 
     auto cp = Vulkan::Check(
         d.createCommandPoolUnique({.queueFamilyIndex = instance.GetGraphicsQueueFamilyIndex()}));
@@ -298,21 +309,25 @@ int Run(int argc, char** argv) {
                           {"raw-all-ones", false, false, 4, 0xffffffffu}};
     unsigned checks = 0, failures = 0;
     for (const auto& test : cases) {
-        auto fs = module(Fragment(negative, test.mode), std::string(test.name) + "-fragment");
+        auto fs = module(Fragment(negative, test.mode, khr), std::string(test.name) + "-fragment");
         auto vs = module(Vertex(test), test.name);
-        auto vi = VertexInfo();
-        auto vr = VertexRuntime(test);
-        auto fi = FragmentInfo();
-        auto fr = FragmentRuntime();
-        auto gs = module(EmitSoftwareInterpolationGeometry(vi, vr, fi, fr.hw.fs, 128, 1024),
-                         std::string(test.name) + "-geometry");
-        std::array stages{
-            vk::PipelineShaderStageCreateInfo{
-                .stage = vk::ShaderStageFlagBits::eGeometry, .module = *gs, .pName = "main"},
+        std::vector<vk::PipelineShaderStageCreateInfo> stages{
             vk::PipelineShaderStageCreateInfo{
                 .stage = vk::ShaderStageFlagBits::eVertex, .module = *vs, .pName = "main"},
             vk::PipelineShaderStageCreateInfo{
                 .stage = vk::ShaderStageFlagBits::eFragment, .module = *fs, .pName = "main"}};
+        vk::UniqueShaderModule gs;
+        if (!khr) {
+            auto vi = VertexInfo();
+            auto vr = VertexRuntime(test);
+            auto fi = FragmentInfo();
+            auto fr = FragmentRuntime();
+            gs = module(EmitSoftwareInterpolationGeometry(vi, vr, fi, fr.hw.fs, 128, 1024),
+                        std::string(test.name) + "-geometry");
+            stages.push_back({.stage = vk::ShaderStageFlagBits::eGeometry,
+                              .module = *gs,
+                              .pName = "main"});
+        }
         vk::PipelineVertexInputStateCreateInfo vertex{};
         vk::PipelineInputAssemblyStateCreateInfo ia{.topology =
                                                         vk::PrimitiveTopology::eTriangleList};
@@ -341,7 +356,7 @@ int Run(int argc, char** argv) {
                                                    .depthCompareOp = vk::CompareOp::eAlways};
         auto pipeline =
             Vulkan::Check(d.createGraphicsPipelineUnique({}, {.pNext = &rendering,
-                                                              .stageCount = 3,
+                                                              .stageCount = u32(stages.size()),
                                                               .pStages = stages.data(),
                                                               .pVertexInputState = &vertex,
                                                               .pInputAssemblyState = &ia,
