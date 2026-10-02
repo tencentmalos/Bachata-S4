@@ -202,7 +202,11 @@ def build(args):
                 b"counterexamples") < 0:
             raise ValueError("Mesa requires modern Bison (on macOS: brew install bison flex)")
         native = build_root / "native"
+        # android-strict hides extensions newer than the platform-sdk-version CTS allowlist;
+        # the emulator bundles Turnip on API 33 devices and needs everything Turnip implements
+        # (e.g. VK_KHR_fragment_shader_barycentric, VK_KHR_maintenance8).
         options = ["--buildtype=release", "-Dplatforms=android", "-Dandroid-stub=true",
+                   "-Dandroid-strict=false",
                    "-Dandroid-libbacktrace=disabled", f"-Dplatform-sdk-version={api}",
                    "-Dvulkan-drivers=freedreno", "-Dfreedreno-kmds=kgsl", "-Dgallium-drivers=",
                    "-Degl=disabled", "-Dgles1=disabled", "-Dgles2=disabled", "-Dopengl=false",
