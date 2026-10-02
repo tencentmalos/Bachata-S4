@@ -119,6 +119,8 @@ public:
     float gyro_buf[3] = {0.0f, 0.0f, 0.0f}, accel_buf[3] = {0.0f, 9.81f, 0.0f};
     s32 user_id = Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_INVALID;
     SDL_Gamepad* m_sdl_gamepad = nullptr;
+    // Set by the first button press from the attached gamepad.
+    bool m_seen_input = false;
 
 private:
     // m_state_mutex must be held by the caller.
@@ -153,6 +155,10 @@ public:
     }
     void TryOpenSDLControllers();
     u8 GetGamepadIndexFromJoystickId(SDL_JoystickID id);
+    // A gamepad pressing a button while Player 1's gamepad has never produced input
+    // takes Player 1's slot: SDL enumeration order puts virtual pads (e.g. ViGEm
+    // mirrors) or a later-connected device first just as often as the one in use.
+    void NoteButtonDown(SDL_JoystickID id);
     static std::optional<u8> GetControllerIndexFromUserID(s32 user_id);
     static std::optional<u8> GetControllerIndexFromControllerID(s32 controller_id);
 

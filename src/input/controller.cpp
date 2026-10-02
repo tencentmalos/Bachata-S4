@@ -360,8 +360,8 @@ void GameControllers::TryOpenSDLControllers() {
                               // Player N won't be registered at all
                 }
                 auto* c = controllers[i];
-                LOG_INFO(Input, "Gamepad registered for slot {}! Handle: {}", i,
-                         SDL_GetGamepadID(pad));
+                LOG_INFO(Input, "Gamepad registered for slot {}! Handle: {} Name: {}", i,
+                         SDL_GetGamepadID(pad), SDL_GetGamepadName(pad));
                 slot_taken[i] = true;
                 c->user_id = u->user_id;
                 UserManagement.LoginUser(u, i + 1);
@@ -400,6 +400,29 @@ void GameControllers::TryOpenSDLControllers() {
     SDL_free(new_joysticks);
 #endif // !__ANDROID__
 }
+void GameControllers::NoteButtonDown(SDL_JoystickID id) {
+#ifdef __ANDROID__
+    (void)id;
+#else
+    const u8 index = GetGamepadIndexFromJoystickId(id);
+    if (index > 4)
+        return;
+    auto* first = controllers[0];
+    auto* source = controllers[index];
+    if (index != 0 && first->m_sdl_gamepad && !first->m_seen_input && source->m_sdl_gamepad) {
+        SDL_Gamepad* idle = first->m_sdl_gamepad;
+        SDL_Gamepad* active = source->m_sdl_gamepad;
+        LOG_INFO(Input, "Player 1 gamepad is now '{}' (first input); '{}' moves to slot {}",
+                 SDL_GetGamepadName(active), SDL_GetGamepadName(idle), index);
+        first->ConnectController(active);
+        source->ConnectController(idle);
+        source->m_seen_input = false;
+        source = first;
+    }
+    source->m_seen_input = true;
+#endif
+}
+
 u8 GameControllers::GetGamepadIndexFromJoystickId(SDL_JoystickID id) {
 #ifdef __ANDROID__
     // No SDL joystick IDs on Android; this is only used by SDL event handling.

@@ -408,6 +408,9 @@ void WindowSDL::OnKeyboardMouseInput(const SDL_Event* event) {
 void WindowSDL::OnGamepadEvent(const SDL_Event* event) {
     bool input_down = event->type == SDL_EVENT_GAMEPAD_AXIS_MOTION ||
                       event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN;
+    if (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
+        controllers.NoteButtonDown(event->gbutton.which);
+    }
     Input::InputEvent input_event = Input::InputBinding::GetInputEventFromSDLEvent(*event);
 
     // the touchpad button shouldn't be rebound to anything else,
