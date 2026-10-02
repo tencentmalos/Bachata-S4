@@ -851,6 +851,7 @@ void TextureCache::UnmapMemory(VAddr cpu_addr, size_t size) {
         // TODO: Download image data back to host.
         FreeImage(id);
     }
+    ReleaseParkedImages(cpu_addr, size, ~u64{0});
 }
 
 ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, BindingType binding,
@@ -901,8 +902,17 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
     if (recreate) {
         auto new_info = requested_info;
         new_info.resources = std::max(requested_info.resources, cache_image.info.resources);
-        const auto new_image_id =
-            slot_images.insert(instance, scheduler, blit_helper, slot_image_views, new_info, this);
+        // Same surface, only reinterpreted between depth and color: the image replaced here is
+        // likely the one the next conversion back needs.
+        const bool twin = new_info.props.is_depth != cache_image.info.props.is_depth &&
+                          new_info.resources == cache_image.info.resources &&
+                          new_info.size == cache_image.info.size &&
+                          new_info.num_samples == cache_image.info.num_samples;
+        ImageId new_image_id = twin ? TakeParkedImage(new_info) : ImageId{};
+        if (!new_image_id) {
+            new_image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views,
+                                              new_info, this);
+        }
         RegisterImage(new_image_id);
         // The insertion may have grown slot_images, invalidating the cache_image reference.
         auto& source_image = slot_images[cache_image_id];
@@ -916,8 +926,11 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
 
         runtime.CopyColorAndDepth(&source_image, &new_image);
 
-        // Free the cache image.
-        FreeImage(cache_image_id);
+        if (twin) {
+            ParkImage(cache_image_id);
+        } else {
+            FreeImage(cache_image_id);
+        }
         return new_image_id;
     }
 
@@ -2007,6 +2020,13 @@ void TextureCache::RunGarbageCollector() {
         ++gc_tick;
     };
 
+    {
+        std::scoped_lock lock{mutex};
+        if (!parked_images.empty()) {
+            const bool pressured = total_used_memory >= pressure_gc_memory;
+            ReleaseParkedImages(0, 0, pressured ? 0 : ParkedImageMaxAge);
+        }
+    }
     GarbageCollectIdleAssets();
     GarbageCollectImages();
     GarbageCollectSamplers();
@@ -2016,12 +2036,7 @@ void TextureCache::TouchImage(const Image& image) {
     lru_cache.Touch(image.lru_id, gc_tick);
 }
 
-void TextureCache::DeleteImage(ImageId image_id) {
-    Image& image = slot_images[image_id];
-    ASSERT_MSG(!image.IsTracked(), "Image was not untracked");
-    ASSERT_MSG(False(image.flags & ImageFlagBits::Registered), "Image was not unregistered");
-
-    // Remove any registered meta areas.
+void TextureCache::ReleaseImageMetas(const Image& image) {
     const auto& meta_info = image.info.meta_info;
     if (meta_info.cmask_addr) {
         surface_metas.erase(meta_info.cmask_addr);
@@ -2032,6 +2047,66 @@ void TextureCache::DeleteImage(ImageId image_id) {
     if (meta_info.htile_addr) {
         surface_metas.erase(meta_info.htile_addr);
     }
+}
+
+void TextureCache::ParkImage(ImageId image_id) {
+    UntrackImage(image_id);
+    UnregisterImage(image_id);
+    ReleaseImageMetas(slot_images[image_id]);
+    {
+        std::unique_lock lk{download_images_mutex};
+        download_images.erase(image_id);
+    }
+    parked_images.push_back({image_id, gc_tick});
+    if (parked_images.size() > MaxParkedImages) {
+        DeleteImage(parked_images.front().id);
+        parked_images.erase(parked_images.begin());
+    }
+}
+
+ImageId TextureCache::TakeParkedImage(const ImageInfo& info) {
+    const auto it = std::ranges::find_if(parked_images, [&](const ParkedImage& parked) {
+        const auto& other = slot_images[parked.id].info;
+        return other.guest_address == info.guest_address && other.guest_size == info.guest_size &&
+               other.pixel_format == info.pixel_format && other.type == info.type &&
+               other.size == info.size && other.pitch == info.pitch &&
+               other.resources == info.resources && other.num_samples == info.num_samples &&
+               other.num_bits == info.num_bits && other.props.is_depth == info.props.is_depth &&
+               other.props.has_stencil == info.props.has_stencil &&
+               other.tile_mode == info.tile_mode && other.bank_swizzle == info.bank_swizzle &&
+               other.alt_tile == info.alt_tile;
+    });
+    if (it == parked_images.end()) {
+        return {};
+    }
+    const ImageId image_id = it->id;
+    parked_images.erase(it);
+    // Same state as a newly inserted image whose contents are about to be copied in.
+    slot_images[image_id].flags = ImageFlagBits::Empty;
+    slot_images[image_id].NoteWrite();
+    return image_id;
+}
+
+void TextureCache::ReleaseParkedImages(VAddr address, u64 size, u64 max_age) {
+    std::erase_if(parked_images, [&](const ParkedImage& parked) {
+        const auto& info = slot_images[parked.id].info;
+        const bool overlaps = size && info.guest_address < address + size &&
+                              address < info.guest_address + info.guest_size;
+        if (!overlaps && gc_tick - parked.tick <= max_age) {
+            return false;
+        }
+        DeleteImage(parked.id);
+        return true;
+    });
+}
+
+void TextureCache::DeleteImage(ImageId image_id) {
+    Image& image = slot_images[image_id];
+    ASSERT_MSG(!image.IsTracked(), "Image was not untracked");
+    ASSERT_MSG(False(image.flags & ImageFlagBits::Registered), "Image was not unregistered");
+
+    // Remove any registered meta areas.
+    ReleaseImageMetas(image);
 
     {
         std::unique_lock lk{download_images_mutex};

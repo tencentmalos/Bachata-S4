@@ -431,6 +431,18 @@ private:
         DeleteImage(image_id);
     }
 
+    /// Drops the surface metas registered by the image.
+    void ReleaseImageMetas(const Image& image);
+
+    /// A depth <-> color reinterpretation of one surface can alternate every frame (e.g. a
+    /// shadow atlas written by compute and then rendered as depth). The replaced image is
+    /// parked, unregistered but alive, so the next conversion back reuses it instead of
+    /// allocating a new one. Parked contents are never read: reuse overwrites all of them.
+    void ParkImage(ImageId image_id);
+    ImageId TakeParkedImage(const ImageInfo& info);
+    /// Deletes parked images overlapping [address, address + size) or older than max_age ticks.
+    void ReleaseParkedImages(VAddr address, u64 size, u64 max_age);
+
     void GarbageCollectImages();
     void GarbageCollectIdleAssets();
     void GarbageCollectSamplers();
@@ -476,6 +488,13 @@ private:
     std::mutex mutex;
     std::mutex samplers_mutex;
     std::mutex download_images_mutex;
+    struct ParkedImage {
+        ImageId id;
+        u64 tick;
+    };
+    std::vector<ParkedImage> parked_images; // guarded by mutex
+    static constexpr size_t MaxParkedImages = 4;
+    static constexpr u64 ParkedImageMaxAge = 240; // submissions
     struct MetaDataInfo {
         MetaType type;
         s32 clear_mask = -1;
