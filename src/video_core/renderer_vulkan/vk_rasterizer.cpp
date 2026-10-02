@@ -3,6 +3,7 @@
 
 #include "common/profiler.h"
 #include "video_core/renderer_vulkan/vk_pipeline_stats.h"
+#include <boost/container/static_vector.hpp>
 #include <atomic>
 #include <bit>
 #include <chrono>
@@ -661,7 +662,7 @@ void Rasterizer::DispatchDirect() {
                                        "raw image copy");
         return;
     }
-    if (TryComputeImageFill(cs, cs_program)) {
+    if (TryComputeImageFill(cs, cs_program) || TryComputeConstantFill(cs, cs_program)) {
         if (HostMarkersEnabled())
             scheduler.Label("shadps4.dispatch.replaced by=image-fill-clear");
         if (tracing)
@@ -1537,6 +1538,23 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
     }
 }
 
+// The guest buffer bindings of a kernel, without the recompiler's internal buffers (flattened
+// user data, BDA page table, fault buffer) that pointer reads add.
+static boost::container::static_vector<const Shader::BufferResource*, 4> GuestBuffers(
+    const Shader::Info& info) {
+    boost::container::static_vector<const Shader::BufferResource*, 4> guest;
+    for (const auto& buffer : info.buffers) {
+        if (buffer.buffer_type != Shader::BufferType::Guest) {
+            continue;
+        }
+        if (guest.size() == guest.capacity()) {
+            return {};
+        }
+        guest.push_back(&buffer);
+    }
+    return guest;
+}
+
 // Pattern-fill kernel (shaped like the Gnmx toolkit clear), GCN CI encoding. Matching the
 // whole program pins its exact semantics; for i = tgid.x * 64 + tid.x:
 //   if (i < ctl[0] && i < dst.num_records) dst[i] = src[ctl[1] & i]   (src[k] = 0 past its end)
@@ -1561,15 +1579,51 @@ static constexpr std::array<u32, 25> RawCopyCode{
     0xbf810000,             // s_endpgm
 };
 
+// The same copy with 256-thread groups (elements g*512 + tid and g*512 + 256 + tid), both
+// sharps loaded through a user-data pointer.
+static constexpr std::array<u32, 28> RawCopy256Code{
+    0xbeeb03ff, 0x00000013, // s_mov_b32 vcc_hi, 19 (binary info marker)
+    0x8f088902,             // s_lshl_b32 s8, s2, 9
+    0xc0c00100,             // s_load_dwordx8 s[0:7], s[0:1], 0     src, dst
+    0xd2ba0001, 0x04010008, // v_sad_u32 v1, s8, 0, v0
+    0x816aff08, 0x00000100, // s_add_i32 vcc_lo, s8, 0x100
+    0xd2ba0000, 0x0401006a, // v_sad_u32 v0, vcc_lo, 0, v0
+    0xbf8c007f,             // s_waitcnt lgkmcnt(0)
+    0xe0302000, 0x80000201, // buffer_load_dword v2, v1, s[0:3], 0 idxen
+    0xe0302000, 0x80000300, // buffer_load_dword v3, v0, s[0:3], 0 idxen
+    0xbe82047e,             // s_mov_b64 s[2:3], exec
+    0xd1a80000, 0x00020206, // v_cmpx_gt_u32 s[0:1], s6, v1       i < dst.num_records
+    0xbf8c0f71,             // s_waitcnt vmcnt(1)
+    0xe0702000, 0x80410201, // buffer_store_dword v2, v1, s[4:7], 0 idxen slc
+    0xbefe0402,             // s_mov_b64 exec, s[2:3]
+    0xd1a80000, 0x00020006, // v_cmpx_gt_u32 s[0:1], s6, v0
+    0xbf8c0f71,             // s_waitcnt vmcnt(1)
+    0xe0702000, 0x80410300, // buffer_store_dword v3, v0, s[4:7], 0 idxen slc
+    0xbf810000,             // s_endpgm
+};
+
 bool Rasterizer::TryComputeRawImageCopy(const Shader::Info& cs,
                                         const AmdGpu::ComputeProgram& program) {
     namespace Diag = VideoCore::UploadDiagnostics;
     // Cheap rejects first: this runs for every direct dispatch.
-    if (cs.buffers.size() != 2 || !cs.images.empty() || program.num_thread_x.full != 64 ||
-        program.num_thread_x.partial != 0 || program.start_x != 0 || program.dim_x == 0 ||
-        program.dim_y != 1 || program.dim_z != 1 || cs.buffers[0].is_written ||
-        !cs.buffers[1].is_written ||
-        std::memcmp(program.Address<const u32*>(), RawCopyCode.data(), sizeof(RawCopyCode))) {
+    if (!cs.images.empty() || program.num_thread_x.partial != 0 || program.start_x != 0 ||
+        program.dim_x == 0 || program.dim_y != 1 || program.dim_z != 1) {
+        return false;
+    }
+    const auto buffers = GuestBuffers(cs);
+    if (buffers.size() != 2 || buffers[0]->is_written || !buffers[1]->is_written) {
+        return false;
+    }
+    // Elements one work group copies.
+    u32 group_elements = 0;
+    const auto* code = program.Address<const u32*>();
+    if (program.num_thread_x.full == 64 &&
+        !std::memcmp(code, RawCopyCode.data(), sizeof(RawCopyCode))) {
+        group_elements = 128;
+    } else if (program.num_thread_x.full == 256 &&
+               !std::memcmp(code, RawCopy256Code.data(), sizeof(RawCopy256Code))) {
+        group_elements = 512;
+    } else {
         return false;
     }
     if (Diag::raw_copy_off.load(std::memory_order_relaxed)) {
@@ -1579,8 +1633,8 @@ bool Rasterizer::TryComputeRawImageCopy(const Shader::Info& cs,
         Diag::raw_copy_fallbacks.fetch_add(1, std::memory_order_relaxed);
         return false;
     };
-    const AmdGpu::Buffer src = cs.buffers[0].GetSharp(cs);
-    const AmdGpu::Buffer dst = cs.buffers[1].GetSharp(cs);
+    const AmdGpu::Buffer src = buffers[0]->GetSharp(cs);
+    const AmdGpu::Buffer dst = buffers[1]->GetSharp(cs);
     const auto plain = [](const AmdGpu::Buffer& buffer) {
         return buffer.GetStride() == 4 && !buffer.swizzle_enable && !buffer.add_tid_enable &&
                buffer.base_address != 0;
@@ -1589,7 +1643,7 @@ bool Rasterizer::TryComputeRawImageCopy(const Shader::Info& cs,
         return fallback();
     }
     // Bytes copied; the source must supply all of them (past its end the kernel writes zeros).
-    const u64 bytes = std::min<u64>(dst.num_records, u64(program.dim_x) * 128) * 4;
+    const u64 bytes = std::min<u64>(dst.num_records, u64(program.dim_x) * group_elements) * 4;
     if (!bytes || u64(src.num_records) * 4 < bytes ||
         (src.base_address < dst.base_address + bytes && dst.base_address < src.base_address + bytes)) {
         return fallback();
@@ -1734,6 +1788,87 @@ bool Rasterizer::TryComputeImageFill(const Shader::Info& cs,
     const u64 bytes = elements * 4;
     const auto outcome = texture_cache.ClearImagesForFill(
         dst.base_address, bytes, std::span{pattern.data(), period}, images);
+    VideoCore::UploadDiagnostics::NoteFill(outcome, images, bytes);
+    return outcome == FillOutcome::Cleared;
+}
+
+// Constant dword fill, GCN CI encoding, 256-thread groups. With P = the user-data pointer in
+// s[0:1]: value = *(u32*)*(u64*)P, and for i in {g*512 + tid, g*512 + 256 + tid}:
+//   if (i < dst.num_records) dst[i] = value            (dst sharp loaded through s[2:3])
+static constexpr std::array<u32, 26> ConstantFill256Code{
+    0xbeeb03ff, 0x00000014, // s_mov_b32 vcc_hi, 20 (binary info marker)
+    0xc0400100,             // s_load_dwordx2 s[0:1], s[0:1], 0
+    0x8f048904,             // s_lshl_b32 s4, s4, 9
+    0xbf8c007f,             // s_waitcnt lgkmcnt(0)
+    0xc0028100,             // s_load_dword s5, s[0:1], 0           value
+    0xc0840300,             // s_load_dwordx4 s[8:11], s[2:3], 0    dst
+    0xd2ba0001, 0x04010004, // v_sad_u32 v1, s4, 0, v0
+    0xbf8c007f,             // s_waitcnt lgkmcnt(0)
+    0x7e040205,             // v_mov_b32 v2, s5
+    0x816aff04, 0x00000100, // s_add_i32 vcc_lo, s4, 0x100
+    0xd2ba0000, 0x0401006a, // v_sad_u32 v0, vcc_lo, 0, v0
+    0xbe86047e,             // s_mov_b64 s[6:7], exec
+    0xd1a80004, 0x0002020a, // v_cmpx_gt_u32 s[4:5], s10, v1      i < dst.num_records
+    0xe0702000, 0x80420201, // buffer_store_dword v2, v1, s[8:11], 0 idxen slc
+    0xbefe0406,             // s_mov_b64 exec, s[6:7]
+    0xd1a80004, 0x0002000a, // v_cmpx_gt_u32 s[4:5], s10, v0
+    0xe0702000, 0x80420200, // buffer_store_dword v2, v0, s[8:11], 0 idxen slc
+    0xbf810000,             // s_endpgm
+};
+
+bool Rasterizer::TryComputeConstantFill(const Shader::Info& cs,
+                                        const AmdGpu::ComputeProgram& program) {
+    using VideoCore::UploadDiagnostics::FillOutcome;
+    // Cheap rejects first: this runs for every direct dispatch.
+    if (!cs.images.empty() || program.num_thread_x.full != 256 ||
+        program.num_thread_x.partial != 0 ||
+        program.start_x != 0 || program.dim_x == 0 || program.dim_y != 1 || program.dim_z != 1 ||
+        std::memcmp(program.Address<const u32*>(), ConstantFill256Code.data(),
+                    sizeof(ConstantFill256Code))) {
+        return false;
+    }
+    const auto fallback = [](FillOutcome outcome) {
+        VideoCore::UploadDiagnostics::NoteFill(outcome, 0, 0);
+        return false;
+    };
+    if (VideoCore::UploadDiagnostics::fill_clear_off.load(std::memory_order_relaxed)) {
+        return fallback(FillOutcome::Disabled);
+    }
+    const auto buffers = GuestBuffers(cs);
+    if (buffers.size() != 1 || !buffers[0]->is_written) {
+        return fallback(FillOutcome::Pattern);
+    }
+    const AmdGpu::Buffer dst = buffers[0]->GetSharp(cs);
+    if (dst.GetStride() != 4 || dst.swizzle_enable || dst.add_tid_enable || !dst.base_address) {
+        return fallback(FillOutcome::Pattern);
+    }
+    // The value is read through two pointers; words the GPU wrote in this submission live only
+    // in the buffer cache.
+    constexpr u64 AddressMask = (u64{1} << 48) - 1;
+    const VAddr pointer =
+        ((u64{program.user_data[1]} << 32) | program.user_data[0]) & AddressMask;
+    if (!pointer || buffer_cache.IsRegionGpuModified(pointer, 8)) {
+        return fallback(FillOutcome::GpuResident);
+    }
+    u64 value_address{};
+    if (!memory->TryReadSrtMemory(pointer, &value_address, sizeof(value_address))) {
+        return fallback(FillOutcome::Pattern);
+    }
+    value_address &= AddressMask;
+    if (!value_address || buffer_cache.IsRegionGpuModified(value_address, 4)) {
+        return fallback(FillOutcome::GpuResident);
+    }
+    u32 value{};
+    if (!memory->TryReadSrtMemory(value_address, &value, sizeof(value))) {
+        return fallback(FillOutcome::Pattern);
+    }
+    const u64 bytes = std::min<u64>(dst.num_records, u64(program.dim_x) * 512) * 4;
+    if (!bytes) {
+        return fallback(FillOutcome::NoImage);
+    }
+    u32 images = 0;
+    const auto outcome = texture_cache.ClearImagesForFill(dst.base_address, bytes,
+                                                          std::span{&value, 1}, images, true);
     VideoCore::UploadDiagnostics::NoteFill(outcome, images, bytes);
     return outcome == FillOutcome::Cleared;
 }

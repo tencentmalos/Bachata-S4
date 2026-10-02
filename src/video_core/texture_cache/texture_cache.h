@@ -106,9 +106,12 @@ public:
     /// boundary and sees one uniform texel, clears those images to that texel (they become the
     /// authoritative GPU copy, like render targets) and returns Cleared: the caller skips the
     /// dispatch. Otherwise nothing is recorded and the caller dispatches as before.
+    /// With `cover_range`, the images must also cover every byte of the range together (the
+    /// skipped dispatch would otherwise leave the bytes between them unwritten): Partial if not.
     [[nodiscard]] UploadDiagnostics::FillOutcome ClearImagesForFill(VAddr address, u64 size,
                                                                     std::span<const u32> pattern,
-                                                                    u32& images_cleared);
+                                                                    u32& images_cleared,
+                                                                    bool cover_range = false);
 
     /// One (level, layer) subresource of a non-volume cached image.
     struct ImageSlice {

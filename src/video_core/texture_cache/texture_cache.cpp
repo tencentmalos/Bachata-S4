@@ -694,7 +694,8 @@ std::optional<vk::ClearColorValue> ExactClearValue(vk::Format format, std::span<
 
 UploadDiagnostics::FillOutcome TextureCache::ClearImagesForFill(VAddr address, u64 size,
                                                                 std::span<const u32> pattern,
-                                                                u32& images_cleared) {
+                                                                u32& images_cleared,
+                                                                bool cover_range) {
     using UploadDiagnostics::FillOutcome;
     images_cleared = 0;
     const u64 period = pattern.size_bytes();
@@ -750,6 +751,20 @@ UploadDiagnostics::FillOutcome TextureCache::ClearImagesForFill(VAddr address, u
     });
     if (outcome != FillOutcome::Cleared) return outcome;
     if (targets.empty()) return FillOutcome::NoImage;
+    if (cover_range) {
+        boost::container::small_vector<std::pair<VAddr, VAddr>, 4> spans;
+        for (const auto& target : targets) {
+            const auto& info = target.image->info;
+            spans.emplace_back(info.guest_address, info.guest_address + info.guest_size);
+        }
+        std::ranges::sort(spans);
+        VAddr covered = address;
+        for (const auto& [begin, end] : spans) {
+            if (begin > covered) break;
+            covered = std::max(covered, end);
+        }
+        if (covered < address + size) return FillOutcome::Partial;
+    }
 
     for (auto& [image, value] : targets) {
         const SubresourceRange range{.base = {.level = 0, .layer = 0},

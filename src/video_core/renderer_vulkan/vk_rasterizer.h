@@ -132,6 +132,8 @@ private:
     // Replaces a known pattern-fill compute kernel (Gnmx-style clear) by image clears
     // when it fills whole cached images with a uniform texel. True when the dispatch is done.
     bool TryComputeImageFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
+    /// A constant dword buffer fill kernel covering whole cached images: clear the images.
+    bool TryComputeConstantFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
     /// A raw dword copy kernel between the memory of two same-layout images: copy the images.
     bool TryComputeRawImageCopy(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
     // Constant-colour image_store kernel over 8x8 groups: an image clear.
