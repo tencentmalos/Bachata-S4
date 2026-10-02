@@ -43,9 +43,21 @@ public:
     void CopyBetweenMsImages(u32 width, u32 height, u32 num_samples, vk::Format pixel_format,
                              bool src_msaa, vk::Image source, vk::Image dest);
 
+    // Whether ResampleDepthStencil can copy this format; stencil needs stencil export.
+    bool CanResampleDepth(vk::Format format, bool stencil) const;
+
+    // Nearest copy of one depth (and optionally stencil) subresource into another extent, as
+    // a nearest blit would, for depth formats the driver cannot blit into. `aspects` are the
+    // image's aspects. The source must be in ShaderReadOnlyOptimal and the destination in
+    // DepthStencilAttachmentOptimal; without `write_stencil` its stencil plane is kept.
+    void ResampleDepthStencil(vk::Image source, u32 source_mip, vk::Image dest, u32 dest_mip,
+                              u32 layer, vk::Format format, vk::ImageAspectFlags aspects,
+                              u32 dest_width, u32 dest_height, bool write_stencil);
+
 private:
     void CreateShaders();
     void CreatePipelineLayouts();
+    vk::Pipeline DepthResamplePipeline(vk::Format format, bool stencil);
 
     struct MsPipelineKey {
         u32 num_samples;
@@ -70,10 +82,20 @@ private:
     vk::ShaderModule color_to_ms_depth_frag;
     vk::ShaderModule src_msaa_copy_frag;
     vk::ShaderModule src_non_msaa_copy_frag;
+    vk::ShaderModule depth_resample_frag;
+    vk::ShaderModule depth_stencil_resample_frag; // Only with shader stencil export.
+    vk::UniqueDescriptorSetLayout depth_resample_descriptor_set_layout;
+    vk::UniquePipelineLayout depth_resample_pl_layout;
 
     using MsPipeline = std::pair<MsPipelineKey, vk::UniquePipeline>;
     std::vector<MsPipeline> color_to_ms_depth_pl;
     std::vector<MsPipeline> ms_image_copy_pl;
+    struct DepthResampleKey {
+        vk::Format format;
+        bool stencil;
+        bool operator==(const DepthResampleKey&) const noexcept = default;
+    };
+    std::vector<std::pair<DepthResampleKey, vk::UniquePipeline>> depth_resample_pl;
 };
 
 } // namespace VideoCore

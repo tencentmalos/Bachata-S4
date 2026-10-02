@@ -279,6 +279,11 @@ private:
     void UploadRegions(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset, u64 buffer_size);
     void BlitBacking(BackingImage& source, BackingImage& dest,
                      std::span<const vk::BufferImageCopy> uploaded = {});
+    /// Whether a backing of `format` can be filled from another extent: by a blit, or for a
+    /// depth format without BLIT_DST by the blit helper's depth resample pass.
+    bool CanResample(vk::Format format) const;
+    /// Depth copies between extents use the shader pass when either side cannot blit.
+    bool NeedsDepthResamplePass(vk::Format source, vk::Format dest) const;
     void ReallocateScale(u32 eighths, bool preserve_contents = true);
     void PublishScalePlan();
     TextureCache* owner{};

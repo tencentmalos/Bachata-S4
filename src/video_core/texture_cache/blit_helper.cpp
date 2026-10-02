@@ -13,6 +13,8 @@
 #include "video_core/vma_diagnostics.h"
 
 #include "video_core/host_shaders/color_to_ms_depth_frag.h"
+#include "video_core/host_shaders/depth_resample_frag.h"
+#include "video_core/host_shaders/depth_stencil_resample_frag.h"
 #include "video_core/host_shaders/fs_tri_vert.h"
 #include "video_core/host_shaders/ms_image_blit_frag.h"
 #include "video_core/host_shaders/ms_image_blit_msaa_frag.h"
@@ -48,6 +50,186 @@ BlitHelper::~BlitHelper() {
     device.destroy(color_to_ms_depth_frag);
     device.destroy(src_msaa_copy_frag);
     device.destroy(src_non_msaa_copy_frag);
+    device.destroy(depth_resample_frag);
+    device.destroy(depth_stencil_resample_frag);
+}
+
+bool BlitHelper::CanResampleDepth(vk::Format format, bool stencil) const {
+    return (!stencil || depth_stencil_resample_frag) &&
+           instance.IsFormatSupported(format, vk::FormatFeatureFlagBits2::eSampledImage |
+                                                  vk::FormatFeatureFlagBits2::eDepthStencilAttachment);
+}
+
+void BlitHelper::ResampleDepthStencil(vk::Image source, u32 source_mip, vk::Image dest,
+                                      u32 dest_mip, u32 layer, vk::Format format,
+                                      vk::ImageAspectFlags aspects, u32 dest_width,
+                                      u32 dest_height, bool write_stencil) {
+    ASSERT(CanResampleDepth(format, write_stencil));
+    const auto device = instance.GetDevice();
+    const auto make_view = [&](vk::Image image, u32 mip, vk::ImageAspectFlags view_aspects,
+                               vk::ImageUsageFlags usage) {
+        const vk::ImageViewUsageCreateInfo usage_ci{.usage = usage};
+        const auto [result, view] = device.createImageView({
+            .pNext = &usage_ci,
+            .image = image,
+            .viewType = vk::ImageViewType::e2D,
+            .format = format,
+            .subresourceRange = {view_aspects, mip, 1, layer, 1},
+        });
+        ASSERT_MSG(result == vk::Result::eSuccess, "Failed to create depth resample view: {}",
+                   vk::to_string(result));
+        return view;
+    };
+    // A sampled view selects one aspect; the attachment view covers the image's aspects.
+    const auto depth_view =
+        make_view(source, source_mip, vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eSampled);
+    const auto stencil_view =
+        write_stencil ? make_view(source, source_mip, vk::ImageAspectFlagBits::eStencil,
+                                  vk::ImageUsageFlagBits::eSampled)
+                      : vk::ImageView{};
+    const auto target_view =
+        make_view(dest, dest_mip, aspects, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    scheduler.DeferOperation([device, depth_view, stencil_view, target_view] {
+        device.destroyImageView(depth_view);
+        if (stencil_view) {
+            device.destroyImageView(stencil_view);
+        }
+        device.destroyImageView(target_view);
+    });
+
+    // Every pixel is written, so nothing is loaded.
+    Vulkan::RenderState state{};
+    state.width = static_cast<u16>(dest_width);
+    state.height = static_cast<u16>(dest_height);
+    state.num_layers = 1;
+    auto& target = state.depth_stencil_attachment;
+    target.image_view = target_view;
+    target.image_layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+    target.has_depth = true;
+    target.depth_clear = true;
+    target.has_stencil = write_stencil;
+    target.stencil_clear = write_stencil;
+    scheduler.BeginRendering(state);
+    scheduler.UntrackPass(); // its accesses are not staged
+
+    const vk::DescriptorImageInfo depth_info{
+        .imageView = depth_view,
+        .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
+    };
+    const vk::DescriptorImageInfo stencil_info{
+        .imageView = stencil_view,
+        .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
+    };
+    const std::array writes{
+        vk::WriteDescriptorSet{.dstBinding = 0, .descriptorCount = 1,
+                               .descriptorType = vk::DescriptorType::eSampledImage,
+                               .pImageInfo = &depth_info},
+        vk::WriteDescriptorSet{.dstBinding = 1, .descriptorCount = 1,
+                               .descriptorType = vk::DescriptorType::eSampledImage,
+                               .pImageInfo = &stencil_info},
+    };
+    scheduler.BindHostDescriptors(vk::PipelineBindPoint::eGraphics, *depth_resample_pl_layout,
+                                  *depth_resample_descriptor_set_layout,
+                                  vk::ArrayProxy<const vk::WriteDescriptorSet>(
+                                      write_stencil ? 2u : 1u, writes.data()));
+
+    const auto cmdbuf = scheduler.CommandBuffer();
+    cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics,
+                        DepthResamplePipeline(format, write_stencil));
+    const std::array<s32, 2> extent{static_cast<s32>(dest_width), static_cast<s32>(dest_height)};
+    cmdbuf.pushConstants(*depth_resample_pl_layout, vk::ShaderStageFlagBits::eFragment, 0,
+                         sizeof(extent), extent.data());
+    const vk::Viewport viewport{
+        .width = float(dest_width),
+        .height = float(dest_height),
+        .minDepth = 0.f,
+        .maxDepth = 1.f,
+    };
+    cmdbuf.setViewportWithCount(viewport);
+    cmdbuf.setScissorWithCount(vk::Rect2D{.extent = {dest_width, dest_height}});
+    cmdbuf.draw(3, 1, 0, 0);
+
+    scheduler.EndRendering(Vulkan::RenderBreak::ImageCopy);
+    scheduler.GetDynamicState().Invalidate();
+}
+
+vk::Pipeline BlitHelper::DepthResamplePipeline(vk::Format format, bool stencil) {
+    const DepthResampleKey key{format, stencil};
+    if (const auto it = std::ranges::find(depth_resample_pl, key,
+                                          &decltype(depth_resample_pl)::value_type::first);
+        it != depth_resample_pl.end()) {
+        return *it->second;
+    }
+    const vk::PipelineInputAssemblyStateCreateInfo input_assembly{
+        .topology = vk::PrimitiveTopology::eTriangleList,
+    };
+    const vk::PipelineMultisampleStateCreateInfo multisampling{
+        .rasterizationSamples = vk::SampleCountFlagBits::e1,
+    };
+    // The shader exports the reference; replace it on every outcome.
+    const vk::StencilOpState stencil_op{
+        .failOp = vk::StencilOp::eReplace,
+        .passOp = vk::StencilOp::eReplace,
+        .depthFailOp = vk::StencilOp::eReplace,
+        .compareOp = vk::CompareOp::eAlways,
+        .compareMask = 0xFF,
+        .writeMask = 0xFF,
+    };
+    const vk::PipelineDepthStencilStateCreateInfo depth_state{
+        .depthTestEnable = true,
+        .depthWriteEnable = true,
+        .depthCompareOp = vk::CompareOp::eAlways,
+        .stencilTestEnable = stencil,
+        .front = stencil_op,
+        .back = stencil_op,
+    };
+    const std::array dynamic_states{vk::DynamicState::eViewportWithCount,
+                                    vk::DynamicState::eScissorWithCount};
+    const vk::PipelineDynamicStateCreateInfo dynamic_info{
+        .dynamicStateCount = static_cast<u32>(dynamic_states.size()),
+        .pDynamicStates = dynamic_states.data(),
+    };
+    const std::array shader_stages{
+        vk::PipelineShaderStageCreateInfo{
+            .stage = vk::ShaderStageFlagBits::eVertex,
+            .module = fs_tri_vertex,
+            .pName = "main",
+        },
+        vk::PipelineShaderStageCreateInfo{
+            .stage = vk::ShaderStageFlagBits::eFragment,
+            .module = stencil ? depth_stencil_resample_frag : depth_resample_frag,
+            .pName = "main",
+        },
+    };
+    const vk::PipelineRenderingCreateInfo rendering_ci{
+        .depthAttachmentFormat = format,
+        .stencilAttachmentFormat = stencil ? format : vk::Format::eUndefined,
+    };
+    const vk::PipelineColorBlendStateCreateInfo color_blending{};
+    const vk::PipelineViewportStateCreateInfo viewport_info{};
+    const vk::PipelineVertexInputStateCreateInfo vertex_input_info{};
+    const vk::PipelineRasterizationStateCreateInfo raster_state{.lineWidth = 1.f};
+    const vk::GraphicsPipelineCreateInfo pipeline_info{
+        .pNext = &rendering_ci,
+        .stageCount = static_cast<u32>(shader_stages.size()),
+        .pStages = shader_stages.data(),
+        .pVertexInputState = &vertex_input_info,
+        .pInputAssemblyState = &input_assembly,
+        .pViewportState = &viewport_info,
+        .pRasterizationState = &raster_state,
+        .pMultisampleState = &multisampling,
+        .pDepthStencilState = &depth_state,
+        .pColorBlendState = &color_blending,
+        .pDynamicState = &dynamic_info,
+        .layout = *depth_resample_pl_layout,
+    };
+    auto [result, pipeline] =
+        instance.GetDevice().createGraphicsPipelineUnique(VK_NULL_HANDLE, pipeline_info);
+    ASSERT_MSG(result == vk::Result::eSuccess, "Failed to create depth resample pipeline: {}",
+               vk::to_string(result));
+    Vulkan::SetObjectName(instance.GetDevice(), *pipeline, "Depth resample {}{}",
+                          vk::to_string(format), stencil ? " +stencil" : "");
+    return *depth_resample_pl.emplace_back(key, std::move(pipeline)).second;
 }
 
 void BlitHelper::EncodeBlocks(BlockCodec codec, vk::Image source, vk::Format source_format, u32 source_mip,
@@ -353,6 +535,11 @@ void BlitHelper::CreateShaders() {
     color_to_ms_depth_frag = Vulkan::CompileSPV(COLOR_TO_MS_DEPTH_FRAG, device);
     src_msaa_copy_frag = Vulkan::CompileSPV(MS_IMAGE_BLIT_MSAA_FRAG, device);
     src_non_msaa_copy_frag = Vulkan::CompileSPV(MS_IMAGE_BLIT_FRAG, device);
+    depth_resample_frag = Vulkan::CompileSPV(DEPTH_RESAMPLE_FRAG, device);
+    // The stencil variant declares StencilExportEXT, valid only with the extension enabled.
+    if (instance.IsShaderStencilExportSupported()) {
+        depth_stencil_resample_frag = Vulkan::CompileSPV(DEPTH_STENCIL_RESAMPLE_FRAG, device);
+    }
 }
 
 void BlitHelper::CreatePipelineLayouts() {
@@ -383,6 +570,51 @@ void BlitHelper::CreatePipelineLayouts() {
                "Failed to create graphics pipeline layout: {}", vk::to_string(layout_result));
     Vulkan::SetObjectName(instance.GetDevice(), *pipeline_layout, "Single texture pipeline layout");
     single_texture_pl_layout = std::move(pipeline_layout);
+
+    // Depth resample: depth and stencil planes as two sampled images, target extent pushed.
+    const std::array resample_bindings{
+        vk::DescriptorSetLayoutBinding{
+            .binding = 0,
+            .descriptorType = vk::DescriptorType::eSampledImage,
+            .descriptorCount = 1,
+            .stageFlags = vk::ShaderStageFlagBits::eFragment,
+        },
+        vk::DescriptorSetLayoutBinding{
+            .binding = 1,
+            .descriptorType = vk::DescriptorType::eSampledImage,
+            .descriptorCount = 1,
+            .stageFlags = vk::ShaderStageFlagBits::eFragment,
+        },
+    };
+    auto [resample_set_result, resample_set_layout] =
+        instance.GetDevice().createDescriptorSetLayoutUnique({
+            .flags = instance.HostDescriptorFlags(),
+            .bindingCount = static_cast<u32>(resample_bindings.size()),
+            .pBindings = resample_bindings.data(),
+        });
+    ASSERT_MSG(resample_set_result == vk::Result::eSuccess,
+               "Failed to create depth resample descriptor set layout: {}",
+               vk::to_string(resample_set_result));
+    depth_resample_descriptor_set_layout = std::move(resample_set_layout);
+    const vk::DescriptorSetLayout resample_layout = *depth_resample_descriptor_set_layout;
+    const vk::PushConstantRange extent_range{
+        .stageFlags = vk::ShaderStageFlagBits::eFragment,
+        .offset = 0,
+        .size = 2 * sizeof(s32),
+    };
+    auto [resample_result, resample_pl_layout] =
+        instance.GetDevice().createPipelineLayoutUnique({
+            .setLayoutCount = 1U,
+            .pSetLayouts = &resample_layout,
+            .pushConstantRangeCount = 1U,
+            .pPushConstantRanges = &extent_range,
+        });
+    ASSERT_MSG(resample_result == vk::Result::eSuccess,
+               "Failed to create depth resample pipeline layout: {}",
+               vk::to_string(resample_result));
+    Vulkan::SetObjectName(instance.GetDevice(), *resample_pl_layout,
+                          "Depth resample pipeline layout");
+    depth_resample_pl_layout = std::move(resample_pl_layout);
 }
 
 void BlitHelper::CreateColorToMSDepthPipeline(const MsPipelineKey& key) {

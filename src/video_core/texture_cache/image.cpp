@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
 #include <ranges>
 #include "common/assert.h"
 #include "common/div_ceil.h"
@@ -299,8 +300,6 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
     // Format capability checks also exclude integer formats from filtered resampling.
     const bool eligible = scale.eighths < 8 && image_ci.imageType == vk::ImageType::e2D &&
         info.num_samples == 1 && info.size.width >= 16 && info.size.height >= 16;
-    const auto blit_features = vk::FormatFeatureFlagBits2::eBlitSrc |
-                               vk::FormatFeatureFlagBits2::eBlitDst;
     if (eligible && direct_drop &&
         instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear)) {
         scale_eighths = 4;
@@ -308,7 +307,7 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         image_ci.extent.width = std::max(info.size.width >> 1, 1u);
         image_ci.extent.height = std::max(info.size.height >> 1, 1u);
         image_ci.mipLevels -= 1;
-    } else if (eligible && !direct_drop && !info.props.is_block && instance->IsFormatSupported(supported_format, blit_features) &&
+    } else if (eligible && !direct_drop && !info.props.is_block && CanResample(supported_format) &&
         (info.props.is_depth || instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear))) {
         scale_eighths = scale.eighths;
         image_ci.extent.width = scale.Size(info.size.width);
@@ -376,21 +375,61 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
 Image::~Image() = default;
 
 
+bool Image::CanResample(vk::Format format) const {
+    return instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eBlitSrc |
+                                                   vk::FormatFeatureFlagBits2::eBlitDst) ||
+           (info.props.is_depth && blit_helper->CanResampleDepth(format, info.props.has_stencil));
+}
+
+bool Image::NeedsDepthResamplePass(vk::Format source, vk::Format dest) const {
+    return info.props.is_depth &&
+           !(instance->IsFormatSupported(source, vk::FormatFeatureFlagBits2::eBlitSrc) &&
+             instance->IsFormatSupported(dest, vk::FormatFeatureFlagBits2::eBlitDst));
+}
+
 void Image::BlitBacking(BackingImage& source, BackingImage& dest,
                         std::span<const vk::BufferImageCopy> uploaded) {
     auto* saved = backing;
+    const auto& src = source.image.image_ci;
+    const auto& dst = dest.image.image_ci;
+    const auto uploaded_mip = [&](u32 src_mip) {
+        return uploaded.empty() || std::ranges::any_of(uploaded, [=](const auto& copy) {
+                   return copy.imageSubresource.mipLevel == src_mip;
+               });
+    };
+    if (NeedsDepthResamplePass(src.format, dst.format)) {
+        // AMD's Windows driver cannot blit into any depth/stencil format. Draw the same
+        // nearest copy instead; CPU depth uploads still leave the stencil plane alone.
+        ASSERT(src.format == dst.format);
+        backing = &source;
+        Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {});
+        backing = &dest;
+        Transit(vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                vk::AccessFlagBits2::eDepthStencilAttachmentWrite, {});
+        const bool write_stencil = info.props.has_stencil && uploaded.empty();
+        for (u32 mip = 0; mip < dst.mipLevels; ++mip) {
+            const u32 src_mip = std::min(mip, src.mipLevels - 1);
+            if (!uploaded_mip(src_mip)) continue;
+            for (u32 layer = 0; layer < dst.arrayLayers; ++layer) {
+                blit_helper->ResampleDepthStencil(source.image, src_mip, dest.image, mip, layer,
+                                                  dst.format, aspect_mask,
+                                                  std::max(dst.extent.width >> mip, 1u),
+                                                  std::max(dst.extent.height >> mip, 1u),
+                                                  write_stencil);
+            }
+        }
+        Transit(vk::ImageLayout::eGeneral, vk::AccessFlagBits2::eShaderRead, {});
+        backing = saved;
+        return;
+    }
     backing = &source;
     Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
     backing = &dest;
     Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
-    const auto& src = source.image.image_ci;
-    const auto& dst = dest.image.image_ci;
     std::vector<vk::ImageBlit> regions;
     for (u32 mip = 0; mip < dst.mipLevels; ++mip) {
         const u32 src_mip = std::min(mip, src.mipLevels - 1);
-        if (!uploaded.empty() && std::ranges::none_of(uploaded, [=](const auto& copy) {
-                return copy.imageSubresource.mipLevel == src_mip;
-            })) continue;
+        if (!uploaded_mip(src_mip)) continue;
         for (const auto aspect : {vk::ImageAspectFlagBits::eColor, vk::ImageAspectFlagBits::eDepth,
                                   vk::ImageAspectFlagBits::eStencil}) {
             if (!(aspect_mask & aspect)) continue;
@@ -519,8 +558,7 @@ void Image::ObserveUsage(ScaleUse use) {
     const u32 eighths = policy.render_eighths;
     const auto format = instance->GetSupportedFormat(info.pixel_format, format_features);
     if (info.num_samples != 1 || info.props.is_block ||
-        ConvertImageType(info.type) != vk::ImageType::e2D ||
-        !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eBlitSrc | vk::FormatFeatureFlagBits2::eBlitDst) ||
+        ConvertImageType(info.type) != vk::ImageType::e2D || !CanResample(format) ||
         (!info.props.is_depth && !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear))) {
         ForceNative("attachment format"); return;
     }
@@ -1173,16 +1211,39 @@ bool Image::BlitCopy(Image& src_image) {
         src_image.mip_skip || src_image.IsReencoded() || ConvertImageType(info.type) != vk::ImageType::e2D)
         return false;
     const auto format = backing->image.image_ci.format;
-    if (format != src_image.backing->image.image_ci.format ||
-        !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eBlitSrc | vk::FormatFeatureFlagBits2::eBlitDst))
+    if (format != src_image.backing->image.image_ci.format || !CanResample(format))
         return false;
     // Same aspect policy as CopyImage: guest depth copies move the depth plane only.
     const auto aspects = aspect_mask & ~vk::ImageAspectFlagBits::eStencil;
     if (aspects != (src_image.aspect_mask & ~vk::ImageAspectFlagBits::eStencil)) return false;
     scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
+    const u32 num_mips = std::min(src_image.backing->image.image_ci.mipLevels, backing->image.image_ci.mipLevels);
+    const auto finish = [&] {
+        Transit(vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
+        ++scale_plan->content_version;
+        NoteWrite();
+        scale_plan->history |= 1u << 8;
+        src_image.scale_plan->history |= 1u << 7;
+        if (owner) owner->RecordScaledBlitCopy();
+    };
+    if (NeedsDepthResamplePass(format, format)) {
+        src_image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {});
+        Transit(vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                vk::AccessFlagBits2::eDepthStencilAttachmentWrite, {});
+        for (u32 mip = 0; mip < num_mips; ++mip) {
+            const auto extent = HostExtent(mip);
+            for (u32 layer = 0; layer < info.resources.layers; ++layer) {
+                blit_helper->ResampleDepthStencil(src_image.GetImage(), mip, GetImage(), mip, layer,
+                                                  format, aspect_mask, extent.width, extent.height,
+                                                  false);
+            }
+        }
+        finish();
+        return true;
+    }
     src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
     Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
-    const u32 num_mips = std::min(src_image.backing->image.image_ci.mipLevels, backing->image.image_ci.mipLevels);
     boost::container::small_vector<vk::ImageBlit, 8> regions;
     for (u32 mip = 0; mip < num_mips; ++mip) {
         const auto s = src_image.HostExtent(mip);
@@ -1198,17 +1259,13 @@ bool Image::BlitCopy(Image& src_image) {
     // requirements, not the format's capabilities); everything else resamples linearly.
     const bool exact = info.props.is_depth ||
         !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear);
-    Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
-    scheduler->CommandBuffer().blitImage(src_image.GetImage(), vk::ImageLayout::eTransferSrcOptimal, GetImage(),
-                                         vk::ImageLayout::eTransferDstOptimal, regions,
-                                         exact ? vk::Filter::eNearest : vk::Filter::eLinear);
-    Transit(vk::ImageLayout::eGeneral,
-            vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
-    ++scale_plan->content_version;
-    NoteWrite();
-    scale_plan->history |= 1u << 8;
-    src_image.scale_plan->history |= 1u << 7;
-    if (owner) owner->RecordScaledBlitCopy();
+    {
+        Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
+        scheduler->CommandBuffer().blitImage(src_image.GetImage(), vk::ImageLayout::eTransferSrcOptimal,
+                                             GetImage(), vk::ImageLayout::eTransferDstOptimal, regions,
+                                             exact ? vk::Filter::eNearest : vk::Filter::eLinear);
+    }
+    finish();
     return true;
 }
 
