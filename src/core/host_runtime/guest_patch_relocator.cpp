@@ -4,7 +4,7 @@
 #include <limits>
 #include <stdexcept>
 #include <Zydis/Zydis.h>
-#include "core/host_runtime/guest_patch.h"
+#include "core/host_runtime/guest_patch_format.h"
 
 namespace Core::GuestPatch {
 namespace {
@@ -47,8 +47,12 @@ Relocated Relocate(std::span<const std::byte> bytes, uint64_t source, uint64_t d
                                                     bytes.size() - input, &i.decoded, i.operands)),
                 "invalid x86 instruction");
         auto& d = i.decoded;
-        Require(d.encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY,
-                "trampoline requires legacy/SSE2 encoding");
+        // VEX (AVX) forms carry no relative immediates; a RIP-relative operand is
+        // fixed up through raw.disp exactly like a legacy one. EVEX/XOP/3DNow are
+        // not PS4 (Jaguar) instructions and stay refused.
+        Require(d.encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY ||
+                    d.encoding == ZYDIS_INSTRUCTION_ENCODING_VEX,
+                "trampoline requires legacy/SSE or VEX encoding");
         // These expose IP, interrupt state, transactions, or non-local control;
         // copying them would silently change observable semantics.
         switch (d.mnemonic) {

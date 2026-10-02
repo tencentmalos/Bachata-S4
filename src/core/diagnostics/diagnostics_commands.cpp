@@ -16,6 +16,9 @@
 #include "common/thread.h"
 #include "common/gpu_timing.h"
 #include "common/logging/log_stats.h"
+#if !defined(SHADPS4_TYPED_HLE_HOST)
+#include "core/guest_patch_desktop.h"
+#endif
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/host_runtime/guest_patch.h"
 #include "core/host_runtime/orbis_pad_adapter.h"
@@ -178,6 +181,13 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) { return GuestAutoTag::Command(args); });
     registry.Register("guest_patch", "Guest patch status | enable/disable <context ID>",
         [](const std::vector<std::string>& args) { return GuestPatch::Command(args); });
+#endif
+#if !defined(SHADPS4_TYPED_HLE_HOST)
+    // Same command name as the Android runtime; desktop has no CPU context ID.
+    registry.Register("guest_patch", "Guest patch status | enable [name] | disable [name]",
+        [](const std::vector<std::string>& args) {
+            return GuestPatch::Desktop::Command(args);
+        });
 #endif
     registry.Register("thread_priority",
         "Host scheduling weight (nice) of guest and emulator threads: status | reset",

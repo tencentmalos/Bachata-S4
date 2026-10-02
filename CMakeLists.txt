@@ -1013,6 +1013,11 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/guest_write_watch.h
          src/core/module.cpp
          src/core/module.h
+         src/core/guest_patch_desktop.cpp
+         src/core/guest_patch_desktop.h
+         src/core/host_runtime/guest_patch_format.cpp
+         src/core/host_runtime/guest_patch_format.h
+         src/core/host_runtime/guest_patch_relocator.cpp
          src/core/platform.h
          src/core/signals.cpp
          src/core/signals.h
@@ -1781,7 +1786,6 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_sync_metrics.cpp
         src/core/host_runtime/guest_auto_tag.cpp
         src/core/host_runtime/guest_patch.cpp
-        src/core/host_runtime/guest_patch_relocator.cpp
         src/core/host_runtime/guest_audio3d.cpp
         src/core/host_runtime/guest_audio.cpp
         src/core/host_runtime/guest_avplayer.cpp

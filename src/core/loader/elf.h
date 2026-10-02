@@ -489,6 +489,11 @@ public:
         return m_self_segments;
     }
 
+    // The open module file, e.g. for identity hashing; owned by this Elf.
+    [[nodiscard]] Core::FileSys::IFile* GetFile() const {
+        return m_f.Get();
+    }
+
     [[nodiscard]] u64 GetElfEntry() const {
         return m_elf_header.e_entry;
     }

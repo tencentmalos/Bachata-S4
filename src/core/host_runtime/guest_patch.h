@@ -10,64 +10,12 @@
 #include <vector>
 #include "core/guest_cpu/api/context.h"
 #include "core/guest_cpu/hle/call_adapter.h"
+#include "core/host_runtime/guest_patch_format.h"
 
 namespace Core::GuestPatch {
 using namespace GuestCpu;
-using Bytes = std::vector<std::byte>;
-struct Relocated {
-    Bytes code;
-    size_t stolen{};
-    // Original -> relocated instruction addresses, also exported for debugging.
-    std::vector<std::pair<uint64_t, uint64_t>> instructions;
-};
-// Complete instructions, RIP-relative memory, rel32 calls/jumps and short/near
-// Jcc. Unsupported PC-sensitive/control forms are refused, never blindly copied.
-Relocated Relocate(std::span<const std::byte> code, uint64_t source, uint64_t destination,
-                   size_t minimum = 5);
-std::string Sha256(std::span<const std::byte> bytes);
-std::string FileSha256(const std::filesystem::path& file);
-std::string StreamSha256(const std::function<std::int64_t(void*, std::uint64_t)>& read);
-
-struct Segment {
-    uint64_t offset{}, size{};
-    bool executable{};
-    Bytes bytes;
-};
-struct Import {
-    std::string name;
-    uint64_t slot{};
-};
-struct Hook {
-    std::string name, replacement, original, prototype, evidence;
-    uint64_t offset{};
-    Bytes expected;
-};
-// Same-module guest addresses only. Function bindings call guest code directly;
-// data bindings are immutable pointer slots into the original guest storage.
-struct Binding {
-    std::string name, kind, evidence;
-    uint64_t offset{}, size{}, alignment{1};
-    bool writable{};
-    Bytes expected;
-};
-struct Package {
-    std::string id, title, module, module_sha256, executable_sha256, digest;
-    std::vector<Segment> segments;
-    std::map<std::string, uint64_t> exports;
-    std::vector<uint64_t> rebase64;
-    std::vector<Import> imports;
-    std::vector<Hook> hooks;
-    std::vector<Binding> bindings;
-    std::map<uint64_t, std::string> counters;
-    std::map<uint64_t, std::string> logs;
-    uint64_t image_size{};
-    static Package Load(const std::filesystem::path& file);
-};
-struct ModuleIdentity {
-    std::string title, name, sha256;
-    uint64_t base{}, size{};
-    std::string executable_sha256;
-};
+// Package format, Relocate and the install planner are shared with the desktop
+// loader; this header adds the Android FEX/VM backend.
 struct Allocation {
     // A fresh RW mapping owned by the runtime VM, not an assumed code cave.
     uint64_t base{}, size{};

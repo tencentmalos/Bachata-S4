@@ -77,16 +77,46 @@ def build(recipe_path, compiler, output):
     contract_module = importlib.util.module_from_spec(contract_spec)
     contract_spec.loader.exec_module(contract_module)
     recompile, reviewed_dependencies = contract_module.verify(recipe_path, recipe)
-    if not 1 <= len(recipe['hooks']) <= 64:
-        raise ValueError('expected 1..64 hooks')
+    # sdk_version 2: mid-function sites become hooks with a generated adapter, and
+    # same-length code patches are carried verbatim. Version 1 recipes build as before.
+    hooks = [dict(h) for h in recipe.get('hooks', [])]
+    sites = recipe.get('sites', [])
+    patches = recipe.get('patches', [])
+    if not isinstance(sites, list) or not isinstance(patches, list) or len(patches) > 256:
+        raise ValueError('sites/patches must be lists (at most 256 patches)')
+    for site in sites:
+        name = identifier(site['name'])
+        if site.get('mode') not in ('before', 'replace'):
+            raise ValueError('site mode must be before or replace: ' + name)
+        hooks.append({'name': name, 'offset': site['offset'], 'expected': site['expected'],
+                      'mode': 'site-x86_64-avx', 'site_mode': site['mode'],
+                      'handler': identifier(site['handler']),
+                      'replacement': 'shad_site_' + name, 'original': 'shad_site_' + name + '_continue',
+                      'prototype': 'opaque-machine-site', 'evidence': site.get('evidence')})
+    if len(hooks) > 64 or not hooks and not patches:
+        raise ValueError('expected 1..64 hooks/sites or at least one code patch')
+    patch_names = set()
+    for patch in patches:
+        identifier(patch['name'])
+        expected, replacement = bytes.fromhex(patch['expected']), bytes.fromhex(patch['replacement'])
+        if (patch['name'] in patch_names or not patch.get('evidence') or not 1 <= len(expected) <= 256
+                or len(expected) != len(replacement) or expected == replacement or
+                type(patch['offset']) is not int or patch['offset'] < 0):
+            raise ValueError('invalid code patch: ' + patch['name'])
+        patch_names.add(patch['name'])
+    sdk_version = 2 if sites or patches else 1
     imports = list(SDK_IMPORTS)
     prototypes = ['#include "shad_guest.h"', '#include "shad_entry.h"']
+    if sdk_version == 2:
+        prototypes.append('#include "shad_site.h"')
     observers = []
+    site_adapters = []
+    handlers = set()
     for header in recipe.get('headers', []):
         prototypes.append('#include ' + json.dumps(str((recipe_path.parent/header).resolve())))
     prototypes.append('#ifdef __cplusplus\nextern "C" {\n#endif')
     names = set()
-    for hook in recipe['hooks']:
+    for hook in hooks:
         for field in ('name', 'replacement', 'original'):
             identifier(hook[field])
         if hook['name'] in names or hook['original'] in imports:
@@ -105,6 +135,16 @@ def build(recipe_path, compiler, output):
                 raise ValueError('entry observer must not invent an original C prototype')
             prototypes.append(f'void {callback}(const ShadGuestEntryContext*);')
             observers.append(hook)
+        elif mode == 'site-x86_64-avx':
+            if hook['site_mode'] == 'replace' and len(bytes.fromhex(hook['expected'])) > 32:
+                raise ValueError('replace site covers more than 32 bytes: ' + hook['name'])
+            handler = hook['handler']
+            if handler in (hook['replacement'], hook['original']) or handler in SDK_IMPORTS:
+                raise ValueError('site handler aliases adapter/import')
+            if handler not in handlers:
+                prototypes.append(f'void {handler}(ShadSiteContext*);')
+                handlers.add(handler)
+            site_adapters.append(hook)
         elif mode == 'typed':
             p = hook['prototype'].strip().rstrip(';')
             if not re.search(r'\b'+re.escape(hook['original'])+r'\s*\(', p) or len(p)>1024:
@@ -118,7 +158,7 @@ def build(recipe_path, compiler, output):
         raise ValueError('expected at most 128 guest bindings')
     data_bindings = set()
     assertions = []
-    exports_requested = {h['replacement'] for h in recipe['hooks']} | set(recipe.get('exports', []))
+    exports_requested = {h['replacement'] for h in hooks} | set(recipe.get('exports', []))
     if exports_requested.intersection(imports):
         raise ValueError('export/import alias')
     for binding in bindings:
@@ -176,10 +216,21 @@ def build(recipe_path, compiler, output):
             '\n'.join(f"SHAD_ENTRY_OBSERVER {h['replacement']}, {h['observer']}, {h['original']}" for h in observers) +
             '\n.section .note.GNU-stack,"",@progbits\n')
         sources.append(adapter)
+    if site_adapters:
+        adapter = output/'site_adapters.S'
+        adapter.write_text('#include ' + json.dumps(str(SDK/'site_adapter.S')) + '\n' +
+            '\n'.join(f"SHAD_SITE_ADAPTER {h['replacement']}, {h['handler']}, {h['original']}" for h in site_adapters) +
+            '\n.section .note.GNU-stack,"",@progbits\n')
+        sources.append(adapter)
     if len(sources)>66 or len(set(sources)) != len(sources):
         raise ValueError('duplicate/too many sources')
     commands = []
+    # Sibling LLVM tools keep the compiler's executable suffix (.exe on Windows).
+    def tool(name):
+        return compiler.parent/(name + (compiler.suffix if compiler.suffix.lower() == '.exe' else ''))
     dependencies = {recipe_path, Path(__file__).resolve(), SDK/'payload.ld', header}
+    if site_adapters:
+        dependencies.add(SDK/'site_adapter.S')
     dependencies.update(reviewed_dependencies)
     dependencies.add(contract_tool)
     def run(args):
@@ -207,13 +258,15 @@ def build(recipe_path, compiler, output):
         run([compiler, *flags, '-c', source, '-o', obj])
         dependencies.add(source)
         if dep.exists():
-            # Clang make dependencies; this workspace also supports escaped spaces.
-            import shlex
-            dependencies.update(Path(p) for p in shlex.split(dep.read_text().replace('\\\n',' ').split(':',1)[1]))
+            # Clang make dependencies with escaped spaces. The target ends at the
+            # first ':' followed by whitespace, so Windows drive letters survive.
+            text = re.sub(r'\\\r?\n', ' ', dep.read_text())
+            text = re.split(r':(?:\s|$)', text, maxsplit=1)[1]
+            dependencies.update(Path(p.replace('\\ ', ' ')) for p in re.split(r'(?<!\\)\s+', text) if p)
         objects.append(obj)
-    linker = compiler.parent/'ld.lld'; elf = output/'patch.elf'
+    linker = tool('ld.lld'); elf = output/'patch.elf'
     run([linker, '-static', '--no-undefined', '--fatal-warnings', '--emit-relocs',
-         '-e', recipe['hooks'][0]['replacement'], '-T', SDK/'payload.ld', '-o', elf, *objects])
+         '-e', hooks[0]['replacement'] if hooks else 'memcpy', '-T', SDK/'payload.ld', '-o', elf, *objects])
     b, h, sections, section_names, symbols, take = read_elf(elf)
     segments = []
     for i in range(h[10]):
@@ -240,28 +293,31 @@ def build(recipe_path, compiler, output):
             if kind == 1: rebase.append(address)
             elif kind not in (2,4): raise ValueError('unsupported relocation '+str(kind))
     exports = {}
-    for name in {h['replacement'] for h in recipe['hooks']} | set(recipe.get('exports',[])):
+    for name in {h['replacement'] for h in hooks} | set(recipe.get('exports',[])):
         identifier(name)
         if name not in symbols or symbols[name][2] == 0 or symbols[name][3]&15 != 2:
             raise ValueError('missing function export: '+name)
         exports[name] = symbols[name][0]
-    payload = {k:recipe[k] for k in ('id','title','module','module_sha256','hooks')}
+    payload = {k:recipe[k] for k in ('id','title','module','module_sha256')}
+    payload['hooks'] = hooks
+    if patches:
+        payload['patches'] = patches
     if 'executable_sha256' in recipe:
         payload['executable_sha256'] = recipe['executable_sha256']
     if bindings:
         payload['bindings'] = bindings
-    payload.update(schema='shadps4.guest-functions.v1', abi='x86_64-sysv', sdk_version=1,
+    payload.update(schema='shadps4.guest-functions.v1', abi='x86_64-sysv', sdk_version=sdk_version,
                    segments=segments, rebase64=rebase, exports=exports,
                    imports=[{'name':name,'slot':symbols['shad_import_slot_'+name][0]} for name in imports],
                    counters=recipe.get('counters',[]), logs=recipe.get('logs',[]), elf_sha256=sha(b))
     report = {'schema':'shadps4.guest-functions.build.v1','compiler':run([compiler,'--version']),
               'linker':run([linker,'--version']), 'commands':commands,
-              'tool_sha256':{str(p):sha(p.read_bytes()) for p in (compiler,linker,compiler.parent/'llvm-objdump')},
+              'tool_sha256':{str(p):sha(p.read_bytes()) for p in (compiler,linker,tool('llvm-objdump'))},
               'sources':{str(p.resolve()):sha(p.read_bytes()) for p in sorted(dependencies)},
-              'elf_sha256':sha(b), 'sdk_version':1}
+              'elf_sha256':sha(b), 'sdk_version':sdk_version}
     if recompile:
         report['recompile'] = recompile
-    (output/'disassembly.txt').write_text(run([compiler.parent/'llvm-objdump','-d','-r',elf]))
+    (output/'disassembly.txt').write_text(run([tool('llvm-objdump'),'-d','-r',elf]))
     encoded = (json.dumps(payload,indent=2,sort_keys=True)+'\n').encode()
     report['package_sha256'] = sha(encoded)
     (output/'patch.json').write_bytes(encoded)

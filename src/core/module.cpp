@@ -13,6 +13,7 @@
 #include "common/string_util.h"
 #include "core/aerolib/aerolib.h"
 #include "core/cpu_patches.h"
+#include "core/guest_patch_desktop.h"
 #include "core/libraries/error_codes.h"
 #include "core/loader/dwarf.h"
 #include "core/loader/plt_import.h"
@@ -422,6 +423,11 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
             MemoryPatcher::OnGameLoaded();
         }
     }
+#if !defined(SHADPS4_TYPED_HLE_HOST)
+    // C/C++ guest function packages (sites, hooks, code patches). The Android FEX
+    // runtime installs the same packages from guest_runtime.cpp instead.
+    GuestPatch::Desktop::OnModuleLoaded(*this, is_executable);
+#endif
 }
 
 void Module::FinalizeGuestPermissions() {

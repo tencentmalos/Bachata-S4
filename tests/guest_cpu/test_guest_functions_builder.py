@@ -37,7 +37,7 @@ class GuestBuilderTests(unittest.TestCase):
     def test_source_dependency_hashes(self):
         b=json.loads((self.root/'fixture/package/build.json').read_text())
         for name in ('abi.h','shad_guest.h','runtime.c','helpers.S'):
-            self.assertTrue(any(p.endswith('/'+name) for p in b['sources']))
+            self.assertTrue(any(Path(p).name==name for p in b['sources']))
     def test_duplicate_json(self):
         with self.assertRaises(ValueError):json.loads('{"abi":1,"abi":2}',object_pairs_hook=BUILDER.unique)
     def test_tls_rejected_without_stale_pass(self):
@@ -69,5 +69,41 @@ class GuestBuilderTests(unittest.TestCase):
         path=d/'recipe.json';path.write_text(json.dumps(recipe))
         with self.assertRaises(ValueError):BUILDER.build(path,self.clang,d/'output')
         self.assertFalse((d/'output/patch.json').exists())
+    def site_recipe(self,d,source,sites,patches=()):
+        (d/'site.cpp').write_text(source)
+        recipe=json.loads(json.dumps(self.recipe));recipe['sources']=[str(d/'site.cpp')]
+        recipe['hooks']=[];recipe['exports']=[];recipe['bindings']=[]
+        recipe['sites']=sites
+        if patches:recipe['patches']=list(patches)
+        path=d/'recipe.json';path.write_text(json.dumps(recipe));return path
+    def test_site_and_patch_package(self):
+        d=self.root/self._testMethodName;d.mkdir()
+        site=lambda name,mode:{'name':name,'offset':0x100 if mode=='replace' else 0x200,
+            'expected':'c745c88988083d','mode':mode,'handler':'set_rax','evidence':'test'}
+        path=self.site_recipe(d,'extern "C" void set_rax(ShadSiteContext* c){c->gpr->rax=1;*shad_site_xmm_f32(c,0)=2.0f;shad_site_zero_upper(c,0);}',
+            [site('a','replace'),site('b','before')],
+            [{'name':'p','offset':0x300,'expected':'90','replacement':'cc','evidence':'test'}])
+        BUILDER.build(path,self.clang,d/'output')
+        p=json.loads((d/'output/patch.json').read_text())
+        self.assertEqual(p['sdk_version'],2)
+        self.assertEqual([h['mode'] for h in p['hooks']],['site-x86_64-avx']*2)
+        self.assertEqual([h['site_mode'] for h in p['hooks']],['replace','before'])
+        for h in p['hooks']:
+            self.assertIn(h['replacement'],p['exports'])
+            self.assertIn(h['original'],{i['name'] for i in p['imports']})
+        self.assertEqual(p['patches'][0]['replacement'],'cc')
+        self.assertIn('SHAD_SITE_ADAPTER shad_site_a, set_rax, shad_site_a_continue',(d/'output/site_adapters.S').read_text())
+    def test_v1_recipe_keeps_sdk_version_1(self):
+        self.assertEqual(json.loads((self.root/'fixture/package/patch.json').read_text())['sdk_version'],1)
+    def test_oversized_replace_site_refused(self):
+        d=self.root/self._testMethodName;d.mkdir()
+        path=self.site_recipe(d,'extern "C" void h(ShadSiteContext*){}',
+            [{'name':'a','offset':0,'expected':'90'*33,'mode':'replace','handler':'h','evidence':'test'}])
+        with self.assertRaises(ValueError):BUILDER.build(path,self.clang,d/'output')
+    def test_unequal_code_patch_refused(self):
+        d=self.root/self._testMethodName;d.mkdir()
+        path=self.site_recipe(d,'extern "C" void h(ShadSiteContext*){}',[],
+            [{'name':'p','offset':0,'expected':'9090','replacement':'cc','evidence':'test'}])
+        with self.assertRaises(ValueError):BUILDER.build(path,self.clang,d/'output')
 
 if __name__=='__main__':unittest.main()

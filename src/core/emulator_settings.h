@@ -205,6 +205,9 @@ struct GeneralSettings {
     Setting<std::string> signaling_info{};
     Setting<bool> enable_upnp{true};
     Setting<bool> redzone_patches{false};
+    // Guest function package to install (desktop): file stem under
+    // user/guest_patches/<TITLE_ID>/, empty = none. Normally set per game.
+    Setting<std::string> guest_patch{""};
 
     // return a vector of override descriptors (runtime, but tiny)
     std::vector<OverrideItem> GetOverrideableFields() const {
@@ -233,7 +236,8 @@ struct GeneralSettings {
                                            &GeneralSettings::shadnet_webapi_server),
             make_override<GeneralSettings>("signaling_info", &GeneralSettings::signaling_info),
             make_override<GeneralSettings>("enable_upnp", &GeneralSettings::enable_upnp),
-            make_override<GeneralSettings>("redzone_patches", &GeneralSettings::redzone_patches)};
+            make_override<GeneralSettings>("redzone_patches", &GeneralSettings::redzone_patches),
+            make_override<GeneralSettings>("guest_patch", &GeneralSettings::guest_patch)};
     }
 };
 
@@ -244,7 +248,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GeneralSettings, install_dirs, addon_install_
                                    trophy_notification_side, connected_to_network,
                                    discord_rpc_enabled, show_fps_counter, console_language,
                                    big_picture_scale, shadnet_server, shadnet_webapi_server,
-                                   signaling_info, enable_upnp, redzone_patches)
+                                   signaling_info, enable_upnp, redzone_patches, guest_patch)
 
 // -------------------------------
 // Log settings
@@ -696,6 +700,7 @@ public:
     SETTING_FORWARD(m_general, SignalingInfo, signaling_info)
     SETTING_FORWARD_BOOL(m_general, UPnPEnabled, enable_upnp)
     SETTING_FORWARD_BOOL(m_general, RedZonePatchingEnabled, redzone_patches)
+    SETTING_FORWARD(m_general, GuestPatch, guest_patch)
 
     // Log settings
     SETTING_FORWARD_BOOL(m_log, LogAppend, append)

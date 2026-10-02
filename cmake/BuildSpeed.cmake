@@ -43,6 +43,9 @@ endif()
 #    Shared headers must therefore keep <windows.h> out and leave it to .cpp files.
 set(SHADPS4_UNITY_EXCLUDE
     # File-local constants/helpers with the same name as a sibling source.
+    src/core/guest_patch_desktop.cpp                  # Require (guest_patch_relocator.cpp)
+    src/core/host_runtime/guest_patch_format.cpp      # Check/Align/Put (guest_patch.cpp)
+    src/core/host_runtime/guest_patch_relocator.cpp   # Require/Append/Jump
     src/core/libraries/save_data/save_instance.cpp    # sce_sys (save_backup.cpp)
     src/core/libraries/save_data/save_memory.cpp      # sce_sys (save_backup.cpp)
     src/core/libraries/network/unix_sockets.cpp       # ConvertLevels/ConvertReturnErrorCode (posix_sockets.cpp)
