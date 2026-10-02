@@ -438,8 +438,10 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
 
     // Freed with the current tick: the ring only hands the range out again once the GPU has
     // executed the detile and the copy into the image.
-    const auto scratch =
-        staging_pool.Request(info.guest_size, MemoryType::DeviceLocal, instance.StorageMinAlignment());
+    // The detiled data is copied into the image: offsets must be a multiple of the texel block
+    // size (up to 16 bytes), not only the storage alignment (4 on AMD).
+    const auto scratch = staging_pool.Request(info.guest_size, MemoryType::DeviceLocal,
+                                              std::max<u64>(instance.StorageMinAlignment(), 16));
     const vk::Buffer out_buffer = scratch.buffer->Handle();
 
     scheduler.EndRendering(Vulkan::RenderBreak::Detile);

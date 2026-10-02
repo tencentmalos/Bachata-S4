@@ -438,8 +438,10 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBufferForImage(VAddr device_add
     if (IsRegionGpuModified(device_addr, size)) {
         return ObtainBuffer(device_addr, size, false);
     }
+    // Also the source of buffer-to-image copies, whose offsets must be a multiple of the texel
+    // block size (up to 16 bytes); the storage alignment can be as small as 4 (AMD).
     const auto staging = staging_pool.Request(size, VideoCore::MemoryType::HostUncached,
-                                              instance.StorageMinAlignment());
+                                              std::max<u64>(instance.StorageMinAlignment(), 16));
     memory->CopySparseMemory(device_addr, staging.mapped, staging.size);
     staging.Flush();
     return {staging.buffer, staging.offset};
