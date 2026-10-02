@@ -231,6 +231,12 @@ private:
     u64 stream_copies{};
     u64 stream_bytes{};
     std::array<u64, 4> stream_sizes{};
+    // CPU-dirty data copied into arenas for a binding: calls, bytes, copy regions, calls for
+    // written bindings, and calls by binding size (<=16 KiB, <=64 KiB, <=256 KiB, larger).
+    struct {
+        u64 calls{}, bytes{}, regions{}, written{};
+        std::array<u64, 4> binding_sizes{};
+    } arena_uploads;
 
     std::unique_ptr<FaultManager> fault_manager;
     std::unique_ptr<Buffer> bda_pagetable_buffer;

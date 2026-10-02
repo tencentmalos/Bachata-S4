@@ -389,6 +389,11 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
         << stream_sizes[2] << "/" << stream_sizes[3]
         << " max=" << UploadDiagnostics::stream_max.load(o) << " host_memory="
         << (host_stream_buffer && UploadDiagnostics::stream_host.load(o)) << "\n";
+    out << "arena_uploads calls=" << arena_uploads.calls << " bytes=" << arena_uploads.bytes
+        << " regions=" << arena_uploads.regions << " written=" << arena_uploads.written
+        << " binding<=16K/64K/256K/more=" << arena_uploads.binding_sizes[0] << "/"
+        << arena_uploads.binding_sizes[1] << "/" << arena_uploads.binding_sizes[2] << "/"
+        << arena_uploads.binding_sizes[3] << "\n";
     out << "stream_dma available=" << bool(staged_copier)
         << " selected=" << (staged_stream_buffer && UploadDiagnostics::stream_dma.load(o))
         << " submits=" << UploadDiagnostics::stream_dma_submits.load(o)
@@ -774,6 +779,14 @@ bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 
     if (uploaded_bytes != 0 && !copies.empty()) {
         Common::Profiler::Counter("Buffer.UploadBytes", static_cast<int64_t>(total_size_bytes));
         Common::Profiler::Scope upload_scope{"Buffer.Upload"};
+        ++arena_uploads.calls;
+        arena_uploads.bytes += total_size_bytes;
+        arena_uploads.regions += copies.size();
+        arena_uploads.written += is_written;
+        ++arena_uploads.binding_sizes[size <= 16_KB    ? 0
+                                      : size <= 64_KB  ? 1
+                                      : size <= 256_KB ? 2
+                                                       : 3];
         staging.buffer->Flush(staging.offset, total_size_bytes);
         runtime.CopyBuffer(staging.buffer, arena, copies);
     }
