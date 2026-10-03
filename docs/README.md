@@ -1,3 +1,5 @@
+**macOS arm64 / FEX 调研（2026-10-03）：[Madeira 的可复用实现、接入缺口与验证顺序](validation/madeira-fex-macos-arm64-20261003.md)。** 分支 `feature/mac_fex_arm64`，新增独立 Madeira 参考；建议选择性移植 Darwin 适配并复用本仓 PS4 HLE。只完成源码审计，尚无 Mac 编译/运行结果。
+
 **GCN 实现参考：[PC / Android GCN 模拟、fallback 与改进方向](guides/gcn-emulation.md)**（2026-10-02）：共用编译链、按驱动选择的兼容机制、精度/正确性边界、CPU/GPU成本与验证方法；[本轮A740清查证据](validation/android-native-host/gcn-software-audit-20261002.md)。
 
 **2026-09-25：[Guest GPU command trace / PM4 trace 操作入口](debugbus-gpu-command-trace.md)**（已合入主干）：有界采集、离线解码、KGSL 身份关联与错误现场保存；[MHW 实例](validation/android-native-host/mhw-gpu-trace-20260925.md)。后文 09-14 的“待实施”是历史状态。

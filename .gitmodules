@@ -209,3 +209,7 @@
 	path = references/mesa-turnip-xr-fdm2
 	url = git@github.com:tencentmalos/mesa-mirror.git
 	branch = codex/turnip-xr-fdm2
+[submodule "references/Madeira"]
+	path = references/Madeira
+	url = https://github.com/willfaust/Madeira.git
+	branch = main

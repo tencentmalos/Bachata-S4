@@ -8,6 +8,7 @@
 
 | 路径 | 精确提交与来源 | 用途 |
 |---|---|---|
+| `Madeira` | [ca3183ea3dfb0fd706aff1bea2abb871b5d27aec](https://github.com/willfaust/Madeira/tree/ca3183ea3dfb0fd706aff1bea2abb871b5d27aec) | 2026-10-03 新增，只读研究 Darwin/iOS FEX；内部 `FEX` 固定 [26859e184ad90f0e811d7f8bbd943a4b1573a2c3](https://github.com/willfaust/FEX/tree/26859e184ad90f0e811d7f8bbd943a4b1573a2c3)，不替换生产 `references/FEX`。见 [macOS arm64 调研](../docs/validation/madeira-fex-macos-arm64-20261003.md) |
 | `mesa-turnip` | [351a4847a04dbcc9e18de3b609adacae6d3c796a](https://github.com/tencentmalos/mesa-mirror/tree/351a4847a04dbcc9e18de3b609adacae6d3c796a) | Swan XR 源码驱动，基于 Azahar `1b588fce`，含 Mapper 5 编码 Surface、FDM 分块/缩放修复及默认关闭的 CP 诊断；分支 `codex/shadps4-xr-turnip`，直接参与 Android host 源码构建；GPU hang 尚未修复 |
 | `Bachata-S4-android` | [67dbf4e5b54b0467bf8a93de3de0a557a71f9f43](https://github.com/zFitness/Bachata-S4/tree/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43) | 本次选定的 Android 前端、session、输入、打包与配套历史核心 |
 | `shadps4-arm64` | [be6bc2e9c60799e071dd2fafa6216e8d80ec619c](https://github.com/zenithblue-oss/shadps4-arm64/tree/be6bc2e9c60799e071dd2fafa6216e8d80ec619c) | ARM64/FEX guest/HLE/线程回调移植参考；没有 Android Gradle 工程 |
@@ -26,6 +27,15 @@ Android、ARM64 和 FEX 的 `.gitmodules` URL 已切换为 `tencentmalos` 自有
 新增 `foundation/` 是主仓根目录的正式构建依赖，详见 [Foundation 接入](../docs/foundation-integration.md)，不计入这七个 references。
 
 ## 初始化与复现
+
+Madeira 调研参考可按需初始化，不需要递归拉取 Wine、DXMT、应用资源的构建依赖：
+
+```sh
+git submodule update --init --filter=blob:none references/Madeira
+git -C references/Madeira submodule update --init --filter=blob:none FEX
+```
+
+上述普通 checkout 仍会物化 Madeira 跟踪的应用文件；本轮为减少下载采用了 partial clone + sparse checkout，仅检出文档、FEX 构建脚本、`FEX` 和选定的 `FEXBridge` / `JITAllocator` 文件。若只读源码，可在首次 checkout 前按同样范围配置 sparse checkout。**不运行其构建脚本，不将其纳入生产依赖；源码研究不代表 macOS 运行验收。**
 
 在新 clone 中只检出参考源码，不递归下载全部外部依赖：
 

@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-03",
+  "timezone": "Asia/Shanghai",
+  "branch": "feature/mac_fex_arm64",
+  "scope": "source audit and reference only; no macOS compilation or execution",
+  "host": "Windows",
+  "parent": {
+    "head": "397c4055152c63746eb1224afa2baeed30d0ba8b",
+    "preexisting_worktree_changes": true,
+    "files": [
+      {
+        "path": "CMakeLists.txt",
+        "sha256_local_bytes": "76530617e5a7ec7a68b9cc25af1e597dab8294c93fd27aa3287bf2f4ccc07254"
+      },
+      {
+        "path": "cmake/fex/CMakeLists.txt",
+        "sha256_local_bytes": "c22f01ac3fd46893649cdcf499e9e87f6f3c7d1007fe18e3e1346a59e7b4c923"
+      },
+      {
+        "path": "src/core/guest_cpu/fex/fex_context.cpp",
+        "sha256_local_bytes": "488d7dbeea90f67b38d1d9eeed9ca31783bfc6167b05e97b478a0219c34951cd"
+      },
+      {
+        "path": "src/core/guest_cpu/api/address_space.cpp",
+        "sha256_local_bytes": "b9a31d02324bdb72a1985fefbf105056e0774159cf2695c17b6b657e4e09f99f"
+      },
+      {
+        "path": "src/core/host_runtime/guest_runtime.cpp",
+        "sha256_local_bytes": "78d813ec4ac49b91db3466cc4e41cab9a49d618a681ca70b46986187303ac891"
+      },
+      {
+        "path": "src/common/signal_context.cpp",
+        "sha256_local_bytes": "a748b1cb5dbb5f83eca7ceb057faf8d9edabba76c4b7f64f555ca9e01bcd4f16"
+      },
+      {
+        "path": "documents/building-macos.md",
+        "sha256_local_bytes": "1bb51eaaa4607b468fa01dad4375802e2ee08497040205ff3d5137953f34d145"
+      }
+    ]
+  },
+  "production_fex": {
+    "path": "references/FEX",
+    "commit": "3f1f30a060b633980ed8e7674eb8d8997457edad",
+    "unchanged": true
+  },
+  "madeira": {
+    "path": "references/Madeira",
+    "url": "https://github.com/willfaust/Madeira.git",
+    "commit": "ca3183ea3dfb0fd706aff1bea2abb871b5d27aec",
+    "remote_ref": "refs/heads/main",
+    "remote_tip_verified": "ca3183ea3dfb0fd706aff1bea2abb871b5d27aec",
+    "checkout": "partial clone, sparse checkout",
+    "files": [
+      {
+        "path": "README.md",
+        "sha256_local_bytes": "baeb14b6a714adc5e936518953160d46ed061a782339e2109c771d9c80840539"
+      },
+      {
+        "path": ".gitmodules",
+        "sha256_local_bytes": "61dd68cfc4b6688dcb6841082971be7b5f1594fa485e1c044656e7a46a2e2013"
+      },
+      {
+        "path": "build/fex-ios/build.sh",
+        "sha256_local_bytes": "1fab1470dd81a6d0716954f5955d505f1ddc4b5750e256f42547725354f67fcf"
+      },
+      {
+        "path": "build/fex-arm64ec/build.sh",
+        "sha256_local_bytes": "8608d7417f0a3853dc7a48d27920298e461292c20d2924e48f1c93eb06522424"
+      },
+      {
+        "path": "app/Madeira/FEXBridge.mm",
+        "sha256_local_bytes": "09ebe855e95724c8a27e44e33750681ef8f70e4c19a4fffe14033cec6ee9a9ea"
+      },
+      {
+        "path": "app/Madeira/JITAllocator.c",
+        "sha256_local_bytes": "d2f9828b0dd65f38816aa9e0bafe31463f21d64e27952fb8bce884c70146e7dd"
+      }
+    ]
+  },
+  "madeira_fex": {
+    "path": "references/Madeira/FEX",
+    "url": "https://github.com/willfaust/FEX.git",
+    "commit": "26859e184ad90f0e811d7f8bbd943a4b1573a2c3",
+    "remote_ref": "refs/heads/ios-port-2607",
+    "remote_tip_verified": "26859e184ad90f0e811d7f8bbd943a4b1573a2c3",
+    "checkout": "shallow partial clone; nested build dependencies not initialized",
+    "files": [
+      {
+        "path": "CMakeLists.txt",
+        "sha256_local_bytes": "c54fd2ced4ae623708e1672d6ffd69813eac4b4540e678780e3defc9fc241850"
+      },
+      {
+        "path": "FEXCore/Source/CMakeLists.txt",
+        "sha256_local_bytes": "0e94fa4b7f46f81f73d0867f01e972ae08a31c7eeb8dc9713babf37c36b116d6"
+      },
+      {
+        "path": "FEXCore/Source/Utils/Allocator.cpp",
+        "sha256_local_bytes": "ba15f461a397a9306ca62d42b97b1216e8907380b20177af3f33a92e4f971705"
+      },
+      {
+        "path": "FEXCore/include/FEXCore/Utils/DualMap.h",
+        "sha256_local_bytes": "688d22e1656b17834581797a16218e017e14cea80ac1ddb6ee85c50b9cc0df14"
+      },
+      {
+        "path": "CodeEmitter/CodeEmitter/Buffer.h",
+        "sha256_local_bytes": "a8adaf50b6b31e6da3259ac77ecc154d2c5ec073ff54d9c66f2ef28612ca2529"
+      },
+      {
+        "path": "FEXCore/Source/Interface/Core/ArchHelpers/Arm64Emitter.cpp",
+        "sha256_local_bytes": "95984ad5fec4df91a59009c7dea1d63e53f04d5fd1a28651b9996d21ee8ba135"
+      },
+      {
+        "path": "FEXCore/Source/Interface/Core/JIT/JIT.cpp",
+        "sha256_local_bytes": "00d97ff3e120de8d2f400b9eaa5b1b2a6d289c5659bf271fb44ae55563d168af"
+      },
+      {
+        "path": "FEXCore/include/FEXCore/Debug/InternalThreadState.h",
+        "sha256_local_bytes": "602a9f9cf8bc78339eacd67d3d123cc29a5c7f4ef6f9354b90289c80d983c268"
+      },
+      {
+        "path": "FEXHeaderUtils/FEXHeaderUtils/Syscalls.h",
+        "sha256_local_bytes": "869f07bb9562cb377283777358d7da47e381b5da22f79e36c70a58f1ac39bbd8"
+      },
+      {
+        "path": "Source/Common/HostFeatures.cpp",
+        "sha256_local_bytes": "c33771d2a2e7f2e87bad89a106dd459728d25d67914b212426463f7fc7e22399"
+      },
+      {
+        "path": "Source/Windows/ARM64EC/Module.cpp",
+        "sha256_local_bytes": "f10473ba7e310680b87dd5804dd0043e24739bbfd6fedb17db8eeed521487d82"
+      },
+      {
+        "path": "Source/Windows/Common/TSOHandlerConfig.h",
+        "sha256_local_bytes": "0376a9571882b1b6956caed897db9e3d85df5aeb1a1c95545f769c713c9ff123"
+      },
+      {
+        "path": "LICENSE-MADEIRA.md",
+        "sha256_local_bytes": "0e8b673faaf90ff2f368ce886fd90caa266c879d997120b7155aa1180a36a2f9"
+      }
+    ]
+  }
+}
