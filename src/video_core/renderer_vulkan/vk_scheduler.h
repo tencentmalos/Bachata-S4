@@ -414,7 +414,8 @@ public:
     /// it: these are the tile load/store round trips the guest never asked for.
     const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderResumes() const { return render_resumes; }
     bool LastBeginResumed() const { return last_begin_resumed; }
-    /// Bounded diagnostics for pass-breaking transitions/resumes; gpu_memory request re-arms.
+    /// Bounded diagnostics for pass-breaking transitions/resumes; off until a gpu_memory request
+    /// arms it, so ordinary runs do not log the loading screens.
     bool TakePassBreakLog() {
         auto n = pass_break_log_budget.load(std::memory_order_relaxed);
         while (n && !pass_break_log_budget.compare_exchange_weak(n, n - 1, std::memory_order_relaxed)) {}
@@ -641,7 +642,7 @@ private:
     u32 pass_loads{}, pass_clears{}, pass_hoists{};
     u64 pass_load_pixels{};
     RenderBreak pass_begin_cause{RenderBreak::Other};
-    std::atomic<uint32_t> pass_break_log_budget{400};
+    std::atomic<uint32_t> pass_break_log_budget{0};
     tracy::VkCtxScope* profiler_scope{};
 };
 

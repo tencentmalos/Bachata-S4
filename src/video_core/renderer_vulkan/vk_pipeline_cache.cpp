@@ -509,11 +509,11 @@ void PipelineCache::NotePipeline(const Pipeline& pipeline, u64 hash, bool preloa
     PipelineStats::RecordPipeline(
         pipeline.IsCompute() ? PipelineKind::Compute : PipelineKind::Graphics, preload, creation);
     if (!preload) {
-        LOG_INFO(Render_Vulkan, "Created {} pipeline {:#x} in {:.2f} ms ({})",
-                 pipeline.IsCompute() ? "compute" : "graphics", hash, double(creation.ns) / 1e6,
-                 !creation.feedback ? "no driver feedback"
-                 : creation.cache_hit ? "driver cache hit"
-                                      : "driver compiled");
+        LOG_DEBUG(Render_Vulkan, "Created {} pipeline {:#x} in {:.2f} ms ({})",
+                  pipeline.IsCompute() ? "compute" : "graphics", hash, double(creation.ns) / 1e6,
+                  !creation.feedback ? "no driver feedback"
+                  : creation.cache_hit ? "driver cache hit"
+                                       : "driver compiled");
     }
     driver_cache->NotePipelineCreated();
 }
@@ -527,7 +527,7 @@ const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectPar
     const auto [it, is_new] = graphics_pipelines.try_emplace(graphics_key);
     if (is_new) {
         const auto pipeline_hash = std::hash<GraphicsPipelineKey>{}(graphics_key);
-        LOG_INFO(Render_Vulkan, "Compiling graphics pipeline {:#x}", pipeline_hash);
+        LOG_DEBUG(Render_Vulkan, "Compiling graphics pipeline {:#x}", pipeline_hash);
 
         GraphicsPipeline::SerializationSupport sdata{};
         const bool defer = DeferBuilds();
@@ -575,7 +575,7 @@ const ComputePipeline* PipelineCache::GetPreparedComputePipeline() {
     const auto [it, is_new] = compute_pipelines.try_emplace(compute_key);
     if (is_new) {
         const auto pipeline_hash = std::hash<ComputePipelineKey>{}(compute_key);
-        LOG_INFO(Render_Vulkan, "Compiling compute pipeline {:#x}", pipeline_hash);
+        LOG_DEBUG(Render_Vulkan, "Compiling compute pipeline {:#x}", pipeline_hash);
 
         ComputePipeline::SerializationSupport sdata{};
         const bool defer = DeferBuilds();
@@ -865,8 +865,8 @@ vk::ShaderModule PipelineCache::CompileModule(Shader::Info& info, Shader::Runtim
                                               Shader::Backend::Bindings& binding) {
     Common::Profiler::Scope profile_scope{"GPU.CompileGuestShader"};
     const auto translate_start = std::chrono::steady_clock::now();
-    LOG_INFO(Render_Vulkan, "Compiling {} shader {:#x} {}", info.hw_stage, info.pgm_hash,
-             perm_idx != 0 ? "(permutation)" : "");
+    LOG_DEBUG(Render_Vulkan, "Compiling {} shader {:#x} {}", info.hw_stage, info.pgm_hash,
+              perm_idx != 0 ? "(permutation)" : "");
     DumpShader(code, info.pgm_hash, info.hw_stage, perm_idx, "bin");
 
     const auto ir_program = Shader::TranslateProgram(code, pools, info, runtime_info, profile);
