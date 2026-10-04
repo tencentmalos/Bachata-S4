@@ -10,7 +10,6 @@
 #include "common/thread.h"
 #include "core/emulator_settings.h"
 #include "core/diagnostics/pipeline_handoff.h"
-#include "imgui/renderer/texture_manager.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderdoc.h"
 #include "video_core/renderdoc_capture.h"
@@ -635,10 +634,6 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     const vk::Semaphore timeline = work_semaphore.Handle();
     info.AddSignal(timeline, signal_value);
 
-    {
-        Common::Profiler::Scope scope{"Vulkan.ImGuiUploads"};
-        ImGui::Core::TextureManager::Submit();
-    }
     // No pointers to the caller's SubmitInfo, current_cmdbuf, or stack arrays
     // escape. The scheduler owns the command pool and drains before destruction.
     const auto flow = Common::Profiler::Post("Vulkan.PostSubmission");

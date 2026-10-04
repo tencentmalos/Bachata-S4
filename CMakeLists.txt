@@ -1314,8 +1314,6 @@ set(IMGUI src/imgui/imgui_config.h
           src/imgui/renderer/imgui_core.h
           src/imgui/renderer/imgui_impl_sdl3.cpp
           src/imgui/renderer/imgui_impl_sdl3.h
-          src/imgui/renderer/imgui_impl_vulkan.cpp
-          src/imgui/renderer/imgui_impl_vulkan.h
           src/imgui/renderer/font_data.cpp
           src/imgui/renderer/font_data.h
           src/imgui/renderer/font_stack.cpp
@@ -1463,20 +1461,19 @@ if(BUILD_HOST_CORE)
     set_target_properties(shadps4 PROPERTIES POSITION_INDEPENDENT_CODE ON)
     add_library(shadps4_host_objects ALIAS shadps4)
     if(ANDROID)
-        # Same XR ImGui swapchain renderer used by Azahar. Keep its Vulkan-Hpp
-        # exception policy separate from shadPS4's no-exceptions wrapper.
+        # Same XR ImGui swapchain layer used by Azahar, drawn by Foundation's ImGui
+        # renderer. Keep its Vulkan-Hpp exception policy separate from shadPS4's
+        # no-exceptions wrapper.
         add_library(shadps4_xr_imgui STATIC
             foundation/modules/xr/src/XrImguiVulkanLayer.cpp
             foundation/modules/xr/src/VulkanOffscreenImages.cpp
-            foundation/modules/xr/src/XrMath.cpp
-            foundation/third_party/imgui/backends/imgui_impl_vulkan.cpp)
+            foundation/modules/xr/src/XrMath.cpp)
         target_include_directories(shadps4_xr_imgui PUBLIC
             foundation/modules/xr/include foundation/third_party/openxr/openxr_header
-            PRIVATE src foundation/third_party/imgui/backends foundation/basic/modules/implements/profiler/public)
+            PRIVATE src foundation/basic/modules/implements/profiler/public)
         target_link_libraries(shadps4_xr_imgui PRIVATE Dear_ImGui shadps4::foundation)
         target_compile_definitions(shadps4_xr_imgui PRIVATE
-            IMGUI_USER_CONFIG="${PROJECT_SOURCE_DIR}/src/imgui/imgui_config.h"
-            IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
+            IMGUI_USER_CONFIG="${PROJECT_SOURCE_DIR}/src/imgui/imgui_config.h")
         target_compile_options(shadps4_xr_imgui PRIVATE
             -include "${PROJECT_SOURCE_DIR}/src/common/foundation_profiler_scope.h")
         target_compile_features(shadps4_xr_imgui PRIVATE cxx_std_20)

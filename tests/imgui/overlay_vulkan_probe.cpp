@@ -1,14 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Real offscreen Vulkan rendering with the production backend; no Android/game claims.
+// Real offscreen Vulkan rendering with the production ImGui renderer; no Android/game claims.
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <mutex>
+#include <string_view>
 #include <vector>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dlfcn.h>
+#endif
 #include <imgui.h>
-#include "imgui/renderer/imgui_impl_vulkan.h"
+#include "spatial/imgui/VulkanRenderer.hpp"
 #include "spatial/imgui/overlay/OverlayComponents.hpp"
+#include "video_core/renderer_vulkan/vk_common.h"
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 void assert_fail_debug_msg(const char* message) {
     std::fprintf(stderr, "%s\n", message);
@@ -23,14 +30,26 @@ static T take(vk::ResultValue<T> r) {
     check(r.result);
     return r.value;
 }
-int main(int argc, char** argv) {
-    void* loader = dlopen(argc > 1 ? argv[1] : "libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+static PFN_vkGetInstanceProcAddr LoadVulkan(const char* path) {
+#ifdef _WIN32
+    HMODULE loader = LoadLibraryA(path ? path : "vulkan-1.dll");
+    return loader ? reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+                        GetProcAddress(loader, "vkGetInstanceProcAddr"))
+                  : nullptr;
+#else
+    void* loader = dlopen(path ? path : "libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
     if (!loader) {
         std::fprintf(stderr, "%s\n", dlerror());
-        return 2;
+        return nullptr;
     }
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(
-        reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(loader, "vkGetInstanceProcAddr")));
+    return reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(loader, "vkGetInstanceProcAddr"));
+#endif
+}
+int main(int argc, char** argv) {
+    const auto get_instance_proc_addr = LoadVulkan(argc > 1 && argv[1][0] ? argv[1] : nullptr);
+    if (!get_instance_proc_addr)
+        return 2;
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(get_instance_proc_addr);
     std::vector<const char*> instance_ext;
     for (const auto& e : take(vk::enumerateInstanceExtensionProperties()))
         if (std::strcmp(e.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
@@ -112,7 +131,7 @@ int main(int argc, char** argv) {
     io.IniFilename = nullptr;
     io.DisplaySize = {w, h};
     io.DeltaTime = 1.f / 60;
-    io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures | ImGuiBackendFlags_RendererHasVtxOffset;
     ImFontConfig font_config;
     font_config.SizePixels = 26;
     font_config.RasterizerDensity = 2;
@@ -123,23 +142,30 @@ int main(int argc, char** argv) {
     io.Fonts->TexGlyphPadding = 7;
     io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines;
     ImGui::GetStyle().AntiAliasedLinesUseTex = false;
-    std::mutex queue_mutex;
-    ImGui::Vulkan::Init({.instance = instance,
-                         .physical_device = physical,
-                         .device = device,
-                         .queue_family = family,
-                         .queue = queue,
-                         .queue_mutex = &queue_mutex,
-                         .image_count = 2,
-                         .min_allocation_size = 4096,
-                         .pipeline_rendering_create_info = {.colorAttachmentCount = 1,
-                                                            .pColorAttachmentFormats = &format},
-                         .check_vk_result_fn = check});
+    std::string error;
+    auto renderer = spatial::imgui::VulkanRenderer::Create(
+        {.instance = static_cast<VkInstance>(instance),
+         .physical_device = static_cast<VkPhysicalDevice>(physical),
+         .device = static_cast<VkDevice>(device),
+         .get_instance_proc_addr = get_instance_proc_addr,
+         .color_format = static_cast<VkFormat>(format),
+         .sdf_fonts = true,
+         .sampler_address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+         .on_error =
+             [](VkResult result, const char* operation, void*) {
+                 std::fprintf(stderr, "%s: %d\n", operation, int(result));
+                 std::abort();
+             }},
+        &error);
+    if (!renderer) {
+        std::fprintf(stderr, "%s\n", error.c_str());
+        return 6;
+    }
     namespace ov = spatial::imgui::overlay;
     ov::OverlayShell shell;
     ov::OverlayInitInfo init;
     init.requested_font_mode = spatial::imgui::FontRenderMode::Sdf;
-    init.renderer_capabilities = ImGui::Vulkan::FontCapabilities();
+    init.renderer_capabilities = renderer->Capabilities();
     shell.initialize(init);
     ov::PresentationEnvironment env;
     env.output.extent = {w, h};
@@ -177,7 +203,7 @@ int main(int argc, char** argv) {
         for (auto& font : fonts.roles)
             font.handle = io.FontDefault;
         shell.setResolvedFonts(fonts);
-        shell.setSdfPipelineEvidence(ImGui::Vulkan::FontEvidence());
+        shell.setSdfPipelineEvidence(renderer->Evidence());
         // Match the host: measure and route touch before NewFrame.
         ov::measureOverlayStatus(snapshot, shell.fonts(), theme, metrics);
         shell.setMetrics(metrics);
@@ -205,9 +231,11 @@ int main(int argc, char** argv) {
                 if (texture->Status == ImTextureStatus_WantCreate ||
                     texture->Status == ImTextureStatus_WantUpdates)
                     assert_fail_debug_msg("Static UI keeps requesting font uploads");
-        ImGui::Vulkan::UpdateTextures(*ImGui::GetDrawData());
         check(command.reset());
         check(command.begin({.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit}));
+        // Each frame waits for the previous one below, so it has completed.
+        renderer->BeginFrame(frame_index + 1, frame_index);
+        renderer->UpdateTextures(static_cast<VkCommandBuffer>(command), ImGui::GetDrawData());
         vk::ImageMemoryBarrier barrier{
             .srcAccessMask = first ? vk::AccessFlags{} : vk::AccessFlagBits::eTransferRead,
             .dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
@@ -226,7 +254,7 @@ int main(int argc, char** argv) {
                                    .layerCount = 1,
                                    .colorAttachmentCount = 1,
                                    .pColorAttachments = &attachment});
-        ImGui::Vulkan::RenderDrawData(*ImGui::GetDrawData(), command);
+        renderer->RenderDrawData(static_cast<VkCommandBuffer>(command), *ImGui::GetDrawData());
         command.endRenderingKHR();
         barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
@@ -244,7 +272,7 @@ int main(int argc, char** argv) {
         check(queue.waitIdle());
         first = false;
     }
-    const auto evidence = ImGui::Vulkan::FontEvidence();
+    const auto evidence = renderer->Evidence();
     if (!evidence.atlas_generated || !evidence.sdf_texture_bound || !evidence.sdf_shader_bound)
         return 3;
     auto* pixels =
@@ -259,9 +287,11 @@ int main(int argc, char** argv) {
     device.unmapMemory(readback_memory);
     if (nonblack < (only_fps ? 500 : 10000))
         return 4;
-    std::printf("%s; pixels=%zu; GPU=%s\n", ImGui::Vulkan::FontDiagnostics().c_str(), nonblack,
+    std::printf("%s; pixels=%zu; GPU=%s\n", renderer->FontDiagnostics().c_str(), nonblack,
                 physical.getProperties().deviceName.data());
-    ImGui::Vulkan::Shutdown();
+    auto& textures = ImGui::GetPlatformIO().Textures;
+    renderer->DetachImGuiTextures({textures.Data, static_cast<std::size_t>(textures.Size)});
+    renderer.reset();
     ImGui::DestroyContext();
     device.destroyCommandPool(pool);
     device.destroyBuffer(readback);

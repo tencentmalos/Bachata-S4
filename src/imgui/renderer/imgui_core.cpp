@@ -6,6 +6,9 @@
 #include <bit>
 #include <chrono>
 #include <cstdint>
+#include <memory>
+#include <mutex>
+#include <string>
 #ifndef __ANDROID__
 #include <SDL3/SDL_events.h>
 #endif
@@ -24,14 +27,10 @@
 #ifndef __ANDROID__
 #include "imgui_impl_sdl3.h"
 #endif
-#include "imgui_impl_vulkan.h"
 #include "imgui_internal.h"
+#include "spatial/imgui/VulkanRenderer.hpp"
 #include "texture_manager.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
-
-static void CheckVkResult(const vk::Result err) {
-    LOG_ERROR(ImGui, "Vulkan error {}", vk::to_string(err));
-}
 
 namespace {
 
@@ -60,6 +59,13 @@ static std::atomic<std::uint32_t> force_gamepad_input_capture_count{0};
 static const Frontend::Window* platform_window{}; // Owned by the presenter through Shutdown.
 static bool using_sdl{};
 static std::chrono::steady_clock::time_point previous_frame;
+
+// The renderer outlives every frame, but texture owners (layers, dialogs, the texture worker) may
+// release their textures from any thread, including during shutdown: they take this lock and find
+// the renderer gone instead of racing its destruction.
+static std::mutex renderer_mutex;
+static std::unique_ptr<spatial::imgui::VulkanRenderer> renderer;
+static std::atomic<spatial::imgui::VulkanRenderer*> renderer_pointer{nullptr};
 
 namespace ImGui {
 
@@ -96,9 +102,19 @@ bool IsGamepadInputCaptured() {
     return force_gamepad_input_capture_count.load(std::memory_order_relaxed) > 0;
 }
 
+spatial::imgui::VulkanRenderer* Renderer() {
+    return renderer_pointer.load(std::memory_order_acquire);
+}
+
+void ReleaseTexture(spatial::imgui::VulkanTexture* texture) {
+    std::scoped_lock lock{renderer_mutex};
+    if (renderer) {
+        renderer->ReleaseTexture(texture);
+    }
+}
+
 void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& window,
-                const u32 image_count, vk::Format surface_format,
-                const vk::AllocationCallbacks* allocator) {
+                vk::Format surface_format, const vk::AllocationCallbacks* allocator) {
 
     const auto config_path = GetUserPath(Common::FS::PathType::UserDir) / "imgui.ini";
     const auto log_path = GetUserPath(Common::FS::PathType::LogDir) / "imgui_log.txt";
@@ -164,24 +180,35 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
         Sdl::Init(window.GetSDLWindow());
 #endif
 
-    const Vulkan::InitInfo vk_info{
+    // Uploads are recorded into the frame's command buffer and retired by timeline tick, so this
+    // renderer never submits or waits on its own.
+    const spatial::imgui::VulkanRendererCreateInfo renderer_info{
         .instance = instance.GetInstance(),
         .physical_device = instance.GetPhysicalDevice(),
         .device = instance.GetDevice(),
-        .queue_family = instance.GetPresentQueueFamilyIndex(),
-        .queue = instance.GetPresentQueue(),
-        .queue_mutex = &instance.QueueMutex(),
-        .drain_submissions = [&instance] { instance.DrainSubmissions(); },
-        .image_count = image_count,
-        .min_allocation_size = 1024 * 1024,
-        .pipeline_rendering_create_info{
-            .colorAttachmentCount = 1,
-            .pColorAttachmentFormats = &surface_format,
-        },
-        .allocator = allocator,
-        .check_vk_result_fn = &CheckVkResult,
+        .get_instance_proc_addr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr,
+        .get_device_proc_addr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr,
+        .color_format = static_cast<VkFormat>(surface_format),
+        .sdf_fonts = true,
+        // Game frames and images may be drawn with UVs outside [0, 1].
+        .sampler_address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+        .allocator = reinterpret_cast<const VkAllocationCallbacks*>(allocator),
+        .on_error =
+            [](VkResult result, const char* operation, void*) {
+                LOG_ERROR(ImGui, "Vulkan error {} in {}", vk::to_string(vk::Result{result}),
+                          operation);
+            },
     };
-    Vulkan::Init(vk_info);
+    std::string error;
+    auto created = spatial::imgui::VulkanRenderer::Create(renderer_info, &error);
+    if (!created) {
+        LOG_CRITICAL(ImGui, "ImGui renderer creation failed: {}", error);
+    }
+    {
+        std::scoped_lock lock{renderer_mutex};
+        renderer = std::move(created);
+        renderer_pointer.store(renderer.get(), std::memory_order_release);
+    }
 
     TextureManager::StartWorker();
 
@@ -222,7 +249,9 @@ void OnResize() {
 }
 
 void OnSurfaceFormatChange(vk::Format surface_format) {
-    Vulkan::OnSurfaceFormatChange(surface_format);
+    if (auto* active = Renderer()) {
+        active->SetColorFormat(static_cast<VkFormat>(surface_format));
+    }
 }
 
 void Shutdown(const vk::Device& device) {
@@ -240,7 +269,16 @@ void Shutdown(const vk::Device& device) {
     const auto ini_filename = (void*)io.IniFilename;
     const auto log_filename = (void*)io.LogFilename;
 
-    Vulkan::Shutdown();
+    {
+        std::scoped_lock lock{renderer_mutex};
+        renderer_pointer.store(nullptr, std::memory_order_release);
+        if (renderer) {
+            auto& textures = GetPlatformIO().Textures;
+            renderer->DetachImGuiTextures(
+                {textures.Data, static_cast<std::size_t>(textures.Size)});
+            renderer.reset();
+        }
+    }
 #ifndef __ANDROID__
     if (using_sdl)
         Sdl::Shutdown();
@@ -370,11 +408,16 @@ ImGuiID NewFrame(bool is_reusing_frame) {
     return dockId;
 }
 
-void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
-            const vk::Extent2D& extent) {
+void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,
+            const vk::ImageView& image_view, const vk::Extent2D& extent) {
     ImGui::Render();
     ImDrawData* draw_data = GetDrawData();
-    Vulkan::UpdateTextures(*draw_data);
+    auto* active = Renderer();
+    if (active == nullptr) {
+        return;
+    }
+    active->BeginFrame(frame_tick, completed_tick);
+    active->UpdateTextures(cmdbuf, draw_data);
     if (draw_data->CmdListsCount == 0) {
         return;
     }
@@ -402,7 +445,7 @@ void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
     render_info.colorAttachmentCount = 1;
     render_info.pColorAttachments = color_attachments;
     cmdbuf.beginRendering(render_info);
-    Vulkan::RenderDrawData(*draw_data, cmdbuf);
+    active->RenderDrawData(cmdbuf, *draw_data);
     cmdbuf.endRendering();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.endDebugUtilsLabelEXT();

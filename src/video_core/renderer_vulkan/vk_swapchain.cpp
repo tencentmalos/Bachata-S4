@@ -40,7 +40,7 @@ Swapchain::Swapchain(const Instance& instance_, const Frontend::Window& window_)
     FindPresentMode();
 
     Create(window.GetWidth(), window.GetHeight());
-    ImGui::Core::Initialize(instance, window, image_count, surface_format.format);
+    ImGui::Core::Initialize(instance, window, surface_format.format);
 }
 
 Swapchain::~Swapchain() {

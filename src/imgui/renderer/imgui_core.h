@@ -15,10 +15,22 @@ namespace Vulkan {
 struct Frame;
 }
 
+namespace spatial::imgui {
+class VulkanRenderer;
+struct VulkanTexture;
+} // namespace spatial::imgui
+
 namespace ImGui::Core {
 
-void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& window, u32 image_count,
+void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& window,
                 vk::Format surface_format, const vk::AllocationCallbacks* allocator = nullptr);
+
+/// Foundation's renderer for the host context. Null outside Initialize and Shutdown.
+spatial::imgui::VulkanRenderer* Renderer();
+
+/// Releases a renderer texture, or does nothing once the renderer is gone: it destroyed every
+/// texture with it. Safe from any thread, including destructors running during shutdown.
+void ReleaseTexture(spatial::imgui::VulkanTexture* texture);
 
 void OnResize();
 
@@ -38,8 +50,10 @@ bool IsImeInputCaptured();
 
 ImGuiID NewFrame(bool is_reusing_frame = false);
 
-void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
-            const vk::Extent2D& extent);
+/// Records the frame into `cmdbuf`, which completes at timeline tick `frame_tick`; every tick up to
+/// `completed_tick` has completed, so the renderer can reuse what those frames used.
+void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,
+            const vk::ImageView& image_view, const vk::Extent2D& extent);
 
 bool MustKeepDrawing(); // Force the emulator redraw
 

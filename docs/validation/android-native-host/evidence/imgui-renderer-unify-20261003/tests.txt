@@ -1,0 +1,12 @@
+== foundation_overlay_tests [sdf]
+All tests passed (54648 assertions in 9 test cases)
+
+== foundation_overlay_tests (all)
+All tests passed (56713 assertions in 281 test cases)
+
+== overlay_vulkan_probe
+requested=sdf resolved=sdf reason=none; atlas uploads 4 full, 2 partial, 2132 KiB; SDF draws 42; pixels=259536; GPU=AMD Radeon(TM) 890M Graphics
+exit=0
+== overlay_vulkan_probe fps
+requested=sdf resolved=sdf reason=none; atlas uploads 2 full, 0 partial, 512 KiB; SDF draws 20; pixels=2008; GPU=AMD Radeon(TM) 890M Graphics
+exit=0

@@ -102,6 +102,14 @@ function(shadps4_add_foundation)
     target_compile_definitions(foundation_imgui_overlay PRIVATE
         IMGUI_USER_CONFIG="${CMAKE_SOURCE_DIR}/src/imgui/imgui_config.h")
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_imgui_overlay)
+    # One ImGui Vulkan renderer for the presenter and the XR layers, built against the same ImGui
+    # ABI (ImDrawIdx, ImTextureID) as the rest of shadPS4.
+    set(FOUNDATION_IMGUI_VULKAN_HOST_IMGUI_TARGET Dear_ImGui CACHE STRING "" FORCE)
+    add_subdirectory("${foundation_root}/modules/imgui_vulkan"
+                     "${CMAKE_CURRENT_BINARY_DIR}/foundation/imgui_vulkan" EXCLUDE_FROM_ALL)
+    target_compile_definitions(foundation_imgui_vulkan_renderer PRIVATE
+        IMGUI_USER_CONFIG="${CMAKE_SOURCE_DIR}/src/imgui/imgui_config.h")
+    target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_imgui_vulkan_renderer)
     if(ANDROID)
         add_subdirectory("${foundation_root}/modules/capture"
                          "${CMAKE_CURRENT_BINARY_DIR}/foundation/capture" EXCLUDE_FROM_ALL)

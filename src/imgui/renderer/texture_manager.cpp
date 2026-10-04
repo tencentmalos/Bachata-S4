@@ -1,7 +1,10 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
+#include <condition_variable>
 #include <deque>
+#include <mutex>
 #include <utility>
 
 #include <imgui.h>
@@ -10,8 +13,8 @@
 #include "common/polyfill_thread.h"
 #include "common/stb.h"
 #include "common/thread.h"
-#include "core/emulator_settings.h"
-#include "imgui_impl_vulkan.h"
+#include "imgui_core.h"
+#include "spatial/imgui/VulkanRenderer.hpp"
 #include "texture_manager.h"
 
 namespace ImGui {
@@ -19,11 +22,11 @@ namespace ImGui {
 namespace Core::TextureManager {
 struct Inner {
     std::atomic_int count = 0;
-    ImTextureID texture_id = nullptr;
+    // Published by the worker once the renderer owns the decoded pixels; width and height are set
+    // before it.
+    std::atomic<ImTextureID> texture_id = nullptr;
     u32 width = 0;
     u32 height = 0;
-
-    Vulkan::UploadTextureData upload_data;
 
     ~Inner();
 };
@@ -88,27 +91,25 @@ RefCountedTexture::Image RefCountedTexture::GetTexture() const {
     if (inner == nullptr) {
         return {};
     }
+    const ImTextureID id = inner->texture_id.load(std::memory_order_acquire);
+    if (id == nullptr) {
+        return {};
+    }
     return Image{
-        .im_id = inner->texture_id,
+        .im_id = id,
         .width = inner->width,
         .height = inner->height,
     };
 }
 
 RefCountedTexture::operator bool() const {
-    return inner != nullptr && inner->texture_id != nullptr;
+    return inner != nullptr && inner->texture_id.load(std::memory_order_acquire) != nullptr;
 }
 
 struct Job {
     Inner* core;
     std::vector<u8> data;
     std::filesystem::path path;
-};
-
-struct UploadJob {
-    Inner* core = nullptr;
-    Vulkan::UploadTextureData data;
-    int tick = 0; // Used to skip the first frame when destroying to await the current frame to draw
 };
 
 static std::atomic_bool g_is_worker_running = false;
@@ -118,18 +119,18 @@ static std::condition_variable g_worker_cv;
 static std::mutex g_job_list_mtx;
 static std::deque<Job> g_job_list;
 
-static std::mutex g_upload_mtx;
-static std::deque<UploadJob> g_upload_list;
-
 namespace Core::TextureManager {
 
 Inner::~Inner() {
-    if (upload_data.im_texture != nullptr) {
-        std::unique_lock lk{g_upload_mtx};
-        g_upload_list.emplace_back(UploadJob{
-            .data = this->upload_data,
-            .tick = 2,
-        });
+    // The renderer destroys the texture once the frames that may draw it have completed.
+    if (const ImTextureID id = texture_id.load(std::memory_order_acquire)) {
+        Core::ReleaseTexture(id);
+    }
+}
+
+static void Release(Inner* core) {
+    if (core->count.fetch_sub(1) == 1) {
+        delete core;
     }
 }
 
@@ -152,15 +153,11 @@ void WorkerLoop() {
             g_job_list.pop_front();
             g_job_list_mtx.unlock();
 
-            if (EmulatorSettings.IsVkCrashDiagnosticEnabled()) {
-                // FIXME: Crash diagnostic hangs when building the command buffer here
-                continue;
-            }
-
             if (!path.empty()) { // Decode PNG from file
                 Common::FS::IOFile file(path, Common::FS::FileAccessMode::Read);
                 if (!file.IsOpen()) {
                     LOG_ERROR(ImGui, "Failed to open PNG file: {}", path.string());
+                    Release(core);
                     continue;
                 }
                 png_raw.resize(file.GetSize());
@@ -170,21 +167,25 @@ void WorkerLoop() {
             }
 
             int width, height;
-            const stbi_uc* pixels =
+            stbi_uc* pixels =
                 stbi_load_from_memory(png_raw.data(), png_raw.size(), &width, &height, nullptr, 4);
-
-            auto texture = Vulkan::UploadTexture(pixels, vk::Format::eR8G8B8A8Unorm, width, height,
-                                                 width * height * 4 * sizeof(stbi_uc));
-            stbi_image_free((void*)pixels);
-
-            core->upload_data = texture;
-            core->width = width;
-            core->height = height;
-
-            std::unique_lock upload_lk{g_upload_mtx};
-            g_upload_list.emplace_back(UploadJob{
-                .core = core,
-            });
+            if (pixels == nullptr) {
+                LOG_ERROR(ImGui, "Failed to decode PNG: {}", stbi_failure_reason());
+                Release(core);
+                continue;
+            }
+            // The renderer copies the pixels and records their upload into the next frame: no
+            // submission or GPU wait happens here.
+            auto* renderer = Core::Renderer();
+            spatial::imgui::VulkanTexture* texture =
+                renderer ? renderer->CreateTexture(pixels, width, height) : nullptr;
+            stbi_image_free(pixels);
+            if (texture != nullptr) {
+                core->width = width;
+                core->height = height;
+                core->texture_id.store(texture, std::memory_order_release);
+            }
+            Release(core);
         }
     }
 }
@@ -200,6 +201,15 @@ void StopWorker() {
     { std::scoped_lock lock(g_job_list_mtx); g_is_worker_running = false; }
     g_worker_cv.notify_one();
     if (g_worker_thread.joinable()) g_worker_thread.join();
+    // Jobs never decoded still hold a reference to their texture.
+    std::deque<Job> abandoned;
+    {
+        std::scoped_lock lock(g_job_list_mtx);
+        abandoned.swap(g_job_list);
+    }
+    for (Job& job : abandoned) {
+        Release(job.core);
+    }
 }
 
 void DecodePngTexture(std::vector<u8> data, Inner* core) {
@@ -224,32 +234,6 @@ void DecodePngFile(std::filesystem::path path, Inner* core) {
     g_worker_cv.notify_one();
 }
 
-void Submit() {
-    UploadJob upload;
-    {
-        std::unique_lock lk{g_upload_mtx};
-        if (g_upload_list.empty()) {
-            return;
-        }
-        // Upload one texture at a time to avoid slow down
-        upload = g_upload_list.front();
-        g_upload_list.pop_front();
-        if (upload.tick > 0) {
-            --upload.tick;
-            g_upload_list.emplace_back(upload);
-            return;
-        }
-    }
-    if (upload.core != nullptr) {
-        upload.core->upload_data.Upload();
-        upload.core->texture_id = upload.core->upload_data.im_texture;
-        if (upload.core->count.fetch_sub(1) == 1) {
-            delete upload.core;
-        }
-    } else {
-        upload.data.Destroy();
-    }
-}
 } // namespace Core::TextureManager
 
 } // namespace ImGui

@@ -9,10 +9,6 @@
 #include "common/types.h"
 #include "imgui/imgui_texture.h"
 
-namespace vk {
-class CommandBuffer;
-}
-
 namespace ImGui::Core::TextureManager {
 
 struct Inner;
@@ -24,7 +20,5 @@ void StopWorker();
 void DecodePngTexture(std::vector<u8> data, Inner* core);
 
 void DecodePngFile(std::filesystem::path path, Inner* core);
-
-void Submit();
 
 }; // namespace ImGui::Core::TextureManager

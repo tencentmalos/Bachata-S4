@@ -1,0 +1,56 @@
+== parity_probe --device 0
+GPU: AMD Radeon(TM) 890M Graphics, validation on
+dynamic: requested=sdf resolved=sdf reason=none; atlas uploads 7 full, 11 partial, 8613 KiB; SDF draws 104
+  full 7 partial 11 bytes 8819832 draws 136 sdf 104 skipped 0 live 2
+render pass: draws 136 sdf 104 skipped 0 uploads 0
+lit pixels 149654, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK
+== parity_probe --device 1
+GPU: AMD Radeon RX 7600M XT, validation on
+dynamic: requested=sdf resolved=sdf reason=none; atlas uploads 7 full, 11 partial, 8613 KiB; SDF draws 104
+  full 7 partial 11 bytes 8819832 draws 136 sdf 104 skipped 0 live 2
+render pass: draws 136 sdf 104 skipped 0 uploads 0
+lit pixels 149654, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK
+== parity_probe --device 0 --alpha8
+GPU: AMD Radeon(TM) 890M Graphics, validation on
+dynamic: requested=sdf resolved=sdf reason=none; atlas uploads 7 full, 11 partial, 8613 KiB; SDF draws 104
+  full 7 partial 11 bytes 8819832 draws 136 sdf 104 skipped 0 live 2
+render pass: draws 136 sdf 104 skipped 0 uploads 0
+lit pixels 149654, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK
+== parity_probe --device 1 --alpha8
+GPU: AMD Radeon RX 7600M XT, validation on
+dynamic: requested=sdf resolved=sdf reason=none; atlas uploads 7 full, 11 partial, 8613 KiB; SDF draws 104
+  full 7 partial 11 bytes 8819832 draws 136 sdf 104 skipped 0 live 2
+render pass: draws 136 sdf 104 skipped 0 uploads 0
+lit pixels 149654, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK
+== parity_probe --device 0 --upstream
+GPU: AMD Radeon(TM) 890M Graphics, validation on
+dynamic: requested=sdf resolved=bitmap reason=backend-lacks-sdf; atlas uploads 5 full, 11 partial, 8283 KiB; SDF draws 0
+  full 5 partial 11 bytes 8482520 draws 72 sdf 0 skipped 0 live 1
+render pass: draws 72 sdf 0 skipped 0 uploads 0
+lit pixels 120198, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK
+== parity_probe --device 1 --upstream
+GPU: AMD Radeon RX 7600M XT, validation on
+dynamic: requested=sdf resolved=bitmap reason=backend-lacks-sdf; atlas uploads 5 full, 11 partial, 8283 KiB; SDF draws 0
+  full 5 partial 11 bytes 8482520 draws 72 sdf 0 skipped 0 live 1
+render pass: draws 72 sdf 0 skipped 0 uploads 0
+lit pixels 120198, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK
+== parity_probe --device 0 --frames 40
+GPU: AMD Radeon(TM) 890M Graphics, validation on
+dynamic: requested=sdf resolved=sdf reason=none; atlas uploads 7 full, 13 partial, 8646 KiB; SDF draws 248
+  full 7 partial 13 bytes 8854520 draws 328 sdf 248 skipped 0 live 2
+render pass: draws 328 sdf 248 skipped 0 uploads 0
+lit pixels 149789, mismatching frames 0, validation errors 0 warnings 0
+teardown validation errors 0
+PARITY OK

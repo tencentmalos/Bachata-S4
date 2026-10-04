@@ -23,7 +23,7 @@
 #include "imgui/invitation_prompt_layer.h"
 #include "imgui/notifications_layer.h"
 #include "imgui/renderer/imgui_core.h"
-#include "imgui/renderer/imgui_impl_vulkan.h"
+#include "spatial/imgui/VulkanRenderer.hpp"
 #include "imgui/shadnet_notifications_layer.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/renderdoc.h"
@@ -600,7 +600,8 @@ bool Presenter::IsVideoOutSurface(const AmdGpu::ColorBuffer& color_buffer) const
 void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
     const vk::Device device = instance.GetDevice();
     if (frame->imgui_texture) {
-        ImGui::Vulkan::RemoveTexture(frame->imgui_texture);
+        ImGui::Core::ReleaseTexture(frame->imgui_texture);
+        frame->imgui_texture = nullptr;
     }
     if (frame->image_view) {
         device.destroyImageView(frame->image_view);
@@ -661,7 +662,10 @@ void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
     frame->width = width;
     frame->height = height;
 
-    frame->imgui_texture = ImGui::Vulkan::AddTexture(view, vk::ImageLayout::eShaderReadOnlyOptimal);
+    if (auto* imgui_renderer = ImGui::Core::Renderer()) {
+        frame->imgui_texture =
+            imgui_renderer->AddTexture(view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    }
     frame->is_hdr = swapchain.GetHDR();
 }
 
@@ -1557,7 +1561,14 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
             ImGui::PopStyleColor();
         }
         status_layer->Draw();
-        ImGui::Core::Render(cmdbuf, swapchain_image_view, swapchain.GetExtent());
+        {
+            // ImGui resources are retired by this scheduler's timeline: the command buffer
+            // completes at CurrentTick().
+            auto& work = *scheduler.GetWorkSemaphore();
+            work.Refresh();
+            ImGui::Core::Render(cmdbuf, scheduler.CurrentTick(), work.KnownGpuTick(),
+                                swapchain_image_view, swapchain.GetExtent());
+        }
 
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
         // Frame::image contains the complete application render target. Host

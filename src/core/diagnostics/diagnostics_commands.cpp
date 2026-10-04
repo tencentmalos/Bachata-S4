@@ -12,6 +12,7 @@
 #include "video_core/renderer_vulkan/openxr/status_scene.h"
 #include "video_core/renderer_vulkan/openxr/cinema_environment.h"
 #endif
+#include "common/path_util.h"
 #include "common/profiler.h"
 #include "common/thread.h"
 #include "common/gpu_timing.h"
@@ -579,6 +580,23 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             out << "overlay: " << (status_overlay_enabled.load() ? "shown" : "hidden") << "\n";
             out << "overlay_redraw: " << FormatCounter(snap.Counter(AdvanceSignal::OverlayRedraw), snap.snapshot_ns) << "\n";
             out << "session: " << (snap.has_session ? "session_active" : "no_session") << "\n";
+            return out.str();
+        });
+
+    // The keyboard screenshot shortcuts, reachable without a window: "overlays" includes the
+    // host ImGui layers (status overlay, dialogs), "game" is the guest frame alone.
+    registry.Register("screenshot", "screenshot overlays|game -- save the next presented frame as a "
+                      "PNG under the user screenshots directory",
+        [](const std::vector<std::string>& args) {
+            const std::string kind = args.empty() ? "overlays" : args[0];
+            if (args.size() > 1 || (kind != "overlays" && kind != "game")) return BadArguments();
+            VideoCore::RequestScreenshot(kind == "game" ? VideoCore::ScreenshotRequest::GameOnly
+                                                        : VideoCore::ScreenshotRequest::WithOverlays);
+            std::ostringstream out;
+            out << "request: queued\nkind: " << kind << "\ndirectory: "
+                << Common::FS::PathToUTF8String(
+                       Common::FS::GetUserPath(Common::FS::PathType::ScreenshotsDir))
+                << "\n";
             return out.str();
         });
 
