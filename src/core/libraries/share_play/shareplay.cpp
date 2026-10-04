@@ -22,7 +22,7 @@ int PS4_SYSV_ABI sceSharePlayGetCurrentConnectionInfo(OrbisSharePlayConnectionIn
 }
 
 int PS4_SYSV_ABI sceSharePlayGetCurrentConnectionInfoA() {
-    LOG_ERROR(Lib_SharePlay, "(STUBBED) called");
+    LOG_DEBUG(Lib_SharePlay, "(STUBBED) called");
     return ORBIS_OK;
 }
 

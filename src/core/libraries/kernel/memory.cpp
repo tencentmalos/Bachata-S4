@@ -80,12 +80,6 @@ s32 PS4_SYSV_ABI sceKernelAllocateDirectMemory(s64 searchStart, s64 searchEnd, u
     }
 
     *physAddrOut = static_cast<s64>(phys_addr);
-
-    LOG_INFO(Kernel_Vmm,
-             "searchStart = {:#x}, searchEnd = {:#x}, len = {:#x}, "
-             "alignment = {:#x}, memoryType = {:#x}, physAddrOut = {:#x}",
-             searchStart, searchEnd, len, alignment, memoryType, phys_addr);
-
     return ORBIS_OK;
 }
 
@@ -96,7 +90,6 @@ s32 PS4_SYSV_ABI sceKernelAllocateMainDirectMemory(u64 len, u64 alignment, s32 m
 }
 
 s32 PS4_SYSV_ABI sceKernelCheckedReleaseDirectMemory(u64 start, u64 len) {
-    LOG_INFO(Kernel_Vmm, "called start = {:#x}, len = {:#x}", start, len);
     if (!Common::Is16KBAligned(start) || !Common::Is16KBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "Misaligned start or length, start = {:#x}, length = {:#x}", start,
                   len);
@@ -110,7 +103,6 @@ s32 PS4_SYSV_ABI sceKernelCheckedReleaseDirectMemory(u64 start, u64 len) {
 }
 
 s32 PS4_SYSV_ABI sceKernelReleaseDirectMemory(u64 start, u64 len) {
-    LOG_INFO(Kernel_Vmm, "called start = {:#x}, len = {:#x}", start, len);
     if (!Common::Is16KBAligned(start) || !Common::Is16KBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "Misaligned start or length, start = {:#x}, length = {:#x}", start,
                   len);
@@ -126,9 +118,6 @@ s32 PS4_SYSV_ABI sceKernelReleaseDirectMemory(u64 start, u64 len) {
 
 s32 PS4_SYSV_ABI sceKernelAvailableDirectMemorySize(u64 searchStart, u64 searchEnd, u64 alignment,
                                                     u64* physAddrOut, u64* sizeOut) {
-    LOG_INFO(Kernel_Vmm, "called searchStart = {:#x}, searchEnd = {:#x}, alignment = {:#x}",
-             searchStart, searchEnd, alignment);
-
     if (physAddrOut == nullptr || sizeOut == nullptr) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
@@ -152,14 +141,11 @@ s32 PS4_SYSV_ABI sceKernelAvailableDirectMemorySize(u64 searchStart, u64 searchE
 
 s32 PS4_SYSV_ABI sceKernelVirtualQuery(const void* addr, s32 flags, OrbisVirtualQueryInfo* info,
                                        u64 infoSize) {
-    LOG_INFO(Kernel_Vmm, "called addr = {}, flags = {:#x}", fmt::ptr(addr), flags);
     auto* memory = Core::Memory::Instance();
     return memory->VirtualQuery(std::bit_cast<VAddr>(addr), flags, info);
 }
 
 s32 PS4_SYSV_ABI sceKernelReserveVirtualRange(void** addr, u64 len, s32 flags, u64 alignment) {
-    LOG_INFO(Kernel_Vmm, "addr = {}, len = {:#x}, flags = {:#x}, alignment = {:#x}",
-             fmt::ptr(*addr), len, flags, alignment);
     if (addr == nullptr) {
         LOG_ERROR(Kernel_Vmm, "Address is invalid!");
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -186,21 +172,12 @@ s32 PS4_SYSV_ABI sceKernelReserveVirtualRange(void** addr, u64 len, s32 flags, u
         map_flags &= ~Core::MemoryMapFlags::Fixed;
     }
 
-    s32 result = memory->MapMemory(addr, in_addr, len, Core::MemoryProt::NoAccess, map_flags,
-                                   Core::VMAType::Reserved, "anon", false, -1, alignment);
-    if (result == 0) {
-        LOG_INFO(Kernel_Vmm, "out_addr = {}", fmt::ptr(*addr));
-    }
-    return result;
+    return memory->MapMemory(addr, in_addr, len, Core::MemoryProt::NoAccess, map_flags,
+                             Core::VMAType::Reserved, "anon", false, -1, alignment);
 }
 
 s32 PS4_SYSV_ABI sceKernelMapNamedDirectMemory(void** addr, u64 len, s32 prot, s32 flags,
                                                s64 phys_addr, u64 alignment, const char* name) {
-    LOG_INFO(Kernel_Vmm,
-             "in_addr = {}, len = {:#x}, prot = {:#x}, flags = {:#x}, "
-             "phys_addr = {:#x}, alignment = {:#x}, name = '{}'",
-             fmt::ptr(*addr), len, prot, flags, phys_addr, alignment, name);
-
     if (len == 0 || !Common::Is16KBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "Map size is either zero or not 16KB aligned!");
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -247,12 +224,8 @@ s32 PS4_SYSV_ABI sceKernelMapNamedDirectMemory(void** addr, u64 len, s32 prot, s
         map_flags &= ~Core::MemoryMapFlags::Fixed;
     }
 
-    const auto ret =
-        memory->MapMemory(addr, in_addr, len, mem_prot, map_flags, Core::VMAType::Direct, name,
-                          should_check, phys_addr, alignment);
-
-    LOG_INFO(Kernel_Vmm, "out_addr = {}", fmt::ptr(*addr));
-    return ret;
+    return memory->MapMemory(addr, in_addr, len, mem_prot, map_flags, Core::VMAType::Direct, name,
+                             should_check, phys_addr, alignment);
 }
 
 s32 PS4_SYSV_ABI sceKernelMapDirectMemory(void** addr, u64 len, s32 prot, s32 flags, s64 phys_addr,
@@ -263,11 +236,6 @@ s32 PS4_SYSV_ABI sceKernelMapDirectMemory(void** addr, u64 len, s32 prot, s32 fl
 
 s32 PS4_SYSV_ABI sceKernelMapDirectMemory2(void** addr, u64 len, s32 type, s32 prot, s32 flags,
                                            s64 phys_addr, u64 alignment) {
-    LOG_INFO(Kernel_Vmm,
-             "in_addr = {}, len = {:#x}, prot = {:#x}, flags = {:#x}, "
-             "phys_addr = {:#x}, alignment = {:#x}",
-             fmt::ptr(*addr), len, prot, flags, phys_addr, alignment);
-
     if (len == 0 || !Common::Is16KBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "Map size is either zero or not 16KB aligned!");
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -304,15 +272,12 @@ s32 PS4_SYSV_ABI sceKernelMapDirectMemory2(void** addr, u64 len, s32 type, s32 p
         auto* memory = Core::Memory::Instance();
         const auto out_addr = reinterpret_cast<VAddr>(*addr);
         memory->SetDirectMemoryType(out_addr, len, type);
-        LOG_INFO(Kernel_Vmm, "out_addr = {:#x}", out_addr);
     }
     return ret;
 }
 
 s32 PS4_SYSV_ABI sceKernelMapNamedFlexibleMemory(void** addr_in_out, u64 len, s32 prot, s32 flags,
                                                  const char* name) {
-    LOG_INFO(Kernel_Vmm, "in_addr = {}, len = {:#x}, prot = {:#x}, flags = {:#x}, name = '{}'",
-             fmt::ptr(*addr_in_out), len, prot, flags, name);
     if (len == 0 || !Common::Is16KBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "len is 0 or not 16kb multiple");
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -340,10 +305,8 @@ s32 PS4_SYSV_ABI sceKernelMapNamedFlexibleMemory(void** addr_in_out, u64 len, s3
         map_flags &= ~Core::MemoryMapFlags::Fixed;
     }
 
-    const auto ret = memory->MapMemory(addr_in_out, in_addr, len, mem_prot, map_flags,
-                                       Core::VMAType::Flexible, name);
-    LOG_INFO(Kernel_Vmm, "out_addr = {}", fmt::ptr(*addr_in_out));
-    return ret;
+    return memory->MapMemory(addr_in_out, in_addr, len, mem_prot, map_flags,
+                             Core::VMAType::Flexible, name);
 }
 
 s32 PS4_SYSV_ABI sceKernelMapFlexibleMemory(void** addr_in_out, u64 len, s32 prot, s32 flags) {
@@ -352,8 +315,6 @@ s32 PS4_SYSV_ABI sceKernelMapFlexibleMemory(void** addr_in_out, u64 len, s32 pro
 
 s32 PS4_SYSV_ABI sceKernelMapNamedSystemFlexibleMemory(void** addr_in_out, u64 len, s32 prot,
                                                        s32 flags, const char* name) {
-    LOG_INFO(Kernel_Vmm, "in_addr = {}, len = {:#x}, prot = {:#x}, flags = {:#x}, name = '{}'",
-             fmt::ptr(*addr_in_out), len, prot, flags, name);
     if (len == 0 || !Common::Is16KBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "len is 0 or not 16kb multiple");
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -383,10 +344,8 @@ s32 PS4_SYSV_ABI sceKernelMapNamedSystemFlexibleMemory(void** addr_in_out, u64 l
     }
     const auto mem_prot = static_cast<Core::MemoryProt>(prot);
     auto* memory = Core::Memory::Instance();
-    const auto ret = memory->MapMemory(addr_in_out, in_addr, len, mem_prot, map_flags,
-                                       Core::VMAType::System, name);
-    LOG_INFO(Kernel_Vmm, "out_addr = {}", fmt::ptr(*addr_in_out));
-    return ret;
+    return memory->MapMemory(addr_in_out, in_addr, len, mem_prot, map_flags, Core::VMAType::System,
+                             name);
 }
 
 s32 PS4_SYSV_ABI sceKernelQueryMemoryProtection(void* addr, void** start, void** end, u32* prot) {
@@ -395,8 +354,6 @@ s32 PS4_SYSV_ABI sceKernelQueryMemoryProtection(void* addr, void** start, void**
 }
 
 s32 PS4_SYSV_ABI sceKernelMprotect(const void* addr, u64 size, s32 prot) {
-    LOG_INFO(Kernel_Vmm, "called addr = {}, size = {:#x}, prot = {:#x}", fmt::ptr(addr), size,
-             prot);
     // Align addr and size to the nearest page boundary.
     const VAddr in_addr = reinterpret_cast<VAddr>(addr);
     auto aligned_addr = Common::AlignDown(in_addr, 16_KB);
@@ -427,8 +384,6 @@ s32 PS4_SYSV_ABI posix_mprotect(const void* addr, u64 size, s32 prot) {
 }
 
 s32 PS4_SYSV_ABI sceKernelMtypeprotect(const void* addr, u64 size, s32 mtype, s32 prot) {
-    LOG_INFO(Kernel_Vmm, "called addr = {}, size = {:#x}, prot = {:#x}", fmt::ptr(addr), size,
-             prot);
     // Align addr and size to the nearest page boundary.
     const VAddr in_addr = reinterpret_cast<VAddr>(addr);
     auto aligned_addr = Common::AlignDown(in_addr, 16_KB);
@@ -453,7 +408,6 @@ s32 PS4_SYSV_ABI sceKernelMtypeprotect(const void* addr, u64 size, s32 mtype, s3
 
 s32 PS4_SYSV_ABI sceKernelDirectMemoryQuery(u64 offset, s32 flags, OrbisQueryInfo* query_info,
                                             u64 infoSize) {
-    LOG_INFO(Kernel_Vmm, "called offset = {:#x}, flags = {:#x}", offset, flags);
     auto* memory = Core::Memory::Instance();
     return memory->DirectMemoryQuery(offset, flags == 1, query_info);
 }
@@ -461,7 +415,6 @@ s32 PS4_SYSV_ABI sceKernelDirectMemoryQuery(u64 offset, s32 flags, OrbisQueryInf
 s32 PS4_SYSV_ABI sceKernelAvailableFlexibleMemorySize(u64* out_size) {
     auto* memory = Core::Memory::Instance();
     *out_size = memory->GetAvailableFlexibleSize();
-    LOG_INFO(Kernel_Vmm, "called size = {:#x}", *out_size);
     return ORBIS_OK;
 }
 
@@ -473,7 +426,6 @@ void PS4_SYSV_ABI _sceKernelRtldSetApplicationHeapAPI(void* func[]) {
 s32 PS4_SYSV_ABI sceKernelGetDirectMemoryType(u64 addr, s32* directMemoryTypeOut,
                                               void** directMemoryStartOut,
                                               void** directMemoryEndOut) {
-    LOG_WARNING(Kernel_Vmm, "called, direct memory addr = {:#x}", addr);
     auto* memory = Core::Memory::Instance();
     return memory->GetDirectMemoryType(addr, directMemoryTypeOut, directMemoryStartOut,
                                        directMemoryEndOut);
@@ -597,19 +549,11 @@ s32 PS4_SYSV_ABI sceKernelMemoryPoolExpand(u64 searchStart, u64 searchEnd, u64 l
     }
 
     *physAddrOut = static_cast<s64>(phys_addr);
-
-    LOG_INFO(Kernel_Vmm,
-             "searchStart = {:#x}, searchEnd = {:#x}, len = {:#x}, alignment = {:#x}, physAddrOut "
-             "= {:#x}",
-             searchStart, searchEnd, len, alignment, phys_addr);
     return ORBIS_OK;
 }
 
 s32 PS4_SYSV_ABI sceKernelMemoryPoolReserve(void* addr_in, u64 len, u64 alignment, s32 flags,
                                             void** addr_out) {
-    LOG_INFO(Kernel_Vmm, "addr_in = {}, len = {:#x}, alignment = {:#x}, flags = {:#x}",
-             fmt::ptr(addr_in), len, alignment, flags);
-
     if (len == 0 || !Common::Is2MBAligned(len)) {
         LOG_ERROR(Kernel_Vmm, "Map size is either zero or not 2MB aligned!");
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -647,9 +591,6 @@ s32 PS4_SYSV_ABI sceKernelMemoryPoolCommit(void* addr, u64 len, s32 type, s32 pr
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
-    LOG_INFO(Kernel_Vmm, "addr = {}, len = {:#x}, type = {:#x}, prot = {:#x}, flags = {:#x}",
-             fmt::ptr(addr), len, type, prot, flags);
-
     const VAddr in_addr = reinterpret_cast<VAddr>(addr);
     auto* memory = Core::Memory::Instance();
     return memory->PoolCommit(in_addr, len, mem_prot, type);
@@ -664,8 +605,6 @@ s32 PS4_SYSV_ABI sceKernelMemoryPoolDecommit(void* addr, u64 len, s32 flags) {
         LOG_ERROR(Kernel_Vmm, "Map size is either zero or not 64KB aligned!");
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
-
-    LOG_INFO(Kernel_Vmm, "addr = {}, len = {:#x}, flags = {:#x}", fmt::ptr(addr), len, flags);
 
     const VAddr pool_addr = reinterpret_cast<VAddr>(addr);
     auto* memory = Core::Memory::Instance();
@@ -728,7 +667,6 @@ s32 PS4_SYSV_ABI sceKernelMemoryPoolBatch(const OrbisKernelMemoryPoolBatchEntry*
 
 s32 PS4_SYSV_ABI sceKernelMemoryPoolGetBlockStats(OrbisKernelMemoryPoolBlockStats* stats,
                                                   u64 size) {
-    LOG_WARNING(Kernel_Vmm, "called");
     auto* memory = Core::Memory::Instance();
     OrbisKernelMemoryPoolBlockStats local_stats;
     memory->GetMemoryPoolStats(&local_stats);
@@ -745,11 +683,6 @@ s32 PS4_SYSV_ABI sceKernelMemoryPoolGetBlockStats(OrbisKernelMemoryPoolBlockStat
 
 s32 MapVirtualMemory(void* addr, u64 len, s32 prot, s32 flags, s32 fd, s64 phys_addr,
                      void** out, const Core::NativeFileMapping* native_file) {
-    LOG_INFO(
-        Kernel_Vmm,
-        "called addr = {}, len = {:#x}, prot = {:#x}, flags = {:#x}, fd = {}, phys_addr = {:#x}",
-        fmt::ptr(addr), len, prot, flags, fd, phys_addr);
-
     if (!out || !len || len > UINT64_MAX - (16_KB - 1) ||
         reinterpret_cast<VAddr>(addr) > UINT64_MAX - (16_KB - 1)) {
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -837,7 +770,6 @@ s32 PS4_SYSV_ABI sceKernelConfiguredFlexibleMemorySize(u64* sizeOut) {
 }
 
 s32 PS4_SYSV_ABI sceKernelMunmap(void* addr, u64 len) {
-    LOG_INFO(Kernel_Vmm, "addr = {}, len = {:#x}", fmt::ptr(addr), len);
     if (len == 0) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }

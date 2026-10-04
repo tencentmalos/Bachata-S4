@@ -67,7 +67,7 @@ int PS4_SYSV_ABI sceGameLiveStreamingGetCurrentStatus(OrbisGameLiveStreamingStat
 }
 
 int PS4_SYSV_ABI sceGameLiveStreamingGetCurrentStatus2() {
-    LOG_ERROR(Lib_GameLiveStreaming, "(STUBBED) called");
+    LOG_DEBUG(Lib_GameLiveStreaming, "(STUBBED) called");
     return ORBIS_OK;
 }
 

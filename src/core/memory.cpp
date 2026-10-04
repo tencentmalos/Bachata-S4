@@ -1077,6 +1077,7 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
 
         for (const auto& [addr, size] : remove_list) {
             UnmapMemoryImpl(addr, size, guest_backend ? nullptr : &deferred);
+            RecordMapping("unmap-free", addr, size, 0);
         }
 
         // Unmap all dmem areas within this area.
@@ -1099,9 +1100,6 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
         for (const auto& [addr, size] : deferred) {
             impl.Unmap(addr, size);
         }
-    }
-    for (const auto& [addr, size] : remove_list) {
-        LOG_INFO(Kernel_Vmm, "Unmapped direct mapping {:#x} with size {:#x}", addr, size);
     }
 
     return ORBIS_OK;

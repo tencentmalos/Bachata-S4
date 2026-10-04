@@ -1055,9 +1055,9 @@ s32 PS4_SYSV_ABI sceAudio3dPortQueryDebug() {
 s32 PS4_SYSV_ABI sceAudio3dPortSetAttribute(const OrbisAudio3dPortId port_id,
                                             const OrbisAudio3dAttributeId attribute_id,
                                             void* attribute, const u64 attribute_size) {
-    LOG_INFO(Lib_Audio3d,
-             "called, port_id = {}, attribute_id = {}, attribute = {}, attribute_size = {}",
-             port_id, static_cast<u32>(attribute_id), attribute, attribute_size);
+    LOG_DEBUG(Lib_Audio3d,
+              "called, port_id = {}, attribute_id = {}, attribute = {}, attribute_size = {}",
+              port_id, static_cast<u32>(attribute_id), attribute, attribute_size);
 
     if (!state->ports.contains(port_id)) {
         LOG_ERROR(Lib_Audio3d, "!state->ports.contains(port_id)");
