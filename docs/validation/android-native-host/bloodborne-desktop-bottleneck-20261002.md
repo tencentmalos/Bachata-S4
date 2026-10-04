@@ -301,6 +301,7 @@ GPU timing detail 下 guest 帧约 10 ms GPU，原来约 19 ms。
 - 没有与旧 APK 对比。
 - 设备上的采集文件核对 SHA 后已删除。游戏留在运行状态。存档在读档（22:22）和自动保存（22:27）时被游戏改写，角色未移动。
 - 证据：[android-pocketds-prof-budget.txt](evidence/bloodborne-desktop-bottleneck-20261002/android-pocketds-prof-budget.txt)、[android-pocketds-threads.txt](evidence/bloodborne-desktop-bottleneck-20261002/android-pocketds-threads.txt)、[截图](evidence/bloodborne-desktop-bottleneck-20261002/android-pocketds-central-yharnam.png)。PROF（`4d369dd8…`，17 MB）只保存在本地。
+- 后续深入分析（调度、采样、写跟踪缺页、同步唤醒、温控）见 [bloodborne-android-bottleneck-20261002.md](bloodborne-android-bottleneck-20261002.md)。
 
 ## 边界（分析部分）
 

@@ -1,0 +1,37 @@
+AYANEO Pocket DS (01108YHE01017563), Bloodborne CUSA03023, Central Yharnam start, standing still.
+PID 30356, generation 1, run c6e085e3110d1083d01ac3324c380c11, APK 118345b985ef33d3b269ebf7687ff415578d666f572b86cd659a24bf9dcbed1e
+(host 590594e55d07b2ee1f4f5ed7e47ec87ca681848ff97d251ccba3130fee31bb63, source 397c40551).
+
+== Buffer-cache counters, per frame (scratchpad awatch.sh: two `gpu_memory request/status` snapshots + debug_status flips)
+window 11.22 s, frames 285, fps 25.4, draws/frame 932
+  watch_calls                56.8 /frame     (re-protect calls after GPU use)
+  watch_pages              1187.9 /frame
+  release_calls             296.5 /frame     (write faults handled: unprotect on CPU write)
+  release_pages             937.5 /frame
+  syscalls                  353.2 /frame     (mprotect)
+  predicted_pages           634.5 /frame     (released ahead of the faulting page by watch_predict)
+  mirror_regions            456.0 /frame     (hle_guest_copy)
+  mirror_bytes          1223954.7 /frame
+  stream_copies            4895.0 /frame
+  stream_bytes          4029730.7 /frame
+  stream_s256              1830.1 /frame     (<= 256 B)
+  stream_s1k               2670.2 /frame     (<= 1 KiB)
+  stream_s4k                112.6 /frame     (<= 4 KiB)
+  stream_smore              282.2 /frame     (<= 16 KiB, the stream limit)
+  arena_calls                27.7 /frame     (dirty-range uploads into arenas)
+  arena_bytes           3803919.3 /frame
+  arena_regions              78.1 /frame
+upload_diag: watch_coalesce=on watch_predict=on
+
+Memory types used by VMA (gpu_memory status):
+  type0 flags7  = DEVICE_LOCAL | HOST_VISIBLE | HOST_COHERENT            (Stream, HostUncached, stream-pool, BDA table)
+  type1 flags15 = DEVICE_LOCAL | HOST_VISIBLE | HOST_COHERENT | HOST_CACHED (HostCached, 64 KiB in use)
+
+== Thermal and frequency state (during the captures)
+dumpsys thermalservice: Thermal Status 3 (SEVERE); skin 65.351 C (status 3); GPU sensors 75-82 C; CPU6 78.9 C; battery 38.0 C.
+cpufreq caps: policy3 (cpu3-6, Cortex-A715) scaling_max_freq 1785600 of cpuinfo_max 2803200;
+              policy7 (cpu7, Cortex-X3) scaling_max_freq 1593600 of cpuinfo_max 3360000;
+              policy0 (cpu0-2, Cortex-A510) cap unreadable (permission denied), cur 1344000, hw max 2016000.
+Time-weighted average in the Perfetto window: cpu0-2 1809 MHz, cpu3-6 1780 MHz, cpu7 1268 MHz.
+GPU: kgsl gpuclk 680 MHz = max_gpuclk (not throttled), gpubusy 76-82 %.
+After the APK reinstall (PID 7074, about 6 minutes later): Thermal Status 3 again, policy3 1785600, policy7 1593600.

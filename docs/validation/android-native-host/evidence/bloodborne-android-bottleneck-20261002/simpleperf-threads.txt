@@ -1,0 +1,1126 @@
+# simpleperf record --app com.shadps4.android -e cpu-cycles -f 2000 --duration 10 --call-graph fp
+# perf-hot1.data sha256 4c02e0f837f2a3a9eed2825c392b06975e04969cabe2ae328e2f5965836dc132, 107,828 samples, 0 lost, PID 30356
+# ms/frame below = samples x 0.5 ms / 267 frames; frequency-mode sampling overstates absolute time (compare /proc), use the percentages.
+
+samples 107828, frames 267, ms/frame = samples*0.5/267
+
+## threads (ms/frame on-CPU, by code kind)
+  Guest-1                    29.8   jit 19.5, kernel 6.0, host 1.7, libc 1.4, fex 0.9
+  shadPS4:GpuComm            20.4   host 14.3, libc 4.5, kernel 1.5, turnip 0.1, other:linker64 0.1
+  Guest-17                   13.8   jit 12.1, kernel 0.6, host 0.6, libc 0.4, fex 0.2
+  shadPS4:VkRecor            12.6   turnip 9.2, libc 2.0, host 1.0, kernel 0.4, other:linker64 0.0
+  Guest-24                   11.3   jit 5.8, kernel 3.7, host 0.8, libc 0.5, fex 0.2
+  Guest-22                   11.3   jit 6.4, kernel 3.1, host 0.8, libc 0.6, fex 0.3
+  Guest-25                   11.1   jit 5.9, kernel 3.4, host 0.8, libc 0.5, fex 0.3
+  Guest-23                   11.1   jit 6.1, kernel 3.2, host 0.8, libc 0.5, fex 0.3
+  Guest-21                   10.9   jit 6.2, kernel 3.1, host 0.7, libc 0.5, fex 0.3
+  Guest-20                    7.6   jit 4.5, host 1.3, libc 0.9, kernel 0.6, fex 0.2
+  shadPS4:Present             5.1   kernel 2.7, host 1.0, turnip 0.4, libc 0.3, other:libgui.so 0.3
+  Guest-36                    3.9   jit 2.7, kernel 0.6, libc 0.2, host 0.2, fex 0.2
+  com.shadps4.android         3.8   host 1.4, other:libart.so 0.8, other:[JIT app cache] 0.6, kernel 0.6, libc 0.2
+  Guest-34                    3.6   jit 2.2, kernel 0.6, host 0.3, libc 0.3, fex 0.2
+  Guest-35                    3.6   jit 2.3, kernel 0.6, host 0.2, libc 0.2, fex 0.2
+  Guest-33                    3.5   jit 2.1, kernel 0.6, libc 0.3, host 0.2, fex 0.2
+  Guest-58                    3.1   jit 1.3, kernel 0.8, libc 0.4, host 0.3, fex 0.2
+  Guest-32                    3.1   jit 1.8, kernel 0.5, host 0.2, libc 0.2, fex 0.2
+  Guest-57                    3.0   jit 1.2, kernel 0.9, host 0.4, libc 0.3, fex 0.2
+  Guest-59                    3.0   jit 1.5, kernel 0.6, host 0.4, libc 0.3, fex 0.2
+  Guest-55                    2.7   jit 1.0, kernel 0.8, libc 0.4, host 0.3, fex 0.2
+  Guest-56                    2.6   jit 1.0, kernel 0.8, host 0.3, libc 0.3, fex 0.2
+  Guest-54                    2.2   jit 0.7, kernel 0.7, libc 0.3, host 0.3, fex 0.2
+  Guest-16                    1.6   jit 1.0, kernel 0.3, libc 0.1, host 0.1, fex 0.1
+  Guest-19                    1.6   jit 1.3, kernel 0.1, libc 0.1, host 0.1, fex 0.0
+  Guest-13                    1.3   jit 0.8, kernel 0.2, host 0.1, libc 0.1, fex 0.1
+  Guest-48                    0.9   kernel 0.3, jit 0.2, host 0.2, libc 0.1, fex 0.1
+  Guest-12                    0.9   jit 0.5, kernel 0.2, libc 0.1, host 0.1, fex 0.1
+  shadPS4:GpuDone             0.9   kernel 0.6, host 0.1, libc 0.1, turnip 0.1, other:linker64 0.0
+  Guest-18                    0.8   kernel 0.3, host 0.3, libc 0.1, fex 0.1, jit 0.0
+  Guest-11                    0.8   jit 0.4, kernel 0.2, libc 0.1, host 0.1, fex 0.0
+  shadPS4:VkSubmi             0.6   kernel 0.4, turnip 0.1, libc 0.1, host 0.0, jit 0.0
+  Guest-63                    0.6   jit 0.2, kernel 0.2, libc 0.1, host 0.1, fex 0.1
+  Guest-66                    0.5   jit 0.2, kernel 0.1, libc 0.1, host 0.1, fex 0.0
+  Guest-65                    0.5   kernel 0.2, jit 0.2, libc 0.1, host 0.1, fex 0.0
+  Guest-64                    0.5   jit 0.2, kernel 0.1, libc 0.1, host 0.1, fex 0.0
+  Guest-46                    0.5   kernel 0.2, fex 0.1, host 0.1, libc 0.1, jit 0.0
+  binder:30356_4              0.4   kernel 0.3, libc 0.1, other:libgui.so 0.0, other:libc++.so 0.0, other:libhidlbase.so 0.0
+  binder:30356_3              0.4   kernel 0.2, other:libgui.so 0.1, libc 0.0, other:libbinder.so 0.0, other:libutils.so 0.0
+  Guest-61                    0.4   kernel 0.2, jit 0.1, host 0.1, libc 0.1, fex 0.0
+
+######## ^Guest-1$: 29.8 ms/frame
+## self (top leaves)
+    3.65   12.3%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    1.05    3.5%  jit     unknown[+5f64e8d058]
+    0.54    1.8%  jit     unknown[+5f65c5e4bc]
+    0.34    1.1%  fex     Core::GuestCpu::Fex::
+    0.24    0.8%  libc    __aarch64_cas2_acq
+    0.24    0.8%  kernel  [kernel.kallsyms][+ffffffd3aa49c704]
+    0.19    0.6%  host    @plt
+    0.17    0.6%  jit     unknown[+5f6494ecec]
+    0.16    0.6%  libc    __kernel_clock_gettime
+    0.16    0.5%  jit     unknown[+5f64e8d080]
+    0.14    0.5%  jit     unknown[+5f64e8d06c]
+    0.13    0.4%  libc    pthread_mutex_unlock
+    0.12    0.4%  jit     unknown[+5f64953b64]
+    0.11    0.4%  libc    pthread_mutex_lock
+    0.11    0.4%  jit     unknown[+5f64e8d064]
+    0.10    0.3%  jit     unknown[+5f64953e48]
+    0.10    0.3%  jit     unknown[+5f65c5e4e0]
+    0.10    0.3%  jit     unknown[+5f64e8d060]
+    0.10    0.3%  jit     unknown[+5f64e8d05c]
+    0.10    0.3%  jit     unknown[+5f64e8d078]
+    0.09    0.3%  jit     unknown[+5f65c5e4e8]
+    0.09    0.3%  fex     std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dens
+    0.08    0.3%  other:linker64 [linker]tlsdesc_resolver_dynamic
+    0.08    0.3%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.08    0.3%  host    profiler::sdk::detail::encode_span_end
+## inclusive (host/fex/turnip/libc frames)
+    8.76   29.4%  fex     Core::GuestCpu::Fex::
+    6.41   21.5%  host    Core::HostRuntime::GuestRuntime::Run
+    6.41   21.5%  fex     Core::HostRuntime::FexSessionBackend::Run
+    6.41   21.5%  fex     Core::HostRuntime::SessionCore::OwnerBody
+    6.41   21.5%  fex     void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, void 
+    6.41   21.5%  libc    __pthread_start
+    6.41   21.5%  libc    __start_thread
+    4.79   16.1%  host    Core::HostRuntime::
+    4.37   14.7%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    3.76   12.6%  libc    syscall
+    2.67    9.0%  libc    std::__ndk1::condition_variable::notify_one
+    2.51    8.5%  libc    [vdso][+84a]
+    2.18    7.3%  host    Core::HostRuntime::GuestGraphics::GuestGraphics
+    2.17    7.3%  host    Core::SignalDispatch::DispatchAccessViolation
+    2.11    7.1%  host    Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+    2.08    7.0%  host    Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    1.81    6.1%  host    Core::HostRuntime::GuestKernelSemaphore::DeferredWakes::~DeferredWakes
+    1.66    5.6%  host    VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+    1.63    5.5%  host    VideoCore::RegionManager::MarkWriteFault
+    1.61    5.4%  host    void VideoCore::PageManager::Impl::UpdatePageWatchers
+    1.56    5.2%  host    Core::MemoryManager::ProtectGpu
+    1.47    4.9%  libc    mprotect
+    1.10    3.7%  host    Core::HostRuntime::GuestMutexDomain::CondNotify
+    0.50    1.7%  libc    std::__ndk1::mutex::unlock
+    0.49    1.7%  libc    std::__ndk1::mutex::lock
+    0.38    1.3%  libc    pthread_mutex_lock
+    0.24    0.8%  libc    __aarch64_cas2_acq
+    0.23    0.8%  host    Core::HostRuntime::GuestAddressWaiters::Wake
+    0.23    0.8%  libc    NonPI::MutexLockWithTimeout
+    0.21    0.7%  host    Core::GuestCpu::GuestAddressSpace::ReadData
+    0.21    0.7%  libc    std::__ndk1::condition_variable::notify_all
+    0.19    0.6%  host    @plt
+    0.19    0.6%  host    Common::Profiler::Scope::Scope
+    0.17    0.6%  host    Vulkan::Rasterizer::IsMapped
+    0.17    0.6%  fex     FexSyscallWrapper
+    0.16    0.6%  libc    __kernel_clock_gettime
+    0.16    0.5%  libc    std::__ndk1::chrono::steady_clock::now
+    0.15    0.5%  host    Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.15    0.5%  host    Core::GuestCpu::GuestAddressSpace::Query
+    0.15    0.5%  host    _ZZN4Core11HostRuntime12GuestRuntime4Impl15InstallHandlersEvENK4$_48clINSt6__ndk15arrayImLm6EEEEEDaRKT_bbZNS2_
+    0.14    0.5%  host    spatial::LiteTrace::begin
+    0.14    0.5%  host    Core::HostRuntime::GuestRwlockDomain::Lock
+    0.13    0.4%  libc    pthread_mutex_unlock
+    0.12    0.4%  host    spatial::LiteTrace::end
+    0.12    0.4%  host    unsigned long Core::HostRuntime::GuestMutexDomain::Read
+    0.11    0.4%  libc    sigprocmask
+    0.11    0.4%  libc    operator new
+    0.11    0.4%  libc    std::__ndk1::condition_variable::wait
+    0.10    0.3%  libc    malloc
+    0.10    0.3%  libc    pthread_cond_wait
+    0.10    0.3%  libc    std::__ndk1::__shared_mutex_base::lock_shared
+    0.10    0.3%  host    profiler::sdk::detail::encode_span_end
+    0.10    0.3%  libc    scudo_malloc
+    0.09    0.3%  host    Core::HostRuntime::GuestMutexDomain::CondWait
+    0.09    0.3%  host    Core::HostRuntime::GuestRwlockDomain::Read
+    0.09    0.3%  fex     std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dens
+    0.09    0.3%  host    void Core::HostRuntime::GuestMutexDomain::Write
+    0.09    0.3%  host    profiler::sdk::detail::encode_span_begin_dyn
+    0.09    0.3%  libc    scudo::Allocator::allocate
+    0.08    0.3%  host    Core::GuestCpu::PinnedSpan::~PinnedSpan
+## kernel samples by entry
+    3.72   12.5%  futex(syscall)
+    1.46    4.9%  mprotect
+    0.69    2.3%  from guest code (fault/irq)
+    0.07    0.2%  sigprocmask
+    0.05    0.2%  user:memcpy_opt
+    0.04    0.1%  vdso/sigreturn
+    0.01    0.1%  user:art::InitializeSignalChain
+    0.00    0.0%  user:std::__ndk1::vector<Core::GuestCpu::Fex::
+    0.00    0.0%  user:std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dens
+    0.00    0.0%  user:@plt
+## hot leaf <- first host caller
+    0.13    0.4%  __aarch64_cas2_acq  <-  Core::GuestCpu::Fex::
+    0.09    0.3%  @plt  <-  Core::GuestCpu::Fex::
+    0.06    0.2%  pthread_mutex_unlock  <-  Core::GuestCpu::Fex::
+    0.04    0.2%  pthread_mutex_lock  <-  Core::GuestCpu::Fex::
+    0.04    0.1%  __aarch64_cas4_acq_rel  <-  ?
+    0.04    0.1%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::Fex::
+    0.04    0.1%  @plt  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.04    0.1%  __aarch64_ldadd8_acq_rel  <-  Core::GuestCpu::Fex::
+    0.03    0.1%  @plt  <-  ?
+    0.03    0.1%  @plt  <-  Core::HostRuntime::
+    0.03    0.1%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.03    0.1%  __aarch64_cas8_acq_rel  <-  Core::GuestCpu::ExecutionLease::operator=
+    0.02    0.1%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.02    0.1%  __aarch64_ldadd4_relax  <-  Core::GuestCpu::Fex::
+    0.02    0.1%  memcpy_opt  <-  Core::GuestCpu::Fex::
+    0.02    0.1%  pthread_mutex_lock  <-  Core::HostRuntime::GuestKernelSemaphore::DeferredWakes::~DeferredWakes
+    0.02    0.1%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.02    0.1%  __aarch64_ldadd4_acq_rel  <-  ?
+    0.02    0.1%  __aarch64_ldadd8_relax  <-  FexSyscallWrapper
+    0.02    0.1%  __aarch64_ldadd8_relax  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.01    0.1%  __aarch64_swp2_rel  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  @plt  <-  Core::SignalDispatch::DispatchAccessViolation
+    0.01    0.0%  __aarch64_cas8_acq_rel  <-  Core::HostRuntime::GuestRuntime::Impl::Current
+    0.01    0.0%  __aarch64_ldadd8_acq_rel  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.01    0.0%  pthread_mutex_unlock  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.01    0.0%  pthread_mutex_unlock  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.01    0.0%  __aarch64_cas8_acq_rel  <-  Core::GuestCpu::PinnedSpan::Release
+    0.01    0.0%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::ReleasePin
+    0.01    0.0%  __aarch64_cas4_acq  <-  std::__ndk1::pair<std::__ndk1::__hash_iterator<std::__ndk1::__hash_node*>, bool> std::__ndk1::__hash_table<std
+    0.01    0.0%  pthread_mutex_unlock  <-  Core::HostRuntime::GuestMutexDomain::CondNotify
+
+######## GpuComm: 20.4 ms/frame
+## self (top leaves)
+    2.28   11.2%  libc    memcpy_opt
+    1.11    5.5%  host    __aarch64_ldadd4_acq_rel
+    0.81    4.0%  host    Vulkan::Rasterizer::BindTextures
+    0.61    3.0%  host    VideoCore::Image::FindView
+    0.53    2.6%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    0.49    2.4%  host    AmdGpu::Liverpool::ProcessGraphics
+    0.45    2.2%  host    @plt
+    0.43    2.1%  host    __aarch64_cas4_acq
+    0.36    1.8%  libc    __aarch64_cas2_acq
+    0.32    1.6%  host    VideoCore::TextureCache::FindImage
+    0.30    1.5%  host    void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf
+    0.30    1.5%  host    Shader::RuntimeInfo::operator==
+    0.29    1.4%  libc    __aarch64_swp2_rel
+    0.28    1.4%  host    VideoCore::BufferCache::SynchronizeMemory
+    0.26    1.3%  host    VideoCore::Image::ObserveUsage
+    0.25    1.2%  libc    __memcpy
+    0.22    1.1%  host    VideoCore::BufferCache::EnsureResident
+    0.22    1.1%  host    void Shader::StageSpecialization::ForEachSharp<boost::container::small_vector, boost::container::static_vector
+    0.21    1.0%  host    VideoCore::Image::GetBarriers
+    0.20    1.0%  host    Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+    0.20    1.0%  libc    pthread_mutex_unlock
+    0.20    1.0%  libc    __kernel_clock_gettime
+    0.19    1.0%  host    void Shader::StageSpecialization::ForEachSharp<boost::container::small_vector, boost::container::small_vector,
+    0.19    0.9%  host    Vulkan::PipelineCache::RefreshGraphicsStages
+    0.18    0.9%  host    VideoCore::TextureCache::TouchImage
+## inclusive (host/fex/turnip/libc frames)
+   20.36  100.0%  host    void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, AmdGpu::Liverpool:
+   20.36  100.0%  libc    __pthread_start
+   20.36  100.0%  libc    __start_thread
+   20.34   99.9%  host    AmdGpu::Liverpool::Process
+   20.10   98.7%  host    AmdGpu::Liverpool::ProcessOwnedGraphics
+   19.74   97.0%  host    AmdGpu::Liverpool::ProcessGraphics
+   15.13   74.3%  host    Vulkan::Rasterizer::Draw
+    5.32   26.1%  host    Vulkan::Rasterizer::BindResources
+    5.22   25.6%  host    VideoCore::BufferCache::ObtainBuffer
+    4.16   20.4%  host    Vulkan::PipelineCache::GetGraphicsPipeline
+    3.92   19.3%  host    Vulkan::PipelineCache::RefreshGraphicsKey
+    3.79   18.6%  host    Vulkan::PipelineCache::RefreshGraphicsStages
+    3.54   17.4%  host    Vulkan::PipelineCache::GetProgram
+    3.38   16.6%  host    Vulkan::Rasterizer::DispatchDirect
+    2.79   13.7%  host    VideoCore::BufferCache::ObtainResidentBuffer
+    2.62   12.8%  host    Vulkan::ExecuteShaderHLE
+    2.28   11.2%  libc    memcpy_opt
+    2.28   11.2%  host    Vulkan::Rasterizer::BindTextures
+    2.28   11.2%  host    Vulkan::Rasterizer::BindBuffers
+    2.27   11.1%  host    VideoCore::BufferCache::SynchronizeMemory
+    1.44    7.1%  host    Shader::Info::RefreshFlatBuf
+    1.21    6.0%  host    Vulkan::Rasterizer::BindVertexBuffers
+    1.11    5.5%  host    __aarch64_ldadd4_acq_rel
+    1.07    5.3%  host    Shader::StageSpecialization::StageSpecialization
+    1.05    5.2%  host    void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf
+    0.78    3.8%  host    Vulkan::Rasterizer::BeginRendering
+    0.76    3.7%  host    Core::MemoryManager::ProtectGpu
+    0.71    3.5%  host    VideoCore::TextureCache::FindTexture
+    0.70    3.4%  libc    mprotect
+    0.63    3.1%  host    Vulkan::Rasterizer::PrepareRenderState
+    0.63    3.1%  host    Vulkan::Rasterizer::BindIndexBuffer
+    0.61    3.0%  host    VideoCore::Image::FindView
+    0.60    3.0%  libc    syscall
+    0.54    2.6%  libc    std::__ndk1::condition_variable::notify_one
+    0.52    2.6%  host    void VideoCore::PageManager::Impl::UpdatePageWatchers
+    0.50    2.4%  host    VideoCore::TextureCache::FindImage
+    0.49    2.4%  host    Vulkan::Pipeline::BindResources
+    0.48    2.3%  host    Vulkan::Scheduler::BeginRendering
+    0.47    2.3%  libc    std::__ndk1::mutex::lock
+    0.46    2.3%  libc    std::__ndk1::mutex::unlock
+    0.45    2.2%  host    @plt
+    0.43    2.1%  host    __aarch64_cas4_acq
+    0.41    2.0%  host    void Shader::StageSpecialization::ForEachSharp<boost::container::small_vector, boost::container::static_vector
+    0.38    1.9%  host    Vulkan::CommandRecorder::Dispatch
+    0.37    1.8%  libc    __aarch64_cas2_acq
+    0.36    1.8%  host    Vulkan::CommandRecorder::BeginPass
+    0.36    1.7%  host    VideoCore::TextureCache::TouchFoundTexture
+    0.35    1.7%  host    Vulkan::Runtime::CopyBuffer
+    0.31    1.5%  host    Vulkan::Scheduler::EndRendering
+    0.31    1.5%  host    VideoCore::MemoryTracker::IsRegionGpuModified
+    0.30    1.5%  host    Vulkan::PipelineCache::RefreshComputeKey
+    0.30    1.5%  host    Shader::RuntimeInfo::operator==
+    0.29    1.4%  libc    __aarch64_swp2_rel
+    0.29    1.4%  host    VideoCore::Image::Transit
+    0.29    1.4%  host    void VideoCore::PageManager::Impl::UpdatePageWatchersForRegion
+    0.28    1.4%  host    Vulkan::Rasterizer::UpdateDynamicState
+    0.28    1.4%  host    Core::MemoryManager::SrtReadBatch::Read
+    0.28    1.4%  host    Vulkan::CommandRecorder::ReleaseHeld
+    0.26    1.3%  host    VideoCore::Image::ObserveUsage
+    0.25    1.2%  host    Core::MemoryManager::ResolveSrtWindow
+## kernel samples by entry
+    0.70    3.4%  mprotect
+    0.58    2.9%  futex(syscall)
+    0.03    0.2%  user:__ioctl
+    0.03    0.1%  user:__openat
+    0.03    0.1%  read
+    0.01    0.1%  madvise
+    0.01    0.0%  user:memcpy_opt
+    0.01    0.0%  user:__close
+    0.01    0.0%  user:__aarch64_cas2_acq
+    0.01    0.0%  fstat
+    0.01    0.0%  user:__aarch64_swp2_rel
+    0.00    0.0%  user:__aarch64_ldadd4_acq_rel
+    0.00    0.0%  user:Vulkan::PipelineCache::GetGraphicsPipeline
+    0.00    0.0%  user:Vulkan::Rasterizer::BindTextures
+    0.00    0.0%  user:Vulkan::PipelineCache::GetProgram
+## hot leaf <- first host caller
+    1.03    5.1%  __aarch64_ldadd4_acq_rel  <-  VideoCore::BufferCache::ObtainBuffer
+    0.84    4.1%  memcpy_opt  <-  VideoCore::BufferCache::ObtainBuffer
+    0.45    2.2%  memcpy_opt  <-  VideoCore::BufferCache::SynchronizeMemory
+    0.42    2.1%  memcpy_opt  <-  void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf
+    0.21    1.0%  __memcpy  <-  Vulkan::ExecuteShaderHLE
+    0.19    0.9%  memcpy_opt  <-  Vulkan::Pipeline::BindResources
+    0.17    0.9%  __aarch64_cas4_acq  <-  VideoCore::BufferCache::ObtainResidentBuffer
+    0.16    0.8%  memcpy_opt  <-  AmdGpu::Liverpool::ProcessOwnedGraphics
+    0.13    0.7%  __aarch64_cas4_acq  <-  VideoCore::MemoryTracker::IsRegionGpuModified
+    0.09    0.4%  __aarch64_cas2_acq  <-  VideoCore::TextureCache::UpdateImage
+    0.09    0.4%  __aarch64_ldadd8_relax  <-  Shader::Info::RefreshFlatBuf
+    0.08    0.4%  memcpy_opt  <-  Vulkan::Rasterizer::BindResources
+    0.06    0.3%  @plt  <-  Vulkan::Rasterizer::Draw
+    0.06    0.3%  __aarch64_cas4_acq  <-  boost::container::vec_iterator<unsigned long VideoCore::MemoryTracker::SnapshotForUpload<VideoCore::BufferCach
+    0.06    0.3%  __aarch64_cas2_acq  <-  EmulatorSettingsImpl::GetInstance
+    0.06    0.3%  memcpy_opt  <-  Vulkan::PipelineCache::GetProgram
+    0.05    0.3%  __aarch64_swp4_rel  <-  VideoCore::MemoryTracker::IsRegionGpuModified
+    0.05    0.3%  @plt  <-  Vulkan::Rasterizer::BindResources
+    0.05    0.2%  __aarch64_cas4_acq  <-  VideoCore::BufferCache::ObtainBuffer
+    0.05    0.2%  __aarch64_swp4_rel  <-  VideoCore::BufferCache::SynchronizeMemory
+    0.05    0.2%  __aarch64_swp2_rel  <-  Vulkan::Scheduler::PopPendingOperations
+    0.04    0.2%  memset  <-  AmdGpu::Liverpool::ProcessOwnedGraphics
+    0.04    0.2%  __aarch64_cas4_acq  <-  Shader::Info::RefreshFlatBuf
+    0.04    0.2%  __aarch64_ldadd4_acq_rel  <-  Shader::Info::RefreshFlatBuf
+    0.04    0.2%  __aarch64_cas2_acq  <-  Vulkan::Rasterizer::BeginRendering
+    0.03    0.2%  @plt  <-  Vulkan::PipelineCache::GetProgram
+    0.03    0.2%  pthread_mutex_unlock  <-  VideoCore::TextureCache::TouchFoundTexture
+    0.03    0.2%  __aarch64_ldadd4_rel  <-  Core::MemoryManager::TryWriteBacking
+    0.03    0.2%  __aarch64_swp2_rel  <-  VideoCore::TextureCache::FindTexture
+    0.03    0.2%  memcpy_opt  <-  Vulkan::PipelineCache::RefreshGraphicsStages
+
+################ worker / recorder / present threads
+######## ^Guest-2[1-5]$: 55.7 ms/frame
+## self (top leaves)
+    5.33    9.6%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    0.57    1.0%  fex     Core::GuestCpu::Fex::
+    0.57    1.0%  kernel  [kernel.kallsyms][+ffffffd3aa49c704]
+    0.50    0.9%  host    @plt
+    0.47    0.8%  kernel  [kernel.kallsyms][+ffffffd3aa55925c]
+    0.28    0.5%  libc    sigismember
+    0.27    0.5%  other:libsigchain.so art::SignalChain::Handler
+    0.26    0.5%  kernel  [kernel.kallsyms][+ffffffd3aa483088]
+    0.26    0.5%  host    Core::MemoryManager::IsValidMapping
+    0.25    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa55c564]
+    0.24    0.4%  libc    @plt
+    0.24    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa8810d0]
+    0.22    0.4%  other:linker64 [linker]tlsdesc_resolver_dynamic
+    0.22    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa89a5dc]
+    0.21    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa5910ec]
+    0.21    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa5e3c58]
+    0.20    0.4%  jit     unknown[+5f677374e0]
+    0.19    0.3%  jit     unknown[+5f64ff4880]
+    0.19    0.3%  kernel  [kernel.kallsyms][+ffffffd3ab481390]
+    0.18    0.3%  libc    __kernel_clock_gettime
+    0.18    0.3%  kernel  [kernel.kallsyms][+ffffffd3aa410114]
+    0.17    0.3%  libc    pthread_mutex_lock
+    0.16    0.3%  libc    __aarch64_cas2_acq
+    0.16    0.3%  kernel  [kernel.kallsyms][+ffffffd3aa89a4d0]
+    0.16    0.3%  other:libsigchain.so @plt
+## inclusive (host/fex/turnip/libc frames)
+   17.65   31.7%  fex     Core::GuestCpu::Fex::
+   15.46   27.7%  libc    [vdso][+84a]
+   13.11   23.5%  host    Core::HostRuntime::GuestGraphics::GuestGraphics
+   13.07   23.4%  host    Core::SignalDispatch::DispatchAccessViolation
+   12.69   22.8%  host    Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+   10.12   18.2%  host    VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+    9.97   17.9%  host    VideoCore::RegionManager::MarkWriteFault
+    9.81   17.6%  host    void VideoCore::PageManager::Impl::UpdatePageWatchers
+    9.36   16.8%  host    Core::MemoryManager::ProtectGpu
+    8.65   15.5%  libc    mprotect
+    4.19    7.5%  host    Core::HostRuntime::GuestRuntime::Impl::Call
+    4.19    7.5%  host    _ZNSt6__ndk114__thread_proxyB8ne210000INS_5tupleIJNS_10unique_ptrINS_15__thread_structENS_14default_deleteIS3_
+    4.19    7.5%  libc    __pthread_start
+    4.19    7.5%  libc    __start_thread
+    2.42    4.3%  libc    syscall
+    2.06    3.7%  host    Core::HostRuntime::
+    1.60    2.9%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    1.06    1.9%  host    Vulkan::Rasterizer::IsMapped
+    0.79    1.4%  libc    sigprocmask
+    0.76    1.4%  host    Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.63    1.1%  libc    __rt_sigprocmask
+    0.61    1.1%  libc    std::__ndk1::mutex::unlock
+    0.51    0.9%  host    @plt
+    0.49    0.9%  host    bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock, Core::HostRuntime::Gues
+    0.47    0.9%  host    Common::RecursiveSharedLock::RecursiveSharedLock
+    0.42    0.7%  libc    std::__ndk1::mutex::lock
+    0.40    0.7%  libc    std::__ndk1::condition_variable::wait
+    0.39    0.7%  libc    __kernel_rt_sigreturn
+    0.38    0.7%  libc    pthread_mutex_lock
+    0.38    0.7%  libc    pthread_cond_wait
+    0.38    0.7%  fex     FEXCore::LookupCache::CacheBlockMapping
+    0.37    0.7%  host    Core::MemoryManager::IsValidMapping
+    0.36    0.6%  host    Common::Detail::IncrementRecursiveLock
+    0.31    0.6%  libc    malloc
+    0.31    0.5%  host    Common::Detail::DecrementRecursiveLock
+    0.31    0.5%  libc    operator new
+    0.30    0.5%  host    std::__ndk1::pair<std::__ndk1::__hash_iterator<std::__ndk1::__hash_node*>, bool> std::__ndk1::__hash_table<std
+    0.29    0.5%  host    _ZZN4Core11HostRuntime12GuestRuntime4Impl15InstallHandlersEvENK4$_48clINSt6__ndk15arrayImLm6EEEEEDaRKT_bbZNS2_
+    0.28    0.5%  libc    sigismember
+    0.26    0.5%  fex     FexSyscallWrapper
+    0.26    0.5%  libc    scudo_malloc
+    0.25    0.4%  host    VideoCore::TextureCache::InvalidateMemory
+    0.25    0.4%  host    Core::HostRuntime::GuestRwlockDomain::Lock
+    0.24    0.4%  host    Common::Profiler::Scope::Scope
+    0.24    0.4%  libc    @plt
+    0.21    0.4%  libc    scudo::Allocator::allocate
+    0.19    0.3%  libc    NonPI::MutexLockWithTimeout
+    0.19    0.3%  libc    std::__ndk1::chrono::steady_clock::now
+    0.18    0.3%  libc    __kernel_clock_gettime
+    0.16    0.3%  libc    __aarch64_cas2_acq
+    0.16    0.3%  host    spatial::LiteTrace::begin
+    0.16    0.3%  host    Core::HostRuntime::GuestRwlockDomain::Read
+    0.16    0.3%  host    __aarch64_cas4_acq
+    0.15    0.3%  host    boost::enable_if<boost::icl::is_interval_set<boost::icl::interval_set>, bool>::type boost::icl::contains<boost
+    0.14    0.3%  host    Core::GuestCpu::GuestAddressSpace::ReadData
+    0.14    0.2%  host    unsigned long std::__ndk1::__hash_table<std::__ndk1::__hash_value_type, std::__ndk1::__unordered_map_hasher, s
+    0.13    0.2%  libc    std::__ndk1::__shared_mutex_base::lock_shared
+    0.13    0.2%  host    spatial::LiteTrace::end
+    0.13    0.2%  host    Core::HostRuntime::GuestRuntime::Impl::ProtectGpu
+    0.12    0.2%  host    Core::HostRuntime::GuestAddressWaiters::Wait
+## kernel samples by entry
+    8.59   15.4%  mprotect
+    4.10    7.4%  from guest code (fault/irq)
+    2.34    4.2%  futex(syscall)
+    0.55    1.0%  sigprocmask
+    0.38    0.7%  vdso/sigreturn
+    0.35    0.6%  user:FEXCore::LookupCache::CacheBlockMapping
+    0.16    0.3%  user:art::InitializeSignalChain
+    0.04    0.1%  madvise
+    0.01    0.0%  user:calloc
+    0.01    0.0%  user:Core::GuestCpu::Fex::
+    0.00    0.0%  futex(pthread_mutex_lock)
+    0.00    0.0%  user:@plt
+    0.00    0.0%  user:VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+    0.00    0.0%  user:Core::HostRuntime::
+    0.00    0.0%  user:scudo::Allocator::quarantineOrDeallocateChunk
+## hot leaf <- first host caller
+    0.30    0.5%  @plt  <-  ?
+    0.20    0.4%  @plt  <-  Core::GuestCpu::Fex::
+    0.08    0.1%  __aarch64_cas2_acq  <-  Core::GuestCpu::Fex::
+    0.07    0.1%  __aarch64_ldadd4_acq_rel  <-  ?
+    0.07    0.1%  pthread_mutex_lock  <-  Core::GuestCpu::Fex::
+    0.06    0.1%  @plt  <-  Core::SignalDispatch::DispatchAccessViolation
+    0.06    0.1%  @plt  <-  Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+    0.05    0.1%  pthread_mutex_unlock  <-  Core::GuestCpu::Fex::
+    0.05    0.1%  @plt  <-  Common::Detail::DecrementRecursiveLock
+    0.04    0.1%  __aarch64_ldadd8_acq_rel  <-  Core::GuestCpu::Fex::
+    0.04    0.1%  pthread_mutex_lock  <-  VideoCore::TextureCache::InvalidateMemory
+    0.04    0.1%  __aarch64_cas4_acq  <-  Vulkan::Rasterizer::IsMapped
+    0.04    0.1%  __aarch64_cas4_acq  <-  Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+    0.04    0.1%  memcpy_opt  <-  Core::GuestCpu::Fex::
+    0.04    0.1%  @plt  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.04    0.1%  __aarch64_cas4_acq  <-  std::__ndk1::pair<std::__ndk1::__hash_iterator<std::__ndk1::__hash_node*>, bool> std::__ndk1::__hash_table<std
+    0.04    0.1%  __aarch64_swp2_rel  <-  Core::GuestCpu::Fex::
+    0.04    0.1%  @plt  <-  Core::MemoryManager::ProtectGpu
+    0.04    0.1%  __aarch64_cas4_acq  <-  void Common::LockRange
+    0.04    0.1%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::Fex::
+    0.03    0.1%  __aarch64_ldadd8_relax  <-  Core::MemoryManager::ProtectGpu
+    0.03    0.1%  @plt  <-  void VideoCore::PageManager::Impl::UpdatePageWatchers
+    0.03    0.1%  __aarch64_ldadd4_acq_rel  <-  void VideoCore::PageManager::Impl::UpdatePageWatchers
+    0.03    0.1%  @plt  <-  VideoCore::TextureCache::InvalidateMemory
+    0.03    0.1%  @plt  <-  Common::RecursiveSharedLock::RecursiveSharedLock
+    0.03    0.1%  __aarch64_cas2_acq  <-  VideoCore::TextureCache::InvalidateMemory
+    0.03    0.1%  @plt  <-  Core::HostRuntime::
+    0.03    0.1%  __aarch64_cas8_acq_rel  <-  Core::GuestCpu::ExecutionLease::operator=
+    0.03    0.0%  __aarch64_ldadd4_relax  <-  Core::GuestCpu::Fex::
+    0.02    0.0%  __aarch64_cas4_acq  <-  void VideoCore::PageManager::Impl::UpdatePageWatchers
+
+######## ^Guest-3[2-6]$: 17.7 ms/frame
+## self (top leaves)
+    1.58    8.9%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    0.43    2.5%  fex     Core::GuestCpu::Fex::
+    0.16    0.9%  kernel  [kernel.kallsyms][+ffffffd3aa49c704]
+    0.13    0.7%  host    Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.12    0.7%  host    @plt
+    0.11    0.6%  other:linker64 [linker]tlsdesc_resolver_dynamic
+    0.11    0.6%  libc    pthread_mutex_lock
+    0.10    0.6%  kernel  [kernel.kallsyms][+ffffffd3aa410114]
+    0.10    0.6%  libc    __kernel_clock_gettime
+    0.10    0.5%  libc    __aarch64_cas2_acq
+    0.09    0.5%  fex     FEXCore::LookupCache::FindBlock
+    0.08    0.5%  jit     unknown[+5f674c9c10]
+    0.08    0.5%  host    profiler::sdk::detail::encode_span_end
+    0.07    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa5910ec]
+    0.07    0.4%  libc    @plt
+    0.07    0.4%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.07    0.4%  jit     unknown[+5f66d7b670]
+    0.06    0.4%  libc    __aarch64_swp2_rel
+    0.06    0.4%  host    Core::HostRuntime::
+    0.06    0.3%  libc    pthread_mutex_unlock
+    0.06    0.3%  libc    scudo::Allocator::allocate
+    0.06    0.3%  fex     @plt
+    0.06    0.3%  jit     unknown[+5f674cf188]
+    0.06    0.3%  jit     unknown[+5f6719f120]
+    0.05    0.3%  jit     unknown[+5f674c9bfc]
+## inclusive (host/fex/turnip/libc frames)
+    5.69   32.2%  fex     Core::GuestCpu::Fex::
+    4.87   27.5%  host    Core::HostRuntime::GuestRuntime::Impl::Call
+    4.87   27.5%  host    _ZNSt6__ndk114__thread_proxyB8ne210000INS_5tupleIJNS_10unique_ptrINS_15__thread_structENS_14default_deleteIS3_
+    4.87   27.5%  libc    __pthread_start
+    4.87   27.5%  libc    __start_thread
+    2.96   16.8%  host    Core::HostRuntime::
+    2.58   14.6%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    2.33   13.2%  libc    syscall
+    1.77   10.0%  host    Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.84    4.8%  libc    [vdso][+84a]
+    0.83    4.7%  libc    std::__ndk1::mutex::unlock
+    0.76    4.3%  host    Core::HostRuntime::GuestKernelSemaphore::DeferredWakes::~DeferredWakes
+    0.70    4.0%  host    Core::SignalDispatch::DispatchAccessViolation
+    0.69    3.9%  host    Core::HostRuntime::GuestGraphics::GuestGraphics
+    0.69    3.9%  libc    std::__ndk1::condition_variable::notify_one
+    0.66    3.7%  host    Vulkan::Rasterizer::InvalidateMemoryFromWriteFault
+    0.47    2.6%  host    bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock, Core::HostRuntime::Gues
+    0.44    2.5%  libc    std::__ndk1::condition_variable::wait
+    0.42    2.4%  libc    pthread_cond_wait
+    0.38    2.2%  host    VideoCore::BufferCache::InvalidateMemoryFromWriteFault
+    0.37    2.1%  host    VideoCore::RegionManager::MarkWriteFault
+    0.33    1.9%  host    Core::MemoryManager::ProtectGpu
+    0.33    1.9%  host    void VideoCore::PageManager::Impl::UpdatePageWatchers
+    0.31    1.8%  host    Core::HostRuntime::GuestAddressWaiters::Wake
+    0.30    1.7%  libc    std::__ndk1::mutex::lock
+    0.30    1.7%  libc    mprotect
+    0.28    1.6%  libc    pthread_mutex_lock
+    0.28    1.6%  libc    std::__ndk1::condition_variable::notify_all
+    0.25    1.4%  host    Core::HostRuntime::GuestAddressWaiters::Wait
+    0.17    1.0%  host    spatial::LiteTrace::end
+    0.16    0.9%  libc    NonPI::MutexLockWithTimeout
+    0.16    0.9%  fex     FexSyscallWrapper
+    0.13    0.7%  host    @plt
+    0.13    0.7%  host    Common::Profiler::Scope::Scope
+    0.11    0.6%  libc    operator new
+    0.11    0.6%  libc    malloc
+    0.10    0.6%  libc    std::__ndk1::chrono::steady_clock::now
+    0.10    0.6%  libc    scudo_malloc
+    0.10    0.6%  host    Core::GuestCpu::GuestAddressSpace::Query
+    0.10    0.6%  libc    __kernel_clock_gettime
+    0.10    0.5%  host    profiler::sdk::detail::encode_span_end
+    0.10    0.5%  libc    __aarch64_cas2_acq
+    0.09    0.5%  fex     FEXCore::LookupCache::FindBlock
+    0.09    0.5%  libc    scudo::Allocator::allocate
+    0.08    0.5%  host    spatial::LiteTrace::begin
+    0.08    0.4%  libc    std::__ndk1::__shared_mutex_base::lock_shared
+    0.08    0.4%  host    Vulkan::Rasterizer::IsMapped
+    0.07    0.4%  host    void std::__ndk1::condition_variable_any::wait
+    0.07    0.4%  host    Core::HostRuntime::GuestAddressWaiters::ReadValue
+    0.07    0.4%  libc    @plt
+    0.06    0.4%  host    std::__ndk1::__shared_ptr_emplace::__on_zero_shared
+    0.06    0.4%  libc    __aarch64_swp2_rel
+    0.06    0.3%  libc    pthread_mutex_unlock
+    0.06    0.3%  host    Core::HostRuntime::GuestKernelSemaphore::Wake
+    0.06    0.3%  fex     @plt
+    0.06    0.3%  host    std::__ndk1::shared_ptr std::__ndk1::allocate_shared[abi:ne210000]
+    0.05    0.3%  libc    memcpy_opt
+    0.05    0.3%  host    Common::RecursiveSharedLock::RecursiveSharedLock
+    0.05    0.3%  libc    scudo::Allocator::deallocate
+    0.05    0.3%  libc    sigprocmask
+## kernel samples by entry
+    2.28   12.9%  futex(syscall)
+    0.35    2.0%  from guest code (fault/irq)
+    0.29    1.7%  mprotect
+    0.03    0.2%  vdso/sigreturn
+    0.03    0.1%  sigprocmask
+    0.01    0.1%  user:Core::GuestCpu::Fex::
+    0.01    0.1%  user:art::InitializeSignalChain
+    0.00    0.0%  user:Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.00    0.0%  user:std::__ndk1::__shared_ptr_emplace::~__shared_ptr_emplace
+    0.00    0.0%  user:profiler::sdk::detail::encode_span_begin_dyn
+    0.00    0.0%  user:scudo::Allocator::allocate
+    0.00    0.0%  user:operator delete
+    0.00    0.0%  user:profiler::sdk::detail::encode_span_end
+    0.00    0.0%  user:Core::GuestCpu::Hle::HleScope::~HleScope
+    0.00    0.0%  user:std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dens
+## hot leaf <- first host caller
+    0.11    0.6%  @plt  <-  Core::GuestCpu::Fex::
+    0.05    0.3%  memcpy_opt  <-  Core::GuestCpu::Fex::
+    0.05    0.3%  __aarch64_cas2_acq  <-  Core::GuestCpu::Fex::
+    0.04    0.2%  pthread_mutex_unlock  <-  Core::GuestCpu::Fex::
+    0.04    0.2%  pthread_mutex_lock  <-  Core::GuestCpu::Fex::
+    0.03    0.2%  __aarch64_swp2_rel  <-  Core::GuestCpu::Fex::
+    0.03    0.1%  @plt  <-  bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock, Core::HostRuntime::Gues
+    0.02    0.1%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::Fex::
+    0.02    0.1%  pthread_mutex_lock  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.02    0.1%  pthread_mutex_lock  <-  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.02    0.1%  @plt  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.02    0.1%  __aarch64_ldadd8_relax  <-  FexSyscallWrapper
+    0.02    0.1%  __aarch64_ldadd8_acq_rel  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  __aarch64_cas4_acq_rel  <-  ?
+    0.01    0.1%  __aarch64_cas2_acq  <-  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.01    0.1%  __aarch64_ldadd8_acq_rel  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.01    0.1%  @plt  <-  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.01    0.1%  __aarch64_ldadd4_relax  <-  bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock, Core::HostRuntime::Gues
+    0.01    0.1%  pthread_mutex_lock  <-  bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock, Core::HostRuntime::Gues
+    0.01    0.1%  @plt  <-  Core::HostRuntime::
+    0.01    0.1%  __aarch64_ldadd8_acq_rel  <-  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.01    0.1%  @plt  <-  ?
+    0.01    0.1%  pthread_mutex_destroy  <-  std::__ndk1::__shared_ptr_emplace::__on_zero_shared
+    0.01    0.1%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.01    0.1%  __aarch64_ldadd4_relax  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  @plt  <-  Common::Profiler::Scope::Scope
+    0.01    0.1%  __aarch64_ldadd4_rel  <-  std::__ndk1::stop_callback<bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lo
+    0.01    0.1%  __aarch64_ldadd4_acq_rel  <-  ?
+    0.01    0.1%  __aarch64_cas8_acq_rel  <-  Core::GuestCpu::ExecutionLease::operator=
+    0.01    0.1%  __aarch64_ldadd8_relax  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+
+######## ^Guest-5[4-9]$: 16.7 ms/frame
+## self (top leaves)
+    2.90   17.4%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    0.57    3.4%  fex     Core::GuestCpu::Fex::
+    0.28    1.7%  kernel  [kernel.kallsyms][+ffffffd3aa49c704]
+    0.25    1.5%  host    @plt
+    0.21    1.3%  libc    pthread_mutex_lock
+    0.16    1.0%  libc    __aarch64_cas2_acq
+    0.16    1.0%  libc    __kernel_clock_gettime
+    0.15    0.9%  other:linker64 [linker]tlsdesc_resolver_dynamic
+    0.15    0.9%  libc    pthread_mutex_unlock
+    0.11    0.7%  host    Core::HostRuntime::GuestMutexDomain::CondWait
+    0.11    0.7%  kernel  [kernel.kallsyms][+ffffffd3aa410114]
+    0.11    0.6%  libc    __aarch64_swp2_rel
+    0.10    0.6%  kernel  [kernel.kallsyms][+ffffffd3aa5910ec]
+    0.10    0.6%  libc    syscall
+    0.09    0.6%  host    Core::HostRuntime::GuestRwlockDomain::Lock
+    0.09    0.5%  host    Core::HostRuntime::
+    0.09    0.5%  host    profiler::sdk::detail::encode_span_end
+    0.08    0.5%  fex     FEXCore::LookupCache::FindBlock
+    0.08    0.5%  libc    @plt
+    0.08    0.5%  host    profiler::sdk::detail::encode_span_begin_dyn
+    0.07    0.4%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.07    0.4%  fex     FEXCore::Context::ContextImpl::CompileBlock
+    0.07    0.4%  libc    __futex_wait_ex
+    0.07    0.4%  libc    memcpy_opt
+    0.07    0.4%  host    __aarch64_ldadd4_acq_rel
+## inclusive (host/fex/turnip/libc frames)
+    9.21   55.2%  fex     Core::GuestCpu::Fex::
+    8.99   53.9%  host    Core::HostRuntime::GuestRuntime::Impl::Call
+    8.99   53.9%  host    _ZNSt6__ndk114__thread_proxyB8ne210000INS_5tupleIJNS_10unique_ptrINS_15__thread_structENS_14default_deleteIS3_
+    8.99   53.9%  libc    __pthread_start
+    8.99   53.9%  libc    __start_thread
+    5.11   30.6%  host    Core::HostRuntime::
+    4.49   26.9%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    4.35   26.1%  libc    syscall
+    3.43   20.6%  libc    std::__ndk1::mutex::unlock
+    1.57    9.4%  host    _ZZN4Core11HostRuntime12GuestRuntime4Impl15InstallHandlersEvENK4$_48clINSt6__ndk15arrayImLm6EEEEEDaRKT_bbZNS2_
+    1.47    8.8%  host    Core::HostRuntime::GuestRwlockDomain::Lock
+    1.13    6.8%  host    Core::HostRuntime::GuestRwlockDomain::Unlock
+    1.04    6.2%  libc    std::__ndk1::mutex::lock
+    1.02    6.1%  libc    pthread_mutex_lock
+    0.90    5.4%  host    Core::HostRuntime::GuestMutexDomain::CondWait
+    0.75    4.5%  libc    NonPI::MutexLockWithTimeout
+    0.65    3.9%  host    Core::GuestCpu::GuestAddressSpace::ReadData
+    0.63    3.7%  host    Core::HostRuntime::GuestRwlockDomain::Read
+    0.61    3.6%  host    Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.29    1.8%  host    Common::Profiler::Scope::Scope
+    0.29    1.7%  host    Core::HostRuntime::GuestAddressWaiters::Wake
+    0.27    1.6%  fex     FexSyscallWrapper
+    0.26    1.5%  libc    std::__ndk1::condition_variable::wait
+    0.26    1.5%  libc    std::__ndk1::condition_variable::notify_all
+    0.26    1.5%  host    @plt
+    0.25    1.5%  libc    pthread_cond_wait
+    0.22    1.3%  host    Core::HostRuntime::GuestAddressWaiters::Wait
+    0.21    1.3%  host    Core::HostRuntime::GuestMutexDomain::AcquireWord
+    0.21    1.3%  host    spatial::LiteTrace::begin
+    0.20    1.2%  host    Core::GuestCpu::PinnedSpan::~PinnedSpan
+    0.19    1.1%  libc    std::__ndk1::__shared_mutex_base::lock_shared
+    0.19    1.1%  host    void std::__ndk1::condition_variable::wait<Core::HostRuntime::GuestMutexDomain::CondWait
+    0.19    1.1%  host    Core::GuestCpu::PinnedSpan::Release
+    0.18    1.1%  host    Core::HostRuntime::GuestMutexDomain::Open
+    0.18    1.1%  host    Core::GuestCpu::GuestAddressSpace::Query
+    0.18    1.1%  host    spatial::LiteTrace::end
+    0.17    1.0%  libc    std::__ndk1::chrono::steady_clock::now
+    0.16    1.0%  libc    __aarch64_cas2_acq
+    0.16    1.0%  libc    __kernel_clock_gettime
+    0.16    1.0%  fex     FEXCore::LookupCache::CacheBlockMapping
+    0.15    0.9%  libc    pthread_mutex_unlock
+    0.11    0.6%  host    profiler::sdk::detail::encode_span_end
+    0.11    0.6%  libc    __aarch64_swp2_rel
+    0.10    0.6%  host    Core::HostRuntime::GuestRuntime::Impl::Current
+    0.10    0.6%  libc    operator new
+    0.10    0.6%  host    profiler::sdk::detail::encode_span_begin_dyn
+    0.10    0.6%  libc    malloc
+    0.10    0.6%  host    Core::HostRuntime::GuestMutexDomain::CondNotify
+    0.10    0.6%  host    Core::GuestCpu::GuestAddressSpace::WaitDataAdmissionLocked
+    0.10    0.6%  libc    ScopedTrace::ScopedTrace
+    0.09    0.5%  libc    scudo_malloc
+    0.09    0.5%  fex     FEXCore::Context::ContextImpl::CompileBlock
+    0.08    0.5%  fex     FEXCore::LookupCache::FindBlock
+    0.08    0.5%  host    std::__ndk1::map<unsigned long, unsigned int, std::__ndk1::less, std::__ndk1::allocator>::operator[]
+    0.08    0.5%  libc    @plt
+    0.08    0.5%  host    void std::__ndk1::condition_variable_any::wait
+    0.08    0.5%  libc    scudo::Allocator::deallocate
+    0.08    0.5%  libc    std::__ndk1::__shared_mutex_base::unlock_shared
+    0.08    0.5%  host    Core::GuestCpu::ExecutionLease::operator=
+    0.07    0.4%  libc    std::__ndk1::condition_variable::notify_one
+## kernel samples by entry
+    4.26   25.5%  futex(syscall)
+    0.14    0.8%  user:FEXCore::LookupCache::CacheBlockMapping
+    0.13    0.8%  from guest code (fault/irq)
+    0.03    0.2%  madvise
+    0.01    0.0%  futex(pthread_mutex_lock)
+    0.01    0.0%  user:Core::HostRuntime::GuestMutexDomain::CondWait
+    0.00    0.0%  user:[linker]tlsdesc_resolver_dynamic
+    0.00    0.0%  user:Core::GuestCpu::GuestAddressSpace::ReleasePin
+    0.00    0.0%  user:Core::GuestCpu::Fex::
+    0.00    0.0%  user:@plt
+    0.00    0.0%  user:Core::HostRuntime::GuestRwlockDomain::Lock
+    0.00    0.0%  user:profiler::sdk::detail::TlsBuffer::ensure
+    0.00    0.0%  user:Core::GuestCpu::PinnedSpan::Release
+    0.00    0.0%  user:decltype
+    0.00    0.0%  user:std::__ndk1::__shared_mutex_base::lock_shared
+## hot leaf <- first host caller
+    0.13    0.8%  @plt  <-  Core::GuestCpu::Fex::
+    0.10    0.6%  pthread_mutex_lock  <-  Core::GuestCpu::Fex::
+    0.09    0.5%  __aarch64_cas2_acq  <-  Core::GuestCpu::Fex::
+    0.09    0.5%  pthread_mutex_unlock  <-  Core::GuestCpu::Fex::
+    0.06    0.3%  __aarch64_swp2_rel  <-  Core::GuestCpu::Fex::
+    0.05    0.3%  __aarch64_cas8_acq_rel  <-  Core::HostRuntime::GuestRuntime::Impl::Current
+    0.05    0.3%  __aarch64_ldadd8_acq_rel  <-  Core::GuestCpu::Fex::
+    0.05    0.3%  memcpy_opt  <-  Core::GuestCpu::Fex::
+    0.05    0.3%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.05    0.3%  @plt  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.04    0.3%  __aarch64_cas8_acq_rel  <-  Core::GuestCpu::ExecutionLease::operator=
+    0.04    0.2%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::Fex::
+    0.04    0.2%  @plt  <-  Core::HostRuntime::
+    0.03    0.2%  @plt  <-  Common::Profiler::Scope::Scope
+    0.03    0.2%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.02    0.1%  @plt  <-  Core::GuestCpu::GuestAddressSpace::ReadData
+    0.02    0.1%  pthread_mutex_lock  <-  Core::GuestCpu::GuestAddressSpace::ReleasePin
+    0.02    0.1%  __aarch64_cas4_acq_rel  <-  ?
+    0.02    0.1%  __aarch64_ldadd8_acq_rel  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.02    0.1%  pthread_mutex_lock  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.02    0.1%  pthread_mutex_unlock  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.02    0.1%  __aarch64_ldadd8_acq_rel  <-  Core::GuestCpu::PinnedSpan::Release
+    0.02    0.1%  __aarch64_ldadd8_relax  <-  FexSyscallWrapper
+    0.02    0.1%  pthread_mutex_lock  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.02    0.1%  @plt  <-  spatial::LiteTrace::begin
+    0.02    0.1%  __aarch64_ldadd4_relax  <-  Core::GuestCpu::Fex::
+    0.02    0.1%  __aarch64_ldadd8_relax  <-  Core::GuestCpu::GuestAddressSpace::ReadData
+    0.02    0.1%  pthread_mutex_unlock  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.02    0.1%  pthread_mutex_lock  <-  Core::HostRuntime::GuestRwlockDomain::Lock
+    0.01    0.1%  __aarch64_ldadd8_relax  <-  FEXCore::Context::ContextImpl::CompileBlock
+
+######## ^Guest-17$: 13.8 ms/frame
+## self (top leaves)
+    0.30    2.2%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    0.19    1.4%  jit     unknown[+5f6497c580]
+    0.18    1.3%  jit     unknown[+5f6497bf48]
+    0.15    1.1%  jit     unknown[+5f6497bd1c]
+    0.13    0.9%  jit     unknown[+5f6497c588]
+    0.13    0.9%  jit     unknown[+5f6497c590]
+    0.13    0.9%  jit     unknown[+5f64994a48]
+    0.13    0.9%  jit     unknown[+5f6497c614]
+    0.12    0.9%  jit     unknown[+5f64973244]
+    0.12    0.9%  jit     unknown[+5f6497bd08]
+    0.10    0.7%  jit     unknown[+5f6497be98]
+    0.10    0.7%  jit     unknown[+5f64982e74]
+    0.10    0.7%  jit     unknown[+5f6497be9c]
+    0.09    0.6%  jit     unknown[+5f64982dc8]
+    0.09    0.6%  jit     unknown[+5f6497bd0c]
+    0.08    0.6%  host    Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked
+    0.08    0.6%  jit     unknown[+5f64982e70]
+    0.07    0.5%  fex     Core::GuestCpu::Fex::
+    0.07    0.5%  jit     unknown[+5f64994a24]
+    0.07    0.5%  jit     unknown[+5f6497bf5c]
+    0.07    0.5%  jit     unknown[+5f64982d78]
+    0.07    0.5%  jit     unknown[+5f64982d28]
+    0.06    0.4%  jit     unknown[+5f64982c70]
+    0.06    0.4%  jit     unknown[+5f6497c608]
+    0.06    0.4%  jit     unknown[+5f6497322c]
+## inclusive (host/fex/turnip/libc frames)
+    1.54   11.2%  fex     Core::GuestCpu::Fex::
+    1.52   11.0%  host    Core::HostRuntime::GuestRuntime::Impl::Call
+    1.52   11.0%  host    _ZNSt6__ndk114__thread_proxyB8ne210000INS_5tupleIJNS_10unique_ptrINS_15__thread_structENS_14default_deleteIS3_
+    1.52   11.0%  libc    __pthread_start
+    1.52   11.0%  libc    __start_thread
+    1.10    8.0%  host    Core::HostRuntime::
+    1.01    7.3%  host    std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.75    5.4%  host    Core::HostRuntime::GuestAjm::Dispatch
+    0.73    5.2%  host    Core::HostRuntime::GuestAjm::Impl::Dispatch
+    0.46    3.3%  libc    syscall
+    0.24    1.8%  libc    std::__ndk1::mutex::unlock
+    0.21    1.5%  host    Core::HostRuntime::GuestAjm::Impl::Parse
+    0.17    1.2%  libc    std::__ndk1::condition_variable::notify_all
+    0.14    1.0%  host    Core::HostRuntime::GuestAjm::Impl::Build
+    0.12    0.9%  host    Core::HostRuntime::GuestAjm::Impl::Wait
+    0.10    0.8%  libc    std::__ndk1::mutex::lock
+    0.10    0.7%  host    Core::GuestCpu::GuestAddressSpace::ValidateRange
+    0.10    0.7%  libc    pthread_mutex_lock
+    0.08    0.6%  host    Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked
+    0.08    0.6%  host    Core::HostRuntime::GuestAjm::Impl::Read
+    0.08    0.6%  host    Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.07    0.5%  libc    NonPI::MutexLockWithTimeout
+    0.06    0.4%  host    Core::HostRuntime::GuestAjm::Impl::AddOutput
+    0.06    0.4%  fex     FexSyscallWrapper
+    0.05    0.4%  host    @plt
+    0.05    0.4%  host    Core::GuestCpu::PinnedSpan::~PinnedSpan
+    0.05    0.4%  host    Core::GuestCpu::Hle::CallCursor::NextStackSlot
+    0.05    0.4%  host    void std::__ndk1::__destroy_at[abi:ne210000]
+    0.05    0.3%  host    Core::HostRuntime::GuestAjm::Impl::Put
+    0.05    0.3%  host    Core::GuestCpu::GuestAddressSpace::Query
+    0.05    0.3%  libc    scudo::Allocator::deallocate
+    0.05    0.3%  libc    malloc
+    0.05    0.3%  libc    operator new
+    0.04    0.3%  host    Core::GuestCpu::GuestAddressSpace::Read
+    0.04    0.3%  libc    scudo_malloc
+    0.04    0.3%  host    Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.04    0.3%  host    bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock, Core::HostRuntime::Gues
+    0.04    0.3%  host    Core::GuestCpu::PinnedSpan::Release
+    0.04    0.3%  host    Core::GuestCpu::GuestAddressSpace::WriteData
+    0.04    0.3%  host    void Core::HostRuntime::GuestRuntime::Impl::Write
+    0.04    0.3%  host    Common::Profiler::Scope::Scope
+    0.04    0.3%  libc    scudo::Allocator::allocate
+    0.04    0.3%  libc    __kernel_clock_gettime
+    0.04    0.3%  libc    memcpy_opt
+    0.04    0.3%  host    Core::HostRuntime::GuestAjm::Impl::Job::~Job
+    0.03    0.2%  host    std::__ndk1::deque::clear
+    0.03    0.2%  libc    std::__ndk1::chrono::steady_clock::now
+    0.03    0.2%  libc    std::__ndk1::condition_variable::wait
+    0.03    0.2%  libc    scudo::Allocator::quarantineOrDeallocateChunk
+    0.03    0.2%  libc    pthread_cond_wait
+    0.03    0.2%  host    spatial::LiteTrace::end
+    0.03    0.2%  libc    __aarch64_cas2_acq
+    0.03    0.2%  host    spatial::LiteTrace::begin
+    0.03    0.2%  host    Core::GuestCpu::GuestAddressSpace::ReadData
+    0.02    0.2%  fex     __aarch64_ldadd8_relax
+    0.02    0.2%  libc    __aarch64_swp2_rel
+    0.02    0.2%  libc    std::__ndk1::__shared_mutex_base::lock_shared
+    0.02    0.1%  libc    pthread_mutex_unlock
+    0.02    0.1%  host    Core::GuestCpu::GuestAddressSpace::AcquirePinnedSpan
+    0.02    0.1%  host    profiler::sdk::detail::encode_span_begin_dyn
+## kernel samples by entry
+    0.44    3.2%  futex(syscall)
+    0.10    0.7%  from guest code (fault/irq)
+    0.00    0.0%  madvise
+    0.00    0.0%  user:Core::GuestCpu::PinnedSpan::Release
+    0.00    0.0%  user:scudo::Allocator::allocate
+    0.00    0.0%  user:@plt
+    0.00    0.0%  user:FEXCore::LookupCache::CacheBlockMapping
+    0.00    0.0%  user:Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked
+    0.00    0.0%  user:std::__ndk1::shared_ptr std::__ndk1::make_shared[abi:ne210000]
+    0.00    0.0%  futex(pthread_mutex_lock)
+## hot leaf <- first host caller
+    0.02    0.1%  memcpy_opt  <-  Core::HostRuntime::GuestAjm::Impl::Read
+    0.02    0.1%  __aarch64_ldadd8_relax  <-  FexSyscallWrapper
+    0.02    0.1%  @plt  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  __aarch64_cas2_acq  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  @plt  <-  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers
+    0.01    0.1%  memset  <-  Core::HostRuntime::GuestAjm::Impl::Parse
+    0.01    0.1%  memcpy_opt  <-  Core::HostRuntime::GuestAjm::Impl::Parse
+    0.01    0.1%  pthread_mutex_unlock  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  __aarch64_swp2_rel  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::Fex::
+    0.01    0.1%  @plt  <-  Core::HostRuntime::GuestAjm::Impl::Dispatch
+    0.01    0.1%  __aarch64_ldadd8_acq_rel  <-  Core::GuestCpu::Fex::
+    0.01    0.0%  pthread_mutex_unlock  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.01    0.0%  memcpy_opt  <-  Core::GuestCpu::Fex::
+    0.01    0.0%  __aarch64_cas4_acq  <-  std::__ndk1::deque::__add_back_capacity
+    0.01    0.0%  __aarch64_swp2_rel  <-  Core::HostRuntime::GuestAjm::Impl::Dispatch
+    0.01    0.0%  pthread_mutex_lock  <-  Core::GuestCpu::Fex::
+    0.00    0.0%  __aarch64_ldadd4_acq_rel  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.00    0.0%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::Query
+    0.00    0.0%  __aarch64_cas2_acq  <-  Core::GuestCpu::GuestAddressSpace::AcquireDataSpan
+    0.00    0.0%  __aarch64_cas4_acq_rel  <-  ?
+    0.00    0.0%  __aarch64_ldadd8_relax  <-  bool std::__ndk1::condition_variable_any::wait_for[abi:ne210000]<std::__ndk1::unique_lock, long long, std::__n
+    0.00    0.0%  __aarch64_swp2_acq  <-  Core::GuestCpu::GuestAddressSpace::ValidateRange
+    0.00    0.0%  __aarch64_ldadd4_rel  <-  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.00    0.0%  @plt  <-  Common::Profiler::Scope::Scope
+    0.00    0.0%  @plt  <-  Core::HostRuntime::
+    0.00    0.0%  @plt  <-  Core::HostRuntime::GuestKernelSemaphore::Dispatch
+    0.00    0.0%  __aarch64_cas8_acq_rel  <-  Core::GuestCpu::PinnedSpan::Release
+    0.00    0.0%  pthread_mutex_lock  <-  std::__ndk1::condition_variable_any::notify_all[abi:ne210000]
+    0.00    0.0%  __aarch64_ldadd8_relax  <-  Core::HostRuntime::GuestAjm::Impl::Dispatch
+
+######## VkRecor: 12.6 ms/frame
+## self (top leaves)
+    1.26   10.0%  turnip  void tu_update_descriptor_sets<
+    1.20    9.5%  libc    memcpy_opt
+    0.54    4.3%  turnip  void fdl6_buffer_view_init<
+    0.48    3.8%  turnip  vk_dynamic_graphics_state_copy
+    0.40    3.2%  turnip  tu_CmdBindPipeline
+    0.36    2.9%  turnip  unsigned int tu_emit_draw_state<
+    0.30    2.4%  turnip  VkResult tu6_draw_common<
+    0.29    2.3%  host    Vulkan::CommandRecorder::Worker
+    0.27    2.1%  turnip  tu_cs_begin_sub_stream_aligned
+    0.22    1.8%  turnip  __aarch64_ldadd4_acq_rel
+    0.21    1.7%  turnip  tu_setup_dynamic_render_pass
+    0.20    1.6%  turnip  fdl6_format_swiz
+    0.18    1.4%  turnip  tu_cs_reserve_space
+    0.17    1.4%  turnip  void tu_push_descriptor_set<
+    0.15    1.2%  turnip  tu_barrier
+    0.13    1.1%  turnip  tu6_const_size
+    0.13    1.0%  turnip  util_format_compose_swizzles
+    0.13    1.0%  turnip  tu_CmdBindVertexBuffers2
+    0.13    1.0%  turnip  tu_cs_alloc
+    0.11    0.9%  turnip  tu_framebuffer_init_tiling_config
+    0.11    0.9%  libc    __aarch64_ldadd4_rel
+    0.11    0.9%  turnip  util_format_is_intensity
+    0.11    0.8%  turnip  void tu_emit_subpass_begin<
+    0.10    0.8%  turnip  void tu_cmd_render<
+    0.10    0.8%  turnip  void tu6_emit_lrz<
+## inclusive (host/fex/turnip/libc frames)
+   12.57  100.0%  host    void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Vulkan::CommandRec
+   12.57  100.0%  libc    __pthread_start
+   12.57  100.0%  libc    __start_thread
+   12.29   97.8%  host    Vulkan::CommandRecorder::Worker
+    3.28   26.1%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+    3.26   26.0%  turnip  vk_common_CmdPushDescriptorSetKHR
+    2.93   23.3%  turnip  void tu_push_descriptor_set<
+    2.55   20.3%  turnip  void tu_update_descriptor_sets<
+    1.95   15.5%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::bindPipeline
+    1.89   15.0%  turnip  VkResult tu6_draw_common<
+    1.37   10.9%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::beginRendering
+    1.35   10.7%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::drawIndexed
+    1.34   10.6%  turnip  void tu_CmdDrawIndexed<
+    1.30   10.4%  turnip  void tu_CmdBeginRendering<
+    1.20    9.6%  libc    memcpy_opt
+    1.06    8.5%  turnip  void fdl6_buffer_view_init<
+    1.05    8.3%  turnip  unsigned int tu_emit_draw_state<
+    0.90    7.2%  turnip  tu_CmdBindPipeline
+    0.84    6.7%  turnip  vk_common_CmdEndRendering
+    0.84    6.7%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::endRendering
+    0.83    6.6%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::draw
+    0.82    6.5%  turnip  void tu_CmdDraw<
+    0.78    6.2%  turnip  tu_CmdEndRendering2EXT
+    0.60    4.8%  turnip  void tu_emit_subpass_begin<
+    0.52    4.2%  turnip  fdl6_format_swiz
+    0.51    4.1%  turnip  void tu_cmd_render<
+    0.49    3.9%  turnip  vk_dynamic_graphics_state_copy
+    0.39    3.1%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::copyBuffer
+    0.38    3.0%  turnip  vk_common_CmdCopyBuffer
+    0.37    2.9%  turnip  tu_cs_begin_sub_stream_aligned
+    0.34    2.7%  turnip  void tu_CmdCopyBuffer2<
+    0.31    2.4%  turnip  tu_setup_dynamic_render_pass
+    0.28    2.2%  turnip  void copy_buffer<
+    0.28    2.2%  libc    syscall
+    0.26    2.0%  libc    std::__ndk1::condition_variable::wait
+    0.24    1.9%  libc    pthread_cond_wait
+    0.22    1.8%  turnip  __aarch64_ldadd4_acq_rel
+    0.22    1.8%  turnip  void tu_load_gmem_attachment<
+    0.21    1.7%  turnip  tu_autotune::get_optimal_mode
+    0.21    1.7%  turnip  use_sysmem_rendering
+    0.20    1.6%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pipelineBarrier2
+    0.19    1.5%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::bindVertexBuffers
+    0.18    1.5%  turnip  tu_cs_reserve_space
+    0.17    1.4%  turnip  void tu_set_input_attachments<
+    0.17    1.4%  turnip  tu_CmdBindVertexBuffers2
+    0.16    1.3%  turnip  void tu_emit_blit<
+    0.16    1.3%  turnip  void tu6_emit_vertex_input<
+    0.15    1.2%  turnip  tu_barrier
+    0.15    1.2%  libc    scudo::Allocator::deallocate
+    0.15    1.2%  turnip  tu_cs_alloc
+    0.15    1.2%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::clearColorImage
+    0.15    1.2%  turnip  tu_draw_state tu_emit_input_attachments<
+    0.15    1.2%  host    spatial::LiteTrace::end
+    0.14    1.1%  turnip  void tu_CmdClearColorImage<
+    0.14    1.1%  host    Common::Profiler::Scope::Scope
+    0.13    1.1%  turnip  tu6_const_size
+    0.13    1.0%  turnip  util_format_compose_swizzles
+    0.12    1.0%  turnip  void clear_image<
+    0.12    1.0%  libc    malloc
+    0.12    1.0%  host    Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushConstants
+## kernel samples by entry
+    0.26    2.1%  futex(syscall)
+    0.01    0.1%  user:vk_dynamic_graphics_state_copy
+    0.01    0.1%  user:void tu_update_descriptor_sets<
+    0.01    0.0%  user:@plt
+    0.00    0.0%  user:void tu_load_gmem_attachment<
+    0.00    0.0%  user:std::__ndk1::vector<std::__ndk1::unique_ptr, std::__ndk1::allocator<std::__ndk1::unique_ptr>>::push_back[abi:n
+    0.00    0.0%  user:std::__ndk1::mutex::~mutex
+    0.00    0.0%  user:tu_CmdBindPipeline
+    0.00    0.0%  user:memcpy_opt
+    0.00    0.0%  user:tu_cs_reserve_space
+    0.00    0.0%  user:util_format_x8b8g8r8_sint_unpack_signed
+    0.00    0.0%  user:VkResult tu6_draw_common<
+    0.00    0.0%  user:util_format_compose_swizzles
+    0.00    0.0%  user:util_format_is_alpha
+    0.00    0.0%  user:spatial::ProfilerRing::Enabled
+## hot leaf <- first host caller
+    1.02    8.1%  memcpy_opt  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::bindPipeline
+    0.21    1.7%  __aarch64_ldadd4_acq_rel  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+    0.10    0.8%  memcpy_opt  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+    0.07    0.6%  memcpy_opt  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushConstants
+    0.06    0.5%  __aarch64_ldadd4_rel  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::endRendering
+    0.06    0.5%  memset  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushDescriptorSetKHR
+    0.04    0.4%  @plt  <-  Vulkan::CommandRecorder::Worker
+    0.03    0.3%  @plt  <-  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Vulkan::CommandRec
+    0.03    0.3%  pthread_mutex_lock  <-  Vulkan::CommandRecorder::Worker
+    0.03    0.2%  __aarch64_swp2_rel  <-  Vulkan::CommandRecorder::Worker
+    0.02    0.2%  __aarch64_cas2_acq  <-  Vulkan::CommandRecorder::Worker
+    0.02    0.1%  pthread_mutex_unlock  <-  Vulkan::CommandRecorder::Worker
+    0.02    0.1%  memset  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::beginRendering
+    0.02    0.1%  __aarch64_ldadd4_rel  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::beginRendering
+    0.01    0.1%  @plt  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::endRendering
+    0.01    0.1%  __aarch64_ldadd8_relax  <-  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Vulkan::CommandRec
+    0.01    0.1%  __aarch64_ldadd4_acq_rel  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::endRendering
+    0.01    0.1%  __aarch64_ldadd4_rel  <-  std::__ndk1::__stop_state::__remove_callback[abi:ne210000]
+    0.01    0.1%  @plt  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::beginRendering
+    0.01    0.1%  __aarch64_ldadd4_rel  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::copyBuffer
+    0.01    0.1%  __aarch64_ldadd4_relax  <-  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Vulkan::CommandRec
+    0.01    0.1%  __aarch64_ldadd4_relax  <-  Vulkan::CommandRecorder::Worker
+    0.01    0.1%  @plt  <-  Common::Profiler::Scope::Scope
+    0.01    0.1%  __aarch64_ldadd8_acq_rel  <-  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Vulkan::CommandRec
+    0.01    0.1%  __aarch64_ldclr4_rel  <-  void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Vulkan::CommandRec
+    0.01    0.1%  __aarch64_cas4_acq  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::beginRendering
+    0.01    0.1%  @plt  <-  Vulkan::CommandChunk::TypedCommand<Vulkan::RecordingCommandBuffer::pushConstants
+    0.01    0.1%  __aarch64_cas4_acq  <-  bool std::__ndk1::__atomic_unique_lock::__lock_impl[abi:ne210000]<std::__ndk1::__atomic_unique_lock::__lock[ab
+    0.01    0.1%  __aarch64_ldadd4_rel  <-  Vulkan::CommandRecorder::Worker
+    0.01    0.1%  @plt  <-  spatial::LiteTrace::end
+
+######## Present: 5.1 ms/frame
+## self (top leaves)
+    0.38    7.3%  kernel  [kernel.kallsyms][+ffffffd3aa483088]
+    0.35    6.8%  kernel  [kernel.kallsyms][+ffffffd3aa59aa40]
+    0.20    3.9%  turnip  util_flush_range
+    0.14    2.7%  host    spatial::imgui::
+    0.08    1.5%  host    @plt
+    0.07    1.3%  host    ImGui::Begin
+    0.06    1.2%  host    ImDrawList::AddPolyline
+    0.05    1.0%  kernel  [kernel.kallsyms][+ffffffd3aa889774]
+    0.05    1.0%  libc    memcpy_opt
+    0.05    1.0%  other:libgui.so @plt
+    0.05    0.9%  kernel  [kernel.kallsyms][+ffffffd3aa8810d0]
+    0.05    0.9%  kernel  [kernel.kallsyms][+ffffffd3ae7eaaec]
+    0.04    0.8%  host    ImGui::NewFrame
+    0.04    0.7%  kernel  [kernel.kallsyms][+ffffffd3aa881164]
+    0.04    0.7%  libc    scudo::Allocator::allocate
+    0.03    0.6%  kernel  [kernel.kallsyms][+ffffffd3abb2d9b4]
+    0.03    0.6%  kernel  [kernel.kallsyms][+ffffffd3aa5910ec]
+    0.03    0.6%  kernel  [kernel.kallsyms][+ffffffd3aa5caac0]
+    0.03    0.5%  host    ImDrawList::AddConvexPolyFilled
+    0.03    0.5%  host    ImFont::RenderText
+    0.03    0.5%  kernel  [kernel.kallsyms][+ffffffd3aa8a2310]
+    0.02    0.5%  libc    __strlen_aarch64
+    0.02    0.5%  host    ImGui::Vulkan::RenderDrawData
+    0.02    0.4%  kernel  [kernel.kallsyms][+ffffffd3aa410114]
+    0.02    0.4%  kernel  [kernel.kallsyms][+ffffffd3abb2b80c]
+## inclusive (host/fex/turnip/libc frames)
+    5.14  100.0%  host    void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr, Libraries::VideoOu
+    5.14  100.0%  libc    __pthread_start
+    5.14  100.0%  libc    __start_thread
+    5.13   99.9%  host    Libraries::VideoOut::VideoOutDriver::PresentThread
+    4.94   96.0%  host    Vulkan::Presenter::Present
+    2.71   52.7%  host    ImGui::Core::Render
+    2.60   50.7%  host    Libraries::VideoOut::VideoOutDriver::Flip
+    2.26   44.0%  host    ImGui::Vulkan::RenderDrawData
+    1.65   32.1%  turnip  util_flush_range
+    1.07   20.8%  host    Vulkan::Swapchain::Present
+    0.37    7.2%  libc    __ioctl
+    0.29    5.6%  turnip  vk_common_UnmapMemory
+    0.29    5.6%  libc    munmap
+    0.28    5.5%  host    ImGui::StatusLayer::Prepare
+    0.27    5.2%  host    ImGui::Core::NewFrame
+    0.24    4.7%  turnip  vk_common_MapMemory
+    0.24    4.7%  turnip  tu_MapMemory2KHR
+    0.24    4.7%  libc    mmap64
+    0.21    4.0%  host    ImGui::StatusOverlay::Draw
+    0.21    4.0%  host    ImGui::StatusLayer::Draw
+    0.20    3.8%  host    spatial::imgui::overlay::drawOverlayShellFrame
+    0.20    3.8%  host    Vulkan::Scheduler::SubmitExecution
+    0.19    3.6%  host    ImGui::NewFrame
+    0.18    3.5%  libc    memcpy_opt
+    0.17    3.3%  host    ImGui::Vulkan::UpdateTextures
+    0.16    3.1%  host    ImGui::Begin
+    0.15    2.9%  host    ImGui::StatusOverlay::Prepare
+    0.15    2.9%  host    spatial::imgui::overlay::drawSummaryStatus
+    0.14    2.8%  host    spatial::imgui::
+    0.14    2.7%  host    Vulkan::Presenter::PrepareLastFrame
+    0.12    2.4%  host    spatial::imgui::overlay::
+    0.11    2.2%  host    Vulkan::Swapchain::AcquireNextImage
+    0.10    2.0%  libc    syscall
+    0.10    1.9%  host    ImGui::StatusLayer::Summary
+    0.09    1.8%  host    spatial::imgui::overlay::PerfHud::appendSummary
+    0.09    1.7%  host    Vulkan::SubmissionWorker::Enqueue
+    0.09    1.7%  libc    std::__ndk1::condition_variable::notify_all
+    0.08    1.6%  libc    __close
+    0.08    1.5%  host    @plt
+    0.08    1.5%  turnip  vk_common_QueueSignalReleaseImageANDROID
+    0.07    1.4%  host    spatial::imgui::overlay::measureOverlayStatus
+    0.07    1.3%  host    ImDrawList::AddLine
+    0.07    1.3%  host    ImDrawList::AddPolyline
+    0.06    1.2%  turnip  void tu_CmdBeginRendering<
+    0.06    1.1%  host    Vulkan::Scheduler::AllocateWorkerCommandBuffers
+    0.06    1.1%  libc    scudo_malloc
+    0.06    1.1%  libc    malloc
+    0.05    1.1%  libc    close
+    0.05    1.1%  turnip  vk_common_WaitForFences
+    0.05    1.1%  turnip  vk_kgsl_sync_export_sync_file
+    0.05    1.1%  turnip  vk_common_GetSemaphoreFdKHR
+    0.05    1.1%  libc    scudo::Allocator::allocate
+    0.05    0.9%  turnip  tu_BeginCommandBuffer
+    0.05    0.9%  host    ImGui::DockSpaceOverViewport
+    0.05    0.9%  libc    vsnprintf
+    0.04    0.9%  host    snprintf
+    0.04    0.8%  turnip  wait_timestamp_safe
+    0.04    0.8%  turnip  kgsl_syncobj_wait
+    0.04    0.8%  libc    __vfprintf
+    0.04    0.7%  host    spatial::imgui::overlay::OverlayShell::render
+## kernel samples by entry
+    1.45   28.2%  user:util_flush_range
+    0.37    7.1%  user:__ioctl
+    0.29    5.6%  munmap
+    0.24    4.6%  mmap
+    0.13    2.6%  user:memcpy_opt
+    0.10    2.0%  futex(syscall)
+    0.08    1.5%  user:__close
+    0.02    0.4%  ppoll
+    0.01    0.3%  user:__dup
+    0.01    0.2%  nanosleep
+    0.01    0.1%  user:memset
+    0.01    0.1%  user:scudo::Allocator::allocate
+    0.01    0.1%  user:__fcntl
+    0.00    0.0%  user:spatial::imgui::
+    0.00    0.0%  user:void tu_emit_custom_resolve_end<
+## hot leaf <- first host caller
+    0.10    1.9%  @plt  <-  Vulkan::Swapchain::Present
+    0.03    0.7%  memcpy_opt  <-  ImGui::Core::Render
+    0.01    0.3%  __aarch64_ldadd4_relax  <-  Vulkan::Swapchain::Present
+    0.01    0.3%  @plt  <-  spatial::imgui::overlay::drawOverlayShellFrame
+    0.01    0.2%  @plt  <-  Vulkan::Presenter::Present
+    0.01    0.2%  __aarch64_ldadd4_rel  <-  Vulkan::Swapchain::Present
+    0.01    0.2%  @plt  <-  Vulkan::Swapchain::AcquireNextImage
+    0.01    0.2%  @plt  <-  ImGui::StatusOverlay::Prepare
+    0.01    0.1%  @plt  <-  ImGui::StatusLayer::Prepare
+    0.01    0.1%  @plt  <-  spatial::imgui::overlay::PerfHud::appendSummary
+    0.01    0.1%  @plt  <-  Libraries::VideoOut::VideoOutDriver::PresentThread
+    0.01    0.1%  memcpy_opt  <-  ImGui::Vulkan::RenderDrawData
+    0.01    0.1%  __aarch64_cas4_acq  <-  Vulkan::Swapchain::Present
+    0.00    0.1%  @plt  <-  Vulkan::Scheduler::AllocateWorkerCommandBuffers
+    0.00    0.1%  pthread_mutex_unlock  <-  Vulkan::Swapchain::Present
+    0.00    0.1%  pthread_mutex_lock  <-  ImGui::StatusOverlay::Begin
+    0.00    0.1%  __aarch64_cas8_acq_rel  <-  Vulkan::Swapchain::Present
+    0.00    0.1%  memcpy_opt  <-  spatial::imgui::overlay::MetricSeries::operator=
+    0.00    0.1%  __aarch64_cas2_acq  <-  Vulkan::Swapchain::Present
+    0.00    0.1%  __aarch64_ldadd8_relax  <-  Vulkan::Swapchain::Present
+    0.00    0.1%  __memcpy  <-  spatial::imgui::overlay::PerfHud::appendSummary
+    0.00    0.1%  @plt  <-  EmulatorSettingsImpl::GetInstance
+    0.00    0.1%  memcpy_opt  <-  ImGui::Vulkan::SetupRenderState
+    0.00    0.1%  pthread_mutex_lock  <-  Vulkan::Swapchain::Present
+    0.00    0.1%  pthread_mutex_lock  <-  Frontend::AndroidWindow::GetWidth
+    0.00    0.0%  __aarch64_ldadd4_relax  <-  Vulkan::SubmissionWorker::Wait
+    0.00    0.0%  @plt  <-  Libraries::VideoOut::VideoOutDriver::Flip
+    0.00    0.0%  @plt  <-  ImDrawList::AddLine
+    0.00    0.0%  @plt  <-  ImGui::Core::Render
+    0.00    0.0%  @plt  <-  ImGui::Image
