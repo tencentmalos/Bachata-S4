@@ -1,0 +1,80 @@
+# 2026-10-03 06:22-06:32, APK 1881c71d (host f5d22fe4), Turnip 01a3548f, Pocket DS, Central Yharnam start, character idle.
+# Defaults of this build: wake_proxy on (queue 32), watch_decay off (no hashing), fault_textures skip, guest_affinity on (cpus 3-7, includes Guest-1); watch_content switch on but inactive without decay.
+# Battery 12% -> 7% (charged with the screen off before the run); every window checks core_ctl active_cpus (mid/big) and battery; the run stops below 8% (it stopped before the watch_cross and watch_decay groups).
+# Each window: switch, settle 15 s (base 5 s), sample 20 s of /proc thread times and DebugBus counters. The game caps at 30 FPS.
+
+== state after settle
+    guest_affinity: on
+    cpus: 3,4,5,6,7
+    lowest: 0,1,2
+    applied: 66
+    failed: 0
+
+    placement: cpus 0,1,2
+    full: 0
+    max_depth: 12
+    watch_coalesce=on watch_predict=on watch_content=on hashed_pages=0 rewritten_pages=0
+    write_faults cold=16753 cold_known=0 after_dirty=18406 run_start=142164 run_start_window=19806 watch_gaps=off watch_decay=off unchanged_pages=0 kept_pages=2534085 watch_cross=off cross_released=0
+    fault_textures=skip texture_invalidates=126 texture_skipped=177317 texture_ns=19373123
+== baseline window (defaults)
+    failed: 0
+base-1-on: thermal=3 active_mid/big=4/1 battery=11 fps=29.94 cores=4.05 Guest-1=25.35 GpuComm=21.18 VkRecord=6.63 Guest-17=7.45 workers21-25=17.86 guest_all=76.09 Waker=12.45 cpu_per_frame=135.3 ms/frame | per frame: faults=78.1 released=1539.4 predicted=1394.8 watch_calls=58.5 watch_pages=1492.5 mprotect=136.7 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.1(0.0)/8.8/75.7 (window 9.9) unchanged=0.0 kept=1387.7 cross=0.0 textures/skipped=0.0/84.7 texture_us=0.8
+== guest_affinity
+    failed: 0
+ga-1-off: thermal=3 active_mid/big=4/1 battery=11 fps=29.62 cores=4.59 Guest-1=23.80 GpuComm=21.65 VkRecord=6.79 Guest-17=9.94 workers21-25=21.90 guest_all=100.46 Waker=13.13 cpu_per_frame=155.0 ms/frame | per frame: faults=78.1 released=1535.8 predicted=1392.7 watch_calls=57.1 watch_pages=1487.3 mprotect=135.2 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.2(0.0)/8.1/75.3 (window 9.9) unchanged=0.0 kept=1386.0 cross=0.0 textures/skipped=0.0/83.6 texture_us=0.8
+    failed: 0
+ga-2-on: thermal=3 active_mid/big=4/1 battery=10 fps=29.83 cores=4.05 Guest-1=25.31 GpuComm=21.33 VkRecord=6.68 Guest-17=7.55 workers21-25=17.76 guest_all=76.34 Waker=12.57 cpu_per_frame=135.8 ms/frame | per frame: faults=75.8 released=1583.9 predicted=1440.1 watch_calls=59.1 watch_pages=1535.9 mprotect=135.0 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.8/73.5 (window 9.3) unchanged=0.0 kept=1434.1 cross=0.0 textures/skipped=0.0/82.3 texture_us=0.7
+    failed: 0
+ga-3-off: thermal=3 active_mid/big=4/1 battery=10 fps=29.68 cores=4.73 Guest-1=23.81 GpuComm=22.66 VkRecord=7.17 Guest-17=10.49 workers21-25=22.20 guest_all=102.79 Waker=13.36 cpu_per_frame=159.4 ms/frame | per frame: faults=78.1 released=1555.9 predicted=1413.4 watch_calls=57.7 watch_pages=1510.2 mprotect=135.9 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.0/75.7 (window 9.6) unchanged=0.0 kept=1409.2 cross=0.0 textures/skipped=0.0/83.8 texture_us=1.0
+    failed: 0
+ga-4-on: thermal=3 active_mid/big=4/1 battery=10 fps=29.80 cores=4.17 Guest-1=24.94 GpuComm=22.59 VkRecord=7.23 Guest-17=8.00 workers21-25=18.21 guest_all=80.66 Waker=12.98 cpu_per_frame=139.9 ms/frame | per frame: faults=76.7 released=1544.8 predicted=1401.3 watch_calls=57.9 watch_pages=1499.0 mprotect=134.6 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.5/74.4 (window 9.0) unchanged=0.0 kept=1396.5 cross=0.0 textures/skipped=0.0/82.9 texture_us=0.9
+    failed: 0
+ga-5-off: thermal=3 active_mid/big=4/1 battery=9 fps=29.30 cores=4.85 Guest-1=24.08 GpuComm=23.77 VkRecord=7.71 Guest-17=11.27 workers21-25=23.25 guest_all=106.01 Waker=13.78 cpu_per_frame=165.5 ms/frame | per frame: faults=77.5 released=1569.2 predicted=1424.2 watch_calls=58.1 watch_pages=1520.4 mprotect=135.6 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/7.9/75.0 (window 9.1) unchanged=0.0 kept=1418.8 cross=0.0 textures/skipped=0.0/82.9 texture_us=0.9
+    failed: 0
+ga-6-on: thermal=3 active_mid/big=4/1 battery=9 fps=29.79 cores=4.23 Guest-1=24.65 GpuComm=23.34 VkRecord=7.44 Guest-17=8.19 workers21-25=18.82 guest_all=81.34 Waker=13.25 cpu_per_frame=142.0 ms/frame | per frame: faults=77.5 released=1543.4 predicted=1400.6 watch_calls=58.3 watch_pages=1497.3 mprotect=135.8 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.6/75.2 (window 9.4) unchanged=0.0 kept=1394.2 cross=0.0 textures/skipped=0.0/83.8 texture_us=0.9
+
+== fault_textures
+    fault_textures=always (write faults on pages no image watches still call the texture cache)
+ft-1-always: thermal=3 active_mid/big=4/1 battery=9 fps=29.57 cores=4.24 Guest-1=24.78 GpuComm=23.38 VkRecord=7.54 Guest-17=8.28 workers21-25=18.93 guest_all=82.01 Waker=13.35 cpu_per_frame=143.4 ms/frame | per frame: faults=77.1 released=1560.4 predicted=1413.4 watch_calls=58.9 watch_pages=1511.6 mprotect=135.9 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.5/74.9 (window 9.7) unchanged=0.0 kept=1408.4 cross=0.0 textures/skipped=83.4/0.0 texture_us=97.1
+    fault_textures=skip (write faults on pages no image watches skip the texture cache)
+ft-2-skip: thermal=3 active_mid/big=4/1 battery=8 fps=29.54 cores=4.27 Guest-1=24.83 GpuComm=23.88 VkRecord=7.62 Guest-17=8.40 workers21-25=19.15 guest_all=82.32 Waker=13.35 cpu_per_frame=144.5 ms/frame | per frame: faults=78.2 released=1556.8 predicted=1411.1 watch_calls=58.9 watch_pages=1508.7 mprotect=137.1 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.4/76.0 (window 9.5) unchanged=0.0 kept=1404.6 cross=0.0 textures/skipped=0.0/84.4 texture_us=0.8
+    fault_textures=always (write faults on pages no image watches still call the texture cache)
+ft-3-always: thermal=3 active_mid/big=4/1 battery=8 fps=29.55 cores=4.27 Guest-1=24.81 GpuComm=23.95 VkRecord=7.64 Guest-17=8.38 workers21-25=19.31 guest_all=82.44 Waker=13.45 cpu_per_frame=144.5 ms/frame | per frame: faults=77.0 released=1566.3 predicted=1420.3 watch_calls=59.1 watch_pages=1515.9 mprotect=136.2 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.5/74.8 (window 9.6) unchanged=0.0 kept=1413.0 cross=0.0 textures/skipped=83.4/0.0 texture_us=118.2
+    fault_textures=skip (write faults on pages no image watches skip the texture cache)
+ft-4-skip: thermal=3 active_mid/big=4/1 battery=8 fps=29.40 cores=4.26 Guest-1=24.83 GpuComm=24.09 VkRecord=7.71 Guest-17=8.43 workers21-25=19.39 guest_all=82.47 Waker=13.38 cpu_per_frame=144.9 ms/frame | per frame: faults=77.5 released=1552.8 predicted=1409.4 watch_calls=58.5 watch_pages=1507.7 mprotect=136.0 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.5(0.0)/8.4/74.8 (window 10.5) unchanged=0.0 kept=1403.4 cross=0.0 textures/skipped=0.0/83.7 texture_us=0.9
+    fault_textures=always (write faults on pages no image watches still call the texture cache)
+ft-5-always: thermal=3 active_mid/big=4/1 battery=8 fps=29.26 cores=4.25 Guest-1=24.90 GpuComm=24.32 VkRecord=7.82 Guest-17=8.62 workers21-25=19.58 guest_all=82.97 Waker=13.31 cpu_per_frame=145.2 ms/frame | per frame: faults=76.8 released=1545.5 predicted=1402.1 watch_calls=58.7 watch_pages=1501.4 mprotect=135.4 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.0(0.0)/8.4/74.4 (window 9.4) unchanged=0.0 kept=1397.1 cross=0.0 textures/skipped=82.8/0.0 texture_us=147.7
+    fault_textures=skip (write faults on pages no image watches skip the texture cache)
+ft-6-skip: thermal=3 active_mid/big=4/1 battery=7 fps=29.30 cores=4.27 Guest-1=24.85 GpuComm=24.07 VkRecord=7.78 Guest-17=8.57 workers21-25=19.31 guest_all=82.95 Waker=13.46 cpu_per_frame=145.7 ms/frame | per frame: faults=76.3 released=1531.6 predicted=1387.6 watch_calls=58.7 watch_pages=1483.2 mprotect=135.1 hashed=0.0 rewritten=0.0 fault_kinds cold(known)/after_dirty/run_start=0.2(0.0)/8.6/73.8 (window 9.8) unchanged=0.0 kept=1381.0 cross=0.0 textures/skipped=0.0/82.5 texture_us=1.1
+
+== watch_cross with decay off
+battery below 8%, stopping
+
+
+
+
+== final state
+    guest_affinity: on
+    cpus: 3,4,5,6,7
+    lowest: 0,1,2
+    applied: 669
+    failed: 0
+
+    wake_proxy: on
+    placement: cpus 0,1,2
+    spin_us: 200
+    posts: 3413748
+    kicks: 443886
+    full: 0
+    notifies: 3413746
+    batches: 1596105
+    sleeps: 443845
+    spin_ms: 179214
+    max_depth: 12
+
+    watch_coalesce=on watch_predict=on watch_content=on hashed_pages=0 rewritten_pages=0
+    write_faults cold=18386 cold_known=0 after_dirty=155319 run_start=1354868 run_start_window=173844 watch_gaps=off watch_decay=off unchanged_pages=0 kept_pages=25226282 watch_cross=off cross_released=0
+    fault_textures=skip texture_invalidates=317677 texture_skipped=1211353 texture_ns=479962993
+  level: 7
+4
+1

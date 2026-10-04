@@ -1,0 +1,14 @@
+# page_heat (APK 57250251 predecessor with page_heat, content prediction not yet built; 316 frames, flips 2632..2947, Thermal Status 3)
+page_heat: on frames=316 (flips 2632..2947)
+watch per frame: release_calls=293.4 release_pages=924.8 predicted_pages=622.9 watch_calls=55.3 watch_pages=1167.1 mprotect=348.7
+uploads per frame: pages=914.4 changed=677.1 distinct_pages=14030
+resident lookups per frame: calls=2386.1 pages=549076.4
+share of frames with an upload: pages, uploads/frame, changed/frame, lookups covering them/frame
+  >=90%: 25 pages, 23.2, 23.2, 38.3
+  50-90%: 102 pages, 73.4, 70.4, 103.1
+  10-50%: 1772 pages, 390.8, 289.5, 4969.9
+  <10%: 12131 pages, 427.0, 294.0, 54413.2
+hottest 64 KiB groups (>=90%): address pages uploads/frame
+  0x243430000 13 12.0
+  0x243420000 6 5.6
+  0x243400000 6 5.5

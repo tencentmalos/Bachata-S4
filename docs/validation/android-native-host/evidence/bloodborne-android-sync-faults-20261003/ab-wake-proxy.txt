@@ -1,0 +1,23 @@
+# wake_proxy A/B with watch_content on, APK 55b6eb40 (proxy default off in this build), 20 s windows after 15 s settle
+    spin_ms: 4009
+wp-1-off: thermal=3 fps=28.07 cores=4.65 Guest-1=25.34 GpuComm=24.00 VkRecord=9.63 Guest-17=12.73 workers21-25=27.65 guest_all=116.13 ms/frame | per frame: faults=174.0 released=1231.5 predicted=1012.5 watch_calls=59.4 watch_pages=1325.1 mprotect=233.4 hashed=1185.1 rewritten=506.7
+    spin_ms: 4009
+wp-2-on: thermal=3 fps=28.69 cores=4.92 Guest-1=25.20 GpuComm=25.01 VkRecord=9.40 Guest-17=10.90 workers21-25=28.23 guest_all=107.48 ms/frame | per frame: faults=170.7 released=1211.1 predicted=1002.7 watch_calls=57.3 watch_pages=1310.6 mprotect=228.0 hashed=1172.6 rewritten=508.9
+    spin_ms: 16577
+wp-3-off: thermal=3 fps=26.89 cores=4.67 Guest-1=26.46 GpuComm=25.06 VkRecord=9.98 Guest-17=13.67 workers21-25=29.42 guest_all=121.92 ms/frame | per frame: faults=173.6 released=1228.6 predicted=1008.0 watch_calls=58.8 watch_pages=1319.6 mprotect=232.4 hashed=1181.8 rewritten=505.3
+    spin_ms: 16577
+wp-4-on: thermal=3 fps=27.64 cores=4.96 Guest-1=25.69 GpuComm=26.61 VkRecord=9.85 Guest-17=11.62 workers21-25=29.80 guest_all=112.62 ms/frame | per frame: faults=169.9 released=1209.0 predicted=1001.4 watch_calls=57.4 watch_pages=1304.1 mprotect=227.3 hashed=1172.1 rewritten=506.1
+    spin_ms: 29494
+wp-5-off: thermal=3 fps=26.75 cores=4.65 Guest-1=26.90 GpuComm=26.11 VkRecord=9.98 Guest-17=13.60 workers21-25=29.78 guest_all=121.67 ms/frame | per frame: faults=175.0 released=1229.2 predicted=1009.0 watch_calls=58.5 watch_pages=1324.4 mprotect=233.5 hashed=1183.3 rewritten=503.6
+    spin_ms: 29494
+wp-6-on: thermal=3 fps=27.47 cores=4.96 Guest-1=25.91 GpuComm=27.11 VkRecord=9.94 Guest-17=11.41 workers21-25=29.87 guest_all=112.93 ms/frame | per frame: faults=171.1 released=1221.2 predicted=1011.9 watch_calls=57.4 watch_pages=1315.7 mprotect=228.5 hashed=1181.8 rewritten=508.5
+
+# wake_proxy spin 200 vs 1000 us (proxy on)
+    spin_ms: 136919
+ws-1-200: thermal=3 fps=27.13 cores=4.98 Guest-1=25.86 GpuComm=29.04 VkRecord=10.11 Guest-17=11.63 workers21-25=30.58 guest_all=114.20 ms/frame | per frame: faults=171.0 released=1226.0 predicted=1016.6 watch_calls=57.6 watch_pages=1323.4 mprotect=228.5 hashed=1188.6 rewritten=516.6
+    spin_ms: 149380
+ws-2-1000: thermal=3 fps=27.05 cores=5.28 Guest-1=25.90 GpuComm=30.69 VkRecord=10.08 Guest-17=12.14 workers21-25=31.97 guest_all=113.40 ms/frame | per frame: faults=180.5 released=1263.4 predicted=1048.7 watch_calls=57.3 watch_pages=1369.3 mprotect=237.8 hashed=1227.9 rewritten=513.1
+    spin_ms: 176198
+ws-3-200: thermal=3 fps=26.91 cores=4.97 Guest-1=25.98 GpuComm=29.60 VkRecord=10.17 Guest-17=11.64 workers21-25=31.33 guest_all=114.79 ms/frame | per frame: faults=174.9 released=1227.8 predicted=1020.5 watch_calls=56.8 watch_pages=1331.1 mprotect=231.7 hashed=1194.5 rewritten=509.1
+    spin_ms: 188536
+ws-4-1000: thermal=3 fps=27.35 cores=5.29 Guest-1=25.79 GpuComm=30.64 VkRecord=9.98 Guest-17=11.78 workers21-25=31.28 guest_all=111.99 ms/frame | per frame: faults=179.6 released=1256.8 predicted=1045.4 watch_calls=57.7 watch_pages=1371.2 mprotect=237.4 hashed=1225.2 rewritten=513.5

@@ -1,0 +1,12 @@
+# tests/common/memory_tracker_concurrency_tests.cpp on the Pocket DS (NDK r29 clang++ API 33, flags of scripts/android/test-buffer-tracking-locks)
+# New block: write prediction with decay on (no hashes), decay off (no hashes, kept pages) and decay on with hashes.
+
+## sources of this change
+checks=62 failures=0 region_bytes=262144 directory_object_bytes=2360512
+exit=0
+
+## negative control: decay off keeps only hash-unchanged pages (previous logic), so released-ahead pages decay again
+checks=62 failures=2 region_bytes=262144 directory_object_bytes=2360512
+FAIL line 305: always_released
+FAIL line 306: content_prediction_counters.kept_pages.load() - kept_before == 6 * 3
+exit=1

@@ -1,0 +1,163 @@
+# New defaults (APK 1881c71d), Central Yharnam, right after the round-3 A/B (battery 7%, core_ctl 4/1 active).
+# Perfetto 10 s sched trace (bb-r3.pftrace, about 298 frames) with tp-r3.sql, then simpleperf 10 s (320 frames, 2000 Hz, fp call graphs, 0 lost).
+# Raw trace and perf.data stay local.
+
+## Perfetto
+## thread state totals per group, ms over the trace (Running from sched; R = runnable, S sleep, D uninterruptible)
+  "grp","state","ms","n"
+  "Guest-1","Running",7282.600000,15178
+  "Guest-1","S",1714.500000,7333
+  "Guest-1","R",786.600000,14902
+  "Guest-1","D",167.300000,1117
+  "Guest-17","S",7046.100000,2253
+  "Guest-17","Running",2597.300000,3224
+  "Guest-17","R",303.600000,3181
+  "Guest-20","S",17433.000000,1262
+  "Guest-20","Running",2185.100000,3043
+  "Guest-20","R",244.900000,2992
+  "shadPS4:GpuComm","Running",7265.600000,4380
+  "shadPS4:GpuComm","S",2182.100000,967
+  "shadPS4:GpuComm","R",449.300000,4121
+  "shadPS4:GpuComm","D",32.000000,175
+  "shadPS4:GpuComm","R+",27.000000,244
+  "shadPS4:VkRecor","S",6328.200000,12563
+  "shadPS4:VkRecor","Running",2299.700000,15229
+  "shadPS4:VkRecor","R",1326.400000,15133
+  "shadPS4:Waker","S",5118.300000,6840
+  "shadPS4:Waker","Running",4355.000000,8372
+  "shadPS4:Waker","R",423.100000,7897
+  "shadPS4:Waker","R+",54.400000,473
+  "w21-25","S",39653.900000,13808
+  "w21-25","Running",5819.300000,22279
+  "w21-25","R",3223.200000,22000
+  "w21-25","D",938.200000,5251
+  "w21-25","R+",7.200000,70
+  "w32-36","S",43185.800000,17774
+  "w32-36","R",3602.000000,19414
+  "w32-36","Running",2956.200000,19544
+  "w32-36","D",11.200000,119
+  "w54-59","S",53877.000000,12612
+  "w54-59","R",3079.500000,22153
+  "w54-59","Running",2593.300000,22669
+  "w54-59","R+",5.900000,63
+## running time by cluster (little 0-2, mid 3-6, big 7), ms over the trace
+  "grp","little_ms","mid_ms","big_ms"
+  "Guest-1",0.000000,6338.900000,943.800000
+  "shadPS4:GpuComm",0.000000,3270.900000,3994.800000
+  "w21-25",0.000000,4849.400000,969.900000
+  "shadPS4:Waker",4355.000000,0.000000,0.000000
+  "guest-other",0.000000,2887.200000,306.400000
+  "w32-36",0.000000,2625.400000,330.800000
+  "Guest-17",0.000000,2428.200000,169.100000
+  "w54-59",0.000000,2167.200000,426.100000
+  "shadPS4:VkRecor",0.000000,2197.900000,101.800000
+  "Guest-20",0.000000,2012.500000,172.500000
+  "shadps4.android",1272.800000,365.400000,41.600000
+  "shadPS4:Present",0.000000,502.600000,70.300000
+  "shadPS4:VkSubmi",0.000000,153.500000,11.700000
+  "AAudio_1",0.000000,145.200000,0.000000
+  "binder:15892_5",126.900000,1.200000,0.100000
+  "shadPS4:GpuDone",0.000000,85.200000,11.200000
+  "binder:15892_2",81.700000,5.200000,0.200000
+  "binder:15892_4",60.300000,1.100000,0.500000
+  "shadPS4:Log",60.800000,0.200000,0.100000
+  "DefaultExecutor",36.800000,17.300000,2.900000
+  "RenderThread",36.500000,15.300000,2.500000
+  "Thread-11",0.000000,31.100000,19.800000
+## Guest-1 sleeps (S/D) by waker group
+  "state","waker_group","n","ms","avg_us"
+  "D","w21-25",1031,156.600000,151.900000
+  "D","shadPS4:GpuComm",23,4.000000,172.100000
+  "D","Thread-11",2,3.800000,1908.100000
+  "D","(none)",38,1.400000,36.900000
+  "D","w32-36",16,0.700000,46.000000
+  "D","guest-other",9,0.700000,78.600000
+  "S","shadPS4:Waker",5603,1610.400000,287.400000
+  "S","w21-25",273,44.000000,161.000000
+  "S","w32-36",187,23.800000,127.100000
+  "S","guest-other",486,13.400000,27.600000
+  "S","(none)",242,8.500000,35.200000
+  "S","Guest-20",297,5.500000,18.400000
+  "S","w54-59",92,5.300000,57.400000
+  "S","Guest-17",82,2.400000,29.000000
+  "S","shadps4.android",77,1.000000,13.300000
+## CPU utilisation per cpu over the trace (all processes), percent busy
+  "cpu","busy_pct"
+  0,45.400000
+  1,43.500000
+  2,41.400000
+  3,80.500000
+  4,80.900000
+  5,81.000000
+  6,80.800000
+  7,76.700000
+
+## simpleperf: threads (ms/frame on-CPU)
+## threads (ms/frame on-CPU, by code kind)
+  Guest-1                    24.1   jit 19.6, host 1.3, kernel 1.1, libc 1.1, fex 0.8
+  shadPS4:GpuComm            22.5   host 15.7, libc 5.3, kernel 1.3, other:linker64 0.1, turnip 0.1
+  shadPS4:Waker              15.2   kernel 9.8, host 4.7, libc 0.8
+  shadPS4:VkRecor            12.2   turnip 8.8, libc 2.0, host 1.0, kernel 0.3, other:linker64 0.0
+  Guest-17                    8.9   jit 7.6, host 0.4, kernel 0.3, libc 0.3, fex 0.1
+  Guest-20                    6.7   jit 4.0, host 1.1, libc 0.9, kernel 0.4, fex 0.2
+  com.shadps4.android         5.6   host 2.8, other:libart.so 0.9, other:[JIT app cache] 0.8, kernel 0.7, libc 0.3
+  Guest-21                    4.5   jit 3.4, kernel 0.5, host 0.2, libc 0.2, fex 0.1
+  Guest-23                    4.5   jit 3.4, kernel 0.5, host 0.2, libc 0.2, fex 0.1
+  Guest-25                    4.3   jit 3.2, kernel 0.6, host 0.3, libc 0.2, fex 0.1
+  Guest-22                    4.3   jit 3.2, kernel 0.5, host 0.2, fex 0.1, libc 0.1
+  Guest-24                    4.2   jit 2.7, kernel 0.8, host 0.3, libc 0.2, fex 0.1
+  Guest-36                    2.8   jit 2.3, kernel 0.2, libc 0.1, host 0.1, fex 0.1
+
+## simpleperf: Guest-1 kernel time by user call site
+Guest-1 kernel-leaf samples 730 = 1.14 ms/frame
+    0.59  syscall [libc.so]
+    0.23  mprotect [libc.so]
+    0.22  unknown [unknown]
+    0.04  memcpy_opt [libc.so]
+    0.03  __kernel_rt_sigreturn [[vdso]]
+    0.03  __rt_sigprocmask [libc.so]
+    0.00  art::InitializeSignalChain [libsigchain.so]
+    0.00  std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl: [libshadps4_host.so]
+    0.00  __aarch64_ldadd8_acq_rel [libc++_shared.so]
+    0.00  std::__ndk1::__shared_mutex_base::unlock_shared [libc++_shared.so]
+    0.00  Core::GuestCpu::Fex:: [libshadps4_fex_session.so]
+    0.00  __kernel_clock_gettime [[vdso]]
+    0.00  std::__ndk1::pair<std::__ndk1::__wrap_iter<unsigned long const*>, bool [libshadps4_fex_session.so]
+    0.00  @plt [libshadps4_host.so]
+-- chains
+    0.19  mprotect [libc.so] <- Core::MemoryManager::ProtectGpu [libshadps4_host.so] <- void VideoCore::PageManager::Impl::UpdatePageWatchers<false, false> [libshadps4_host.so]
+    0.16  syscall [libc.so] <- Core::HostRuntime::GuestKernelSemaphore::DeferredWakes::~DeferredWakes [libshadps4_host.so] <- Core::HostRuntime::GuestKernelSemaphore::Dispatch [libshadps4_host.so]
+    0.11  unknown [unknown]
+    0.11  unknown [unknown] <- unknown [unknown]
+    0.08  syscall [libc.so] <- std::__ndk1::mutex::unlock [libc++_shared.so] <- Core::GuestCpu::Fex:: [libshadps4_fex_session.so]
+    0.08  syscall [libc.so] <- Core::HostRuntime::GuestMutexDomain::CondNotify [libshadps4_host.so] <- std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl: [libshadps4_host.so]
+    0.08  syscall [libc.so] <- pthread_cond_wait [libc.so] <- std::__ndk1::condition_variable::wait [libc++_shared.so]
+    0.05  syscall [libc.so] <- NonPI::MutexLockWithTimeout [libc.so] <- pthread_mutex_lock [libc.so]
+    0.03  mprotect [libc.so] <- Core::MemoryManager::ProtectGpu [libshadps4_host.so] <- void VideoCore::PageManager::Impl::UpdatePageWatchersForRegion<false,  [libshadps4_host.so]
+    0.03  syscall [libc.so] <- Vulkan::Rasterizer::InvalidateMemoryFromWriteFault [libshadps4_host.so] <- Core::SignalDispatch::DispatchAccessViolation [libshadps4_host.so]
+    0.03  __kernel_rt_sigreturn [[vdso]] <- unknown [unknown]
+    0.03  memcpy_opt [libc.so] <- void Core::HostRuntime::GuestMutexDomain::Write<Core::HostRuntime::Gue [libshadps4_host.so] <- Core::HostRuntime::GuestMutexDomain::AttributeInit [libshadps4_host.so]
+
+## simpleperf: write-fault handling over all guest threads
+samples 56904 = 88.91 ms/frame
+  DispatchAccessViolation                  incl   2.17  leaf   0.02 ms/frame
+  ProtectGpu                               incl   1.64  leaf   0.06 ms/frame
+  TextureCache::InvalidateMemory           incl   0.00  leaf   0.00 ms/frame
+  Rasterizer::IsMapped                     incl   0.07  leaf   0.00 ms/frame
+  RecursiveLock                            incl   0.03  leaf   0.03 ms/frame
+  HasWriteWatchers                         incl   0.02  leaf   0.01 ms/frame
+top leaves:
+
+## same, first-round recording with content prediction and the proxy on, decay on (all-wp.data, APK 850bdef9, 233 frames)
+samples 59117 = 126.86 ms/frame
+  DispatchAccessViolation                  incl   6.66  leaf   0.06 ms/frame
+  ProtectGpu                               incl   4.72  leaf   0.11 ms/frame
+  TextureCache::InvalidateMemory           incl   0.17  leaf   0.07 ms/frame
+  Rasterizer::IsMapped                     incl   0.64  leaf   0.01 ms/frame
+  RecursiveLock                            incl   0.41  leaf   0.13 ms/frame
+top leaves:
+
+## simpleperf: GpuComm hashing
+samples 14375 = 22.46 ms/frame
+  XXH3                                     incl   0.15  leaf   0.15 ms/frame
+  HashSparsePages                          incl   0.00  leaf   0.00 ms/frame

@@ -1,0 +1,9 @@
+# wake_bench: waker-side CPU time of one FUTEX_WAKE of a sleeping thread, Pocket DS, while Bloodborne runs (adb shell, not app cgroup)
+# args: iterations waker_mask wakee_mask gap_us; masks hex, '-' = unpinned. cpus 0-2 A510, 3-6 A715/A710 (1.786 GHz cap), 7 X3 (1.594 GHz cap)
+waker=- wakee=- gap=300us n=2000  waker cpu us: mean 19.74 p50 17.24 p90 31.56 p99 52.97 | wall p50 17.08 p90 58.33
+waker=- wakee=2 gap=300us n=2000  waker cpu us: mean 14.37 p50 12.03 p90 24.27 p99 47.13 | wall p50 12.03 p90 54.11
+waker=- wakee=78 gap=300us n=2000  waker cpu us: mean 19.51 p50 17.45 p90 29.06 p99 57.19 | wall p50 17.03 p90 40.05
+waker=- wakee=80 gap=300us n=2000  waker cpu us: mean 13.42 p50 11.93 p90 24.01 p99 44.58 | wall p50 11.77 p90 45.47
+waker=10 wakee=- gap=300us n=2000  waker cpu us: mean 17.65 p50 13.28 p90 34.43 p99 51.88 | wall p50 10.10 p90 398.12
+waker=10 wakee=2 gap=300us n=2000  waker cpu us: mean 16.60 p50 13.80 p90 28.44 p99 49.32 | wall p50 13.49 p90 244.48
+waker=- wakee=7 gap=300us n=2000  waker cpu us: mean 17.52 p50 15.47 p90 27.55 p99 48.80 | wall p50 14.95 p90 34.43

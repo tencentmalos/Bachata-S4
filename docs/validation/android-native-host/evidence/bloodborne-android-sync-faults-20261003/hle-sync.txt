@@ -1,0 +1,17 @@
+# hle_sync over 10 s (275 frames), all threads, APK 57250251 with watch_content on; elapsed includes waits
+shards 46 enabled True
+Rwlock.Read                  calls/frame    363.1 completed    99842 elapsed/call     13.4 us nonzero 0 hist [23857, 60759, 12184, 3023, 19, 0]
+Rwlock.Unlock                calls/frame    363.1 completed    99841 elapsed/call     10.6 us nonzero 0 hist [30699, 56746, 9950, 2435, 11, 0]
+Sync.AddrWake                calls/frame    190.2 completed    52301 elapsed/call      8.1 us nonzero 11899 hist [27427, 13788, 10688, 391, 7, 0]
+Sema.Wait                    calls/frame    167.0 completed    45916 elapsed/call   2209.9 us nonzero 0 hist [3695, 2558, 5716, 24364, 7950, 1633]
+Sema.Signal                  calls/frame    115.0 completed    31618 elapsed/call     33.5 us nonzero 0 hist [850, 7432, 21008, 2324, 4, 0]
+Sync.AddrWait                calls/frame     76.3 completed    20991 elapsed/call     97.8 us nonzero 0 hist [123, 9637, 4635, 6457, 139, 0]
+Mutex.Config                 calls/frame     54.9 completed    15111 elapsed/call      7.5 us nonzero 0 hist [2350, 10976, 1661, 123, 1, 0]
+Cond.Broadcast               calls/frame     54.8 completed    15076 elapsed/call     31.3 us nonzero 0 hist [0, 833, 13945, 297, 1, 0]
+Cond.Wait                    calls/frame     54.8 completed    15054 elapsed/call  14009.8 us nonzero 0 hist [0, 0, 307, 4025, 4777, 5945]
+Thread.Usleep                calls/frame     20.4 completed     5604 elapsed/call  15879.8 us nonzero 0 hist [0, 0, 0, 0, 3058, 2546]
+Mutex.Init                   calls/frame     20.3 completed     5591 elapsed/call     14.0 us nonzero 0 hist [0, 4208, 1288, 93, 2, 0]
+Mutex.Destroy                calls/frame     20.3 completed     5589 elapsed/call     12.8 us nonzero 0 hist [0, 4499, 990, 98, 2, 0]
+Cond.Init                    calls/frame      8.0 completed     2209 elapsed/call      5.1 us nonzero 0 hist [1, 2126, 77, 5, 0, 0]
+Cond.Destroy                 calls/frame      8.0 completed     2209 elapsed/call     11.6 us nonzero 0 hist [0, 1823, 362, 24, 0, 0]
+Net.EpollWait                calls/frame      1.1 completed      301 elapsed/call  33366.9 us nonzero 0 hist [0, 0, 0, 0, 0, 301]

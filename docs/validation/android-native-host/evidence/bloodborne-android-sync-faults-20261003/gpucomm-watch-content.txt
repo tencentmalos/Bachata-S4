@@ -1,0 +1,47 @@
+# GpuComm simpleperf (2000 Hz, fp call graphs, 8 s each), watch_content off (220 frames) vs on (232 frames), APK 57250251
+samples 11099 = 23.92 ms/frame
+  XXH3                                     incl   0.55  leaf   0.55 ms/frame
+  HashSparsePages                          incl   0.02  leaf   0.02 ms/frame
+  SnapshotForUpload                        incl   0.32  leaf   0.11 ms/frame
+  SynchronizeMemory                        incl   3.41  leaf   0.74 ms/frame
+  CopySparseMemory                         incl   0.15  leaf   0.14 ms/frame
+  memcpy                                   incl   3.17  leaf   3.16 ms/frame
+  mprotect                                 incl   0.67  leaf   0.02 ms/frame
+top leaves:
+    2.92  memcpy_opt
+    1.31  __aarch64_ldadd4_acq_rel
+    0.93  Vulkan::Rasterizer::BindTextures
+
+total a=22.52 b=23.92 diff=+1.40 ms/frame
+## leaf (b - a)
+   +0.41  a= 0.05 b= 0.46  XXH3_hashLong_64b_default
+   +0.24  a= 2.67 b= 2.92  memcpy_opt
+   +0.10  a= 0.57 b= 0.67  [kernel.kallsyms][+ffffffd3aa59aa40]
+   +0.08  a= 0.53 b= 0.61  VideoCore::BufferCache::SynchronizeMemory
+   +0.08  a= 0.54 b= 0.61  AmdGpu::Liverpool::ProcessGraphics
+   +0.07  a= 0.58 b= 0.65  @plt
+   +0.07  a= 0.86 b= 0.93  Vulkan::Rasterizer::BindTextures
+   +0.05  a= 1.26 b= 1.31  __aarch64_ldadd4_acq_rel
+   -0.05  a= 0.33 b= 0.28  Core::MemoryManager::IsValidMapping
+   +0.05  a= 0.38 b= 0.43  void Shader::StageSpecialization::ForEachSharp<boost::container::small
+   +0.05  a= 0.42 b= 0.46  __aarch64_cas2_acq
+   -0.04  a= 0.12 b= 0.08  VideoCore::TextureCache::TouchFoundTexture
+   +0.04  a= 0.24 b= 0.28  VideoCore::BufferCache::EnsureResident
+   +0.04  a= 0.21 b= 0.25  __kernel_clock_gettime
+   -0.04  a= 0.20 b= 0.16  Vulkan::Scheduler::BeginHoist
+## leaf <- host caller (b - a)
+   +0.40  a= 0.00 b= 0.40  XXH3_hashLong_64b_default <- VideoCore::BufferCache::SynchronizeMemory
+   +0.19  a= 0.50 b= 0.69  memcpy_opt <- VideoCore::BufferCache::SynchronizeMemory
+   +0.08  a= 0.53 b= 0.61  VideoCore::BufferCache::SynchronizeMemory <- VideoCore::BufferCache::ObtainResidentBuffer
+   +0.08  a= 0.54 b= 0.61  AmdGpu::Liverpool::ProcessGraphics <- AmdGpu::Liverpool::ProcessOwnedGraphics
+   +0.07  a= 0.86 b= 0.93  Vulkan::Rasterizer::BindTextures <- Vulkan::Rasterizer::BindResources
+   +0.06  a= 0.29 b= 0.35  [kernel.kallsyms][+ffffffd3aa59aa40] <- Vulkan::CommandRecorder::Dispatch
+   +0.06  a= 0.20 b= 0.26  [kernel.kallsyms][+ffffffd3aa59aa40] <- Vulkan::CommandRecorder::ReleaseHeld
+   -0.05  a= 0.23 b= 0.18  __memcpy <- Vulkan::ExecuteShaderHLE
+   +0.05  a= 0.15 b= 0.19  memcpy_opt <- AmdGpu::Liverpool::ProcessOwnedGraphics
+   +0.04  a= 0.38 b= 0.42  void Shader::StageSpecialization::ForEachSharp<boost::container::small <- Shader::StageSpecialization::StageSpecialization
+   +0.04  a= 0.09 b= 0.13  __aarch64_cas2_acq <- VideoCore::TextureCache::UpdateImage
+   +0.04  a= 1.15 b= 1.19  __aarch64_ldadd4_acq_rel <- VideoCore::BufferCache::ObtainBuffer
+   -0.04  a= 0.12 b= 0.08  VideoCore::TextureCache::TouchFoundTexture <- Vulkan::Rasterizer::BindTextures
+   +0.04  a= 0.24 b= 0.28  VideoCore::BufferCache::EnsureResident <- VideoCore::BufferCache::ObtainResidentBuffer
+   -0.04  a= 0.54 b= 0.50  memcpy_opt <- void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf

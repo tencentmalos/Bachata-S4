@@ -1,0 +1,21 @@
+# Write fault kinds per frame (cold = faulting page has no write confidence; after_dirty = page before it is CPU dirty; run_start = otherwise), APK with counters, wake proxy on
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+fk-1-on: thermal=3 fps=28.72 cores=4.86 Guest-1=24.40 GpuComm=24.64 VkRecord=9.32 Guest-17=10.42 workers21-25=27.03 guest_all=105.72 ms/frame | per frame: faults=169.7 released=1213.4 predicted=1000.9 watch_calls=57.4 watch_pages=1302.6 mprotect=227.1 hashed=1170.2 rewritten=505.9 fault_kinds cold/after_dirty/run_start=83.3/6.6/84.0
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+fk-2-off: thermal=3 fps=26.94 cores=4.88 Guest-1=26.01 GpuComm=24.45 VkRecord=9.51 Guest-17=11.15 workers21-25=34.12 guest_all=116.70 ms/frame | per frame: faults=298.2 released=932.7 predicted=620.5 watch_calls=55.7 watch_pages=1194.1 mprotect=353.9 hashed=0.0 rewritten=0.0 fault_kinds cold/after_dirty/run_start=191.8/5.6/106.1
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+fk-3-on: thermal=3 fps=27.56 cores=4.92 Guest-1=25.64 GpuComm=26.38 VkRecord=9.88 Guest-17=11.65 workers21-25=29.53 guest_all=112.01 ms/frame | per frame: faults=171.1 released=1216.3 predicted=1007.5 watch_calls=57.0 watch_pages=1309.1 mprotect=228.1 hashed=1178.7 rewritten=507.8 fault_kinds cold/after_dirty/run_start=85.0/6.4/83.8
+
+# watch_gaps (release ahead across pages without confidence) A/B, content + proxy on. gp-6-on is invalid: during it core_ctl paused the mid and big clusters (thermal), see thermal-pause.txt
+    watch_gaps=off (release ahead up to the first page without write confidence)
+gp-1-off: thermal=3 fps=29.17 cores=4.86 Guest-1=24.46 GpuComm=24.15 VkRecord=9.22 Guest-17=10.38 workers21-25=26.60 guest_all=103.14 ms/frame | per frame: faults=166.5 released=1201.5 predicted=998.1 watch_calls=57.0 watch_pages=1294.6 mprotect=223.5 hashed=1164.6 rewritten=514.2 fault_kinds cold(known)/after_dirty/run_start=79.3(78.9)/6.3/84.8
+    watch_gaps=on (release ahead every confident page left in the window)
+gp-2-on: thermal=3 fps=28.05 cores=4.93 Guest-1=25.42 GpuComm=25.74 VkRecord=9.73 Guest-17=11.06 workers21-25=29.66 guest_all=110.24 ms/frame | per frame: faults=192.2 released=1275.0 predicted=1072.8 watch_calls=56.4 watch_pages=1387.8 mprotect=248.5 hashed=1237.6 rewritten=510.7 fault_kinds cold(known)/after_dirty/run_start=98.9(98.9)/6.6/66.2
+    watch_gaps=off (release ahead up to the first page without write confidence)
+gp-3-off: thermal=3 fps=27.69 cores=4.95 Guest-1=25.59 GpuComm=27.35 VkRecord=9.89 Guest-17=11.39 workers21-25=29.98 guest_all=111.56 ms/frame | per frame: faults=168.7 released=1210.7 predicted=1001.8 watch_calls=57.0 watch_pages=1303.0 mprotect=225.7 hashed=1171.0 rewritten=514.4 fault_kinds cold(known)/after_dirty/run_start=82.6(82.6)/6.2/84.0
+    watch_gaps=on (release ahead every confident page left in the window)
+gp-4-on: thermal=3 fps=27.43 cores=4.95 Guest-1=25.63 GpuComm=27.68 VkRecord=9.94 Guest-17=11.38 workers21-25=30.40 guest_all=112.54 ms/frame | per frame: faults=197.6 released=1287.2 predicted=1086.5 watch_calls=57.0 watch_pages=1416.8 mprotect=254.6 hashed=1256.3 rewritten=512.5 fault_kinds cold(known)/after_dirty/run_start=103.6(103.6)/6.7/65.3
+    watch_gaps=off (release ahead up to the first page without write confidence)
+gp-5-off: thermal=3 fps=27.14 cores=4.89 Guest-1=25.92 GpuComm=28.82 VkRecord=9.95 Guest-17=11.28 workers21-25=30.34 guest_all=110.88 ms/frame | per frame: faults=167.7 released=1221.6 predicted=1016.7 watch_calls=56.9 watch_pages=1313.9 mprotect=224.6 hashed=1183.5 rewritten=518.5 fault_kinds cold(known)/after_dirty/run_start=82.7(82.7)/6.3/82.8
+    watch_gaps=on (release ahead every confident page left in the window)
+gp-6-on: thermal=3 fps=4.72 cores=2.16 Guest-1=71.84 GpuComm=75.82 VkRecord=17.52 Guest-17=92.91 workers21-25=46.11 guest_all=249.66 ms/frame | per frame: faults=214.4 released=1328.3 predicted=1104.5 watch_calls=59.8 watch_pages=1474.2 mprotect=274.2 hashed=1279.2 rewritten=528.9 fault_kinds cold(known)/after_dirty/run_start=123.6(101.8)/3.6/60.6

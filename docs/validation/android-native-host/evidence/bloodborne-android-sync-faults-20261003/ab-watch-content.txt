@@ -1,0 +1,111 @@
+# watch_content A/B, APK 57250251 (content prediction default off in this build), Central Yharnam start, 20 s windows after 20 s settle, Thermal Status 3
+# per-thread ms/frame from /proc (athreads); faults etc. per frame from upload_diag counters
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+== wc-1-off
+pid=20728 window=23.0s fps=27.11 draws/flip=931 gpubusy(last period)=83% gpuclk=680000000
+process CPU 4.57 cores; threads >= 3%:
+    69.9%   25.77 ms/frame  cpu6  Guest-1 (20798)
+    59.8%   22.05 ms/frame  cpu3  shadPS4:GpuComm (20852)
+    34.5%   12.74 ms/frame  cpu5  Guest-17 (20848)
+    25.2%    9.28 ms/frame  cpu6  shadPS4:VkRecor (20856)
+    19.7%    7.28 ms/frame  cpu6  Guest-20 (20851)
+    18.2%    6.71 ms/frame  cpu0  Guest-22 (20878)
+    18.1%    6.67 ms/frame  cpu4  Guest-21 (20877)
+    18.0%    6.63 ms/frame  cpu0  Guest-23 (20879)
+    17.9%    6.60 ms/frame  cpu4  Guest-24 (20880)
+    17.7%    6.54 ms/frame  cpu7  Guest-25 (20881)
+    10.4%    3.85 ms/frame  cpu3  Guest-36 (20893)
+    10.1%    3.72 ms/frame  cpu6  Guest-35 (20892)
+== wc-2-on
+pid=20728 window=23.3s fps=28.02 draws/flip=932 gpubusy(last period)=85% gpuclk=680000000
+process CPU 4.61 cores; threads >= 3%:
+    70.9%   25.32 ms/frame  cpu3  Guest-1 (20798)
+    65.7%   23.44 ms/frame  cpu5  shadPS4:GpuComm (20852)
+    35.7%   12.75 ms/frame  cpu6  Guest-17 (20848)
+    26.9%    9.60 ms/frame  cpu5  shadPS4:VkRecor (20856)
+    20.4%    7.27 ms/frame  cpu3  Guest-20 (20851)
+    15.6%    5.57 ms/frame  cpu1  Guest-22 (20878)
+    15.6%    5.55 ms/frame  cpu7  Guest-23 (20879)
+    15.5%    5.54 ms/frame  cpu5  Guest-21 (20877)
+    15.3%    5.46 ms/frame  cpu4  Guest-25 (20881)
+    15.2%    5.41 ms/frame  cpu6  Guest-24 (20880)
+    10.8%    3.87 ms/frame  cpu6  Guest-36 (20893)
+    10.4%    3.70 ms/frame  cpu1  Guest-35 (20892)
+== wc-3-off
+pid=20728 window=23.1s fps=26.56 draws/flip=931 gpubusy(last period)=79% gpuclk=680000000
+process CPU 4.62 cores; threads >= 3%:
+    70.6%   26.60 ms/frame  cpu4  Guest-1 (20798)
+    60.3%   22.69 ms/frame  cpu4  shadPS4:GpuComm (20852)
+    35.6%   13.40 ms/frame  cpu7  Guest-17 (20848)
+    25.7%    9.69 ms/frame  cpu5  shadPS4:VkRecor (20856)
+    19.4%    7.31 ms/frame  cpu5  Guest-20 (20851)
+    18.2%    6.84 ms/frame  cpu0  Guest-22 (20878)
+    18.1%    6.81 ms/frame  cpu6  Guest-21 (20877)
+    18.0%    6.78 ms/frame  cpu6  Guest-23 (20879)
+    17.7%    6.68 ms/frame  cpu4  Guest-24 (20880)
+    17.7%    6.66 ms/frame  cpu5  Guest-25 (20881)
+    11.0%    4.14 ms/frame  cpu6  Guest-36 (20893)
+    10.6%    3.97 ms/frame  cpu3  Guest-35 (20892)
+== wc-4-on
+pid=20728 window=23.4s fps=27.73 draws/flip=931 gpubusy(last period)=83% gpuclk=680000000
+process CPU 4.65 cores; threads >= 3%:
+    71.6%   25.82 ms/frame  cpu3  Guest-1 (20798)
+    66.6%   24.03 ms/frame  cpu6  shadPS4:GpuComm (20852)
+    36.6%   13.21 ms/frame  cpu6  Guest-17 (20848)
+    27.2%    9.81 ms/frame  cpu5  shadPS4:VkRecor (20856)
+    20.2%    7.27 ms/frame  cpu5  Guest-20 (20851)
+    15.8%    5.69 ms/frame  cpu6  Guest-23 (20879)
+    15.7%    5.65 ms/frame  cpu5  Guest-22 (20878)
+    15.7%    5.65 ms/frame  cpu6  Guest-21 (20877)
+    15.5%    5.60 ms/frame  cpu4  Guest-25 (20881)
+    15.3%    5.52 ms/frame  cpu2  Guest-24 (20880)
+    11.0%    3.98 ms/frame  cpu5  Guest-36 (20893)
+    10.6%    3.83 ms/frame  cpu4  Guest-35 (20892)
+== wc-5-off
+pid=20728 window=23.2s fps=26.30 draws/flip=930 gpubusy(last period)=80% gpuclk=680000000
+process CPU 4.63 cores; threads >= 3%:
+    70.6%   26.84 ms/frame  cpu4  Guest-1 (20798)
+    60.7%   23.08 ms/frame  cpu3  shadPS4:GpuComm (20852)
+    35.6%   13.54 ms/frame  cpu1  Guest-17 (20848)
+    25.7%    9.75 ms/frame  cpu5  shadPS4:VkRecor (20856)
+    19.4%    7.38 ms/frame  cpu3  Guest-20 (20851)
+    18.3%    6.95 ms/frame  cpu3  Guest-22 (20878)
+    18.2%    6.90 ms/frame  cpu5  Guest-23 (20879)
+    18.1%    6.89 ms/frame  cpu7  Guest-24 (20880)
+    18.1%    6.87 ms/frame  cpu2  Guest-21 (20877)
+    17.8%    6.77 ms/frame  cpu6  Guest-25 (20881)
+    11.0%    4.18 ms/frame  cpu3  Guest-36 (20893)
+    10.5%    4.00 ms/frame  cpu5  Guest-35 (20892)
+== wc-6-on
+pid=20728 window=23.4s fps=27.44 draws/flip=932 gpubusy(last period)=84% gpuclk=680000000
+process CPU 4.62 cores; threads >= 3%:
+    70.9%   25.86 ms/frame  cpu4  Guest-1 (20798)
+    66.5%   24.22 ms/frame  cpu7  shadPS4:GpuComm (20852)
+    35.1%   12.79 ms/frame  cpu6  Guest-17 (20848)
+    26.9%    9.80 ms/frame  cpu4  shadPS4:VkRecor (20856)
+    20.0%    7.29 ms/frame  cpu4  Guest-20 (20851)
+    15.8%    5.75 ms/frame  cpu0  Guest-21 (20877)
+    15.7%    5.73 ms/frame  cpu6  Guest-23 (20879)
+    15.7%    5.72 ms/frame  cpu7  Guest-22 (20878)
+    15.4%    5.61 ms/frame  cpu7  Guest-25 (20881)
+    15.3%    5.59 ms/frame  cpu3  Guest-24 (20880)
+    11.0%    4.00 ms/frame  cpu3  Guest-36 (20893)
+    10.5%    3.83 ms/frame  cpu6  Guest-35 (20892)
+# Counter lines of the same runs (the per-thread columns of this table were mis-parsed in the first script version; see ab-watch-content.txt per-thread blocks)
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+wc-1-off: thermal=3 fps=? cores=? Guest-1=0.00 GpuComm=0.00 VkRecord=0.00 guest_all=0.00 ms/frame | per frame: faults=297.2 released=938.0 predicted=625.5 watch_calls=57.8 watch_pages=1189.7 mprotect=355.0 hashed=0.0 rewritten=0.0
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+wc-2-on: thermal=3 fps=? cores=? Guest-1=0.00 GpuComm=0.00 VkRecord=0.00 guest_all=0.00 ms/frame | per frame: faults=175.3 released=1213.3 predicted=1001.2 watch_calls=58.9 watch_pages=1314.4 mprotect=234.2 hashed=1176.3 rewritten=499.8
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+wc-3-off: thermal=3 fps=? cores=? Guest-1=0.00 GpuComm=0.00 VkRecord=0.00 guest_all=0.00 ms/frame | per frame: faults=296.0 released=937.4 predicted=625.4 watch_calls=57.0 watch_pages=1184.0 mprotect=353.0 hashed=0.0 rewritten=0.0
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+wc-4-on: thermal=3 fps=? cores=? Guest-1=0.00 GpuComm=0.00 VkRecord=0.00 guest_all=0.00 ms/frame | per frame: faults=172.3 released=1212.3 predicted=994.5 watch_calls=58.8 watch_pages=1301.5 mprotect=231.1 hashed=1167.7 rewritten=502.1
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+wc-5-off: thermal=3 fps=? cores=? Guest-1=0.00 GpuComm=0.00 VkRecord=0.00 guest_all=0.00 ms/frame | per frame: faults=295.0 released=930.1 predicted=619.6 watch_calls=57.7 watch_pages=1187.3 mprotect=352.6 hashed=0.0 rewritten=0.0
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+wc-6-on: thermal=3 fps=? cores=? Guest-1=0.00 GpuComm=0.00 VkRecord=0.00 guest_all=0.00 ms/frame | per frame: faults=173.3 released=1227.0 predicted=1007.8 watch_calls=58.7 watch_pages=1313.7 mprotect=232.0 hashed=1180.6 rewritten=504.9

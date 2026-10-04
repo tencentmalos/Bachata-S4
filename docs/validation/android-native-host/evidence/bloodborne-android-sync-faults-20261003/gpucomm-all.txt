@@ -1,0 +1,59 @@
+# GpuComm simpleperf all off (218 frames) vs all on (233 frames), APK 850bdef9
+total a=25.53 b=29.28 diff=+3.75 ms/frame
+## leaf (b - a)
+   +0.43  a= 0.08 b= 0.52  XXH3_hashLong_64b_default
+   +0.38  a= 2.73 b= 3.11  memcpy_opt
+   +0.19  a= 0.81 b= 1.00  [kernel.kallsyms][+ffffffd3aa59aa40]
+   +0.17  a= 0.87 b= 1.05  Vulkan::Rasterizer::BindTextures
+   +0.12  a= 0.50 b= 0.63  __aarch64_cas2_acq
+   +0.12  a= 0.55 b= 0.67  VideoCore::BufferCache::SynchronizeMemory
+   +0.12  a= 1.21 b= 1.33  __aarch64_ldadd4_acq_rel
+   +0.09  a= 0.41 b= 0.50  void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf
+   +0.08  a= 0.54 b= 0.63  AmdGpu::Liverpool::ProcessGraphics
+   +0.08  a= 0.26 b= 0.34  VideoCore::Image::ObserveUsage
+   +0.08  a= 0.35 b= 0.42  Shader::RuntimeInfo::operator==
+   +0.07  a= 0.23 b= 0.30  VideoCore::TextureCache::TouchImage
+   -0.07  a= 0.34 b= 0.27  VideoCore::BufferCache::EnsureResident
+   +0.06  a= 0.29 b= 0.35  pthread_mutex_unlock
+   +0.06  a= 0.24 b= 0.30  Vulkan::Rasterizer::BindResources
+   +0.06  a= 0.16 b= 0.22  VideoCore::MemoryTracker::IsRegionGpuModified
+   +0.05  a= 0.79 b= 0.84  @plt
+   +0.05  a= 0.22 b= 0.28  Vulkan::PipelineCache::GetProgram
+   +0.05  a= 0.73 b= 0.79  __aarch64_cas4_acq
+   +0.05  a= 0.47 b= 0.52  void Shader::StageSpecialization::ForEachSharp<boost::container::small
+## leaf <- host caller (b - a)
+   +0.45  a= 0.00 b= 0.45  XXH3_hashLong_64b_default <- VideoCore::BufferCache::SynchronizeMemory
+   +0.20  a= 0.97 b= 1.16  memcpy_opt <- VideoCore::BufferCache::ObtainBuffer
+   +0.18  a= 0.52 b= 0.70  memcpy_opt <- VideoCore::BufferCache::SynchronizeMemory
+   +0.17  a= 0.87 b= 1.04  Vulkan::Rasterizer::BindTextures <- Vulkan::Rasterizer::BindResources
+   +0.12  a= 0.54 b= 0.66  VideoCore::BufferCache::SynchronizeMemory <- VideoCore::BufferCache::ObtainResidentBuffer
+   +0.12  a= 0.45 b= 0.57  [kernel.kallsyms][+ffffffd3aa59aa40] <- Vulkan::CommandRecorder::Dispatch
+   +0.10  a= 1.10 b= 1.20  __aarch64_ldadd4_acq_rel <- VideoCore::BufferCache::ObtainBuffer
+   -0.10  a= 0.29 b= 0.19  __aarch64_cas4_acq <- VideoCore::BufferCache::ObtainResidentBuffer
+   +0.09  a= 0.41 b= 0.50  void Shader::PortableSrt::Run<Shader::Info::RefreshFlatBuf <- Shader::Info::RefreshFlatBuf
+   +0.08  a= 0.54 b= 0.62  AmdGpu::Liverpool::ProcessGraphics <- AmdGpu::Liverpool::ProcessOwnedGraphics
+   +0.08  a= 0.05 b= 0.13  __aarch64_cas4_acq <- Shader::Info::RefreshFlatBuf
+   +0.07  a= 0.16 b= 0.24  VideoCore::Image::ObserveUsage <- VideoCore::TextureCache::TouchFoundTexture
+   -0.07  a= 0.34 b= 0.27  VideoCore::BufferCache::EnsureResident <- VideoCore::BufferCache::ObtainResidentBuffer
+   +0.07  a= 0.27 b= 0.33  [kernel.kallsyms][+ffffffd3aa59aa40] <- Vulkan::CommandRecorder::ReleaseHeld
+   +0.06  a= 0.23 b= 0.29  Vulkan::Rasterizer::BindResources <- Vulkan::Rasterizer::Draw
+   +0.05  a= 0.12 b= 0.17  VideoCore::TextureCache::TouchImage <- Vulkan::Rasterizer::BindResources
+   +0.05  a= 0.15 b= 0.20  __aarch64_cas4_acq <- VideoCore::MemoryTracker::IsRegionGpuModified
+   +0.05  a= 0.08 b= 0.14  __aarch64_cas2_acq <- EmulatorSettingsImpl::GetInstance
+   +0.05  a= 0.08 b= 0.13  VideoCore::MemoryTracker::IsRegionGpuModified <- VideoCore::BufferCache::ObtainBuffer
+   +0.05  a= 0.45 b= 0.50  void Shader::StageSpecialization::ForEachSharp<boost::container::small <- Shader::StageSpecialization::StageSpecialization
+
+# GpuComm samples by CPU (ms/frame)
+gc2-off.data cpu0:0.01 cpu3:7.51 cpu4:8.79 cpu5:1.78 cpu6:1.47 cpu7:5.96 total 25.53 ms/frame
+gc2-on.data cpu0:0.02 cpu3:17.93 cpu4:1.38 cpu5:1.98 cpu6:1.99 cpu7:5.98 total 29.28 ms/frame
+
+# placement of key threads (ms/frame by CPU): content on/proxy off (all-on.data, 231 frames) and both on (all-wp.data, 233 frames)
+Guest-1            cpu0: 0.07 cpu1: 0.05 cpu2: 0.05 cpu3:21.41 cpu4: 1.04 cpu5: 2.13 cpu6: 2.06 cpu7: 0.82
+shadPS4:GpuComm    cpu3: 0.34 cpu4:13.30 cpu5: 0.37 cpu6: 0.22 cpu7: 8.00
+Guest-17           cpu0: 1.97 cpu1: 2.22 cpu2: 2.08 cpu3: 0.59 cpu4: 1.18 cpu5: 2.30 cpu6: 2.30 cpu7: 0.83
+shadPS4:VkRecor    cpu0: 1.68 cpu1: 1.32 cpu2: 1.32 cpu3: 1.16 cpu4: 1.58 cpu5: 2.91 cpu6: 2.73 cpu7: 0.23
+Guest-1            cpu0: 0.07 cpu1: 0.08 cpu2: 0.06 cpu3: 1.07 cpu4:19.82 cpu5: 2.15 cpu6: 2.27 cpu7: 0.68
+shadPS4:GpuComm    cpu3:15.04 cpu4: 1.00 cpu5: 1.29 cpu6: 1.38 cpu7: 7.03
+Guest-17           cpu0: 1.29 cpu1: 1.19 cpu2: 1.19 cpu3: 1.34 cpu4: 0.64 cpu5: 2.73 cpu6: 2.91 cpu7: 1.21
+shadPS4:VkRecor    cpu0: 1.32 cpu1: 1.32 cpu2: 1.22 cpu3: 1.77 cpu4: 1.22 cpu5: 3.09 cpu6: 2.83 cpu7: 0.84
+shadPS4:Waker      cpu0: 5.90 cpu1: 4.92 cpu2: 5.02

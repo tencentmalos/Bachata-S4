@@ -1,0 +1,115 @@
+# Perfetto sched (10 s, PID 20728, APK 57250251, watch_content on, wake proxy not built yet)
+## wakes of shadps4 threads by waker thread (whole trace)
+  "waker","wakes"
+  "Guest-1",48566
+  "shadPS4:GpuComm",11379
+  "swapper",9056
+  "Guest-17",4084
+  "Guest-35",3847
+  "Guest-34",3769
+  "Guest-33",3713
+  "Guest-58",3621
+  "Guest-59",3585
+  "Guest-57",3518
+  "Guest-32",3475
+  "Guest-55",3419
+  "Guest-56",3374
+  "Guest-36",3352
+  "Guest-25",3192
+  "Guest-54",3109
+  "Guest-23",3074
+  "Guest-24",3031
+  "Guest-21",3023
+  "Guest-22",2933
+  "Guest-20",2614
+  "Guest-48",2587
+  "Guest-18",2135
+  "shadPS4:VkSubmi",1761
+  "surfaceflinger",1450
+## Guest-1 wakes by wakee thread
+  "wakee","wakes"
+  "Guest-36",3654
+  "Guest-35",3505
+  "Guest-34",3268
+  "Guest-33",3034
+  "Guest-32",2975
+  "Guest-24",2676
+  "Guest-25",2626
+  "Guest-22",2597
+  "Guest-23",2557
+  "Guest-21",2477
+  "Guest-59",1398
+  "Guest-58",1343
+  "Guest-57",1319
+  "Guest-55",1272
+  "Guest-56",1270
+  "Guest-54",1250
+  "Guest-12",952
+  "Guest-13",919
+  "Guest-20",885
+  "Guest-11",807
+  "Guest-63",684
+  "Guest-64",680
+  "Guest-66",671
+  "Guest-65",668
+  "Guest-61",651
+## gap between consecutive wakes issued by Guest-1 (us buckets)
+  "bucket","n"
+  "a <20us",12014
+  "b <100us",22865
+  "c <250us",4643
+  "d <500us",3417
+  "e <1ms",2877
+  "f <2ms",2030
+  "g >=2ms",719
+## trace span
+  "seconds"
+  9.945764
+## sleeps (S) of key threads by the thread that woke them (ms over trace)
+  "thread","waker","ms","n"
+  "Guest-1","Guest-33",184.800000,1294
+  "Guest-1","Guest-32",179.700000,1294
+  "Guest-1","Guest-57",172.700000,320
+  "Guest-1","Guest-55",172.500000,311
+  "Guest-1","Guest-54",163.900000,274
+  "Guest-1","Guest-59",163.800000,350
+  "Guest-1","Guest-34",161.600000,1292
+  "Guest-1","Guest-58",160.300000,332
+  "Guest-1","Guest-56",137.200000,322
+  "Guest-1","Guest-35",126.700000,1307
+  "Guest-1","Guest-36",92.600000,1166
+  "Guest-1","Guest-48",43.500000,549
+  "Guest-1","Guest-63",35.600000,194
+  "Guest-1","Guest-64",28.300000,172
+  "Guest-1","Guest-65",26.100000,182
+  "Guest-1","Guest-62",25.800000,154
+  "Guest-1","Guest-61",22.900000,145
+  "Guest-17","Guest-18",5888.900000,1770
+  "shadPS4:GpuComm","Guest-20",3095.900000,659
+  "shadPS4:GpuComm","shadPS4:VkRecor",140.300000,351
+  "shadPS4:GpuComm","Guest-1",42.600000,285
+  "shadPS4:GpuComm","Guest-48",25.200000,115
+## state totals of key threads (ms over trace)
+  "thread","state","ms"
+  "Guest-1","Running",7116.400000
+  "Guest-1","S",2090.200000
+  "Guest-1","R",600.000000
+  "Guest-1","D",115.900000
+  "Guest-1","R+",14.900000
+  "Guest-17","S",5997.800000
+  "Guest-17","Running",3545.000000
+  "Guest-17","R",383.500000
+  "Guest-17","R+",11.600000
+  "Guest-21","S",8027.700000
+  "Guest-21","Running",1506.400000
+  "Guest-21","R",279.900000
+  "Guest-21","D",99.800000
+  "Guest-21","R+",16.500000
+  "Guest-33","S",8554.700000
+  "Guest-33","Running",949.300000
+  "Guest-33","R",403.100000
+  "Guest-33","R+",23.000000
+  "shadPS4:GpuComm","Running",6462.700000
+  "shadPS4:GpuComm","S",3305.100000
+  "shadPS4:GpuComm","R",143.800000
+  "shadPS4:GpuComm","D",16.700000

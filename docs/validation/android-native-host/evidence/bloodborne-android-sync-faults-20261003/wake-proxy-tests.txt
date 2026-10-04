@@ -1,0 +1,15 @@
+# tests/host_runtime/guest_wake_proxy_tests on the Pocket DS, against the installed APK's libshadps4_host.so
+
+## queue capacity 4096 (APK c8fbd56d host)
+producers=4 waiters=8 posts=80000 max_gap_us=400 direct=0 caught_up=1 lost=0
+producers=4 waiters=8 posts=80000 max_gap_us=50 direct=0 caught_up=1 lost=0
+producers=8 waiters=16 posts=160000 max_gap_us=0 direct=128499 caught_up=1 lost=0
+proxy posts=191501 notifies=191501 kicks=21830 sleeps=21829 full=128499
+11 checks, 0 failures
+
+## queue capacity 32 (APK 80a707bd, host cb07acaa)
+producers=4 waiters=8 posts=80000 max_gap_us=400 direct=28 caught_up=1 lost=0
+producers=4 waiters=8 posts=80000 max_gap_us=50 direct=0 caught_up=1 lost=0
+producers=8 waiters=16 posts=160000 max_gap_us=0 direct=130240 caught_up=1 lost=0
+proxy posts=189732 notifies=189732 kicks=21247 sleeps=21239 full=130268
+11 checks, 0 failures

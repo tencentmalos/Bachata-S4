@@ -1,0 +1,115 @@
+# Final A/B in one session: everything off (watch_content off + wake_proxy off) vs defaults on, APK 850bdef9 (both default on)
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+all-1-off: thermal=3 fps=26.59 cores=4.62 Guest-1=26.45 GpuComm=22.67 VkRecord=9.53 Guest-17=13.14 workers21-25=34.01 guest_all=124.47 ms/frame | per frame: faults=299.9 released=935.1 predicted=628.5 watch_calls=57.6 watch_pages=1196.3 mprotect=357.5 hashed=0.0 rewritten=0.0
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+all-2-on: thermal=3 fps=27.80 cores=4.93 Guest-1=25.53 GpuComm=25.61 VkRecord=9.89 Guest-17=11.25 workers21-25=29.21 guest_all=111.33 ms/frame | per frame: faults=172.4 released=1223.4 predicted=1017.1 watch_calls=57.5 watch_pages=1323.9 mprotect=229.9 hashed=1189.3 rewritten=512.3
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+all-3-off: thermal=3 fps=25.38 cores=4.63 Guest-1=27.82 GpuComm=23.82 VkRecord=10.05 Guest-17=14.19 workers21-25=35.46 guest_all=130.37 ms/frame | per frame: faults=300.2 released=948.3 predicted=634.2 watch_calls=57.5 watch_pages=1201.3 mprotect=357.7 hashed=0.0 rewritten=0.0
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+all-4-on: thermal=3 fps=27.21 cores=4.95 Guest-1=25.80 GpuComm=27.62 VkRecord=10.02 Guest-17=11.62 workers21-25=29.98 guest_all=113.75 ms/frame | per frame: faults=170.6 released=1234.7 predicted=1027.2 watch_calls=57.4 watch_pages=1330.7 mprotect=228.1 hashed=1196.4 rewritten=518.1
+    watch_content=off (released-ahead pages lose write confidence every cycle)
+all-5-off: thermal=3 fps=25.19 cores=4.62 Guest-1=27.83 GpuComm=24.30 VkRecord=10.00 Guest-17=14.45 workers21-25=35.54 guest_all=130.89 ms/frame | per frame: faults=297.2 released=939.0 predicted=627.4 watch_calls=56.4 watch_pages=1185.0 mprotect=353.5 hashed=0.0 rewritten=0.0
+    watch_content=on (released-ahead pages keep their write confidence when rewritten)
+all-6-on: thermal=3 fps=27.20 cores=4.99 Guest-1=25.80 GpuComm=28.59 VkRecord=10.19 Guest-17=11.80 workers21-25=30.57 guest_all=114.51 ms/frame | per frame: faults=171.5 released=1232.6 predicted=1023.7 watch_calls=58.5 watch_pages=1331.3 mprotect=230.0 hashed=1196.4 rewritten=516.3
+== all-1-off
+pid=5810 window=23.1s fps=26.59 draws/flip=944 gpubusy(last period)=81% gpuclk=680000000
+process CPU 4.62 cores; threads >= 3%:
+    70.3%   26.45 ms/frame  cpu3  Guest-1 (5878)
+    60.3%   22.67 ms/frame  cpu7  shadPS4:GpuComm (5940)
+    34.9%   13.14 ms/frame  cpu5  Guest-17 (5936)
+    25.3%    9.53 ms/frame  cpu3  shadPS4:VkRecor (5944)
+    19.7%    7.41 ms/frame  cpu5  Guest-20 (5939)
+    18.2%    6.86 ms/frame  cpu7  Guest-22 (5966)
+    18.2%    6.84 ms/frame  cpu3  Guest-23 (5967)
+    18.1%    6.81 ms/frame  cpu7  Guest-21 (5965)
+    18.0%    6.76 ms/frame  cpu4  Guest-24 (5968)
+    17.9%    6.74 ms/frame  cpu4  Guest-25 (5969)
+    10.7%    4.04 ms/frame  cpu5  Guest-36 (5981)
+    10.4%    3.93 ms/frame  cpu6  Guest-35 (5980)
+    10.3%    3.88 ms/frame  cpu3  Guest-34 (5979)
+    10.0%    3.75 ms/frame  cpu5  Guest-33 (5978)
+== all-2-on
+pid=5810 window=23.6s fps=27.80 draws/flip=943 gpubusy(last period)=83% gpuclk=680000000
+process CPU 4.93 cores; threads >= 3%:
+    71.2%   25.61 ms/frame  cpu4  shadPS4:GpuComm (5940)
+    71.0%   25.53 ms/frame  cpu6  Guest-1 (5878)
+    39.0%   14.02 ms/frame  cpu2  shadPS4:Waker (5879)
+    31.3%   11.25 ms/frame  cpu3  Guest-17 (5936)
+    27.5%    9.89 ms/frame  cpu5  shadPS4:VkRecor (5944)
+    20.6%    7.41 ms/frame  cpu3  Guest-20 (5939)
+    16.4%    5.90 ms/frame  cpu7  Guest-22 (5966)
+    16.3%    5.87 ms/frame  cpu4  Guest-23 (5967)
+    16.3%    5.85 ms/frame  cpu3  Guest-21 (5965)
+    16.1%    5.81 ms/frame  cpu6  Guest-24 (5968)
+    16.1%    5.78 ms/frame  cpu6  Guest-25 (5969)
+     9.3%    3.35 ms/frame  cpu5  Guest-36 (5981)
+     9.0%    3.25 ms/frame  cpu6  Guest-35 (5980)
+     8.5%    3.06 ms/frame  cpu3  Guest-34 (5979)
+== all-3-off
+pid=5810 window=23.3s fps=25.38 draws/flip=944 gpubusy(last period)=78% gpuclk=680000000
+process CPU 4.63 cores; threads >= 3%:
+    70.6%   27.82 ms/frame  cpu6  Guest-1 (5878)
+    60.4%   23.82 ms/frame  cpu4  shadPS4:GpuComm (5940)
+    36.0%   14.19 ms/frame  cpu0  Guest-17 (5936)
+    25.5%   10.05 ms/frame  cpu6  shadPS4:VkRecor (5944)
+    19.1%    7.53 ms/frame  cpu3  Guest-20 (5939)
+    18.1%    7.15 ms/frame  cpu4  Guest-22 (5966)
+    18.1%    7.13 ms/frame  cpu7  Guest-23 (5967)
+    18.1%    7.13 ms/frame  cpu4  Guest-21 (5965)
+    17.9%    7.06 ms/frame  cpu2  Guest-24 (5968)
+    17.7%    6.99 ms/frame  cpu2  Guest-25 (5969)
+    11.0%    4.32 ms/frame  cpu4  Guest-36 (5981)
+    10.8%    4.24 ms/frame  cpu4  Guest-35 (5980)
+    10.4%    4.10 ms/frame  cpu7  Guest-34 (5979)
+    10.1%    3.97 ms/frame  cpu5  Guest-33 (5978)
+== all-4-on
+pid=5810 window=23.8s fps=27.21 draws/flip=944 gpubusy(last period)=83% gpuclk=680000000
+process CPU 4.95 cores; threads >= 3%:
+    75.2%   27.62 ms/frame  cpu4  shadPS4:GpuComm (5940)
+    70.2%   25.80 ms/frame  cpu5  Guest-1 (5878)
+    38.2%   14.05 ms/frame  cpu0  shadPS4:Waker (5879)
+    31.6%   11.62 ms/frame  cpu5  Guest-17 (5936)
+    27.3%   10.02 ms/frame  cpu1  shadPS4:VkRecor (5944)
+    21.4%    7.87 ms/frame  cpu5  Guest-20 (5939)
+    16.4%    6.04 ms/frame  cpu0  Guest-22 (5966)
+    16.4%    6.01 ms/frame  cpu4  Guest-23 (5967)
+    16.3%    5.98 ms/frame  cpu0  Guest-25 (5969)
+    16.3%    5.98 ms/frame  cpu7  Guest-21 (5965)
+    16.2%    5.97 ms/frame  cpu7  Guest-24 (5968)
+     8.9%    3.28 ms/frame  cpu4  Guest-36 (5981)
+     8.7%    3.20 ms/frame  cpu5  Guest-35 (5980)
+     8.3%    3.04 ms/frame  cpu3  Guest-34 (5979)
+== all-5-off
+pid=5810 window=23.4s fps=25.19 draws/flip=943 gpubusy(last period)=76% gpuclk=680000000
+process CPU 4.62 cores; threads >= 3%:
+    70.1%   27.83 ms/frame  cpu3  Guest-1 (5878)
+    61.2%   24.30 ms/frame  cpu3  shadPS4:GpuComm (5940)
+    36.4%   14.45 ms/frame  cpu6  Guest-17 (5936)
+    25.2%   10.00 ms/frame  cpu1  shadPS4:VkRecor (5944)
+    18.9%    7.52 ms/frame  cpu5  Guest-20 (5939)
+    18.0%    7.15 ms/frame  cpu6  Guest-22 (5966)
+    18.0%    7.15 ms/frame  cpu5  Guest-21 (5965)
+    18.0%    7.13 ms/frame  cpu6  Guest-23 (5967)
+    17.8%    7.08 ms/frame  cpu6  Guest-24 (5968)
+    17.7%    7.03 ms/frame  cpu4  Guest-25 (5969)
+    10.9%    4.35 ms/frame  cpu5  Guest-36 (5981)
+    10.5%    4.18 ms/frame  cpu5  Guest-35 (5980)
+    10.3%    4.09 ms/frame  cpu4  Guest-34 (5979)
+    10.0%    3.96 ms/frame  cpu3  Guest-33 (5978)
+== all-6-on
+pid=5810 window=23.7s fps=27.20 draws/flip=943 gpubusy(last period)=83% gpuclk=680000000
+process CPU 4.99 cores; threads >= 3%:
+    77.8%   28.59 ms/frame  cpu5  shadPS4:GpuComm (5940)
+    70.2%   25.80 ms/frame  cpu4  Guest-1 (5878)
+    38.1%   14.02 ms/frame  cpu1  shadPS4:Waker (5879)
+    32.1%   11.80 ms/frame  cpu5  Guest-17 (5936)
+    27.7%   10.19 ms/frame  cpu5  shadPS4:VkRecor (5944)
+    22.1%    8.13 ms/frame  cpu7  Guest-20 (5939)
+    16.8%    6.18 ms/frame  cpu7  Guest-22 (5966)
+    16.7%    6.13 ms/frame  cpu3  Guest-23 (5967)
+    16.7%    6.13 ms/frame  cpu7  Guest-21 (5965)
+    16.5%    6.08 ms/frame  cpu7  Guest-24 (5968)
+    16.5%    6.05 ms/frame  cpu5  Guest-25 (5969)
+     8.7%    3.20 ms/frame  cpu4  Guest-36 (5981)
+     8.6%    3.16 ms/frame  cpu4  Guest-35 (5980)
+     8.1%    2.99 ms/frame  cpu4  Guest-59 (6201)

@@ -1,0 +1,87 @@
+# Perfetto sched with wake proxy on (PID 29756, APK 55b6eb40, watch_content on) vs off (wake.pftrace, PID 20728)
+## proxy on
+## who ran on the CPU Guest-1 next ran on, while Guest-1 was runnable (ms of overlap)
+  "running","proc","ms"
+  "swapper","",214.900000
+  "shadPS4:VkRecor","com.shadps4.android",24.000000
+  "Guest-17","com.shadps4.android",14.300000
+  "Guest-20","com.shadps4.android",12.800000
+  "Guest-32","com.shadps4.android",12.000000
+  "Guest-22","com.shadps4.android",11.500000
+  "Guest-33","com.shadps4.android",9.300000
+  "Guest-24","com.shadps4.android",8.800000
+  "surfaceflinger","/system/bin/surfaceflinger",8.500000
+  "Guest-25","com.shadps4.android",8.200000
+  "Guest-21","com.shadps4.android",8.000000
+  "Guest-34","com.shadps4.android",7.800000
+  "Guest-23","com.shadps4.android",7.600000
+  "HwBinder:1307_2","/vendor/bin/hw/vendor.qti.hardware.display.composer-service",7.500000
+  "Guest-36","com.shadps4.android",7.500000
+  "shadPS4:GpuComm","com.shadps4.android",7.300000
+  "shadps4.android","com.shadps4.android",6.100000
+  "Guest-35","com.shadps4.android",5.900000
+  "Guest-18","com.shadps4.android",5.900000
+  "shadPS4:Present","com.shadps4.android",5.000000
+## runnable total covered (ms)
+  "ms","n"
+  476.500000,14993
+## Guest-1 sleep (S) durations
+  "bucket","n","ms"
+  "a <10us",898,3.800000
+  "b <25us",988,17.100000
+  "c <50us",1215,44.900000
+  "d <100us",1519,110.400000
+  "e <250us",1517,239.900000
+  "f <1ms",1454,714.300000
+  "g <4ms",588,1050.200000
+  "h >=4ms",13,93.100000
+## Guest-1 runnable (R) durations
+  "bucket","n","ms"
+  "a <5us",1,0.000000
+  "b <20us",5274,82.100000
+  "c <50us",8558,247.500000
+  "d <100us",794,51.500000
+  "e <500us",325,60.200000
+  "f >=500us",41,35.100000
+## Guest-1 state totals (ms)
+  "state","ms","n"
+  "Running",7032.700000,15245
+  "S",2273.600000,8192
+  "R",468.500000,14921
+  "D",165.500000,1944
+  "R+",8.000000,72
+## who ran on Guest-1's queued CPU while Guest-1 was runnable (ms of overlap)
+## proxy off
+## who ran on the CPU Guest-1 next ran on, while Guest-1 was runnable (ms of overlap)
+  "running","proc","ms"
+  "swapper","",341.400000
+  "shadPS4:VkRecor","com.shadps4.android",21.000000
+  "Guest-20","com.shadps4.android",17.500000
+  "shadPS4:GpuComm","com.shadps4.android",16.400000
+  "Guest-17","com.shadps4.android",13.200000
+  "Guest-36","com.shadps4.android",10.900000
+  "Guest-33","com.shadps4.android",10.200000
+  "Guest-34","com.shadps4.android",9.600000
+  "Guest-35","com.shadps4.android",9.300000
+  "Guest-32","com.shadps4.android",9.100000
+  "Guest-21","com.shadps4.android",8.600000
+  "Guest-25","com.shadps4.android",8.000000
+  "Guest-23","com.shadps4.android",7.900000
+  "shadps4.android","com.shadps4.android",7.000000
+  "Guest-22","com.shadps4.android",6.900000
+  "Guest-24","com.shadps4.android",6.700000
+  "Guest-48","com.shadps4.android",6.500000
+  "Guest-59","com.shadps4.android",5.900000
+  "Guest-18","com.shadps4.android",5.600000
+  "surfaceflinger","/system/bin/surfaceflinger",5.400000
+## runnable total covered (ms)
+  "ms","n"
+  614.900000,22952
+## Guest-1 state totals (ms)
+  "state","ms","n"
+  "Running",7116.400000,23440
+  "S",2090.200000,13060
+  "R",600.000000,22783
+  "D",115.900000,2126
+  "R+",14.900000,170
+## who ran on Guest-1's queued CPU while Guest-1 was runnable (ms of overlap)

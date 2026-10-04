@@ -1,0 +1,13 @@
+# perf_hint (ADPF) A/B with watch_content on; Guest-1 column in this file sums Guest-1* (script bug, fixed later); compare fps only
+    perf_hint: off
+ph-1-off: thermal=3 fps=27.11 cores=4.66 Guest-1=49.01 GpuComm=25.02 VkRecord=10.03 guest_all=120.72 ms/frame | per frame: faults=170.8 released=1224.8 predicted=1008.8 watch_calls=58.1 watch_pages=1310.5 mprotect=228.9 hashed=1179.5 rewritten=504.4
+    preferred_update_rate_ns: 16666666
+ph-2-on guest: thermal=3 fps=26.62 cores=4.60 Guest-1=49.06 GpuComm=24.80 VkRecord=10.00 guest_all=121.44 ms/frame | per frame: faults=173.3 released=1228.8 predicted=1009.9 watch_calls=58.7 watch_pages=1318.8 mprotect=232.0 hashed=1183.2 rewritten=505.3
+    perf_hint: off
+ph-3-off: thermal=3 fps=26.55 cores=4.60 Guest-1=48.18 GpuComm=24.82 VkRecord=9.92 guest_all=121.11 ms/frame | per frame: faults=174.9 released=1231.1 predicted=1011.2 watch_calls=59.1 watch_pages=1318.8 mprotect=234.0 hashed=1185.3 rewritten=505.0
+    preferred_update_rate_ns: 16666666
+ph-4-on guest: thermal=3 fps=26.37 cores=4.59 Guest-1=49.50 GpuComm=25.01 VkRecord=9.98 guest_all=122.64 ms/frame | per frame: faults=174.1 released=1222.8 predicted=1001.7 watch_calls=58.9 watch_pages=1315.8 mprotect=233.0 hashed=1175.6 rewritten=503.4
+    perf_hint: off
+ph-5-off: thermal=3 fps=26.74 cores=4.61 Guest-1=48.94 GpuComm=24.77 VkRecord=9.89 guest_all=121.47 ms/frame | per frame: faults=172.1 released=1221.9 predicted=1005.1 watch_calls=58.5 watch_pages=1310.9 mprotect=230.6 hashed=1175.9 rewritten=506.7
+    preferred_update_rate_ns: 16666666
+ph-6-on guest: thermal=3 fps=26.50 cores=4.56 Guest-1=48.92 GpuComm=24.53 VkRecord=9.90 guest_all=121.21 ms/frame | per frame: faults=174.7 released=1224.0 predicted=1005.1 watch_calls=59.0 watch_pages=1316.0 mprotect=233.7 hashed=1180.1 rewritten=502.7
