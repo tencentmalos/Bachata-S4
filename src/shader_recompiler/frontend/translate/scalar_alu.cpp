@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include <magic_enum/magic_enum.hpp>
 #include "common/assert.h"
 #include "shader_recompiler/frontend/translate/translate.h"
@@ -354,6 +355,23 @@ void Translator::S_AND_B64(NegateMode negate, const GcnInst& inst) {
     IR::U64 result = ir.BitwiseAnd(src0, src1);
     if (negate == NegateMode::Result) {
         result = ir.BitwiseNot(result);
+    }
+    if (live_mask && negate != NegateMode::Result) {
+        if (inst.dst[0].field == OperandField::ScalarGPR && inst.dst[0].code == *live_mask) {
+            // A kill (FindLiveMask). The killed pixel goes on as a helper invocation, as in whole
+            // quad mode on GCN. Every invocation that goes on is then live or a helper, and on GCN
+            // those run what follows the branch on SCC.
+            ir.Discard(ir.LogicalNot(ir.InverseBallot(result)));
+            ir.SetScc(ir.Imm1(true));
+            SetDst64(inst.dst[0], result);
+            return;
+        }
+        if (std::ranges::find(wqm_reentry_pcs, pc - inst.length) != wqm_reentry_pcs.end()) {
+            // EXEC & mask right before whole quad mode: helper invocations, the killed pixels
+            // among them, stay active for the derivatives of their quads.
+            ir.SetScc(ir.GetExec());
+            return;
+        }
     }
     ir.SetScc(ir.InverseBallot(result));
     SetDst64(inst.dst[0], result);

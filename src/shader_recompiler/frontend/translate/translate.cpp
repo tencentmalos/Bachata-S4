@@ -1192,6 +1192,221 @@ void Translator::LogMissingOpcode(const GcnInst& inst) {
     info.translation_failed = true;
 }
 
+namespace {
+
+bool WritesExec(const GcnInst& inst) {
+    for (u32 i = 0; i < inst.dst_count; ++i) {
+        const OperandField field = inst.dst[i].field;
+        if (field == OperandField::ExecLo || field == OperandField::ExecHi) {
+            return true;
+        }
+    }
+    switch (inst.opcode) {
+    case Opcode::S_AND_SAVEEXEC_B64:
+    case Opcode::S_OR_SAVEEXEC_B64:
+    case Opcode::S_XOR_SAVEEXEC_B64:
+    case Opcode::S_ANDN2_SAVEEXEC_B64:
+    case Opcode::S_ORN2_SAVEEXEC_B64:
+    case Opcode::S_NAND_SAVEEXEC_B64:
+    case Opcode::S_NOR_SAVEEXEC_B64:
+    case Opcode::S_XNOR_SAVEEXEC_B64:
+        return true;
+    default:
+        return inst.IsCmpx();
+    }
+}
+
+bool IsWqmOfExec(const GcnInst& inst) {
+    return inst.opcode == Opcode::S_WQM_B64 && inst.dst[0].field == OperandField::ExecLo &&
+           inst.src[0].field == OperandField::ExecLo;
+}
+
+/// Number of SGPRs an instruction writes from a scalar destination operand on.
+u32 ScalarWriteCount(const GcnInst& inst, const InstOperand& dst) {
+    switch (inst.opcode) {
+    case Opcode::S_LOAD_DWORD:
+    case Opcode::S_BUFFER_LOAD_DWORD:
+    case Opcode::V_READLANE_B32:
+    case Opcode::V_READFIRSTLANE_B32:
+        return 1;
+    case Opcode::S_LOAD_DWORDX2:
+    case Opcode::S_BUFFER_LOAD_DWORDX2:
+        return 2;
+    case Opcode::S_LOAD_DWORDX4:
+    case Opcode::S_BUFFER_LOAD_DWORDX4:
+        return 4;
+    case Opcode::S_LOAD_DWORDX8:
+    case Opcode::S_BUFFER_LOAD_DWORDX8:
+        return 8;
+    case Opcode::S_LOAD_DWORDX16:
+    case Opcode::S_BUFFER_LOAD_DWORDX16:
+        return 16;
+    default:
+        break;
+    }
+    if (inst.category == InstCategory::ScalarMemory) {
+        return 16;
+    }
+    switch (dst.type) {
+    case ScalarType::Uint16:
+    case ScalarType::Sint16:
+    case ScalarType::Float16:
+    case ScalarType::Uint32:
+    case ScalarType::Sint32:
+    case ScalarType::Float32:
+        // Apart from the lane reads above, vector instructions write SGPR pairs (lane masks).
+        return inst.category == InstCategory::ScalarALU ||
+                       inst.category == InstCategory::FlowControl
+                   ? 1
+                   : 2;
+    default:
+        return 2;
+    }
+}
+
+} // namespace
+
+// A pixel shader that kills pixels and still needs derivatives afterwards keeps the live pixels
+// in an SGPR pair and runs in whole quad mode, where a killed pixel goes on as a helper of its quad:
+//   s_mov_b64 mask, exec
+//   s_wqm_b64 exec, exec
+//   ...
+//   s_andn2_b64 mask, mask, killed    ; SCC: any pixel of the wave still live
+//   s_cbranch_scc0 exports
+//   s_and_b64 exec, exec, mask
+//   s_wqm_b64 exec, exec              ; killed pixels of partly live quads run on as helpers
+//   ... implicit LOD samples ...
+//   s_mov_b64 exec, mask
+//   exp ... vm                         ; pixels outside EXEC are discarded
+// EXEC is translated per invocation, and S_WQM_B64 does nothing, so a killed pixel would skip what
+// follows the branch and leave the derivatives of its quad undefined. When the mask is only
+// changed by such kills and every export with the valid mask bit takes EXEC from it, a killed pixel
+// is demoted to a helper invocation where it is killed and runs on, as on GCN.
+void Translator::FindLiveMask(std::span<const GcnInst> inst_list) {
+    if (info.hw_stage != HwStage::Fragment) {
+        return;
+    }
+    std::vector<u32> pcs(inst_list.size());
+    std::vector<u32> targets;
+    u32 next_pc = 0;
+    for (size_t i = 0; i < inst_list.size(); ++i) {
+        const GcnInst& inst = inst_list[i];
+        pcs[i] = next_pc;
+        if (inst.opcode == Opcode::S_SETPC_B64 || inst.opcode == Opcode::S_SWAPPC_B64 ||
+            inst.opcode == Opcode::S_MOVRELD_B32 || inst.opcode == Opcode::S_MOVRELD_B64 ||
+            inst.IsFork()) {
+            return;
+        }
+        if (inst.opcode == Opcode::S_BRANCH || inst.IsConditionalBranch()) {
+            targets.push_back(inst.BranchTarget(next_pc));
+        }
+        next_pc += inst.length;
+    }
+    const auto is_target = [&](size_t index) {
+        return std::ranges::find(targets, pcs[index]) != targets.end();
+    };
+
+    // The mask is saved from EXEC before the shader first changes EXEC, which it does by entering
+    // whole quad mode.
+    std::optional<u32> found;
+    size_t save_index{};
+    size_t wqm_index = inst_list.size();
+    for (size_t i = 0; i < inst_list.size(); ++i) {
+        const GcnInst& inst = inst_list[i];
+        if ((i != 0 && is_target(i)) || inst.IsTerminateInstruction()) {
+            return;
+        }
+        if (WritesExec(inst)) {
+            wqm_index = i;
+            break;
+        }
+        if (inst.opcode == Opcode::S_MOV_B64 && inst.dst[0].field == OperandField::ScalarGPR &&
+            inst.src[0].field == OperandField::ExecLo) {
+            found = inst.dst[0].code;
+            save_index = i;
+        }
+    }
+    if (!found || wqm_index == inst_list.size() || !IsWqmOfExec(inst_list[wqm_index])) {
+        return;
+    }
+    const u32 mask = *found;
+    const auto is_mask = [mask](const InstOperand& operand) {
+        return operand.field == OperandField::ScalarGPR && operand.code == mask;
+    };
+    const auto writes_mask = [mask](const GcnInst& inst) {
+        for (u32 i = 0; i < inst.dst_count; ++i) {
+            const InstOperand& dst = inst.dst[i];
+            if (dst.field == OperandField::ScalarGPR && dst.code < mask + 2 &&
+                mask < dst.code + ScalarWriteCount(inst, dst)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    // EXEC at an export with the valid mask bit is the set of pixels written; it has to come from
+    // the mask so that the killed pixels are the ones discarded.
+    const auto export_from_mask = [&](size_t export_index) {
+        for (size_t i = export_index; i-- > 0;) {
+            if (is_target(i + 1)) {
+                return false;
+            }
+            const GcnInst& inst = inst_list[i];
+            if (writes_mask(inst)) {
+                return false;
+            }
+            if (!WritesExec(inst)) {
+                continue;
+            }
+            if (inst.opcode == Opcode::S_MOV_B64 && inst.dst[0].field == OperandField::ExecLo) {
+                return is_mask(inst.src[0]) || inst.src[0].field == OperandField::ConstZero;
+            }
+            return inst.opcode == Opcode::S_AND_B64 &&
+                   inst.dst[0].field == OperandField::ExecLo &&
+                   (is_mask(inst.src[0]) || is_mask(inst.src[1]));
+        }
+        return false;
+    };
+
+    u32 kills{};
+    u32 valid_mask_exports{};
+    std::vector<u32> reentries;
+    for (size_t i = 0; i < inst_list.size(); ++i) {
+        const GcnInst& inst = inst_list[i];
+        if (i != save_index && writes_mask(inst)) {
+            // Kills only: mask &= ~killed, or mask &= kept.
+            const bool kill = is_mask(inst.dst[0]) &&
+                              ((inst.opcode == Opcode::S_ANDN2_B64 && is_mask(inst.src[0])) ||
+                               (inst.opcode == Opcode::S_AND_B64 &&
+                                (is_mask(inst.src[0]) || is_mask(inst.src[1]))));
+            if (!kill) {
+                return;
+            }
+            ++kills;
+        }
+        if (inst.opcode == Opcode::S_AND_B64 && inst.dst[0].field == OperandField::ExecLo &&
+            ((inst.src[0].field == OperandField::ExecLo && is_mask(inst.src[1])) ||
+             (is_mask(inst.src[0]) && inst.src[1].field == OperandField::ExecLo)) &&
+            i + 1 < inst_list.size() && IsWqmOfExec(inst_list[i + 1]) && !is_target(i + 1)) {
+            reentries.push_back(pcs[i]);
+        }
+        if (inst.category == InstCategory::Export && inst.control.exp.vm) {
+            if (!export_from_mask(i)) {
+                return;
+            }
+            ++valid_mask_exports;
+        }
+    }
+    if (kills == 0 || valid_mask_exports == 0) {
+        return;
+    }
+    live_mask = mask;
+    wqm_reentry_pcs = std::move(reentries);
+    LOG_DEBUG(Render_Recompiler,
+              "Shader {:#x}: live pixel mask s[{}:{}], {} kills demoted to helpers, {} returns to "
+              "whole quad mode",
+              info.pgm_hash, mask, mask + 1, kills, wqm_reentry_pcs.size());
+}
+
 void Translator::Translate(IR::Block* block, u32 start_pc, IR::Condition cond,
                            std::span<const GcnInst> inst_list) {
     if (inst_list.empty()) {

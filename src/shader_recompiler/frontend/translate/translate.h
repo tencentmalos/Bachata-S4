@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <optional>
 #include <span>
 #include <unordered_map>
+#include <vector>
 #include "shader_recompiler/frontend/fetch_shader.h"
 #include "shader_recompiler/frontend/instruction.h"
 #include "shader_recompiler/info.h"
@@ -68,6 +70,10 @@ public:
     void Translate(IR::Block* block, u32 pc, IR::Condition cond,
                    std::span<const GcnInst> inst_list);
     void TranslateInstruction(const GcnInst& inst);
+
+    /// Finds the live pixel mask of a pixel shader that kills pixels in whole quad mode, so that
+    /// a killed pixel is demoted to a helper invocation where it is killed. Call before Translate.
+    void FindLiveMask(std::span<const GcnInst> inst_list);
 
     // Instruction categories
     void EmitPrologue(IR::Block* first_block);
@@ -396,6 +402,10 @@ private:
     std::optional<FetchShaderData> fetch_data{};
     bool opcode_missing = false;
     u32 pc{};
+    /// SGPR pair holding the live pixel mask (FindLiveMask), and the PCs of the
+    /// s_and_b64 exec, exec, mask that return to whole quad mode after a kill.
+    std::optional<u32> live_mask{};
+    std::vector<u32> wqm_reentry_pcs{};
 };
 
 } // namespace Shader::Gcn
