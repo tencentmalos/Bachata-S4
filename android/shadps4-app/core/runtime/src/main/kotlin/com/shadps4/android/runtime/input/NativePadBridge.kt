@@ -134,6 +134,7 @@ object NativePadBridge {
         // callback runs on the same supplied main looper.
         private val source = AndroidInputSource(context,Executor { it.run() },this)
         private val actuator = AndroidHapticsExecutor(context,this)
+        private val systemVibrator = AndroidHapticsExecutor.hasSystemVibrator(context)
         private val overlay: (Int,ControllerSnapshot)->Unit = { slot,snapshot ->
             // May be captured by a retiring producer. The token is immutable.
             main.post {
@@ -212,17 +213,21 @@ object NativePadBridge {
                      selected.vendorId == androidDevice.vendorId && selected.productId == androidDevice.productId))
             } ?: return
             val axes = capabilities.axes.flatMap { listOf(it.axis.ordinal.toFloat(),it.rawMin,it.rawMax,it.rawFlat) }.toFloatArray()
-            val epoch = NativePad.nativeRegisterDevice(token,port,device.backendId,axes,capabilities.hasRumble)
+            // A handheld's built-in pad has no vibrator of its own (the device rumbles), so player
+            // 1's pad without one uses the device's vibrator, as citron does by default.
+            val useSystemVibrator = !capabilities.hasRumble && port == 0 && systemVibrator
+            val epoch = NativePad.nativeRegisterDevice(token,port,device.backendId,axes,
+                capabilities.hasRumble || useSystemVibrator)
             if (epoch == 0L) return
             val nativeDevice = device.copy(connectionEpoch = epoch)
             bindings[device] = Binding(port,epoch,nativeDevice,NativeButtonMapping(profiles[port]))
-            actuator.register(nativeDevice)
+            actuator.register(nativeDevice,useSystemVibrator)
             val vibrators = runCatching {
                 if (android.os.Build.VERSION.SDK_INT >= 31) androidDevice?.vibratorManager?.vibratorIds?.size ?: 0
                 else if (androidDevice?.vibrator?.hasVibrator() == true) 1 else 0
             }.getOrDefault(-1)
             android.util.Log.i("NativePad", "Controller '${androidDevice?.name}' on port $port: " +
-                "rumble=${capabilities.hasRumble}, vibrators=$vibrators")
+                "rumble=${capabilities.hasRumble}, vibrators=$vibrators, device vibrator=$useSystemVibrator")
         }
         override fun onInputPacket(packet: InputPacket) {
             val b = bindings[packet.device] ?: return

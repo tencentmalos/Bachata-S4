@@ -220,6 +220,7 @@ u64 OrbisPadAdapter::RegisterDevice(u64 token, int port, std::int64_t id,
     if (!epoch)
         return 0;
     p.physical = DeviceIdentity{Source::AndroidGamepad, id, epoch, ""};
+    p.motors_off = false;
     Publish(port);
     return epoch;
 }
@@ -245,6 +246,7 @@ void OrbisPadAdapter::RemoveDevice(u64 token, int port, u64 epoch) {
     ReleaseDebugLocked("device_removed", true);
     hub_.RemoveDevice(*p.physical);
     p.physical.reset();
+    p.motors_off = false;
     Publish(port);
 }
 void OrbisPadAdapter::FocusLost(u64 token) {
@@ -300,6 +302,11 @@ PadResult OrbisPadAdapter::VibrateLocked(int port, u8 small, u8 large) {
     }
     if (!p.physical)
         return xr_sent ? PadResult::Ok : PadResult::Rejected;
+    // Games set their motor levels every frame, mostly to zero: a stop for motors that already
+    // took one would cost the actuator a call per frame.
+    const bool off = !small && !large;
+    if (off && p.motors_off)
+        return PadResult::Ok;
     HapticCommand command;
     command.session_token = token_;
     command.device = *p.physical;
@@ -307,8 +314,11 @@ PadResult OrbisPadAdapter::VibrateLocked(int port, u8 small, u8 large) {
     command.small_motor = small / 255.f;
     command.large_motor = large / 255.f;
     command.duration_ms = 1000;
-    command.cancel = !small && !large;
-    return hub_.EnqueueHaptic(command) == InputResult::Ok || xr_sent ? PadResult::Ok : PadResult::Rejected;
+    command.cancel = off;
+    const bool sent = hub_.EnqueueHaptic(command) == InputResult::Ok;
+    if (sent)
+        p.motors_off = off;
+    return sent || xr_sent ? PadResult::Ok : PadResult::Rejected;
 }
 PadResult OrbisPadAdapter::SetVibration(u64 token, int port, u8 small, u8 large) {
     std::lock_guard lock(mutex_);

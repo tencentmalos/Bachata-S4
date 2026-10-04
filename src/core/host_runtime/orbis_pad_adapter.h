@@ -99,6 +99,8 @@ private:
         PadSnapshot touch{}, debug_touch{};
         PadSnapshot xr{};
         bool xr_connected{};
+        // The physical device took a stop and nothing since: a repeated stop is not queued.
+        bool motors_off{};
         std::shared_ptr<DebugReceipt> debug_receipt;
         Libraries::Pad::OrbisPadData data{};
         std::deque<Sample> history;
