@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fmt/core.h>
 #include <fmt/xchar.h>
+#include <SDL3/SDL_events.h>
 #include <hwinfo/hwinfo.h>
 
 #include "common/debug.h"
@@ -46,8 +47,12 @@
 #include "core/user_settings.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "emulator.h"
+#include "core/libraries/gnmdriver/gnmdriver.h"
+#include "video_core/amdgpu/liverpool.h"
 #include "video_core/cache_storage.h"
 #include "video_core/renderdoc.h"
+#include "video_core/replay/gpu_replay_frames.h"
+#include "video_core/replay/gpu_replay_player.h"
 
 #ifdef _WIN32
 #include <WinSock2.h>
@@ -587,6 +592,117 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
         window->WaitEvent();
     }
 
+    std::quick_exit(0);
+}
+
+void Emulator::RunGpuReplay(const GpuReplayOptions& options) {
+    Common::SetCurrentThreadName("shadPS4:Main");
+    auto player = std::make_unique<VideoCore::Replay::Player>();
+    std::string error;
+    if (!player->Open(options.trace, error)) {
+        LOG_CRITICAL(Render, "GPU replay: cannot open {}: {}", options.trace.string(), error);
+        return;
+    }
+    const auto& header = player->Header();
+    const std::string id{header.title_id.data(),
+                         strnlen(header.title_id.data(), header.title_id.size())};
+    if (!header.direct_memory_size) {
+        LOG_CRITICAL(Render, "GPU replay: the trace does not record the memory sizes");
+        return;
+    }
+
+    EmulatorSettings.Load(id);
+    Common::Log::Switch("gpu_replay.log", false);
+    LOG_INFO(Render, "GPU replay of {} ({}), captured by {}", options.trace.string(), id,
+             player->InfoValue("build", "unknown build"));
+
+    // The settings the capture ran with, and the ones a replay fixes.
+    EmulatorSettings.SetNeo(header.neo_mode != 0);
+    EmulatorSettings.SetExtraDmemInMBytes(header.extra_dmem_mb);
+    EmulatorSettings.SetExtraFmemInMBytes(header.extra_fmem_mb);
+    EmulatorSettings.SetInternalScalePercent(header.internal_scale_eighths * 12.5f);
+    EmulatorSettings.SetReadbacksMode(
+        static_cast<u32>(std::stoul(player->InfoValue("readbacks_mode", "0"))));
+    EmulatorSettings.SetReadbackLinearImagesEnabled(
+        player->InfoValue("readback_linear_images", "0") == "1");
+    EmulatorSettings.SetCopyGpuBuffers(false);
+    // A draw whose pipeline is not ready must not be skipped.
+    EmulatorSettings.SetPipelineCompileMode("sync");
+    Common::ElfInfo::Instance().InitializeGuestMetadata({}, header.sdk_version, id, "GPU replay");
+
+    memory = Core::Memory::Instance();
+    memory->SetupReplayRegions(header.direct_memory_size, header.flexible_memory_size);
+    controllers = Common::Singleton<Input::GameControllers>::Instance();
+    linker = Common::Singleton<Core::Linker>::Instance();
+    VideoCore::LoadRenderDoc();
+
+#ifdef _WIN32
+    const u64 process_id = GetCurrentProcessId();
+#else
+    const u64 process_id = static_cast<u64>(getpid());
+#endif
+    Core::Diagnostics::DiagnosticsHub::Instance().Register(1, process_id);
+    Common::Profiler::Initialize();
+    if (debugBusPort) {
+        if (const u16 port = Core::Diagnostics::StartDebugBusServer(*debugBusPort)) {
+            LOG_INFO(Debug, "DebugBus listening on 127.0.0.1:{}", port);
+        }
+    }
+
+    window = std::make_shared<Frontend::WindowSDL>(
+        EmulatorSettings.GetWindowWidth(), EmulatorSettings.GetWindowHeight(), controllers,
+        fmt::format("shadPS4 GPU replay | {} | {}", id, options.trace.filename().string()));
+    ASSERT_MSG(Frontend::BindWindow(window), "A platform window is already bound");
+    window->SetIcon({});
+
+    const auto& captures_dir = Common::FS::GetUserPath(Common::FS::PathType::CapturesDir);
+    std::filesystem::create_directories(captures_dir);
+    VideoCore::SetOutputDir(captures_dir, id);
+
+    // The GPU stack: command processor, rasterizer, presenter and VideoOut.
+    Libraries::InitHLELibs(&linker->GetHLESymbols());
+    auto* liverpool = Libraries::GnmDriver::GetLiverpool();
+    if (!liverpool || !liverpool->GetRasterizer() ||
+        !player->RestoreInitialState(*liverpool, *liverpool->GetRasterizer(), error)) {
+        LOG_CRITICAL(Render, "GPU replay: cannot restore the initial state: {}", error);
+        std::quick_exit(1);
+    }
+
+    auto output_dir = options.output_dir;
+    if (output_dir.empty()) {
+        output_dir = options.trace.parent_path() / (options.trace.stem().string() + "_replay");
+    }
+    std::filesystem::create_directories(output_dir);
+    VideoCore::Replay::EnableFrameDump(output_dir, options.png);
+    if (options.hash_images) {
+        player->EnableImageHashes(output_dir / "image_hashes.txt", options.hash_draws_event);
+    }
+    player->SetFinishCallback([options] {
+        if (options.exit_when_done) {
+            SDL_Event quit{};
+            quit.type = SDL_EVENT_QUIT;
+            SDL_PushEvent(&quit);
+        }
+    });
+    VideoCore::Replay::SetReplaying(true);
+    liverpool->StartReplay(player.get());
+
+    window->InitTimers();
+    while (window->IsOpen()) {
+        window->WaitEvent();
+    }
+
+    // Frames still being read back when the replay ended finish within a few presents.
+    for (int i = 0; i < 100 && VideoCore::Replay::FramesNoted() < VideoCore::Replay::FramesStarted();
+         ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds{20});
+    }
+    const auto summary = player->Summary();
+    const auto frames = VideoCore::Replay::FrameList();
+    std::ofstream{output_dir / "replay_summary.txt"} << summary;
+    std::ofstream{output_dir / "frames.txt"} << frames;
+    LOG_INFO(Render, "GPU replay summary:\n{}frames:\n{}", summary, frames);
+    Common::Log::Flush();
     std::quick_exit(0);
 }
 

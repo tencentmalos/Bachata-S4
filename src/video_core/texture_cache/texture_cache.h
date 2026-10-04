@@ -9,6 +9,7 @@
 #include <mutex>
 #include <optional>
 #include <thread>
+#include <unordered_map>
 #include <unordered_set>
 #include <boost/container/small_vector.hpp>
 #include <queue>
@@ -138,6 +139,26 @@ public:
 
     /// Schedules a copy of pending images for download back to CPU memory.
     void ProcessDownloadImages();
+
+    /// GPU replay: writes every image the GPU modified, and the CPU has not written since, back
+    /// to guest memory in guest layout. Command processor thread; waits for the GPU.
+    void WriteBackGpuModified();
+
+    struct ImageContentHash {
+        u64 uid;
+        VAddr address;
+        vk::Extent3D extent;
+        u32 levels;
+        u32 layers;
+        vk::Format format;
+        /// XXH3 over every level and layer of the host image (depth aspect for depth images);
+        /// 0 with a reason when the image cannot be copied to a buffer.
+        u64 hash;
+        const char* skipped;
+    };
+    /// GPU replay diagnostics: hashes the images written since their last hash (their write
+    /// epoch changed). Command processor thread; waits for the GPU.
+    std::vector<ImageContentHash> HashWrittenImages(std::unordered_map<u64, u64>& hashed_epochs);
 
     /// Retrieves the image handle of the image with the provided attributes.
     [[nodiscard]] ImageId FindImage(ImageDesc& desc, bool exact_fmt = false);

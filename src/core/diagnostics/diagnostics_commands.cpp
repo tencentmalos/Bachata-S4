@@ -45,6 +45,7 @@
 #include "common/singleton.h"
 #include "core/libraries/audio/audioout.h"
 #include "input/controller.h"
+#include "video_core/replay/gpu_replay_recorder.h"
 #endif
 
 #include "core/diagnostics/diagnostics_hub.h"
@@ -282,6 +283,33 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             for (const auto b : buttons)
                 controllers[0]->Button(b, false);
             return "pressed " + args[0] + " for " + std::to_string(hold) + " ms\n";
+        });
+    // Deterministic GPU replay (docs/specs/gpu-replay-20261004.md).
+    registry.Register("gpu_replay_capture",
+        "[frames=1] [name] -- capture a GPU replay trace from the next frame boundary, written "
+        "to CapturesDir/gpu_replay/<name>.sgpurply",
+        [](const std::vector<std::string>& args) -> std::string {
+            if (args.size() > 2)
+                return BadArguments();
+            u32 frames = 1;
+            if (!args.empty()) {
+                const auto [end, ec] =
+                    std::from_chars(args[0].data(), args[0].data() + args[0].size(), frames);
+                if (ec != std::errc{} || end != args[0].data() + args[0].size())
+                    return BadArguments();
+            }
+            return VideoCore::Replay::Recorder::Instance().Arm(frames,
+                                                                args.size() == 2 ? args[1] : "");
+        });
+    registry.Register("gpu_replay_status", "state, size and timing of the GPU replay capture",
+        [](const std::vector<std::string>& args) -> std::string {
+            return args.empty() ? VideoCore::Replay::Recorder::Instance().Status()
+                                : BadArguments();
+        });
+    registry.Register("gpu_replay_cancel", "stop the armed or running GPU replay capture",
+        [](const std::vector<std::string>& args) -> std::string {
+            return args.empty() ? VideoCore::Replay::Recorder::Instance().Cancel()
+                                : BadArguments();
         });
 #endif
     registry.Register("thread_priority",

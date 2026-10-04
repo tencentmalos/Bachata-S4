@@ -106,6 +106,11 @@ public:
 
     bool SubmitFlip(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop = false);
 
+    void SaveReplayState(VideoCore::Replay::VideoOutState& state);
+    /// GPU replay: opens the main port with the captured buffers. From then on the flip labels
+    /// in guest memory change only through the replayed memory writes.
+    void RestoreReplayState(const VideoCore::Replay::VideoOutState& state);
+
     void SetVrCadence(std::function<void()> callback);
     void SetVrActive(bool active);
     bool SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
@@ -141,6 +146,7 @@ private:
     std::mutex vr_cadence_mutex;
     std::function<void()> vr_cadence;
     bool vr_active{};
+    std::atomic<bool> replay{};
     std::jthread present_thread;
     std::queue<Request> requests;
 };

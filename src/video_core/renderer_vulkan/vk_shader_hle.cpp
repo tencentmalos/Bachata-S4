@@ -16,6 +16,7 @@
 #include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/amdgpu/pm4_trace.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 extern std::unique_ptr<AmdGpu::Liverpool> liverpool;
 
@@ -309,6 +310,7 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         batch_start = batch_end;
     }
 
+    Common::UniqueFunction<void> write_back;
     if (download_data) {
         static constexpr vk::MemoryBarrier HOST_BARRIER{
             .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
@@ -318,7 +320,7 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
                                                   vk::PipelineStageFlagBits::eHost, {},
                                                   HOST_BARRIER, {}, {});
         // Written in submission order once the copy has completed, like image downloads.
-        scheduler.DeferPriorityOperation(
+        write_back =
             [&pool = runtime.GetStagingPool(), download,
              targets = std::vector<std::pair<VAddr, u32>>(commit_targets)] {
                 download.Invalidate();
@@ -335,10 +337,19 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
                     at += bytes;
                 }
                 pool.FreeDeferred(download);
-            });
+            };
+        // A GPU replay trace changes guest memory only at recorded points: write the result
+        // before the command processor goes on, not whenever the GPU finishes.
+        if (!VideoCore::Replay::DeterministicGpu()) {
+            scheduler.DeferPriorityOperation(std::move(write_back));
+        }
     }
     if (hoisted)
         scheduler.EndHoist();
+    if (write_back) {
+        scheduler.Finish();
+        write_back();
+    }
     return true;
 }
 

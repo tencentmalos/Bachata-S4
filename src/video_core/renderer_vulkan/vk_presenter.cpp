@@ -59,6 +59,8 @@
 #include <imgui.h>
 #include <stb_image_write.h>
 #include <vk_mem_alloc.h>
+#include <xxhash.h>
+#include "video_core/replay/gpu_replay_frames.h"
 #include "video_core/vma_diagnostics.h"
 
 namespace Vulkan {
@@ -1049,6 +1051,22 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
 
     const u32 capture_game_only_count = VideoCore::ConsumeGameOnlyScreenshotRequests();
     std::optional<ScreenshotReadback> pending_screenshot;
+    // A GPU replay reads every frame back, as the game-only screenshot does.
+    std::optional<ScreenshotReadback> replay_frame;
+    u32 replay_frame_index = 0;
+    if (VideoCore::Replay::FrameDumpEnabled()) {
+        replay_frame_index = VideoCore::Replay::NextFrameIndex();
+        replay_frame.emplace(
+            instance, ScreenshotKind::GameOnly, std::vector<std::filesystem::path>{},
+            image_size.width, image_size.height,
+            swap_red_blue ? vk::Format::eB8G8R8A8Srgb : view_info.format,
+            attribute.attrib.pixel_format ==
+                Libraries::VideoOut::PixelFormat::A2R10G10B10Bt2020Pq);
+        image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {},
+                      cmdbuf);
+        CopyImageToReadback(cmdbuf, image.GetImage(), vk::ImageLayout::eTransferSrcOptimal,
+                            *replay_frame);
+    }
 
     // Capture the guest output before any host-side scaling (FSR/PP) is applied.
     if (capture_game_only_count > 0) {
@@ -1149,6 +1167,20 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         draw_scheduler.DeferPriorityOperation(
             [deferred_screenshot = std::move(pending_screenshot)]() {
                 SavePendingScreenshot(deferred_screenshot.value());
+            });
+    }
+    if (replay_frame) {
+        draw_scheduler.DeferPriorityOperation(
+            [readback = std::move(replay_frame), index = replay_frame_index]() {
+                std::vector<u8> rgba;
+                if (!ConvertReadbackToRgba8(*readback, rgba)) {
+                    return;
+                }
+                const u64 hash = XXH3_64bits(rgba.data(), rgba.size());
+                if (const auto path = VideoCore::Replay::FramePath(index); !path.empty()) {
+                    WritePng(path, rgba, readback->width, readback->height);
+                }
+                VideoCore::Replay::NoteFrame(index, hash, readback->width, readback->height);
             });
     }
 

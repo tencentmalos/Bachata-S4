@@ -8,6 +8,7 @@
 #include "core/libraries/fiber/fiber_error.h"
 #include "core/libraries/libs.h"
 #include "core/tls.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 namespace Libraries::Fiber {
 
@@ -80,6 +81,8 @@ s32 PS4_SYSV_ABI _sceFiberAttachContext(OrbisFiber* fiber, void* addr_context, u
 
 void PS4_SYSV_ABI _sceFiberSwitchToFiber(OrbisFiber* fiber, u64 arg_on_run_to,
                                          OrbisFiberContext* ctx) {
+    VideoCore::Replay::NoteGuestStack(reinterpret_cast<VAddr>(fiber->addr_context),
+                                      fiber->size_context);
     OrbisFiberContext* fiber_ctx = fiber->context;
     if (fiber_ctx) {
         ctx->arg_on_run_to = arg_on_run_to;

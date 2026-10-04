@@ -36,6 +36,7 @@
 #include "video_core/texture_cache/image_view.h"
 #include "video_core/texture_cache/texture_cache.h"
 #include "video_core/texture_cache/internal_scale.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 namespace Vulkan {
 
@@ -500,6 +501,12 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     if (const auto& diag = instance.Diagnostics())
         diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
 
+    if (VideoCore::Replay::Detail::draw_hashes.load(std::memory_order_relaxed)) [[unlikely]] {
+        const auto stages = pipeline->GetStages();
+        const auto* vs = stages[u32(Shader::SwStage::Vertex)];
+        const auto* fs = stages[u32(Shader::SwStage::Fragment)];
+        VideoCore::Replay::AfterDraw("draw", vs ? vs->pgm_hash : 0, fs ? fs->pgm_hash : 0);
+    }
     ResetBindings(false);
 }
 
@@ -729,6 +736,7 @@ void Rasterizer::DispatchDirect() {
     if (const auto& diag = instance.Diagnostics())
         diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
 
+    VideoCore::Replay::AfterDraw("dispatch", cs.pgm_hash, 0);
     ResetBindings(true);
 }
 

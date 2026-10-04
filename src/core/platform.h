@@ -55,6 +55,13 @@ struct IrqController {
         ctx.persistent_handlers.emplace(uid, handler);
     }
 
+    /// One-shot handlers registered for irq that have not run yet.
+    size_t PendingOnce(InterruptId irq) {
+        auto& ctx = irq_contexts[static_cast<u32>(irq)];
+        std::unique_lock lock{ctx.m_lock};
+        return ctx.one_time_subscribers.size();
+    }
+
     void Unregister(InterruptId irq, void* uid) {
         ASSERT_MSG(static_cast<u32>(irq) <= static_cast<u32>(InterruptId::InterruptIdMax),
                    "Invalid IRQ number");

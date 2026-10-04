@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <vector>
 #include "common/alignment.h"
 #include "common/types.h"
 #include "video_core/buffer_cache//region_definitions.h"
@@ -48,6 +49,24 @@ public:
 
     /// Whether a page touching the specified region has a write watcher.
     bool HasWriteWatchers(VAddr addr, u64 size) const;
+
+    /// GPU replay recorder (docs/specs/gpu-replay-20261004.md, section 2.4). While active, the
+    /// recorder can write-protect pages on top of the caches' watchers: the first CPU write to
+    /// such a page faults once, which clears its recorder bit and leaves the page protected only
+    /// as the caches need. Deactivate only after every bit is cleared.
+    static void SetRecorderActive(bool active);
+    /// Sets the recorder bits of [addr, addr + size) and write-protects those pages.
+    void RecordWrites(VAddr addr, u64 size) const;
+    /// Clears the recorder bits of [addr, addr + size). With restore_protection the pages get
+    /// the caches' protection back; without it their host protection is left as it is, for
+    /// ranges whose protection the guest has just set itself.
+    void StopRecordingWrites(VAddr addr, u64 size, bool restore_protection) const;
+    /// Appends the pages of [addr, addr + size) whose recorder bit is clear: pages written since
+    /// they were last protected. Reads the bits without locking; a page cleared later is found by
+    /// the next call.
+    void CollectRecorderDirty(VAddr addr, u64 size, std::vector<u64>& pages) const;
+    /// Write faults the recorder handled.
+    static u64 RecorderWriteFaults();
 
     /// Returns page aligned address.
     static constexpr VAddr GetPageAddr(VAddr addr) {

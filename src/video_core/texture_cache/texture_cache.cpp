@@ -31,6 +31,7 @@
 #include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 #include "video_core/texture_cache/host_compatibility.h"
 #include "video_core/texture_cache/texture_cache.h"
 #include "video_core/texture_cache/tile_manager.h"
@@ -379,6 +380,134 @@ void TextureCache::ProcessDownloadImages() {
         DownloadImageMemory(image_id, true, false, ~VAddr{0}, "image_writeback_queue");
     }
     download_images.clear();
+}
+
+void TextureCache::WriteBackGpuModified() {
+    std::vector<std::function<void()>> writes;
+    {
+        std::scoped_lock lock{mutex};
+        for (auto it = slot_images.begin(); it != slot_images.end(); ++it) {
+            const Image& image = *it;
+            if (False(image.flags & ImageFlagBits::GpuModified) || !image.SafeToDownload()) {
+                continue;
+            }
+            if (auto write = RecordImageDownload(it.Id(), true, ~VAddr{0}, "replay_snapshot")) {
+                writes.push_back(std::move(write));
+            }
+        }
+    }
+    if (writes.empty()) {
+        return;
+    }
+    scheduler.Finish();
+    for (const auto& write : writes) {
+        write();
+    }
+}
+
+std::vector<TextureCache::ImageContentHash> TextureCache::HashWrittenImages(
+    std::unordered_map<u64, u64>& hashed_epochs) {
+    struct Copy {
+        size_t entry;
+        u64 offset;
+        u64 size;
+    };
+    std::vector<ImageContentHash> entries;
+    std::vector<Copy> copies;
+    std::unique_ptr<VideoCore::Buffer> readback;
+    {
+        std::scoped_lock lock{mutex};
+        std::vector<std::pair<ImageId, std::vector<vk::BufferImageCopy>>> pending;
+        u64 total = 0;
+        for (auto it = slot_images.begin(); it != slot_images.end(); ++it) {
+            Image& image = *it;
+            if (!image.backing) {
+                continue;
+            }
+            auto [epoch, inserted] = hashed_epochs.try_emplace(image.image_uid, ~u64{0});
+            if (epoch->second == image.write_epoch) {
+                continue;
+            }
+            epoch->second = image.write_epoch;
+            const auto& ci = image.backing->image.image_ci;
+            auto& entry = entries.emplace_back(ImageContentHash{
+                image.image_uid, image.info.guest_address, ci.extent, ci.mipLevels,
+                ci.arrayLayers, ci.format, 0, nullptr});
+            if (image.backing->num_samples > 1) {
+                entry.skipped = "multisampled";
+                continue;
+            }
+            const bool depth = static_cast<bool>(image.aspect_mask & vk::ImageAspectFlagBits::eDepth);
+            u32 texel = 0;
+            switch (ci.format) {
+            case vk::Format::eD16Unorm:
+            case vk::Format::eD16UnormS8Uint:
+                texel = 2;
+                break;
+            case vk::Format::eD24UnormS8Uint:
+            case vk::Format::eX8D24UnormPack32:
+            case vk::Format::eD32Sfloat:
+            case vk::Format::eD32SfloatS8Uint:
+                texel = 4;
+                break;
+            default:
+                texel = depth ? 0 : vk::blockSize(ci.format);
+                break;
+            }
+            // Block-compressed levels are copied as whole blocks.
+            const auto block = vk::blockExtent(ci.format);
+            if (texel == 0) {
+                entry.skipped = "format";
+                continue;
+            }
+            std::vector<vk::BufferImageCopy> regions;
+            const u64 start = Common::AlignUp(total, u64{16});
+            u64 offset = start;
+            for (u32 level = 0; level < ci.mipLevels; ++level) {
+                const vk::Extent3D extent{std::max(ci.extent.width >> level, 1u),
+                                          std::max(ci.extent.height >> level, 1u),
+                                          std::max(ci.extent.depth >> level, 1u)};
+                regions.push_back({
+                    .bufferOffset = offset,
+                    .imageSubresource{
+                        .aspectMask = depth ? vk::ImageAspectFlagBits::eDepth
+                                            : vk::ImageAspectFlagBits::eColor,
+                        .mipLevel = level,
+                        .baseArrayLayer = 0,
+                        .layerCount = ci.arrayLayers,
+                    },
+                    .imageExtent = extent,
+                });
+                offset += u64{Common::DivCeil(extent.width, u32{block[0]})} *
+                          Common::DivCeil(extent.height, u32{block[1]}) * extent.depth *
+                          ci.arrayLayers * texel;
+                offset = Common::AlignUp(offset, u64{16});
+            }
+            copies.push_back({entries.size() - 1, start, offset - start});
+            total = offset;
+            pending.emplace_back(it.Id(), std::move(regions));
+        }
+        if (pending.empty()) {
+            return entries;
+        }
+        readback = std::make_unique<VideoCore::Buffer>(instance, 0, total, MemoryType::HostCached,
+                                                       "replay/image-hash");
+        scheduler.EndRendering(Vulkan::RenderBreak::Other);
+        const auto cmdbuf = scheduler.RawCommandBuffer();
+        for (const auto& [image_id, regions] : pending) {
+            Image& image = slot_images[image_id];
+            image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead,
+                          {}, cmdbuf);
+            cmdbuf.copyImageToBuffer(image.GetImage(), vk::ImageLayout::eTransferSrcOptimal,
+                                     readback->Handle(), regions);
+        }
+    }
+    scheduler.Finish();
+    readback->Invalidate(0, readback->SizeBytes());
+    for (const auto& copy : copies) {
+        entries[copy.entry].hash = XXH3_64bits(readback->mapped_data.data() + copy.offset, copy.size);
+    }
+    return entries;
 }
 
 void TextureCache::ReadbackImageForDiagnostics(ImageId image_id) {
@@ -1864,7 +1993,11 @@ void TextureCache::GarbageCollectIdleAssets() {
 }
 
 void TextureCache::GarbageCollectImages() {
-    if (instance.CanReportMemoryUsage()) {
+    if (VideoCore::Replay::Replaying()) {
+        // Pressure measured by the driver differs between runs; evicting a GPU-modified image
+        // rebuilds it from its write-back, so a replay keeps them.
+        total_used_memory = 0;
+    } else if (instance.CanReportMemoryUsage()) {
         total_used_memory = instance.GetDeviceMemoryUsage();
     }
     if (total_used_memory < trigger_gc_memory) {

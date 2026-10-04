@@ -29,6 +29,8 @@
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderdoc.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
+#include "video_core/replay/gpu_replay_player.h"
+#include "video_core/replay/gpu_replay_recorder.h"
 
 namespace AmdGpu {
 
@@ -149,6 +151,155 @@ void Liverpool::ProcessCommands() {
     }
 }
 
+void Liverpool::RecordPoll(VideoCore::Replay::WaitKind kind, const void* address,
+                           bool satisfied) {
+    VideoCore::Replay::Recorder::Instance().OnWaitPoll(
+        static_cast<u32>(curr_qid), kind, reinterpret_cast<u64>(address), satisfied);
+}
+
+void Liverpool::BeforeReplayPoll() {
+    replay_player->Peek();
+}
+
+bool Liverpool::AfterReplayPoll(VideoCore::Replay::WaitKind kind, const void* address,
+                                bool satisfied) {
+    return replay_player->Poll(static_cast<u32>(curr_qid), kind, reinterpret_cast<u64>(address),
+                               satisfied);
+}
+
+bool Liverpool::ResumeTask(GpuQueue& queue, Task::Handle task) {
+    const auto generation = diagnostics ? diagnostics->Generation() : 0;
+    SHAD_HANDOFF(generation, "queue_resume", curr_qid, task.promise().diagnostic_id);
+    auto& promise = task.promise();
+    if (VideoCore::Replay::CaptureHooksActive()) [[unlikely]] {
+        VideoCore::Replay::Recorder::Instance().OnResume(
+            curr_qid, promise.diagnostic_id,
+            promise.replay_resumed ? nullptr : &promise.replay_submit);
+    }
+    promise.replay_resumed = true;
+    waiting_yield = false;
+    Shader::AdvanceDynamicImageEpoch();
+    {
+        Core::Diagnostics::Handoff::Scope scope{"PM4.Resume", generation,
+            static_cast<u64>(curr_qid), task.promise().diagnostic_id};
+        task.resume();
+    }
+    const bool waited = waiting_yield && !task.done();
+    // The task suspended or finished: publish packets it consumed since the last batch.
+    FlushPm4Progress();
+
+    if (task.done()) {
+        SHAD_HANDOFF(generation, "queue_complete", curr_qid, task.promise().diagnostic_id);
+        if (task.promise().error)
+            ReportFault(task.promise().error);
+        task.destroy();
+
+        std::scoped_lock lock{queue.m_access};
+        queue.submits.pop();
+
+        --num_submits;
+        std::scoped_lock lock2{submit_mutex};
+        submit_cv.notify_all();
+    }
+    return waited;
+}
+
+void Liverpool::StartReplay(VideoCore::Replay::Player* player) {
+    SendCommand([this, player] {
+        replay_player = player;
+        RunReplay();
+    });
+}
+
+void Liverpool::RunReplay() {
+    using namespace VideoCore::Replay;
+    auto& player = *replay_player;
+    // Injected commands run only between events, and the VideoOut label wait yields: as in
+    // the capture.
+    replay_capture = true;
+    VideoCore::StartCapture();
+    while (const auto* next = player.Peek()) {
+        const Player::Event event = *next;
+        player.Pop();
+        player.BeforeEvent(event);
+        switch (event.type) {
+        case RecordType::Submit: {
+            const auto record = event.As<SubmitRecord>();
+            const auto* dcb = reinterpret_cast<const u32*>(record.dcb_addr);
+            u32 qid = GfxQueueId;
+            if (record.queue == static_cast<u32>(SubmitQueue::Graphics)) {
+                const auto* ccb = reinterpret_cast<const u32*>(record.ccb_addr);
+                SubmitGfx({dcb, record.dcb_dwords}, {ccb, record.ccb_dwords}, record.source);
+            } else if (record.gnm_vqid > 0 && record.gnm_vqid < NumTotalQueues &&
+                       asc_queues.is_allocated({record.gnm_vqid - 1})) {
+                qid = record.gnm_vqid;
+                SubmitAsc(record.gnm_vqid, {dcb, record.dcb_dwords});
+            } else {
+                player.Fail(fmt::format("submission to unmapped compute queue {}",
+                                        record.gnm_vqid));
+                break;
+            }
+            // Resume events name the capture's submission ids.
+            auto& queue = mapped_queues[qid];
+            std::scoped_lock lock{queue.m_access};
+            queue.submits.back().promise().replay_submit.submission = record.submission;
+            break;
+        }
+        case RecordType::Resume: {
+            const auto record = event.As<ResumeRecord>();
+            if (record.queue >= NumTotalQueues) {
+                player.Fail(fmt::format("resume of queue {}", record.queue));
+                break;
+            }
+            auto& queue = mapped_queues[record.queue];
+            Task::Handle task{};
+            {
+                std::scoped_lock lock{queue.m_access};
+                if (!queue.submits.empty()) {
+                    task = queue.submits.front();
+                }
+            }
+            if (!task || task.promise().replay_submit.submission != record.submission) {
+                player.Fail(fmt::format("queue {} has no submission {} to resume", record.queue,
+                                        record.submission));
+                break;
+            }
+            curr_qid = static_cast<s32>(record.queue);
+            ResumeTask(queue, task);
+            break;
+        }
+        case RecordType::Command:
+            player.RunCommand(event.As<CommandRecord>());
+            break;
+        case RecordType::BurstEnd:
+            if (event.As<BurstEndRecord>().submit_done) {
+                VideoCore::EndCapture();
+                if (rasterizer) {
+                    rasterizer->OnSubmit();
+                    rasterizer->Flush();
+                }
+                VideoCore::StartCapture();
+            }
+            Platform::IrqC::Instance()->Signal(Platform::InterruptId::GpuIdle);
+            break;
+        case RecordType::WaitPoll:
+            player.Fail("a wait outside a resumed queue");
+            break;
+        default:
+            break;
+        }
+        player.AfterEvent(event);
+        // Diagnostics and other host commands queued meanwhile.
+        if (num_commands) {
+            ProcessCommands();
+        }
+    }
+    VideoCore::EndCapture();
+    replay_capture = false;
+    replay_player = nullptr;
+    player.Finish();
+}
+
 void Liverpool::Process(std::stop_token stoken) {
     Common::SetCurrentThreadName("shadPS4:GpuCommandProcessor");
     Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
@@ -175,6 +326,9 @@ void Liverpool::Process(std::stop_token stoken) {
 
         while (!stoken.stop_requested() && (num_submits || num_commands)) {
             if (num_commands) {
+                if (VideoCore::Replay::CaptureHooksActive()) [[unlikely]] {
+                    VideoCore::Replay::Recorder::Instance().OnCommands();
+                }
                 ProcessCommands();
                 round_progress = true;
             }
@@ -200,38 +354,14 @@ void Liverpool::Process(std::stop_token stoken) {
                 }
                 task = queue.submits.front();
             }
-            const auto generation = diagnostics ? diagnostics->Generation() : 0;
-            SHAD_HANDOFF(generation, "queue_resume", curr_qid, task.promise().diagnostic_id);
-            waiting_yield = false;
-            Shader::AdvanceDynamicImageEpoch();
-            {
-                Core::Diagnostics::Handoff::Scope scope{"PM4.Resume", generation,
-                    static_cast<u64>(curr_qid), task.promise().diagnostic_id};
-                task.resume();
-            }
-            if (waiting_yield && !task.done()) {
+            if (ResumeTask(queue, task)) {
                 round_waited = true;
             } else {
                 round_progress = true;
             }
-            // The task suspended or finished: publish packets it consumed since the last batch.
-            FlushPm4Progress();
-
-            if (task.done()) {
-                SHAD_HANDOFF(generation, "queue_complete", curr_qid, task.promise().diagnostic_id);
-                if (task.promise().error)
-                    ReportFault(task.promise().error);
-                task.destroy();
-
-                std::scoped_lock lock{queue.m_access};
-                queue.submits.pop();
-
-                --num_submits;
-                std::scoped_lock lock2{submit_mutex};
-                submit_cv.notify_all();
-            }
         }
 
+        const bool frame_end = submit_done;
         if (submit_done) {
             VideoCore::EndCapture();
             if (rasterizer) {
@@ -240,6 +370,8 @@ void Liverpool::Process(std::stop_token stoken) {
             }
             submit_done = false;
         }
+        // Before GpuIdle reopens the submission gate.
+        VideoCore::Replay::Recorder::Instance().OnBurstEnd(*this, rasterizer, frame_end);
 
         Platform::IrqC::Instance()->Signal(Platform::InterruptId::GpuIdle);
         processing = false;
@@ -283,7 +415,10 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submiss
         Pm4Trace::NoteIbBegin(trace_ib, submission, GfxQueueId, Pm4Trace::IbKind::Constant, 0,
                               static_cast<u32>(ccb.size()));
     while (!stopping && !ccb.empty()) {
-        ProcessCommands();
+        // A GPU replay capture runs injected commands only between queue resumes.
+        if (!replay_capture) {
+            ProcessCommands();
+        }
 
         const auto* header = reinterpret_cast<const PM4Header*>(ccb.data());
         const u32 type = header->type;
@@ -396,7 +531,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
 
     const auto base_addr = reinterpret_cast<uintptr_t>(dcb.data());
     while (!stopping && !dcb.empty()) {
-        ProcessCommands();
+        if (!replay_capture) {
+            ProcessCommands();
+        }
 
         const auto* header = reinterpret_cast<const PM4Header*>(dcb.data());
         if (host_markers_enabled)
@@ -938,7 +1075,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (mem_semaphore->IsSignaling()) {
                     mem_semaphore->Signal();
                 } else {
-                    while (!mem_semaphore->Signaled()) {
+                    while (!Poll(VideoCore::Replay::WaitKind::MemSemaphore,
+                                 mem_semaphore->Address<void*>(),
+                                 [&] { return mem_semaphore->Signaled(); })) {
                         YIELD_WAIT_GFX();
                     }
                     mem_semaphore->Decrement();
@@ -954,7 +1093,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     break;
                 }
                 const PM4CmdRewind* rewind = reinterpret_cast<const PM4CmdRewind*>(header);
-                while (!rewind->Valid()) {
+                while (!Poll(VideoCore::Replay::WaitKind::Rewind, rewind,
+                             [&] { return rewind->Valid(); })) {
                     YIELD_WAIT_GFX();
                 }
                 break;
@@ -967,7 +1107,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 // there are no other submits to yield to we can sleep the thread
                 // instead and allow other tasks to run.
                 const u64* wait_addr = wait_reg_mem->Address<u64*>();
-                if (vo_port && vo_port->IsVoLabel(wait_addr) &&
+                const bool vo_label = vo_port && vo_port->IsVoLabel(wait_addr);
+                if (vo_label && !replay_capture &&
                     num_submits == mapped_queues[GfxQueueId].submits.size()) {
                     Core::Diagnostics::Handoff::Scope wait_scope{
                         "PM4.WaitVideoOutLabel", diagnostics ? diagnostics->Generation() : 0,
@@ -975,7 +1116,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     vo_port->WaitVoLabel([&] { return wait_reg_mem->Test(regs.reg_array); });
                     break;
                 }
-                while (!wait_reg_mem->Test(regs.reg_array)) {
+                while (!Poll(vo_label ? VideoCore::Replay::WaitKind::VoLabel
+                                      : VideoCore::Replay::WaitKind::RegMem,
+                             wait_addr, [&] { return wait_reg_mem->Test(regs.reg_array); })) {
                     YIELD_WAIT_GFX();
                 }
                 break;
@@ -1074,7 +1217,9 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         Pm4Trace::NoteIbBegin(trace_ib, submission, vqid + 1, Pm4Trace::IbKind::Compute, source,
                               static_cast<u32>(acb.size()));
     while (!stopping && !acb.empty()) {
-        ProcessCommands();
+        if (!replay_capture) {
+            ProcessCommands();
+        }
 
         auto* header = reinterpret_cast<const PM4Header*>(acb.data());
         // A packet completed from the previous ring span has no single guest address.
@@ -1205,7 +1350,8 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
                 break;
             }
             const PM4CmdRewind* rewind = reinterpret_cast<const PM4CmdRewind*>(header);
-            while (!rewind->Valid()) {
+            while (!Poll(VideoCore::Replay::WaitKind::Rewind, rewind,
+                         [&] { return rewind->Valid(); })) {
                 YIELD_ASC(vqid);
             }
             break;
@@ -1297,7 +1443,9 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             if (mem_semaphore->IsSignaling()) {
                 mem_semaphore->Signal();
             } else {
-                while (!mem_semaphore->Signaled()) {
+                while (!Poll(VideoCore::Replay::WaitKind::MemSemaphore,
+                             mem_semaphore->Address<void*>(),
+                             [&] { return mem_semaphore->Signaled(); })) {
                     YIELD_WAIT_ASC(vqid);
                 }
                 mem_semaphore->Decrement();
@@ -1307,7 +1455,8 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         case PM4ItOpcode::WaitRegMem: {
             const auto* wait_reg_mem = reinterpret_cast<const PM4CmdWaitRegMem*>(header);
             ASSERT(wait_reg_mem->engine.Value() == PM4CmdWaitRegMem::Engine::Me);
-            while (!wait_reg_mem->Test(regs.reg_array)) {
+            while (!Poll(VideoCore::Replay::WaitKind::RegMem, wait_reg_mem->Address<void*>(),
+                         [&] { return wait_reg_mem->Test(regs.reg_array); })) {
                 YIELD_WAIT_ASC(vqid);
             }
             break;
@@ -1527,6 +1676,16 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
     if (Pm4Trace::Active())
         Pm4Trace::NoteSubmit(GfxQueueId, submission, source, static_cast<u32>(dcb.size()),
                              reinterpret_cast<u64>(ccb.data()), static_cast<u32>(ccb.size()));
+    // The guest's command buffers, before any copy.
+    const VideoCore::Replay::SubmitRecord replay_submit{
+        static_cast<u32>(VideoCore::Replay::SubmitQueue::Graphics),
+        0,
+        submission,
+        reinterpret_cast<u64>(dcb.data()),
+        dcb.size(),
+        reinterpret_cast<u64>(ccb.data()),
+        ccb.size(),
+        source};
     if (!owned_submissions && EmulatorSettings.IsCopyGpuBuffers()) {
         std::tie(dcb, ccb) = CopyCmdBuffers(dcb, ccb);
     }
@@ -1543,6 +1702,7 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
                     : ProcessGraphics(dcb, ccb, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
     task.handle.promise().diagnostic_id = submission;
+    task.handle.promise().replay_submit = replay_submit;
     {
         std::scoped_lock lock{queue.m_access};
         SHAD_HANDOFF(generation, "queue_enqueue", GfxQueueId, task.handle.promise().diagnostic_id, dcb.size());
@@ -1581,6 +1741,9 @@ void Liverpool::SubmitAsc(u32 gnm_vqid, std::span<const u32> acb) {
                                   : ProcessCompute(acb, vqid, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
     task.handle.promise().diagnostic_id = submission;
+    task.handle.promise().replay_submit = {
+        static_cast<u32>(VideoCore::Replay::SubmitQueue::Compute), gnm_vqid, submission, source,
+        acb.size(), 0, 0, source};
     {
         std::scoped_lock lock{queue.m_access};
         SHAD_HANDOFF(generation, "queue_enqueue", gnm_vqid, task.handle.promise().diagnostic_id, acb.size());

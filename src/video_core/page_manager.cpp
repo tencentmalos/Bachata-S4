@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <atomic>
+#include <bit>
+#include <cstdlib>
 #include <boost/container/small_vector.hpp>
 #include "common/assert.h"
 #include "common/debug.h"
@@ -91,9 +94,141 @@ struct PageManager::Impl {
     static constexpr size_t NUM_ADDRESS_PAGES = 1ULL << (40 - PM_PAGE_BITS);
     static constexpr size_t NUM_ADDRESS_LOCKS = NUM_ADDRESS_PAGES / PAGES_PER_LOCK;
     inline static Vulkan::Rasterizer* rasterizer;
+    inline static Impl* instance;
+
+    // GPU replay recorder: one bit per page it write-protects on top of the watchers. A bit only
+    // changes under its page's lock, like cached_pages, so protections computed under the lock
+    // see both. The bitmap spans the tracked address space (32 MiB, committed as touched), is
+    // allocated by the first capture and never freed, so a reader can never see it go away.
+    inline static std::atomic<bool> recorder_active{};
+    inline static std::atomic<u64*> recorder_bits{};
+    inline static std::atomic<u64> recorder_faults{};
+
+    enum class RecorderFault {
+        None,     ///< Not a recorder page.
+        Released, ///< The recorder released the page; the write can retry.
+        Watched,  ///< The bit is cleared; the caches still watch the page and handle the fault.
+    };
 
     Impl() = default;
     virtual ~Impl() = default;
+
+    static bool RecorderBit(size_t page) {
+        u64* bits = recorder_bits.load(std::memory_order_relaxed);
+        return bits && ((std::atomic_ref<u64>{bits[page >> 6]}.load(std::memory_order_relaxed) >>
+                         (page & 63)) &
+                        1);
+    }
+
+    template <bool value>
+    static void SetRecorderBit(size_t page) {
+        std::atomic_ref<u64> word{recorder_bits.load(std::memory_order_relaxed)[page >> 6]};
+        if constexpr (value) {
+            word.fetch_or(u64{1} << (page & 63), std::memory_order_relaxed);
+        } else {
+            word.fetch_and(~(u64{1} << (page & 63)), std::memory_order_relaxed);
+        }
+    }
+
+    /// The protection a page needs: the watchers' plus the recorder's write protection.
+    Core::MemoryPermission PagePerms(size_t page) const {
+        auto perms = cached_pages[page].Perms();
+        if (recorder_active.load(std::memory_order_relaxed) && RecorderBit(page)) [[unlikely]] {
+            perms &= ~Core::MemoryPermission::Write;
+        }
+        return perms;
+    }
+
+    static void SetRecorderActive(bool active) {
+        if (active && !recorder_bits.load()) {
+            recorder_bits = static_cast<u64*>(std::calloc(NUM_ADDRESS_PAGES / 64, sizeof(u64)));
+            ASSERT_MSG(recorder_bits.load(), "Cannot allocate the GPU replay recorder bitmap");
+        }
+        recorder_active = active;
+    }
+
+    /// A write fault, before the caches see it.
+    RecorderFault OnRecorderWriteFault(VAddr addr) {
+        const size_t page = addr >> PM_PAGE_BITS;
+        std::scoped_lock lk{locks[page / PAGES_PER_LOCK]};
+        if (!RecorderBit(page)) {
+            return RecorderFault::None;
+        }
+        SetRecorderBit<false>(page);
+        recorder_faults.fetch_add(1, std::memory_order_relaxed);
+        if (cached_pages[page].num_write_watchers != 0) {
+            return RecorderFault::Watched;
+        }
+        Protect(page << PM_PAGE_BITS, PM_PAGE_SIZE, PagePerms(page));
+        return RecorderFault::Released;
+    }
+
+    /// Sets or clears the recorder bits of a range. Pages whose bit changes are protected as
+    /// they now need (unless protect is false), in runs of equal protection. Works through one
+    /// lock region at a time: a range of several GiB must not hold every lock in it at once.
+    template <bool record>
+    void UpdateRecorderBits(VAddr addr, u64 size, bool protect) {
+        const size_t first = addr >> PM_PAGE_BITS;
+        const size_t last = Common::DivCeil(addr + size, PM_PAGE_SIZE);
+        for (size_t begin = first; begin < last;) {
+            const size_t end =
+                std::min<size_t>(last, (begin / PAGES_PER_LOCK + 1) * PAGES_PER_LOCK);
+            std::scoped_lock lk{locks[begin / PAGES_PER_LOCK]};
+            size_t run_begin = 0;
+            size_t run_end = 0;
+            Core::MemoryPermission run_perms{};
+            const auto release_run = [&] {
+                if (run_end > run_begin) {
+                    Protect(run_begin << PM_PAGE_BITS, (run_end - run_begin) << PM_PAGE_BITS,
+                            run_perms);
+                }
+                run_begin = run_end = 0;
+            };
+            for (size_t page = begin; page < end; ++page) {
+                if (RecorderBit(page) == record) {
+                    release_run();
+                    continue;
+                }
+                SetRecorderBit<record>(page);
+                if (!protect) {
+                    continue;
+                }
+                const auto perms = PagePerms(page);
+                if (run_end > run_begin && run_end == page && perms == run_perms) {
+                    ++run_end;
+                    continue;
+                }
+                release_run();
+                run_begin = page;
+                run_end = page + 1;
+                run_perms = perms;
+            }
+            release_run();
+            begin = end;
+        }
+    }
+
+    static void CollectRecorderDirty(VAddr addr, u64 size, std::vector<u64>& pages) {
+        u64* bits = recorder_bits.load(std::memory_order_relaxed);
+        if (!bits || size == 0) {
+            return;
+        }
+        const size_t end = Common::DivCeil(addr + size, PM_PAGE_SIZE);
+        for (size_t page = addr >> PM_PAGE_BITS; page < end;) {
+            const size_t word = page >> 6;
+            const size_t word_end = (word + 1) << 6;
+            u64 clear = ~std::atomic_ref<u64>{bits[word]}.load(std::memory_order_relaxed);
+            clear &= ~u64{0} << (page & 63);
+            if (end < word_end) {
+                clear &= (u64{1} << (end & 63)) - 1;
+            }
+            while (clear) {
+                pages.push_back((word << 6) + std::countr_zero(clear));
+                clear &= clear - 1;
+            }
+            page = word_end;
+        }
+    }
 
     virtual void OnMap(VAddr address, size_t size) {
         // No-op
@@ -117,7 +252,7 @@ struct PageManager::Impl {
         const auto lock_end = locks.begin() + Common::DivCeil(page_end, PAGES_PER_LOCK);
         Common::RangeLockGuard lk(lock_start, lock_end);
 
-        auto perms = cached_pages[page].Perms();
+        auto perms = PagePerms(page);
         u64 range_begin = 0;
         u64 range_bytes = 0;
         u64 potential_range_bytes = 0;
@@ -148,7 +283,7 @@ struct PageManager::Impl {
             // Apply the change to the page state
             const u8 new_count = state.AddDelta<track ? 1 : -1, is_read>();
 
-            if (auto new_perms = state.Perms(); new_perms != perms) [[unlikely]] {
+            if (auto new_perms = PagePerms(page); new_perms != perms) [[unlikely]] {
                 // If the protection changed add pending (un)protect action
                 release_pending();
                 perms = new_perms;
@@ -189,7 +324,7 @@ struct PageManager::Impl {
         size_t base_page = (base_addr >> PM_PAGE_BITS);
         ASSERT(base_page % PAGES_PER_LOCK == 0);
         std::scoped_lock lk(locks[base_page / PAGES_PER_LOCK]);
-        auto perms = cached_pages[base_page + start_range.first].Perms();
+        auto perms = PagePerms(base_page + start_range.first);
         u64 range_begin = 0;
         u64 range_bytes = 0;
         u64 potential_range_bytes = 0;
@@ -213,7 +348,7 @@ struct PageManager::Impl {
             const u8 new_count =
                 update ? state.AddDelta<track ? 1 : -1, is_read>() : state.AddDelta<0, is_read>();
 
-            if (auto new_perms = state.Perms(); new_perms != perms) [[unlikely]] {
+            if (auto new_perms = PagePerms(base_page + page); new_perms != perms) [[unlikely]] {
                 // If the protection changed add pending (un)protect action
                 release_pending();
                 perms = new_perms;
@@ -425,6 +560,11 @@ struct SignalImpl : public PageManager::Impl {
         if (space.IsGuestBackend() && !space.IsGpuWatchFault(addr, write))
             return false;
         if (write) {
+            if (recorder_active.load(std::memory_order_relaxed)) [[unlikely]] {
+                if (instance->OnRecorderWriteFault(addr) == RecorderFault::Released) {
+                    return true;
+                }
+            }
             return rasterizer->InvalidateMemoryFromWriteFault(addr, size);
         } else {
             return rasterizer->ReadMemory(addr, size);
@@ -446,9 +586,12 @@ PageManager::PageManager(Vulkan::Rasterizer* rasterizer_) {
     LOG_INFO(Config, "Memory tracking method: signals");
 #endif
     impl = std::make_unique<SignalImpl>(rasterizer_);
+    Impl::instance = impl.get();
 }
 
-PageManager::~PageManager() = default;
+PageManager::~PageManager() {
+    Impl::instance = nullptr;
+}
 
 void PageManager::OnGpuMap(VAddr address, size_t size) {
     impl->OnMap(address, size);
@@ -460,6 +603,26 @@ void PageManager::OnGpuUnmap(VAddr address, size_t size) {
 
 bool PageManager::HasWriteWatchers(VAddr addr, u64 size) const {
     return impl->HasWriteWatchers(addr, size);
+}
+
+void PageManager::SetRecorderActive(bool active) {
+    Impl::SetRecorderActive(active);
+}
+
+void PageManager::RecordWrites(VAddr addr, u64 size) const {
+    impl->UpdateRecorderBits<true>(addr, size, true);
+}
+
+void PageManager::StopRecordingWrites(VAddr addr, u64 size, bool restore_protection) const {
+    impl->UpdateRecorderBits<false>(addr, size, restore_protection);
+}
+
+void PageManager::CollectRecorderDirty(VAddr addr, u64 size, std::vector<u64>& pages) const {
+    Impl::CollectRecorderDirty(addr, size, pages);
+}
+
+u64 PageManager::RecorderWriteFaults() {
+    return Impl::recorder_faults.load(std::memory_order_relaxed);
 }
 
 template <bool track>

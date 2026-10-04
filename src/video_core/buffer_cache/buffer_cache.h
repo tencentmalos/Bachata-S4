@@ -128,6 +128,15 @@ public:
     /// Flushes any GPU modified buffer in the logical page range back to CPU memory.
     void ReadMemory(VAddr device_addr, u64 size, bool is_write = false);
 
+    /// GPU replay: writes every GPU-modified range back to guest memory, after folding in the
+    /// bytes the CPU wrote over GPU data since (readbacks off). Command processor thread.
+    void WriteBackGpuModified();
+
+    /// GPU replay: the GDS contents once the GPU finished writing them.
+    std::vector<u8> ReadGds();
+    /// GPU replay: restores the GDS contents.
+    void WriteGds(std::span<const u8> data);
+
     /// Finds a buffer for the specified region.
     [[nodiscard]] std::pair<const Buffer*, u64> ObtainBuffer(VAddr device_addr, u32 size,
                                                              bool is_written,

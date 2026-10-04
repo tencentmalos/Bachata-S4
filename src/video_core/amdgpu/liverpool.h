@@ -21,6 +21,8 @@
 #include "common/unique_function.h"
 #include "video_core/amdgpu/cb_db_extent.h"
 #include "video_core/amdgpu/regs.h"
+#include "video_core/replay/gpu_replay_format.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 namespace Vulkan {
 class Rasterizer;
@@ -28,6 +30,11 @@ class Rasterizer;
 
 namespace Libraries::VideoOut {
 struct VideoOutPort;
+}
+
+namespace VideoCore::Replay {
+class PayloadBuilder;
+class Player;
 }
 
 namespace AmdGpu {
@@ -134,8 +141,33 @@ public:
         return num_submits == 0 && num_commands == 0 && !processing && !submit_done;
     }
 
+    /// GPU replay: the state that outlives a submission (registers, compute queue programs,
+    /// CE RAM and counters, ring queues). Command processor thread, with every queue idle.
+    void SaveReplayState(VideoCore::Replay::PayloadBuilder& state,
+                         VideoCore::Replay::PayloadBuilder& ring_queues);
+    /// GPU replay: restores what SaveReplayState wrote, before any submission.
+    bool LoadReplayState(std::span<const u8> state, std::span<const u8> ring_queues,
+                         std::string& error);
+    /// GPU replay: the command processor replays the player's events, then returns to normal
+    /// operation. The queues run only when the trace resumes them.
+    void StartReplay(VideoCore::Replay::Player* player);
+
+    Vulkan::Rasterizer* GetRasterizer() const {
+        return rasterizer;
+    }
+
     void SetVoPort(Libraries::VideoOut::VideoOutPort* port) {
         vo_port = port;
+    }
+
+    /// GPU replay capture: injected commands run only between queue resumes, and the VideoOut
+    /// label wait yields like other waits instead of blocking. Command processor thread.
+    void SetReplayCapture(bool capture) {
+        replay_capture = capture;
+    }
+
+    bool IsGpuThread() const {
+        return std::this_thread::get_id() == gpu_id;
     }
 
     void BindRasterizer(Vulkan::Rasterizer* rasterizer_) {
@@ -233,6 +265,9 @@ private:
                 error = std::current_exception();
             }
             u64 diagnostic_id{};
+            /// The top-level command buffer this task runs, for GPU replay capture.
+            VideoCore::Replay::SubmitRecord replay_submit{};
+            bool replay_resumed{};
             void return_void() {}
             struct empty {};
             std::suspend_always yield_value(empty&&) {
@@ -272,6 +307,24 @@ private:
     Task ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source);
 
     void ProcessCommands();
+    /// Evaluates a wait packet's condition. A GPU replay capture records the result; a replay
+    /// first applies the guest writes recorded before the wait and returns the recorded result.
+    template <typename Condition>
+    bool Poll(VideoCore::Replay::WaitKind kind, const void* address, Condition&& condition) {
+        if (replay_player) [[unlikely]] {
+            BeforeReplayPoll();
+            return AfterReplayPoll(kind, address, condition());
+        }
+        const bool satisfied = condition();
+        if (VideoCore::Replay::CaptureHooksActive()) [[unlikely]] {
+            RecordPoll(kind, address, satisfied);
+        }
+        return satisfied;
+    }
+    void RecordPoll(VideoCore::Replay::WaitKind kind, const void* address, bool satisfied);
+    void BeforeReplayPoll();
+    bool AfterReplayPoll(VideoCore::Replay::WaitKind kind, const void* address, bool satisfied);
+    void RunReplay();
     /// Every queue with work is waiting on memory: spin briefly, then yield, then sleep until a
     /// new submission or command (bounded).
     void IdleBackoff(u32 idle_rounds);
@@ -286,6 +339,8 @@ private:
         std::queue<Task::Handle> submits{};
         ComputeProgram cs_state{};
     };
+    /// Resumes a queue's front task once (curr_qid is set). True when it yielded to wait.
+    bool ResumeTask(GpuQueue& queue, Task::Handle task);
     std::array<GpuQueue, NumTotalQueues> mapped_queues{};
     std::atomic<u32> num_mapped_queues{1u}; // GFX is always available
 
@@ -323,6 +378,8 @@ private:
     std::queue<Common::UniqueFunction<void>> command_queue{};
     std::thread::id gpu_id;
     s32 curr_qid{-1};
+    bool replay_capture{};
+    VideoCore::Replay::Player* replay_player{};
 };
 
 } // namespace AmdGpu

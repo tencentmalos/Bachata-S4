@@ -11,6 +11,10 @@ namespace Core::Loader {
 class SymbolsResolver;
 }
 
+namespace VideoCore::Replay {
+struct VideoOutState;
+}
+
 namespace Libraries::VideoOut {
 class VideoOutDriver;
 void BindSessionDriver(VideoOutDriver* driver);
@@ -162,6 +166,14 @@ s32 PS4_SYSV_ABI sceVideoOutConfigureOutputMode_(s32 handle, u32 reserved, const
 
 // Internal system functions
 s32 sceVideoOutSubmitEopFlip(s32 handle, u32 buf_id, u32 mode, s64 flip_arg, void** unk);
+
+/// GPU replay: the main port's buffers, attributes and flip label address; false without a
+/// driver.
+bool SaveReplayState(VideoCore::Replay::VideoOutState& state);
+/// GPU replay: restores the main port, then arms or submits flips the way the guest did.
+void RestoreReplayState(const VideoCore::Replay::VideoOutState& state);
+void ReplayArmEopFlip(s32 handle, s32 index, s64 flip_arg);
+void ReplayCpuFlip(s32 handle, s32 index, s64 flip_arg);
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 

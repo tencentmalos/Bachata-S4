@@ -5,6 +5,7 @@
 #include "core/libraries/kernel/threads/pthread.h"
 #include "core/libraries/kernel/threads/thread_state.h"
 #include "core/memory.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 namespace Libraries::Kernel {
 
@@ -19,6 +20,8 @@ int ThreadState::CreateStack(PthreadAttr* attr) {
     if ((attr->stackaddr_attr) != nullptr) {
         attr->guardsize_attr = 0;
         attr->flags |= PthreadAttrFlags::StackUser;
+        VideoCore::Replay::NoteGuestStack(reinterpret_cast<VAddr>(attr->stackaddr_attr),
+                                          attr->stacksize_attr);
         return 0;
     }
 

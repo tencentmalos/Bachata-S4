@@ -12,6 +12,14 @@ namespace Core::Loader {
 class SymbolsResolver;
 }
 
+namespace VideoCore::Replay {
+struct GnmDriverState;
+}
+
+namespace AmdGpu {
+struct Liverpool;
+}
+
 namespace Libraries::GnmDriver {
 // Host HLE owns PM4 copies. Preserve their source guest addresses through the
 // synchronous GNM enqueue without treating a vector's host address as guest VA.
@@ -28,6 +36,13 @@ private:
 void InitializeSession();
 std::span<const u32> GetEmbeddedShader(u32 index);
 void BindEmbeddedShaders(std::array<u64, 3> addresses);
+// Guest address of the 16 VideoOut flip labels the desktop driver placed with its other
+// GPU-visible objects, or null when they could not be placed and stay in host memory.
+u64* DriverLabels();
+/// GPU replay: the submission state the driver keeps between frames.
+void SaveReplayState(VideoCore::Replay::GnmDriverState& state);
+/// The command processor, once RegisterLib created it.
+AmdGpu::Liverpool* GetLiverpool();
 void RequestStop();
 
 using namespace Kernel;

@@ -16,6 +16,8 @@
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
+#include "video_core/replay/gpu_replay_format.h"
+#include "video_core/replay/gpu_replay_recorder.h"
 
 extern std::unique_ptr<Vulkan::Presenter> presenter;
 extern std::unique_ptr<AmdGpu::Liverpool> liverpool;
@@ -329,8 +331,8 @@ void VideoOutDriver::Flip(const Request& req) {
         }
     }
 
-    // Reset prev flip label
-    if (port->prev_index != -1) {
+    // Reset prev flip label. A GPU replay writes the labels from the trace instead.
+    if (port->prev_index != -1 && !replay.load(std::memory_order_relaxed)) {
         SHAD_HANDOFF(generation, "vo_label_release", port->prev_index + 1,
                      req.diagnostic_id, req.index + 1);
         port->buffer_labels[port->prev_index] = 0;
@@ -454,10 +456,84 @@ bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
     return true;
 }
 
+void VideoOutDriver::SaveReplayState(VideoCore::Replay::VideoOutState& state) {
+    const VideoOutPort& port = main_port;
+    state.is_open = port.is_open ? 1 : 0;
+    state.is_hdr = port.is_hdr ? 1 : 0;
+    state.flip_rate = port.flip_rate;
+    state.prev_index = port.prev_index;
+    state.label_address = reinterpret_cast<u64>(port.buffer_labels.data());
+    state.full_width = port.resolution.full_width;
+    state.full_height = port.resolution.full_height;
+    state.pane_width = port.resolution.pane_width;
+    state.pane_height = port.resolution.pane_height;
+    for (size_t i = 0; i < state.buffers.size() && i < port.buffer_slots.size(); ++i) {
+        const auto& slot = port.buffer_slots[i];
+        state.buffers[i] = {slot.group_index, 0, slot.address_left, slot.address_right};
+    }
+    for (size_t i = 0; i < state.groups.size() && i < port.groups.size(); ++i) {
+        const auto& group = port.groups[i];
+        state.groups[i] = {group.is_occupied ? 1u : 0u,
+                           static_cast<u32>(group.attrib.pixel_format),
+                           static_cast<u32>(group.attrib.tiling_mode),
+                           static_cast<u32>(group.attrib.aspect_ratio),
+                           group.attrib.width,
+                           group.attrib.height,
+                           group.attrib.pitch_in_pixel,
+                           group.attrib.option};
+    }
+}
+
+void VideoOutDriver::RestoreReplayState(const VideoCore::Replay::VideoOutState& state) {
+    std::scoped_lock lock{mutex};
+    replay = true;
+    VideoOutPort& port = main_port;
+    port.is_hdr = state.is_hdr != 0;
+    port.flip_rate = state.flip_rate;
+    port.prev_index = state.prev_index;
+    port.resolution.full_width = state.full_width;
+    port.resolution.full_height = state.full_height;
+    port.resolution.pane_width = state.pane_width;
+    port.resolution.pane_height = state.pane_height;
+    for (size_t i = 0; i < state.buffers.size() && i < port.buffer_slots.size(); ++i) {
+        const auto& slot = state.buffers[i];
+        port.buffer_slots[i] = VideoOutBuffer{
+            .group_index = slot.group_index,
+            .address_left = static_cast<uintptr_t>(slot.address_left),
+            .address_right = static_cast<uintptr_t>(slot.address_right),
+        };
+    }
+    for (size_t i = 0; i < state.groups.size() && i < port.groups.size(); ++i) {
+        const auto& group = state.groups[i];
+        auto& out = port.groups[i];
+        out = {};
+        out.is_occupied = group.is_occupied != 0;
+        out.attrib.pixel_format = static_cast<PixelFormat>(group.pixel_format);
+        out.attrib.tiling_mode = static_cast<TilingMode>(group.tiling_mode);
+        out.attrib.aspect_ratio = static_cast<s32>(group.aspect_ratio);
+        out.attrib.width = group.width;
+        out.attrib.height = group.height;
+        out.attrib.pitch_in_pixel = group.pitch_in_pixel;
+        out.attrib.option = group.option;
+    }
+    port.is_open = state.is_open != 0;
+    if (port.is_open) {
+        liverpool->SetVoPort(&port);
+    }
+}
+
 void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop) {
     Core::Diagnostics::Handoff::Scope scope{"VideoOut.Prepare", presenter->CaptureGeneration()};
     if (port->stopping)
         return;
+    if (VideoCore::Replay::CaptureHooksActive()) [[unlikely]] {
+        auto& recorder = VideoCore::Replay::Recorder::Instance();
+        if (!is_eop) {
+            recorder.OnCommand({static_cast<u32>(VideoCore::Replay::CommandKind::CpuFlip), 1,
+                                index, 0, flip_arg, 0, 0});
+        }
+        recorder.OnFlip(index, index >= 0 ? port->buffer_slots[index].address_left : 0, is_eop);
+    }
     bool vr_active_now{};
     {
         std::lock_guard lock{vr_cadence_mutex};

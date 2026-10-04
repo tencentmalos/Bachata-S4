@@ -76,6 +76,13 @@ int main(int argc, char* argv[]) {
     bool sameProcess = false;
     bool append_log{};
 
+    std::optional<std::filesystem::path> gpuReplay;
+    std::optional<std::filesystem::path> gpuReplayOut;
+    bool gpuReplayNoPng = false;
+    bool gpuReplayExit = false;
+    bool gpuReplayHashImages = false;
+    std::optional<u64> gpuReplayHashDraws;
+
     std::optional<std::filesystem::path> addGameFolder;
     std::optional<std::filesystem::path> setAddonFolder;
     std::optional<std::string> patchFile;
@@ -118,6 +125,19 @@ int main(int argc, char* argv[]) {
     app.add_flag("--config-clean", configClean);
     app.add_flag("--config-global", configGlobal);
     app.add_flag("--log-append", append_log);
+
+    app.add_option("--gpu-replay", gpuReplay,
+                   "Replay a GPU trace (.sgpurply, DebugBus gpu_replay_capture) instead of "
+                   "running a game")
+        ->check(CLI::ExistingFile);
+    app.add_option("--gpu-replay-out", gpuReplayOut,
+                   "Directory for the replayed frames and summary (default: next to the trace)");
+    app.add_flag("--gpu-replay-no-png", gpuReplayNoPng, "Hash the replayed frames without PNGs");
+    app.add_flag("--gpu-replay-exit", gpuReplayExit, "Close once the trace is replayed");
+    app.add_flag("--gpu-replay-hash-images", gpuReplayHashImages,
+                 "Hash the images the GPU writes after every replayed event (slow)");
+    app.add_option("--gpu-replay-hash-draws", gpuReplayHashDraws,
+                   "With --gpu-replay-hash-images: also hash after every draw of this event");
 
     app.add_option("--add-game-folder", addGameFolder)->check(CLI::ExistingDirectory);
     app.add_option("--set-addon-folder", setAddonFolder)->check(CLI::ExistingDirectory);
@@ -198,7 +218,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    if (!gamePath.has_value()) {
+    if (!gamePath.has_value() && !gpuReplay) {
         if (!gameArgs.empty()) {
             gamePath = gameArgs.front();
             gameArgs.erase(gameArgs.begin());
@@ -249,6 +269,20 @@ int main(int argc, char* argv[]) {
 
     if (userfaultfd) {
         EmulatorSettings.SetUserfaultfdTracking(true);
+    }
+
+    if (gpuReplay) {
+        auto* emulator = Common::Singleton<Core::Emulator>::Instance();
+        emulator->executableName = argv[0];
+        if (noDebugBus) {
+            emulator->debugBusPort.reset();
+        } else if (debugBusPort) {
+            emulator->debugBusPort = static_cast<u16>(*debugBusPort);
+        }
+        emulator->RunGpuReplay({*gpuReplay, gpuReplayOut.value_or(std::filesystem::path{}),
+                                !gpuReplayNoPng, gpuReplayExit, gpuReplayHashImages,
+                                gpuReplayHashDraws.value_or(~u64{0})});
+        return 0;
     }
 
     // ---- Resolve game path or ID ----

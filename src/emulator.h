@@ -17,6 +17,20 @@ namespace Core {
 
 using HLEInitDef = void (*)(Core::Loader::SymbolsResolver* sym);
 
+/// Options of a GPU replay run (docs/specs/gpu-replay-20261004.md, section 2.5).
+struct GpuReplayOptions {
+    std::filesystem::path trace;
+    /// Frame hashes, PNGs and the summary go here; empty: next to the trace.
+    std::filesystem::path output_dir;
+    bool png = true;
+    /// Close the window once the trace is replayed.
+    bool exit_when_done = false;
+    /// Hash the images the GPU writes after every event (image_hashes.txt).
+    bool hash_images = false;
+    /// With hash_images: also after every draw and dispatch of this event.
+    u64 hash_draws_event = ~u64{0};
+};
+
 struct SysModules {
     std::string_view module_name;
     HLEInitDef callback;
@@ -33,6 +47,10 @@ public:
              std::vector<std::string> const& env_vars = {}, bool append_log = false);
     void UpdatePlayTime(const std::string_view serial);
     void Shutdown();
+
+    /// Replays a GPU trace instead of running a game: no guest code runs, the command
+    /// processor executes the recorded submissions against the recorded guest memory.
+    void RunGpuReplay(const GpuReplayOptions& options);
 
     /**
      * This will kill the current process and launch a new process with the same configuration

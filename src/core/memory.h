@@ -367,6 +367,8 @@ public:
     };
 
     void SetupMemoryRegions(u64 flexible_size, bool use_extended_mem1, bool use_extended_mem2);
+    /// GPU replay: the direct and flexible memory sizes a captured game ran with.
+    void SetupReplayRegions(u64 direct_size, u64 flexible_size);
 
     PAddr PoolExpand(PAddr search_start, PAddr search_end, u64 size, u64 alignment);
 
@@ -409,6 +411,26 @@ public:
     /// For crash reports: recent mapping changes (map, unmap, protect, pool commit/decommit)
     /// whose range contains one of `addresses`, newest first. Never blocks.
     std::vector<std::string> DescribeMappingHistoryForCrash(std::span<const VAddr> addresses);
+
+    /// A mapped area and its physical backing runs (keyed by offset within the area), as the
+    /// GPU replay records them.
+    struct MappingSnapshot {
+        VAddr base;
+        u64 size;
+        VMAType type;
+        MemoryProt prot;
+        std::string name;
+        std::vector<std::pair<u64, PhysicalMemoryArea>> phys;
+    };
+    std::vector<MappingSnapshot> SnapshotMappings();
+    /// The mapped areas overlapping [begin, end), clipped to it.
+    std::vector<MappingSnapshot> SnapshotMappings(VAddr begin, VAddr end);
+    /// The mapped area containing address, whole.
+    std::optional<MappingSnapshot> SnapshotMappingAt(VAddr address);
+    /// Copies guest memory for the GPU replay recorder without touching protected pages: areas
+    /// with physical backing are read through the backing view, other mapped areas through
+    /// their address. Unmapped space and backing holes read as zero.
+    void ReadForReplay(VAddr address, u8* dest, u64 size);
 
     s32 DirectMemoryQuery(PAddr addr, bool find_next,
                           ::Libraries::Kernel::OrbisQueryInfo* out_info);

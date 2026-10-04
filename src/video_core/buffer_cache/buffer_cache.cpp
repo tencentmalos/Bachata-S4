@@ -22,6 +22,7 @@
 #include "video_core/renderer_vulkan/vk_runtime.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_missing_content.h"
+#include "video_core/replay/gpu_replay_recorder.h"
 #include "video_core/texture_cache/texture_cache.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 
@@ -438,7 +439,14 @@ void BufferCache::ForgetGpuWrites(VAddr device_addr, u64 size) {
 void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
     // The faulting CPU thread waits here for the GPU command thread to download the data.
     Common::Profiler::Scope scope{"Buffer.WaitCpuReadback"};
-    liverpool->SendCommand<true>([this, device_addr, size, is_write] {
+    // A readback the command processor runs inline happens again in a replay by itself.
+    const bool queued = !liverpool->IsGpuThread();
+    liverpool->SendCommand<true>([this, device_addr, size, is_write, queued] {
+        if (queued && VideoCore::Replay::CaptureHooksActive()) [[unlikely]] {
+            VideoCore::Replay::Recorder::Instance().OnCommand(
+                {static_cast<u32>(VideoCore::Replay::CommandKind::Readback), 0, 0,
+                 is_write ? 1u : 0u, 0, device_addr, size});
+        }
         // The CPU is about to read GPU-written data.
         Vulkan::MissingContent::CheckEscape(Vulkan::MissingContent::Escape::Readback, device_addr,
                                             size);
@@ -469,6 +477,43 @@ void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
             memory_tracker->MarkRegionAsCpuModified(device_addr, size);
         }
     });
+}
+
+void BufferCache::WriteBackGpuModified() {
+    // DownloadMemory subtracts from the set while this walks it.
+    std::vector<std::pair<VAddr, VAddr>> ranges;
+    gpu_modified_ranges.ForEach([&](VAddr start, VAddr end) { ranges.emplace_back(start, end); });
+    // SynchronizeMemory takes a u32 size.
+    constexpr u64 MaxChunk = 256_MB;
+    for (const auto& [start, end] : ranges) {
+        for (VAddr address = start; address < end;) {
+            const u64 page = address >> arena_page_bits;
+            const VAddr chunk_end = std::min<VAddr>(
+                {end, (page + 1) << arena_page_bits, address + MaxChunk});
+            if (const Buffer* arena = address_space[page]) {
+                // With readbacks off the CPU may have written over GPU bytes since; upload
+                // those first so the download returns the merged contents.
+                SynchronizeMemory(arena, address, static_cast<u32>(chunk_end - address), false,
+                                  false);
+                DownloadMemory(arena, address, chunk_end - address);
+            }
+            address = chunk_end;
+        }
+    }
+}
+
+std::vector<u8> BufferCache::ReadGds() {
+    scheduler.Finish();
+    gds_buffer.Invalidate(0, GDS_BUFFER_SIZE);
+    const auto data = gds_buffer.mapped_data;
+    return {data.begin(), data.begin() + std::min<size_t>(data.size(), GDS_BUFFER_SIZE)};
+}
+
+void BufferCache::WriteGds(std::span<const u8> data) {
+    scheduler.Finish();
+    const size_t size = std::min({data.size(), gds_buffer.mapped_data.size(), GDS_BUFFER_SIZE});
+    std::memcpy(gds_buffer.mapped_data.data(), data.data(), size);
+    gds_buffer.Flush(0, size);
 }
 
 void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 size) {

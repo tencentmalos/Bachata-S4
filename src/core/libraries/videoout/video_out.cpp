@@ -5,6 +5,7 @@
 #include "common/elf_info.h"
 #include "common/logging/log.h"
 #include "core/emulator_settings.h"
+#include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/system/userservice.h"
 #include "core/libraries/videoout/driver.h"
@@ -12,6 +13,7 @@
 #include "core/libraries/videoout/videoout_error.h"
 #include "core/platform.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 extern std::unique_ptr<Vulkan::Presenter> presenter;
 
@@ -373,6 +375,7 @@ s32 sceVideoOutSubmitEopFlip(s32 handle, u32 buf_id, u32 mode, s64 flip_arg, voi
             const auto result = driver->SubmitFlip(port, buf_id, flip_arg, true);
             ASSERT_MSG(result, "EOP flip submission failed");
         });
+    VideoCore::Replay::NoteEopFlipArmed(handle, static_cast<s32>(buf_id), flip_arg);
 
     return ORBIS_OK;
 }
@@ -476,9 +479,40 @@ s32 PS4_SYSV_ABI sceVideoOutSetWindowModeMargins(s32 handle, s32 top, s32 bottom
     return ORBIS_OK;
 }
 
+bool SaveReplayState(VideoCore::Replay::VideoOutState& state) {
+    if (!driver) {
+        return false;
+    }
+    driver->SaveReplayState(state);
+    return true;
+}
+
+void RestoreReplayState(const VideoCore::Replay::VideoOutState& state) {
+    driver->RestoreReplayState(state);
+}
+
+void ReplayArmEopFlip(s32 handle, s32 index, s64 flip_arg) {
+    auto* port = driver->GetPort(handle);
+    ASSERT_MSG(port, "GPU replay: no VideoOut port {}", handle);
+    Platform::IrqC::Instance()->RegisterOnce(
+        Platform::InterruptId::GfxFlip, [=](Platform::InterruptId irq) {
+            const auto result = driver->SubmitFlip(port, index, flip_arg, true);
+            ASSERT_MSG(result, "EOP flip submission failed");
+        });
+}
+
+void ReplayCpuFlip(s32 handle, s32 index, s64 flip_arg) {
+    if (auto* port = driver->GetPort(handle)) {
+        driver->SubmitFlip(port, index, flip_arg, false);
+    }
+}
+
 void RegisterLib(Core::Loader::SymbolsResolver* sym) {
+    // GnmDriver registers first and places the flip labels in guest memory.
     desktop_driver = std::make_unique<VideoOutDriver>(EmulatorSettings.GetInternalScreenWidth(),
-                                              EmulatorSettings.GetInternalScreenHeight());
+                                                      EmulatorSettings.GetInternalScreenHeight(),
+                                                      std::function<u64()>{}, std::function<u64()>{},
+                                                      Libraries::GnmDriver::DriverLabels());
     driver = desktop_driver.get();
 
     LIB_FUNCTION("SbU3dwp80lQ", "libSceVideoOut", 1, "libSceVideoOut", sceVideoOutGetFlipStatus);

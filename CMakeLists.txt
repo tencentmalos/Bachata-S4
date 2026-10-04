@@ -1171,6 +1171,7 @@ set(SHADER_RECOMPILER src/shader_recompiler/profile.h
 set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/amdgpu/liverpool.cpp
                src/video_core/amdgpu/liverpool.h
+               src/video_core/amdgpu/liverpool_replay.cpp
                src/video_core/amdgpu/pixel_format.cpp
                src/video_core/amdgpu/pixel_format.h
                src/video_core/amdgpu/pm4_cmds.h
@@ -1282,6 +1283,16 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/amdgpu/pm4_stats.h
                src/video_core/amdgpu/pm4_trace.cpp
                src/video_core/amdgpu/pm4_trace.h
+               src/video_core/replay/gpu_replay_file.cpp
+               src/video_core/replay/gpu_replay_file.h
+               src/video_core/replay/gpu_replay_format.h
+               src/video_core/replay/gpu_replay_frames.cpp
+               src/video_core/replay/gpu_replay_frames.h
+               src/video_core/replay/gpu_replay_hooks.h
+               src/video_core/replay/gpu_replay_player.cpp
+               src/video_core/replay/gpu_replay_player.h
+               src/video_core/replay/gpu_replay_recorder.cpp
+               src/video_core/replay/gpu_replay_recorder.h
                src/video_core/texture_cache/upload_diagnostics.cpp
                src/video_core/texture_cache/upload_diagnostics.h
                src/video_core/cache_storage.cpp
@@ -1562,6 +1573,9 @@ target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohma
 target_link_libraries(shadps4 PRIVATE Freetype::Freetype)
 target_link_libraries(shadps4 PRIVATE libprotobuf)
 target_link_libraries(shadps4 PRIVATE ZArchive::zarchive)
+# GPU replay traces are zstd compressed, with the copy built for ZArchive.
+target_link_libraries(shadps4 PRIVATE libzstd_static)
+target_include_directories(shadps4 PRIVATE externals/zstd/lib)
 # PKG extraction needs RSA/SHA/HMAC. SSL_DEPENDENCIES is always defined —
 # externals/CMakeLists.txt falls back to the bundled LibreSSL.
 target_link_libraries(shadps4 PRIVATE ${SSL_DEPENDENCIES})

@@ -30,6 +30,7 @@
 #include <mach/mach_vm.h>
 #endif
 #include "core/rasterizer_hooks.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 
 namespace Core {
 
@@ -68,6 +69,7 @@ std::array<MappingEvent, MappingHistorySize> g_mapping_history;
 u64 g_mapping_sequence = 0;
 
 void RecordMapping(const char* operation, VAddr address, u64 size, u64 detail) {
+    VideoCore::Replay::NoteMappingChange(address, size, std::string_view{operation} == "protect");
     // Looked up once per thread: a name query per mapping change is a syscall.
     thread_local const std::string thread = Common::GetCurrentThreadName();
     std::scoped_lock lock{g_mapping_history_mutex};
@@ -178,6 +180,21 @@ void MemoryManager::SetupMemoryRegions(u64 flexible_size, bool use_extended_mem1
              total_flexible_size, total_direct_size);
 }
 
+void MemoryManager::SetupReplayRegions(u64 direct_size, u64 flexible_size) {
+    const u64 old_direct_size = total_direct_size;
+    ASSERT_MSG(direct_size <= old_direct_size, "Replay direct memory {:#x} exceeds {:#x}",
+               direct_size, old_direct_size);
+    total_flexible_size = flexible_size;
+    total_direct_size = direct_size;
+    auto last_dmem_area = FindDmemArea(total_direct_size);
+    ASSERT_MSG(last_dmem_area->second.dma_type == PhysicalMemoryType::Free &&
+                   last_dmem_area->second.size >= old_direct_size - total_direct_size,
+               "Unable to shrink dmem map");
+    last_dmem_area->second.size -= (old_direct_size - total_direct_size);
+    LOG_INFO(Kernel_Vmm, "Replay memory regions: flexible size = {:#x}, direct size = {:#x}",
+             total_flexible_size, total_direct_size);
+}
+
 u64 MemoryManager::ClampRangeSize(VAddr virtual_addr, u64 size) {
     static constexpr u64 MinSizeToClamp = 1_GB;
     // Dont bother with clamping if the size is small so we dont pay a map lookup on every buffer.
@@ -224,6 +241,120 @@ void MemoryManager::SetRasterizer(RasterizerHooks* value) {
         for (const auto& [address, size] : mappings)
             value->MapMemory(address, size);
     }
+}
+
+std::vector<MemoryManager::MappingSnapshot> MemoryManager::SnapshotMappings(VAddr begin,
+                                                                           VAddr end) {
+    std::shared_lock lock(mutex);
+    std::vector<MappingSnapshot> mappings;
+    if (begin >= end || !IsValidMapping(begin)) {
+        return mappings;
+    }
+    for (auto it = FindVMA(begin); it != vma_map.end() && it->second.base < end; ++it) {
+        const auto& vma = it->second;
+        if (!vma.IsMapped()) {
+            continue;
+        }
+        const VAddr low = std::max(vma.base, begin);
+        const VAddr high = std::min(vma.base + vma.size, end);
+        auto& mapping = mappings.emplace_back(
+            MappingSnapshot{low, high - low, vma.type, vma.prot, vma.name, {}});
+        const u64 clip_begin = low - vma.base;
+        const u64 clip_end = high - vma.base;
+        for (const auto& [offset, area] : vma.phys_areas) {
+            const u64 run_begin = std::max<u64>(offset, clip_begin);
+            const u64 run_end = std::min<u64>(offset + area.size, clip_end);
+            if (run_begin >= run_end) {
+                continue;
+            }
+            PhysicalMemoryArea clipped = area;
+            clipped.base = area.base + (run_begin - offset);
+            clipped.size = run_end - run_begin;
+            mapping.phys.emplace_back(run_begin - clip_begin, clipped);
+        }
+    }
+    return mappings;
+}
+
+std::optional<MemoryManager::MappingSnapshot> MemoryManager::SnapshotMappingAt(VAddr address) {
+    VAddr base{};
+    u64 size{};
+    {
+        std::shared_lock lock(mutex);
+        if (!IsValidMapping(address)) {
+            return std::nullopt;
+        }
+        const auto& vma = FindVMA(address)->second;
+        if (!vma.IsMapped()) {
+            return std::nullopt;
+        }
+        base = vma.base;
+        size = vma.size;
+    }
+    auto mappings = SnapshotMappings(base, base + size);
+    if (mappings.empty()) {
+        return std::nullopt;
+    }
+    return std::move(mappings.front());
+}
+
+void MemoryManager::ReadForReplay(VAddr address, u8* dest, u64 size) {
+    std::shared_lock lock(mutex);
+    while (size) {
+        if (!IsValidMapping(address)) {
+            std::memset(dest, 0, size);
+            return;
+        }
+        const auto& vma = FindVMA(address)->second;
+        const u64 offset = address - vma.base;
+        u64 count = std::min(size, vma.size - offset);
+        const u8* source = nullptr;
+        if (vma.IsMapped() && HasPhysicalBacking(vma)) {
+            auto physical = vma.phys_areas.upper_bound(offset);
+            if (physical != vma.phys_areas.begin()) {
+                --physical;
+                const u64 within = offset - physical->first;
+                if (within < physical->second.size) {
+                    count = std::min(count, physical->second.size - within);
+                    source = impl.BackingBase() + physical->second.base + within;
+                } else {
+                    // A hole up to the next physical run.
+                    const auto next = std::next(physical);
+                    if (next != vma.phys_areas.end()) {
+                        count = std::min(count, next->first - offset);
+                    }
+                }
+            } else if (!vma.phys_areas.empty()) {
+                count = std::min(count, vma.phys_areas.begin()->first - offset);
+            }
+        } else if (vma.IsMapped()) {
+            source = std::bit_cast<const u8*>(address);
+        }
+        if (source) {
+            std::memcpy(dest, source, count);
+        } else {
+            std::memset(dest, 0, count);
+        }
+        address += count;
+        dest += count;
+        size -= count;
+    }
+}
+
+std::vector<MemoryManager::MappingSnapshot> MemoryManager::SnapshotMappings() {
+    std::shared_lock lock(mutex);
+    std::vector<MappingSnapshot> mappings;
+    for (const auto& [address, vma] : vma_map) {
+        if (!vma.IsMapped()) {
+            continue;
+        }
+        auto& mapping = mappings.emplace_back(
+            MappingSnapshot{vma.base, vma.size, vma.type, vma.prot, vma.name, {}});
+        for (const auto& [offset, area] : vma.phys_areas) {
+            mapping.phys.emplace_back(offset, area);
+        }
+    }
+    return mappings;
 }
 
 void MemoryManager::SetPrtArea(u32 id, VAddr address, u64 size) {

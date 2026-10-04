@@ -4,7 +4,10 @@
 #include "gnm_error.h"
 #include "gnmdriver.h"
 
+#include <cstring>
 #include <stdexcept>
+#include <vector>
+#include "common/alignment.h"
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/elf_info.h"
@@ -27,6 +30,7 @@
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
+#include "video_core/replay/gpu_replay_format.h"
 
 std::unique_ptr<Vulkan::Presenter> presenter;
 std::unique_ptr<AmdGpu::Liverpool> liverpool;
@@ -199,11 +203,86 @@ void BindEmbeddedShaders(std::array<u64, 3> addresses) {
     embedded_addresses = addresses;
 }
 
+// The GPU-visible objects the driver itself puts into command streams: VideoOut flip labels,
+// the embedded shaders and the init sequences. The console keeps them in GPU-mapped system
+// memory; desktop places them in one guest allocation at a fixed address, so a command stream
+// only carries guest addresses that a GPU replay can recreate in another process or build.
+static constexpr VAddr DriverObjectsBase = 0xFE0000000;
+static constexpr u64 DriverObjectsSize = 64_KB;
+static u64* driver_labels{};
+static std::vector<std::pair<const u32*, std::span<const u32>>> driver_object_copies;
+
+u64* DriverLabels() {
+    return driver_labels;
+}
+
+AmdGpu::Liverpool* GetLiverpool() {
+    return liverpool.get();
+}
+
+static std::span<const u32> DriverObject(std::span<const u32> host) {
+    for (const auto& [source, copy] : driver_object_copies) {
+        if (source == host.data()) {
+            return copy;
+        }
+    }
+    return host;
+}
+
+static void PlaceDriverObjects() {
+    void* mapped{};
+    if (Core::Memory::Instance()->MapMemory(
+            &mapped, DriverObjectsBase, DriverObjectsSize, Core::MemoryProt::CpuReadWrite,
+            Core::MemoryMapFlags::Fixed | Core::MemoryMapFlags::NoOverwrite, Core::VMAType::File,
+            VideoCore::Replay::DriverObjectsName) != ORBIS_OK) {
+        LOG_ERROR(Lib_GnmDriver,
+                  "Cannot map the driver objects at {:#x}; flip labels, embedded shaders and init "
+                  "sequences stay in host memory",
+                  DriverObjectsBase);
+        return;
+    }
+    auto* const base = static_cast<u8*>(mapped);
+    // Page 0 holds the 16 flip labels, as in the host runtime; pages 1-3 the embedded shaders.
+    driver_labels = reinterpret_cast<u64*>(base);
+    std::array<u64, 3> shaders{};
+    for (u32 i = 0; i < shaders.size(); ++i) {
+        const auto code = GetEmbeddedShader(i);
+        ASSERT(code.size_bytes() <= 4_KB);
+        std::memcpy(base + (i + 1) * 4_KB, code.data(), code.size_bytes());
+        shaders[i] = reinterpret_cast<u64>(base + (i + 1) * 4_KB);
+    }
+    BindEmbeddedShaders(shaders);
+    u64 offset = 4 * 4_KB;
+    for (const std::span<const u32> sequence :
+         {std::span<const u32>{InitSequence}, std::span<const u32>{InitSequence200},
+          std::span<const u32>{InitSequence200Neo}, std::span<const u32>{InitSequence200NeoCompat},
+          std::span<const u32>{InitSequence350}, std::span<const u32>{InitSequence350Neo},
+          std::span<const u32>{InitSequence350NeoCompat}}) {
+        ASSERT(offset + sequence.size_bytes() <= DriverObjectsSize);
+        auto* const copy = reinterpret_cast<u32*>(base + offset);
+        std::memcpy(copy, sequence.data(), sequence.size_bytes());
+        driver_object_copies.emplace_back(sequence.data(), std::span<const u32>{copy, sequence.size()});
+        offset += Common::AlignUp(sequence.size_bytes(), 256);
+    }
+    LOG_INFO(Lib_GnmDriver, "Driver objects (flip labels, embedded shaders, init sequences) at {:#x}",
+             DriverObjectsBase);
+}
+
 static u32 asc_next_offs_dw[Liverpool::NumComputeRings];
 
 // This address is initialized in sceGnmGetTheTessellationFactorRingBufferBaseAddress
 static VAddr tessellation_factors_ring_addr = -1;
 static constexpr u32 tessellation_offchip_buffer_size = 0x800000u;
+
+void SaveReplayState(VideoCore::Replay::GnmDriverState& state) {
+    static_assert(std::size(asc_next_offs_dw) == std::tuple_size_v<decltype(state.asc_next_offs_dw)>);
+    state.send_init_packet = send_init_packet ? 1 : 0;
+    state.sdk_version = sdk_version;
+    state.frames_submitted = frames_submitted;
+    state.tessellation_factors_ring_addr = tessellation_factors_ring_addr;
+    std::copy(std::begin(asc_next_offs_dw), std::end(asc_next_offs_dw),
+              state.asc_next_offs_dw.begin());
+}
 
 static void ResetSubmissionLock(Platform::InterruptId irq) {
     std::unique_lock lock{m_wait_idle};
@@ -2316,26 +2395,26 @@ static inline s32 PerformSubmit(u32 count, const u32* dcb_gpu_addrs[], u32* dcb_
 
     if (send_init_packet) {
         if (sdk_version < Common::ElfInfo::FW_200) {
-            liverpool->SubmitGfx(InitSequence, {});
+            liverpool->SubmitGfx(DriverObject(InitSequence), {});
         } else if (sdk_version < Common::ElfInfo::FW_400) {
             if (sceKernelIsNeoMode()) {
                 if (!UseNeoCompatSequences) {
-                    liverpool->SubmitGfx(InitSequence200Neo, {});
+                    liverpool->SubmitGfx(DriverObject(InitSequence200Neo), {});
                 } else {
-                    liverpool->SubmitGfx(InitSequence200NeoCompat, {});
+                    liverpool->SubmitGfx(DriverObject(InitSequence200NeoCompat), {});
                 }
             } else {
-                liverpool->SubmitGfx(InitSequence200, {});
+                liverpool->SubmitGfx(DriverObject(InitSequence200), {});
             }
         } else {
             if (sceKernelIsNeoMode()) {
                 if (!UseNeoCompatSequences) {
-                    liverpool->SubmitGfx(InitSequence350Neo, {});
+                    liverpool->SubmitGfx(DriverObject(InitSequence350Neo), {});
                 } else {
-                    liverpool->SubmitGfx(InitSequence350NeoCompat, {});
+                    liverpool->SubmitGfx(DriverObject(InitSequence350NeoCompat), {});
                 }
             } else {
-                liverpool->SubmitGfx(InitSequence350, {});
+                liverpool->SubmitGfx(DriverObject(InitSequence350), {});
             }
         }
         send_init_packet = false;
@@ -3086,6 +3165,8 @@ void RegisterLib(Core::Loader::SymbolsResolver* sym) {
         throw std::runtime_error("GNM initialization requires a bound platform window");
     liverpool = std::make_unique<AmdGpu::Liverpool>();
     presenter = std::make_unique<Vulkan::Presenter>(std::move(window), liverpool.get());
+    // After the rasterizer exists, so the mapping is announced to the GPU like guest memory.
+    PlaceDriverObjects();
 
     const s32 result = sceKernelGetCompiledSdkVersion(&sdk_version);
     if (result != ORBIS_OK) {

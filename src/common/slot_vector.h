@@ -48,6 +48,10 @@ public:
             return vector[slot];
         }
 
+        SlotId Id() const {
+            return slot;
+        }
+
         pointer operator->() const {
             return &vector[slot];
         }
