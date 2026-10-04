@@ -300,15 +300,31 @@ struct GuestAjm::Impl {
         }
         batch->error = {};
     }
+    // The decoder advances each data output span past the bytes it wrote. Like the hardware
+    // (and the desktop AJM, which decodes into guest memory), only those bytes go back to the
+    // guest: the rest of the buffer may have changed since the batch started, as a stream's
+    // ring buffer does while it plays.
+    static void KeepWrittenOutput(Job& owned) {
+        auto& buffers = owned.job.output.buffers;
+        for (size_t i = 0; i < buffers.size(); ++i) {
+            auto& output = owned.outputs[i]; // data outputs come first, in buffer order
+            const size_t written = size_t(buffers[i].data() - output.bytes.data());
+            output.bytes.resize(written);
+            output.identities.back().end = output.address + written;
+        }
+    }
     void Publish(Batch& batch) {
         if (batch.cancel.stop_requested())
             throw Failure{ORBIS_AJM_ERROR_CANCELLED};
         std::vector<GuestAddressSpace::DataRequest> requests;
         for (auto& owned : batch.jobs)
             for (auto& output : owned->outputs)
-                requests.push_back({{GuestAddress{output.address}, output.bytes.size()},
-                                    GuestPermission::Write,
-                                    output.identities});
+                if (!output.bytes.empty())
+                    requests.push_back({{GuestAddress{output.address}, output.bytes.size()},
+                                        GuestPermission::Write,
+                                        output.identities});
+        if (requests.empty())
+            return;
         auto pinned = space.AcquireDataBatch(requests, batch.cancel.get_token());
         Need(bool(pinned), batch.cancel.stop_requested() ? ORBIS_AJM_ERROR_CANCELLED
                                                          : ORBIS_AJM_ERROR_INVALID_ADDRESS);
@@ -316,8 +332,9 @@ struct GuestAjm::Impl {
         size_t i{};
         for (auto& owned : batch.jobs)
             for (auto& output : owned->outputs)
-                std::memcpy(pins[i++].WritableBytes().data(), output.bytes.data(),
-                            output.bytes.size());
+                if (!output.bytes.empty())
+                    std::memcpy(pins[i++].WritableBytes().data(), output.bytes.data(),
+                                output.bytes.size());
     }
     void Work(std::stop_token stop) {
         for (;;) {
@@ -336,9 +353,10 @@ struct GuestAjm::Impl {
                     error = {.job = owned->address, .offset = owned->offset, .ra = owned->ra};
                     if (batch->cancel.stop_requested())
                         throw Failure{ORBIS_AJM_ERROR_CANCELLED};
-                    if (owned->instance)
+                    if (owned->instance) {
                         owned->instance->decoder.ExecuteJob(owned->job, batch->cancel.get_token());
-                    else
+                        KeepWrittenOutput(*owned);
+                    } else
                         AjmInstanceStatistics::Getinstance().ExecuteJob(
                             owned->job); // desktop compatibility estimates
                 }
