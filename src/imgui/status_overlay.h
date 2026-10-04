@@ -47,15 +47,10 @@ private:
     spatial::perf::PerfHudSettings perf_hud{spatial::perf::defaultPerfHudSettings()};
     // Output the shell lays out against; the horizontal Summary wraps to its safe width.
     spatial::imgui::overlay::PresentationEnvironment environment;
-    // Corner of the FPS chip / Summary panel. Android keeps the top left clear of the touch
-    // controls in the bottom corners; the desktop defaults to the bottom left.
+    // Corner of the FPS chip / Summary panel; the top left also keeps clear of Android's touch
+    // controls in the bottom corners.
     spatial::imgui::overlay::StatusAnchor status_anchor{
-#ifdef __ANDROID__
-        spatial::imgui::overlay::StatusAnchor::TopLeft
-#else
-        spatial::imgui::overlay::StatusAnchor::BottomLeft
-#endif
-    };
+        spatial::imgui::overlay::StatusAnchor::TopLeft};
     std::filesystem::path settings_path;
     unsigned width{}, height{};
     float pixel_density{};
