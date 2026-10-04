@@ -101,8 +101,8 @@ TrophyUI::TrophyUI(const std::filesystem::path& trophyIconPath, const std::strin
 
     audioDevice = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
 
-    // user selected Sdl Backend, use same device as Sdl main Device
-    if (EmulatorSettings.GetAudioBackend() == 0) {
+    // user selected Sdl or cubeb Backend, use same device as Sdl main Device
+    if (EmulatorSettings.GetAudioBackend() != AudioBackend::OpenAL) {
         if (EmulatorSettings.GetSDLMainOutputDevice() != "Default Device") {
             int count;
             SDL_AudioDeviceID* devices = SDL_GetAudioPlaybackDevices(&count);

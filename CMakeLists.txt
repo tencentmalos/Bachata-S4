@@ -326,6 +326,7 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
               src/core/libraries/audio/audioout_backend.h
               src/core/libraries/audio/audioout_error.h
               src/core/libraries/audio/sdl_audio_out.cpp
+              src/core/libraries/audio/cubeb_audio_out.cpp
               src/core/libraries/audio/openal_audio_out.cpp
               src/core/libraries/audio/openal_manager.h
               src/core/libraries/ngs2/ngs2.cpp
@@ -345,7 +346,8 @@ if (ANDROID)
     # NullAudioIn fallback (audioin.cpp selects it behind __ANDROID__).
     list(REMOVE_ITEM AUDIO_LIB
         src/core/libraries/audio/sdl_audio_in.cpp
-        src/core/libraries/audio/sdl_audio_out.cpp)
+        src/core/libraries/audio/sdl_audio_out.cpp
+        src/core/libraries/audio/cubeb_audio_out.cpp)
     list(APPEND AUDIO_LIB src/core/libraries/audio/null_audio_in.cpp)
 endif()
 
@@ -1550,7 +1552,7 @@ target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAlloca
 # mouse/camera and window come from Android-native paths (AndroidInputSource,
 # AAudio, ANativeWindow) with the shared TUs guarded by __ANDROID__.
 if(NOT BUILD_HOST_CORE)
-    target_link_libraries(shadps4 PRIVATE SDL3::SDL3)
+    target_link_libraries(shadps4 PRIVATE SDL3::SDL3 cubeb::cubeb)
 endif()
 target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc)
 target_link_libraries(shadps4 PRIVATE Freetype::Freetype)

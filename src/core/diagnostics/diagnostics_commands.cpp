@@ -41,6 +41,7 @@
 #include "spatial/debugbus/DebugCommandRegistry.h"
 #if !defined(__ANDROID__)
 #include "common/singleton.h"
+#include "core/libraries/audio/audioout.h"
 #include "input/controller.h"
 #endif
 
@@ -211,6 +212,14 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         });
 #endif
 #if !defined(__ANDROID__)
+    registry.Register("audio_out",
+        "Desktop audio output ports: status (backend queue, underruns, drops and the "
+        "per-channel output peak since the previous status)",
+        [](const std::vector<std::string>& args) -> std::string {
+            if (args.size() > 1 || (args.size() == 1 && args[0] != "status"))
+                return BadArguments();
+            return Libraries::AudioOut::DebugStatus();
+        });
     // Desktop counterpart of the Android `pad` command for unattended tests: the
     // window does not need focus. Buttons go to Player 1 like a physical press.
     registry.Register("desk_pad",

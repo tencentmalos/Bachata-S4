@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <string>
 
 #include "common/bit_field.h"
 #include "core/libraries/kernel/threads.h"
@@ -118,6 +119,9 @@ struct AudioFormatInfo {
 };
 
 AudioFormatInfo GetFormatInfo(OrbisAudioOutParamFormat format);
+
+// DebugBus `audio_out status`: one line per open port.
+std::string DebugStatus();
 
 struct PortOut {
     std::mutex mutex;

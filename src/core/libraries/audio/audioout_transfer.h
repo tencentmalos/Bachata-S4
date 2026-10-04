@@ -100,4 +100,31 @@ inline void PrepareAudioStereo(const AudioFormatInfo& info, u32 frames, const vo
         output[frame * 2 + 1] = right;
     }
 }
+// Guest 8ch to 7.1 in WAVE/cubeb order (FL FR FC LFE BL BR SL SR), same per-channel
+// gain and sanitising as PrepareAudioStereo. Guest logical order is L R C LFE Ls Rs
+// Le Re, with Le/Re the back pair; channel_layout maps the Std formats onto it.
+inline void PrepareAudioSurround71(const AudioFormatInfo& info, u32 frames, const void* input,
+                                   const std::array<int, 8>& volume, float slider,
+                                   std::span<float> output) noexcept {
+    if (info.num_channels != 8 || output.size() < size_t(frames) * 8) return;
+    static constexpr std::array<u32, 8> wave_to_guest{0, 1, 2, 3, 6, 7, 4, 5};
+    const float master = std::isfinite(slider) ? std::clamp(slider, 0.0f, 1.0f) : 0.0f;
+    std::array<float, 8> gains{};
+    for (u32 ch = 0; ch < 8; ++ch)
+        gains[ch] = std::clamp(volume[ch], 0, 32768) / 32768.0f * master;
+    for (u32 frame = 0; frame < frames; ++frame)
+        for (u32 out = 0; out < 8; ++out) {
+            const u32 ch = wave_to_guest[out];
+            const size_t index = size_t(frame) * 8 + info.channel_layout[ch];
+            float sample{};
+            if (info.is_float) std::memcpy(&sample, static_cast<const u8*>(input) + index * 4, 4);
+            else {
+                s16 integer{};
+                std::memcpy(&integer, static_cast<const u8*>(input) + index * 2, 2);
+                sample = integer / 32768.0f;
+            }
+            output[size_t(frame) * 8 + out] =
+                std::isfinite(sample) ? std::clamp(sample * gains[ch], -1.0f, 1.0f) : 0.0f;
+        }
+}
 } // namespace Libraries::AudioOut

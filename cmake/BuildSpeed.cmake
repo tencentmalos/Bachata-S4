@@ -69,7 +69,7 @@ set(SHADPS4_UNITY_EXCLUDE
 # Includes that bring in the Windows SDK: its own headers plus third-party headers
 # that include winsock/windows.h themselves.
 set(_shadps4_windows_include_regex
-    "#[ \t]*include[ \t]*[<\"]([Ww]indows|[Ww]in[Ss]ock2?|[Ww][Ss]2tcpip|[Ii]phlpapi|[Ss]hl[Oo]bj|[Ss]hellapi|[Dd]bg[Hh]elp|[Pp]sapi|winternl|afunix|[Mm][Ss][Ww][Ss]ock|[Ww]indef|[Ww]innt)\\.h[>\"]|#[ \t]*include[ \t]*[<\"](boost/asio|httplib\\.h|miniupnpc/|libusb)")
+    "#[ \t]*include[ \t]*[<\"]([Ww]indows|[Ww]in[Ss]ock2?|[Ww][Ss]2tcpip|[Ii]phlpapi|[Ss]hl[Oo]bj|[Ss]hellapi|[Dd]bg[Hh]elp|[Pp]sapi|winternl|afunix|[Mm][Ss][Ww][Ss]ock|[Ww]indef|[Ww]innt|[Oo]bj[Bb]ase)\\.h[>\"]|#[ \t]*include[ \t]*[<\"](boost/asio|httplib\\.h|miniupnpc/|libusb)")
 
 # Sets `out` to the subset of the given files that reach the Windows SDK through their
 # includes. Project headers are followed whether spelled with "" or <>, when they resolve

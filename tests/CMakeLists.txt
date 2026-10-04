@@ -14,6 +14,7 @@ set(TEST_TARGETS
     shadps4_ngs2_test
     shadps4_gcn_test
     shadps4_content_roots_test
+    shadps4_audio_transfer_test
 )
 
 set(SETTINGS_TEST_SOURCES
@@ -207,6 +208,8 @@ add_executable(shadps4_settings_test ${SETTINGS_TEST_SOURCES})
 add_executable(shadps4_ngs2_test ${NGS2_TEST_SOURCES})
 add_executable(shadps4_gcn_test ${GCN_TEST_SOURCES})
 add_executable(shadps4_content_roots_test ${CONTENT_ROOTS_TEST_SOURCES})
+# Header-only under test: the PCM preparation shared by the Oboe and cubeb backends.
+add_executable(shadps4_audio_transfer_test test_audio_transfer.cpp)
 
 foreach(t ${TEST_TARGETS})
     target_include_directories(${t} PRIVATE
@@ -245,6 +248,13 @@ target_link_libraries(shadps4_gcn_test PRIVATE
     SDL3::SDL3
     spatial::foundation_log
     half::half
+)
+
+target_link_libraries(shadps4_audio_transfer_test PRIVATE
+    GTest::gtest_main
+    fmt::fmt
+    magic_enum::magic_enum
+    Boost::headers
 )
 
 target_link_libraries(shadps4_content_roots_test PRIVATE

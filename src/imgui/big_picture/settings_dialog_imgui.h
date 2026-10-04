@@ -120,7 +120,7 @@ private:
     std::vector<std::string> languageOptions; // assigned from keys above
     const std::vector<std::string> fullscreenModeOptions = {"Windowed", "Fullscreen",
                                                             "Fullscreen (Borderless)"};
-    const std::vector<std::string> audioBackendOptions = {"SDL", "OpenAL"};
+    const std::vector<std::string> audioBackendOptions = {"SDL", "OpenAL", "cubeb"};
     const std::vector<std::string> presentModeOptions = {"Mailbox", "Fifo", "Immediate"};
     const std::vector<std::string> hideCursorOptions = {"Never", "Idle", "Always"};
     const std::vector<std::string> trophySideOptions = {"left", "right", "top", "bottom"};

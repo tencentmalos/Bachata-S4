@@ -8,6 +8,8 @@
 #include <memory>
 #include <stop_token>
 #include <span>
+#include <string>
+#include <vector>
 
 namespace Libraries::AudioOut {
 
@@ -29,6 +31,13 @@ public:
     }
 
     virtual void SetVolume(const std::array<int, 8>& ch_volumes) = 0;
+
+    // True when OutputChecked itself waits for the device to take the buffer (and keeps
+    // the nominal rate when there is no device), so the port thread runs no timer.
+    virtual bool PacesOutput() const { return false; }
+
+    // One line for DebugBus `audio_out status`; empty when the backend reports nothing.
+    virtual std::string DebugStatus() { return {}; }
 
     // Optional device-callback path. Prepare copies/converts a SHORT-LIVED
     // pinned input directly into caller-owned, preallocated stereo PCM. It must
@@ -65,6 +74,22 @@ class OpenALAudioOut final : public AudioOutBackend {
 public:
     std::unique_ptr<PortBackend> Open(PortOut& port) override;
 };
+
+#if !defined(__ANDROID__)
+class CubebHost;
+
+class CubebAudioOut final : public AudioOutBackend {
+public:
+    CubebAudioOut();
+    ~CubebAudioOut() override;
+    // False when no cubeb context could be created (no audio backend on this host).
+    bool Ready() const;
+    std::unique_ptr<PortBackend> Open(PortOut& port) override;
+
+private:
+    std::shared_ptr<CubebHost> host;
+};
+#endif
 
 #if defined(__ANDROID__)
 class OboeAudioOut final : public AudioOutBackend {

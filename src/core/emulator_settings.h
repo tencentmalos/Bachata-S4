@@ -45,6 +45,9 @@ enum class ConfigMode {
 enum AudioBackend : int {
     SDL,
     OpenAL,
+    // Desktop output through cubeb (WASAPI/PulseAudio/CoreAudio), as citron does on PC.
+    // Shares the SDL device-name settings; Android always uses Oboe.
+    Cubeb,
     // Add more backends as needed
 };
 
@@ -347,7 +350,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InputSettings, cursor_state, cursor_hide_time
 // Audio settings
 // -------------------------------
 struct AudioSettings {
-    Setting<u32> audio_backend{AudioBackend::SDL};
+    Setting<u32> audio_backend{AudioBackend::Cubeb};
     Setting<std::string> sdl_mic_device{"Default Device"};
     Setting<std::string> sdl_main_output_device{"Default Device"};
     Setting<std::string> sdl_padSpk_output_device{"Default Device"};

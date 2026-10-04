@@ -209,3 +209,8 @@
 	path = references/mesa-turnip-xr-fdm2
 	url = git@github.com:tencentmalos/mesa-mirror.git
 	branch = codex/turnip-xr-fdm2
+[submodule "externals/cubeb"]
+	path = externals/cubeb
+	url = https://github.com/tencentmalos/cubeb.git
+	shallow = true
+	branch = citron-submodule-42767df98ed0

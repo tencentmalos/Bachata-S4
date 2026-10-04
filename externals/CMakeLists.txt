@@ -86,6 +86,28 @@ if (NOT BUILD_HOST_CORE AND NOT TARGET SDL3::SDL3)
     add_subdirectory(sdl3)
 endif()
 
+# cubeb — desktop audio output, the backend citron uses on PC. The Android host keeps
+# Oboe. Its options are set in a function scope so they do not leak to other externals.
+function(shadps4_add_cubeb)
+    set(BUILD_SHARED_LIBS OFF)
+    set(BUILD_TESTS OFF)
+    set(BUILD_TOOLS OFF)
+    set(BUNDLE_SPEEX ON)
+    set(USE_SANITIZERS OFF)
+    add_subdirectory(cubeb EXCLUDE_FROM_ALL)
+endfunction()
+if (NOT BUILD_HOST_CORE AND NOT TARGET cubeb::cubeb)
+    shadps4_add_cubeb()
+    add_library(cubeb::cubeb ALIAS cubeb)
+    if (NOT MSVC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+        target_compile_options(speex PRIVATE -Wno-sign-compare)
+        target_compile_options(cubeb PRIVATE -Wno-implicit-const-int-float-conversion)
+    endif()
+    if (WIN32 AND CMAKE_C_COMPILER_ID MATCHES "Clang")
+        target_compile_options(cubeb PRIVATE -Wno-int-to-void-pointer-cast) # cubeb_winmm.c
+    endif()
+endif()
+
 # vulkan-headers
 if (NOT TARGET Vulkan::Headers)
     set(VULKAN_HEADERS_ENABLE_MODULE OFF)

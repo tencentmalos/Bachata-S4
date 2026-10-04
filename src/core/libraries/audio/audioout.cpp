@@ -5,7 +5,10 @@
 #include <mutex>
 #include <shared_mutex>
 #include <stop_token>
+#include <string>
 #include <thread>
+#include <utility>
+#include <vector>
 #include <fmt/format.h>
 #include <magic_enum/magic_enum.hpp>
 
@@ -70,6 +73,26 @@ AudioFormatInfo GetFormatInfo(const OrbisAudioOutParamFormat format) {
     const auto index = static_cast<u32>(format);
     ASSERT_MSG(index < format_infos.size(), "Unknown audio format {}", index);
     return format_infos[index];
+}
+
+std::string DebugStatus() {
+    std::vector<std::pair<int, std::shared_ptr<PortOut>>> ports;
+    {
+        std::shared_lock read_lock{port_table_mutex};
+        for (int i = 0; i < ORBIS_AUDIO_OUT_NUM_PORTS; ++i) {
+            if (port_table[i]) {
+                ports.emplace_back(i, port_table[i]);
+            }
+        }
+    }
+    std::string out;
+    for (const auto& [id, port] : ports) {
+        out += fmt::format("port {} {} {} ch {} frames {} Hz: {}\n", id,
+                           magic_enum::enum_name(port->type), port->format_info.num_channels,
+                           port->buffer_frames, port->sample_rate,
+                           port->impl ? port->impl->DebugStatus() : std::string{});
+    }
+    return out.empty() ? "no open audio ports" : out;
 }
 
 /*
@@ -162,16 +185,46 @@ void AdjustVol() {
     }
 }
 
+// The backend waits for its device to take each buffer, so the device clock paces the
+// port and the guest blocked in sceAudioOutOutput, as on PS4 hardware.
+static void DevicePacedOutput(PortOut& port, const std::stop_token& stop) {
+    while (true) {
+        {
+            std::unique_lock lock{port.mutex};
+            if (!port.output_cv.wait(lock, stop, [&] { return port.output_ready; })) {
+                return;
+            }
+        }
+        // sceAudioOutOutput leaves output_buffer alone while output_ready is set, and
+        // sceAudioOutClose frees it only after joining this thread.
+        const int result = port.impl->OutputChecked(port.output_buffer, stop);
+        {
+            std::unique_lock lock{port.mutex};
+            port.output_ready = false;
+            port.last_output_time = Kernel::sceKernelGetProcessTime();
+        }
+        port.output_cv.notify_all();
+        if (result < 0 && stop.stop_requested()) {
+            return;
+        }
+    }
+}
+
 static void AudioOutputThread(std::shared_ptr<PortOut> port, const std::stop_token& stop) {
     {
         const auto thread_name = fmt::format("shadPS4:AudioOutputThread:{}", fmt::ptr(port.get()));
         Common::SetCurrentThreadName(thread_name.c_str());
     }
 
+    const bool device_paced = port->impl && port->impl->PacesOutput();
+    if (device_paced) {
+        DevicePacedOutput(*port, stop);
+    }
+
     Common::AccurateTimer timer(
         std::chrono::nanoseconds(1000000000ULL * port->buffer_frames / port->sample_rate));
 
-    while (true) {
+    while (!device_paced) {
         timer.Start();
 
         {
@@ -222,7 +275,17 @@ s32 PS4_SYSV_ABI sceAudioOutInit() {
 #if defined(__ANDROID__)
         audio = std::make_unique<OboeAudioOut>();
 #else
-        audio = std::make_unique<SDLAudioOut>();
+        if (EmulatorSettings.GetAudioBackend() == AudioBackend::Cubeb) {
+            auto cubeb = std::make_unique<CubebAudioOut>();
+            if (cubeb->Ready()) {
+                audio = std::move(cubeb);
+            } else {
+                LOG_ERROR(Lib_AudioOut, "cubeb is unavailable, falling back to SDL audio");
+            }
+        }
+        if (!audio) {
+            audio = std::make_unique<SDLAudioOut>();
+        }
 #endif
     }
 
@@ -589,6 +652,8 @@ s32 PS4_SYSV_ABI sceAudioOutOutput(s32 handle, void* ptr) {
             samples_sent = port->buffer_frames * port->format_info.num_channels;
         }
     }
+    // A device-paced port thread waits for the buffer instead of polling on a timer.
+    port->output_cv.notify_all();
 
     return samples_sent;
 }
@@ -693,6 +758,10 @@ s32 PS4_SYSV_ABI sceAudioOutOutputs(OrbisAudioOutOutputParam* param, u32 num) {
             std::memcpy(ports[i]->output_buffer, param[i].ptr, ports[i]->BufferSize());
             ports[i]->output_ready = true;
         }
+    }
+    locks.clear();
+    for (const auto& port : ports) {
+        port->output_cv.notify_all();
     }
 
     return buffer_frames;
