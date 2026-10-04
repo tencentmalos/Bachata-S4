@@ -6,6 +6,8 @@
 - [`profiling/`](profiling/README.md)：角色任务与队列锁探针。
 - [`symbols/`](symbols/index.json)：统一符号索引。
 - `sixty_fps.*`、`frame_manager.h`：60 FPS，C++ site 处理函数（sdk_version 2）。
+- `sound_reload.*`：音库重载修复（`bloodborne_sound_fix_v1`，sdk_version 1）：选用户后重载主音库时
+  玩家/武器/菜单/音乐声音可能丢失（60 FPS 下更常见）；释放请求排队时暂缓同名音库的预载与加载。
 
 ## 60 FPS（`bloodborne_60fps_v1`）
 

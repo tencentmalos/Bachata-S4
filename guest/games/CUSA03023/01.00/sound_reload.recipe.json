@@ -1,0 +1,72 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "bloodborne_sound_fix_v1",
+  "name": "Sound bank reload fix",
+  "description": "Keeps the player, weapon, menu and music sounds when the game reloads its main sound banks after choosing the user (they could stay silent, mostly at 60 FPS).",
+  "title": "CUSA03023",
+  "module": "eboot.bin",
+  "module_sha256": "6764938b23539d29c936bca9880fc4a774e7b0099ce31c7e8c4b0f8bd0befb80",
+  "sources": [
+    "sound_reload.cpp"
+  ],
+  "bindings": [
+    {
+      "name": "mo_system_slot",
+      "kind": "data",
+      "offset": 90996560,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "void*",
+      "evidence": "eboot+0x56c7f50 (RW data): MagicOrchestra FMOD system singleton pointer, read by its getter eboot+0x27f0740 (lazily created at boot, before any sound bank exists). The object's vtable is eboot+0x52cfae0; slot +0x330 (eboot+0x27f65c0) checks under the system's lock whether a bank with the given name is registered."
+    },
+    {
+      "name": "mo_bank_table_has_name",
+      "kind": "function",
+      "offset": 41798432,
+      "expected": "554889e541574156415541545350",
+      "prototype": "bool mo_bank_table_has_name(void* table, const char* name)",
+      "evidence": "eboot+0x27dcb20: MagicOrchestra bank table (system+0x220) lookup. Under the table lock (+0xa8) walks the live bank handles (+0x10..+0x18, slots at +0x38) and compares each bank's name (bank vtable +0xb0) with `name`; returns true on a match whatever the bank state. eboot+0x27d5b30 calls it with system+0x220 before loading a bank."
+    }
+  ],
+  "hooks": [
+    {
+      "name": "mo_release_bank_by_name",
+      "offset": 41771280,
+      "expected": "554889e55350",
+      "replacement": "patch_MoReleaseBankByName",
+      "original": "original_MoReleaseBankByName",
+      "prototype": "int original_MoReleaseBankByName(const char* name)",
+      "evidence": "eboot+0x27d6110: MagicOrchestra release-bank-by-name request. Returns 2 when the system is not initialised, else queues a type-8 'SMOM' command through system vtable +0x128 and returns 0 (queued) or 6. Called by the sound bank resource destructor eboot+0x1f86bc0 with the bank name. Prologue push rbp / mov rbp,rsp / push rbx / push rax; no branch target inside."
+    },
+    {
+      "name": "sound_bank_load_project",
+      "offset": 33061216,
+      "expected": "554889e55350",
+      "replacement": "patch_SoundBankLoadProject",
+      "original": "original_SoundBankLoadProject",
+      "prototype": "void original_SoundBankLoadProject(unsigned char* resource, void* step)",
+      "evidence": "eboot+0x1f87960: 'load project' state of the sound bank resource state machine, called by the step function eboot+0x1f89320 through its state table with (this, step argument). Calls eboot+0x27d5b30, which returns 1 without loading while a bank with the name at resource+0x128 (std::string, capacity at +0x140) is registered or in the bank table, then advances the state. Returning without calling it keeps the state, so the step runs again on the next update. Prologue push rbp / mov rbp,rsp / push rbx / push rax."
+    },
+    {
+      "name": "sound_bank_preload_fsb",
+      "offset": 33059824,
+      "expected": "554889e54157",
+      "replacement": "patch_SoundBankPreloadFsb",
+      "original": "original_SoundBankPreloadFsb",
+      "prototype": "void original_SoundBankPreloadFsb(unsigned char* resource, void* step)",
+      "evidence": "eboot+0x1f873f0: 'preload FSB' state of the same state machine (this = resource, name at +0x128): creates the MagicOrchestra FSB object and registers it with FMOD EventSystem::preloadFSB by file name (eboot+0x27d68b8 -> eboot+0x280f6e5), then advances. Runs before the 'load project' state. Prologue push rbp / mov rbp,rsp / push r15."
+    }
+  ],
+  "logs": [
+    {
+      "id": 61,
+      "name": "sound_reload_held_back"
+    },
+    {
+      "id": 62,
+      "name": "sound_reload_held_ms"
+    }
+  ]
+}
