@@ -93,6 +93,7 @@
 #include "core/host_runtime/guest_sync_abi.h"
 #include "core/host_runtime/guest_sync_arena.h"
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_wake_proxy.h"
 #include "core/host_runtime/guest_cpu_placement.h"
 #include "core/host_runtime/guest_system_service.h"
 #include "core/host_runtime/guest_trophy.h"
@@ -789,6 +790,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char gnm_fastpath_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.gnm_fastpath", gnm_fastpath_property);
             gnm_fastpath_enabled = std::string_view(gnm_fastpath_property) != "0";
+            char wake_proxy_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.wake_proxy", wake_proxy_property);
+            WakeProxy::Enable(std::string_view(wake_proxy_property) != "0");
             char affinity_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.guest_affinity", affinity_property);
             GuestPlacement::Enable(std::string_view(affinity_property) != "0");

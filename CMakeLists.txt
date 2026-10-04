@@ -1783,6 +1783,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_storage_hle.cpp
         src/core/host_runtime/guest_runtime.cpp
         src/core/host_runtime/guest_sync_metrics.cpp
+        src/core/host_runtime/guest_wake_proxy.cpp
         src/core/host_runtime/guest_cpu_placement.cpp
         src/core/host_runtime/guest_auto_tag.cpp
         src/core/host_runtime/guest_patch.cpp
@@ -1986,7 +1987,8 @@ if(BUILD_HOST_CORE)
         target_compile_definitions(gpu_async_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
         target_link_libraries(host_dlopen_smoke PRIVATE dl)
-        foreach(probe guest_native_mutex_tests guest_rwlock_tests guest_rwlock_diagnostics_tests)
+        foreach(probe guest_native_mutex_tests guest_rwlock_tests guest_rwlock_diagnostics_tests
+                      guest_wake_proxy_tests)
             add_executable(${probe} tests/host_runtime/${probe}.cpp)
             target_link_libraries(${probe} PRIVATE shadps4_host)
             target_include_directories(${probe} PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

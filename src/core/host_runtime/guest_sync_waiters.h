@@ -14,6 +14,7 @@
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_wake_proxy.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
@@ -115,13 +116,14 @@ public:
             }
         }
         // Notify after releasing the bucket lock so the woken thread does not
-        // immediately block on it again.
+        // immediately block on it again; through the wake proxy when it is on.
         for (const auto& waiter : selected) {
             {
                 std::lock_guard lock(waiter->park);
                 waiter->woken = true;
             }
-            waiter->parked.notify_all();
+            if (!WakeProxy::Post(&NotifyParked, waiter))
+                waiter->parked.notify_all();
         }
         return selected.size();
     }
@@ -139,6 +141,9 @@ private:
         std::condition_variable_any parked;
         bool woken{};
     };
+    static void NotifyParked(void* waiter) {
+        static_cast<Waiter*>(waiter)->parked.notify_all();
+    }
     struct AddressBucket {
         mutable std::mutex guard;
         std::vector<std::shared_ptr<Waiter>> waiters;

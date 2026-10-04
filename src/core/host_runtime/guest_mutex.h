@@ -18,6 +18,7 @@
 #include "core/host_runtime/guest_clock.h"
 #include "core/host_runtime/guest_sync_abi.h"
 #include "core/host_runtime/guest_sync_waiters.h"
+#include "core/host_runtime/guest_wake_proxy.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
@@ -506,6 +507,9 @@ public:
             return POSIX_EBUSY;
         return CondCreate(slot, clock_id);
     }
+    static void NotifyCondWaiter(void* waiter) {
+        static_cast<Waiter*>(waiter)->changed.notify_one();
+    }
     int CondNotify(u64 slot, bool broadcast, u64 target_owner = 0) {
         std::shared_ptr<Cond> state;
         u64 addr{};
@@ -539,7 +543,8 @@ public:
         // neither wake every owner nor accidentally wake an unselected one.
         // `notified` was published under the condition guard; notifying after
         // releasing it keeps the woken waiter from blocking on that guard.
-        for (const auto& waiter : selected) waiter->changed.notify_one();
+        for (const auto& waiter : selected)
+            if (!WakeProxy::Post(&NotifyCondWaiter, waiter)) waiter->changed.notify_one();
         return target_owner && selected.empty() ? POSIX_EPERM : 0;
     }
     int CondDestroy(u64 slot) {

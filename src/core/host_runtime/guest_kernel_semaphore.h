@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_wake_proxy.h"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -129,8 +130,12 @@ class GuestKernelSemaphore {
             it = sem.waiters.erase(it);
         }
     }
+    static void NotifyParked(void* waiter) {
+        static_cast<Waiter*>(waiter)->parked.notify_one();
+    }
     // Releases the domain mutex (if still held) and only then notifies the
-    // selected waiters. Runs on every exit path, including Failure throws.
+    // selected waiters, through the wake proxy when it is on. Runs on every
+    // exit path, including Failure throws.
     struct DeferredWakes {
         std::unique_lock<std::mutex>& lock;
         Wakes wakes;
@@ -138,7 +143,8 @@ class GuestKernelSemaphore {
             if (lock.owns_lock())
                 lock.unlock();
             for (auto& waiter : wakes)
-                waiter->parked.notify_one();
+                if (!WakeProxy::Post(&NotifyParked, waiter))
+                    waiter->parked.notify_one();
         }
     };
 
