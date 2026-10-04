@@ -24,6 +24,7 @@
 #include "imgui/notifications_layer.h"
 #include "imgui/renderer/imgui_core.h"
 #include "spatial/imgui/VulkanRenderer.hpp"
+#include "common/performance_hint.h"
 #include "imgui/shadnet_notifications_layer.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/renderdoc.h"
@@ -1700,6 +1701,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
     free_frame(presented);
     if (!is_reusing_frame && is_game_frame) {
         DebugState.IncFlipFrameNum();
+        Common::PerformanceHint::NoteGameFrame();
     }
     return presented;
 }

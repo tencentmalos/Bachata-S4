@@ -13,6 +13,7 @@
 #include "video_core/renderer_vulkan/openxr/cinema_environment.h"
 #endif
 #include "common/path_util.h"
+#include "common/performance_hint.h"
 #include "common/profiler.h"
 #include "common/thread.h"
 #include "common/gpu_timing.h"
@@ -368,6 +369,11 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("upload_diag",
         "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off | raw_sync on|off | raw_copy on|off | dma_bounds on|off | depth_copy maint8|buffer | stream_host on|off | stream_dma on|off | texture_bind_cache on|off",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
+
+    registry.Register("perf_hint",
+        "Android dynamic performance hint session over chosen threads, fed with the game-frame "
+        "interval (default off): on guest|<tid>,<tid>... [target_ms] | off | status",
+        [](const std::vector<std::string>& args) { return Common::PerformanceHint::Command(args); });
 
     registry.Register("page_heat",
         "Per-page buffer uploads from CPU writes and resident lookups per frame (default off): "
