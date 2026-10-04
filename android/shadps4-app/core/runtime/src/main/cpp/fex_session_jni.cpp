@@ -25,7 +25,9 @@
 // because it holds no raw runtime pointer and performs no join itself.
 
 #include <jni.h>
+#include <nlohmann/json.hpp>
 #include "core/emulator_settings.h"
+#include "core/host_runtime/guest_patch_format.h"
 #include "core/libraries/move/move.h"
 #include "video_core/renderer_vulkan/openxr/runtime.h"
 #include "core/file_sys/fs.h"
@@ -602,6 +604,57 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetSilentDialogs(
     JNIEnv*, jobject, jboolean enabled) {
     EmulatorSettings.SetGuestDialogsSilent(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetGuestPatches(
+    JNIEnv* env, jobject, jobjectArray names) {
+    std::vector<std::string> list;
+    try {
+        const jsize count = names ? env->GetArrayLength(names) : 0;
+        for (jsize i = 0; i < count; ++i) {
+            auto* item = static_cast<jstring>(env->GetObjectArrayElement(names, i));
+            if (!item) continue;
+            if (const char* chars = env->GetStringUTFChars(item, nullptr)) {
+                list.emplace_back(chars);
+                env->ReleaseStringUTFChars(item, chars);
+            }
+            env->DeleteLocalRef(item);
+        }
+    } catch (...) {
+        list.clear(); // Never unwind across JNI; an unreadable selection installs nothing.
+    }
+    EmulatorSettings.SetGuestPatches(list);
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeListGuestPatches(
+    JNIEnv* env, jobject, jstring directory, jstring title) {
+    const auto read = [env](jstring value) {
+        std::string out;
+        if (const char* chars = value ? env->GetStringUTFChars(value, nullptr) : nullptr) {
+            out = chars;
+            env->ReleaseStringUTFChars(value, chars);
+        }
+        return out;
+    };
+    nlohmann::json result{{"packages", nlohmann::json::array()}, {"skipped", nlohmann::json::array()}};
+    try {
+        const auto listing = Core::GuestPatch::ListPackages(read(directory), read(title));
+        for (const auto& p : listing.packages) {
+            result["packages"].push_back({{"name", p.name}, {"id", p.id}, {"label", p.display_name},
+                                          {"description", p.description}, {"module", p.module},
+                                          {"module_sha256", p.module_sha256},
+                                          {"conflicts", p.conflicts}});
+        }
+        result["skipped"] = listing.skipped;
+    } catch (const std::exception& e) {
+        result["skipped"].push_back(e.what());
+    }
+    // ASCII with escapes suits NewStringUTF's modified UTF-8; invalid UTF-8 from a file
+    // name is replaced rather than thrown across JNI.
+    return env->NewStringUTF(
+        result.dump(-1, ' ', true, nlohmann::json::error_handler_t::replace).c_str());
 }
 
 extern "C" JNIEXPORT void JNICALL

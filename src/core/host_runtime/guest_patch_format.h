@@ -9,8 +9,10 @@
 #include <filesystem>
 #include <functional>
 #include <map>
+#include <optional>
 #include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -72,6 +74,8 @@ struct Binding {
 };
 struct Package {
     std::string id, title, module, module_sha256, executable_sha256, digest;
+    // Optional, for patch lists: display name and what the package does.
+    std::string name, description;
     uint64_t sdk_version{1};
     std::vector<Segment> segments;
     std::map<std::string, uint64_t> exports;
@@ -128,4 +132,44 @@ using SdkResolver =
 // permissions beforehand; this checks geometry, relocation and overlaps.
 Plan BuildPlan(const Package&, const ModuleIdentity&, uint64_t image, uint64_t pool,
                const std::map<std::string, uint64_t>& bindings, const SdkResolver&);
+
+// Module bytes a package changes (hooks, sites, code patches) or calls directly
+// (function bindings), as offsets in its module. Two packages conflict when one
+// changes bytes the other changes or calls: the later one would find a foreign
+// jump instead of its preimage, or call code that no longer is the original.
+struct CodeRange {
+    uint64_t begin{}, end{};
+    bool changes{};
+    std::string what;
+};
+// `planned`: the package's installed hooks, whose relocated instructions can
+// extend past the declared preimage.
+std::vector<CodeRange> PackageCodeRanges(const Package&, std::span<const PlannedHook> planned = {});
+// The first overlap where either side changes the bytes, as "<a> overlaps <b>".
+std::optional<std::string> FindCodeOverlap(std::span<const CodeRange> a,
+                                           std::span<const CodeRange> b);
+
+// Packages for a game live in <user>/guest_patches/<TITLE_ID>/<name>.json; the per-game
+// selection lists file stems in install order. At most kMaxPackages are installed.
+inline constexpr size_t kMaxPackages = 8;
+std::filesystem::path PackageDirectory(const std::filesystem::path& user_dir,
+                                       std::string_view title);
+// A selection entry is a bare file stem: no separators, no relative components.
+bool ValidPackageName(std::string_view name);
+struct PackageInfo {
+    std::string name;          // file stem, the value stored in the selection
+    std::string id;            // package id
+    std::string module;        // target module basename
+    std::string module_sha256; // module the package was built for
+    std::string display_name;  // package `name`, else the id
+    std::string description;   // package `description`, may be empty
+    // Other listed packages changing code this one changes or calls: of two selected
+    // packages that conflict, only the first is installed.
+    std::vector<std::string> conflicts;
+};
+struct PackageListing {
+    std::vector<PackageInfo> packages; // by name
+    std::vector<std::string> skipped;  // "<file>: <reason>" for invalid or foreign files
+};
+PackageListing ListPackages(const std::filesystem::path& directory, std::string_view title);
 } // namespace Core::GuestPatch

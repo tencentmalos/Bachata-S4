@@ -136,6 +136,10 @@ Package Package::Load(const std::filesystem::path& file) {
     Check(p.module == std::filesystem::path(p.module).filename(), "module must be a basename");
     p.module_sha256 = Text(j.at("module_sha256"));
     Check(Digest(p.module_sha256), "invalid module SHA256");
+    if (j.contains("name"))
+        p.name = Text(j.at("name"), 96);
+    if (j.contains("description"))
+        p.description = Text(j.at("description"), 1024);
     if (j.contains("executable_sha256")) {
         p.executable_sha256 = Text(j.at("executable_sha256"));
         Check(Digest(p.executable_sha256), "invalid executable SHA256");
@@ -406,6 +410,83 @@ Plan BuildPlan(const Package& p, const ModuleIdentity& module, uint64_t image, u
     for (const auto& [name, off] : p.exports)
         plan.exports.emplace(name, image + off);
     return plan;
+}
+
+std::vector<CodeRange> PackageCodeRanges(const Package& p, std::span<const PlannedHook> planned) {
+    std::vector<CodeRange> ranges;
+    for (const auto& h : p.hooks) {
+        uint64_t size = h.expected.size();
+        for (const auto& e : planned) {
+            if (e.hook.name == h.name)
+                size = std::max<uint64_t>(size, e.saved.size()); // relocated instructions
+        }
+        ranges.push_back({h.offset, h.offset + size, true,
+                          (h.kind == HookKind::Site ? "site " : "hook ") + h.name});
+    }
+    for (const auto& c : p.patches)
+        ranges.push_back({c.offset, c.offset + c.expected.size(), true, "code patch " + c.name});
+    for (const auto& b : p.bindings) {
+        if (b.kind == "function")
+            ranges.push_back({b.offset, b.offset + b.size, false, "function binding " + b.name});
+    }
+    return ranges;
+}
+
+std::optional<std::string> FindCodeOverlap(std::span<const CodeRange> a,
+                                           std::span<const CodeRange> b) {
+    for (const auto& x : a) {
+        for (const auto& y : b) {
+            if ((x.changes || y.changes) && x.begin < y.end && y.begin < x.end)
+                return x.what + " overlaps " + y.what;
+        }
+    }
+    return std::nullopt;
+}
+
+std::filesystem::path PackageDirectory(const std::filesystem::path& user_dir,
+                                       std::string_view title) {
+    return user_dir / "guest_patches" / std::string(title);
+}
+
+bool ValidPackageName(std::string_view name) {
+    return !name.empty() && name.size() <= 96 && name != "." && name != ".." &&
+           name.find_first_of("/\\:") == std::string_view::npos;
+}
+
+PackageListing ListPackages(const std::filesystem::path& directory, std::string_view title) {
+    PackageListing listing;
+    std::vector<std::vector<CodeRange>> ranges;
+    std::error_code ec;
+    for (const auto& entry : std::filesystem::directory_iterator(directory, ec)) {
+        const auto& path = entry.path();
+        const auto name = path.stem().string();
+        if (path.extension() != ".json" || !entry.is_regular_file(ec))
+            continue;
+        try {
+            Check(ValidPackageName(name), "invalid file name");
+            auto package = Package::Load(path);
+            Check(package.title == title, "package is for " + package.title);
+            listing.packages.push_back({name, package.id, package.module, package.module_sha256,
+                                        package.name.empty() ? package.id : package.name,
+                                        package.description, {}});
+            ranges.push_back(PackageCodeRanges(package));
+        } catch (const std::exception& e) {
+            listing.skipped.push_back(path.filename().string() + ": " + e.what());
+        }
+    }
+    auto& packages = listing.packages;
+    for (size_t i = 0; i < packages.size(); ++i) {
+        for (size_t j = 0; j < packages.size(); ++j) {
+            if (i != j && packages[i].module == packages[j].module &&
+                packages[i].module_sha256 == packages[j].module_sha256 &&
+                FindCodeOverlap(ranges[i], ranges[j])) {
+                packages[i].conflicts.push_back(packages[j].name);
+            }
+        }
+    }
+    std::sort(packages.begin(), packages.end(),
+              [](const PackageInfo& a, const PackageInfo& b) { return a.name < b.name; });
+    return listing;
 }
 
 } // namespace Core::GuestPatch

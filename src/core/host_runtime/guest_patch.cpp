@@ -167,9 +167,10 @@ struct Manager::Impl {
     std::vector<DebugModule> modules;
     std::vector<std::pair<Binding, GuestRange>> bindings;
     std::map<std::string, uint64_t> exports;
+    std::vector<CodeRange> ranges;
     std::string id, digest;
     mutable std::mutex mutex;
-    bool attempted{}, installed{}, enabled{}, failed{};
+    bool attempted{}, modified{}, installed{}, enabled{}, failed{};
     uint64_t switches{}, image{}, pool{}, pool_size{};
     Impl(CpuContext& c, GuestAddressSpace& s, Hle::HleCallRegistry& r, CounterSink out)
         : cpu(c), space(s), registry(r), sink(std::move(out)) {}
@@ -248,6 +249,7 @@ void Manager::Install(const Package& p, const ModuleIdentity& module, const Quie
             x.bindings.push_back({b, {GuestAddress{address}, b.size}});
             Check(bound.emplace(b.name, address).second, "duplicate guest binding");
         }
+        x.modified = true;
         const auto image = allocate(p.image_size, module.base + Align(module.size));
         const auto [code_size, pool_size] = PoolGeometry(p);
         const auto pool = allocate(pool_size, image.base + image.size);
@@ -277,6 +279,7 @@ void Manager::Install(const Package& p, const ModuleIdentity& module, const Quie
             });
         x.entries = std::move(plan.hooks);
         x.patches = std::move(plan.patches);
+        x.ranges = PackageCodeRanges(p, x.entries);
         // Prepare resident code/data first. No guest has run; any failure aborts
         // Prepare. Publication failure retains the address-space poison.
         Publish(x.space, token, image.base, plan.payload);
@@ -371,6 +374,25 @@ void Manager::Uninstall(const QuiescenceToken& token) {
 uint64_t Manager::Export(std::string_view name) const {
     std::scoped_lock lock(impl->mutex);
     return impl->exports.at(std::string(name));
+}
+bool Manager::Modified() const {
+    std::scoped_lock lock(impl->mutex);
+    return impl->modified;
+}
+std::string Manager::Id() const {
+    std::scoped_lock lock(impl->mutex);
+    return impl->id;
+}
+std::vector<std::string> Manager::HookNames() const {
+    std::scoped_lock lock(impl->mutex);
+    std::vector<std::string> names;
+    for (const auto& e : impl->entries)
+        names.push_back(e.hook.name);
+    return names;
+}
+std::vector<CodeRange> Manager::CodeRanges() const {
+    std::scoped_lock lock(impl->mutex);
+    return impl->ranges;
 }
 std::vector<DebugModule> Manager::DebugModules() const {
     std::scoped_lock lock(impl->mutex);

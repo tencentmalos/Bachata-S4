@@ -45,6 +45,13 @@ object NativeFexSession {
     external fun nativeSetTextureQuality(quality: Int)
     external fun nativeSetInternalScalePercent(percent: Float)
     external fun nativeSetConsoleLanguage(language: Int)
+    /** Guest function packages for the next session: file stems in host/guest_patches/<TITLE_ID>/. */
+    external fun nativeSetGuestPatches(names: Array<String>)
+    /**
+     * Packages in [directory] built for [titleId], as JSON
+     * `{"packages":[{name,id,label,description,module,module_sha256,conflicts}],"skipped":[...]}`.
+     */
+    external fun nativeListGuestPatches(directory: String, titleId: String): String
 
     external fun nativeIdentity(): String
 

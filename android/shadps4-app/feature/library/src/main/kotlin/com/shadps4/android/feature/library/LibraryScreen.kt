@@ -140,23 +140,43 @@ fun LibraryScreen(
                     catch (_: Exception) { emptyList() }
                 }
             }
+            // Guest function packages of this game, listed by the native loader (the same
+            // parser and conflict check the session uses).
+            val patches = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    com.shadps4.android.runtime.settings.GuestPatchCatalog.parse(
+                        com.shadps4.android.runtime.session.NativeFexSession.nativeListGuestPatches(
+                            com.shadps4.android.runtime.settings.GuestPatches.directory(context.filesDir, id).path, id))
+                }.getOrElse { emptyList() }
+            }
             launchOptions = GameLaunchOptions(id, loaded = true, psvr = display.forcedByPsvr,
-                global = global, game = profile, outputExtents = outputExtents.orEmpty())
+                global = global, game = profile, outputExtents = outputExtents.orEmpty(), patches = patches)
         } catch (e: kotlinx.coroutines.CancellationException) { throw e }
         catch (e: Exception) { launchOptions = launchOptions.copy(error = e.message ?: "Cannot read launch settings") }
     }
-    LaunchedEffect(launchOptions) {
-        viewModel.setLaunchOptionCount(if (launchOptions.ready) launchOptions.specs().size else 0)
+    LaunchedEffect(launchOptions, state.launchSubPanel) {
+        viewModel.setLaunchOptionCount(if (launchOptions.ready) launchOptions.rowCount(state.launchSubPanel) else 0)
     }
     LaunchedEffect(viewModel) {
         viewModel.adjustLaunchOption.collect { (index, offset) ->
-            if (launchOptions.ready) {
-                val spec = launchOptions.specs().getOrNull(index) ?: return@collect
-                val choices = spec.choices
-                val current = choices.indexOf(launchOptions.value(spec))
-                val next = Math.floorMod(current + offset, choices.size)
-                launchOptions = launchOptions.select(spec, choices[next])
+            if (!launchOptions.ready) return@collect
+            if (viewModel.state.value.launchSubPanel) {
+                launchOptions.patchChoices().getOrNull(index)?.let {
+                    launchOptions = launchOptions.togglePatch(it.name)
+                }
+                return@collect
             }
+            val specs = launchOptions.specs()
+            if (index == specs.size) {
+                // Guest Patches row: Cross opens its panel.
+                if (offset == 0) viewModel.openLaunchSubPanel()
+                return@collect
+            }
+            val spec = specs.getOrNull(index) ?: return@collect
+            val choices = spec.choices
+            val current = choices.indexOf(launchOptions.value(spec))
+            val next = Math.floorMod(current + if (offset == 0) 1 else offset, choices.size)
+            launchOptions = launchOptions.select(spec, choices[next])
         }
     }
     val importProgress by ImportManager.progress.collectAsState()
@@ -475,6 +495,13 @@ fun LibraryScreen(
         onLaunch = onLaunchWithTracking,
         launchOptions = launchOptions,
         onLaunchOption = { spec, choice -> launchOptions = launchOptions.select(spec, choice) },
+        onPatch = { action ->
+            when (action) {
+                PatchAction.Open -> viewModel.openLaunchSubPanel()
+                PatchAction.Close -> viewModel.closeLaunchSubPanel()
+                is PatchAction.Toggle -> launchOptions = launchOptions.togglePatch(action.name)
+            }
+        },
         onRequestDelete = { gameToDelete = it },
         onConfirmDelete = { id ->
             scope.launch {
@@ -509,6 +536,7 @@ fun LibraryContent(
     onAddPkgs: (String, String) -> Unit,
     launchOptions: GameLaunchOptions = GameLaunchOptions(),
     onLaunchOption: (com.shadps4.android.runtime.settings.RuntimeSettingSpec, String) -> Unit = { _, _ -> },
+    onPatch: (PatchAction) -> Unit = {},
 ) {
     val selected = state.games.firstOrNull { it.id == state.selectedGameId }
     val context = LocalContext.current
@@ -850,6 +878,8 @@ fun LibraryContent(
                             launchOptions = launchOptions,
                             launchOptionIndex = state.launchOptionIndex,
                             onLaunchOption = onLaunchOption,
+                            patchPanel = state.launchSubPanel,
+                            onPatch = onPatch,
                             onCancel = { onShowDetails(null) },
                             onOpenGameSettings = {
                                 onShowDetails(null)
@@ -1366,6 +1396,8 @@ private fun GlassBottomSheet(
     launchOptions: GameLaunchOptions,
     launchOptionIndex: Int,
     onLaunchOption: (com.shadps4.android.runtime.settings.RuntimeSettingSpec, String) -> Unit,
+    patchPanel: Boolean,
+    onPatch: (PatchAction) -> Unit,
     onCancel: () -> Unit,
     onOpenGameSettings: () -> Unit,
     onRequestDelete: () -> Unit,
@@ -1425,7 +1457,7 @@ private fun GlassBottomSheet(
                             textAlign = TextAlign.Start,
                             horizontalAlignment = Alignment.Start,
                         )
-                        GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption)
+                        GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption, patchPanel, onPatch)
                         GameDetailsActions(
                             onLaunch = onLaunch,
                             launchEnabled = launchOptions.ready,
@@ -1458,7 +1490,7 @@ private fun GlassBottomSheet(
                         textAlign = TextAlign.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     )
-                    GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption)
+                    GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption, patchPanel, onPatch)
                 }
                 GameDetailsActions(
                     onLaunch = onLaunch,

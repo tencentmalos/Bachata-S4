@@ -146,6 +146,17 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetSilentDialogs(silentDialogs)
             Log.i(TAG, "Guest silent dialogs=$silentDialogs")
+            val guestPatches = runCatching {
+                com.shadps4.android.runtime.settings.GuestPatches.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid guest patch selection, installing none", it)
+                emptyList()
+            }
+            NativeFexSession.nativeSetGuestPatches(guestPatches.toTypedArray())
+            Log.i(TAG, "Guest patches=$guestPatches")
             val disableMsaa = runCatching {
                 com.shadps4.android.runtime.settings.ForceDisableMsaa.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),

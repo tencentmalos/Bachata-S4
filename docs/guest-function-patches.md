@@ -12,25 +12,50 @@ python3 tools/guest-functions/build.py \
   --clang "$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang" \
   --recipe guest/games/CUSA50828/01.08/fmod_studio.recipe.json \
   --output build/my-guest-patch
-scripts/android/guest-patch SERIAL deploy build/my-guest-patch/patch.json
-# 正常 Stop 当前 Session，然后启动下一轮。deploy 不热写当前游戏。
+scripts/android/guest-patch SERIAL install build/my-guest-patch/patch.json --name my_patch --select
+# 正常 Stop 当前 Session，然后启动下一轮。安装与选择都在下次启动生效，不热写当前游戏。
 scripts/android/open-last-game SERIAL
 scripts/android/guest-patch SERIAL status
-scripts/android/guest-patch SERIAL disable
-scripts/android/guest-patch SERIAL enable
-# 取消下次启动安装；当前 Session 的补丁仍需 disable 或正常 Stop。
-scripts/android/guest-patch SERIAL clear
+scripts/android/guest-patch SERIAL disable [包|hook|包/hook]
+scripts/android/guest-patch SERIAL enable [包|hook|包/hook]
+scripts/android/guest-patch SERIAL select CUSA50828            # 不带名字：该游戏不装任何包
+scripts/android/guest-patch SERIAL list
 ```
 
-Android 生产 Runtime 只在启动时读取 `debug.shadps4.guest_patch`。空属性不计算游戏 hash、
-不创建补丁 VM、SDK gate 或补丁热路径。属性指定的文件必须是应用可读的开发者包。
-部署脚本写应用私有临时文件、核对 SHA、原子改名后才更新属性。包不是签名沙箱：
-它拥有游戏 guest 代码的权限，应当只运行自己审核的补丁。
+### 选包（桌面与 Android 相同）
 
-底层 DebugBus/dumpsys 命令为 `guest_patch status`、`guest_patch enable CONTEXT_ID`、
-`guest_patch disable CONTEXT_ID`。context 是 CPU context 身份，不是 Android Session generation。
-命令核对当前身份，控制端弱引用与销毁锁保证旧请求不能访问释放后的 Runtime。
-错误及错误身份不应当被当成成功；脚本返回非零。
+- 包放在 `<user>/guest_patches/<TITLE_ID>/<名字>.json`（Android 的 `<user>` 是应用私有
+  `files/host`）。每游戏的选择是文件名（不含 `.json`）列表，按顺序安装，最多 8 个。
+- 桌面：Big Picture（`-b`）点游戏后的 Launch Options 有 “Guest Patches” 一行，显示已选
+  数量与名称；按下打开二级面板，逐个勾选。面板显示包的 `name`、`description`、文件名，
+  以及是否为本机游戏版本构建（loose 文件按挂载顺序 mods → 更新 → 本体找到目标模块并算
+  SHA，按路径/大小/时间缓存；ZAR 内的模块不在面板里解包，启动时检查）。为其他版本构建、
+  文件已不存在、或与已选包改同一段代码的包不能勾上；已选的始终可以取消。Launch 时写入
+  `custom_configs/<TITLE_ID>.json` 的 `General.guest_patches`，并清空旧的单值
+  `General.guest_patch`（列表为空时仍读取旧值，兼容旧配置）。Back 放弃全部改动。
+- Android：游戏详情的 Launch 面板在设置行之后有 “Guest Patches” 一行（游戏有包时出现），
+  点按或手柄 Cross 打开二级面板；上下选包，Cross/左右切换开关，Circle 或 Done 返回。
+  选择存于每游戏 profile 的 `general.guest_patches`，Launch 时与其他选项一起保存；
+  会话启动时经 JNI `nativeSetGuestPatches` 交给宿主。包列表由宿主同一套解析与冲突检查
+  （JNI `nativeListGuestPatches`）给出。Android 面板不计算模块 SHA，版本在启动时检查。
+- 启动时逐个安装：title 与模块 SHA 不符、与之前已装的包修改或调用同一段代码（含 hook
+  搬走的整条指令）、同一包 id 重复时，该包跳过并写错误日志，游戏照常运行。安装已开始
+  分配/写入 guest 内存后再失败，则整个 Session 失败（Android 地址空间可能已毒化）。
+- 开发覆盖：桌面 `SHADPS4_GUEST_PATCH=<path>[;<path>...]`，Android
+  `guest-patch SERIAL override <patch.json>`（设备属性 `debug.shadps4.guest_patch`）。
+  覆盖时忽略游戏选择；Android 覆盖包装不上则 Session 失败。`guest-patch SERIAL clear`
+  取消覆盖。
+
+Android 生产 Runtime 只在启动时读取选择与覆盖属性。没有选择时不计算游戏 hash、不创建
+补丁 VM、SDK gate 或补丁热路径。脚本写应用私有临时文件、核对 SHA 后原子改名。包不是
+签名沙箱：它拥有游戏 guest 代码的权限，应当只运行自己审核的补丁。
+
+底层 DebugBus/dumpsys 命令为 `guest_patch status`、
+`guest_patch enable|disable CONTEXT_ID [包|hook|包/hook]`（不带名字为全部 hook；包按文件名
+或包 id；只给 hook 名则作用于所有包里的同名 hook）。status 依次列出每个已装包
+（`selection:` 后接该包的完整状态）和 `skipped:` 原因。context 是 CPU context 身份，
+不是 Android Session generation。命令核对当前身份，控制端弱引用与销毁锁保证旧请求
+不能访问释放后的 Runtime。错误及错误身份不应当被当成成功；脚本返回非零。
 
 ## 包、ABI 与 SDK
 
@@ -184,11 +209,7 @@ python tools\guest-functions\build.py --clang D:\Android\android-sdk\ndk\29.0.14
 copy build\bb60\patch.json <user>\guest_patches\CUSA03023\bloodborne_60fps_v1.json
 ```
 
-- 选包：包放在 `user/guest_patches/<TITLE_ID>/<名字>.json`，每游戏设置
-  `General.guest_patch` 填文件名（不含 `.json`，空为关闭）。Big Picture（`-b`）点游戏后
-  弹出的 Launch Options 里有 “Guest Patch” 一行：列出该目录中 title 匹配的有效包，按
-  Launch 时与 Render Scale/FSR 一起只合并写入 `custom_configs/<TITLE_ID>.json`。
-  开发时 `SHADPS4_GUEST_PATCH=<patch.json>` 优先于该设置。
+- 选包见上文“选包”。
 
 - 每个模块在 `Module::LoadModuleToMemory` 末尾、该模块任何代码运行前检查一次。身份是
   title（游戏序列号）+ 模块文件 SHA256（经挂载层读取，loose 文件和 ZAR 相同）+ 加载后
@@ -198,9 +219,8 @@ copy build\bb60\patch.json <user>\guest_patches\CUSA03023\bloodborne_60fps_v1.js
   桌面 guest 是原生执行，payload 原样运行；SDK 导入直接绑定到 SysV host 函数：
   counter 写 Foundation profiler，log 写 `guest-patch.log`（context/generation 填 0，
   thread 为 host 线程）。
-- DebugBus：`guest_patch status | enable [name] | disable [name]`（桌面无 CPU context ID）。
+- DebugBus：`guest_patch status | enable [包|hook|包/hook] | disable [...]`（桌面无 CPU context ID）。
   开关是对齐 8 字节 slot 的原子写，运行中安全；`patches` 不切换。
-- Android 安装、部署和开关不变（`debug.shadps4.guest_patch`，见上文）。
 
 ## 从可见帧函数生成 C++ 拦截
 

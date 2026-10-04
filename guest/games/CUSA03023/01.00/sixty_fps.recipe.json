@@ -2,6 +2,8 @@
   "schema": "shadps4.guest-functions.recipe.v1",
   "abi": "x86_64-sysv",
   "id": "bloodborne_60fps_v1",
+  "name": "60 FPS",
+  "description": "Unlocks the frame rate to 60 FPS with game speed kept correct (port of Lance McDonald's 60 FPS patch for 1.00).",
   "title": "CUSA03023",
   "module": "eboot.bin",
   "module_sha256": "6764938b23539d29c936bca9880fc4a774e7b0099ce31c7e8c4b0f8bd0befb80",

@@ -389,7 +389,14 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     CpuContext& cpu;
     GuestAddressSpace& space;
     HleCallRegistry& registry;
-    std::unique_ptr<GuestPatch::Manager> guest_patch;
+    // Installed guest function packages, in selection order.
+    struct InstalledPatch {
+        std::string name;   // selection entry (file stem), or the development override path
+        std::string module; // target module: code ranges of packages compare within it
+        std::unique_ptr<GuestPatch::Manager> manager;
+    };
+    std::vector<InstalledPatch> guest_patches;
+    std::vector<std::string> guest_patch_skipped; // "<name>: <reason>"
     std::shared_ptr<GuestAutoTag::Profile> auto_tag;
     std::shared_ptr<PatchControl> patch_control;
     std::vector<GuestRange> patch_reservations;
@@ -872,7 +879,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         graphics_window.reset();
         graphics_driver.reset();
         patch_reservations.clear();
-        guest_patch.reset();
+        guest_patches.clear();
         linker_binding.reset();
         linker.reset();
         memory_binding.reset();
@@ -5226,40 +5233,93 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             {serial,target->name,module_sha(target->file),target->GetBaseAddress(),target->aligned_base_size},
             impl->space,impl->cpu.ContextId());
     }
-    std::string patch_path;
+    // Guest function packages: the per-game selection (Launch options) from
+    // <user>/guest_patches/<TITLE_ID>/, installed in order before any guest thread
+    // exists. A package that does not match the game, or changes code an earlier one
+    // changed or calls, is skipped and the game runs without it. The development
+    // override (a package path) replaces the selection; its failure fails the session.
+    struct SelectedPatch {
+        std::string name;
+        std::filesystem::path path;
+        bool required{};
+    };
+    std::vector<SelectedPatch> selected;
+    std::string patch_override;
 #if defined(__ANDROID__)
     char patch_property[PROP_VALUE_MAX]{};
     __system_property_get("debug.shadps4.guest_patch", patch_property);
-    patch_path = patch_property;
+    patch_override = patch_property;
 #else
-    if (const char* path = std::getenv("SHADPS4_GUEST_PATCH")) patch_path = path;
+    if (const char* path = std::getenv("SHADPS4_GUEST_PATCH")) patch_override = path;
 #endif
-    if (!patch_path.empty()) {
-        const auto package = GuestPatch::Package::Load(patch_path);
-        Module* target{};
-        for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
-            if (m->name == package.module) {
-                if (target) throw std::runtime_error("ambiguous guest patch module");
-                target = m;
+    if (!patch_override.empty()) {
+        selected.push_back({patch_override, patch_override, true});
+    } else {
+        const auto directory = GuestPatch::PackageDirectory(
+            Common::FS::GetUserPath(Common::FS::PathType::UserDir), serial);
+        for (const auto& name : EmulatorSettings.GetGuestPatches()) {
+            const bool repeated = std::any_of(selected.begin(), selected.end(),
+                                              [&](const SelectedPatch& s) { return s.name == name; });
+            if (!GuestPatch::ValidPackageName(name) || repeated ||
+                selected.size() == GuestPatch::kMaxPackages) {
+                impl->guest_patch_skipped.push_back(
+                    name + ": invalid name, repeated, or more than " +
+                    std::to_string(GuestPatch::kMaxPackages) + " packages");
+                continue;
             }
+            selected.push_back({name, directory / (name + ".json"), false});
         }
-        if (!target) throw std::runtime_error("guest patch module not loaded");
-        impl->guest_patch = std::make_unique<GuestPatch::Manager>(
+    }
+    std::map<const Module*, std::string> module_hashes; // each target hashed once
+    std::optional<std::string> executable_sha;
+    for (const auto& choice : selected) {
+        auto manager = std::make_unique<GuestPatch::Manager>(
             impl->cpu, impl->space, impl->registry,
             [](const char* name, int64_t value) { Common::Profiler::Counter(name, value); });
-        impl->guest_patch->Install(
-            package,
-            {serial, target->name, module_sha(target->file), target->GetBaseAddress(),
-             target->aligned_base_size,
-             package.executable_sha256.empty() ? std::string{}
-                                               : module_sha(main_path)},
-            *impl->CodeToken(), [this](u64 size, u64 near) {
-                return GuestPatch::Allocation{impl->Allocate(size, "GuestFunctionPatch", near),
-                                              Common::AlignUp(size, 0x4000ULL)};
-            });
+        Module* target{};
+        try {
+            const auto package = GuestPatch::Package::Load(choice.path);
+            for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
+                if (m->name == package.module) {
+                    if (target) throw std::runtime_error("ambiguous guest patch module");
+                    target = m;
+                }
+            }
+            if (!target) throw std::runtime_error("module " + package.module + " is not loaded");
+            auto [hash, hashed] = module_hashes.try_emplace(target);
+            if (hashed) hash->second = module_sha(target->file);
+            if (package.title != serial || package.module_sha256 != hash->second)
+                throw std::runtime_error("built for another game or version of " + target->name);
+            const auto ranges = GuestPatch::PackageCodeRanges(package);
+            for (const auto& installed : impl->guest_patches) {
+                if (installed.manager->Id() == package.id)
+                    throw std::runtime_error("same package id as " + installed.name);
+                if (installed.module != target->name) continue;
+                if (const auto overlap = GuestPatch::FindCodeOverlap(ranges, installed.manager->CodeRanges()))
+                    throw std::runtime_error("conflicts with " + installed.name + ": " + *overlap);
+            }
+            if (!package.executable_sha256.empty() && !executable_sha)
+                executable_sha = module_sha(main_path);
+            manager->Install(
+                package,
+                {serial, target->name, hash->second, target->GetBaseAddress(),
+                 target->aligned_base_size,
+                 package.executable_sha256.empty() ? std::string{} : *executable_sha},
+                *impl->CodeToken(), [this](u64 size, u64 near) {
+                    return GuestPatch::Allocation{impl->Allocate(size, "GuestFunctionPatch", near),
+                                                  Common::AlignUp(size, 0x4000ULL)};
+                });
+        } catch (const std::exception& e) {
+            // Guest memory is untouched until Install allocates; past that, fail the session.
+            if (choice.required || manager->Modified()) throw;
+            LOG_ERROR(Core_Linker, "Guest patch {} not installed, game runs without it: {}",
+                      choice.name, e.what());
+            impl->guest_patch_skipped.push_back(choice.name + ": " + e.what());
+            continue;
+        }
         // Keep the desktop VM ledger and GPU permission view consistent with
         // the patch loader's page-level publication, before locking reservations.
-        for (const auto& debug_module : impl->guest_patch->DebugModules()) {
+        for (const auto& debug_module : manager->DebugModules()) {
             for (const auto& range : debug_module.segments) {
                 for (const auto& mapping : impl->space.Mappings()) {
                     if (mapping.range.base.value >= range.base.value && mapping.range.End() <= range.End()) {
@@ -5273,27 +5333,63 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                 }
             }
         }
-        impl->patch_reservations = impl->guest_patch->ProtectedRanges();
-        LOG_INFO(Core_Linker, "Guest patch installed: {}", impl->guest_patch->Status());
+        const auto reserved = manager->ProtectedRanges();
+        impl->patch_reservations.insert(impl->patch_reservations.end(), reserved.begin(), reserved.end());
+        LOG_INFO(Core_Linker, "Guest patch {} installed: {}", choice.name, manager->Status());
+        impl->guest_patches.push_back({choice.name, target->name, std::move(manager)});
     }
     if (impl->auto_tag) {
-        if (impl->guest_patch) impl->auto_tag->Remap(*impl->guest_patch);
+        for (const auto& installed : impl->guest_patches) impl->auto_tag->Remap(*installed.manager);
         Require(impl->cpu.InstallExecutionProbes(impl->auto_tag));
         GuestAutoTag::SetControl(impl->auto_tag);
         LOG_INFO(Core_Linker, "Guest auto tag installed: {}", impl->auto_tag->Status());
     }
     impl->patch_control = std::make_shared<PatchControl>();
     impl->patch_control->command = [this](const std::vector<std::string>& args) {
-        if (!impl->guest_patch) return std::string("status: disabled_at_startup\n");
-        if (args.empty() || (args.size()==1 && args[0]=="status"))
-            return impl->guest_patch->Status();
+        const auto status = [this] {
+            std::string out = impl->guest_patches.empty() ? "status: disabled_at_startup\n" : "";
+            out += "packages: " + std::to_string(impl->guest_patches.size()) + "\n";
+            for (const auto& skipped : impl->guest_patch_skipped) out += "skipped: " + skipped + "\n";
+            for (const auto& installed : impl->guest_patches)
+                out += "selection: " + installed.name + "\n" + installed.manager->Status();
+            return out;
+        };
+        if (args.empty() || (args.size()==1 && args[0]=="status")) return status();
         if ((args.size()!=2 && args.size()!=3) || (args[0]!="enable" && args[0]!="disable") ||
             args[1]!=std::to_string(impl->cpu.ContextId()))
-            return std::string("status: invalid_arguments\ndetail: enable|disable requires current context ID\n");
+            return std::string("status: invalid_arguments\ndetail: enable|disable <context ID> "
+                               "[package|hook|package/hook]\n");
+        // No name: every hook. A package (selection name or id): its hooks. "package/hook":
+        // that hook. Any other name: hooks of that name in every package.
+        const std::string_view name = args.size() == 3 ? std::string_view(args[2]) : std::string_view{};
+        const auto is_package = [&](const Impl::InstalledPatch& p, std::string_view n) {
+            return p.name == n || p.manager->Id() == n;
+        };
+        std::string_view package, hook;
+        if (const auto slash = name.find('/'); slash != std::string_view::npos) {
+            package = name.substr(0, slash);
+            hook = name.substr(slash + 1);
+        } else if (std::any_of(impl->guest_patches.begin(), impl->guest_patches.end(),
+                               [&](const auto& p) { return is_package(p, name); })) {
+            package = name;
+        } else {
+            hook = name;
+        }
+        std::vector<std::pair<GuestPatch::Manager*, std::string_view>> targets;
+        for (const auto& installed : impl->guest_patches) {
+            if (!package.empty() && !is_package(installed, package)) continue;
+            const auto hooks = installed.manager->HookNames();
+            if (hook.empty() ? hooks.empty()
+                             : std::find(hooks.begin(), hooks.end(), hook) == hooks.end())
+                continue;
+            targets.emplace_back(installed.manager.get(), hook);
+        }
+        if (targets.empty())
+            return std::string("status: error\ndetail: no installed hook or site matches\n");
         Impl::CodePublication vm(*impl);
-        impl->guest_patch->SetEnabled(args[0] == "enable", *impl->CodeToken(),
-                                      args.size() == 3 ? args[2] : std::string_view{});
-        return impl->guest_patch->Status();
+        for (const auto& [manager, target_hook] : targets)
+            manager->SetEnabled(args[0] == "enable", *impl->CodeToken(), target_hook);
+        return status();
     };
     GuestPatch::SetControl(impl->patch_control);
     std::vector<DebugModule> debug_modules;
@@ -5307,8 +5403,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         }
         debug_modules.push_back(std::move(debug_module));
     }
-    if (impl->guest_patch) {
-        auto patch_modules = impl->guest_patch->DebugModules();
+    for (const auto& installed : impl->guest_patches) {
+        auto patch_modules = installed.manager->DebugModules();
         debug_modules.insert(debug_modules.end(), patch_modules.begin(), patch_modules.end());
     }
     impl->cpu.SetDebugModules(std::move(debug_modules));

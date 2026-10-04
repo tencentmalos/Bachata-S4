@@ -216,7 +216,8 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
 #endif
 #if !defined(SHADPS4_TYPED_HLE_HOST)
     // Same command name as the Android runtime; desktop has no CPU context ID.
-    registry.Register("guest_patch", "Guest patch status | enable [name] | disable [name]",
+    registry.Register("guest_patch",
+        "Guest patch status | enable [package|hook|package/hook] | disable [...]",
         [](const std::vector<std::string>& args) {
             return GuestPatch::Desktop::Command(args);
         });

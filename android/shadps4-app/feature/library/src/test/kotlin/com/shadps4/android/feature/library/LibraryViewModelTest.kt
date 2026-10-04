@@ -24,13 +24,48 @@ class LibraryViewModelTest {
         runCurrent()
         model.handleNavEvent(NavControllerEvent("dpad_down", pressed = true))
         model.handleNavEvent(NavControllerEvent("cross", pressed = true))
+        model.handleNavEvent(NavControllerEvent("dpad_left", pressed = true))
         runCurrent()
-        assertEquals(listOf(0 to 1), changes)
+        // Cross activates the row (next choice, or the Guest Patches panel); left steps back.
+        assertEquals(listOf(0 to 0, 0 to -1), changes)
         assertTrue(launches.isEmpty())
         model.handleNavEvent(NavControllerEvent("dpad_up", pressed = true))
         model.handleNavEvent(NavControllerEvent("cross", pressed = true))
         runCurrent()
         assertEquals(listOf("A"), launches)
+    }
+
+    @Test fun guestPatchPanelKeepsTheControllerUntilCircle() = runTest {
+        val model = LibraryViewModel()
+        model.setGames(listOf(game("A", "Alpha")))
+        model.showDetails("A")
+        model.setLaunchOptionCount(4) // three settings, then Guest Patches
+        val changes = mutableListOf<Pair<Int, Int>>()
+        val launches = mutableListOf<String>()
+        backgroundScope.launch { model.adjustLaunchOption.collect { changes.add(it) } }
+        backgroundScope.launch { model.launch.collect { launches.add(it) } }
+        runCurrent()
+        repeat(4) { model.handleNavEvent(NavControllerEvent("dpad_down", pressed = true)) }
+        assertEquals(3, model.state.value.launchOptionIndex)
+        model.openLaunchSubPanel()
+        model.setLaunchOptionCount(2) // two packages
+        assertTrue(model.state.value.launchSubPanel)
+        assertEquals(0, model.state.value.launchOptionIndex)
+        repeat(3) { model.handleNavEvent(NavControllerEvent("dpad_down", pressed = true)) }
+        assertEquals(1, model.state.value.launchOptionIndex)
+        repeat(3) { model.handleNavEvent(NavControllerEvent("dpad_up", pressed = true)) }
+        assertEquals(0, model.state.value.launchOptionIndex) // never the Launch button
+        model.handleNavEvent(NavControllerEvent("cross", pressed = true))
+        model.handleNavEvent(NavControllerEvent("square", pressed = true))
+        runCurrent()
+        assertEquals(listOf(0 to 0), changes)
+        model.handleNavEvent(NavControllerEvent("circle", pressed = true))
+        assertFalse(model.state.value.launchSubPanel)
+        assertEquals(3, model.state.value.launchOptionIndex)
+        assertEquals("A", model.state.value.showDetailsGameId)
+        assertTrue(launches.isEmpty())
+        model.handleNavEvent(NavControllerEvent("circle", pressed = true))
+        assertEquals(null, model.state.value.showDetailsGameId)
     }
 
     @Test

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <bit>
 #include <fstream>
+#include <map>
 #include <nlohmann/json.hpp>
 #include <stb_image.h>
 
@@ -76,17 +77,27 @@ std::filesystem::path UpdateChecker(const std::string sceItem, std::filesystem::
 constexpr float kScaleChoices[] = {25.f, 37.5f, 50.f, 75.f, 100.f};
 constexpr const char* kScaleLabels[] = {"0.25", "0.375", "0.5", "0.75", "1.0"};
 
+// One guest function package in user/guest_patches/<TITLE_ID>/.
+struct PatchChoice {
+    std::string name;  // file stem, the value stored in General.guest_patches
+    std::string label; // package name, else its id
+    std::string description;
+    std::string module;
+    std::vector<std::string> conflicts; // file stems of packages changing the same code
+    int fits = 0; // 1 built for the module the game loads, -1 for another, 0 not readable
+    bool missing = false; // selected, but the file is gone
+};
+
 struct LaunchDraft {
     int game = -1; // index into gameIcons
     bool ignorePatches = false;
     float scale = 100.f;
     bool fsr = false;
     bool rcas = true;
-    // Guest function package (General.guest_patch): "" = off, else a file stem
-    // from user/guest_patches/<TITLE_ID>/. choices[0] is "" (Off).
-    std::string patch;
-    std::vector<std::string> patchChoices;
-    std::vector<std::string> patchLabels;
+    // Guest function packages (General.guest_patches), in install order (the order
+    // of `patchChoices`, by file stem).
+    std::vector<std::string> patches;
+    std::vector<PatchChoice> patchChoices;
     std::string error;
 };
 LaunchDraft launchDraft;
@@ -94,6 +105,82 @@ bool openLaunchOptions = false;
 
 std::filesystem::path GameConfigPath(const std::string& serial) {
     return Common::FS::GetUserPath(Common::FS::PathType::CustomConfigs) / (serial + ".json");
+}
+
+// SHA-256 of the module a launch would load, read through the same mount stack as the
+// game (mods, the update unless ignored, then the game; loose files or archives).
+// Cached for the launcher session; empty when the module is missing or unreadable.
+std::string EffectiveModuleSha(const IconInfo& game, bool ignorePatches, const std::string& module) {
+    namespace vfs = Core::FileSys;
+    const auto base =
+        vfs::IsZArchiveFile(game.ebootPath) ? game.ebootPath : game.ebootPath.parent_path();
+    const auto key = base.string() + (ignorePatches ? "|base|" : "|mounted|") + module;
+    static std::map<std::string, std::string> cache;
+    if (const auto it = cache.find(key); it != cache.end()) {
+        return it->second;
+    }
+    std::string sha;
+    try {
+        // The launcher is single threaded: the flag is set only for this mount.
+        const bool previous = vfs::MntPoints::ignore_game_patches;
+        vfs::MntPoints::ignore_game_patches = ignorePatches;
+        vfs::MntPoints mount;
+        try {
+            mount.Mount(base, "/app0", true);
+        } catch (...) {
+            vfs::MntPoints::ignore_game_patches = previous;
+            throw;
+        }
+        vfs::MntPoints::ignore_game_patches = previous;
+        const auto path = module == "eboot.bin" ? "/app0/eboot.bin" : "/app0/sce_module/" + module;
+        if (auto file = mount.Open(path)) {
+            sha = Core::GuestPatch::StreamSha256(
+                [&](void* dst, std::uint64_t size) -> std::int64_t { return file->Read(dst, size); });
+        }
+    } catch (const std::exception& e) {
+        LOG_WARNING(ImGui, "Cannot read {} of {}: {}", module, base.string(), e.what());
+        sha.clear();
+    }
+    cache.emplace(key, sha);
+    return sha;
+}
+
+bool PatchSelected(const std::string& name) {
+    return std::ranges::find(launchDraft.patches, name) != launchDraft.patches.end();
+}
+
+const PatchChoice* FindPatchChoice(const std::string& name) {
+    const auto it = std::ranges::find(launchDraft.patchChoices, name, &PatchChoice::name);
+    return it == launchDraft.patchChoices.end() ? nullptr : &*it;
+}
+
+// Why a package cannot be added to the current selection; empty when it can.
+std::string PatchBlocker(const PatchChoice& choice) {
+    if (choice.missing) {
+        return "File not found";
+    }
+    if (choice.fits < 0) {
+        return "Built for another version of " + choice.module;
+    }
+    for (const auto& other : choice.conflicts) {
+        if (PatchSelected(other)) {
+            const auto* conflict = FindPatchChoice(other);
+            return "Changes the same code as " + (conflict ? conflict->label : other);
+        }
+    }
+    return {};
+}
+
+void SetPatchSelected(const std::string& name, bool on) {
+    std::erase(launchDraft.patches, name);
+    if (on) {
+        launchDraft.patches.push_back(name);
+    }
+    // Keep the panel's order, which is the install order.
+    std::ranges::stable_sort(launchDraft.patches, {}, [](const std::string& n) {
+        const auto it = std::ranges::find(launchDraft.patchChoices, n, &PatchChoice::name);
+        return std::distance(launchDraft.patchChoices.begin(), it);
+    });
 }
 
 // Effective values for one game without loading its profile into the launcher's own
@@ -105,7 +192,9 @@ void OpenLaunchOptions(int game, bool ignorePatches) {
     launchDraft.scale = EmulatorSettings.GetConfiguredInternalScalePercent();
     launchDraft.fsr = EmulatorSettings.IsFsrEnabled();
     launchDraft.rcas = EmulatorSettings.IsRcasEnabled();
-    launchDraft.patch = EmulatorSettings.GetGuestPatch();
+    // Same precedence as the loader: the list, else the single legacy name.
+    auto patches = EmulatorSettings.GetGuestPatches();
+    auto legacyPatch = EmulatorSettings.GetGuestPatch();
     try {
         if (std::ifstream in{GameConfigPath(gameIcons[game].serial)}; in) {
             const auto j = nlohmann::json::parse(in);
@@ -116,27 +205,44 @@ void OpenLaunchOptions(int game, bool ignorePatches) {
                 launchDraft.rcas = gpu.value("rcas_enabled", launchDraft.rcas);
             }
             if (j.contains("General")) {
-                launchDraft.patch = j.at("General").value("guest_patch", launchDraft.patch);
+                const auto& general = j.at("General");
+                patches = general.value("guest_patches", patches);
+                legacyPatch = general.value("guest_patch", legacyPatch);
             }
         }
     } catch (const std::exception& e) {
         launchDraft.error = std::string("Cannot read this game's settings: ") + e.what();
     }
+    if (patches.empty() && !legacyPatch.empty()) {
+        patches.push_back(legacyPatch);
+    }
     // Same normalization the renderer applies (EmulatorSettings::GetInternalScalePercent).
     if (std::ranges::find(kScaleChoices, launchDraft.scale) == std::end(kScaleChoices)) {
         launchDraft.scale = 100.f;
     }
-    launchDraft.patchChoices = {""};
-    launchDraft.patchLabels = {"Off"};
-    for (const auto& package : Core::GuestPatch::Desktop::ListPackages(gameIcons[game].serial)) {
-        launchDraft.patchChoices.push_back(package.name);
-        launchDraft.patchLabels.push_back(package.id);
+    const auto& icon = gameIcons[game];
+    std::map<std::string, std::string> moduleSha; // module -> SHA-256 of the file a launch loads
+    for (const auto& package : Core::GuestPatch::Desktop::ListPackages(icon.serial)) {
+        PatchChoice choice{package.name, package.display_name, package.description,
+                           package.module, package.conflicts};
+        auto [it, inserted] = moduleSha.try_emplace(package.module);
+        if (inserted) {
+            it->second = EffectiveModuleSha(icon, ignorePatches, package.module);
+        }
+        if (!it->second.empty()) {
+            choice.fits = it->second == package.module_sha256 ? 1 : -1;
+        }
+        launchDraft.patchChoices.push_back(std::move(choice));
     }
-    // Keep a selection whose file is gone visible, so it can be switched off.
-    if (std::ranges::find(launchDraft.patchChoices, launchDraft.patch) ==
-        launchDraft.patchChoices.end()) {
-        launchDraft.patchChoices.push_back(launchDraft.patch);
-        launchDraft.patchLabels.push_back(launchDraft.patch + " (missing)");
+    // Keep selected packages whose file is gone visible, so they can be switched off.
+    for (const auto& name : patches) {
+        if (!FindPatchChoice(name)) {
+            PatchChoice missing{.name = name, .label = name, .missing = true};
+            launchDraft.patchChoices.push_back(std::move(missing));
+        }
+        if (!PatchSelected(name)) {
+            SetPatchSelected(name, true);
+        }
     }
     openLaunchOptions = true;
 }
@@ -154,7 +260,9 @@ bool SaveLaunchDraft() {
         gpu["internal_scale_percent"] = launchDraft.scale;
         gpu["fsr_enabled"] = launchDraft.fsr;
         gpu["rcas_enabled"] = launchDraft.rcas;
-        j["General"]["guest_patch"] = launchDraft.patch;
+        // The list replaces the single legacy name, which is cleared so it cannot come back.
+        j["General"]["guest_patches"] = launchDraft.patches;
+        j["General"]["guest_patch"] = "";
         std::filesystem::create_directories(path.parent_path());
         auto temp = path;
         temp += ".tmp";
@@ -174,6 +282,107 @@ bool SaveLaunchDraft() {
     }
 }
 
+// "Guest Patches" row of Launch Options: a summary button opening a panel where the
+// game's packages are switched on and off. Called inside the Launch Options popup, so
+// the panel is a nested modal.
+void DrawPatchRow(float labelWidth, float minWidth) {
+    const auto& choices = launchDraft.patchChoices;
+    const auto& serial = gameIcons[launchDraft.game].serial;
+    const ImVec4 warn(1.f, 0.7f, 0.3f, 1.f);
+    ImGui::AlignTextToFramePadding();
+    ImGui::TextUnformatted("Guest Patches");
+    ImGui::SameLine(labelWidth);
+    if (choices.empty()) {
+        ImGui::TextDisabled(
+            "None in %s",
+            Core::GuestPatch::Desktop::PackageDirectory(serial).string().c_str());
+        return;
+    }
+    std::string summary;
+    for (const auto& name : launchDraft.patches) {
+        const auto* choice = FindPatchChoice(name);
+        summary += (summary.empty() ? "" : ", ") + (choice ? choice->label : name);
+    }
+    summary = std::to_string(launchDraft.patches.size()) + " of " +
+              std::to_string(choices.size()) + (summary.empty() ? "" : ": " + summary);
+    const float fit = ImGui::CalcTextSize(summary.c_str()).x + ImGui::GetStyle().FramePadding.x * 2.f;
+    if (ImGui::Button((summary + "###patch_summary").c_str(), ImVec2(std::max(minWidth, fit), 0.f))) {
+        ImGui::OpenPopup("Guest Patches");
+    }
+    // Selected packages the loader will skip.
+    for (const auto& name : launchDraft.patches) {
+        const auto* choice = FindPatchChoice(name);
+        if (const auto blocker = choice ? PatchBlocker(*choice) : std::string(); !blocker.empty()) {
+            ImGui::TextColored(warn, "%s: %s", choice->label.c_str(), blocker.c_str());
+        }
+    }
+
+    // Centered every frame: the list's height is only known a frame after appearing.
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always,
+                            ImVec2(0.5f, 0.5f));
+    if (!ImGui::BeginPopupModal("Guest Patches", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        return;
+    }
+    ImGui::TextDisabled("%s", Core::GuestPatch::Desktop::PackageDirectory(serial).string().c_str());
+    ImGui::Separator();
+    const auto& style = ImGui::GetStyle();
+    const float textIndent = ImGui::GetFrameHeight() + style.ItemInnerSpacing.x;
+    const float wrapWidth = 560.f * uiScale;
+    // The list scrolls inside the panel, so Done/None stay on screen.
+    const float listWidth = textIndent + wrapWidth + style.ScrollbarSize + style.WindowPadding.x * 2.f;
+    ImGui::SetNextWindowSizeConstraints(
+        ImVec2(listWidth, 0.f), ImVec2(listWidth, ImGui::GetMainViewport()->WorkSize.y * 0.65f));
+    ImGui::BeginChild("packages", ImVec2(listWidth, 0.f),
+                      ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_NavFlattened);
+    for (std::size_t i = 0; i < choices.size(); ++i) {
+        const auto& choice = choices[i];
+        ImGui::PushID(static_cast<int>(i));
+        bool on = PatchSelected(choice.name);
+        const auto blocker = PatchBlocker(choice);
+        // A selected package can always be switched off.
+        ImGui::BeginDisabled(!on && !blocker.empty());
+        if (ImGui::Checkbox(choice.label.c_str(), &on)) {
+            SetPatchSelected(choice.name, on);
+        }
+        ImGui::EndDisabled();
+        if (i == 0 && ImGui::IsWindowAppearing()) {
+            ImGui::SetItemDefaultFocus();
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled("%s", choice.name.c_str());
+        ImGui::Indent(textIndent);
+        ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + wrapWidth);
+        if (!choice.description.empty()) {
+            ImGui::TextUnformatted(choice.description.c_str());
+        }
+        if (!blocker.empty()) {
+            ImGui::TextColored(warn, "%s", blocker.c_str());
+        } else if (choice.fits > 0) {
+            ImGui::TextColored(ImVec4(0.5f, 0.9f, 0.5f, 1.f), "Built for this game's %s",
+                               choice.module.c_str());
+        } else {
+            ImGui::TextDisabled("Patches %s; could not read it here, checked at launch",
+                                choice.module.c_str());
+        }
+        ImGui::PopTextWrapPos();
+        ImGui::Unindent(textIndent);
+        ImGui::Spacing();
+        ImGui::PopID();
+    }
+    ImGui::EndChild();
+    ImGui::Separator();
+    const ImVec2 buttonSize(160.f * uiScale, 0.f);
+    if (ImGui::Button("Done", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Escape) ||
+        ImGui::IsKeyPressed(ImGuiKey_GamepadFaceRight)) {
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("None", buttonSize)) {
+        launchDraft.patches.clear();
+    }
+    ImGui::EndPopup();
+}
+
 void DrawLaunchOptions() {
     if (openLaunchOptions) {
         ImGui::OpenPopup("Launch Options");
@@ -185,6 +394,8 @@ void DrawLaunchOptions() {
         return;
     }
     const auto& game = gameIcons[launchDraft.game];
+    // Back keys belong to the patch panel while it is open (it opened before this frame).
+    const bool patchPanelOpen = ImGui::IsPopupOpen("Guest Patches");
     ImGui::TextUnformatted(game.title.c_str());
     ImGui::TextDisabled("%s", game.serial.c_str());
     ImGui::Separator();
@@ -232,18 +443,7 @@ void DrawLaunchOptions() {
         "FSR Sharpening", 2, [](int c) { return kOffOn[c]; },
         [](int c) { return launchDraft.rcas == (c == 1); },
         [](int c) { launchDraft.rcas = c == 1; }, launchDraft.fsr);
-    row(
-        "Guest Patch", int(launchDraft.patchChoices.size()),
-        [](int c) { return launchDraft.patchLabels[c].c_str(); },
-        [](int c) { return launchDraft.patch == launchDraft.patchChoices[c]; },
-        [](int c) { launchDraft.patch = launchDraft.patchChoices[c]; }, true);
-    if (launchDraft.patchChoices.size() == 1) {
-        ImGui::TextDisabled("No patch packages in %s",
-                            Core::GuestPatch::Desktop::PackageDirectory(
-                                gameIcons[launchDraft.game].serial)
-                                .string()
-                                .c_str());
-    }
+    DrawPatchRow(labelWidth, choiceSize.x);
 
     ImGui::Separator();
     ImGui::TextDisabled("FSR runs only while the game image is smaller than the window.");
@@ -263,8 +463,9 @@ void DrawLaunchOptions() {
         ImGui::SetItemDefaultFocus();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Back", buttonSize) || ImGui::IsKeyPressed(ImGuiKey_Escape) ||
-        ImGui::IsKeyPressed(ImGuiKey_GamepadFaceRight)) {
+    if (ImGui::Button("Back", buttonSize) ||
+        (!patchPanelOpen && (ImGui::IsKeyPressed(ImGuiKey_Escape) ||
+                             ImGui::IsKeyPressed(ImGuiKey_GamepadFaceRight)))) {
         launchDraft.game = -1;
         ImGui::CloseCurrentPopup();
     }

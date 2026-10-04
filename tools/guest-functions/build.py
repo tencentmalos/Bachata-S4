@@ -299,6 +299,13 @@ def build(recipe_path, compiler, output):
             raise ValueError('missing function export: '+name)
         exports[name] = symbols[name][0]
     payload = {k:recipe[k] for k in ('id','title','module','module_sha256')}
+    # Optional display metadata for patch lists (loader caps: 96 / 1024 UTF-8 bytes).
+    for key, limit in (('name', 96), ('description', 1024)):
+        if key in recipe:
+            value = recipe[key]
+            if not isinstance(value, str) or not value or len(value.encode()) > limit:
+                raise ValueError(f'{key} must be a non-empty string of at most {limit} bytes')
+            payload[key] = value
     payload['hooks'] = hooks
     if patches:
         payload['patches'] = patches

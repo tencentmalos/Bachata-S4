@@ -129,6 +129,18 @@ struct OverrideItem {
     std::function<void(void* group_ptr)> reset_game_specific;
 };
 
+// How a changed per-game value appears in the override log.
+template <typename T>
+const T& SettingLogValue(const T& value) {
+    return value;
+}
+inline std::string SettingLogValue(const std::vector<std::string>& values) {
+    std::string out = "[";
+    for (std::size_t i = 0; i < values.size(); ++i)
+        out += (i ? ", " : "") + values[i];
+    return out + "]";
+}
+
 template <typename Struct, typename T>
 inline OverrideItem make_override(const char* key, Setting<T> Struct::* member) {
     return OverrideItem{
@@ -140,7 +152,8 @@ inline OverrideItem make_override(const char* key, Setting<T> Struct::* member) 
                 T newValue = entry.get<T>();
                 if (dst.value != newValue) {
                     std::ostringstream oss;
-                    oss << key << " ( " << dst.value << " -> " << newValue << " )";
+                    oss << key << " ( " << SettingLogValue(dst.value) << " -> "
+                        << SettingLogValue(newValue) << " )";
                     changed.push_back(oss.str());
                 }
                 dst.game_specific_value = newValue;
@@ -209,8 +222,12 @@ struct GeneralSettings {
     Setting<bool> enable_upnp{true};
     Setting<bool> redzone_patches{false};
     // Guest function package to install (desktop): file stem under
-    // user/guest_patches/<TITLE_ID>/, empty = none. Normally set per game.
+    // user/guest_patches/<TITLE_ID>/, empty = none. Normally set per game. Read only
+    // when guest_patches is empty (configs from before the list).
     Setting<std::string> guest_patch{""};
+    // Guest function packages to install, in order: file stems under
+    // user/guest_patches/<TITLE_ID>/. Normally set per game.
+    Setting<std::vector<std::string>> guest_patches{};
 
     // return a vector of override descriptors (runtime, but tiny)
     std::vector<OverrideItem> GetOverrideableFields() const {
@@ -240,7 +257,8 @@ struct GeneralSettings {
             make_override<GeneralSettings>("signaling_info", &GeneralSettings::signaling_info),
             make_override<GeneralSettings>("enable_upnp", &GeneralSettings::enable_upnp),
             make_override<GeneralSettings>("redzone_patches", &GeneralSettings::redzone_patches),
-            make_override<GeneralSettings>("guest_patch", &GeneralSettings::guest_patch)};
+            make_override<GeneralSettings>("guest_patch", &GeneralSettings::guest_patch),
+            make_override<GeneralSettings>("guest_patches", &GeneralSettings::guest_patches)};
     }
 };
 
@@ -251,7 +269,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GeneralSettings, install_dirs, addon_install_
                                    trophy_notification_side, connected_to_network,
                                    discord_rpc_enabled, show_fps_counter, console_language,
                                    big_picture_scale, shadnet_server, shadnet_webapi_server,
-                                   signaling_info, enable_upnp, redzone_patches, guest_patch)
+                                   signaling_info, enable_upnp, redzone_patches, guest_patch,
+                                   guest_patches)
 
 // -------------------------------
 // Log settings
@@ -704,6 +723,7 @@ public:
     SETTING_FORWARD_BOOL(m_general, UPnPEnabled, enable_upnp)
     SETTING_FORWARD_BOOL(m_general, RedZonePatchingEnabled, redzone_patches)
     SETTING_FORWARD(m_general, GuestPatch, guest_patch)
+    SETTING_FORWARD(m_general, GuestPatches, guest_patches)
 
     // Log settings
     SETTING_FORWARD_BOOL(m_log, LogAppend, append)

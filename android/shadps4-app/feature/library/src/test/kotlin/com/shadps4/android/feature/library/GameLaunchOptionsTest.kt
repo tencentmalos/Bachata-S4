@@ -57,6 +57,41 @@ class GameLaunchOptionsTest {
         assertEquals(2, XrRendering.resolve(RuntimeProfile(), saved, true).upscaler)
         assertFalse(original.values.containsKey(DisplayMode.ID)) // cancel leaves the original intact
     }
+    @Test fun guestPatchesToggleInPanelOrderAndBlockConflicts() {
+        val fps = GuestPatchPackage("bloodborne_60fps_v1", "60 FPS", conflicts = listOf("other_60fps"))
+        val other = GuestPatchPackage("other_60fps", "Other 60 FPS", conflicts = listOf("bloodborne_60fps_v1"))
+        val sound = GuestPatchPackage("bloodborne_sound_fix_v1", "Sound bank reload fix")
+        val original = RuntimeProfile(values = mapOf(
+            GuestPatches.ID to GuestPatches.encode(listOf("bloodborne_sound_fix_v1", "gone"))))
+        var options = GameLaunchOptions("CUSA03023", loaded = true, game = original,
+            patches = listOf(fps, sound, other))
+        // Settings rows, then the Guest Patches row; the panel lists every package plus the
+        // selected name whose file is gone, so it can still be switched off.
+        assertEquals(options.specs().size + 1, options.rowCount(patchPanel = false))
+        assertEquals(4, options.rowCount(patchPanel = true))
+        assertEquals("File not found", options.patchBlocker(options.patchChoices().last()))
+        options = options.togglePatch("bloodborne_60fps_v1")
+        // Install order is the panel order, not the click order.
+        assertEquals(listOf("bloodborne_60fps_v1", "bloodborne_sound_fix_v1", "gone"), options.patchSelection())
+        assertEquals("Changes the same code as 60 FPS", options.patchBlocker(other))
+        assertSame(options, options.togglePatch("other_60fps"))
+        options = options.togglePatch("gone").togglePatch("bloodborne_sound_fix_v1")
+        assertEquals(listOf("bloodborne_60fps_v1"), options.patchSelection())
+        assertSame(options, options.togglePatch("gone")) // a missing file cannot come back
+        val saved = options.applyTo(original)
+        assertEquals(listOf("bloodborne_60fps_v1"), GuestPatches.resolve(RuntimeProfile(), saved))
+        assertEquals(listOf("bloodborne_sound_fix_v1", "gone"), GuestPatches.resolve(RuntimeProfile(), original))
+        assertEquals(emptyList<String>(), GuestPatches.resolve(RuntimeProfile(), RuntimeProfile()))
+        assertEquals(options.specs().size, GameLaunchOptions("none", loaded = true).rowCount(patchPanel = false))
+    }
+    @Test fun guestPatchCatalogReadsTheNativeListing() {
+        val listed = GuestPatchCatalog.parse("""{"packages":[{"name":"a","id":"pkg_a","label":"A",
+            "description":"does A","module":"eboot.bin","module_sha256":"00","conflicts":["b"]},
+            {"name":"b","id":"pkg_b","label":"","description":"","module":"eboot.bin",
+            "module_sha256":"00","conflicts":[]}],"skipped":["c.json: invalid"]}""")
+        assertEquals(listOf(GuestPatchPackage("a", "A", "does A", "eboot.bin", listOf("b")),
+            GuestPatchPackage("b", "b", "", "eboot.bin")), listed)
+    }
     @Test fun psvrAlwaysUsesXrAndDraftCommitDoesNotClobberOtherUpdates() {
         val original = RuntimeProfile(values = mapOf(DisplayMode.ID to JsonPrimitive("2d")))
         var options = GameLaunchOptions("psvr", loaded = true, psvr = true, game = original)

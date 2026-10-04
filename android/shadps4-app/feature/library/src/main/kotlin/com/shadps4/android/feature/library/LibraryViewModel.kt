@@ -16,6 +16,8 @@ data class LibraryUiState(
     val selectedGameId: String? = null,
     val showDetailsGameId: String? = null,
     val launchOptionIndex: Int = -1,
+    /** The Guest Patches panel replaces the launch options; launchOptionIndex is its row. */
+    val launchSubPanel: Boolean = false,
 )
 
 @HiltViewModel
@@ -25,12 +27,25 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
     private var focusedIndex: Int = 0
     private var numColumns: Int = 1
     private var launchOptionCount = 0
+    // (row, step): step -1/+1 from left/right, 0 from Cross (activate the row).
     private val adjustLaunchOptionRequest = MutableSharedFlow<Pair<Int, Int>>(extraBufferCapacity = 8)
     val adjustLaunchOption: SharedFlow<Pair<Int, Int>> = adjustLaunchOptionRequest
     fun setLaunchOptionCount(count: Int) {
         launchOptionCount = count
         mutableState.value = mutableState.value.copy(launchOptionIndex =
             mutableState.value.launchOptionIndex.coerceIn(-1, (count - 1).coerceAtLeast(-1)))
+    }
+    private var subPanelReturnIndex = -1
+    fun openLaunchSubPanel() {
+        val current = mutableState.value
+        if (current.showDetailsGameId == null || current.launchSubPanel) return
+        subPanelReturnIndex = current.launchOptionIndex
+        mutableState.value = current.copy(launchSubPanel = true, launchOptionIndex = 0)
+    }
+    fun closeLaunchSubPanel() {
+        val current = mutableState.value
+        if (!current.launchSubPanel) return
+        mutableState.value = current.copy(launchSubPanel = false, launchOptionIndex = subPanelReturnIndex)
     }
     private val openSettingsRequest = MutableSharedFlow<String>(extraBufferCapacity = 4)
     val openSettings: SharedFlow<String> = openSettingsRequest
@@ -90,12 +105,39 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
     }
 
     fun showDetails(id: String?) {
-        mutableState.value = mutableState.value.copy(showDetailsGameId = id, launchOptionIndex = -1)
+        mutableState.value = mutableState.value.copy(showDetailsGameId = id, launchOptionIndex = -1,
+            launchSubPanel = false)
+    }
+
+    private fun step(control: String) = when (control) {
+        "dpad_left" -> -1
+        "dpad_right" -> 1
+        else -> 0
     }
 
     fun handleNavEvent(event: NavControllerEvent): Boolean {
         val currentState = mutableState.value
         val detailsId = currentState.showDetailsGameId
+        if (detailsId != null && currentState.launchSubPanel) {
+            return when {
+                event.control in listOf("dpad_up", "dpad_down") && event.pressed -> {
+                    val delta = if (event.control == "dpad_up") -1 else 1
+                    mutableState.value = currentState.copy(launchOptionIndex =
+                        (currentState.launchOptionIndex + delta).coerceIn(0, (launchOptionCount - 1).coerceAtLeast(0)))
+                    true
+                }
+                event.control in listOf("dpad_left", "dpad_right", "cross") && event.pressed -> {
+                    adjustLaunchOptionRequest.tryEmit(currentState.launchOptionIndex to step(event.control))
+                    true
+                }
+                event.control == "circle" && event.pressed -> {
+                    closeLaunchSubPanel()
+                    true
+                }
+                event.pressed -> true
+                else -> false
+            }
+        }
         if (detailsId != null) {
             return when {
                 event.control in listOf("dpad_up", "dpad_down") && event.pressed -> {
@@ -106,8 +148,7 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
                 }
                 currentState.launchOptionIndex >= 0 && event.pressed &&
                     event.control in listOf("dpad_left", "dpad_right", "cross") -> {
-                    adjustLaunchOptionRequest.tryEmit(currentState.launchOptionIndex to
-                        if (event.control == "dpad_left") -1 else 1)
+                    adjustLaunchOptionRequest.tryEmit(currentState.launchOptionIndex to step(event.control))
                     true
                 }
                 event.control == "cross" && event.pressed -> {

@@ -9,6 +9,9 @@
 - `sound_reload.*`：音库重载修复（`bloodborne_sound_fix_v1`，sdk_version 1）：选用户后重载主音库时
   玩家/武器/菜单/音乐声音可能丢失（60 FPS 下更常见）；释放请求排队时暂缓同名音库的预载与加载。
 
+两个包可同时选用，互不冲突。每游戏选择见 [guest-function-patches](../../../../docs/guest-function-patches.md) “选包”：
+桌面 Big Picture → Launch Options → Guest Patches 二级面板，Android 游戏详情 → Launch 面板 → Guest Patches。
+
 ## 60 FPS（`bloodborne_60fps_v1`）
 
 思路来自 Lance McDonald 的 1.09 60 FPS 补丁：帧节拍器按 1/60 s 等待，游戏中按固定
@@ -41,10 +44,14 @@ cave；`update_17f9b40_delta` 只替换写 1/30 的那条指令，保留了 XML 
 ```bat
 python tools\guest-functions\build.py --clang <NDK>\toolchains\llvm\prebuilt\windows-x86_64\bin\clang.exe ^
   --recipe guest\games\CUSA03023\01.00\sixty_fps.recipe.json --output build\bb60
-rem 桌面：放进用户目录，再在 Big Picture 的 Launch Options 里把 Guest Patch 选上
+python tools\guest-functions\build.py --clang <NDK>\toolchains\llvm\prebuilt\windows-x86_64\bin\clang.exe ^
+  --recipe guest\games\CUSA03023\01.00\sound_reload.recipe.json --output build\bbsound
+rem 桌面：放进用户目录，再在 Big Picture 的 Launch Options → Guest Patches 里勾选
 copy build\bb60\patch.json <user>\guest_patches\CUSA03023\bloodborne_60fps_v1.json
-rem Android（设备上）
-scripts/android/guest-patch SERIAL deploy build/bb60/patch.json
+copy build\bbsound\patch.json <user>\guest_patches\CUSA03023\bloodborne_sound_fix_v1.json
+rem Android（设备上；--select 同时加入该游戏的选择）
+scripts/android/guest-patch SERIAL install build/bb60/patch.json
+scripts/android/guest-patch SERIAL install build/bbsound/patch.json --select
 ```
 
 运行中：DebugBus `guest_patch status`（桌面 `guest_patch disable|enable [site]`；

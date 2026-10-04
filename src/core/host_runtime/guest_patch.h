@@ -23,17 +23,25 @@ struct Allocation {
 using Allocator = std::function<Allocation(uint64_t size, uint64_t near)>;
 using CounterSink = std::function<void(const char*, int64_t)>;
 
-// One package per session, all hooks installed before ANY guest thread exists.
-// Resident trampolines and payload survive disable and all in-flight frames.
-// Destroy only after CPU owners drain; VM itself owns and releases mappings.
+// One package per manager; a session may hold several (the per-game selection),
+// all installed before ANY guest thread exists. Resident trampolines and payload
+// survive disable and all in-flight frames. Destroy only after CPU owners drain;
+// VM itself owns and releases mappings.
 class Manager {
 public:
     Manager(CpuContext&, GuestAddressSpace&, Hle::HleCallRegistry&, CounterSink = {});
     ~Manager();
     void Install(const Package&, const ModuleIdentity&, const QuiescenceToken&, const Allocator&);
+    // True once Install got past validation and started to allocate or publish: a
+    // failure before that left guest memory untouched.
+    bool Modified() const;
     void SetEnabled(bool enabled, const QuiescenceToken&, std::string_view hook = {});
     // Physical entry restoration requires zero live handles and the VM token.
     void Uninstall(const QuiescenceToken&);
+    std::string Id() const;
+    std::vector<std::string> HookNames() const;
+    // Installed code, for conflict checks against further packages.
+    std::vector<CodeRange> CodeRanges() const;
     std::string Status() const;
     std::vector<DebugModule> DebugModules() const;
     std::vector<GuestRange> ProtectedRanges() const;

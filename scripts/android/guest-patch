@@ -1,52 +1,110 @@
 #!/usr/bin/env python3
-"""Deploy and control explicitly authored FEX guest packages (next Session install)."""
+"""Install, select and control guest function packages on a device (next Session install).
+
+Packages live in files/host/guest_patches/<TITLE_ID>/<name>.json; the game's Launch options
+(Guest Patches) or `select` choose which ones a Session installs, in order. `override` sets
+the development property instead, which replaces the selection and fails the Session when the
+package does not install."""
 import argparse, hashlib, json, re, shlex, subprocess, sys
 from pathlib import Path
 APP='com.shadps4.android'
-REL='files/guest-patches/active.json'
-ABS='/data/user/0/'+APP+'/'+REL
+ROOT='files/host/guest_patches'
+# The development override keeps the path guest-auto-tag reads the package from.
+OVERRIDE='files/guest-patches/active.json'
+SELECTION_KEY='general.guest_patches'
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('serial');p.add_argument('action',choices=['deploy','clear','status','enable','disable'])
-    p.add_argument('package',nargs='?',type=Path)
-    p.add_argument('--hook',help='Toggle only this exact semantic hook name; no code unload')
+    p.add_argument('serial')
+    sub=p.add_subparsers(dest='action',required=True)
+    i=sub.add_parser('install',help='copy a package into its game directory')
+    i.add_argument('package',type=Path);i.add_argument('--name',help='file stem (default: the package id)')
+    i.add_argument('--select',action='store_true',help='also append it to the game selection')
+    s=sub.add_parser('select',help='set the game selection (no names: none)')
+    s.add_argument('title');s.add_argument('names',nargs='*')
+    sub.add_parser('list',help='packages and selections on the device')
+    for action in ('override','deploy'):
+        o=sub.add_parser(action,help='development: install only this package in every Session'
+                         +(' (same as override)' if action=='deploy' else ''))
+        o.add_argument('package',type=Path)
+    sub.add_parser('clear',help='remove the development override')
+    sub.add_parser('status')
+    for action in ('enable','disable'):
+        t=sub.add_parser(action,help=action+' hooks of the running Session (code stays resident)')
+        t.add_argument('target',nargs='?',help='package, hook, or package/hook (default: all)')
+        t.add_argument('--hook',dest='target_hook',help='same as a hook target')
     a=p.parse_args()
-    if a.hook and a.action not in ('enable','disable'):p.error('--hook needs enable or disable')
-    if (a.action=='deploy') != (a.package is not None):p.error('deploy requires a package; other commands take none')
     def adb(*args, data=None):
         return subprocess.run(['adb','-s',a.serial,*map(str,args)],input=data,stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,check=True,timeout=40).stdout.decode()
-    def command(*args):
-        result=adb('shell','dumpsys','activity','service',APP+'/.service.FexSessionService','guest_patch',*args)
-        if (not re.search(r'^\s*package: \S+',result,re.M) or
-            re.search(r'status: (error|invalid_arguments|no_session|session_retired|disabled_at_startup)',result)):
-            raise ValueError(result)
-        return result
-    if a.action=='deploy':
-        data=a.package.read_bytes()
+    def run_as(*args, data=None):
+        return adb('shell','run-as',APP,*args,data=data)
+    def push(rel, data):
+        run_as('sh','-c',shlex.quote('cat > '+rel+'.tmp'),data=data)
+        if run_as('sha256sum',rel+'.tmp').split()[0]!=hashlib.sha256(data).hexdigest():
+            raise ValueError('device file SHA mismatch: '+rel)
+        run_as('mv',rel+'.tmp',rel)
+        run_as('chmod','600',rel)
+    def load(path):
+        data=path.read_bytes()
         if len(data)>4*1024*1024:raise ValueError('package exceeds 4 MiB')
         doc=json.loads(data)
-        if doc.get('schema')!='shadps4.guest-functions.v1' or doc.get('sdk_version')!=1:
+        if doc.get('schema')!='shadps4.guest-functions.v1' or doc.get('sdk_version') not in (1,2):
             raise ValueError('unsupported package; rebuild with tools/guest-functions/build.py')
-        adb('shell','run-as',APP,'mkdir','-p','files/guest-patches')
-        adb('shell','run-as',APP,'sh','-c',shlex.quote('cat > '+REL+'.tmp'),data=data)
-        actual=adb('shell','run-as',APP,'sha256sum',REL+'.tmp').split()[0]
-        expected=hashlib.sha256(data).hexdigest()
-        if actual!=expected:raise ValueError('device package SHA mismatch')
-        adb('shell','run-as',APP,'mv',REL+'.tmp',REL)
-        adb('shell','setprop','debug.shadps4.guest_patch',ABS)
-        print('DEPLOYED sha256='+expected+'; install on next Session; current Session is unchanged')
+        return data,doc
+    def profile(title):
+        rel='files/settings/games/'+title+'.json'
+        text=run_as('sh','-c',shlex.quote('cat '+rel+' 2>/dev/null || true'))
+        doc=json.loads(text) if text.strip() else {'schemaVersion':1,'values':{}}
+        return rel,doc
+    def select(title, names):
+        if not re.fullmatch(r'[A-Za-z0-9._-]+',title):raise ValueError('invalid title '+title)
+        rel,doc=profile(title)
+        doc.setdefault('values',{})[SELECTION_KEY]=names
+        run_as('mkdir','-p','files/settings/games')
+        push(rel,(json.dumps(doc,indent=4)+'\n').encode())
+        print('SELECTED '+title+': '+(', '.join(names) or 'none'))
+    def command(*args):
+        result=adb('shell','dumpsys','activity','service',APP+'/.service.FexSessionService','guest_patch',*args)
+        if re.search(r'status: (error|invalid_arguments|no_session|session_retired)',result):
+            raise ValueError(result)
+        return result
+    if a.action=='install':
+        data,doc=load(a.package)
+        name=a.name or doc.get('id','')
+        if not re.fullmatch(r'[^/\\:]{1,96}',name) or name in ('.','..'):raise ValueError('invalid name '+name)
+        title=doc['title']
+        if not re.fullmatch(r'[A-Za-z0-9._-]+',title):raise ValueError('invalid title '+title)
+        run_as('mkdir','-p',ROOT+'/'+title)
+        run_as('chmod','700',ROOT,ROOT+'/'+title)
+        push(ROOT+'/'+title+'/'+name+'.json',data)
+        print('INSTALLED '+title+'/'+name+' sha256='+hashlib.sha256(data).hexdigest())
+        if a.select:
+            current=profile(title)[1].get('values',{}).get(SELECTION_KEY,[])
+            select(title,current+[name] if name not in current else current)
+    elif a.action=='select':select(a.title,a.names)
+    elif a.action=='list':
+        print(run_as('sh','-c',shlex.quote('ls -lR '+ROOT+' 2>/dev/null; grep -H guest_patches '
+                                         'files/settings/games/*.json 2>/dev/null; true')),end='')
+        print('override: '+(adb('shell','getprop','debug.shadps4.guest_patch').strip() or 'none'))
+    elif a.action in ('override','deploy'):
+        data,doc=load(a.package)
+        run_as('mkdir','-p','files/guest-patches')
+        push(OVERRIDE,data)
+        adb('shell','setprop','debug.shadps4.guest_patch','/data/user/0/'+APP+'/'+OVERRIDE)
+        print('OVERRIDE sha256='+hashlib.sha256(data).hexdigest()+'; next Session installs only this package')
     elif a.action=='clear':
         adb('shell','setprop','debug.shadps4.guest_patch',"''")
-        print('CLEARED next-Session package; current Session retains its resident patch')
+        print('CLEARED the override; Sessions install the game selection again')
     elif a.action=='status':print(command('status'),end='')
     else:
-        status=command('status');ids=re.findall(r'^\s*context: ([0-9]+)\s*$',status,re.M)
+        status=command('status')
+        ids=set(re.findall(r'^\s*context: ([0-9]+)\s*$',status,re.M))
         if len(ids)!=1:raise ValueError('no unambiguous current patch context\n'+status)
-        print(command(a.action,ids[0],*([a.hook] if a.hook else [])),end='')
+        target=a.target or a.target_hook
+        print(command(a.action,ids.pop(),*([target] if target else [])),end='')
     return 0
 if __name__=='__main__':
     try:sys.exit(main())
-    except (OSError,ValueError,subprocess.SubprocessError) as e:
+    except (OSError,ValueError,KeyError,subprocess.SubprocessError) as e:
         print('GUEST_PATCH_ERROR: '+str(e),file=sys.stderr);sys.exit(1)
