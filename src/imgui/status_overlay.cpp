@@ -9,8 +9,11 @@
 #include "common/path_util.h"
 #include "core/diagnostics/overlay_control.h"
 #include "imgui/renderer/imgui_core.h"
-#include "imgui/renderer/imgui_impl_vulkan.h"
+#include "spatial/imgui/VulkanRenderer.hpp"
 #include "imgui/status_overlay.h"
+#ifndef __ANDROID__
+#include "imgui/window_chrome.h"
+#endif
 
 namespace ImGui {
 namespace ov = spatial::imgui::overlay;
@@ -64,7 +67,6 @@ void StatusOverlay::Save() {
                             {"text_size", int(text_size)},
                             {"status_anchor", int(status_anchor)},
                             {"opacity", theme.background.a},
-                            {"fps_opacity", theme.simple_background.a},
                             {"perf_hud", spatial::perf::serializePerfHudSettings(perf_hud)}};
         auto temp = settings_path;
         temp += ".tmp";
@@ -91,11 +93,14 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
         init.metrics = metrics;
         init.typography = ov::makeOverlayTypography(text_size);
         init.requested_font_mode = si::FontRenderMode::Sdf;
-        init.renderer_capabilities = Vulkan::FontCapabilities();
+        if (auto* renderer = Core::Renderer()) {
+            init.renderer_capabilities = renderer->Capabilities();
+        }
         shell.initialize(init);
         theme.good = {.6f, .9f, .7f, 1.f};
         theme.warning = {1.f, .65f, .25f, 1.f};
         theme.section_label = {.4f, .85f, 1.f, 1.f};
+        theme.simple_background.a = 0.f;
         settings_path =
             Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "status-overlay.json";
         bool restored = false;
@@ -111,7 +116,6 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
                 text_size = ov::OverlayTextSize(std::clamp(json.value("text_size", 1), 0, 2));
                 if (json.contains("status_anchor"))
                     status_anchor = ov::StatusAnchor(std::clamp(json.value("status_anchor", 0), 0, 3));
-                theme.simple_background.a = std::clamp(json.value("fps_opacity", .55f), 0.f, 1.f);
                 theme.background.a = std::clamp(json.value("opacity", .94f), .25f, 1.f);
                 if (json.contains("perf_hud") && !spatial::perf::deserializePerfHudSettings(
                                                      json.value("perf_hud", ""), perf_hud))
@@ -129,16 +133,25 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
         initialized = true;
     }
     const float density = diag::StatusOverlayMailbox().PixelDensity();
-    if (w != width || h != height || density != pixel_density) {
+#ifndef __ANDROID__
+    const float top = WindowChrome::TopInset(), bottom = WindowChrome::BottomInset();
+#else
+    const float top = 0.f, bottom = 0.f;
+#endif
+    if (w != width || h != height || density != pixel_density || top != inset_top ||
+        bottom != inset_bottom) {
         shell.notifyPresentationInvalidated(si::PointerCancelReason::PresentationChanged);
-        pointer.reset();
-        GetIO().AddMouseButtonEvent(0, false);
+        ReleasePointer();
         width = w;
         height = h;
         pixel_density = density;
+        inset_top = top;
+        inset_bottom = bottom;
         environment = {};
         environment.output.extent = {float(w), float(h)};
         environment.views.push_back(environment.output);
+        environment.safe_insets.top = top;
+        environment.safe_insets.bottom = bottom;
         // This overlay is composited once onto the physical host output, including SBS games.
         environment.scale.pixels_per_dp = pixel_density;
         shell.setPresentation(environment);
@@ -146,8 +159,7 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
     const bool ime_active = Core::IsImeInputCaptured();
     if (ime_active != ime_captured) {
         shell.notifyPresentationInvalidated(si::PointerCancelReason::HostRequested);
-        pointer.reset();
-        GetIO().AddMouseButtonEvent(0, false);
+        ReleasePointer();
         ime_captured = ime_active;
     }
     std::vector<diag::OverlayTouch> touches;
@@ -160,8 +172,7 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
     for (const auto& touch : touches) {
         if (touch.id == -1) {
             shell.notifyPresentationInvalidated(si::PointerCancelReason::HostRequested);
-            pointer.reset();
-            GetIO().AddMouseButtonEvent(0, false);
+            ReleasePointer();
             continue;
         }
         if (ime_captured) {
@@ -172,10 +183,8 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
                 GetIO().AddMousePosEvent(touch.x * width, touch.y * height);
                 if (touch.phase == 0)
                     GetIO().AddMouseButtonEvent(0, true);
-                if (touch.phase >= 2) {
-                    GetIO().AddMouseButtonEvent(0, false);
-                    pointer.reset();
-                }
+                if (touch.phase >= 2)
+                    ReleasePointer();
             }
             continue;
         }
@@ -191,6 +200,15 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
         event.buttons = touch.phase < 2 ? 1 : 0;
         shell.submitPointerEvent(event);
     }
+}
+void StatusOverlay::ReleasePointer() {
+    GetIO().AddMouseButtonEvent(0, false);
+    // A touch screen has no hover between touches. Left where the finger lifted, ImGui keeps the item
+    // under it hovered until the next touch, and the Summary drew its hover fill as a background.
+    // Queued after the release, so the tap still lands on that item.
+    if (pointer)
+        GetIO().AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+    pointer.reset();
 }
 void StatusOverlay::Controls() {
     ov::ControlPage page;
@@ -212,6 +230,7 @@ void StatusOverlay::Controls() {
     choice("text_size", "Text size", int(text_size), {"Small", "Medium", "Large"});
     choice("status_anchor", "FPS position", int(status_anchor),
            {"Top left", "Top right", "Bottom left", "Bottom right"});
+    // Only FPS and Summary are drawn without a background; this is the Detail and Controls panels'.
     ov::ControlDescriptor opacity;
     opacity.id = ov::StableId("opacity");
     opacity.label = ov::LocalizedText("Panel opacity");
@@ -220,15 +239,12 @@ void StatusOverlay::Controls() {
     opacity.float_maximum = 1.;
     opacity.float_value = theme.background.a;
     page.controls.push_back(opacity);
-    ov::ControlDescriptor fps_opacity = opacity;
-    fps_opacity.id = ov::StableId("fps_opacity");
-    fps_opacity.label = ov::LocalizedText("FPS opacity");
-    fps_opacity.float_minimum = 0.;
-    fps_opacity.float_value = theme.simple_background.a;
-    page.controls.push_back(fps_opacity);
-    snapshot.controls.pages = {std::move(page),
-                               ov::makePerfHudControlPage(perf_hud, shell.controller().statusMode(),
-                                                          shell.controller().statusOrientation())};
+    auto hud = ov::makePerfHudControlPage(perf_hud, shell.controller().statusMode(),
+                                          shell.controller().statusOrientation());
+    std::erase_if(hud.controls, [](const ov::ControlDescriptor& control) {
+        return control.id == ov::StableId(ov::perf_hud::kOpacityControl);
+    });
+    snapshot.controls.pages = {std::move(page), std::move(hud)};
     snapshot.controls.initial_page = ov::StableId("overlay");
 }
 void StatusOverlay::Prepare(ov::StatusSnapshot status) {
@@ -237,7 +253,9 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
         ov::DetailSection section;
         section.id = ov::StableId("Overlay renderer");
         section.title = ov::LocalizedText("Overlay renderer");
-        section.properties.push_back({ov::LocalizedText("Font mode"), Vulkan::FontDiagnostics()});
+        auto* renderer = Core::Renderer();
+        section.properties.push_back({ov::LocalizedText("Font mode"),
+                                      renderer ? renderer->FontDiagnostics() : std::string{}});
         snapshot.status.detail_sections.push_back(std::move(section));
     }
     if (shell.controller().controlPanelOpen())
@@ -247,7 +265,9 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
         font.handle = GetIO().FontDefault;
         font.resolved_weight = ov::TextWeight::Regular;
     }
-    shell.setSdfPipelineEvidence(Vulkan::FontEvidence());
+    if (auto* renderer = Core::Renderer()) {
+        shell.setSdfPipelineEvidence(renderer->Evidence());
+    }
     shell.setResolvedFonts(resolved);
     ov::measureOverlayStatus(snapshot, shell.fonts(), theme, metrics, environment);
     shell.setMetrics(metrics);
@@ -282,10 +302,8 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
         GetIO().AddMousePosEvent(x, y);
         if (routed.pressed)
             GetIO().AddMouseButtonEvent(0, true);
-        if (routed.released || routed.cancelled) {
-            GetIO().AddMouseButtonEvent(0, false);
-            pointer.reset();
-        }
+        if (routed.released || routed.cancelled)
+            ReleasePointer();
     }
     diag::status_overlay_enabled.store(frame.overlay_visible, std::memory_order_relaxed);
     ApplyCommands();
@@ -327,12 +345,6 @@ void StatusOverlay::ApplyCommands() {
                     metrics.status_anchor = status_anchor;
                     Save();
                 }
-            } else if (command.control == ov::StableId("fps_opacity")) {
-                if (const auto* alpha = std::get_if<double>(&command.value);
-                    alpha && std::isfinite(*alpha)) {
-                    theme.simple_background.a = float(std::clamp(*alpha, 0., 1.));
-                    Save();
-                }
             } else if (command.control == ov::StableId("opacity")) {
                 if (const auto* alpha = std::get_if<double>(&command.value);
                     alpha && std::isfinite(*alpha)) {
@@ -356,7 +368,11 @@ void StatusOverlay::Draw() {
     draw.snapshot = &snapshot;
     draw.theme = &theme;
     draw.intents = this;
+    // Only FPS and Summary are text over the game, without a panel; their two buttons keep a
+    // translucent fill so they still read as buttons.
     draw.status_appearance = ov::perfHudAppearance(perf_hud);
+    draw.status_appearance.background_opacity = 0.f;
+    draw.status_appearance.button_opacity = .4f;
     draw.sectionOpen = [&](const ov::StableId& id, bool fallback) {
         return shell.controller().detailSectionOpen(id, fallback);
     };

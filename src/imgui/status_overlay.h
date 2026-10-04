@@ -19,6 +19,9 @@ public:
     void Draw();
     bool WantsMetrics() const;
     bool WantsDetail() const;
+    spatial::imgui::overlay::StatusMode Mode() const {
+        return shell.controller().statusMode();
+    }
     // Rows, graphs and appearance of the performance HUD shown in Summary; saved with the shell.
     const spatial::perf::PerfHudSettings& HudSettings() const {
         return perf_hud;
@@ -31,6 +34,8 @@ private:
     void Save();
     void ApplyCommands();
     void Controls();
+    // Ends the touch that ImGui follows; for the desktop mouse only the button is released.
+    void ReleasePointer();
     spatial::imgui::overlay::OverlayShell shell;
     spatial::imgui::overlay::OverlayTheme theme;
     spatial::imgui::overlay::OverlayMetrics metrics;
@@ -54,6 +59,8 @@ private:
     std::filesystem::path settings_path;
     unsigned width{}, height{};
     float pixel_density{};
+    // Window menu bar and status bar (desktop windowed mode): the HUD stays between them.
+    float inset_top{}, inset_bottom{};
     std::uint64_t owner{}, sequence{};
     std::optional<int> pointer;
     bool pad_captured{};

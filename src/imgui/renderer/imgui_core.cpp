@@ -25,6 +25,7 @@
 #include "imgui_core.h"
 #include "core/diagnostics/overlay_control.h"
 #ifndef __ANDROID__
+#include "imgui/window_chrome.h"
 #include "imgui_impl_sdl3.h"
 #endif
 #include "imgui_internal.h"
@@ -318,7 +319,8 @@ bool ProcessEvent(SDL_Event* event) {
                                                              : event->button.windowID);
             sdl_window && SDL_GetWindowSize(sdl_window, &width, &height) && width > 0 &&
             height > 0 &&
-            ::Core::Diagnostics::StatusOverlayMailbox().Contains(x / width, y / height)) {
+            (::Core::Diagnostics::StatusOverlayMailbox().Contains(x / width, y / height) ||
+             WindowChrome::Contains(x, y, static_cast<float>(height)))) {
             return true;
         }
         [[fallthrough]];
@@ -393,6 +395,11 @@ ImGuiID NewFrame(bool is_reusing_frame) {
     }
     ImGui::NewFrame();
     SetKeyOwner(ImGuiKey_GamepadFaceUp, ImHashStr("shadps4/pad"));
+#ifndef __ANDROID__
+    // Before the dock space: the bars shrink the work area the game display fills.
+    if (using_sdl)
+        WindowChrome::Draw();
+#endif
 
     ImGuiWindowFlags flags =
         ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar;

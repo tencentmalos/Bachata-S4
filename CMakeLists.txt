@@ -1303,6 +1303,8 @@ set(IMGUI src/imgui/imgui_config.h
           src/imgui/status_overlay.h
           src/imgui/status_layer.cpp
           src/imgui/status_layer.h
+          src/imgui/window_chrome.cpp
+          src/imgui/window_chrome.h
           src/imgui/imgui_layer.h
           src/imgui/imgui_std.h
           src/imgui/imgui_texture.h
@@ -1442,7 +1444,9 @@ if(BUILD_HOST_CORE)
         src/imgui/big_picture/settings_dialog_imgui.cpp
         src/imgui/big_picture/settings_dialog_imgui.h
         src/imgui/big_picture/settings_dialog_layer.cpp
-        src/imgui/big_picture/settings_dialog_layer.h)
+        src/imgui/big_picture/settings_dialog_layer.h
+        src/imgui/window_chrome.cpp
+        src/imgui/window_chrome.h)
     list(REMOVE_ITEM INPUT
         src/input/input_handler.cpp
         src/input/input_handler.h

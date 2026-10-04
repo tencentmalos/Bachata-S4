@@ -24,6 +24,7 @@
 #include "core/user_settings.h"
 #include "imgui/friends_layer.h"
 #include "imgui/renderer/imgui_core.h"
+#include "imgui/window_chrome.h"
 #include "input/controller.h"
 #include "input/input_handler.h"
 #include "input/input_mouse.h"
@@ -152,6 +153,7 @@ WindowSDL::WindowSDL(s32 width_, s32 height_, Input::GameControllers* controller
     }
     SDL_SetWindowFullscreen(window, EmulatorSettings.IsFullScreen());
     SDL_SyncWindow(window);
+    ImGui::WindowChrome::SetFullscreen((SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) != 0);
     // The window geometry is only final once the fullscreen transition has settled; refresh
     // the cached size so the first swapchain and the splashscreen use the real drawable size.
     SDL_GetWindowSizeInPixels(window, &width, &height);
@@ -223,6 +225,9 @@ void WindowSDL::WaitEvent() {
     case SDL_EVENT_WINDOW_RESTORED:
     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
     case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+        // Resize events of the transition arrive here too: read the state, not the event.
+        ImGui::WindowChrome::SetFullscreen((SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) !=
+                                           0);
         OnResize();
         break;
     case SDL_EVENT_WINDOW_MINIMIZED:
@@ -333,6 +338,12 @@ void WindowSDL::WaitEvent() {
         break;
     case SDL_EVENT_SCREENSHOT_WITH_OVERLAYS:
         VideoCore::RequestScreenshot(VideoCore::ScreenshotRequest::WithOverlays);
+        break;
+    case SDL_EVENT_RESIZE_WINDOW:
+        if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)) {
+            SDL_RestoreWindow(window);
+            SDL_SetWindowSize(window, event.user.code >> 16, event.user.code & 0xffff);
+        }
         break;
     default:
         break;

@@ -495,6 +495,9 @@ void PipelineCache::SubmitBuild(Pipeline& pipeline, u64 hash) {
 }
 
 void PipelineCache::OnPipelineBuilt(const Pipeline& pipeline, u64 hash) {
+    if (!pipeline.Preloaded()) {
+        PipelineStats::RecordDeferredDone(); // counted by SubmitBuild
+    }
     NotePipeline(pipeline, hash, pipeline.Preloaded());
 }
 

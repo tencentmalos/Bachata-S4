@@ -107,6 +107,8 @@ std::atomic<u64> driver_saved_bytes{};
 
 std::atomic<u64> deferred_graphics{};
 std::atomic<u64> deferred_compute{};
+// Deferred pipelines (not preloaded) whose driver object is not built yet.
+std::atomic<s64> deferred_pending{};
 std::atomic<u64> compile_queued{};
 std::atomic<u64> compile_peak{};
 std::atomic<u64> compile_rejected{};
@@ -165,6 +167,7 @@ void Reset() {
     preload_threads = 0;
     driver_saves.Reset();
     driver_saved_bytes = 0;
+    deferred_pending = 0;
     deferred_graphics = 0;
     deferred_compute = 0;
     compile_queued = 0;
@@ -386,6 +389,15 @@ void RecordUsageSaved(u32 entries) {
 void RecordDeferred(PipelineKind kind) {
     (kind == PipelineKind::Compute ? deferred_compute : deferred_graphics)
         .fetch_add(1, std::memory_order_relaxed);
+    deferred_pending.fetch_add(1, std::memory_order_relaxed);
+}
+
+void RecordDeferredDone() {
+    deferred_pending.fetch_sub(1, std::memory_order_relaxed);
+}
+
+u32 PendingBuilds() {
+    return static_cast<u32>(std::max<s64>(0, deferred_pending.load(std::memory_order_relaxed)));
 }
 
 void SetDriverCacheState(DriverCacheState state) {

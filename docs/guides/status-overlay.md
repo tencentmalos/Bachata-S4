@@ -39,8 +39,10 @@ Launcher 的 Launch options 提供 **Status Layer** 横向平铺选项：Horizon
 - DebugBus：`overlay simple|summary|show|hide|detail|controls`、`overlay text small|medium|large`、
   `overlay status`。修改先排入渲染线程，响应含 `request: queued`，`overlay:` 是当前已应用状态。
   桌面经 TCP 发送时一条命令一个参数：`python scripts/debug/debugbus.py "overlay detail"`。
-- Controls 可选 None / Only FPS / Summary、字号、FPS 位置、面板透明度与独立的 FPS 透明度；保存到
-  UserDir 下的 `status-overlay.json`（`status_anchor` 0–3 对应左上/右上/左下/右下，缺省按平台默认）。
+- Controls 可选 None / Only FPS / Summary、字号、FPS 位置与面板透明度（只作用于 Detail 与 Controls）；
+  保存到 UserDir 下的 `status-overlay.json`（`status_anchor` 0–3 对应左上/右上/左下/右下，缺省按平台默认）。
+- Only FPS 与 Summary 不画背景和边框，只有描边文字与曲线；Summary 末尾的 Detail、Controls 按钮常驻
+  半透明底，悬停/打开时更亮（2026-10-04，见[记录](../validation/android-native-host/window-chrome-status-layer-20261004.md)）。
   不保存 live modal、IME 输入内容或指针捕获。
 - Detail → Renderer 显示实际选用的 GPU：`名称 (类型, 第 n 块/共 m 块)`，用于区分集显/独显；
   机器上有多块 GPU 时同一行也出现在 Summary。
@@ -48,14 +50,26 @@ Launcher 的 Launch options 提供 **Status Layer** 横向平铺选项：Horizon
 FPS 仍指实际新游戏画面，overlay 重画单独计数。CPU/GPU、倍率覆盖率、重传、tile/pass
 及 GPU timing 保留原始含义和颜色；GPU 无样本时显示 unavailable，不补零。
 
-Only FPS 复用 Cemu 最新接入所用的 Foundation Simple 组件：半透明紧凑条、FPS 数字、
-Detail 柱状图图标与 Controls 滑杆图标。Summary 是独立模式。几何使用宿主实际 DPI，
+Only FPS 复用 Cemu 最新接入所用的 Foundation Simple 组件，现为无背景的 FPS 数字。
+Summary 是独立模式。几何使用宿主实际 DPI，
 桌面最小目标 32 dp，Android 48 dp；不会根据游戏渲染倍率改变触屏目标。
 
 Android 点击边沿经带 owner 生命周期的有界 mailbox 送到渲染线程，再由 Foundation
 路由命中面板。按下后即使移出面板，抬起也被捕获；失焦/销毁/溢出会取消。
 PS4 IME 打开时独占触屏，直接进入现有 ImGui 输入框/键盘/关闭按钮，隐藏触控手柄后
 仍可操作。同一帧真实 pointer 输入优先于同时到来的手柄导航；原有 PS4 映射不变。
+
+## 桌面窗口菜单栏与状态栏
+
+窗口模式下（全屏时隐藏）游戏窗口有菜单栏与状态栏，参考 citron：
+
+- 菜单：File（打开用户/日志/截图目录、Exit）、Emulation（Pause/Continue、Stop、Configure...）、
+  View（Fullscreen、Show Status Bar、Status Overlay 子菜单、Reset Window Size）、Tools（截图、
+  RenderDoc、Guest Patches 逐包开关、Mouse 模式、Reload Input Config、Developer Tools）、Help（About）。
+- 状态栏：左侧 Status 模式、FSR/BILINEAR、VOLUME（点开滑杆）、PAUSED；右侧 Building N shaders、
+  Scale、Game FPS、Frame ms，每 500 ms 刷新。Show Status Bar 保存在 `user/window-chrome.json`。
+- 两栏在 DockSpace 之前绘制，游戏画面落在两栏之间；状态层的安全区避开两栏。点在栏上的点击不进游戏，
+  菜单关闭后键盘还给游戏。实现 `src/imgui/window_chrome.{h,cpp}`。
 
 ## Summary 设备指标
 

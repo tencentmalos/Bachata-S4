@@ -10,6 +10,9 @@
 #include "core/diagnostics/overlay_control.h"
 #include "core/emulator_settings.h"
 #include "imgui/status_layer.h"
+#ifndef __ANDROID__
+#include "imgui/window_chrome.h"
+#endif
 
 namespace ImGui {
 spatial::imgui::overlay::StatusSnapshot StatusLayer::Summary(bool xr) {
@@ -265,6 +268,15 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
 }
 void StatusLayer::Draw() {
     overlay.Draw();
+#ifndef __ANDROID__
+    std::optional<double> fps = frame_rate.fps();
+    if (const auto published = frame_rate.publishedAt();
+        published && std::chrono::steady_clock::now() - *published > std::chrono::seconds(2))
+        fps = 0.0;
+    WindowChrome::SetStatus({.fps = fps,
+                             .render_scale = scale_policy.render_eighths / 8.0,
+                             .overlay_mode = static_cast<int>(overlay.Mode())});
+#endif
     if (publisher && ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed)) {
         publisher->MarkAvailable(::Core::Diagnostics::AdvanceSignal::OverlayRedraw, true);
         publisher->Advance(::Core::Diagnostics::AdvanceSignal::OverlayRedraw,

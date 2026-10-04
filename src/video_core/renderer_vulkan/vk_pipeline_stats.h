@@ -120,6 +120,10 @@ struct PreloadTiers {
 void RecordPreloadTiers(const PreloadTiers& tiers);
 void RecordUsageSaved(u32 entries);
 void RecordDeferred(PipelineKind kind);
+/// A pipeline counted by RecordDeferred got its driver object, or was destroyed without one.
+void RecordDeferredDone();
+/// Deferred pipelines still waiting for their driver object (the "Building" status bar label).
+u32 PendingBuilds();
 
 void Reset();
 void SetSettings(const Settings& settings);
