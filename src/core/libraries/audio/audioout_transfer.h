@@ -77,6 +77,10 @@ inline void PrepareAudioStereo(const AudioFormatInfo& info, u32 frames, const vo
     std::array<float, 8> gains{};
     for (u32 ch = 0; ch < info.num_channels; ++ch)
         gains[ch] = std::clamp(volume[ch], 0, 32768) / 32768.0f * master;
+    // The 7.1 fold-down sums up to four channels and goes past full scale anyway; the output
+    // limiter turns that down. Clipping each channel here first would flatten loud surround
+    // sounds, so only absurd values are bounded.
+    const float bound = info.num_channels == 8 ? 8.0f : 1.0f;
     for (u32 frame = 0; frame < frames; ++frame) {
         auto value = [&](u32 ch) {
             const size_t index = size_t(frame) * info.num_channels + info.channel_layout[ch];
@@ -88,7 +92,7 @@ inline void PrepareAudioStereo(const AudioFormatInfo& info, u32 frames, const vo
                 std::memcpy(&integer, static_cast<const u8*>(input) + index * 2, 2);
                 sample = integer / 32768.0f;
             }
-            return std::isfinite(sample) ? std::clamp(sample * gains[ch], -1.0f, 1.0f) : 0.0f;
+            return std::isfinite(sample) ? std::clamp(sample * gains[ch], -bound, bound) : 0.0f;
         };
         float left = value(0), right = info.num_channels == 1 ? left : value(1);
         if (info.num_channels == 8) {

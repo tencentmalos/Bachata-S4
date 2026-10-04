@@ -3,11 +3,17 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <map>
 #include <optional>
 #include <thread>
 #include <vector>
+#include <fmt/format.h>
+#include "common/logging/log.h"
+#include "common/path_util.h"
 #include "common/profiler.h"
 #include "common/thread.h"
 #include "core/guest_cpu/api/address_space.h"
@@ -20,6 +26,121 @@ using namespace GuestCpu;
 using namespace Libraries::AudioOut;
 bool IsAudioNid(std::string_view nid) {
     return std::ranges::find(AudioNids, nid) != std::end(AudioNids);
+}
+namespace {
+// DebugBus `audio_capture`: the guest PCM blocks every port receives, unconverted, with the
+// steady-clock time each was accepted. Off costs one relaxed load per output call.
+struct AudioCapture {
+    struct Track {
+        u32 type{}, format{}, channels{}, frames{};
+        std::vector<u8> pcm;
+    };
+    struct Block {
+        u64 time_ns;
+        u32 port, bytes;
+    };
+    std::atomic<bool> armed{};
+    std::mutex mutex;
+    u64 start_ns{}, length_ns{};
+    std::map<u32, Track> tracks;
+    std::vector<Block> blocks;
+    size_t bytes{}, dropped{};
+    static constexpr size_t MaxBytes = 256u << 20;
+
+    static u64 Now() {
+        return u64(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                       std::chrono::steady_clock::now().time_since_epoch())
+                       .count());
+    }
+    void Add(u32 port, const PortOut& native, std::span<const u8> pcm) {
+        if (!armed.load(std::memory_order_relaxed)) return;
+        const u64 now = Now();
+        std::lock_guard lock(mutex);
+        if (!armed.load(std::memory_order_relaxed)) return;
+        if (now - start_ns > length_ns) {
+            armed.store(false, std::memory_order_relaxed);
+            return;
+        }
+        if (bytes + pcm.size() > MaxBytes) {
+            ++dropped;
+            return;
+        }
+        auto& track = tracks[port];
+        if (track.pcm.empty()) {
+            track.type = u32(native.type);
+            track.format = u32(native.format_info.is_float) | (native.format_info.num_channels << 8);
+            track.channels = native.format_info.num_channels;
+            track.frames = native.buffer_frames;
+            track.pcm.reserve(std::min<size_t>(MaxBytes, size_t(length_ns / 1000000000ull + 1) *
+                                                             native.sample_rate * pcm.size() /
+                                                             std::max<u32>(1, native.buffer_frames)));
+        }
+        track.pcm.insert(track.pcm.end(), pcm.begin(), pcm.end());
+        blocks.push_back({now - start_ns, port, u32(pcm.size())});
+        bytes += pcm.size();
+    }
+};
+AudioCapture& Capture() {
+    static AudioCapture capture;
+    return capture;
+}
+// DebugBus `audio_pacing`: guest output admitted at the block period (default) or as soon as
+// the device queue has room.
+std::atomic<bool>& PacedOutput() {
+    static std::atomic<bool> paced{true};
+    return paced;
+}
+} // namespace
+
+std::string AudioPacingCommand(const std::vector<std::string>& args) {
+    if (args.size() == 1 && (args[0] == "on" || args[0] == "off"))
+        PacedOutput().store(args[0] == "on", std::memory_order_relaxed);
+    else if (!args.empty() && !(args.size() == 1 && args[0] == "status"))
+        return "usage: audio_pacing on | off | status\n";
+    return fmt::format("audio_pacing: {}\n", PacedOutput().load() ? "on" : "off");
+}
+
+std::string AudioCaptureCommand(const std::vector<std::string>& args) {
+    auto& capture = Capture();
+    std::lock_guard lock(capture.mutex);
+    if (args.size() == 2 && args[0] == "start") {
+        const int seconds = std::atoi(args[1].c_str());
+        if (seconds <= 0 || seconds > 120) return "usage: audio_capture start <1..120 seconds>\n";
+        capture.tracks.clear();
+        capture.blocks.clear();
+        capture.blocks.reserve(size_t(seconds) * 2000);
+        capture.bytes = capture.dropped = 0;
+        capture.start_ns = AudioCapture::Now();
+        capture.length_ns = u64(seconds) * 1000000000ull;
+        capture.armed.store(true, std::memory_order_relaxed);
+        return fmt::format("audio_capture: started for {} s\n", seconds);
+    }
+    if (args.size() == 1 && args[0] == "save") {
+        capture.armed.store(false, std::memory_order_relaxed);
+        const auto dir = Common::FS::GetUserPath(Common::FS::PathType::LogDir) / "audio-capture";
+        std::error_code error;
+        std::filesystem::create_directories(dir, error);
+        std::string out;
+        for (const auto& [port, track] : capture.tracks) {
+            const auto name = fmt::format("port-{:08x}-type{}-{}ch-{}-{}f.raw", port, track.type,
+                                          track.channels, (track.format & 1) ? "f32" : "s16",
+                                          track.frames);
+            std::ofstream file(dir / name, std::ios::binary | std::ios::trunc);
+            file.write(reinterpret_cast<const char*>(track.pcm.data()), std::streamsize(track.pcm.size()));
+            out += fmt::format("{} {} bytes\n", name, track.pcm.size());
+        }
+        std::ofstream index(dir / "blocks.csv", std::ios::trunc);
+        index << "time_ns,port,bytes\n";
+        for (const auto& block : capture.blocks)
+            index << block.time_ns << ',' << fmt::format("{:08x}", block.port) << ',' << block.bytes << '\n';
+        out += fmt::format("blocks.csv {} blocks, dropped {}\n", capture.blocks.size(), capture.dropped);
+        return out;
+    }
+    if (!args.empty() && !(args.size() == 1 && args[0] == "status"))
+        return "usage: audio_capture start <seconds> | status | save\n";
+    return fmt::format("audio_capture: {} blocks {} bytes {} dropped {} ports {}\n",
+                       capture.armed.load() ? "recording" : "idle", capture.blocks.size(),
+                       capture.bytes, capture.dropped, capture.tracks.size());
 }
 namespace {
 struct AudioFailure {
@@ -49,6 +170,7 @@ struct GuestAudio::Impl {
         bool callback{};
         u64 accepted{}, completed{};
         size_t head{}, queued{};
+        std::chrono::steady_clock::time_point next_due{}; // paced callback admission
         std::jthread worker;
         // Destruction is only after RequestStop + explicit join, never under mutex.
     };
@@ -224,6 +346,9 @@ struct GuestAudio::Impl {
         port->handle =
             0x20000000 | id; // opaque, process-unique: closed/old-session handles stay invalid
         ports.emplace(port->handle, port);
+        LOG_INFO(Lib_AudioOut, "Opened port {:#x}: type {} format {} ({} ch) {} frames, {}",
+                 port->handle, type, format, port->native.format_info.num_channels, frames,
+                 port->callback ? "callback queue" : "worker");
         try {
             if (!port->callback)
                 port->worker = std::jthread(
@@ -249,6 +374,18 @@ struct GuestAudio::Impl {
         if (port->worker.joinable())
             port->worker.join();
         return 0;
+    }
+    static std::chrono::nanoseconds Period(const Port& port) {
+        return std::chrono::nanoseconds(1000000000ull * port.native.buffer_frames /
+                                        port.native.sample_rate);
+    }
+    // The PS4 returns from sceAudioOutOutput once the previous block has played, so a game's
+    // output thread takes one block per period from its mixer. The device here takes several
+    // blocks per callback; admitting them all at once lets the output thread run ahead of the
+    // mixer into blocks it has not rewritten yet (Bloodborne's FMOD then repeats 1024 samples,
+    // heard as an echo). While the queue is at least half full, admit one block per period.
+    static bool Early(const Port& port, std::chrono::steady_clock::time_point now) {
+        return port.accepted - port.completed >= port.prepared.size() / 2 && now < port.next_due;
     }
     void Refresh(Port& port) {
         if (!port.callback) return;
@@ -307,15 +444,18 @@ struct GuestAudio::Impl {
                     Require(bool(pin), ORBIS_AUDIO_OUT_ERROR_INVALID_POINTER);
             }
         }
+        const bool paced = !host && PacedOutput().load(std::memory_order_relaxed);
         auto ready = [&] {
             if (stopping || stop.stop_requested()) return true;
             bool all = true;
+            const auto now = std::chrono::steady_clock::now();
             for (u32 i = 0; i < count; ++i) {
                 auto& port = *selected[i];
                 Refresh(port);
                 if (port.closing || port.error) return true;
                 if (!requests[i].address) all &= port.completed >= drain_target[i];
-                else all &= port.callback ? port.native.impl->CanQueue() : port.queued < Port::Capacity;
+                else if (!port.callback) all &= port.queued < Port::Capacity;
+                else all &= port.native.impl->CanQueue() && !(paced && Early(port, now));
             }
             return all;
         };
@@ -356,12 +496,15 @@ struct GuestAudio::Impl {
                     pins[i].emplace(std::move(pinned.Value()[pin_index++]));
             for (u32 i = 0; i < count; ++i) if (requests[i].address) {
                 auto& port = *selected[i];
+                const u8* input =
+                    host ? host->data() : reinterpret_cast<const u8*>(pins[i]->Bytes().data());
+                Capture().Add(port.handle, port.native, {input, port.native.BufferSize()});
                 if (port.callback) {
                     auto& block = port.prepared[port.accepted % port.prepared.size()];
-                    port.native.impl->Prepare((host ? host->data() : reinterpret_cast<const u8*>(pins[i]->Bytes().data())), port.native.volume, block);
+                    port.native.impl->Prepare(input, port.native.volume, block);
                 } else {
                     auto& block = port.pending[(port.head + port.queued) % Port::Capacity];
-                    std::memcpy(block.data(), (host ? host->data() : reinterpret_cast<const u8*>(pins[i]->Bytes().data())), block.size());
+                    std::memcpy(block.data(), input, block.size());
                 }
             }
             struct PublishBatch {
@@ -376,6 +519,11 @@ struct GuestAudio::Impl {
                 if (port.callback) {
                     auto& block = port.prepared[port.accepted % port.prepared.size()];
                     Require(port.native.impl->QueuePrepared(block, batch.epoch), ORBIS_AUDIO_OUT_ERROR_TRANS_EVENT);
+                    // One period after this block, kept within half to one period from now:
+                    // a late block does not earn a burst, an early (refill) one no backlog.
+                    const auto now = std::chrono::steady_clock::now();
+                    const auto period = Period(port);
+                    port.next_due = std::clamp(port.next_due + period, now + period / 2, now + period);
                 } else ++port.queued;
                 ++port.accepted;
                 Common::Profiler::Counter("Audio.Port", port.handle);

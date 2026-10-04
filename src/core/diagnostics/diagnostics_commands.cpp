@@ -8,6 +8,7 @@
 
 #include "core/diagnostics/diagnostics_commands.h"
 #if defined(__ANDROID__)
+#include "core/libraries/audio/audioout_backend.h"
 #include "video_core/renderer_vulkan/openxr/runtime.h"
 #include "video_core/renderer_vulkan/openxr/status_scene.h"
 #include "video_core/renderer_vulkan/openxr/cinema_environment.h"
@@ -28,6 +29,7 @@
 #include "core/host_runtime/guest_sync_metrics.h"
 #include "core/host_runtime/guest_wake_proxy.h"
 #include "core/host_runtime/guest_cpu_placement.h"
+#include "core/host_runtime/guest_audio.h"
 #include "core/diagnostics/executable_export.h"
 #endif
 
@@ -193,6 +195,14 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "Wake guest sync waiters from a proxy thread instead of the signalling thread (default "
         "on, debug.shadps4.wake_proxy=0 disables): on | off | spin <us> | status",
         [](const std::vector<std::string>& args) { return HostRuntime::WakeProxy::Command(args); });
+    registry.Register("audio_capture",
+        "Raw guest PCM per AudioOut port with accept times, saved under log/audio-capture: "
+        "start <seconds> | status | save",
+        [](const std::vector<std::string>& args) { return HostRuntime::AudioCaptureCommand(args); });
+    registry.Register("audio_pacing",
+        "Admit guest AudioOut blocks at the block period like the PS4 (default on): on | off | "
+        "status",
+        [](const std::vector<std::string>& args) { return HostRuntime::AudioPacingCommand(args); });
     registry.Register("guest_affinity",
         "Keep guest threads off the lowest-capacity CPUs (default on with at least four faster "
         "CPUs): on | off | status",
@@ -282,6 +292,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             return Libraries::Pad::Vibration::Command(args);
         });
 #if defined(__ANDROID__)
+    registry.Register("audio_limiter",
+        "Output limiter of the Android audio device (default on, debug.shadps4.audio_limiter=0 "
+        "starts it off): on | off | status",
+        [](const std::vector<std::string>& args) {
+            return Libraries::AudioOut::OutputLimiterCommand(args);
+        });
     registry.Register("xr_cinema", "Cinema environment World: status | world <tv-lounge|dusk-terrace|dark-room|seaside|void|off>",
         [](const auto& args) { return Vulkan::OpenXr::CinemaEnvironmentCommand(args); });
     registry.Register("xr_status", "PSV status: status | visible on/off | gi on/off | theme graphite/pearl/blue | recenter | indicator auto/off/running/standby/charging/charge_low/notification",

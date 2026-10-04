@@ -5,7 +5,9 @@
 #include <memory>
 #include <mutex>
 #include <stop_token>
+#include <string>
 #include <string_view>
+#include <vector>
 #include "common/types.h"
 #include "core/libraries/audio/audioout_backend.h"
 namespace Core::GuestCpu {
@@ -17,6 +19,12 @@ inline constexpr std::string_view AudioNids[]{"JfEPXVxhFqA", "ekNvsT22rsY", "s1-
                                               "QOQtbeDqsT4", "w3PdaSTSwGE", "b+uAV89IlxE",
                                               "Ptlts326pds", "GrQ9s4IrNaQ", "R5hemoKKID8"};
 bool IsAudioNid(std::string_view nid);
+// DebugBus `audio_capture start <seconds> | status | save`: raw guest PCM per port and the time
+// each block was accepted, written under the log directory (audio-capture/).
+std::string AudioCaptureCommand(const std::vector<std::string>& args);
+// DebugBus `audio_pacing on | off | status`: admit guest output blocks at the block period, as
+// the PS4 does (default on), or as soon as the device queue has room.
+std::string AudioPacingCommand(const std::vector<std::string>& args);
 class GuestAudio {
 public:
     using Factory = std::function<std::unique_ptr<Libraries::AudioOut::PortBackend>(
