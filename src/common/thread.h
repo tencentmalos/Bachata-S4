@@ -73,6 +73,20 @@ void NoteThreadPriority(NativeThreadRef thread, std::string_view name, std::stri
 /// DebugBus thread_priority: status | reset.
 std::string ThreadPriorityCommand(const std::vector<std::string>& args);
 
+/// Linux/Android: the CPUs of the lowest capacity and the others, from
+/// /sys/devices/system/cpu/cpuN/cpu_capacity. Both lists are empty when a capacity is unknown or
+/// every CPU has the same one (`note` says which); always empty on other platforms.
+struct CpuCapacitySplit {
+    std::vector<int> lowest;
+    std::vector<int> others;
+    std::string note;
+};
+const CpuCapacitySplit& GetCpuCapacitySplit();
+
+/// Linux/Android: restricts a thread to `cpus`, or lets it run on every CPU when `cpus` is
+/// empty. False on failure and on other platforms.
+bool SetThreadAffinity(NativeThreadRef thread, const std::vector<int>& cpus);
+
 void SetCurrentThreadName(const char* name);
 
 void SetThreadName(void* thread, const char* name);

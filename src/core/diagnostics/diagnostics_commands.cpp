@@ -25,6 +25,7 @@
 #include "core/host_runtime/orbis_pad_adapter.h"
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_cpu_placement.h"
 #include "core/diagnostics/executable_export.h"
 #endif
 
@@ -185,6 +186,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) { return ExecutableExport::Command(args); });
     registry.Register("hle_sync", "HLE synchronization metrics: status | dump | start/detail/stop <context>",
         [](const std::vector<std::string>& args) { return HostRuntime::SyncMetrics::Command(args); });
+    registry.Register("guest_affinity",
+        "Keep guest threads off the lowest-capacity CPUs (default on with at least four faster "
+        "CPUs): on | off | status",
+        [](const std::vector<std::string>& args) {
+            return HostRuntime::GuestPlacement::Command(args);
+        });
     registry.Register("guest_auto_tag", "Guest IR auto tag status | enable/disable <context>",
         [](const std::vector<std::string>& args) { return GuestAutoTag::Command(args); });
     registry.Register("guest_patch", "Guest patch status | enable/disable <context ID>",

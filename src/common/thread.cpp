@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cerrno>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <iterator>
@@ -406,6 +407,72 @@ std::optional<int> SetThreadNice(NativeThreadRef thread, int offset) {
 
 std::optional<int> SetCurrentThreadNice(int offset) {
     return SetThreadNice(CurrentNativeThreadRef(), offset);
+}
+
+const CpuCapacitySplit& GetCpuCapacitySplit() {
+    static const CpuCapacitySplit split = [] {
+        CpuCapacitySplit result;
+#if defined(__linux__)
+        const long count = sysconf(_SC_NPROCESSORS_CONF);
+        if (count <= 1 || count > CPU_SETSIZE) {
+            result.note = count <= 1 ? "one cpu" : "too many cpus";
+            return result;
+        }
+        std::vector<long> capacity;
+        for (long cpu = 0; cpu < count; ++cpu) {
+            long value = -1;
+            const auto path = fmt::format("/sys/devices/system/cpu/cpu{}/cpu_capacity", cpu);
+            if (FILE* file = std::fopen(path.c_str(), "r")) {
+                if (std::fscanf(file, "%ld", &value) != 1) {
+                    value = -1;
+                }
+                std::fclose(file);
+            }
+            if (value <= 0) {
+                result.note = "no cpu_capacity";
+                return result;
+            }
+            capacity.push_back(value);
+        }
+        const long lowest = *std::min_element(capacity.begin(), capacity.end());
+        for (long cpu = 0; cpu < count; ++cpu) {
+            (capacity[cpu] == lowest ? result.lowest : result.others)
+                .push_back(static_cast<int>(cpu));
+        }
+        if (result.others.empty()) {
+            result.lowest.clear();
+            result.note = "symmetric";
+        }
+#else
+        result.note = "unsupported platform";
+#endif
+        return result;
+    }();
+    return split;
+}
+
+bool SetThreadAffinity(NativeThreadRef thread, const std::vector<int>& cpus) {
+#if defined(__linux__)
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    if (cpus.empty()) {
+        const long count = sysconf(_SC_NPROCESSORS_CONF);
+        for (long cpu = 0; cpu < count && cpu < CPU_SETSIZE; ++cpu) {
+            CPU_SET(cpu, &set);
+        }
+    } else {
+        for (const int cpu : cpus) {
+            if (cpu >= 0 && cpu < CPU_SETSIZE) {
+                CPU_SET(cpu, &set);
+            }
+        }
+    }
+    return sched_setaffinity(static_cast<pid_t>(thread), sizeof(set), &set) == 0;
+#else
+    (void)thread;
+    (void)cpus;
+    return false;
+#endif
 }
 
 void SetCurrentThreadPriority(ThreadPriority new_priority) {

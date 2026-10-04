@@ -93,6 +93,7 @@
 #include "core/host_runtime/guest_sync_abi.h"
 #include "core/host_runtime/guest_sync_arena.h"
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_cpu_placement.h"
 #include "core/host_runtime/guest_system_service.h"
 #include "core/host_runtime/guest_trophy.h"
 #include "core/host_runtime/guest_user_callbacks.h"
@@ -788,6 +789,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char gnm_fastpath_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.gnm_fastpath", gnm_fastpath_property);
             gnm_fastpath_enabled = std::string_view(gnm_fastpath_property) != "0";
+            char affinity_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.guest_affinity", affinity_property);
+            GuestPlacement::Enable(std::string_view(affinity_property) != "0");
             char hmd_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.hmd_log", hmd_property);
             hmd_diagnostics = std::string_view(hmd_property) == "1";
@@ -1200,6 +1204,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             o->host_ref = Common::CurrentNativeThreadRef();
             ApplyHostPriority(*o);
         }
+        GuestPlacement::ApplyToCurrentThread();
         active_runtime = this;
         active_thread = o->id;
         SetTcbBase(reinterpret_cast<void*>(o->tcb));
