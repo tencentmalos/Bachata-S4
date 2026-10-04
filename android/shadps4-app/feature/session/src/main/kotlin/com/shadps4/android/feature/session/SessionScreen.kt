@@ -22,11 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.activity.compose.BackHandler
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
 import com.shadps4.android.runtime.session.RuntimeSurface
@@ -81,6 +84,8 @@ fun SessionScreen(
 ) {
     SessionWindowModeEffect()
     val context = LocalContext.current
+    // The activity's lifecycle: the destination's own only resumes after the navigation transition.
+    val lifecycle = LocalView.current.findViewTreeLifecycleOwner()?.lifecycle ?: LocalLifecycleOwner.current.lifecycle
     val dependencies = remember { EntryPointAccessors.fromApplication(context.applicationContext, TouchLayoutDependencies::class.java) }
     var touchLayout by remember { mutableStateOf(TouchLayout()) }
     val state by viewModel.state.collectAsState()
@@ -113,7 +118,7 @@ fun SessionScreen(
             } finally {
                 withContext(NonCancellable + Dispatchers.IO) { NativeFexSession.nativeHideXrError(token) }
             }
-            if (action == 1) viewModel.launch(gameId)
+            if (action == 1) viewModel.relaunch(gameId, lifecycle)
             else if (action != 0) onExit()
         }
     }
@@ -152,7 +157,12 @@ fun SessionScreen(
         com.shadps4.android.runtime.input.NativePadBridge.configureProfiles(
             game.controllerSlots.ifEmpty { global.controllerSlots },
         )
-        viewModel.launch(gameId)
+        if (!viewModel.launchOnEnter(gameId, lifecycle) && viewModel.state.value == ManagedSessionState.Idle) {
+            // Restored after the app process died: the game this screen started is gone.
+            android.util.Log.i("SessionLaunch", "Not restarting $gameId on a restored session screen")
+            android.widget.Toast.makeText(context, "The game session has ended", android.widget.Toast.LENGTH_SHORT).show()
+            onExit()
+        }
     }
 
     LaunchedEffect(state) {
@@ -294,7 +304,7 @@ fun SessionScreen(
                 },
                 onRetry = {
                     showSessionStopReport = false
-                    viewModel.launch(gameId)
+                    viewModel.relaunch(gameId, lifecycle)
                 },
                 onClose = {
                     showSessionStopReport = false

@@ -40,6 +40,14 @@ open class MainActivity : ComponentActivity() {
         value.removeExtra("--open_last_game")
         val direct = value.getStringExtra(DirectGameLaunchRequest.EXTRA_GAME_ID)
         value.removeExtra(DirectGameLaunchRequest.EXTRA_GAME_ID)
+        // Recents restarts a task whose activity is gone (finished or crashed) with the intent that
+        // created the task. Its launch request was handled back then and must not run again.
+        if (value.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) {
+            if (direct != null || requested) {
+                android.util.Log.i("SessionLaunch", "Ignoring the launch extras of a task restarted from recents")
+            }
+            return
+        }
         if (direct != null) requestedGameId = direct
         else if (requested) openLastGameRequest++
     }

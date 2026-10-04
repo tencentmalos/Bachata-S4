@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     ksp(libs.hilt.compiler)
     ksp(libs.kotlin.metadata.jvm)
 }

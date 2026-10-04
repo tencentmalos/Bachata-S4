@@ -1,0 +1,97 @@
+# AYANEO Pocket DS (adb 01108YHE01017563), Android 13, 2026-10-03. Bloodborne CUSA03023.
+# Excerpts from logcat (main/events/crash buffers); times are device local time.
+# Launch command in every case:
+#   am start -W -n com.shadps4.android/.MainActivity -f 0x24000000 --es game_id CUSA03023
+
+## 0. Original crash (APK 1881c71d), crash buffer
+10-03 07:08:43.868 15892 15892 E AndroidRuntime: android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { act=com.shadps4.android.action.START_EMULATION cmp=com.shadps4.android/.service.FexSessionService (has extras) }: app is in background uid UidRecord{2dbc481 u0a167 TPSL bg:+35m30s807ms idle change:cached|procstate procs:0 seq(827307,827116)}
+10-03 07:08:43.868 15892 15892 E AndroidRuntime: 	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:1908)
+10-03 07:08:43.868 15892 15892 E AndroidRuntime: 	at com.shadps4.android.feature.session.SessionViewModel$launch$1.invokeSuspend(SessionViewModel.kt:68)
+
+## 1. Old APK 1881c71d, cold process, device dozing (no crash, request wasted)
+10-03 10:09:29.077  2265  2332 I am_proc_start: [0,30326,10167,com.shadps4.android,top-activity,{com.shadps4.android/com.shadps4.android.MainActivity}]
+10-03 10:09:29.307 30326 30326 I wm_on_resume_called: [106895057,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:09:29.329 30326 30326 I wm_on_paused_called: [106895057,com.shadps4.android.MainActivity,performPause]
+10-03 10:09:29.542 30326 30326 I wm_on_stop_called: [106895057,com.shadps4.android.MainActivity,STOP_ACTIVITY_ITEM]
+10-03 10:09:29.908 30326 30326 I DisplayMode: CUSA03023 preferred=TWO_D effective=TWO_D PSVR=false
+10-03 10:09:30.013 30326 30326 I FexSessionService: Guest console language=1
+10-03 10:09:40.108 30326 30326 E FexSessionService: No live Surface for installed game
+10-03 10:09:40.108 30326 30326 E FexSessionService: kotlinx.coroutines.TimeoutCancellationException: Timed out waiting for 10000 ms
+# After wake at 10:11:37 the session screen stays black without a game (no service running).
+
+## 2. Interference (old APK): the device was operated, planned warm-idle repro aborted
+# Looks like a person (power key, unlock, recents gesture, swipe away); injected input not ruled out.
+10-03 10:13:50.593  2265  2417 I PowerManagerService: Waking up from Dozing (uid=1000, reason=WAKE_REASON_POWER_BUTTON, details=android.policy:POWER)...
+10-03 10:13:51.090  2265  2265 V WindowManager: Not support long press power when device is not interactive.
+10-03 10:13:53.376  2265  2331 W BroadcastQueue: Permission Denial: broadcasting Intent { act=android.intent.action.USER_PRESENT flg=0x24200010 } from com.android.systemui ...
+10-03 10:13:58.432  2265  2265 D InputDispatcher: mergeMotionEntryLocked - mRealTouchInputDeviceId=6, mRealTouchInputSource=4098
+10-03 10:14:02.489  2265  2416 I input_focus: [Focus entering recents_animation_input_consumer (server),reason=Window became focusable. Previous reason: NOT_VISIBLE]
+10-03 10:14:02.534  2265  3480 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000000 cmp=com.ayaneo.home/.ui.main.MainActivity (has extras)} from uid 10115
+10-03 10:14:07.057  2265  2325 I ActivityManager: Killing 30326:com.shadps4.android/u0a167 (adj 900): remove task
+# The script's am start at 10:14:38 then started the game with the screen on; stopped through the UI at 10:16.
+
+## 3. APK 29269222 (gate on the navigation entry lifecycle)
+# T1 cold, dozing
+10-03 10:22:59.232  1812  1812 I wm_on_resume_called: [94960722,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:22:59.258  1812  1812 I wm_on_paused_called: [94960722,com.shadps4.android.MainActivity,performPause]
+10-03 10:22:59.804  1812  1812 I wm_on_stop_called: [94960722,com.shadps4.android.MainActivity,STOP_ACTIVITY_ITEM]
+10-03 10:23:00.396  1812  1812 I DisplayMode: CUSA03023 preferred=TWO_D effective=TWO_D PSVR=false
+# (no FexSessionService line, no crash while asleep)
+# wake + unlock
+10-03 10:23:44.198  1812  1812 I wm_on_resume_called: [94960722,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:23:44.954  1812  1812 I FexSessionService: Guest console language=1
+10-03 10:23:45.034  1812  1812 I FexSessionService: native: page_size=4096 pid=1812 uid=10167 gen=1
+#   guest_flip 804 after ~30 s, Bloodborne at 30 FPS
+
+# T4 process killed in the background (run-as kill -9 1812) with the stopped session screen on top,
+# then am start without extras
+10-03 10:26:23.501  3582  3582 I wm_on_create_called: [94960722,com.shadps4.android.MainActivity,performCreate]
+10-03 10:26:23.857  3582  3582 I DisplayMode: CUSA03023 preferred=TWO_D effective=TWO_D PSVR=false
+10-03 10:26:23.931  3582  3582 I SessionLaunch: Not restarting CUSA03023 on a restored session screen
+# (no FexSessionService line; screen returns to Library)
+
+# T2 warm process, asleep 75 s (uid idle), then launch
+10-03 10:28:13.290  3582  3582 I wm_on_resume_called: [94960722,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:28:13.295  3582  3582 I wm_on_paused_called: [94960722,com.shadps4.android.MainActivity,performPause]
+10-03 10:28:13.311  3582  3582 I wm_on_stop_called: [94960722,com.shadps4.android.MainActivity,STOP_ACTIVITY_ITEM]
+10-03 10:28:13.424  3582  3582 I DisplayMode: CUSA03023 preferred=TWO_D effective=TWO_D PSVR=false
+# (no FexSessionService line, no crash while asleep)
+10-03 10:28:45.562  3582  3582 I wm_on_resume_called: [94960722,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:28:46.320  3582  3582 I FexSessionService: Guest console language=1
+10-03 10:28:46.420  3582  3582 I FexSessionService: native: page_size=4096 pid=3582 uid=10167 gen=1
+
+# T3 crash in the foreground, then relaunch the task from the Recents screen
+10-03 10:29:57.320  2265  4148 I am_crash: [3582,0,com.shadps4.android,818462278,android.app.RemoteServiceException$CrashedByAdbException,shell-induced crash,ActivityThread.java,1991]
+10-03 10:29:57.322  2265  4148 I wm_finish_activity: [0,94960722,90,com.shadps4.android/.MainActivity,force-crash]
+10-03 10:29:57.601  2265  2326 I wm_task_removed: [90,removeChild]
+#   dumpsys activity recents still lists: Task{de334b4 #90 type=standard A=10167:com.shadps4.android}
+#                                         intent={flg=0x34000000 cmp=com.shadps4.android/.MainActivity}
+10-03 10:30:39.204  2265  4146 I ActivityTaskManager: START u0 {flg=0x34100000 cmp=com.shadps4.android/.MainActivity (has extras)} from uid 2000
+10-03 10:30:39.445  4886  4886 I SessionLaunch: Ignoring the launch extras of a task restarted from recents
+# (no DisplayMode or FexSessionService line; Library shown)
+
+## 4. APK 5d5818f7 (gate on the activity lifecycle; final logic, bb00a108 adds one comment line)
+# T1 cold, dozing
+10-03 10:35:22.043  6374  6374 I wm_on_resume_called: [242207292,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:35:22.068  6374  6374 I wm_on_paused_called: [242207292,com.shadps4.android.MainActivity,performPause]
+10-03 10:35:22.482  6374  6374 I wm_on_stop_called: [242207292,com.shadps4.android.MainActivity,STOP_ACTIVITY_ITEM]
+10-03 10:35:22.904  6374  6374 I DisplayMode: CUSA03023 preferred=TWO_D effective=TWO_D PSVR=false
+10-03 10:35:47.169  6374  6374 I wm_on_resume_called: [242207292,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:35:47.387  6374  6374 I FexSessionService: Guest console language=1
+10-03 10:35:47.483  6374  6374 I FexSessionService: native: page_size=4096 pid=6374 uid=10167 gen=1
+
+# Screen on, app in the background (Home), direct launch
+10-03 10:37:45.711  2265  3480 I ActivityTaskManager: START u0 {flg=0x34000000 cmp=com.shadps4.android/.MainActivity (has extras)} from uid 2000
+10-03 10:37:45.735  6374  6374 I wm_on_resume_called: [242207292,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:37:45.887  6374  6374 I FexSessionService: Guest console language=1
+10-03 10:37:45.981  6374  6374 I FexSessionService: native: page_size=4096 pid=6374 uid=10167 gen=2
+
+# T2 warm process, asleep 75 s, then launch
+10-03 10:39:37.994  6374  6374 I wm_on_resume_called: [242207292,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:39:38.023  6374  6374 I wm_on_paused_called: [242207292,com.shadps4.android.MainActivity,performPause]
+10-03 10:39:38.046  6374  6374 I wm_on_stop_called: [242207292,com.shadps4.android.MainActivity,STOP_ACTIVITY_ITEM]
+10-03 10:39:38.123  6374  6374 I DisplayMode: CUSA03023 preferred=TWO_D effective=TWO_D PSVR=false
+10-03 10:40:01.532  6374  6374 I wm_on_resume_called: [242207292,com.shadps4.android.MainActivity,RESUME_ACTIVITY]
+10-03 10:40:01.594  6374  6374 I FexSessionService: Guest console language=1
+10-03 10:40:01.669  6374  6374 I FexSessionService: native: page_size=4096 pid=6374 uid=10167 gen=3
+# No WAKE_REASON_POWER_BUTTON / "remove task" lines after 10:21:30.

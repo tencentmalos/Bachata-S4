@@ -1,0 +1,17 @@
+# feature/session ForegroundStartTest (JVM, kotlinx-coroutines-test 1.9.0, LifecycleRegistry.createUnsafe)
+# gradlew :feature:session:testDebugUnitTest :app:testPlaystoreDebugUnitTest, 2026-10-03
+
+## Final source
+ForegroundStartTest: 4 tests, 0 failures
+  waitsUntilResumed                              ok
+  refusedStartWaitsForTheNextResume              ok
+  refusedStartRetriesWhileTheScreenStaysResumed  ok
+  destroyedScreenDropsTheStart                   ok
+feature/session + app unit tests together: 22 tests, 0 failures
+
+## Negative control: startWhenResumed gated with withStarted instead of withResumed
+4 tests completed, 2 failed
+  waitsUntilResumed -> java.lang.AssertionError: a started but paused screen must not start the session expected:<0> but was:<1>
+  refusedStartWaitsForTheNextResume -> java.lang.AssertionError: no retry while the screen is paused or stopped expected:<1> but was:<2>
+  refusedStartRetriesWhileTheScreenStaysResumed -> ok
+  destroyedScreenDropsTheStart -> ok
