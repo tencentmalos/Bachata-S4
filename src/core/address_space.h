@@ -30,6 +30,9 @@ DECLARE_ENUM_FLAG_OPERATORS(MemoryPermission)
 struct GpuWatchCounters {
     std::atomic<u64> watch_calls{}, watch_pages{}, release_calls{}, release_pages{}, syscalls{};
     std::atomic<u64> predicted_pages{}; // released ahead of a write fault (buffer cache)
+    // Write faults that went on to the texture cache, those that skipped it because no image
+    // watches the pages (Rasterizer::InvalidateMemoryFromWriteFault), and the time spent there.
+    std::atomic<u64> texture_invalidates{}, texture_invalidates_skipped{}, texture_invalidate_ns{};
     // CPU writes to pages holding GPU-written data while readbacks are off: the page is re-uploaded
     // from guest memory, which never received the GPU's data, so that data is lost. Counted in the
     // fault path (no logging there); the first addresses are kept for `gpu_memory status`.

@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <array>
 #include <shared_mutex>
+#define XXH_STATIC_LINKING_ONLY
+#include <xxhash.h>
 
 #include "common/alignment.h"
 #include "common/profiler.h"
@@ -257,6 +259,41 @@ bool MemoryManager::TryCopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) 
         ++vma;
     }
     return true;
+}
+
+void MemoryManager::HashSparsePages(VAddr virtual_addr, u64 size, u64 page_size, u64* hashes) {
+    std::shared_lock lk{mutex};
+    ASSERT_MSG(IsValidMapping(virtual_addr), "Attempted to access invalid address {:#x}",
+               virtual_addr);
+    auto vma = FindVMA(virtual_addr);
+    for (; size >= page_size; size -= page_size, virtual_addr += page_size, ++hashes) {
+        while (vma->first + vma->second.size <= virtual_addr) {
+            ++vma;
+        }
+        if (vma->second.IsMapped() && virtual_addr + page_size <= vma->first + vma->second.size) {
+            *hashes = XXH3_64bits(std::bit_cast<const u8*>(virtual_addr), page_size);
+            continue;
+        }
+        // The page spans areas: hash the pieces as CopySparseMemory copies them.
+        static constexpr std::array<u8, 4096> zeros{};
+        XXH3_state_t state;
+        XXH3_64bits_reset(&state);
+        VAddr address = virtual_addr;
+        for (auto it = vma; address < virtual_addr + page_size; ++it) {
+            const u64 piece =
+                std::min(it->first + it->second.size, virtual_addr + page_size) - address;
+            if (it->second.IsMapped()) {
+                XXH3_64bits_update(&state, std::bit_cast<const u8*>(address), piece);
+            } else {
+                for (u64 done = 0; done < piece; done += zeros.size()) {
+                    XXH3_64bits_update(&state, zeros.data(),
+                                       std::min<u64>(zeros.size(), piece - done));
+                }
+            }
+            address += piece;
+        }
+        *hashes = XXH3_64bits_digest(&state);
+    }
 }
 
 void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {

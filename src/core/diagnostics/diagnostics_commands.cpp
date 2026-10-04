@@ -51,6 +51,7 @@
 #include "core/guest_write_watch.h"
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
+#include "video_core/buffer_cache/page_heat.h"
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderer_vulkan/draw_skip.h"
@@ -355,6 +356,11 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("upload_diag",
         "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off | raw_sync on|off | raw_copy on|off | dma_bounds on|off | depth_copy maint8|buffer | stream_host on|off | stream_dma on|off | texture_bind_cache on|off",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
+
+    registry.Register("page_heat",
+        "Per-page buffer uploads from CPU writes and resident lookups per frame (default off): "
+        "on | off | reset | status",
+        [](const std::vector<std::string>& args) { return VideoCore::PageHeat::Command(args); });
 
     registry.Register("log_stats",
         "Written log lines per call site and class (nothing is dropped): status [top]",

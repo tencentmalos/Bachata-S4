@@ -2651,7 +2651,25 @@ bool Rasterizer::InvalidateMemoryFromWriteFault(VAddr addr, u64 size) {
         return false;
     }
     buffer_cache.InvalidateMemoryFromWriteFault(addr, size);
+    // Images learn about CPU writes through the pages they watch. Once the buffer cache has
+    // released the range, a page left without write watchers is tracked by no image, and the
+    // texture cache lock, which the GPU thread takes for every texture lookup, can be skipped.
+    // An image tracked concurrently adds its watcher before reading memory, under the same page
+    // lock: the retried write then faults again on its protection or lands before that read.
+    auto& watch = Core::gpu_watch_counters;
+    const bool skip_unwatched =
+        VideoCore::UploadDiagnostics::skip_unwatched_fault_textures.load(std::memory_order_relaxed);
+    if (skip_unwatched && !page_manager.HasWriteWatchers(addr, size)) {
+        watch.texture_invalidates_skipped.fetch_add(1, std::memory_order_relaxed);
+        return true;
+    }
+    const auto start = std::chrono::steady_clock::now();
     texture_cache.InvalidateMemory(addr, size);
+    const auto elapsed = std::chrono::steady_clock::now() - start;
+    watch.texture_invalidates.fetch_add(1, std::memory_order_relaxed);
+    watch.texture_invalidate_ns.fetch_add(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count(),
+        std::memory_order_relaxed);
     return true;
 }
 

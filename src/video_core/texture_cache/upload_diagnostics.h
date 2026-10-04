@@ -104,6 +104,10 @@ inline std::atomic<bool> raw_copy_off{false};
 // Largest read-only buffer copied into the stream buffer instead of bound from the arena
 // (`upload_diag stream_max <bytes>`; capped by BufferCache::STREAM_THRESHOLD).
 inline std::atomic<u32> stream_max{16384};
+// Streamed data is first copied from guest memory into a cached buffer on the stack and written
+// to the stream buffer after the memory manager's read lock is released, so the lock release
+// does not wait for stores to write-combined memory. Diagnostic (`upload_diag stream_bounce`).
+inline std::atomic<bool> stream_bounce{false};
 // Discrete GPUs: streamed data (small read-only buffers, per-draw constants) goes to a stream
 // buffer in host memory instead of device memory the CPU writes through the PCIe BAR. On by
 // default there (`upload_diag stream_host on|off`); other GPUs have one stream buffer.
@@ -120,6 +124,10 @@ inline std::atomic<u64> texture_bind_hits{0}, texture_bind_misses{0};
 // Reads of streamed buffers also go through the barrier tracker (`upload_diag stream_barriers
 // on|off`, off by default): an A/B switch for the earlier behaviour.
 inline std::atomic<bool> stream_barriers{false};
+// A write fault calls the texture cache only when a page it touches is still write watched after
+// the buffer cache released it: images watch their pages, so a page without watchers is tracked
+// by no image (`upload_diag fault_textures skip|always`, skip by default).
+inline std::atomic<bool> skip_unwatched_fault_textures{true};
 inline std::atomic<u64> raw_copies{0}, raw_copy_bytes{0}, raw_copy_fallbacks{0};
 void NoteFill(FillOutcome outcome, u32 images_cleared, u64 bytes);
 

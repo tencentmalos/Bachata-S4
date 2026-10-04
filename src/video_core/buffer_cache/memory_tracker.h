@@ -124,6 +124,8 @@ public:
     size_t InvalidateRegionFromWriteFault(VAddr cpu_addr, u64 size, auto&& on_flush) noexcept {
         const bool predict = predict_write_faults.load(std::memory_order_relaxed);
         size_t predicted = 0;
+        bool reached_end = false;
+        VAddr last_region = 0;
         IteratePages<false>(
             cpu_addr, size, [&](RegionManager* manager, u64 offset, size_t bytes) {
                 const bool should_flush = [&] {
@@ -134,14 +136,26 @@ public:
                         }
                         NoteCpuWriteOverGpuPages(manager, offset, bytes);
                     }
-                    predicted +=
-                        manager->MarkWriteFault(manager->GetCpuAddr() + offset, bytes, predict);
+                    predicted += manager->MarkWriteFault(manager->GetCpuAddr() + offset, bytes,
+                                                         predict, &reached_end);
+                    last_region = manager->GetCpuAddr();
                     return false;
                 }();
                 if (should_flush) {
                     on_flush();
                 }
             });
+        // The release ran to the end of its region: go on in the next one, under its own lock
+        // (the previous region's lock is already released).
+        if (reached_end) {
+            if (RegionManager* next = FindRegion((last_region >> TRACKER_HIGHER_PAGE_BITS) + 1)) {
+                std::scoped_lock lk{next->lock};
+                const size_t more = next->ContinueReleaseAhead();
+                predicted += more;
+                content_prediction_counters.cross_released.fetch_add(more,
+                                                                     std::memory_order_relaxed);
+            }
+        }
         return predicted;
     }
 
@@ -150,8 +164,10 @@ public:
     // waits and retirement callbacks belong in prepare or after this returns.
     // A racing CPU writer can require one larger reservation. Reserve the full
     // page-aligned query on that retry, bounding preparation to two calls.
+    // hash_pages(address, count, hashes) hashes uploaded pages for write prediction
+    // (RegionManager::CleanForUpload); it runs under the same locks as copy_range.
     u64 SnapshotForUpload(VAddr query_cpu_range, u64 query_size, bool is_written, auto&& prepare,
-                          auto&& copy_range) {
+                          auto&& copy_range, auto&& hash_pages) {
         struct Slice {
             RegionManager* manager;
             u64 offset;
@@ -159,11 +175,17 @@ public:
             RegionBits original_cpu;
         };
         boost::container::small_vector<Slice, 4> slices;
+        // Hashes only decide whether a released-ahead page decays (RegionManager::EndWriteCycle).
+        const bool hash_contents = predict_from_contents.load(std::memory_order_relaxed) &&
+                                   decay_unchanged.load(std::memory_order_relaxed);
         // Allocation/publication precedes locking; preparation can re-enter the
         // renderer, so this transaction's scratch must remain local.
         IteratePages<true>(query_cpu_range, query_size,
                            [&](RegionManager* manager, u64 offset, size_t size) {
                                slices.push_back({manager, offset, size, {}});
+                               if (hash_contents) {
+                                   manager->PrepareContentHashes();
+                               }
                            });
         const u64 max_bytes = Common::AlignUp(
             (query_cpu_range & (TRACKER_BYTES_PER_PAGE - 1)) + query_size, TRACKER_BYTES_PER_PAGE);
@@ -193,9 +215,28 @@ public:
                 }
                 if (required <= capacity) {
                     modified = true;
+                    RegionManager::UploadPrediction prediction{};
                     for (auto& slice : slices) {
-                        slice.manager->template ForEachModifiedRange<Type::CPU, true>(
-                            slice.manager->GetCpuAddr() + slice.offset, slice.size, copy_range);
+                        const auto slice_prediction = slice.manager->CleanForUpload(
+                            slice.manager->GetCpuAddr() + slice.offset, slice.size, hash_contents,
+                            copy_range, hash_pages);
+                        prediction.hashed += slice_prediction.hashed;
+                        prediction.rewritten += slice_prediction.rewritten;
+                        prediction.unchanged += slice_prediction.unchanged;
+                        prediction.kept += slice_prediction.kept;
+                    }
+                    if (prediction.kept != 0) {
+                        content_prediction_counters.kept_pages.fetch_add(
+                            prediction.kept, std::memory_order_relaxed);
+                    }
+                    if (prediction.hashed != 0) {
+                        auto& counters = content_prediction_counters;
+                        counters.hashed_pages.fetch_add(prediction.hashed,
+                                                        std::memory_order_relaxed);
+                        counters.rewritten_pages.fetch_add(prediction.rewritten,
+                                                           std::memory_order_relaxed);
+                        counters.unchanged_pages.fetch_add(prediction.unchanged,
+                                                           std::memory_order_relaxed);
                     }
                     if (is_written) {
                         for (auto& slice : slices) {

@@ -243,6 +243,20 @@ struct PageManager::Impl {
         release_pending();
     }
 
+    bool HasWriteWatchers(VAddr addr, u64 size) {
+        const size_t page_begin = addr >> PM_PAGE_BITS;
+        const u64 page_end = Common::DivCeil(addr + size, PM_PAGE_SIZE);
+        const auto lock_start = locks.begin() + (page_begin / PAGES_PER_LOCK);
+        const auto lock_end = locks.begin() + Common::DivCeil(page_end, PAGES_PER_LOCK);
+        Common::RangeLockGuard lk(lock_start, lock_end);
+        for (size_t page = page_begin; page != page_end; ++page) {
+            if (cached_pages[page].num_write_watchers != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     std::array<PageState, NUM_ADDRESS_PAGES> cached_pages{};
 #if defined(__ANDROID__) || defined(_WIN32)
     // Held across page protection changes: waiters sleep rather than spin.
@@ -442,6 +456,10 @@ void PageManager::OnGpuMap(VAddr address, size_t size) {
 
 void PageManager::OnGpuUnmap(VAddr address, size_t size) {
     impl->OnUnmap(address, size);
+}
+
+bool PageManager::HasWriteWatchers(VAddr addr, u64 size) const {
+    return impl->HasWriteWatchers(addr, size);
 }
 
 template <bool track>

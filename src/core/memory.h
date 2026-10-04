@@ -304,6 +304,10 @@ public:
     /// check instead of an unlocked pre-check plus the locked one. False when unmapped.
     bool TryCopySparseMemory(VAddr source, u8* dest, u64 size);
 
+    /// XXH3 hash of each page_size bytes of [source, source + size) as CopySparseMemory would
+    /// copy them (unmapped areas read as zeros), into hashes[size / page_size].
+    void HashSparsePages(VAddr source, u64 size, u64 page_size, u64* hashes);
+
     // GPU cache ranges may include reservation holes, just like sparse copies.
     // Keep those pages inaccessible; only mapped spans receive host watches.
     void ProtectGpu(VAddr address, u64 size, MemoryPermission permission);

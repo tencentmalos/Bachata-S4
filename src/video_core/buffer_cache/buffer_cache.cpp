@@ -15,6 +15,7 @@
 #include "video_core/amdgpu/pm4_stats.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/buffer_cache/buffer_cache.h"
+#include "video_core/buffer_cache/page_heat.h"
 #include "video_core/buffer_cache/memory_tracker.h"
 #include "video_core/renderer_vulkan/vk_graphics_pipeline.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
@@ -530,7 +531,13 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
         // is not a pass dependency.
         StreamBuffer& stream = GetStreamBuffer();
         const auto [data, offset] = stream.Map(size, instance.UniformMinAlignment());
-        memory->CopySparseMemory(device_addr, data, size, stream_read_cache);
+        if (UploadDiagnostics::stream_bounce.load(std::memory_order_relaxed)) {
+            alignas(64) std::array<u8, STREAM_THRESHOLD> bounce;
+            memory->CopySparseMemory(device_addr, bounce.data(), size, stream_read_cache);
+            std::memcpy(data, bounce.data(), size);
+        } else {
+            memory->CopySparseMemory(device_addr, data, size, stream_read_cache);
+        }
         stream.Commit();
         if (AmdGpu::Pm4Stats::armed.load(std::memory_order_relaxed)) [[unlikely]] {
             AmdGpu::Pm4Stats::NoteStreamCopy(liverpool->diagnostic_guest_flip, device_addr, size,
@@ -545,6 +552,9 @@ std::pair<const Buffer*, u64> BufferCache::ObtainResidentBuffer(VAddr device_add
                                                                 bool is_written,
                                                                 bool is_texel_buffer) {
     Vulkan::MissingContent::Access(device_addr, size, is_written);
+    if (PageHeat::enabled.load(std::memory_order_relaxed)) [[unlikely]] {
+        PageHeat::NoteResident(device_addr, size, liverpool->diagnostic_guest_flip);
+    }
     // Pass dependency tracking: the draw being prepared reads/writes this GPU range.
     scheduler.StageAccess(device_addr, size, is_written);
     const u64 first_block = device_addr >> block_shift;
@@ -772,9 +782,17 @@ bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 
                                         addr - arena->cpu_addr, bytes);
                     total_size_bytes += bytes;
                 });
+            },
+            [&](VAddr address, size_t count, u64* hashes) {
+                memory->HashSparsePages(address, count * TRACKER_BYTES_PER_PAGE,
+                                        TRACKER_BYTES_PER_PAGE, hashes);
             });
     }();
 
+    if (PageHeat::enabled.load(std::memory_order_relaxed) && !copies.empty()) [[unlikely]] {
+        PageHeat::NoteUploads({copies.data(), copies.size()}, arena->cpu_addr,
+                              liverpool->diagnostic_guest_flip);
+    }
     // Vulkan publication/retirement never runs under a tracking lock.
     if (uploaded_bytes != 0 && !copies.empty()) {
         Common::Profiler::Counter("Buffer.UploadBytes", static_cast<int64_t>(total_size_bytes));

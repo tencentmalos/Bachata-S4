@@ -87,9 +87,41 @@ std::string Summary() {
     out += fmt::format("armed={} uploads={} images={} frames={} uploads_per_frame={:.2f} dirty_notes={} log_left={}\n",
                        armed.load() ? 1 : 0, total_uploads, uploaded, frames,
                        frames ? double(total_uploads) / frames : 0.0, dirty_notes, log_budget.load());
-    out += fmt::format("watch_coalesce={} watch_predict={}\n",
+    out += fmt::format("watch_coalesce={} watch_predict={} watch_content={} hashed_pages={} "
+                       "rewritten_pages={}\n",
                        Core::gpu_watch_per_page.load() ? "off" : "on",
-                       predict_write_faults.load() ? "on" : "off");
+                       predict_write_faults.load() ? "on" : "off",
+                       predict_from_contents.load() ? "on" : "off",
+                       content_prediction_counters.hashed_pages.load(),
+                       content_prediction_counters.rewritten_pages.load());
+    out += fmt::format("write_faults cold={} cold_known={} after_dirty={} run_start={} "
+                       "run_start_window={} watch_gaps={} watch_decay={} unchanged_pages={} "
+                       "kept_pages={} watch_cross={} cross_released={}\n",
+                       content_prediction_counters.fault_cold.load(),
+                       content_prediction_counters.fault_cold_known.load(),
+                       content_prediction_counters.fault_after_dirty.load(),
+                       content_prediction_counters.fault_run_start.load(),
+                       content_prediction_counters.fault_run_start_window.load(),
+                       predict_across_gaps.load() ? "on" : "off",
+                       decay_unchanged.load() ? "on" : "off",
+                       content_prediction_counters.unchanged_pages.load(),
+                       content_prediction_counters.kept_pages.load(),
+                       predict_cross_region.load() ? "on" : "off",
+                       content_prediction_counters.cross_released.load());
+    {
+        const auto& watch = Core::gpu_watch_counters;
+        out += fmt::format("gpu_watch release_calls={} release_pages={} predicted_pages={} "
+                           "watch_calls={} watch_pages={} syscalls={}\n",
+                           watch.release_calls.load(), watch.release_pages.load(),
+                           watch.predicted_pages.load(), watch.watch_calls.load(),
+                           watch.watch_pages.load(), watch.syscalls.load());
+        out += fmt::format("fault_textures={} texture_invalidates={} texture_skipped={} "
+                           "texture_ns={}\n",
+                           skip_unwatched_fault_textures.load() ? "skip" : "always",
+                           watch.texture_invalidates.load(),
+                           watch.texture_invalidates_skipped.load(),
+                           watch.texture_invalidate_ns.load());
+    }
     out += fmt::format("ignore_storage_dirty={} ignored_storage_dirty={}\n",
                        ignore_storage_dirty.load() ? 1 : 0, ignored_storage_dirty.load());
     std::vector<std::pair<u64, u64>> by_writer(writers.begin(), writers.end());
@@ -347,6 +379,30 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1] == "on" ? "also release pages rewritten last cycle"
                                            : "release only the faulting page");
     }
+    if (sub == "watch_cross" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        predict_cross_region.store(args[1] == "on");
+        return fmt::format("watch_cross={} (a release ahead reaching the end of its region {})\n",
+                           args[1],
+                           args[1] == "on" ? "goes on into the next region" : "stops there");
+    }
+    if (sub == "watch_decay" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        decay_unchanged.store(args[1] == "on");
+        return fmt::format("watch_decay={} (released-ahead pages uploaded unchanged {})\n", args[1],
+                           args[1] == "on" ? "lose one step of write confidence"
+                                           : "keep their write confidence");
+    }
+    if (sub == "watch_gaps" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        predict_across_gaps.store(args[1] == "on");
+        return fmt::format("watch_gaps={} (release ahead {})\n", args[1],
+                           args[1] == "on" ? "every confident page left in the window"
+                                           : "up to the first page without write confidence");
+    }
+    if (sub == "watch_content" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        predict_from_contents.store(args[1] == "on");
+        return fmt::format("watch_content={} (released-ahead pages {})\n", args[1],
+                           args[1] == "on" ? "keep their write confidence when rewritten"
+                                           : "lose write confidence every cycle");
+    }
     if (sub == "stream_host" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         stream_host.store(args[1] == "on");
         return fmt::format("stream_host={} (streamed data in {} memory)\n", args[1],
@@ -363,6 +419,19 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("stream_dma={} (streamed data {})\n", args[1],
                            args[1] == "on" ? "copied into VRAM on the transfer queue where available"
                                            : "as selected by stream_host");
+    }
+    if (sub == "fault_textures" && args.size() == 2 &&
+        (args[1] == "skip" || args[1] == "always")) {
+        skip_unwatched_fault_textures.store(args[1] == "skip");
+        return fmt::format("fault_textures={} (write faults on pages no image watches {})\n",
+                           args[1], args[1] == "skip" ? "skip the texture cache"
+                                                      : "still call the texture cache");
+    }
+    if (sub == "stream_bounce" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        stream_bounce.store(args[1] == "on");
+        return fmt::format("stream_bounce={} (streamed data {})\n", args[1],
+                           args[1] == "on" ? "copied through a cached buffer"
+                                           : "copied straight into the stream buffer");
     }
     if (sub == "stream_max" && args.size() == 2) {
         u32 bytes = 0;
@@ -394,9 +463,11 @@ std::string Command(const std::vector<std::string>& args) {
     }
     return "status=bad_arguments usage: start [log_lines] | status | stop | "
            "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
-           "watch_predict on|off | keep_gpu on|off | read_cache on|off | stream_barriers on|off | "
-           "stream_max <bytes> | stream_host on|off | stream_dma on|off | "
-           "texture_bind_cache on|off\n";
+           "watch_predict on|off | watch_content on|off | watch_gaps on|off | "
+           "watch_decay on|off | watch_cross on|off | keep_gpu on|off | read_cache on|off | "
+           "stream_barriers on|off | "
+           "stream_max <bytes> | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
+           "texture_bind_cache on|off | fault_textures skip|always\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

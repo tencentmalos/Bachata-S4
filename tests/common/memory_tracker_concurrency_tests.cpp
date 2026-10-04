@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <future>
@@ -37,6 +38,14 @@ template void PageManager::UpdatePageWatchersForRegion<false, false>(VAddr, Regi
 } // namespace VideoCore
 using namespace VideoCore;
 using namespace std::chrono_literals;
+// These addresses are not mapped: hash nothing, report every page as all zeros.
+static void ZeroHashes(VAddr, size_t count, u64* hashes) {
+    std::fill_n(hashes, count, u64{0});
+}
+static u64 Snapshot(MemoryTracker& tracker, VAddr address, u64 size, bool is_written,
+                    auto&& prepare, auto&& copy_range) {
+    return tracker.SnapshotForUpload(address, size, is_written, prepare, copy_range, ZeroHashes);
+}
 static int checks{}, failures{};
 #define CHECK(x)                                                                                   \
     do {                                                                                           \
@@ -61,7 +70,7 @@ int main() {
     std::promise<void> in_upload, release;
     auto go = release.get_future().share();
     auto renderer = std::async(std::launch::async, [&] {
-        tracker->SnapshotForUpload(
+        Snapshot(*tracker, 
             base, 4096, true, [](u64) {},
             [&](u64, u64) {
                 in_upload.set_value();
@@ -86,7 +95,7 @@ int main() {
     // GPU/CPU transitions retain exact covered pages across a shard boundary.
     const VAddr cross = base + 2 * region - 4096;
     std::uint64_t copied{};
-    tracker->SnapshotForUpload(
+    Snapshot(*tracker, 
         cross, 8192, true, [](u64) {},
         [&](u64 addr, u64 bytes) {
             if (addr < cross || addr + bytes > cross + 8192)
@@ -104,7 +113,7 @@ int main() {
     // Directory edges and final supported address must preserve full coverage.
     for (const auto addr : {base + (1ULL << 22) - 4096, (1ULL << 40) - 8192}) {
         copied = 0;
-        tracker->SnapshotForUpload(addr, 8192, false, [](u64) {}, [&](u64, u64 n) { copied += n; });
+        Snapshot(*tracker, addr, 8192, false, [](u64) {}, [&](u64, u64 n) { copied += n; });
         CHECK(copied == 8192);
         CHECK(!tracker->IsRegionCpuModified(addr, 8192));
     }
@@ -112,14 +121,14 @@ int main() {
     // from one dirty page; a writer adds another during prepare and forces a
     // bounded capacity retry. No source bytes may be lost or copied twice.
     const VAddr transaction = base + (1ULL << 24);
-    tracker->SnapshotForUpload(transaction, 3 * 4096, false, [](u64) {}, [](u64, u64) {});
+    Snapshot(*tracker, transaction, 3 * 4096, false, [](u64) {}, [](u64, u64) {});
     tracker->MarkRegionAsCpuModified(transaction, 8);
     std::promise<void> in_prepare, release_prepare;
     auto resume_prepare = release_prepare.get_future().share();
     unsigned prepares = 0;
     u64 reserved = 0, uploaded = 0, snapshotted = 0;
     auto uploading = std::async(std::launch::async, [&] {
-        uploaded = tracker->SnapshotForUpload(
+        uploaded = Snapshot(*tracker, 
             transaction, 3 * 4096, true,
             [&](u64 capacity) {
                 reserved = capacity;
@@ -148,7 +157,7 @@ int main() {
     tracker->MarkRegionAsCpuModified(transaction, 8);
     bool failed = false;
     try {
-        tracker->SnapshotForUpload(
+        Snapshot(*tracker, 
             transaction, 4096, false, [](u64) { throw std::runtime_error("allocation cancelled"); },
             [](u64, u64) { std::abort(); });
     } catch (const std::runtime_error&) {
@@ -160,14 +169,14 @@ int main() {
     // Roll back an interrupted multi-region copy exactly. The middle page was
     // clean before the attempt and must remain clean; publish no GPU ownership.
     const VAddr rollback = transaction + 2 * region - 4096;
-    tracker->SnapshotForUpload(rollback, 3 * 4096, false, [](u64) {}, [](u64, u64) {});
+    Snapshot(*tracker, rollback, 3 * 4096, false, [](u64) {}, [](u64, u64) {});
     tracker->MarkRegionAsCpuModified(rollback, 8);
     tracker->MarkRegionAsCpuModified(rollback + 2 * 4096, 8);
     const auto watchers_before_rollback = write_watchers.load();
     unsigned copies = 0;
     failed = false;
     try {
-        tracker->SnapshotForUpload(
+        Snapshot(*tracker, 
             rollback, 3 * 4096, true, [](u64) {},
             [&](u64, u64) {
                 if (++copies == 2)
@@ -183,7 +192,7 @@ int main() {
     CHECK(!tracker->IsRegionGpuModified(rollback, 3 * 4096));
     CHECK(write_watchers.load() == watchers_before_rollback);
     snapshotted = 0;
-    CHECK(tracker->SnapshotForUpload(
+    CHECK(Snapshot(*tracker, 
               rollback, 3 * 4096, true, [](u64) {},
               [&](u64, u64 bytes) { snapshotted += bytes; }) == 8192);
     CHECK(snapshotted == 8192);
@@ -193,16 +202,16 @@ int main() {
     // Recheck must skip the stale outer copy instead of clearing a newer write.
     const VAddr reentrant = transaction + 4 * region;
     prepares = 0;
-    uploaded = tracker->SnapshotForUpload(
+    uploaded = Snapshot(*tracker, 
         reentrant, 4096, false,
         [&](u64) {
             ++prepares;
-            tracker->SnapshotForUpload(reentrant, 4096, false, [](u64) {}, [](u64, u64) {});
+            Snapshot(*tracker, reentrant, 4096, false, [](u64) {}, [](u64, u64) {});
         },
         [](u64, u64) { std::abort(); });
     CHECK(prepares == 1 && uploaded == 0);
     CHECK(!tracker->IsRegionCpuModified(reentrant, 4096));
-    CHECK(tracker->SnapshotForUpload(
+    CHECK(Snapshot(*tracker, 
               reentrant, 0, true, [](u64) { std::abort(); }, [](u64, u64) { std::abort(); }) == 0);
     // Faults for texture-only/untracked ranges never create regions or flush.
     tracker->InvalidateRegion(base + (1ULL << 28), 8, [] { std::abort(); });
@@ -213,7 +222,7 @@ int main() {
     EmulatorSettings.SetReadbacksMode(GpuReadbacksMode::Precise);
     const VAddr precise = transaction + 8 * region;
     const auto reads_before = read_watchers.load();
-    tracker->SnapshotForUpload(precise, 4096, true, [](u64) {}, [](u64, u64) {});
+    Snapshot(*tracker, precise, 4096, true, [](u64) {}, [](u64, u64) {});
     CHECK(read_watchers.load() == reads_before + 1);
     bool flushed = false;
     tracker->InvalidateRegion(precise, 8, [&] {
@@ -226,7 +235,7 @@ int main() {
     CHECK(read_watchers.load() == reads_before);
     CHECK(tracker->IsRegionCpuModified(precise, 4096));
     CHECK(!tracker->IsRegionGpuModified(precise, 4096));
-    tracker->SnapshotForUpload(precise, 8192, true, [](u64) {}, [](u64, u64) {});
+    Snapshot(*tracker, precise, 8192, true, [](u64) {}, [](u64, u64) {});
     CHECK(read_watchers.load() == reads_before + 2);
     tracker->InvalidateMapping(precise, 4096);
     CHECK(read_watchers.load() == reads_before + 1);
@@ -235,12 +244,81 @@ int main() {
     CHECK(tracker->IsRegionGpuModified(precise + 4096, 4096));
     CHECK(!tracker->IsRegionCpuModified(precise + 4096, 4096));
     u64 remapped_bytes{};
-    tracker->SnapshotForUpload(precise, 8192, false, [](u64) {},
+    Snapshot(*tracker, precise, 8192, false, [](u64) {},
                                [&](u64 a, u64 n) { CHECK(a == precise); remapped_bytes += n; });
     CHECK(remapped_bytes == 4096);
     tracker->InvalidateMapping(precise, 8192);
     CHECK(read_watchers.load() == reads_before);
     EmulatorSettings.SetReadbacksMode(GpuReadbacksMode::Disabled);
+
+    // Write prediction: a fault releases the confident pages after it in its window. A page
+    // released ahead and uploaded without a fault loses one step of confidence per cycle while
+    // pages decay, and keeps it without decay; contents are then not hashed.
+    {
+        const VAddr ring = transaction + 16 * region;
+        unsigned hashed = 0;
+        const auto upload = [&] {
+            tracker->SnapshotForUpload(
+                ring, 4 * 4096, false, [](u64) {}, [](u64, u64) {},
+                [&](VAddr, size_t count, u64* hashes) {
+                    hashed += static_cast<unsigned>(count);
+                    std::fill_n(hashes, count, u64{0});
+                });
+        };
+        const auto fault = [&](u64 page) {
+            return tracker->InvalidateRegionFromWriteFault(ring + page * 4096, 8,
+                                                           [] { std::abort(); });
+        };
+        const auto train = [&] {
+            for (u64 page = 0; page < 4; ++page) {
+                fault(page);
+            }
+            upload();
+        };
+        CHECK(tracker->IsRegionCpuModified(ring, 4 * 4096));
+        upload(); // watch the four pages; nothing is confident yet
+        CHECK(!tracker->IsRegionCpuModified(ring, 4 * 4096));
+        CHECK(fault(0) == 0);
+        upload();
+
+        predict_from_contents.store(false);
+        decay_unchanged.store(true);
+        train();
+        std::size_t released[4]{};
+        for (auto& count : released) {
+            count = fault(0);
+            upload();
+        }
+        // Confidence 3 lasts three cycles of being released without a write.
+        CHECK(released[0] == 3 && released[1] == 3 && released[2] == 3 && released[3] == 0);
+
+        predict_from_contents.store(true);
+        decay_unchanged.store(false);
+        train();
+        hashed = 0;
+        const u64 kept_before = content_prediction_counters.kept_pages.load();
+        bool always_released = true;
+        for (int cycle = 0; cycle < 6; ++cycle) {
+            always_released &= fault(0) == 3;
+            upload();
+        }
+        CHECK(always_released);
+        CHECK(content_prediction_counters.kept_pages.load() - kept_before == 6 * 3);
+        CHECK(hashed == 0);
+
+        // With decay, hashed contents keep a rewritten released-ahead page confident: here the
+        // hash of every page stays zero, so the released pages decay as without hashes.
+        decay_unchanged.store(true);
+        train();
+        hashed = 0;
+        for (auto& count : released) {
+            count = fault(0);
+            upload();
+        }
+        CHECK(hashed > 0);
+        CHECK(released[0] == 3 && released[1] == 3 && released[2] == 3 && released[3] == 0);
+        decay_unchanged.store(false);
+    }
 
     std::printf("checks=%d failures=%d region_bytes=%llu directory_object_bytes=%zu\n", checks,
                 failures, static_cast<unsigned long long>(region), sizeof(MemoryTracker));
