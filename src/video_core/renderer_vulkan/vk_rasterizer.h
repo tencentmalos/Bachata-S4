@@ -91,7 +91,9 @@ public:
     /// Guest write fault on a GPU-watched page (PageManager signal handler).
     bool InvalidateMemoryFromWriteFault(VAddr addr, u64 size);
     bool ReadMemory(VAddr addr, u64 size);
-    void ProcessDownloadImages();
+    /// Writes back the images queued for download. `sync` waits for the GPU here; otherwise the
+    /// write-back runs on the completion thread, before the fences deferred after it.
+    void ProcessDownloadImages(bool sync = true);
     bool IsMapped(VAddr addr, u64 size);
     void MapMemory(VAddr addr, u64 size) override;
     void UnmapMemory(VAddr addr, u64 size) override;

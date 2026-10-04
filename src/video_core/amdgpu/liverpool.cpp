@@ -94,8 +94,95 @@ static std::span<const u32> NextPacket(std::span<const u32> span, size_t offset)
     return span.subspan(offset);
 }
 
+/// What an EVENT_WRITE_EOP packet writes and raises once the work before it completed.
+static Fence EopFence(const PM4CmdEventWriteEop& eop) {
+    Fence fence{.address = reinterpret_cast<VAddr>(eop.Address<u32>()),
+                .through_backing = true,
+                .writer = "eop_label"};
+    switch (eop.data_sel.Value()) {
+    case DataSelect::None:
+        break;
+    case DataSelect::Data32Low:
+        fence.size = sizeof(u32);
+        fence.data = Fence::Data::Value;
+        fence.value = eop.DataDWord();
+        break;
+    case DataSelect::Data64:
+        fence.size = sizeof(u64);
+        fence.data = Fence::Data::Value;
+        fence.value = eop.DataQWord();
+        break;
+    case DataSelect::GpuClock64:
+        fence.size = sizeof(u64);
+        fence.data = Fence::Data::GpuClock;
+        break;
+    case DataSelect::PerfCounter:
+        fence.size = sizeof(u64);
+        fence.data = Fence::Data::PerfCounter;
+        break;
+    default:
+        UNREACHABLE();
+    }
+    switch (eop.int_sel.Value()) {
+    case InterruptSelect::None:
+        break;
+    case InterruptSelect::IrqOnly:
+        ASSERT(eop.data_sel == DataSelect::None);
+        [[fallthrough]];
+    case InterruptSelect::IrqWhenWriteConfirm:
+        fence.irq = static_cast<s32>(Platform::InterruptId::GfxEop);
+        break;
+    default:
+        UNREACHABLE();
+    }
+    return fence;
+}
+
+/// What a compute RELEASE_MEM packet writes and raises once the work before it completed. A GDS
+/// store is not part of it: the caller records it as a GPU copy in queue order.
+static Fence ReleaseMemFence(const PM4CmdReleaseMem& release, u32 pipe_id) {
+    Fence fence{.address = release.Address<VAddr>(), .writer = "release_mem"};
+    switch (release.data_sel.Value()) {
+    case DataSelect::Data32Low:
+        fence.size = sizeof(u32);
+        fence.data = Fence::Data::Value;
+        fence.value = release.DataDWord();
+        break;
+    case DataSelect::Data64:
+        fence.size = sizeof(u64);
+        fence.data = Fence::Data::Value;
+        fence.value = release.DataQWord();
+        break;
+    case DataSelect::GpuClock64:
+        fence.size = sizeof(u64);
+        fence.data = Fence::Data::GpuClock;
+        break;
+    case DataSelect::PerfCounter:
+        fence.size = sizeof(u64);
+        fence.data = Fence::Data::PerfCounter;
+        break;
+    case DataSelect::GdsMemStore:
+        break;
+    default:
+        UNREACHABLE();
+    }
+    switch (release.int_sel.Value()) {
+    case InterruptSelect::None:
+        break;
+    case InterruptSelect::IrqUndocumented:
+        [[fallthrough]];
+    case InterruptSelect::IrqWhenWriteConfirm:
+        fence.irq = static_cast<s32>(pipe_id);
+        break;
+    default:
+        UNREACHABLE();
+    }
+    return fence;
+}
+
 Liverpool::Liverpool() : guest_markers_enabled{EmulatorSettings.IsVkGuestMarkersEnabled()} {
     num_counter_pairs = Libraries::Kernel::sceKernelIsNeoMode() ? 16 : 8;
+    completion_fences = EmulatorSettings.IsCompletionFences();
     process_thread = std::jthread{[this](std::stop_token token) {
         try { Process(token); }
         catch (...) {
@@ -336,7 +423,12 @@ void Liverpool::Process(std::stop_token stoken) {
             curr_qid = (curr_qid + 1) % num_mapped_queues.load();
             if (curr_qid == 0) {
                 if (round_waited && !round_progress) {
-                    IdleBackoff(++idle_rounds);
+                    // A queue may wait for a value the guest CPU writes only after it saw a
+                    // fence of work that is still in the open command buffer.
+                    if (++idle_rounds == 1) {
+                        FlushFences(fence_labels->flushes_idle);
+                    }
+                    IdleBackoff(idle_rounds);
                 } else {
                     idle_rounds = 0;
                 }
@@ -369,6 +461,9 @@ void Liverpool::Process(std::stop_token stoken) {
                 rasterizer->Flush();
             }
             submit_done = false;
+        } else {
+            // Out of work: guest threads may wait for these fences now.
+            FlushFences(fence_labels->flushes_burst);
         }
         // Before GpuIdle reopens the submission gate.
         VideoCore::Replay::Recorder::Instance().OnBurstEnd(*this, rasterizer, frame_end);
@@ -403,6 +498,114 @@ void Liverpool::IdleBackoff(u32 idle_rounds) {
     submit_cv.wait_for(lk, std::chrono::microseconds{500}, [&] {
         return stopping.load() || num_commands.load() != 0 || num_submits.load() != submits;
     });
+}
+
+void Liverpool::SignalFence(Fence fence) {
+    if (fence.size == 0 && fence.irq < 0) {
+        return;
+    }
+    if (!rasterizer || !completion_fences.load(std::memory_order_relaxed)) {
+        fence_labels->PerformNow(fence);
+        return;
+    }
+    const u64 sequence = fence_labels->Add(fence);
+    auto& scheduler = rasterizer->GetScheduler();
+    fence_tick = scheduler.CurrentTick();
+    // In order with the image write-backs deferred before it.
+    scheduler.DeferPriorityOperation(
+        [labels = fence_labels, sequence] { labels->PerformThrough(sequence); });
+    if (fence.irq >= 0) {
+        // A guest thread waits for the interrupt: submit now, not when the burst ends.
+        FlushFences(fence_labels->flushes_irq);
+    }
+}
+
+void Liverpool::SettleWaits() {
+    if (wait_debt != 0) {
+        fence_labels->PerformThrough(wait_debt, true);
+        wait_debt = 0;
+    }
+}
+
+bool Liverpool::FencesUnsubmitted() const {
+    return rasterizer && fence_tick != 0 && fence_tick >= rasterizer->GetScheduler().CurrentTick();
+}
+
+void Liverpool::FlushFences(std::atomic<u64>& reason) {
+    if (FencesUnsubmitted()) {
+        rasterizer->Flush();
+        reason.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
+bool Liverpool::TestWait(const PM4CmdWaitRegMem& wait) {
+    if (wait.mem_space.Value() == PM4CmdWaitRegMem::MemSpace::Memory) {
+        u64 sequence{};
+        const bool met = wait.TestValue(fence_labels->Read(wait.Address<VAddr>(), sequence));
+        if (met && sequence > wait_debt) {
+            wait_debt = sequence;
+        }
+        return met;
+    }
+    return wait.Test(regs.reg_array);
+}
+
+void Liverpool::DrainFences() {
+    if (!rasterizer) {
+        return;
+    }
+    FlushFences(fence_labels->flushes_burst);
+    const auto begin = std::chrono::steady_clock::now();
+    while (fence_labels->Outstanding() != 0 && !stopping) {
+        // Rethrows a failure of the completion thread.
+        rasterizer->GetScheduler().PopPendingOperations();
+        if (std::chrono::steady_clock::now() - begin > std::chrono::seconds{10}) {
+            LOG_ERROR(Render, "GPU fences: {} still outstanding after 10 s",
+                      fence_labels->Outstanding());
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds{200});
+    }
+}
+
+void Liverpool::WaitFences(u64 mark) {
+    if (!flip_waits_fences.load(std::memory_order_relaxed) ||
+        fence_labels->Performed() >= mark) {
+        return;
+    }
+    Common::Profiler::Scope scope{"GPU.FlipFenceWait"};
+    // Preparing the flip submitted the command buffers these fences follow: only a GPU fault
+    // or a stopped completion thread keeps them from completing.
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{5};
+    if (!fence_labels->WaitPerformed(mark, stopping, deadline) && !stopping) {
+        LOG_ERROR(Render, "GPU fences: a flip waited 5 s for {} fences; completing it anyway",
+                  mark - fence_labels->Performed());
+    }
+}
+
+std::string Liverpool::FenceCommand(const std::vector<std::string>& args) {
+    const std::string mode = args.empty() ? "status" : args[0];
+    if (mode == "flip_wait" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        flip_waits_fences.store(args[1] == "on", std::memory_order_relaxed);
+    } else if (args.size() > 1 ||
+               (mode != "status" && mode != "completion" && mode != "parse")) {
+        return "usage: gpu_fences [status | completion | parse | flip_wait on|off]\n";
+    }
+    if (mode == "completion" || mode == "parse") {
+        const bool enable = mode == "completion";
+        SendCommand<true>([this, enable] {
+            if (rasterizer) {
+                // Fences deferred before the switch take effect before any later one.
+                rasterizer->Finish();
+                DrainFences();
+            }
+            completion_fences.store(enable, std::memory_order_relaxed);
+        });
+    }
+    return fmt::format("mode={} flip_wait={} {}\n",
+                       completion_fences.load(std::memory_order_relaxed) ? "completion" : "parse",
+                       flip_waits_fences.load(std::memory_order_relaxed) ? "on" : "off",
+                       fence_labels->Status());
 }
 
 Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submission) {
@@ -507,7 +710,8 @@ void LogBadPacket(const u32* begin, const u32* at, const u32* end, VAddr source)
 }
 } // namespace
 
-Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission, VAddr source) {
+Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb,
+                                           u64 submission, VAddr source, const u32* origin) {
     FIBER_ENTER(dcb_task_name);
 
     cblock.Reset();
@@ -976,19 +1180,23 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             case PM4ItOpcode::EventWriteEos: {
                 const auto* event_eos = reinterpret_cast<const PM4CmdEventWriteEos*>(header);
                 if (rasterizer) {
-                    rasterizer->ProcessDownloadImages();
+                    rasterizer->ProcessDownloadImages(!completion_fences);
                 }
-                event_eos->SignalFence([](void* address, u64 data, u32 num_bytes) {
-                    const Core::GuestWriteWatch::Scope watch_scope{"eos_label"};
-                    auto* memory = Core::Memory::Instance();
-                    if (!memory->TryWriteBacking(address, &data, num_bytes)) {
-                        memcpy(address, &data, num_bytes);
-                    }
+                event_eos->SignalFence([this](void* address, u64 data, u32 num_bytes) {
+                    SignalFence({.address = reinterpret_cast<VAddr>(address),
+                                 .size = num_bytes,
+                                 .data = Fence::Data::Value,
+                                 .through_backing = true,
+                                 .value = data,
+                                 .writer = "eos_label"});
                 });
                 if (event_eos->command == PM4CmdEventWriteEos::Command::GdsStore) {
                     ASSERT(event_eos->size == 1);
                     if (rasterizer) {
                         rasterizer->Finish();
+                        // The GPU completed every queued fence: they precede the store.
+                        fence_labels->PerformThrough(~u64{0}, true);
+                        wait_debt = 0;
                         const u32 value = rasterizer->ReadDataFromGds(event_eos->gds_index);
                         *event_eos->Address() = value;
                     }
@@ -998,17 +1206,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             case PM4ItOpcode::EventWriteEop: {
                 const auto* event_eop = reinterpret_cast<const PM4CmdEventWriteEop*>(header);
                 if (rasterizer) {
-                    rasterizer->ProcessDownloadImages();
+                    rasterizer->ProcessDownloadImages(!completion_fences);
                 }
-                event_eop->SignalFence(
-                    [](void* address, u64 data, u32 num_bytes) {
-                        const Core::GuestWriteWatch::Scope watch_scope{"eop_label"};
-                        auto* memory = Core::Memory::Instance();
-                        if (!memory->TryWriteBacking(address, &data, num_bytes)) {
-                            memcpy(address, &data, num_bytes);
-                        }
-                    },
-                    [] { Platform::IrqC::Instance()->Signal(Platform::InterruptId::GfxEop); });
+                SignalFence(EopFence(*event_eop));
                 break;
             }
             case PM4ItOpcode::DmaData: {
@@ -1053,6 +1253,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 ASSERT(write_data->dst_sel.Value() == 2 || write_data->dst_sel.Value() == 5);
                 const u32 data_size = (header->type3.count.Value() - 2) * 4;
                 u64* address = write_data->Address<u64*>();
+                SettleWaits();
                 if (!write_data->wr_one_addr.Value()) {
                     std::memcpy(address, write_data->data, data_size);
                 } else {
@@ -1073,6 +1274,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             case PM4ItOpcode::MemSemaphore: {
                 const auto* mem_semaphore = reinterpret_cast<const PM4CmdMemSemaphore*>(header);
                 if (mem_semaphore->IsSignaling()) {
+                    SettleWaits();
                     mem_semaphore->Signal();
                 } else {
                     while (!Poll(VideoCore::Replay::WaitKind::MemSemaphore,
@@ -1092,10 +1294,18 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 if (!rasterizer) {
                     break;
                 }
-                const PM4CmdRewind* rewind = reinterpret_cast<const PM4CmdRewind*>(header);
+                // An owned copy waits for the guest to validate its own command buffer, then
+                // reads the packets the guest wrote after the REWIND again.
+                const auto offset = reinterpret_cast<const u32*>(header) -
+                                    reinterpret_cast<const u32*>(base_addr);
+                const auto* rewind = reinterpret_cast<const PM4CmdRewind*>(
+                    origin ? origin + offset : reinterpret_cast<const u32*>(header));
                 while (!Poll(VideoCore::Replay::WaitKind::Rewind, rewind,
                              [&] { return rewind->Valid(); })) {
                     YIELD_WAIT_GFX();
+                }
+                if (origin) {
+                    std::memcpy(const_cast<u32*>(dcb.data()), origin + offset, dcb.size_bytes());
                 }
                 break;
             }
@@ -1113,12 +1323,17 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     Core::Diagnostics::Handoff::Scope wait_scope{
                         "PM4.WaitVideoOutLabel", diagnostics ? diagnostics->Generation() : 0,
                         static_cast<u64>(wait_addr - vo_port->buffer_labels.data()) + 1, 0, true};
-                    vo_port->WaitVoLabel([&] { return wait_reg_mem->Test(regs.reg_array); });
+                    // The thread blocks until a flip retires: fences of work before the wait
+                    // must not stay in the open command buffer meanwhile.
+                    if (!TestWait(*wait_reg_mem)) {
+                        FlushFences(fence_labels->flushes_idle);
+                    }
+                    vo_port->WaitVoLabel([&] { return TestWait(*wait_reg_mem); });
                     break;
                 }
                 while (!Poll(vo_label ? VideoCore::Replay::WaitKind::VoLabel
                                       : VideoCore::Replay::WaitKind::RegMem,
-                             wait_addr, [&] { return wait_reg_mem->Test(regs.reg_array); })) {
+                             wait_addr, [&] { return TestWait(*wait_reg_mem); })) {
                     YIELD_WAIT_GFX();
                 }
                 break;
@@ -1199,7 +1414,8 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
 }
 
 template <bool is_indirect>
-Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source) {
+Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission,
+                                          VAddr source, const u32* origin) {
     FIBER_ENTER(acb_task_name[vqid]);
     auto& queue = asc_queues[{vqid}];
     const bool host_markers_enabled = rasterizer && rasterizer->HostMarkersEnabled();
@@ -1327,10 +1543,14 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
                 const u32 num_bytes = dma_data->NumBytes();
                 const VAddr src_addr = dma_data->SrcAddress<VAddr>();
                 const VAddr dst_addr = dma_data->DstAddress<VAddr>();
-                const PM4Header* header =
-                    reinterpret_cast<const PM4Header*>(dst_addr - sizeof(PM4Header));
-                if (dst_addr >= base_addr && dst_addr < base_addr + acb_size &&
-                    num_bytes == sizeof(PM4CmdDispatchIndirect::GroupDimensions) &&
+                // The guest patches a DISPATCH_DIRECT later in its ring: in an owned copy,
+                // the same packet of the copy.
+                const VAddr ring = origin ? reinterpret_cast<VAddr>(origin) : base_addr;
+                const bool in_ring = dst_addr >= ring + sizeof(PM4Header) &&
+                                     dst_addr < ring + acb_size;
+                const PM4Header* header = reinterpret_cast<const PM4Header*>(
+                    base_addr + (dst_addr - ring) - sizeof(PM4Header));
+                if (in_ring && num_bytes == sizeof(PM4CmdDispatchIndirect::GroupDimensions) &&
                     header->type == 3 && header->type3.opcode == PM4ItOpcode::DispatchDirect) {
                     indirect_patches.emplace_back(header, src_addr);
                 } else {
@@ -1349,10 +1569,20 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             if (!rasterizer) {
                 break;
             }
-            const PM4CmdRewind* rewind = reinterpret_cast<const PM4CmdRewind*>(header);
+            // As on the graphics ring; a packet completed from the previous ring span is not
+            // in the copy.
+            const auto* packet = reinterpret_cast<const u32*>(header);
+            const auto* copy = reinterpret_cast<const u32*>(base_addr);
+            const bool in_copy = origin && packet >= copy && packet < copy + acb_size / 4;
+            const auto* rewind = reinterpret_cast<const PM4CmdRewind*>(
+                in_copy ? origin + (packet - copy) : packet);
             while (!Poll(VideoCore::Replay::WaitKind::Rewind, rewind,
                          [&] { return rewind->Valid(); })) {
                 YIELD_ASC(vqid);
+            }
+            if (in_copy) {
+                std::memcpy(const_cast<u32*>(acb.data()), origin + (acb.data() - copy),
+                            acb.size_bytes());
             }
             break;
         }
@@ -1431,6 +1661,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             const auto* write_data = reinterpret_cast<const PM4CmdWriteData*>(header);
             ASSERT(write_data->dst_sel.Value() == 2 || write_data->dst_sel.Value() == 5);
             const u32 data_size = (header->type3.count.Value() - 2) * 4;
+            SettleWaits();
             if (!write_data->wr_one_addr.Value()) {
                 std::memcpy(write_data->Address<void*>(), write_data->data, data_size);
             } else {
@@ -1441,6 +1672,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         case PM4ItOpcode::MemSemaphore: {
             const auto* mem_semaphore = reinterpret_cast<const PM4CmdMemSemaphore*>(header);
             if (mem_semaphore->IsSignaling()) {
+                SettleWaits();
                 mem_semaphore->Signal();
             } else {
                 while (!Poll(VideoCore::Replay::WaitKind::MemSemaphore,
@@ -1456,7 +1688,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
             const auto* wait_reg_mem = reinterpret_cast<const PM4CmdWaitRegMem*>(header);
             ASSERT(wait_reg_mem->engine.Value() == PM4CmdWaitRegMem::Engine::Me);
             while (!Poll(VideoCore::Replay::WaitKind::RegMem, wait_reg_mem->Address<void*>(),
-                         [&] { return wait_reg_mem->Test(regs.reg_array); })) {
+                         [&] { return TestWait(*wait_reg_mem); })) {
                 YIELD_WAIT_ASC(vqid);
             }
             break;
@@ -1464,15 +1696,13 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         case PM4ItOpcode::ReleaseMem: {
             const auto* release_mem = reinterpret_cast<const PM4CmdReleaseMem*>(header);
             if (rasterizer) {
-                rasterizer->ProcessDownloadImages();
+                rasterizer->ProcessDownloadImages(!completion_fences);
+                if (release_mem->data_sel == DataSelect::GdsMemStore) {
+                    rasterizer->CopyBuffer(release_mem->Address<VAddr>(), release_mem->gds_index,
+                                           release_mem->num_dw * sizeof(u32), false, true);
+                }
             }
-            release_mem->SignalFence(
-                [pipe_id = queue.pipe_id] {
-                    Platform::IrqC::Instance()->Signal(static_cast<Platform::InterruptId>(pipe_id));
-                },
-                [this](VAddr dst, u16 gds_index, u16 num_dwords) {
-                    rasterizer->CopyBuffer(dst, gds_index, num_dwords * sizeof(u32), false, true);
-                });
+            SignalFence(ReleaseMemFence(*release_mem, queue.pipe_id));
             break;
         }
         case PM4ItOpcode::EventWrite: {
@@ -1529,8 +1759,9 @@ Liverpool::CmdBuffer Liverpool::CopyCmdBuffers(std::span<const u32> dcb, std::sp
     return std::make_pair(dcb, ccb);
 }
 
-Liverpool::Task Liverpool::ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb, u64 submission, VAddr source) {
-    auto task = ProcessGraphics(dcb, ccb, submission, source);
+Liverpool::Task Liverpool::ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb,
+                                                u64 submission, VAddr source, const u32* origin) {
+    auto task = ProcessGraphics(dcb, ccb, submission, source, origin);
     while (!task.handle.done() && !stopping) {
         task.handle.resume();
         if (!task.handle.done())
@@ -1698,7 +1929,7 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
     }
     auto task = owned_submissions
                     ? ProcessOwnedGraphics(std::move(owned_dcb), {ccb.begin(), ccb.end()},
-                                           submission, source)
+                                           submission, source, dcb.data())
                     : ProcessGraphics(dcb, ccb, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
     task.handle.promise().diagnostic_id = submission;
@@ -1717,8 +1948,9 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
     submit_cv.notify_all();
 }
 
-Liverpool::Task Liverpool::ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission, VAddr source) {
-    auto task = ProcessCompute(acb, vqid, submission, source);
+Liverpool::Task Liverpool::ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission,
+                                               VAddr source, const u32* origin) {
+    auto task = ProcessCompute(acb, vqid, submission, source, origin);
     while (!task.handle.done() && !stopping) {
         task.handle.resume();
         if (!task.handle.done())
@@ -1737,7 +1969,8 @@ void Liverpool::SubmitAsc(u32 gnm_vqid, std::span<const u32> acb) {
     const auto source = reinterpret_cast<VAddr>(acb.data());
     if (Pm4Trace::Active())
         Pm4Trace::NoteSubmit(gnm_vqid, submission, source, static_cast<u32>(acb.size()), 0, 0);
-    auto task = owned_submissions ? ProcessOwnedCompute({acb.begin(), acb.end()}, vqid, submission, source)
+    auto task = owned_submissions ? ProcessOwnedCompute({acb.begin(), acb.end()}, vqid,
+                                                        submission, source, acb.data())
                                   : ProcessCompute(acb, vqid, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
     task.handle.promise().diagnostic_id = submission;

@@ -298,6 +298,10 @@ void VideoOutDriver::Flip(const Request& req) {
             diag->Advance(Core::Diagnostics::AdvanceSignal::HostPresent, Core::Diagnostics::DiagnosticNowNs());
     }
 
+    // The guest sees the flip complete only after the frame's end-of-pipe writes, as on
+    // hardware: it may recycle the frame's memory, labels included, once it flipped.
+    liverpool->WaitFences(req.fence_mark);
+
     // Update flip status.
     auto* port = req.port;
     {
@@ -585,6 +589,7 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
         .flip_arg = flip_arg,
         .index = index,
         .eop = is_eop,
+        .fence_mark = liverpool->FenceMark(),
     });
     }
     if (index >= 0) {

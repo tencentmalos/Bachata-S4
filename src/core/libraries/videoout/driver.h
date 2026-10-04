@@ -126,6 +126,9 @@ private:
         s32 index;
         bool eop;
         std::function<void(bool)> complete;
+        /// GPU fences deferred before the flip was prepared (Liverpool::FenceMark): the flip
+        /// completes after them.
+        u64 fence_mark{};
 
         operator bool() const noexcept {
             return frame != nullptr;

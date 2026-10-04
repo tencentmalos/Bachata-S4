@@ -1279,6 +1279,8 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/texture_cache/tile_manager.cpp
                src/video_core/texture_cache/tile_manager.h
                src/video_core/texture_cache/types.h
+               src/video_core/amdgpu/fence_labels.cpp
+               src/video_core/amdgpu/fence_labels.h
                src/video_core/amdgpu/pm4_stats.cpp
                src/video_core/amdgpu/pm4_stats.h
                src/video_core/amdgpu/pm4_trace.cpp

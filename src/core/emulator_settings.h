@@ -412,6 +412,14 @@ struct GPUSettings {
     Setting<u32> internal_screen_height{720};
     Setting<bool> null_gpu{false};
     Setting<bool> copy_gpu_buffers{false};
+    // EOP/EOS/RELEASE_MEM label writes and interrupts take effect when the GPU completed the
+    // work before them, not when the command processor reads the packet. Android keeps
+    // parse-time fences until the completion path is measured on a device.
+#ifdef __ANDROID__
+    Setting<bool> completion_fences{false};
+#else
+    Setting<bool> completion_fences{true};
+#endif
     Setting<u32> readbacks_mode{GpuReadbacksMode::Disabled};
     Setting<bool> readback_linear_images_enabled{false};
     Setting<bool> direct_memory_access_enabled{false};
@@ -437,6 +445,7 @@ struct GPUSettings {
         return std::vector<OverrideItem>{
             make_override<GPUSettings>("null_gpu", &GPUSettings::null_gpu),
             make_override<GPUSettings>("copy_gpu_buffers", &GPUSettings::copy_gpu_buffers),
+            make_override<GPUSettings>("completion_fences", &GPUSettings::completion_fences),
             make_override<GPUSettings>("full_screen", &GPUSettings::full_screen),
             make_override<GPUSettings>("full_screen_mode", &GPUSettings::full_screen_mode),
             make_override<GPUSettings>("present_mode", &GPUSettings::present_mode),
@@ -464,7 +473,8 @@ struct GPUSettings {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GPUSettings, window_width, window_height, internal_screen_width,
                                    internal_screen_height, null_gpu, copy_gpu_buffers,
-                                   readbacks_mode, readback_linear_images_enabled,
+                                   completion_fences, readbacks_mode,
+                                   readback_linear_images_enabled,
                                    direct_memory_access_enabled, dump_shaders, patch_shaders,
                                    vblank_frequency, full_screen, full_screen_mode, present_mode,
                                    hdr_allowed, fsr_enabled, rcas_enabled, rcas_attenuation,
@@ -753,6 +763,7 @@ public:
     SETTING_FORWARD_BOOL(m_gpu, NullGPU, null_gpu)
     SETTING_FORWARD_BOOL(m_gpu, DumpShaders, dump_shaders)
     SETTING_FORWARD_BOOL(m_gpu, CopyGpuBuffers, copy_gpu_buffers)
+    SETTING_FORWARD_BOOL(m_gpu, CompletionFences, completion_fences)
     SETTING_FORWARD_BOOL(m_gpu, FullScreen, full_screen)
     SETTING_FORWARD(m_gpu, FullScreenMode, full_screen_mode)
     SETTING_FORWARD(m_gpu, PresentMode, present_mode)

@@ -44,7 +44,9 @@
 #if !defined(__ANDROID__)
 #include "common/singleton.h"
 #include "core/libraries/audio/audioout.h"
+#include "core/libraries/gnmdriver/gnmdriver.h"
 #include "input/controller.h"
+#include "video_core/amdgpu/liverpool.h"
 #include "video_core/replay/gpu_replay_recorder.h"
 #endif
 
@@ -305,6 +307,14 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) -> std::string {
             return args.empty() ? VideoCore::Replay::Recorder::Instance().Status()
                                 : BadArguments();
+        });
+    registry.Register("gpu_fences",
+        "EOP/EOS/RELEASE_MEM fences: status | completion | parse -- completion writes labels and "
+        "raises interrupts once the GPU completed the work before them, parse when the command "
+        "processor reads the packet",
+        [](const std::vector<std::string>& args) -> std::string {
+            auto* liverpool = Libraries::GnmDriver::GetLiverpool();
+            return liverpool ? liverpool->FenceCommand(args) : "error: no command processor\n";
         });
     registry.Register("gpu_replay_cancel", "stop the armed or running GPU replay capture",
         [](const std::vector<std::string>& args) -> std::string {

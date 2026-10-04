@@ -369,7 +369,7 @@ void TextureCache::PublishImageDiagnostics() {
     }
 }
 
-void TextureCache::ProcessDownloadImages() {
+void TextureCache::ProcessDownloadImages(bool sync) {
     std::unique_lock lk{download_images_mutex};
     for (const ImageId image_id : download_images) {
         if (Vulkan::MissingContent::Tracking()) {
@@ -377,7 +377,7 @@ void TextureCache::ProcessDownloadImages() {
             Vulkan::MissingContent::CheckEscape(Vulkan::MissingContent::Escape::Readback,
                                                 image.info.guest_address, image.info.guest_size);
         }
-        DownloadImageMemory(image_id, true, false, ~VAddr{0}, "image_writeback_queue");
+        DownloadImageMemory(image_id, sync, false, ~VAddr{0}, "image_writeback_queue");
     }
     download_images.clear();
 }

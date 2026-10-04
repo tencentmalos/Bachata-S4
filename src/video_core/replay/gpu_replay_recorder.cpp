@@ -237,6 +237,7 @@ std::string InfoText(std::string_view name, u32 frames) {
          << "readbacks_mode=" << EmulatorSettings.GetReadbacksMode() << "\n"
          << "readback_linear_images=" << EmulatorSettings.IsReadbackLinearImagesEnabled() << "\n"
          << "copy_gpu_buffers=" << EmulatorSettings.IsCopyGpuBuffers() << "\n"
+         << "completion_fences=" << EmulatorSettings.IsCompletionFences() << "\n"
          << "pipeline_compile_mode=" << EmulatorSettings.GetPipelineCompileMode() << "\n";
     return info.str();
 }
@@ -465,6 +466,8 @@ bool Recorder::Start(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* rasteriz
     // Results the GPU produced exist only in host caches while readbacks are off; a replay
     // starts from empty caches and must find them in guest memory.
     rasterizer->Finish();
+    // Labels and fences of the finished work are in guest memory before the snapshot.
+    liverpool->DrainFences();
     rasterizer->GetBufferCache().WriteBackGpuModified();
     rasterizer->GetTextureCache().WriteBackGpuModified();
     const auto gds = rasterizer->GetBufferCache().ReadGds();

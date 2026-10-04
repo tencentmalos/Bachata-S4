@@ -138,7 +138,7 @@ public:
     void UnmapMemory(VAddr cpu_addr, size_t size);
 
     /// Schedules a copy of pending images for download back to CPU memory.
-    void ProcessDownloadImages();
+    void ProcessDownloadImages(bool sync = true);
 
     /// GPU replay: writes every image the GPU modified, and the CPU has not written since, back
     /// to guest memory in guest layout. Command processor thread; waits for the GPU.

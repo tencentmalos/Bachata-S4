@@ -7,6 +7,7 @@
 #include <coroutine>
 #include <exception>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <semaphore>
 #include <span>
@@ -20,6 +21,7 @@
 #include "common/types.h"
 #include "common/unique_function.h"
 #include "video_core/amdgpu/cb_db_extent.h"
+#include "video_core/amdgpu/fence_labels.h"
 #include "video_core/amdgpu/regs.h"
 #include "video_core/replay/gpu_replay_format.h"
 #include "video_core/replay/gpu_replay_hooks.h"
@@ -38,6 +40,8 @@ class Player;
 }
 
 namespace AmdGpu {
+
+struct PM4CmdWaitRegMem;
 
 struct Liverpool {
     // PM4 owner only. Identifies intervals ending in an accepted VideoOut flip,
@@ -116,7 +120,10 @@ public:
     void UseOwnedSubmissions() {
         owned_submissions = true;
     }
-    bool owned_submissions{};
+    /// Submitted DCB/CCB/ACBs are copied at submission and parsed from the copy, so a guest
+    /// write after submitting cannot change what the command processor reads, and a GPU replay
+    /// sees the commands of the submission.
+    bool owned_submissions{true};
     bool StopRequested() const {
         return stopping.load();
     }
@@ -140,6 +147,22 @@ public:
     bool IsGpuIdle() const {
         return num_submits == 0 && num_commands == 0 && !processing && !submit_done;
     }
+
+    /// Waits until the completion thread performed every deferred fence. Command processor
+    /// thread, after the scheduler finished the work the fences follow.
+    void DrainFences();
+    /// DebugBus gpu_fences: status | completion | parse | flip_wait on|off.
+    std::string FenceCommand(const std::vector<std::string>& args);
+
+    /// The fences deferred so far, for a flip prepared now. Command processor thread.
+    u64 FenceMark() const {
+        return fence_labels->Deferred();
+    }
+    /// Blocks until every fence deferred before `mark` took effect. VideoOut completes a flip
+    /// (flip status and events, display buffer labels) only then: on hardware the flip follows
+    /// the frame's end-of-pipe writes, and a guest that recycles a frame's memory once it
+    /// flipped must not find late label writes landing in it.
+    void WaitFences(u64 mark);
 
     /// GPU replay: the state that outlives a submission (registers, compute queue programs,
     /// CE RAM and counters, ring queues). Command processor thread, with every queue idle.
@@ -298,13 +321,19 @@ private:
     };
 
     using CmdBuffer = std::pair<std::span<const u32>, std::span<const u32>>;
-    Task ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission, VAddr source);
+    // `origin` is the guest's command buffer when the task parses an owned copy of it: a
+    // REWIND packet waits for the guest to validate it there, and later packets are read again.
+    Task ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission, VAddr source,
+                             const u32* origin);
     CmdBuffer CopyCmdBuffers(std::span<const u32> dcb, std::span<const u32> ccb);
-    Task ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb, u64 submission, VAddr source);
-    Task ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission, VAddr source);
+    Task ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb, u64 submission,
+                              VAddr source, const u32* origin);
+    Task ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission,
+                         VAddr source, const u32* origin = nullptr);
     Task ProcessCeUpdate(std::span<const u32> ccb, u64 submission = 0);
     template <bool is_indirect = false>
-    Task ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source);
+    Task ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source,
+                        const u32* origin = nullptr);
 
     void ProcessCommands();
     /// Evaluates a wait packet's condition. A GPU replay capture records the result; a replay
@@ -380,6 +409,35 @@ private:
     s32 curr_qid{-1};
     bool replay_capture{};
     VideoCore::Replay::Player* replay_player{};
+
+    /// Performs an EOP/EOS/RELEASE_MEM write and interrupt when the GPU completed the work
+    /// recorded before it (or at once, without completion fences or a rasterizer).
+    void SignalFence(Fence fence);
+    /// The open command buffer holds work a deferred fence waits for.
+    bool FencesUnsubmitted() const;
+    /// Submits the open command buffer when a deferred fence waits for it.
+    void FlushFences(std::atomic<u64>& reason);
+    /// Shared with the operations the scheduler's completion thread runs.
+    std::shared_ptr<FenceLabels> fence_labels{std::make_shared<FenceLabels>()};
+    /// The condition of a WAIT_REG_MEM packet, reading memory as the command processor sees it.
+    /// A wait met by a pending fence value raises wait_debt to that fence.
+    bool TestWait(const PM4CmdWaitRegMem& wait);
+    /// Before a write the guest sees at once (WRITE_DATA, a semaphore signal): performs the
+    /// fences that waits met by pending values relied on. On hardware those waits held the
+    /// command processor until the fences took effect, so the guest never sees the write first
+    /// (a game recycles a command buffer once a WRITE_DATA after such a wait says the GPU is
+    /// done with it, and a late label write would land in the new commands).
+    void SettleWaits();
+    /// Newest fence sequence a met wait read a pending value of (0: none). Command processor
+    /// thread.
+    u64 wait_debt{};
+    /// Session setting (GPU.completion_fences); the DebugBus can change it for comparisons.
+    std::atomic<bool> completion_fences{true};
+    /// VideoOut completes flips after the fences before them (WaitFences); DebugBus switch for
+    /// comparisons.
+    std::atomic<bool> flip_waits_fences{true};
+    /// Scheduler tick the newest deferred fence waits for (0: none).
+    u64 fence_tick{};
 };
 
 } // namespace AmdGpu

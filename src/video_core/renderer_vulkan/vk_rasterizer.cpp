@@ -2690,8 +2690,8 @@ bool Rasterizer::ReadMemory(VAddr addr, u64 size) {
     return true;
 }
 
-void Rasterizer::ProcessDownloadImages() {
-    texture_cache.ProcessDownloadImages();
+void Rasterizer::ProcessDownloadImages(bool sync) {
+    texture_cache.ProcessDownloadImages(sync);
 }
 
 bool Rasterizer::IsMapped(VAddr addr, u64 size) {
