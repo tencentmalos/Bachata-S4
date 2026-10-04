@@ -1,3 +1,75 @@
+- **日志降噪（2026-10-04，已提交）：** MHW 桌面 149 秒写 382,215 行（67 MB）。按用户“看必要性，不必要就干掉”：`kernel/memory.cpp` 的 Kernel.Vmm 逐次调用参数/结果回显（Allocate/Release/VirtualQuery/Reserve/各类 Map/Mprotect/Pool*/mmap/munmap 等）全部删除，失败路径保留带参数的 Error，映射变化见崩溃报告的映射历史；`MemoryManager::Free` 顺带解除的直接映射原先只打 Info，改为 `RecordMapping("unmap-free")`（进映射历史并通知 GPU 回放录制器，补上抓帧时漏掉的映射变化）；每帧轮询的 `sceGameLiveStreamingGetCurrentStatus2`、`sceSharePlayGetCurrentConnectionInfoA` 桩与 Audio3d `PortSetAttribute` 改 Debug（同类函数已是 Debug；这两个桩不写输出，结构体大小未经固件核实，未改行为）。MHW 复测（exe `f25ada65`）：74 秒内 1,600 行、270 KB 后不再增长，全为启动一次性日志，游戏照常到 DLC 对话框。
+- **GPU 确定性回放：桌面抓取与回放（2026-10-04，已提交）：** [设计](docs/specs/gpu-replay-20261004.md)、[实现、用法与血源验证](docs/validation/android-native-host/gpu-replay-20261004.md)。
+  - **抓取**：DebugBus `gpu_replay_capture [frames] [name]` / `gpu_replay_status` / `gpu_replay_cancel`，trace 写到 `user/captures/gpu_replay/<name>.sgpurply`；`tools/gpu-replay/sgpurply.py info|vmas|events|check` 读取。在帧末开始：写回 GPU 独有结果、对可写 VMA 设录制写保护（PageManager 录制位图）、快照全部页，此后在每次 resume 前、等待求值后、注入命令前、每轮结束记录增量页和事件。游戏提供的线程栈与 fiber 栈不保护（Windows 在故障线程的栈上写异常记录）。GPU 驱动对象（flip label、内嵌 shader、init 序列）移到 Guest `0xFE0000000`。
+  - **回放**：`shadps4.exe --gpu-replay <trace> [--gpu-replay-exit] [--gpu-replay-out dir] [--gpu-replay-no-png]`，不加载游戏，按记录的物理地址重建内存，Liverpool 由事件驱动，等待包取记录结果；逐帧输出超分前图像 PNG 与 XXH3。`--gpu-replay-hash-images [--gpu-replay-hash-draws <事件>]` 逐事件/逐 draw 哈希被写图像，用于对比两次回放。
+  - **血源实测**：快照 4.9 GiB（零页 36%），trace 1.5 GB + 约 20–60 MB/帧；30 帧 11,377 个事件，每帧提交数与 `pm4_stats` 一致，抓完恢复 55–60 FPS。回放画面正确、事件 0 分歧。
+  - **逐帧一致（着色器修复后）**：原先两次回放每帧约 0.5% 像素不同，定位到 PS `0x1c3953c6`：alpha-test 后 `s_andn2_b64` + `s_cbranch_scc0` 被翻译成按像素的分支（SCC = `InverseBallot`，`S_WQM_B64` 为空操作），块内隐式 LOD 导数未定义。用户确认后实施 `Translator::FindLiveMask`：识别“开头把 EXEC 存为存活掩码并进 WQM、掩码只被 kill 清位、`vm` export 的 EXEC 取自掩码”的片元着色器，kill 处把被杀像素 demote 为 helper，分支 SCC 取真，kill 后回到 WQM 的 `s_and_b64 exec, exec, mask` 不清 helper；不符合条件的翻译不变；缓存 `ShaderBinaryVersion` 37。bb-r3a 三次、bb-final 两次回放的帧哈希与逐事件图像哈希（1770/2210 行）全同；血源 100 个片元着色器转换 15 个，235 个 SPIR-V 校验通过；修复前叶片边缘的亮点减少；游戏内仍在 60 FPS 上限。MHW 加载阶段转换 3 个、44 个 SPIR-V 通过、未崩溃。全被杀的 quad 也会执行 kill 后的代码，Android 未测。
+  - **未覆盖**：映射变化、CPU flip、readback、计算队列回放未实测；Android 不支持抓取；抓取时未固定设置。
+- **Guest patch 多选 / 状态层去背景 / 窗口菜单栏与状态栏（2026-10-04，已提交）：** [patch 多选](docs/validation/android-native-host/guest-patch-selection-20261004.md)、[状态层与窗口菜单](docs/validation/android-native-host/window-chrome-status-layer-20261004.md)。
+  - **Patch 多选**：包放 `<user>/guest_patches/<TITLE_ID>/<名字>.json`（Android `<user>` 为 `files/host`），每游戏选择为文件名列表，按序装、最多 8 个；桌面 `General.guest_patches`（空时读旧单值 `guest_patch`），Android profile `general.guest_patches` 经 JNI `nativeSetGuestPatches` 下发。包可带 `name`/`description`。共用 `guest_patch_format` 的列包与冲突检查（改写或调用同一段代码，已装包按实际搬走的指令长度）；版本、冲突、重复 id 不符则跳过、游戏照常运行。
+  - **桌面**：Big Picture Launch Options 的 “Guest Patches” 行打开二级面板勾选；经游戏实际挂载栈（含 ZAR）读模块 SHA 显示是否匹配，冲突/缺失置灰并说明；Esc 先关二级面板。Launch 写列表并清空旧单值。DebugBus `guest_patch enable|disable [包|hook|包/hook]`。
+  - **Android**：Launch 面板 “Guest Patches” 行打开二级面板（手柄上下选、Cross/左右切换、Circle 返回）；宿主每包一个 `GuestPatch::Manager`，`Manager::Modified()` 区分验证期失败（跳过）与已改写失败（会话失败）；去掉上午的 `<TITLE_ID>.json` 单文件规则；`scripts/android/guest-patch` 新增 install/select/list/override（deploy/--hook 兼容）。
+  - **状态层**：Only FPS 与 Summary 无背景、无边框（描边文字），Summary 的 Detail/Controls 按钮常驻半透明；Detail/Controls 面板保留背景。Foundation `StatusAppearance::button_opacity`，背景为 0 时不画边框；去掉 FPS opacity 与 PerfHud 背景滑杆。
+  - **窗口菜单/状态栏（桌面，参考 citron）**：`src/imgui/window_chrome.{h,cpp}`，在 DockSpace 前画，游戏画面落在两栏之间，全屏隐藏。File/Emulation/View/Tools/Help（含 Guest Patches 逐包开关、Reset Window Size）；状态栏左 Status/FSR/VOLUME/PAUSED 开关，右 Building N shaders（新 `PipelineStats::PendingBuilds()`）/Scale/Game FPS/Frame ms，500 ms 刷新。点栏不进游戏，菜单关闭后键盘还给游戏；状态层安全区避开两栏。
+  - **验证**：桌面两包同装、按包/按 hook 开关、冲突包被跳过、面板与菜单截图、菜单关 60 FPS 立即 30 FPS、菜单后 F11 生效、全屏隐藏、Reset 1600x900 游戏区正好 900 行。Kotlin GameLaunchOptions 6/0、LibraryViewModel 8/0、XrRendering 5/0。Thor（APK `2395ed8a`）：二级面板截图、只选声音修复与两包同装均正确，游戏已回到原存档位置。
+  - **部署**：桌面 `D:\workspace\shadps4-win-bb` 为 exe `a1f6cddf`，血源选 60 FPS（`8248715c`）+ 声音修复（`08be1eb0`），原 exe/配置/合并包备份在 `backup-20261004-patchsel`。Thor 装 APK `8bb75583`（host `6d36b0b6`）：触屏点一下后 Summary 背后仍有一层，是触摸抬起后 ImGui 指针停在原处造成的悬停高亮，`StatusOverlay::ReleasePointer` 在触摸结束时把指针移出屏幕；四种模式切换截图均无该层，游戏留在世界中（纵向 Summary）。
+  - **同日排查**：Android “画面异常”为每游戏屏幕超分 11:15 由 FSR1 改成 SGSR1（原始帧正常，SGSR1 把 0.5 倍渲染的抖动与锯齿放大为斑块）；未改用户设置。
+- **血源 Android：背景音回音/降速、手柄振动、声音修复包（2026-10-04，已提交）：** [根因、修复与数据](docs/validation/android-native-host/bloodborne-android-audio-vibration-20261004.md)。
+  - **回音根因**：血源开 MAIN、BGM 两个 8 声道浮点端口（256 帧块）。PS4 每块播完才放行，Android 原实现在设备每 20 ms 取 960 帧后一次放行 3–4 块，FMOD 输出线程越过混音器读到旧数据，PCM 在 1024 采样（21.3 ms）处自相关 +0.54～+0.66。
+  - **修复**：`guest_audio.cpp` 回调队列端口半满以上按块周期放行，低于半满立即补；Oboe 队列容量改为 3 个设备批次；DebugBus `audio_pacing on|off`（默认 on）。修复后块间隔中位 5.49 ms、0% 连发，1024 采样自相关 −0.12～+0.001，`starved=0`，用户确认正常。
+  - **排除**：唤醒代理（开/关时音频线程与 AudioFlinger 排队延迟无差别）、削顶（世界内峰值约 0.96–1.08）、AJM 报错、系统层欠载。运行时关闭 guest affinity 会使帧率大降，已恢复。
+  - **同时保留**：AJM 只写回解码器写入的字节（对齐桌面与 PS4）；Foundation 混音器硬削顶改为联动限幅器（`audio_limiter`，计数写入 Oboe 日志）；8 声道下混不再逐声道削顶；`audio_capture start|status|save` 录每端口原始 PCM 与到达时间；端口打开日志。Foundation 混音器单测 60/0。
+  - **振动**：Thor 内置 Odin Controller 无 InputDevice 振子，宿主拒绝全部请求（197 次非零受击请求被拒）。现 Player 1 无振子手柄改用系统振子（MEDIA 用途，同 citron 默认），执行器和宿主去掉逐帧重复停止。系统振动记录已见幅度 0.784 的振动，实际震感待用户确认。
+  - **声音修复包**：Android 在 `debug.shadps4.guest_patch` 为空时加载 `<UserDir>/guest_patches/<TITLE_ID>.json`，不匹配则不打补丁照常运行；Thor 已部署 `bloodborne_sound_fix_v1`。
+  - **频率**：普通 app 不能设定具体频率；AYN 游戏助手可按应用设正常/性能/高性能三档。
+  - **装机**：APK `a9535202`（host `1e5f0bbd`），每次安装前都备份了存档，测试属性和诊断文件已清理；桌面 cubeb 路径未复查。
+- **血源桌面：选用户后主音库丢失 / cubeb 输出 / 加载日志降级（2026-10-03～04，已提交）：** [音库根因与修复包](docs/validation/android-native-host/bloodborne-sound-bank-reload-20261004.md)、[cubeb 后端](docs/validation/android-native-host/desktop-cubeb-audio-20261003.md)。
+  - **根因**：选用户后游戏替换 `sprj_main/smain/psml/pscom` 音库。旧资源按名字请求释放，MagicOrchestra 遇到仍在加载的 cue 会重新排队（约 33 ms 一次，最多 60 次）；60 FPS 下新资源先走到“加载工程”，共用了还在表里的旧音库，旧音库随后被释放，主角/武器/菜单/音乐整局无声。二分：只有关掉帧节拍器（回到 30 FPS）才正常。
+  - **修复包** `bloodborne_sound_fix_v1`（`sound_reload.*`，3 个 hook）：同名释放仍在排队且旧音库还在时，新资源的预载/加载这一步直接返回，状态机下次再走，最多等 10 s。60 FPS 三轮主音库起播 54/48/48（暂缓约 2016 ms、33 ms、无）；第一版只查登记列表，3 轮中 2 轮仍无声。文件重开延迟方案不可靠，已删除。
+  - **cubeb**：`externals/cubeb`（tencentmalos 分支 `citron-submodule-42767df98ed0`，`42767df9`，与 citron PC 相同），只在桌面编译。设备节拍的帧环；立体声复用 `PrepareAudioStereo`，6 声道以上按 7.1。桌面默认后端改为 cubeb，失败回落 SDL；DebugBus `audio_out status`。血源 714 s 欠载 0、丢弃 0；`shadps4_audio_transfer_test` 未编译运行。
+  - **日志**：文件打开/关闭/删除、稀疏驻留、管线与着色器编译、cubeb 自身日志降为 Debug，pass 打断的有界日志默认关；启动到进世界 4635 → 1105 行。
+- **Android：设备休眠时直接启动游戏导致崩溃（2026-10-03，已提交）：** [根因、修复与实测](docs/validation/android-native-host/android-sleep-launch-20261003.md)。
+  - **根因**：`game_id` 启动意图在设备休眠时到达，活动恢复后立即暂停，Compose 链路仍走到 `SessionViewModel` 调 `startService`；uid 已 idle 时抛 `BackgroundServiceStartNotAllowedException` 崩溃。冷进程时系统允许启动，但服务等不到 Surface，10 秒后失败，请求被浪费。
+  - **重放**：崩溃后从最近任务重开会用带 `game_id` 的基础 intent 再启动一次；进程被杀后恢复的会话页、会话结束后重建的会话页也会自动再启动。此前“唤醒后重放”的说法不成立，07:20 的自动启动来自未退出的后台脚本。
+  - **修复**：
+    - 服务只在宿主活动 RESUMED 时启动，否则挂起到回到前台；被拒时等活动离开再回来重试（一直 RESUMED 则每秒一次）。
+    - 会话页成功启动后在 `SavedStateHandle` 记标记，恢复时不再自动启动，进程已重建则提示并回到游戏库；Retry 等主动重试不受限。
+    - 带 `FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY` 的 intent 不再触发 `game_id` / `open_last_game`。
+    - 不用前台服务（Manifest 按 Play 政策不声明 `FOREGROUND_SERVICE*`）。
+  - **验证**：
+    - `ForegroundStartTest` 4/4；负对照（门控改为 STARTED）2 例失败；feature/session 与 app 单测共 22/0。
+    - Pocket DS 血源：熄屏冷启动、进程常驻熄屏 75 s 后启动均无崩溃且不启动服务，唤醒解锁后 0.22 s / 0.06 s 内启动；亮屏直接启动 0.15 s；进程被杀后重开回到游戏库；`am crash` 后从最近任务重开忽略 `game_id`。
+    - 最终 APK `bb00a108`（host `f5d22fe4`）已装机。
+  - **未覆盖**：被拒后重试只有单测；XR 未上机；10:13–10:14 设备曾被操作（像是有人在用），旧包热启动崩溃未重新复现，以 07:08 crash buffer 为证。
+- **血源 Android：写跟踪缺页预测、同步唤醒代理与线程放置（2026-10-03，已提交）：** [报告](docs/validation/android-native-host/bloodborne-android-sync-faults-20261003.md)。
+  - **设备与方法**：Pocket DS，中央亚楠起点，Thermal Status 3，同一会话内开/关交替 3 轮。电脑 USB 只给 900 mA，游戏中持续掉电；第二轮起每个窗口都记录 `core_ctl/active_cpus` 与电量，低于 6% 自动停。
+  - **结果（均为 Android 默认）**：
+    - 内容哈希预测 +4.0%、唤醒代理 +2.6%，两项合计 25.72 → 27.40 FPS（+6.5%）。
+    - 未变内容页不衰减（`watch_decay` 默认改为 off）：27.26 → 27.88 FPS（+2.3%），写缺页 165 → 78 次/帧，GpuComm 多约 0.6 ms/帧。不衰减后哈希结果不再影响任何页是否预放，新包改为只在衰减开启时哈希，预放未缺页的页一律保留置信度（`kept_pages`）；`memory_tracker_concurrency_tests` 新增写预测用例 62/0，负对照 2 项失败。
+    - guest 线程避开小核：手动 taskset 对照 26.67 → 27.24 FPS（+2.1%）。已实现为 `guest_affinity`（`guest_cpu_placement.{h,cpp}`，排除 `cpu_capacity` 最低的一簇，较快 CPU 少于 4 颗时不启用，`debug.shadps4.guest_affinity=0` 关闭）；新包开/关 29.53 → 29.81 FPS（已近 30 帧上限），每帧进程 CPU 160 → 139 ms。
+    - 写缺页跳过无关纹理失效（`upload_diag fault_textures skip|always`）：缓冲区释放后页上已无写关注者时不再拿纹理缓存锁。无可测差别（不跳过时每帧约 83 次、共 0.1–0.15 ms），保留默认跳过。
+  - **新默认值全开**：中央亚楠起点 29.8–29.9 FPS，已到 30 帧上限；Guest-1 每帧 24.1 ms，其中 JIT 19.6 ms；全部 guest 线程的写缺页处理 6.66 → 2.17 ms/帧。中大核忙碌约 80%，更重的场景未测。
+  - **装机**：最终 APK `1881c71d`（host `f5d22fe4`），第三轮 A/B 即用此版；第二轮用 `ed7d2a1b`。另把 `RecursiveSharedLock` 的每线程登记从 `unordered_map` 改为小数组（`IsMapped` 每次缺页都用，原来每次分配）。Android host、APK、桌面 clang-cl 均编译通过，桌面未运行。
+  - **内容哈希预测**（`upload_diag watch_content`）：预放页上传时用 XXH3 判断内容是否被改写，改写过的保持写置信度；不跳过任何上传。写缺页 296 → 173 次/帧，GpuComm 多约 1.4 ms/帧。桌面默认关（未测）。
+  - **唤醒代理**（`wake_proxy`；`debug.shadps4.wake_proxy=0` 关闭）：
+    - 做法：内核信号量、条件变量、快路径 mutex 地址等待的 notify，交给小核上的 `shadPS4:Waker` 代发；每批处理完后用 WFE 等 200 µs 再睡。约 87% 的请求，发起方不进内核。
+    - 效果：Guest-1 的 futex 内核时间 3.71 → 0.97 ms/帧，全部 guest 线程合计少约 9 ms/帧。代理线程约占小核 14 ms/帧。
+    - 队列 32 项：游戏中 749 万次投递，从未满，最大深度 13。压力测试 11/0（约 32 万次投递，无丢唤醒）。
+    - 局限：代理在 A510 小核上每次唤醒约 55 µs，突发唤醒中排在后面的线程醒得更晚。
+  - **负结果**：ADPF `perf_hint`、`watch_gaps`、`stream_bounce` 无收益；`watch_cross` 在不衰减时缺页 84 → 62 次/帧，但多出的上传与 mprotect 抵消了收益，每帧 CPU 与 FPS 无差别。剩余缺页约每帧 75 次“流起点”。
+  - **新包复测**：不衰减（不哈希）对衰减 + 哈希 29.17 → 29.53 FPS，每帧进程 CPU 146.1 → 143.8 ms。
+  - **测试事故**：TaskStop 没有杀掉一个等电量的后台脚本，它后来自行启动游戏并与第四轮同时运行，第四轮作废后重测（报告 7.8、7.9 节）；另发现设备休眠时收到启动意图会让 App 因后台启动服务而崩溃，已修复（见上一条）。
+  - **核心暂停**：连续运行约 75 分钟后，`core_ctl` 把中核簇和 X3 的 `active_cpus` 降为 0，只剩 3.5–5 FPS；当时电量 2%，BCL 传感器 `socd` 状态 6，主因很可能是低电量限流。设备熄屏充电时约 750 mA，亮屏且高温时只有约 200 mA。
+  - **其他**：新增 `page_heat`（每页上传热度诊断，默认关）；`upload_diag status` 增加 `gpu_watch`、`write_faults`、`fault_textures` 三行。
+- **ImGui Vulkan 渲染统一到 Foundation（2026-10-03，已提交）：** [实现与验证](docs/validation/android-native-host/imgui-renderer-unify-20261003.md)。
+  - **结果**：shadPS4 旧后端已删除。presenter（dynamic rendering、SDF、repeat）与 XR 状态/错误层、合成层（render pass、位图、clamp，公开头文件不变）共用 Foundation `spatial::imgui::VulkanRenderer`（`modules/imgui_vulkan`）。上游 `third_party/imgui/backends/imgui_impl_vulkan.cpp` 留给直接编译它的宿主（azahar 自己的界面）。
+  - **做法**：纹理上传录进帧命令缓冲，资源按帧序号退休，不再 `waitIdle`。`TextureManager` 工作线程直接 `CreateTexture`，调度器 Flush 里的同步 `Submit()` 已删除。SDF 只转换、上传新字形的脏矩形（向外扩一个饱和半径），整图按 512² 分块，结果与整图转换逐字节相同。新增 DebugBus `screenshot overlays|game`。
+  - **验证**：SDF 单测 9 例、54,648 个断言（负对照：半径比理论下限小 1 像素即失败）。离屏 Vulkan 像素对比以旧后端、上游后端为参考，三帧在途、开 validation，890M 与 7600M XT 共 7 组全部逐字节一致。桌面和 Pocket DS 上血源 HUD 与通知缩略图正常，Android Present 线程 2.31 ms/帧。Foundation 按 azahar 方式完整配置后编译通过。
+  - **未覆盖**：XR 未上头显，运行中切换 HDR 未实测。
+- **血源 Android 瓶颈深入分析 / ImGui 缓冲常驻映射（2026-10-02，已提交）：** [报告](docs/validation/android-native-host/bloodborne-android-bottleneck-20261002.md)。AYANEO Pocket DS，中央亚楠起点，无 root：Perfetto 调度、simpleperf、缓冲区计数、/proc。
+  - **结论**：帧长 37.2 ms，关键路径为主线程 Guest-1；GPU 81%、GpuComm 约 55% 忙。设备处于严重温控（大核封顶 1.786 GHz，为标称的 64%）。主线程运行 26.4 ms：JIT 约 17.2，futex 唤醒约 3.3（约 195 次/帧，约 17 µs/次），写保护缺页约 2.5；另睡眠 7.4 ms 等 worker（Guest-54..59 与 32..36 有 43–50% 时间在小核），D 状态 1.1 ms（推断为 mmap_lock 争用）。
+  - **全进程开销**：GPU 写跟踪缺页约 15 ms CPU/帧（约 297 次/帧，每次约 50 µs，mprotect 353 次/帧）；HLE 同步 futex 约 13 ms/帧；GpuComm 的 stream 小拷贝 4,895 次/帧，写 uncached 内存后释放读锁约 1 ms。优化顺序建议见报告第 5 节，均未实施。
+  - **已修**：ImGui Vulkan 后端每帧 map/flush/unmap 顶点和索引缓冲；Turnip 在 aarch64 上对 coherent 内存也逐缓存行 flush。主仓 `src/imgui/renderer/imgui_impl_vulkan.cpp` 与 Foundation `third_party/imgui/backends/imgui_impl_vulkan.cpp`（XR 层用，标 `Foundation:`）改为常驻映射，只给非 coherent 内存 flush。Present 线程 4.50 → 2.30 ms/帧，simpleperf 中 flush/map/unmap 归零；不在关键路径，不宣称提帧。Foundation 那份与桌面只做编译检查；两份后端随后由统一渲染器取代（见上一条）。
 - **晚间归档与 Android 实测（2026-10-02）：** [归档记录](docs/validation/android-native-host/git-publish-20261002.md)“晚间归档”一节、[Pocket DS 实测](docs/validation/android-native-host/bloodborne-desktop-bottleneck-20261002.md)第 10 节。
   - **提交**：24 个代码提交加文档，含 10-01 MHR 会话遗留改动（AvPlayer seek、动态图像表、采样偏移、NaN 规则、DMA 同步默认开、256 线程填充/拷贝核、twin 复用、诊断命令、KGSL SVM 窗口）。Foundation `2e81e83`、Mesa `64817e11155`（barycentric）先推子仓。`feature/malos/swan_performance` 已推送并快进合入 `malos/main`。`externals/mesa-kosmickrisp` 与未跟踪的 imgui 目录不在本批。
   - **Android（AYANEO Pocket DS，血源中央亚楠起点）**：APK `3e8e160a`、Turnip `01a3548f`，26.4–27.1 FPS（30 帧上限），GPU 81%（680 MHz 满频）。渲染提交线程每帧等 Guest-1 约 29 ms；Guest-1 约 25 ms 在 CPU 上（HLE 11.9 ms，`SignalSema` 35 µs/次），GpuComm 22.8 ms/帧（18.6 µs/draw）。降 render scale 不会提帧。纹理绑定缓存开/关无可测差别；Android 的 epoll 本来就按超时等待；深度重采样与传输队列在 Turnip 上不启用。
