@@ -908,6 +908,27 @@ PipelineCache::Result PipelineCache::GetProgram(HwStage hw_stage, SwStage sw_sta
     if (new_program)
         it_pgm.value() = std::make_unique<Program>();
     auto& program = *it_pgm.value();
+    const bool tessellation =
+        sw_stage == SwStage::TessellationControl || sw_stage == SwStage::TessellationEval;
+    const auto match_mode = PipelineStats::SpecMatchMode();
+    const bool verify = match_mode == PipelineStats::SpecMatch::Verify;
+    // The permutations run the same code, so they find the same fetch shader: look it up once.
+    const std::optional<Shader::Gcn::FetchShaderData>* fetch_shader = nullptr;
+    bool fetch_present = false;
+    u32 fetch_sgpr_base = 0;
+    const auto find_fetch_shader = [&](const Shader::Info& info) -> const auto& {
+        if (!fetch_shader || fetch_present != info.has_fetch_shader ||
+            fetch_sgpr_base != info.fetch_shader_sgpr_base) {
+            fetch_shader = &program.fetch_shaders.Find(info);
+            fetch_present = info.has_fetch_shader;
+            fetch_sgpr_base = info.fetch_shader_sgpr_base;
+        }
+        return *fetch_shader;
+    };
+    u32 runtime_checks = 0;
+    u32 candidates = 0;
+    u32 start_rejects = 0;
+    u32 fetch_rejects = 0;
     for (size_t i = 0; i < program.modules.size(); ++i) {
         auto& candidate = program.modules[i];
         if (!candidate.info)
@@ -915,18 +936,63 @@ PipelineCache::Result PipelineCache::GetProgram(HwStage hw_stage, SwStage sw_sta
         auto& info = *candidate.info;
         // Runtime layouts differ before resource specialization. Tessellation fills
         // additional runtime fields from the constant buffer inside specialization.
-        if (sw_stage != SwStage::TessellationControl && sw_stage != SwStage::TessellationEval &&
-            candidate.spec.runtime_info != runtime_info)
-            continue;
+        if (!tessellation) {
+            ++runtime_checks;
+            if (candidate.spec.runtime_info != runtime_info)
+                continue;
+        }
         info.pgm_base = params.Base();
         info.user_data = params.user_data;
-        info.RefreshFlatBuf();
-        const Shader::StageSpecialization spec(info, runtime_info, profile, binding);
-        if (!(candidate.spec == spec))
+        const auto full_match = [&] {
+            return candidate.spec ==
+                   Shader::StageSpecialization(info, runtime_info, profile, binding);
+        };
+        bool matches;
+        if (match_mode == PipelineStats::SpecMatch::Full) {
+            ++candidates;
+            info.RefreshFlatBuf();
+            matches = full_match();
+        } else {
+            // The bindings start and the fetch shader are known before the resources are read:
+            // a permutation for another start or vertex layout is rejected before its resource
+            // tables are flattened.
+            using Shader::Gcn::FetchShaderMatch;
+            const bool start_differs = candidate.spec.StartDiffers(binding);
+            const auto fetch =
+                start_differs ? FetchShaderMatch::Different
+                              : Shader::Gcn::CompareFetchShader(find_fetch_shader(info),
+                                                                candidate.spec.fetch_shader_data);
+            if (fetch == FetchShaderMatch::Different) {
+                ++(start_differs ? start_rejects : fetch_rejects);
+                if (!verify)
+                    continue;
+            }
+            ++candidates;
+            info.RefreshFlatBuf();
+            if (fetch == FetchShaderMatch::Equal) {
+                matches = full_match();
+            } else {
+                matches = fetch == FetchShaderMatch::Same &&
+                          candidate.spec.Matches(runtime_info, binding, !tessellation);
+                if (verify) {
+                    const bool full = full_match();
+                    PipelineStats::RecordSpecVerify(matches == full, params.hash, u32(i), matches);
+                }
+            }
+        }
+        if (!matches)
             continue;
+        if (verify) {
+            PipelineStats::RecordSpecLookup(runtime_checks, candidates, start_rejects,
+                                            fetch_rejects, false);
+        }
         info.AddBindings(binding);
         return std::make_tuple(&info, candidate.module, candidate.spec.fetch_shader_data,
                                HashCombine(params.hash, i));
+    }
+    if (verify) {
+        PipelineStats::RecordSpecLookup(runtime_checks, candidates, start_rejects, fetch_rejects,
+                                        true);
     }
 
     const size_t perm_idx = program.modules.size();

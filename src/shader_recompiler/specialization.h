@@ -4,6 +4,7 @@
 #pragma once
 
 #include <bitset>
+#include <optional>
 
 #include "common/types.h"
 #include "shader_recompiler/backend/bindings.h"
@@ -201,6 +202,170 @@ struct StageSpecialization {
 
     [[nodiscard]] bool Valid() const {
         return info != nullptr;
+    }
+
+    /// Whether this cannot equal a specialization built with the bindings start `start_`, decided
+    /// before the resources are read. Matches compares the whole start when this has a bound
+    /// resource, and otherwise at least its user data part, unless the stage reads no user data.
+    /// (A stage's start follows the resources of the stages bound before it, so a vertex shader
+    /// paired with fragment shaders of different resource counts has one permutation each.)
+    [[nodiscard]] bool StartDiffers(const Backend::Bindings& start_) const {
+        if (bitset.any()) {
+            return start != start_;
+        }
+        return info->ud_mask.NumRegs() != 0 && start.user_data != start_.user_data;
+    }
+
+    /// Whether this equals StageSpecialization(*info, runtime_info_, profile, start_), without
+    /// building one: the permutation lookup of every draw. `info` must hold the current user
+    /// data and flattened buffer, and the caller must have found its vertex fetch shader the
+    /// same as this one's (CompareFetchShader returns Same): an Equal one differs in attribute
+    /// fields the comparison ignores, and only building the specialization decides that case.
+    /// `runtime_checked`: the caller already found runtime_info_ equal to this->runtime_info
+    /// (every stage but tessellation, whose specialized runtime info also takes the tessellation
+    /// constants).
+    bool Matches(const RuntimeInfo& runtime_info_, const Backend::Bindings& start_,
+                 bool runtime_checked) const {
+        if (!Valid() || buffers.size() != info->buffers.size() ||
+            images.size() != info->images.size() || samplers.size() != info->samplers.size() ||
+            fmasks.size() != info->fmasks.size()) {
+            return false;
+        }
+        std::array<u32, 2> masks{};
+        for (size_t table = 0; table < info->dynamic_image_tables.size(); ++table) {
+            const u32 base = info->dynamic_image_tables[table].flat_base;
+            for (u32 slot = 0; slot < DynamicImageTable::Capacity; ++slot) {
+                AmdGpu::Image image{};
+                std::memcpy(&image, info->flattened_ud_buf.data() + base + slot * 8, sizeof(image));
+                if (image.Valid() && image.Address()) {
+                    masks[table] |= 1U << slot;
+                }
+            }
+        }
+        if (masks != dynamic_image_masks) {
+            return false;
+        }
+        // Same fetch shader: the attribute list is this one's.
+        const size_t num_attribs = info->sw_stage == SwStage::Vertex && fetch_shader_data
+                                       ? fetch_shader_data->attributes.size()
+                                       : 0;
+        if (vs_attribs.size() != num_attribs) {
+            return false;
+        }
+        for (size_t i = 0; i < num_attribs; ++i) {
+            const auto& desc = fetch_shader_data->attributes[i];
+            VsAttribSpecialization spec{};
+            if (const AmdGpu::Buffer sharp = desc.GetSharp(*info)) {
+                using InstanceIdType = Shader::Gcn::VertexAttribute::InstanceIdType;
+                if (const auto step_rate = desc.GetStepRate(); step_rate != InstanceIdType::None) {
+                    spec.divisor = step_rate == InstanceIdType::OverStepRate0
+                                       ? runtime_info_.sw.vs.step_rate_0
+                                       : (step_rate == InstanceIdType::OverStepRate1
+                                              ? runtime_info_.sw.vs.step_rate_1
+                                              : 1);
+                }
+                spec.num_class = AmdGpu::GetNumberClass(sharp.GetNumberFmt());
+                spec.dst_select = sharp.DstSelect();
+            }
+            if (!(spec == vs_attribs[i])) {
+                return false;
+            }
+        }
+        if (!runtime_checked) {
+            RuntimeInfo specialized = runtime_info_;
+            if (info->sw_stage == SwStage::TessellationControl ||
+                info->sw_stage == SwStage::TessellationEval) {
+                TessellationDataConstantBuffer tess_constants{};
+                info->ReadTessConstantBuffer(tess_constants);
+                specialized.InitFromTessConstants(tess_constants);
+            }
+            if (specialized != runtime_info) {
+                return false;
+            }
+        }
+        // Binding slots follow buffers, then images, then fmasks (the constructor's order).
+        bool any_bound = false;
+        for (size_t i = 0; i < fmasks.size(); ++i) {
+            FMaskSpecialization spec{};
+            if (const AmdGpu::Image sharp = info->fmasks[i].GetSharp(*info)) {
+                any_bound = true;
+                spec.width = sharp.width;
+                spec.height = sharp.height;
+            }
+            if (!(spec == fmasks[i])) {
+                return false;
+            }
+        }
+        if (bitset.none()) {
+            for (const auto& desc : info->buffers) {
+                any_bound = any_bound || bool(desc.GetSharp(*info));
+            }
+            for (const auto& desc : info->images) {
+                any_bound = any_bound || bool(desc.GetSharp(*info));
+            }
+            if (!any_bound) {
+                return info->ud_mask.NumRegs() == 0 || start.user_data == start_.user_data;
+            }
+        }
+        if (start != start_) {
+            return false;
+        }
+        for (size_t i = 0; i < buffers.size(); ++i) {
+            const auto& desc = info->buffers[i];
+            const AmdGpu::Buffer sharp = desc.GetSharp(*info);
+            if (!sharp) {
+                continue;
+            }
+            BufferSpecialization spec{};
+            spec.stride = sharp.GetStride();
+            spec.is_formatted = desc.is_formatted;
+            spec.swizzle_enable = sharp.swizzle_enable;
+            if (spec.is_formatted) {
+                spec.data_format = static_cast<u32>(sharp.GetDataFmt());
+                spec.num_format = static_cast<u32>(sharp.GetNumberFmt());
+                spec.dst_select = sharp.DstSelect();
+                spec.num_conversion = sharp.GetNumberConversion();
+            }
+            if (spec.swizzle_enable) {
+                spec.index_stride = sharp.index_stride;
+                spec.element_size = sharp.element_size;
+            }
+            if (buffers[i] != spec) {
+                return false;
+            }
+        }
+        for (size_t i = 0; i < images.size(); ++i) {
+            const auto& desc = info->images[i];
+            const AmdGpu::Image sharp = desc.GetSharp(*info);
+            if (!sharp) {
+                continue;
+            }
+            ImageSpecialization spec{};
+            spec.type = sharp.GetViewType(desc.is_array);
+            spec.is_integer = AmdGpu::IsInteger(sharp.GetNumberFmt());
+            spec.is_storage = desc.is_written;
+            if (spec.is_storage) {
+                spec.dst_select = sharp.DstSelect();
+            } else {
+                spec.is_srgb = sharp.GetNumberFmt() == AmdGpu::NumberFormat::Srgb;
+            }
+            spec.num_conversion = sharp.GetNumberConversion();
+            spec.num_bindings = desc.NumBindingsFor(sharp);
+            if (images[i] != spec) {
+                return false;
+            }
+        }
+        for (size_t i = 0; i < samplers.size(); ++i) {
+            SamplerSpecialization spec{};
+            if (const AmdGpu::Sampler sharp = info->samplers[i].GetSharp(*info)) {
+                spec.force_unnormalized = sharp.force_unnormalized;
+                spec.force_degamma = sharp.force_degamma;
+            }
+            if (samplers[i] != spec) {
+                return false;
+            }
+        }
+        return true;
     }
 
     bool operator==(const StageSpecialization& other) const {

@@ -140,6 +140,22 @@ struct DriverCacheState {
 void SetDriverCacheState(DriverCacheState state);
 void RecordDriverCacheSave(u64 bytes, u64 ns);
 
+/// How a draw finds the shader permutation matching its resources (DebugBus
+/// `pipeline_cache spec_match`):
+///   Fast: StageSpecialization::Matches compares each candidate as it reads the resources.
+///   Full: builds the draw's StageSpecialization and compares it (the previous way).
+///   Verify: both, counting draws where they disagree.
+enum class SpecMatch : int { Fast, Full, Verify };
+SpecMatch SpecMatchMode(); ///< Cheap.
+/// Verify mode: one candidate comparison; `agree` false when Fast and Full differed.
+void RecordSpecVerify(bool agree, u64 program_hash, u32 permutation, bool fast_result);
+/// Verify mode: one permutation lookup. `runtime_checks`: candidates whose runtime info was
+/// compared; `candidates`: candidates whose resources were compared; `start_rejects` and
+/// `fetch_rejects`: those of them the fast mode rejects on the bindings start or on the vertex
+/// fetch shader before reading resources; `created`: none matched.
+void RecordSpecLookup(u32 runtime_checks, u32 candidates, u32 start_rejects, u32 fetch_rejects,
+                      bool created);
+
 std::string Command(const std::vector<std::string>& args);
 
 } // namespace PipelineStats

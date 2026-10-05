@@ -2115,7 +2115,8 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
                            TextureBindResource(image_desc), 0};
         // A T# with a cached resolution passed these checks when it was resolved; an unmap
         // since then would have unregistered its image.
-        if (!cacheable || texture_binds.find(key) == texture_binds.end()) {
+        const auto first_cached = cacheable ? texture_binds.find(key) : texture_binds.end();
+        if (first_cached == texture_binds.end()) {
             if (texture_cache.IsMeta(tsharp.Address())) {
                 LOG_WARNING(Render_Vulkan, "Unexpected metadata read by a shader (texture)");
             }
@@ -2137,7 +2138,10 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
 
         for (u32 i = 0; i < num_bindings; i++) {
             key.element = i;
-            auto cached = cacheable ? texture_binds.find(key) : texture_binds.end();
+            // Element 0 was looked up above, and nothing changed the cache since.
+            auto cached = !cacheable ? texture_binds.end()
+                          : i == 0   ? first_cached
+                                     : texture_binds.find(key);
             if (cached != texture_binds.end()) {
                 if (const u64 tick = scheduler.CurrentTick(); cached->second.touched_tick != tick) {
                     if (texture_cache.TouchFoundTexture(cached->second.binding.first)) {

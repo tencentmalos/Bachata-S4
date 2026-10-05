@@ -52,6 +52,9 @@ struct Program {
     static constexpr size_t MaxPermutations = 8;
     using ModuleList = boost::container::small_vector<Module, MaxPermutations>;
     ModuleList modules{};
+    // The permutations run the same code, so a lookup parses its vertex fetch shader once,
+    // and finds it here while its guest code is unchanged.
+    Shader::Gcn::FetchShaderCache fetch_shaders{};
 
     void AddPermut(vk::ShaderModule module, std::unique_ptr<Shader::Info> info,
                    Shader::StageSpecialization&& spec) {

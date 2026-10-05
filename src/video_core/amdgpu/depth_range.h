@@ -45,7 +45,17 @@ struct DepthRangeEmulation {
     // Indexed exactly like the emitted Vulkan viewport array. Constants enter
     // the shader specialization key; no guest pointer or per-vertex host call.
     std::array<DepthRangeTransform, NUM_VIEWPORTS> viewports{};
-    bool operator==(const DepthRangeEmulation&) const = default;
+    // Compared for every shader stage of every draw. A disabled emulation keeps every other
+    // member at its default (BuildDepthRangeEmulation), so the viewports need no comparison.
+    bool operator==(const DepthRangeEmulation& other) const {
+        if (enabled != other.enabled) {
+            return false;
+        }
+        return !enabled ||
+               (negative_one_to_one == other.negative_one_to_one &&
+                clip_near == other.clip_near && clip_far == other.clip_far &&
+                viewports == other.viewports);
+    }
 };
 
 template <class Registers>

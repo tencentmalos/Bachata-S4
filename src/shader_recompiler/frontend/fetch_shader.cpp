@@ -150,4 +150,49 @@ std::optional<FetchShaderData> ParseFetchShader(const Shader::Info& info) {
     return data;
 }
 
+namespace {
+FetchShaderMatch CompareParsed(const FetchShaderData& parsed, const FetchShaderData& expected) {
+    if (!(parsed == expected)) {
+        return FetchShaderMatch::Different;
+    }
+    for (size_t i = 0; i < parsed.attributes.size(); ++i) {
+        const auto& a = parsed.attributes[i];
+        const auto& b = expected.attributes[i];
+        if (a.inst_offset != b.inst_offset || a.data_format != b.data_format ||
+            a.num_format != b.num_format) {
+            return FetchShaderMatch::Equal;
+        }
+    }
+    return FetchShaderMatch::Same;
+}
+} // namespace
+
+FetchShaderMatch CompareFetchShader(const std::optional<FetchShaderData>& parsed,
+                                    const std::optional<FetchShaderData>& expected) {
+    if (!parsed || !expected) {
+        return parsed.has_value() == expected.has_value() ? FetchShaderMatch::Same
+                                                          : FetchShaderMatch::Different;
+    }
+    return CompareParsed(*parsed, *expected);
+}
+
+const std::optional<FetchShaderData>& FetchShaderCache::Find(const Shader::Info& info) {
+    static const std::optional<FetchShaderData> none{};
+    if (!info.has_fetch_shader) {
+        return none;
+    }
+    const auto* code = GetFetchShaderCode(info, info.fetch_shader_sgpr_base);
+    for (const auto& entry : entries) {
+        if (entry.data && entry.code == code &&
+            std::memcmp(code, entry.words.data(), entry.words.size() * sizeof(u32)) == 0) {
+            return entry.data;
+        }
+    }
+    auto& entry = entries[next++ % entries.size()];
+    entry.data = ParseFetchShader(info);
+    entry.code = code;
+    entry.words.assign(code, code + entry.data->size / sizeof(u32));
+    return entry.data;
+}
+
 } // namespace Shader::Gcn

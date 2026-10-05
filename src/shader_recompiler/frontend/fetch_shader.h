@@ -5,6 +5,7 @@
 
 #include <boost/container/small_vector.hpp>
 
+#include <array>
 #include <optional>
 #include <vector>
 #include "common/types.h"
@@ -75,5 +76,32 @@ struct FetchShaderData {
 const u32* GetFetchShaderCode(const Info& info, u32 sgpr_base);
 
 std::optional<FetchShaderData> ParseFetchShader(const Shader::Info& info);
+
+/// A parse (ParseFetchShader) against `expected`.
+enum class FetchShaderMatch {
+    Different, ///< Not equal.
+    Same,      ///< Equal, every attribute field included.
+    Equal,     ///< Equal by FetchShaderData::operator==, which skips the attributes' instruction
+               ///< offsets and format overrides; they differ.
+};
+FetchShaderMatch CompareFetchShader(const std::optional<FetchShaderData>& parsed,
+                                    const std::optional<FetchShaderData>& expected);
+
+/// ParseFetchShader for one owner, not thread safe. An entry is reused while the guest code
+/// words it was parsed from are unchanged, without the shared memo's lock or a copy of the parse.
+class FetchShaderCache {
+public:
+    /// The returned parse stays valid until a later Find replaces its entry.
+    const std::optional<FetchShaderData>& Find(const Shader::Info& info);
+
+private:
+    struct Entry {
+        const u32* code{};
+        std::vector<u32> words;
+        std::optional<FetchShaderData> data;
+    };
+    std::array<Entry, 4> entries{};
+    u32 next{};
+};
 
 } // namespace Shader::Gcn

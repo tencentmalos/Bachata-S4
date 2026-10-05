@@ -122,6 +122,15 @@ std::atomic<u32> usage_saved{};
 std::atomic<u64> built_by_user{};
 Timing first_use_waits;
 std::atomic<int> mode_override{-1}; // -1 configured, otherwise CompileMode
+std::atomic<int> spec_match{int(SpecMatch::Fast)};
+std::atomic<u64> spec_verified{};
+std::atomic<u64> spec_disagreed{};
+std::atomic<u64> spec_lookups{};
+std::atomic<u64> spec_runtime_checks{};
+std::atomic<u64> spec_candidates{};
+std::atomic<u64> spec_start_rejects{};
+std::atomic<u64> spec_fetch_rejects{};
+std::atomic<u64> spec_created{};
 std::atomic<u32> configured_mode{u32(CompileMode::Sync)};
 
 // Skip mode. Written by the GPU command thread only; read by DebugBus.
@@ -414,7 +423,48 @@ constexpr std::array SkipOffNames = {"", "a record is full", "missing content re
                                      "missing content was used as indirect arguments",
                                      "missing content was read in a later frame"};
 
+SpecMatch SpecMatchMode() {
+    return SpecMatch(spec_match.load(std::memory_order_relaxed));
+}
+
+void RecordSpecVerify(bool agree, u64 program_hash, u32 permutation, bool fast_result) {
+    spec_verified.fetch_add(1, std::memory_order_relaxed);
+    if (agree) {
+        return;
+    }
+    const u64 count = spec_disagreed.fetch_add(1, std::memory_order_relaxed) + 1;
+    if (count <= 16) {
+        LOG_ERROR(Render_Vulkan,
+                  "Permutation match disagrees for shader {:#x} permutation {}: fast {}, full {}",
+                  program_hash, permutation, fast_result, !fast_result);
+    }
+}
+
+void RecordSpecLookup(u32 runtime_checks, u32 candidates, u32 start_rejects, u32 fetch_rejects,
+                      bool created) {
+    spec_lookups.fetch_add(1, std::memory_order_relaxed);
+    spec_runtime_checks.fetch_add(runtime_checks, std::memory_order_relaxed);
+    spec_candidates.fetch_add(candidates, std::memory_order_relaxed);
+    spec_start_rejects.fetch_add(start_rejects, std::memory_order_relaxed);
+    spec_fetch_rejects.fetch_add(fetch_rejects, std::memory_order_relaxed);
+    if (created) {
+        spec_created.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
 std::string Command(const std::vector<std::string>& args) {
+    if (args.size() == 2 && args[0] == "spec_match") {
+        if (args[1] == "fast") {
+            spec_match = int(SpecMatch::Fast);
+        } else if (args[1] == "full") {
+            spec_match = int(SpecMatch::Full);
+        } else if (args[1] == "verify") {
+            spec_match = int(SpecMatch::Verify);
+        } else {
+            return "usage: pipeline_cache spec_match fast|full|verify\n";
+        }
+        return fmt::format("permutation match {}\n", args[1]);
+    }
     if (args.size() == 2 && args[0] == "mode") {
         if (args[1] == "sync") {
             mode_override = int(CompileMode::Sync);
@@ -432,7 +482,7 @@ std::string Command(const std::vector<std::string>& args) {
     }
     if (!args.empty() && (args.size() != 1 || args[0] != "status")) {
         return "usage: pipeline_cache [status] | mode sync|async_accurate|async_graphics_skip|"
-               "config\n";
+               "config | spec_match fast|full|verify\n";
     }
     Settings current;
     DriverCacheState state;
@@ -447,6 +497,19 @@ std::string Command(const std::vector<std::string>& args) {
                        current.recipe_store ? "open" : "closed",
                        current.driver_cache ? "on" : "off");
     const int override_mode = mode_override.load();
+    static constexpr std::array SpecMatchNames = {"fast", "full", "verify"};
+    out += fmt::format("permutation match: {}; verified {} candidate comparisons, {} disagreed\n",
+                       SpecMatchNames[std::clamp(spec_match.load(), 0, 2)], spec_verified.load(),
+                       spec_disagreed.load());
+    if (const u64 lookups = spec_lookups.load()) {
+        out += fmt::format("permutation lookups (verify mode): {}; per lookup, runtime info "
+                           "compared {:.2f}, resources compared {:.2f}, of which {:.2f} have "
+                           "another bindings start and {:.2f} another fetch shader; {} new\n",
+                           lookups, double(spec_runtime_checks.load()) / lookups,
+                           double(spec_candidates.load()) / lookups,
+                           double(spec_start_rejects.load()) / lookups,
+                           double(spec_fetch_rejects.load()) / lookups, spec_created.load());
+    }
     out += fmt::format("compile mode: {} (configured {}{}), {} compile threads\n",
                        CompileModeName(EffectiveCompileMode()),
                        CompileModeName(ConfiguredCompileMode()),
