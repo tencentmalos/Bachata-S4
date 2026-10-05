@@ -313,5 +313,7 @@ Citron 已实现第一版确定性帧回放，并在 BOTW 上实测：完整场�
 |---|---|---|---|
 | 2026-10-04 | A | 回放捕获与无头回放，两次回放逐帧、逐事件图像哈希一致（修复 alpha-test 后按像素分支的隐式 LOD） | [gpu-replay-20261004](../validation/android-native-host/gpu-replay-20261004.md) |
 | 2026-10-04 | A | PM4 自有副本桌面默认开；EOP/EOS/RELEASE_MEM 进有序队列，GPU 完成后由完成线程执行，flip 完成排在其后；桌面默认开，Android 默认关 | [gcn-stage-a-fences-20261004](../validation/android-native-host/gcn-stage-a-fences-20261004.md) |
+| 2026-10-05 | C | 排列匹配边读边比（`Matches`）、binding 起点与 fetch shader 预检、program 级 fetch shader 缓存、GPU 修改查询按区域标志跳过：`GetProgram` 约 12% → 9%，`GetGraphicsPipeline` 约 14% → 11.8%，未达 3% | [gcn-stage-c-permutation-match-20261005](../validation/android-native-host/gcn-stage-c-permutation-match-20261005.md) |
+| 2026-10-05 | D | 流式页（3.5 第 3 项）：按代复制会读到过期副本，改为每次绑定比较内容哈希；写缺页 −70%，但哈希抵消写保护的节省，桌面无净收益，默认关；回放改为按写缺页通知缓存 | [gcn-stage-d-stream-pages-20261005](../validation/android-native-host/gcn-stage-d-stream-pages-20261005.md) |
 
 3.6 第 1 项的实测结论：CP 先行解析并用待定值通过 `WAIT_REG_MEM` 时，等待之后立即可见的写（`WRITE_DATA`、信号量）必须排在等待所依赖的 fence 之后，否则游戏会按这条写回收仍有 label 待写的内存（血源中央亚楠必现崩溃）。现在的做法是在这类写之前由 CP 提前执行这些 fence；血源每帧末尾都有这种写，99.7% 以上的 fence 因此提前执行。要得到真实完成的时机，CP 需要真正等待 GPU，这依赖阶段 B/C 先把 GpuComm 的录制工作移走。3.6 第 2 项（回读默认打开）尚未开始：开之前，提前执行遇到未完成的异步下载时要改为真实等待。
