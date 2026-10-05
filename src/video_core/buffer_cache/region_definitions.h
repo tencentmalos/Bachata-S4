@@ -30,6 +30,47 @@ enum class Type {
 
 using RegionBits = Common::BitArray<NUM_PAGES_PER_REGION>;
 
+// Each region records whether any of its pages is GPU modified, so that asking whether a range is
+// GPU modified skips the region lock and the bit scan in regions without such pages (Bloodborne:
+// 64% of the queries, mostly reads of per-draw constants). DebugBus `upload_diag gpu_flag on|off`,
+// on by default.
+inline std::atomic<bool> region_gpu_flag{true};
+
+// Streaming pages (GCN v2 spec 3.5): a page the CPU rewrote in each of its last three write
+// cycles stops being write protected by the buffer cache, saving a write fault and two
+// protection changes per cycle. It stays CPU modified; every upload that covers it hashes its
+// contents and copies it only when they changed since its last copy, so what the GPU reads is
+// what guest memory held at the binding, as with write tracking. A hash costs about as much as
+// a protection change, so only pages bound at most StreamMaxBinds times in their last write
+// cycle are promoted, through uploads of read-only bindings of at most StreamMaxBinding bytes.
+// A page is watched again (demoted) when a binding writes it, when it is unmarked or cleaned
+// explicitly, when StreamDemoteChecks uploads in a row found it unchanged (the CPU stopped
+// writing it, or it is bound more often now), and when the switch is turned off.
+// DebugBus `upload_diag watch_stream on|off [cycles]`, SHADPS4_WATCH_STREAM.
+inline std::atomic<bool> stream_pages{false};
+// Consecutive write cycles ended by a CPU write that promote a page (1–3). Fewer promote more
+// pages: a short GPU replay exercises the copy path with 1 (SHADPS4_WATCH_STREAM_CYCLES).
+inline std::atomic<u32> stream_promote_cycles{3};
+constexpr u64 StreamMaxBinding = 64 * 1024;
+constexpr u16 StreamMaxBinds = 4;
+// Contents the CPU rewrites unchanged also count as unchanged: a low limit would demote and
+// promote such pages again every few frames, each time with three write faults.
+constexpr u16 StreamDemoteChecks = 256;
+struct StreamPageCounters {
+    std::atomic<u64> promoted{}; ///< Pages that stopped being write protected.
+    std::atomic<u64> demoted{};  ///< Pages watched again.
+    std::atomic<u64> checked{};  ///< Streaming page contents hashed by an upload.
+    std::atomic<u64> copied{};   ///< Streaming pages copied (contents changed, or promoted).
+    std::atomic<u64> busy{};     ///< Promotions refused: bound too often (StreamMaxBinds).
+};
+inline StreamPageCounters stream_page_counters;
+/// How an upload treats streaming pages.
+enum class StreamUpload : u8 {
+    Promote, ///< Small read-only binding: checks streaming pages, promotes pages.
+    Keep,    ///< Other read-only binding: checks streaming pages.
+    Demote,  ///< Binding the GPU writes: demotes the streaming pages of its range.
+};
+
 // A CPU write fault also releases the following watched pages of its 64-page window that the CPU
 // is expected to rewrite (streaming data is rewritten every frame). Diagnostic switch.
 constexpr u64 WRITE_FAULT_WINDOW_PAGES = 64;

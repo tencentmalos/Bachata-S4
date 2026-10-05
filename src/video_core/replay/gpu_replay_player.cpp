@@ -10,6 +10,7 @@
 #include "core/libraries/videoout/video_out.h"
 #include "core/memory.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/buffer_cache/region_definitions.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/replay/gpu_replay_player.h"
 
@@ -184,10 +185,29 @@ bool Player::WritePages(std::span<const u8> payload, bool initial, std::string& 
             i = j;
         }
     };
+    // The caches learn about the writes as they would from the guest CPU: the pages a cache
+    // watches fault (the buffer cache counts the write cycle and predicts, the texture cache
+    // invalidates its images); a write to a page no cache watches goes unnoticed, as in a live
+    // run (buffer pages already CPU modified, streaming pages within a generation).
+    const auto note_writes = [&](VAddr address, u64 size) {
+        const auto& page_manager = rasterizer->GetPageManager();
+        for (u64 offset = 0; offset < size;) {
+            u64 end = offset;
+            while (end < size && page_manager.HasWriteWatchers(address + end, PageSize)) {
+                end += PageSize;
+            }
+            if (end != offset) {
+                rasterizer->InvalidateMemoryFromWriteFault(address + offset, end - offset);
+                offset = end;
+            } else {
+                offset += PageSize;
+            }
+        }
+    };
     for_each_run(data_va, [&](size_t first, VAddr address, u64 size) {
         WriteGuest(address, data.data() + first * PageSize, size);
         if (!initial) {
-            rasterizer->InvalidateMemory(address, size);
+            note_writes(address, size);
         }
     });
     static const std::vector<u8> zeros(256 * PageSize);
@@ -196,7 +216,7 @@ bool Player::WritePages(std::span<const u8> payload, bool initial, std::string& 
             WriteGuest(address + offset, zeros.data(), std::min<u64>(zeros.size(), size - offset));
         }
         if (!initial) {
-            rasterizer->InvalidateMemory(address, size);
+            note_writes(address, size);
         }
     });
     if (!initial) {
@@ -516,6 +536,14 @@ std::string Player::Summary() const {
         << "delta_pages=" << delta_pages << "\n"
         << "mapping_changes=" << mappings << "\n"
         << "commands=" << commands << "\n";
+    // Streaming pages (SHADPS4_WATCH_STREAM=1) change how uploads copy, not what they copy.
+    if (const auto& stream = VideoCore::stream_page_counters;
+        VideoCore::stream_pages.load() || stream.promoted.load() != 0) {
+        out << "stream_pages cycles=" << VideoCore::stream_promote_cycles.load()
+            << " checked=" << stream.checked.load() << " copied=" << stream.copied.load()
+            << " promoted=" << stream.promoted.load() << " demoted=" << stream.demoted.load()
+            << " busy=" << stream.busy.load() << "\n";
+    }
     return out.str();
 }
 

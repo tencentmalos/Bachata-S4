@@ -55,8 +55,13 @@ public:
 
     /// Returns true if a region has been modified from the GPU
     bool IsRegionGpuModified(VAddr query_cpu_addr, u64 query_size) noexcept {
+        const bool use_flag = region_gpu_flag.load(std::memory_order_relaxed);
         return IteratePages<false>(
-            query_cpu_addr, query_size, [](RegionManager* manager, u64 offset, size_t size) {
+            query_cpu_addr, query_size,
+            [use_flag](RegionManager* manager, u64 offset, size_t size) {
+                if (use_flag && !manager->MayHaveGpuPages()) {
+                    return false;
+                }
                 std::scoped_lock lk{manager->lock};
                 return manager->template IsRegionModified<Type::GPU>(offset, size);
             });
@@ -178,14 +183,17 @@ public:
         // Hashes only decide whether a released-ahead page decays (RegionManager::EndWriteCycle).
         const bool hash_contents = predict_from_contents.load(std::memory_order_relaxed) &&
                                    decay_unchanged.load(std::memory_order_relaxed);
+        // Streaming pages: checked by every upload; only small read-only bindings promote.
+        const StreamUpload stream_mode = is_written                        ? StreamUpload::Demote
+                                         : query_size <= StreamMaxBinding ? StreamUpload::Promote
+                                                                          : StreamUpload::Keep;
         // Allocation/publication precedes locking; preparation can re-enter the
         // renderer, so this transaction's scratch must remain local.
         IteratePages<true>(query_cpu_range, query_size,
                            [&](RegionManager* manager, u64 offset, size_t size) {
                                slices.push_back({manager, offset, size, {}});
-                               if (hash_contents) {
-                                   manager->PrepareContentHashes();
-                               }
+                               // For write prediction and streaming pages.
+                               manager->PrepareContentHashes();
                            });
         const u64 max_bytes = Common::AlignUp(
             (query_cpu_range & (TRACKER_BYTES_PER_PAGE - 1)) + query_size, TRACKER_BYTES_PER_PAGE);
@@ -209,9 +217,9 @@ public:
                     slice.manager->lock.lock();
                     ++locked;
                     slice.original_cpu = slice.manager->template GetRegionBits<Type::CPU>();
-                    slice.manager->template ForEachModifiedRange<Type::CPU, false>(
-                        slice.manager->GetCpuAddr() + slice.offset, slice.size,
-                        [&](u64, u64 bytes) { required += bytes; });
+                    slice.manager->ForEachPendingUpload(
+                        slice.manager->GetCpuAddr() + slice.offset, slice.size, stream_mode,
+                        hash_pages, [&](u64, u64 bytes) { required += bytes; });
                 }
                 if (required <= capacity) {
                     modified = true;
@@ -219,7 +227,7 @@ public:
                     for (auto& slice : slices) {
                         const auto slice_prediction = slice.manager->CleanForUpload(
                             slice.manager->GetCpuAddr() + slice.offset, slice.size, hash_contents,
-                            copy_range, hash_pages);
+                            stream_mode, copy_range, hash_pages);
                         prediction.hashed += slice_prediction.hashed;
                         prediction.rewritten += slice_prediction.rewritten;
                         prediction.unchanged += slice_prediction.unchanged;

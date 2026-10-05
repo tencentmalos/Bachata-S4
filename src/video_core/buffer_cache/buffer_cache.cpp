@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <ostream>
@@ -156,6 +157,16 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
       stream_buffer{instance, scheduler, MemoryType::Stream, STREAM_BUFFER_SIZE},
       gds_buffer{instance, 0, GDS_BUFFER_SIZE, MemoryType::Stream, "GDS Buffer"},
       memory_semaphore{instance} {
+    // Streaming pages from the first frame (replays, A/B): SHADPS4_WATCH_STREAM=1|0, promotion
+    // after SHADPS4_WATCH_STREAM_CYCLES=1|2|3 write cycles. At run time DebugBus
+    // `upload_diag watch_stream on|off [cycles]`.
+    if (const char* value = std::getenv("SHADPS4_WATCH_STREAM"); value && *value) {
+        stream_pages.store(value[0] == '1');
+    }
+    if (const char* value = std::getenv("SHADPS4_WATCH_STREAM_CYCLES");
+        value && value[0] >= '1' && value[0] <= '3') {
+        stream_promote_cycles.store(static_cast<u32>(value[0] - '0'));
+    }
     // The largest arena is the device's buffer size limit (some drivers, e.g. Qualcomm's, stay a
     // little under 4 GiB); pages are the largest power of two at most half of it.
     const u64 buffer_limit = instance.MaxBufferSize();

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <algorithm>
+#include <limits>
+
 #include "common/div_ceil.h"
 #include "common/logging/log.h"
 #include "core/emulator_settings.h"
@@ -53,12 +56,16 @@ public:
         cpu_addr = cpu_addr_;
         cpu.Fill();
         gpu.Clear();
+        gpu_pages.store(false, std::memory_order_release);
         writeable.Fill();
         readable.Fill();
         written.Clear();
         released_ahead.Clear();
         confidence_lo.Clear();
         confidence_hi.Clear();
+        DemoteStreaming(streaming); // a pooled manager reused: keeps the counters exact
+        stream_runs_lo.Clear();
+        stream_runs_hi.Clear();
         if (ContentHashes* hashes = content.load(std::memory_order_relaxed)) {
             hashes->valid.Clear();
         }
@@ -118,11 +125,33 @@ public:
             return;
         }
 
+        // A streaming page marked CPU modified already is; its contents are checked at its next
+        // upload.
+        if (!(type == Type::CPU && enable) && streaming.Any()) {
+            RegionBits range;
+            range.SetRange(start_page, end_page);
+            if constexpr (type == Type::CPU) {
+                // No longer CPU modified: watched again below.
+                DemoteStreaming(streaming & range);
+            } else if constexpr (enable) {
+                // GPU written (uploads for GPU-written bindings demote first): the GPU copy is
+                // current, the page is watched again.
+                const RegionBits demoted = streaming & range;
+                if (demoted.Any()) {
+                    DemoteStreaming(demoted);
+                    cpu &= ~demoted;
+                    UpdateProtection<true, false>();
+                }
+            }
+        }
         RegionBits& bits = GetRegionBits<type>();
         if constexpr (enable) {
             bits.SetRange(start_page, end_page);
         } else {
             bits.UnsetRange(start_page, end_page);
+        }
+        if constexpr (type == Type::GPU) {
+            gpu_pages.store(enable || gpu.Any(), std::memory_order_release);
         }
         if constexpr (type == Type::CPU) {
             UpdateProtection<!enable, false>();
@@ -211,9 +240,14 @@ public:
      * ends with a fault or a release ahead are then hashed by hash_pages(address, count, hashes)
      * (write protected again, so this is what was uploaded), which tells a page the CPU rewrote
      * while released ahead from one it left alone (see EndWriteCycle).
+     * Streaming pages (see stream_pages) stay CPU modified and unwatched; the ones whose
+     * contents ForEachPendingUpload found changed are copied too. With StreamUpload::Promote,
+     * pages whose last write cycles all ended with a CPU write become streaming. Must follow
+     * ForEachPendingUpload of the same range under the same lock: the copied runs are exactly the
+     * ones it reported.
      */
     UploadPrediction CleanForUpload(VAddr query_cpu_range, s64 size, bool hash_contents,
-                                    auto&& copy, auto&& hash_pages) {
+                                    StreamUpload mode, auto&& copy, auto&& hash_pages) {
         RENDERER_TRACE;
         const size_t offset = query_cpu_range - cpu_addr;
         const size_t start_page = SanitizeAddress(offset) / TRACKER_BYTES_PER_PAGE;
@@ -223,10 +257,54 @@ public:
             return {};
         }
         const RegionBits cleaned(cpu, start_page, end_page);
-        cpu.UnsetRange(start_page, end_page);
+        // Streaming pages imply the hashes (see the promotion below).
+        ContentHashes* stream_hashes = content.load(std::memory_order_acquire);
+        if (stream_hashes != nullptr && stream_pages.load(std::memory_order_relaxed)) {
+            CountBindings(*stream_hashes, start_page, end_page);
+        }
+        const RegionBits checked = cleaned & streaming;
+        const RegionBits changed =
+            checked.Any() ? checked & stream_hashes->changed : RegionBits{};
+        RegionBits normal = cleaned & ~streaming;
+        RegionBits promoted;
+        if (mode == StreamUpload::Promote && normal.Any() &&
+            stream_pages.load(std::memory_order_relaxed)) {
+            // Count each page's consecutive write cycles that ended with a CPU write (2 bits,
+            // saturating); a cycle that ended without one starts the count again.
+            const RegionBits ended_by_cpu = (written | released_ahead) & normal;
+            const RegionBits lo = stream_runs_lo, hi = stream_runs_hi;
+            stream_runs_lo = (lo & ~normal) | (ended_by_cpu & (~lo | hi));
+            stream_runs_hi = (hi & ~normal) | (ended_by_cpu & (hi | lo));
+            // Counts 1, 2, 3 are (lo, hi) = (1, 0), (0, 1), (1, 1).
+            const u32 cycles = stream_promote_cycles.load(std::memory_order_relaxed);
+            const RegionBits reached = cycles >= 3   ? stream_runs_lo & stream_runs_hi
+                                       : cycles == 2 ? stream_runs_hi
+                                                     : stream_runs_lo | stream_runs_hi;
+            promoted = ended_by_cpu & reached & ~gpu;
+            if (stream_hashes == nullptr && ended_by_cpu.Any()) {
+                // A streaming page needs the hash of its last copy, and its bindings are
+                // counted there: allocated before the next upload (PrepareContentHashes).
+                wants_content.store(true, std::memory_order_relaxed);
+                promoted = {};
+            }
+            if (promoted.Any()) {
+                promoted = DropBusyPages(*stream_hashes, promoted);
+            }
+            if (promoted.Any()) {
+                streaming |= promoted;
+                normal &= ~promoted;
+                // Hashed before the copy: a write in between is seen by the next check.
+                HashStreamingPages(*stream_hashes, promoted, hash_pages);
+                stream_page_counters.promoted.fetch_add(CountPages(promoted),
+                                                        std::memory_order_relaxed);
+            }
+        }
+        cpu &= ~normal;
         UpdateProtection<true, false>();
+        // Copied: the cleaned pages, the promoted ones and the streaming pages that changed.
+        const RegionBits copied = normal | promoted | changed;
 
-        const RegionBits ended = (written | released_ahead) & cleaned;
+        const RegionBits ended = (written | released_ahead) & normal;
         const RegionBits ahead = released_ahead & ended & ~written;
         ContentHashes* hashes = content.load(std::memory_order_acquire);
         if (hash_contents && hashes == nullptr && ended.Any()) {
@@ -238,7 +316,7 @@ public:
         UploadPrediction prediction{};
         RegionBits rewritten;
         RegionBits unchanged;
-        for (const auto& [start, end] : cleaned) {
+        for (const auto& [start, end] : copied) {
             copy(cpu_addr + start * TRACKER_BYTES_PER_PAGE, (end - start) * TRACKER_BYTES_PER_PAGE);
             if (hashes == nullptr) {
                 continue;
@@ -265,21 +343,79 @@ public:
                 }
             }
         }
+        // Only once copied: a streaming page keeps the hash of a copy the GPU holds.
+        if (checked.Any() || promoted.Any()) {
+            CommitStreamingPages(*stream_hashes, checked, changed | promoted);
+        }
+        if (stream_hashes != nullptr) {
+            for (const auto& [first, last] : copied) {
+                std::fill(stream_hashes->binds.begin() + first,
+                          stream_hashes->binds.begin() + last, 0);
+            }
+        }
         if (hashes != nullptr) {
-            hashes->valid = (hashes->valid & ~cleaned) | ended;
+            hashes->valid = (hashes->valid & ~normal) | ended;
         } else if (ContentHashes* stale = content.load(std::memory_order_acquire)) {
-            stale->valid &= ~cleaned;
+            stale->valid &= ~normal;
         }
         if (decay_unchanged.load(std::memory_order_relaxed)) {
-            EndWriteCycle(cleaned, rewritten, {});
+            EndWriteCycle(normal, rewritten, {});
             return prediction;
         }
         // Without decay every released-ahead page keeps its confidence, rewritten or not.
         for (const auto& [first, last] : ahead) {
             prediction.kept += last - first;
         }
-        EndWriteCycle(cleaned, rewritten, ahead);
+        EndWriteCycle(normal, rewritten, ahead);
         return prediction;
+    }
+
+    /**
+     * SnapshotForUpload, before CleanForUpload of the same range under the same lock: call
+     * func(address, size) for each run of pages the upload copies. These are the CPU modified
+     * pages, less the streaming pages whose contents did not change since their last copy
+     * (hashed here by hash_pages(address, count, hashes)). Streaming pages are demoted first when
+     * the GPU writes the binding (all of them when the switch is off): they are CPU modified, so
+     * the upload cleans and copies them.
+     */
+    void ForEachPendingUpload(VAddr query_cpu_range, s64 size, StreamUpload mode,
+                              auto&& hash_pages, auto&& func) {
+        RENDERER_TRACE;
+        const size_t offset = query_cpu_range - cpu_addr;
+        const size_t start_page = SanitizeAddress(offset) / TRACKER_BYTES_PER_PAGE;
+        const size_t end_page =
+            Common::DivCeil(SanitizeAddress(offset + size), TRACKER_BYTES_PER_PAGE);
+        if (start_page >= NUM_PAGES_PER_REGION || end_page <= start_page) {
+            return;
+        }
+        if (streaming.Any()) {
+            if (!stream_pages.load(std::memory_order_relaxed)) {
+                DemoteStreaming(streaming);
+            } else if (mode == StreamUpload::Demote) {
+                DemoteStreaming(RegionBits(streaming, start_page, end_page));
+            }
+        }
+        RegionBits pending(cpu, start_page, end_page);
+        if (const RegionBits check = pending & streaming; check.Any()) {
+            ContentHashes& hashes = *content.load(std::memory_order_acquire);
+            hashes.changed &= ~check;
+            for (const auto& [first, last] : check) {
+                for (size_t page = first; page < last;) {
+                    const size_t count = std::min<size_t>(last - page, 64);
+                    hash_pages(cpu_addr + page * TRACKER_BYTES_PER_PAGE, count,
+                               hashes.pending.data() + page);
+                    for (const size_t end = page + count; page < end; ++page) {
+                        if (!hashes.valid.Get(page) || hashes.hash[page] != hashes.pending[page]) {
+                            hashes.changed.Set(page);
+                        }
+                    }
+                }
+            }
+            pending &= ~(check & ~hashes.changed);
+        }
+        for (const auto& [start, end] : pending) {
+            func(cpu_addr + start * TRACKER_BYTES_PER_PAGE, (end - start) * TRACKER_BYTES_PER_PAGE);
+        }
     }
 
     /// Renderer, without the lock: allocate the page hashes once an upload asked for them.
@@ -318,7 +454,14 @@ public:
         RegionBits mask(bits, start_page, end_page);
 
         if constexpr (clear) {
+            if constexpr (type == Type::CPU) {
+                // Cleaned pages are watched again.
+                DemoteStreaming(streaming & mask);
+            }
             bits.UnsetRange(start_page, end_page);
+            if constexpr (type == Type::GPU) {
+                gpu_pages.store(gpu.Any(), std::memory_order_release);
+            }
             if constexpr (type == Type::CPU) {
                 EndWriteCycle(mask, {}, {});
                 if (ContentHashes* hashes = content.load(std::memory_order_acquire)) {
@@ -333,6 +476,12 @@ public:
         for (const auto& [start, end] : mask) {
             func(cpu_addr + start * TRACKER_BYTES_PER_PAGE, (end - start) * TRACKER_BYTES_PER_PAGE);
         }
+    }
+
+    /// False when no page of the region is GPU modified. Readable without the lock: every
+    /// change of the GPU bits stores it under the lock.
+    [[nodiscard]] bool MayHaveGpuPages() const noexcept {
+        return gpu_pages.load(std::memory_order_acquire);
     }
 
     /**
@@ -417,6 +566,26 @@ private:
         return predicted;
     }
 
+    /// Streaming pages watched again from their next upload: they stay CPU modified until then.
+    /// Takes a copy: `pages` may be `streaming` itself.
+    void DemoteStreaming(const RegionBits pages) {
+        if (pages.None()) {
+            return;
+        }
+        streaming &= ~pages;
+        stream_runs_lo &= ~pages;
+        stream_runs_hi &= ~pages;
+        stream_page_counters.demoted.fetch_add(CountPages(pages), std::memory_order_relaxed);
+    }
+
+    static u64 CountPages(const RegionBits& pages) {
+        u64 count = 0;
+        for (const auto& [first, last] : pages) {
+            count += last - first;
+        }
+        return count;
+    }
+
     /**
      * An upload cleans `cleaned` and re-watches it, ending those pages' write cycle. The 2-bit
      * write confidence is set to 3 by a real fault and by `rewritten`, released-ahead pages
@@ -442,21 +611,98 @@ private:
 
     /// Contents hash of each page at its last upload, valid for pages whose write cycle ended
     /// with a fault or a release ahead (see CleanForUpload).
+    /// Streaming pages (see stream_pages) use the same hashes for the contents of their last copy,
+    /// plus the hashes an upload computed (`pending`, ForEachPendingUpload), which pages changed,
+    /// and the bindings of each page since its last copy (counted while streaming pages are on).
     struct ContentHashes {
         std::array<u64, NUM_PAGES_PER_REGION> hash{};
         RegionBits valid;
+        std::array<u64, NUM_PAGES_PER_REGION> pending{};
+        RegionBits changed;
+        std::array<u16, NUM_PAGES_PER_REGION> binds{};
     };
+
+    void CountBindings(ContentHashes& hashes, size_t start_page, size_t end_page) {
+        for (size_t page = start_page; page < end_page; ++page) {
+            u16& binds = hashes.binds[page];
+            binds += binds != std::numeric_limits<u16>::max();
+        }
+    }
+
+    /// Promotion candidates bound more than StreamMaxBinds times in the cycle that ends now: each
+    /// binding of a streaming page costs a hash, more than write tracking costs for such a page.
+    RegionBits DropBusyPages(const ContentHashes& hashes, RegionBits candidates) {
+        u64 busy = 0;
+        for (const auto& [first, last] : RegionBits(candidates)) {
+            for (size_t page = first; page < last; ++page) {
+                if (hashes.binds[page] > StreamMaxBinds) {
+                    candidates.Unset(page);
+                    ++busy;
+                }
+            }
+        }
+        if (busy != 0) {
+            stream_page_counters.busy.fetch_add(busy, std::memory_order_relaxed);
+        }
+        return candidates;
+    }
+
+    /// The hashes of newly promoted streaming pages, before their copy.
+    void HashStreamingPages(ContentHashes& hashes, const RegionBits& pages, auto&& hash_pages) {
+        for (const auto& [first, last] : pages) {
+            for (size_t page = first; page < last;) {
+                const size_t count = std::min<size_t>(last - page, 64);
+                hash_pages(cpu_addr + page * TRACKER_BYTES_PER_PAGE, count,
+                           hashes.pending.data() + page);
+                page += count;
+            }
+        }
+    }
+
+    /**
+     * An upload checked the streaming pages `checked` and copies `copied` (the changed ones and
+     * the newly promoted ones): those keep the hash of their copy (ForEachPendingUpload or
+     * HashStreamingPages). A page unchanged over StreamDemoteChecks checks in a row is demoted
+     * (the CPU no longer rewrites it, or it is bound more often than it changes): it is cleaned
+     * and watched at its next upload.
+     */
+    void CommitStreamingPages(ContentHashes& hashes, const RegionBits& checked,
+                              const RegionBits& copied) {
+        RegionBits stale;
+        for (const auto& [first, last] : checked | copied) {
+            for (size_t page = first; page < last; ++page) {
+                if (copied.Get(page)) {
+                    hashes.hash[page] = hashes.pending[page];
+                } else if (hashes.binds[page] >= StreamDemoteChecks) {
+                    stale.Set(page);
+                }
+            }
+        }
+        hashes.valid |= copied;
+        // Streaming pages have no write cycles.
+        written &= ~(checked | copied);
+        released_ahead &= ~(checked | copied);
+        auto& counters = stream_page_counters;
+        counters.checked.fetch_add(CountPages(checked), std::memory_order_relaxed);
+        counters.copied.fetch_add(CountPages(copied), std::memory_order_relaxed);
+        DemoteStreaming(stale);
+    }
 
     PageManager* tracker;
     VAddr cpu_addr = 0;
     RegionBits cpu;
     RegionBits gpu;
+    std::atomic<bool> gpu_pages{}; ///< gpu.Any(), see MayHaveGpuPages.
     RegionBits writeable;
     RegionBits readable;
     RegionBits written;        // CPU write faults since the upload that last cleaned the page
     RegionBits released_ahead; // released by MarkWriteFault prediction in this cycle
     RegionBits confidence_lo;  // 2-bit write confidence (see EndWriteCycle)
     RegionBits confidence_hi;
+    // Streaming pages (see stream_pages): CPU modified and not watched by the buffer cache.
+    RegionBits streaming;
+    RegionBits stream_runs_lo; // 2-bit count of consecutive write cycles ended by a CPU write
+    RegionBits stream_runs_hi;
     std::atomic<ContentHashes*> content{}; // allocated by PrepareContentHashes
     std::atomic<bool> wants_content{};     // an upload had pages to hash but no storage
 };

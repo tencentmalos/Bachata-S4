@@ -87,6 +87,13 @@ std::string Summary() {
     out += fmt::format("armed={} uploads={} images={} frames={} uploads_per_frame={:.2f} dirty_notes={} log_left={}\n",
                        armed.load() ? 1 : 0, total_uploads, uploaded, frames,
                        frames ? double(total_uploads) / frames : 0.0, dirty_notes, log_budget.load());
+    out += fmt::format("gpu_flag={}\n", region_gpu_flag.load() ? "on" : "off");
+    out += fmt::format("watch_stream={} cycles={} checked={} copied={} promoted={} demoted={} "
+                       "busy={}\n",
+                       stream_pages.load() ? "on" : "off", stream_promote_cycles.load(),
+                       stream_page_counters.checked.load(), stream_page_counters.copied.load(),
+                       stream_page_counters.promoted.load(), stream_page_counters.demoted.load(),
+                       stream_page_counters.busy.load());
     out += fmt::format("watch_coalesce={} watch_predict={} watch_content={} hashed_pages={} "
                        "rewritten_pages={}\n",
                        Core::gpu_watch_per_page.load() ? "off" : "on",
@@ -408,6 +415,28 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("stream_host={} (streamed data in {} memory)\n", args[1],
                            args[1] == "on" ? "host" : "device");
     }
+    if (sub == "watch_stream" && (args.size() == 2 || args.size() == 3) &&
+        (args[1] == "on" || args[1] == "off")) {
+        if (args.size() == 3) {
+            const u32 cycles = args[2] == "1" ? 1 : args[2] == "2" ? 2 : args[2] == "3" ? 3 : 0;
+            if (cycles == 0) {
+                return "usage: upload_diag watch_stream on|off [1|2|3]\n";
+            }
+            stream_promote_cycles.store(cycles);
+        }
+        stream_pages.store(args[1] == "on");
+        return fmt::format("watch_stream={} cycles={} (pages the CPU rewrites every write cycle "
+                           "{})\n",
+                           args[1], stream_promote_cycles.load(),
+                           args[1] == "on" ? "stay unwatched and are copied when they changed"
+                                           : "are watched again at their next upload");
+    }
+    if (sub == "gpu_flag" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        region_gpu_flag.store(args[1] == "on");
+        return fmt::format("gpu_flag={} (GPU-modified queries {})\n", args[1],
+                           args[1] == "on" ? "skip regions without GPU-modified pages"
+                                           : "lock and scan every region");
+    }
     if (sub == "texture_bind_cache" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         texture_bind_cache.store(args[1] == "on");
         return fmt::format("texture_bind_cache={} (sampled-image lookups {}); hits={} misses={}\n",
@@ -467,7 +496,8 @@ std::string Command(const std::vector<std::string>& args) {
            "watch_decay on|off | watch_cross on|off | keep_gpu on|off | read_cache on|off | "
            "stream_barriers on|off | "
            "stream_max <bytes> | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
-           "texture_bind_cache on|off | fault_textures skip|always\n";
+           "texture_bind_cache on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
+           "fault_textures skip|always\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics
