@@ -5,6 +5,7 @@
 
 #include <bit>
 #include <cstring>
+#include <memory_resource>
 #include <type_traits>
 
 #include <boost/container/list.hpp>
@@ -30,8 +31,14 @@ struct Use {
 
 class Inst : public boost::intrusive::list_base_hook<> {
 public:
-    explicit Inst(IR::Opcode op_, u32 flags_) noexcept;
-    explicit Inst(const Inst& base);
+    /// Use-list nodes come from `uses_resource` (one translation's arena, see InstPool).
+    using UseList = boost::container::list<IR::Use, std::pmr::polymorphic_allocator<IR::Use>>;
+
+    explicit Inst(IR::Opcode op_, u32 flags_,
+                  std::pmr::memory_resource* uses_resource =
+                      std::pmr::get_default_resource()) noexcept;
+    explicit Inst(const Inst& base,
+                  std::pmr::memory_resource* uses_resource = std::pmr::get_default_resource());
     ~Inst();
 
     Inst& operator=(const Inst&) = delete;
@@ -150,9 +157,10 @@ private:
         std::array<Value, 6> args;
     };
 
-    boost::container::list<IR::Use> uses;
+    UseList uses;
 };
-static_assert(sizeof(Inst) <= 184, "Inst size unintentionally increased");
+// 192: the use list carries its memory resource (8 bytes).
+static_assert(sizeof(Inst) <= 192, "Inst size unintentionally increased");
 
 [[nodiscard]] inline bool IsPhi(const Inst& inst) {
     return inst.GetOpcode() == Opcode::Phi;

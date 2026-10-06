@@ -595,7 +595,7 @@ private:
 
 class TranslatePass {
 public:
-    TranslatePass(Common::ObjectPool<IR::Inst>& inst_pool_,
+    TranslatePass(IR::InstPool& inst_pool_,
                   Common::ObjectPool<IR::Block>& block_pool_,
                   Common::ObjectPool<Statement>& stmt_pool_, Statement& root_stmt,
                   IR::AbstractSyntaxList& syntax_list_)
@@ -793,7 +793,7 @@ private:
     }
 
     Common::ObjectPool<Statement>& stmt_pool;
-    Common::ObjectPool<IR::Inst>& inst_pool;
+    IR::InstPool& inst_pool;
     Common::ObjectPool<IR::Block>& block_pool;
     IR::AbstractSyntaxList& syntax_list;
 };

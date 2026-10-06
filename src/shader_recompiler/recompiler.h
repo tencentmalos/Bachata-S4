@@ -16,7 +16,7 @@ struct Pools {
     static constexpr u32 InstPoolSize = 8192;
     static constexpr u32 BlockPoolSize = 32;
 
-    Common::ObjectPool<IR::Inst> inst_pool;
+    IR::InstPool inst_pool;
     Common::ObjectPool<IR::Block> block_pool;
 
     explicit Pools() : inst_pool{InstPoolSize}, block_pool{BlockPoolSize} {}

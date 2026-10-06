@@ -10,7 +10,8 @@
 
 namespace Shader::IR {
 
-Inst::Inst(IR::Opcode op_, u32 flags_) noexcept : op{op_}, flags{flags_} {
+Inst::Inst(IR::Opcode op_, u32 flags_, std::pmr::memory_resource* uses_resource) noexcept
+    : op{op_}, flags{flags_}, uses{UseList::allocator_type{uses_resource}} {
     if (op == Opcode::Phi) {
         std::construct_at(&phi_args);
     } else {
@@ -18,7 +19,8 @@ Inst::Inst(IR::Opcode op_, u32 flags_) noexcept : op{op_}, flags{flags_} {
     }
 }
 
-Inst::Inst(const Inst& base) : op{base.op}, flags{base.flags} {
+Inst::Inst(const Inst& base, std::pmr::memory_resource* uses_resource)
+    : op{base.op}, flags{base.flags}, uses{UseList::allocator_type{uses_resource}} {
     ASSERT_MSG(base.op != Opcode::Phi, "Copying phi node");
     std::construct_at(&args);
     const size_t num_args{base.NumArgs()};

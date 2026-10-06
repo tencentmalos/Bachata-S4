@@ -5,6 +5,7 @@
 
 #include <initializer_list>
 #include <map>
+#include <memory_resource>
 #include <span>
 #include <vector>
 #include <boost/intrusive/list.hpp>
@@ -22,6 +23,23 @@ struct Block;
 
 namespace Shader::IR {
 
+/// The instructions of one translation and the memory of their use lists, released together.
+/// Every operand of every instruction adds a use-list node, and passes such as the SSA rewrite
+/// replace them many times over: taking them from a pool instead of the heap keeps large
+/// shaders from spending most of their translation in malloc and free. Single-threaded, like
+/// the rest of a translation.
+struct InstPool {
+    explicit InstPool(size_t chunk_size) : insts{chunk_size} {}
+
+    void ReleaseContents() {
+        insts.ReleaseContents();
+        uses.release();
+    }
+
+    std::pmr::unsynchronized_pool_resource uses; ///< Declared first: outlives the instructions.
+    Common::ObjectPool<Inst> insts;
+};
+
 class Block {
 public:
     using InstructionList = boost::intrusive::list<Inst>;
@@ -31,7 +49,7 @@ public:
     using reverse_iterator = InstructionList::reverse_iterator;
     using const_reverse_iterator = InstructionList::const_reverse_iterator;
 
-    explicit Block(Common::ObjectPool<Inst>& inst_pool_);
+    explicit Block(InstPool& inst_pool_);
     ~Block();
 
     Block(const Block&) = delete;
@@ -137,7 +155,7 @@ public:
     const Shader::Gcn::Block* cfg_block{};
     U1 branch_cond{};
 
-    Common::ObjectPool<Inst>* inst_pool;
+    InstPool* inst_pool;
     InstructionList instructions;
 
     Block* immediate_dominator{};

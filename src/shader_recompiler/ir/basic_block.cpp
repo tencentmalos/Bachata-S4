@@ -9,7 +9,7 @@
 
 namespace Shader::IR {
 
-Block::Block(Common::ObjectPool<Inst>& inst_pool_) : inst_pool{&inst_pool_} {}
+Block::Block(InstPool& inst_pool_) : inst_pool{&inst_pool_} {}
 
 Block::~Block() = default;
 
@@ -18,14 +18,14 @@ void Block::AppendNewInst(Opcode op, std::initializer_list<Value> args) {
 }
 
 Block::iterator Block::PrependNewInst(iterator insertion_point, const Inst& base_inst) {
-    Inst* const inst{inst_pool->Create(base_inst)};
+    Inst* const inst{inst_pool->insts.Create(base_inst, &inst_pool->uses)};
     inst->SetParent(this);
     return instructions.insert(insertion_point, *inst);
 }
 
 Block::iterator Block::PrependNewInst(iterator insertion_point, Opcode op,
                                       std::initializer_list<Value> args, u32 flags) {
-    Inst* const inst{inst_pool->Create(op, flags)};
+    Inst* const inst{inst_pool->insts.Create(op, flags, &inst_pool->uses)};
     inst->SetParent(this);
     const auto result_it{instructions.insert(insertion_point, *inst)};
 

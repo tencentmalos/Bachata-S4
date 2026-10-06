@@ -13,7 +13,9 @@
 //      https://link.springer.com/chapter/10.1007/978-3-642-37051-9_6
 //
 
+#include <algorithm>
 #include <vector>
+#include <boost/container/small_vector.hpp>
 #include "shader_recompiler/ir/basic_block.h"
 #include "shader_recompiler/ir/opcodes.h"
 #include "shader_recompiler/ir/program.h"
@@ -116,8 +118,18 @@ constexpr IR::Opcode UndefOpcode(IR::RegTag tag) noexcept {
     }
 }
 
+/// Blocks are filled in reverse post order. A block is sealed once all its predecessors are
+/// filled: from then on a phi created in it gets its operands at once and is removed right away
+/// when it is trivial, so later reads see the value it stands for. Loop headers are sealed after
+/// their back edges; until then reads there create incomplete phis that are completed on sealing.
 class Pass {
 public:
+    explicit Pass(const IR::BlockList& post_order) : blocks(post_order.size()) {
+        for (size_t i = 0; i < post_order.size(); ++i) {
+            blocks[i].block = post_order[i];
+        }
+    }
+
     void WriteVariable(IR::RegTag tag, IR::Block* block, const IR::Value& value) {
         current_def.SetDef(block, tag, value);
     }
@@ -128,69 +140,279 @@ public:
 
         while (block) {
             if (const IR::Value& def = current_def.Def(block, tag); !def.IsEmpty()) {
-                result = def;
+                result = Resolve(def);
                 break;
             }
 
             const auto preds = block->ImmPredecessors();
-            if (preds.size() == 1) {
+            const bool sealed = IsSealed(block);
+            if (sealed && preds.size() == 1) {
                 // Optimize the common case of one predecessor: no phi needed
                 chain.push_back(std::exchange(block, preds.front()));
                 continue;
-            } else if (preds.empty()) {
+            } else if (sealed && preds.empty()) {
                 result = IR::Value{&*block->PrependNewInst(block->begin(), UndefOpcode(tag))};
                 WriteVariable(tag, block, result);
                 break;
             }
 
-            // This is a join block which may require a phi.
-            // That will act as the variables current definition to break potential cycles.
+            // A join block, or one whose predecessors are not all filled yet. The phi is the
+            // variable's definition while its operands are read, which breaks cycles.
             IR::Inst* const phi{&*block->PrependNewInst(block->begin(), IR::Opcode::Phi)};
             phi->SetFlags(TypeOf(tag));
             phi->SetRegTag(tag);
-
+            all_phis.push_back(phi);
             result = IR::Value{phi};
             WriteVariable(tag, block, result);
-            m_pending_phis.push_back(phi);
+            if (!sealed) {
+                incomplete.push_back(phi);
+            } else if (depth >= MaxDepth) {
+                // Deep chain of joins: finish it from the top level instead of the stack.
+                deferred.push_back(phi);
+            } else {
+                result = AddPhiOperands(phi);
+                if (result != IR::Value{phi}) {
+                    WriteVariable(tag, block, result);
+                }
+            }
             break;
         }
 
         for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
             WriteVariable(tag, *it, result);
         }
-
+        if (depth == 0) {
+            DrainDeferred();
+            result = Resolve(result);
+        }
         return result;
     }
 
-    void EvaluatePendingPhis() {
-        for (size_t i = 0; i < m_pending_phis.size(); i++) {
-            IR::Inst* phi = m_pending_phis[i];
-            for (IR::Block* pred : phi->GetParent()->ImmPredecessors()) {
-                phi->AddPhiOperand(pred, ReadVariable(phi->GetRegTag(), pred));
+    /// Before a block is filled.
+    void Enter(IR::Block* block) {
+        if (!IsSealed(block) && PredecessorsFilled(block)) {
+            Seal(block);
+        }
+    }
+
+    /// After a block is filled: seals the successors whose predecessors are now all filled.
+    void Leave(IR::Block* block) {
+        if (auto* state = State(block)) {
+            state->filled = true;
+        }
+        for (IR::Block* succ : block->ImmSuccessors()) {
+            if (!IsSealed(succ) && PredecessorsFilled(succ)) {
+                Seal(succ);
             }
         }
     }
 
+    /// After every block is filled: completes what is left (phis in blocks that a block
+    /// outside the post order leads to) and removes any trivial phi still in place.
+    void Finish() {
+        all_sealed = true;
+        while (!incomplete.empty()) {
+            IR::Inst* const phi = incomplete.back();
+            incomplete.pop_back();
+            AddPhiOperands(phi);
+            DrainDeferred();
+        }
+        ResolveTrivialPhis();
+        for (IR::Inst* phi : all_phis) {
+            phi->SetDefinition<u32>(0);
+        }
+    }
+
+private:
+    static constexpr u32 MaxDepth = 64;
+
+    struct BlockState {
+        bool filled{};
+        bool sealed{};
+    };
+
+    /// Blocks in the post order; others (not reachable from the entry) have no state and count
+    /// as never filled.
+    BlockState* State(IR::Block* block) {
+        const u32 index = block->po_index;
+        if (index < blocks.size() && post_order_block(index) == block) {
+            return &blocks[index].state;
+        }
+        return nullptr;
+    }
+    IR::Block* post_order_block(u32 index) const {
+        return blocks[index].block;
+    }
+
+    bool IsSealed(IR::Block* block) {
+        if (all_sealed) {
+            return true;
+        }
+        const auto* state = State(block);
+        return state && state->sealed;
+    }
+
+    bool PredecessorsFilled(IR::Block* block) {
+        return std::ranges::all_of(block->ImmPredecessors(), [this](IR::Block* pred) {
+            const auto* state = State(pred);
+            return state && state->filled;
+        });
+    }
+
+    void Seal(IR::Block* block) {
+        State(block)->sealed = true;
+        // Complete the block's incomplete phis; other blocks' stay queued.
+        const auto first = std::stable_partition(incomplete.begin(), incomplete.end(),
+                                                 [block](IR::Inst* phi) {
+                                                     return phi->GetParent() != block;
+                                                 });
+        boost::container::small_vector<IR::Inst*, 16> phis(first, incomplete.end());
+        incomplete.erase(first, incomplete.end());
+        for (IR::Inst* phi : phis) {
+            AddPhiOperands(phi);
+            DrainDeferred();
+        }
+    }
+
+    /// Reads the phi's operands from its block's predecessors, then removes it if trivial.
+    /// Returns what the phi stands for.
+    IR::Value AddPhiOperands(IR::Inst* phi) {
+        building.push_back(phi);
+        const IR::RegTag tag = phi->GetRegTag();
+        for (IR::Block* pred : phi->GetParent()->ImmPredecessors()) {
+            phi->AddPhiOperand(pred, ReadVariableNested(tag, pred));
+        }
+        building.pop_back();
+        return TryRemoveTrivialPhi(phi);
+    }
+
+    /// ReadVariable from inside a phi under construction: deferred phis are finished by the
+    /// outermost read.
+    IR::Value ReadVariableNested(IR::RegTag tag, IR::Block* block) {
+        ++depth;
+        IR::Value value = ReadVariable(tag, block);
+        --depth;
+        return Resolve(value);
+    }
+
+    /// A phi whose operands are all the same value (or itself) is replaced by that value; phis
+    /// that used it may have become trivial in turn. Returns the value the phi stands for.
+    IR::Value TryRemoveTrivialPhi(IR::Inst* phi) {
+        IR::Value same;
+        for (size_t i = 0; i < phi->NumArgs(); ++i) {
+            const IR::Value op{phi->Arg(i)};
+            if (op == same || op == IR::Value{phi}) {
+                // Unique value or self-reference
+                continue;
+            }
+            if (!same.IsEmpty()) {
+                // The phi merges at least two values: not trivial
+                return IR::Value{phi};
+            }
+            same = op;
+        }
+
+        IR::Block* block = phi->GetParent();
+        if (same.IsEmpty()) {
+            // All operands are self-references or phi has no operands
+            auto& list = block->Instructions();
+            auto reinsert_point = std::ranges::find_if_not(list, IR::IsPhi);
+            same = IR::Value{
+                &*block->PrependNewInst(reinsert_point, UndefOpcode(phi->GetRegTag()))};
+        }
+
+        boost::container::small_vector<IR::Inst*, 8> phi_users;
+        for (const auto& [user, operand] : phi->Uses()) {
+            if (user->GetOpcode() == IR::Opcode::Phi && user != phi) {
+                phi_users.push_back(user);
+            }
+        }
+        phi->ReplaceUsesWithAndRemove(same);
+        block->Instructions().erase(IR::Block::InstructionList::s_iterator_to(*phi));
+        // Removed phis keep their memory: the definition slot (unused until SPIR-V emission)
+        // points to the replacement, for definitions recorded before the removal.
+        forward.push_back(same);
+        phi->SetDefinition<u32>(static_cast<u32>(forward.size()));
+
+        for (IR::Inst* user : phi_users) {
+            if (user->GetOpcode() != IR::Opcode::Phi || IsBuilding(user)) {
+                continue; // Removed already, or checked when its operands are complete.
+            }
+            if (depth >= MaxDepth) {
+                recheck.push_back(user);
+                continue;
+            }
+            ++depth;
+            TryRemoveTrivialPhi(user);
+            --depth;
+        }
+        return Resolve(same);
+    }
+
+    bool IsBuilding(IR::Inst* phi) const {
+        return std::ranges::find(building, phi) != building.end();
+    }
+
+    /// The value a removed phi stands for, following later removals.
+    IR::Value Resolve(IR::Value value) const {
+        while (IR::Inst* inst = value.TryInst()) {
+            if (inst->GetOpcode() != IR::Opcode::Void) {
+                break;
+            }
+            const u32 slot = inst->Definition<u32>();
+            if (slot == 0) {
+                break;
+            }
+            value = forward[slot - 1];
+        }
+        return value;
+    }
+
+    void DrainDeferred() {
+        if (depth != 0) {
+            return;
+        }
+        while (!deferred.empty() || !recheck.empty()) {
+            if (!deferred.empty()) {
+                IR::Inst* const phi = deferred.back();
+                deferred.pop_back();
+                const IR::Value value = AddPhiOperands(phi);
+                if (value != IR::Value{phi}) {
+                    WriteVariable(phi->GetRegTag(), phi->GetParent(), value);
+                }
+                continue;
+            }
+            IR::Inst* const phi = recheck.back();
+            recheck.pop_back();
+            if (phi->GetOpcode() == IR::Opcode::Phi && !IsBuilding(phi)) {
+                TryRemoveTrivialPhi(phi);
+            }
+        }
+    }
+
+    /// Safety net: any phi still trivial after everything is complete (one whose removal was
+    /// skipped while a user was under construction) goes now, as in a separate pass.
     void ResolveTrivialPhis() {
-        auto worklist = std::move(m_pending_phis);
+        std::vector<IR::Inst*> worklist;
+        for (IR::Inst* phi : all_phis) {
+            if (phi->GetOpcode() == IR::Opcode::Phi) {
+                worklist.push_back(phi);
+            }
+        }
         while (!worklist.empty()) {
             IR::Inst* phi = worklist.back();
             worklist.pop_back();
-
-            if (phi->GetOpcode() == IR::Opcode::Void) {
+            if (phi->GetOpcode() != IR::Opcode::Phi) {
                 continue;
             }
-
             IR::Value same;
             bool non_trivial = false;
             for (size_t i = 0; i < phi->NumArgs(); ++i) {
                 const IR::Value op{phi->Arg(i)};
                 if (op == same || op == IR::Value{phi}) {
-                    // Unique value or self-reference
                     continue;
                 }
                 if (!same.IsEmpty()) {
-                    // The phi merges at least two values: not trivial
                     non_trivial = true;
                     break;
                 }
@@ -199,31 +421,38 @@ public:
             if (non_trivial) {
                 continue;
             }
-
             IR::Block* block = phi->GetParent();
             if (same.IsEmpty()) {
-                // All operands are self-references or phi has no operands
                 auto& list = block->Instructions();
                 auto reinsert_point = std::ranges::find_if_not(list, IR::IsPhi);
                 same = IR::Value{
                     &*block->PrependNewInst(reinsert_point, UndefOpcode(phi->GetRegTag()))};
             }
-
-            // Add phi users to worklist since they may have become trivial
             for (const auto& [user, operand] : phi->Uses()) {
                 if (user->GetOpcode() == IR::Opcode::Phi && user != phi) {
                     worklist.push_back(user);
                 }
             }
             phi->ReplaceUsesWithAndRemove(same);
-            auto it = IR::Block::InstructionList::s_iterator_to(*phi);
-            block->Instructions().erase(it);
+            block->Instructions().erase(IR::Block::InstructionList::s_iterator_to(*phi));
         }
     }
 
-private:
+    struct BlockSlot {
+        IR::Block* block{};
+        BlockState state{};
+    };
+
     DefTable current_def;
-    std::vector<IR::Inst*> m_pending_phis;
+    std::vector<BlockSlot> blocks;
+    std::vector<IR::Inst*> all_phis;
+    std::vector<IR::Inst*> incomplete; ///< Phis of unsealed blocks, waiting for their operands.
+    std::vector<IR::Inst*> deferred;   ///< Phis of sealed blocks left for the top level.
+    std::vector<IR::Inst*> recheck;    ///< Phis to check for triviality at the top level.
+    std::vector<IR::Inst*> building;   ///< Phis whose operands are being read.
+    std::vector<IR::Value> forward; ///< Replacements of removed phis, see TryRemoveTrivialPhi.
+    u32 depth{};
+    bool all_sealed{};
 };
 
 void VisitInst(Pass& pass, IR::Block* block, IR::Inst& inst) {
@@ -296,16 +525,17 @@ void VisitInst(Pass& pass, IR::Block* block, IR::Inst& inst) {
 } // Anonymous namespace
 
 void SsaRewritePass(IR::Program& program) {
-    Pass pass;
+    Pass pass{program.post_order_blocks};
     const auto end = program.post_order_blocks.rend();
     for (auto it = program.post_order_blocks.rbegin(); it != end; ++it) {
         IR::Block* block{*it};
+        pass.Enter(block);
         for (IR::Inst& inst : block->Instructions()) {
             VisitInst(pass, block, inst);
         }
+        pass.Leave(block);
     }
-    pass.EvaluatePendingPhis();
-    pass.ResolveTrivialPhis();
+    pass.Finish();
 }
 
 } // namespace Shader::Optimization
