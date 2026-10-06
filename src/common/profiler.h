@@ -55,5 +55,8 @@ bool Enabled() noexcept;
 // Initialized after app-owned host paths exist. No SDK owner in JNI/FEX.
 void Initialize();
 std::string Control(const std::vector<std::string>& args);
+// A new frame source (game session): slow-frame detection starts its baseline over, and slow-frame
+// captures from here on are labelled with `identity` (title, build, frame source).
+void BeginSession(const std::string& identity) noexcept;
 std::string CaptureControl(const std::vector<std::string>& args);
 }

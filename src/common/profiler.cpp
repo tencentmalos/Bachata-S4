@@ -11,6 +11,10 @@
 #ifdef SHADPS4_PROFILER_RING
 #include "common/path_util.h"
 #include <spatial/core/utils/LiteTrace.h>
+#include <profiler/sdk/SlowFrameCapture.h>
+#include <cmath>
+#include <locale>
+#include <sstream>
 #endif
 
 namespace Common::Profiler {
@@ -115,9 +119,85 @@ void Initialize() {
     });
 #endif
 }
+void BeginSession(const std::string& identity) noexcept {
+#ifdef SHADPS4_PROFILER_RING
+    try {
+        spatial::ProfilerRing::SetAppInfo(identity);
+    } catch (...) {
+    }
+    spatial::ProfilerRing::ResetSlowFrameHistory();
+    spatial::LiteTrace::bookmark("Session.Begin");
+#endif
+}
+
+#ifdef SHADPS4_PROFILER_RING
+namespace {
+// `profiler_ring slow ...`: the slow-frame capture of the Foundation ring (same options as
+// Foundation's own DebugBus command). Frames are guest submission epochs (sceGnmSubmitDone).
+std::string SlowControl(const std::vector<std::string>& args) {
+    if (args.size() == 1 || (args.size() == 2 && args[1] == "status"))
+        return spatial::ProfilerRing::SlowFrameStatus();
+    if (args.size() == 2 && args[1] == "stop")
+        return spatial::ProfilerRing::StopSlowFrames();
+    if (args.size() == 3 && args[1] == "dump") {
+        uint64_t id{};
+        const auto& value = args[2];
+        const auto [end, ec] = std::from_chars(value.data(), value.data() + value.size(), id);
+        if (ec != std::errc{} || end != value.data() + value.size() || !id)
+            return "error=invalid_slow_frame_id\n";
+        return spatial::ProfilerRing::RequestSlowFrameDump(id);
+    }
+    if (args.size() >= 2 && args[1] == "start") {
+        ::profiler::sdk::SlowFrameConfig config;
+        for (size_t i = 2; i < args.size(); ++i) {
+            const auto& option = args[i];
+            const auto equals = option.find('=');
+            if (equals == std::string::npos)
+                return "error=expected_name=value\n";
+            const auto name = option.substr(0, equals);
+            const char* begin = option.data() + equals + 1;
+            const char* end = option.data() + option.size();
+            if (name == "factor") {
+                double value{};
+                // NDK libc++ has no floating-point from_chars.
+                std::istringstream input(std::string(begin, end));
+                input.imbue(std::locale::classic());
+                if (!(input >> std::noskipws >> value) || !input.eof() || !std::isfinite(value))
+                    return "error=invalid_slow_frame_factor\n";
+                config.multiplier = value;
+                continue;
+            }
+            uint32_t value{};
+            const auto [parsed_end, ec] = std::from_chars(begin, end, value);
+            if (ec != std::errc{} || parsed_end != end)
+                return "error=invalid_slow_frame_limit\n";
+            if (name == "window_ms") config.history_ns = uint64_t{value} * 1000000;
+            else if (name == "samples") config.min_samples = value;
+            else if (name == "min_ms") config.min_duration_ns = uint64_t{value} * 1000000;
+            else if (name == "pre") config.pre_frames = value;
+            else if (name == "post") config.post_frames = value;
+            else if (name == "cooldown_ms") config.cooldown_ns = uint64_t{value} * 1000000;
+            else if (name == "count") config.max_captures = value;
+            else if (name == "mib") config.max_capture_bytes = uint64_t{value} * 1024 * 1024;
+            else return "error=unknown_slow_frame_option\n";
+        }
+        try {
+            return spatial::ProfilerRing::StartSlowFrames(config);
+        } catch (const std::exception& e) {
+            return std::string{"error="} + e.what() + "\n";
+        }
+    }
+    return "usage: profiler_ring slow [status|stop|dump <id>|start [factor=2 window_ms=2000 "
+           "samples=30 min_ms=0 pre=5 post=2 cooldown_ms=1000 count=8 mib=8]]\n";
+}
+} // namespace
+#endif
+
 std::string Control(const std::vector<std::string>& args) {
 #ifdef SHADPS4_PROFILER_RING
     const auto action = args.empty() ? "status" : args[0];
+    if (action == "slow")
+        return SlowControl(args);
     if (action == "status" && args.size() <= 1)
         return spatial::ProfilerRing::Status() +
                (fine_enabled.load() ? "fine_scopes=on\n" : "fine_scopes=off\n");

@@ -17,6 +17,8 @@
 #include <unordered_set>
 #include <vector>
 #include <fmt/format.h>
+#include "common/elf_info.h"
+#include "common/scm_rev.h"
 #if defined(__ANDROID__)
 #include <android/log.h>
 #include <fcntl.h>
@@ -235,6 +237,11 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         RuntimeStage("prepare: load/relocate modules");
         rt->production->Prepare(params.executable_path, modules);
         RuntimeStage("prepare: ready");
+        if (const auto& info = Common::ElfInfo::Instance(); info.IsInitialized()) {
+            Common::Profiler::BeginSession(fmt::format(
+                "title={} app_ver={} build={} generation={} frame=gnm_submit_done",
+                info.GameSerial(), info.AppVer(), Common::g_scm_rev, params.generation));
+        }
         rt->args = {params.executable_path};
         rt->generation = params.generation;
         rt->diag = Diagnostics::DiagnosticsHub::Instance().Acquire(params.generation);

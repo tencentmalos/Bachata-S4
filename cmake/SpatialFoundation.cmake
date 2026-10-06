@@ -72,6 +72,10 @@ function(shadps4_add_foundation)
     target_link_libraries(shadps4_foundation INTERFACE shadps4_foundation_foveation)
     add_library(spatial::foundation_foveation_vulkan ALIAS shadps4_foundation_foveation)
     add_library(foundation_foveation_vulkan ALIAS shadps4_foundation_foveation)
+    # The lite engine's render core links the platform-neutral foveation library too (Foveation.cpp,
+    # compiled into the same narrow target here).
+    add_library(spatial::foundation_foveation ALIAS shadps4_foundation_foveation)
+    add_library(foundation_foveation ALIAS shadps4_foundation_foveation)
     if(ANDROID)
         set(FOUNDATION_RENDER_VMA_IMPLEMENTATION OFF CACHE BOOL "" FORCE)
         add_subdirectory("${foundation_root}/engine"
@@ -82,8 +86,9 @@ function(shadps4_add_foundation)
         target_include_directories(shadps4_xr_scene PUBLIC
             "${foundation_root}/modules/xr/include"
             "${foundation_root}/third_party/openxr/openxr_header")
+        # The Vulkan backend of the lite engine is its own library since Foundation 541063e.
         target_link_libraries(shadps4_xr_scene PUBLIC spatial::foundation_engine
-            spatial::foundation_async_task Dear_ImGui)
+            spatial::foundation_render_vulkan spatial::foundation_async_task Dear_ImGui)
         target_compile_features(shadps4_xr_scene PUBLIC cxx_std_20)
         set_target_properties(shadps4_xr_scene PROPERTIES UNITY_BUILD OFF)
     endif()

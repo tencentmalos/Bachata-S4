@@ -468,6 +468,12 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
     Core::Diagnostics::DiagnosticsHub::Instance().Register(1, process_id);
     // Litep ring for DebugBus profiler_ring / profiler_capture; captures go to <log>/profiler.
     Common::Profiler::Initialize();
+    {
+        const auto& info = Common::ElfInfo::Instance();
+        Common::Profiler::BeginSession(fmt::format(
+            "title={} app_ver={} build={} frame=gnm_submit_done", info.GameSerial(),
+            info.AppVer(), Common::g_scm_rev));
+    }
     if (debugBusPort) {
         if (const u16 port = Core::Diagnostics::StartDebugBusServer(*debugBusPort)) {
             LOG_INFO(Debug, "DebugBus listening on 127.0.0.1:{}", port);
