@@ -1,3 +1,5 @@
+**2026-10-06：[AstroQuest 与当前 shadPS4 XR 实现对照](astroquest-vr-comparison-20261006.md)**：固定 AstroQuest 0.18 与 `swan_performance` 源码版本，比较宿主架构、DS4/Move、麦克风、NGS2、PCVR、游戏专用修正与可复用的渲染修复；仅调研，包含实测来源边界及建议吸收顺序。
+
 **GCN 实现参考：[PC / Android GCN 模拟、fallback 与改进方向](guides/gcn-emulation.md)**（2026-10-02）：共用编译链、按驱动选择的兼容机制、精度/正确性边界、CPU/GPU成本与验证方法；[本轮A740清查证据](validation/android-native-host/gcn-software-audit-20261002.md)。
 
 **2026-09-25：[Guest GPU command trace / PM4 trace 操作入口](debugbus-gpu-command-trace.md)**（已合入主干）：有界采集、离线解码、KGSL 身份关联与错误现场保存；[MHW 实例](validation/android-native-host/mhw-gpu-trace-20260925.md)。后文 09-14 的“待实施”是历史状态。
