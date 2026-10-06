@@ -15,10 +15,14 @@
 /// copy that reads a marked range marks everything it writes. A mark goes away only when its
 /// range is replaced as a whole without reading the old content (a whole-image clear, a clear
 /// load of the whole attachment, a copy of unmarked data, a fill); an ordinary draw can never
-/// prove it covered a target. When marked content reaches the CPU (a readback), steers the GPU
-/// (indirect arguments) or is read in a later frame than the one that lost it, skipping is
-/// turned off for the session: later draws wait for their pipelines. That protects later
-/// commands only; content already lost stays lost and stays listed.
+/// prove it covered a target. When marked content reaches the CPU (a readback) or steers the GPU
+/// (indirect arguments), skipping is turned off for the session: later draws wait for their
+/// pipelines. Marked content read within a few frames of its last mark is history or feedback
+/// (temporal filters): the reading frame draws complete content over it, so the mark is dropped
+/// and nothing is marked for it. Marked content read longer after it was last marked is stale
+/// (a target made once and kept): skipping pauses for PipelineStats::SkipPauseFrames frames and
+/// the marks are dropped; after PipelineStats::MaxSkipPauses pauses it is off for the session.
+/// Either way only later commands are protected; content already lost stays lost.
 ///
 /// Ranges are guest addresses, so aliasing views are covered. Everything runs on the GPU command
 /// thread except the status report.

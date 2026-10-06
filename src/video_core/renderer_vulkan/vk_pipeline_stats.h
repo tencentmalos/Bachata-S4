@@ -74,6 +74,7 @@ enum class SkipBlocker : u32 {
     MetaOp,      ///< Depth/stencil clear or copy, or a colour meta operation.
     TooLong,     ///< This pipeline has been skipped for too long; wait instead.
     TableFull,   ///< Skipping is off for the session (see SkipOff).
+    Paused,      ///< Skipping is paused (see PauseSkipping).
     Count,
 };
 /// Why skipping was turned off for the session.
@@ -82,9 +83,19 @@ enum class SkipOff : u32 {
     TableFull,  ///< A record of affected targets or missing content is full.
     Readback,   ///< Content missing from skipped draws reached a CPU readback.
     Indirect,   ///< ... was used as indirect draw/dispatch arguments.
-    CrossFrame, ///< ... was read in a later frame (history, feedback).
+    CrossFrame, ///< ... was read stale in a later frame, MaxSkipPauses times.
 };
 void DisableSkipping(SkipOff reason);
+/// Frames a pause lasts, and how many pauses a session gets before skipping is off for good.
+constexpr u64 SkipPauseFrames = 60;
+constexpr u32 MaxSkipPauses = 16;
+/// Stale content missing from skipped draws was read (see MissingContent): draws wait for their
+/// pipelines for the next SkipPauseFrames frames before more draws are dropped. False when the
+/// pauses are used up; skipping is then off for the session (SkipOff::CrossFrame).
+bool PauseSkipping(u64 epoch);
+/// True while skipping is off for the session, or paused in frame `epoch`. A pause whose last
+/// frame has passed ends here.
+bool SkippingOff(u64 epoch);
 void RecordSkipBlocked(SkipBlocker reason);
 /// A dropped draw; `held` when its pipeline was already built but had been skipped earlier in
 /// the same frame; `first_for_pipeline` for the first draw a pipeline loses.

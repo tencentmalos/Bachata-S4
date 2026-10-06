@@ -32,12 +32,20 @@ constexpr std::size_t MaxRanges = 1024;
 std::mutex mutex;
 std::vector<Range> ranges;
 
+/// A range last marked this many frames before it is read is history or feedback (temporal
+/// filters, ping-pong targets): the frame that reads it draws complete content over it, so the
+/// loss fades out by itself. Content marked longer ago is stale: nothing has drawn it since.
+constexpr u64 HistoryFrames = 4;
+
 struct Action {
     u32 depth{};
     u64 epoch{};
     bool tainted{};
     u64 taint_origin{};
     VAddr taint_address{};
+    bool stale{};             ///< Read content marked more than HistoryFrames frames ago.
+    VAddr stale_address{};
+    std::vector<std::pair<VAddr, VAddr>> history; ///< Marked ranges read as history.
     struct Written {
         VAddr begin;
         VAddr end;
@@ -59,21 +67,15 @@ u64 skip_marks{};
 u64 propagated_marks{};
 u64 cleared{};
 u64 dropped_marks{}; ///< Marks the full record could not keep.
+u64 pause_clears{};  ///< Times the marks were dropped when skipping paused.
+u64 history_reads{}; ///< Marked ranges read in a later frame as history and cleared.
 
-constexpr std::array EscapeNames = {"CPU readback", "indirect arguments", "a later frame"};
+constexpr std::array EscapeNames = {"CPU readback", "indirect arguments",
+                                     "a later frame, stale"};
 
 /// First range that ends after `begin`.
 std::vector<Range>::iterator FirstEndingAfter(VAddr begin) {
     return std::ranges::upper_bound(ranges, begin, {}, &Range::end);
-}
-
-/// Earliest origin among marked ranges overlapping [begin, end), or ~0 when none do.
-u64 OriginOf(VAddr begin, VAddr end) {
-    u64 origin = ~0ULL;
-    for (auto it = FirstEndingAfter(begin); it != ranges.end() && it->begin < end; ++it) {
-        origin = std::min(origin, it->origin_epoch);
-    }
-    return origin;
 }
 
 bool Mark(VAddr begin, VAddr end, u64 origin, u64 epoch, bool propagated) {
@@ -98,7 +100,8 @@ bool Mark(VAddr begin, VAddr end, u64 origin, u64 epoch, bool propagated) {
     return true;
 }
 
-void Unmark(VAddr begin, VAddr end) {
+/// `overwrite`: the range was replaced as a whole (counted in the status).
+void Unmark(VAddr begin, VAddr end, bool overwrite = true) {
     auto it = FirstEndingAfter(begin);
     if (it == ranges.end() || it->begin >= end) {
         return;
@@ -125,7 +128,9 @@ void Unmark(VAddr begin, VAddr end) {
             }
         }
     }
-    ++cleared;
+    if (overwrite) {
+        ++cleared;
+    }
     detail::num_ranges.store(u32(ranges.size()), std::memory_order_relaxed);
     Common::Profiler::Counter("Pipeline.MissingRanges", s64(ranges.size()));
 }
@@ -146,16 +151,31 @@ bool RecordEscape(Escape kind, VAddr address, u64 epoch) {
                      it->last_epoch, it->propagated ? ", carried by reads" : "");
         }
     }
-    if (PipelineStats::EffectiveCompileMode() == PipelineStats::CompileMode::AsyncGraphicsSkip &&
-        !PipelineStats::SkipDisabledForSession()) {
-        LOG_WARNING(Render_Vulkan,
-                    "Content missing from skipped draws reached {} at {:#x} (frame {}): draws "
-                    "wait for their pipelines for the rest of the session",
-                    EscapeNames[u32(kind)], address, epoch);
-        PipelineStats::DisableSkipping(kind == Escape::Readback   ? PipelineStats::SkipOff::Readback
-                                       : kind == Escape::Indirect ? PipelineStats::SkipOff::Indirect
-                                                                  : PipelineStats::SkipOff::CrossFrame);
+    if (PipelineStats::EffectiveCompileMode() != PipelineStats::CompileMode::AsyncGraphicsSkip ||
+        PipelineStats::SkippingOff(epoch)) {
+        return true;
     }
+    if (kind == Escape::CrossFrame && PipelineStats::PauseSkipping(epoch)) {
+        // Nothing redraws stale content, so what was lost stays lost; stop losing more for a
+        // while, then start over with nothing marked (marks only decide when to stop dropping
+        // draws).
+        LOG_INFO(Render_Vulkan,
+                 "Stale content missing from skipped draws was read at {:#x} (frame {}): draws "
+                 "wait for their pipelines for {} frames",
+                 address, epoch, PipelineStats::SkipPauseFrames);
+        ++pause_clears;
+        ranges.clear();
+        detail::num_ranges.store(0, std::memory_order_relaxed);
+        Common::Profiler::Counter("Pipeline.MissingRanges", 0);
+        return true;
+    }
+    LOG_WARNING(Render_Vulkan,
+                "Content missing from skipped draws reached {} at {:#x} (frame {}): draws "
+                "wait for their pipelines for the rest of the session",
+                EscapeNames[u32(kind)], address, epoch);
+    PipelineStats::DisableSkipping(kind == Escape::Readback   ? PipelineStats::SkipOff::Readback
+                                   : kind == Escape::Indirect ? PipelineStats::SkipOff::Indirect
+                                                              : PipelineStats::SkipOff::CrossFrame);
     return true;
 }
 
@@ -171,15 +191,23 @@ void Read(VAddr address, u64 size) {
         return;
     }
     std::scoped_lock lock{mutex};
-    const u64 origin = OriginOf(address, address + size);
-    if (origin == ~0ULL) {
-        return;
+    const VAddr end = address + size;
+    for (auto it = FirstEndingAfter(address); it != ranges.end() && it->begin < end; ++it) {
+        const VAddr at = std::max(address, it->begin);
+        if (it->last_epoch < action.epoch && action.epoch - it->last_epoch <= HistoryFrames) {
+            action.history.emplace_back(at, std::min(end, it->end));
+            continue;
+        }
+        if (it->last_epoch < action.epoch && !action.stale) {
+            action.stale = true;
+            action.stale_address = at;
+        }
+        if (!action.tainted || it->origin_epoch < action.taint_origin) {
+            action.taint_origin = it->origin_epoch;
+            action.taint_address = at;
+        }
+        action.tainted = true;
     }
-    if (!action.tainted || origin < action.taint_origin) {
-        action.taint_origin = origin;
-        action.taint_address = address;
-    }
-    action.tainted = true;
 }
 
 void Write(VAddr address, u64 size, bool whole) {
@@ -210,10 +238,12 @@ void BeginAction(u64 epoch) {
     action.epoch = epoch;
     current_epoch = epoch;
     action.tainted = false;
+    action.stale = false;
+    action.history.clear();
     action.writes.clear();
     // Once skipping is off for the session nothing depends on the marks any more: they stay
     // as they were for the status, and actions stop paying for the lookups.
-    detail::action_tracking = Tracking() && !PipelineStats::SkipDisabledForSession();
+    detail::action_tracking = Tracking() && !PipelineStats::SkippingOff(epoch);
 }
 
 void EndAction() {
@@ -225,6 +255,11 @@ void EndAction() {
     }
     detail::action_tracking = false;
     std::unique_lock lock{mutex};
+    for (const auto& [begin, end] : action.history) {
+        // Drawn over this frame: no longer followed, and what it feeds is not marked for it.
+        Unmark(begin, end, false);
+        ++history_reads;
+    }
     if (!action.tainted) {
         for (const auto& write : action.writes) {
             if (write.whole) {
@@ -244,10 +279,10 @@ void EndAction() {
                                    "pipelines for the rest of the session");
         PipelineStats::DisableSkipping(PipelineStats::SkipOff::TableFull);
     }
-    if (action.taint_origin < action.epoch) {
-        // Content lost in an earlier frame is still being consumed: history or feedback.
+    if (action.stale) {
+        // Content lost long ago and not drawn since (a target made once and kept).
         std::scoped_lock escape_lock{mutex};
-        RecordEscape(Escape::CrossFrame, action.taint_address, action.epoch);
+        RecordEscape(Escape::CrossFrame, action.stale_address, action.epoch);
     }
 }
 
@@ -261,7 +296,7 @@ void Overwrite(VAddr address, u64 size) {
         }
         return;
     }
-    if (!Tracking() || PipelineStats::SkipDisabledForSession()) {
+    if (!Tracking() || PipelineStats::SkippingOff(current_epoch)) {
         return;
     }
     std::scoped_lock lock{mutex};
@@ -299,6 +334,8 @@ void Reset() {
     propagated_marks = 0;
     cleared = 0;
     dropped_marks = 0;
+    pause_clears = 0;
+    history_reads = 0;
 }
 
 void Describe(std::string& out) {
@@ -311,9 +348,10 @@ void Describe(std::string& out) {
         bytes += range.end - range.begin;
     }
     out += fmt::format("  missing content: {} ranges, {:.1f} MiB marked; {} marks from skipped "
-                       "draws, {} carried by reads, {} cleared by whole overwrites{}{}\n",
+                       "draws, {} carried by reads, {} cleared by whole overwrites, {} read as "
+                       "history and cleared, all dropped on {} pauses{}{}\n",
                        ranges.size(), double(bytes) / (1024.0 * 1024.0), skip_marks,
-                       propagated_marks, cleared,
+                       propagated_marks, cleared, history_reads, pause_clears,
                        dropped_marks ? fmt::format(", {} not recorded (full)", dropped_marks)
                                      : std::string{},
                        PipelineStats::SkipDisabledForSession()

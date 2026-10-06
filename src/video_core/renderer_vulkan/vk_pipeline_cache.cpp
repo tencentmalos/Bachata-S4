@@ -873,7 +873,9 @@ vk::ShaderModule PipelineCache::CompileModule(Shader::Info& info, Shader::Runtim
     DumpShader(code, info.pgm_hash, info.hw_stage, perm_idx, "bin");
 
     const auto ir_program = Shader::TranslateProgram(code, pools, info, runtime_info, profile);
+    const auto emit_start = std::chrono::steady_clock::now();
     auto spv = Shader::Backend::SPIRV::EmitSPIRV(profile, runtime_info, ir_program, binding);
+    const auto emit_end = std::chrono::steady_clock::now();
     DumpShader(spv, info.pgm_hash, info.hw_stage, perm_idx, "spv");
 
     vk::ShaderModule module;
@@ -893,10 +895,23 @@ vk::ShaderModule PipelineCache::CompileModule(Shader::Info& info, Shader::Runtim
         DebugState.CollectShader(name, info.sw_stage, module, spv, code,
                                  patch ? *patch : std::span<const u32>{}, is_patched);
     }
+    const auto spv_words = spv.size();
     RegisterShaderBinary(std::move(spv), info.pgm_hash, perm_idx);
-    PipelineStats::RecordModule(u64(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                                        std::chrono::steady_clock::now() - translate_start)
-                                        .count()));
+    const auto end = std::chrono::steady_clock::now();
+    const auto ms = [](auto d) {
+        return std::chrono::duration<double, std::milli>(d).count();
+    };
+    if (end - translate_start >= std::chrono::milliseconds{20}) {
+        // Runs on the GPU command thread: the draw or dispatch waits for all of it.
+        LOG_INFO(Render_Vulkan,
+                 "Slow translation of {} shader {:#x}{}: {:.1f} ms (to IR {:.1f}, SPIR-V {:.1f}, "
+                 "module {:.1f}); {} GCN dwords, {} SPIR-V words",
+                 info.hw_stage, info.pgm_hash, perm_idx != 0 ? " (permutation)" : "",
+                 ms(end - translate_start), ms(emit_start - translate_start),
+                 ms(emit_end - emit_start), ms(end - emit_end), code.size(), spv_words);
+    }
+    PipelineStats::RecordModule(
+        u64(std::chrono::duration_cast<std::chrono::nanoseconds>(end - translate_start).count()));
     return module;
 }
 

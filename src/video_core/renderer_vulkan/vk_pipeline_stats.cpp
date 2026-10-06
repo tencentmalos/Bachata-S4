@@ -143,6 +143,9 @@ std::atomic<u64> affected_frames{};
 std::atomic<u64> longest_run{};
 std::atomic<bool> skip_disabled{};
 std::atomic<u32> skip_off{u32(SkipOff::None)};
+std::atomic<u64> skip_paused_until{}; ///< First frame after the current pause; 0 when none.
+std::atomic<u32> skip_pauses{};
+std::atomic<u64> skip_last_pause{}; ///< Frame the latest pause began.
 u64 last_skip_epoch = ~0ULL;
 u64 current_run{};
 
@@ -201,6 +204,9 @@ void Reset() {
     longest_run = 0;
     skip_disabled = false;
     skip_off = u32(SkipOff::None);
+    skip_paused_until = 0;
+    skip_pauses = 0;
+    skip_last_pause = 0;
     last_skip_epoch = ~0ULL;
     current_run = 0;
     {
@@ -341,6 +347,34 @@ bool SkipDisabledForSession() {
     return skip_disabled.load(std::memory_order_relaxed);
 }
 
+bool PauseSkipping(u64 epoch) {
+    if (skip_pauses.fetch_add(1, std::memory_order_relaxed) >= MaxSkipPauses) {
+        DisableSkipping(SkipOff::CrossFrame);
+        return false;
+    }
+    skip_last_pause.store(epoch, std::memory_order_relaxed);
+    skip_paused_until.store(epoch + SkipPauseFrames + 1, std::memory_order_relaxed);
+    return true;
+}
+
+bool SkippingOff(u64 epoch) {
+    if (skip_disabled.load(std::memory_order_relaxed)) {
+        return true;
+    }
+    const u64 until = skip_paused_until.load(std::memory_order_relaxed);
+    if (until == 0) {
+        return false;
+    }
+    if (epoch < until) {
+        return true;
+    }
+    if (skip_paused_until.exchange(0, std::memory_order_relaxed) != 0) {
+        LOG_INFO(Render_Vulkan, "Skipping unbuilt draws again from frame {} (pause {} of {})",
+                 epoch, skip_pauses.load(std::memory_order_relaxed), MaxSkipPauses);
+    }
+    return false;
+}
+
 void RecordFirstUse(FirstUse kind, u64 wait_ns) {
     if (kind == FirstUse::BuiltByUser) {
         built_by_user.fetch_add(1, std::memory_order_relaxed);
@@ -421,7 +455,7 @@ void RecordDriverCacheSave(u64 bytes, u64 ns) {
 
 constexpr std::array SkipOffNames = {"", "a record is full", "missing content reached a CPU readback",
                                      "missing content was used as indirect arguments",
-                                     "missing content was read in a later frame"};
+                                     "stale missing content was read too often"};
 
 SpecMatch SpecMatchMode() {
     return SpecMatch(spec_match.load(std::memory_order_relaxed));
@@ -528,9 +562,17 @@ std::string Command(const std::vector<std::string>& args) {
                            ? fmt::format("; skipping off for the session ({})",
                                          SkipOffNames[std::min<u32>(skip_off.load(), 4)])
                            : std::string{});
+    if (const u32 pauses = skip_pauses.load()) {
+        const u64 until = skip_paused_until.load();
+        out += fmt::format("  skipping paused {} times (of {}) for {} frames after stale missing "
+                           "content was read; latest from frame {}{}\n",
+                           std::min(pauses, MaxSkipPauses), MaxSkipPauses, SkipPauseFrames,
+                           skip_last_pause.load(),
+                           until ? fmt::format(", paused until frame {}", until) : std::string{});
+    }
     static constexpr std::array BlockerNames = {"none",     "side effects", "predicated",
                                                 "stream-out", "clear/meta", "skipped too long",
-                                                "skipping off"};
+                                                "skipping off", "skipping paused"};
     out += "  unbuilt draws kept instead of skipped:";
     for (u32 i = 1; i < u32(SkipBlocker::Count); ++i) {
         out += fmt::format(" {} {}{}", BlockerNames[i], skip_blocked[i].load(),

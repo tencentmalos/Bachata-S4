@@ -154,6 +154,9 @@ PipelineStats::SkipBlocker Rasterizer::SkipBlockerFor(const GraphicsPipeline& pi
     if (PipelineStats::SkipDisabledForSession()) {
         return SkipBlocker::TableFull;
     }
+    if (PipelineStats::SkippingOff(liverpool->flip_epoch)) {
+        return SkipBlocker::Paused;
+    }
     if (!pipeline.SkipEligible()) {
         return SkipBlocker::SideEffects;
     }
