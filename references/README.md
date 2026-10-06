@@ -16,8 +16,9 @@
 | `dynarmic-citron` | [a593d9262388e3216985b982e400f19ef9ce9749](https://github.com/tencentmalos/dynarmic/tree/a593d9262388e3216985b982e400f19ef9ce9749) | citron 所用 Dynarmic 的源码计量/API 对照 |
 | `dynarmic-azahar` | [96a803e921ba19bde0fbb315264971fd268fb2ed](https://github.com/tencentmalos/dynarmic/tree/96a803e921ba19bde0fbb315264971fd268fb2ed) | azahar 所用 Dynarmic 的源码计量/API 对照 |
 | `ps4-pkg-tools` | [45baedaa29b8da42b3c6fe912800d2fa4119834b](https://github.com/xXJSONDeruloXx/ps4-pkg-tools/tree/45baedaa29b8da42b3c6fe912800d2fa4119834b) | 既有 PS4 内容格式/导入参考 |
+| `AstroQuest` | [9ff3e43060b0a25aaa498566caa32649f06966bf](https://github.com/bigmak94/AstroQuest/tree/9ff3e43060b0a25aaa498566caa32649f06966bf)（v0.18） | PSVR《ASTRO BOT Rescue Mission》的 Quest 3 / PCVR 移植，GPL-2.0；核心 `shadps4-arm64-main` 由 `100bfd8` 导入 zenithblue-oss shadps4-arm64 `be6bc2e`（与上面 `shadps4-arm64` 同一基线），`git -C references/AstroQuest diff 100bfd8 9ff3e43 -- shadps4-arm64-main` 即其全部核心改动；2026-10-06 加入，对照见 [AstroQuest 对照](../docs/astroquest-vr-comparison-20261006.md)，引入规划见 [spec](../docs/specs/astroquest-reference-import-20261006.md) |
 
-版本事实截至 2026-09-07。实际 checkout 以主仓提交中的 gitlink 为准；更新时同步本表。Android 的官方来源映射及版本不一致见 [基线选择](../docs/android-foundation-selection.md)。上述七个提交已通过对应 GitHub 仓库 commit API 检查可取得。
+版本事实截至 2026-09-07。实际 checkout 以主仓提交中的 gitlink 为准；更新时同步本表。Android 的官方来源映射及版本不一致见 [基线选择](../docs/android-foundation-selection.md)。上述七个提交已通过对应 GitHub 仓库 commit API 检查可取得。`AstroQuest`（2026-10-06 加入）同样经 commit API 确认；它带有自己的嵌套 submodule（`shadps4-arm64-main/externals/*`），源码阅读不需要初始化。
 
 两份模拟器参考使用的 FEX runtime pin 仍是 `f2b679f6028ce1c38875233aecfcf5d3f8ebecec`，与独立 FEX 子仓不同。这是有意保留的比较维度，不能直接交叉替换。
 
@@ -30,7 +31,7 @@ Android、ARM64 和 FEX 的 `.gitmodules` URL 已切换为 `tencentmalos` 自有
 在新 clone 中只检出参考源码，不递归下载全部外部依赖：
 
 ```sh
-git submodule update --init references/Bachata-S4-android references/shadps4-arm64 references/FEX references/Bachata-S4 references/dynarmic-citron references/dynarmic-azahar references/ps4-pkg-tools
+git submodule update --init references/Bachata-S4-android references/shadps4-arm64 references/FEX references/Bachata-S4 references/dynarmic-citron references/dynarmic-azahar references/ps4-pkg-tools references/AstroQuest
 ```
 
 已有工作区先检查子仓状态；上面的命令可能切换子仓 HEAD。修改 `.gitmodules` 的来源后，可按需运行 `git submodule sync -- references/Bachata-S4`，注意它会同步本地 origin URL。

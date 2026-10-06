@@ -1,3 +1,5 @@
+**2026-10-06：[AstroQuest 参考引入规划](specs/astroquest-reference-import-20261006.md)**：`references/AstroQuest`（v0.18 `9ff3e43`，核心与 `references/shadps4-arm64` 同基线 `be6bc2e`）的核心改动逐项对照本仓：通用 GS/viewport 修复、Android UBWC 与 XR 重复帧拷贝等性能测量项、PSVR 通用 HLE、ASTRO BOT 专用补丁、桌面 PCVR 拆分；仅规划，未实现。
+
 **2026-10-06：[AstroQuest 与当前 shadPS4 XR 实现对照](astroquest-vr-comparison-20261006.md)**：固定 AstroQuest 0.18 与 `swan_performance` 源码版本，比较宿主架构、DS4/Move、麦克风、NGS2、PCVR、游戏专用修正与可复用的渲染修复；仅调研，包含实测来源边界及建议吸收顺序。
 
 **GCN 实现参考：[PC / Android GCN 模拟、fallback 与改进方向](guides/gcn-emulation.md)**（2026-10-02）：共用编译链、按驱动选择的兼容机制、精度/正确性边界、CPU/GPU成本与验证方法；[本轮A740清查证据](validation/android-native-host/gcn-software-audit-20261002.md)。

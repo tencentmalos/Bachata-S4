@@ -214,3 +214,7 @@
 	url = https://github.com/tencentmalos/cubeb.git
 	shallow = true
 	branch = citron-submodule-42767df98ed0
+[submodule "references/AstroQuest"]
+	path = references/AstroQuest
+	url = https://github.com/bigmak94/AstroQuest.git
+	branch = main
