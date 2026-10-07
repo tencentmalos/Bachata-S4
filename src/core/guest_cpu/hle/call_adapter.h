@@ -18,6 +18,7 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -512,19 +513,25 @@ public:
                              name + ": " + adapter->SignatureDescription());
         std::unique_lock guard{registry_mutex};
         const std::uint64_t operation = adapters.size() + 1;
+        if (operation > MaxOperations)
+            return MakeError(ErrorCategory::Unsupported, "HleCallRegistry::Adopt",
+                             name + ": more than " + std::to_string(MaxOperations) +
+                                 " operations");
         auto binding = std::make_shared<RegisteredHleCallAdapter>(operation, std::move(name),
                                                                   std::move(adapter));
+        lookup[operation - 1].store(binding.get(), std::memory_order_release);
         adapters.push_back(std::move(binding));
         return operation;
     }
 
-    // O(1): operations are dense and 1-based, so op N is adapters[N-1].
-    [[nodiscard]] std::shared_ptr<HleCallAdapter> Find(std::uint64_t operation) const {
-        std::shared_lock guard{registry_mutex};
-        if (operation == 0 || operation > adapters.size()) {
+    // O(1) and lock-free: every HLE call looks its operation up (twice), on every guest thread.
+    // Operations are dense and 1-based, and an adapter is never removed while the registry
+    // lives, so op N is a stable pointer in lookup[N-1] once registered.
+    [[nodiscard]] HleCallAdapter* Find(std::uint64_t operation) const {
+        if (operation == 0 || operation > MaxOperations) {
             return nullptr;
         }
-        return adapters[operation - 1];
+        return lookup[operation - 1].load(std::memory_order_acquire);
     }
 
     // Dispatch entry. An unregistered operation is an error, never an attempt
@@ -545,8 +552,12 @@ public:
     }
 
 private:
+    static constexpr std::uint64_t MaxOperations = 1u << 16;
+
     mutable std::shared_mutex registry_mutex;
-    std::vector<std::shared_ptr<HleCallAdapter>> adapters;
+    std::vector<std::shared_ptr<HleCallAdapter>> adapters; ///< Owners, in operation order.
+    std::unique_ptr<std::atomic<HleCallAdapter*>[]> lookup{
+        new std::atomic<HleCallAdapter*>[MaxOperations]{}};
 };
 
 } // namespace Core::GuestCpu::Hle

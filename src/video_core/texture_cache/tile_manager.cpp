@@ -448,6 +448,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, GetTilingPipeline(info, false));
+    scheduler.GetDynamicState().ForgetBoundPipelines();
 
     const vk::DescriptorBufferInfo tiled_buffer_info{
         .buffer = in_buffer,
@@ -542,6 +543,7 @@ void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buff
     in_image.Download(buffer_copies, temp_buffer, 0, copy_size);
 
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, GetTilingPipeline(info, true));
+    scheduler.GetDynamicState().ForgetBoundPipelines();
 
     const vk::DescriptorBufferInfo tiled_buffer_info{
         .buffer = out_buffer,
@@ -719,6 +721,7 @@ bool TileManager::TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer 
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, GetImageTilingPipeline(info, pack));
+    scheduler.GetDynamicState().ForgetBoundPipelines();
     scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, *image_pl_layout,
                                   *image_desc_layout, set_writes);
     const auto dim_x = (info.guest_size / (info.num_bits / 8)) / 64;

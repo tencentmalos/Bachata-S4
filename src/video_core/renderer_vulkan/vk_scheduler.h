@@ -183,6 +183,17 @@ struct DynamicState {
     /// Invalidates all dynamic state to be flushed into the next command buffer.
     void Invalidate() {
         std::memset(&dirty_state, 0xFF, sizeof(dirty_state));
+        ForgetBoundPipelines();
+    }
+
+    /// The pipeline object last bound at the graphics (0) and compute (1) bind points of the
+    /// current command buffer, as recorded, so that binding it again can be left out: Turnip
+    /// re-emits the program and marks descriptors and constants dirty on every bind, even of
+    /// the pipeline already bound. Anything that binds a pipeline of its own (blits, tiling,
+    /// fault processing) calls ForgetBoundPipelines; Invalidate does too (new command buffer).
+    std::array<const void*, 2> bound_pipeline{};
+    void ForgetBoundPipelines() {
+        bound_pipeline = {};
     }
 
     void SetViewports(const Viewports& viewports_) {
@@ -540,6 +551,8 @@ public:
             InterruptHoist();
         if (recorder)
             recorder->CheckOutRaw();
+        // Whoever records directly may bind pipelines of their own.
+        dynamic_state.ForgetBoundPipelines();
         return current_cmdbuf;
     }
 

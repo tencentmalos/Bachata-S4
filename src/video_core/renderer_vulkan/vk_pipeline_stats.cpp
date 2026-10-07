@@ -123,6 +123,8 @@ std::atomic<u64> built_by_user{};
 Timing first_use_waits;
 std::atomic<int> mode_override{-1}; // -1 configured, otherwise CompileMode
 std::atomic<int> spec_match{int(SpecMatch::Fast)};
+std::atomic<bool> skip_repeated_binds{true};
+std::atomic<u64> repeated_binds{};
 std::atomic<u64> spec_verified{};
 std::atomic<u64> spec_disagreed{};
 std::atomic<u64> spec_lookups{};
@@ -457,6 +459,14 @@ constexpr std::array SkipOffNames = {"", "a record is full", "missing content re
                                      "missing content was used as indirect arguments",
                                      "stale missing content was read too often"};
 
+bool SkipRepeatedBinds() {
+    return skip_repeated_binds.load(std::memory_order_relaxed);
+}
+
+void RecordRepeatedBind() {
+    repeated_binds.fetch_add(1, std::memory_order_relaxed);
+}
+
 SpecMatch SpecMatchMode() {
     return SpecMatch(spec_match.load(std::memory_order_relaxed));
 }
@@ -487,6 +497,14 @@ void RecordSpecLookup(u32 runtime_checks, u32 candidates, u32 start_rejects, u32
 }
 
 std::string Command(const std::vector<std::string>& args) {
+    if (args.size() == 2 && args[0] == "bind_skip") {
+        if (args[1] != "on" && args[1] != "off") {
+            return "usage: pipeline_cache bind_skip on|off\n";
+        }
+        skip_repeated_binds = args[1] == "on";
+        return fmt::format("binding the pipeline already bound is {}\n",
+                           args[1] == "on" ? "left out" : "recorded");
+    }
     if (args.size() == 2 && args[0] == "spec_match") {
         if (args[1] == "fast") {
             spec_match = int(SpecMatch::Fast);
@@ -516,7 +534,7 @@ std::string Command(const std::vector<std::string>& args) {
     }
     if (!args.empty() && (args.size() != 1 || args[0] != "status")) {
         return "usage: pipeline_cache [status] | mode sync|async_accurate|async_graphics_skip|"
-               "config | spec_match fast|full|verify\n";
+               "config | spec_match fast|full|verify | bind_skip on|off\n";
     }
     Settings current;
     DriverCacheState state;
@@ -544,6 +562,8 @@ std::string Command(const std::vector<std::string>& args) {
                            double(spec_start_rejects.load()) / lookups,
                            double(spec_fetch_rejects.load()) / lookups, spec_created.load());
     }
+    out += fmt::format("repeated pipeline binds left out: {} (bind_skip {})\n",
+                       repeated_binds.load(), skip_repeated_binds.load() ? "on" : "off");
     out += fmt::format("compile mode: {} (configured {}{}), {} compile threads\n",
                        CompileModeName(EffectiveCompileMode()),
                        CompileModeName(ConfiguredCompileMode()),

@@ -167,6 +167,11 @@ void RecordSpecVerify(bool agree, u64 program_hash, u32 permutation, bool fast_r
 void RecordSpecLookup(u32 runtime_checks, u32 candidates, u32 start_rejects, u32 fetch_rejects,
                       bool created);
 
+/// Binding the pipeline already bound in the command buffer is left out (`pipeline_cache
+/// bind_skip on|off`, default on). Cheap.
+bool SkipRepeatedBinds();
+void RecordRepeatedBind();
+
 std::string Command(const std::vector<std::string>& args);
 
 } // namespace PipelineStats

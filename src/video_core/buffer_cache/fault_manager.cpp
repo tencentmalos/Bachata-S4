@@ -185,6 +185,7 @@ void FaultManager::ProcessFaultBuffer() {
         .pBufferMemoryBarriers = pre_barriers.data(),
     });
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, *fault_process_pipeline);
+    scheduler.GetDynamicState().ForgetBoundPipelines();
     scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, *fault_process_pipeline_layout, *fault_process_desc_layout, writes);
     // 1 bit per page, 32 pages per invocation
     const u32 num_threads = sparse_num_pages / 32;

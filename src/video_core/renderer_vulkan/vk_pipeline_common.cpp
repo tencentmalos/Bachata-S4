@@ -36,6 +36,13 @@ void Pipeline::Bind(const RecordingCommandBuffer& cmdbuf, vk::PipelineBindPoint 
         first_use_rank = PipelineStats::NextUseRank();
         first_use_ms = PipelineStats::SessionMs();
     }
+    auto& bound = scheduler.GetDynamicState()
+                      .bound_pipeline[point == vk::PipelineBindPoint::eCompute ? 1 : 0];
+    if (bound == this && PipelineStats::SkipRepeatedBinds()) {
+        PipelineStats::RecordRepeatedBind();
+        return;
+    }
+    bound = this;
     if (Ready()) {
         cmdbuf.bindPipeline(point, *pipeline);
         return;
