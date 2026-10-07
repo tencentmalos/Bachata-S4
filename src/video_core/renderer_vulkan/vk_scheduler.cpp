@@ -534,6 +534,40 @@ void Scheduler::Wait(u64 tick) {
     work_semaphore.Wait(tick);
 }
 
+u64 Scheduler::HoldRetirement(u64 tick) {
+    std::unique_lock lk(pending_ops_mutex);
+    const u64 id = ++next_retire_hold;
+    retire_holds.push_back({id, tick, nullptr, 0});
+    return id;
+}
+
+void Scheduler::SetRetirementReader(u64 hold, Semaphore* reader, u64 reader_tick) {
+    std::unique_lock lk(pending_ops_mutex);
+    for (auto& entry : retire_holds) {
+        if (entry.id == hold) {
+            entry.reader = reader;
+            entry.reader_tick = reader_tick;
+        }
+    }
+}
+
+void Scheduler::ReleaseRetirement(u64 hold) {
+    std::unique_lock lk(pending_ops_mutex);
+    std::erase_if(retire_holds, [hold](const RetireHold& entry) { return entry.id == hold; });
+}
+
+bool Scheduler::RetirementBlocked(u64 gpu_tick) {
+    // Holds whose reader finished go first; a hold set later than gpu_tick does
+    // not concern an operation deferred at or before the handed-over tick.
+    std::erase_if(retire_holds, [](const RetireHold& entry) {
+        if (!entry.reader) return false;
+        entry.reader->Refresh();
+        return entry.reader->IsFree(entry.reader_tick);
+    });
+    return std::ranges::any_of(retire_holds,
+                               [gpu_tick](const RetireHold& entry) { return gpu_tick > entry.tick; });
+}
+
 void Scheduler::PopPendingOperations() {
     {
         std::lock_guard lock{priority_pending_ops_mutex};
@@ -545,6 +579,7 @@ void Scheduler::PopPendingOperations() {
         {
             std::unique_lock lk(pending_ops_mutex);
             if (pending_ops.empty() || !work_semaphore.IsFree(pending_ops.front().gpu_tick)) break;
+            if (!retire_holds.empty() && RetirementBlocked(pending_ops.front().gpu_tick)) break;
             callback = std::move(pending_ops.front().callback);
             pending_ops.pop(); // Retire before invoking a callback which can enqueue more work.
         }

@@ -595,6 +595,16 @@ public:
         pending_ops.emplace(std::move(func), CurrentTick());
     }
 
+    /// Commands of another scheduler read resources of this one as they were at
+    /// `tick` (the present thread's host passes reading a guest frame). Deferred
+    /// operations from later ticks -- which release such resources: image views,
+    /// backings, deleted images -- wait until that reader is known to be done.
+    /// SetRetirementReader names the reader's timeline value once it has
+    /// submitted; ReleaseRetirement drops a hold whose reader never submitted.
+    u64 HoldRetirement(u64 tick);
+    void SetRetirementReader(u64 hold, Semaphore* reader, u64 reader_tick);
+    void ReleaseRetirement(u64 hold);
+
     /// Defers an operation until the gpu has reached the current cpu tick.
     /// Runs as soon as possible in another thread.
     void DeferPriorityOperation(Common::UniqueFunction<void>&& func) {
@@ -631,6 +641,15 @@ private:
     };
     std::queue<PendingOp> pending_ops;
     std::recursive_mutex pending_ops_mutex;
+    struct RetireHold {
+        u64 id;
+        u64 tick;
+        Semaphore* reader;
+        u64 reader_tick;
+    };
+    std::vector<RetireHold> retire_holds; // under pending_ops_mutex
+    u64 next_retire_hold{};
+    bool RetirementBlocked(u64 gpu_tick);
     std::queue<PendingOp> priority_pending_ops;
     std::exception_ptr priority_error;
     std::mutex priority_pending_ops_mutex;

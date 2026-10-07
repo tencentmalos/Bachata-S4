@@ -20,6 +20,7 @@ namespace AmdGpu { struct Image; }
 
 namespace Vulkan {
 struct Frame;
+struct PresentSource;
 }
 
 namespace Libraries::VideoOut {
@@ -121,6 +122,8 @@ private:
     struct Request {
         u64 diagnostic_id{};
         Vulkan::Frame* frame;
+        // Instead of a frame: a guest image the present thread composes (FSR/post-process).
+        std::shared_ptr<Vulkan::PresentSource> source;
         VideoOutPort* port;
         s64 flip_arg;
         s32 index;
@@ -131,7 +134,7 @@ private:
         u64 fence_mark{};
 
         operator bool() const noexcept {
-            return frame != nullptr;
+            return frame != nullptr || source != nullptr;
         }
     };
 

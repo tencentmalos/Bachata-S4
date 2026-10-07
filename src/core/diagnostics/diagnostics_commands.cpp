@@ -400,6 +400,14 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         }
         return out.str();
     });
+    registry.Register("xr_mirror",
+        "Android window mirror while XR presents (default off: the headset image goes to "
+        "the OpenXR runtime only; a canvas recording draws it regardless): status | on | off",
+        [](const auto& args) { return Vulkan::OpenXr::MirrorCommand(args); });
+    registry.Register("xr_frame_copy",
+        "XR swapchain copies: status | new (repeat runtime frames reuse the last released "
+        "image, default) | every (copy on every runtime frame; debug.shadps4.xr_copy_every_frame=1)",
+        [](const auto& args) { return Vulkan::OpenXr::FrameCopyCommand(args); });
     registry.Register("xr_error", "XR error presentation status", [](const auto& args) {
         if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
         return Vulkan::OpenXr::ErrorStatus();

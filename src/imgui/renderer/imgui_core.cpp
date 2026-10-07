@@ -363,23 +363,42 @@ bool ProcessEvent(SDL_Event* event) {
 #endif
 }
 
-ImGuiID NewFrame(bool is_reusing_frame) {
-    {
-        auto& registry = Registry();
-        std::scoped_lock lock{registry.change_layers_mutex};
-        auto& layers = registry.layers;
-        auto& change_layers = registry.change_layers;
-        while (!change_layers.empty()) {
-            const auto [to_be_added, layer] = change_layers.front();
-            if (to_be_added) {
-                layers.push_back(layer);
-            } else {
-                const auto [begin, end] = std::ranges::remove(layers, layer);
-                layers.erase(begin, end);
-            }
-            change_layers.pop_front();
+static std::atomic_bool external_layer_host{false};
+
+void SetExternalLayerHost(bool external) {
+    external_layer_host.store(external, std::memory_order_release);
+}
+
+bool ExternalLayerHost() {
+    return external_layer_host.load(std::memory_order_acquire);
+}
+
+static void ApplyLayerChanges() {
+    auto& registry = Registry();
+    std::scoped_lock lock{registry.change_layers_mutex};
+    auto& layers = registry.layers;
+    auto& change_layers = registry.change_layers;
+    while (!change_layers.empty()) {
+        const auto [to_be_added, layer] = change_layers.front();
+        if (to_be_added) {
+            layers.push_back(layer);
+        } else {
+            const auto [begin, end] = std::ranges::remove(layers, layer);
+            layers.erase(begin, end);
         }
+        change_layers.pop_front();
     }
+}
+
+void DrawLayers() {
+    ApplyLayerChanges();
+    for (auto* layer : Registry().layers) {
+        layer->Draw();
+    }
+}
+
+ImGuiID NewFrame(bool is_reusing_frame) {
+    ApplyLayerChanges();
 
 #ifndef __ANDROID__
     if (using_sdl)
@@ -408,8 +427,8 @@ ImGuiID NewFrame(bool is_reusing_frame) {
     }
     ImGuiID dockId = DockSpaceOverViewport(0, GetMainViewport(), flags);
 
-    for (auto* layer : Registry().layers) {
-        layer->Draw();
+    if (!ExternalLayerHost()) {
+        DrawLayers();
     }
 
     return dockId;

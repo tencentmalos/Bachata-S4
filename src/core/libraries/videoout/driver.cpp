@@ -285,8 +285,13 @@ void VideoOutDriver::Flip(const Request& req) {
     // Update HDR status before presenting.
     presenter->SetHDR(req.port->is_hdr);
 
-    // Present the frame.
-    const bool presented = presenter->Present(req.frame) && req.index >= 0;
+    // Present the frame. A handed-over guest image is composed here first, so the
+    // host passes run on this thread and its command buffer, not on the guest's.
+    auto* frame = req.frame;
+    if (!frame && req.source) {
+        frame = presenter->Compose(*req.source);
+    }
+    const bool presented = presenter->Present(frame) && req.index >= 0;
     u64 present_id{};
     const auto generation = presenter->CaptureGeneration();
     if (presented) {
@@ -353,6 +358,10 @@ void VideoOutDriver::Flip(const Request& req) {
 }
 
 void VideoOutDriver::DrawBlankFrame() {
+    if (!presenter->WantsIdleRedraw()) {
+        presenter->UpdateOverlayLayers(); // dialogs before the first frame
+        return;
+    }
     const auto empty_frame = presenter->PrepareBlankFrame(true);
     // A blank frame is not a guest flip; it must not advance the flip frame counter.
     if (empty_frame) {
@@ -361,6 +370,11 @@ void VideoOutDriver::DrawBlankFrame() {
 }
 
 void VideoOutDriver::DrawLastFrame() {
+    if (!presenter->WantsIdleRedraw()) {
+        // The XR runtime keeps showing the last image; only the layer UI moves on.
+        presenter->UpdateOverlayLayers();
+        return;
+    }
     const auto frame = presenter->PrepareLastFrame();
     if (frame != nullptr) {
         presenter->Present(frame, true);
@@ -565,26 +579,32 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
         return;
     }
     const auto diagnostic_id = Core::Diagnostics::Handoff::NextId();
-    Vulkan::Frame* frame;
+    Vulkan::Frame* frame{};
+    std::shared_ptr<Vulkan::PresentSource> source;
     if (index == -1) {
         frame = presenter->PrepareBlankFrame(false);
     } else {
         const auto& buffer = port->buffer_slots[index];
         ASSERT_MSG(buffer.group_index >= 0, "Trying to flip an unregistered buffer!");
         const auto& group = port->groups[buffer.group_index];
-        frame = presenter->PrepareFrame(group, buffer.address_left, diagnostic_id);
+        if (presenter->ComposesOnPresentThread()) {
+            source = presenter->CaptureFrame(group, buffer.address_left, diagnostic_id);
+        } else {
+            frame = presenter->PrepareFrame(group, buffer.address_left, diagnostic_id);
+        }
     }
 
-    if (!frame)
+    if (!frame && !source)
         return;
     SHAD_HANDOFF(presenter->CaptureGeneration(), "vo_snapshot_queued", index + 1,
-                 diagnostic_id, frame->ready_tick);
+                 diagnostic_id, frame ? frame->ready_tick : source->ready_tick);
     SHAD_HANDOFF(presenter->CaptureGeneration(), "present_enqueue", 0, diagnostic_id);
     {
     std::scoped_lock lock{mutex};
     requests.push({
         .diagnostic_id = diagnostic_id,
         .frame = frame,
+        .source = std::move(source),
         .port = port,
         .flip_arg = flip_arg,
         .index = index,

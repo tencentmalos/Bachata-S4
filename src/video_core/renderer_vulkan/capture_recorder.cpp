@@ -66,6 +66,13 @@ CaptureSource CurrentCaptureSource() {
     return g_capture_source.load(std::memory_order_acquire);
 }
 
+bool CanvasCaptureWanted() {
+    if (CurrentCaptureSource() != CaptureSource::Canvas) return false;
+    auto& state = Control();
+    std::scoped_lock lock(state.mutex);
+    return state.wanted;
+}
+
 std::string HandleCaptureSourceCommand(const std::vector<std::string>& args) {
     if (args.size() > 1 || (args.size() == 1 && args[0] != "canvas" && args[0] != "xr" &&
                             args[0] != "status"))

@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 #include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
 #include "core/host_runtime/guest_vr_sensor.h"
@@ -29,6 +30,12 @@ void HideError(uint64_t token = 0);
 int PollErrorAction(uint64_t token);
 std::string ErrorStatus();
 bool ErrorKey(int key, bool down);
+// DebugBus xr_frame_copy: status | new (copy only new guest frames) | every.
+std::string FrameCopyCommand(const std::vector<std::string>& args);
+// While XR presents, the Android window is not drawn unless this mirror is on
+// (DebugBus xr_mirror on|off|status; debug.shadps4.xr_mirror=1 starts it on).
+bool MirrorEnabled();
+std::string MirrorCommand(const std::vector<std::string>& args);
 class Runtime {
 public:
     static std::unique_ptr<Runtime> Create(); // null for the ordinary launcher
@@ -47,9 +54,16 @@ public:
     void Stop();
     // Actual allocated SBS extent, independent of the Android mirror Surface.
     VkExtent2D FrameExtent() const;
-    void Publish(const Frame& frame, VkFormat format);
+    // Copies frame.image into the mailbox. False when nothing was handed over.
+    // done (unsignalled by Publish) signals once the copy has read frame.image,
+    // so the caller can reuse the frame after it; without one Publish waits.
+    bool Publish(const Frame& frame, VkFormat format, VkFence done = VK_NULL_HANDLE);
     void PublishStatus(spatial::imgui::overlay::StatusSnapshot status,
                        std::optional<spatial::perf::DeviceMetrics> device);
+    // PresentThread: draws the ImGui::Layer UI (dialogs, notifications) into the
+    // XR layer panel. While this runtime presents, it hosts those layers instead
+    // of the window frame.
+    void UpdateLayers();
     std::array<HostPasses::FoveatedEye,2> Foveation(
         const std::array<Core::HostRuntime::GuestVrSensor::Pose,2>& rendered_eyes,
         const std::array<std::array<float,4>,2>& fov, bool perspective);

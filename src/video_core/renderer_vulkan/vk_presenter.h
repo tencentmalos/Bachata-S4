@@ -54,6 +54,20 @@ struct Frame {
     ImTextureID imgui_texture;
 };
 
+// A guest VideoOut image handed from the GPU command thread to the present thread,
+// which runs the host passes (FSR/SGSR reconstruction, post-process) on its own
+// command buffer. The GPU command thread only transitions and views the image;
+// the draw scheduler holds its later resource releases until those passes ran.
+struct PresentSource {
+    vk::ImageView view;
+    vk::Extent2D size;
+    bool srgb_10bit{}; // A2R10G10B10Srgb: no sRGB view, decoded in the post pass
+    vk::Semaphore ready_semaphore;
+    u64 ready_tick{};
+    u64 retire_hold{};
+    u64 diagnostic_id{};
+};
+
 enum SchedulerType {
     Draw,
     Present,
@@ -128,14 +142,38 @@ public:
                           std::function<void(bool)> complete);
     Frame* PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& attribute,
                         VAddr cpu_address, u64 diagnostic_id = 0);
+    // Split form of PrepareFrame. CaptureFrame (GPU command thread) hands the guest
+    // image over without recording host passes into the guest command buffer, so
+    // the deferred recorder is not drained and the frame pool is not waited on;
+    // Compose (present thread) builds the frame from it. Null when stopping.
+    bool ComposesOnPresentThread() const { return present_compose; }
+    std::shared_ptr<PresentSource> CaptureFrame(
+        const Libraries::VideoOut::BufferAttributeGroup& attribute, VAddr cpu_address,
+        u64 diagnostic_id = 0);
+    Frame* Compose(PresentSource& source);
+    // Releases the draw scheduler hold of a source that is dropped uncomposed.
+    void DropSource(PresentSource& source);
 
     Frame* PrepareBlankFrame(bool present_thread);
 
     bool Present(Frame* frame, bool is_reusing_frame = false, bool is_game_frame = true);
     Frame* PrepareLastFrame();
+    // Whether redrawing the last frame (vblanks without a guest flip, paused guest,
+    // blank frames) shows anything. Not for the headset: the XR runtime repeats
+    // the last released image itself.
+    bool WantsIdleRedraw() const;
+    // ImGui::Layer UI hosted outside the window frame (the XR layer panel): one
+    // update, for vblanks without a window redraw.
+    void UpdateOverlayLayers();
 
 private:
     Frame* GetRenderFrame(bool stereo = false);
+    // Where finished frames go. Window: the Android Surface / desktop swapchain.
+    // Xr: the OpenXR runtime only; the window is not presented to (as in Azahar)
+    // unless the mirror is switched on or a canvas recording needs it.
+    enum class Output { Window, Xr };
+    Output CurrentOutput() const;
+    bool PresentToXr(Frame* frame, bool is_reusing_frame, bool is_game_frame);
 
     // Rebuilds the small FDM ring only when the output extent changes or the
     // user switches the global quality mode. The map itself is uniform: low
@@ -144,11 +182,20 @@ private:
     vk::ImageView RecordFdmUpload(Scheduler& scheduler, const Frame& frame);
 
     void RecreateFrame(Frame* frame, u32 width, u32 height);
-    void RecordEmbeddedScreenshot(Frame& frame, u64 diagnostic_id);
+    // FSR/SGSR reconstruction and post-process of a VideoOut image into frame.
+    void RecordHostPasses(Scheduler& scheduler, vk::CommandBuffer cmdbuf, Frame& frame,
+                          vk::ImageView image_view, vk::Extent2D image_size, bool srgb_10bit);
+    void RecordEmbeddedScreenshot(Frame& frame, u64 diagnostic_id, Scheduler& scheduler);
 
     void SetExpectedGameSize(s32 width, s32 height);
 
 private:
+    // Host passes of VideoOut frames on the present thread (debug.shadps4.present_compose,
+    // default on; read once: the passes must stay on one thread for a session).
+    bool present_compose{true};
+    // pp_pass/spatial_pass record from the present thread (VideoOut frames) and the
+    // GPU command thread (HMD frames, which a PSVR title mixes with 2D ones).
+    std::mutex host_pass_mutex;
     float expected_ratio{1920.0 / 1080.0f};
     u32 expected_frame_width{1920};
     u32 expected_frame_height{1080};

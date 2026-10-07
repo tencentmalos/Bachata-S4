@@ -1520,6 +1520,7 @@ if(BUILD_HOST_CORE)
         target_sources(shadps4 PRIVATE
             src/video_core/renderer_vulkan/openxr/runtime.cpp
             src/video_core/renderer_vulkan/openxr/status_panel.cpp
+            src/video_core/renderer_vulkan/openxr/layer_panel.cpp
             src/video_core/renderer_vulkan/openxr/error_panel.cpp
             foundation/modules/xr/src/XrInputSystem.cpp
             foundation/modules/xr/src/XrEyeGazeTracker.cpp
@@ -1530,6 +1531,7 @@ if(BUILD_HOST_CORE)
             foundation/modules/xr/include foundation/third_party/openxr/openxr_header)
         set_source_files_properties(src/video_core/renderer_vulkan/openxr/runtime.cpp
             src/video_core/renderer_vulkan/openxr/status_panel.cpp
+            src/video_core/renderer_vulkan/openxr/layer_panel.cpp
             src/video_core/renderer_vulkan/openxr/error_panel.cpp
             src/core/emulator_settings.cpp
             PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)

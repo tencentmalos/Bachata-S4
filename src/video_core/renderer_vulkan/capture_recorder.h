@@ -28,6 +28,8 @@ enum class CaptureSource : u8 { Canvas, Xr };
 CaptureSource CurrentCaptureSource();
 // capture_source [canvas|xr]; switching is refused while a capture runs.
 std::string HandleCaptureSourceCommand(const std::vector<std::string>& args);
+// A canvas recording is requested: its encoder copy runs in the window presentation.
+bool CanvasCaptureWanted();
 
 class CaptureRecorder final {
 public:

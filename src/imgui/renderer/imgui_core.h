@@ -50,6 +50,17 @@ bool IsImeInputCaptured();
 
 ImGuiID NewFrame(bool is_reusing_frame = false);
 
+// ImGui::Layer UI (system dialogs, notifications, devtools) does not belong to one
+// output. By default the window frame (NewFrame) draws the layers over the game;
+// while another host owns them -- the XR layer panel on a headset -- NewFrame skips
+// them and that host draws them into its own context with DrawLayers. Exactly one
+// host at a time, so a dialog's input edge detection runs once per frame.
+void SetExternalLayerHost(bool external);
+bool ExternalLayerHost();
+// Applies queued Layer::AddLayer/RemoveLayer, then draws every layer into the
+// current ImGui context (inside its NewFrame/Render).
+void DrawLayers();
+
 /// Records the frame into `cmdbuf`, which completes at timeline tick `frame_tick`; every tick up to
 /// `completed_tick` has completed, so the renderer can reuse what those frames used.
 void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,

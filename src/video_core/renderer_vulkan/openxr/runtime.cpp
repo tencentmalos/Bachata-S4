@@ -26,6 +26,8 @@
 #include "video_core/renderer_vulkan/openxr/status_scene.h"
 #include "video_core/renderer_vulkan/openxr/cinema_environment.h"
 #include "video_core/renderer_vulkan/openxr/status_panel.h"
+#include "video_core/renderer_vulkan/openxr/layer_panel.h"
+#include "imgui/renderer/imgui_core.h"
 #include "video_core/renderer_vulkan/openxr/output_extent.h"
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
 #include "video_core/renderer_vulkan/openxr/xr_capture.h"
@@ -146,7 +148,58 @@ XrPosef XrPose(const Sensor::Pose& p) {
     return {{p.orientation[0], p.orientation[1], p.orientation[2], p.orientation[3]},
             {p.position[0], p.position[1], p.position[2]}};
 }
+// A runtime frame without a new guest image submits the layers again without
+// acquiring: the runtime composites the image last released. "every" copies the
+// mailbox on every rendered runtime frame instead (the previous behaviour, A/B).
+std::atomic_int copy_mode{-1}; // -1 unread, 0 new frames only, 1 every frame
+std::atomic_uint64_t frames_copied{}, frames_repeated{};
+bool CopyEveryFrame() {
+    int mode = copy_mode.load(std::memory_order_relaxed);
+    if (mode < 0) [[unlikely]] {
+        char value[PROP_VALUE_MAX]{};
+        mode = __system_property_get("debug.shadps4.xr_copy_every_frame", value) > 0 &&
+               value[0] == '1';
+        int expected = -1;
+        copy_mode.compare_exchange_strong(expected, mode, std::memory_order_relaxed);
+        mode = copy_mode.load(std::memory_order_relaxed);
+    }
+    return mode == 1;
+}
 } // namespace
+
+namespace {
+std::atomic_int mirror_mode{-1}; // -1 unread, 0 off, 1 on
+}
+bool MirrorEnabled() {
+    int mode = mirror_mode.load(std::memory_order_relaxed);
+    if (mode < 0) [[unlikely]] {
+        char value[PROP_VALUE_MAX]{};
+        mode = __system_property_get("debug.shadps4.xr_mirror", value) > 0 && value[0] == '1';
+        int expected = -1;
+        mirror_mode.compare_exchange_strong(expected, mode, std::memory_order_relaxed);
+        mode = mirror_mode.load(std::memory_order_relaxed);
+    }
+    return mode == 1;
+}
+std::string MirrorCommand(const std::vector<std::string>& args) {
+    if (args.size() == 1 && (args[0] == "on" || args[0] == "off")) {
+        mirror_mode.store(args[0] == "on" ? 1 : 0);
+    } else if (!args.empty() && !(args.size() == 1 && args[0] == "status")) {
+        return "usage: xr_mirror status | on | off\n";
+    }
+    return fmt::format("xr_mirror={}\n", MirrorEnabled() ? "on" : "off");
+}
+
+std::string FrameCopyCommand(const std::vector<std::string>& args) {
+    if (args.size() == 1 && (args[0] == "every" || args[0] == "new")) {
+        copy_mode.store(args[0] == "every" ? 1 : 0);
+    } else if (!args.empty() && !(args.size() == 1 && args[0] == "status")) {
+        return "usage: xr_frame_copy status | new | every\n";
+    }
+    return fmt::format("xr_frame_copy={} copied={} repeated={}\n",
+                       CopyEveryFrame() ? "every" : "new", frames_copied.load(),
+                       frames_repeated.load());
+}
 
 bool ConfigureActivity(void* environment, void* object, bool enabled) {
     auto* env = static_cast<JNIEnv*>(environment);
@@ -229,6 +282,9 @@ struct Runtime::Impl {
     std::mutex status_mutex;
     std::mutex status_panel_mutex;
     std::unique_ptr<StatusPanel> status_panel;
+    std::unique_ptr<LayerPanel> layer_panel; // under status_panel_mutex
+    bool layer_panel_failed{};
+    std::atomic_bool hosting_layers{};
     std::atomic_bool immersive{};
     bool status_panel_failed{};
     spatial::imgui::overlay::StatusSnapshot status_snapshot;
@@ -242,11 +298,21 @@ struct Runtime::Impl {
     XrTime recenter_time{};
     std::array<Sensor::Pose, 2> render_eyes{};
     std::array<std::array<float, 4>, 2> render_fov{};
+    // Publish counts mailbox images; shown is the one last copied into the
+    // swapchain and released. Both under mailbox_mutex.
+    uint64_t mailbox_serial{}, shown_serial{};
+    // The mailbox region holding the published image (top left). A cinema frame
+    // smaller than the SBS extent keeps its own size; layers sample only this.
+    uint32_t content_width{}, content_height{};
     struct CopyContext {
         VkCommandPool pool{};
         VkCommandBuffer command{};
         VkFence fence{};
-    } producer, consumer;
+        bool pending{}; // submitted, fence not yet waited
+    } consumer;
+    // Publish rotates through these so that it never waits for its previous copy.
+    std::array<CopyContext, 3> producers;
+    uint32_t next_producer{};
 
     template <class T>
     T Load(const char* name, bool required = true) {
@@ -346,7 +412,18 @@ struct Runtime::Impl {
         VkFenceCreateInfo fence{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
         CheckVk(VKF(CreateFence)(vk->GetDevice(), &fence, nullptr, &c.fence), "XR fence");
     }
+    // The previous submission of this context has finished: its command buffer
+    // can be reset. Normally long done (it ran a guest frame earlier).
+    void Settle(CopyContext& c) {
+        if (!c.pending) return;
+        Common::Profiler::Scope scope{"XR.Mailbox.SettleWait"};
+        CheckVk(VKF(WaitForFences)(vk->GetDevice(), 1, &c.fence, VK_TRUE, UINT64_MAX),
+                "XR copy completion");
+        CheckVk(VKF(ResetFences)(vk->GetDevice(), 1, &c.fence), "XR reset fence");
+        c.pending = false;
+    }
     void BeginCopy(CopyContext& c) {
+        Settle(c);
         CheckVk(VKF(ResetCommandPool)(vk->GetDevice(), c.pool, 0), "XR reset pool");
         VkCommandBufferBeginInfo begin{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
         begin.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -367,8 +444,13 @@ struct Runtime::Impl {
         (cb, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr,
          0, nullptr, 1, &barrier);
     }
-    void FinishCopy(CopyContext& c, VkSemaphore wait = {}, uint64_t tick = 0) {
-        Common::Profiler::Scope scope{wait ? "XR.Mailbox.PublishSubmitWait" : "XR.Mailbox.ConsumeSubmitWait"};
+    // block=false leaves the fence to the next Settle. Swapchain release needs no
+    // completion: the copy is on the session's queue, ahead of the runtime's use.
+    // frame_done: signalled (by an empty submission behind the copy) once everything
+    // up to the copy has finished, for the caller's own reuse of the source.
+    void FinishCopy(CopyContext& c, VkSemaphore wait = {}, uint64_t tick = 0, bool block = true,
+                    VkFence frame_done = VK_NULL_HANDLE) {
+        Common::Profiler::Scope scope{wait ? "XR.Mailbox.PublishSubmitWait" : "XR.Mailbox.ConsumeSubmit"};
         CheckVk(VKF(EndCommandBuffer)(c.command), "XR end copy");
         VkPipelineStageFlags stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
         VkTimelineSemaphoreSubmitInfo timeline{VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO};
@@ -385,12 +467,13 @@ struct Runtime::Impl {
             std::scoped_lock lock(vk->QueueMutex());
             CheckVk(VKF(QueueSubmit)(vk->GetGraphicsQueue(), 1, &submit, c.fence),
                     "XR submit copy");
+            if (frame_done)
+                CheckVk(VKF(QueueSubmit)(vk->GetGraphicsQueue(), 0, nullptr, frame_done),
+                        "XR frame release");
         }
-        // Completion precedes mailbox publication and xrReleaseSwapchainImage. Never
-        // hold QueueMutex while waiting: the guest submission worker needs it too.
-        CheckVk(VKF(WaitForFences)(vk->GetDevice(), 1, &c.fence, VK_TRUE, UINT64_MAX),
-                "XR copy completion");
-        CheckVk(VKF(ResetFences)(vk->GetDevice(), 1, &c.fence), "XR reset fence");
+        c.pending = true;
+        // Never hold QueueMutex while waiting: the guest submission worker needs it too.
+        if (block) Settle(c);
     }
     std::array<EyeExtent, 2> QueryOutputLimits(const VkPhysicalDeviceProperties& gpu_properties) {
         uint32_t count{};
@@ -540,7 +623,7 @@ struct Runtime::Impl {
         if (!input->IsValid())
             throw std::runtime_error(input->GetError());
         if (error_detail.empty()) {
-        InitCopy(producer);
+        for (auto& c : producers) InitCopy(c);
         InitCopy(consumer);
         VkImageCreateInfo image{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
         image.imageType = VK_IMAGE_TYPE_2D;
@@ -558,6 +641,11 @@ struct Runtime::Impl {
         }
         generation = Sensor::Instance().BeginOpenXr();
         pad_token = Core::HostRuntime::GlobalPadAdapter().CurrentToken();
+        // The game's ImGui layers draw into the XR layer panel, not the window frame.
+        if (error_detail.empty()) {
+            ImGui::Core::SetExternalLayerHost(true);
+            hosting_layers = true;
+        }
         pump = std::jthread([this](std::stop_token stop) { Run(stop); });
     }
     void UpdateInput(XrTime time, const std::array<XrView, 2>& eyes, XrViewStateFlags flags) {
@@ -716,6 +804,9 @@ struct Runtime::Impl {
                                 XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
                             CheckXr(BeginSession(session, &begin), "xrBeginSession");
                             running = true;
+                            // Do not lean on an image released before the session stopped.
+                            std::scoped_lock reset(mailbox_mutex);
+                            shown_serial = 0;
                         } else if (state == XR_SESSION_STATE_STOPPING && running) {
                             ReleaseInput();
                             CheckXr(EndSession(session), "xrEndSession");
@@ -795,7 +886,7 @@ struct Runtime::Impl {
                 std::unique_lock lock(mailbox_mutex);
                 std::array<XrCompositionLayerQuad, 2> quads{
                     {{XR_TYPE_COMPOSITION_LAYER_QUAD}, {XR_TYPE_COMPOSITION_LAYER_QUAD}}};
-                std::array<const XrCompositionLayerBaseHeader*, 6> layers{};
+                std::array<const XrCompositionLayerBaseHeader*, 7> layers{};
                 XrCompositionLayerProjection projection{XR_TYPE_COMPOSITION_LAYER_PROJECTION};
                 std::array<XrCompositionLayerProjectionView, 2> pv{
                     {{XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW},
@@ -813,40 +904,54 @@ struct Runtime::Impl {
                 }
                 if (frame.shouldRender && has_frame &&
                     (stereo && perspective ? projection_valid() : cinema_anchored)) {
-                    lock.unlock(); // Runtime pacing must not block publication of a guest image.
-                    uint32_t index{};
-                    XrSwapchainImageAcquireInfo acquire{XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO};
-                    CheckXr(QueueCall(AcquireSwapchainImage, swapchain, &acquire, &index),
-                            "xrAcquireSwapchainImage");
-                    XrSwapchainImageWaitInfo image_wait{XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO};
-                    image_wait.timeout = XR_INFINITE_DURATION;
-                    CheckXr(WaitSwapchainImage(swapchain, &image_wait), "xrWaitSwapchainImage");
-                    lock.lock();
-                    BeginCopy(consumer);
-                    Barrier(consumer.command, images.at(index).image, VK_IMAGE_LAYOUT_UNDEFINED,
-                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-                    VkImageCopy copy{};
-                    copy.srcSubresource =
-                        copy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-                    copy.extent = {width, height, 1};
-                    VKF(CmdCopyImage)
-                    (consumer.command, mailbox, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                     images[index].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+                    // Capture reads the mailbox in the copy's command buffer.
+                    bool fresh = mailbox_serial != shown_serial || CopyEveryFrame();
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-                    if (capturing)
-                        xr_capture->CopyScreen(consumer.command, mailbox,
-                                               format == VK_FORMAT_R8G8B8A8_SRGB
-                                                   ? VK_FORMAT_R8G8B8A8_UNORM
-                                                   : VK_FORMAT_B8G8R8A8_UNORM,
-                                               width, height);
+                    fresh = fresh || capturing;
 #endif
-                    Barrier(consumer.command, images[index].image,
-                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-                    FinishCopy(consumer);
-                    XrSwapchainImageReleaseInfo release{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
-                    CheckXr(QueueCall(ReleaseSwapchainImage, swapchain, &release),
-                            "xrReleaseSwapchainImage");
+                    if (fresh) {
+                        lock.unlock(); // Runtime pacing must not block publication of a guest image.
+                        uint32_t index{};
+                        XrSwapchainImageAcquireInfo acquire{XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO};
+                        CheckXr(QueueCall(AcquireSwapchainImage, swapchain, &acquire, &index),
+                                "xrAcquireSwapchainImage");
+                        XrSwapchainImageWaitInfo image_wait{XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO};
+                        image_wait.timeout = XR_INFINITE_DURATION;
+                        CheckXr(WaitSwapchainImage(swapchain, &image_wait), "xrWaitSwapchainImage");
+                        Settle(consumer); // not under mailbox_mutex: Publish must not wait on it
+                        lock.lock();
+                        BeginCopy(consumer);
+                        Barrier(consumer.command, images.at(index).image, VK_IMAGE_LAYOUT_UNDEFINED,
+                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                        VkImageCopy copy{};
+                        copy.srcSubresource =
+                            copy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+                        copy.extent = {content_width, content_height, 1}; // layers sample only this
+                        VKF(CmdCopyImage)
+                        (consumer.command, mailbox, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                         images[index].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+                        if (capturing)
+                            xr_capture->CopyScreen(consumer.command, mailbox,
+                                                   format == VK_FORMAT_R8G8B8A8_SRGB
+                                                       ? VK_FORMAT_R8G8B8A8_UNORM
+                                                       : VK_FORMAT_B8G8R8A8_UNORM,
+                                                   width, height);
+#endif
+                        Barrier(consumer.command, images[index].image,
+                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+                        FinishCopy(consumer, {}, 0, false);
+                        XrSwapchainImageReleaseInfo release{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
+                        CheckXr(QueueCall(ReleaseSwapchainImage, swapchain, &release),
+                                "xrReleaseSwapchainImage");
+                        shown_serial = mailbox_serial;
+                        frames_copied.fetch_add(1, std::memory_order_relaxed);
+                    } else {
+                        // The released image is this mailbox snapshot; the layers below
+                        // carry its own render pose/FOV, as when it was copied.
+                        frames_repeated.fetch_add(1, std::memory_order_relaxed);
+                    }
                     // As in Azahar's rendered_views_: image, render pose and FOV
                     // are one mailbox snapshot. xrLocateViews above only updates
                     // tracking; it does not relabel an already rendered image.
@@ -858,8 +963,8 @@ struct Runtime::Impl {
                             const auto& f = render_fov[i];
                             pv[i].fov = {f[0], f[1], f[3], f[2]};
                             pv[i].subImage = {swapchain,
-                                              {{int32_t(i * width / 2), 0},
-                                               {int32_t(width / 2), int32_t(height)}},
+                                              {{int32_t(i * content_width / 2), 0},
+                                               {int32_t(content_width / 2), int32_t(content_height)}},
                                               0};
                         }
                         projection.space = local;
@@ -887,9 +992,9 @@ struct Runtime::Impl {
                             quad.eyeVisibility =
                                 stereo ? (i ? XR_EYE_VISIBILITY_RIGHT : XR_EYE_VISIBILITY_LEFT)
                                        : XR_EYE_VISIBILITY_BOTH;
-                            const auto w = width / layer_count;
+                            const auto w = content_width / layer_count;
                             quad.subImage = {
-                                swapchain, {{int32_t(i * w), 0}, {int32_t(w), int32_t(height)}}, 0};
+                                swapchain, {{int32_t(i * w), 0}, {int32_t(w), int32_t(content_height)}}, 0};
                             quad.pose = cinema_pose;
                             quad.size = {Core::HostRuntime::VrGeometry::CinemaWidth,
                                          Core::HostRuntime::VrGeometry::CinemaHeight(display_aspect)};
@@ -1022,6 +1127,13 @@ struct Runtime::Impl {
                     layers[end.layerCount++] = reinterpret_cast<const XrCompositionLayerBaseHeader*>(&status_quad);
                     end.layers = layers.data();
                 }
+                // System dialogs and other ImGui layers, on top of everything.
+                XrCompositionLayerQuad layers_quad{XR_TYPE_COMPOSITION_LAYER_QUAD};
+                if (!panel && frame.shouldRender && layer_panel && !layer_panel_failed &&
+                    end.layerCount < layers.size() && layer_panel->Fill(local, layers_quad)) {
+                    layers[end.layerCount++] = reinterpret_cast<const XrCompositionLayerBaseHeader*>(&layers_quad);
+                    end.layers = layers.data();
+                }
                 CheckXr(QueueCall(EndFrame, session, &end), "xrEndFrame");
                 status_panel_lock.unlock();
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
@@ -1056,7 +1168,15 @@ struct Runtime::Impl {
         // queue submissions completed before pump.join / Publish returned.
         input.reset();
         gaze_tracker.reset();
-        { std::scoped_lock lock(status_panel_mutex); status_panel.reset(); }
+        {
+            std::scoped_lock lock(status_panel_mutex);
+            status_panel.reset();
+            layer_panel.reset();
+        }
+        if (hosting_layers) {
+            ImGui::Core::SetExternalLayerHost(false);
+            hosting_layers = false;
+        }
         std::unique_lock<std::mutex> queue_lock;
         if (vk) {
             try {
@@ -1083,7 +1203,7 @@ struct Runtime::Impl {
         if (vk) {
             if (mailbox)
                 vmaDestroyImage(vk->GetAllocator(), mailbox, allocation);
-            for (auto* c : {&producer, &consumer}) {
+            for (auto* c : {&producers[0], &producers[1], &producers[2], &consumer}) {
                 if (c->fence)
                     VKF(DestroyFence)(vk->GetDevice(), c->fence, nullptr);
                 if (c->pool)
@@ -1289,10 +1409,10 @@ void Runtime::Stop() {
 VkExtent2D Runtime::FrameExtent() const {
     return {impl->width, impl->height};
 }
-void Runtime::Publish(const Frame& frame, VkFormat format) {
+bool Runtime::Publish(const Frame& frame, VkFormat format, VkFence done) {
     auto& p = *impl;
-    if (p.failed || !p.vk || !frame.width || !frame.height)
-        return;
+    if (p.failed || !p.vk || !p.mailbox || !frame.width || !frame.height)
+        return false;
     if (frame.is_hdr)
         throw std::runtime_error("OpenXR cinema requires SDR output; HDR tone mapping is not implemented");
     // The timeline signal must already be enqueued before submitting a wait on the
@@ -1303,44 +1423,58 @@ void Runtime::Publish(const Frame& frame, VkFormat format) {
     VKF(GetPhysicalDeviceFormatProperties)(p.vk->GetPhysicalDevice(), format, &properties);
     if (!(properties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT))
         throw std::runtime_error("OpenXR source format cannot be blitted");
-    p.BeginCopy(p.producer);
-    p.Barrier(p.producer.command, frame.image, VK_IMAGE_LAYOUT_GENERAL,
+    auto& producer = p.producers[p.next_producer];
+    p.next_producer = (p.next_producer + 1) % p.producers.size();
+    p.BeginCopy(producer); // waits only for the copy three publications ago
+    p.Barrier(producer.command, frame.image, VK_IMAGE_LAYOUT_GENERAL,
               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-    p.Barrier(p.producer.command, p.mailbox,
+    p.Barrier(producer.command, p.mailbox,
               p.has_frame ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED,
               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     const auto mailbox_format = p.format == VK_FORMAT_R8G8B8A8_SRGB
         ? VK_FORMAT_R8G8B8A8_UNORM : VK_FORMAT_B8G8R8A8_UNORM;
-    if (frame.width == p.width && frame.height == p.height && format == mailbox_format) {
+    // A smaller frame (cinema, aspect-fitted) is stored at its own size: stretching
+    // it over the whole SBS extent wrote up to 3.3x the pixels, which the compositor
+    // then resampled again for the quad.
+    const bool fits = frame.width <= p.width && frame.height <= p.height;
+    const uint32_t content_width = fits ? frame.width : p.width;
+    const uint32_t content_height = fits ? frame.height : p.height;
+    if (fits && format == mailbox_format) {
         VkImageCopy copy{};
         copy.srcSubresource = copy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-        copy.extent = {p.width, p.height, 1};
-        VKF(CmdCopyImage)(p.producer.command, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        copy.extent = {content_width, content_height, 1};
+        VKF(CmdCopyImage)(producer.command, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                          p.mailbox, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
     } else {
-        // Cinema frames can still differ in size/format. Filter that resize;
-        // PSVR composes at FrameExtent(), so it no longer upscales a mirror image.
+        // A format conversion (1:1 when the frame fits), or a frame larger than
+        // the mailbox, filtered down. PSVR composes at FrameExtent().
         VkImageBlit blit{};
         blit.srcSubresource = blit.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
         blit.srcOffsets[1] = {int32_t(frame.width), int32_t(frame.height), 1};
-        blit.dstOffsets[1] = {int32_t(p.width), int32_t(p.height), 1};
+        blit.dstOffsets[1] = {int32_t(content_width), int32_t(content_height), 1};
         const auto filter = properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT
             ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
-        VKF(CmdBlitImage)(p.producer.command, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        VKF(CmdBlitImage)(producer.command, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                          p.mailbox, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, filter);
     }
-    p.Barrier(p.producer.command, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+    p.Barrier(producer.command, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
               VK_IMAGE_LAYOUT_GENERAL);
-    p.Barrier(p.producer.command, p.mailbox, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    p.Barrier(producer.command, p.mailbox, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-    p.FinishCopy(p.producer, frame.ready_semaphore, frame.ready_tick);
+    if (done)
+        CheckVk(VKF(ResetFences)(p.vk->GetDevice(), 1, &done), "XR frame fence reset");
+    p.FinishCopy(producer, frame.ready_semaphore, frame.ready_tick, !done, done);
     p.stereo = frame.xr_stereo;
     p.render_eyes = frame.xr_render_eyes;
     p.render_fov = frame.xr_render_fov;
     p.perspective = frame.xr_perspective;
     p.immersive = p.stereo && p.perspective;
     p.display_aspect = frame.xr_display_aspect;
+    p.content_width = content_width;
+    p.content_height = content_height;
     p.has_frame = true;
+    ++p.mailbox_serial;
+    return true;
 }
 void Runtime::PublishStatus(spatial::imgui::overlay::StatusSnapshot status,
                             std::optional<spatial::perf::DeviceMetrics> device) {
@@ -1379,6 +1513,43 @@ void Runtime::PublishStatus(spatial::imgui::overlay::StatusSnapshot status,
         p.status_panel_failed = true;
         ReportStatusLayer(std::string("PSVR status layer disabled: ") + e.what());
         LOG_ERROR(Render_Vulkan, "Status layer: {}", e.what());
+    }
+}
+void Runtime::UpdateLayers() {
+    auto& p = *impl;
+    if (!p.hosting_layers || !p.session || p.failed) return;
+    // Like the status panel: never wait for the XR pump's composition.
+    std::unique_lock lock(p.status_panel_mutex, std::try_to_lock);
+    if (!lock || p.layer_panel_failed) return;
+    try {
+        static thread_local Impl* owner{};
+        owner = &p;
+        if (!p.layer_panel) {
+            p.layer_panel = std::make_unique<LayerPanel>();
+            const spatial::xr::SwapchainFunctions functions{
+                p.CreateSwapchain, p.DestroySwapchain, p.EnumerateSwapchainFormats, p.EnumerateSwapchainImages,
+                +[](XrSwapchain chain, const XrSwapchainImageAcquireInfo* info, uint32_t* index) {
+                    return owner->QueueCall(owner->AcquireSwapchainImage, chain, info, index);
+                }, p.WaitSwapchainImage,
+                +[](XrSwapchain chain, const XrSwapchainImageReleaseInfo* info) {
+                    return owner->QueueCall(owner->ReleaseSwapchainImage, chain, info);
+                }};
+            const spatial::xr::XrImguiVulkanBinding binding{
+                .api_version=VK_API_VERSION_1_3, .instance=p.vk->GetInstance(),
+                .physical_device=p.vk->GetPhysicalDevice(), .device=p.vk->GetDevice(),
+                .queue=p.vk->GetGraphicsQueue(), .queue_family_index=p.vk->GetGraphicsQueueFamilyIndex(),
+                .vk_get_instance_proc_addr=VKF(GetInstanceProcAddr), .vk_get_device_proc_addr=VKF(GetDeviceProcAddr),
+                .queue_submit_mutex=&p.vk->QueueMutex()};
+            if (!p.layer_panel->Create(p.session, functions, binding))
+                throw std::runtime_error("XR layer panel swapchain creation failed");
+        }
+        p.layer_panel->Update(Sensor::Instance().Read().hardware);
+    } catch (const std::exception& e) {
+        // Dialogs go back to the window frame rather than nowhere.
+        p.layer_panel_failed = true;
+        ImGui::Core::SetExternalLayerHost(false);
+        p.hosting_layers = false;
+        LOG_ERROR(Render_Vulkan, "XR layer panel disabled: {}", e.what());
     }
 }
 } // namespace Vulkan::OpenXr
