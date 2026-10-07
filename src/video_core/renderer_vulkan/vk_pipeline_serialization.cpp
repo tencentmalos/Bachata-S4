@@ -21,7 +21,7 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 38u; // GS: all input primitive types, V7 instance id
+static constexpr u32 ShaderBinaryVersion = 39u; // 16-bit inline 1/(2*pi) is half 0x3118
 #ifdef ARCH_X86_64
 static constexpr u32 ShaderMetaVersion = 23u; // dynamic image slot masks
 #else

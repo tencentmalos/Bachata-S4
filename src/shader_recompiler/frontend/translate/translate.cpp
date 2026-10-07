@@ -24,6 +24,10 @@
 
 namespace Shader::Gcn {
 
+// The 1/(2*pi) inline constant of 16-bit operations: half 0x3118, exact in float.
+// Rounding the 32-bit constant to half instead can give 0x3117.
+static constexpr float Inv2PiF16 = 0.1591796875f;
+
 static IR::VectorReg IterateBarycentrics(const RuntimeInfo& runtime_info, auto&& set_attribute) {
     if (runtime_info.hw_stage != HwStage::Fragment) {
         return IR::VectorReg::V0;
@@ -537,7 +541,12 @@ T Translator::GetSrc16(const InstOperand& operand) {
         value = get_imm(-4.0f);
         break;
     case OperandField::Inv2Pi:
-        value = get_imm(static_cast<float>(1.0f / (2.0f * std::numbers::pi)));
+        // 16-bit operands get the 16-bit constant 0x3118, not the rounded 32-bit one.
+        if constexpr (is_float) {
+            value = get_imm(Inv2PiF16);
+        } else {
+            value = get_imm(0x3118U);
+        }
         break;
     case OperandField::Sdwa:
         LOG_ERROR(Render_Recompiler, "unhandled SDWA");
@@ -912,7 +921,12 @@ pk_type<T> Translator::GetSrcPk(const InstOperand& operand) {
         break;
     }
     case OperandField::Inv2Pi: {
-        value = get_imm(1.0f / (2.0f * std::numbers::pi_v<float>));
+        // 16-bit operands get the 16-bit constant 0x3118, not the rounded 32-bit one.
+        if constexpr (is_float) {
+            value = get_imm(Inv2PiF16);
+        } else {
+            value = get_imm(0x3118U);
+        }
         break;
     }
     case OperandField::VccLo:
