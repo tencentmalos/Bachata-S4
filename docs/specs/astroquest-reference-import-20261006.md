@@ -1,6 +1,6 @@
 # AstroQuest 参考引入规划（2026-10-06）
 
-状态：规划 spec，本轮未实现任何条目。
+状态：M1 已合入，M2 已测量并按结果合入或放弃（2026-10-07），见 [M1/M2 落地记录](../validation/android-native-host/astroquest-m1-m2-20261007.md)。其余工作包未开始。规划正文保持原样；与测量结果不符之处（如 TMNT 不走 Audio3d 对象混音）以落地记录为准。
 
 依据：
 - 参考仓库 `references/AstroQuest`，固定在 v0.18 `9ff3e43`（GPL-2.0-or-later，与本仓同许可）。它的核心 `shadps4-arm64-main/` 由首个提交 `100bfd8` 导入 zenithblue-oss shadps4-arm64 `be6bc2e`，与本仓 `references/shadps4-arm64` 是同一基线，所以 `git -C references/AstroQuest diff 100bfd8 9ff3e43 -- shadps4-arm64-main` 就是它对核心的全部改动：573 个文件，去掉随仓的 OpenXR SDK 后约 2 万行。各改动的动机见其 44 个提交的说明。
