@@ -76,6 +76,39 @@ set(GCN_TEST_SOURCES
     # Under test
     ${CMAKE_SOURCE_DIR}/src/core/emulator_settings.cpp
     ${CMAKE_SOURCE_DIR}/src/core/emulator_state.cpp
+    # Kept in step with SHADER_RECOMPILER in the top-level CMakeLists.txt, except
+    # recompiler.cpp: the tests run their own pass list (stubs/resource_tracking_pass_stub.cpp).
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/resource_patching_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/decoder.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/signal_context.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv_discard_frag.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/spirv_int64.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv_interpolation.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/frontend/control_flow_graph.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/frontend/copy_shader.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/frontend/instruction.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/frontend/structured_control_flow.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/flatten_extended_userdata_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/hull_shader_transform.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/inject_clip_distance_attributes.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/inverse_ballot_elimination_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/lower_buffer_format_to_raw.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/lower_fp64_to_fp32.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/lower_hardware_intrinsics.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/lower_user_clip_planes.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/lower_wave64_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/phi_simplification_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/readlane_elimination_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/resource_discover_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/ring_access_elimination.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/shared_memory_barrier_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/shared_memory_simplify_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/fragment_lds_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/shared_memory_to_storage_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/lower_phis_to_regs_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/ssa_repair_pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/dominance.cpp
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv.cpp
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv.h
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv_atomic.cpp
@@ -162,6 +195,8 @@ set(GCN_TEST_SOURCES
     stubs/signals_stub.cpp
     stubs/file_sys_stub.cpp
 
+    stubs/memory_stub.cpp
+
     gcn/gcn_test_runner.hpp
     gcn/gcn_test_runner.cpp
     gcn/translator.hpp
@@ -169,6 +204,7 @@ set(GCN_TEST_SOURCES
 
     # Tests
     gcn/test_gcn_instructions.cpp
+    gcn/test_geometry_inputs.cpp
 )
 
 set(CONTENT_ROOTS_TEST_SOURCES
@@ -238,6 +274,9 @@ target_link_libraries(shadps4_ngs2_test PRIVATE
 )
 target_link_libraries(shadps4_gcn_test PRIVATE
     GTest::gtest_main
+    xbyak::xbyak
+    xxHash::xxhash
+    Zydis::Zydis
     fmt::fmt
     nlohmann_json::nlohmann_json
     magic_enum::magic_enum

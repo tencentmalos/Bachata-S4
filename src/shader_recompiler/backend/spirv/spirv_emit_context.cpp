@@ -42,23 +42,30 @@ std::string_view StageName(HwStage stage) {
     UNREACHABLE_MSG("Invalid hw stage {}", u32(stage));
 }
 
+/// Vertices of the one primitive a geometry shader is handed, whichever way the vertices were
+/// laid out for it (list, strip, fan or loop).
 static constexpr u32 NumVertices(AmdGpu::PrimitiveType type) {
     switch (type) {
     case AmdGpu::PrimitiveType::PointList:
         return 1u;
     case AmdGpu::PrimitiveType::LineList:
     case AmdGpu::PrimitiveType::LineStrip:
+    case AmdGpu::PrimitiveType::LineLoop:
         return 2u;
     case AmdGpu::PrimitiveType::TriangleList:
     case AmdGpu::PrimitiveType::TriangleStrip:
+    case AmdGpu::PrimitiveType::TriangleFan:
+    case AmdGpu::PrimitiveType::Polygon:
     case AmdGpu::PrimitiveType::RectList:
         return 3u;
     case AmdGpu::PrimitiveType::AdjTriangleList:
+    case AmdGpu::PrimitiveType::AdjTriangleStrip:
         return 6u;
     case AmdGpu::PrimitiveType::AdjLineList:
+    case AmdGpu::PrimitiveType::AdjLineStrip:
         return 4u;
     default:
-        UNREACHABLE();
+        UNREACHABLE_MSG("Geometry shader fed with primitive type {}", u32(type));
     }
 }
 
@@ -548,6 +555,11 @@ void EmitContext::DefineInputs() {
         break;
     case SwStage::Geometry: {
         primitive_id = DefineVariable(U32[1], spv::BuiltIn::PrimitiveId, spv::StorageClass::Input);
+        if (info.loads.GetAny(IR::Attribute::InvocationId)) {
+            // Instanced geometry shaders (one invocation per eye in PSVR titles) read it from V7.
+            invocation_id =
+                DefineVariable(U32[1], spv::BuiltIn::InvocationId, spv::StorageClass::Input);
+        }
         const auto gl_per_vertex =
             Name(TypeStruct(F32[4], F32[1], TypeArray(F32[1], ConstU32(1u))), "gl_PerVertex");
         MemberName(gl_per_vertex, 0, "gl_Position");

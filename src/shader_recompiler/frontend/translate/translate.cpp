@@ -296,33 +296,19 @@ void Translator::EmitPrologue(IR::Block* first_block) {
         }
         break;
     case SwStage::Geometry:
-        // The GS wave receives one ES vertex offset per input primitive vertex in V0-V6, with
-        // the primitive id in V2. The offset count is a property of the input primitive type;
-        // adjacency primitives carry up to 6 vertices.
-        switch (runtime_info.hw.gs.in_primitive) {
-        case AmdGpu::PrimitiveType::AdjTriangleList:
-        case AmdGpu::PrimitiveType::AdjTriangleStrip:
-            ir.SetVectorReg(IR::VectorReg::V6, ir.Imm32(5u)); // vertex 5
-            ir.SetVectorReg(IR::VectorReg::V5, ir.Imm32(4u)); // vertex 4
-            [[fallthrough]];
-        case AmdGpu::PrimitiveType::AdjLineList:
-        case AmdGpu::PrimitiveType::AdjLineStrip:
-            ir.SetVectorReg(IR::VectorReg::V4, ir.Imm32(3u)); // vertex 3
-            [[fallthrough]];
-        case AmdGpu::PrimitiveType::TriangleList:
-        case AmdGpu::PrimitiveType::TriangleStrip:
-        case AmdGpu::PrimitiveType::RectList:
-            ir.SetVectorReg(IR::VectorReg::V3, ir.Imm32(2u)); // vertex 2
-            [[fallthrough]];
-        case AmdGpu::PrimitiveType::LineList:
-        case AmdGpu::PrimitiveType::LineStrip:
-            ir.SetVectorReg(IR::VectorReg::V1, ir.Imm32(1u)); // vertex 1
-            [[fallthrough]];
-        default:
-            ir.SetVectorReg(IR::VectorReg::V0, ir.Imm32(0u)); // vertex 0
-            break;
-        }
+        // The GS wave's input VGPRs have a fixed layout, whatever the input primitive: ES
+        // vertex offsets 0 and 1 in V0-V1, the primitive id in V2, vertex offsets 2 to 5 in
+        // V3-V6 (3 to 5 only for adjacency) and the GS instance in V7, which instanced shaders
+        // (one invocation per eye) pick their view by. Registers a shader does not read are
+        // dropped by dead code elimination.
+        ir.SetVectorReg(IR::VectorReg::V0, ir.Imm32(0u)); // vertex 0
+        ir.SetVectorReg(IR::VectorReg::V1, ir.Imm32(1u)); // vertex 1
         ir.SetVectorReg(IR::VectorReg::V2, ir.GetAttributeU32(IR::Attribute::PrimitiveId));
+        ir.SetVectorReg(IR::VectorReg::V3, ir.Imm32(2u)); // vertex 2
+        ir.SetVectorReg(IR::VectorReg::V4, ir.Imm32(3u)); // vertex 3 (adjacency)
+        ir.SetVectorReg(IR::VectorReg::V5, ir.Imm32(4u)); // vertex 4 (adjacency)
+        ir.SetVectorReg(IR::VectorReg::V6, ir.Imm32(5u)); // vertex 5 (adjacency)
+        ir.SetVectorReg(IR::VectorReg::V7, ir.GetAttributeU32(IR::Attribute::InvocationId));
         break;
     default:
         UNREACHABLE_MSG("Unknown shader stage");

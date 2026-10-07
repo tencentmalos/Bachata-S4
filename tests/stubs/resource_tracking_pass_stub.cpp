@@ -213,7 +213,8 @@ void PatchBufferSharp(IR::Block& block, IR::Inst& inst, Info& info, Descriptors&
     inst.SetArg(0, ir.Imm32(buffer_binding));
 }
 
-IR::U32 CalculateBufferAddress(IR::IREmitter& ir, const IR::Inst& inst, const Info& info,
+// Named apart from the real pass's CalculateBufferAddress, which is linked too.
+IR::U32 StubCalculateBufferAddress(IR::IREmitter& ir, const IR::Inst& inst, const Info& info,
                                const AmdGpu::Buffer& buffer, u32 stride) {
     const auto inst_info = inst.Flags<IR::BufferInstInfo>();
     const u32 inst_offset = inst_info.inst_offset.Value();
@@ -304,7 +305,7 @@ void PatchBufferArgs(IR::Block& block, IR::Inst& inst, Info& info) {
 
     IR::IREmitter ir{block, IR::Block::InstructionList::s_iterator_to(inst)};
     inst.SetArg(IR::LoadBufferArgs::Address,
-                CalculateBufferAddress(ir, inst, info, buffer, buffer.stride));
+                StubCalculateBufferAddress(ir, inst, info, buffer, buffer.stride));
 }
 
 void ResourceTrackingPassStub(IR::Program& program, const Profile& profile) {

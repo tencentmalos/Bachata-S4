@@ -2791,9 +2791,20 @@ void Rasterizer::UpdateViewportScissorState() const {
     const auto depth_range = AmdGpu::BuildDepthRangeEmulation(
         regs, instance.IsDepthRangeUnrestrictedSupported());
     const auto& vp_ctl = regs.viewport_control;
+    // A shader's ViewportIndex names a register slot, not a position among the enabled ones:
+    // disabled slots below the last enabled one stay in the list, empty, so that the slots
+    // after them keep their index (PSVR titles can put each eye in a slot of its own).
+    u32 viewport_count = 0;
     for (u32 i = 0; i < AmdGpu::NUM_VIEWPORTS; i++) {
+        if (regs.viewports[i].xscale != 0) {
+            viewport_count = i + 1;
+        }
+    }
+    for (u32 i = 0; i < viewport_count; i++) {
         const auto& vp = regs.viewports[i];
         if (vp.xscale == 0) {
+            viewports.push_back({.width = 1.f, .height = 1.f, .minDepth = 0.f, .maxDepth = 1.f});
+            scissors.push_back({.offset = {0, 0}, .extent = {0, 0}});
             continue;
         }
 

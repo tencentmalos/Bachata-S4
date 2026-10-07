@@ -27,16 +27,23 @@ static constexpr spv::ExecutionMode GetInputPrimitiveType(AmdGpu::PrimitiveType 
     switch (type) {
     case AmdGpu::PrimitiveType::PointList:
         return spv::ExecutionMode::InputPoints;
+    // A geometry shader is handed one assembled primitive, whichever way the vertices were
+    // laid out for it (list, strip, fan or loop).
     case AmdGpu::PrimitiveType::LineList:
     case AmdGpu::PrimitiveType::LineStrip:
+    case AmdGpu::PrimitiveType::LineLoop:
         return spv::ExecutionMode::InputLines;
     case AmdGpu::PrimitiveType::TriangleList:
     case AmdGpu::PrimitiveType::TriangleStrip:
+    case AmdGpu::PrimitiveType::TriangleFan:
+    case AmdGpu::PrimitiveType::Polygon:
     case AmdGpu::PrimitiveType::RectList:
         return spv::ExecutionMode::Triangles;
     case AmdGpu::PrimitiveType::AdjTriangleList:
+    case AmdGpu::PrimitiveType::AdjTriangleStrip:
         return spv::ExecutionMode::InputTrianglesAdjacency;
     case AmdGpu::PrimitiveType::AdjLineList:
+    case AmdGpu::PrimitiveType::AdjLineStrip:
         return spv::ExecutionMode::InputLinesAdjacency;
     default:
         UNREACHABLE_MSG("Unknown input primitive type {}", u32(type));

@@ -77,13 +77,13 @@ DepthRangeEmulation BuildDepthRangeEmulation(const Registers& regs, bool unrestr
     result.negative_one_to_one = regs.clipper_control.clip_space == ClipSpace::MinusWToW;
     result.clip_near = !regs.clipper_control.zclip_near_disable && !regs.IsClipDisabled();
     result.clip_far = !regs.clipper_control.zclip_far_disable && !regs.IsClipDisabled();
-    u32 index = 0;
+    // Indexed by register slot, like the Vulkan viewports (disabled slots keep their place).
     for (u32 i = 0; i < NUM_VIEWPORTS; ++i) {
         const auto& vp = regs.viewports[i];
         if (vp.xscale == 0.f)
             continue;
         const bool clamp = !regs.depth_render_override.disable_viewport_clamp;
-        result.viewports[index++] = MakeDepthRangeTransform(
+        result.viewports[i] = MakeDepthRangeTransform(
             ctl.zscale_enable ? vp.zscale : 1.f, ctl.zoffset_enable ? vp.zoffset : 0.f,
             clamp ? regs.viewport_depths[i].zmin : 0.f, clamp ? regs.viewport_depths[i].zmax : 1.f);
     }
