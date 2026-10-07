@@ -171,6 +171,20 @@
     "restartRequired": true
   },
   {
+    "id": "input.xr_ds4_pose",
+    "nativeKey": "Input.xr_ds4_pose",
+    "section": "Input",
+    "category": "System",
+    "title": "XR DualShock 4 Position",
+    "help": "For PSVR games that track the DualShock 4 light bar. Right Controller: the right headset controller, held where the gamepad would be, stands in for it. Both Controllers: hold the two headset controllers side by side like a gamepad. Hand Tracking: put the headset controllers down and hold a real gamepad; the headset finds it from your two hands. The game's controller recalibration, or a view reset, takes the current direction as straight ahead. Out of sight it stays where you last held it. Restart the game to apply.",
+    "kind": "ENUM",
+    "defaultValue": "off",
+    "choices": ["off", "right", "both", "hands"],
+    "choiceLabels": ["Off", "Right Controller", "Both Controllers", "Hand Tracking"],
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true
+  },
+  {
     "id": "input.xr_swap_move_hands",
     "nativeKey": "Input.xr_swap_move_hands",
     "section": "Input",
@@ -188,11 +202,25 @@
     "section": "General",
     "category": "System",
     "title": "Display Mode",
-    "help": "Choose XR Cinema to play ordinary games on a large screen in the headset. PSVR games always use immersive XR, including when 2D Screen is selected. Changes apply next launch.",
+    "help": "Choose XR Cinema to play ordinary games on a large screen in the headset. PSVR games use PSVR Display instead. Changes apply next launch.",
     "kind": "ENUM",
     "defaultValue": "2d",
     "choices": ["2d", "xr"],
     "choiceLabels": ["2D Screen", "XR Cinema"],
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true
+  },
+  {
+    "id": "android.psvr_display",
+    "nativeKey": "Android.psvr_display",
+    "section": "General",
+    "category": "System",
+    "title": "PSVR Display",
+    "help": "PSVR games run in immersive XR. On a device without an OpenXR runtime choose SBS: the game runs in a 2D window with both eye images side by side, and the device's motion sensor stands in for the headset. Changes apply next launch.",
+    "kind": "ENUM",
+    "defaultValue": "xr",
+    "choices": ["xr", "sbs"],
+    "choiceLabels": ["Immersive XR", "SBS Window"],
     "scope": "GLOBAL_AND_GAME",
     "restartRequired": true
   },

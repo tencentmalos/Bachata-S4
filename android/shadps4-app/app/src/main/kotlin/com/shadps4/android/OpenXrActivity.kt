@@ -4,29 +4,35 @@ package com.shadps4.android
 class OpenXrActivity : MainActivity() {
     override val openXrEnabled = true
 
-    private val gazePermission = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
-    ) { granted -> android.util.Log.i("OpenXR", "Eye tracking permission granted=$granted; invalid gaze uses fixed foveation") }
+    private val xrPermissions = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions(),
+    ) { results ->
+        // Denied or unavailable: invalid gaze uses fixed foveation, and without hands the
+        // DualShock 4 stays where it was last seen.
+        results.forEach { (permission, granted) ->
+            android.util.Log.i("OpenXR", "$permission granted=$granted")
+        }
+    }
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         if (isFinishing) return
         val device = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} ${android.os.Build.DEVICE}".lowercase()
-        val permission = when {
-            "swan" in device || "pico" in device -> "com.picovr.permission.EYE_TRACKING"
-            "quest" in device || "oculus" in device -> "com.oculus.permission.EYE_TRACKING"
+        val vendor = when {
+            "swan" in device || "pico" in device -> "com.picovr.permission"
+            "quest" in device || "oculus" in device -> "com.oculus.permission"
             else -> return
         }
-        // Ask once. A denied or unavailable sensor always falls back to fixed foveation;
-        // users can enable it later through Android's app permission settings.
+        // Ask once each. Users can enable them later through Android's app permission settings.
         val preferences = getSharedPreferences("xr_permissions", MODE_PRIVATE)
-        if (checkSelfPermission(permission) != android.content.pm.PackageManager.PERMISSION_GRANTED &&
-            !preferences.getBoolean(permission, false)) {
-            val declared = runCatching { packageManager.getPermissionInfo(permission, 0) }.isSuccess
-            if (declared) {
-                preferences.edit().putBoolean(permission, true).apply()
-                gazePermission.launch(permission)
-            }
+        val missing = listOf("$vendor.EYE_TRACKING", "$vendor.HAND_TRACKING").filter { permission ->
+            checkSelfPermission(permission) != android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                !preferences.getBoolean(permission, false) &&
+                runCatching { packageManager.getPermissionInfo(permission, 0) }.isSuccess
+        }
+        if (missing.isNotEmpty()) {
+            preferences.edit().apply { missing.forEach { putBoolean(it, true) } }.apply()
+            xrPermissions.launch(missing.toTypedArray())
         }
     }
 

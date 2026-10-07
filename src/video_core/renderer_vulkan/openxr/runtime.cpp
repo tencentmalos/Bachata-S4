@@ -45,6 +45,7 @@
 #include "spatial/platform/android/JniHelper.h"
 #include "spatial/xr/XrInputSystem.h"
 #include "spatial/xr/XrEyeGazeTracker.h"
+#include "spatial/xr/XrHandJointTracker.h"
 #include "spatial/xr/XrMath.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_driver.h"
@@ -261,6 +262,9 @@ struct Runtime::Impl {
     std::unique_ptr<spatial::xr::XrInputSystem> input;
     std::unique_ptr<spatial::xr::XrEyeGazeTracker> gaze_tracker;
     bool gaze_extension{}, gaze_supported{};
+    // Hand joints (XR_EXT_hand_tracking): the palms place a DualShock 4 held in both hands.
+    std::unique_ptr<spatial::xr::XrHandJointTracker> hand_tracker;
+    bool hand_extension{};
     std::mutex gaze_mutex;
     spatial::xr::EyeGazeSample gaze_sample{};
     uint64_t gaze_received{}, gaze_valid_count{}, gaze_invalid_count{};
@@ -371,6 +375,9 @@ struct Runtime::Impl {
         presence_extension = supported(XR_EXT_USER_PRESENCE_EXTENSION_NAME);
         gaze_extension = supported(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME);
         if(gaze_extension)extensions.push_back(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME);
+        hand_extension = supported(XR_EXT_HAND_TRACKING_EXTENSION_NAME);
+        if (hand_extension)
+            extensions.push_back(XR_EXT_HAND_TRACKING_EXTENSION_NAME);
         XrInstanceCreateInfoAndroidKHR android{XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR};
         android.applicationVM = Jni::getJavaVM();
         android.applicationActivity = activity_ref;
@@ -621,6 +628,15 @@ struct Runtime::Impl {
             if(gaze_tracker->IsValid())extra.push_back(gaze_tracker->ActionSet());
             else {LOG_WARNING(Render_Vulkan,"Eye tracking unavailable: {}",gaze_tracker->GetError());gaze_tracker.reset();}
         }
+        if (hand_extension && error_detail.empty()) {
+            hand_tracker = std::make_unique<spatial::xr::XrHandJointTracker>(xr, session, proc);
+            if (!hand_tracker->IsValid()) {
+                LOG_WARNING(Render_Vulkan, "Hand tracking unavailable: {}", hand_tracker->GetError());
+                hand_tracker.reset();
+            }
+        }
+        LOG_INFO(Render_Vulkan, "OpenXR hand tracking: extension={} tracker={}", hand_extension,
+                 hand_tracker != nullptr);
         input = std::make_unique<spatial::xr::XrInputSystem>(xr, session, f,
             std::vector<spatial::xr::ProfileBindings>{},extra);
         if(input->IsValid() && gaze_tracker)gaze_tracker->OnActionSetsAttached();
@@ -699,6 +715,16 @@ struct Runtime::Impl {
                 ? gaze_tracker->Locate(local,time) : spatial::xr::EyeGazeSample{};
             gaze_received=frame.received_ns;
             if(gaze_sample.valid)++gaze_valid_count;else ++gaze_invalid_count;
+        }
+        if (hand_tracker && frame.focused) {
+            for (unsigned i = 0; i < 2; ++i) {
+                const auto joints = hand_tracker->Locate(i, local, time);
+                if (!joints.located || !joints.tracked[XR_HAND_JOINT_PALM_EXT])
+                    continue;
+                frame.palms[i] = Pose(joints.poses[XR_HAND_JOINT_PALM_EXT],
+                                      XR_SPACE_LOCATION_ORIENTATION_VALID_BIT |
+                                          XR_SPACE_LOCATION_POSITION_VALID_BIT);
+            }
         }
         for (unsigned i = 0; i < 2; ++i) {
             const auto& c = controls.hands[i];
@@ -1193,6 +1219,7 @@ struct Runtime::Impl {
         // queue submissions completed before pump.join / Publish returned.
         input.reset();
         gaze_tracker.reset();
+        hand_tracker.reset();
         {
             std::scoped_lock lock(status_panel_mutex);
             status_panel.reset();

@@ -1526,6 +1526,7 @@ if(BUILD_HOST_CORE)
             src/video_core/renderer_vulkan/openxr/error_panel.cpp
             foundation/modules/xr/src/XrInputSystem.cpp
             foundation/modules/xr/src/XrEyeGazeTracker.cpp
+            foundation/modules/xr/src/XrHandJointTracker.cpp
             foundation/modules/xr/src/InputActions.cpp
             foundation/modules/xr/src/InputBindings.cpp
             foundation/modules/xr/src/ControllerSnapshot.cpp)
@@ -2172,6 +2173,8 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_psvr_services_tests PRIVATE shadps4_host)
         target_include_directories(guest_psvr_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_psvr_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(ds4_placement_tests tests/host_runtime/ds4_placement_tests.cpp)
+        target_include_directories(ds4_placement_tests PRIVATE src)
         add_executable(guest_camera_tests tests/host_runtime/guest_camera_tests.cpp)
         target_link_libraries(guest_camera_tests PRIVATE shadps4_host)
         target_include_directories(guest_camera_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

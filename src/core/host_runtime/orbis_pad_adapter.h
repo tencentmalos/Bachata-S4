@@ -127,10 +127,16 @@ private:
         // A new id for every touch that lands (1..127, as on desktop).
         bool touch_was_down{};
         std::uint8_t touch_id{}, next_touch_id{1};
+        // PS-held chords that place the DualShock 4 (port 0): buttons of the last publish, and
+        // chord buttons kept from the title until they are let go of.
+        std::uint32_t chord_prev{}, chord_kept{};
     };
     // Fills d.touchData and the touchpad button from the emulated finger. Returns whether the
     // emulation still has something to show over time (so a guest read refreshes it).
     bool EmulateTouchLocked(Port& p, Libraries::Pad::OrbisPadData& d);
+    // PS held + D-pad / L1 / R1 / Triangle adjust where the DualShock 4 is held to be (only
+    // while a DS4 pose source is on); those buttons do not reach the title. PS itself does.
+    std::uint32_t Ds4PlaceChordLocked(Port& p, std::uint32_t buttons);
     void ResetDebugLocked();
     void DebugFocusLocked(bool focused);
     void ReleaseDebugLocked(std::string_view reason, bool discard_history);

@@ -28,6 +28,7 @@
 #include <nlohmann/json.hpp>
 #include "core/emulator_settings.h"
 #include "core/host_runtime/guest_patch_format.h"
+#include "core/host_runtime/ds4_placement.h"
 #include "core/host_runtime/orbis_pad_adapter.h"
 #include "core/libraries/move/move.h"
 #include "video_core/renderer_vulkan/openxr/runtime.h"
@@ -711,6 +712,16 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetXrSwapMoveHands(
     JNIEnv*, jobject, jboolean swap) {
     Libraries::Move::SetXrSwapHands(swap == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetXrDs4Pose(
+    JNIEnv*, jobject, jint source) {
+    using Core::HostRuntime::Ds4PoseSource;
+    Core::HostRuntime::SetDs4PoseSource(source == 1   ? Ds4PoseSource::Right
+                                        : source == 2 ? Ds4PoseSource::Both
+                                        : source == 3 ? Ds4PoseSource::Hands
+                                                      : Ds4PoseSource::Off);
 }
 
 extern "C" JNIEXPORT void JNICALL

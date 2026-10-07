@@ -39,6 +39,8 @@ public:
         // Left/right/down/up angles, radians, exactly as located by the runtime.
         std::array<std::array<float, 4>, 2> fov{};
         std::array<Hand, 2> hands{};
+        // Tracked palms (hand tracking, hands not holding the headset's controllers), 0 left.
+        std::array<Pose, 2> palms{};
         std::uint32_t eye_width{}, eye_height{};
     };
     struct Snapshot final {

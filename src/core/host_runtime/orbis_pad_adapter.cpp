@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "core/host_runtime/orbis_pad_adapter.h"
+#include "core/host_runtime/ds4_placement.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "common/profiler.h"
 #include "core/libraries/pad/pad_errors.h"
@@ -49,6 +50,36 @@ void SetTouchpadEmulation(bool enabled) {
 }
 bool TouchpadEmulation() {
     return touchpad_emulation.load(std::memory_order_relaxed);
+}
+
+std::uint32_t OrbisPadAdapter::Ds4PlaceChordLocked(Port& p, std::uint32_t buttons) {
+    constexpr std::uint32_t Up = 0x10, Right = 0x20, Down = 0x40, Left = 0x80, L1 = 0x400,
+                            R1 = 0x800, Triangle = 0x1000;
+    constexpr std::uint32_t Chord = Up | Right | Down | Left | L1 | R1 | Triangle;
+    constexpr float Step = 0.02f; // as AQ
+    const std::uint32_t pressed = buttons & ~p.chord_prev;
+    p.chord_prev = buttons;
+    if (buttons & kPsBit) {
+        const std::uint32_t taken = pressed & Chord;
+        if (taken & Up)
+            MoveDs4OwnPlace({0.f, Step, 0.f});
+        if (taken & Down)
+            MoveDs4OwnPlace({0.f, -Step, 0.f});
+        if (taken & Left)
+            MoveDs4OwnPlace({-Step, 0.f, 0.f});
+        if (taken & Right)
+            MoveDs4OwnPlace({Step, 0.f, 0.f});
+        if (taken & L1)
+            MoveDs4OwnPlace({0.f, 0.f, Step});
+        if (taken & R1)
+            MoveDs4OwnPlace({0.f, 0.f, -Step});
+        if (taken & Triangle)
+            SwitchDs4OwnPlace();
+        p.chord_kept |= buttons & Chord;
+    }
+    // A chord button let go of is the title's again.
+    p.chord_kept &= buttons;
+    return buttons & ~p.chord_kept;
 }
 
 bool OrbisPadAdapter::EmulateTouchLocked(Port& p, OrbisPadData& d) {
@@ -158,6 +189,8 @@ void OrbisPadAdapter::Publish(int port) {
         for (size_t i = 0; i < axes.size(); ++i)
             if (std::abs(xr_axes[i]) > std::abs(axes[i])) axes[i] = xr_axes[i];
     }
+    if (port == 0 && GetDs4PoseSource() != Ds4PoseSource::Off)
+        buttons = Ds4PlaceChordLocked(p, buttons);
     if (axes[4] >= 0.5f)
         buttons |= 0x100;
     if (axes[5] >= 0.5f)

@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "common/logging/log.h"
+#include "common/path_util.h"
 #include "core/libraries/error_codes.h"
+#include "core/host_runtime/ds4_placement.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/host_runtime/vr_geometry.h"
 #include "core/host_runtime/vr_time.h"
@@ -18,6 +20,8 @@
 
 #include <algorithm>
 #include <cstring>
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include <array>
 
 namespace Libraries::VrTracker {
@@ -41,6 +45,45 @@ static u32 g_work_size = 0;
 // Registered handles
 static PadRegistry g_pads;
 static Recalibrations g_recalibrations;
+// The player's DualShock 4 placed by the headset's controllers (AstroQuest plan D2, tier A).
+static std::mutex g_ds4_mutex;
+static Core::HostRuntime::Ds4Placement g_ds4;
+static std::uint64_t g_ds4_recenters{};
+static bool g_ds4_own_loaded{};
+
+static std::filesystem::path Ds4OwnPlacePath() {
+    return Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "vr_controller.json";
+}
+// Reads the player's own place once per process. g_ds4_mutex held.
+static void LoadDs4OwnPlaceLocked() {
+    if (g_ds4_own_loaded)
+        return;
+    g_ds4_own_loaded = true;
+    std::ifstream file{Ds4OwnPlacePath()};
+    if (!file)
+        return;
+    const auto json = nlohmann::json::parse(file, nullptr, false);
+    if (json.is_discarded() || !json.contains("own_place") || !json["own_place"].is_array() ||
+        json["own_place"].size() != 3)
+        return;
+    std::array<float, 3> place{};
+    for (unsigned i = 0; i < 3; ++i) {
+        if (!json["own_place"][i].is_number())
+            return;
+        place[i] = json["own_place"][i].get<float>();
+    }
+    g_ds4.SetOwnOffset(place, json.value("used", true));
+}
+static void SaveDs4OwnPlaceLocked() {
+    const auto place = g_ds4.OwnOffset();
+    if (!place)
+        return;
+    std::ofstream file{Ds4OwnPlacePath()};
+    file << nlohmann::json{{"own_place", {(*place)[0], (*place)[1], (*place)[2]}},
+                           {"used", g_ds4.OwnPlaceUsed()}}
+                .dump()
+         << '\n';
+}
 static std::array<s32, 2> g_move_handles{-1, -1};
 static s32 g_gun_handle = -1;
 static s32 g_hmd_handle = -1;
@@ -306,9 +349,58 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         // A recalibration is reported whether or not the device can be tracked afterwards: the
         // title waits for CALIBRATING to come and go.
         const bool recalibrating = g_recalibrations.Report(device_type, now);
+        if (pad && sensor.openxr &&
+            Core::HostRuntime::GetDs4PoseSource() != Core::HostRuntime::Ds4PoseSource::Off &&
+            g_pads.IsPlayers(param->handle)) {
+            const auto& hardware = sensor.hardware;
+            Core::HostRuntime::Ds4Placement::Result placed{};
+            {
+                std::scoped_lock lock{g_ds4_mutex};
+                LoadDs4OwnPlaceLocked();
+                // A view reset turns the tracking space: what the controller points at now is
+                // ahead again.
+                const auto recenters = GuestVrSensor::Instance().RecenterCount();
+                if (recenters != g_ds4_recenters) {
+                    g_ds4_recenters = recenters;
+                    g_ds4.Recalibrate(hardware.head);
+                }
+                placed = g_ds4.Update(Core::HostRuntime::GetDs4PoseSource(), hardware.head,
+                                      {hardware.hands[0].grip, hardware.hands[1].grip},
+                                      {hardware.hands[0].active, hardware.hands[1].active},
+                                      Core::HostRuntime::VrTime::SteadyNowNs(), hardware.palms);
+            }
+            if (placed.placed) {
+                const auto& pose = placed.pose;
+                result->led_color = pad->color;
+                result->connected = hardware.running;
+                // Out of sight it is still where the player keeps it, as a title expects of a
+                // controller the camera briefly lost.
+                const auto quality = placed.seen ? ORBIS_VR_TRACKER_QUALITY_FULL
+                                                 : ORBIS_VR_TRACKER_QUALITY_PARTIAL;
+                result->position_quality = quality;
+                result->orientation_quality = quality;
+                result->status = recalibrating ? ORBIS_VR_TRACKER_STATUS_CALIBRATING
+                                               : ORBIS_VR_TRACKER_STATUS_TRACKING;
+                auto& dst = result->pad_info.device_pose;
+                dst.position_x = pose.position[0];
+                dst.position_y = pose.position[1];
+                dst.position_z = pose.position[2];
+                dst.orientation_x = pose.orientation[0];
+                dst.orientation_y = pose.orientation[1];
+                dst.orientation_z = pose.orientation[2];
+                dst.orientation_w = pose.orientation[3];
+                result->angular_velocity_x = pose.angular_velocity[0];
+                result->angular_velocity_y = pose.angular_velocity[1];
+                result->angular_velocity_z = pose.angular_velocity[2];
+                result->velocity_x = pose.linear_velocity[0];
+                result->velocity_y = pose.linear_velocity[1];
+                result->velocity_z = pose.linear_velocity[2];
+                return ORBIS_OK;
+            }
+        }
         if (pad) {
-            // No host source yet places a DualShock 4 (D2 in the AstroQuest import plan): the
-            // controller is connected and its light bar has a colour, but it is not tracked.
+            // Nothing places this controller (no pose source, or not the player's): it is
+            // connected and its light bar has a colour, but it is not tracked.
             result->led_color = pad->color;
             result->status = recalibrating ? ORBIS_VR_TRACKER_STATUS_CALIBRATING
                                            : ORBIS_VR_TRACKER_STATUS_NOT_TRACKING;
@@ -509,6 +601,15 @@ s32 PS4_SYSV_ABI sceVrTrackerRecalibrate(const OrbisVrTrackerRecalibrateParam* p
     }
     }
 
+    if (device_type == OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_DUALSHOCK4 &&
+        VirtualSbsEnabled()) {
+        // Whatever the stand-in controller points at now is straight ahead and level.
+        const auto sensor = GuestVrSensor::Instance().Read();
+        if (sensor.openxr) {
+            std::scoped_lock lock{g_ds4_mutex};
+            g_ds4.Recalibrate(sensor.hardware.head);
+        }
+    }
     // Results for this kind of device say CALIBRATING for a moment (see Recalibrations).
     g_recalibrations.Begin(device_type, Libraries::Kernel::sceKernelGetProcessTime());
     return ORBIS_OK;
@@ -695,6 +796,11 @@ s32 PS4_SYSV_ABI sceVrTrackerTerm() {
     g_hmd_handle = g_gun_handle = -1;
     g_pads.Clear();
     g_recalibrations.Clear();
+    {
+        std::scoped_lock lock{g_ds4_mutex};
+        g_ds4.Reset();
+        g_ds4_recenters = GuestVrSensor::Instance().RecenterCount();
+    }
     g_garlic_memory_pointer = g_onion_memory_pointer = g_work_memory_pointer = nullptr;
     g_garlic_size = g_onion_size = g_work_size = 0;
     return ORBIS_OK;
@@ -768,3 +874,36 @@ void RegisterLib(Core::Loader::SymbolsResolver* sym) {
 };
 
 } // namespace Libraries::VrTracker
+
+namespace Core::HostRuntime {
+static std::atomic<Ds4PoseSource> g_ds4_source{Ds4PoseSource::Off};
+void SetDs4PoseSource(Ds4PoseSource source) {
+    g_ds4_source.store(source, std::memory_order_relaxed);
+}
+Ds4PoseSource GetDs4PoseSource() {
+    return g_ds4_source.load(std::memory_order_relaxed);
+}
+} // namespace Core::HostRuntime
+
+namespace Core::HostRuntime {
+void MoveDs4OwnPlace(const std::array<float, 3>& by) {
+    using namespace Libraries::VrTracker;
+    std::scoped_lock lock{g_ds4_mutex};
+    LoadDs4OwnPlaceLocked();
+    const auto place = g_ds4.MoveOwnOffset(by);
+    SaveDs4OwnPlaceLocked();
+    LOG_INFO(Lib_VrTracker,
+             "DualShock 4 own place: {:.2f} m right of the head, {:.2f} below, {:.2f} ahead",
+             place[0], -place[1], -place[2]);
+}
+void SwitchDs4OwnPlace() {
+    using namespace Libraries::VrTracker;
+    std::scoped_lock lock{g_ds4_mutex};
+    LoadDs4OwnPlaceLocked();
+    if (!g_ds4.SwitchOwnPlace())
+        return;
+    SaveDs4OwnPlaceLocked();
+    LOG_INFO(Lib_VrTracker, "DualShock 4 out of sight is held at the {} place",
+             g_ds4.OwnPlaceUsed() ? "player's own" : "seen/standard");
+}
+} // namespace Core::HostRuntime

@@ -192,6 +192,17 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetXrSwapMoveHands(swapMoveHands)
             Log.i(TAG, "Guest XR swap Move hands=$swapMoveHands")
+            val ds4Pose = runCatching {
+                com.shadps4.android.runtime.settings.XrDs4Pose.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid XR DualShock 4 pose, keeping it off", it)
+                com.shadps4.android.runtime.settings.XrDs4Pose.OFF
+            }
+            NativeFexSession.nativeSetXrDs4Pose(ds4Pose)
+            Log.i(TAG, "XR DualShock 4 pose source=$ds4Pose")
             val touchpadEmulation = runCatching {
                 com.shadps4.android.runtime.settings.TouchpadEmulation.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
@@ -285,7 +296,7 @@ class FexSessionService : Service() {
                     }
                     val xr = decision.effective == com.shadps4.android.runtime.settings.DisplayMode.Mode.XR
                     check(xr == com.shadps4.android.runtime.input.NativePad.nativeIsOpenXrConfigured()) {
-                        "Display mode changed. Return to the library and launch again. PSVR requires XR."
+                        "Display mode changed. Return to the library and launch again."
                     }
                     NativeFexSession.nativeSetXrStatus(if (xr) xrRendering.statusLayer else 2, decision.forcedByPsvr)
                 } catch (e: CancellationException) { throw e }
