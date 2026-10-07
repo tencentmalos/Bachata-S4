@@ -147,11 +147,26 @@ public:
         return enabled && !raw_checked_out;
     }
 
-    // Producer: the command buffer the worker replays into. Only while drained.
+    // Producer: the command buffer the next chunks replay into. Chunks already handed
+    // over keep the buffer they were recorded for, so the worker may still be finishing
+    // the previous one (it ends it itself, see RequestFinish).
     void SetTarget(vk::CommandBuffer cmdbuf) noexcept {
+        ASSERT(staged.empty() && current->Empty() && !holding);
         target = cmdbuf;
         raw_checked_out = false;
     }
+
+    // The worker ends and hands over a command buffer itself: the producer records a
+    // finishing command that calls MarkFinished(serial) after vkEndCommandBuffer, and the
+    // submission waits for it (WaitFinished) instead of the producer draining the worker.
+    u64 RequestFinish() noexcept {
+        return ++finish_requested;
+    }
+    void MarkFinished(u64 serial);
+    // Returns once the finishing command `serial` ran; throws if the worker failed first.
+    void WaitFinished(u64 serial);
+    // Whether waiting for `serial` would block (counted, not timed, by the caller).
+    bool Finished(u64 serial);
 
     // Applies a pending on/off request. Only while drained.
     void ApplyRequestedMode() noexcept;
@@ -193,13 +208,16 @@ public:
 
     struct Stats { // static storage: zero-initialized
         std::atomic<u64> chunks, commands, syncs, sync_waits, raw_syncs, held_passes,
-            hold_overflows, handoffs;
+            hold_overflows, handoffs, worker_submits, finish_waits, lag_waits;
     };
     static inline Stats stats;
     static inline std::atomic<int> requested_mode{-1}; // -1 keep, 0 off, 1 on
     // Off hands every finished chunk over at once (one wake per pass, as before).
     // DebugBus `vk_recorder batch on|off`.
     static inline std::atomic<bool> batch_handoffs{true};
+    // Off: the producer drains the worker and ends the command buffer itself.
+    // DebugBus `vk_recorder submit on|off`.
+    static inline std::atomic<bool> worker_submit{true};
 
     // Counts producer-side direct command buffer accesses (each forces a Sync).
     void CheckOutRaw() {
@@ -241,7 +259,15 @@ private:
     std::mutex mutex;
     std::condition_variable_any work_cv;
     std::condition_variable idle_cv;
-    std::deque<std::unique_ptr<CommandChunk>> queue;
+    struct Job {
+        std::unique_ptr<CommandChunk> chunk;
+        vk::CommandBuffer cmdbuf;
+    };
+    std::deque<Job> queue;
+    std::condition_variable finish_cv;
+    u64 finish_requested{}; // producer
+    u64 finished{};         // under mutex
+    bool broken{};          // under mutex: a chunk failed, later finishes never run
     std::vector<std::unique_ptr<CommandChunk>> free_chunks;
     bool busy{};
     std::exception_ptr error;

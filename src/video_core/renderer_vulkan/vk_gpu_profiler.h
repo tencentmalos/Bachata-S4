@@ -44,6 +44,12 @@ public:
     void FrameEnd();
     void PresentKind(bool redraw);
     void EndBatch(vk::CommandBuffer cmd);
+    // EndBatch with the timestamps written by the caller (see EndWith).
+    template <typename W>
+    void EndBatchWith(W&& write) {
+        if (current == Invalid) return;
+        for (uint32_t i = batches[current].count; i > 0; --i) EndWith(i - 1, write);
+    }
     void Submitting();
     void Submitted(uint64_t tick);
     void Queued(uint64_t tick, std::shared_ptr<SubmissionReceipt> receipt);

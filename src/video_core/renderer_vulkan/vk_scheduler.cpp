@@ -34,8 +34,11 @@ Scheduler::Scheduler(const Instance& instance, GpuProfiler::Stage stage)
         diagnostic_descriptors = std::make_unique<DescriptorHeap>(instance, &work_semaphore, sizes);
     }
     // Only the guest command stream is recorded on a separate thread.
-    if (stage == GpuProfiler::Stage::DrawBatch)
+    if (stage == GpuProfiler::Stage::DrawBatch) {
         recorder = std::make_unique<CommandRecorder>();
+        for (auto& pool : ring_pools)
+            pool = std::make_unique<CommandPool>(instance, &work_semaphore);
+    }
     AllocateWorkerCommandBuffers();
     priority_pending_ops_thread =
         std::jthread([this](std::stop_token stop) {
@@ -606,7 +609,21 @@ void Scheduler::AllocateWorkerCommandBuffers() {
         .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
     };
 
-    current_cmdbuf = command_pool.Commit();
+    if (recorder && last_finish >= RecorderPools &&
+        !recorder->Finished(last_finish - (RecorderPools - 1))) {
+        // The recording thread is still ending the buffer taken from the pool about to be
+        // used again, RecorderPools submissions back. It is normally done long before.
+        CommandRecorder::stats.lag_waits.fetch_add(1, std::memory_order_relaxed);
+        Common::Profiler::Scope scope{"Vulkan.RecorderLag"};
+        recorder->WaitFinished(last_finish - (RecorderPools - 1));
+    }
+    CommandPool* pool = &command_pool;
+    if (recorder) {
+        pool_index = (pool_index + 1) % RecorderPools;
+        if (pool_index != 0)
+            pool = ring_pools[pool_index - 1].get();
+    }
+    current_cmdbuf = pool->Commit();
     Check(current_cmdbuf.begin(begin_info));
     gpu_profiler.BeginBatch(current_cmdbuf, work_semaphore.KnownGpuTick());
     for (const auto& label : marker_stack) {
@@ -648,6 +665,30 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         Common::Profiler::Scope scope{"Vulkan.SubmitCallback"};
         on_submit(info);
     }
+    // The recording thread ends the command buffer after replaying it, and the submission
+    // waits for that on the submission thread; this thread goes on with the next buffer
+    // instead of waiting for the replay. Needs the submission thread (a direct submit
+    // would wait right here) and a buffer nobody recorded into directly.
+    bool worker_ends = recorder && recorder->Deferring() && instance.Submissions() &&
+                       CommandRecorder::worker_submit.load(std::memory_order_relaxed);
+#if TRACY_GPU_ENABLED
+    worker_ends = worker_ends && !instance.GetProfilerContext();
+#endif
+    u64 finish_serial = 0;
+    if (worker_ends) {
+        EndRendering(RenderBreak::Flush);
+        gpu_profiler.EndBatchWith(TimestampWriter());
+        finish_serial = recorder->RequestFinish();
+        CommandBuffer().Custom(0, [rec = recorder.get(), labels = marker_stack.size(),
+                                   finish_serial](vk::CommandBuffer cmd) {
+            for (size_t i = 0; i < labels; ++i)
+                cmd.endDebugUtilsLabelEXT();
+            Check(cmd.end());
+            rec->MarkFinished(finish_serial);
+        });
+        last_finish = finish_serial;
+        CommandRecorder::stats.worker_submits.fetch_add(1, std::memory_order_relaxed);
+    }
     if (recorder)
         recorder->Dispatch();
     if (instance.Submissions() && CurrentTick() > 8) {
@@ -656,7 +697,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         Common::Profiler::Scope scope{"Vulkan.InflightBudget"};
         work_semaphore.Wait(CurrentTick() - 8);
     }
-    if (recorder) {
+    if (recorder && !worker_ends) {
         Common::Profiler::Scope scope{"Vulkan.RecorderDrain"};
         recorder->Sync(); // the command buffer is ended and submitted by this thread
     }
@@ -670,7 +711,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     }
 #endif
 
-    {
+    if (!worker_ends) {
         Common::Profiler::Scope scope{"Vulkan.EndCommandBuffer"};
         EndRendering(RenderBreak::Flush);
         gpu_profiler.EndBatch(current_cmdbuf);
@@ -686,9 +727,16 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     // escape. The scheduler owns the command pool and drains before destruction.
     const auto flow = Common::Profiler::Post("Vulkan.PostSubmission");
     auto submit = [instance_ptr = &instance, master = &work_semaphore, generation, flow,
-                   signal_value, buffer = current_cmdbuf, packet = info]
+                   signal_value, buffer = current_cmdbuf, packet = info,
+                   ender = worker_ends ? recorder.get() : nullptr, finish_serial]
                   (SubmissionReceipt& receipt) {
         Common::Profiler::Scope execution{"Vulkan.WorkerSubmit", flow};
+        if (ender && !ender->Finished(finish_serial)) {
+            // Submissions stay in order: later ones (the present) queue behind this one.
+            CommandRecorder::stats.finish_waits.fetch_add(1, std::memory_order_relaxed);
+            Common::Profiler::Scope scope{"Vulkan.RecorderFinishWait"};
+            ender->WaitFinished(finish_serial);
+        }
         const vk::TimelineSemaphoreSubmitInfo timeline_si{
             .waitSemaphoreValueCount = packet.num_wait_semas,
             .pWaitSemaphoreValues = packet.wait_ticks.data(),

@@ -132,7 +132,7 @@ void CommandRecorder::Handoff() {
         std::scoped_lock lk{mutex};
         ThrowIfFailed();
         for (auto& c : staged)
-            queue.push_back(std::move(c));
+            queue.push_back({std::move(c), target});
         // Take the free chunks along: staging the next ones then needs no lock.
         while (!free_chunks.empty() && spare.size() < MaxStagedChunks + 2) {
             spare.push_back(std::move(free_chunks.back()));
@@ -167,6 +167,26 @@ void CommandRecorder::Sync() {
     ThrowIfFailed();
 }
 
+void CommandRecorder::MarkFinished(u64 serial) {
+    {
+        std::scoped_lock lk{mutex};
+        finished = serial;
+    }
+    finish_cv.notify_all();
+}
+
+bool CommandRecorder::Finished(u64 serial) {
+    std::scoped_lock lk{mutex};
+    return finished >= serial;
+}
+
+void CommandRecorder::WaitFinished(u64 serial) {
+    std::unique_lock lk{mutex};
+    finish_cv.wait(lk, [&] { return finished >= serial || broken; });
+    if (finished < serial)
+        throw std::runtime_error("command recording failed before the command buffer ended");
+}
+
 void CommandRecorder::ThrowIfFailed() {
     if (error) {
         auto e = error;
@@ -187,11 +207,11 @@ void CommandRecorder::Worker(std::stop_token stop) {
             work_cv.wait(lk, stop, [this] { return !queue.empty(); });
             if (queue.empty())
                 return; // stop requested
-            chunk = std::move(queue.front());
+            chunk = std::move(queue.front().chunk);
+            cmdbuf = queue.front().cmdbuf;
             queue.pop_front();
             busy = true;
-            cmdbuf = target;
-            failed = error != nullptr;
+            failed = broken;
         }
         try {
             if (!failed) {
@@ -199,9 +219,13 @@ void CommandRecorder::Worker(std::stop_token stop) {
                 chunk->Execute(cmdbuf);
             }
         } catch (...) {
-            std::scoped_lock lk{mutex};
-            if (!error)
-                error = std::current_exception();
+            {
+                std::scoped_lock lk{mutex};
+                if (!error)
+                    error = std::current_exception();
+                broken = true;
+            }
+            finish_cv.notify_all(); // submissions waiting for this buffer fail instead
         }
         chunk->Reset();
         {
@@ -223,18 +247,27 @@ std::string CommandRecorder::Command(const std::vector<std::string>& args) {
         batch_handoffs.store(args[1] != "off", std::memory_order_relaxed);
         return fmt::format("batched handoffs {}\n", args[1] == "off" ? "off" : "on");
     }
+    if (args.size() > 1 && args[0] == "submit") {
+        worker_submit.store(args[1] != "off", std::memory_order_relaxed);
+        return fmt::format("recording thread ends command buffers: {}\n",
+                           args[1] == "off" ? "off" : "on");
+    }
     if (args.size() > 1 && args[0] == "hoist") {
         render_pass_stats.hoist_off.store(args[1] == "off", std::memory_order_relaxed);
         return fmt::format("pass hoisting {}\n", args[1] == "off" ? "off" : "on");
     }
     if (!args.empty() && args[0] != "status")
-        return "usage: vk_recorder status | on | off | hoist on|off | batch on|off\n";
+        return "usage: vk_recorder status | on | off | hoist on|off | batch on|off | "
+               "submit on|off\n";
     constexpr auto o = std::memory_order_relaxed;
     return fmt::format("chunks={} commands={} handoffs={} syncs={} sync_waits={} raw_syncs={} "
-                       "held_passes={} hold_overflows={}\n",
+                       "held_passes={} hold_overflows={} worker_submit={} worker_submits={} "
+                       "finish_waits={} lag_waits={}\n",
                        stats.chunks.load(o), stats.commands.load(o), stats.handoffs.load(o),
                        stats.syncs.load(o), stats.sync_waits.load(o), stats.raw_syncs.load(o),
-                       stats.held_passes.load(o), stats.hold_overflows.load(o));
+                       stats.held_passes.load(o), stats.hold_overflows.load(o),
+                       worker_submit.load(o) ? "on" : "off", stats.worker_submits.load(o),
+                       stats.finish_waits.load(o), stats.lag_waits.load(o));
 }
 
 // ---- RecordingCommandBuffer: commands with pointed-to data ----

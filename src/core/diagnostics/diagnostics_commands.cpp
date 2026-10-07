@@ -449,7 +449,8 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) { return Vulkan::PipelineStats::Command(args); });
     registry.Register("vk_recorder",
         "Deferred Vulkan command recording thread: status | on | off (applies at the next "
-        "submission) | hoist on|off | batch on|off",
+        "submission) | hoist on|off | batch on|off | submit on|off (the recording thread "
+        "ends command buffers, default on)",
         [](const std::vector<std::string>& args) { return Vulkan::CommandRecorder::Command(args); });
     registry.Register("pm4_stats",
         "Guest command buffer structure census (default off): start [detailed_frames] | status | stop",

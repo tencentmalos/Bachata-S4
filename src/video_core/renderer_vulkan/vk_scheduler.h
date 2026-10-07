@@ -626,6 +626,17 @@ private:
     const Instance& instance;
     Semaphore work_semaphore;
     CommandPool command_pool;
+    // With deferred recording the recording thread may still be ending earlier command
+    // buffers while this thread begins the next one: consecutive buffers come from a ring
+    // of pools (a pool is externally synchronized), and a pool is reused only after the
+    // recording thread ended the buffer taken from it before
+    // (WaitFinished(last_finish - (RecorderPools - 1))). Two pools were not enough: a frame
+    // ends with two submissions, and the recording thread was often still replaying the
+    // frame's tail when the next frame began (Thor, Bloodborne: ~0.9 ms/frame of waiting).
+    static constexpr u32 RecorderPools = 4;
+    std::array<std::unique_ptr<CommandPool>, RecorderPools - 1> ring_pools;
+    u32 pool_index{};
+    u64 last_finish{}; // finish serial of the last command buffer the recording thread ended
     GpuProfiler gpu_profiler;
     std::unique_ptr<DescriptorHeap> diagnostic_descriptors;
     DynamicState dynamic_state;
