@@ -172,6 +172,7 @@ AstroQuest 是为一款游戏（ASTRO BOT Rescue Mission，欧版 CUSA12392 的 
 - 做法：只在 mailbox 有新帧时 acquire、拷贝、release；重复帧继续提交引用该 swapchain 的 projection layer 及原渲染姿态，OpenXR 会使用最后一次 release 的图像（AQ 即如此，`AQ:core/vr/openxr_host.cpp:1583-1615`）。同时评估用 semaphore 代替 CPU 等待。
 - 工作量 S–M。
 - 验证：Swan 上 Beat Saber 的 XR 线程 CPU 时间、GPU 忙碌率和重复帧比例 A/B；双目截图与录像正常；Pico 合成器的行为需要实测。
+- 进展（2026-10-07，未上机）：已实现重复帧不拷贝、XR 线程不再 CPU 等拷贝、2D 影院按原尺寸放入 mailbox、presenter 帧图加格式列表，DebugBus `xr_frame_copy`；进一步去掉拷贝的方案见 [记录](../validation/android-native-host/xr-frame-copy-20261007.md)。
 
 **C2 由 XR 驱动 vblank 与节拍**
 - 来源：`AQ:core/libraries/videoout/driver.cpp:574-799`：
