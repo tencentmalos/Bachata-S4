@@ -411,8 +411,10 @@ struct GuestAudio3d::Impl {
             else if (item.id != 9)
                 persistent[item.id] = std::move(item.blob);
         }
-        if (reset)
+        if (reset) {
             Clear(obj.pcm_queue);
+            obj.spatializer.Reset();
+        }
         obj.pcm_queue.swap(queue);
         obj.persistent_attributes.swap(persistent);
         for (auto& item : staged)

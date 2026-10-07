@@ -325,6 +325,8 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
               src/core/libraries/audio/audioout.h
               src/core/libraries/audio/audioout_backend.h
               src/core/libraries/audio/audioout_error.h
+              src/core/libraries/audio/surround_virtualizer.cpp
+              src/core/libraries/audio/surround_virtualizer.h
               src/core/libraries/audio/sdl_audio_out.cpp
               src/core/libraries/audio/cubeb_audio_out.cpp
               src/core/libraries/audio/openal_audio_out.cpp
@@ -333,6 +335,8 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
               src/core/libraries/ngs2/ngs2.h
               src/core/libraries/audio3d/audio3d.cpp
               src/core/libraries/audio3d/audio3d_mixer.cpp
+              src/core/libraries/audio3d/audio3d_spatializer.cpp
+              src/core/libraries/audio3d/audio3d_spatializer.h
               src/core/libraries/audio3d/audio3d_openal.cpp
               src/core/libraries/audio3d/audio3d_openal.h
               src/core/libraries/audio3d/audio3d.h
@@ -526,6 +530,8 @@ set(SYSTEM_LIBS src/core/libraries/system/commondialog.cpp
                 src/core/libraries/ajm/ajm_error.h
                 src/core/libraries/audio3d/audio3d.cpp
               src/core/libraries/audio3d/audio3d_mixer.cpp
+              src/core/libraries/audio3d/audio3d_spatializer.cpp
+              src/core/libraries/audio3d/audio3d_spatializer.h
                 src/core/libraries/audio3d/audio3d.h
                 src/core/libraries/audio3d/audio3d_error.h
                 src/core/libraries/game_live_streaming/gamelivestreaming.cpp

@@ -14,6 +14,7 @@
 #include <functional>
 #include <future>
 #include <mutex>
+#include <optional>
 #include <span>
 #include <string>
 #include <thread>
@@ -27,6 +28,7 @@
 #include "core/libraries/audio/audioout.h"
 #include "core/libraries/audio/audioout_backend.h"
 #include "core/libraries/audio/audioout_transfer.h"
+#include "core/libraries/audio/surround_virtualizer.h"
 
 #ifdef _WIN32
 #include <objbase.h>
@@ -267,6 +269,10 @@ private:
                                    size_t(frames) * channels};
         if (channels == 8) {
             PrepareAudioSurround71(format, frames, input, gains, slider, out);
+        } else if (format.num_channels == 8 && VirtualSurroundEnabled()) {
+            // Write converts a port's buffers in order, as the filter state needs.
+            if (!virtualizer) virtualizer.emplace(guest_frames, sample_rate);
+            virtualizer->Process(format, frames, input, gains, slider, out);
         } else {
             PrepareAudioStereo(format, frames, input, gains, slider, out);
         }
@@ -489,6 +495,7 @@ private:
     u32 latency{};
     u32 capacity{};
     std::vector<float> ring;
+    std::optional<SurroundVirtualizer> virtualizer; // 8-channel port, stereo device
     std::chrono::nanoseconds stall_timeout{};
 
     alignas(64) std::atomic<u64> write_pos{0};

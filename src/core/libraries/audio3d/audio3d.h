@@ -8,8 +8,10 @@
 #include <optional>
 #include <vector>
 #include <queue>
+#include <string>
 
 #include "common/types.h"
+#include "core/libraries/audio3d/audio3d_spatializer.h"
 #include "core/libraries/audio/audioout.h"
 
 namespace Core::Loader {
@@ -102,6 +104,8 @@ struct ObjectState {
     std::deque<AudioData> pcm_queue;
     std::unordered_map<u32, std::vector<u8>> persistent_attributes;
     bool unreserved{false};
+    // Direction rendering for positioned mono objects (ProcessMixQueue); reset with the object.
+    Spatializer spatializer;
 };
 
 // An AudioOut port opened by the game through sceAudio3dAudioOutOpen
@@ -128,10 +132,19 @@ struct Port {
     std::deque<AudioData> bed_queue;
     // Mixed stereo frames ready to be consumed by sceAudio3dPortPush.
     std::deque<AudioData> mixed_queue;
+    // Mixer scratch, kept between blocks.
+    std::vector<float> mix_scratch;
+    std::vector<float> mono_scratch;
 };
 
 // Caller serializes the port. Shared desktop/Android stereo PCM mixer.
 u32 ProcessMixQueue(Port& port);
+
+/// DebugBus `audio3d_spatial`: on | off | front_z +|- | status | reset. When on (default off),
+/// positioned mono objects are rendered with a head model (Spatializer) instead of being mixed
+/// to both ears alike; status reports where the sound energy of positioned objects came from,
+/// which tells which way the title's +Z points.
+std::string SpatialCommand(const std::vector<std::string>& args);
 
 struct Audio3dState {
     std::mutex ports_mutex;

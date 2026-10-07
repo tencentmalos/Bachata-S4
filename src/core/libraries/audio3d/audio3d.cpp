@@ -440,6 +440,7 @@ s32 PS4_SYSV_ABI sceAudio3dObjectSetAttribute(const OrbisAudio3dPortId port_id,
         }
         obj.pcm_queue.clear();
         obj.persistent_attributes.clear();
+        obj.spatializer.Reset();
         LOG_DEBUG(Lib_Audio3d, "RESET_STATE for object {}", object_id);
         return ORBIS_OK;
     }
@@ -489,6 +490,7 @@ s32 PS4_SYSV_ABI sceAudio3dObjectSetAttributes(const OrbisAudio3dPortId port_id,
             }
             obj.pcm_queue.clear();
             obj.persistent_attributes.clear();
+            obj.spatializer.Reset();
             LOG_DEBUG(Lib_Audio3d, "RESET_STATE for object {}", object_id);
             break; // Only one reset is needed even if listed multiple times.
         }

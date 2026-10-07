@@ -49,6 +49,8 @@
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/replay/gpu_replay_recorder.h"
 #endif
+#include "core/libraries/audio/surround_virtualizer.h"
+#include "core/libraries/audio3d/audio3d.h"
 
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/libraries/pad/pad_vibration.h"
@@ -325,6 +327,19 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("thread_priority",
         "Host scheduling weight (nice) of guest and emulator threads: status | reset",
         [](const std::vector<std::string>& args) { return Common::ThreadPriorityCommand(args); });
+    registry.Register("audio3d_spatial",
+        "Audio3d objects heard from their position (head model, default off, "
+        "debug.shadps4.audio3d_spatial=1 starts it on): on | off | front_z +|- | status | reset",
+        [](const std::vector<std::string>& args) {
+            return Libraries::Audio3d::SpatialCommand(args);
+        });
+    registry.Register("audio_virtual_surround",
+        "8-channel ports on a stereo output placed as seven virtual speakers around the "
+        "listener instead of folded down (default off, debug.shadps4.virtual_surround=1 starts "
+        "it on): on | off | status",
+        [](const std::vector<std::string>& args) {
+            return Libraries::AudioOut::VirtualSurroundCommand(args);
+        });
     registry.Register("pad_vibration",
         "Controller vibration requested by the game: status | test LARGE SMALL [HANDLE]",
         [](const std::vector<std::string>& args) {

@@ -15,6 +15,7 @@
 #include "core/libraries/audio/audioout.h"
 #include "core/libraries/audio/audioout_backend.h"
 #include "core/libraries/audio/audioout_transfer.h"
+#include "core/libraries/audio/surround_virtualizer.h"
 
 namespace Libraries::AudioOut {
 namespace FA = Foundation::Audio;
@@ -63,14 +64,20 @@ public:
           source(this->output->CreateSource(capacity)) {
         if (!source) throw std::runtime_error("Oboe source admission failed");
         volume.fill(32768);
+        if (format.num_channels == 8) virtualizer.emplace(frames, port.sample_rate);
     }
     ~OboePortBackend() override { source->RequestStop(); }
     bool UsesCallbackQueue() const override { return true; }
     size_t QueueCapacity() const override { return capacity; }
+    // GuestAudio prepares a port's blocks one at a time and in order (under its mutex), which
+    // the virtualizer's filter state relies on.
     void Prepare(const void* pcm, const std::array<int, 8>& gain,
                  std::span<float> stereo) const noexcept override {
-        PrepareAudioStereo(format, frames, pcm, gain,
-                           EmulatorSettings.GetVolumeSlider() * 0.01f, stereo);
+        const float slider = EmulatorSettings.GetVolumeSlider() * 0.01f;
+        if (virtualizer && VirtualSurroundEnabled())
+            virtualizer->Process(format, frames, pcm, gain, slider, stereo);
+        else
+            PrepareAudioStereo(format, frames, pcm, gain, slider, stereo);
     }
     bool CanQueue() const override { return source->HasSpace(); }
     const void* QueueDomain() const override { return output.get(); }
@@ -98,6 +105,7 @@ private:
     std::shared_ptr<FA::AndroidOutput> output; // source destroyed before endpoint
     const size_t capacity;
     std::unique_ptr<FA::AudioSource> source;
+    mutable std::optional<SurroundVirtualizer> virtualizer;
     std::array<int, 8> volume{};
     std::vector<float> scratch;
 };
