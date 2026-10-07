@@ -440,7 +440,8 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "driver cache file: status",
         [](const std::vector<std::string>& args) { return Vulkan::PipelineStats::Command(args); });
     registry.Register("vk_recorder",
-        "Deferred Vulkan command recording thread: status | on | off (applies at the next submission)",
+        "Deferred Vulkan command recording thread: status | on | off (applies at the next "
+        "submission) | hoist on|off | batch on|off",
         [](const std::vector<std::string>& args) { return Vulkan::CommandRecorder::Command(args); });
     registry.Register("pm4_stats",
         "Guest command buffer structure census (default off): start [detailed_frames] | status | stop",

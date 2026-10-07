@@ -127,8 +127,12 @@ private:
 
 class CommandRecorder {
 public:
-    // Chunks are handed to the worker once they hold this many commands (or are full).
+    // Finished chunks wait on this thread until they hold this many commands together (or
+    // MaxStagedChunks are waiting), then are handed to the worker at once: one wake per
+    // handoff instead of one per render pass (Bloodborne: ~550 wakes per frame, 4-6% of the
+    // command processor thread in the wake system call and its lock).
     static constexpr u32 DispatchThreshold = 256;
+    static constexpr size_t MaxStagedChunks = 16;
 
     CommandRecorder();
     ~CommandRecorder();
@@ -158,7 +162,7 @@ public:
         auto& chunk = prepass ? *pre_current : *current;
         chunk.Record(build(chunk));
         if (!holding && chunk.Count() >= DispatchThreshold)
-            Dispatch();
+            Stage();
     }
 
     // Pass holding: commands of an open render pass stay on this thread until the pass
@@ -179,7 +183,7 @@ public:
         prepass = false;
     }
 
-    // Hands the current chunk to the worker.
+    // Hands every finished chunk and the current chunk to the worker now.
     void Dispatch();
 
     // Dispatch + wait until every recorded command has been replayed.
@@ -189,10 +193,13 @@ public:
 
     struct Stats { // static storage: zero-initialized
         std::atomic<u64> chunks, commands, syncs, sync_waits, raw_syncs, held_passes,
-            hold_overflows;
+            hold_overflows, handoffs;
     };
     static inline Stats stats;
     static inline std::atomic<int> requested_mode{-1}; // -1 keep, 0 off, 1 on
+    // Off hands every finished chunk over at once (one wake per pass, as before).
+    // DebugBus `vk_recorder batch on|off`.
+    static inline std::atomic<bool> batch_handoffs{true};
 
     // Counts producer-side direct command buffer accesses (each forces a Sync).
     void CheckOutRaw() {
@@ -205,7 +212,15 @@ public:
 
 private:
     void EnsureRoom(size_t payload_bytes);
-    void ReleaseHeld(); // queue pre-pass then held chunks, stop holding
+    void ReleaseHeld(); // stage pre-pass then held chunks, stop holding
+    // Finishes the current chunk; hands the staged chunks over once enough are waiting.
+    void Stage();
+    void StageChunk(std::unique_ptr<CommandChunk> chunk);
+    void Handoff(); // hands the staged chunks to the worker
+    bool HandoffDue() const noexcept {
+        return staged_commands >= DispatchThreshold || staged.size() >= MaxStagedChunks ||
+               !batch_handoffs.load(std::memory_order_relaxed);
+    }
     std::unique_ptr<CommandChunk> TakeChunk();
     void Worker(std::stop_token stop);
     void ThrowIfFailed();
@@ -219,6 +234,9 @@ private:
     std::unique_ptr<CommandChunk> pre_current{std::make_unique<CommandChunk>()};
     vk::CommandBuffer target{};
     std::unique_ptr<CommandChunk> current{std::make_unique<CommandChunk>()};
+    std::vector<std::unique_ptr<CommandChunk>> staged; // finished chunks (in order)
+    u64 staged_commands{};
+    std::vector<std::unique_ptr<CommandChunk>> spare; // free chunks taken at the last handoff
 
     std::mutex mutex;
     std::condition_variable_any work_cv;

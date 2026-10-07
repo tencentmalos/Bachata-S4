@@ -52,7 +52,7 @@ void CommandRecorder::EnsureRoom(size_t payload_bytes) {
             ReleaseHeld();
         }
     } else {
-        Dispatch();
+        Stage();
     }
     // A command larger than a whole chunk cannot be deferred; callers fall back first.
     ASSERT_MSG(slot->HasRoom(payload_bytes), "recorded command payload {} too large",
@@ -60,6 +60,11 @@ void CommandRecorder::EnsureRoom(size_t payload_bytes) {
 }
 
 std::unique_ptr<CommandChunk> CommandRecorder::TakeChunk() {
+    if (!spare.empty()) {
+        auto chunk = std::move(spare.back());
+        spare.pop_back();
+        return chunk;
+    }
     {
         std::scoped_lock lk{mutex};
         if (!free_chunks.empty()) {
@@ -74,7 +79,7 @@ std::unique_ptr<CommandChunk> CommandRecorder::TakeChunk() {
 void CommandRecorder::BeginPass() {
     if (!Deferring() || holding)
         return;
-    Dispatch(); // everything before the pass is ordered ahead of any pre-pass command
+    Stage(); // everything before the pass is ordered ahead of any pre-pass command
     holding = true;
     stats.held_passes.fetch_add(1, std::memory_order_relaxed);
 }
@@ -87,53 +92,64 @@ void CommandRecorder::EndPass() {
 void CommandRecorder::ReleaseHeld() {
     // Order: pre-pass chunks, then the held pass chunks; the current chunk (the pass
     // tail) follows in the normal stream.
-    std::vector<std::unique_ptr<CommandChunk>> order;
-    order.reserve(pre.size() + held.size() + 1);
     for (auto& c : pre)
-        order.push_back(std::move(c));
+        StageChunk(std::move(c));
     if (!pre_current->Empty()) {
-        order.push_back(std::move(pre_current));
+        StageChunk(std::move(pre_current));
         pre_current = TakeChunk();
     }
     for (auto& c : held)
-        order.push_back(std::move(c));
+        StageChunk(std::move(c));
     pre.clear();
     held.clear();
     holding = false;
     prepass = false;
-    if (order.empty())
+    if (HandoffDue())
+        Handoff();
+}
+
+void CommandRecorder::StageChunk(std::unique_ptr<CommandChunk> chunk) {
+    stats.chunks.fetch_add(1, std::memory_order_relaxed);
+    stats.commands.fetch_add(chunk->Count(), std::memory_order_relaxed);
+    staged_commands += chunk->Count();
+    staged.push_back(std::move(chunk));
+}
+
+void CommandRecorder::Stage() {
+    if (!current->Empty()) {
+        StageChunk(std::move(current));
+        current = TakeChunk();
+    }
+    if (HandoffDue())
+        Handoff();
+}
+
+void CommandRecorder::Handoff() {
+    if (staged.empty())
         return;
-    u64 commands = 0;
-    for (auto& c : order)
-        commands += c->Count();
-    stats.chunks.fetch_add(order.size(), std::memory_order_relaxed);
-    stats.commands.fetch_add(commands, std::memory_order_relaxed);
+    stats.handoffs.fetch_add(1, std::memory_order_relaxed);
     {
         std::scoped_lock lk{mutex};
         ThrowIfFailed();
-        for (auto& c : order)
+        for (auto& c : staged)
             queue.push_back(std::move(c));
+        // Take the free chunks along: staging the next ones then needs no lock.
+        while (!free_chunks.empty() && spare.size() < MaxStagedChunks + 2) {
+            spare.push_back(std::move(free_chunks.back()));
+            free_chunks.pop_back();
+        }
     }
+    staged.clear();
+    staged_commands = 0;
     work_cv.notify_one();
 }
 
 void CommandRecorder::Dispatch() {
-    if (current->Empty())
-        return;
-    stats.chunks.fetch_add(1, std::memory_order_relaxed);
-    stats.commands.fetch_add(current->Count(), std::memory_order_relaxed);
-    std::unique_ptr<CommandChunk> next;
-    {
-        std::scoped_lock lk{mutex};
-        ThrowIfFailed();
-        queue.push_back(std::move(current));
-        if (!free_chunks.empty()) {
-            next = std::move(free_chunks.back());
-            free_chunks.pop_back();
-        }
+    if (!current->Empty()) {
+        StageChunk(std::move(current));
+        current = TakeChunk();
     }
-    work_cv.notify_one();
-    current = next ? std::move(next) : std::make_unique<CommandChunk>();
+    Handoff();
 }
 
 
@@ -203,17 +219,21 @@ std::string CommandRecorder::Command(const std::vector<std::string>& args) {
         requested_mode.store(args[0] == "on" ? 1 : 0, std::memory_order_relaxed);
         return fmt::format("vk_recorder {} requested (applies at the next submission)\n", args[0]);
     }
+    if (args.size() > 1 && args[0] == "batch") {
+        batch_handoffs.store(args[1] != "off", std::memory_order_relaxed);
+        return fmt::format("batched handoffs {}\n", args[1] == "off" ? "off" : "on");
+    }
     if (args.size() > 1 && args[0] == "hoist") {
         render_pass_stats.hoist_off.store(args[1] == "off", std::memory_order_relaxed);
         return fmt::format("pass hoisting {}\n", args[1] == "off" ? "off" : "on");
     }
     if (!args.empty() && args[0] != "status")
-        return "usage: vk_recorder status | on | off | hoist on|off\n";
+        return "usage: vk_recorder status | on | off | hoist on|off | batch on|off\n";
     constexpr auto o = std::memory_order_relaxed;
-    return fmt::format("chunks={} commands={} syncs={} sync_waits={} raw_syncs={} "
+    return fmt::format("chunks={} commands={} handoffs={} syncs={} sync_waits={} raw_syncs={} "
                        "held_passes={} hold_overflows={}\n",
-                       stats.chunks.load(o), stats.commands.load(o), stats.syncs.load(o),
-                       stats.sync_waits.load(o), stats.raw_syncs.load(o),
+                       stats.chunks.load(o), stats.commands.load(o), stats.handoffs.load(o),
+                       stats.syncs.load(o), stats.sync_waits.load(o), stats.raw_syncs.load(o),
                        stats.held_passes.load(o), stats.hold_overflows.load(o));
 }
 
