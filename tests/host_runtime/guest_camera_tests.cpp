@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <atomic>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <thread>
 #include "core/host_runtime/guest_camera.h"
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
@@ -30,12 +33,19 @@ int main() {
             std::abort();
         return base + 0x4000;
     };
-    GuestCamera camera(*space, alloc, 0x05000000);
+    // The title's presented frames and the process clock, as the test sets them.
+    std::atomic<u64> presented{1}, clock_us{1234567};
+    GuestCamera camera(*space, alloc, 0x05000000, [&] { return presented.load(); },
+                       [&] { return clock_us.load(); });
     auto write = [&](const auto& value) {
         return bool(space->WriteData(GuestAddress{base}, std::as_bytes(std::span{&value, 1})));
     };
     auto call = [&](std::string_view nid, std::array<u64, 6> a = {}, bool enabled = true,
-                    u64 us = 1234567) { return camera.Dispatch(nid, a, enabled, us); };
+                    std::stop_token stop = {}) { return camera.Dispatch(nid, a, enabled, stop); };
+    using Clock = std::chrono::steady_clock;
+    const auto elapsed_ms = [](Clock::time_point since) {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - since).count();
+    };
     check("ordinary mode has no camera", call("p6n3Npi3YY4", {}, false) == 0);
     check("SBS camera attached", call("p6n3Npi3YY4") == 1);
     check("invalid device index", call("p6n3Npi3YY4", {1}) == u32(ORBIS_CAMERA_ERROR_PARAM));
@@ -104,12 +114,24 @@ int main() {
     check("frame validity", call("U3BVwQl2R5Q", {handle, base}) == 1);
     check("invalid output range",
           call("mxgMmR+1Kr0", {handle, 1}) == u32(ORBIS_CAMERA_ERROR_PARAM));
+    // Without the wait bit a read takes the latest frame as it is.
+    check("latest frame again", call("mxgMmR+1Kr0", {handle, base}) == 0);
+    check("read latest frame",
+          bool(space->ReadData(GuestAddress{base}, std::as_writable_bytes(std::span{&frame, 1}))));
+    check("latest frame unchanged", frame.meta.frame[0] == 1);
     std::array<unsigned char, 600> older;
     older.fill(0x5a);
     u32 old_size = 520;
     std::memcpy(older.data(), &old_size, 4);
+    const u32 wait_next = 1;
+    std::memcpy(older.data() + offsetof(OrbisCameraFrameData, readMode), &wait_next, 4);
     write(older);
-    check("legacy frame output", call("mxgMmR+1Kr0", {handle, base}, true, 1235000) == 0);
+    // The next frame is due 1/60 s after the first and waits for the title to present again.
+    clock_us = 1235000;
+    presented = 2;
+    auto since = Clock::now();
+    check("legacy frame output", call("mxgMmR+1Kr0", {handle, base}) == 0);
+    check("waited for the frame period", elapsed_ms(since) >= 14);
     check("read legacy record",
           bool(space->ReadData(GuestAddress{base}, std::as_writable_bytes(std::span{older}))));
     check("legacy tail untouched",
@@ -117,6 +139,88 @@ int main() {
     std::memcpy(&frame, older.data(), 520);
     check("monotonic frame metadata",
           frame.meta.frame[1] == 2 && frame.meta.timestamp[1] == 1235000);
+
+    // Pacing: a title that does not present gets a frame after 200 ms all the same.
+    frame = {};
+    frame.sizeThis = sizeof(frame);
+    frame.readMode = 1;
+    write(frame);
+    clock_us = 2000000;
+    since = Clock::now();
+    check("frame while title presents nothing", call("mxgMmR+1Kr0", {handle, base}) == 0);
+    check("waited for the title at most 200 ms",
+          elapsed_ms(since) >= 190 && elapsed_ms(since) < 1000);
+    // A title that presents: the frame comes as soon as it does.
+    write(frame);
+    clock_us = 3000000;
+    std::thread presenter([&] {
+        std::this_thread::sleep_for(std::chrono::milliseconds{30});
+        presented = 3;
+    });
+    since = Clock::now();
+    check("frame after the title presents", call("mxgMmR+1Kr0", {handle, base}) == 0);
+    presenter.join();
+    check("woke on the present", elapsed_ms(since) >= 25 && elapsed_ms(since) < 150);
+    // Stop ends the wait.
+    write(frame);
+    std::stop_source stopping;
+    stopping.request_stop();
+    since = Clock::now();
+    check("cancelled read",
+          call("mxgMmR+1Kr0", {handle, base}, true, stopping.get_token()) ==
+              u32(ORBIS_CAMERA_ERROR_NOT_START));
+    check("cancelled promptly", elapsed_ms(since) < 50);
+    // So does stopping the camera from another thread.
+    write(frame);
+    clock_us = 4000000;
+    std::thread stopper([&] {
+        std::this_thread::sleep_for(std::chrono::milliseconds{30});
+        (void)call("2G2C0nmd++M", {handle});
+    });
+    since = Clock::now();
+    check("read ended by camera stop",
+          call("mxgMmR+1Kr0", {handle, base}) == u32(ORBIS_CAMERA_ERROR_NOT_START));
+    stopper.join();
+    check("ended promptly", elapsed_ms(since) < 150);
+    start.formatLevel[0] = start.formatLevel[1] = 15;
+    write(start);
+    check("restart", call("9EpRYMy7rHU", {handle, base}) == 0);
+
+    // Exposure and gain come back in the metadata, per sensor.
+    OrbisCameraExposureGain gain{1, 33, 44, 2};
+    write(gain);
+    check("set exposure both",
+          call("wgBMXJJA6K4", {handle, ORBIS_CAMERA_CHANNEL_BOTH, base, 0}) == 0);
+    gain = {0, 55, 66, 0};
+    write(gain);
+    check("set exposure sensor 1",
+          call("wgBMXJJA6K4", {handle, ORBIS_CAMERA_CHANNEL_1, base, 0}) == 0);
+    check("set exposure without value",
+          call("wgBMXJJA6K4", {handle, ORBIS_CAMERA_CHANNEL_0, 0, 0}) ==
+              u32(ORBIS_CAMERA_ERROR_PARAM));
+    check("set exposure bad channel",
+          call("wgBMXJJA6K4", {handle, 4, base, 0}) == u32(ORBIS_CAMERA_ERROR_PARAM));
+    check("get exposure both refused",
+          call("ObIste7hqdk", {handle, ORBIS_CAMERA_CHANNEL_BOTH, base, 0}) ==
+              u32(ORBIS_CAMERA_ERROR_PARAM));
+    check("get exposure sensor 0",
+          call("ObIste7hqdk", {handle, ORBIS_CAMERA_CHANNEL_0, base, 0}) == 0);
+    check("read exposure",
+          bool(space->ReadData(GuestAddress{base}, std::as_writable_bytes(std::span{&gain, 1}))));
+    check("exposure sensor 0", gain.exposure == 33 && gain.gain == 44 && gain.mode == 2);
+    frame = {};
+    frame.sizeThis = sizeof(frame);
+    write(frame);
+    check("frame with exposure", call("mxgMmR+1Kr0", {handle, base}) == 0);
+    check("read exposure frame",
+          bool(space->ReadData(GuestAddress{base}, std::as_writable_bytes(std::span{&frame, 1}))));
+    check("exposure in metadata", frame.meta.exposureGain[0].exposure == 33 &&
+                                      frame.meta.exposureGain[1].exposure == 55 &&
+                                      frame.meta.exposureGain[1].gain == 66);
+    check("auto white balance", call("zIKL4kZleuc", {handle, ORBIS_CAMERA_CHANNEL_BOTH, 1, 0}) == 0);
+    check("auto white balance option",
+          call("zIKL4kZleuc", {handle, ORBIS_CAMERA_CHANNEL_BOTH, 1, 8}) ==
+              u32(ORBIS_CAMERA_ERROR_PARAM));
     check("stop alias", call("+X1Kgnn3bzg", {handle}) == 0);
     check("stopped frame refused",
           call("mxgMmR+1Kr0", {handle, base}) == u32(ORBIS_CAMERA_ERROR_NOT_START));
@@ -131,6 +235,27 @@ int main() {
     check(
         "GPU-readable buffer lifetime spans close",
         bool(space->ValidateRange({GuestAddress{base + 0x4000}, 4096000}, GuestPermission::Read)));
+    // Calibration: an empty mesh for the virtual sensor; no handle needed.
+    OrbisCameraGetCalibrationDataParameter calibration{};
+    calibration.size = sizeof(calibration);
+    calibration.function_type = ORBIS_CAMERA_CALIBRATION_DATA_FUNCTION_TYPE_IMAGE_INVERSE_RECTIFICATION;
+    write(calibration);
+    const u64 mesh = base + 0x4000;
+    check("calibration data", call("RHYJ7GKOSMg", {base, mesh}) == 0);
+    OrbisCameraCalibrationData data{};
+    data.format_type = 7;
+    check("read calibration",
+          bool(space->ReadData(GuestAddress{mesh}, std::as_writable_bytes(std::span{&data, 1}))));
+    check("calibration fields",
+          data.format_type == 0 &&
+              data.function_type ==
+                  ORBIS_CAMERA_CALIBRATION_DATA_FUNCTION_TYPE_IMAGE_INVERSE_RECTIFICATION &&
+              data.data[0].total_horizontal_verticies == 0);
+    check("calibration disconnected",
+          call("RHYJ7GKOSMg", {base, mesh}, false) == u32(ORBIS_CAMERA_ERROR_NOT_CONNECTED));
+    calibration.size = 4;
+    write(calibration);
+    check("calibration bad size", call("RHYJ7GKOSMg", {base, mesh}) == u32(ORBIS_CAMERA_ERROR_PARAM));
     std::printf("GUEST_CAMERA checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

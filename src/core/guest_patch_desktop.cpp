@@ -190,6 +190,14 @@ void CheckConflicts(const State& st, const Entry& entry) {
 
 void Install(State& st, std::size_t index, Module& module, std::string module_sha256) {
     auto& entry = st.entries[index];
+    // Import hooks (sdk_version 3) enter at the module's PLT entry for their NID.
+    ResolveImportHooks(*entry.package, [&](std::string_view nid) -> std::optional<std::pair<uint64_t, Bytes>> {
+        const auto found = module.FindImportPltEntry(nid);
+        if (!found)
+            return std::nullopt;
+        const auto bytes = std::as_bytes(std::span{found->second});
+        return std::pair{found->first, Bytes(bytes.begin(), bytes.end())};
+    });
     const auto& p = *entry.package;
     const ModuleIdentity identity{std::string(Common::ElfInfo::Instance().GameSerial()),
                                   module.name,
@@ -199,9 +207,23 @@ void Install(State& st, std::size_t index, Module& module, std::string module_sh
                                   st.executable_sha256};
     Require(p.title == identity.title, "title mismatch: package " + p.title + ", game " +
                                            identity.title);
-    Require(p.module_sha256 == identity.sha256,
-            "module SHA256 mismatch: package " + p.module_sha256 + ", " + module.name + " " +
-                identity.sha256);
+    if (p.module_sha256.empty()) {
+        // A build named by located signatures (sdk_version 3): all of them must hold.
+        Require(SignaturesMatch(p,
+                                [&](uint64_t offset, std::span<std::byte> out) {
+                                    if (!InSegment(module, offset, out.size(), PF_READ))
+                                        return false;
+                                    std::memcpy(out.data(),
+                                                reinterpret_cast<const void*>(identity.base + offset),
+                                                out.size());
+                                    return true;
+                                }),
+                "module signatures do not match " + module.name + ": a different build");
+    } else {
+        Require(p.module_sha256 == identity.sha256,
+                "module SHA256 mismatch: package " + p.module_sha256 + ", " + module.name + " " +
+                    identity.sha256);
+    }
     Require(p.executable_sha256.empty() || p.executable_sha256 == identity.executable_sha256,
             "main executable SHA256 mismatch");
     CheckConflicts(st, entry);

@@ -54,6 +54,10 @@ struct Hook {
     std::string name, replacement, original, prototype, evidence;
     uint64_t offset{};
     Bytes expected;
+    // sdk_version 3: the entry is the module's PLT entry for this import NID instead of a
+    // fixed offset. ResolveImportHooks fills offset and expected from the loaded module
+    // before anything else looks at the hook.
+    std::string import_nid;
     HookKind kind{HookKind::Typed};
     SiteMode site_mode{SiteMode::Before};
 };
@@ -72,8 +76,16 @@ struct Binding {
     bool writable{};
     Bytes expected;
 };
+// sdk_version 3: bytes a build has at an exact offset of its loaded image. A package
+// without module_sha256 names its build by these instead: every one must match, nothing
+// is searched for.
+struct Signature {
+    uint64_t offset{};
+    Bytes bytes;
+};
 struct Package {
     std::string id, title, module, module_sha256, executable_sha256, digest;
+    std::vector<Signature> signatures;
     // Optional, for patch lists: display name and what the package does.
     std::string name, description;
     uint64_t sdk_version{1};
@@ -89,6 +101,15 @@ struct Package {
     uint64_t image_size{};
     static Package Load(const std::filesystem::path& file);
 };
+// The module's PLT entry for an import: its offset in the module and its bytes
+// (`jmp [rip+disp32]` through the import's GOT slot); nullopt when there is not exactly one.
+using ImportEntryLookup =
+    std::function<std::optional<std::pair<uint64_t, Bytes>>(std::string_view nid)>;
+// Gives every import hook its entry. Throws for an import the module has no single entry for.
+void ResolveImportHooks(Package&, const ImportEntryLookup&);
+// Whether every signature of a package holds; `read` reads module bytes at an offset.
+bool SignaturesMatch(const Package&,
+                     const std::function<bool(uint64_t offset, std::span<std::byte>)>& read);
 struct ModuleIdentity {
     std::string title, name, sha256;
     uint64_t base{}, size{};

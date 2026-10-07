@@ -101,4 +101,28 @@ inline std::vector<PltImportRepair> FindPreboundPltImports(
     return result;
 }
 
+// Offsets (relative to `address`) of the intact PLT entries `jmp [rip+disp32]` that jump
+// through the GOT slot at `got` (same address space as `address`). An entry starts a 16-byte
+// PLT row: the six instruction bytes, then 0xcc padding.
+inline std::vector<std::uint64_t> FindPltEntries(std::span<const std::uint8_t> code,
+                                                 std::uint64_t address, std::uint64_t got) {
+    std::vector<std::uint64_t> result;
+    if (code.size() < 16)
+        return result;
+    for (std::size_t offset = 0; offset + 16 <= code.size(); ++offset) {
+        if (code[offset] != 0xff || code[offset + 1] != 0x25)
+            continue;
+        const auto rel = std::bit_cast<std::int32_t>(
+            std::uint32_t{code[offset + 2]} | (std::uint32_t{code[offset + 3]} << 8) |
+            (std::uint32_t{code[offset + 4]} << 16) | (std::uint32_t{code[offset + 5]} << 24));
+        const auto target = static_cast<std::int64_t>(address + offset) + 6 + rel;
+        if (target != static_cast<std::int64_t>(got) ||
+            !std::all_of(code.begin() + offset + 6, code.begin() + offset + 16,
+                         [](std::uint8_t b) { return b == 0xcc; }))
+            continue;
+        result.push_back(offset);
+    }
+    return result;
+}
+
 } // namespace Core::Loader

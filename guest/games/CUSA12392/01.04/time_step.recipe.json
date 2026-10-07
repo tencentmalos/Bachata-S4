@@ -1,0 +1,102 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "astrobot_time_step_01_04",
+  "name": "Real-time game speed",
+  "description": "ASTRO BOT 1.04: the world advances by the time frames really take, instead of 1/60 s per frame (slow motion below 60 FPS). Port of AstroQuest known_title.cpp.",
+  "title": "CUSA12392",
+  "module": "eboot.bin",
+  "module_signatures": [
+    {
+      "offset": 13418672,
+      "hex": "400fb6c6ffc08907c3",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: SetRecentreCode, the tracking manager's recentre setter of build 1.04 (Builds::Is)."
+    },
+    {
+      "offset": 24250552,
+      "hex": "0000000000004e40",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: frame_rate holds the engine default 60.0 (double) before the title runs."
+    },
+    {
+      "offset": 24250560,
+      "hex": "8988883c",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: frame_seconds holds 1/60 (float)."
+    },
+    {
+      "offset": 24250568,
+      "hex": "1a41000000000000",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: frame_microseconds holds 16666 (u64)."
+    },
+    {
+      "offset": 20386080,
+      "hex": "80020000000500008007000030030000c0030000b0040000a0050000",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: size_widths, the console scene widths per level."
+    },
+    {
+      "offset": 20386112,
+      "hex": "68010000d00200003804000066030000380400000005000000060000",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: size_heights, the console scene heights per level."
+    }
+  ],
+  "sources": [
+    "../time_step.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "submit_done",
+      "import": "yvZ73uQUqrk",
+      "replacement": "astro_submit_done",
+      "original": "astro_sceGnmSubmitDone",
+      "prototype": "int astro_sceGnmSubmitDone(void)",
+      "evidence": "sceGnmSubmitDone (NID yvZ73uQUqrk, aerolib) takes no arguments and returns int; AstroQuest calls its time step from this entry (gnmdriver.cpp OnFrameSubmitted). The hook enters at the eboot PLT entry of the import, found at install time."
+    }
+  ],
+  "bindings": [
+    {
+      "name": "astro_frame_rate",
+      "kind": "data",
+      "offset": 24250552,
+      "size": 8,
+      "alignment": 8,
+      "access": "rw",
+      "type": "double",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: Build::frame_rate (double), the engine frame rate."
+    },
+    {
+      "name": "astro_frame_seconds",
+      "kind": "data",
+      "offset": 24250560,
+      "size": 4,
+      "alignment": 4,
+      "access": "rw",
+      "type": "float",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: Build::frame_seconds (float), derived step in seconds."
+    },
+    {
+      "name": "astro_frame_microseconds",
+      "kind": "data",
+      "offset": 24250568,
+      "size": 8,
+      "alignment": 8,
+      "access": "rw",
+      "type": "shad_u64",
+      "evidence": "AstroQuest v0.18 9ff3e43 shadps4-arm64-main/src/core/known_title_builds.h: Build::frame_microseconds (u64), derived step in microseconds."
+    }
+  ],
+  "counters": [
+    {
+      "id": 1,
+      "name": "step_us"
+    },
+    {
+      "id": 2,
+      "name": "frame_us"
+    }
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "step_us"
+    }
+  ]
+}

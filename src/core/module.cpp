@@ -171,6 +171,47 @@ void Module::RestorePreboundPltImports() {
     }
 }
 
+std::optional<std::pair<u64, std::array<u8, 6>>> Module::FindImportPltEntry(
+    std::string_view nid) {
+    const auto& d = dynamic_info;
+    std::optional<u64> got;
+    bool unique = true;
+    ForEachRelocation([&](const elf_relocation* rel, u32, bool jump) {
+        if (!jump || rel->GetType() != R_X86_64_JUMP_SLOT || !d.symbol_table ||
+            rel->GetSymbol() >= d.symbol_table_total_size / sizeof(elf_symbol))
+            return;
+        const auto& sym = d.symbol_table[rel->GetSymbol()];
+        if (sym.st_name >= d.str_table_size || sym.GetType() != STT_FUN || sym.st_shndx != 0)
+            return;
+        const char* text = d.str_table + sym.st_name;
+        const auto* end = static_cast<const char*>(std::memchr(text, 0, d.str_table_size - sym.st_name));
+        if (!end)
+            return;
+        const std::string_view full{text, size_t(end - text)};
+        if (full.substr(0, full.find('#')) != nid)
+            return;
+        unique = unique && !got.has_value();
+        got = rel->rel_offset;
+    });
+    if (!got || !unique)
+        return std::nullopt;
+    std::optional<std::pair<u64, std::array<u8, 6>>> found;
+    for (const auto& header : elf.GetProgramHeader()) {
+        if (header.p_type != PT_LOAD || !(header.p_flags & PF_EXEC) || !header.p_filesz)
+            continue;
+        const std::span<const u8> code{
+            reinterpret_cast<const u8*>(base_virtual_addr + header.p_vaddr), header.p_filesz};
+        for (const u64 offset : Loader::FindPltEntries(code, header.p_vaddr, *got)) {
+            if (found)
+                return std::nullopt; // more than one entry: which one the title calls is unknown
+            std::array<u8, 6> bytes{};
+            std::memcpy(bytes.data(), code.data() + offset, bytes.size());
+            found = std::pair{header.p_vaddr + offset, bytes};
+        }
+    }
+    return found;
+}
+
 s32 Module::Start(u64 args, const void* argp, void* param) {
     if (!dynamic_info.has_init)
         return 0;

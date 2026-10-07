@@ -104,10 +104,32 @@ def build(recipe_path, compiler, output):
                 type(patch['offset']) is not int or patch['offset'] < 0):
             raise ValueError('invalid code patch: ' + patch['name'])
         patch_names.add(patch['name'])
-    sdk_version = 2 if sites or patches else 1
+    # sdk_version 3: hooks on an import's PLT entry (by NID) and builds named by located
+    # signatures instead of a file SHA256.
+    signatures = recipe.get('module_signatures', [])
+    if not isinstance(signatures, list) or len(signatures) > 64:
+        raise ValueError('module_signatures must be a list of at most 64 entries')
+    total = 0
+    for sig in signatures:
+        raw_sig = bytes.fromhex(sig['hex'])
+        if (type(sig['offset']) is not int or sig['offset'] < 0 or not 1 <= len(raw_sig) <= 64
+                or not sig.get('evidence')):
+            raise ValueError('invalid module signature (offset, 1..64 bytes, evidence)')
+        total += len(raw_sig)
+    if signatures and total < 32:
+        raise ValueError('module signatures cover fewer than 32 bytes')
+    if not signatures and 'module_sha256' not in recipe:
+        raise ValueError('recipe needs module_sha256 or module_signatures')
+    import_hooks = [h for h in hooks if 'import' in h]
+    for hook in import_hooks:
+        if (not re.fullmatch(r'[A-Za-z0-9+\-]{11}', hook['import']) or 'offset' in hook
+                or 'expected' in hook or hook.get('mode', 'typed') == 'site-x86_64-avx'):
+            raise ValueError('import hook needs an 11-character NID and no offset/expected: '
+                             + hook.get('name', '?'))
+    sdk_version = 3 if signatures or import_hooks else 2 if sites or patches else 1
     imports = list(SDK_IMPORTS)
     prototypes = ['#include "shad_guest.h"', '#include "shad_entry.h"']
-    if sdk_version == 2:
+    if sites:
         prototypes.append('#include "shad_site.h"')
     observers = []
     site_adapters = []
@@ -124,7 +146,8 @@ def build(recipe_path, compiler, output):
         names.add(hook['name'])
         if hook['replacement'] == hook['original'] or hook['replacement'] in SDK_IMPORTS:
             raise ValueError('replacement/import alias')
-        if not hook.get('evidence') or not 5 <= len(bytes.fromhex(hook['expected'])) <= 256:
+        if not hook.get('evidence') or ('import' not in hook and
+                                        not 5 <= len(bytes.fromhex(hook['expected'])) <= 256):
             raise ValueError('hook needs ABI evidence and 5..256 expected bytes')
         mode = hook.get('mode', 'typed')
         if mode == 'entry-observer-x86_64-avx':
@@ -298,7 +321,9 @@ def build(recipe_path, compiler, output):
         if name not in symbols or symbols[name][2] == 0 or symbols[name][3]&15 != 2:
             raise ValueError('missing function export: '+name)
         exports[name] = symbols[name][0]
-    payload = {k:recipe[k] for k in ('id','title','module','module_sha256')}
+    payload = {k:recipe[k] for k in ('id','title','module','module_sha256') if k in recipe}
+    if signatures:
+        payload['module_signatures'] = [{'offset': s['offset'], 'hex': s['hex']} for s in signatures]
     # Optional display metadata for patch lists (loader caps: 96 / 1024 UTF-8 bytes).
     for key, limit in (('name', 96), ('description', 1024)):
         if key in recipe:

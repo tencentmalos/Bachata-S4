@@ -229,7 +229,9 @@ void OpenLaunchOptions(int game, bool ignorePatches) {
         if (inserted) {
             it->second = EffectiveModuleSha(icon, ignorePatches, package.module);
         }
-        if (!it->second.empty()) {
+        // A package naming its build by located signatures (no file SHA) is checked against
+        // the loaded image at launch: unknown here.
+        if (!it->second.empty() && !package.module_sha256.empty()) {
             choice.fits = it->second == package.module_sha256 ? 1 : -1;
         }
         launchDraft.patchChoices.push_back(std::move(choice));

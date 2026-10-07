@@ -15,6 +15,7 @@ set(TEST_TARGETS
     shadps4_gcn_test
     shadps4_content_roots_test
     shadps4_audio_transfer_test
+    shadps4_guest_patch_format_test
 )
 
 set(SETTINGS_TEST_SOURCES
@@ -247,6 +248,13 @@ add_executable(shadps4_gcn_test ${GCN_TEST_SOURCES})
 add_executable(shadps4_content_roots_test ${CONTENT_ROOTS_TEST_SOURCES})
 # Header-only under test: the PCM preparation shared by the Oboe and cubeb backends.
 add_executable(shadps4_audio_transfer_test test_audio_transfer.cpp)
+# Guest function package format (sdk_version 3: signatures, import hooks) and PLT lookup.
+add_executable(shadps4_guest_patch_format_test
+    ${CMAKE_SOURCE_DIR}/src/core/host_runtime/guest_patch_format.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/host_runtime/guest_patch_relocator.cpp
+    test_guest_patch_format.cpp)
+target_compile_definitions(shadps4_guest_patch_format_test PRIVATE
+    SHADPS4_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 foreach(t ${TEST_TARGETS})
     target_include_directories(${t} PRIVATE
@@ -289,6 +297,19 @@ target_link_libraries(shadps4_gcn_test PRIVATE
     spatial::foundation_log
     half::half
 )
+
+target_link_libraries(shadps4_guest_patch_format_test PRIVATE
+    GTest::gtest_main
+    Zydis::Zydis
+    nlohmann_json::nlohmann_json
+)
+# SHA-256 of package payloads: the bundled LibreSSL's crypto, or a system one.
+foreach(crypto_lib LibreSSL::Crypto OpenSSL::Crypto crypto)
+    if (TARGET ${crypto_lib})
+        target_link_libraries(shadps4_guest_patch_format_test PRIVATE ${crypto_lib})
+        break()
+    endif()
+endforeach()
 
 target_link_libraries(shadps4_audio_transfer_test PRIVATE
     GTest::gtest_main

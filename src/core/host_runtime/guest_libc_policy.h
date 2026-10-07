@@ -68,6 +68,10 @@ inline constexpr GuestLibcEntry GuestLibcEntries[]{
     {"GMpvxPFW924", "vprintf", "io"},
     {"Q2V+iqvjgC0", "vsnprintf", "io"},
     {"jbz9I9vkqkk", "vsprintf", "io"},
+    // The firmware libSceNgs2.sprx prints AJM decode failures and formats its report
+    // messages with these.
+    {"+qitMEbkSWk", "vsprintf_s", "io"},
+    {"w1NxRBQqfmQ", "printf_s", "io"},
     {"JBcgYuW8lPU", "acos", "math"},
     {"QI-x0SL8jhw", "acosf", "math"},
     {"7Ly52zaL44Q", "asin", "math"},
@@ -109,6 +113,7 @@ inline constexpr GuestLibcEntry GuestLibcEntries[]{
     {"2emaaluWzUw", "__cxa_guard_abort", "runtime"},
     {"k04jLXu3+Ic", "sceLibcMspaceMallocStatsFast", "runtime"},
     {"zlfEH8FmyUA", "_Stoul", "runtime"},
+    {"c41UEHVtiEA", "_Stod", "runtime"},
     {"z+P+xCnWLBk", "_ZdlPv", "runtime"},
     {"tsvEmnenz48", "__cxa_atexit", "runtime"},
     {"H2e8t5ScQGc", "__cxa_finalize", "runtime"},

@@ -222,6 +222,27 @@ copy build\bb60\patch.json <user>\guest_patches\CUSA03023\bloodborne_60fps_v1.js
 - DebugBus：`guest_patch status | enable [包|hook|包/hook] | disable [...]`（桌面无 CPU context ID）。
   开关是对齐 8 字节 slot 的原子写，运行中安全；`patches` 不切换。
 
+## sdk_version 3：按位置签名识别版本、import hook
+
+为没有游戏文件、只知道版本内部地址的包而加（首个用户是 ASTRO BOT，见
+[`guest/games/CUSA12392`](../guest/games/CUSA12392/README.md)）。版本 1/2 的包与加载方式不变。
+
+- **`module_signatures`**：`[{offset, hex, evidence}]`，最多 64 条、每条 1–64 字节、合计不少于
+  32 字节。没有 `module_sha256` 时用它们识别版本：安装时每条都必须与加载后的模块
+  （重定位之后、guest 运行之前）在该偏移处逐字节相同，否则跳过该包。只比固定位置，不扫描；
+  有 `module_sha256` 时仍按文件 SHA 识别。桌面 Launch Options 面板对这类包不显示是否匹配，
+  启动时检查。
+- **import hook**：hook 写 `"import": "<NID>"`，不写 `offset`/`expected`。安装时在目标模块中
+  找该 NID 唯一的 JUMP_SLOT，再找唯一一个经该 GOT 槽跳转的完整 PLT 行
+  （`ff 25 disp32` 加 `cc` 填充，`Loader::FindPltEntries`），用它的偏移与 6 字节作为 hook
+  的入口与 preimage；之后与普通 typed/entry-observer hook 完全相同（trampoline 重定位
+  RIP 相对跳转，`original` 经原 GOT 槽到 HLE/LLE 实现）。找不到或不唯一则跳过该包。
+  不能用于 site。包列表的冲突检查在安装时按解析后的偏移进行。
+- 实现：`ResolveImportHooks` / `SignaturesMatch`（`guest_patch_format`），
+  `Module::FindImportPltEntry`；桌面 `guest_patch_desktop.cpp` 与 Android
+  `GuestRuntime` 安装前调用。单测 `tests/test_guest_patch_format.cpp`（gtest
+  `shadps4_guest_patch_format_test`）。
+
 ## 从可见帧函数生成 C++ 拦截
 
 完整操作链见 [auto tag → 语义标定 → 拦截](guest-frame-interception-workflow.md)。

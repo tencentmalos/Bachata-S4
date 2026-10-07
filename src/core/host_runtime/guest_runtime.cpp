@@ -42,6 +42,8 @@
 #include "core/guest_cpu/hle/veneer_allocator.h"
 #include "core/host_runtime/guest_aio.h"
 #include "core/host_runtime/guest_ajm.h"
+#include "core/host_runtime/guest_fiber.h"
+#include "core/host_runtime/guest_social_screen.h"
 #include "core/host_runtime/guest_app_content.h"
 #include "core/host_runtime/guest_audio.h"
 #include "core/host_runtime/guest_audio3d.h"
@@ -421,6 +423,29 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     bool profile_sync{};
     std::shared_ptr<SyncMetrics::Session> sync_metrics;
     std::unique_ptr<GuestAjm> ajm;
+    // libSceFiber: guest memory reached through the session's checked data path.
+    struct FiberMemory final : GuestFiberMemory {
+        GuestAddressSpace& space;
+        explicit FiberMemory(GuestAddressSpace& space) : space(space) {}
+        bool Read(u64 address, std::span<std::byte> into) override {
+            return bool(space.ReadData(GuestAddress{address}, into));
+        }
+        bool Write(u64 address, std::span<const std::byte> from) override {
+            return bool(space.WriteData(GuestAddress{address}, from));
+        }
+        std::optional<bool> CompareExchange(u64 address, u32 expected, u32 desired) override {
+            if (address & 3)
+                return std::nullopt;
+            auto pin = space.AcquireDataSpan({GuestAddress{address}, sizeof(u32)}, true);
+            if (!pin)
+                return std::nullopt;
+            return std::atomic_ref<u32>(*reinterpret_cast<u32*>(pin.Value().WritableBytes().data()))
+                .compare_exchange_strong(expected, desired);
+        }
+    };
+    std::unique_ptr<FiberMemory> fiber_memory;
+    std::unique_ptr<GuestFiber> fiber;
+    std::unique_ptr<GuestSocialScreen> social_screen;
     std::unique_ptr<GuestAvPlayer> avplayer;
     std::unique_ptr<GuestAudio> audio;
     std::unique_ptr<GuestAudio3d> audio3d;
@@ -1682,7 +1707,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             !hmd_setup_dialog_functions.contains(nid) && !vr_tracker_functions.contains(nid) &&
             !IsCameraNid(nid) && !move_functions.contains(nid) && !GuestImeKeyboard::IsNid(nid) &&
             !GuestErrorDialog::IsNid(nid) && !ime_dialog_nid && !GuestSigninDialog::IsNid(nid) &&
-            !GuestMsgDialog::IsNid(nid) && !GuestCommerceDialog::IsNid(nid) && nid != "NWtTN10cJzE";
+            !GuestMsgDialog::IsNid(nid) && !GuestCommerceDialog::IsNid(nid) &&
+            !GuestFiber::IsNid(nid) && !GuestSocialScreen::IsNid(nid) && nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
@@ -1705,6 +1731,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
              (IsMouseNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceMouse#1#libSceMouse#Function") ||
+             (fiber && GuestFiber::IsNid(nid) && symbol.name.substr(nid.size()) == GuestFiber::Suffix) ||
+             (social_screen && GuestSocialScreen::IsNid(nid) &&
+              symbol.name.substr(nid.size()) == GuestSocialScreen::Suffix) ||
              (np && AdmitsNpOffline(nid, symbol.name.substr(nid.size()), np_offline)) ||
              (np_auth &&
               GuestNpAuthOffline::Admits(nid, symbol.name.substr(nid.size()), np_offline)) ||
@@ -1889,6 +1918,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                                 (unsigned long long)op, status.c_str(), symbol.name.c_str());
         }
 #endif
+        const u64 address = PublishVeneer(op);
+        veneers.emplace(symbol.name, address);
+        return address;
+    }
+    // A guest page whose entry calls HLE operation `op`.
+    u64 PublishVeneer(u64 op) {
         CodePublication vm(*this);
         const u64 address = Allocate(0x4000, "HleVeneer", 0x1800000000ULL);
         // Same ABI as HleVeneerAllocator; page tail traps using operation zero.
@@ -1899,8 +1934,16 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         std::memcpy(reinterpret_cast<void*>(address), entry.data(), entry.size());
         if (memory->Protect(address, 0x4000, MemoryProt::CpuRead | MemoryProt::CpuExec))
             throw std::runtime_error("veneer publication failed");
-        veneers.emplace(symbol.name, address);
         return address;
+    }
+    // An HLE entry no import names: the guest reaches it through a return address the host put
+    // on a stack (a fiber entry function returning).
+    u64 InternalVeneer(const std::string& name, std::function<Status(HleCallFrame&)> call) {
+        auto adapter = std::make_shared<FunctionAdapter>(std::move(call));
+        adapter->profile_name = "HLE." + name;
+        const auto op = Require(registry.Adopt(std::move(adapter), name));
+        operation_names.emplace(op, name);
+        return PublishVeneer(op);
     }
     GuestModuleLifecycle::Result StartModule(u32 id, u64 bytes, u64 argp) {
         auto* scope = HleScope::Current();
@@ -2183,6 +2226,35 @@ void GuestRuntime::Impl::InstallHandlers() {
             for (size_t i = 0; i < args.size(); ++i)
                 args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
             frame.registers.Set(Gpr::Rax, signin_dialog->Invoke(space, nid, args));
+            return Ok();
+        };
+    }
+    for (auto nid : GuestFiber::Nids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) -> Status {
+            const auto* scope = HleScope::Current();
+            if (!fiber || !scope)
+                return MakeError(ErrorCategory::Unsupported, "Fiber", "fiber library unavailable");
+            const auto thread = scope->Thread();
+            if (auto fault = fiber->Call(nid, frame.registers, {thread.id, thread.generation}))
+                return MakeError(ErrorCategory::BackendFailure, "Fiber", *fault);
+            return Ok();
+        };
+    }
+    for (auto nid : GuestSocialScreen::Nids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) -> Status {
+            if (!social_screen)
+                return MakeError(ErrorCategory::Unsupported, "SocialScreen", "library unavailable");
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            u32 result{};
+            if (auto refusal = social_screen->Call(nid, args, result))
+                return MakeError(ErrorCategory::Unsupported, "SocialScreen", *refusal);
+            const auto state = social_screen->Snapshot();
+            LOG_INFO(Lib_VideoOut,
+                     "SocialScreen nid={} initialized={} mode={} separate_mode={} open={}", nid,
+                     state.initialized, state.mode, state.separate_mode, state.separate_open);
+            frame.registers.Set(Gpr::Rax, result);
             return Ok();
         };
     }
@@ -4584,8 +4656,10 @@ void GuestRuntime::Impl::InstallHandlers() {
     for (const auto nid : CameraNids) {
         bind({nid.data()}, [this, nid](const auto& a) -> u64 {
             if (!camera) return u32(ORBIS_CAMERA_ERROR_NOT_INIT);
+            const auto* scope = HleScope::Current();
             const auto result = camera->Dispatch(nid, a, GuestVrSensor::Instance().Read().enabled,
-                                                clock.ticks.GetTimeUS(clock.origin));
+                                                scope ? scope->CancellationToken()
+                                                      : std::stop_token{});
             if (nid != "mxgMmR+1Kr0" && nid != "U3BVwQl2R5Q")
                 LOG_INFO(Lib_Camera, "SBS camera nid={} handle={} result={:#x}", nid, s32(a[0]), result);
             return result;
@@ -4986,6 +5060,9 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     struct LocalLibrary { std::string_view library, module, filename; };
     for (const auto& [library, module, filename] : {
              LocalLibrary{"libSceSystemGesture", "libSceSystemGesture", "libSceSystemGesture.sprx"},
+             // Desktop allows the firmware module too (sysmodule_internal.cpp ModulesToLoad);
+             // its own imports still go through Bind's policy.
+             LocalLibrary{"libSceNgs2", "libSceNgs2", "libSceNgs2.sprx"},
              // Json2's export module is libSceJson (firmware 11.00), not its filename.
              LocalLibrary{"libSceJson2", "libSceJson", "libSceJson2.sprx"}}) {
         std::vector<u32> consumers, providers;
@@ -5082,7 +5159,11 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             MemoryMapFlags::NoFlags, VMAType::File, "SbsCameraDefaultFrames");
         if (result) throw std::runtime_error("SBS camera buffer allocation failed");
         return reinterpret_cast<u64>(address);
-    }, sdk);
+    }, sdk, [p = impl.get()]() -> u64 {
+        // Frames the title has had presented: the camera does not run ahead of them.
+        std::scoped_lock lock(p->graphics_mutex);
+        return p->graphics ? p->graphics->VideoOut().guest_presents.load() : 0;
+    }, [p = impl.get()] { return p->clock.ticks.GetTimeUS(p->clock.origin); });
     // Snapshot only the local gameplay identity, never credentials or desktop events.
     std::array<GuestUser, 4> users{};
     if (const auto* user = UserManagement.GetUserByPlayerIndex(1))
@@ -5169,6 +5250,27 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->sysmodules.Publish("libSceAudio3d", 0x10000024);
     impl->ajm = std::make_unique<GuestAjm>(impl->space);
     impl->sysmodules.Publish("libSceAjm", 0x10000025);
+    {
+        // libSceFiber switches contexts by the registers its calls return with. A fiber entry
+        // function that returns lands on this trap. A guest libSceFiber module, if the title
+        // ships one, provides the library itself.
+        bool guest_fiber_provider = false;
+        for (u32 id = 0; auto* module = impl->linker->GetModule(id); ++id)
+            guest_fiber_provider |= std::filesystem::path(module->name).stem() == "libSceFiber";
+        if (!guest_fiber_provider) {
+            const u64 entry_return = impl->InternalVeneer("FiberEntryReturned", [](HleCallFrame&) {
+                return Status(MakeError(ErrorCategory::BackendFailure, "Fiber",
+                                        "fiber entry function returned"));
+            });
+            impl->fiber_memory = std::make_unique<Impl::FiberMemory>(impl->space);
+            impl->fiber = std::make_unique<GuestFiber>(*impl->fiber_memory, entry_return,
+                                                       &VideoCore::Replay::NoteGuestStack);
+            impl->sysmodules.Publish("libSceFiber", 0x10000026);
+        }
+    }
+    // The TV image a PSVR title may render separately goes to the VideoOut social screen port.
+    impl->social_screen = std::make_unique<GuestSocialScreen>(impl->space);
+    impl->sysmodules.Publish("libSceSocialScreen", 0x10000027);
     impl->avplayer =
         std::make_unique<GuestAvPlayer>(impl->space, [p = impl.get()] { return p->CallbackOwner("AvPlayerCallbackScratch"); });
     impl->sysmodules.Publish("libSceAvPlayer", 0x1000000e);
@@ -5367,7 +5469,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             [](const char* name, int64_t value) { Common::Profiler::Counter(name, value); });
         Module* target{};
         try {
-            const auto package = GuestPatch::Package::Load(choice.path);
+            auto package = GuestPatch::Package::Load(choice.path);
             for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
                 if (m->name == package.module) {
                     if (target) throw std::runtime_error("ambiguous guest patch module");
@@ -5375,10 +5477,31 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                 }
             }
             if (!target) throw std::runtime_error("module " + package.module + " is not loaded");
-            auto [hash, hashed] = module_hashes.try_emplace(target);
-            if (hashed) hash->second = module_sha(target->file);
-            if (package.title != serial || package.module_sha256 != hash->second)
-                throw std::runtime_error("built for another game or version of " + target->name);
+            // Import hooks (sdk_version 3) enter at the module's PLT entry for their NID.
+            GuestPatch::ResolveImportHooks(package, [&](std::string_view nid)
+                    -> std::optional<std::pair<uint64_t, GuestPatch::Bytes>> {
+                const auto found = target->FindImportPltEntry(nid);
+                if (!found) return std::nullopt;
+                const auto bytes = std::as_bytes(std::span{found->second});
+                return std::pair{found->first, GuestPatch::Bytes(bytes.begin(), bytes.end())};
+            });
+            std::string module_identity;
+            if (package.module_sha256.empty()) {
+                // A build named by located signatures: every one must hold in the loaded image.
+                const u64 base = target->GetBaseAddress(), size = target->aligned_base_size;
+                if (package.title != serial ||
+                    !GuestPatch::SignaturesMatch(package, [&](uint64_t offset, std::span<std::byte> out) {
+                        return offset <= size && out.size() <= size - offset &&
+                               impl->space.ReadData(GuestAddress{base + offset}, out);
+                    }))
+                    throw std::runtime_error("built for another game or version of " + target->name);
+            } else {
+                auto [hash, hashed] = module_hashes.try_emplace(target);
+                if (hashed) hash->second = module_sha(target->file);
+                if (package.title != serial || package.module_sha256 != hash->second)
+                    throw std::runtime_error("built for another game or version of " + target->name);
+                module_identity = hash->second;
+            }
             const auto ranges = GuestPatch::PackageCodeRanges(package);
             for (const auto& installed : impl->guest_patches) {
                 if (installed.manager->Id() == package.id)
@@ -5391,7 +5514,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                 executable_sha = module_sha(main_path);
             manager->Install(
                 package,
-                {serial, target->name, hash->second, target->GetBaseAddress(),
+                {serial, target->name, module_identity, target->GetBaseAddress(),
                  target->aligned_base_size,
                  package.executable_sha256.empty() ? std::string{} : *executable_sha},
                 *impl->CodeToken(), [this](u64 size, u64 near) {

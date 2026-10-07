@@ -123,8 +123,10 @@ Package Package::Load(const std::filesystem::path& file) {
     const auto j = Json::parse(source, callback);
     // sdk_version 2 adds mid-function sites and same-length code patches; the
     // payload ABI and SDK imports are unchanged, so version 1 packages still load.
+    // sdk_version 3 adds import hooks (the PLT entry of an import NID) and builds named
+    // by located signatures instead of a file SHA256.
     Check(j.at("schema") == "shadps4.guest-functions.v1" && j.at("abi") == "x86_64-sysv" &&
-              (Number(j.at("sdk_version")) == 1 || Number(j.at("sdk_version")) == 2),
+              Number(j.at("sdk_version")) >= 1 && Number(j.at("sdk_version")) <= 3,
           "unsupported patch format/ABI/SDK");
     Package p;
     p.sdk_version = Number(j.at("sdk_version"));
@@ -134,8 +136,24 @@ Package Package::Load(const std::filesystem::path& file) {
     p.title = Text(j.at("title"), 64);
     p.module = Text(j.at("module"), 128);
     Check(p.module == std::filesystem::path(p.module).filename(), "module must be a basename");
-    p.module_sha256 = Text(j.at("module_sha256"));
-    Check(Digest(p.module_sha256), "invalid module SHA256");
+    if (j.contains("module_signatures")) {
+        Check(p.sdk_version == 3, "module signatures require sdk_version 3");
+        const auto& list = j.at("module_signatures");
+        Check(list.is_array() && !list.empty() && list.size() <= 64, "invalid module signatures");
+        uint64_t total = 0;
+        for (const auto& item : list) {
+            Signature s{Number(item.at("offset")), Unhex(item.at("hex"), 64)};
+            Check(!s.bytes.empty() && s.offset <= (1ULL << 40), "invalid module signature");
+            total += s.bytes.size();
+            p.signatures.push_back(std::move(s));
+        }
+        // Enough bytes that a different build cannot hold all of them by chance.
+        Check(total >= 32, "module signatures cover fewer than 32 bytes");
+    }
+    if (j.contains("module_sha256") || p.signatures.empty()) {
+        p.module_sha256 = Text(j.at("module_sha256"));
+        Check(Digest(p.module_sha256), "invalid module SHA256");
+    }
     if (j.contains("name"))
         p.name = Text(j.at("name"), 96);
     if (j.contains("description"))
@@ -196,11 +214,29 @@ Package Package::Load(const std::filesystem::path& file) {
           "invalid hook count");
     std::set<std::string> hook_names, originals;
     for (const auto& item : j.at("hooks")) {
-        Hook h{Text(item.at("name"), 96),       Text(item.at("replacement"), 96),
-               Text(item.at("original"), 96),   Text(item.at("prototype")),
-               Text(item.at("evidence"), 4096), Number(item.at("offset")),
-               Unhex(item.at("expected"), 256)};
-        Check(Symbol(h.name) && Symbol(h.original) && h.expected.size() >= 5 &&
+        const bool import_hook = item.contains("import");
+        Check(!import_hook || p.sdk_version == 3, "import hooks require sdk_version 3");
+        Hook h{Text(item.at("name"), 96),
+               Text(item.at("replacement"), 96),
+               Text(item.at("original"), 96),
+               Text(item.at("prototype")),
+               Text(item.at("evidence"), 4096),
+               import_hook ? 0 : Number(item.at("offset")),
+               import_hook ? Bytes{} : Unhex(item.at("expected"), 256)};
+        if (import_hook) {
+            h.import_nid = Text(item.at("import"), 16);
+            Check(h.import_nid.size() == 11 &&
+                      std::all_of(h.import_nid.begin(), h.import_nid.end(),
+                                  [](char c) {
+                                      return std::isalnum(static_cast<unsigned char>(c)) ||
+                                             c == '+' || c == '-';
+                                  }) &&
+                      !item.contains("offset") && !item.contains("expected"),
+                  "invalid import hook NID");
+            Check(item.value("mode", std::string("typed")) != "site-x86_64-avx",
+                  "an import hook is a function entry, not a site");
+        }
+        Check(Symbol(h.name) && Symbol(h.original) && (import_hook || h.expected.size() >= 5) &&
                   p.exports.contains(h.replacement) && imports.contains(h.original) &&
                   hook_names.insert(h.name).second && originals.insert(h.original).second,
               "invalid/duplicate hook contract");
@@ -309,6 +345,29 @@ Package Package::Load(const std::filesystem::path& file) {
         end = off + 8;
     }
     return p;
+}
+
+void ResolveImportHooks(Package& p, const ImportEntryLookup& lookup) {
+    for (auto& h : p.hooks) {
+        if (h.import_nid.empty() || !h.expected.empty())
+            continue;
+        auto entry = lookup(h.import_nid);
+        Check(entry.has_value() && entry->second.size() >= 5,
+              "module has no single PLT entry for import " + h.import_nid + " (hook " + h.name +
+                  ")");
+        h.offset = entry->first;
+        h.expected = std::move(entry->second);
+    }
+}
+
+bool SignaturesMatch(const Package& p,
+                     const std::function<bool(uint64_t, std::span<std::byte>)>& read) {
+    for (const auto& s : p.signatures) {
+        Bytes found(s.bytes.size());
+        if (!read(s.offset, found) || found != s.bytes)
+            return false;
+    }
+    return true;
 }
 
 std::pair<uint64_t, uint64_t> PoolGeometry(const Package& p) {

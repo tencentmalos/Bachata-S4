@@ -3,7 +3,11 @@
 
 #pragma once
 
+#include <array>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 #include "common/types.h"
 #include "core/emulator_settings.h"
@@ -197,6 +201,11 @@ public:
     std::span<const LibraryInfo> GetExportLibs() const {
         return dynamic_info.export_libs;
     }
+
+    /// The PLT entry this module calls an imported function through, by NID: its offset in
+    /// the module and its six bytes (`jmp [rip+disp32]`). nullopt unless the module has
+    /// exactly one JUMP_SLOT for that NID and exactly one intact entry jumps through it.
+    std::optional<std::pair<u64, std::array<u8, 6>>> FindImportPltEntry(std::string_view nid);
 
     void ForEachRelocation(auto&& func) {
         for (u32 i = 0; i < dynamic_info.relocation_table_size / sizeof(elf_relocation); i++) {
