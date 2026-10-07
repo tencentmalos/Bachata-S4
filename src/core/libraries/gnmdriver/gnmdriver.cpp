@@ -229,8 +229,9 @@ static std::span<const u32> DriverObject(std::span<const u32> host) {
     return host;
 }
 
-/// Writes the driver objects into the 64 KiB block at `base`: page 0 holds the 16 flip labels
-/// (as in the host runtime), pages 1-3 the embedded shaders, the rest the init sequences.
+/// Writes the driver objects into the 64 KiB block at `base`: page 0 holds the 16 flip labels of
+/// the main port and the 16 of the social screen port (as in the host runtime), pages 1-3 the
+/// embedded shaders, the rest the init sequences.
 static void FillDriverObjects(u8* base) {
     driver_object_copies.clear();
     driver_labels = reinterpret_cast<u64*>(base);

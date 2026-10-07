@@ -213,6 +213,24 @@ public:
         system_events.push_back(event);
         return true;
     }
+    // The player reset the view: the title counts VR positions from where the head is now.
+    // `recenters` is GuestVrSensor's running count; each new one queues one event.
+    void IgnoreVrRecentersUpTo(std::uint64_t recenters) {
+        std::lock_guard lock(mutex);
+        vr_recenters_seen = recenters;
+    }
+    bool SyncVrRecenters(std::uint64_t recenters) {
+        std::lock_guard lock(mutex);
+        if (recenters <= vr_recenters_seen)
+            return false;
+        vr_recenters_seen = recenters;
+        if (system_events.size() >= 64)
+            return false;
+        Libraries::SystemService::OrbisSystemServiceEvent event{};
+        event.event_type = Libraries::SystemService::OrbisSystemServiceEventType::ResetVrPosition;
+        system_events.push_back(event);
+        return true;
+    }
     void SetBackground(bool value) {
         std::lock_guard lock(mutex);
         if (background && !value && system_events.size() < 64)
@@ -238,6 +256,7 @@ private:
     bool initialized{}, background{}, splash{true};
     std::deque<Libraries::UserService::OrbisUserServiceEvent> user_events;
     std::deque<Libraries::SystemService::OrbisSystemServiceEvent> system_events;
+    std::uint64_t vr_recenters_seen{};
 };
 
 inline s32 GuestPlatform::Param(Libraries::SystemService::OrbisSystemServiceParamId id,

@@ -52,13 +52,21 @@ VideoOutDriver::VideoOutDriver(u32 width, u32 height, std::function<u64()> proce
     : process_time(process_time_ ? std::move(process_time_)
                                  : Libraries::Kernel::sceKernelGetProcessTime),
       read_tsc(tsc_ ? std::move(tsc_) : Libraries::Kernel::sceKernelReadTsc) {
-    if (guest_labels)
+    if (guest_labels) {
+        // The GPU writes the flip labels (PM4 WRITE_DATA): both ports keep them in the driver
+        // objects page, the social screen's right after the main port's.
         main_port.buffer_labels =
             std::span<u64, MaxDisplayBuffers>{guest_labels, MaxDisplayBuffers};
+        social_port.buffer_labels =
+            std::span<u64, MaxDisplayBuffers>{guest_labels + MaxDisplayBuffers, MaxDisplayBuffers};
+    }
     main_port.resolution.full_width = width;
     main_port.resolution.full_height = height;
     main_port.resolution.pane_width = width;
     main_port.resolution.pane_height = height;
+    social_port.resolution = main_port.resolution;
+    for (auto& buffer : social_port.buffer_slots)
+        buffer.group_index = -1;
     present_thread = std::jthread([this, fault = std::move(fault)](std::stop_token token) {
         try {
             PresentThread(token);
@@ -73,9 +81,12 @@ VideoOutDriver::VideoOutDriver(u32 width, u32 height, std::function<u64()> proce
 
 void VideoOutDriver::RequestStop() {
     main_port.stopping = true;
+    social_port.stopping = true;
     present_thread.request_stop();
-    main_port.vblank_cv.notify_all();
-    main_port.vo_cv.notify_all();
+    for (auto* port : {&main_port, &social_port}) {
+        port->vblank_cv.notify_all();
+        port->vo_cv.notify_all();
+    }
 }
 void VideoOutDriver::Join() {
     if (present_thread.joinable())
@@ -86,64 +97,80 @@ VideoOutDriver::~VideoOutDriver() {
     Join(); // requests and main_port must still exist while PresentThread retires.
 }
 
-int VideoOutDriver::Open(const ServiceThreadParams* params) {
+int VideoOutDriver::Open(const ServiceThreadParams* params, s32 bus_type) {
     std::scoped_lock lock{mutex};
+    if (bus_type == SCE_VIDEO_OUT_BUS_TYPE_AUX_SOCIAL_SCREEN) {
+        if (social_port.is_open) {
+            return ORBIS_VIDEO_OUT_ERROR_RESOURCE_BUSY;
+        }
+        social_port.is_open = true;
+        return SocialPortHandle;
+    }
     if (main_port.is_open) {
         return ORBIS_VIDEO_OUT_ERROR_RESOURCE_BUSY;
     }
     main_port.is_open = true;
     liverpool->SetVoPort(&main_port);
-    return 1;
+    return MainPortHandle;
 }
 
 void VideoOutDriver::Close(s32 handle) {
     std::scoped_lock lifecycle_lock(lifecycle_mutex);
     std::scoped_lock lock{mutex};
+    auto* port = GetPort(handle);
+    if (!port) {
+        return;
+    }
+    auto& closing = *port;
 
     // Mark as closed
-    main_port.is_open = false;
-    main_port.flip_rate = 0;
-    main_port.prev_index = -1;
+    closing.is_open = false;
+    closing.flip_rate = 0;
+    closing.prev_index = -1;
 
     // Clear port information
-    std::memset(main_port.buffer_labels.data(), 0, main_port.buffer_labels.size_bytes());
-    std::memset(main_port.groups.data(), 0, sizeof(main_port.groups));
+    std::memset(closing.buffer_labels.data(), 0, closing.buffer_labels.size_bytes());
+    std::memset(closing.groups.data(), 0, sizeof(closing.groups));
     // Vblank is the running display clock and continues across a port close.
     {
-        std::scoped_lock lock(main_port.port_mutex);
-    main_port.flip_status = FlipStatus{};
+        std::scoped_lock lock(closing.port_mutex);
+        closing.flip_status = FlipStatus{};
     }
 
     // Re-initialize buffers
-    std::memset(main_port.buffer_slots.data(), 0, sizeof(main_port.buffer_slots));
-    for (auto& buffer : main_port.buffer_slots) {
+    std::memset(closing.buffer_slots.data(), 0, sizeof(closing.buffer_slots));
+    for (auto& buffer : closing.buffer_slots) {
         buffer.group_index = -1;
     }
 
     // Clear events
-    for (auto event : main_port.flip_events) {
+    for (auto event : closing.flip_events) {
         auto equeue = Kernel::GetEqueue(event);
         if (equeue != nullptr) {
             equeue->RemoveEvent(static_cast<u64>(OrbisVideoOutInternalEventId::Flip),
                                 Kernel::OrbisKernelEvent::Filter::VideoOut);
         }
     }
-    main_port.flip_events.clear();
-    for (auto event : main_port.vblank_events) {
+    closing.flip_events.clear();
+    for (auto event : closing.vblank_events) {
         auto equeue = Kernel::GetEqueue(event);
         if (equeue != nullptr) {
             equeue->RemoveEvent(static_cast<u64>(OrbisVideoOutInternalEventId::Vblank),
                                 Kernel::OrbisKernelEvent::Filter::VideoOut);
         }
     }
-    main_port.vblank_events.clear();
+    closing.vblank_events.clear();
 }
 
 VideoOutPort* VideoOutDriver::GetPort(int handle) {
-    if (handle != 1) [[unlikely]] {
+    switch (handle) {
+    case MainPortHandle:
+        return &main_port;
+    case SocialPortHandle:
+        return &social_port;
+    default:
         return nullptr;
     }
-    return &main_port;
 }
 
 int VideoOutDriver::RegisterBuffers(VideoOutPort* port, s32 startIndex, void* const* addresses,
@@ -210,7 +237,10 @@ int VideoOutDriver::RegisterBuffers(VideoOutPort* port, s32 startIndex, void* co
         port->buffer_labels[startIndex + i] = 0;
         port->SignalVoLabel();
 
-        presenter->RegisterVideoOutSurface(group, address);
+        // Social screen buffers are never presented: the renderer has no business with them.
+        if (port != &social_port) {
+            presenter->RegisterVideoOutSurface(group, address);
+        }
         LOG_INFO(Lib_VideoOut, "buffers[{}] = {:#x}", i + startIndex, address);
     }
 
@@ -307,17 +337,27 @@ void VideoOutDriver::Flip(const Request& req) {
     // hardware: it may recycle the frame's memory, labels included, once it flipped.
     liverpool->WaitFences(req.fence_mark);
 
+    CompleteFlip(req.port, req.index, req.flip_arg, req.eop, req.diagnostic_id);
+    lifecycle_lock.unlock();
+    // EndCapture may write a large file. Hold no VideoOut/VM/queue mutex while
+    // advancing capture; its immutable control snapshot remains independently readable.
+    if (req.complete)
+        req.complete(presented);
+    if (presented) VideoCore::NotifyPresentBoundary(generation, present_id);
+}
+
+void VideoOutDriver::CompleteFlip(VideoOutPort* port, s32 index, s64 flip_arg, bool eop,
+                                  u64 diagnostic_id) {
     // Update flip status.
-    auto* port = req.port;
     {
         std::unique_lock lock{port->port_mutex};
         auto& flip_status = port->flip_status;
         flip_status.count++;
         flip_status.process_time = process_time();
         flip_status.tsc = read_tsc();
-        flip_status.flip_arg = req.flip_arg;
-        flip_status.current_buffer = req.index;
-        if (req.eop) {
+        flip_status.flip_arg = flip_arg;
+        flip_status.current_buffer = index;
+        if (eop) {
             --flip_status.gc_queue_num;
         }
         --flip_status.flip_pending_num;
@@ -336,25 +376,43 @@ void VideoOutDriver::Flip(const Request& req) {
                 static_cast<u64>(OrbisVideoOutInternalEventId::Flip),
                 Kernel::OrbisKernelEvent::Filter::VideoOut,
                 reinterpret_cast<void*>(static_cast<u64>(OrbisVideoOutInternalEventId::Flip) |
-                                        (req.flip_arg << 16)));
+                                        (flip_arg << 16)));
         }
     }
 
     // Reset prev flip label. A GPU replay writes the labels from the trace instead.
     if (port->prev_index != -1 && !replay.load(std::memory_order_relaxed)) {
-        SHAD_HANDOFF(generation, "vo_label_release", port->prev_index + 1,
-                     req.diagnostic_id, req.index + 1);
+        SHAD_HANDOFF(presenter->CaptureGeneration(), "vo_label_release", port->prev_index + 1,
+                     diagnostic_id, index + 1);
         port->buffer_labels[port->prev_index] = 0;
         port->SignalVoLabel();
     }
     // save to prev buf index
-    port->prev_index = req.index;
-    lifecycle_lock.unlock();
-    // EndCapture may write a large file. Hold no VideoOut/VM/queue mutex while
-    // advancing capture; its immutable control snapshot remains independently readable.
-    if (req.complete)
-        req.complete(presented);
-    if (presented) VideoCore::NotifyPresentBoundary(generation, present_id);
+    port->prev_index = index;
+}
+
+void VideoOutDriver::SignalVblank(VideoOutPort& port) {
+    // Needs lock here as can be concurrently read by `sceVideoOutGetVblankStatus`
+    std::scoped_lock lock{port.vo_mutex};
+    auto& vblank_status = port.vblank_status;
+
+    // Trigger vblank events for the port
+    for (auto event : port.vblank_events) {
+        auto equeue = Kernel::GetEqueue(event);
+        if (equeue != nullptr) {
+            equeue->TriggerEvent(static_cast<u64>(OrbisVideoOutInternalEventId::Vblank),
+                                 Kernel::OrbisKernelEvent::Filter::VideoOut,
+                                 reinterpret_cast<void*>(
+                                     static_cast<u64>(OrbisVideoOutInternalEventId::Vblank) |
+                                     (vblank_status.count << 16)));
+        }
+    }
+
+    // Update vblank status
+    vblank_status.count++;
+    vblank_status.process_time = process_time();
+    vblank_status.tsc = read_tsc();
+    port.vblank_cv.notify_all();
 }
 
 void VideoOutDriver::DrawBlankFrame() {
@@ -395,6 +453,14 @@ bool VideoOutDriver::SubmitFlip(VideoOutPort* port, s32 index, s64 flip_arg,
         }
         ++port->flip_status.flip_pending_num; // integral GPU and CPU pending flips counter
         port->flip_status.submit_tsc = read_tsc();
+    }
+
+    if (port == &social_port) {
+        // Nothing displays the TV image while the headset is in use: the flip only has to
+        // complete for the guest. An EOP flip already waited for the GPU to draw the buffer.
+        std::scoped_lock lifecycle_lock(lifecycle_mutex);
+        CompleteFlip(port, index, flip_arg, is_eop, 0);
+        return true;
     }
 
     if (!is_eop) {
@@ -629,8 +695,8 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
 }
 
 void VideoOutDriver::PresentThread(std::stop_token token) {
-    const std::chrono::nanoseconds vblank_period(1000000000 /
-                                                 EmulatorSettings.GetVblankFrequency());
+    const u32 vblank_frequency = std::max(1u, EmulatorSettings.GetVblankFrequency());
+    const std::chrono::nanoseconds vblank_period(1000000000 / vblank_frequency);
 
     Common::SetCurrentThreadName("shadPS4:PresentThread");
     Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
@@ -685,28 +751,14 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
             }
         }
 
-        {
-            // Needs lock here as can be concurrently read by `sceVideoOutGetVblankStatus`
-            std::scoped_lock lock{main_port.vo_mutex};
-
-            // Trigger flip events for the port
-            for (auto event : main_port.vblank_events) {
-                auto equeue = Kernel::GetEqueue(event);
-                if (equeue != nullptr) {
-                    equeue->TriggerEvent(
-                        static_cast<u64>(OrbisVideoOutInternalEventId::Vblank),
-                        Kernel::OrbisKernelEvent::Filter::VideoOut,
-                        reinterpret_cast<void*>(
-                            static_cast<u64>(OrbisVideoOutInternalEventId::Vblank) |
-                            (vblank_status.count << 16)));
-                }
+        SignalVblank(main_port);
+        // The social screen keeps its own 60 Hz clock, derived from the main vblank.
+        social_vblank_accumulator += SocialScreenRefreshRate;
+        while (social_vblank_accumulator >= vblank_frequency) {
+            social_vblank_accumulator -= vblank_frequency;
+            if (social_port.is_open) {
+                SignalVblank(social_port);
             }
-
-            // Update vblank status
-            vblank_status.count++;
-            vblank_status.process_time = process_time();
-            vblank_status.tsc = read_tsc();
-            main_port.vblank_cv.notify_all();
         }
 
         std::function<void()> cadence;

@@ -45,6 +45,9 @@ constexpr int SCE_VIDEO_OUT_BUFFER_ATTRIBUTE_OPTION_NONE = 0;
 constexpr int SCE_VIDEO_OUT_BUFFER_ATTRIBUTE_OPTION_VR = 7;
 constexpr int SCE_VIDEO_OUT_BUFFER_ATTRIBUTE_OPTION_STRICT_COLORIMETRY = 8;
 
+// The display is a VR headset: PSVR titles enter VR only when it is set (AstroQuest
+// video_out.cpp).
+constexpr int ORBIS_VIDEO_OUT_DEVICE_CAPABILITY_VR_VIEW = 0x20;
 constexpr int ORBIS_VIDEO_OUT_DEVICE_CAPABILITY_BT2020_PQ = 0x80;
 
 enum OrbisVideoOutColorimetry : u8 {

@@ -138,6 +138,23 @@ void GuestVrSensor::ResetOrientation() {
     snapshot.timestamp_ns = 0;
 }
 
+void GuestVrSensor::NotifyRecenter() {
+    std::scoped_lock lock{mutex};
+    ++recenters;
+    // Positions jump with the new origin: do not take that for motion.
+    head_motion = {};
+}
+
+bool GuestVrSensor::HeadsetReady() const {
+    std::scoped_lock lock{mutex};
+    return snapshot.enabled && (!snapshot.openxr || snapshot.hardware.running);
+}
+
+std::uint64_t GuestVrSensor::RecenterCount() const {
+    std::scoped_lock lock{mutex};
+    return recenters;
+}
+
 GuestVrSensor::Snapshot GuestVrSensor::Read() const {
     std::scoped_lock lock{mutex};
     auto result = snapshot;
@@ -164,6 +181,7 @@ std::uint64_t GuestVrSensor::BeginOpenXr() {
     snapshot.hardware.generation = ++xr_generation;
     move_input = {};
     haptics = {-1, -1};
+    head_motion = {};
     return xr_generation;
 }
 
@@ -184,6 +202,35 @@ bool GuestVrSensor::PublishOpenXr(const HardwareFrame& frame) {
     snapshot.hardware = frame;
     auto& safe = snapshot.hardware;
     Sanitize(safe.head);
+    // A title takes a head that pushes into something for a push only when it moves at some
+    // speed. Runtimes that do not report the head's linear velocity get one derived from where
+    // it is from one frame to the next (AstroQuest vr_runtime.cpp UpdateHead): blended halfway
+    // towards each new difference, reset after a gap.
+    if (safe.head.position_valid) {
+        auto& motion = head_motion;
+        const std::uint64_t now = frame.predicted_ns;
+        if (motion.seen && now > motion.time_ns) {
+            const double elapsed = double(now - motion.time_ns) * 1e-9;
+            if (elapsed > 0.002 && elapsed < 0.1) {
+                for (unsigned i = 0; i < 3; ++i) {
+                    const float speed =
+                        float((safe.head.position[i] - motion.position[i]) / elapsed);
+                    motion.velocity[i] += (speed - motion.velocity[i]) * 0.5f;
+                }
+            } else if (elapsed >= 0.1) {
+                motion.velocity = {};
+            }
+        }
+        if (!motion.seen || now < motion.time_ns || now - motion.time_ns > 2'000'000) {
+            motion.position = safe.head.position;
+            motion.time_ns = now;
+            motion.seen = true;
+        }
+        if (!safe.head.linear_velocity_valid)
+            safe.head.linear_velocity = motion.velocity;
+    } else {
+        head_motion = {};
+    }
     for (auto& eye : safe.eyes)
         Sanitize(eye);
     for (auto& hand : safe.hands) {

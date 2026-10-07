@@ -192,6 +192,17 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetXrSwapMoveHands(swapMoveHands)
             Log.i(TAG, "Guest XR swap Move hands=$swapMoveHands")
+            val touchpadEmulation = runCatching {
+                com.shadps4.android.runtime.settings.TouchpadEmulation.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid touchpad emulation setting, keeping it off", it)
+                false
+            }
+            NativeFexSession.nativeSetTouchpadEmulation(touchpadEmulation)
+            Log.i(TAG, "Touchpad emulation=$touchpadEmulation")
             val pipelineCache = runCatching {
                 com.shadps4.android.runtime.settings.PipelineCache.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),

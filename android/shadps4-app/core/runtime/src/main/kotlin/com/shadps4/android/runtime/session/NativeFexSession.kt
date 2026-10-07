@@ -36,6 +36,7 @@ object NativeFexSession {
     /** Recommended/high/maximum width-height pairs, or null when unavailable. */
     external fun nativeQueryXrOutputExtents(activity: android.app.Activity, hooks: String, driver: String): IntArray?
     external fun nativeSetXrSwapMoveHands(swap: Boolean)
+    external fun nativeSetTouchpadEmulation(enabled: Boolean)
     external fun nativeSetPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetDriverPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetPipelineCompileMode(mode: Int)

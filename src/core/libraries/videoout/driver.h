@@ -94,7 +94,13 @@ public:
     void Join();
     ~VideoOutDriver();
 
-    int Open(const ServiceThreadParams* params);
+    static constexpr s32 MainPortHandle = 1;
+    // The TV next to a PSVR headset (SCE_VIDEO_OUT_BUS_TYPE_AUX_SOCIAL_SCREEN). Nothing shows
+    // it: flips complete as soon as they are submitted and vblanks come at 60 Hz.
+    static constexpr s32 SocialPortHandle = 2;
+    static constexpr u32 SocialScreenRefreshRate = 60;
+
+    int Open(const ServiceThreadParams* params, s32 bus_type = SCE_VIDEO_OUT_BUS_TYPE_MAIN);
     void Close(s32 handle);
 
     VideoOutPort* GetPort(s32 handle);
@@ -139,6 +145,9 @@ private:
     };
 
     void Flip(const Request& req);
+    // Flip status, flip events and the previous buffer's label, once a flip is done.
+    void CompleteFlip(VideoOutPort* port, s32 index, s64 flip_arg, bool eop, u64 diagnostic_id);
+    void SignalVblank(VideoOutPort& port);
     void DrawBlankFrame(); // Video port out not open
     void DrawLastFrame();  // Used when there is no flip request
     void SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop = false);
@@ -149,6 +158,8 @@ private:
     std::mutex lifecycle_mutex;
     std::mutex mutex;
     VideoOutPort main_port{};
+    VideoOutPort social_port{};
+    u32 social_vblank_accumulator{};
     std::mutex vr_cadence_mutex;
     std::function<void()> vr_cadence;
     bool vr_active{};

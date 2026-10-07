@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <optional>
 #include "core/host_runtime/guest_vr_sensor.h"
 
 namespace Core::HostRuntime::VrGeometry {
@@ -98,6 +100,56 @@ inline GuestVrSensor::Pose RenderEye(const GuestVrSensor::Pose& render_head,
     return out;
 }
 
+// An eye's rotation relative to the head: the optics' cant (and roll, if any).
+inline std::array<float, 4> HeadLocalRotation(const GuestVrSensor::Pose& head,
+                                              const GuestVrSensor::Pose& eye) {
+    const auto& c = head.orientation;
+    return Multiply({-c[0], -c[1], -c[2], c[3]}, eye.orientation);
+}
+
+inline std::array<float, 3> Rotate(const std::array<float, 4>& q, const std::array<float, 3>& v) {
+    const auto r = Multiply(Multiply(q, {v[0], v[1], v[2], 0}), {-q[0], -q[1], -q[2], q[3]});
+    return {r[0], r[1], r[2]};
+}
+
+// The angle between the eye's view axis and the head's, radians.
+inline float CantAngle(const std::array<float, 4>& local_rotation) {
+    const auto forward = Rotate(local_rotation, {0, 0, -1});
+    return std::acos(std::clamp(-forward[2], -1.f, 1.f));
+}
+
+// Above this cant, the eyes' views are submitted as parallel views (below).
+inline constexpr float ParallelEnvelopeCant = 0.5f * 3.14159265f / 180.f;
+
+// A title renders both eyes with parallel cameras along the head's view axis (a PSVR's panels
+// are parallel). On a headset whose eyes are canted by theta, presenting that image as the
+// canted eye's view shifts it by theta, and the two eyes apart by 2 theta. Instead the view is
+// submitted with the head's orientation and the field of view, in the head's frame, that
+// encloses the canted eye's: the compositor then reprojects it to the real eye
+// (AstroQuest openxr_view.h). `fov` is left/right/down/up in the eye's frame; the result is the
+// same in the head's frame. nullopt when a corner of the frustum is not in front of the head.
+inline std::optional<std::array<float, 4>> ParallelEnvelopeFov(
+    const std::array<float, 4>& local_rotation, const std::array<float, 4>& fov) {
+    const float l = std::tan(fov[0]), r = std::tan(fov[1]);
+    const float d = std::tan(fov[2]), u = std::tan(fov[3]);
+    float min_x = INFINITY, max_x = -INFINITY, min_y = INFINITY, max_y = -INFINITY;
+    for (const auto& corner : {std::array<float, 3>{l, u, -1}, std::array<float, 3>{r, u, -1},
+                               std::array<float, 3>{l, d, -1}, std::array<float, 3>{r, d, -1}}) {
+        const auto ray = Rotate(local_rotation, corner);
+        if (!std::isfinite(ray[0]) || !std::isfinite(ray[1]) || !(ray[2] < -1e-5f))
+            return std::nullopt;
+        // The edges of the frustum are planes through the eye, so the corners' projections
+        // bound the projection of the whole frustum.
+        const float x = -ray[0] / ray[2], y = -ray[1] / ray[2];
+        min_x = std::min(min_x, x);
+        max_x = std::max(max_x, x);
+        min_y = std::min(min_y, y);
+        max_y = std::max(max_y, y);
+    }
+    return std::array<float, 4>{std::atan(min_x), std::atan(max_x), std::atan(min_y),
+                                std::atan(max_y)};
+}
+
 inline bool ValidFov(const std::array<float, 4>& fov) {
     for (float angle : fov)
         if (!std::isfinite(angle) || std::abs(angle) >= 1.5707963f)
@@ -105,13 +157,26 @@ inline bool ValidFov(const std::array<float, 4>& fov) {
     return fov[0] < fov[1] && fov[2] < fov[3];
 }
 
-inline std::array<float, 3> LocalAngularVelocity(const GuestVrSensor::Pose& pose) {
-    if (!pose.orientation_valid) return {};
+// A LOCAL-space vector expressed in the pose's body axes.
+inline std::array<float, 3> ToBody(const GuestVrSensor::Pose& pose,
+                                   const std::array<float, 3>& v) {
     const auto& q = pose.orientation;
-    const auto& v = pose.angular_velocity;
     const auto local = Multiply(Multiply({-q[0], -q[1], -q[2], q[3]},
                                          {v[0], v[1], v[2], 0}), q);
     return {local[0], local[1], local[2]};
+}
+
+inline std::array<float, 3> LocalAngularVelocity(const GuestVrSensor::Pose& pose) {
+    if (!pose.orientation_valid) return {};
+    return ToBody(pose, pose.angular_velocity);
+}
+
+// What an accelerometer at rest reads: the reaction to gravity, LOCAL +Y (up), in body axes.
+// Linear acceleration is left out; runtimes report velocities, and differencing them per guest
+// read would only add noise. `g` is the magnitude in the caller's unit.
+inline std::array<float, 3> RestingAccelerometer(const GuestVrSensor::Pose& pose, float g) {
+    if (!pose.orientation_valid) return {0, g, 0};
+    return ToBody(pose, {0, g, 0});
 }
 
 // FOV is left/right/down/up. Convert those output rays to the guest's source

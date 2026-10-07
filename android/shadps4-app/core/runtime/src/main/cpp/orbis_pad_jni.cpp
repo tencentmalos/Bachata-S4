@@ -12,7 +12,9 @@
 #include "common/path_util.h"
 #include "common/profiler.h"
 #include "common/logging/log.h"
+#include <algorithm>
 #include <cmath>
+#include <ctime>
 #include <mutex>
 #include "core/user_settings.h"
 #include <cstdint>
@@ -329,9 +331,17 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeUpdateVrGyro(JNIEnv *, jc
                                                                     jfloat y, jfloat z,
                                                                     jlong timestamp_ns) {
     try {
-        if (std::isfinite(x) && std::isfinite(y) && std::isfinite(z) && timestamp_ns >= 0)
+        // SensorEvent.timestamp is CLOCK_BOOTTIME; VR samples are kept in CLOCK_MONOTONIC (see
+        // vr_time.h), which stops while the device sleeps.
+        timespec boot{}, mono{};
+        clock_gettime(CLOCK_BOOTTIME, &boot);
+        clock_gettime(CLOCK_MONOTONIC, &mono);
+        const std::int64_t offset = (std::int64_t(boot.tv_sec) - mono.tv_sec) * 1'000'000'000 +
+                                    (boot.tv_nsec - mono.tv_nsec);
+        const std::int64_t monotonic_ns = timestamp_ns - std::max<std::int64_t>(offset, 0);
+        if (std::isfinite(x) && std::isfinite(y) && std::isfinite(z) && monotonic_ns > 0)
             Core::HostRuntime::GuestVrSensor::Instance().UpdateGyro(
-                x, y, z, static_cast<std::uint64_t>(timestamp_ns));
+                x, y, z, static_cast<std::uint64_t>(monotonic_ns));
     } catch (...) {
         __android_log_print(ANDROID_LOG_ERROR, kTag, "updateVrGyro threw");
     }

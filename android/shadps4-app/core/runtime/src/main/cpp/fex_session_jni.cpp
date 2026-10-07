@@ -28,6 +28,7 @@
 #include <nlohmann/json.hpp>
 #include "core/emulator_settings.h"
 #include "core/host_runtime/guest_patch_format.h"
+#include "core/host_runtime/orbis_pad_adapter.h"
 #include "core/libraries/move/move.h"
 #include "video_core/renderer_vulkan/openxr/runtime.h"
 #include "core/file_sys/fs.h"
@@ -710,6 +711,12 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetXrSwapMoveHands(
     JNIEnv*, jobject, jboolean swap) {
     Libraries::Move::SetXrSwapHands(swap == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetTouchpadEmulation(
+    JNIEnv*, jobject, jboolean enabled) {
+    Core::HostRuntime::SetTouchpadEmulation(enabled == JNI_TRUE);
 }
 
 extern "C" JNIEXPORT void JNICALL

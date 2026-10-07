@@ -89,6 +89,16 @@ private:
                 transform[2] - transform[0] * left, transform[3] - transform[1] * f.tan_bottom};
     }
 
+    // The cant the runtime reports, once per eye and whenever it changes by more than 0.1 deg.
+    static void LogCant(unsigned eye, float cant) {
+        static std::array<std::atomic<float>, 2> logged{-1.f, -1.f};
+        if (std::abs(logged[eye].load(std::memory_order_relaxed) - cant) < 0.1f * 3.14159265f / 180.f)
+            return;
+        logged[eye].store(cant, std::memory_order_relaxed);
+        LOG_INFO(Lib_Hmd, "XR eye {} cant {:.2f} deg: {} view", eye, cant * 180.f / 3.14159265f,
+                 cant > VrGeometry::ParallelEnvelopeCant ? "parallel envelope" : "eye");
+    }
+
     static void ReadRenderPose(ReprojectionFrame& frame,
                                const Libraries::Hmd::OrbisHmdReprojectionTrackerState& state) {
         const auto sensor = GuestVrSensor::Instance().Read();
@@ -107,8 +117,23 @@ private:
         for (unsigned eye = 0; eye < 2; ++eye) {
             frame.render_eyes[eye] = VrGeometry::RenderEye(
                 head, sensor.hardware.head, sensor.hardware.eyes[eye]);
-            if (VrGeometry::ValidFov(sensor.hardware.fov[eye]))
-                frame.render_fov[eye] = sensor.hardware.fov[eye];
+            if (!VrGeometry::ValidFov(sensor.hardware.fov[eye]))
+                continue;
+            frame.render_fov[eye] = sensor.hardware.fov[eye];
+            if (!frame.render_eyes[eye].orientation_valid)
+                continue;
+            // Canted eyes: submit the title's parallel view (see ParallelEnvelopeFov).
+            const auto local =
+                VrGeometry::HeadLocalRotation(sensor.hardware.head, sensor.hardware.eyes[eye]);
+            const float cant = VrGeometry::CantAngle(local);
+            LogCant(eye, cant);
+            if (cant <= VrGeometry::ParallelEnvelopeCant)
+                continue;
+            if (const auto envelope = VrGeometry::ParallelEnvelopeFov(local, frame.render_fov[eye]);
+                envelope && VrGeometry::ValidFov(*envelope)) {
+                frame.render_eyes[eye].orientation = head.orientation;
+                frame.render_fov[eye] = *envelope;
+            }
         }
     }
     u32 ReadEyePair(ReprojectionFrame& frame, const u64* textures, u64 sampler_address,

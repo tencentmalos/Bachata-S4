@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "core/libraries/pad/pad.h"
+#include "input/pad_gestures.h"
+#include "input/stick_finger.h"
 #include "spatial/input/input_hub.h"
 #include <array>
 #include <deque>
@@ -20,6 +22,16 @@ struct PadSnapshot {
     float touch_x{}, touch_y{};
 };
 enum class PadResult { Ok, WrongSession, BadPort, Rejected, NoSession };
+
+// Touchpad emulation for controllers that have none (every physical controller and the XR
+// controllers here: only the on-screen overlay and DebugBus touch the pad). Per game, off by
+// default, since it takes the right stick and some shoulder buttons over:
+//  - the right stick moves a finger over the pad (Input::StickFinger);
+//  - R2 presses the pad while pulled, R1 swipes forward once, L2 pulls back and lets go when
+//    released (Input::PadGestures), not while the PS button is held.
+// The sticks and buttons are still reported as well. A real touch always wins.
+void SetTouchpadEmulation(bool enabled);
+bool TouchpadEmulation();
 
 // Application-owned PS4 conversion/ports/handles. Common registration, normalized
 // state and feedback live in Foundation. This object lives ONLY in the host DSO;
@@ -106,7 +118,19 @@ private:
         std::deque<Sample> history;
         std::uint64_t overlay_sequence{}, debug_sequence{};
         int handle{}, user{}, type{}, index{};
+        // Touchpad emulation (port 0): the inputs it was last given, and its fingers.
+        std::array<float, 6> emu_axes{};
+        std::uint32_t emu_buttons{};
+        bool emu_active{};
+        Input::StickFinger stick_finger;
+        Input::PadGestures gestures;
+        // A new id for every touch that lands (1..127, as on desktop).
+        bool touch_was_down{};
+        std::uint8_t touch_id{}, next_touch_id{1};
     };
+    // Fills d.touchData and the touchpad button from the emulated finger. Returns whether the
+    // emulation still has something to show over time (so a guest read refreshes it).
+    bool EmulateTouchLocked(Port& p, Libraries::Pad::OrbisPadData& d);
     void ResetDebugLocked();
     void DebugFocusLocked(bool focused);
     void ReleaseDebugLocked(std::string_view reason, bool discard_history);

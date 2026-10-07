@@ -21,6 +21,9 @@ public:
         std::array<float, 3> angular_velocity{};
         std::array<float, 3> linear_velocity{};
         bool orientation_valid{}, position_valid{};
+        // The runtime reported linear_velocity (XR_SPACE_VELOCITY_LINEAR_VALID_BIT). When it
+        // does not, PublishOpenXr derives the head's from successive positions.
+        bool linear_velocity_valid{};
     };
     struct Hand {
         Pose grip{}, aim{};
@@ -93,7 +96,16 @@ public:
                          float right_y, float left_trigger, float right_trigger,
                          std::uint64_t timestamp_us = 0);
     void ResetOrientation();
+    // The runtime recentred its LOCAL space (the player reset the view). Titles are told with a
+    // ResetVrPosition system event; RecenterCount lets the session that owns the event queue see
+    // each one once.
+    void NotifyRecenter();
+    [[nodiscard]] std::uint64_t RecenterCount() const;
     [[nodiscard]] Snapshot Read() const;
+    // Whether a headset is there for the title: the virtual SBS one, or a running OpenXR
+    // session. sceHmdGetDeviceInformation reports READY and VideoOut the VR_VIEW capability
+    // exactly then.
+    [[nodiscard]] bool HeadsetReady() const;
     [[nodiscard]] MoveInputSnapshot ReadMoveInput() const;
 
 private:
@@ -103,6 +115,13 @@ private:
     std::uint64_t xr_generation{};
     std::array<Pose, 2> render_eyes{};
     std::array<float, 2> haptics{-1, -1};
+    // Head velocity from position differences, for runtimes that report none.
+    struct HeadMotion {
+        std::array<float, 3> position{}, velocity{};
+        std::uint64_t time_ns{};
+        bool seen{};
+    } head_motion;
+    std::uint64_t recenters{};
 };
 
 } // namespace Core::HostRuntime

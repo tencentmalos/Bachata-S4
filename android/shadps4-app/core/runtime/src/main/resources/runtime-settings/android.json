@@ -159,6 +159,18 @@
   "restartRequired": true
 },
   {
+    "id": "input.touchpad_emulation",
+    "nativeKey": "Input.touchpad_emulation",
+    "section": "Input",
+    "category": "System",
+    "title": "Touchpad Emulation",
+    "help": "For games that need the DualShock 4 touchpad, on controllers that have none. The right stick moves a finger over the pad; R2 presses the pad, R1 swipes forward, L2 pulls back and lets go when released. The stick and buttons still reach the game as well. A touch on the screen overlay always takes precedence. Restart the game to apply.",
+    "kind": "BOOLEAN",
+    "defaultValue": false,
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true
+  },
+  {
     "id": "input.xr_swap_move_hands",
     "nativeKey": "Input.xr_swap_move_hands",
     "section": "Input",

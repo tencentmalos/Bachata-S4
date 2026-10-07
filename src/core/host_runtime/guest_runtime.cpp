@@ -1646,7 +1646,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             "K7yhYrsIBPc", "QkRl7pART9M", "sIh8GwcevaQ", "TVegDMLaBB8",
             "gkGuO9dd57M", "ARhgpXvwoR0", "76OBvrrQXUc", "XoeWzXlrnMw",
             "EUCaQtXXYNI", "E0P0sN-wy+4", "9fvHMUbsom4", "Q8skQqEwn5c",
-            "IBv4P3q1pQ0", "zvyKP0Z3UvU", "5IFOAYv-62g", "VItTwN8DmS8"};
+            "IBv4P3q1pQ0", "zvyKP0Z3UvU", "5IFOAYv-62g", "VItTwN8DmS8",
+            // RegisterDeviceInternal, the colour-picking variant, and RegisterDevice2, which
+            // the firmware exports from libSceVrTrackerFourDeviceAllowed.
+            "ufexf4aNiwg", "tNJrfYsY3wY", "24kDA+A0Ox0"};
         // Camera and Move use checked, session-enabled SBS adapters. Library
         // suffix checks still gate every import; unrelated entry points refuse.
         static const std::set<std::string> move_functions{
@@ -1812,7 +1815,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) ==
                   "#libSceHmdSetupDialog#1#libSceHmdSetupDialog#Function") ||
              (vr_tracker_functions.contains(nid) &&
-              symbol.name.substr(nid.size()) == "#libSceVrTracker#1#libSceVrTracker#Function") ||
+              symbol.name.substr(nid.size()) ==
+                  (nid == "24kDA+A0Ox0"
+                       ? "#libSceVrTrackerFourDeviceAllowed#1#libSceVrTracker#Function"
+                       : "#libSceVrTracker#1#libSceVrTracker#Function")) ||
              (IsCameraNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceCamera#1#libSceCamera#Function") ||
              (move_functions.contains(nid) &&
@@ -2467,7 +2473,10 @@ void GuestRuntime::Impl::InstallHandlers() {
     });
     bind({"kGVLc3htQE8"}, [this](const auto& a) -> u64 {
         if (!a[1]) return ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS;
-        const u64 capability = 0;
+        // PSVR titles enter VR only on a display with VR_VIEW. HDR output is not offered here.
+        const u64 capability = GuestVrSensor::Instance().HeadsetReady()
+                                   ? u64(Libraries::VideoOut::ORBIS_VIDEO_OUT_DEVICE_CAPABILITY_VR_VIEW)
+                                   : 0;
         return space.WriteData({GuestAddress{a[1]}},
                                 std::as_bytes(std::span{&capability, size_t{1}}))
                    ? u64(ORBIS_OK)
@@ -4155,6 +4164,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         SystemService::OrbisSystemServiceStatus status{};
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(status)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
+        platform->SyncVrRecenters(GuestVrSensor::Instance().RecenterCount());
         status = platform->Status();
         const s32 result = 0;
         if (result == 0)
@@ -4165,6 +4175,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         auto event = std::make_unique<SystemService::OrbisSystemServiceEvent>();
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(*event)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
+        platform->SyncVrRecenters(GuestVrSensor::Instance().RecenterCount());
         const auto result = platform->SystemEvent(*event);
         if (result == 0)
             Write(a[0], *event);
@@ -4213,6 +4224,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         case PixelFormat::A2R10G10B10Srgb:
         case PixelFormat::A2R10G10B10Bt2020Pq:
         case PixelFormat::A16R16G16B16Float:
+        case PixelFormat::YCbCr420Bt709: // social screen video; only that port accepts it
             break;
         default:
             return Status(MakeError(ErrorCategory::Unsupported, "sceVideoOutSetBufferAttribute",
@@ -4225,7 +4237,11 @@ void GuestRuntime::Impl::InstallHandlers() {
     };
     bind({"Up36PTk687E"}, [this](const auto& a) -> u64 {
         using namespace Libraries::VideoOut;
-        if (static_cast<s32>(a[1]) != SCE_VIDEO_OUT_BUS_TYPE_MAIN || a[2] != 0)
+        const s32 bus_type = static_cast<s32>(a[1]);
+        // The social screen bus only exists next to a headset.
+        const bool social = bus_type == SCE_VIDEO_OUT_BUS_TYPE_AUX_SOCIAL_SCREEN &&
+                            GuestVrSensor::Instance().HeadsetReady();
+        if ((bus_type != SCE_VIDEO_OUT_BUS_TYPE_MAIN && !social) || a[2] != 0)
             return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_VALUE);
         // The optional service-thread structure is copied; its pointers can
         // never escape into a worker. Current native driver uses default QoS.
@@ -4238,9 +4254,9 @@ void GuestRuntime::Impl::InstallHandlers() {
         auto& video = Graphics().VideoOut();
         if (cancelling)
             return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_RESOURCE_BUSY);
-        auto result = video.Open(a[3] ? &params : nullptr);
-        LOG_INFO(Lib_VideoOut, "Production VideoOutOpen: handle={} (native Turnip/Presenter)",
-                 result);
+        auto result = video.Open(a[3] ? &params : nullptr, bus_type);
+        LOG_INFO(Lib_VideoOut, "Production VideoOutOpen: bus={} handle={} (native Turnip/Presenter)",
+                 bus_type, result);
         return static_cast<u32>(result);
     });
     bind({"6kPnj51T62Y", "8XGijEoThE0"}, [this](const auto& a) -> u64 {
@@ -4460,6 +4476,20 @@ void GuestRuntime::Impl::InstallHandlers() {
     bind({"sIh8GwcevaQ"}, [](const auto& a) -> u64 {
         return static_cast<u32>(Libraries::VrTracker::sceVrTrackerRegisterDevice(
             static_cast<Libraries::VrTracker::OrbisVrTrackerDeviceType>(a[0]), s32(a[1])));
+    });
+    bind({"24kDA+A0Ox0"}, [](const auto& a) -> u64 {
+        return static_cast<u32>(Libraries::VrTracker::sceVrTrackerRegisterDevice2(
+            static_cast<Libraries::VrTracker::OrbisVrTrackerDeviceType>(a[0]), s32(a[1])));
+    });
+    bind({"ufexf4aNiwg"}, [](const auto& a) -> u64 {
+        return static_cast<u32>(Libraries::VrTracker::sceVrTrackerRegisterDeviceInternal(
+            static_cast<Libraries::VrTracker::OrbisVrTrackerDeviceType>(a[0]), s32(a[1]),
+            s32(a[2]), s32(a[3])));
+    });
+    bind({"tNJrfYsY3wY"}, [](const auto& a) -> u64 {
+        return static_cast<u32>(Libraries::VrTracker::Func_B4D26B7D8B18DF06(
+            static_cast<Libraries::VrTracker::OrbisVrTrackerDeviceType>(a[0]), s32(a[1]),
+            s32(a[2])));
     });
     bind({"5IFOAYv-62g"}, [tracker_read](const auto& a) -> u64 {
         Libraries::VrTracker::OrbisVrTrackerCpuProcessParam param{};
@@ -5128,6 +5158,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
                                                      EmulatorSettings.GetConsoleLanguage(),
                                                      EmulatorSettings.IsCircleEnter());
+    // Recentres from before this session are not this title's to hear about.
+    impl->platform->IgnoreVrRecentersUpTo(GuestVrSensor::Instance().RecenterCount());
     LOG_INFO(Lib_SystemService, "Guest console language={} (session snapshot)",
              EmulatorSettings.GetConsoleLanguage());
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);

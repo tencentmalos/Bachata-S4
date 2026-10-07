@@ -149,6 +149,56 @@ int main() {
     CHECK(sensor.PublishOpenXr(frame));
     CHECK(!sensor.Read().hardware.hands[1].active && !sensor.RequestHaptic(1, 1));
     sensor.EndOpenXr(new_gen); CHECK(!sensor.Read().enabled);
+
+    // Head linear velocity from positions when the runtime reports none: 1 m/s along X at
+    // 90 Hz converges to 1 m/s; a reported velocity is kept; a recentre is not motion.
+    {
+        const auto vgen = sensor.BeginOpenXr();
+        Core::HostRuntime::GuestVrSensor::HardwareFrame f{};
+        f.generation = vgen;
+        f.running = f.focused = true;
+        f.head.orientation_valid = f.head.position_valid = true;
+        const std::uint64_t start = now();
+        const std::uint64_t step = 11'111'111;
+        for (unsigned i = 0; i < 20; ++i) {
+            f.received_ns = start + i;
+            f.predicted_ns = start + i * step;
+            f.head.position = {float(i) * step * 1e-9f, 1.6f, 0};
+            CHECK(sensor.PublishOpenXr(f));
+        }
+        auto v = sensor.Read().hardware.head.linear_velocity;
+        CHECK(std::abs(v[0] - 1.f) < 1e-3f && std::abs(v[1]) < 1e-4f && std::abs(v[2]) < 1e-4f);
+        f.head.linear_velocity = {0, 0, -2};
+        f.head.linear_velocity_valid = true;
+        f.received_ns = start + 20;
+        f.predicted_ns = start + 20 * step;
+        f.head.position = {20 * step * 1e-9f, 1.6f, 0};
+        CHECK(sensor.PublishOpenXr(f));
+        v = sensor.Read().hardware.head.linear_velocity;
+        CHECK(v[0] == 0 && v[2] == -2);
+        // The new origin moves the head 3 m; no velocity comes of it.
+        const auto before = sensor.RecenterCount();
+        sensor.NotifyRecenter();
+        CHECK(sensor.RecenterCount() == before + 1);
+        f.head.linear_velocity_valid = false;
+        f.head.linear_velocity = {};
+        f.received_ns = start + 21;
+        f.predicted_ns = start + 21 * step;
+        f.head.position = {3, 1.6f, 0};
+        CHECK(sensor.PublishOpenXr(f));
+        f.received_ns = start + 22;
+        f.predicted_ns = start + 22 * step;
+        CHECK(sensor.PublishOpenXr(f));
+        v = sensor.Read().hardware.head.linear_velocity;
+        CHECK(std::abs(v[0]) < 1e-4f);
+        // A gap of more than 100 ms resets it.
+        f.received_ns = start + 23;
+        f.predicted_ns = start + 22 * step + 150'000'000;
+        f.head.position = {3.5f, 1.6f, 0};
+        CHECK(sensor.PublishOpenXr(f));
+        CHECK(sensor.Read().hardware.head.linear_velocity[0] == 0);
+        sensor.EndOpenXr(vgen);
+    }
     std::printf("guest_vr_sensor_tests: %u checks / %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

@@ -6,6 +6,7 @@
 #include "core/libraries/pad/pad_vibration.h"
 #include "imgui/input_capture.h"
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -29,6 +30,12 @@ u64 Now() {
                std::chrono::steady_clock::now().time_since_epoch())
         .count();
 }
+std::atomic<bool> touchpad_emulation{false};
+constexpr std::uint32_t kTouchPadBit = 0x100000, kPsBit = 0x10000, kR1Bit = 0x800;
+OrbisPadTouch PadTouch(float x, float y, u8 id) {
+    return {u16(std::lround(std::clamp(x, 0.f, 1.f) * 1919)),
+            u16(std::lround(std::clamp(y, 0.f, 1.f) * 949)), id};
+}
 DeviceCapabilities OverlayCapabilities() {
     DeviceCapabilities caps;
     for (int i = 0; i < 6; ++i)
@@ -36,6 +43,48 @@ DeviceCapabilities OverlayCapabilities() {
     return caps; // No invented actuator capability for a touch overlay.
 }
 } // namespace
+
+void SetTouchpadEmulation(bool enabled) {
+    touchpad_emulation.store(enabled, std::memory_order_relaxed);
+}
+bool TouchpadEmulation() {
+    return touchpad_emulation.load(std::memory_order_relaxed);
+}
+
+bool OrbisPadAdapter::EmulateTouchLocked(Port& p, OrbisPadData& d) {
+    const double now = double(Now()) * 1e-6;
+    const auto& axes = p.emu_axes;
+    Input::PadGestures::Controls controls;
+    if (!(p.emu_buttons & kPsBit)) {
+        controls.press = axes[5] > 0.5f;
+        controls.swipe = (p.emu_buttons & kR1Bit) != 0;
+        controls.pull = axes[4] > 0.5f;
+    }
+    const auto made = p.gestures.Update(now, controls);
+    Input::StickFinger::Touch touch{false, 0.5f, 0.5f};
+    if (made.down) {
+        p.stick_finger.Reset();
+        touch = {true, made.x, made.y};
+        if (made.pressed)
+            d.buttons = OrbisPadButtonDataOffset(u32(d.buttons) | kTouchPadBit);
+    } else {
+        touch = p.stick_finger.Update(now, axes[2], axes[3]);
+    }
+    if (touch.down) {
+        if (!p.touch_was_down) {
+            p.touch_id = p.next_touch_id;
+            p.next_touch_id = p.next_touch_id == 127 ? 1 : p.next_touch_id + 1;
+        }
+        d.touchData.touchNum = 1;
+        d.touchData.touch[0] = PadTouch(touch.x, touch.y, p.touch_id);
+    }
+    p.touch_was_down = touch.down;
+    // Timers run on while a finger is down, a gesture is under way, or an input that starts
+    // one is held.
+    return touch.down || p.gestures.IsActive() || controls.press || controls.swipe ||
+           controls.pull || std::hypot(axes[2], axes[3]) > Input::StickFinger::Rest;
+}
+
 OrbisPadData OrbisPadAdapter::Neutral() {
     OrbisPadData d{};
     d.leftStick = d.rightStick = {128, 128};
@@ -120,9 +169,24 @@ void OrbisPadAdapter::Publish(int port) {
     d.analogButtons.r2 = Trigger(axes[5]);
     const auto& touch = p.debug && p.debug_touch.touch_down ? p.debug_touch : p.touch;
     if ((p.debug || p.overlay) && touch.touch_down) {
+        // A real touch: the emulated finger lifts and does not land again on its own.
+        if (!p.touch_was_down) {
+            p.touch_id = p.next_touch_id;
+            p.next_touch_id = p.next_touch_id == 127 ? 1 : p.next_touch_id + 1;
+        }
+        p.touch_was_down = true;
+        p.stick_finger.Reset();
+        p.gestures.Reset();
+        p.emu_active = false;
         d.touchData.touchNum = 1;
-        d.touchData.touch[0] = {u16(std::lround(std::clamp(touch.touch_x, 0.f, 1.f) * 1919)),
-                                u16(std::lround(std::clamp(touch.touch_y, 0.f, 1.f) * 949)), 1};
+        d.touchData.touch[0] = PadTouch(touch.touch_x, touch.touch_y, p.touch_id);
+    } else if (port == 0 && TouchpadEmulation() && d.connected) {
+        p.emu_axes = axes;
+        p.emu_buttons = buttons;
+        p.emu_active = EmulateTouchLocked(p, d);
+    } else {
+        p.touch_was_down = false;
+        p.emu_active = false;
     }
     d.connectedCount = p.data.connectedCount + (d.connected && !p.data.connected ? 1 : 0);
     if (d.buttons != p.data.buttons) {
@@ -412,6 +476,9 @@ int OrbisPadAdapter::Read(int handle, OrbisPadData *out, int count, bool latest,
         data.timestamp = timestamp;
         data.buttons = OrbisPadButtonDataOffset::Intercepted;
     };
+    // The emulated finger moves with time, not only with input: bring it up to now.
+    if (p->emu_active && TouchpadEmulation())
+        Publish(int(p - ports_.data()));
     if (latest || p->history.empty()) {
         *out = p->data;
         mask_for_guest(*out);

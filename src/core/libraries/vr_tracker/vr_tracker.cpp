@@ -6,9 +6,11 @@
 #include "core/libraries/error_codes.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/host_runtime/vr_geometry.h"
+#include "core/host_runtime/vr_time.h"
 #include "core/libraries/kernel/time.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/vr_tracker/vr_tracker.h"
+#include "core/libraries/vr_tracker/vr_tracker_devices.h"
 #include "core/libraries/vr_tracker/vr_tracker_error.h"
 #include "core/libraries/vr_tracker/vr_tracker_play_area.h"
 #include "core/memory.h"
@@ -37,7 +39,8 @@ static void* g_work_memory_pointer = nullptr;
 static u32 g_work_size = 0;
 
 // Registered handles
-static s32 g_pad_handle = -1;
+static PadRegistry g_pads;
+static Recalibrations g_recalibrations;
 static std::array<s32, 2> g_move_handles{-1, -1};
 static s32 g_gun_handle = -1;
 static s32 g_hmd_handle = -1;
@@ -205,10 +208,13 @@ s32 PS4_SYSV_ABI sceVrTrackerRegisterDeviceInternal(const OrbisVrTrackerDeviceTy
         break;
     }
     case OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_DUALSHOCK4: {
-        if (g_pad_handle != -1) {
-            return ORBIS_VR_TRACKER_ERROR_DEVICE_ALREADY_REGISTERED;
-        }
-        g_pad_handle = handle;
+        // Every logged-in player's controller may be registered; only the first one is the
+        // player's. unk0 is the light bar colour the title asks for, negative for any free one.
+        OrbisVrTrackerLedColor color{};
+        if (const s32 status = g_pads.Register(handle, unk0, &color); status != ORBIS_OK)
+            return status;
+        LOG_INFO(Lib_VrTracker, "DualShock 4 {} registered, light bar colour {}{}", handle,
+                 static_cast<s32>(color), g_pads.IsPlayers(handle) ? " (player's)" : "");
         break;
     }
     case OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_MOVE: {
@@ -280,20 +286,44 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         const auto sensor = GuestVrSensor::Instance().Read();
         const auto move_it = std::find(g_move_handles.begin(), g_move_handles.end(), param->handle);
         const bool is_hmd = g_hmd_handle >= 0 && param->handle == g_hmd_handle;
-        if (!is_hmd && move_it == g_move_handles.end())
+        const auto pad = param->handle >= 0 ? g_pads.Find(param->handle) : std::nullopt;
+        if (!is_hmd && move_it == g_move_handles.end() && !pad)
             return ORBIS_VR_TRACKER_ERROR_DEVICE_NOT_REGISTERED;
         std::memset(result, 0, sizeof(*result));
+        const u64 now = Libraries::Kernel::sceKernelGetProcessTime();
         result->handle = param->handle;
+        result->user_frame_number = param->user_frame_number;
         result->connected = 1;
-        result->timestamp = Libraries::Kernel::sceKernelGetProcessTime();
-        result->device_timestamp = sensor.timestamp_ns / 1000;
+        result->timestamp = now;
+        result->device_timestamp = Core::HostRuntime::VrTime::SteadyNsToProcessUs(
+            sensor.timestamp_ns, Core::HostRuntime::VrTime::SteadyNowNs(), now);
+        // The virtual camera shares the fixed forward-facing reference frame.
+        // A zero-filled quaternion is not an identity rotation.
+        result->camera_orientation_w = 1.0f;
+        const auto device_type = is_hmd ? ORBIS_VR_TRACKER_DEVICE_HMD
+                                 : pad  ? ORBIS_VR_TRACKER_DEVICE_DUALSHOCK4
+                                        : ORBIS_VR_TRACKER_DEVICE_MOVE;
+        // A recalibration is reported whether or not the device can be tracked afterwards: the
+        // title waits for CALIBRATING to come and go.
+        const bool recalibrating = g_recalibrations.Report(device_type, now);
+        if (pad) {
+            // No host source yet places a DualShock 4 (D2 in the AstroQuest import plan): the
+            // controller is connected and its light bar has a colour, but it is not tracked.
+            result->led_color = pad->color;
+            result->status = recalibrating ? ORBIS_VR_TRACKER_STATUS_CALIBRATING
+                                           : ORBIS_VR_TRACKER_STATUS_NOT_TRACKING;
+            result->position_quality = ORBIS_VR_TRACKER_QUALITY_NONE;
+            result->orientation_quality = ORBIS_VR_TRACKER_QUALITY_NONE;
+            return ORBIS_OK;
+        }
         result->status = ORBIS_VR_TRACKER_STATUS_TRACKING;
         result->position_quality = ORBIS_VR_TRACKER_QUALITY_FULL;
         result->orientation_quality = ORBIS_VR_TRACKER_QUALITY_FULL;
-        // The virtual camera shares the fixed forward-facing reference frame.
-        // A zero-filled quaternion is not an identity rotation; Unity also
-        // copies this field separately from the device/eye poses.
-        result->camera_orientation_w = 1.0f;
+        // Only a device that is tracked can be said to be recalibrating.
+        const auto calibrating = [&] {
+            if (recalibrating && result->status == ORBIS_VR_TRACKER_STATUS_TRACKING)
+                result->status = ORBIS_VR_TRACKER_STATUS_CALIBRATING;
+        };
         if (sensor.openxr) {
             const auto& hardware = sensor.hardware;
             const auto copy = [](auto& dst, const GuestVrSensor::Pose& src) {
@@ -326,7 +356,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
             } else {
                 copy(result->move_info.device_pose, pose);
             }
-            result->user_frame_number = param->user_frame_number;
+            calibrating();
             return ORBIS_OK;
         }
         if (is_hmd) {
@@ -360,7 +390,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
             pose.position_z = -0.45f;
             pose.orientation_w = 1.0f;
         }
-        result->user_frame_number = param->user_frame_number;
+        calibrating();
         return ORBIS_OK;
     }
     LOG_ERROR(Lib_VrTracker, "(INCOMPLETE) called without a camera/HMD provider");
@@ -436,7 +466,8 @@ sceVrTrackerNotifyEndOfCpuProcess(const OrbisVrTrackerNotifyEndOfCpuProcessParam
 }
 
 s32 PS4_SYSV_ABI sceVrTrackerRecalibrate(const OrbisVrTrackerRecalibrateParam* param) {
-    LOG_ERROR(Lib_VrTracker, "(STUBBED) called");
+    LOG_INFO(Lib_VrTracker, "called, device_type = {}",
+             param ? static_cast<u32>(param->device_type) : 0u);
     if (!g_library_initialized) {
         return ORBIS_VR_TRACKER_ERROR_NOT_INIT;
     }
@@ -448,14 +479,13 @@ s32 PS4_SYSV_ABI sceVrTrackerRecalibrate(const OrbisVrTrackerRecalibrateParam* p
     OrbisVrTrackerDeviceType device_type = param->device_type;
     switch (device_type) {
     case OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_HMD: {
-        if (VirtualSbsEnabled())
-            return ORBIS_OK;
         // Seems like the lack of a connected hmd results in this?
-        return ORBIS_VR_TRACKER_ERROR_DEVICE_NOT_REGISTERED;
+        if (!VirtualSbsEnabled() || g_hmd_handle == -1)
+            return ORBIS_VR_TRACKER_ERROR_DEVICE_NOT_REGISTERED;
         break;
     }
     case OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_DUALSHOCK4: {
-        if (g_pad_handle == -1) {
+        if (g_pads.Empty()) {
             return ORBIS_VR_TRACKER_ERROR_DEVICE_NOT_REGISTERED;
         }
         break;
@@ -479,7 +509,8 @@ s32 PS4_SYSV_ABI sceVrTrackerRecalibrate(const OrbisVrTrackerRecalibrateParam* p
     }
     }
 
-    // TODO: handle internal recalibration behaviors.
+    // Results for this kind of device say CALIBRATING for a moment (see Recalibrations).
+    g_recalibrations.Begin(device_type, Libraries::Kernel::sceKernelGetProcessTime());
     return ORBIS_OK;
 }
 
@@ -561,9 +592,14 @@ s32 PS4_SYSV_ABI Func_9A6CDB2103664F8A() {
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI Func_B4D26B7D8B18DF06() {
-    LOG_ERROR(Lib_VrTracker, "(STUBBED) called");
-    return ORBIS_OK;
+s32 PS4_SYSV_ABI Func_B4D26B7D8B18DF06(const OrbisVrTrackerDeviceType device_type, const s32 handle,
+                                       const s32 led_color) {
+    // Undocumented registration variant whose third argument picks the light bar colour (0..4)
+    // instead of leaving it to the system. The ABI is AstroQuest's reading of ASTRO BOT's calls
+    // (vr_tracker.cpp:618-625), not checked against the firmware here.
+    LOG_INFO(Lib_VrTracker, "called, device_type = {}, handle = {}, led_color = {}",
+             static_cast<u32>(device_type), handle, led_color);
+    return sceVrTrackerRegisterDeviceInternal(device_type, handle, led_color, 1);
 }
 
 s32 PS4_SYSV_ABI sceVrTrackerSetDeviceRejection() {
@@ -632,8 +668,7 @@ s32 PS4_SYSV_ABI sceVrTrackerUnregisterDevice(const s32 handle) {
     // Since this function only takes a handle, compare the handle to registered handles.
     if (handle == g_hmd_handle) {
         g_hmd_handle = -1;
-    } else if (handle == g_pad_handle) {
-        g_pad_handle = -1;
+    } else if (g_pads.Unregister(handle)) {
     } else if (std::find(g_move_handles.begin(), g_move_handles.end(), handle) !=
                g_move_handles.end()) {
         for (auto& value : g_move_handles) {
@@ -657,7 +692,9 @@ s32 PS4_SYSV_ABI sceVrTrackerTerm() {
     }
     g_library_initialized = false;
     g_move_handles = {-1, -1};
-    g_hmd_handle = g_pad_handle = g_gun_handle = -1;
+    g_hmd_handle = g_gun_handle = -1;
+    g_pads.Clear();
+    g_recalibrations.Clear();
     g_garlic_memory_pointer = g_onion_memory_pointer = g_work_memory_pointer = nullptr;
     g_garlic_size = g_onion_size = g_work_size = 0;
     return ORBIS_OK;

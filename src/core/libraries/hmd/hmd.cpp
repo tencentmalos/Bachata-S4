@@ -13,6 +13,12 @@
 
 namespace Libraries::Hmd {
 
+// Microseconds from a flip to the panel lighting up, at each refresh rate. Titles predict poses
+// for that moment; 1 us made them predict for the flip itself. The values are AstroQuest's
+// (hmd.cpp), about a refresh period plus scan-out, not measured on a PSVR.
+static constexpr u16 FlipToDisplayLatency90Hz = 13000;
+static constexpr u16 FlipToDisplayLatency120Hz = 10000;
+
 using Core::HostRuntime::GuestVrSensor;
 
 static bool g_library_initialized = false;
@@ -146,8 +152,9 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformation(OrbisHmdDeviceInformation* info) {
     info->user_id = g_user_id;
     if (GuestVrSensor::Instance().Read().enabled) {
         info->device_info.panel_resolution = {.width = 1920, .height = 1080};
-        info->device_info.flip_to_display_latency = {.refresh_rate_90hz = 1,
-                                                      .refresh_rate_120hz = 1};
+        info->device_info.flip_to_display_latency = {
+            .refresh_rate_90hz = FlipToDisplayLatency90Hz,
+            .refresh_rate_120hz = FlipToDisplayLatency120Hz};
         info->hmu_mount = sensor.openxr ? sensor.hardware.mounted : 1;
         if (sensor.openxr) info->device_info.panel_resolution = {
             sensor.hardware.eye_width * 2, sensor.hardware.eye_height};
@@ -181,8 +188,9 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformationByHandle(s32 handle, OrbisHmdDeviceIn
     info->user_id = g_user_id;
     if (GuestVrSensor::Instance().Read().enabled) {
         info->device_info.panel_resolution = {.width = 1920, .height = 1080};
-        info->device_info.flip_to_display_latency = {.refresh_rate_90hz = 1,
-                                                      .refresh_rate_120hz = 1};
+        info->device_info.flip_to_display_latency = {
+            .refresh_rate_90hz = FlipToDisplayLatency90Hz,
+            .refresh_rate_120hz = FlipToDisplayLatency120Hz};
         info->hmu_mount = sensor.openxr ? sensor.hardware.mounted : 1;
         if (sensor.openxr) info->device_info.panel_resolution = {
             sensor.hardware.eye_width * 2, sensor.hardware.eye_height};

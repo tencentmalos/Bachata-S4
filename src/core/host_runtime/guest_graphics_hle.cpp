@@ -318,6 +318,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                 attribute.pitch_in_pixel > 32768 || attribute.tiling_mode < TilingMode::Tile ||
                 attribute.tiling_mode > TilingMode::Linear)
                 return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_VALUE);
+            const bool social = s32(a[0]) == VideoOutDriver::SocialPortHandle;
             switch (attribute.pixel_format) {
             case PixelFormat::A8R8G8B8Srgb:
             case PixelFormat::A8B8G8R8Srgb:
@@ -326,12 +327,26 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             case PixelFormat::A2R10G10B10Srgb:
             case PixelFormat::A2R10G10B10Bt2020Pq:
                 break;
+            case PixelFormat::YCbCr420Bt709:
+                // Social screen video. It is never read, so no image is made of it.
+                if (!social)
+                    return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_VALUE);
+                break;
             default:
                 return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_VALUE);
             }
             std::array<void*, MaxDisplayBuffers> addresses{};
             for (s32 i = 0; i < count; ++i) {
                 const auto address = Read<u64>(space, a[2] + i * 8);
+                if (attribute.pixel_format == PixelFormat::YCbCr420Bt709) {
+                    // Luma plane plus half-height chroma plane, pitch-wide.
+                    const u64 size = u64(attribute.pitch_in_pixel) * attribute.height * 3 / 2;
+                    if (address % 256 ||
+                        !AcquireGraphicsByteBuffer(space, {GuestAddress{address}, size}, false))
+                        return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS);
+                    addresses[i] = reinterpret_cast<void*>(address);
+                    continue;
+                }
                 VideoCore::ImageInfo info(BufferAttributeGroup{true, attribute}, address);
                 // A surface can span several adjacent direct-memory mappings (MHR
                 // uses 4 MiB chunks). Validate every segment through the byte-
@@ -356,7 +371,8 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     install(
         "uquVH4-Du78", 1,
         [](GuestGraphics& graphics, const Args& a) -> u64 {
-            if (a[0] != 1)
+            if (a[0] != VideoOut::VideoOutDriver::MainPortHandle &&
+                a[0] != VideoOut::VideoOutDriver::SocialPortHandle)
                 return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_HANDLE);
             graphics.WaitIdle();
             graphics.VideoOut().Close(a[0]);

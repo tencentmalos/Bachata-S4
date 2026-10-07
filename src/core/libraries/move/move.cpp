@@ -9,6 +9,8 @@
 #include "core/libraries/error_codes.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/host_runtime/vr_geometry.h"
+#include "core/host_runtime/vr_time.h"
+#include "core/libraries/kernel/time.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/move/move.h"
 #include "core/libraries/move/move_error.h"
@@ -60,6 +62,11 @@ u16 FaceButtonsToMove(u64 buttons) {
     return result;
 }
 
+// Gravity as the virtual Move reports it. The unit (m/s^2 here, as the non-OpenXR sample has
+// always used) is not checked against the firmware; both branches use the same value so a
+// title sees one convention.
+constexpr float kMoveGravity = 9.81f;
+
 void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
     data = {};
     const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
@@ -70,7 +77,14 @@ void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
         // XrSpaceVelocity is expressed in LOCAL; a Move IMU reports body axes.
         const auto gyro = Core::HostRuntime::VrGeometry::LocalAngularVelocity(state.grip);
         std::copy(gyro.begin(), gyro.end(), data.gyro);
-        data.timestamp = sensor.timestamp_ns / 1000;
+        const auto accel =
+            Core::HostRuntime::VrGeometry::RestingAccelerometer(state.grip, kMoveGravity);
+        std::copy(accel.begin(), accel.end(), data.accelerometer);
+        // Same clock as sceVrTrackerGetResult's timestamps (process microseconds).
+        data.timestamp = Core::HostRuntime::VrTime::SteadyNsToProcessUs(
+            sensor.timestamp_ns, Core::HostRuntime::VrTime::SteadyNowNs(),
+            Libraries::Kernel::sceKernelGetProcessTime());
+        data.temperature = 25.0f;
         data.count = 1;
         return;
     }
@@ -91,7 +105,7 @@ void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
     // A Move has no independent orientation record.  Keep its IMU sample
     // stable; the fixed pose is supplied by VrTracker below.  Gravity is
     // still present so games that sanity-check the sample do not reject it.
-    data.accelerometer[1] = 9.81f;
+    data.accelerometer[1] = kMoveGravity;
     data.button_data.button_data = FaceButtonsToMove(input.buttons);
     const float trigger = hand == VirtualHand::Left ? input.left_trigger : input.right_trigger;
     data.button_data.trigger_data = static_cast<u16>(std::lround(trigger * 255.0f));
@@ -102,7 +116,10 @@ void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
         data.extension_data.analog_right_x = AxisToMove(input.right_x);
         data.extension_data.analog_right_y = AxisToMove(input.right_y);
     }
-    data.timestamp = static_cast<s64>(input.timestamp_us);
+    // The pad sample carries steady-clock microseconds; report it in process time.
+    data.timestamp = Core::HostRuntime::VrTime::SteadyNsToProcessUs(
+        input.timestamp_us * 1000, Core::HostRuntime::VrTime::SteadyNowNs(),
+        Libraries::Kernel::sceKernelGetProcessTime());
     data.count = 1;
     data.temperature = 25.0f;
 }

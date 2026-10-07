@@ -5,6 +5,7 @@
 #include "common/elf_info.h"
 #include "common/logging/log.h"
 #include "core/emulator_settings.h"
+#include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/system/userservice.h"
@@ -312,8 +313,14 @@ s32 PS4_SYSV_ABI sceVideoOutGetResolutionStatus(s32 handle, SceVideoOutResolutio
 
 s32 PS4_SYSV_ABI sceVideoOutOpen(Libraries::UserService::OrbisUserServiceUserId userId, s32 busType,
                                  s32 index, const void* param) {
-    LOG_INFO(Lib_VideoOut, "called");
-    ASSERT(busType == SCE_VIDEO_OUT_BUS_TYPE_MAIN);
+    LOG_INFO(Lib_VideoOut, "called, busType = {}", busType);
+    // The social screen bus only exists next to a headset.
+    if (busType == SCE_VIDEO_OUT_BUS_TYPE_AUX_SOCIAL_SCREEN &&
+        !Core::HostRuntime::GuestVrSensor::Instance().HeadsetReady()) {
+        return ORBIS_VIDEO_OUT_ERROR_INVALID_VALUE;
+    }
+    ASSERT(busType == SCE_VIDEO_OUT_BUS_TYPE_MAIN ||
+           busType == SCE_VIDEO_OUT_BUS_TYPE_AUX_SOCIAL_SCREEN);
 
     if (index != 0) {
         LOG_ERROR(Lib_VideoOut, "Index != 0");
@@ -321,7 +328,7 @@ s32 PS4_SYSV_ABI sceVideoOutOpen(Libraries::UserService::OrbisUserServiceUserId 
     }
 
     auto* params = reinterpret_cast<const ServiceThreadParams*>(param);
-    int handle = driver->Open(params);
+    int handle = driver->Open(params, busType);
 
     if (handle < 0) {
         LOG_ERROR(Lib_VideoOut, "All available handles are open");
@@ -383,6 +390,9 @@ s32 sceVideoOutSubmitEopFlip(s32 handle, u32 buf_id, u32 mode, s64 flip_arg, voi
 s32 PS4_SYSV_ABI sceVideoOutGetDeviceCapabilityInfo(
     s32 handle, SceVideoOutDeviceCapabilityInfo* pDeviceCapabilityInfo) {
     pDeviceCapabilityInfo->capability = 0;
+    if (Core::HostRuntime::GuestVrSensor::Instance().HeadsetReady()) {
+        pDeviceCapabilityInfo->capability |= ORBIS_VIDEO_OUT_DEVICE_CAPABILITY_VR_VIEW;
+    }
     if (presenter->IsHDRSupported()) {
         auto& game_info = Common::ElfInfo::Instance();
         if (game_info.GetPSFAttributes().support_hdr) {

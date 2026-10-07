@@ -140,8 +140,10 @@ Sensor::Pose Pose(const XrPosef& p, XrSpaceLocationFlags flags,
     out.position_valid = flags & XR_SPACE_LOCATION_POSITION_VALID_BIT;
     if (v && (v->velocityFlags & XR_SPACE_VELOCITY_ANGULAR_VALID_BIT))
         out.angular_velocity = {v->angularVelocity.x, v->angularVelocity.y, v->angularVelocity.z};
-    if (v && (v->velocityFlags & XR_SPACE_VELOCITY_LINEAR_VALID_BIT))
+    if (v && (v->velocityFlags & XR_SPACE_VELOCITY_LINEAR_VALID_BIT)) {
         out.linear_velocity = {v->linearVelocity.x, v->linearVelocity.y, v->linearVelocity.z};
+        out.linear_velocity_valid = true;
+    }
     return out;
 }
 XrPosef XrPose(const Sensor::Pose& p) {
@@ -296,6 +298,8 @@ struct Runtime::Impl {
     XrPosef cinema_pose{};
     bool cinema_anchored{};
     XrTime recenter_time{};
+    bool recenter_notified{};
+    XrSpaceVelocityFlags logged_velocity_flags{~XrSpaceVelocityFlags{0}};
     std::array<Sensor::Pose, 2> render_eyes{};
     std::array<std::array<float, 4>, 2> render_fov{};
     // Publish counts mailbox images; shown is the one last copied into the
@@ -665,8 +669,18 @@ struct Runtime::Impl {
         frame.eye_height = eye_height;
         XrSpaceVelocity velocity{XR_TYPE_SPACE_VELOCITY};
         XrSpaceLocation head{XR_TYPE_SPACE_LOCATION, &velocity};
-        if (XR_SUCCEEDED(LocateSpace(view, local, time, &head)))
+        if (XR_SUCCEEDED(LocateSpace(view, local, time, &head))) {
             frame.head = Pose(head.pose, head.locationFlags, &velocity);
+            if (velocity.velocityFlags != logged_velocity_flags) {
+                // Whether the runtime gives the head's velocities, or the sensor derives the
+                // linear one from positions.
+                LOG_INFO(Render_Vulkan, "XR head velocityFlags {:#x} (linear {}, angular {})",
+                         velocity.velocityFlags,
+                         (velocity.velocityFlags & XR_SPACE_VELOCITY_LINEAR_VALID_BIT) != 0,
+                         (velocity.velocityFlags & XR_SPACE_VELOCITY_ANGULAR_VALID_BIT) != 0);
+                logged_velocity_flags = velocity.velocityFlags;
+            }
+        }
         XrSpaceLocationFlags eye_flags{};
         if (flags & XR_VIEW_STATE_ORIENTATION_VALID_BIT)
             eye_flags |= XR_SPACE_LOCATION_ORIENTATION_VALID_BIT;
@@ -821,8 +835,10 @@ struct Runtime::Impl {
                             ReleaseInput();
                     } else if (event.type == XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING) {
                         const auto& change = reinterpret_cast<const XrEventDataReferenceSpaceChangePending&>(event);
-                        if (change.referenceSpaceType == XR_REFERENCE_SPACE_TYPE_LOCAL)
+                        if (change.referenceSpaceType == XR_REFERENCE_SPACE_TYPE_LOCAL) {
                             recenter_time = change.changeTime;
+                            recenter_notified = false;
+                        }
                     } else if (event.type == XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT) {
                         user_present =
                             reinterpret_cast<const XrEventDataUserPresenceChangedEXT&>(event)
@@ -852,6 +868,15 @@ struct Runtime::Impl {
                 uint32_t count{};
                 CheckXr(LocateViews(session, &locate, &view_state, 2, &count, eyes.data()),
                         "xrLocateViews");
+                // From the change time on, poses are in the new LOCAL space. Say so before they
+                // are published, so the jump is not taken for head motion, and so the title
+                // counts positions from where the head is now (ResetVrPosition).
+                if (recenter_time && frame.predictedDisplayTime >= recenter_time &&
+                    !recenter_notified) {
+                    if (!panel)
+                        Sensor::Instance().NotifyRecenter();
+                    recenter_notified = true;
+                }
                 UpdateInput(frame.predictedDisplayTime, eyes,
                             count == 2 ? view_state.viewStateFlags : 0);
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
