@@ -242,7 +242,9 @@ int PS4_SYSV_ABI sceAudioInGetSilentState(s32 handle) {
     }
 
     u32 silent_state = 0;
-    std::scoped_lock lock{port->mutex};
+    // Not under the port's lock: a Read holds it while it waits for samples (up to a second
+    // with SDL), and titles poll this while another thread reads. IsAvailable only reports
+    // what the backend found when the port was opened.
     if (!port->impl->IsAvailable()) { // if no mic exist or is not available
         silent_state |= ORBIS_AUDIO_IN_SILENT_STATE_DEVICE_NONE;
     }

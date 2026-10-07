@@ -149,6 +149,7 @@ struct AddressSpace::Impl {
         // Determine the free address ranges we can access.
         VAddr next_addr = SYSTEM_MANAGED_MIN;
         MEMORY_BASIC_INFORMATION info{};
+        u32 skipped_logged = 0;
         while (next_addr <= supported_user_max) {
             ASSERT_MSG(VirtualQuery(reinterpret_cast<PVOID>(next_addr), &info, sizeof(info)),
                        "Failed to query memory information for address {:#x}", next_addr);
@@ -163,6 +164,15 @@ struct AddressSpace::Impl {
                 size -= (next_addr - supported_user_max);
             }
             size = Common::AlignDown(size, alignment);
+
+            // Ranges that something else in the process holds already (a DLL, an OpenXR
+            // runtime loaded too early) are left out; a title that maps there later fails
+            // with "Mapping cannot fit inside free region", so say what was left out.
+            if (info.State != MEM_FREE && skipped_logged < 32) {
+                ++skipped_logged;
+                LOG_INFO(Core, "Address space: {:#x}+{:#x} is in use by the host, not reserved",
+                         reinterpret_cast<VAddr>(info.BaseAddress), info.RegionSize);
+            }
 
             // Check for free memory areas
             // Restrict region size to avoid overly fragmenting the virtual memory space.

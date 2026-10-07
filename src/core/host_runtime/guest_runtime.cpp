@@ -4484,7 +4484,7 @@ void GuestRuntime::Impl::InstallHandlers() {
     // implementation validates its size/reserved fields and never writes
     // fabricated tracking data. Probe the lifecycle before reading guest
     // memory, matching firmware's NOT_INIT precedence.
-    bind({"zvyKP0Z3UvU"}, [this, read_guest_record](const auto& a) -> u64 {
+    bind({"zvyKP0Z3UvU"}, [this, read_guest_record, write_guest_record](const auto& a) -> u64 {
         using namespace Libraries::VrTracker;
         const s32 lifecycle = sceVrTrackerGetPlayAreaWarningInfo(nullptr);
         if (lifecycle == ORBIS_VR_TRACKER_ERROR_NOT_INIT)
@@ -4494,7 +4494,11 @@ void GuestRuntime::Impl::InstallHandlers() {
                                          GuestPermission::Read | GuestPermission::Write) ||
             !read_guest_record(a[0], &info, sizeof(info)))
             return static_cast<u32>(ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID);
-        return static_cast<u32>(sceVrTrackerGetPlayAreaWarningInfo(&info));
+        // The SBS/OpenXR implementation fills the record: hand it back to the title.
+        const s32 status = sceVrTrackerGetPlayAreaWarningInfo(&info);
+        if (!status && !write_guest_record(a[0], &info, sizeof(info)))
+            return static_cast<u32>(ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID);
+        return static_cast<u32>(status);
     });
 
     // Desktop records/configuration with session-owned fixed SBS camera buffers.

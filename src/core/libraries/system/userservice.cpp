@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
+#include <mutex>
 #include <queue>
 
 #include "common/logging/log.h"
@@ -117,15 +119,28 @@ int PS4_SYSV_ABI sceUserServiceGetDiscPlayerFlag() {
 }
 
 std::queue<OrbisUserServiceEvent> user_service_event_queue = {};
+// Logins and logouts come from the input thread, GetEvent from title threads.
+static std::mutex user_service_event_mutex;
+// Until the title has started the service it is told of no event. A title may poll for events
+// on one thread from its start and, on the thread that starts the service, drop what is
+// waiting right after starting it to read who is logged in from the list instead: handed the
+// first player's login before that, it hears of them twice (ASTRO BOT then takes them for a
+// player who left and came back and does not load their save).
+static std::atomic<bool> user_service_started{false};
 
 void AddUserServiceEvent(const OrbisUserServiceEvent e) {
     LOG_DEBUG(Lib_UserService, "Event added to queue: {} {}", (u8)e.event, e.userId);
+    std::scoped_lock lock{user_service_event_mutex};
     user_service_event_queue.push(e);
 }
 
 s32 PS4_SYSV_ABI sceUserServiceGetEvent(OrbisUserServiceEvent* event) {
     LOG_TRACE(Lib_UserService, "called");
 
+    if (!user_service_started.load(std::memory_order_acquire)) {
+        return ORBIS_USER_SERVICE_ERROR_NOT_INITIALIZED;
+    }
+    std::scoped_lock lock{user_service_event_mutex};
     if (!user_service_event_queue.empty()) {
         OrbisUserServiceEvent& temp = user_service_event_queue.front();
         event->event = temp.event;
@@ -1172,11 +1187,13 @@ int PS4_SYSV_ABI sceUserServiceGetVolumeForSidetone() {
 
 s32 PS4_SYSV_ABI sceUserServiceInitialize(const OrbisUserServiceInitializeParams* initParams) {
     LOG_WARNING(Lib_UserService, "(dummy) called");
+    user_service_started.store(true, std::memory_order_release);
     return ORBIS_OK;
 }
 
 int PS4_SYSV_ABI sceUserServiceInitialize2() {
     LOG_ERROR(Lib_UserService, "(STUBBED) called");
+    user_service_started.store(true, std::memory_order_release);
     return ORBIS_OK;
 }
 

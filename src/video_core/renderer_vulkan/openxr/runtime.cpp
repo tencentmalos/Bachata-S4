@@ -431,7 +431,9 @@ struct Runtime::Impl {
         XrSessionCreateInfo info{XR_TYPE_SESSION_CREATE_INFO};
         info.next = &binding;
         info.systemId = system;
-        CheckXr(CreateSession(xr, &info, &session), "xrCreateSession");
+        // Runtimes may use the graphics queue inside these calls (creating the session,
+        // creating a swapchain and listing its images): hold the queue lock as for frames.
+        CheckXr(QueueCall(CreateSession, xr, &info, &session), "xrCreateSession");
         XrReferenceSpaceCreateInfo space{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
         space.poseInReferenceSpace.orientation.w = 1.f;
         space.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
@@ -487,14 +489,13 @@ struct Runtime::Impl {
         chain.width = width;
         chain.height = height;
         chain.faceCount = chain.arraySize = chain.mipCount = 1;
-        CheckXr(CreateSwapchain(session, &chain, &swapchain), "xrCreateSwapchain");
+        CheckXr(QueueCall(CreateSwapchain, session, &chain, &swapchain), "xrCreateSwapchain");
         CheckXr(EnumerateSwapchainImages(swapchain, 0, &count, nullptr),
                 "XR swapchain image count");
         images.resize(count, {XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR});
-        CheckXr(
-            EnumerateSwapchainImages(swapchain, count, &count,
-                                     reinterpret_cast<XrSwapchainImageBaseHeader*>(images.data())),
-            "XR swapchain images");
+        CheckXr(QueueCall(EnumerateSwapchainImages, swapchain, count, &count,
+                          reinterpret_cast<XrSwapchainImageBaseHeader*>(images.data())),
+                "XR swapchain images");
         }
         spatial::xr::XrInputFunctions f;
 #define INPUT(name) f.name = Load<decltype(f.name)>("xr" #name)

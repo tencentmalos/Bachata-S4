@@ -348,6 +348,8 @@ void GameControllers::TryOpenSDLControllers() {
 
         SDL_Gamepad* pad = SDL_OpenGamepad(id);
         if (!pad) {
+            LOG_WARNING(Input, "Gamepad {} is listed but could not be opened: {}", id,
+                        SDL_GetError());
             continue;
         }
 
@@ -390,11 +392,17 @@ void GameControllers::TryOpenSDLControllers() {
     }
     if (is_first_check) [[unlikely]] {
         is_first_check = false;
-        if (controller_count == 0) {
-            auto u = UserManagement.GetUserByPlayerIndex(1);
-            controllers[0]->user_id = u->user_id;
-            controllers[0]->ConnectController(nullptr);
-            UserManagement.LoginUser(u, 1);
+        // Titles take the first player for granted. What decides is whether a gamepad was
+        // opened for them, not how many are listed: one that is listed and cannot be opened
+        // (a virtual pad going away, for one) left nobody logged in.
+        if (!slot_taken[0]) {
+            if (auto* u = UserManagement.GetUserByPlayerIndex(1)) {
+                controllers[0]->user_id = u->user_id;
+                controllers[0]->ConnectController(nullptr);
+                UserManagement.LoginUser(u, 1);
+            } else {
+                LOG_ERROR(Input, "No user is configured as player 1; nobody is logged in");
+            }
         }
     }
     SDL_free(new_joysticks);

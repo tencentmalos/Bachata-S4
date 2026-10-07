@@ -71,6 +71,10 @@ static void KernelServiceThread(std::stop_token stoken) {
         {
             std::unique_lock lock{m_asio_req};
             Common::CondvarWait(cv_asio_req, lock, stoken, [] { return asio_requests != 0; });
+            // Taken before running: a request posted while the handlers run counts for the next
+            // round. Cleared after run(), it was lost and its handler (a timer re-armed by the
+            // game, say) waited for some unrelated request to come along.
+            asio_requests = 0;
         }
         if (stoken.stop_requested()) {
             break;
@@ -78,8 +82,6 @@ static void KernelServiceThread(std::stop_token stoken) {
 
         io_context.run();
         io_context.restart();
-
-        asio_requests = 0;
     }
 }
 

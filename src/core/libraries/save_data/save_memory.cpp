@@ -235,7 +235,10 @@ size_t Store::SetupSaveMemory(Libraries::UserService::OrbisUserServiceUserId use
         data.memory_cache_size = std::max(memory_size, existed);
     }
     impl->slots.insert_or_assign(slot_id, std::move(data));
-    return existed;
+    // What exists is the memory as it was set up, whatever of it reached the file: a title that
+    // is told of another size than the one it asks for takes the save for somebody else's and
+    // starts over.
+    return existed != 0 ? std::max(existed, memory_size) : 0;
 }
 
 void Store::SetIcon(u32 slot_id, void* buf, size_t buf_size) {
