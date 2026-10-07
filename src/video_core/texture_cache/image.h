@@ -146,6 +146,9 @@ struct Image {
     void EnsureViewFormat(vk::Format format);
 
     using Barriers = boost::container::small_vector<vk::ImageMemoryBarrier2, 32>;
+    Barriers GetBarriersImpl(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
+                             vk::PipelineStageFlags2 dst_stage,
+                             std::optional<SubresourceRange> subres_range);
     Barriers GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
                          vk::PipelineStageFlags2 dst_stage,
                          std::optional<SubresourceRange> subres_range);
@@ -267,6 +270,10 @@ public:
     u64 lru_id{};
     u64 tick_accessed_last{};
     u64 hash{};
+    // Counts changes of the backing's layout state (GetBarriers) and replacements of the backing,
+    // so a binding that left the image in some state can tell nothing changed it since.
+    u64 state_version{};
+    u32 backing_epoch{};
     bool uploaded{}; // contents were uploaded from guest memory at least once
     // Raw buffer reads of a GPU-written image tile it back into the buffer cache (see
     // BufferCache::SynchronizeMemoryFromGpuImage). write_epoch counts writes to the image's

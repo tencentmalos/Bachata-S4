@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fmt/format.h>
 #include <unordered_map>
+#include "common/scope_exit.h"
 #include "common/logging/log.h"
 #include "common/assert.h"
 #include "common/debug.h"
@@ -653,6 +654,13 @@ void Scheduler::AllocateWorkerCommandBuffers() {
 
 void Scheduler::SubmitExecution(SubmitInfo& info) {
     Common::Profiler::Scope execution_scope{"Vulkan.SubmitExecution"};
+    const bool outer_submit = !submitting;
+    submitting = true;
+    SCOPE_EXIT {
+        if (outer_submit) {
+            submitting = false;
+        }
+    };
     const auto generation = instance.DiagnosticGeneration();
     instance.CheckSubmissionHealth();
     if (hoisting)

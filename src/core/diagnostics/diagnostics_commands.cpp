@@ -2,6 +2,7 @@
 #include "core/emulator_settings.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/host_runtime/vr_geometry.h"
+#include "shader_recompiler/srt_gate_diag.h"
 #include "core/diagnostics/overlay_control.h"
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
@@ -41,13 +42,13 @@
 #include <vector>
 
 #include "spatial/debugbus/DebugCommandRegistry.h"
+#include "core/libraries/gnmdriver/gnmdriver.h"
+#include "video_core/amdgpu/liverpool.h"
+#include "video_core/replay/gpu_replay_recorder.h"
 #if !defined(__ANDROID__)
 #include "common/singleton.h"
 #include "core/libraries/audio/audioout.h"
-#include "core/libraries/gnmdriver/gnmdriver.h"
 #include "input/controller.h"
-#include "video_core/amdgpu/liverpool.h"
-#include "video_core/replay/gpu_replay_recorder.h"
 #endif
 #include "core/libraries/audio/surround_virtualizer.h"
 #include "core/libraries/audio3d/audio3d.h"
@@ -288,6 +289,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
                 controllers[0]->Button(b, false);
             return "pressed " + args[0] + " for " + std::to_string(hold) + " ms\n";
         });
+#endif
     // Deterministic GPU replay (docs/specs/gpu-replay-20261004.md).
     registry.Register("gpu_replay_capture",
         "[frames=1] [name] -- capture a GPU replay trace from the next frame boundary, written "
@@ -318,12 +320,18 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             auto* liverpool = Libraries::GnmDriver::GetLiverpool();
             return liverpool ? liverpool->FenceCommand(args) : "error: no command processor\n";
         });
+    registry.Register("gpu_replay_probe",
+        "Diagnostic: one GPU replay capture-start step at the next frame end, no trace: "
+        "buffers | images | protect",
+        [](const std::vector<std::string>& args) -> std::string {
+            return args.size() == 1 ? VideoCore::Replay::Recorder::Instance().Probe(args[0])
+                                    : BadArguments();
+        });
     registry.Register("gpu_replay_cancel", "stop the armed or running GPU replay capture",
         [](const std::vector<std::string>& args) -> std::string {
             return args.empty() ? VideoCore::Replay::Recorder::Instance().Cancel()
                                 : BadArguments();
         });
-#endif
     registry.Register("thread_priority",
         "Host scheduling weight (nice) of guest and emulator threads: status | reset",
         [](const std::vector<std::string>& args) { return Common::ThreadPriorityCommand(args); });
@@ -532,6 +540,22 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
                 out += fmt::format("  mapping {}\n", line);
             }
             return out;
+        });
+
+    registry.Register("srt_gate",
+        "SRT walk gating measurement (every walk still runs): on | off | status | reset",
+        [](const std::vector<std::string>& args) {
+            if (args.size() > 1)
+                return BadArguments();
+            const std::string sub = args.empty() ? "status" : args[0];
+            if (sub == "on" || sub == "off") {
+                Shader::SrtGateDiag::enabled.store(sub == "on");
+            } else if (sub == "reset") {
+                Shader::SrtGateDiag::Reset();
+            } else if (sub != "status") {
+                return BadArguments();
+            }
+            return Shader::SrtGateDiag::Status();
         });
 
     registry.Register("gpu_memory", "GPU allocation snapshot: request | status (no GPU waits)",

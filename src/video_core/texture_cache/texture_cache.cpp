@@ -406,8 +406,43 @@ void TextureCache::WriteBackGpuModified() {
     }
 }
 
+std::vector<u8> TextureCache::SaveScalePlans() {
+    std::scoped_lock lock{mutex};
+    const auto decisions = scale_plans.NativeDecisions();
+    std::vector<u8> payload(sizeof(u32) * 2 + decisions.size() * sizeof(ScalePlanTable::NativeDecision));
+    const u32 header[2] = {static_cast<u32>(decisions.size()),
+                           static_cast<u32>(sizeof(ScalePlanTable::NativeDecision))};
+    std::memcpy(payload.data(), header, sizeof(header));
+    if (!decisions.empty()) {
+        std::memcpy(payload.data() + sizeof(header), decisions.data(),
+                    decisions.size() * sizeof(ScalePlanTable::NativeDecision));
+    }
+    return payload;
+}
+
+void TextureCache::LoadScalePlans(std::span<const u8> payload) {
+    u32 header[2]{};
+    if (payload.size() < sizeof(header)) {
+        return;
+    }
+    std::memcpy(header, payload.data(), sizeof(header));
+    if (header[1] != sizeof(ScalePlanTable::NativeDecision) ||
+        payload.size() < sizeof(header) + u64{header[0]} * header[1]) {
+        LOG_WARNING(Render, "GPU replay: scale plans in an unknown layout; ignored");
+        return;
+    }
+    std::scoped_lock lock{mutex};
+    for (u32 i = 0; i < header[0]; ++i) {
+        ScalePlanTable::NativeDecision decision{};
+        std::memcpy(&decision, payload.data() + sizeof(header) + u64{i} * header[1],
+                    sizeof(decision));
+        scale_plans.SeedNative(decision);
+    }
+    LOG_INFO(Render, "GPU replay: {} native scale decisions seeded", header[0]);
+}
+
 std::vector<TextureCache::ImageContentHash> TextureCache::HashWrittenImages(
-    std::unordered_map<u64, u64>& hashed_epochs) {
+    std::unordered_map<u64, u64>& hashed_epochs, const std::string& dump_prefix) {
     struct Copy {
         size_t entry;
         u64 offset;
@@ -506,7 +541,37 @@ std::vector<TextureCache::ImageContentHash> TextureCache::HashWrittenImages(
     scheduler.Finish();
     readback->Invalidate(0, readback->SizeBytes());
     for (const auto& copy : copies) {
-        entries[copy.entry].hash = XXH3_64bits(readback->mapped_data.data() + copy.offset, copy.size);
+        auto& entry = entries[copy.entry];
+        entry.hash = XXH3_64bits(readback->mapped_data.data() + copy.offset, copy.size);
+        static const u64 dump_address = [] {
+            const char* value = std::getenv("SHADPS4_GPU_REPLAY_DUMP_ADDR");
+            return value ? std::strtoull(value, nullptr, 16) : u64{0};
+        }();
+        if (!dump_prefix.empty() && (!dump_address || dump_address == entry.address)) {
+            // Level 0, layer 0: the first rows of the copy.
+            const auto block = vk::blockExtent(entry.format);
+            const u64 texel = std::max<u64>(
+                1, (copy.size) / std::max<u64>(1, [&] {
+                       u64 blocks = 0;
+                       for (u32 level = 0; level < entry.levels; ++level) {
+                           blocks += u64{Common::DivCeil(std::max(entry.extent.width >> level, 1u),
+                                                         u32{block[0]})} *
+                                     Common::DivCeil(std::max(entry.extent.height >> level, 1u),
+                                                     u32{block[1]}) *
+                                     std::max(entry.extent.depth >> level, 1u) * entry.layers;
+                       }
+                       return blocks;
+                   }()));
+            const u64 level0 = u64{Common::DivCeil(entry.extent.width, u32{block[0]})} *
+                               Common::DivCeil(entry.extent.height, u32{block[1]}) *
+                               entry.extent.depth * texel;
+            const auto name = fmt::format("{}_{}_{:x}_{}x{}x{}_{}.bin", dump_prefix, entry.uid,
+                                          entry.address, entry.extent.width, entry.extent.height,
+                                          entry.extent.depth, vk::to_string(entry.format));
+            std::ofstream file{name, std::ios::binary | std::ios::trunc};
+            file.write(reinterpret_cast<const char*>(readback->mapped_data.data() + copy.offset),
+                       static_cast<std::streamsize>(std::min(level0, copy.size)));
+        }
     }
     return entries;
 }
@@ -650,6 +715,7 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
 }
 
 void TextureCache::MarkAsMaybeDirty(ImageId image_id, Image& image) {
+    content_generation.fetch_add(1, std::memory_order_acq_rel);
     if (image.hash == 0) {
         // Initialize hash
         const u8* addr = std::bit_cast<u8*>(image.info.guest_address);
@@ -670,6 +736,7 @@ void TextureCache::InvalidateMemory(VAddr addr, size_t size) {
         if (image.Overlaps(addr, size)) {
             // Modified region overlaps image, so the image was definitely accessed by this fault.
             // Untrack the image, so that the range is unprotected and the guest can write freely.
+            content_generation.fetch_add(1, std::memory_order_acq_rel);
             image.flags |= ImageFlagBits::CpuDirty;
             UntrackImage(image_id);
             if (upload_diag) {
@@ -720,6 +787,7 @@ void TextureCache::InvalidateMemoryFromGPU(VAddr address, size_t max_size,
             return;
         }
         // Ensure image is reuploaded when accessed again.
+        content_generation.fetch_add(1, std::memory_order_acq_rel);
         image.flags |= ImageFlagBits::GpuDirty;
         if (upload_diag) {
             NoteUploadDirty(image, source, address, max_size, writer);
@@ -1921,6 +1989,7 @@ void TextureCache::UntrackImage(ImageId image_id) {
     if (!image.IsTracked()) {
         return;
     }
+    content_generation.fetch_add(1, std::memory_order_acq_rel);
     const auto addr = image.track_addr;
     const auto size = image.track_addr_end - image.track_addr;
     image.track_addr = 0;
@@ -1936,6 +2005,7 @@ void TextureCache::UntrackImageHead(ImageId image_id) {
     if (!image.IsTracked() || image_begin < image.track_addr) {
         return;
     }
+    content_generation.fetch_add(1, std::memory_order_acq_rel);
     const auto addr = tracker.GetNextPageAddr(image_begin);
     const auto size = addr - image_begin;
     image.track_addr = addr;
@@ -1954,6 +2024,7 @@ void TextureCache::UntrackImageTail(ImageId image_id) {
     if (!image.IsTracked() || image.track_addr_end < image_end) {
         return;
     }
+    content_generation.fetch_add(1, std::memory_order_acq_rel);
     ASSERT(image.track_addr_end != 0);
     const auto addr = tracker.GetPageAddr(image_end);
     const auto size = image_end - addr;

@@ -4,6 +4,10 @@
 #include <algorithm>
 
 #include <zstd.h>
+#if defined(__linux__)
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 #include "common/logging/log.h"
 #include "common/thread.h"
@@ -15,6 +19,7 @@ namespace {
 constexpr size_t CompressThreshold = 4_KB;
 // zstd level 1: a snapshot is several GiB and is written while the game waits.
 constexpr int CompressionLevel = 1;
+constexpr u64 SyncChunk = 32_MB;
 } // namespace
 
 TraceWriter::TraceWriter(size_t max_pending_bytes_, u32 workers)
@@ -40,6 +45,11 @@ bool TraceWriter::Open(const std::filesystem::path& path, const FileHeader& head
         file.Close();
         return false;
     }
+#if defined(__linux__)
+    sync_fd = ::open(path.c_str(), O_WRONLY | O_CLOEXEC);
+    synced_until = 0;
+    unsynced = sizeof(header);
+#endif
     {
         std::scoped_lock lock{mutex};
         failed = false;
@@ -133,6 +143,22 @@ void TraceWriter::WriteLoop(std::stop_token token) {
         header.raw_bytes = job->payload.size();
         const bool ok = file.WriteRaw<u8>(&header, sizeof(header)) == sizeof(header) &&
                         (data.empty() || file.WriteRaw<u8>(data.data(), data.size()) == data.size());
+#if defined(__linux__)
+        unsynced += sizeof(header) + data.size();
+        if (sync_fd >= 0 && unsynced >= SyncChunk && file.Flush()) {
+            const s64 end = file.Tell();
+            if (end > static_cast<s64>(synced_until)) {
+                const auto length = static_cast<off64_t>(end - synced_until);
+                ::sync_file_range(sync_fd, static_cast<off64_t>(synced_until), length,
+                                  SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE |
+                                      SYNC_FILE_RANGE_WAIT_AFTER);
+                ::posix_fadvise(sync_fd, static_cast<off_t>(synced_until),
+                                static_cast<off_t>(length), POSIX_FADV_DONTNEED);
+                synced_until = static_cast<u64>(end);
+            }
+            unsynced = 0;
+        }
+#endif
         std::scoped_lock lock{mutex};
         in_order.pop_front();
         pending_bytes -= job->payload.size();
@@ -166,6 +192,12 @@ bool TraceWriter::Close() {
     writer = {};
     const bool flushed = file.Flush();
     file.Close();
+#if defined(__linux__)
+    if (sync_fd >= 0) {
+        ::close(sync_fd);
+        sync_fd = -1;
+    }
+#endif
     open = false;
     std::scoped_lock lock{mutex};
     return flushed && !failed && in_order.empty();
@@ -186,12 +218,38 @@ u64 TraceWriter::Records() const {
     return records;
 }
 
+TraceReader::~TraceReader() {
+#if defined(__linux__)
+    if (drop_fd >= 0) {
+        ::close(drop_fd);
+    }
+#endif
+}
+
+void TraceReader::DropRead() {
+#if defined(__linux__)
+    const s64 position = file.Tell();
+    if (drop_fd < 0 || position < 0 || static_cast<u64>(position) < dropped_until + SyncChunk) {
+        return;
+    }
+    ::posix_fadvise(drop_fd, static_cast<off_t>(dropped_until),
+                    static_cast<off_t>(position - dropped_until), POSIX_FADV_DONTNEED);
+    dropped_until = static_cast<u64>(position);
+#endif
+}
+
 bool TraceReader::Open(const std::filesystem::path& path) {
     file.Open(path, Common::FS::FileAccessMode::Read);
     if (!file.IsOpen()) {
         error = "cannot open trace";
         return false;
     }
+#if defined(__linux__)
+    drop_fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+    if (drop_fd >= 0) {
+        ::posix_fadvise(drop_fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+    }
+#endif
     if (file.ReadRaw<u8>(&header, sizeof(header)) != sizeof(header) || header.magic != FileMagic) {
         error = "not a shadPS4 GPU replay trace";
         return false;
@@ -206,7 +264,7 @@ bool TraceReader::Open(const std::filesystem::path& path) {
     return true;
 }
 
-bool TraceReader::Next(RecordHeader& record, std::vector<u8>& payload) {
+bool TraceReader::NextStored(RecordHeader& record, std::vector<u8>& data) {
     if (file.ReadRaw<u8>(&record, sizeof(record)) != sizeof(record)) {
         return false;
     }
@@ -216,23 +274,31 @@ bool TraceReader::Next(RecordHeader& record, std::vector<u8>& payload) {
         error = "damaged record header";
         return false;
     }
-    if ((record.flags & RecordFlagZstd) == 0) {
-        payload.resize(record.stored_bytes);
-        if (!payload.empty() && file.ReadRaw<u8>(payload.data(), payload.size()) != payload.size()) {
-            error = "truncated record";
-            return false;
-        }
-        return true;
-    }
-    stored.resize(record.stored_bytes);
-    if (file.ReadRaw<u8>(stored.data(), stored.size()) != stored.size()) {
+    data.resize(record.stored_bytes);
+    if (!data.empty() && file.ReadRaw<u8>(data.data(), data.size()) != data.size()) {
         error = "truncated record";
         return false;
     }
+    DropRead();
+    return true;
+}
+
+bool TraceReader::Decompress(const RecordHeader& record, std::vector<u8>& data,
+                             std::vector<u8>& payload) {
+    if ((record.flags & RecordFlagZstd) == 0) {
+        payload = std::move(data);
+        return true;
+    }
     payload.resize(record.raw_bytes);
-    const size_t size =
-        ZSTD_decompress(payload.data(), payload.size(), stored.data(), stored.size());
-    if (ZSTD_isError(size) || size != payload.size()) {
+    const size_t size = ZSTD_decompress(payload.data(), payload.size(), data.data(), data.size());
+    return !ZSTD_isError(size) && size == payload.size();
+}
+
+bool TraceReader::Next(RecordHeader& record, std::vector<u8>& payload) {
+    if (!NextStored(record, stored)) {
+        return false;
+    }
+    if (!Decompress(record, stored, payload)) {
         error = "corrupt compressed record";
         return false;
     }

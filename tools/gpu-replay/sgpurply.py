@@ -22,7 +22,7 @@ PAGE = 4096
 
 RECORD_NAMES = {
     1: "Info", 2: "Vmas", 3: "MemoryPages", 4: "Liverpool", 5: "AscQueues", 6: "GnmDriver",
-    7: "VideoOut", 8: "Gds", 9: "BeginStream", 16: "Submit", 17: "EopFlipArmed", 18: "Resume",
+    7: "VideoOut", 8: "Gds", 9: "BeginStream", 10: "ScalePlans", 16: "Submit", 17: "EopFlipArmed", 18: "Resume",
     19: "WaitPoll", 20: "Command", 21: "Mapping", 24: "BurstEnd", 25: "Flip", 0xFFFF: "End",
 }
 VMA_TYPES = ["Free", "Reserved", "Direct", "Flexible", "Pooled", "PoolReserved", "Stack", "Code",
@@ -137,7 +137,7 @@ def describe_event(rtype, payload):
         initial, data_va, zero_va = parse_pages(payload)
         return f"data={len(data_va)} zero={len(zero_va)}"
     if rtype == 16:
-        queue, vqid, submission, dcb, dcb_dw, ccb, ccb_dw, source = SUBMIT.unpack(payload)
+        queue, vqid, submission, dcb, dcb_dw, ccb, ccb_dw, source = SUBMIT.unpack_from(payload)
         what = "gfx" if queue == 0 else f"asc{vqid}"
         return (f"{what} submission={submission} dcb={dcb:#x}+{dcb_dw}dw"
                 + (f" ccb={ccb:#x}+{ccb_dw}dw" if ccb_dw else ""))
@@ -248,7 +248,7 @@ def summarize(path, list_events=None):
             elif rtype == 9:
                 in_stream = True
             elif rtype == 16:
-                submission = SUBMIT.unpack(payload)[2]
+                submission = SUBMIT.unpack_from(payload)[2]
                 if submission in started:
                     s.problems.append(f"submission {submission} submitted twice")
                 started.add(submission)

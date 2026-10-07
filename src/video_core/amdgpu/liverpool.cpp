@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <deque>
 #include <chrono>
 #include <thread>
 #include <boost/preprocessor/stringize.hpp>
@@ -25,9 +26,11 @@
 #include "core/platform.h"
 #include "shader_recompiler/resource.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/memory_diagnostics.h"
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/amdgpu/pm4_trace.h"
 #include "video_core/renderdoc.h"
+#include "video_core/renderdoc_capture.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/replay/gpu_replay_player.h"
 #include "video_core/replay/gpu_replay_recorder.h"
@@ -291,12 +294,34 @@ bool Liverpool::ResumeTask(GpuQueue& queue, Task::Handle task) {
     return waited;
 }
 
+void Liverpool::SnapshotMemoryDiagnostics() {
+    VideoCore::MemoryDiagnostics::Read(true);
+    SendCommand<true>([this] {
+        if (rasterizer) {
+            rasterizer->GetTextureCache().PublishMemoryDiagnostics();
+        }
+    });
+}
+
 void Liverpool::StartReplay(VideoCore::Replay::Player* player) {
     SendCommand([this, player] {
         replay_player = player;
         RunReplay();
     });
 }
+
+namespace {
+/// CPU time of the calling thread (0 where not measured).
+u64 ThreadCpuNs() {
+#if defined(__linux__) || defined(__APPLE__)
+    timespec time{};
+    if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &time) == 0) {
+        return static_cast<u64>(time.tv_sec) * 1'000'000'000ULL + static_cast<u64>(time.tv_nsec);
+    }
+#endif
+    return 0;
+}
+} // namespace
 
 void Liverpool::RunReplay() {
     using namespace VideoCore::Replay;
@@ -305,7 +330,20 @@ void Liverpool::RunReplay() {
     // the capture.
     replay_capture = true;
     VideoCore::StartCapture();
+    // The trace starts at a frame boundary: a capture armed on guest flips starts here.
+    if (const auto generation = VideoCore::GetCaptureCoordinator().BoundGeneration();
+        VideoCore::NeedsGuestCaptureBoundary(generation)) {
+        VideoCore::NotifyGuestFlipBoundary(generation, 0);
+    }
+    std::deque<u64> in_flight;
+    const auto wall_begin = std::chrono::steady_clock::now();
+    const u64 cpu_begin = ThreadCpuNs();
     while (const auto* next = player.Peek()) {
+        if (stopping.load(std::memory_order_relaxed)) {
+            // A session stop (Android replay sessions are cancelled from the UI).
+            player.Fail("stopped");
+            break;
+        }
         const Player::Event event = *next;
         player.Pop();
         player.BeforeEvent(event);
@@ -313,9 +351,18 @@ void Liverpool::RunReplay() {
         case RecordType::Submit: {
             const auto record = event.As<SubmitRecord>();
             const auto* dcb = reinterpret_cast<const u32*>(record.dcb_addr);
+            const u32* ccb = reinterpret_cast<const u32*>(record.ccb_addr);
+            if (event.payload.size() ==
+                sizeof(SubmitRecord) + (record.dcb_dwords + record.ccb_dwords) * sizeof(u32)) {
+                // The capture's command buffers were host copies; the trace holds them. They
+                // stay alive for the replay: an owned copy re-reads its source on REWIND.
+                auto& contents = replay_submit_contents.emplace_back(
+                    event.payload.begin() + sizeof(SubmitRecord), event.payload.end());
+                dcb = reinterpret_cast<const u32*>(contents.data());
+                ccb = dcb + record.dcb_dwords;
+            }
             u32 qid = GfxQueueId;
             if (record.queue == static_cast<u32>(SubmitQueue::Graphics)) {
-                const auto* ccb = reinterpret_cast<const u32*>(record.ccb_addr);
                 SubmitGfx({dcb, record.dcb_dwords}, {ccb, record.ccb_dwords}, record.source);
             } else if (record.gnm_vqid > 0 && record.gnm_vqid < NumTotalQueues &&
                        asc_queues.is_allocated({record.gnm_vqid - 1})) {
@@ -363,7 +410,15 @@ void Liverpool::RunReplay() {
                 VideoCore::EndCapture();
                 if (rasterizer) {
                     rasterizer->OnSubmit();
-                    rasterizer->Flush();
+                    // Waits replay their recorded results, so unlike the game (which waits for
+                    // its EOP labels) nothing keeps the replay from running ahead of the GPU:
+                    // staging and retiring resources would grow without bound (Bloodborne on
+                    // the AYN Thor: 1 GiB of staging, lmkd). Keep two submissions in flight.
+                    in_flight.push_back(rasterizer->Flush());
+                    while (in_flight.size() > 2) {
+                        rasterizer->GetScheduler().Wait(in_flight.front());
+                        in_flight.pop_front();
+                    }
                 }
                 VideoCore::StartCapture();
             }
@@ -382,6 +437,10 @@ void Liverpool::RunReplay() {
         }
     }
     VideoCore::EndCapture();
+    player.NoteProcessorTime(ThreadCpuNs() - cpu_begin,
+                             static_cast<u64>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                                  std::chrono::steady_clock::now() - wall_begin)
+                                                  .count()));
     replay_capture = false;
     replay_player = nullptr;
     player.Finish();
@@ -1917,6 +1976,9 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
         reinterpret_cast<u64>(ccb.data()),
         ccb.size(),
         source};
+    if (source && source != reinterpret_cast<VAddr>(dcb.data())) {
+        VideoCore::Replay::NoteSubmitContents(submission, dcb, ccb);
+    }
     if (!owned_submissions && EmulatorSettings.IsCopyGpuBuffers()) {
         std::tie(dcb, ccb) = CopyCmdBuffers(dcb, ccb);
     }

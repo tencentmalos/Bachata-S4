@@ -1,24 +1,45 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <cstdio>
+#include <condition_variable>
+#include <thread>
+#include <ctime>
+#include <cstdlib>
+#include <fstream>
+#include <iterator>
 #include <sstream>
 
 #include <fmt/format.h>
 
 #include "common/alignment.h"
 #include "common/logging/log.h"
+#include "common/thread.h"
 #include "core/libraries/videoout/video_out.h"
 #include "core/memory.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/buffer_cache/region_definitions.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/replay/gpu_replay_player.h"
+#include "shader_recompiler/srt_gate_diag.h"
 
 namespace VideoCore::Replay {
 
 namespace {
 
 Player* draw_hash_player{};
+
+/// CPU time of the calling thread in ns (0 where not measured).
+u64 ThreadCpuNow() {
+#if defined(__linux__) || defined(__APPLE__)
+    timespec time{};
+    if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &time) == 0) {
+        return static_cast<u64>(time.tv_sec) * 1'000'000'000ULL + static_cast<u64>(time.tv_nsec);
+    }
+#endif
+    return 0;
+}
 
 struct Area {
     VmaRecord vma{};
@@ -63,6 +84,94 @@ void WriteGuest(VAddr address, const u8* data, u64 size) {
 
 } // namespace
 
+Player::~Player() {
+    for (auto& thread : prefetch_threads) {
+        thread.request_stop();
+    }
+    prefetch_cv.notify_all();
+    prefetch_threads.clear();
+}
+
+void Player::StartPrefetch() {
+    // The event stream is read and decompressed ahead of the command processor, which then
+    // only applies records. Decompressing on the command processor took about 60% of its time
+    // (Bloodborne on the AYN Thor), so replay timings did not show the command processor.
+    constexpr u64 MaxAheadBytes = 256_MB;
+    prefetch_threads.emplace_back([this](std::stop_token stop) {
+        Common::SetCurrentThreadName("shadPS4:ReplayRead");
+        while (true) {
+            {
+                std::unique_lock lock{prefetch_mutex};
+                prefetch_cv.wait(lock, stop, [&] { return prefetch_bytes < MaxAheadBytes; });
+                if (stop.stop_requested()) {
+                    return;
+                }
+            }
+            auto item = std::make_shared<Prefetched>();
+            if (!reader.NextStored(item->header, item->data)) {
+                std::scoped_lock lock{prefetch_mutex};
+                prefetch_end = true;
+                prefetch_error = reader.Error();
+                prefetch_cv.notify_all();
+                return;
+            }
+            std::scoped_lock lock{prefetch_mutex};
+            prefetch_bytes += item->header.raw_bytes + item->header.stored_bytes;
+            prefetch_order.push_back(item);
+            prefetch_work.push_back(std::move(item));
+            prefetch_cv.notify_all();
+        }
+    });
+    const u32 workers = std::clamp(std::thread::hardware_concurrency() / 2, 1u, 3u);
+    for (u32 i = 0; i < workers; ++i) {
+        prefetch_threads.emplace_back([this](std::stop_token stop) {
+            Common::SetCurrentThreadName("shadPS4:ReplayZstd");
+            while (true) {
+                std::shared_ptr<Prefetched> item;
+                {
+                    std::unique_lock lock{prefetch_mutex};
+                    prefetch_cv.wait(lock, stop, [&] { return !prefetch_work.empty(); });
+                    if (prefetch_work.empty()) {
+                        return;
+                    }
+                    item = std::move(prefetch_work.front());
+                    prefetch_work.pop_front();
+                }
+                std::vector<u8> payload;
+                const bool ok = TraceReader::Decompress(item->header, item->data, payload);
+                std::scoped_lock lock{prefetch_mutex};
+                item->payload = std::move(payload);
+                item->data = {};
+                item->ok = ok;
+                item->ready = true;
+                prefetch_cv.notify_all();
+            }
+        });
+    }
+}
+
+bool Player::NextRecord(RecordHeader& record, std::vector<u8>& payload) {
+    std::unique_lock lock{prefetch_mutex};
+    prefetch_cv.wait(lock, [&] {
+        return (!prefetch_order.empty() && prefetch_order.front()->ready) ||
+               (prefetch_order.empty() && prefetch_end);
+    });
+    if (prefetch_order.empty()) {
+        return false;
+    }
+    auto item = std::move(prefetch_order.front());
+    prefetch_order.pop_front();
+    prefetch_bytes -= item->header.raw_bytes + item->header.stored_bytes;
+    prefetch_cv.notify_all();
+    if (!item->ok) {
+        prefetch_error = "corrupt compressed record";
+        return false;
+    }
+    record = item->header;
+    payload = std::move(item->payload);
+    return true;
+}
+
 bool Player::Open(const std::filesystem::path& path, std::string& error) {
     if (!reader.Open(path)) {
         error = reader.Error();
@@ -105,6 +214,9 @@ bool Player::ApplyAreas(PayloadReader& payload, bool keep_contents, std::string&
         if (type != Core::VMAType::Direct && type != Core::VMAType::Pooled) {
             continue;
         }
+        if (!memory.CanReplayAt(area.vma.base, area.vma.size)) {
+            continue;
+        }
         for (const auto& run : area.phys) {
             memory.Allocate(run.base, run.base + run.size, run.size, 4_KB, run.memory_type);
         }
@@ -114,6 +226,22 @@ bool Player::ApplyAreas(PayloadReader& payload, bool keep_contents, std::string&
         const auto prot = static_cast<Core::MemoryProt>(area.vma.prot);
         if (area.name == DriverObjectsName) {
             // GnmDriver placed its objects there when it started.
+            prefilled += boost::icl::interval<VAddr>::right_open(area.vma.base,
+                                                                  area.vma.base + area.vma.size);
+            continue;
+        }
+        if (!keep_contents && !memory.CanReplayAt(area.vma.base, area.vma.size)) {
+            LOG_WARNING(Render, "GPU replay: cannot place {} {:#x}+{:#x} (type {}) here; skipped",
+                        area.name, area.vma.base, area.vma.size, area.vma.type);
+            std::scoped_lock lock{mutex};
+            skipped += boost::icl::interval<VAddr>::right_open(area.vma.base,
+                                                                area.vma.base + area.vma.size);
+            skipped_bytes += area.vma.size;
+            continue;
+        }
+        if (keep_contents && boost::icl::intersects(
+                                 skipped, boost::icl::interval<VAddr>::right_open(
+                                              area.vma.base, area.vma.base + area.vma.size))) {
             continue;
         }
         if (keep_contents) {
@@ -190,6 +318,11 @@ bool Player::WritePages(std::span<const u8> payload, bool initial, std::string& 
     // invalidates its images); a write to a page no cache watches goes unnoticed, as in a live
     // run (buffer pages already CPU modified, streaming pages within a generation).
     const auto note_writes = [&](VAddr address, u64 size) {
+        if (Shader::SrtGateDiag::enabled.load(std::memory_order_relaxed)) {
+            for (u64 offset = 0; offset < size; offset += PageSize) {
+                Shader::SrtGateDiag::NoteWrite(address + offset);
+            }
+        }
         const auto& page_manager = rasterizer->GetPageManager();
         for (u64 offset = 0; offset < size;) {
             u64 end = offset;
@@ -204,7 +337,20 @@ bool Player::WritePages(std::span<const u8> payload, bool initial, std::string& 
             }
         }
     };
+    const auto is_skipped = [&](VAddr address, u64 size) {
+        if (skipped.empty() ||
+            !boost::icl::intersects(skipped,
+                                    boost::icl::interval<VAddr>::right_open(address, address + size))) {
+            return false;
+        }
+        std::scoped_lock lock{mutex};
+        skipped_pages += size / PageSize;
+        return true;
+    };
     for_each_run(data_va, [&](size_t first, VAddr address, u64 size) {
+        if (is_skipped(address, size)) {
+            return;
+        }
         WriteGuest(address, data.data() + first * PageSize, size);
         if (!initial) {
             note_writes(address, size);
@@ -212,6 +358,15 @@ bool Player::WritePages(std::span<const u8> payload, bool initial, std::string& 
     });
     static const std::vector<u8> zeros(256 * PageSize);
     for_each_run(zero_va, [&](size_t, VAddr address, u64 size) {
+        if (is_skipped(address, size)) {
+            return;
+        }
+        if (initial && !boost::icl::intersects(prefilled, boost::icl::interval<VAddr>::right_open(
+                                                              address, address + size))) {
+            // Freshly mapped memory reads as zero already. Writing the zeros would allocate
+            // every page of them (Bloodborne: 1.8 GiB of the Android memfd backing).
+            return;
+        }
         for (u64 offset = 0; offset < size; offset += zeros.size()) {
             WriteGuest(address + offset, zeros.data(), std::min<u64>(zeros.size(), size - offset));
         }
@@ -292,11 +447,21 @@ bool Player::RestoreInitialState(AmdGpu::Liverpool& liverpool_, Vulkan::Rasteriz
         case RecordType::Gds:
             rasterizer->GetBufferCache().WriteGds(payload);
             break;
+        case RecordType::ScalePlans:
+            rasterizer->GetTextureCache().LoadScalePlans(payload);
+            break;
         case RecordType::GnmDriver:
         case RecordType::Info:
             break;
         case RecordType::BeginStream:
+            // Diagnostic: seed the scale decisions saved from another run (PLANS_OUT).
+            if (const char* path = std::getenv("SHADPS4_GPU_REPLAY_PLANS_IN")) {
+                std::ifstream in{path, std::ios::binary};
+                const std::vector<u8> plans{std::istreambuf_iterator<char>{in}, {}};
+                rasterizer->GetTextureCache().LoadScalePlans(plans);
+            }
             LOG_INFO(Render, "GPU replay: initial state restored ({} page records)", pages_written);
+            StartPrefetch();
             return true;
         default:
             error = fmt::format("unexpected record {} in the initial state", record.type);
@@ -317,21 +482,29 @@ const Player::Event* Player::Peek() {
     RecordHeader record{};
     std::vector<u8> payload;
     std::string error;
-    while (reader.Next(record, payload)) {
+    while (NextRecord(record, payload)) {
         const auto type = static_cast<RecordType>(record.type);
         switch (type) {
-        case RecordType::MemoryPages:
-            if (!WritePages(payload, false, error)) {
+        case RecordType::MemoryPages: {
+            const u64 begin = ThreadCpuNow();
+            const bool ok = WritePages(payload, false, error);
+            apply_cpu_ns += ThreadCpuNow() - begin;
+            if (!ok) {
                 Fail(error);
                 return nullptr;
             }
             continue;
-        case RecordType::Mapping:
-            if (!ApplyMapping(payload, error)) {
+        }
+        case RecordType::Mapping: {
+            const u64 begin = ThreadCpuNow();
+            const bool ok = ApplyMapping(payload, error);
+            apply_cpu_ns += ThreadCpuNow() - begin;
+            if (!ok) {
                 Fail(error);
                 return nullptr;
             }
             continue;
+        }
         case RecordType::EopFlipArmed: {
             EopFlipRecord flip{};
             std::memcpy(&flip, payload.data(), std::min(sizeof(flip), payload.size()));
@@ -339,8 +512,19 @@ const Player::Event* Player::Peek() {
             continue;
         }
         case RecordType::Flip: {
-            std::scoped_lock lock{mutex};
-            ++recorded_flips;
+            u64 flip;
+            {
+                std::scoped_lock lock{mutex};
+                flip = ++recorded_flips;
+                Shader::SrtGateDiag::NoteFlip();
+                frame_cpu_ns.push_back(ThreadCpuNow());
+                frame_apply_ns.push_back(apply_cpu_ns);
+            }
+            if (on_flip) {
+                const u64 begin = ThreadCpuNow();
+                on_flip(flip);
+                apply_cpu_ns += ThreadCpuNow() - begin;
+            }
             continue;
         }
         case RecordType::Info:
@@ -361,7 +545,12 @@ const Player::Event* Player::Peek() {
             return nullptr;
         }
     }
-    Fail(reader.Error().empty() ? "the trace ends without an End record" : reader.Error());
+    std::string end_error;
+    {
+        std::scoped_lock lock{prefetch_mutex};
+        end_error = prefetch_error;
+    }
+    Fail(end_error.empty() ? "the trace ends without an End record" : end_error);
     return nullptr;
 }
 
@@ -433,7 +622,16 @@ void Player::BeforeEvent(const Event& event) {
 
 void Player::AfterDraw(const char* kind, u64 hash0, u64 hash1) {
     const u32 index = draw_index++;
-    for (const auto& image : rasterizer->GetTextureCache().HashWrittenImages(hashed_epochs)) {
+    std::string dump_prefix;
+    if (const char* dump_dir = std::getenv("SHADPS4_GPU_REPLAY_DUMP")) {
+        std::filesystem::create_directories(dump_dir);
+        dump_prefix = (std::filesystem::path{dump_dir} /
+                       fmt::format("e{:04}_d{:04}_{}_{:08x}", current_event, index, kind,
+                                   static_cast<u32>(hash1 ? hash1 : hash0)))
+                          .string();
+    }
+    for (const auto& image :
+         rasterizer->GetTextureCache().HashWrittenImages(hashed_epochs, dump_prefix)) {
         image_hashes << fmt::format(
             "{} {} {} {:016x} {:016x} image {} {:#x} {}x{}x{} levels {} layers {} {} {}\n",
             current_event, kind, index, hash0, hash1, image.uid, image.address,
@@ -468,7 +666,26 @@ void Player::AfterEvent(const Event& event) {
         return;
     }
     const u64 index = current_event;
-    for (const auto& image : rasterizer->GetTextureCache().HashWrittenImages(hashed_epochs)) {
+    // Diagnostic: SHADPS4_GPU_REPLAY_DUMP=<dir> [SHADPS4_GPU_REPLAY_DUMP_EVENTS=<first>-<last>]
+    // writes level 0 of every image the events write, next to the image_hashes.txt lines.
+    std::string dump_prefix;
+    static const char* dump_dir = std::getenv("SHADPS4_GPU_REPLAY_DUMP");
+    if (dump_dir) {
+        static const auto range = [] {
+            u64 first = 0, last = ~u64{0};
+            if (const char* events = std::getenv("SHADPS4_GPU_REPLAY_DUMP_EVENTS")) {
+                std::sscanf(events, "%llu-%llu", reinterpret_cast<unsigned long long*>(&first),
+                            reinterpret_cast<unsigned long long*>(&last));
+            }
+            return std::pair{first, last};
+        }();
+        if (index >= range.first && index <= range.second) {
+            std::filesystem::create_directories(dump_dir);
+            dump_prefix = (std::filesystem::path{dump_dir} / fmt::format("e{:04}", index)).string();
+        }
+    }
+    for (const auto& image :
+         rasterizer->GetTextureCache().HashWrittenImages(hashed_epochs, dump_prefix)) {
         image_hashes << fmt::format("{} {} image {} {:#x} {}x{}x{} levels {} layers {} {} {}\n",
                                     index, what, image.uid, image.address, image.extent.width,
                                     image.extent.height, image.extent.depth, image.levels,
@@ -511,6 +728,11 @@ void Player::Fail(std::string reason) {
 
 void Player::Finish() {
     LOG_INFO(Render, "GPU replay finished:\n{}", Summary());
+    if (const char* path = std::getenv("SHADPS4_GPU_REPLAY_PLANS_OUT"); path && rasterizer) {
+        const auto plans = rasterizer->GetTextureCache().SaveScalePlans();
+        std::ofstream{path, std::ios::binary}.write(reinterpret_cast<const char*>(plans.data()),
+                                                     static_cast<std::streamsize>(plans.size()));
+    }
     done.store(true, std::memory_order_release);
     if (on_finish) {
         on_finish();
@@ -535,7 +757,57 @@ std::string Player::Summary() const {
         << "delta_records=" << delta_records << "\n"
         << "delta_pages=" << delta_pages << "\n"
         << "mapping_changes=" << mappings << "\n"
-        << "commands=" << commands << "\n";
+        << "commands=" << commands << "\n"
+        << "processor_wall_ms=" << processor_wall_ns / 1'000'000.0 << "\n"
+        << "processor_cpu_ms=" << processor_cpu_ns / 1'000'000.0 << "\n";
+    // Command processor CPU per recorded frame, from the flip records. The first frames carry
+    // shader translation and pipeline creation; the steady figure leaves out the first quarter.
+    // command_ cpu leaves out applying the recorded guest writes (memory pages and mapping
+    // changes), which the game's own threads do in a live run.
+    if (frame_cpu_ns.size() >= 4 && frame_cpu_ns.back() != 0) {
+        std::vector<double> frames;
+        std::vector<double> commands;
+        for (size_t i = 1; i < frame_cpu_ns.size(); ++i) {
+            const double total = (frame_cpu_ns[i] - frame_cpu_ns[i - 1]) / 1'000'000.0;
+            const double apply = (frame_apply_ns[i] - frame_apply_ns[i - 1]) / 1'000'000.0;
+            frames.push_back(total);
+            commands.push_back(total - apply);
+        }
+        {
+            const size_t first = commands.size() / 4;
+            std::vector<double> steady(commands.begin() + first, commands.end());
+            double sum = 0;
+            for (const double value : steady) {
+                sum += value;
+            }
+            std::sort(steady.begin(), steady.end());
+            out << "steady_command_cpu_ms mean=" << sum / steady.size()
+                << " median=" << steady[steady.size() / 2] << "\n";
+        }
+        const size_t first = frames.size() / 4;
+        std::vector<double> steady(frames.begin() + first, frames.end());
+        double sum = 0;
+        for (const double value : steady) {
+            sum += value;
+        }
+        std::sort(steady.begin(), steady.end());
+        out << "steady_frame_cpu_ms mean=" << sum / steady.size()
+            << " median=" << steady[steady.size() / 2] << " frames=" << steady.size() << "\n";
+        out << "frame_cpu_ms=";
+        for (const double value : frames) {
+            out << fmt::format("{:.1f} ", value);
+        }
+        out << "\n";
+        out << "command_cpu_ms=";
+        for (const double value : commands) {
+            out << fmt::format("{:.1f} ", value);
+        }
+        out << "\n";
+    }
+    if (skipped_bytes) {
+        out << "skipped_area_bytes=" << skipped_bytes << "\n"
+            << "skipped_pages=" << skipped_pages << "\n";
+    }
     // Streaming pages (SHADPS4_WATCH_STREAM=1) change how uploads copy, not what they copy.
     if (const auto& stream = VideoCore::stream_page_counters;
         VideoCore::stream_pages.load() || stream.promoted.load() != 0) {

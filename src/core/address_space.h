@@ -8,6 +8,7 @@
 #include <memory>
 #include <span>
 #include <utility>
+#include <vector>
 #include <boost/icl/separate_interval_set.hpp>
 #include "common/arch.h"
 #include "common/enum.h"
@@ -86,6 +87,17 @@ public:
     virtual bool IsGpuWatchFault(VAddr address, bool write) const {
         return false;
     }
+    // Page-aligned runs of [address, address + size) that ProtectGpu accepts: mapped and not
+    // executable. The GPU replay recorder write-protects only these.
+    virtual void GpuWatchableRuns(VAddr address, u64 size, std::vector<MappingRange>& runs) const {
+        runs.emplace_back(address, size);
+    }
+    // Runs of [offset, offset + size) of the physical backing that may hold data; the rest is
+    // known to read as zero. Reading a hole of a shared memfd allocates it, which a whole-memory
+    // snapshot (GPU replay capture) must not do.
+    virtual void BackingDataRuns(u64 offset, u64 size, std::vector<MappingRange>& runs) const {
+        runs.emplace_back(offset, size);
+    }
 };
 
 /**
@@ -113,6 +125,20 @@ public:
     }
     bool IsGpuWatchFault(VAddr address, bool write) const {
         return guest && guest->IsGpuWatchFault(address, write);
+    }
+    void BackingDataRuns(u64 offset, u64 size,
+                         std::vector<GuestMemoryBackend::MappingRange>& runs) const {
+        if (guest)
+            guest->BackingDataRuns(offset, size, runs);
+        else
+            runs.emplace_back(offset, size);
+    }
+    void GpuWatchableRuns(VAddr address, u64 size,
+                          std::vector<GuestMemoryBackend::MappingRange>& runs) const {
+        if (guest)
+            guest->GpuWatchableRuns(address, size, runs);
+        else
+            runs.emplace_back(address, size);
     }
     explicit AddressSpace();
     explicit AddressSpace(GuestMemoryBackend* guest);

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <deque>
 #include <condition_variable>
 #include <coroutine>
 #include <exception>
@@ -124,6 +125,8 @@ public:
     /// write after submitting cannot change what the command processor reads, and a GPU replay
     /// sees the commands of the submission.
     bool owned_submissions{true};
+    /// GPU replay: command buffer contents a trace carries (captured from host copies).
+    std::deque<std::vector<u8>> replay_submit_contents;
     bool StopRequested() const {
         return stopping.load();
     }
@@ -174,6 +177,9 @@ public:
     /// GPU replay: the command processor replays the player's events, then returns to normal
     /// operation. The queues run only when the trace resumes them.
     void StartReplay(VideoCore::Replay::Player* player);
+    /// Takes a GPU memory diagnostics snapshot (gpu_memory status) on the command processor
+    /// and waits for it: for reports after a replay, when no draw publishes one any more.
+    void SnapshotMemoryDiagnostics();
 
     Vulkan::Rasterizer* GetRasterizer() const {
         return rasterizer;

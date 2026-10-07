@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <string_view>
+#include <vector>
 #include "common/types.h"
 #include "video_core/texture_cache/internal_scale.h"
 
@@ -151,6 +152,31 @@ public:
     }
     bool BudgetNative() const {
         return budget_native;
+    }
+    /// GPU replay: the identities a session decided must stay native, with why.
+    struct NativeDecision {
+        ScaleIdentity identity;
+        u32 reason;
+        u32 mask;
+    };
+    std::vector<NativeDecision> NativeDecisions() const {
+        std::vector<NativeDecision> out;
+        for (const auto& [key, entry] : entries) {
+            if (entry.plan->domain == ScaleDomain::NativeRequired) {
+                out.push_back({key, static_cast<u32>(entry.plan->reason),
+                               entry.plan->native_reason_mask});
+            }
+        }
+        return out;
+    }
+    /// GPU replay: starts from the native decisions of the captured session, so the replay
+    /// allocates the same images native from the first frame instead of discovering it later
+    /// (a promotion in the middle of a frame does not reproduce what the capture rendered).
+    void SeedNative(const NativeDecision& decision) {
+        auto plan = Acquire(decision.identity, ScaleUse::Unknown);
+        plan->RequireNative(static_cast<ScaleReason>(
+            std::min<u32>(decision.reason, u32(ScaleReason::Count) - 1)), "replay seed");
+        plan->native_reason_mask |= decision.mask;
     }
 
 private:

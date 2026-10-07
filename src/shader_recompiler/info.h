@@ -5,6 +5,7 @@
 
 #include <span>
 #include <vector>
+#include <boost/container/small_vector.hpp>
 #include <boost/container/static_vector.hpp>
 #include "common/assert.h"
 #include "common/types.h"
@@ -18,6 +19,7 @@
 #include "shader_recompiler/params.h"
 #include "shader_recompiler/resource.h"
 #include "shader_recompiler/runtime_info.h"
+#include "shader_recompiler/srt_gate_diag.h"
 
 namespace Serialization {
 struct Archive;
@@ -198,15 +200,24 @@ struct Info : InfoPersistent {
     }
 
     void RefreshFlatBuf() {
-#ifndef ARCH_X86_64
-        flattened_ud_buf.assign(srt_info.flattened_bufsize_dw, 0);
-#else
+        // Every slot past the user data is written by the walk (a failed read writes 0) or by
+        // RefreshDynamicImageTables, so the buffer is not cleared first.
         flattened_ud_buf.resize(srt_info.flattened_bufsize_dw);
-#endif
         ASSERT(user_data.size() <= NUM_USER_DATA_REGS);
         std::memcpy(flattened_ud_buf.data(), user_data.data(), user_data.size_bytes());
 #ifndef ARCH_X86_64
-        {
+        if (SrtGateDiag::enabled.load(std::memory_order_relaxed)) [[unlikely]] {
+            boost::container::small_vector<SrtGateDiag::Read, 32> reads;
+            {
+                SrtGuestReader reader;
+                srt_info.portable.Run(user_data, flattened_ud_buf,
+                                      [&](u64 address, void* data, size_t size) {
+                                          reads.push_back({address, u32(size)});
+                                          return reader(address, data, size);
+                                      });
+            }
+            SrtGateDiag::NoteWalk(this, user_data, flattened_ud_buf, reads);
+        } else {
             SrtGuestReader reader; // Release this lease before refreshing dynamic tables.
             srt_info.portable.Run(user_data, flattened_ud_buf,
                                   [&reader](u64 address, void* data, size_t size) {

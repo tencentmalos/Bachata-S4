@@ -55,6 +55,7 @@
 #include "core/host_runtime/guest_direct_memory_hle.h"
 #include "core/host_runtime/guest_gettimeofday.h"
 #include "core/host_runtime/guest_gnm_abi.h"
+#include "core/host_runtime/guest_gpu_replay.h"
 #include "core/host_runtime/guest_graphics.h"
 #include "core/host_runtime/guest_hmd_diagnostics.h"
 #include "core/host_runtime/guest_hmd_geometry.h"
@@ -123,6 +124,7 @@
 #include "core/host_runtime/guest_vr_session.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
+#include "video_core/replay/gpu_replay_hooks.h"
 #include "core/libraries/hmd/hmd.h"
 #include "core/libraries/hmd/hmd_error.h"
 #include "core/libraries/hmd/hmd_setup_dialog.h"
@@ -453,6 +455,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 video_labels{};
     std::mutex graphics_init_mutex;
     std::mutex graphics_mutex;
+    // A GPU replay session (GuestGpuReplay): no game, the trace drives the command processor.
+    std::unique_ptr<GuestGpuReplay> gpu_replay;
 
     GuestGraphics& Graphics() {
         std::scoped_lock creation(graphics_init_mutex);
@@ -461,6 +465,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 throw std::runtime_error("VideoOut requires a session Surface and verified Turnip");
             if (cancelling)
                 throw std::runtime_error("Graphics initialization cancelled");
+            if (!video_labels) {
+                // Same fixed address and layout as desktop (labels, shaders, init sequences),
+                // so a GPU replay trace captured here replays on desktop.
+                video_labels = Libraries::GnmDriver::MapSessionDriverObjects();
+            }
             if (!video_labels) {
                 video_labels = Allocate(0x4000, "VideoOutLabelsAndShaders");
                 for (u32 i = 0; i < 3; ++i)
@@ -472,7 +481,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 graphics_window, graphics_driver,
                 [this] { return clock.ticks.GetTimeUS(clock.origin); },
                 [this] { return clock.ReadTsc(); },
-                [this] { return platform->SplashVisible(); }, video_labels,
+                [this] { return platform && platform->SplashVisible(); }, video_labels,
                 [this] { (void)Cancel(); });
             std::scoped_lock lock(graphics_mutex);
             if (cancelling)
@@ -992,6 +1001,42 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const u8 access = write ? 2 : 1;
         return (state & 0x80) && (state & access) && (state & ((access << 3) | (access << 5)));
     }
+    void BackingDataRuns(u64 offset, u64 size, std::vector<MappingRange>& runs) const override {
+        const u64 end = offset + size;
+        while (offset < end) {
+            const off_t data = ::lseek(backing_fd, off_t(offset), SEEK_DATA);
+            if (data < 0) {
+                if (errno != ENXIO) // ENXIO: no data at or after offset
+                    runs.emplace_back(offset, end - offset);
+                return;
+            }
+            if (u64(data) >= end)
+                return;
+            off_t hole = ::lseek(backing_fd, data, SEEK_HOLE);
+            const u64 stop = hole < 0 ? end : std::min<u64>(end, u64(hole));
+            runs.emplace_back(u64(data), stop - u64(data));
+            offset = stop;
+        }
+    }
+    void GpuWatchableRuns(VAddr address, u64 size, std::vector<MappingRange>& runs) const override {
+        if ((address | size) % 4096 || !space.OwnsRange({GuestAddress{address}, size}))
+            return;
+        const u64 first = address / 4096, last = (address + size) / 4096;
+        u64 begin = last;
+        for (u64 page = first; page <= last; ++page) {
+            bool ok = false;
+            if (page < last) {
+                const u8 state = gpu_pages.Load(page * 4096);
+                ok = (state & 0x80) && !(state & 4);
+            }
+            if (ok && begin == last) {
+                begin = page;
+            } else if (!ok && begin != last) {
+                runs.emplace_back(begin * 4096, (page - begin) * 4096);
+                begin = last;
+            }
+        }
+    }
     void ProtectGpu(VAddr address, u64 size, MemoryPermission permission) override {
         if (!space.OwnsRange({GuestAddress{address}, size}) || (address | size) % 4096)
             throw std::runtime_error("invalid GPU watch range");
@@ -1092,6 +1137,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                                             GuestPermission::Read | GuestPermission::Write));
                 o->stack = attributes.stack;
                 o->attributes.guard = 0; // Caller owns neighboring memory; never protect it.
+                // A GPU replay capture must not write-protect a stack in game memory.
+                VideoCore::Replay::NoteGuestStack(attributes.stack, attributes.size);
             } else {
                 const u64 guard = Common::AlignUp(std::max<u64>(0x4000, attributes.guard), 0x4000ULL);
                 const u64 allocation = Allocate(o->stack_size + guard, "GuestStack",
@@ -4739,6 +4786,12 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     Common::Profiler::Phase stage{"Startup.ModulesAndServices"};
     if (impl->prepared)
         throw std::logic_error("runtime already prepared");
+    if (GuestGpuReplay::IsTrace(executable)) {
+        impl->gpu_replay = std::make_unique<GuestGpuReplay>(executable);
+        impl->gpu_replay->ConfigureMemory(*impl->memory, impl->elf_info);
+        impl->prepared = true;
+        return;
+    }
     const bool archive = FileSys::IsZArchiveFile(executable);
     if (archive) (void)FileSys::InspectArchiveInstall(executable);
     const auto install_root = std::filesystem::canonical(archive ? executable : executable.parent_path());
@@ -5419,6 +5472,20 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
     Common::Profiler::Phase bootstrap_stage{"Startup.GuestBootstrap"};
     if (!impl->prepared)
         return MakeError(ErrorCategory::WrongState, "GuestRuntime::Run", "Prepare is required");
+    if (impl->gpu_replay) {
+        try {
+            impl->Graphics();
+            const auto outcome = impl->gpu_replay->Run(
+                impl->cancelling, [this] { impl->graphics->CheckHealth(); });
+            GuestCallResult result;
+            result.reason = outcome.cancelled ? StopReason::Cancelled : StopReason::Returned;
+            result.return_value = outcome.complete ? 0 : 1;
+            return result;
+        } catch (const std::exception& e) {
+            (void)impl->Cancel();
+            return MakeError(ErrorCategory::BackendFailure, "GuestRuntime::Run", e.what());
+        }
+    }
     auto* module = impl->linker->GetModule(0);
     auto owner = impl->NewOwner(GuestThreadAttributes{.size = 2 << 20});
     try {

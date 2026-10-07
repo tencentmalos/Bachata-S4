@@ -23,6 +23,8 @@ struct GuestReadCache {
     u32 next{};
     u64 hits{};
     u64 misses{};
+    /// The owner holds the VM shared lock for a run of copies (MemoryManager::LockReads).
+    bool locked{};
 };
 
 } // namespace Core

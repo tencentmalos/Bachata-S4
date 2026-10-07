@@ -139,6 +139,11 @@ public:
     /// GPU replay: restores the GDS contents.
     void WriteGds(std::span<const u8> data);
 
+    /// Streamed copies in this scope share one VM read lock (see MemoryManager::LockReads).
+    /// The scope must not reach the VM writer lock; nested scopes are counted.
+    void BeginStreamReads();
+    void EndStreamReads();
+
     /// Finds a buffer for the specified region.
     [[nodiscard]] std::pair<const Buffer*, u64> ObtainBuffer(VAddr device_addr, u32 size,
                                                              bool is_written,
@@ -244,6 +249,7 @@ private:
     RangeSet gpu_modified_ranges;
     // Mapping lookups saved for streamed buffer copies (GPU command thread only).
     Core::GuestReadCache stream_read_cache;
+    u32 stream_read_depth{};
     // Streamed copies: count, bytes and sizes (<=256 B, <=1 KiB, <=4 KiB, larger).
     u64 stream_copies{};
     u64 stream_bytes{};

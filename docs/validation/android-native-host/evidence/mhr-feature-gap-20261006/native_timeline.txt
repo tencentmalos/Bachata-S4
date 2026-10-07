@@ -1,0 +1,277 @@
+[5069-5072] dispatch x2  cs 002770 [1, 1, 1]
+      cs 002770 x2  fastCopySource,W:fastCopyTarget
+[5075-5075] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5078-5078] dispatch x1  cs 002770 [1, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5081-5081] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5084-5114] dispatch x11  cs 002770 [1, 1, 1]
+      cs 002770 x11  fastCopySource,W:fastCopyTarget
+[5117-5117] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5120-5120] dispatch x1  cs 002770 [1, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5123-5123] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5126-5156] dispatch x11  cs 002770 [1, 1, 1]
+      cs 002770 x11  fastCopySource,W:fastCopyTarget
+[5159-5159] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5162-5162] dispatch x1  cs 002770 [128, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5165-5165] dispatch x1  cs 002770 [11, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5168-5168] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5171-5171] dispatch x1  cs 002770 [8, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5174-5174] dispatch x1  cs 002770 [1, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5177-5177] dispatch x1  cs 002770 [2, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5180-5180] dispatch x1  cs 002770 [1, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5181-5181] op x1  ClearRenderTargetView()
+[5184-5184] dispatch x1  cs 002770 [256, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5187-5205] dispatch x7  cs 002770 [1, 1, 1]
+      cs 002770 x7  fastCopySource,W:fastCopyTarget
+[5208-5208] dispatch x1  cs 002770 [128, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5222-5222] dispatch x1  cs 002761 [1, 1, 1]
+      cs 002761 x1  W:RWSceneEventCount
+[5227-5230] dispatch x2  cs 002770 [1, 1, 1]
+      cs 002770 x2  fastCopySource,W:fastCopyTarget
+[5231-5231] op x1  ClearRenderTargetView()
+[5246-5246] dispatch x1  cs 002688 [4, 2, 64]
+      cs 002688 x1  IBLCubemapArrayList2SRV,bindlessTextureCube,IBLCubemapBVHSRV,CubemapSRV,W:RWOutdoorProbes
+[5251-5260] dispatch x4  cs 002770 [1, 1, 1]
+      cs 002770 x4  fastCopySource,W:fastCopyTarget
+[5275-5275] dispatch x1  cs 002768 [1, 1, 1]
+      cs 002768 x1  IndirectArgumentsInstanceCountSRV,W:RWDrawIndirectArguments
+[5280-5286] dispatch x4  cs 002727 [1, 1, 1]
+      cs 002727 x4  InstancBoundingBuffer,W:RWDrawIndirectArguments
+[5291-5291] dispatch x1  cs 002770 [1, 1, 1]
+      cs 002770 x1  fastCopySource,W:fastCopyTarget
+[5306-5306] dispatch x1  cs 002693 [1, 1, 1]
+      cs 002693 x1  InstanceIndirectBuffer,InstancBoundingBuffer,W:RWCountBuffer
+[5308-5308] op x1  ClearDepthStencilView()
+[5330-5330] draw x1  RT[] DS[128x64:R32_TYPELESS/ms4 GreaterEqual w]
+      vs 002774 x1  InstanceWorldInfo
+[5345-5369] draw x5  RT[] DS[128x64:R32_TYPELESS/ms4 GreaterEqual]
+      vs 002733 x4  InstancBoundingBuffer
+      ps 002734 x4  W:RWDrawIndirectArguments
+      vs 002695 x1  InstanceIndirectBuffer,InstancBoundingBuffer
+[5383-5387] dispatch x3  cs 002723 [1, 1, 1]
+      cs 002723 x3  DrawIndirectArguments,CountBuffer,IDI,W:IndirectIndicesBufferRW,W:RWDrawIndirectArguments2
+[5392-5392] dispatch x1  cs 002731 [5, 1, 1]
+      cs 002731 x1  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[5394-5396] dispatch x2  cs 002731 [2, 1, 1]
+      cs 002731 x2  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[5398-5398] dispatch x1  cs 002731 [4, 1, 1]
+      cs 002731 x1  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[5403-5433] dispatch x16  cs 002725 [1, 1, 1]
+      cs 002725 x16  DrawIndirectArguments,CountBuffer,IDI,W:RWDrawIndirectArguments2
+[5434-5434] op x1  ClearUnorderedAccessViewUint()
+[5455-5455] dispatch x1  cs 002743 [1, 1, 1]
+      cs 002743 x1  LightParameterSRV,W:LightSphereUAV
+[5462-5462] dispatch x1  cs 002741 [1, 1, 1]
+      cs 002741 x1  LightCullingParamSRV,W:LightFrustumUAV
+[5469-5469] dispatch x1  cs 002745 [16, 8, 1]
+      cs 002745 x1  LightFrustumSRV,LightSphereSRV,W:LightCullingVolumeUAV,W:LightCullingListUAV,W:LightCullingListCountUAV
+[5478-5478] op x1  ClearDepthStencilView()
+[5479-5479] op x1  ClearRenderTargetView()
+[5502-5781] draw x52  RT[] DS[1280x720:D32S8_TYPELESS GreaterEqual w st]
+      vs 002812 x16  InstanceWorldInfo
+      vs 002853 x12  InstanceWorldInfo
+      vs 002789 x12  SkinningMatrices,InstanceWorldInfo
+[5787-5787] draw x1  RT[] DS[1280x720:D32S8_TYPELESS GreaterEqual w]
+      vs 002885 x1  
+[5802-5946] draw x17  RT[] DS[1280x720:D32S8_TYPELESS GreaterEqual w st]
+      vs 002836 x7  InstanceWorldInfo
+      ps 002837 x7  AlphaMap
+      vs 002902 x4  SkinningMatrices,InstanceWorldInfo
+[5955-5980] draw x4  RT[640x360:R16_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x2  
+      vs 002690 x2  
+      ps 002755 x1  ReadonlyDepth
+[5997-5997] draw x1  RT[1280x720:R16_TYPELESS] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002747 x1  PrevAODepth
+[6003-6003] draw x1  RT[] DS[768x768x32:R32_TYPELESS AlwaysTrue w]
+      vs 002690 x1  
+      ps 002691 x1  ReadonlyDepth
+[6017-6122] draw x19  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002785 x10  SkinningMatrices,InstanceWorldInfo
+      vs 002778 x4  SkinningMatrices,InstanceWorldInfo
+      vs 002883 x3  
+[6123-6123] op x1  ClearDepthStencilView()
+[6139-6333] draw x39  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002807 x14  InstanceWorldInfo
+      vs 002844 x6  InstanceWorldInfo
+      vs 002830 x6  InstanceWorldInfo
+[6348-6348] dispatch x1  cs 002729 [1, 1, 1]
+      cs 002729 x1  InstancBoundingBuffer,W:RWDrawIndirectArguments
+[6354-6354] dispatch x1  cs 002731 [4, 1, 1]
+      cs 002731 x1  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[6356-6356] op x1  ClearDepthStencilView()
+[6372-6577] draw x42  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002807 x14  InstanceWorldInfo
+      vs 002844 x9  InstanceWorldInfo
+      vs 002785 x7  SkinningMatrices,InstanceWorldInfo
+[6578-6578] op x1  ClearDepthStencilView()
+[6594-6749] draw x32  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002807 x14  InstanceWorldInfo
+      vs 002830 x6  InstanceWorldInfo
+      ps 002831 x6  AlphaMap
+[6762-6762] dispatch x1  cs 002729 [1, 1, 1]
+      cs 002729 x1  InstancBoundingBuffer,W:RWDrawIndirectArguments
+[6768-6768] dispatch x1  cs 002731 [2, 1, 1]
+      cs 002731 x1  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[6770-6770] op x1  ClearDepthStencilView()
+[6777-7056] draw x53  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002807 x16  InstanceWorldInfo
+      vs 002785 x12  SkinningMatrices,InstanceWorldInfo
+      vs 002830 x7  InstanceWorldInfo
+[7070-7070] dispatch x1  cs 002729 [1, 1, 1]
+      cs 002729 x1  InstancBoundingBuffer,W:RWDrawIndirectArguments
+[7076-7076] dispatch x1  cs 002731 [5, 1, 1]
+      cs 002731 x1  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[7078-7078] op x1  ClearDepthStencilView()
+[7094-7263] draw x34  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002807 x14  InstanceWorldInfo
+      vs 002844 x6  InstanceWorldInfo
+      vs 002830 x6  InstanceWorldInfo
+[7277-7277] dispatch x1  cs 002729 [1, 1, 1]
+      cs 002729 x1  InstancBoundingBuffer,W:RWDrawIndirectArguments
+[7283-7283] dispatch x1  cs 002731 [2, 1, 1]
+      cs 002731 x1  DrawIndirectArguments,MDI,W:RWCountBuffer,W:RWDrawIndirectArguments2
+[7285-7285] op x1  ClearDepthStencilView()
+[7301-7525] draw x45  RT[] DS[768x768x32:R32_TYPELESS GreaterEqual w]
+      vs 002807 x14  InstanceWorldInfo
+      vs 002844 x9  InstanceWorldInfo
+      vs 002785 x7  SkinningMatrices,InstanceWorldInfo
+[7539-7539] dispatch x1  cs 002686 [1, 1, 1]
+      cs 002686 x1  LightParameterSRV,ShadowParameterSRV,bindlessTexture2D,ShadowMapSRV,IESLightTableSRV,AerialPerspectiveTexture,TransmittanceFromCameraTexture,OutdoorProbesSRV
+[7555-7555] draw x1  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002690 x1  
+      ps 002698 x1  IBL2D
+[7562-7583] op x4  CopyBufferRegion()
+[7618-7802] draw x32  RT[1280x720:R11G11B10_FLOAT 1280x720:R16G16B16A16_FLOAT] DS[1280x720:D32S8_TYPELESS Equal st]
+      vs 002809 x16  InstanceWorldInfo
+      ps 002810 x16  IBLCubemapArrayList2SRV,LightParameterSRV,ShadowParameterSRV,LightCullingVolumeSRV,LightCullingListSRV,AmbientBRDF,OutdoorProbesSRV,bindlessTexture2D
+      ps 002847 x15  IBLCubemapArrayList2SRV,LightParameterSRV,ShadowParameterSRV,LightCullingVolumeSRV,LightCullingListSRV,AmbientBRDF,OutdoorProbesSRV,bindlessTexture2D
+[7820-7820] draw x1  RT[1280x720:R11G11B10_FLOAT 1280x720:R16G16B16A16_FLOAT] DS[1280x720:D32S8_TYPELESS Equal]
+      vs 002885 x1  
+      ps 002887 x1  IBLCubemapArrayList2SRV,LightParameterSRV,ShadowParameterSRV,AreaLightParameterSRV,LightCullingVolumeSRV,LightCullingListSRV,bindlessTexture2D,bindlessTextureCube
+[7840-8156] draw x37  RT[1280x720:R11G11B10_FLOAT 1280x720:R16G16B16A16_FLOAT] DS[1280x720:D32S8_TYPELESS Equal st]
+      vs 002780 x17  SkinningMatrices,InstanceWorldInfo
+      vs 002833 x7  InstanceWorldInfo
+      ps 002834 x7  IBLCubemapArrayList2SRV,LightParameterSRV,ShadowParameterSRV,LightCullingVolumeSRV,LightCullingListSRV,AmbientBRDF,OutdoorProbesSRV,bindlessTexture2D
+[8157-8157] op x1  ClearRenderTargetView()
+[8173-8173] draw x1  RT[] DS[320x180:R32_TYPELESS AlwaysTrue w]
+      vs 002700 x1  
+      ps 002759 x1  ReadonlyDepth
+[8188-8188] draw x1  RT[320x180:R11G11B10_FLOAT] DS[320x180:R32_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002757 x1  ReadonlyDepth,InputImage,PrevInputImage
+[8190-8190] op x1  CopyResource()
+[8205-8205] dispatch x1  cs 002819 [1, 1, 1]
+      cs 002819 x1  ReadonlyDepth,W:FogBufferUav
+[8222-8222] draw x1  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002821 x1  ReadonlyDepth,AerialPerspectiveTexture,TransmittanceFromCameraTexture,VolumetricFogTexture,FogMaskTexture,FogBufferSrv
+[8223-8223] op x1  ClearRenderTargetView()
+[8225-8225] op x1  CopyResource()
+[8245-8313] draw x12  RT[1280x720:R11G11B10_FLOAT 1280x720:R8_UNORM] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002791 x4  ReadonlyDepth,CutoutTableSRV,ExtendParticleVertexBuffer
+      ps 002792 x3  ReadonlyDepth,WhitePtSrv,primTex
+      vs 002857 x2  ReadonlyDepth,PreCalcParticlesResult,ExtendParticleVertexBuffer
+[8315-8315] op x1  CopyResource()
+[8323-8323] draw x1  RT[1280x720:R11G11B10_FLOAT 1280x720:R8_UNORM] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002794 x1  ReadonlyDepth,CutoutTableSRV,ExtendParticleVertexBuffer
+      ps 002795 x1  ReadonlyDepth,primTex,primSceneTex
+[8341-8341] draw x1  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002816 x1  WhitePtSrv
+      ps 002817 x1  EffectMaskTex,ReadonlyDepth,HDRImage,PrevHDRImage,Velocity
+[8343-8343] op x1  CopyResource()
+[8360-8360] draw x1  RT[640x360:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002701 x1  texSrc
+[8367-8367] draw x1  RT[320x180:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002703 x1  texSrc
+[8373-8373] draw x1  RT[160x90:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002703 x1  texSrc
+[8379-8379] draw x1  RT[80x45:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002703 x1  texSrc
+[8385-8385] draw x1  RT[40x22:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002703 x1  texSrc
+[8392-8392] draw x1  RT[80x22:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002711 x1  texSrc
+[8399-8399] draw x1  RT[80x45:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002719 x1  texSrc
+[8406-8406] draw x1  RT[160x45:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002709 x1  texSrc
+[8413-8413] draw x1  RT[160x90:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002717 x1  texSrc
+[8420-8420] draw x1  RT[320x90:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002707 x1  texSrc
+[8427-8427] draw x1  RT[320x180:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002715 x1  texSrc
+[8434-8434] draw x1  RT[640x180:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002705 x1  texSrc
+[8441-8441] draw x1  RT[640x360:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002713 x1  texSrc
+[8448-8478] draw x3  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002721 x1  texSrc
+      vs 002738 x1  WhitePtSrv
+[8492-8492] dispatch x1  cs 002814 [80, 45, 1]
+      cs 002814 x1  SrcImage,W:OutputImage
+[8494-8494] op x1  ClearRenderTargetView()
+[8495-8495] op x1  ClearDepthStencilView()
+[8504-8637] draw x33  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x33  
+      ps 002766 x20  primTex
+      ps 002764 x13  primTex
+[8638-8638] op x1  ClearRenderTargetView()
+[8644-8644] draw x1  RT[1280x720:R8_UNORM] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x1  
+      ps 002772 x1  primTex
+[8650-8739] draw x23  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x23  
+      ps 002766 x15  primTex
+      ps 002764 x8  primTex
+[8740-8740] op x1  ClearRenderTargetView()
+[8746-8746] draw x1  RT[1280x720:R8_UNORM] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x1  
+      ps 002772 x1  primTex
+[8752-8841] draw x23  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x23  
+      ps 002766 x15  primTex
+      ps 002764 x8  primTex
+[8842-8842] op x1  ClearRenderTargetView()
+[8848-8848] draw x1  RT[1280x720:R8_UNORM] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x1  
+      ps 002772 x1  primTex
+[8854-8882] draw x7  RT[1280x720:R11G11B10_FLOAT] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002763 x7  
+      ps 002766 x4  primTex
+      ps 002764 x3  primTex
+[8889-8889] draw x1  RT[1280x720:R8G8B8A8_UNORM] DS[1280x720:D32S8_TYPELESS GreaterEqual]
+      vs 002700 x1  
+      ps 002776 x1  tLinearImage
+[8899-8913] op x3  CopyBufferRegion()

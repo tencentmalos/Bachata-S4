@@ -229,20 +229,10 @@ static std::span<const u32> DriverObject(std::span<const u32> host) {
     return host;
 }
 
-static void PlaceDriverObjects() {
-    void* mapped{};
-    if (Core::Memory::Instance()->MapMemory(
-            &mapped, DriverObjectsBase, DriverObjectsSize, Core::MemoryProt::CpuReadWrite,
-            Core::MemoryMapFlags::Fixed | Core::MemoryMapFlags::NoOverwrite, Core::VMAType::File,
-            VideoCore::Replay::DriverObjectsName) != ORBIS_OK) {
-        LOG_ERROR(Lib_GnmDriver,
-                  "Cannot map the driver objects at {:#x}; flip labels, embedded shaders and init "
-                  "sequences stay in host memory",
-                  DriverObjectsBase);
-        return;
-    }
-    auto* const base = static_cast<u8*>(mapped);
-    // Page 0 holds the 16 flip labels, as in the host runtime; pages 1-3 the embedded shaders.
+/// Writes the driver objects into the 64 KiB block at `base`: page 0 holds the 16 flip labels
+/// (as in the host runtime), pages 1-3 the embedded shaders, the rest the init sequences.
+static void FillDriverObjects(u8* base) {
+    driver_object_copies.clear();
     driver_labels = reinterpret_cast<u64*>(base);
     std::array<u64, 3> shaders{};
     for (u32 i = 0; i < shaders.size(); ++i) {
@@ -264,8 +254,51 @@ static void PlaceDriverObjects() {
         driver_object_copies.emplace_back(sequence.data(), std::span<const u32>{copy, sequence.size()});
         offset += Common::AlignUp(sequence.size_bytes(), 256);
     }
+}
+
+static void* MapDriverObjectsBlock() {
+    void* mapped{};
+    if (Core::Memory::Instance()->MapMemory(
+            &mapped, DriverObjectsBase, DriverObjectsSize, Core::MemoryProt::CpuReadWrite,
+            Core::MemoryMapFlags::Fixed | Core::MemoryMapFlags::NoOverwrite, Core::VMAType::File,
+            VideoCore::Replay::DriverObjectsName) != ORBIS_OK) {
+        return nullptr;
+    }
+    return mapped;
+}
+
+static void PlaceDriverObjects() {
+    auto* const mapped = MapDriverObjectsBlock();
+    if (!mapped) {
+        LOG_ERROR(Lib_GnmDriver,
+                  "Cannot map the driver objects at {:#x}; flip labels, embedded shaders and init "
+                  "sequences stay in host memory",
+                  DriverObjectsBase);
+        return;
+    }
+    FillDriverObjects(static_cast<u8*>(mapped));
     LOG_INFO(Lib_GnmDriver, "Driver objects (flip labels, embedded shaders, init sequences) at {:#x}",
              DriverObjectsBase);
+}
+
+u64 MapSessionDriverObjects() {
+    auto* const mapped = MapDriverObjectsBlock();
+    if (!mapped) {
+        LOG_WARNING(Lib_GnmDriver,
+                    "Cannot map the driver objects at {:#x}; GPU replay capture is unavailable",
+                    DriverObjectsBase);
+        return 0;
+    }
+    FillDriverObjects(static_cast<u8*>(mapped));
+    LOG_INFO(Lib_GnmDriver, "Driver objects (flip labels, embedded shaders, init sequences) at {:#x}",
+             DriverObjectsBase);
+    return reinterpret_cast<u64>(mapped);
+}
+
+void ReleaseSessionDriverObjects() {
+    driver_labels = nullptr;
+    driver_object_copies.clear();
+    BindEmbeddedShaders({});
 }
 
 static u32 asc_next_offs_dw[Liverpool::NumComputeRings];

@@ -1,6 +1,11 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <string>
+#include <unordered_set>
+#if defined(__ANDROID__)
+#include <sys/system_properties.h>
+#endif
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -148,6 +153,29 @@ std::optional<u32> FindMemoryType(const vk::PhysicalDeviceMemoryProperties& prop
     return std::nullopt;
 }
 
+namespace {
+/// Memory of the per-draw stream buffer. Diagnostic: "cached" (SHADPS4_STREAM_MEMORY, Android
+/// debug.shadps4.stream_memory) uses host-cached coherent memory instead of the write-combined
+/// default, to measure what the barriers after each streamed copy cost on unified memory.
+MemoryType StreamMemoryType() {
+    std::string value;
+    if (const char* env = std::getenv("SHADPS4_STREAM_MEMORY")) {
+        value = env;
+    }
+#if defined(__ANDROID__)
+    char property[PROP_VALUE_MAX]{};
+    if (value.empty() && __system_property_get("debug.shadps4.stream_memory", property) > 0) {
+        value = property;
+    }
+#endif
+    if (value == "cached") {
+        LOG_INFO(Render_Vulkan, "Stream buffer: host-cached memory");
+        return MemoryType::HostCached;
+    }
+    return MemoryType::Stream;
+}
+} // namespace
+
 BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
                          Vulkan::Runtime& runtime_, AmdGpu::Liverpool* liverpool_,
                          TextureCache& texture_cache_, PageManager& tracker)
@@ -155,7 +183,7 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
       staging_pool{runtime_.GetStagingPool()}, liverpool{liverpool_},
       memory{Core::Memory::Instance()}, texture_cache{texture_cache_},
       memory_tracker{std::make_unique<MemoryTracker>(tracker)},
-      stream_buffer{instance, scheduler, MemoryType::Stream, STREAM_BUFFER_SIZE},
+      stream_buffer{instance, scheduler, StreamMemoryType(), STREAM_BUFFER_SIZE},
       gds_buffer{instance, 0, GDS_BUFFER_SIZE, MemoryType::Stream, "GDS Buffer"},
       memory_semaphore{instance} {
     // Streaming pages from the first frame (replays, A/B): SHADPS4_WATCH_STREAM=1|0, promotion
@@ -253,7 +281,23 @@ void BufferCache::SubmitStagedStream(Vulkan::SubmitInfo& info) {
     }
 }
 
-BufferCache::~BufferCache() = default;
+BufferCache::~BufferCache() {
+    // Sparse arena backing is allocated outside VMA and lives as long as the cache; residency
+    // only grows. Free it here: on Android every session of a process shares the driver's KGSL
+    // file, so memory left allocated is never reclaimed (Bloodborne GPU replay on the AYN Thor:
+    // about 625 MiB per session, lmkd killed the third). The arenas are idle by now; their
+    // buffers are destroyed first.
+    pending_binds.clear();
+    arenas.clear();
+    std::unordered_set<VkDeviceMemory> memories;
+    for (const auto& backing : resident_ranges) {
+        memories.insert(static_cast<VkDeviceMemory>(backing.memory));
+    }
+    const auto device = instance.GetDevice();
+    for (const VkDeviceMemory memory : memories) {
+        device.freeMemory(memory);
+    }
+}
 
 void BufferCache::VerifySparseResidency() {
     // Some drivers report sparse residency and accept binds without making the bound memory
@@ -563,6 +607,19 @@ void BufferCache::DownloadMemory(const Buffer* arena, VAddr device_addr, u64 siz
         memory_tracker->Keeper().Forget(arena_base + copy.srcOffset, copy.size);
     }
     memory_tracker->UnmarkRegionAsGpuModified(device_addr, size);
+}
+
+void BufferCache::BeginStreamReads() {
+    if (stream_read_depth++ == 0 &&
+        UploadDiagnostics::stream_lease.load(std::memory_order_relaxed)) {
+        memory->LockReads(stream_read_cache);
+    }
+}
+
+void BufferCache::EndStreamReads() {
+    if (--stream_read_depth == 0 && stream_read_cache.locked) {
+        memory->UnlockReads(stream_read_cache);
+    }
 }
 
 std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 size,

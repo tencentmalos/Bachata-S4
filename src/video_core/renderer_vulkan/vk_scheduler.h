@@ -406,6 +406,11 @@ public:
     /// Waits for the given tick to trigger on the GPU.
     void Wait(u64 tick);
 
+    /// Whether this thread is inside SubmitExecution (its callbacks may request staging).
+    [[nodiscard]] bool Submitting() const noexcept {
+        return submitting;
+    }
+
     /// Attempts to execute operations whose tick the GPU has caught up with.
     void PopPendingOperations();
 
@@ -668,6 +673,7 @@ private:
     std::jthread priority_pending_ops_thread;
     RenderState render_state;
     bool is_rendering = false;
+    bool submitting = false;
     uint32_t gpu_render_zone = GpuProfiler::Invalid;
     uint64_t gpu_render_serial{};
     std::array<uint64_t, size_t(RenderBreak::Count)> render_breaks{};

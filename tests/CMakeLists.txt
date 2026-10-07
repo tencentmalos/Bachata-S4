@@ -81,6 +81,7 @@ set(GCN_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/ir/passes/resource_patching_pass.cpp
     ${CMAKE_SOURCE_DIR}/src/common/decoder.cpp
     ${CMAKE_SOURCE_DIR}/src/common/signal_context.cpp
+    ${CMAKE_SOURCE_DIR}/src/shader_recompiler/srt_gate_diag.cpp
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv_discard_frag.cpp
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/spirv_int64.cpp
     ${CMAKE_SOURCE_DIR}/src/shader_recompiler/backend/spirv/emit_spirv_interpolation.cpp

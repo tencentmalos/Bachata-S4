@@ -58,6 +58,9 @@ enum class RecordType : u32 {
     Gds = 8,
     /// End of the initial state. Events follow.
     BeginStream = 9,
+    /// u32 count, u32 entry size, then the texture cache's native scale decisions
+    /// (ScalePlanTable::NativeDecision). Optional; older traces have none.
+    ScalePlans = 10,
 
     /// SubmitRecord: a top-level command buffer handed to a queue.
     Submit = 16,

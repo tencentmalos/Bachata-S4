@@ -4,7 +4,9 @@
 #include <algorithm>
 #include <chrono>
 #include <cstring>
+#include <fstream>
 #include <sstream>
+#include <thread>
 
 #include <fmt/format.h>
 
@@ -26,6 +28,7 @@
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/replay/gpu_replay_file.h"
+#include "video_core/replay/gpu_replay_frames.h"
 #include "video_core/replay/gpu_replay_recorder.h"
 
 namespace VideoCore::Replay {
@@ -40,6 +43,10 @@ void NoteMappingChangeSlow(VAddr base, u64 size, bool protect_only) {
 
 void NoteEopFlipArmedSlow(s32 handle, s32 index, s64 flip_arg) {
     Recorder::Instance().NoteEopFlipArmed(handle, index, flip_arg);
+}
+
+void NoteSubmitContentsSlow(u64 submission, std::span<const u32> dcb, std::span<const u32> ccb) {
+    Recorder::Instance().NoteSubmitContents(submission, dcb, ccb);
 }
 
 namespace {
@@ -85,6 +92,20 @@ bool IsTracked(const Mapping& mapping) {
 Interval PageInterval(VAddr base, u64 size) {
     return Interval::right_open(Common::AlignDown(base, PageSize),
                                 Common::AlignUp(base + size, PageSize));
+}
+
+/// The parts of a recorded interval the recorder can write-protect. The Android guest runtime
+/// refuses GPU watches on executable or unmapped pages; such pages are still copied at the
+/// start and after mapping changes, but their CPU writes are not followed.
+boost::icl::interval_set<VAddr> Watchable(const Interval& interval) {
+    boost::icl::interval_set<VAddr> parts;
+    std::vector<Core::GuestMemoryBackend::MappingRange> runs;
+    Core::Memory::Instance()->GetAddressSpace().GpuWatchableRuns(
+        interval.lower(), interval.upper() - interval.lower(), runs);
+    for (const auto& [base, size] : runs) {
+        parts += Interval::right_open(base, base + size);
+    }
+    return parts;
 }
 
 bool ValidName(std::string_view name) {
@@ -253,11 +274,8 @@ std::string Recorder::Arm(u32 frames, std::string trace_name) {
     if (frames == 0 || frames > MaxFrames) {
         return fmt::format("error: frames must be 1-{}", MaxFrames);
     }
-    // The write tracking relies on the classic memory backend's fault path; the Android guest
-    // runtime routes guest faults through FEX instead.
-    if (Core::Memory::Instance()->GetAddressSpace().IsGuestBackend()) {
-        return "error: GPU replay capture needs the classic memory backend";
-    }
+    // On the Android guest runtime the recorder's protection goes through the same GPU watch
+    // path as the caches' (ProtectGpu, FEX access faults), so both backends can capture.
     const State current = state.load();
     if (current == State::Armed || current == State::Capturing) {
         return "error: a capture is already armed or running";
@@ -298,7 +316,8 @@ std::string Recorder::Arm(u32 frames, std::string trace_name) {
         count = 0;
     }
     events = frames_seen = flushes = flush_ns = delta_pages = delta_zero_pages = whole_bytes =
-        mapping_changes = excluded_stacks = stream_begin_ns = stream_ns = 0;
+        mapping_changes = excluded_stacks = stream_begin_ns = stream_ns =
+            untracked_bytes = 0;
     cancel_requested = false;
     state.store(State::Armed, std::memory_order_release);
     return fmt::format("armed: {} frames -> {}\n", frames, trace_path.string());
@@ -336,7 +355,8 @@ std::string Recorder::StatsText() {
         << "delta_zero_pages=" << delta_zero_pages.load() << "\n"
         << "whole_copy_bytes=" << whole_bytes.load() << "\n"
         << "mapping_changes=" << mapping_changes.load() << "\n"
-        << "excluded_stacks=" << excluded_stacks.load() << "\n";
+        << "excluded_stacks=" << excluded_stacks.load() << "\n"
+        << "untracked_bytes=" << untracked_bytes.load() << "\n";
     return out.str();
 }
 
@@ -404,9 +424,71 @@ void Recorder::EmitRecord(RecordType type, const T& record) {
     Emit(type, AsBytes(record));
 }
 
+namespace {
+enum ProbeStep : u32 { ProbeBuffers = 1, ProbeImages = 2, ProbeProtect = 3, ProbeRelease = 4 };
+}
+
+std::string Recorder::Probe(std::string_view step) {
+    const u32 code = step == "buffers" ? ProbeBuffers
+                     : step == "images" ? ProbeImages
+                     : step == "protect" ? ProbeProtect
+                                         : 0u;
+    if (!code) {
+        return "error: probe buffers | images | protect\n";
+    }
+    const State current = state.load();
+    if (current == State::Armed || current == State::Capturing) {
+        return "error: a capture is armed or running\n";
+    }
+    u32 expected = 0;
+    if (!probe.compare_exchange_strong(expected, code)) {
+        return "error: a probe is pending\n";
+    }
+    return fmt::format("probe {} armed for the next frame end\n", step);
+}
+
+void Recorder::RunProbe(u32 step) {
+    switch (step) {
+    case ProbeBuffers:
+        rasterizer->Finish();
+        rasterizer->GetBufferCache().WriteBackGpuModified();
+        LOG_INFO(Render, "GPU replay probe: buffer write-back done");
+        probe = 0;
+        break;
+    case ProbeImages:
+        rasterizer->Finish();
+        rasterizer->GetTextureCache().WriteBackGpuModified();
+        LOG_INFO(Render, "GPU replay probe: image write-back done");
+        probe = 0;
+        break;
+    case ProbeProtect:
+        VideoCore::PageManager::SetRecorderActive(true);
+        tracking = true;
+        ProtectTracked();
+        LOG_INFO(Render, "GPU replay probe: write protection on");
+        probe = ProbeRelease;
+        break;
+    case ProbeRelease:
+        ReleaseTracking();
+        LOG_INFO(Render, "GPU replay probe: write protection off");
+        probe = 0;
+        break;
+    default:
+        probe = 0;
+        break;
+    }
+}
+
 void Recorder::BurstEnd(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* rasterizer_,
                         bool submit_done) {
     const State current = state.load();
+    if (const u32 step = probe.load(); step && submit_done && current != State::Armed &&
+                                       current != State::Capturing) [[unlikely]] {
+        liverpool = &liverpool_;
+        rasterizer = rasterizer_;
+        RunProbe(step);
+        return;
+    }
     if (current == State::Capturing) {
         if (CheckCancel()) {
             return;
@@ -510,7 +592,12 @@ bool Recorder::Start(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* rasteriz
     header.extra_fmem_mb = EmulatorSettings.GetExtraFmemInMBytes();
     header.direct_memory_size = Core::Memory::Instance()->GetTotalDirectSize();
     header.flexible_memory_size = Core::Memory::Instance()->GetTotalFlexibleSize();
+#ifdef __ANDROID__
+    // Leave memory to the game: the snapshot of several GiB is written as it is read.
+    writer = std::make_unique<TraceWriter>(96_MB);
+#else
     writer = std::make_unique<TraceWriter>();
+#endif
     if (!writer->Open(trace_path, header)) {
         writer.reset();
         error = "cannot create " + trace_path.string();
@@ -524,6 +611,7 @@ bool Recorder::Start(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* rasteriz
         std::scoped_lock lock{pending_mutex};
         pending_mappings.clear();
         pending_flips.clear();
+        submit_contents.clear();
     }
     end_pending = false;
     fault_base = seen_faults = VideoCore::PageManager::RecorderWriteFaults();
@@ -547,8 +635,17 @@ bool Recorder::Start(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* rasteriz
     Libraries::VideoOut::SaveReplayState(video_out);
     writer->Write(RecordType::VideoOut, AsBytes(video_out));
     writer->Write(RecordType::Gds, gds);
+    writer->Write(RecordType::ScalePlans, rasterizer->GetTextureCache().SaveScalePlans());
     writer->Write(RecordType::BeginStream, {});
     liverpool->SetReplayCapture(true);
+    // The frames the capture records, as the presenter shows them (before FSR): a replay of
+    // the trace writes the same frame_<n>.png and hashes, so the two compare frame by frame.
+    {
+        const auto frames_dir = trace_path.parent_path() / (trace_name + "_device");
+        std::filesystem::create_directories(frames_dir, ec);
+        VideoCore::Replay::EnableFrameDump(frames_dir, true);
+    }
+    frame_dump = true;
     stream_begin_ns = Clock::now().time_since_epoch().count();
     {
         std::scoped_lock lock{mutex};
@@ -570,28 +667,7 @@ void Recorder::WriteInitialMemory() {
     }
 
     // Protect before copying: a write from now on faults and lands in the first delta.
-    const auto& page_manager = rasterizer->GetPageManager();
-    {
-        std::scoped_lock track{track_mutex};
-        recorded.clear();
-        tracked.clear();
-        excluded.clear();
-        for (const auto& stack : GuestStacks()) {
-            excluded += stack;
-        }
-        excluded_stacks = boost::icl::interval_count(excluded);
-        for (const Mapping* mapping : areas) {
-            const auto interval = PageInterval(mapping->base, mapping->size);
-            recorded += interval;
-            if (IsTracked(*mapping)) {
-                tracked += interval;
-            }
-        }
-        tracked -= excluded;
-        for (const auto& interval : tracked) {
-            page_manager.RecordWrites(interval.lower(), interval.upper() - interval.lower());
-        }
-    }
+    ProtectTracked();
 
     PayloadBuilder payload;
     PutAreas(payload, areas);
@@ -606,6 +682,41 @@ void Recorder::WriteInitialMemory() {
     vma_count = areas.size();
     data_pages = batch.DataPages();
     zero_pages = batch.ZeroPages();
+}
+
+void Recorder::ProtectTracked() {
+    auto& memory = *Core::Memory::Instance();
+    const auto mappings = memory.SnapshotMappings();
+    std::vector<const Mapping*> areas;
+    for (const auto& mapping : mappings) {
+        if (IsRecorded(mapping)) {
+            areas.push_back(&mapping);
+        }
+    }
+    const auto& page_manager = rasterizer->GetPageManager();
+    {
+        std::scoped_lock track{track_mutex};
+        recorded.clear();
+        tracked.clear();
+        excluded.clear();
+        for (const auto& stack : GuestStacks()) {
+            excluded += stack;
+        }
+        excluded_stacks = boost::icl::interval_count(excluded);
+        for (const Mapping* mapping : areas) {
+            const auto interval = PageInterval(mapping->base, mapping->size);
+            recorded += interval;
+            if (IsTracked(*mapping)) {
+                const auto parts = Watchable(interval);
+                tracked += parts;
+                untracked_bytes += (interval.upper() - interval.lower()) - boost::icl::length(parts);
+            }
+        }
+        tracked -= excluded;
+        for (const auto& interval : tracked) {
+            page_manager.RecordWrites(interval.lower(), interval.upper() - interval.lower());
+        }
+    }
 }
 
 void Recorder::Flush() {
@@ -708,7 +819,8 @@ void Recorder::ApplyMappingChange(const PendingMapping& change, IntervalSet& who
         recorded += interval;
         whole += interval;
         if (IsTracked(*mapping)) {
-            IntervalSet part{interval};
+            IntervalSet part = Watchable(interval);
+            untracked_bytes += (interval.upper() - interval.lower()) - boost::icl::length(part);
             part -= excluded;
             for (const auto& piece : part) {
                 tracked += piece;
@@ -745,7 +857,21 @@ void Recorder::OnResume(u32 queue, u64 submission, const SubmitRecord* first_sub
     }
     Flush();
     if (first_submit) {
-        EmitRecord(RecordType::Submit, *first_submit);
+        std::vector<u32> contents;
+        {
+            std::scoped_lock lock{pending_mutex};
+            if (const auto it = submit_contents.find(first_submit->submission);
+                it != submit_contents.end()) {
+                contents = std::move(it->second);
+                submit_contents.erase(it);
+            }
+        }
+        auto payload = AsBytes(*first_submit);
+        if (!contents.empty()) {
+            const auto* bytes = reinterpret_cast<const u8*>(contents.data());
+            payload.insert(payload.end(), bytes, bytes + contents.size() * sizeof(u32));
+        }
+        Emit(RecordType::Submit, std::move(payload));
     }
     EmitRecord(RecordType::Resume, ResumeRecord{queue, 0, submission});
 }
@@ -819,47 +945,80 @@ void Recorder::NoteMappingChange(VAddr base, u64 size, bool protect_only) {
     pending_mappings.push_back({base, size, protect_only});
 }
 
+void Recorder::NoteSubmitContents(u64 submission, std::span<const u32> dcb,
+                                  std::span<const u32> ccb) {
+    std::vector<u32> contents;
+    contents.reserve(dcb.size() + ccb.size());
+    contents.insert(contents.end(), dcb.begin(), dcb.end());
+    contents.insert(contents.end(), ccb.begin(), ccb.end());
+    std::scoped_lock lock{pending_mutex};
+    submit_contents.insert_or_assign(submission, std::move(contents));
+}
+
 void Recorder::NoteEopFlipArmed(s32 handle, s32 index, s64 flip_arg) {
     std::scoped_lock lock{pending_mutex};
     pending_flips.push_back({handle, index, flip_arg});
 }
 
+void Recorder::ReleaseTracking() {
+    if (!tracking) {
+        return;
+    }
+    std::vector<PendingMapping> mappings;
+    {
+        std::scoped_lock lock{pending_mutex};
+        mappings.swap(pending_mappings);
+        pending_flips.clear();
+        submit_contents.clear();
+    }
+    const auto& page_manager = rasterizer->GetPageManager();
+    std::scoped_lock track{track_mutex};
+    // Ranges the guest protected meanwhile keep the protection it set.
+    for (const auto& change : mappings) {
+        const auto range = PageInterval(change.base, change.size);
+        for (const auto& interval : tracked & range) {
+            page_manager.StopRecordingWrites(interval.lower(),
+                                             interval.upper() - interval.lower(), false);
+        }
+        tracked -= range;
+    }
+    for (const auto& interval : tracked) {
+        page_manager.StopRecordingWrites(interval.lower(), interval.upper() - interval.lower(),
+                                         true);
+    }
+    tracked.clear();
+    recorded.clear();
+    excluded.clear();
+    tracking = false;
+    VideoCore::PageManager::SetRecorderActive(false);
+}
+
 void Recorder::Stop(bool ok, std::string stop_reason) {
     Detail::capture_hooks = false;
+    if (frame_dump) {
+        // The last frames are read back when they are presented; give them a moment.
+        for (int i = 0; i < 50 && VideoCore::Replay::FramesNoted() < VideoCore::Replay::FramesStarted();
+             ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds{20});
+        }
+        VideoCore::Replay::DisableFrameDump();
+        frame_dump = false;
+        std::filesystem::path frames_dir;
+        {
+            std::scoped_lock lock{mutex};
+            frames_dir = path.parent_path() / (name + "_device");
+        }
+        std::error_code ec;
+        std::filesystem::create_directories(frames_dir, ec);
+        std::ofstream{frames_dir / "frames.txt"} << VideoCore::Replay::FrameList();
+    }
     if (stream_begin_ns.load()) {
         stream_ns = Clock::now().time_since_epoch().count() - stream_begin_ns.load();
     }
     if (liverpool) {
         liverpool->SetReplayCapture(false);
     }
-    if (tracking) {
-        std::vector<PendingMapping> mappings;
-        {
-            std::scoped_lock lock{pending_mutex};
-            mappings.swap(pending_mappings);
-            pending_flips.clear();
-        }
-        const auto& page_manager = rasterizer->GetPageManager();
-        std::scoped_lock track{track_mutex};
-        // Ranges the guest protected meanwhile keep the protection it set.
-        for (const auto& change : mappings) {
-            const auto range = PageInterval(change.base, change.size);
-            for (const auto& interval : tracked & range) {
-                page_manager.StopRecordingWrites(interval.lower(),
-                                                 interval.upper() - interval.lower(), false);
-            }
-            tracked -= range;
-        }
-        for (const auto& interval : tracked) {
-            page_manager.StopRecordingWrites(interval.lower(), interval.upper() - interval.lower(),
-                                             true);
-        }
-        tracked.clear();
-        recorded.clear();
-        excluded.clear();
-        tracking = false;
-        VideoCore::PageManager::SetRecorderActive(false);
-    }
+    ReleaseTracking();
     bool closed = true;
     u64 raw = 0;
     u64 stored = 0;

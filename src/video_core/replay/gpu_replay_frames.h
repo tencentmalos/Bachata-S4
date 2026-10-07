@@ -15,6 +15,8 @@ namespace VideoCore::Replay {
 /// Enables the output; png also writes each frame as <dir>/frame_NNNNN.png.
 void EnableFrameDump(std::filesystem::path dir, bool png);
 bool FrameDumpEnabled();
+/// Stops dumping frames (a capture that dumped the frames it recorded).
+void DisableFrameDump();
 
 /// Presenter, when it prepares a frame: the frame's index.
 u32 NextFrameIndex();

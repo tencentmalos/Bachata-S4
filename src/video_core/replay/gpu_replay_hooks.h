@@ -4,6 +4,7 @@
 #pragma once
 
 #include <atomic>
+#include <span>
 
 #include "common/types.h"
 
@@ -62,6 +63,16 @@ void NoteMappingChangeSlow(VAddr base, u64 size, bool protect_only);
 inline void NoteMappingChange(VAddr base, u64 size, bool protect_only) {
     if (CaptureHooksActive()) [[unlikely]] {
         NoteMappingChangeSlow(base, size, protect_only);
+    }
+}
+
+/// A graphics submission whose command buffers are host copies rather than guest memory (the
+/// Android GNM HLE copies them before submitting): the trace carries their contents, since a
+/// replay cannot read them at the recorded address.
+void NoteSubmitContentsSlow(u64 submission, std::span<const u32> dcb, std::span<const u32> ccb);
+inline void NoteSubmitContents(u64 submission, std::span<const u32> dcb, std::span<const u32> ccb) {
+    if (CaptureHooksActive()) [[unlikely]] {
+        NoteSubmitContentsSlow(submission, dcb, ccb);
     }
 }
 

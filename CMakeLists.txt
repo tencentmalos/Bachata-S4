@@ -1060,6 +1060,8 @@ set(SHADER_RECOMPILER src/shader_recompiler/profile.h
                       src/shader_recompiler/params.h
                       src/shader_recompiler/runtime_info.h
                       src/shader_recompiler/specialization.h
+                      src/shader_recompiler/srt_gate_diag.cpp
+                      src/shader_recompiler/srt_gate_diag.h
                       src/shader_recompiler/backend/bindings.h
                       src/shader_recompiler/backend/spirv/emit_spirv.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv.h
@@ -1825,6 +1827,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_ajm.cpp
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp
+        src/core/host_runtime/guest_gpu_replay.cpp
         src/core/host_runtime/guest_vr_session.cpp
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)

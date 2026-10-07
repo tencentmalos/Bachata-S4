@@ -8,6 +8,7 @@
 #include <functional>
 #include <mutex>
 #include <optional>
+#include <span>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
@@ -143,6 +144,9 @@ public:
     /// GPU replay: writes every image the GPU modified, and the CPU has not written since, back
     /// to guest memory in guest layout. Command processor thread; waits for the GPU.
     void WriteBackGpuModified();
+    /// GPU replay: the scale plans that must stay native, as a ScalePlans payload, and back.
+    std::vector<u8> SaveScalePlans();
+    void LoadScalePlans(std::span<const u8> payload);
 
     struct ImageContentHash {
         u64 uid;
@@ -158,7 +162,10 @@ public:
     };
     /// GPU replay diagnostics: hashes the images written since their last hash (their write
     /// epoch changed). Command processor thread; waits for the GPU.
-    std::vector<ImageContentHash> HashWrittenImages(std::unordered_map<u64, u64>& hashed_epochs);
+    /// With dump_prefix, level 0 / layer 0 of each hashed image is also written to
+    /// "<dump_prefix>_<uid>_<address>_<w>x<h>x<d>_<format>.bin" (tightly packed rows).
+    std::vector<ImageContentHash> HashWrittenImages(std::unordered_map<u64, u64>& hashed_epochs,
+                                                    const std::string& dump_prefix = {});
 
     /// Retrieves the image handle of the image with the provided attributes.
     [[nodiscard]] ImageId FindImage(ImageDesc& desc, bool exact_fmt = false);
@@ -269,6 +276,11 @@ public:
 
     /// Changes whenever an image is registered or unregistered, i.e. whenever FindImage could
     /// resolve the same descriptor to another image.
+    /// Changes whenever an image is invalidated or untracked: while it is unchanged, a bound
+    /// image that was refreshed and tracked needs neither again.
+    [[nodiscard]] u64 ContentGeneration() const noexcept {
+        return content_generation.load(std::memory_order_acquire);
+    }
     [[nodiscard]] u64 ImageSetGeneration() const noexcept {
         return image_set_generation.load(std::memory_order_acquire);
     }
@@ -519,6 +531,7 @@ private:
     bool readback_linear_images;
     PageTable page_table;
     std::atomic<u64> image_set_generation{};
+    std::atomic<u64> content_generation{1};
     std::mutex mutex;
     std::mutex samplers_mutex;
     std::mutex download_images_mutex;

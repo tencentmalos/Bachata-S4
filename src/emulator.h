@@ -29,6 +29,8 @@ struct GpuReplayOptions {
     bool hash_images = false;
     /// With hash_images: also after every draw and dispatch of this event.
     u64 hash_draws_event = ~u64{0};
+    /// Capture the first N replayed frames with RenderDoc (the RenderDoc layer must be loaded).
+    u32 renderdoc_frames = 0;
 };
 
 struct SysModules {

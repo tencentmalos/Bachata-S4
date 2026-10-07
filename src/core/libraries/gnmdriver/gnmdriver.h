@@ -39,6 +39,12 @@ void BindEmbeddedShaders(std::array<u64, 3> addresses);
 // Guest address of the 16 VideoOut flip labels the desktop driver placed with its other
 // GPU-visible objects, or null when they could not be placed and stay in host memory.
 u64* DriverLabels();
+/// Host runtime session: maps the driver objects (flip labels, embedded shaders, init sequences)
+/// at the same fixed guest address and layout as desktop, so a GPU replay trace captured on
+/// Android replays on desktop. Returns the base, or 0 when the address is taken.
+u64 MapSessionDriverObjects();
+/// Host runtime session end: the objects go away with the session's guest memory.
+void ReleaseSessionDriverObjects();
 /// GPU replay: the submission state the driver keeps between frames.
 void SaveReplayState(VideoCore::Replay::GnmDriverState& state);
 /// The command processor, once RegisterLib created it.

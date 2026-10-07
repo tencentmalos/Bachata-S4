@@ -4,7 +4,12 @@
 #pragma once
 
 #include <algorithm>
+#include <boost/icl/interval_set.hpp>
 #include <atomic>
+#include <memory>
+#include <thread>
+#include <deque>
+#include <condition_variable>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -50,6 +55,11 @@ public:
     };
 
     /// Reads the header and the capture's description.
+    Player() = default;
+    ~Player();
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
+
     bool Open(const std::filesystem::path& path, std::string& error);
     const FileHeader& Header() const {
         return header;
@@ -66,6 +76,11 @@ public:
     /// Called on the command processor thread when the replay ends.
     void SetFinishCallback(std::function<void()> callback) {
         on_finish = std::move(callback);
+    }
+    /// Called on the command processor thread at each recorded flip (1-based count). Its CPU
+    /// time counts as applying recorded writes, so it stays out of the command figures.
+    void SetFlipCallback(std::function<void(u64)> callback) {
+        on_flip = std::move(callback);
     }
 
     /// After every event, hashes the images the GPU wrote meanwhile into `path` (one line per
@@ -91,6 +106,11 @@ public:
     void AfterDraw(const char* kind, u64 hash0, u64 hash1);
     /// Stops replaying; the queues continue without the trace.
     void Fail(std::string reason);
+    /// Command processor time over the event stream: thread CPU (0 where not measured), wall.
+    void NoteProcessorTime(u64 cpu_ns, u64 wall_ns) {
+        processor_cpu_ns = cpu_ns;
+        processor_wall_ns = wall_ns;
+    }
     void Finish();
 
     bool Done() const {
@@ -99,6 +119,11 @@ public:
     std::string Summary() const;
 
 private:
+    /// Event stream: a reader thread and decompression workers run ahead of the command
+    /// processor (bounded); NextRecord hands records out in order.
+    void StartPrefetch();
+    bool NextRecord(RecordHeader& record, std::vector<u8>& payload);
+
     bool ApplyAreas(PayloadReader& reader, bool keep_contents, std::string& error);
     bool WritePages(std::span<const u8> payload, bool initial, std::string& error);
     bool ApplyMapping(std::span<const u8> payload, std::string& error);
@@ -109,6 +134,7 @@ private:
     AmdGpu::Liverpool* liverpool{};
     Vulkan::Rasterizer* rasterizer{};
     std::function<void()> on_finish;
+    std::function<void(u64)> on_flip;
     std::optional<Event> pending;
     bool ended{};
     std::ofstream image_hashes;
@@ -117,6 +143,29 @@ private:
     u64 current_event{};
     u32 draw_index{};
     std::atomic<bool> done{};
+    u64 processor_cpu_ns{};
+    std::vector<u64> frame_cpu_ns; ///< Command processor thread CPU at each recorded flip.
+    u64 apply_cpu_ns{};              ///< CPU spent applying recorded guest writes and mappings.
+    std::vector<u64> frame_apply_ns; ///< apply_cpu_ns at each recorded flip.
+
+    struct Prefetched {
+        RecordHeader header{};
+        std::vector<u8> data;
+        std::vector<u8> payload;
+        bool ready{};
+        bool ok{true};
+    };
+    std::mutex prefetch_mutex;
+    std::condition_variable_any prefetch_cv;
+    std::deque<std::shared_ptr<Prefetched>> prefetch_order;
+    std::deque<std::shared_ptr<Prefetched>> prefetch_work;
+    u64 prefetch_bytes{};
+    bool prefetch_end{};
+    std::string prefetch_error;
+    std::vector<std::jthread> prefetch_threads;
+    u64 processor_wall_ns{};
+    /// Areas whose contents exist before the initial state (the driver objects).
+    boost::icl::interval_set<VAddr> prefilled;
 
     mutable std::mutex mutex;
     std::string failure;
@@ -130,6 +179,11 @@ private:
     u64 delta_pages{};
     u64 mappings{};
     u64 commands{};
+    /// Areas the trace holds that this process cannot map at their address; their pages are
+    /// dropped. A GPU access there reads nothing.
+    boost::icl::interval_set<VAddr> skipped;
+    u64 skipped_bytes{};
+    u64 skipped_pages{};
 };
 
 } // namespace VideoCore::Replay

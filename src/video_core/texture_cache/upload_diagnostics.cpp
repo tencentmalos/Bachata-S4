@@ -128,6 +128,10 @@ std::string Summary() {
                            watch.texture_invalidates.load(),
                            watch.texture_invalidates_skipped.load(),
                            watch.texture_invalidate_ns.load());
+        out += fmt::format("texture_binds cache={} fast={} hits={} misses={} fast_hits={}\n",
+                           texture_bind_cache.load() ? "on" : "off",
+                           texture_bind_fast.load() ? "on" : "off", texture_bind_hits.load(),
+                           texture_bind_misses.load(), texture_bind_fast_hits.load());
     }
     out += fmt::format("ignore_storage_dirty={} ignored_storage_dirty={}\n",
                        ignore_storage_dirty.load() ? 1 : 0, ignored_storage_dirty.load());
@@ -443,6 +447,12 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1] == "on" ? "skip regions without GPU-modified pages"
                                            : "lock and scan every region");
     }
+    if (sub == "texture_bind_fast" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        texture_bind_fast.store(args[1] == "on");
+        return fmt::format("texture_bind_fast={} (unchanged sampled bindings {}); fast_hits={}\n",
+                           args[1], args[1] == "on" ? "reuse view and layout" : "take the full path",
+                           texture_bind_fast_hits.load());
+    }
     if (sub == "texture_bind_cache" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         texture_bind_cache.store(args[1] == "on");
         return fmt::format("texture_bind_cache={} (sampled-image lookups {}); hits={} misses={}\n",
@@ -461,6 +471,12 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("fault_textures={} (write faults on pages no image watches {})\n",
                            args[1], args[1] == "skip" ? "skip the texture cache"
                                                       : "still call the texture cache");
+    }
+    if (sub == "stream_lease" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        stream_lease.store(args[1] == "on");
+        return fmt::format("stream_lease={} (streamed copies of a draw {})\n", args[1],
+                           args[1] == "on" ? "share one memory read lock"
+                                           : "lock the memory manager each");
     }
     if (sub == "stream_bounce" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         stream_bounce.store(args[1] == "on");
@@ -501,8 +517,8 @@ std::string Command(const std::vector<std::string>& args) {
            "watch_predict on|off | watch_content on|off | watch_gaps on|off | "
            "watch_decay on|off | watch_cross on|off | keep_gpu on|off | read_cache on|off | "
            "stream_barriers on|off | "
-           "stream_max <bytes> | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
-           "texture_bind_cache on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
+           "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
+           "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
            "fault_textures skip|always\n";
 }
 

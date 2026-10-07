@@ -174,6 +174,12 @@ private:
     u64 records{};
     bool failed{};
     bool closing{};
+    // Linux/Android: the written trace is pushed to storage and dropped from the page cache
+    // every SyncChunk bytes. A snapshot of several GiB otherwise fills memory with dirty pages
+    // faster than they are written back (Bloodborne on the AYN Thor: killed by lmkd).
+    int sync_fd{-1};
+    u64 synced_until{};
+    u64 unsynced{};
 
     std::vector<std::jthread> compressors;
     std::jthread writer;
@@ -182,6 +188,11 @@ private:
 /// Sequential record reader for a trace file.
 class TraceReader {
 public:
+    TraceReader() = default;
+    ~TraceReader();
+    TraceReader(const TraceReader&) = delete;
+    TraceReader& operator=(const TraceReader&) = delete;
+
     bool Open(const std::filesystem::path& path);
 
     const FileHeader& Header() const {
@@ -190,16 +201,28 @@ public:
 
     /// Reads the next record; false at the end of the file or on a damaged record (see Error()).
     bool Next(RecordHeader& record, std::vector<u8>& payload);
+    /// Reads the next record without decompressing it (see Decompress).
+    bool NextStored(RecordHeader& record, std::vector<u8>& data);
+    /// Turns a stored record into its payload; consumes data. Thread safe.
+    static bool Decompress(const RecordHeader& record, std::vector<u8>& data,
+                           std::vector<u8>& payload);
 
     const std::string& Error() const {
         return error;
     }
 
 private:
+    /// Linux/Android: drops the page cache of what was read (every SyncChunk bytes). A replay
+    /// reads several GiB once; reclaiming that cache under the replay's own allocations put the
+    /// AYN Thor under critical memory pressure (lmkd).
+    void DropRead();
+
     Common::FS::IOFile file;
     FileHeader header{};
     std::vector<u8> stored;
     std::string error;
+    int drop_fd{-1};
+    u64 dropped_until{};
 };
 
 } // namespace VideoCore::Replay

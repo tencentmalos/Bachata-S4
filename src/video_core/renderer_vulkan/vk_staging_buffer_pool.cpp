@@ -60,6 +60,23 @@ StagingBufferRef StagingBufferPool::RequestFromRing(Ring& ring, u64 size, u64 al
         }
     }
 
+    // A ring at twice the policy's staging budget waits for its next block instead of growing:
+    // a burst of new textures within one submission (the first frame of a GPU replay, about a
+    // thousand uploads in Bloodborne) otherwise grows staging past 1 GiB before the GPU retires
+    // any of it, and lmkd kills the process on Android. The wait submits the current commands
+    // when the block's uses are still in them, as the texture cache's write-backs do.
+    const u64 cap = 2 * instance.MemoryPolicy().staging_bytes;
+    if (!best && !scheduler.Submitting() && !ring.blocks.empty() &&
+        ring.blocks.size() * BLOCK_SIZE >= cap) {
+        const size_t index = (ring.current + 1) % ring.blocks.size();
+        if (const auto offset = ring.blocks[index].buffer->Reserve(size, alignment, true)) {
+            ring.current = index;
+            best = &ring.blocks[index];
+            best_offset = *offset;
+            ++capped_waits;
+        }
+    }
+
     if (!best) {
         best = &ring.blocks.emplace_back(Block{
             .buffer =

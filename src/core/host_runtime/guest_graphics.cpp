@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <map>
+#include "common/logging/log.h"
 #include "core/host_runtime/guest_reprojection.h"
 #include "shader_recompiler/resource.h"
 #include "core/guest_cpu/api/access_fault.h"
@@ -75,6 +76,7 @@ struct GuestGraphics::Impl : Libraries::Kernel::SessionEqueues {
             video->RequestStop();
     }
     ~Impl() {
+        LOG_INFO(Render, "Session graphics teardown");
         Stop();
         // Keep the VideoOut port alive until the GPU worker has retired too.
         if (video) video->Join();
@@ -82,8 +84,9 @@ struct GuestGraphics::Impl : Libraries::Kernel::SessionEqueues {
         video.reset();
         faults.reset();
         Libraries::VideoOut::BindSessionDriver(nullptr);
-        Libraries::GnmDriver::BindEmbeddedShaders({});
+        Libraries::GnmDriver::ReleaseSessionDriverObjects();
         presenter.reset();
+        LOG_INFO(Render, "Session graphics released");
         Libraries::Kernel::BindSessionEqueues(nullptr);
         Frontend::UnbindWindow(window);
     }

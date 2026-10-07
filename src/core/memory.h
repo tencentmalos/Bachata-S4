@@ -298,6 +298,17 @@ public:
 
     /// CopySparseMemory through a caller-owned cache of mapped ranges (see GuestReadCache).
     void CopySparseMemory(VAddr source, u8* dest, u64 size, GuestReadCache& cache);
+    /// Holds the VM shared lock across a run of CopySparseMemory calls through `cache`, so each
+    /// copy does not take and release it. Only reads may happen meanwhile: the holder must not
+    /// call anything that takes the VM writer lock.
+    void LockReads(GuestReadCache& cache) {
+        mutex.lock_shared();
+        cache.locked = true;
+    }
+    void UnlockReads(GuestReadCache& cache) {
+        cache.locked = false;
+        mutex.unlock_shared();
+    }
     /// DebugBus `upload_diag read_cache on|off`.
     static inline std::atomic<bool> read_cache_enabled{true};
     /// CopySparseMemory for a source that may not be guest memory: one locked mapping
@@ -431,6 +442,13 @@ public:
     /// with physical backing are read through the backing view, other mapped areas through
     /// their address. Unmapped space and backing holes read as zero.
     void ReadForReplay(VAddr address, u8* dest, u64 size);
+    /// GPU replay: whether [address, address + size) lies in this process's guest address space.
+    /// A trace captured by another backend can hold areas this one cannot place (Android maps
+    /// eboot.bin at 0x400000, below the desktop guest window).
+    bool CanReplayAt(VAddr address, u64 size) {
+        std::shared_lock lock{mutex};
+        return IsValidMapping(address, size);
+    }
 
     s32 DirectMemoryQuery(PAddr addr, bool find_next,
                           ::Libraries::Kernel::OrbisQueryInfo* out_info);

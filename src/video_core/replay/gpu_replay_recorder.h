@@ -8,7 +8,10 @@
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <span>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 #include <vector>
 
 #include <boost/icl/interval_set.hpp>
@@ -45,13 +48,17 @@ public:
     std::string Arm(u32 frames, std::string name);
     std::string Status();
     std::string Cancel();
+    /// Diagnostic: runs one step of a capture start at the next frame end without capturing
+    /// (buffers | images | protect -- protect write-protects like a capture for one frame).
+    std::string Probe(std::string_view step);
 
     /// Command processor thread: the queues ran out of work. submit_done is set when the burst
     /// ended a frame (it saw the guest's SubmitDone), so no command buffer is in progress and
     /// the guest waits at the submission gate.
     void OnBurstEnd(AmdGpu::Liverpool& liverpool, Vulkan::Rasterizer* rasterizer,
                     bool submit_done) {
-        if (state.load(std::memory_order_acquire) != State::Idle) [[unlikely]] {
+        if (state.load(std::memory_order_acquire) != State::Idle ||
+            probe.load(std::memory_order_acquire) != 0) [[unlikely]] {
             BurstEnd(liverpool, rasterizer, submit_done);
         }
     }
@@ -73,6 +80,7 @@ public:
     void NoteGuestStack(VAddr base, u64 size);
     void NoteMappingChange(VAddr base, u64 size, bool protect_only);
     void NoteEopFlipArmed(s32 handle, s32 index, s64 flip_arg);
+    void NoteSubmitContents(u64 submission, std::span<const u32> dcb, std::span<const u32> ccb);
 
 private:
     enum class State : u32 { Idle, Armed, Capturing, Finished, Failed };
@@ -103,6 +111,11 @@ private:
 
     std::atomic<State> state{State::Idle};
     std::atomic<bool> cancel_requested{};
+    /// Probe step pending at the next frame end (ProbeStep).
+    std::atomic<u32> probe{};
+    void RunProbe(u32 step);
+    void ProtectTracked();
+    void ReleaseTracking();
 
     // Description and results, under mutex.
     std::mutex mutex;
@@ -130,6 +143,8 @@ private:
     std::atomic<u64> whole_bytes{};
     std::atomic<u64> mapping_changes{};
     std::atomic<u64> excluded_stacks{};
+    /// Recorded writable bytes the backend would not write-protect (executable or unmapped).
+    std::atomic<u64> untracked_bytes{};
     /// steady_clock nanoseconds at BeginStream, and the capture's length once it stopped.
     std::atomic<u64> stream_begin_ns{};
     std::atomic<u64> stream_ns{};
@@ -141,6 +156,7 @@ private:
     Vulkan::Rasterizer* rasterizer{};
     bool tracking{};
     bool end_pending{};
+    bool frame_dump{};
     u64 seen_faults{};
     std::vector<u64> dirty;
 
@@ -154,6 +170,8 @@ private:
     std::mutex pending_mutex;
     std::vector<PendingMapping> pending_mappings;
     std::vector<EopFlipRecord> pending_flips;
+    /// Contents of submissions made from host copies, until their first resume is recorded.
+    std::unordered_map<u64, std::vector<u32>> submit_contents;
 };
 
 } // namespace VideoCore::Replay

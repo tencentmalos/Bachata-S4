@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/emulator_settings.h"
+#include <sstream>
 #include <boost/container/static_vector.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -292,6 +293,7 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
 }
 
 Instance::~Instance() {
+    LOG_INFO(Render_Vulkan, "Instance teardown: device {}", static_cast<bool>(device));
 #if defined(__ANDROID__)
     if (xr_runtime) xr_runtime->Stop();
 #endif
@@ -300,6 +302,12 @@ Instance::~Instance() {
     if (device)
         ImGui::Core::Shutdown(GetDevice());
     if (allocator) {
+        // Allocations still alive here are never freed: the session's KGSL file stays open for
+        // the next one (Android), so the driver cannot reclaim them.
+        std::ostringstream live;
+        VideoCore::VmaDiagnostics::Append(allocator, physical_device.getMemoryProperties(), false,
+                                          live);
+        LOG_INFO(Render_Vulkan, "Instance teardown, allocations still alive: {}", live.str());
         vmaDestroyAllocator(allocator);
         VideoCore::VmaDiagnostics::End(allocator);
     }

@@ -1,0 +1,7898 @@
+{
+ "1000000000000002770": {
+  "stage": "cs",
+  "first_event": 5069,
+  "ro": [
+   [
+    "fastCopySource",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "fastCopyTarget",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 3,
+   "groupId": 2,
+   "threadIdInGroup": 2,
+   "rawBufferLoad": 3,
+   "rawBufferStore": 3
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002761": {
+  "stage": "cs",
+  "first_event": 5222,
+  "ro": [],
+  "rw": [
+   [
+    "RWSceneEventCount",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "threadIdInGroup": 2,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002688": {
+  "stage": "cs",
+  "first_event": 5246,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "IBLCubemapBVHSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ]
+  ],
+  "rw": [
+   [
+    "RWOutdoorProbes",
+    "TextureType.Texture3D",
+    true
+   ]
+  ],
+  "cb": [
+   [
+    "OutdoorLightProbeParam",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 13,
+   "threadId": 4,
+   "cbufferLoadLegacy": 8,
+   "rawBufferLoad": 49,
+   "binary": 73,
+   "tertiary": 37,
+   "legacyF16ToF32": 7,
+   "unary": 31,
+   "sampleLevel": 13,
+   "textureStore": 7
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002768": {
+  "stage": "cs",
+  "first_event": 5275,
+  "ro": [
+   [
+    "IndirectArgumentsInstanceCountSRV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "RWDrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "threadId": 2,
+   "cbufferLoadLegacy": 2,
+   "rawBufferLoad": 4,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002727": {
+  "stage": "cs",
+  "first_event": 5280,
+  "ro": [
+   [
+    "InstancBoundingBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "RWDrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "CullingWorld",
+    80
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "threadId": 2,
+   "cbufferLoadLegacy": 18,
+   "rawBufferLoad": 5,
+   "tertiary": 13,
+   "binary": 16,
+   "unary": 8,
+   "dot3": 2,
+   "dot4": 2,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002693": {
+  "stage": "cs",
+  "first_event": 5306,
+  "ro": [
+   [
+    "InstanceIndirectBuffer",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstancBoundingBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "RWCountBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "threadId": 2,
+   "cbufferLoadLegacy": 8,
+   "rawBufferLoad": 5,
+   "binary": 6,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002774": {
+  "stage": "vs",
+  "first_event": 5330,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 4,
+   "cbufferLoadLegacy": 8,
+   "rawBufferLoad": 4,
+   "tertiary": 17,
+   "storeOutput": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002695": {
+  "stage": "vs",
+  "first_event": 5345,
+  "ro": [
+   [
+    "InstanceIndirectBuffer",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstancBoundingBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "PreZForCullInfo",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 8,
+   "rawBufferLoad": 5,
+   "unary": 9,
+   "tertiary": 15,
+   "storeOutput": 7
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002696": {
+  "stage": "ps",
+  "first_event": 5345,
+  "ro": [],
+  "rw": [
+   [
+    "RWCountBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "loadInput": 2,
+   "waveReadLaneFirst": 2,
+   "wavePrefixOp": 2,
+   "quadOp": 3,
+   "binary": 3,
+   "rawBufferStore": 2
+  },
+  "requires": [
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002733": {
+  "stage": "vs",
+  "first_event": 5359,
+  "ro": [
+   [
+    "InstancBoundingBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "PreZForCullInfo",
+    16
+   ],
+   [
+    "CullingWorld",
+    80
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 22,
+   "rawBufferLoad": 5,
+   "tertiary": 59,
+   "unary": 9,
+   "binary": 13,
+   "dot3": 4,
+   "storeOutput": 7
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002734": {
+  "stage": "ps",
+  "first_event": 5359,
+  "ro": [],
+  "rw": [
+   [
+    "RWDrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "loadInput": 2,
+   "waveReadLaneFirst": 2,
+   "wavePrefixOp": 2,
+   "quadOp": 3,
+   "binary": 3,
+   "rawBufferStore": 2
+  },
+  "requires": [
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002723": {
+  "stage": "cs",
+  "first_event": 5383,
+  "ro": [
+   [
+    "DrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "CountBuffer",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IDI",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "IndirectIndicesBufferRW",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "RWDrawIndirectArguments2",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "groupId": 2,
+   "threadIdInGroup": 2,
+   "cbufferLoadLegacy": 2,
+   "rawBufferLoad": 7,
+   "unaryBits": 3,
+   "rawBufferStore": 3
+  },
+  "requires": [],
+  "groupshared": 4
+ },
+ "1000000000000002731": {
+  "stage": "cs",
+  "first_event": 5392,
+  "ro": [
+   [
+    "DrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "MDI",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "RWCountBuffer",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "RWDrawIndirectArguments2",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "groupId": 2,
+   "threadIdInGroup": 2,
+   "cbufferLoadLegacy": 2,
+   "rawBufferLoad": 7,
+   "unaryBits": 5,
+   "rawBufferStore": 4
+  },
+  "requires": [],
+  "groupshared": 38
+ },
+ "1000000000000002725": {
+  "stage": "cs",
+  "first_event": 5403,
+  "ro": [
+   [
+    "DrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "CountBuffer",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IDI",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "RWDrawIndirectArguments2",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "groupId": 2,
+   "threadIdInGroup": 2,
+   "cbufferLoadLegacy": 2,
+   "rawBufferLoad": 6,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002743": {
+  "stage": "cs",
+  "first_event": 5455,
+  "ro": [
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "LightSphereUAV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "flattenedThreadIdInGroup": 2,
+   "cbufferLoadLegacy": 6,
+   "rawBufferLoad": 3,
+   "tertiary": 7,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002741": {
+  "stage": "cs",
+  "first_event": 5462,
+  "ro": [
+   [
+    "LightCullingParamSRV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "LightFrustumUAV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "flattenedThreadIdInGroup": 2,
+   "cbufferLoadLegacy": 7,
+   "rawBufferLoad": 9,
+   "tertiary": 13,
+   "dot3": 2,
+   "rawBufferStore": 7
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002745": {
+  "stage": "cs",
+  "first_event": 5469,
+  "ro": [
+   [
+    "LightFrustumSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightSphereSRV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "LightCullingVolumeUAV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListUAV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingListCountUAV",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "LightInfo",
+    464
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "groupId": 3,
+   "flattenedThreadIdInGroup": 2,
+   "cbufferLoadLegacy": 10,
+   "binary": 21,
+   "unary": 25,
+   "barrier": 4,
+   "dot3": 16,
+   "rawBufferLoad": 8,
+   "isSpecialFloat": 2,
+   "dot4": 7,
+   "unaryBits": 2,
+   "atomicBinOp": 2,
+   "rawBufferStore": 2,
+   "textureStore": 2
+  },
+  "requires": [],
+  "groupshared": 72
+ },
+ "1000000000000002828": {
+  "stage": "vs",
+  "first_event": 5502,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 11,
+   "rawBufferLoad": 4,
+   "unary": 8,
+   "dot3": 4,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002812": {
+  "stage": "vs",
+  "first_event": 5506,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 9,
+   "rawBufferLoad": 4,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002853": {
+  "stage": "vs",
+  "first_event": 5534,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 12,
+   "rawBufferLoad": 4,
+   "unary": 9,
+   "dot3": 4,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002789": {
+  "stage": "vs",
+  "first_event": 5570,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 16,
+   "cbufferLoadLegacy": 8,
+   "rawBufferLoad": 15,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002783": {
+  "stage": "vs",
+  "first_event": 5635,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 7,
+   "rawBufferLoad": 15,
+   "tertiary": 15,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002851": {
+  "stage": "vs",
+  "first_event": 5666,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    160
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 11,
+   "rawBufferLoad": 4,
+   "unary": 8,
+   "dot3": 4,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002855": {
+  "stage": "vs",
+  "first_event": 5707,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IndirectIndicesBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 8,
+   "loadInput": 9,
+   "cbufferLoadLegacy": 12,
+   "rawBufferLoad": 6,
+   "unary": 9,
+   "dot3": 4,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002885": {
+  "stage": "vs",
+  "first_event": 5787,
+  "ro": [],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "World",
+    144
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 3,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 18,
+   "tertiary": 40,
+   "binary": 2,
+   "dot4": 2,
+   "storeOutput": 15
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002836": {
+  "stage": "vs",
+  "first_event": 5824,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 9,
+   "cbufferLoadLegacy": 9,
+   "rawBufferLoad": 4,
+   "tertiary": 21,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002837": {
+  "stage": "ps",
+  "first_event": 5824,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "unary": 5,
+   "cbufferLoadLegacy": 3,
+   "sampleGrad": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002902": {
+  "stage": "vs",
+  "first_event": 5865,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 18,
+   "cbufferLoadLegacy": 8,
+   "rawBufferLoad": 15,
+   "tertiary": 21,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002906": {
+  "stage": "ps",
+  "first_event": 5865,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 5,
+   "unary": 9,
+   "cbufferLoadLegacy": 3,
+   "sampleGrad": 2,
+   "binary": 3,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002922": {
+  "stage": "vs",
+  "first_event": 5881,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 7,
+   "rawBufferLoad": 15,
+   "tertiary": 15,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002923": {
+  "stage": "ps",
+  "first_event": 5881,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 5,
+   "cbufferLoadLegacy": 4,
+   "unary": 12,
+   "sampleGrad": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002877": {
+  "stage": "vs",
+  "first_event": 5920,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IndirectIndicesBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 8,
+   "loadInput": 11,
+   "cbufferLoadLegacy": 12,
+   "rawBufferLoad": 6,
+   "unary": 9,
+   "dot3": 4,
+   "tertiary": 21,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002878": {
+  "stage": "ps",
+  "first_event": 5920,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "unary": 5,
+   "cbufferLoadLegacy": 3,
+   "sampleGrad": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002903": {
+  "stage": "ps",
+  "first_event": 5928,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 5,
+   "unary": 9,
+   "cbufferLoadLegacy": 3,
+   "sampleGrad": 2,
+   "binary": 3,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002874": {
+  "stage": "vs",
+  "first_event": 5946,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 9,
+   "cbufferLoadLegacy": 12,
+   "rawBufferLoad": 4,
+   "unary": 9,
+   "dot3": 4,
+   "tertiary": 21,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002875": {
+  "stage": "ps",
+  "first_event": 5946,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "unary": 5,
+   "cbufferLoadLegacy": 3,
+   "sampleGrad": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002700": {
+  "stage": "vs",
+  "first_event": 5955,
+  "ro": [],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "loadInput": 2,
+   "storeOutput": 7
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002755": {
+  "stage": "ps",
+  "first_event": 5955,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "cbGTAO",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 5,
+   "textureLoad": 6,
+   "cbufferLoadLegacy": 13,
+   "dot3": 20,
+   "unary": 23,
+   "binary": 13,
+   "textureGather": 3,
+   "sampleLevel": 3,
+   "storeOutput": 2
+  },
+  "requires": [
+   "Minimum-precision data types"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002690": {
+  "stage": "vs",
+  "first_event": 5960,
+  "ro": [],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "loadInput": 2,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002751": {
+  "stage": "ps",
+  "first_event": 5960,
+  "ro": [
+   [
+    "AOResultHalf",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "loadInput": 3,
+   "textureLoad": 4,
+   "storeOutput": 2
+  },
+  "requires": [
+   "Minimum-precision data types"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002753": {
+  "stage": "ps",
+  "first_event": 5965,
+  "ro": [
+   [
+    "AOResultHalf",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "loadInput": 3,
+   "textureLoad": 4,
+   "storeOutput": 2
+  },
+  "requires": [
+   "Minimum-precision data types"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002749": {
+  "stage": "ps",
+  "first_event": 5980,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "AOResultHalf",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "PrevAODepth",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "cbGTAO",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 8,
+   "loadInput": 5,
+   "textureLoad": 6,
+   "sampleLevel": 3,
+   "cbufferLoadLegacy": 10,
+   "tertiary": 15,
+   "binary": 11,
+   "dot2": 2,
+   "unary": 2,
+   "storeOutput": 2
+  },
+  "requires": [
+   "Minimum-precision data types"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002747": {
+  "stage": "ps",
+  "first_event": 5997,
+  "ro": [
+   [
+    "PrevAODepth",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 3,
+   "loadInput": 3,
+   "sampleLevel": 2,
+   "storeOutput": 2
+  },
+  "requires": [
+   "Minimum-precision data types"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002691": {
+  "stage": "ps",
+  "first_event": 6003,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "loadInput": 3,
+   "textureLoad": 2,
+   "storeOutput": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002883": {
+  "stage": "vs",
+  "first_event": 6017,
+  "ro": [],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "World",
+    144
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 20,
+   "tertiary": 36,
+   "unary": 5,
+   "dot3": 4,
+   "dot4": 2,
+   "storeOutput": 12
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002785": {
+  "stage": "vs",
+  "first_event": 6036,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 16,
+   "cbufferLoadLegacy": 13,
+   "rawBufferLoad": 15,
+   "tertiary": 21,
+   "unary": 5,
+   "dot3": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002778": {
+  "stage": "vs",
+  "first_event": 6085,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 16,
+   "cbufferLoadLegacy": 13,
+   "rawBufferLoad": 15,
+   "tertiary": 21,
+   "unary": 5,
+   "dot3": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002913": {
+  "stage": "vs",
+  "first_event": 6118,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 18,
+   "cbufferLoadLegacy": 13,
+   "rawBufferLoad": 15,
+   "tertiary": 21,
+   "unary": 5,
+   "dot3": 4,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002914": {
+  "stage": "ps",
+  "first_event": 6118,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 5,
+   "cbufferLoadLegacy": 3,
+   "unary": 8,
+   "sample": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002844": {
+  "stage": "vs",
+  "first_event": 6139,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 17,
+   "rawBufferLoad": 4,
+   "unary": 13,
+   "dot3": 7,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002823": {
+  "stage": "vs",
+  "first_event": 6159,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 16,
+   "rawBufferLoad": 4,
+   "unary": 12,
+   "dot3": 7,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002807": {
+  "stage": "vs",
+  "first_event": 6163,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 14,
+   "rawBufferLoad": 4,
+   "tertiary": 21,
+   "unary": 5,
+   "dot3": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002863": {
+  "stage": "vs",
+  "first_event": 6248,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 9,
+   "cbufferLoadLegacy": 17,
+   "rawBufferLoad": 4,
+   "unary": 13,
+   "dot3": 7,
+   "tertiary": 21,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002866": {
+  "stage": "ps",
+  "first_event": 6248,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "sample": 2,
+   "cbufferLoadLegacy": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002830": {
+  "stage": "vs",
+  "first_event": 6264,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 9,
+   "cbufferLoadLegacy": 14,
+   "rawBufferLoad": 4,
+   "tertiary": 21,
+   "unary": 5,
+   "dot3": 4,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002831": {
+  "stage": "ps",
+  "first_event": 6264,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "sample": 2,
+   "cbufferLoadLegacy": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002729": {
+  "stage": "cs",
+  "first_event": 6348,
+  "ro": [
+   [
+    "InstancBoundingBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "RWDrawIndirectArguments",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "CullingWorld",
+    80
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "threadId": 2,
+   "cbufferLoadLegacy": 18,
+   "rawBufferLoad": 5,
+   "tertiary": 13,
+   "binary": 16,
+   "unary": 8,
+   "dot3": 2,
+   "dot4": 2,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002839": {
+  "stage": "vs",
+  "first_event": 6453,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "ShadowCastInfo",
+    16
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    160
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 7,
+   "cbufferLoadLegacy": 16,
+   "rawBufferLoad": 4,
+   "unary": 12,
+   "dot3": 7,
+   "tertiary": 21,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002864": {
+  "stage": "ps",
+  "first_event": 7472,
+  "ro": [
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "sample": 2,
+   "cbufferLoadLegacy": 2,
+   "discard": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002686": {
+  "stage": "cs",
+  "first_event": 7539,
+  "ro": [
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "AerialPerspectiveTexture",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "TransmittanceFromCameraTexture",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightedParticles",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "FogMaskTexture",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FogBufferSrv",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [
+   [
+    "PreCalcParticles",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "AtmosphereParams",
+    288
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "FogParam",
+    208
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 25,
+   "threadIdInGroup": 2,
+   "groupId": 2,
+   "cbufferLoadLegacy": 80,
+   "rawBufferLoad": 50,
+   "tertiary": 40,
+   "dot3": 25,
+   "unary": 68,
+   "dot2": 5,
+   "legacyF16ToF32": 4,
+   "binary": 28,
+   "sampleLevel": 10,
+   "sampleCmpLevelZero": 4,
+   "rawBufferStore": 13
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002698": {
+  "stage": "ps",
+  "first_event": 7555,
+  "ro": [
+   [
+    "IBL2D",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "CubemapSetting",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 11,
+   "tertiary": 9,
+   "dot3": 6,
+   "unary": 11,
+   "binary": 2,
+   "getDimensions": 2,
+   "sampleLevel": 5,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002849": {
+  "stage": "vs",
+  "first_event": 7618,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IndirectIndicesBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 15,
+   "rawBufferLoad": 9,
+   "unary": 9,
+   "dot3": 5,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002847": {
+  "stage": "ps",
+  "first_event": 7618,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "LightDecalParametersSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 19,
+   "dot3": 26,
+   "unary": 99,
+   "cbufferLoadLegacy": 48,
+   "sampleGrad": 6,
+   "tertiary": 55,
+   "binary": 33,
+   "textureLoad": 6,
+   "rawBufferLoad": 61,
+   "waveGetLaneCount": 2,
+   "quadOp": 9,
+   "waveGetLaneIndex": 2,
+   "waveReadLaneAt": 7,
+   "waveReadLaneFirst": 4,
+   "unaryBits": 4,
+   "legacyF16ToF32": 10,
+   "sampleLevel": 11,
+   "waveActiveBit": 3,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002809": {
+  "stage": "vs",
+  "first_event": 7640,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 12,
+   "rawBufferLoad": 7,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002810": {
+  "stage": "ps",
+  "first_event": 7640,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "LightDecalParametersSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 19,
+   "dot3": 26,
+   "unary": 99,
+   "cbufferLoadLegacy": 49,
+   "sampleGrad": 6,
+   "tertiary": 55,
+   "dot4": 2,
+   "binary": 33,
+   "textureLoad": 6,
+   "rawBufferLoad": 61,
+   "waveGetLaneCount": 2,
+   "quadOp": 9,
+   "waveGetLaneIndex": 2,
+   "waveReadLaneAt": 7,
+   "waveReadLaneFirst": 4,
+   "unaryBits": 4,
+   "legacyF16ToF32": 10,
+   "sampleLevel": 11,
+   "waveActiveBit": 3,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002871": {
+  "stage": "vs",
+  "first_event": 7729,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 15,
+   "rawBufferLoad": 7,
+   "unary": 9,
+   "dot3": 5,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002872": {
+  "stage": "ps",
+  "first_event": 7729,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "LightDecalParametersSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 19,
+   "dot3": 26,
+   "unary": 99,
+   "cbufferLoadLegacy": 48,
+   "sampleGrad": 6,
+   "tertiary": 55,
+   "binary": 33,
+   "textureLoad": 6,
+   "rawBufferLoad": 61,
+   "waveGetLaneCount": 2,
+   "quadOp": 9,
+   "waveGetLaneIndex": 2,
+   "waveReadLaneAt": 7,
+   "waveReadLaneFirst": 4,
+   "unaryBits": 4,
+   "legacyF16ToF32": 10,
+   "sampleLevel": 11,
+   "waveActiveBit": 3,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002846": {
+  "stage": "vs",
+  "first_event": 7735,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 15,
+   "rawBufferLoad": 7,
+   "unary": 9,
+   "dot3": 5,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002887": {
+  "stage": "ps",
+  "first_event": 7820,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AreaLightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "StaticShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "LTC1",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "LTC2",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "SDSMSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "IBLCubemapBVHSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "Material",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 30,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 50,
+   "dot3": 64,
+   "unary": 167,
+   "binary": 71,
+   "textureLoad": 5,
+   "rawBufferLoad": 87,
+   "legacyF16ToF32": 19,
+   "tertiary": 176,
+   "sampleLevel": 21,
+   "dot2": 14,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF32ToF16": 9,
+   "sampleCmpLevelZero": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002833": {
+  "stage": "vs",
+  "first_event": 7840,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 12,
+   "rawBufferLoad": 7,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002834": {
+  "stage": "ps",
+  "first_event": 7840,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 29,
+   "loadInput": 21,
+   "dot3": 19,
+   "unary": 72,
+   "cbufferLoadLegacy": 48,
+   "sampleGrad": 3,
+   "tertiary": 47,
+   "dot4": 2,
+   "binary": 33,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002917": {
+  "stage": "vs",
+  "first_event": 7882,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 18,
+   "cbufferLoadLegacy": 11,
+   "rawBufferLoad": 28,
+   "tertiary": 51,
+   "storeOutput": 16
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002918": {
+  "stage": "ps",
+  "first_event": 7882,
+  "ro": [
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "AlphaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 22,
+   "loadInput": 17,
+   "dot3": 9,
+   "unary": 47,
+   "cbufferLoadLegacy": 41,
+   "sampleGrad": 2,
+   "textureLoad": 4,
+   "binary": 17,
+   "sampleLevel": 6,
+   "dot2": 6,
+   "tertiary": 35,
+   "sampleCmpLevelZero": 5,
+   "rawBufferLoad": 39,
+   "waveActiveBit": 2,
+   "waveReadLaneFirst": 2,
+   "unaryBits": 2,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002868": {
+  "stage": "vs",
+  "first_event": 7896,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IndirectIndicesBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 15,
+   "rawBufferLoad": 9,
+   "unary": 9,
+   "dot3": 5,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002869": {
+  "stage": "ps",
+  "first_event": 7896,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "LightDecalParametersSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 21,
+   "dot3": 26,
+   "unary": 99,
+   "cbufferLoadLegacy": 48,
+   "sampleGrad": 6,
+   "tertiary": 55,
+   "binary": 33,
+   "textureLoad": 6,
+   "rawBufferLoad": 61,
+   "waveGetLaneCount": 2,
+   "quadOp": 9,
+   "waveGetLaneIndex": 2,
+   "waveReadLaneAt": 7,
+   "waveReadLaneFirst": 4,
+   "unaryBits": 4,
+   "legacyF16ToF32": 10,
+   "sampleLevel": 11,
+   "waveActiveBit": 3,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002841": {
+  "stage": "vs",
+  "first_event": 7913,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    160
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 14,
+   "rawBufferLoad": 7,
+   "unary": 8,
+   "dot3": 5,
+   "tertiary": 39,
+   "storeOutput": 21
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002842": {
+  "stage": "ps",
+  "first_event": 7913,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "Mozi",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "MSK1",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "wave_displace",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    160
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 19,
+   "dot3": 20,
+   "unary": 101,
+   "cbufferLoadLegacy": 62,
+   "rawBufferLoad": 47,
+   "tertiary": 53,
+   "binary": 45,
+   "sampleGrad": 6,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002780": {
+  "stage": "vs",
+  "first_event": 7930,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 22,
+   "cbufferLoadLegacy": 11,
+   "rawBufferLoad": 28,
+   "tertiary": 57,
+   "storeOutput": 20
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002787": {
+  "stage": "ps",
+  "first_event": 7930,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NRMR_NRRTMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurTex",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurVelocityMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FxMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "UserColorchangeMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "EmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 19,
+   "dot3": 23,
+   "unary": 113,
+   "cbufferLoadLegacy": 67,
+   "sampleGrad": 8,
+   "tertiary": 65,
+   "binary": 39,
+   "dot4": 2,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002825": {
+  "stage": "vs",
+  "first_event": 7961,
+  "ro": [
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "RootConstant",
+    4
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 14,
+   "rawBufferLoad": 7,
+   "unary": 8,
+   "dot3": 5,
+   "tertiary": 39,
+   "storeOutput": 23
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002826": {
+  "stage": "ps",
+  "first_event": 7961,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "MSK1",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 30,
+   "loadInput": 21,
+   "dot3": 18,
+   "unary": 75,
+   "cbufferLoadLegacy": 48,
+   "sampleGrad": 4,
+   "tertiary": 47,
+   "binary": 36,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002897": {
+  "stage": "ps",
+  "first_event": 7992,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NRMR_NRRTMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "UserColorchangeMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "EmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "reflectionMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ice_PanoramaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 33,
+   "loadInput": 19,
+   "dot3": 23,
+   "unary": 106,
+   "cbufferLoadLegacy": 59,
+   "sampleGrad": 6,
+   "tertiary": 53,
+   "dot4": 3,
+   "sample": 2,
+   "binary": 38,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002927": {
+  "stage": "ps",
+  "first_event": 8023,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "SSSProfiles",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessTranslucentMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 30,
+   "loadInput": 19,
+   "dot3": 23,
+   "unary": 92,
+   "cbufferLoadLegacy": 46,
+   "sampleGrad": 3,
+   "tertiary": 47,
+   "binary": 36,
+   "textureLoad": 5,
+   "sampleLevel": 12,
+   "rawBufferLoad": 45,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 4,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002891": {
+  "stage": "ps",
+  "first_event": 8041,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NRMR_NRRTMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "UserColorchangeMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FxMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurTex",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurVelocityMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "CubeMap",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ReplaceColorMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WE_EmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "DetailEmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 37,
+   "loadInput": 19,
+   "dot3": 23,
+   "unary": 124,
+   "cbufferLoadLegacy": 77,
+   "sampleGrad": 11,
+   "tertiary": 65,
+   "binary": 38,
+   "dot4": 3,
+   "sample": 2,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002781": {
+  "stage": "ps",
+  "first_event": 8072,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NormalRoughnessMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "Mask",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    64
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 29,
+   "loadInput": 19,
+   "dot3": 19,
+   "unary": 81,
+   "cbufferLoadLegacy": 51,
+   "sampleGrad": 5,
+   "tertiary": 51,
+   "binary": 36,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002909": {
+  "stage": "vs",
+  "first_event": 8094,
+  "ro": [
+   [
+    "SkinningMatrices",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "InstanceWorldInfo",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "RootConstant",
+    4
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 24,
+   "cbufferLoadLegacy": 11,
+   "rawBufferLoad": 28,
+   "tertiary": 57,
+   "storeOutput": 22
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002910": {
+  "stage": "ps",
+  "first_event": 8094,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NRMR_NRRTMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "UserColorchangeMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurVelocityMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FxMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "EmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    160
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 19,
+   "dot3": 23,
+   "unary": 111,
+   "cbufferLoadLegacy": 67,
+   "sampleGrad": 8,
+   "tertiary": 65,
+   "binary": 40,
+   "dot4": 2,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002920": {
+  "stage": "ps",
+  "first_event": 8123,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "SSSProfiles",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FaceBaseMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FaceMayuMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FacePaintMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "SkinMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FaceNormalRoughnessTranslucencyMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "haegiwa_ALBA",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BeardMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    272
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 34,
+   "loadInput": 21,
+   "dot3": 24,
+   "unary": 172,
+   "cbufferLoadLegacy": 97,
+   "sampleGrad": 16,
+   "binary": 38,
+   "dot4": 2,
+   "tertiary": 47,
+   "textureLoad": 5,
+   "sampleLevel": 12,
+   "rawBufferLoad": 45,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 4,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002900": {
+  "stage": "ps",
+  "first_event": 8132,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NRMR_NRRTMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "UserColorchangeMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "EmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "reflectionMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ice_PanoramaMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 33,
+   "loadInput": 21,
+   "dot3": 23,
+   "unary": 106,
+   "cbufferLoadLegacy": 60,
+   "sampleGrad": 6,
+   "tertiary": 53,
+   "dot4": 3,
+   "sample": 2,
+   "binary": 38,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002893": {
+  "stage": "ps",
+  "first_event": 8149,
+  "ro": [
+   [
+    "IBLCubemapArrayList2SRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ShadowParameterSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "LightCullingVolumeSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "LightCullingListSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "AmbientBRDF",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "OutdoorProbesSRV",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "bindlessTexture2D",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "bindlessTextureCube",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "CubemapSRV",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ShadowMapSRV",
+    "TextureType.Texture2DArray",
+    true
+   ],
+   [
+    "IESLightTableSRV",
+    "TextureType.Texture1DArray",
+    true
+   ],
+   [
+    "SSAOResult",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "BaseDielectricMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "NRMR_NRRTMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "UserColorchangeMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FxMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurTex",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FurVelocityMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "CubeMap",
+    "TextureType.TextureCube",
+    true
+   ],
+   [
+    "ReplaceColorMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WE_EmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "DetailEmissiveMap",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "EnvironmentInfo",
+    576
+   ],
+   [
+    "CheckerBoardInfo",
+    16
+   ],
+   [
+    "LightInfo",
+    464
+   ],
+   [
+    "OutdoorLightProbeParam",
+    64
+   ],
+   [
+    "ShadowSamplingRotation",
+    128
+   ],
+   [
+    "UserMaterial",
+    192
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 37,
+   "loadInput": 21,
+   "dot3": 23,
+   "unary": 124,
+   "cbufferLoadLegacy": 78,
+   "sampleGrad": 11,
+   "tertiary": 65,
+   "binary": 38,
+   "dot4": 3,
+   "sample": 2,
+   "textureLoad": 5,
+   "sampleLevel": 11,
+   "rawBufferLoad": 44,
+   "waveActiveBit": 3,
+   "waveReadLaneFirst": 3,
+   "unaryBits": 3,
+   "legacyF16ToF32": 2,
+   "dot2": 6,
+   "sampleCmpLevelZero": 5,
+   "isSpecialFloat": 4,
+   "storeOutput": 9
+  },
+  "requires": [
+   "Minimum-precision data types",
+   "Wave level operations"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002759": {
+  "stage": "ps",
+  "first_event": 8173,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 3,
+   "loadInput": 3,
+   "sampleLevel": 2,
+   "storeOutput": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002757": {
+  "stage": "ps",
+  "first_event": 8188,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "InputImage",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "PrevInputImage",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "SSRControl",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 8,
+   "loadInput": 5,
+   "textureLoad": 6,
+   "sampleLevel": 3,
+   "cbufferLoadLegacy": 10,
+   "tertiary": 15,
+   "binary": 31,
+   "storeOutput": 4
+  },
+  "requires": [
+   "Minimum-precision data types"
+  ],
+  "groupshared": 0
+ },
+ "1000000000000002819": {
+  "stage": "cs",
+  "first_event": 8205,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [
+   [
+    "FogBufferUav",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "cb": [
+   [
+    "FogParam",
+    208
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "threadId": 3,
+   "barrier": 3,
+   "cbufferLoadLegacy": 5,
+   "binary": 5,
+   "sampleLevel": 2,
+   "rawBufferStore": 2
+  },
+  "requires": [],
+  "groupshared": 4
+ },
+ "1000000000000002821": {
+  "stage": "ps",
+  "first_event": 8222,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "AerialPerspectiveTexture",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "TransmittanceFromCameraTexture",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "VolumetricFogTexture",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "FogMaskTexture",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "FogBufferSrv",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "FrustumVolume",
+    128
+   ],
+   [
+    "AtmosphereParams",
+    288
+   ],
+   [
+    "FogParam",
+    208
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 14,
+   "loadInput": 5,
+   "textureLoad": 2,
+   "cbufferLoadLegacy": 44,
+   "tertiary": 21,
+   "unary": 26,
+   "binary": 15,
+   "sampleLevel": 6,
+   "dot3": 7,
+   "rawBufferLoad": 2,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002857": {
+  "stage": "vs",
+  "first_event": 8245,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "PreCalcParticlesResult",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 31,
+   "cbufferLoadLegacy": 37,
+   "tertiary": 17,
+   "unary": 25,
+   "textureLoad": 3,
+   "dot3": 10,
+   "binary": 22,
+   "rawBufferLoad": 17,
+   "legacyF16ToF32": 4,
+   "storeOutput": 44
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002858": {
+  "stage": "ps",
+  "first_event": 8245,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 29,
+   "cbufferLoadLegacy": 46,
+   "unary": 48,
+   "sampleGrad": 3,
+   "sample": 3,
+   "sampleLevel": 3,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002860": {
+  "stage": "vs",
+  "first_event": 8252,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 29,
+   "cbufferLoadLegacy": 37,
+   "tertiary": 17,
+   "unary": 17,
+   "textureLoad": 3,
+   "dot3": 10,
+   "binary": 12,
+   "rawBufferLoad": 5,
+   "legacyF16ToF32": 4,
+   "storeOutput": 37
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002861": {
+  "stage": "ps",
+  "first_event": 8252,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 22,
+   "cbufferLoadLegacy": 46,
+   "unary": 48,
+   "sampleGrad": 3,
+   "sample": 3,
+   "sampleLevel": 3,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002791": {
+  "stage": "vs",
+  "first_event": 8258,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "CutoutTableSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 38,
+   "tertiary": 20,
+   "unary": 14,
+   "textureLoad": 3,
+   "binary": 13,
+   "rawBufferLoad": 8,
+   "dot3": 6,
+   "legacyF16ToF32": 4,
+   "storeOutput": 30
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002792": {
+  "stage": "ps",
+  "first_event": 8258,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 43,
+   "unary": 33,
+   "sampleGrad": 2,
+   "sample": 2,
+   "sampleLevel": 2,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002800": {
+  "stage": "vs",
+  "first_event": 8264,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 26,
+   "cbufferLoadLegacy": 37,
+   "tertiary": 17,
+   "unary": 17,
+   "textureLoad": 3,
+   "dot3": 10,
+   "binary": 12,
+   "rawBufferLoad": 5,
+   "legacyF16ToF32": 4,
+   "storeOutput": 30
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002801": {
+  "stage": "ps",
+  "first_event": 8264,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 16,
+   "cbufferLoadLegacy": 44,
+   "unary": 35,
+   "sample": 3,
+   "sampleGrad": 2,
+   "sampleLevel": 2,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002797": {
+  "stage": "vs",
+  "first_event": 8290,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "CutoutTableSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "PreCalcParticlesResult",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 8,
+   "loadInput": 17,
+   "cbufferLoadLegacy": 38,
+   "tertiary": 20,
+   "unary": 21,
+   "textureLoad": 3,
+   "binary": 22,
+   "rawBufferLoad": 19,
+   "dot3": 6,
+   "legacyF16ToF32": 4,
+   "storeOutput": 37
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002798": {
+  "stage": "ps",
+  "first_event": 8290,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 22,
+   "cbufferLoadLegacy": 43,
+   "unary": 33,
+   "sampleGrad": 2,
+   "sample": 2,
+   "sampleLevel": 2,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002805": {
+  "stage": "ps",
+  "first_event": 8303,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 45,
+   "unary": 34,
+   "sampleGrad": 2,
+   "sample": 2,
+   "sampleLevel": 2,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002803": {
+  "stage": "ps",
+  "first_event": 8309,
+  "ro": [
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 13,
+   "cbufferLoadLegacy": 41,
+   "unary": 29,
+   "sample": 3,
+   "sampleGrad": 2,
+   "sampleLevel": 2,
+   "storeOutput": 21,
+   "binary": 27,
+   "rawBufferLoad": 6,
+   "dot3": 2
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002880": {
+  "stage": "vs",
+  "first_event": 8313,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 6,
+   "loadInput": 27,
+   "cbufferLoadLegacy": 37,
+   "tertiary": 17,
+   "unary": 17,
+   "textureLoad": 3,
+   "dot3": 10,
+   "binary": 12,
+   "rawBufferLoad": 5,
+   "legacyF16ToF32": 4,
+   "storeOutput": 31
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002881": {
+  "stage": "ps",
+  "first_event": 8313,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 17,
+   "cbufferLoadLegacy": 42,
+   "unary": 48,
+   "sample": 3,
+   "sampleGrad": 2,
+   "sampleLevel": 2,
+   "binary": 37,
+   "tertiary": 4,
+   "textureLoad": 2,
+   "dot3": 2,
+   "storeOutput": 21,
+   "rawBufferLoad": 6
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002794": {
+  "stage": "vs",
+  "first_event": 8323,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "CutoutTableSRV",
+    "TextureType.Buffer",
+    false
+   ],
+   [
+    "ExtendParticleVertexBuffer",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ],
+   [
+    "ExtendParticleVertexConstant",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 15,
+   "cbufferLoadLegacy": 35,
+   "tertiary": 20,
+   "unary": 12,
+   "textureLoad": 3,
+   "rawBufferLoad": 7,
+   "dot3": 6,
+   "binary": 12,
+   "legacyF16ToF32": 4,
+   "storeOutput": 25
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002795": {
+  "stage": "ps",
+  "first_event": 8323,
+  "ro": [
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "primSceneTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Polygon3DConstant",
+    640
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 7,
+   "loadInput": 14,
+   "cbufferLoadLegacy": 21,
+   "unary": 19,
+   "sample": 2,
+   "textureLoad": 2,
+   "dot3": 2,
+   "sampleLevel": 20,
+   "binary": 20,
+   "dot2": 2,
+   "storeOutput": 11
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002816": {
+  "stage": "vs",
+  "first_event": 8341,
+  "ro": [
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 2,
+   "cbufferLoadLegacy": 6,
+   "rawBufferLoad": 2,
+   "unary": 4,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002817": {
+  "stage": "ps",
+  "first_event": 8341,
+  "ro": [
+   [
+    "EffectMaskTex",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "ReadonlyDepth",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "HDRImage",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "PrevHDRImage",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "Velocity",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ],
+   [
+    "CBFurBlurSetting",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 11,
+   "loadInput": 4,
+   "cbufferLoadLegacy": 11,
+   "sampleLevel": 8,
+   "textureLoad": 9,
+   "binary": 59,
+   "unary": 9,
+   "isSpecialFloat": 2,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002701": {
+  "stage": "ps",
+  "first_event": 8360,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloom",
+    48
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 5,
+   "binary": 14,
+   "unary": 2,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002703": {
+  "stage": "ps",
+  "first_event": 8367,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 2,
+   "sampleLevel": 14,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002711": {
+  "stage": "ps",
+  "first_event": 8392,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002719": {
+  "stage": "ps",
+  "first_event": 8399,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002709": {
+  "stage": "ps",
+  "first_event": 8406,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002717": {
+  "stage": "ps",
+  "first_event": 8413,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002707": {
+  "stage": "ps",
+  "first_event": 8420,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002715": {
+  "stage": "ps",
+  "first_event": 8427,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002705": {
+  "stage": "ps",
+  "first_event": 8434,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002713": {
+  "stage": "ps",
+  "first_event": 8441,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloomScale",
+    32
+   ],
+   [
+    "cbSoftBloomSrcResolution",
+    16
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 5,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 3,
+   "sampleLevel": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002721": {
+  "stage": "ps",
+  "first_event": 8448,
+  "ro": [
+   [
+    "texSrc",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "cbSoftBloom",
+    48
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "sampleLevel": 2,
+   "cbufferLoadLegacy": 2,
+   "binary": 7,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002738": {
+  "stage": "vs",
+  "first_event": 8463,
+  "ro": [
+   [
+    "WhitePtSrv",
+    "TextureType.Buffer",
+    false
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ],
+   [
+    "Tonemap",
+    36
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 2,
+   "cbufferLoadLegacy": 6,
+   "rawBufferLoad": 2,
+   "storeOutput": 10
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002739": {
+  "stage": "ps",
+  "first_event": 8463,
+  "ro": [
+   [
+    "RE_POSTPROCESS_Color",
+    "TextureType.Texture2D",
+    true
+   ],
+   [
+    "tTextureMap0",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "tTextureMap1",
+    "TextureType.Texture3D",
+    true
+   ],
+   [
+    "tTextureMap2",
+    "TextureType.Texture3D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "CameraKerare",
+    12
+   ],
+   [
+    "TonemapParam",
+    44
+   ],
+   [
+    "ColorCorrectTexture",
+    80
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 9,
+   "loadInput": 8,
+   "cbufferLoadLegacy": 10,
+   "dot3": 2,
+   "unary": 38,
+   "textureLoad": 2,
+   "binary": 3,
+   "isSpecialFloat": 2,
+   "sampleLevel": 9,
+   "tertiary": 7,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002736": {
+  "stage": "ps",
+  "first_event": 8478,
+  "ro": [
+   [
+    "HDRImage",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "SceneInfo",
+    528
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "cbufferLoadLegacy": 2,
+   "sampleLevel": 13,
+   "textureGather": 3,
+   "binary": 13,
+   "unary": 19,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002814": {
+  "stage": "cs",
+  "first_event": 8492,
+  "ro": [
+   [
+    "SrcImage",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [
+   [
+    "OutputImage",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "cb": [
+   [
+    "cbCAS",
+    32
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "threadIdInGroup": 2,
+   "groupId": 3,
+   "cbufferLoadLegacy": 5,
+   "textureLoad": 21,
+   "binary": 97,
+   "unary": 17,
+   "textureStore": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002763": {
+  "stage": "vs",
+  "first_event": 8504,
+  "ro": [],
+  "rw": [],
+  "cb": [
+   [
+    "GUIConstant",
+    320
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 2,
+   "loadInput": 10,
+   "cbufferLoadLegacy": 14,
+   "tertiary": 33,
+   "storeOutput": 11
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002764": {
+  "stage": "ps",
+  "first_event": 8504,
+  "ro": [
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "GUIConstant",
+    320
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 7,
+   "sample": 2,
+   "discard": 2,
+   "binary": 3,
+   "dot4": 2,
+   "cbufferLoadLegacy": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002766": {
+  "stage": "ps",
+  "first_event": 8521,
+  "ro": [
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "GUIConstant",
+    320
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 7,
+   "sample": 2,
+   "cbufferLoadLegacy": 5,
+   "discard": 2,
+   "binary": 3,
+   "dot4": 2,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002772": {
+  "stage": "ps",
+  "first_event": 8644,
+  "ro": [
+   [
+    "primTex",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "GUIConstant",
+    320
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 7,
+   "sample": 2,
+   "discard": 2,
+   "binary": 3,
+   "dot4": 2,
+   "cbufferLoadLegacy": 4,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ },
+ "1000000000000002776": {
+  "stage": "ps",
+  "first_event": 8889,
+  "ro": [
+   [
+    "tLinearImage",
+    "TextureType.Texture2D",
+    true
+   ]
+  ],
+  "rw": [],
+  "cb": [
+   [
+    "OutputColorAdjustment",
+    52
+   ]
+  ],
+  "threads": [
+   0,
+   0,
+   0
+  ],
+  "dxop": {
+   "createHandle": 4,
+   "loadInput": 3,
+   "sampleLevel": 2,
+   "unary": 13,
+   "cbufferLoadLegacy": 2,
+   "storeOutput": 5
+  },
+  "requires": [],
+  "groupshared": 0
+ }
+}

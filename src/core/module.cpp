@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <cstdlib>
 #include <limits>
 #include <stdexcept>
 #include <fmt/format.h>
@@ -20,6 +21,9 @@
 #include "core/memory.h"
 #include "core/module.h"
 #include "core/tls.h"
+#if defined(__ANDROID__)
+#include <sys/system_properties.h>
+#endif
 
 namespace Core {
 
@@ -28,6 +32,22 @@ using EntryFunc = PS4_SYSV_ABI int (*)(size_t args, const void* argp, void* para
 static constexpr u64 ExecutableLoadBase = 0x400000;
 static constexpr u64 GameModuleLoadBase = 0x80000000;
 static constexpr u64 SystemModuleLoadBase = 0x800000000;
+
+/// Where the main executable is placed. Android: `debug.shadps4.executable_base` (hex) moves it
+/// out of the low window, which desktop cannot map, so a GPU replay trace captured on Android
+/// replays on desktop with the eboot segments in place.
+static u64 ExecutableBase() {
+#if defined(__ANDROID__)
+    char value[PROP_VALUE_MAX]{};
+    if (__system_property_get("debug.shadps4.executable_base", value) > 0) {
+        const u64 base = std::strtoull(value, nullptr, 16);
+        if (base && base % 0x4000 == 0) {
+            return base;
+        }
+    }
+#endif
+    return ExecutableLoadBase;
+}
 
 static u64 GetAlignedSize(const elf_program_header& phdr) {
     if (phdr.p_align && ((phdr.p_align & (phdr.p_align - 1)) ||
@@ -180,7 +200,7 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
     // Reserve memory area for module
     const bool is_executable =
         elf_header.e_type == ET_SCE_EXEC || elf_header.e_type == ET_SCE_DYNEXEC;
-    const u64 load_base = is_executable   ? ExecutableLoadBase
+    const u64 load_base = is_executable   ? ExecutableBase()
                           : IsSystemLib() ? SystemModuleLoadBase
                                           : GameModuleLoadBase;
     void** out_addr = reinterpret_cast<void**>(&base_virtual_addr);

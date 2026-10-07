@@ -1,0 +1,66 @@
+172: image.cpp:365 Image: Internal scale: native allocation 768x768 R32Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x20fa000000:0x4800000
+176: image.cpp:354 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+177: image.cpp:354 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+200: image.cpp:354 Image: Internal scale allocation: 960x540 R16Sfloat -> 480x270 R16Sfloat levels 1 -> 1 mode resample
+203: image.cpp:354 Image: Internal scale allocation: 960x540 R16Sfloat -> 480x270 R16Sfloat levels 1 -> 1 mode resample
+205: image.cpp:365 Image: Internal scale: native allocation 960x540 R16Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x205d800000:0x140000
+207: image.cpp:354 Image: Internal scale allocation: 1920x1080 R16Sfloat -> 960x540 R16Sfloat levels 1 -> 1 mode resample
+235: image.cpp:354 Image: Internal scale allocation: 1920x1080 B10G11R11UfloatPack32 -> 960x540 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+273: image.cpp:354 Image: Internal scale allocation: 1920x1080 R16G16B16A16Sfloat -> 960x540 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+274: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0xb0260f9a pins image 0x2033800000 native: exact shader data access: binding beyond scale table
+275: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 512x1x1 R16Sfloat L:64 M:1 S:1 0x2033800000:0x80000 scaled=false gpu_modified=false history=0x2 origin=1 mask=0x6
+387: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x63eeb9d9 pins image 0x2034292100 native: exact shader data access: binding beyond scale table
+388: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 64x64x1 R16G16B16A16Sfloat L:1 M:1 S:1 0x2034292100:0x8000 scaled=false gpu_modified=false history=0x2 origin=0 mask=0x6
+389: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x63eeb9d9 pins image 0x203428a100 native: exact shader data access: binding beyond scale table
+390: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 64x64x1 R16G16B16A16Sfloat L:1 M:1 S:1 0x203428a100:0x8000 scaled=false gpu_modified=false history=0x2 origin=0 mask=0x6
+391: image.cpp:365 Image: Internal scale: native allocation 192x192 D32Sfloat use=1 domain=asset reason=semantic-native mask=0x0 0x20f2c00000:0x40000
+392: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x63eeb9d9 pins image 0x20f2c00000 native: exact shader data access: binding beyond scale table
+393: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 192x192x1 D32Sfloat L:1 M:1 S:1 0x20f2c00000:0x40000 scaled=false gpu_modified=false history=0x2 origin=0 mask=0x4
+531: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0xf5cf589 pins image 0x2034400000 native: exact shader data access: binding beyond scale table
+532: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 256x256x1 Bc6HUfloatBlock L:1 M:1 S:1 0x2034400000:0x10000 scaled=false gpu_modified=false history=0x2 origin=1 mask=0x24
+563: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x6281a2d3 pins image 0x2033400000 native: exact shader data access: binding beyond scale table
+564: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 256x256x1 B10G11R11UfloatPack32 L:8 M:5 S:1 0x2033400000:0x2aa000 scaled=false gpu_modified=false history=0x2 origin=1 mask=0x4
+754: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x750bb203 pins image 0x20deadab00 native: exact shader data access: binding beyond scale table
+755: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 64x64x1 Bc7UnormBlock L:1 M:4 S:1 0x20deadab00:0x1c00 scaled=false gpu_modified=false history=0x2 origin=1 mask=0x6
+756: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x750bb203 pins image 0x20deadc700 native: exact shader data access: binding beyond scale table
+757: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 256x256x1 Bc7SrgbBlock L:1 M:6 S:1 0x20deadc700:0x15c00 scaled=false gpu_modified=false history=0x2 origin=1 mask=0x4
+758: vk_rasterizer.cpp:985 BindResources: Internal scale: Fragment shader 0x750bb203 pins image 0x20deaf2300 native: exact shader data access: binding beyond scale table
+759: image.cpp:544 ForceNative: Internal scale: promote exact shader data access: binding beyond scale table (semantic-native) 256x256x1 Bc7UnormBlock L:1 M:6 S:1 0x20deaf2300:0x15c00 scaled=false gpu_modified=false history=0x2 origin=1 mask=0x4
+1014: image.cpp:354 Image: Internal scale allocation: 480x270 D32Sfloat -> 240x135 D32Sfloat levels 1 -> 1 mode resample
+1015: image.cpp:365 Image: Internal scale: native allocation 1920x1080 R32Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x2059400000:0x900000
+1018: image.cpp:354 Image: Internal scale allocation: 480x270 B10G11R11UfloatPack32 -> 240x135 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1019: image.cpp:365 Image: Internal scale: native allocation 480x270 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x20204e0000:0xa0000
+1020: image.cpp:365 Image: Internal scale: native allocation 480x270 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x205dc00000:0xa0000
+1029: buffer_cache.cpp:906 SynchronizeMemoryFromGpuImage: Raw buffer read of GPU-written image 0x201e0f0000 1920x1080 D32SfloatS8Uint (read 0x900000 bytes, image 0x900000): tiled back into the buffer cache
+1030: image.cpp:354 Image: Internal scale allocation: 1920x1080 R8Unorm -> 960x540 R8Unorm levels 1 -> 1 mode resample
+1043: buffer_cache.cpp:906 SynchronizeMemoryFromGpuImage: Raw buffer read of GPU-written image 0x201d100000 1920x1080 B10G11R11UfloatPack32 (read 0x7f8000 bytes, image 0x7f8000): tiled back into the buffer cache
+1044: image.cpp:354 Image: Internal scale allocation: 1920x1080 D32SfloatS8Uint -> 960x540 D32SfloatS8Uint levels 1 -> 1 mode resample
+1045: image.cpp:365 Image: Internal scale: native allocation 1920x1080 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x2019000000:0x7f8000
+1049: image.cpp:354 Image: Internal scale allocation: 1920x1080 B10G11R11UfloatPack32 -> 960x540 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1050: image.cpp:365 Image: Internal scale: native allocation 1920x1080 B10G11R11UfloatPack32 use=1 domain=asset reason=insufficient-mips mask=0x0 0x2057c00000:0x7f8000
+1053: image.cpp:354 Image: Internal scale allocation: 960x540 B10G11R11UfloatPack32 -> 480x270 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1056: image.cpp:354 Image: Internal scale allocation: 480x270 B10G11R11UfloatPack32 -> 240x135 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1058: image.cpp:354 Image: Internal scale allocation: 240x135 B10G11R11UfloatPack32 -> 120x67 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1060: image.cpp:354 Image: Internal scale allocation: 120x67 B10G11R11UfloatPack32 -> 60x33 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1064: image.cpp:354 Image: Internal scale allocation: 240x67 B10G11R11UfloatPack32 -> 120x33 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1066: image.cpp:354 Image: Internal scale allocation: 480x135 B10G11R11UfloatPack32 -> 240x67 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1068: image.cpp:354 Image: Internal scale allocation: 960x270 B10G11R11UfloatPack32 -> 480x135 B10G11R11UfloatPack32 levels 1 -> 1 mode resample
+1070: upload_diagnostics.cpp:323 NoteDispatch: Dispatch diag #3 pgm=0xf2218e57 dims=4080x1x1 | b0 0x201d8f8000+0x7f8000 stride=4 records=2088960 fmt=4/7 R head=00000000 00000000 00000000 00000000 images=[0x201d8f8000+0x7f8000 B10G11R11UfloatPack32 1920x1080 L1 M1 tile14 scaled R base] | b1 0x2057c00000+0x7f8000 stride=4 records=2088960 fmt=4/7 W head=4a521a4a 4a521a49 4a521a4a 4a521a49 images=[0x2057c00000+0x7f8000 B10G11R11UfloatPack32 1920x1080 L1 M1 tile14 native base]
+1074: image.cpp:544 ForceNative: Internal scale: promote storage (semantic-native) 1920x1080x1 B10G11R11UfloatPack32 L:1 M:1 S:1 0x201d100000:0x7f8000 scaled=true gpu_modified=true history=0xe origin=2 mask=0x4
+1077: image.cpp:365 Image: Internal scale: native allocation 1024x1024 R8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x2054000000:0x100000
+1079: image.cpp:365 Image: Internal scale: native allocation 1024x1024 R8Unorm use=1 domain=asset reason=insufficient-mips mask=0x0 0x2053800000:0x100000
+1084: image.cpp:354 Image: Internal scale allocation: 1920x1080 R8Unorm -> 960x540 R8Unorm levels 1 -> 1 mode resample
+1090: image.cpp:354 Image: Internal scale allocation: 1920x1080 A2B10G10R10UnormPack32 -> 960x540 A2B10G10R10UnormPack32 levels 1 -> 1 mode resample
+1105: upload_diagnostics.cpp:323 NoteDispatch: Dispatch diag #7 pgm=0xa1a2dfdc dims=4080x1x1 | b0 0x201d100000+0x7f8000 stride=4 records=2088960 fmt=4/4 W head=gpu_resident images=[0x201d100000+0x7f8000 B10G11R11UfloatPack32 1920x1080 L1 M1 tile14 native R base]
+1122: image.cpp:365 Image: Internal scale: native allocation 768x768 R32Sfloat use=1 domain=asset reason=insufficient-mips mask=0x0 0x20fa000000:0x4800000
+1137: image.cpp:354 Image: Internal scale allocation: 960x540 R16Sfloat -> 480x270 R16Sfloat levels 1 -> 1 mode resample
+1138: image.cpp:354 Image: Internal scale allocation: 960x540 R16Sfloat -> 480x270 R16Sfloat levels 1 -> 1 mode resample
+1139: vk_rasterizer.cpp:1053 BindResources: Internal scale: native pass fs=0x7c82bd42 attachments=2 causes=native-attachment scale-mismatch native_attachment=semantic-native[0] 1920x1080 B10G11R11UfloatPack32 0x201d100000 mask=0x4 buffer_writes=false image_writes=false
+1140: image.cpp:544 ForceNative: Internal scale: promote mixed attachment pass (mixed-pass) 1920x1080x1 D32SfloatS8Uint L:1 M:1 S:1 0x201e9f0000:0x900000 scaled=true gpu_modified=true history=0x90 origin=2 mask=0x40
+1141: vk_rasterizer.cpp:1053 BindResources: Internal scale: native pass fs=0xb0260f9a attachments=3 causes=native-attachment scale-mismatch native_attachment=semantic-native[0] 1920x1080 B10G11R11UfloatPack32 0x201d100000 mask=0x4 buffer_writes=false image_writes=false
+1142: image.cpp:544 ForceNative: Internal scale: promote mixed attachment pass (mixed-pass) 1920x1080x1 R16G16B16A16Sfloat L:1 M:1 S:1 0x201f2f0000:0xff0000 scaled=true gpu_modified=true history=0xa origin=2 mask=0x40
+1147: vk_rasterizer.cpp:1053 BindResources: Internal scale: native pass fs=0x6f92bbc4 attachments=3 causes=native-attachment scale-mismatch native_attachment=semantic-native[0] 1920x1080 B10G11R11UfloatPack32 0x201d100000 mask=0x4 buffer_writes=false image_writes=false
+1148: image.cpp:544 ForceNative: Internal scale: promote mixed attachment pass (mixed-pass) 1920x1080x1 R8Unorm L:1 M:1 S:1 0x2058c00000:0x240000 scaled=true gpu_modified=true history=0xa origin=2 mask=0x40
+1149: upload_diagnostics.cpp:323 NoteDispatch: Dispatch diag #13 pgm=0xf2218e57 dims=4080x1x1 | b0 0x201d100000+0x7f8000 stride=4 records=2088960 fmt=4/7 R head=gpu_resident images=[0x201d100000+0x7f8000 B10G11R11UfloatPack32 1920x1080 L1 M1 tile14 native R base] | b1 0x2019000000+0x7f8000 stride=4 records=2088960 fmt=4/7 W head=gpu_resident images=[0x2019000000+0xa0000 B10G11R11UfloatPack32 480x270 L1 M1 tile14 scaled R base][0x2019380000+0x140000 B10G11R11UfloatPack32 960x270 L1 M1 tile14 scaled R][0x20197e0000+0x240000 B10G11R11UfloatPack32 960x540 L1 M1 tile14 scaled R]
+1151: buffer_cache.cpp:906 SynchronizeMemoryFromGpuImage: Raw buffer read of GPU-written image 0x201d100000 1920x1080 B10G11R11UfloatPack32 (read 0x7f8000 bytes, image 0x7f8000): tiled back into the buffer cache
+1152: vk_rasterizer.cpp:1053 BindResources: Internal scale: native pass fs=0x6bd431c4 attachments=3 causes=native-attachment scale-mismatch native_attachment=semantic-native[0] 1920x1080 B10G11R11UfloatPack32 0x201d100000 mask=0x4 buffer_writes=false image_writes=false

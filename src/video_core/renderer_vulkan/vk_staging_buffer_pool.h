@@ -76,6 +76,8 @@ private:
                                      VideoCore::MemoryType type);
     StagingBufferRef RequestLarge(u64 size, VideoCore::MemoryType type, bool deferred);
 
+    u64 capped_waits{}; ///< Ring requests that waited at the size cap.
+
     void ApplyReleases();
     void TrimRing(Ring& ring);
     void TrimLarge(std::vector<LargeBuffer>& cache);

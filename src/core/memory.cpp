@@ -309,6 +309,7 @@ void MemoryManager::ReadForReplay(VAddr address, u8* dest, u64 size) {
         const u64 offset = address - vma.base;
         u64 count = std::min(size, vma.size - offset);
         const u8* source = nullptr;
+        u64 backing_offset = u64(-1);
         if (vma.IsMapped() && HasPhysicalBacking(vma)) {
             auto physical = vma.phys_areas.upper_bound(offset);
             if (physical != vma.phys_areas.begin()) {
@@ -317,6 +318,7 @@ void MemoryManager::ReadForReplay(VAddr address, u8* dest, u64 size) {
                 if (within < physical->second.size) {
                     count = std::min(count, physical->second.size - within);
                     source = impl.BackingBase() + physical->second.base + within;
+                    backing_offset = physical->second.base + within;
                 } else {
                     // A hole up to the next physical run.
                     const auto next = std::next(physical);
@@ -330,7 +332,19 @@ void MemoryManager::ReadForReplay(VAddr address, u8* dest, u64 size) {
         } else if (vma.IsMapped()) {
             source = std::bit_cast<const u8*>(address);
         }
-        if (source) {
+        if (source && backing_offset != u64(-1)) {
+            // Copy only what the backing holds; its holes read as zero without allocating.
+            std::vector<GuestMemoryBackend::MappingRange> runs;
+            impl.BackingDataRuns(backing_offset, count, runs);
+            u64 done = 0;
+            for (const auto& [run_offset, run_size] : runs) {
+                const u64 at = run_offset - backing_offset;
+                std::memset(dest + done, 0, at - done);
+                std::memcpy(dest + at, source + at, run_size);
+                done = at + run_size;
+            }
+            std::memset(dest + done, 0, count - done);
+        } else if (source) {
             std::memcpy(dest, source, count);
         } else {
             std::memset(dest, 0, count);
@@ -449,7 +463,10 @@ void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
 
 void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size,
                                      GuestReadCache& cache) {
-    std::shared_lock lk{mutex};
+    std::shared_lock lk{mutex, std::defer_lock};
+    if (!cache.locked) {
+        lk.lock();
+    }
     const u64 epoch = mutex.WriteEpoch();
     if (cache.epoch != epoch) {
         cache.ranges = {};

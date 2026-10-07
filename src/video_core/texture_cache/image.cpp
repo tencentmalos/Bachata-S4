@@ -569,6 +569,8 @@ void Image::ReallocateScale(u32 eighths, bool preserve_contents) {
     auto retired = std::make_shared<std::deque<BackingImage>>(std::move(backing_images));
     backing_images.clear();
     backing = &backing_images.emplace_back();
+    ++backing_epoch;
+    ++state_version;
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(ci, any_view_format);
@@ -736,6 +738,8 @@ void Image::EnsureViewFormat(vk::Format format) {
     auto retired = std::make_shared<std::deque<BackingImage>>(std::move(backing_images));
     backing_images.clear();
     backing = &backing_images.emplace_back();
+    ++backing_epoch;
+    ++state_version;
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(source->image.image_ci, true);
@@ -777,6 +781,21 @@ void Image::EnsureViewFormat(vk::Format format) {
 Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
                                    vk::PipelineStageFlags2 dst_stage,
                                    std::optional<SubresourceRange> subres_range) {
+    const State before = backing->state;
+    const size_t partial_before = backing->subresource_states.size();
+    auto barriers = GetBarriersImpl(dst_layout, dst_mask, dst_stage, subres_range);
+    const State& after = backing->state;
+    if (!barriers.empty() || after.layout != before.layout ||
+        after.access_mask != before.access_mask || after.pl_stage != before.pl_stage ||
+        backing->subresource_states.size() != partial_before) {
+        ++state_version;
+    }
+    return barriers;
+}
+
+Image::Barriers Image::GetBarriersImpl(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
+                                       vk::PipelineStageFlags2 dst_stage,
+                                       std::optional<SubresourceRange> subres_range) {
     if (subres_range) subres_range = HostRange(*subres_range);
     const SubresourceExtent host_resources{backing->image.image_ci.mipLevels, info.resources.layers};
     auto& last_state = backing->state;
@@ -1760,6 +1779,8 @@ void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
     }
 
     backing = new_backing;
+    ++backing_epoch;
+    ++state_version;
 }
 
 } // namespace VideoCore

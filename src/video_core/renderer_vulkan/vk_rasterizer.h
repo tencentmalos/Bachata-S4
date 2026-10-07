@@ -248,9 +248,25 @@ private:
     struct TextureBind {
         ImageBindingInfo binding;
         u64 touched_tick; // FindImage's per-use bookkeeping is redone once per scheduler tick.
+        // Filled by the first full bind of a sampled texture: while the image's backing, its
+        // layout state and the texture cache's content generation are unchanged, a later bind
+        // reuses the view and layout instead of refreshing the image, finding the view and
+        // computing barriers again (`upload_diag texture_bind_fast on|off`).
+        VideoCore::ImageId bound_id{}; // after the stencil to depth redirect
+        vk::ImageView view{};
+        vk::ImageLayout layout{};
+        u64 content_generation{}; // 0: not filled
+        u64 state_version{};
+        u32 backing_epoch{};
     };
-    tsl::robin_map<TextureBindKey, TextureBind, TextureBindKeyHash> texture_binds;
+    // Key -> index into texture_bind_entries, so lookups walk small buckets and entries stay put
+    // while BindTextures inserts. Both are cleared together (texture_binds_epoch counts clears).
+    tsl::robin_map<TextureBindKey, u32, TextureBindKeyHash> texture_binds;
+    std::vector<TextureBind> texture_bind_entries;
     u64 texture_binds_generation{~u64{0}};
+    u64 texture_binds_epoch{};
+    // Per image binding of the current BindTextures: its texture_bind_entries index or ~0u.
+    boost::container::static_vector<u32, Shader::NUM_IMAGES> image_bind_entries;
     bool fault_process_pending{};
     bool attachment_feedback_loop{};
     bool needs_barrier{};

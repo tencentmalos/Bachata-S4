@@ -37,6 +37,10 @@ void EnableFrameDump(std::filesystem::path dir, bool png) {
     enabled = true;
 }
 
+void DisableFrameDump() {
+    enabled = false;
+}
+
 bool FrameDumpEnabled() {
     return enabled.load(std::memory_order_relaxed);
 }

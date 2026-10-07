@@ -46,11 +46,13 @@
 #include "core/memory.h"
 #include "core/user_settings.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/diagnostics_service.h"
 #include "emulator.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/cache_storage.h"
 #include "video_core/renderdoc.h"
+#include "video_core/renderdoc_capture.h"
 #include "video_core/replay/gpu_replay_frames.h"
 #include "video_core/replay/gpu_replay_player.h"
 
@@ -627,6 +629,11 @@ void Emulator::RunGpuReplay(const GpuReplayOptions& options) {
     EmulatorSettings.SetExtraDmemInMBytes(header.extra_dmem_mb);
     EmulatorSettings.SetExtraFmemInMBytes(header.extra_fmem_mb);
     EmulatorSettings.SetInternalScalePercent(header.internal_scale_eighths * 12.5f);
+    if (const char* scale = std::getenv("SHADPS4_GPU_REPLAY_SCALE")) {
+        // Diagnostic: replay at another internal scale than the capture (e.g. 100 to rule out
+        // the scaled-image paths). Results are not comparable with captures at other scales.
+        EmulatorSettings.SetInternalScalePercent(std::strtof(scale, nullptr));
+    }
     EmulatorSettings.SetReadbacksMode(
         static_cast<u32>(std::stoul(player->InfoValue("readbacks_mode", "0"))));
     EmulatorSettings.SetReadbackLinearImagesEnabled(
@@ -690,6 +697,36 @@ void Emulator::RunGpuReplay(const GpuReplayOptions& options) {
             SDL_PushEvent(&quit);
         }
     });
+    // Diagnostic switches for A/B replays: SHADPS4_GPU_REPLAY_DEBUGBUS="cmd args;cmd args" runs
+    // DebugBus commands (vk_recorder off, upload_diag ..., ...) before the first event.
+    if (const char* commands = std::getenv("SHADPS4_GPU_REPLAY_DEBUGBUS")) {
+        std::string_view rest{commands};
+        while (!rest.empty()) {
+            const auto end = rest.find(';');
+            const auto command = rest.substr(0, end);
+            if (!command.empty()) {
+                LOG_INFO(Render, "GPU replay: DebugBus {}: {}", command,
+                         Core::Diagnostics::HandleDebugCommand(command));
+            }
+            rest = end == std::string_view::npos ? std::string_view{} : rest.substr(end + 1);
+        }
+    }
+    u64 renderdoc_request{};
+    if (options.renderdoc_frames) {
+        // Guest flip boundaries: the replay starts at a frame boundary, which the command
+        // processor announces before its first event, and frame N ends at the Nth flip.
+        auto& coordinator = VideoCore::GetCaptureCoordinator();
+        const auto receipt = coordinator.Arm(std::min<u32>(options.renderdoc_frames, 8),
+                                             coordinator.BoundGeneration(),
+                                             Core::Diagnostics::ProcessRunUuid(),
+                                             Core::Diagnostics::DiagnosticNowNs(),
+                                             VideoCore::CaptureBoundary::GuestFlip);
+        renderdoc_request = receipt.request_id;
+        LOG_INFO(Render, "GPU replay: RenderDoc capture of {} frames: {} ({}){}{}",
+                 options.renderdoc_frames, VideoCore::ToString(receipt.state),
+                 receipt.command_status, receipt.failure_reason.empty() ? "" : ": ",
+                 receipt.failure_reason);
+    }
     VideoCore::Replay::SetReplaying(true);
     liverpool->StartReplay(player.get());
 
@@ -702,6 +739,27 @@ void Emulator::RunGpuReplay(const GpuReplayOptions& options) {
     for (int i = 0; i < 100 && VideoCore::Replay::FramesNoted() < VideoCore::Replay::FramesStarted();
          ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds{20});
+    }
+    if (renderdoc_request) {
+        auto& coordinator = VideoCore::GetCaptureCoordinator();
+        VideoCore::CaptureReceipt receipt{};
+        for (int i = 0; i < 1200; ++i) {
+            receipt = coordinator.Query(renderdoc_request, Core::Diagnostics::DiagnosticNowNs());
+            if (receipt.state == VideoCore::CaptureRequestState::Ready ||
+                receipt.state == VideoCore::CaptureRequestState::Failed ||
+                receipt.state == VideoCore::CaptureRequestState::Cancelled) {
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds{100});
+        }
+        LOG_INFO(Render, "GPU replay: RenderDoc capture {}: {}{}", VideoCore::ToString(receipt.state),
+                 receipt.file_path, receipt.failure_reason);
+        std::ofstream{output_dir / "renderdoc.txt"}
+            << "state=" << VideoCore::ToString(receipt.state) << "\n"
+            << "file=" << receipt.file_path << "\n"
+            << "first_guest_flip=" << receipt.first_guest_flip << "\n"
+            << "last_guest_flip=" << receipt.last_guest_flip << "\n"
+            << "failure=" << receipt.failure_reason << "\n";
     }
     const auto summary = player->Summary();
     const auto frames = VideoCore::Replay::FrameList();

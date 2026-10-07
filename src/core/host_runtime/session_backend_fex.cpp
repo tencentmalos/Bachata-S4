@@ -234,15 +234,33 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         std::vector<std::filesystem::path> modules;
         for (const auto& path : params.module_paths)
             modules.emplace_back(path);
+        std::string executable = params.executable_path;
+#if defined(__ANDROID__)
+        // GPU replay (GuestGpuReplay): while this shell-set property names a trace (a path, or a
+        // name in CapturesDir/gpu_replay), every session replays it instead of the chosen game.
+        char replay[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.gpu_replay", replay) > 0) {
+            std::filesystem::path trace{replay};
+            if (!trace.has_parent_path()) {
+                trace = Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) /
+                        "gpu_replay" / trace;
+                if (!trace.has_extension())
+                    trace += ".sgpurply";
+            }
+            executable = trace.string();
+            modules.clear();
+            RuntimeStage(("prepare: GPU replay of " + executable).c_str());
+        }
+#endif
         RuntimeStage("prepare: load/relocate modules");
-        rt->production->Prepare(params.executable_path, modules);
+        rt->production->Prepare(executable, modules);
         RuntimeStage("prepare: ready");
         if (const auto& info = Common::ElfInfo::Instance(); info.IsInitialized()) {
             Common::Profiler::BeginSession(fmt::format(
                 "title={} app_ver={} build={} generation={} frame=gnm_submit_done",
                 info.GameSerial(), info.AppVer(), Common::g_scm_rev, params.generation));
         }
-        rt->args = {params.executable_path};
+        rt->args = {executable};
         rt->generation = params.generation;
         rt->diag = Diagnostics::DiagnosticsHub::Instance().Acquire(params.generation);
         return std::shared_ptr<SessionRuntime>(std::move(rt));

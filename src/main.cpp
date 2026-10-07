@@ -82,6 +82,7 @@ int main(int argc, char* argv[]) {
     bool gpuReplayExit = false;
     bool gpuReplayHashImages = false;
     std::optional<u64> gpuReplayHashDraws;
+    std::optional<u32> gpuReplayRenderdoc;
 
     std::optional<std::filesystem::path> addGameFolder;
     std::optional<std::filesystem::path> setAddonFolder;
@@ -138,6 +139,9 @@ int main(int argc, char* argv[]) {
                  "Hash the images the GPU writes after every replayed event (slow)");
     app.add_option("--gpu-replay-hash-draws", gpuReplayHashDraws,
                    "With --gpu-replay-hash-images: also hash after every draw of this event");
+    app.add_option("--gpu-replay-renderdoc", gpuReplayRenderdoc,
+                   "Capture the first N replayed frames with RenderDoc (load the RenderDoc "
+                   "Vulkan layer, e.g. VK_LOADER_LAYERS_ENABLE=VK_LAYER_RENDERDOC_Capture)");
 
     app.add_option("--add-game-folder", addGameFolder)->check(CLI::ExistingDirectory);
     app.add_option("--set-addon-folder", setAddonFolder)->check(CLI::ExistingDirectory);
@@ -281,7 +285,8 @@ int main(int argc, char* argv[]) {
         }
         emulator->RunGpuReplay({*gpuReplay, gpuReplayOut.value_or(std::filesystem::path{}),
                                 !gpuReplayNoPng, gpuReplayExit, gpuReplayHashImages,
-                                gpuReplayHashDraws.value_or(~u64{0})});
+                                gpuReplayHashDraws.value_or(~u64{0}),
+                                gpuReplayRenderdoc.value_or(0)});
         return 0;
     }
 

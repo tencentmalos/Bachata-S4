@@ -17,6 +17,14 @@
 #include "core/file_sys/fs.h"
 #include "core/file_sys/directories/normal_directory.h"
 #include "guest_storage.h"
+#include "video_core/replay/gpu_replay_hooks.h"
+
+namespace {
+// While a GPU replay capture runs, the recorder write-protects guest memory and follows CPU
+// writes through access faults. A kernel copy into a protected page cannot fault into it (the
+// system call fails with EFAULT), so reads land in host memory first and are copied over.
+thread_local bool in_capture_bounce{};
+} // namespace
 
 namespace Core::HostRuntime {
 namespace fs = std::filesystem;
@@ -925,6 +933,16 @@ GuestStorage::IoResult GuestStorage::Close(int fd) {
     return {0, 0};
 }
 GuestStorage::IoResult GuestStorage::Read(int fd, std::span<u8> data) {
+    if (!in_capture_bounce && !data.empty() && data.size() <= 64ULL * 1024 * 1024 &&
+        VideoCore::Replay::CaptureHooksActive()) {
+        std::vector<u8> bounce(data.size());
+        in_capture_bounce = true;
+        const auto result = Read(fd, bounce);
+        in_capture_bounce = false;
+        if (result.value > 0)
+            std::memcpy(data.data(), bounce.data(), size_t(result.value));
+        return result;
+    }
     const auto begin = io_observer ? IoNow() : 0;
     auto file = AcquireFile(fd);
     if (!file) return {-1, EBADF};
@@ -1115,6 +1133,29 @@ GuestStorage::PositionedLease GuestStorage::AcquirePositioned(int fd) {
 }
 GuestStorage::IoResult GuestStorage::PositionedFile(std::shared_ptr<File> lease, int fd,
         std::span<const Buffer> buffers, s64 offset, bool write) {
+    if (!write && !in_capture_bounce && VideoCore::Replay::CaptureHooksActive()) {
+        u64 total{};
+        for (const auto& buffer : buffers)
+            total += buffer.size;
+        if (total <= 64ULL * 1024 * 1024) {
+            std::vector<u8> bounce(total);
+            const Buffer single{bounce.data(), bounce.size()};
+            in_capture_bounce = true;
+            const auto result = PositionedFile(std::move(lease), fd, std::span{&single, 1}, offset, false);
+            in_capture_bounce = false;
+            if (result.value > 0) {
+                u64 copied{};
+                for (const auto& buffer : buffers) {
+                    if (copied >= u64(result.value))
+                        break;
+                    const u64 count = std::min<u64>(buffer.size, u64(result.value) - copied);
+                    std::memcpy(buffer.data, bounce.data() + copied, count);
+                    copied += count;
+                }
+            }
+            return result;
+        }
+    }
     const auto begin = io_observer ? IoNow() : 0;
     if (offset < 0 || buffers.size() > 1024) return {-1, EINVAL};
     if (!lease || (write && !lease->writable)) return {-1, EBADF};

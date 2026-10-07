@@ -114,6 +114,9 @@ inline std::atomic<u32> stream_max{16384};
 // to the stream buffer after the memory manager's read lock is released, so the lock release
 // does not wait for stores to write-combined memory. Diagnostic (`upload_diag stream_bounce`).
 inline std::atomic<bool> stream_bounce{false};
+// The streamed copies of one draw or dispatch share one memory manager read lock instead of
+// taking it per copy (BufferCache::BeginStreamReads). `upload_diag stream_lease on|off`.
+inline std::atomic<bool> stream_lease{true};
 // Discrete GPUs: streamed data (small read-only buffers, per-draw constants) goes to a stream
 // buffer in host memory instead of device memory the CPU writes through the PCIe BAR. On by
 // default there (`upload_diag stream_host on|off`); other GPUs have one stream buffer.
@@ -127,6 +130,11 @@ inline std::atomic<u64> stream_dma_submits{0}, stream_dma_bytes{0}, stream_dma_r
 // image set is unchanged (`upload_diag texture_bind_cache on|off`, on by default).
 inline std::atomic<bool> texture_bind_cache{true};
 inline std::atomic<u64> texture_bind_hits{0}, texture_bind_misses{0};
+// A cached sampled binding whose image, backing, layout state and the texture cache's content
+// generation are unchanged reuses its view and layout: no refresh, view lookup or barrier
+// computation (`upload_diag texture_bind_fast on|off`, on by default).
+inline std::atomic<bool> texture_bind_fast{true};
+inline std::atomic<u64> texture_bind_fast_hits{0};
 // Reads of streamed buffers also go through the barrier tracker (`upload_diag stream_barriers
 // on|off`, off by default): an A/B switch for the earlier behaviour.
 inline std::atomic<bool> stream_barriers{false};

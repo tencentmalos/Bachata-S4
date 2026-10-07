@@ -1,6 +1,13 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#if defined(__linux__)
+#include <sys/mman.h>
+#endif
+#if defined(__ANDROID__)
+#include <sys/system_properties.h>
+#endif
+#include <string_view>
 #include <array>
 #include <numeric>
 
@@ -189,6 +196,42 @@ void Buffer::Invalidate(u64 offset, u64 size) {
     vmaInvalidateAllocation(buffer.allocator, buffer.allocation, offset, size);
 }
 
+namespace {
+/// Maps every page of a fresh host-visible ring up front. The driver maps buffer memory into the
+/// process lazily, so otherwise each page faults on its first write: for the stream buffer and
+/// the staging rings that is a fault per 4 KiB of streamed data until the ring has wrapped once
+/// (Bloodborne on the AYN Thor: about 3300 faults per frame on the command processor).
+void PrefaultMapping(std::span<u8> data) {
+#if defined(__linux__)
+#if defined(__ANDROID__)
+    // Diagnostic switch for A/B (debug.shadps4.stream_prefault=0 turns it off).
+    static const bool enabled = [] {
+        char value[PROP_VALUE_MAX]{};
+        return __system_property_get("debug.shadps4.stream_prefault", value) <= 0 ||
+               std::string_view{value} != "0";
+    }();
+    if (!enabled) {
+        return;
+    }
+#endif
+    if (data.empty()) {
+        return;
+    }
+    constexpr int PopulateWrite = 23; // MADV_POPULATE_WRITE, Linux 5.14
+    constexpr uintptr_t Page = 4096;
+    const uintptr_t begin = Common::AlignUp(reinterpret_cast<uintptr_t>(data.data()), Page);
+    const uintptr_t end = Common::AlignDown(reinterpret_cast<uintptr_t>(data.data() + data.size()),
+                                            Page);
+    if (end > begin && ::madvise(reinterpret_cast<void*>(begin), end - begin, PopulateWrite) == 0) {
+        return;
+    }
+    for (size_t offset = 0; offset < data.size(); offset += Page) {
+        reinterpret_cast<volatile u8*>(data.data())[offset] = 0;
+    }
+#endif
+}
+} // namespace
+
 constexpr u64 WATCHES_INITIAL_RESERVE = 0x100;
 constexpr u64 WATCHES_RESERVE_CHUNK = 0x100;
 
@@ -198,6 +241,7 @@ StreamBuffer::StreamBuffer(const Vulkan::Instance& instance, Vulkan::Scheduler& 
       non_coherent_atom_size{instance.NonCoherentAtomSize()} {
     ReserveWatches(current_watches, WATCHES_INITIAL_RESERVE);
     ReserveWatches(previous_watches, WATCHES_INITIAL_RESERVE);
+    PrefaultMapping(mapped_data);
     Vulkan::SetObjectName(instance.GetDevice(), Handle(), "StreamBuffer({}):{:#x}",
                           BufferTypeName(mem_type), size_bytes);
 }

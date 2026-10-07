@@ -16,11 +16,15 @@ public:
     static T* Instance() {
         if (auto* instance = borrowed.load(std::memory_order_acquire))
             return instance;
+        // Created instances are never replaced: hot callers (per draw binding) take no lock.
+        if (auto* instance = created.load(std::memory_order_acquire))
+            return instance;
         std::lock_guard lock{instance_mutex};
         if (auto* instance = borrowed.load(std::memory_order_acquire))
             return instance;
         if (!m_instance) {
             m_instance = std::make_unique<T>();
+            created.store(m_instance.get(), std::memory_order_release);
         }
         return m_instance.get();
     }
@@ -54,6 +58,7 @@ protected:
 private:
     static inline std::unique_ptr<T> m_instance{};
     static inline std::atomic<T*> borrowed{};
+    static inline std::atomic<T*> created{};
     static inline std::mutex instance_mutex;
 };
 
