@@ -51,6 +51,7 @@
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_avplayer.h"
 #include "core/host_runtime/guest_backtrace.h"
+#include "core/host_runtime/guest_watchdog.h"
 #include "core/host_runtime/guest_camera.h"
 #include "core/host_runtime/guest_capture_services.h"
 #include "core/host_runtime/guest_clock.h"
@@ -348,6 +349,10 @@ struct FunctionAdapter final : HleCallAdapter {
                 frame.registers.Get(Gpr::Rdi), owner ? owner->Thread().id : 0,
                 owner ? owner->Thread().generation : 0);
         }
+        const auto* watchdog_owner = HleScope::Current();
+        Watchdog::Entry watchdog{frame.operation, frame.registers.Get(Gpr::Rsp),
+                                 frame.registers.Get(Gpr::Rbp), frame.registers.rip,
+                                 watchdog_owner ? watchdog_owner->Thread().id : 0};
         Status status;
         try {
             status = call(frame);
@@ -572,6 +577,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::map<std::string, std::string> hle_status;
     std::set<std::string> graphics_gnm_nids, graphics_video_nids;
     std::atomic<bool> cancelling{};
+    // WP-I: dumps what every guest thread is doing once the title stops presenting frames.
+    std::jthread watchdog_thread;
     mutable std::mutex threads_mutex;
     std::condition_variable threads_changed;
     struct SpecificValue {
@@ -888,6 +895,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         }
     }
     ~Impl() {
+        // The watchdog reads graphics, owners and guest memory: stop it before any of them go.
+        if (watchdog_thread.joinable()) {
+            watchdog_thread.request_stop();
+            watchdog_thread.join();
+        }
         Diagnostics::ExecutableExport::Retire(executable_export_source);
         executable_export_source.reset();
         if (patch_control) patch_control->Retire();
@@ -1531,6 +1543,131 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         if (child_error) return Result<GuestCallResult>(*child_error);
         if (child_fault) return Result<GuestCallResult>(*child_fault);
         return {};
+    }
+    u64 PresentedFrames() {
+        std::scoped_lock lock(graphics_mutex);
+        return graphics ? graphics->VideoOut().guest_presents.load() : 0;
+    }
+    // Sleeps `duration` unless the session stops first; false when it stopped.
+    static bool WatchdogSleep(std::stop_token stop, std::chrono::milliseconds duration) {
+        std::mutex m;
+        std::condition_variable_any cv;
+        std::unique_lock lock(m);
+        cv.wait_for(lock, stop, duration, [] { return false; });
+        return !stop.stop_requested();
+    }
+    void WatchdogLoop(std::stop_token stop) {
+        using Clock = std::chrono::steady_clock;
+        auto& control = Watchdog::g_control;
+        control.session.store(true);
+        u64 frames = PresentedFrames();
+        auto changed = Clock::now();
+        bool armed = true;
+        while (WatchdogSleep(stop, std::chrono::milliseconds(250)) && !cancelling.load()) {
+            const auto now = Clock::now();
+            if (const u64 current = PresentedFrames(); current != frames) {
+                frames = current;
+                changed = now;
+                armed = true;
+            }
+            const auto age =
+                std::chrono::duration_cast<std::chrono::milliseconds>(now - changed).count();
+            control.frames.store(frames);
+            control.frame_age_ms.store(u64(age));
+            if (control.dump_requested.exchange(false)) {
+                WatchdogDump("requested", stop);
+            } else if (armed && control.enabled.load() &&
+                       age >= s64(Watchdog::StallSeconds) * 1000) {
+                // Once per stall: the next dump waits for a frame to arrive first.
+                armed = false;
+                control.stalls.fetch_add(1);
+                WatchdogDump("no new frame", stop);
+            }
+        }
+        control.session.store(false);
+    }
+    void WatchdogDump(const char* reason, std::stop_token stop) {
+        struct Sample {
+            const Watchdog::Activity* slot;
+            u64 operation, rsp, rbp, calls, guest_thread;
+            int host_tid;
+        };
+        std::vector<Sample> samples;
+        for (const auto& slot : Watchdog::g_slots) {
+            if (!slot.in_use.load(std::memory_order_acquire))
+                continue;
+            constexpr auto r = std::memory_order_relaxed;
+            samples.push_back({&slot, slot.operation.load(r), slot.rsp.load(r), slot.rbp.load(r),
+                               slot.calls.load(r), slot.guest_thread.load(r),
+                               slot.host_tid.load(r)});
+        }
+        // A second look half a second later tells blocked threads from busy ones.
+        if (!WatchdogSleep(stop, std::chrono::milliseconds(500)))
+            return;
+        std::map<u64, std::string> names;
+        {
+            std::lock_guard lock(threads_mutex);
+            for (const auto& [id, o] : owners)
+                names[id] = o->name;
+        }
+        LOG_WARNING(Core, "GUEST_WATCHDOG begin reason=\"{}\" frames={} frame_age_ms={} threads={}",
+                    reason, Watchdog::g_control.frames.load(),
+                    Watchdog::g_control.frame_age_ms.load(), samples.size());
+        const auto place = [this](u64 pc) -> std::string {
+            if (const auto* module = linker->FindByAddress(pc ? pc - 1 : 0))
+                return fmt::format("{:#x} {}+{:#x}", pc, module->name,
+                                   pc - module->GetBaseAddress());
+            return fmt::format("{:#x} unknown", pc);
+        };
+        for (const auto& a : samples) {
+            constexpr auto r = std::memory_order_relaxed;
+            const u64 progress = a.slot->calls.load(r) - a.calls;
+            const u64 operation = a.slot->operation.load(r);
+            const auto name = names.find(a.guest_thread);
+            const char* state = progress    ? "progressing"
+                                : operation ? "blocked_in_hle"
+                                            : "in_guest_code";
+            LOG_WARNING(Core,
+                        "GUEST_WATCHDOG thread guest={} host_tid={} name=\"{}\" state={} "
+                        "hle_calls_500ms={} op={} {}",
+                        a.guest_thread, a.host_tid, name == names.end() ? "" : name->second,
+                        state, progress, operation,
+                        operation ? WatchdogOperationName(operation) : "(guest code)");
+            if (progress || !operation || operation != a.operation)
+                continue;
+            // Blocked in an HLE call: its guest return chain, read through checked accesses.
+            u64 caller{};
+            if (!space.ReadData(GuestAddress{a.rsp},
+                                std::as_writable_bytes(std::span{&caller, 1}))) {
+                LOG_WARNING(Core, "GUEST_WATCHDOG   stack unreadable rsp={:#x}", a.rsp);
+                continue;
+            }
+            LOG_WARNING(Core, "GUEST_WATCHDOG   frame 0 {}", place(caller));
+            u64 fp = a.rbp;
+            for (unsigned i = 1; i < 16 && fp && !(fp & 7) && fp >= a.rsp; ++i) {
+                std::array<u64, 2> record{};
+                if (!space.ReadData(GuestAddress{fp}, std::as_writable_bytes(std::span{record})) ||
+                    !record[1])
+                    break;
+                LOG_WARNING(Core, "GUEST_WATCHDOG   frame {} {}", i, place(record[1]));
+                if (record[0] <= fp || record[0] - fp > 16 * 1024 * 1024)
+                    break;
+                fp = record[0];
+            }
+        }
+        LOG_WARNING(Core, "GUEST_WATCHDOG end");
+        Watchdog::g_control.dumps.fetch_add(1);
+    }
+    std::string WatchdogOperationName(u64 operation) const {
+        const auto found = operation_names.find(operation);
+        if (found == operation_names.end())
+            return std::to_string(operation);
+        // "<NID>#lib#..." reads better as the function name.
+        const auto& symbol = found->second;
+        const auto nid = symbol.substr(0, symbol.find('#'));
+        if (const auto* entry = AeroLib::FindByNid(nid.c_str()))
+            return std::string(entry->name) + " " + symbol;
+        return symbol;
     }
     Status Cancel() {
         std::vector<ThreadHandle> handles;
@@ -5642,6 +5779,11 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
         }
     }
     auto* module = impl->linker->GetModule(0);
+    if (!impl->watchdog_thread.joinable())
+        impl->watchdog_thread = std::jthread([p = impl.get()](std::stop_token stop) {
+            Common::SetCurrentThreadName("shadPS4:Watchdog");
+            p->WatchdogLoop(stop);
+        });
     auto owner = impl->NewOwner(GuestThreadAttributes{.size = 2 << 20});
     try {
         impl->Attach(owner, module->GetEntryAddress());

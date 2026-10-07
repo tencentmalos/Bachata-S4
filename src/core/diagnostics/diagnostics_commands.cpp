@@ -28,6 +28,7 @@
 #include "core/host_runtime/orbis_pad_adapter.h"
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/host_runtime/guest_watchdog.h"
 #include "core/host_runtime/guest_wake_proxy.h"
 #include "core/host_runtime/guest_cpu_placement.h"
 #include "core/host_runtime/guest_audio.h"
@@ -197,6 +198,10 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) { return ExecutableExport::Command(args); });
     registry.Register("hle_sync", "HLE synchronization metrics: status | dump | start/detail/stop <context>",
         [](const std::vector<std::string>& args) { return HostRuntime::SyncMetrics::Command(args); });
+    registry.Register("guest_watchdog",
+        "Dump each guest thread's HLE call and guest return chain once no frame was presented for "
+        "20 s (default on), or now: status | dump | on | off",
+        [](const std::vector<std::string>& args) { return HostRuntime::Watchdog::Command(args); });
     registry.Register("wake_proxy",
         "Wake guest sync waiters from a proxy thread instead of the signalling thread (default "
         "on, debug.shadps4.wake_proxy=0 disables): on | off | spin <us> | status",
