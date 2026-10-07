@@ -176,7 +176,8 @@ void TextureCache::PublishMemoryDiagnostics() {
         // natural = guest-expressed target changes; resumed = same targets re-opened
         // after a break, keyed by the break that split them (emulator-imposed fragments).
         const auto& resumes = scheduler.RenderResumes();
-        out << "render_pass natural=" << scheduler.RenderNatural() << " resumed:";
+        out << "render_pass natural=" << scheduler.RenderNatural()
+            << " depth_layout_only=" << scheduler.DepthLayoutSwitches() << " resumed:";
         for (size_t i = 0; i < resumes.size(); ++i)
             out << ' ' << Vulkan::Scheduler::RenderBreakNames[i] << '=' << resumes[i];
         out << '\n';

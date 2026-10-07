@@ -425,6 +425,9 @@ public:
     /// it: these are the tile load/store round trips the guest never asked for.
     const std::array<uint64_t, size_t(RenderBreak::Count)>& RenderResumes() const { return render_resumes; }
     bool LastBeginResumed() const { return last_begin_resumed; }
+    /// New pass instances that differ from the open one only in the depth target's layout
+    /// (read-only against writable) and view.
+    uint64_t DepthLayoutSwitches() const { return depth_layout_switches; }
     /// Bounded diagnostics for pass-breaking transitions/resumes; off until a gpu_memory request
     /// arms it, so ordinary runs do not log the loading screens.
     bool TakePassBreakLog() {
@@ -639,7 +642,7 @@ private:
     uint64_t gpu_render_serial{};
     std::array<uint64_t, size_t(RenderBreak::Count)> render_breaks{};
     std::array<uint64_t, size_t(RenderBreak::Count)> render_resumes{};
-    uint64_t render_begins{}, render_natural{};
+    uint64_t render_begins{}, render_natural{}, depth_layout_switches{};
     RenderBreak last_break{RenderBreak::Other};
     bool last_begin_resumed{};
     u32 pass_draws{};

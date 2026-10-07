@@ -29,6 +29,7 @@
 
 #include <vk_mem_alloc.h>
 #include "video_core/vma_diagnostics.h"
+#include "core/emulator_settings.h"
 
 namespace VideoCore {
 
@@ -208,23 +209,14 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
             .value();
 
     const u64 num_blocks = u64{1} << (ADDRESS_SPACE_BITS - block_shift);
-    const u64 bda_pagetable_size = num_blocks * sizeof(vk::DeviceAddress);
     fault_manager =
         std::make_unique<FaultManager>(instance, scheduler, *this, block_shift, num_blocks);
-    bda_pagetable_buffer = std::make_unique<Buffer>(
-        instance, 0, bda_pagetable_size, MemoryType::DeviceLocal, "BDA Page Table Buffer");
-    runtime.FillBuffer(bda_pagetable_buffer.get(), 0u, bda_pagetable_size, 0u);
-    bda_pagetable_root = std::make_unique<Buffer>(instance, 0, sizeof(vk::DeviceAddress),
-                                                  MemoryType::DeviceLocal, "BDA Page Table Root");
-    const auto table_address = bda_pagetable_buffer->BufferDeviceAddress();
-    runtime.InlineData(bda_pagetable_root.get(), 0, static_cast<u32>(table_address));
-    runtime.InlineData(bda_pagetable_root.get(), 4, static_cast<u32>(table_address >> 32));
+    if (EmulatorSettings.IsDirectMemoryAccessEnabled()) {
+        EnsurePageTable();
+    }
     for (const auto& [buffer, category] :
          std::initializer_list<std::pair<const Buffer*, const char*>>{
-             {&stream_buffer, "buffer/stream-pool"},
-             {&gds_buffer, "buffer/gds"},
-             {bda_pagetable_buffer.get(), "buffer/bda-page-table"},
-             {bda_pagetable_root.get(), "buffer/bda-page-table-root"}}) {
+             {&stream_buffer, "buffer/stream-pool"}, {&gds_buffer, "buffer/gds"}}) {
         VmaDiagnostics::Tag(instance.GetAllocator(), buffer->buffer.allocation, category);
     }
     if (instance.IsDiscrete()) {
@@ -368,10 +360,10 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
         << "\n";
     out << "utility_buffer_allocation_bytes="
         << allocation_size(stream_buffer) + allocation_size(gds_buffer) +
-               allocation_size(*bda_pagetable_buffer)
+               (bda_pagetable_buffer ? allocation_size(*bda_pagetable_buffer) : 0)
         << "\n";
-    out << "stream_requested_bytes=" << stream_buffer.SizeBytes()
-        << " bda_page_table_requested_bytes=" << bda_pagetable_buffer->SizeBytes() << "\n";
+    out << "stream_requested_bytes=" << stream_buffer.SizeBytes() << " bda_page_table_requested_bytes="
+        << (bda_pagetable_buffer ? bda_pagetable_buffer->SizeBytes() : 0) << "\n";
     const auto& watch = Core::gpu_watch_counters;
     constexpr auto o = std::memory_order_relaxed;
     out << "gpu_watch watch_calls=" << watch.watch_calls.load(o)
@@ -653,6 +645,7 @@ void BufferCache::ProcessFaultBuffer() {
 boost::container::small_vector<BufferCache::DmaBufferRead, 16> BufferCache::SynchronizeDmaBuffers(
     std::span<const DmaRange> ranges) {
     boost::container::small_vector<DmaBufferRead, 16> reads;
+    EnsurePageTable();
     if (!UploadDiagnostics::dma_bounds.load(std::memory_order_relaxed))
         ranges = {};
     (ranges.empty() ? UploadDiagnostics::dma_full_calls : UploadDiagnostics::dma_bounded_calls)
@@ -756,6 +749,53 @@ const Buffer* BufferCache::GetArena(u64 first_block, u64 last_block) {
     return new_arena;
 }
 
+void BufferCache::EnsurePageTable() {
+    if (bda_pagetable_buffer) {
+        return;
+    }
+    const u64 num_blocks = u64{1} << (ADDRESS_SPACE_BITS - block_shift);
+    const u64 table_size = num_blocks * sizeof(vk::DeviceAddress);
+    bda_pagetable_buffer = std::make_unique<Buffer>(instance, 0, table_size,
+                                                    MemoryType::DeviceLocal, "BDA Page Table Buffer");
+    runtime.FillBuffer(bda_pagetable_buffer.get(), 0u, table_size, 0u);
+    bda_pagetable_root = std::make_unique<Buffer>(instance, 0, sizeof(vk::DeviceAddress),
+                                                  MemoryType::DeviceLocal, "BDA Page Table Root");
+    const auto table_address = bda_pagetable_buffer->BufferDeviceAddress();
+    runtime.InlineData(bda_pagetable_root.get(), 0, static_cast<u32>(table_address));
+    runtime.InlineData(bda_pagetable_root.get(), 4, static_cast<u32>(table_address >> 32));
+    VmaDiagnostics::Tag(instance.GetAllocator(), bda_pagetable_buffer->buffer.allocation,
+                        "buffer/bda-page-table");
+    VmaDiagnostics::Tag(instance.GetAllocator(), bda_pagetable_root->buffer.allocation,
+                        "buffer/bda-page-table-root");
+
+    // Entries for the blocks made resident before the table existed, through the arena that
+    // now covers each one (as EnsureResident writes them), in pieces of at most 32768 blocks.
+    constexpr u64 MaxBlocks = 32768;
+    u64 written{};
+    for (const auto& range : resident_ranges) {
+        for (u64 first = range.start; first < range.end;) {
+            const u64 last = std::min(range.end, first + MaxBlocks);
+            const auto staging = staging_pool.Request((last - first) * sizeof(vk::DeviceAddress),
+                                                      MemoryType::HostUncached);
+            auto* addresses = reinterpret_cast<vk::DeviceAddress*>(staging.mapped);
+            for (u64 block = first; block < last; ++block) {
+                const Buffer* arena = address_space[block >> blocks_per_arena_page_shift];
+                ASSERT_MSG(arena, "Resident block {:#x} without an arena", block);
+                *(addresses++) = arena->BufferDeviceAddress() + (block << block_shift) -
+                                 arena->cpu_addr;
+            }
+            staging.Flush();
+            const std::array copy{vk::BufferCopy{staging.offset, first * sizeof(vk::DeviceAddress),
+                                                 (last - first) * sizeof(vk::DeviceAddress)}};
+            runtime.CopyBuffer(staging.buffer, bda_pagetable_buffer.get(), copy);
+            written += last - first;
+            first = last;
+        }
+    }
+    LOG_INFO(Render_Vulkan, "BDA page table created: {} MiB, {} resident blocks entered",
+             table_size >> 20, written);
+}
+
 void BufferCache::EnsureResident(const Buffer* arena, u64 first_block, u64 last_block) {
     u32 resident_blocks{};
     IntervalList bind_ranges;
@@ -774,9 +814,14 @@ void BufferCache::EnsureResident(const Buffer* arena, u64 first_block, u64 last_
     };
     const auto device_memory = Vulkan::Check(instance.GetDevice().allocateMemory(alloc_info));
 
+    // Page-table entries only when the table exists (EnsurePageTable writes the earlier ones).
+    const bool page_table = bda_pagetable_buffer != nullptr;
     boost::container::small_vector<vk::BufferCopy, 8> copies;
-    const auto staging =
-        staging_pool.Request(resident_blocks * sizeof(vk::DeviceAddress), MemoryType::HostUncached);
+    Vulkan::StagingBufferRef staging{};
+    if (page_table) {
+        staging = staging_pool.Request(resident_blocks * sizeof(vk::DeviceAddress),
+                                       MemoryType::HostUncached);
+    }
 
     u64 memory_offset{};
     ArenaBinds* binds = BindsForArena(arena);
@@ -800,6 +845,9 @@ void BufferCache::EnsureResident(const Buffer* arena, u64 first_block, u64 last_
         });
         memory_offset += bind.size;
 
+        if (!page_table) {
+            continue;
+        }
         for (u32 block = 0; block < bind.size; block += block_size) {
             *(bda_addrs++) = arena->BufferDeviceAddress() + bind.resourceOffset + block;
         }
@@ -808,8 +856,10 @@ void BufferCache::EnsureResident(const Buffer* arena, u64 first_block, u64 last_
         offset += copy_size;
     }
 
-    staging.Flush();
-    runtime.CopyBuffer(staging.buffer, bda_pagetable_buffer.get(), copies);
+    if (page_table) {
+        staging.Flush();
+        runtime.CopyBuffer(staging.buffer, bda_pagetable_buffer.get(), copies);
+    }
 }
 
 bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 size,

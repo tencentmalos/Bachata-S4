@@ -87,6 +87,19 @@ bool Scheduler::BeginRendering(const RenderState& new_state) {
     // Same state as the instance that was broken: the guest did not change targets,
     // the break (and this re-open) is emulator-imposed. Attribute it to that break.
     const bool resumed = !is_rendering && render_begins != 0 && render_state == new_state;
+    if (is_rendering && !resumed) {
+        // A depth target going between read-only and writable layouts with everything else
+        // the same: the guest kept its targets, only depth writes switched (AQ keeps such a
+        // pass open with a general layout; counted here to judge that).
+        RenderState other = new_state;
+        other.depth_stencil_attachment.image_view = render_state.depth_stencil_attachment.image_view;
+        other.depth_stencil_attachment.image_layout =
+            render_state.depth_stencil_attachment.image_layout;
+        if (other == render_state && new_state.depth_stencil_attachment.image_layout !=
+                                         render_state.depth_stencil_attachment.image_layout) {
+            ++depth_layout_switches;
+        }
+    }
     EndRendering(RenderBreak::StateChange);
     ++render_begins;
     last_begin_resumed = resumed;

@@ -63,13 +63,15 @@ public:
     }
 
     /// Retrieves the device local BDA page table buffer for uploads and barriers.
-    [[nodiscard]] Buffer* GetBdaPageTableBuffer() noexcept {
+    [[nodiscard]] Buffer* GetBdaPageTableBuffer() {
+        EnsurePageTable();
         return bda_pagetable_buffer.get();
     }
 
     /// Shader descriptor containing the table's device address. The full table can
     /// exceed maxStorageBufferRange and must not be bound as a single SSBO.
-    [[nodiscard]] Buffer* GetBdaPageTableRootBuffer() noexcept {
+    [[nodiscard]] Buffer* GetBdaPageTableRootBuffer() {
+        EnsurePageTable();
         return bda_pagetable_root.get();
     }
 
@@ -193,6 +195,12 @@ private:
     }
 
     const Buffer* GetArena(u64 first_block, u64 last_block);
+
+    /// Creates the BDA page table (2^(40 - block_shift) addresses: 512 MiB with 16 KiB blocks)
+    /// with entries for the blocks already resident. Only shaders reading guest memory directly
+    /// (the direct memory access setting) use it, so without that setting it is made when first
+    /// asked for, and normally never.
+    void EnsurePageTable();
 
     void EnsureResident(const Buffer* arena, u64 first_block, u64 last_block);
 
