@@ -20,6 +20,11 @@
 
 #include <vk_mem_alloc.h>
 #include "video_core/vma_diagnostics.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
+#include <vulkan/vulkan_format_traits.hpp>
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
 
 namespace VideoCore {
 
@@ -170,9 +175,82 @@ void UniqueImage::Destroy() {
     }
 }
 
-void UniqueImage::Create(const vk::ImageCreateInfo& image_ci) {
+namespace {
+
+/// The same format with the other transfer function, if there is one.
+vk::Format SrgbSibling(vk::Format format) {
+    switch (format) {
+    case vk::Format::eR8G8B8A8Unorm:
+        return vk::Format::eR8G8B8A8Srgb;
+    case vk::Format::eR8G8B8A8Srgb:
+        return vk::Format::eR8G8B8A8Unorm;
+    case vk::Format::eB8G8R8A8Unorm:
+        return vk::Format::eB8G8R8A8Srgb;
+    case vk::Format::eB8G8R8A8Srgb:
+        return vk::Format::eB8G8R8A8Unorm;
+    case vk::Format::eA8B8G8R8UnormPack32:
+        return vk::Format::eA8B8G8R8SrgbPack32;
+    case vk::Format::eA8B8G8R8SrgbPack32:
+        return vk::Format::eA8B8G8R8UnormPack32;
+    default:
+        return vk::Format::eUndefined;
+    }
+}
+
+bool IsDepthStencilFormat(vk::Format format) {
+    switch (format) {
+    case vk::Format::eD16Unorm:
+    case vk::Format::eX8D24UnormPack32:
+    case vk::Format::eD32Sfloat:
+    case vk::Format::eS8Uint:
+    case vk::Format::eD16UnormS8Uint:
+    case vk::Format::eD24UnormS8Uint:
+    case vk::Format::eD32SfloatS8Uint:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool FormatListsEnabled() {
+    using namespace VideoCore::UploadDiagnostics;
+    int mode = format_list.load(std::memory_order_relaxed);
+    if (mode < 0) [[unlikely]] {
+        // SHADPS4_IMAGE_FORMAT_LIST=0|1, Android debug.shadps4.image_format_list; default on.
+        mode = 1;
+        if (const char* env = std::getenv("SHADPS4_IMAGE_FORMAT_LIST"); env && *env) {
+            mode = *env != '0';
+        }
+#ifdef __ANDROID__
+        char property[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.image_format_list", property) > 0) {
+            mode = property[0] != '0';
+        }
+#endif
+        int expected = -1;
+        format_list.compare_exchange_strong(expected, mode, std::memory_order_relaxed);
+        mode = format_list.load(std::memory_order_relaxed);
+    }
+    return mode != 0;
+}
+
+} // namespace
+
+void UniqueImage::Create(const vk::ImageCreateInfo& image_ci, bool any_view_format) {
     this->image_ci = image_ci;
     ASSERT(!image);
+    view_formats.clear();
+    // Block-compressed images are never UBWC-compressed and are viewed as uncompressed
+    // formats for encoding; depth images are not held to their mutability by the driver.
+    if (!any_view_format && (image_ci.flags & vk::ImageCreateFlagBits::eMutableFormat) &&
+        !vk::isCompressed(image_ci.format) && !IsDepthStencilFormat(image_ci.format) &&
+        FormatListsEnabled()) {
+        view_formats.push_back(image_ci.format);
+        if (const auto sibling = SrgbSibling(image_ci.format); sibling != vk::Format::eUndefined) {
+            view_formats.push_back(sibling);
+        }
+        VideoCore::UploadDiagnostics::format_list_images.fetch_add(1, std::memory_order_relaxed);
+    }
     const VmaAllocationCreateInfo alloc_info = {
         .flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT,
         .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
@@ -182,7 +260,16 @@ void UniqueImage::Create(const vk::ImageCreateInfo& image_ci) {
         .pUserData = nullptr,
     };
 
-    const VkImageCreateInfo image_ci_unsafe = static_cast<VkImageCreateInfo>(image_ci);
+    VkImageCreateInfo image_ci_unsafe = static_cast<VkImageCreateInfo>(image_ci);
+    const VkImageFormatListCreateInfo format_list_ci = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO,
+        .pNext = image_ci_unsafe.pNext,
+        .viewFormatCount = static_cast<u32>(view_formats.size()),
+        .pViewFormats = reinterpret_cast<const VkFormat*>(view_formats.data()),
+    };
+    if (!view_formats.empty()) {
+        image_ci_unsafe.pNext = &format_list_ci;
+    }
     VkImage unsafe_image{};
     VkResult result = VideoCore::VmaDiagnostics::CreateImage(allocator, &image_ci_unsafe, &alloc_info, &unsafe_image,
                                      &allocation, nullptr);
@@ -484,7 +571,7 @@ void Image::ReallocateScale(u32 eighths, bool preserve_contents) {
     backing = &backing_images.emplace_back();
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
-    backing->image.Create(ci);
+    backing->image.Create(ci, any_view_format);
     scale_eighths = eighths;
     mip_skip = 0;
     block_codec = BlockCodec::None;
@@ -617,11 +704,74 @@ ImageView& Image::FindView(const ImageViewInfo& view_info, bool ensure_guest_sam
         backing->last_view = static_cast<u32>(std::distance(view_infos.begin(), it));
         return (*slot_image_views)[backing->image_view_ids[backing->last_view]];
     }
+    if (const auto format = ImageView::HostFormat(*instance, view_info, *this);
+        !backing->image.AllowsViewFormat(format)) {
+        EnsureViewFormat(format);
+        return FindView(view_info, false);
+    }
     const auto view_id = slot_image_views->insert(*instance, view_info, *this);
     backing->last_view = static_cast<u32>(view_infos.size());
     backing->image_view_infos.emplace_back(view_info);
     backing->image_view_ids.emplace_back(view_id);
     return (*slot_image_views)[view_id];
+}
+
+void Image::EnsureViewFormat(vk::Format format) {
+    if (backing->image.AllowsViewFormat(format)) {
+        return;
+    }
+    const auto moves =
+        UploadDiagnostics::format_list_moves.fetch_add(1, std::memory_order_relaxed);
+    if (moves < 32) {
+        LOG_INFO(Render_Vulkan,
+                 "Image {:#x} {}x{} {} is viewed as {}: moved to a backing without a format list",
+                 info.guest_address, info.size.width, info.size.height,
+                 vk::to_string(backing->image.image_ci.format), vk::to_string(format));
+    }
+    any_view_format = true;
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
+    auto* source = backing;
+    const bool has_contents =
+        source->state.layout != vk::ImageLayout::eUndefined || !source->subresource_states.empty();
+    auto retired = std::make_shared<std::deque<BackingImage>>(std::move(backing_images));
+    backing_images.clear();
+    backing = &backing_images.emplace_back();
+    backing->num_samples = source->num_samples;
+    backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
+    backing->image.Create(source->image.image_ci, true);
+    const auto category = "image/" + std::string(ScaleDomainName(scale_plan->domain));
+    VmaDiagnostics::Tag(instance->GetAllocator(), backing->image.allocation, category.c_str());
+    if (has_contents) {
+        // Same create info and format: the contents copy over as they are.
+        const auto& ci = backing->image.image_ci;
+        auto* dest = backing;
+        backing = source;
+        Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
+        backing = dest;
+        Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
+        boost::container::small_vector<vk::ImageCopy, 16> regions;
+        for (u32 mip = 0; mip < ci.mipLevels; ++mip) {
+            const vk::ImageSubresourceLayers layers{aspect_mask, mip, 0, ci.arrayLayers};
+            regions.push_back(vk::ImageCopy{
+                .srcSubresource = layers,
+                .dstSubresource = layers,
+                .extent{std::max(ci.extent.width >> mip, 1u), std::max(ci.extent.height >> mip, 1u),
+                        std::max(ci.extent.depth >> mip, 1u)},
+            });
+        }
+        scheduler->CommandBuffer().copyImage(source->image, vk::ImageLayout::eTransferSrcOptimal,
+                                             dest->image, vk::ImageLayout::eTransferDstOptimal,
+                                             regions);
+    }
+    auto* views = slot_image_views;
+    scheduler->DeferOperation([retired, views] {
+        for (auto& image : *retired) {
+            for (auto id : image.image_view_ids) views->erase(id);
+        }
+    });
+    for (auto& image : *retired) {
+        VmaDiagnostics::Tag(instance->GetAllocator(), image.image.allocation, nullptr, true);
+    }
 }
 
 Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
@@ -869,7 +1019,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     ci.extent = vk::Extent3D{info.size.width, info.size.height, info.size.depth};
     ci.mipLevels = info.resources.levels;
     if (block_codec != BlockCodec::None) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
-    temporary->image.Create(ci);
+    temporary->image.Create(ci, any_view_format);
     VmaDiagnostics::Tag(instance->GetAllocator(), temporary->image.allocation, "image/upload-source", true);
     VmaAllocationInfo temporary_info{};
     vmaGetAllocationInfo(instance->GetAllocator(), temporary->image.allocation, &temporary_info);
@@ -985,7 +1135,7 @@ void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::B
             ci.mipLevels = static_cast<u32>(info.resources.levels);
             ci.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst;
             native_copy->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
-            native_copy->image.Create(ci);
+            native_copy->image.Create(ci, any_view_format);
             VmaDiagnostics::Tag(instance->GetAllocator(), native_copy->image.allocation,
                                 "image/readback-upscale");
             BlitBacking(*backing, *native_copy);
@@ -1549,7 +1699,7 @@ void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
         new_backing = &backing_images.emplace_back();
         new_backing->num_samples = num_samples;
         new_backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
-        new_backing->image.Create(new_image_ci);
+        new_backing->image.Create(new_image_ci, any_view_format);
 
         Vulkan::SetObjectName(instance->GetDevice(), new_backing->image.image,
                               "Image {}x{}x{} {} {} {:#x}:{:#x} L:{} M:{} S:{} (backing)",

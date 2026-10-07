@@ -147,6 +147,8 @@ std::string Summary() {
     out += fmt::format("raw_copy: off={} image_copies={} bytes={} dispatched={}\n",
                        raw_copy_off.load() ? 1 : 0, raw_copies.load(), raw_copy_bytes.load(),
                        raw_copy_fallbacks.load());
+    out += fmt::format("format_list: mode={} listed_images={} moved_to_any_format={}\n",
+                       format_list.load(), format_list_images.load(), format_list_moves.load());
     out += fmt::format("compute_fill: off={} images_cleared={} bytes_cleared={}",
                        fill_clear_off.load() ? 1 : 0, fill_images.load(), fill_bytes.load());
     for (size_t i = 0; i < FillOutcomeCount; ++i)
@@ -348,6 +350,10 @@ std::string Command(const std::vector<std::string>& args) {
         ignore_storage_dirty.store(args[1] == "on");
         return fmt::format("ignore_storage_dirty={} (diagnostic A/B only; may show stale images)\n",
                            args[1]);
+    }
+    if (sub == "format_list" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        format_list.store(args[1] == "on" ? 1 : 0);
+        return fmt::format("format_list={} (images created from now on)\n", args[1]);
     }
     if (sub == "fill_clear" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         fill_clear_off.store(args[1] == "off");

@@ -90,24 +90,8 @@ ImageViewInfo::ImageViewInfo(const AmdGpu::DepthBuffer& depth_buffer, AmdGpu::De
     type = range.extent.layers > 1 ? AmdGpu::ImageType::Color2DArray : AmdGpu::ImageType::Color2D;
 }
 
-ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info_,
-                     const Image& image)
-    : info{info_} {
-    vk::ImageViewUsageCreateInfo usage_ci{.usage = image.backing->image.image_ci.usage};
-    ASSERT_MSG(!info.is_storage || image.info.props.is_depth ||
-                   bool(usage_ci.usage & vk::ImageUsageFlagBits::eStorage),
-               "Storage view is unsupported for this image backing: format={} usage={}",
-               vk::to_string(image.backing->image.image_ci.format), vk::to_string(usage_ci.usage));
-    if (!info.is_storage) {
-        usage_ci.usage &= ~vk::ImageUsageFlagBits::eStorage;
-    }
-    vk::ImageViewMinLodCreateInfoEXT min_lod_ci{};
-    if (info.min_lod != 0 && instance.IsImageViewMinLodSupported()) {
-        const float last_level = float(image.HostMip(info.range.base.level + info.range.extent.levels - 1));
-        min_lod_ci.minLod = std::clamp(float(info.min_lod) / 256.f - float(image.DroppedMips()),
-                                       0.f, last_level);
-        usage_ci.pNext = &min_lod_ci;
-    }
+std::pair<vk::Format, vk::ImageAspectFlags> ImageView::HostFormatAndAspect(
+    const Vulkan::Instance& instance, const ImageViewInfo& info, const Image& image) {
     // When sampling D32/D16 texture from shader, the T# specifies R32/R16 format so adjust it.
     vk::Format format = info.format;
     if (image.IsReencoded()) {
@@ -131,13 +115,35 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
         format = image.info.pixel_format;
         aspect = vk::ImageAspectFlagBits::eStencil;
     }
+    return {instance.GetSupportedFormat(format, image.format_features), aspect};
+}
+
+ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info_,
+                     const Image& image)
+    : info{info_} {
+    vk::ImageViewUsageCreateInfo usage_ci{.usage = image.backing->image.image_ci.usage};
+    ASSERT_MSG(!info.is_storage || image.info.props.is_depth ||
+                   bool(usage_ci.usage & vk::ImageUsageFlagBits::eStorage),
+               "Storage view is unsupported for this image backing: format={} usage={}",
+               vk::to_string(image.backing->image.image_ci.format), vk::to_string(usage_ci.usage));
+    if (!info.is_storage) {
+        usage_ci.usage &= ~vk::ImageUsageFlagBits::eStorage;
+    }
+    vk::ImageViewMinLodCreateInfoEXT min_lod_ci{};
+    if (info.min_lod != 0 && instance.IsImageViewMinLodSupported()) {
+        const float last_level = float(image.HostMip(info.range.base.level + info.range.extent.levels - 1));
+        min_lod_ci.minLod = std::clamp(float(info.min_lod) / 256.f - float(image.DroppedMips()),
+                                       0.f, last_level);
+        usage_ci.pNext = &min_lod_ci;
+    }
+    const auto [format, aspect] = HostFormatAndAspect(instance, info, image);
 
     const auto host_range = image.HostRange(info.range);
     vk::ImageViewCreateInfo image_view_ci = {
         .pNext = &usage_ci,
         .image = image.GetImage(),
         .viewType = ConvertImageViewType(info.type),
-        .format = instance.GetSupportedFormat(format, image.format_features),
+        .format = format,
         .components = info.mapping,
         .subresourceRange{
             .aspectMask = aspect,

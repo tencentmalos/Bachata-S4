@@ -44,6 +44,14 @@ struct Image;
 
 struct ImageView {
     ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info, const Image& image);
+
+    /// The format and aspect of the Vulkan view of `image` made for `info`.
+    static std::pair<vk::Format, vk::ImageAspectFlags> HostFormatAndAspect(
+        const Vulkan::Instance& instance, const ImageViewInfo& info, const Image& image);
+    static vk::Format HostFormat(const Vulkan::Instance& instance, const ImageViewInfo& info,
+                                 const Image& image) {
+        return HostFormatAndAspect(instance, info, image).first;
+    }
     ~ImageView();
 
     ImageView(const ImageView&) = delete;

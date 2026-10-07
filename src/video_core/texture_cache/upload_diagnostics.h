@@ -76,6 +76,12 @@ enum class FillOutcome : u8 {
 };
 inline std::atomic<bool> fill_clear_off{false};
 
+// Mutable-format colour images get a format list (UniqueImage::Create) so Turnip can keep them
+// UBWC-compressed: -1 until read from SHADPS4_IMAGE_FORMAT_LIST / debug.shadps4.image_format_list
+// (default on); `upload_diag format_list on|off` applies to images created afterwards.
+inline std::atomic<int> format_list{-1};
+inline std::atomic<u64> format_list_images{0}, format_list_moves{0};
+
 // Raw (unformatted) buffer reads of GPU-written images tile the image back into the buffer cache
 // first (BufferCache::SynchronizeMemoryFromGpuImage). `raw_sync_off` is the runtime A/B switch
 // (`upload_diag raw_sync on|off`); raw_sync_stale counts images passed over because guest memory

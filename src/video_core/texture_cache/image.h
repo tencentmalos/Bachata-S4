@@ -51,16 +51,29 @@ struct UniqueImage {
     UniqueImage(UniqueImage&& other)
         : allocator{std::exchange(other.allocator, VK_NULL_HANDLE)},
           allocation{std::exchange(other.allocation, VK_NULL_HANDLE)},
-          image{std::exchange(other.image, VK_NULL_HANDLE)}, image_ci{std::move(other.image_ci)} {}
+          image{std::exchange(other.image, VK_NULL_HANDLE)}, image_ci{std::move(other.image_ci)},
+          view_formats{std::move(other.view_formats)} {}
     UniqueImage& operator=(UniqueImage&& other) {
         image = std::exchange(other.image, VK_NULL_HANDLE);
         allocator = std::exchange(other.allocator, VK_NULL_HANDLE);
         allocation = std::exchange(other.allocation, VK_NULL_HANDLE);
         image_ci = std::move(other.image_ci);
+        view_formats = std::move(other.view_formats);
         return *this;
     }
 
-    void Create(const vk::ImageCreateInfo& image_ci);
+    /// A mutable-format colour image is created with a format list naming its own format and
+    /// the one that differs only in the transfer function (VkImageFormatListCreateInfo), unless
+    /// `any_view_format` is set or format lists are off (`upload_diag format_list`). Without a
+    /// list Turnip has to assume any compatible format and gives up UBWC compression for the
+    /// image; a view in another format needs Image::EnsureViewFormat first.
+    void Create(const vk::ImageCreateInfo& image_ci, bool any_view_format = false);
+
+    /// Whether a view of the image may have `format` (Vulkan requires listed formats only).
+    bool AllowsViewFormat(vk::Format format) const {
+        return view_formats.empty() ||
+               std::ranges::find(view_formats, format) != view_formats.end();
+    }
 
     void Destroy();
 
@@ -78,6 +91,7 @@ public:
     VmaAllocation allocation{};
     vk::Image image{};
     vk::ImageCreateInfo image_ci{};
+    boost::container::static_vector<vk::Format, 2> view_formats;
 };
 
 class BlitHelper;
@@ -125,6 +139,11 @@ struct Image {
     }
 
     ImageView& FindView(const ImageViewInfo& view_info, bool ensure_guest_samples = true);
+
+    /// Moves the image to a backing without a format list when its backing does not allow
+    /// views in `format` (see UniqueImage::Create), keeping the contents. Later backings of
+    /// the image are created without a list as well.
+    void EnsureViewFormat(vk::Format format);
 
     using Barriers = boost::container::small_vector<vk::ImageMemoryBarrier2, 32>;
     Barriers GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
@@ -294,6 +313,8 @@ private:
     u32 scale_eighths = 8;
     u32 mip_skip = 0;
     BlockCodec block_codec = BlockCodec::None;
+    // Set once the image was viewed in a format outside its format list (EnsureViewFormat).
+    bool any_view_format{};
     static Common::IncrementalIdProvider<u64> global_image_uid;
 };
 

@@ -624,7 +624,8 @@ bool TileManager::TileImageFromScaled(Image& in_image, u32 num_mips, vk::Buffer 
         return false;
     }
     const auto pack = SelectReadbackPack(backing_ci.format, info.num_bits);
-    if (pack.kind == 0) {
+    if (pack.kind == 0 || !in_image.backing->image.AllowsViewFormat(pack.view_format)) {
+        // A pack format outside the image's format list takes the blit chain instead.
         return false;
     }
     const bool depth = info.props.is_depth;

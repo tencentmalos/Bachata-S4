@@ -211,6 +211,7 @@ void Runtime::CopyColorAndDepth(VideoCore::Image* src, VideoCore::Image* dst) {
                dst->info.props.is_depth) {
         // Perform a rendering pass to transfer the channels of source as samples in dest.
         src->ForceNative("multisample reinterpretation");
+        src->EnsureViewFormat(src->info.pixel_format);
         src->Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead,
                      {});
         dst->Transit(vk::ImageLayout::eDepthAttachmentOptimal,
