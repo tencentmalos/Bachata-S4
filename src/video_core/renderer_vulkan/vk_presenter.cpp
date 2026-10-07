@@ -1751,7 +1751,12 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
     ASSERT_MSG(reset_result == vk::Result::eSuccess,
                "Unexpected error resetting present done fence: {}", vk::to_string(reset_result));
 
-    status_layer->Prepare(Core::Diagnostics::DiagnosticNowNs(), swapchain.GetWidth(), swapchain.GetHeight());
+    // A side-by-side stereo frame on the screen (PSVR SBS): the overlays go in both eyes.
+    const bool eye_split = frame->xr_stereo;
+    ImGui::Core::SetEyeSplit(eye_split);
+    status_layer->Prepare(Core::Diagnostics::DiagnosticNowNs(),
+                          eye_split ? swapchain.GetWidth() / 2 : swapchain.GetWidth(),
+                          swapchain.GetHeight());
     ImGuiID dockId = ImGui::Core::NewFrame(is_reusing_frame);
 
     const vk::Image swapchain_image = swapchain.Image();

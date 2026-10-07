@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <cstring>
 #include <algorithm>
 #include <atomic>
 #include <bit>
@@ -397,6 +398,12 @@ void DrawLayers() {
     }
 }
 
+static bool eye_split{};
+
+void SetEyeSplit(bool split) {
+    eye_split = split;
+}
+
 ImGuiID NewFrame(bool is_reusing_frame) {
     ApplyLayerChanges();
 
@@ -426,6 +433,11 @@ ImGuiID NewFrame(bool is_reusing_frame) {
         flags |= ImGuiDockNodeFlags_NoTabBar;
     }
     ImGuiID dockId = DockSpaceOverViewport(0, GetMainViewport(), flags);
+    if (eye_split) {
+        // The dock space (the game display) keeps the whole screen; everything placed after it
+        // centres and anchors in the left eye. ImGui resets the work area every frame.
+        GetMainViewport()->WorkSize.x *= 0.5f;
+    }
 
     if (!ExternalLayerHost()) {
         DrawLayers();
@@ -472,6 +484,25 @@ void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,
     render_info.pColorAttachments = color_attachments;
     cmdbuf.beginRendering(render_info);
     active->RenderDrawData(cmdbuf, *draw_data);
+    if (eye_split) {
+        // The overlays once more, half a screen to the right: everything but the game display
+        // and the dock space hosting it.
+        ImDrawData right = *draw_data;
+        right.CmdLists.clear();
+        right.TotalVtxCount = right.TotalIdxCount = 0;
+        for (ImDrawList* list : draw_data->CmdLists) {
+            const char* owner = list->_OwnerName ? list->_OwnerName : "";
+            if (std::strstr(owner, "##game_display") || std::strncmp(owner, "WindowOverViewport", 18) == 0)
+                continue;
+            right.CmdLists.push_back(list);
+            right.TotalVtxCount += list->VtxBuffer.Size;
+            right.TotalIdxCount += list->IdxBuffer.Size;
+        }
+        right.CmdListsCount = right.CmdLists.Size;
+        right.DisplayPos.x -= draw_data->DisplaySize.x * 0.5f;
+        if (right.CmdListsCount)
+            active->RenderDrawData(cmdbuf, right);
+    }
     cmdbuf.endRendering();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.endDebugUtilsLabelEXT();

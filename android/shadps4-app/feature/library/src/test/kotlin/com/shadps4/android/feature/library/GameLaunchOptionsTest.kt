@@ -105,4 +105,21 @@ class GameLaunchOptionsTest {
         assertEquals(1, XrRendering.resolve(RuntimeProfile(), saved, true).outputResolution)
         assertFalse(options.copy(saving = true).ready)
     }
+    @Test fun psvrCanSwitchToSbsWindowForDevicesWithoutOpenXr() {
+        var options = GameLaunchOptions("psvr", loaded = true, psvr = true)
+        val spec = options.specs().single { it.id == DisplayMode.PSVR_ID }
+        assertEquals(listOf("xr", "sbs"), spec.choices)
+        assertEquals("xr", options.value(spec))
+        options = options.select(spec, "sbs")
+        assertFalse(options.xr)
+        // A 2D window: the ordinary scale and screen upscaler, no XR rendering rows.
+        assertTrue(options.specs().any { it.id == InternalScale.ID })
+        assertTrue(options.specs().any { it.id == XrRendering.SCREEN_UPSCALER })
+        assertFalse(options.specs().any { it.id == XrRendering.OUTPUT })
+        assertFalse(options.specs().any { it.id == DisplayMode.ID })
+        val saved = options.applyTo(RuntimeProfile())
+        assertEquals(JsonPrimitive("sbs"), saved.values[DisplayMode.PSVR_ID])
+        // Ordinary games do not offer it.
+        assertFalse(GameLaunchOptions("2d", loaded = true).specs().any { it.id == DisplayMode.PSVR_ID })
+    }
 }

@@ -143,6 +143,51 @@ Android 上原来只缺 `_Stod`、`vsprintf_s`、`printf_s`。其余都已准入
 
 **验证**：Android host 编译通过（HOST_LINK_PASS）。**未运行游戏**：桌面与 Thor 上 Tetris 是否出声、FEX 下 NGS2 渲染的耗时，都留待用户补测。桌面上的 Tetris 是 `D:\game\ps4\zar\CUSA13427.zar`。
 
-## 5. 剩余
+## 5. D2 A 档：头显控制器当 DS4 位姿
 
-E4/H6 Android 麦克风、H2 governor（需要扩展补丁 SDK）、H3、H5（即 D2 的 B 档）、C2、C7、WP-I、WP-G 桌面接入。
+PSVR 游戏用 PS Camera 追踪 DualShock 4 灯条，得到手柄的空间位姿；ASTRO BOT 在就坐画面等手柄进入追踪状态，游戏中也画出手柄、从手柄位置发射道具。设备上没有 PS Camera，改用头显控制器的位姿代替。
+
+- **设置**：每游戏 `input.xr_ds4_pose`（Off / Right Controller / Both Controllers，默认 Off，重启生效），JNI `nativeSetXrDs4Pose` → `Core::HostRuntime::SetDs4PoseSource`（定义在 host 库的 `vr_tracker.cpp`，JNI 与 host 是两个 DSO，不用头文件内联变量）。
+- **`src/core/host_runtime/ds4_placement.h`**（纯计算，无平台依赖）：
+  - Right：右手 grip 加偏移到手柄中心（左 8 cm、前 2 cm，按 DS4 宽度推断），速度换算到该点（v + ω×r）。
+  - Both：两只控制器并排当手柄握，取中点；左→右连线为手柄横轴（含横滚），两手前向的平均值去掉横轴分量为前向；中点在两个 grip 的前上方（前 3.5 cm、上 1.5 cm，同 AQ 的掌心规则）。两手间距不在 5–32 cm 时不算握着手柄。
+  - 朝向：游戏 `sceVrTrackerRecalibrate(DUALSHOCK4)` 或系统视角重置时，把当前控制器朝向记为“水平、朝头部当前航向”；修正量右乘在控制器自身坐标系，之后绕任何轴的转动都原样传给手柄。未校准前补 40° 俯仰（握持时 grip 前向朝前下，推断值）。
+  - 看不见时（400 ms 内无有效样本）：锚点跟随头部位置（不跟随转动，0.25 s 平滑）；位置按“玩家自设偏移 > 最后看到时相对锚点的偏移 > 标准位置 (0, −0.17, −0.50)”放置（AQ `vr_runtime.cpp:878-946`）；显示位置平滑过渡（看到时 35 ms、看不到时 0.3 s）。玩家自设偏移的接口已留（`SetOwnOffset`），调整与持久化属于 H5。
+- **VrTracker**：OpenXR 会话中、开关打开、且是第一个登记的 DS4（玩家的）时，`GetResult` 写 `pad_info.device_pose` 与速度，状态 TRACKING（校准窗口内 CALIBRATING），看到时质量 FULL、看不到时 PARTIAL；其余 DS4 仍为 NOT_TRACKING。`sceVrTrackerTerm` 清空放置状态。
+- **未做**：`scePadRead` 的姿态与角速度仍为单位四元数和 0（B 档随 IMU 透传一起做）；SBS 模式（无 OpenXR）不放置 DS4。
+
+验证：`tests/host_runtime/ds4_placement_tests.cpp` 26/0（Windows clang 与 Thor ARM64 各一次）；负对照把校准改回左乘、把 grip 到中心的偏移方向取反，2 项失败。`guest_vr_abi_tests` 241/0、`guest_vr_sensor_tests` 102/0；Kotlin `XrDs4PoseTest` 2/0 等设置测试共 12/0。Thor APK `ee7ebe65`（host `d542157e`）已安装；没有头显与 ASTRO BOT，游戏内未验收。
+
+## 6. WP-I 无帧时自动转储
+
+游戏 20 秒没有新的呈现帧时，把每个 guest 线程在做什么写进日志，供卡死问题事后定位；不需要先 attach 调试器、不暂停任何线程。
+
+- **记录**（`src/core/host_runtime/guest_watchdog.h`）：每个运行 guest 代码的 host 线程第一次调用 HLE 时从 1024 个槽位中认领一个（线程退出时归还）。`FunctionAdapter::Invoke` 进入时记下操作号、guest RSP/RBP/RIP、guest 线程号并递增调用计数，返回时恢复外层的值（回调嵌套时显示最内层调用）。单写者 relaxed 存储，无锁、无分配。
+- **会话线程** `shadPS4:Watchdog`（`GuestRuntime::Run` 启动，`~Impl` 最先停止并 join）：每 250 ms 读 `guest_presents`；20 秒不变时转储一次，有新帧后才再次触发；会话取消时退出，不在停止过程中误报。
+- **转储**：两次采样相隔 500 ms，按调用计数是否变化分为 `progressing` / `blocked_in_hle` / `in_guest_code`；对卡在 HLE 里的线程，经带检查的读取打印调用者和 RBP 链上至多 15 层返回地址，并换算为“模块+偏移”。日志行前缀 `GUEST_WATCHDOG`。
+- **DebugBus** `guest_watchdog status | dump | on | off`（默认开；`dump` 立即转储一次）。
+- **Thor 实测**（Tetris SBS，APK `090408e8`，host `d860600a`；名称修正后的最终包 APK `abaae7f5`，host `6ba106f0` 复测输出“函数名 + NID”）：手动 `guest_watchdog dump` 输出 66 个线程；主线程 Guest-1 为 progressing（500 ms 内约 10 万次 HLE 调用），3 个线程阻塞在同一 HLE 调用内、返回链落在 `libSceFios2.prx+0x3a8d4/0x38019/0x3b35d`（Fios2 I/O 线程），多个 eboot worker 阻塞在 `eboot.bin+0x103bbfc` 起的同一条链上。随后把操作号显示改为“函数名 + NID”。20 秒无帧的自动触发与手动转储共用同一转储路径，未在设备上构造真实卡死验证。
+- **不做**：不像 AQ 那样用实时信号采样原生栈（Android 上与 FEX、ART 的信号处理冲突）；在 guest 代码中忙等的线程只报告状态，不给 PC（异步读取 JIT 中线程的 RIP 不可靠）。
+
+## 7. H5 手部追踪推算 DS4 位姿（D2 B 档的位置部分）
+
+参考 azahar 的接入方式（启用扩展、会话后建 Foundation `XrHandJointTracker`、Manifest 与运行时权限）。
+
+- **runtime**：OpenXR 支持时启用 `XR_EXT_hand_tracking`（Swan 扩展清单中有），会话建好后创建 `XrHandJointTracker`；每帧在焦点内定位左右掌心关节（`XR_HAND_JOINT_PALM_EXT`，位置与朝向都被追踪才算），发布到 `HardwareFrame.palms`。CMake 补编 `XrHandJointTracker.cpp`。
+- **权限**：Manifest 声明 `com.picovr.permission.HAND_TRACKING` / `com.oculus.permission.HAND_TRACKING`；`OpenXrActivity` 与眼动权限一起申请，每种只问一次，拒绝时 DS4 停在最后看到的位置。
+- **`Ds4Placement` 新来源 Hands**（设置项 “Hand Tracking”，即 `input.xr_ds4_pose=hands`）：位置取双掌中点，往前 3.5 cm、往上 1.5 cm（同 AQ）；两手间距须在 5–32 cm 内，且水平分量不少于间距的 60%（同 AQ），否则不算握着手柄。朝向：双掌连线为横轴（航向与横滚），双手手背（掌心关节 +Y）平均为上方（俯仰），不加默认俯仰；校准同 A 档。掌心关节不带速度，用相邻位置差分并以 0.4 平滑（同 AQ）。AQ 的朝向来自 DS4 IMU、手部只校正航向；我们尚未透传手柄 IMU，朝向暂由手部给出。
+- **PS 组合键调整自设位置**（`OrbisPadAdapter::Ds4PlaceChordLocked`，仅在 DS4 位姿来源开启时）：按住 PS，十字键上下左右、L1/R1 前后各移 2 cm（自设位置不存在时从当前假定位置起算），△ 在自设位置与看到/标准位置间切换；范围同 AQ（左右 ±0.4 m、上下 −0.7～+0.3 m、前方 0.15～0.9 m）。这些键在按住 PS 期间及之后直到松开都不传给游戏；PS 本身照常传（与 AQ 不同，AQ 推迟到松开）。自设位置存 `<user>/vr_controller.json`，会话 Reset 保留。
+
+验证：`ds4_placement_tests` 42/0（含 Hands 位置/俯仰/不水平/不混用来源/速度，以及自设位置移动、限幅、切换、跨 Reset 保留）。Swan 上的实际手部追踪、权限弹窗与 PS 组合键未验证。
+
+## 8. SBS 模式叠加层两眼各一份
+
+PSVR 游戏在 SBS 窗口下，原来 ImGui 叠加层与 Compose 提示按整屏画一次：状态栏横跨两眼、System RAM 提示只在左眼。现在与 XR 一样两眼都能看到：
+
+- **ImGui**（`ImGui::Core::SetEyeSplit`，present 线程按帧的 `xr_stereo` 设定）：dockspace（游戏画面）仍占整屏；之后主视口工作区宽度减半，状态层按半屏宽度排版，对话框、提示居中到左眼。`Render` 在同一渲染范围内把除游戏窗口与 dockspace 外的绘制列表再画一次，显示原点左移半屏，叠加层落到右眼同一位置（`VulkanRenderer::RenderDrawData` 允许每帧多次调用）。触摸只命中左眼那份。
+- **Compose**（`SessionScreen` 新参数 `stereo`，由 `BachataNavHost` 按“PSVR 且 2D”决定，运行中重建 Activity 时重新查询）：System RAM 提示与顶部通知胶囊在 SBS 时左右各放一份。
+
+Thor 实测（Tetris SBS，APK `75a30887`，host `f79e477a`）：Summary 状态层、System RAM 提示、展开的 Detail 面板均在两眼同位置显示，宽度在单眼内。
+## 9. 剩余
+
+E4/H6 Android 麦克风、H2 governor（需要扩展补丁 SDK）、H3、DS4 IMU 透传（H5 的朝向部分）、C2、C7、WP-G 桌面接入。

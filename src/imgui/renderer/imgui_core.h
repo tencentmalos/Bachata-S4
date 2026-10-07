@@ -50,6 +50,11 @@ bool IsImeInputCaptured();
 
 ImGuiID NewFrame(bool is_reusing_frame = false);
 
+// Side-by-side stereo on a 2D screen (PSVR SBS): the overlays lay out in the left eye and Render
+// draws them again over the right eye, so both eyes see the status layer, dialogs and notices.
+// The game display still fills the whole screen. Present thread, before NewFrame.
+void SetEyeSplit(bool split);
+
 // ImGui::Layer UI (system dialogs, notifications, devtools) does not belong to one
 // output. By default the window frame (NewFrame) draws the layers over the game;
 // while another host owns them -- the XR layer panel on a headset -- NewFrame skips

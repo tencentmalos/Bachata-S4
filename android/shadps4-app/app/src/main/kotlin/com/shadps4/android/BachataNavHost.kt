@@ -179,6 +179,7 @@ private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrE
                             switchActivity: (String, Boolean) -> Unit, onExit: () -> Unit) {
     val context = LocalContext.current
     var admitted by remember(gameId) { mutableStateOf(false) }
+    var stereo by remember(gameId) { mutableStateOf(false) }
     var failure by remember(gameId) { mutableStateOf<String?>(null) }
     LaunchedEffect(gameId) {
         try {
@@ -192,6 +193,15 @@ private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrE
             }
             if (sessionBusy()) {
                 check(activeId == gameId || state is ManagedSessionState.Preparing) { "A game is already running" }
+                // The running session keeps its mode; only the overlays need to know it.
+                stereo = try {
+                    val running = withContext(Dispatchers.IO) {
+                        val game = requireNotNull(graph.gameRepository().getGame(gameId))
+                        com.shadps4.android.data.GameDisplayMode.resolve(context.filesDir,
+                            graph.runtimeProfiles(), game.id, game.relativePath)
+                    }
+                    running.psvr && running.effective == com.shadps4.android.runtime.settings.DisplayMode.Mode.TWO_D
+                } catch (e: CancellationException) { throw e } catch (e: Exception) { false }
                 admitted = true
                 return@LaunchedEffect
             }
@@ -201,7 +211,9 @@ private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrE
                     graph.runtimeProfiles(), game.id, game.relativePath)
             }
             val xr = decision.effective == com.shadps4.android.runtime.settings.DisplayMode.Mode.XR
-            android.util.Log.i("DisplayMode", "$gameId preferred=${decision.preferred} effective=${decision.effective} PSVR=${decision.forcedByPsvr}")
+            // A PSVR title on the screen shows both eyes side by side.
+            stereo = decision.psvr && !xr
+            android.util.Log.i("DisplayMode", "$gameId preferred=${decision.preferred} effective=${decision.effective} PSVR=${decision.psvr} forced=${decision.forcedByPsvr}")
             if (xr == openXrEnabled) admitted = true
             else {
                 check(!sessionBusy()) { "A game launch is already in progress" }
@@ -210,7 +222,7 @@ private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrE
         } catch (e: CancellationException) { throw e }
         catch (e: Exception) { failure = e.message ?: "Could not select display mode" }
     }
-    if (admitted) SessionScreen(gameId = gameId, onExit = onExit)
+    if (admitted) SessionScreen(gameId = gameId, onExit = onExit, stereo = stereo)
     else Column {
         Text(failure ?: "Preparing display mode…")
         TextButton(onClick = onExit) { Text("Back") }

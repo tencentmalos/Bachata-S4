@@ -149,10 +149,13 @@ fun LibraryScreen(
                             com.shadps4.android.runtime.settings.GuestPatches.directory(context.filesDir, id).path, id))
                 }.getOrElse { emptyList() }
             }
-            launchOptions = GameLaunchOptions(id, loaded = true, psvr = display.forcedByPsvr,
+            launchOptions = GameLaunchOptions(id, loaded = true, psvr = display.psvr,
                 global = global, game = profile, outputExtents = outputExtents.orEmpty(), patches = patches)
         } catch (e: kotlinx.coroutines.CancellationException) { throw e }
         catch (e: Exception) { launchOptions = launchOptions.copy(error = e.message ?: "Cannot read launch settings") }
+    }
+    androidx.activity.compose.BackHandler(enabled = state.showDetailsGameId != null) {
+        if (state.launchSubPanel) viewModel.closeLaunchSubPanel() else viewModel.showDetails(null)
     }
     LaunchedEffect(launchOptions, state.launchSubPanel) {
         viewModel.setLaunchOptionCount(if (launchOptions.ready) launchOptions.rowCount(state.launchSubPanel) else 0)
@@ -1425,39 +1428,53 @@ private fun GlassBottomSheet(
             verticalArrangement = Arrangement.spacedBy(if (isLandscape) 12.dp else 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .width(48.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(Color.White.copy(alpha = 0.3f))
-            )
+            Box(Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(48.dp)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(Color.White.copy(alpha = 0.3f))
+                )
+                // Always on screen, however long the options grow.
+                androidx.compose.material3.IconButton(
+                    onClick = onCancel,
+                    modifier = Modifier.align(Alignment.CenterEnd).size(36.dp),
+                ) {
+                    Text("✕", style = MaterialTheme.typography.titleMedium, color = BachataPalette.Primary)
+                }
+            }
 
             if (isLandscape) {
+                // The game and its buttons stay in view on the left; the options take the rest of
+                // the width, two to a line, and scroll on their own.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f, fill = false),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    GameCover(
-                        relativePath = game.relativePath,
-                        modifier = Modifier
-                            .width(120.dp)
-                            .aspectRatio(0.75f),
-                    )
                     Column(
-                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                        modifier = Modifier.weight(0.36f).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        GameDetailsMeta(
-                            game = game,
-                            compact = true,
-                            textAlign = TextAlign.Start,
-                            horizontalAlignment = Alignment.Start,
-                        )
-                        GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption, patchPanel, onPatch)
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            GameCover(
+                                relativePath = game.relativePath,
+                                modifier = Modifier
+                                    .width(84.dp)
+                                    .aspectRatio(0.75f),
+                            )
+                            Box(Modifier.weight(1f)) {
+                                GameDetailsMeta(
+                                    game = game,
+                                    compact = true,
+                                    textAlign = TextAlign.Start,
+                                    horizontalAlignment = Alignment.Start,
+                                )
+                            }
+                        }
                         GameDetailsActions(
                             onLaunch = onLaunch,
                             launchEnabled = launchOptions.ready,
@@ -1467,6 +1484,12 @@ private fun GlassBottomSheet(
                             onAddPkgs = onAddPkgs,
                             compact = true,
                         )
+                    }
+                    Column(
+                        modifier = Modifier.weight(0.64f).verticalScroll(rememberScrollState()),
+                    ) {
+                        GameLaunchOptionsPanel(launchOptions, launchOptionIndex, onLaunchOption, patchPanel,
+                            onPatch, columns = 2)
                     }
                 }
             } else {
@@ -1595,93 +1618,116 @@ private fun GameDetailsActions(
             }
         }
 
-        Button(
-            onClick = onAddPkgs,
-            enabled = !com.shadps4.android.data.ImportManager.isBusy(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(secondaryHeight),
-            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                containerColor = Color.White.copy(alpha = 0.08f),
-                contentColor = BachataPalette.Primary,
-            ),
-            shape = RoundedCornerShape(12.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("📦", style = MaterialTheme.typography.bodyMedium)
-                Text("Add PKG update / DLC", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        if (compact) {
+            // A narrow column: two buttons to a row, so no label has to wrap.
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AddPkgsButton(onAddPkgs, "Add PKG / DLC", Modifier.weight(1f).height(secondaryHeight))
+                RemoveButton(onRequestDelete, Modifier.weight(1f).height(secondaryHeight))
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                CancelButton(onCancel, Modifier.weight(1f).height(secondaryHeight))
+                OptionsButton(onOpenGameSettings, Modifier.weight(1f).height(secondaryHeight))
+            }
+        } else {
+            AddPkgsButton(onAddPkgs, "Add PKG update / DLC", Modifier.fillMaxWidth().height(secondaryHeight))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                CancelButton(onCancel, Modifier.weight(1f).height(secondaryHeight))
+                OptionsButton(onOpenGameSettings, Modifier.weight(1f).height(secondaryHeight))
+                RemoveButton(onRequestDelete, Modifier.weight(1f).height(secondaryHeight))
             }
         }
+    }
+}
 
+@Composable
+private fun AddPkgsButton(onAddPkgs: () -> Unit, label: String, modifier: Modifier) {
+    Button(
+        onClick = onAddPkgs,
+        enabled = !com.shadps4.android.data.ImportManager.isBusy(),
+        modifier = modifier,
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+            containerColor = Color.White.copy(alpha = 0.08f),
+            contentColor = BachataPalette.Primary,
+        ),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp),
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(
-                onClick = onCancel,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(secondaryHeight),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = Color.White.copy(alpha = 0.10f),
-                    contentColor = BachataPalette.Primary
-                ),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ControllerKeyIcon(key = "B", backgroundColor = Color(0xFFC62828))
-                    Text("Cancel", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                }
-            }
+            Text("📦", style = MaterialTheme.typography.bodyMedium)
+            Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                maxLines = 1)
+        }
+    }
+}
 
-            Button(
-                onClick = onOpenGameSettings,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(secondaryHeight),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = Color.White.copy(alpha = 0.05f),
-                    contentColor = BachataPalette.Primary
-                ),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ControllerKeyIcon(key = "X", backgroundColor = Color(0xFF1565C0))
-                    Text("Options", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                }
-            }
+@Composable
+private fun CancelButton(onCancel: () -> Unit, modifier: Modifier) {
+    Button(
+        onClick = onCancel,
+        modifier = modifier,
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+            containerColor = Color.White.copy(alpha = 0.10f),
+            contentColor = BachataPalette.Primary
+        ),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ControllerKeyIcon(key = "B", backgroundColor = Color(0xFFC62828))
+            Text("Cancel", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                maxLines = 1)
+        }
+    }
+}
 
-            Button(
-                onClick = onRequestDelete,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(secondaryHeight),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = Color(0x33FFB4AB),
-                    contentColor = Color(0xFFFFB4AB)
-                ),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("🗑", style = MaterialTheme.typography.bodyMedium)
-                    Text("Remove", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                }
-            }
+@Composable
+private fun OptionsButton(onOpenGameSettings: () -> Unit, modifier: Modifier) {
+    Button(
+        onClick = onOpenGameSettings,
+        modifier = modifier,
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+            containerColor = Color.White.copy(alpha = 0.05f),
+            contentColor = BachataPalette.Primary
+        ),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ControllerKeyIcon(key = "X", backgroundColor = Color(0xFF1565C0))
+            Text("Options", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun RemoveButton(onRequestDelete: () -> Unit, modifier: Modifier) {
+    Button(
+        onClick = onRequestDelete,
+        modifier = modifier,
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+            containerColor = Color(0x33FFB4AB),
+            contentColor = Color(0xFFFFB4AB)
+        ),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("🗑", style = MaterialTheme.typography.bodyMedium)
+            Text("Remove", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                maxLines = 1)
         }
     }
 }

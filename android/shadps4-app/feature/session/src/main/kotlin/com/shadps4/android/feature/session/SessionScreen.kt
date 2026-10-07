@@ -79,6 +79,8 @@ fun SessionScreen(
     gameId: String,
     /** Stops the game and returns to the library, keeping the app alive. */
     onExit: () -> Unit = {},
+    /** The screen shows both eyes side by side (a PSVR title in SBS): overlays go in each eye. */
+    stereo: Boolean = false,
     viewModel: SessionViewModel = hiltViewModel(),
     diagnosticViewModel: DiagnosticReportViewModel = hiltViewModel(),
 ) {
@@ -269,14 +271,13 @@ fun SessionScreen(
             }
         )
 
-        if (showMemory) {
+        if (showMemory) PerEye(stereo, Alignment.BottomStart) {
             Text(
                 text = "System RAM %d/%d MB".format(
                     device.ramUsedMb, device.ramTotalMb,
                 ),
                 color = Color.White,
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
                     .padding(12.dp)
                     .clip(RoundedCornerShape(24.dp))
                     .background(Color.Black.copy(alpha = 0.65f))
@@ -285,14 +286,16 @@ fun SessionScreen(
         }
 
         // Notification pill sliding down from top, staying 5s, vanishing moving down
-        AnimatedVisibility(
-            visible = notificationVisible && notificationMessage != null,
-            enter = slideInVertically(initialOffsetY = { -it - topOffsetPx.toInt() }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it * 3 }) + fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = topOffset)
-        ) {
-            notificationMessage?.let { msg ->
-                NotificationPill(message = msg)
+        PerEye(stereo, Alignment.TopCenter) {
+            AnimatedVisibility(
+                visible = notificationVisible && notificationMessage != null,
+                enter = slideInVertically(initialOffsetY = { -it - topOffsetPx.toInt() }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it * 3 }) + fadeOut(),
+                modifier = Modifier.padding(top = topOffset)
+            ) {
+                notificationMessage?.let { msg ->
+                    NotificationPill(message = msg)
+                }
             }
         }
 
@@ -470,6 +473,28 @@ fun SessionScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+/** `content` at `alignment` of the screen, or of each half when the screen shows two eyes. */
+@Composable
+private fun androidx.compose.foundation.layout.BoxScope.PerEye(
+    stereo: Boolean,
+    alignment: Alignment,
+    content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit,
+) {
+    if (!stereo) {
+        Box(Modifier.align(alignment), content = content)
+        return
+    }
+    Row(Modifier.matchParentSize()) {
+        repeat(2) {
+            Box(
+                Modifier.weight(1f).fillMaxSize(),
+                contentAlignment = alignment,
+                content = content,
+            )
         }
     }
 }

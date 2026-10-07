@@ -3,9 +3,11 @@ package com.shadps4.android.feature.library
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -48,7 +50,7 @@ data class GameLaunchOptions(
     val xr get() = DisplayMode.resolve(global, effectiveGame, psvr).effective == DisplayMode.Mode.XR
     fun specs(): List<RuntimeSettingSpec> {
         val ids = buildList {
-            if (!psvr) add(DisplayMode.ID)
+            add(if (psvr) DisplayMode.PSVR_ID else DisplayMode.ID)
             add(if (xr) InternalScale.XR_ID else InternalScale.ID)
             if (xr) addAll(listOf(XrRendering.UPSCALER, XrRendering.OUTPUT, XrRendering.FOVEATION, XrRendering.STATUS))
             else add(XrRendering.SCREEN_UPSCALER)
@@ -125,16 +127,19 @@ private fun LaunchOptionRow(key: Any, focused: Boolean, onClick: (() -> Unit)? =
             color = BachataPalette.RaisedSurface,
             border = BorderStroke(1.dp, if (focused) BachataPalette.Accent else Color.Transparent),
             shape = MaterialTheme.shapes.small) {
-        Column(Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp),
-               content = content)
+        Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp),
+               verticalArrangement = Arrangement.spacedBy(4.dp), content = content)
     }
 }
 
+/** [columns]: option rows side by side (a landscape sheet has the width for two). The
+ *  controller's row index still runs through them in reading order. */
 @Composable
 internal fun GameLaunchOptionsPanel(options: GameLaunchOptions, focused: Int,
                                     onSelect: (RuntimeSettingSpec, String) -> Unit,
                                     patchPanel: Boolean = false,
-                                    onPatch: (PatchAction) -> Unit = {}) {
+                                    onPatch: (PatchAction) -> Unit = {},
+                                    columns: Int = 1) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(if (patchPanel) "Guest patches" else "Launch options",
             style = MaterialTheme.typography.titleSmall, color = BachataPalette.Primary)
@@ -143,51 +148,70 @@ internal fun GameLaunchOptionsPanel(options: GameLaunchOptions, focused: Int,
             !options.loaded -> Text("Reading game display mode…", color = BachataPalette.Secondary)
             patchPanel -> GuestPatchPanel(options, focused, onPatch)
             else -> {
-                if (options.psvr) Text("PSVR · Immersive XR", color = BachataPalette.Secondary)
+                if (options.psvr) Text(if (options.xr) "PSVR · Immersive XR" else "PSVR · SBS window",
+                    color = BachataPalette.Secondary)
                 val specs = options.specs()
-                specs.forEachIndexed { index, spec ->
-                    LaunchOptionRow(options.gameId to spec.id, focused == index) {
-                        Text(spec.title,
-                            style = MaterialTheme.typography.bodyMedium, color = BachataPalette.Primary)
-                        if (spec.id == XrRendering.OUTPUT && options.outputExtents.isNotEmpty())
-                            Text("Per eye · last verified", style = MaterialTheme.typography.labelSmall, color = BachataPalette.Secondary)
-                        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            spec.choices.forEach { choice ->
-                                val selected = options.value(spec) == choice
-                                Surface(
-                                    modifier = Modifier.weight(1f).selectable(
-                                        selected = selected, enabled = options.ready,
-                                        role = Role.RadioButton, onClick = { onSelect(spec, choice) }),
-                                    color = if (selected) BachataPalette.Accent else BachataPalette.Surface,
-                                    shape = MaterialTheme.shapes.small,
-                                ) {
-                                    Text(options.choiceLabel(spec, choice),
-                                        modifier = Modifier.heightIn(min = 40.dp).padding(horizontal = 6.dp, vertical = 10.dp),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        textAlign = TextAlign.Center,
-                                        color = if (selected) BachataPalette.OnAccent else BachataPalette.Primary)
-                                }
-                            }
-                        }
-                    }
-                }
                 val choices = options.patchChoices()
-                if (choices.isNotEmpty()) {
-                    LaunchOptionRow(options.gameId to "guest_patches", focused == specs.size,
-                        onClick = { if (options.ready) onPatch(PatchAction.Open) }) {
-                        Text("Guest Patches",
-                            style = MaterialTheme.typography.bodyMedium, color = BachataPalette.Primary)
-                        val selected = options.patchSelection()
-                        val on = choices.filter { it.name in selected }.map { it.label }
-                        Text(if (on.isEmpty()) "Off · ${choices.size} available"
-                             else "${on.size} of ${choices.size} on: ${on.joinToString(", ")}",
-                            style = MaterialTheme.typography.labelMedium, color = BachataPalette.Secondary)
+                val rows = buildList<@Composable () -> Unit> {
+                    specs.forEachIndexed { index, spec ->
+                        add { SettingRow(options, spec, focused == index, onSelect) }
+                    }
+                    if (choices.isNotEmpty())
+                        add { PatchSummaryRow(options, choices, focused == specs.size, onPatch) }
+                }
+                rows.chunked(columns.coerceAtLeast(1)).forEach { line ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        line.forEach { row -> Box(Modifier.weight(1f)) { row() } }
+                        repeat(columns - line.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
                 Text(if (options.saving) "Saving…" else "Saved for this game when you launch.",
                     style = MaterialTheme.typography.bodySmall, color = BachataPalette.Secondary)
             }
         }
+    }
+}
+
+@Composable
+private fun SettingRow(options: GameLaunchOptions, spec: RuntimeSettingSpec, focused: Boolean,
+                       onSelect: (RuntimeSettingSpec, String) -> Unit) {
+    LaunchOptionRow(options.gameId to spec.id, focused) {
+        Text(spec.title, style = MaterialTheme.typography.bodyMedium, color = BachataPalette.Primary)
+        if (spec.id == XrRendering.OUTPUT && options.outputExtents.isNotEmpty())
+            Text("Per eye · last verified", style = MaterialTheme.typography.labelSmall,
+                color = BachataPalette.Secondary)
+        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            spec.choices.forEach { choice ->
+                val selected = options.value(spec) == choice
+                Surface(
+                    modifier = Modifier.weight(1f).selectable(
+                        selected = selected, enabled = options.ready,
+                        role = Role.RadioButton, onClick = { onSelect(spec, choice) }),
+                    color = if (selected) BachataPalette.Accent else BachataPalette.Surface,
+                    shape = MaterialTheme.shapes.small,
+                ) {
+                    Text(options.choiceLabel(spec, choice),
+                        modifier = Modifier.heightIn(min = 34.dp).padding(horizontal = 4.dp, vertical = 7.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center,
+                        color = if (selected) BachataPalette.OnAccent else BachataPalette.Primary)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PatchSummaryRow(options: GameLaunchOptions, choices: List<GuestPatchPackage>,
+                            focused: Boolean, onPatch: (PatchAction) -> Unit) {
+    LaunchOptionRow(options.gameId to "guest_patches", focused,
+        onClick = { if (options.ready) onPatch(PatchAction.Open) }) {
+        Text("Guest Patches", style = MaterialTheme.typography.bodyMedium, color = BachataPalette.Primary)
+        val selected = options.patchSelection()
+        val on = choices.filter { it.name in selected }.map { it.label }
+        Text(if (on.isEmpty()) "Off · ${choices.size} available"
+             else "${on.size} of ${choices.size} on: ${on.joinToString(", ")}",
+            style = MaterialTheme.typography.labelMedium, color = BachataPalette.Secondary)
     }
 }
 
