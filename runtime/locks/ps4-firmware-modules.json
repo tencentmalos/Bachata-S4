@@ -1,0 +1,93 @@
+{
+  "source": "https://github.com/tencentmalos/ps4-firmware",
+  "submodule": "externals/ps4-firmware",
+  "firmware": "11.00",
+  "directory": "firmware/11.00/sys_modules",
+  "scope": "Firmware modules the Android host may load as LLE (guest_runtime.cpp LocalLibrary table and the FontFt DT_NEEDED map). Packaged into assets/ps4-firmware and installed to files/host/sys_modules. libSceLibcInternal is intentionally not packaged: its presence switches every game to the system libc.",
+  "modules": [
+    {
+      "file": "libSceNgs2.sprx",
+      "sha256": "fbe55d7da893743a6267798acff1a2093ab7ac5f1606b48f8f3d3c5a8d7e74f6",
+      "size": 372112,
+      "module": "libSceNgs2",
+      "reason": "LocalLibrary libSceNgs2"
+    },
+    {
+      "file": "libSceSystemGesture.sprx",
+      "sha256": "98425066e5c44346fc849931f62e369cad70e358e89ccadfa75eca2c5b1425f8",
+      "size": 68768,
+      "module": "libSceSystemGesture",
+      "reason": "LocalLibrary libSceSystemGesture"
+    },
+    {
+      "file": "libSceJpegEnc.sprx",
+      "sha256": "9493cf97f5ea25cbf8ce00051274f14cbbddcbe4d28be1d4b4e4854bf4b4500d",
+      "size": 67280,
+      "module": "libSceJpegEnc",
+      "reason": "LocalLibrary libSceJpegEnc"
+    },
+    {
+      "file": "libSceJpegDec.sprx",
+      "sha256": "6a8dbae379bf1f034cdd87b147361a33163491cb508abaf37e6db6e2e56ef4bf",
+      "size": 83920,
+      "module": "libSceJpegDec",
+      "reason": "LocalLibrary libSceJpegDec"
+    },
+    {
+      "file": "libScePngEnc.sprx",
+      "sha256": "c58322d95c12e41e2d23826bcb943764e4515411dd7697ffb69f3a6ec02ec174",
+      "size": 84256,
+      "module": "libScePngEnc",
+      "reason": "LocalLibrary libScePngEnc"
+    },
+    {
+      "file": "libScePngDec.sprx",
+      "sha256": "564333e69cfa1438f1f58af3b7c86aa6addd4a844ac3b0b19baec691047c472b",
+      "size": 84048,
+      "module": "libScePngDec",
+      "reason": "LocalLibrary libScePngDec"
+    },
+    {
+      "file": "libSceFont.sprx",
+      "sha256": "2e57d191aa3a26aa6682cb8181c29adf3952b6f16ff2ca60124e4a890a49ca9d",
+      "size": 328640,
+      "module": "libSceFont",
+      "reason": "LocalLibrary libSceFont; also FontFt DT_NEEDED libSceFont-module.prx"
+    },
+    {
+      "file": "libSceFontFt.sprx",
+      "sha256": "ad78707187be911df1559f4799fef2af3d6c4d098dd95b33d3e22854cca15e2b",
+      "size": 144248,
+      "module": "libSceFontFt",
+      "reason": "LocalLibrary libSceFontFt"
+    },
+    {
+      "file": "libSceFreeTypeOl.sprx",
+      "sha256": "f77b0d52eb81340c9baa71c975a09c9e10069b46d9325a0dd693bb14055f259f",
+      "size": 579224,
+      "module": "libSceFreeType",
+      "reason": "FontFt DT_NEEDED libSceFreeTypeFull-PRX.prx"
+    },
+    {
+      "file": "libSceFreeTypeHinter.sprx",
+      "sha256": "f4085a5e287a4aa7d7e410266cdf5ad106ce2201127e7d62b47d12b098189c49",
+      "size": 103432,
+      "module": "libSceFreeType",
+      "reason": "FontFt DT_NEEDED libSceFreeTypeHinter-PRX.prx"
+    },
+    {
+      "file": "libSceFreeTypeSubFunc.sprx",
+      "sha256": "23e8b6173fe67b6439eb340f117a756c0aa3bc00f006492f6bfcbc9d999bc059",
+      "size": 87584,
+      "module": "libSceFreeType",
+      "reason": "FontFt DT_NEEDED libSceFreeTypeSubFunc-PRX.prx"
+    },
+    {
+      "file": "libSceJson2.sprx",
+      "sha256": "6a9d3894497cdfbe8720a5720cc0ab06f4aefbc73dff6e5c86885770b58097c5",
+      "size": 127784,
+      "module": "libSceJson",
+      "reason": "LocalLibrary libSceJson2 (export module libSceJson)"
+    }
+  ]
+}

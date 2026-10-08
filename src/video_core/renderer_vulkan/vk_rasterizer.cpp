@@ -2696,8 +2696,50 @@ void Rasterizer::FillBuffer(VAddr address, u32 num_bytes, u32 value, bool is_gds
     runtime.FillBuffer(buffer, offset, num_bytes, value);
 }
 
+// A depth target's HTILE holds one dword per 8x8 tile; its low four bits (zmask) are zero when
+// every pixel of the tile holds the depth clear value. Titles clear depth by filling HTILE with
+// such entries (FillBuffer) or by copying a template they prepared once over it. VR titles put
+// permanently occluded tiles (zero depth range) for the area the lenses cannot show into that
+// template; they only save work, so a plain depth clear is equivalent. Without this the depth
+// target keeps the previous frame's values and geometry behind them disappears in 8x8 steps.
+bool Rasterizer::TryHtileClear(VAddr address, VAddr src, u32 num_bytes) {
+    namespace Diag = VideoCore::UploadDiagnostics;
+    if (texture_cache.IsMeta(address) != VideoCore::TextureCache::MetaType::HTile) {
+        return false;
+    }
+    Diag::htile_copies.fetch_add(1, std::memory_order_relaxed);
+    if (Diag::htile_copy_off.load(std::memory_order_relaxed)) {
+        return false;
+    }
+    if (buffer_cache.IsRegionGpuModified(src, num_bytes)) {
+        // The template's current contents are on the GPU; guest memory may be stale.
+        Diag::htile_copy_gpu_source.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+    const auto* words = std::bit_cast<const u32*>(src);
+    u64 cleared = 0;
+    u64 written = 0;
+    for (u32 i = 0; i < num_bytes / sizeof(u32); ++i) {
+        if (words[i] == 0) {
+            continue; // padding past the end of the surface
+        }
+        ++written;
+        cleared += (words[i] & 0xf) == 0;
+    }
+    if (cleared == 0 || cleared * 2 < written) {
+        Diag::htile_copy_rejected.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+    Diag::htile_copy_clears.fetch_add(1, std::memory_order_relaxed);
+    return texture_cache.ClearMeta(address);
+}
+
 void Rasterizer::CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, bool src_gds) {
     const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
+    if (!dst_gds && !src_gds) {
+        // Still copy the bytes below: shaders that read HTILE see the guest's data.
+        TryHtileClear(dst, src, num_bytes);
+    }
     if (!src_gds) {
         MissingContent::Read(src, num_bytes);
     }

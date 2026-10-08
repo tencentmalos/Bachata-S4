@@ -183,6 +183,7 @@ private:
     GpuBreadcrumbs::Context BreadcrumbContext() const;
 
     bool IsComputeMetaClear(const Pipeline* pipeline);
+    bool TryHtileClear(VAddr address, VAddr src, u32 num_bytes);
     bool IsComputeImageCopy(const Pipeline* pipeline);
     bool IsComputeImageClear(const Pipeline* pipeline);
 

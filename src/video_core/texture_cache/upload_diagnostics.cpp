@@ -151,6 +151,10 @@ std::string Summary() {
     out += fmt::format("raw_copy: off={} image_copies={} bytes={} dispatched={}\n",
                        raw_copy_off.load() ? 1 : 0, raw_copies.load(), raw_copy_bytes.load(),
                        raw_copy_fallbacks.load());
+    out += fmt::format("htile_copy: off={} copies_to_htile={} depth_clears={} rejected={} "
+                       "gpu_source={}\n",
+                       htile_copy_off.load() ? 1 : 0, htile_copies.load(), htile_copy_clears.load(),
+                       htile_copy_rejected.load(), htile_copy_gpu_source.load());
     out += fmt::format("format_list: mode={} listed_images={} moved_to_any_format={}\n",
                        format_list.load(), format_list_images.load(), format_list_moves.load());
     out += fmt::format("compute_fill: off={} images_cleared={} bytes_cleared={}",
@@ -379,6 +383,11 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("depth_copy={} (depth<->color twins copied {})\n", args[1],
                            args[1] == "buffer" ? "through the scratch buffer"
                                                : "directly when maintenance8 is available");
+    }
+    if (sub == "htile_copy" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        htile_copy_off.store(args[1] == "off");
+        return fmt::format("htile_copy={} (DMA copies of an HTILE template {})\n", args[1],
+                           args[1] == "on" ? "clear the depth target" : "only copy bytes");
     }
     if (sub == "raw_copy" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         raw_copy_off.store(args[1] == "off");

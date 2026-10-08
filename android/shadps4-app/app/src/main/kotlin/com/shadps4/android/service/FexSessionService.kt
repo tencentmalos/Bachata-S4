@@ -21,6 +21,7 @@ import kotlin.concurrent.thread
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import com.shadps4.android.runtime.session.AndroidTurnip
+import com.shadps4.android.runtime.session.FirmwareModules
 import com.shadps4.android.runtime.session.RuntimeSurface
 
 /**
@@ -306,6 +307,13 @@ class FexSessionService : Service() {
                         e.message ?: "Cannot select display mode"))
                     stopSelf(startId)
                     return@launch
+                }
+                // Games that import an LLE firmware library fail later with a named
+                // sysmodule error when it is absent; others do not need these files.
+                try {
+                    withContext(Dispatchers.IO) { FirmwareModules.prepare(applicationContext) }
+                } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                    Log.e(TAG, "Firmware module installation failed", e)
                 }
                 val paths = try {
                     withContext(Dispatchers.IO) { AndroidTurnip.prepare(applicationContext) }

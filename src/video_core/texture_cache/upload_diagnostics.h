@@ -107,6 +107,11 @@ inline std::atomic<u64> dma_bounded_calls{0}, dma_full_calls{0}, dma_ranges_skip
 // Raw dword copy kernels between two same-layout images replaced by an image copy
 // (Rasterizer::TryComputeRawImageCopy); `upload_diag raw_copy on|off`.
 inline std::atomic<bool> raw_copy_off{false};
+// DMA copies of an HTILE template onto a depth target's HTILE treated as a depth clear
+// (Rasterizer::TryHtileClear); `upload_diag htile_copy on|off`.
+inline std::atomic<bool> htile_copy_off{false};
+inline std::atomic<u64> htile_copies{}, htile_copy_clears{}, htile_copy_rejected{},
+    htile_copy_gpu_source{};
 // Largest read-only buffer copied into the stream buffer instead of bound from the arena
 // (`upload_diag stream_max <bytes>`; capped by BufferCache::STREAM_THRESHOLD).
 inline std::atomic<u32> stream_max{16384};

@@ -218,3 +218,8 @@
 	path = references/AstroQuest
 	url = https://github.com/bigmak94/AstroQuest.git
 	branch = main
+[submodule "externals/ps4-firmware"]
+	path = externals/ps4-firmware
+	url = https://github.com/tencentmalos/ps4-firmware.git
+	branch = main
+	shallow = true

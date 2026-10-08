@@ -1,0 +1,119 @@
+guest_runtime.cpp:1641 WatchdogDump: GUEST_WATCHDOG begin reason="no new frame" frames=908 frame_age_ms=20008 threads=28
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=1 host_tid=5323 name="Guest-1" state=blocked_in_hle hle_calls_500ms=0 op=2 shadSyncWait#shadSync#1#shadSync#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x180001c116 unknown
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x180001c29b unknown
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100ebb9ef eboot.bin+0xebb9ef
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100c689fb eboot.bin+0xc689fb
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x100c686c8 eboot.bin+0xc686c8
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 5 0x100004b98 eboot.bin+0x4b98
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 6 0x100ba99bf eboot.bin+0xba99bf
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 7 0x1 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=2 host_tid=5339 name="Guest-2" state=blocked_in_hle hle_calls_500ms=0 op=472 sem_wait YCV5dGGBcCo#libScePosix#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100f434f8 eboot.bin+0xf434f8
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=3 host_tid=5340 name="Guest-3" state=blocked_in_hle hle_calls_500ms=0 op=472 sem_wait YCV5dGGBcCo#libScePosix#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100f434f8 eboot.bin+0xf434f8
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=4 host_tid=5341 name="Guest-4" state=blocked_in_hle hle_calls_500ms=0 op=472 sem_wait YCV5dGGBcCo#libScePosix#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100f434f8 eboot.bin+0xf434f8
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=5 host_tid=5342 name="Guest-5" state=blocked_in_hle hle_calls_500ms=0 op=472 sem_wait YCV5dGGBcCo#libScePosix#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100f434f8 eboot.bin+0xf434f8
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=6 host_tid=5455 name="Guest-6" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100eba49b eboot.bin+0xeba49b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100eba399 eboot.bin+0xeba399
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=7 host_tid=5471 name="Guest-7" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x10397b1c4 libSceFios2.prx+0x3b1c4
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x10397877b libSceFios2.prx+0x3877b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x10397bbcd libSceFios2.prx+0x3bbcd
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=8 host_tid=5472 name="Guest-8" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x10397b1c4 libSceFios2.prx+0x3b1c4
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x10397877b libSceFios2.prx+0x3877b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x10397bbcd libSceFios2.prx+0x3bbcd
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=9 host_tid=5474 name="Guest-9" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x10397b1c4 libSceFios2.prx+0x3b1c4
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x10397877b libSceFios2.prx+0x3877b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x10397bbcd libSceFios2.prx+0x3bbcd
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=10 host_tid=5483 name="Guest-10" state=blocked_in_hle hle_calls_500ms=0 op=435 sceKernelWaitSema Zxa0VhQVTsk#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100d95409 eboot.bin+0xd95409
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100d96157 eboot.bin+0xd96157
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=11 host_tid=5487 name="Guest-11" state=blocked_in_hle hle_calls_500ms=0 op=421 sceKernelWaitEventFlag JTvBflhYazQ#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100d25f0b eboot.bin+0xd25f0b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100d30537 eboot.bin+0xd30537
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=12 host_tid=5488 name="Guest-12" state=blocked_in_hle hle_calls_500ms=0 op=421 sceKernelWaitEventFlag JTvBflhYazQ#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100d8de6b eboot.bin+0xd8de6b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100d8ede7 eboot.bin+0xd8ede7
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=13 host_tid=5502 name="Guest-13" state=progressing hle_calls_500ms=2820 op=401 sceAudioOutOutputs w3PdaSTSwGE#libSceAudioOut#1#libSceAudioOut#Function
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=14 host_tid=5503 name="Guest-14" state=blocked_in_hle hle_calls_500ms=0 op=421 sceKernelWaitEventFlag JTvBflhYazQ#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100d6dfbb eboot.bin+0xd6dfbb
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100d6e147 eboot.bin+0xd6e147
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=15 host_tid=5504 name="Guest-15" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100eba49b eboot.bin+0xeba49b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100eba399 eboot.bin+0xeba399
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=16 host_tid=5506 name="Guest-16" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100fcb337 eboot.bin+0xfcb337
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=17 host_tid=5520 name="Guest-17" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100c6ad0b eboot.bin+0xc6ad0b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100c6ac49 eboot.bin+0xc6ac49
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=18 host_tid=5521 name="Guest-18" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100c6ad0b eboot.bin+0xc6ad0b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100c6ac49 eboot.bin+0xc6ac49
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=19 host_tid=5522 name="Guest-19" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100c6ad0b eboot.bin+0xc6ad0b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100c6ac49 eboot.bin+0xc6ac49
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=20 host_tid=5523 name="Guest-20" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100c6ad0b eboot.bin+0xc6ad0b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100c6ac49 eboot.bin+0xc6ac49
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=21 host_tid=5524 name="Guest-21" state=progressing hle_calls_500ms=60 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=22 host_tid=5525 name="Guest-22" state=progressing hle_calls_500ms=180 op=156 sceKernelWaitEqueue fzyMKs9kim0#libkernel#1#libkernel#Function
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=23 host_tid=5541 name="Guest-23" state=progressing hle_calls_500ms=604 op=156 sceKernelWaitEqueue fzyMKs9kim0#libkernel#1#libkernel#Function
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=24 host_tid=5547 name="Guest-24" state=progressing hle_calls_500ms=20 op=177 sceCameraGetFrameData mxgMmR+1Kr0#libSceCamera#1#libSceCamera#Function
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=25 host_tid=5549 name="Guest-25" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100eba49b eboot.bin+0xeba49b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100eba399 eboot.bin+0xeba399
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=26 host_tid=5552 name="Guest-26" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100eba49b eboot.bin+0xeba49b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100eba399 eboot.bin+0xeba399
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=27 host_tid=5568 name="Guest-27" state=blocked_in_hle hle_calls_500ms=0 op=283 scePthreadCondWait WKAXJ4XBPQ4#libkernel#1#libkernel#Function
+guest_runtime.cpp:1671 WatchdogDump: GUEST_WATCHDOG   frame 0 0x100ebaa21 eboot.bin+0xebaa21
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 1 0x100eba49b eboot.bin+0xeba49b
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 2 0x100eba399 eboot.bin+0xeba399
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 3 0x100ebc31c eboot.bin+0xebc31c
+guest_runtime.cpp:1678 WatchdogDump: GUEST_WATCHDOG   frame 4 0x7fc0000000 unknown
+guest_runtime.cpp:1661 WatchdogDump: GUEST_WATCHDOG thread guest=28 host_tid=5741 name="Guest-28" state=progressing hle_calls_500ms=356 op=200 sceAudioInInput LozEOU8+anM#libSceAudioIn#1#libSceAudioIn#Function
+guest_runtime.cpp:1684 WatchdogDump: GUEST_WATCHDOG end

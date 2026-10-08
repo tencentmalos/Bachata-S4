@@ -469,7 +469,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "Guest command buffer structure census (default off): start [detailed_frames] | status | stop",
         [](const std::vector<std::string>& args) { return AmdGpu::Pm4Stats::Command(args); });
     registry.Register("upload_diag",
-        "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off | raw_sync on|off | raw_copy on|off | dma_bounds on|off | depth_copy maint8|buffer | stream_host on|off | stream_dma on|off | texture_bind_cache on|off | gpu_flag on|off | watch_stream on|off [cycles]",
+        "Texture re-upload diagnostics (default off): start [log_lines] | status | stop | ignore_storage_dirty on|off | fill_clear on|off | raw_sync on|off | raw_copy on|off | htile_copy on|off | dma_bounds on|off | depth_copy maint8|buffer | stream_host on|off | stream_dma on|off | texture_bind_cache on|off | gpu_flag on|off | watch_stream on|off [cycles]",
         [](const std::vector<std::string>& args) { return VideoCore::UploadDiagnostics::Command(args); });
 
     registry.Register("perf_hint",

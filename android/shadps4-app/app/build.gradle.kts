@@ -332,3 +332,23 @@ val prepareNativeTurnip = tasks.register<Exec>("prepareNativeTurnip") {
         "--out", nativeTurnipAssets.get().dir("native-turnip").asFile.absolutePath)
 }
 tasks.named("preBuild").configure { dependsOn(prepareNativeTurnip) }
+// PS4 firmware LLE modules (private submodule externals/ps4-firmware), pinned by
+// runtime/locks/ps4-firmware-modules.json; FirmwareModules installs them to
+// files/host/sys_modules. -Pshadps4.bundleFirmware=false packages none.
+val firmwareAssets = layout.buildDirectory.dir("generated/ps4FirmwareAssets")
+android.sourceSets.getByName("main").assets.srcDir(firmwareAssets)
+val bundleFirmware = (findProperty("shadps4.bundleFirmware") as String?)?.toBoolean() ?: true
+val preparePs4Firmware = tasks.register<Exec>("preparePs4Firmware") {
+    val lock = fixtureRepo.resolve("runtime/locks/ps4-firmware-modules.json")
+    inputs.file(lock)
+    inputs.file(fixtureRepo.resolve("scripts/android/prepare-firmware-modules"))
+    inputs.property("bundleFirmware", bundleFirmware)
+    val source = fixtureRepo.resolve("externals/ps4-firmware/firmware/11.00/sys_modules")
+    if (bundleFirmware && source.isDirectory) inputs.dir(source)
+    outputs.dir(firmwareAssets.get().dir("ps4-firmware"))
+    commandLine(listOf(if (System.getProperty("os.name").startsWith("Windows")) "python" else "python3",
+        fixtureRepo.resolve("scripts/android/prepare-firmware-modules").absolutePath,
+        "--out", firmwareAssets.get().dir("ps4-firmware").asFile.absolutePath) +
+        if (bundleFirmware) emptyList() else listOf("--skip"))
+}
+tasks.named("preBuild").configure { dependsOn(preparePs4Firmware) }
