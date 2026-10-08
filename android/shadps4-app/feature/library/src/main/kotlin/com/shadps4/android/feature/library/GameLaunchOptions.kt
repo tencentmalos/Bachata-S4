@@ -54,6 +54,7 @@ data class GameLaunchOptions(
             add(if (xr) InternalScale.XR_ID else InternalScale.ID)
             if (xr) addAll(listOf(XrRendering.UPSCALER, XrRendering.OUTPUT, XrRendering.FOVEATION, XrRendering.STATUS))
             else add(XrRendering.SCREEN_UPSCALER)
+            add(MsaaMode.ID)
             // Only an XR session places the DualShock 4 (light-bar tracking titles stop at
             // their controller check without it).
             if (psvr && xr) add(XrDs4Pose.ID)
@@ -63,14 +64,23 @@ data class GameLaunchOptions(
     }
     fun value(spec: RuntimeSettingSpec): String {
         val raw = changes[spec.id] ?: game.values[spec.id] ?: global.values[spec.id] ?: spec.defaultValue
-        return if (spec.id == XrRendering.STATUS) XrRendering.statusChoice(raw) else (raw as JsonPrimitive).content
+        return when (spec.id) {
+            XrRendering.STATUS -> XrRendering.statusChoice(raw)
+            // The earlier Force Disable MSAA flag shows as Off / Game until this row is saved.
+            MsaaMode.ID -> MsaaMode.choice(global, effectiveGame)
+            else -> (raw as JsonPrimitive).content
+        }
     }
     fun select(spec: RuntimeSettingSpec, choice: String): GameLaunchOptions {
         require(spec.id in specs().map { it.id } && choice in spec.choices)
         val value = JsonPrimitive(choice)
         return copy(changes = changes + (spec.id to value), error = null)
     }
-    fun applyTo(current: RuntimeProfile) = current.copy(values = current.values + changes)
+    fun applyTo(current: RuntimeProfile): RuntimeProfile {
+        // A saved MSAA choice replaces the earlier boolean flag of this profile.
+        val base = if (MsaaMode.ID in changes) current.values - MsaaMode.LEGACY_ID else current.values
+        return current.copy(values = base + changes)
+    }
     fun choiceLabel(spec: RuntimeSettingSpec, choice: String): String {
         val label = spec.choiceLabel(choice)
         if (spec.id != XrRendering.OUTPUT) return label

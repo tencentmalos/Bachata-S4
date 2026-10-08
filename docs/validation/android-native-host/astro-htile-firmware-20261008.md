@@ -114,6 +114,28 @@ VrTracker 对 DS4 只回 NOT_TRACKING。Swan 上给 CUSA12392 写入每游戏设
   - pass_log（120 个 pass）：4× 合计 35 ms，无 draw 的清除 pass 10 个共 5.25 ms（8× 时同类 pass 每个 2–6.6 ms，3 帧共 24.6 ms）。
   - 仍停在 30：GuestCommands 约 7.4 ms/批（每帧 2 批）+ HostPrepare 约 6.4 ms/帧。校准页与关卡未测；调试属性已恢复为 0。
 
+## MSAA 选项（Launch 面板，全部游戏）
+
+- 原 Force Disable MSAA（布尔）改为三档 `gpu.msaa`：**Off**（每像素 1 个采样）、**2×**（最多 2 个）、
+  **Game (≤4×)**（游戏原值，默认）。全局/每游戏，重启生效；Launch 面板对所有游戏显示，Settings 同一项。
+- **任何一档都不会到 8×**：Android 上 `Instance` 在设备 framebuffer 上限之外再硬限 4×，2× 档再限到 2；
+  选项里没有更高档，非法值（如 `8x`）被拒绝。只有调试属性 `debug.shadps4.msaa_per_format=1` 才恢复旧的按格式 8×。
+- 旧的布尔值继续生效（true = Off，false = Game），在 Launch 面板显示为对应档；在 Launch 保存 MSAA 后，
+  该游戏配置里的旧键被移除。桌面 shadps4.json 的 `GPU.force_disable_msaa` 导入不变。
+- JNI 新增 `nativeSetMsaaMaxSamples`（只接受 2/4，其余为 0 = 宿主上限）；日志
+  `MSAA: framebuffer sample counts …, host samples at most N`。
+- 单测：MsaaMode 5/0、RuntimeSettingCatalog 3/0、GameLaunchOptions 9/0、SettingsViewModel 5/0；
+  feature/library 17/0、feature/settings 14/0；app 7 项中 1 项失败为 Windows 创建符号链接需特权（与本改动无关）。
+- **Swan（APK `e63e95fa` / host `0a5964b0`）**：ASTRO 每游戏设置分别写三档后冷启动，宿主日志与服务日志一致：
+  - 未设（Game）：`host samples at most 4`，`Guest MSAA disabled=false max samples=0`；
+  - 2×：`host samples at most 2`，`max samples=2`；
+  - Off：`host samples at most 4 (MSAA off)`，`disabled=true`，标题画面 30.4 flips/s。
+  - 测完每游戏设置按字节恢复（只有 `input.xr_ds4_pose=right`，SHA `b5cb17ba…`），设备回到游戏库。
+  - Launch 面板这一行只有单测，未在头显里看过（uiautomator 在 Swan 上只取到系统 dock）。
+- **另记（与 MSAA 无关）**：Off 那一轮在会话第 72 s 出现 GuestFault：Guest-28，rip `0x1042e8bb6`，rdx
+  `0xfffffffe00980424`，返回链 eboot+0xccf07d / +0xccf5f9 / +0xebc31c。同一 rip 和 rdx 今天还出现过两次：
+  16:14（第 541 s，旧 8× 包）、16:35（第 836 s）。这是已有的间歇性故障，未定位。
+
 ## 右手柄 DS4 偏高
 
 用户反馈右手柄模拟的 DS4 比实际位置偏上。Swan grip 的 −Z 近乎朝上（`xr_tracking status`：沿 −Z 75 mm 的点 Y 高 6.8 cm），

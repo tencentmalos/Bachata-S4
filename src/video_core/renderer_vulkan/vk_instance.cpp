@@ -281,10 +281,19 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
         __system_property_get("debug.shadps4.msaa_per_format", prop);
         per_format |= std::string_view(prop) == "1";
 #endif
-        if (!per_format && counts != 0)
-            max_host_samples = 1u << (std::bit_width(counts) - 1);
-        LOG_INFO(Render_Vulkan, "MSAA: framebuffer sample counts {:#x}, host samples at most {}{}",
-                 counts, max_host_samples, per_format ? " (per-format override)" : "");
+        if (!per_format) {
+            if (counts != 0)
+                max_host_samples = 1u << (std::bit_width(counts) - 1);
+#ifdef __ANDROID__
+            // Mobile GPUs that advertise 8x still cannot afford it for PS4 render targets.
+            max_host_samples = std::min(max_host_samples, 4u);
+#endif
+            if (const u32 player = EmulatorSettings.GetMsaaMaxSamples(); player != 0)
+                max_host_samples = std::min(max_host_samples, player);
+        }
+        LOG_INFO(Render_Vulkan, "MSAA: framebuffer sample counts {:#x}, host samples at most {}{}{}",
+                 counts, max_host_samples, per_format ? " (per-format override)" : "",
+                 force_disable_msaa ? " (MSAA off)" : "");
     }
     CollectDeviceParameters();
     ASSERT_MSG(properties.apiVersion >= TargetVulkanApiVersion,

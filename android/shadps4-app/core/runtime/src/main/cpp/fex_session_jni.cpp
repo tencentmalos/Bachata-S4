@@ -737,6 +737,12 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetMsaaDisabled(
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetMsaaMaxSamples(
+    JNIEnv*, jobject, jint samples) {
+    EmulatorSettings.SetMsaaMaxSamples(samples == 2 || samples == 4 ? u32(samples) : 0u);
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetPipelineCacheEnabled(
     JNIEnv*, jobject, jboolean enabled) {
     EmulatorSettings.SetPipelineCacheEnabled(enabled == JNI_TRUE);

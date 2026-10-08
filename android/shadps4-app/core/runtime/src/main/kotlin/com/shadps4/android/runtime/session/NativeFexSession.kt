@@ -31,6 +31,8 @@ object NativeFexSession {
 
     external fun nativeSetGuestShadingQuality(quality: Int)
     external fun nativeSetMsaaDisabled(disabled: Boolean)
+    /** 2: at most 2x; 0: the host limit (device framebuffer limit, at most 4x on Android). */
+    external fun nativeSetMsaaMaxSamples(samples: Int)
     external fun nativeSetXrRendering(upscaler: Int, foveation: Int, level: Int, sharpness: Int, outputResolution: Int)
     external fun nativeSetXrStatus(layout: Int, psvr: Boolean)
     /** Recommended/high/maximum width-height pairs, or null when unavailable. */

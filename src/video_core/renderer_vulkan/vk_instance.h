@@ -41,13 +41,14 @@ public:
 
     const auto& ScalePolicy() const { return scale_policy; }
     bool IsMsaaDisabled() const { return force_disable_msaa; }
-    /// Host sample count for a guest MSAA target: 1 with Force Disable MSAA, else the guest count
-    /// clamped to what the device advertises for framebuffer colour and depth/stencil
-    /// attachments (Turnip: 4). A title that renders 4 colour / 8 depth samples (PS4 EQAA, ASTRO
-    /// BOT) then gets one consistent count instead of colour promoted to 8x and copied between
-    /// 4x and 8x backings every pass. SHADPS4_MSAA_PER_FORMAT=1 /
-    /// debug.shadps4.msaa_per_format=1 keeps the per-format counts (8x where the image format
-    /// allows it), as before.
+    /// Host sample count for a guest MSAA target: 1 with MSAA off, else the guest count clamped
+    /// to what the device advertises for framebuffer colour and depth/stencil attachments
+    /// (Turnip: 4), on Android also to at most 4 (8x is far too slow on mobile GPUs), and to the
+    /// player's own limit (Android gpu.msaa 2x). A title that renders 4 colour / 8 depth samples
+    /// (PS4 EQAA, ASTRO BOT) then gets one consistent count instead of colour promoted to 8x and
+    /// copied between 4x and 8x backings every pass. Only the diagnostic
+    /// SHADPS4_MSAA_PER_FORMAT=1 / debug.shadps4.msaa_per_format=1 keeps the per-format counts
+    /// (8x where the image format allows it), as before.
     u32 HostSamples(u32 guest_samples) const {
         return force_disable_msaa ? 1u : std::min(guest_samples, max_host_samples);
     }

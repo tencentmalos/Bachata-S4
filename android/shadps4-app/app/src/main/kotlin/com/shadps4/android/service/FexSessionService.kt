@@ -158,17 +158,18 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetGuestPatches(guestPatches.toTypedArray())
             Log.i(TAG, "Guest patches=$guestPatches")
-            val disableMsaa = runCatching {
-                com.shadps4.android.runtime.settings.ForceDisableMsaa.resolve(
+            val msaa = runCatching {
+                com.shadps4.android.runtime.settings.MsaaMode.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
                 )
             }.getOrElse {
                 Log.w(TAG, "Invalid MSAA profile, preserving game MSAA", it)
-                false
+                com.shadps4.android.runtime.settings.MsaaMode.Options(disabled = false, maxSamples = 0)
             }
-            NativeFexSession.nativeSetMsaaDisabled(disableMsaa)
-            Log.i(TAG, "Guest force disable MSAA=$disableMsaa")
+            NativeFexSession.nativeSetMsaaDisabled(msaa.disabled)
+            NativeFexSession.nativeSetMsaaMaxSamples(msaa.maxSamples)
+            Log.i(TAG, "Guest MSAA disabled=${msaa.disabled} max samples=${msaa.maxSamples}")
             val xrRendering = runCatching {
                 com.shadps4.android.runtime.settings.XrRendering.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),

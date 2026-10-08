@@ -317,17 +317,19 @@
     "risk": "NORMAL"
   },
   {
-    "id": "gpu.force_disable_msaa",
-    "nativeKey": "GPU.force_disable_msaa",
+    "id": "gpu.msaa",
+    "nativeKey": "GPU.msaa",
     "section": "GPU",
     "category": "GPU",
-    "title": "Force Disable MSAA",
-    "help": "Experimental: use one sample per pixel to reduce GPU memory and work. May alter edges or effects that use individual samples. Off preserves game MSAA. Restart the game to apply.",
-    "kind": "BOOLEAN",
-    "defaultValue": false,
+    "title": "MSAA",
+    "help": "Samples per pixel for the game's multisampling. Game: the game's own count, but never more than 4x (or the GPU's framebuffer limit); 8x is too slow on mobile GPUs. 2x: at most two samples. Off: one sample per pixel, the fastest; edges or effects that read individual samples may change. Restart the game to apply.",
+    "kind": "ENUM",
+    "defaultValue": "game",
+    "choices": ["off", "2x", "game"],
+    "choiceLabels": ["Off", "2×", "Game (≤4×)"],
     "scope": "GLOBAL_AND_GAME",
     "restartRequired": true,
-    "risk": "ADVANCED"
+    "risk": "NORMAL"
   },
   {
     "id": "vulkan.pipeline_cache_enabled",

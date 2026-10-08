@@ -603,6 +603,7 @@ private:
     std::atomic<float> m_internal_scale_percent{0.f};
     std::atomic<u32> m_texture_quality{3};
     std::atomic<int> m_force_disable_msaa{-1};
+    std::atomic<u32> m_msaa_max_samples{0};
     std::atomic<int> m_silent_dialogs{-1};
     GeneralSettings m_general{};
     LogSettings m_log{};
@@ -810,6 +811,14 @@ public:
     // Captured by Vulkan::Instance before rendering; profiles own persistence.
     void SetMsaaDisabled(bool value) {
         m_force_disable_msaa.store(value, std::memory_order_relaxed);
+    }
+    // Upper bound on host MSAA samples chosen by the player (Android setting gpu.msaa: 2x);
+    // 0 leaves the device/platform limit (see Vulkan::Instance::HostSamples).
+    u32 GetMsaaMaxSamples() const {
+        return m_msaa_max_samples.load(std::memory_order_relaxed);
+    }
+    void SetMsaaMaxSamples(u32 value) {
+        m_msaa_max_samples.store(value, std::memory_order_relaxed);
     }
 
     u32 GetGuestShadingQuality() const {

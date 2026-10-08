@@ -146,28 +146,29 @@ class SettingsViewModelTest {
         assertEquals(50f, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
     }
     @Test
-    fun booleanMsaaEditorPersistsAndResetsGameOverride() = runTest(dispatcher) {
+    fun msaaEditorPersistsAndResetsGameOverride() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
         val model = viewModel(store)
         advanceUntilIdle()
-        val id = com.shadps4.android.runtime.settings.ForceDisableMsaa.ID
+        val id = com.shadps4.android.runtime.settings.MsaaMode.ID
         val spec = model.state.value.settings.single { it.id == id }
-        model.setValue(spec, JsonPrimitive(true))
+        assertEquals(JsonPrimitive("game"), model.state.value.effectiveValue(spec))
+        model.setValue(spec, JsonPrimitive("off"))
         advanceUntilIdle()
-        assertEquals(JsonPrimitive(true), store.load(ProfileScope.Global).values[id])
+        assertEquals(JsonPrimitive("off"), store.load(ProfileScope.Global).values[id])
         val game = ProfileScope.Game("CUSA12878")
         model.selectScope(game)
         advanceUntilIdle()
-        model.setValue(spec, JsonPrimitive(false))
+        model.setValue(spec, JsonPrimitive("2x"))
         advanceUntilIdle()
-        assertEquals(JsonPrimitive(false), model.state.value.effectiveValue(spec))
-        model.setText(spec, "broken")
+        assertEquals(JsonPrimitive("2x"), model.state.value.effectiveValue(spec))
+        model.setText(spec, "8x")
         advanceUntilIdle()
         assertTrue(model.state.value.error != null)
-        assertEquals(JsonPrimitive(false), store.load(game).values[id])
+        assertEquals(JsonPrimitive("2x"), store.load(game).values[id])
         model.setValue(spec, null)
         advanceUntilIdle()
-        assertEquals(JsonPrimitive(true), model.state.value.effectiveValue(spec))
+        assertEquals(JsonPrimitive("off"), model.state.value.effectiveValue(spec))
     }
 
 }

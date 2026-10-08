@@ -25,6 +25,26 @@ class GameLaunchOptionsTest {
             values = mapOf(DisplayMode.ID to JsonPrimitive("xr"))))
         assertTrue(cinema.specs().any { it.id == XrRendering.STATUS })
     }
+    @Test fun msaaRowIsOfferedForEveryGameAndReplacesTheEarlierFlag() {
+        for (options in listOf(GameLaunchOptions("2d", loaded = true), GameLaunchOptions("psvr", loaded = true, psvr = true))) {
+            val spec = options.specs().single { it.id == MsaaMode.ID }
+            assertEquals(listOf("off", "2x", "game"), spec.choices)
+            assertEquals("game", options.value(spec))
+        }
+        val earlier = RuntimeProfile(values = mapOf(MsaaMode.LEGACY_ID to JsonPrimitive(true)))
+        val options = GameLaunchOptions("bs", loaded = true, game = earlier)
+        val spec = options.specs().single { it.id == MsaaMode.ID }
+        assertEquals("off", options.value(spec))
+        val edited = options.select(spec, "2x")
+        assertEquals("2x", edited.value(spec))
+        val saved = edited.applyTo(earlier)
+        assertFalse(MsaaMode.LEGACY_ID in saved.values)
+        assertEquals(MsaaMode.Options(disabled = false, maxSamples = 2), MsaaMode.resolve(RuntimeProfile(), saved))
+        assertThrows(IllegalArgumentException::class.java) { options.select(spec, "8x") }
+        // Saving other rows keeps the earlier flag.
+        val scale = options.specs().single { it.id == InternalScale.ID }
+        assertEquals(JsonPrimitive(true), options.select(scale, scale.choices.first()).applyTo(earlier).values[MsaaMode.LEGACY_ID])
+    }
     @Test fun psvrXrOffersDualShock4PlacementAndSavesItPerGame() {
         val options = GameLaunchOptions("psvr", loaded = true, psvr = true)
         val spec = options.specs().single { it.id == XrDs4Pose.ID }

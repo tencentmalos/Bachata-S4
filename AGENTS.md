@@ -1,3 +1,8 @@
+- **MSAA 三档选项进 Launch 面板 / Android 硬限 4×（2026-10-08，已提交）：** [记录](docs/validation/android-native-host/astro-htile-firmware-20261008.md) “MSAA 选项”一节。
+  - **选项**：布尔 Force Disable MSAA 改为 `gpu.msaa`：Off / 2× / Game (≤4×)，默认 Game，全局/每游戏、重启生效；Launch 面板对所有游戏显示。旧布尔值仍生效（true = Off），在 Launch 保存 MSAA 后移除旧键；桌面配置导入不变。JNI `nativeSetMsaaMaxSamples`（只收 2/4）。
+  - **保证不到 8×**：Android 上 `Instance` 在设备 framebuffer 上限之外再硬限 4×，2× 档限到 2，选项里没有更高档，非法值被拒；只有 `debug.shadps4.msaa_per_format=1` 能回到旧的按格式 8×。
+  - **验证**：单测 MsaaMode 5/0、GameLaunchOptions 9/0、SettingsViewModel 5/0。Swan APK `e63e95fa` 上三档的日志分别为 at most 4 / at most 2 / MSAA off；Launch 面板这一行未在头显里看过。测完 ASTRO 每游戏设置按字节恢复。
+  - **另记**：ASTRO Guest-28 的 GuestFault 今天出现 3 次（rip `0x1042e8bb6`，eboot+0xccf07d，分别在会话第 72/541/836 s，含旧 8× 包），与 MSAA 无关，未定位。
 - **ASTRO BOT Swan：MSAA 采样上限 / 摄像头座位偏移 / Launch DS4 选项（2026-10-08，已提交）：** [记录](docs/validation/android-native-host/astro-htile-firmware-20261008.md) “MSAA 慢的原因与修复”等节。
   - **MSAA**：ASTRO 为 4 颜色/8 深度（EQAA），Turnip 无 mixed samples，管线键把颜色升 8×，颜色目标在带/不带深度的 pass 间 4×↔8× 换 backing 并整屏拷贝（每次 2–6.6 ms）。`Instance::HostSamples` 改为夹到设备 framebuffer 颜色/深度/模板采样上限（Turnip 4×），`ms_image_blit.frag` 源采样夹值；`debug.shadps4.msaa_per_format=1` 恢复旧 8×。Swan 同一标题画面 8× 17.2 FPS/GPU 99%@902 MHz → 4× 30.3 FPS/77%@826 MHz。Beat Saber 8× 也随之变 4×，未复测。
   - **座位偏移**：VrTracker 给游戏的 HMD/眼/Move/DS4 位置统一加 z +1.5 m（PS 摄像头为原点，同 AQ `origin_offset`），宿主投影位姿不变；`xr_tracking seat on|off`。DS4 右手柄偏移可用 `xr_tracking ds4_offset X Y Z` 实时调整（用户反馈偏高，数值待佩戴标定）。
