@@ -72,19 +72,33 @@ ArchiveInstallMetadata InspectArchiveInstall(const std::filesystem::path& base);
 [[nodiscard]] std::optional<std::filesystem::path> ResolveGameRoot(
     const std::filesystem::path& root);
 
-/// Expands one `.zar` into the content roots it holds. An archive with
+/// Expands an archive into the content roots it holds. An archive with
 /// `sce_sys` at its root is a single piece of content and yields itself;
 /// otherwise it is a bundle and yields `<archive>/<dir>` per top-level entry.
 [[nodiscard]] std::vector<std::filesystem::path> ExpandBundleRoots(
     const std::filesystem::path& archive);
 
 /// Enumerates the content roots directly under `parent`: subdirectories, plus
-/// any `.zar` archive. Used to scan install folders (addcont) uniformly whether
+/// any `.zar` / `.pkg` archive. Used to scan install folders (addcont) uniformly whether
 /// the content was left unpacked or packed into an archive. The result is
 /// sorted, so callers that assign indices by position stay stable across runs.
 /// Read files out of the returned roots with ReadGameFile().
 [[nodiscard]] std::vector<std::filesystem::path> ListContentRoots(
     const std::filesystem::path& parent);
+
+// DLC next to a game, including bundled ZAR content and a PKG folder's DLC/.
+[[nodiscard]] std::vector<std::filesystem::path> ListGameAdditionalContentRoots(
+    const std::filesystem::path& game);
+
+struct AdditionalContentRoot {
+    std::filesystem::path root;
+    std::string content_id;
+    bool has_data{};
+};
+// Validate title/category, deduplicate CONTENT_ID and prefer a data-bearing
+// package over a metadata-only package for the same entitlement.
+std::vector<AdditionalContentRoot> SelectAdditionalContent(std::vector<std::filesystem::path> roots,
+                                                           std::string_view title_id);
 
 #ifdef _WIN64
 inline constexpr bool NeedsCaseInsensitiveSearch = false;

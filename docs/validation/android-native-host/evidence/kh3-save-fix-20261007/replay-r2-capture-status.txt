@@ -1,0 +1,37 @@
+SERVICE com.shadps4.android/.service.FexSessionService 76516f7 pid=1366 user=0
+  Client:
+    state: finished
+    name: kh3-black-r2-20261007
+    path: /data/user/0/com.shadps4.android/files/host/captures/gpu_replay/kh3-black-r2-20261007.sgpurply
+    frames_requested: 2
+    deferrals: 0
+    writeback_ms: 309
+    snapshot_ms: 3567
+    vmas: 756
+    data_pages: 365560
+    zero_pages: 200764
+    raw_bytes: 1551545408
+    stored_bytes: 531311903
+    reason: finished
+    events: 330
+    frames: 2
+    stream_ms: 709
+    records_memory_pages: 161
+    records_mapping: 7
+    records_submit: 20
+    records_eop_flip_armed: 1
+    records_resume: 34
+    records_wait_poll: 262
+    records_command: 0
+    records_burst_end: 2
+    records_flip: 2
+    records_end: 1
+    flushes: 298
+    flush_ms: 656
+    write_faults: 12701
+    delta_pages: 11843
+    delta_zero_pages: 3533
+    whole_copy_bytes: 11993088
+    mapping_changes: 7
+    excluded_stacks: 0
+    untracked_bytes: 0

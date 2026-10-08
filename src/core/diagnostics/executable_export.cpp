@@ -301,16 +301,8 @@ std::vector<fs::path> DiscoverDlc(const fs::path& install, const std::string& ti
     if (title.size() == 9 && title.starts_with("CUSA") &&
         std::all_of(title.begin() + 4, title.end(), [](char c) { return c >= '0' && c <= '9'; }))
         roots = FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / title);
-    if (auto sibling =
-            FileSys::ResolveGameRoot(FileSys::OverlayPath(install, FileSys::DlcSuffix))) {
-        auto list = FileSys::IsZArchiveFile(*sibling) ? FileSys::ExpandBundleRoots(*sibling)
-                                                      : FileSys::ListContentRoots(*sibling);
-        roots.insert(roots.end(), list.begin(), list.end());
-    }
-    if (FileSys::IsAllInOneArchive(install)) {
-        auto list = FileSys::ListContentRoots(install / FileSys::AllInOneDlc);
-        roots.insert(roots.end(), list.begin(), list.end());
-    }
+    auto siblings = FileSys::ListGameAdditionalContentRoots(install);
+    roots.insert(roots.end(), siblings.begin(), siblings.end());
     std::sort(roots.begin(), roots.end());
     roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
     return roots;
@@ -318,12 +310,12 @@ std::vector<fs::path> DiscoverDlc(const fs::path& install, const std::string& ti
 std::shared_ptr<Source> OpenSource(fs::path path) {
     Require(path.is_absolute(), "source path must be absolute");
     path = fs::canonical(path);
-    if (fs::is_regular_file(path) && !FileSys::IsZArchiveFile(path)) {
+    if (fs::is_regular_file(path) && !FileSys::IsGameArchive(path)) {
         Require(Lower(path.filename().string()) == "eboot.bin",
-                "expected game root, ZAR or eboot.bin");
+                "expected game root, ZAR, PKG or eboot.bin");
         path = path.parent_path();
     }
-    Require(fs::is_directory(path) || FileSys::IsZArchiveFile(path), "invalid game root");
+    Require(fs::is_directory(path) || FileSys::IsGameArchive(path), "invalid game root");
     // Probe without Mount's assertion before admitting externally supplied roots.
     auto probe = FileSys::OpenGameBackend(path);
     Require(bool(probe), "source backend could not be opened");

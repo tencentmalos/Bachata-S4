@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <mutex>
@@ -66,6 +67,13 @@ GuestGpuReplay::GuestGpuReplay(std::filesystem::path trace_)
             png = false;
         } else if (option == "hash") {
             hash_images = true;
+        } else if (option == "dump") {
+            hash_images = dump_images = true;
+        } else if (option.starts_with("events=")) {
+            if (std::sscanf(option.c_str() + 7, "%llu-%llu", &dump_first, &dump_last) != 2 ||
+                dump_first > dump_last) {
+                throw std::runtime_error("GPU replay: invalid image dump event range");
+            }
         } else if (option.starts_with("draws=")) {
             hash_images = true;
             hash_draws = std::strtoull(option.c_str() + 6, nullptr, 10);
@@ -138,6 +146,9 @@ GuestGpuReplay::Outcome GuestGpuReplay::Run(const std::atomic<bool>& cancelled,
     VideoCore::Replay::EnableFrameDump(output_dir, png);
     if (hash_images) {
         player->EnableImageHashes(output_dir / "image_hashes.txt", hash_draws);
+    }
+    if (dump_images) {
+        player->EnableImageDump(output_dir / "images", dump_first, dump_last);
     }
     RunCommands(debugbus, nullptr);
 

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="spatial.content.OnlineContentTest" tests="1" failures="0" errors="0" skipped="0" time="0.996" timestamp="2026-10-07T13:40:36" hostname="localhost">
+  <properties>
+    <property name="device" value="Pocket DS - 13" />
+    <property name="flavor" value="" />
+    <property name="project" value=":foundation-online-content" />
+  </properties>
+  <testcase name="packagedLibrariesAndUnicodeStorage" classname="spatial.content.OnlineContentTest" time="0.063" />
+</testsuite>

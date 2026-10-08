@@ -4,6 +4,9 @@
 #include "core/host_runtime/guest_ime_keyboard.h"
 #include "core/host_runtime/guest_error_dialog.h"
 #include "core/host_runtime/guest_signin_dialog.h"
+#include "core/host_runtime/guest_login.h"
+#include "core/host_runtime/guest_companion.h"
+#include "core/host_runtime/guest_kernel_app.h"
 #include "core/host_runtime/guest_msg_dialog.h"
 #include "core/host_runtime/guest_commerce_dialog.h"
 #include "core/host_runtime/guest_ssl.h"
@@ -104,6 +107,7 @@
 #include "core/host_runtime/guest_user_callbacks.h"
 #include "core/host_runtime/guest_video_event_hle.h"
 #include "core/host_runtime/guest_video_mode.h"
+#include "core/host_runtime/guest_videodec.h"
 #include "core/host_runtime/guest_vr_service_dialog.h"
 #include "core/libraries/kernel/kernel.h"
 #include "core/libraries/kernel/threads/event_flag_state.h"
@@ -452,7 +456,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestFiber> fiber;
     std::unique_ptr<GuestSocialScreen> social_screen;
     std::unique_ptr<GuestAvPlayer> avplayer;
+    std::unique_ptr<GuestVideodec2> videodec2;
     std::unique_ptr<GuestAudio> audio;
+    std::unique_ptr<GuestAudioInput> audio_input;
     std::unique_ptr<GuestAudio3d> audio3d;
     std::unique_ptr<GuestKernelSemaphore> kernel_semaphores;
     std::unique_ptr<GuestPad> pad;
@@ -461,6 +467,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     GuestImeKeyboard ime_keyboard;
     GuestErrorDialog error_dialog{EmulatorSettings.AreGuestDialogsSilent()};
     std::unique_ptr<GuestSigninDialog> signin_dialog;
+    GuestLogin login;
+    GuestCapturePolicy capture_policy;
     std::shared_ptr<GuestMsgDialog> msg_dialog;
     std::unique_ptr<GuestCommerceDialog> commerce_dialog;
     std::unique_ptr<GuestSslOffline> ssl;
@@ -563,7 +571,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::string gnm_fastpath_status{"not_installed"};
     void InstallGnmFastPath();
     u64 stack_guard{}, progname_object{}, environ_object{}, heap_trace{};
-    std::once_flag heap_trace_once;
+    std::once_flag heap_trace_once, sandbox_word_once;
+    u64 sandbox_word{};
     // Guest PCs copied from the libc heap table. Never install them in the
     // desktop Linker's native function-pointer HeapAPI.
     std::array<u64, sizeof(HeapAPI) / sizeof(u64)> guest_heap_api{};
@@ -773,6 +782,22 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                     // 4-byte dependency tag instead of fabricated zero objects.
                     const auto suffix = "#libSceLibcInternal#1#libSceLibcInternal#Object";
                     const auto nid = symbol.name.substr(0, symbol.name.find('#'));
+                    // The local FreeType outline provider can run without its
+                    // optional BDF/PCF/WinFNT bitmap add-on. Firmware 11.00
+                    // libSceFreeTypeOl +0x76f3 rejects a null module class;
+                    // FTA format queries then report that driver unavailable.
+                    // Do not fabricate a class with native callback pointers.
+                    if (symbol.name.substr(nid.size()) ==
+                            "#libSceFreeType#1#libSceFreeType#Object" &&
+                        (nid == "mKA4m9Tc6-4" || nid == "XQbd3lyks0c" || nid == "5IJlKspehi8")) {
+                        const auto root = std::filesystem::weakly_canonical(EmulatorSettings.GetSysModulesDir());
+                        for (u32 id = 0; auto* m = linker->GetModule(id); ++id) {
+                            if (m->file == root / "libSceFreeTypeOl.sprx") {
+                                LOG_WARNING(Core_Linker, "Optional FreeType bitmap driver unavailable: {}", nid);
+                                return u64{0};
+                            }
+                        }
+                    }
                     const auto* known = AeroLib::FindByNid(nid.c_str());
                     const bool standard_stream =
                         known && (std::string_view(known->name) == "_Stdin" ||
@@ -909,6 +934,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         for (auto& [id, o] : owners)
             if (o->worker.joinable())
                 o->worker.join();
+        videodec2.reset(); // no decoder outlives the guest owners or their VM
         audio3d.reset();
         audio.reset(); // joins audio workers before clock/VM teardown
         ajm.reset(); // joins decoder worker before VM/backing teardown
@@ -1683,6 +1709,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             avplayer->RequestStop();
         if (audio3d) audio3d->RequestStop();
         if (audio) audio->RequestStop();
+        if (audio_input) audio_input->RequestStop();
         if (ajm) ajm->RequestStop();
         if (network) network->RequestStop();
         if (aio) aio->RequestStop();
@@ -1774,7 +1801,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         // Guest-facing libSceSystemService startup family; same policy as above.
         static const std::set<std::string> systemservice_functions{"fZo48un7LK4", "rPo6tV8D9bM",
                                                                    "656LMQSrg6U", "Vo5V8KAwCmk",
-                                                                   DisplaySafeAreaNid};
+                                                                   DisplaySafeAreaNid, "fBGD-HNimSk",
+                                                                   "x1UB9bwDSOw", "Mr1IgQaRff0", "hvoLYhc4cq0"};
         // Explicit checked GPU policies plus retail owner registration; unknown
         // GNM entry points still produce a named unsupported-import fault.
         auto gnmdriver_functions = graphics_gnm_nids;
@@ -1834,8 +1862,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             !GuestNpAuthOffline::IsNid(nid) && !IsNpScoreOfflineNid(nid) &&
             !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) &&
             !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) &&
-            !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsAudioNid(nid) &&
-            !IsAudio3dNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsMouseNid(nid) &&
+            !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsVideodec2Nid(nid) &&
+            !IsAudioNid(nid) && !IsAudio3dNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsMouseNid(nid) &&
             !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
             !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
@@ -1844,6 +1872,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             !hmd_setup_dialog_functions.contains(nid) && !vr_tracker_functions.contains(nid) &&
             !IsCameraNid(nid) && !move_functions.contains(nid) && !GuestImeKeyboard::IsNid(nid) &&
             !GuestErrorDialog::IsNid(nid) && !ime_dialog_nid && !GuestSigninDialog::IsNid(nid) &&
+            !GuestLogin::IsNid(nid) && !IsCompanionOfflineNid(nid) &&
             !GuestMsgDialog::IsNid(nid) && !GuestCommerceDialog::IsNid(nid) &&
             !GuestFiber::IsNid(nid) && !GuestSocialScreen::IsNid(nid) && nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
@@ -1851,6 +1880,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             it != handlers.end() &&
             ((avplayer && IsAvPlayerNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAvPlayer#1#libSceAvPlayer#Function") ||
+             (videodec2 && IsVideodec2Nid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceVideodec2#1#libSceVideodec2#Function") ||
              (IsAudioInputNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAudioIn#1#libSceAudioIn#Function") ||
              AdmitsLiveStreamingUnavailable(nid, symbol.name.substr(nid.size())) ||
@@ -1925,7 +1956,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
                symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function")) ||
              ((nid == "4R6-OvI2cEA" || nid == "WDszmSbWuDk" || nid == "F6e0kwo4cnk" ||
-               nid == "LJDwdSNTnDg") &&
+               nid == "LJDwdSNTnDg" || nid == "R74tt43xP6k" || nid == "J+LF6LwObXU") &&
               symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function") ||
              ((nid == "WkwEd3N7w0Y" || nid == "Qhv5ARAoOEc" || nid == "il03nluKfMk") &&
               symbol.name.substr(nid.size()) == "#libkernel_unity#1#libkernel#Function") ||
@@ -1949,6 +1980,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                   "#libSceErrorDialog#1#libSceErrorDialog#Function") ||
              (ime_dialog && ime_dialog_nid &&
               symbol.name.substr(nid.size()) == "#libSceImeDialog#1#libSceImeDialog#Function") ||
+             GuestLogin::Admits(nid, symbol.name.substr(nid.size())) ||
+             (IsCompanionOfflineNid(nid) && symbol.name.substr(nid.size()) ==
+                 "#libSceCompanionHttpd#1#libSceCompanionHttpd#Function") ||
              (signin_dialog && GuestSigninDialog::IsNid(nid) &&
               symbol.name.substr(nid.size()) ==
                   "#libSceSigninDialog#1#libSceSigninDialog#Function") ||
@@ -1964,10 +1998,18 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 symbol.name.substr(nid.size()) ==
                     "#libSceUserServiceForNpToolkit#1#libSceUserService#Function")) &&
               userservice_functions.contains(nid)) ||
-             (symbol.name.substr(nid.size()) ==
-                  "#libSceSystemService#1#libSceSystemService#Function" &&
+             ((symbol.name.substr(nid.size()) ==
+                   "#libSceSystemService#1#libSceSystemService#Function" ||
+               (nid == "fBGD-HNimSk" && symbol.name.substr(nid.size()) ==
+                                          "#libSceSystemServicePadspkRouting#1#libSceSystemService#Function") ||
+               (nid == "hvoLYhc4cq0" && symbol.name.substr(nid.size()) ==
+                    "#libSceSystemServicePlatformPrivacy#1#libSceSystemService#Function") ||
+               (nid == "Mr1IgQaRff0" && symbol.name.substr(nid.size()) ==
+                                          "#libSceSystemServiceEyeToEyeDistance#1#libSceSystemService#Function")) &&
               systemservice_functions.contains(nid)) ||
-             (symbol.name.substr(nid.size()) == "#libSceGnmDriver#1#libSceGnmDriver#Function" &&
+             ((symbol.name.substr(nid.size()) == "#libSceGnmDriver#1#libSceGnmDriver#Function" ||
+               (nid == "R3TYO7Tdv5o" && symbol.name.substr(nid.size()) ==
+                                          "#libSceGnmWaitFreeSubmit#1#libSceGnmDriver#Function")) &&
               gnmdriver_functions.contains(nid)) ||
              (graphics_window &&
               symbol.name.substr(nid.size()) == "#libSceVideoOut#1#libSceVideoOut#Function" &&
@@ -1998,7 +2040,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                             move_functions.contains(nid)
                         ? "android_bridge_guest_vr_sbs_virtual"
                     : IsMouseNid(nid)      ? "android_bridge_guest_device_no_provider"
-                    : IsAudioInputNid(nid) ? "android_bridge_audio_input_no_provider"
+                    : IsAudioInputNid(nid) ? "android_bridge_audio_input_disconnected"
+                    : IsCompanionOfflineNid(nid) ? "android_bridge_companion_offline_stub"
                     : GuestVrServiceDialog::IsNid(nid)
                         ? "android_bridge_vr_service_dialog_no_provider"
                     : FindCaptureService(nid) ? "android_bridge_capture_service_no_provider"
@@ -2015,7 +2058,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             refused.push_back(symbol.name);
             if (!hle_status.contains(symbol.name))
                 hle_status[symbol.name] = "unsupported_import";
-            adapter = std::make_shared<FunctionAdapter>([name = symbol.name](HleCallFrame&) {
+            adapter = std::make_shared<FunctionAdapter>([name = symbol.name](HleCallFrame& frame) {
+                LOG_ERROR(Core_Linker, "Unsupported guest import {} args={:#x},{:#x},{:#x},{:#x}",
+                          name, frame.registers.Get(Gpr::Rdi), frame.registers.Get(Gpr::Rsi),
+                          frame.registers.Get(Gpr::Rdx), frame.registers.Get(Gpr::Rcx));
                 return MakeError(ErrorCategory::Unsupported, "ProductionHle",
                                  "unimplemented import policy: " + name);
             });
@@ -2353,6 +2399,22 @@ void GuestRuntime::Impl::InstallHandlers() {
             frame.registers.Set(Gpr::Rax, msg_dialog->Invoke(space, nid, args));
             return Ok();
         };
+    }
+    for (const auto nid : CompanionOfflineNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            frame.registers.Set(Gpr::Rax, DispatchCompanionOffline(space, nid,
+                                                                  frame.registers.Get(Gpr::Rdi)));
+            return Ok();
+        };
+    }
+    for (const auto family : {std::span<const std::string_view>(GuestLogin::ServiceNids),
+                              std::span<const std::string_view>(GuestLogin::DialogNids)}) {
+        for (const auto nid : family) {
+            handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+                frame.registers.Set(Gpr::Rax, login.Invoke(nid));
+                return Ok();
+            };
+        }
     }
     for (auto nid : GuestSigninDialog::Nids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
@@ -2987,6 +3049,20 @@ void GuestRuntime::Impl::InstallHandlers() {
          [](const auto&) -> u64 { return 0; });
     // Match the emulator's virtual process identity (GLOBAL_PID), not Android PID.
     bind({"HoLVWNanBBc"}, [](const auto&) -> u64 { return 0xBAD1; });
+    bind({"G-MYv5erXaU"}, [this](const auto& a) -> u64 {
+        return GuestGetAppInfo(space, s32(a[0]), a[1], elf_info.GameSerial());
+    });
+    bind({"1yca4VvfcNA"}, [this](const auto& a) -> u64 {
+        return GuestTitleWorkaround(space, a[0], s32(a[1]), a[2]);
+    });
+    bind({"JGfTMBOdUJo"}, [this](const auto&) -> u64 {
+        std::call_once(sandbox_word_once, [this] {
+            sandbox_word = Allocate(0x4000, "GuestSandboxWord");
+            const char word[] = "sys";
+            Write(sandbox_word, word);
+        });
+        return sandbox_word;
+    });
     // Orbis pages remain 16 KiB regardless of the Android host's page size.
     bind({"k+AXqu2-eBc"}, [](const auto&) -> u64 { return 0x4000; });
     bind({"Xjoosiw+XPI"}, [this](const auto& a) -> u64 {
@@ -3333,13 +3409,13 @@ void GuestRuntime::Impl::InstallHandlers() {
             std::copy_n(a.begin(), 6, args.begin());
             s32 sdk = -1;
             (void)Libraries::Kernel::sceKernelGetCompiledSdkVersion(&sdk);
-            return DispatchCaptureService(space, entry, args, u32(sdk));
+            return DispatchCaptureService(space, entry, args, u32(sdk), &capture_policy);
         });
     }
     for (const auto& entry : RemoteServiceEntries) {
         bind({entry.nid.data()}, [this, entry](const auto& a) -> u64 {
             std::array<u64, 6> args{}; std::copy_n(a.begin(), 6, args.begin());
-            const auto result = DispatchRemoteService(entry, args);
+            const auto result = DispatchRemoteService(entry, args, true);
             PrepareStage(fmt::format("RemoteService no_provider nid={} result={:#x}", entry.nid, result));
             return result;
         });
@@ -3353,9 +3429,9 @@ void GuestRuntime::Impl::InstallHandlers() {
         });
     }
     for (const auto nid : AudioInputNids) {
-        bind({nid.data()}, [nid](const auto& a) -> u64 {
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 {
             std::array<u64, 6> args{}; std::copy_n(a.begin(), 6, args.begin());
-            return DispatchAudioInput(nid, args);
+            return audio_input->Dispatch(nid, args, HleScope::Current()->CancellationToken());
         });
     }
     for (const auto nid : CoredumpUnavailableNids) {
@@ -3990,7 +4066,8 @@ void GuestRuntime::Impl::InstallHandlers() {
     for (auto nid : AjmNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
             std::array<u64, 10> args{};
-            const size_t count = nid == "dmDybN--Fn8"                             ? 8
+            const size_t count = nid == "WfAiBW8Wcek"                            ? 0
+                                 : nid == "dmDybN--Fn8"                           ? 8
                                  : (nid == "ElslOCpOIns" || nid == "7jdAXK+2fMo") ? 10
                                  : nid == "fFFkk0xfGWs"                           ? 6
                                  : (nid == "stlghnic3Jc" || nid == "-qLsfDAywIY" ||
@@ -4033,6 +4110,8 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({nid.data()},
              [this, nid](const auto& a) -> u64 { return avplayer->Dispatch(nid, a); });
     }
+    for (const auto nid : Videodec2Nids)
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 { return videodec2->Dispatch(nid, a); });
     for (const auto nid : GuestErrorDialog::Nids)
         bind({nid.data()}, [this, nid](const auto& a) -> u64 { return error_dialog.Invoke(space, nid, a); });
     for (const auto nid : GuestImeKeyboard::Nids)
@@ -4356,6 +4435,22 @@ void GuestRuntime::Impl::InstallHandlers() {
     // libSceSystemService startup family. Output pointers are validated and the
     // real emulator functions run on host-local objects; results are copied back.
     namespace SystemService = Libraries::SystemService;
+    // Desktop compatibility controls have no guest buffers or callbacks. Keep
+    // their existing behavior for ASTRO BOT's pad-speaker and PSVR setup.
+    // No platform privacy provider exists on Android. Do not return success
+    // with an untouched guest output (the desktop placeholder does that).
+    bind({"hvoLYhc4cq0"}, [](const auto&) -> u64 {
+        return u32(ORBIS_KERNEL_ERROR_ENOSYS);
+    });
+    bind({"fBGD-HNimSk"}, [](const auto&) -> u64 {
+        return u32(SystemService::Func_7C1183FC73629929());
+    });
+    bind({"x1UB9bwDSOw"}, [](const auto&) -> u64 {
+        return u32(SystemService::sceSystemServiceDisableMusicPlayer());
+    });
+    bind({"Mr1IgQaRff0"}, [](const auto&) -> u64 {
+        return u32(SystemService::sceSystemServiceDisablePersonalEyeToEyeDistanceSetting());
+    });
     bind({DisplaySafeAreaNid}, [this](const auto& a) -> u64 {
         return GuestDisplaySafeAreaInfo(space, a[0]);
     });
@@ -4612,7 +4707,8 @@ void GuestRuntime::Impl::InstallHandlers() {
     });
     for (const auto nid : ReprojectionNids) {
         bind({nid.data()}, [this, nid](const auto& a) -> u64 {
-            const auto result = reprojection->Dispatch(nid, a, GuestVrSensor::Instance().Read().enabled);
+            const auto result = reprojection->Dispatch(nid, a, GuestVrSensor::Instance().Read().enabled,
+                                                       HleScope::Current()->CancellationToken());
             const auto n = ++reprojection_calls;
             if (n <= 32 || (result && (n & 1023) == 0))
                 LOG_INFO(Lib_Hmd, "SBS passthrough nid={} args={:#x}/{:#x}/{:#x} result={:#x}",
@@ -5033,7 +5129,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         impl->prepared = true;
         return;
     }
-    const bool archive = FileSys::IsZArchiveFile(executable);
+    const bool archive = FileSys::IsGameArchive(executable);
     if (archive) (void)FileSys::InspectArchiveInstall(executable);
     const auto install_root = std::filesystem::canonical(archive ? executable : executable.parent_path());
     const auto main_path = archive ? std::filesystem::path("/app0/eboot.bin")
@@ -5057,6 +5153,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     std::map<std::filesystem::path, u32> loaded{{main_path, 0}};
     std::set<u32> visiting, visited;
     std::map<u32, std::vector<u32>> dependencies;
+    const auto system_module_root = std::filesystem::weakly_canonical(EmulatorSettings.GetSysModulesDir());
     const std::vector<std::filesystem::path> search_roots{
         content_root / "sce_module", content_root / "Media/Modules",
         content_root / "Media/Plugins", content_root / "modules", content_root / "prx",
@@ -5103,6 +5200,33 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                     throw std::runtime_error("dependency escapes content root");
                 found = candidate;
                 break;
+            }
+            // Firmware FontFt is split across a core, hinter and raster helper.
+            // Their DT_NEEDED package names differ from the installed filenames;
+            // all three export disjoint parts of libSceFreeType. Only resolve
+            // these reviewed dependencies for a local firmware consumer.
+            if (!found && impl->linker->GetModule(id)->file.parent_path() == system_module_root) {
+                static const std::map<std::string, std::pair<std::string, std::string>> font_deps{
+                    {"libSceFreeTypeFull-PRX.prx", {"libSceFreeTypeOl.sprx", "libSceFreeType"}},
+                    {"libSceFreeTypeHinter-PRX.prx", {"libSceFreeTypeHinter.sprx", "libSceFreeType"}},
+                    {"libSceFreeTypeSubFunc-PRX.prx", {"libSceFreeTypeSubFunc.sprx", "libSceFreeType"}},
+                    {"libSceFont-module.prx", {"libSceFont.sprx", "libSceFont"}}};
+                if (auto it = font_deps.find(name.string()); it != font_deps.end()) {
+                    const auto path = EmulatorSettings.GetSysModulesDir() / it->second.first;
+                    if (std::filesystem::is_regular_file(path)) {
+                        const auto dep = load(path);
+                        const auto* provider = impl->linker->GetModule(dep);
+                        if (!std::ranges::any_of(provider->GetExportLibs(), [&](const auto& l) {
+                                return l.name == it->second.second && l.version == 1;
+                            }) || !std::ranges::any_of(provider->GetExportModules(), [&](const auto& m) {
+                                return m.name == it->second.second;
+                            }))
+                            throw std::runtime_error("font dependency identity mismatch: " + path.string());
+                        dependencies[id].push_back(dep);
+                        visit(dep);
+                        continue;
+                    }
+                }
             }
             bool alias = false;
             if (!found) {
@@ -5200,6 +5324,12 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
              // Desktop allows the firmware module too (sysmodule_internal.cpp ModulesToLoad);
              // its own imports still go through Bind's policy.
              LocalLibrary{"libSceNgs2", "libSceNgs2", "libSceNgs2.sprx"},
+             LocalLibrary{"libSceJpegEnc", "libSceJpegEnc", "libSceJpegEnc.sprx"},
+             LocalLibrary{"libSceJpegDec", "libSceJpegDec", "libSceJpegDec.sprx"},
+             LocalLibrary{"libScePngEnc", "libScePngEnc", "libScePngEnc.sprx"},
+             LocalLibrary{"libScePngDec", "libScePngDec", "libScePngDec.sprx"},
+             LocalLibrary{"libSceFont", "libSceFont", "libSceFont.sprx"},
+             LocalLibrary{"libSceFontFt", "libSceFontFt", "libSceFontFt.sprx"},
              // Json2's export module is libSceJson (firmware 11.00), not its filename.
              LocalLibrary{"libSceJson2", "libSceJson", "libSceJson2.sprx"}}) {
         std::vector<u32> consumers, providers;
@@ -5348,18 +5478,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     if (GuestStorage::ValidTitle(serial)) {
         auto roots =
             Core::FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / serial);
-        const auto sibling =
-            Core::FileSys::OverlayPath(install_root, Core::FileSys::DlcSuffix);
-        if (const auto root = Core::FileSys::ResolveGameRoot(sibling)) {
-            auto found = Core::FileSys::IsZArchiveFile(*root)
-                             ? Core::FileSys::ExpandBundleRoots(*root)
-                             : Core::FileSys::ListContentRoots(*root);
-            roots.insert(roots.end(), found.begin(), found.end());
-        }
-        if (FileSys::IsAllInOneArchive(install_root)) {
-            auto found = FileSys::ListContentRoots(install_root / FileSys::AllInOneDlc);
-            roots.insert(roots.end(), found.begin(), found.end());
-        }
+        auto siblings = FileSys::ListGameAdditionalContentRoots(install_root);
+        roots.insert(roots.end(), siblings.begin(), siblings.end());
         export_source->additional_content = roots;
         impl->app_content = std::make_unique<GuestAppContent>(impl->mounts, sdk, serial,
                                                               app_parameters, std::move(roots),
@@ -5381,8 +5501,14 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     LOG_INFO(Lib_SystemService, "Guest console language={} (session snapshot)",
              EmulatorSettings.GetConsoleLanguage());
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
+    impl->sysmodules.Publish("libSceScreenShot", 0x1000002c);
+    impl->sysmodules.Publish("libSceVideoRecording", 0x1000002b);
+    impl->sysmodules.Publish("libSceCompanionHttpd", 0x1000002a);
+    impl->sysmodules.Publish("libSceLoginService", 0x10000028);
+    impl->sysmodules.Publish("libSceLoginDialog", 0x10000029);
     impl->sysmodules.Publish("libScePad", 0x1000000d);
     impl->audio = std::make_unique<GuestAudio>(impl->space, impl->clock);
+    impl->audio_input = std::make_unique<GuestAudioInput>(impl->space);
     impl->audio3d = std::make_unique<GuestAudio3d>(impl->space, *impl->audio);
     impl->sysmodules.Publish("libSceAudio3d", 0x10000024);
     impl->ajm = std::make_unique<GuestAjm>(impl->space);
@@ -5411,6 +5537,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->avplayer =
         std::make_unique<GuestAvPlayer>(impl->space, [p = impl.get()] { return p->CallbackOwner("AvPlayerCallbackScratch"); });
     impl->sysmodules.Publish("libSceAvPlayer", 0x1000000e);
+    impl->videodec2 = std::make_unique<GuestVideodec2>(impl->space);
+    impl->sysmodules.Publish("libSceVideodec2", 0x10000026);
     std::map<s32, bool> signup;
     for (const auto& user : UserManagement.GetAllUsers())
         signup.emplace(user.user_id, !user.shadnet_npid.empty());

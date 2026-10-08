@@ -172,7 +172,7 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
         for (const auto& comp : file) {
             if (!found) {
                 accum /= comp;
-                if (comp.extension() == ".zar") {
+                if (comp.extension() == ".zar" || comp.extension() == ".pkg") {
                     found = true;
                     archive_path = accum;
                 }
@@ -180,9 +180,10 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
                 archive_inner /= comp;
             }
         }
-        // Only treat it as an archive if the .zar element is a real file.
+        // Only treat it as an archive if the container element is a real file.
         if (found && !std::filesystem::is_regular_file(archive_path)) {
             found = false;
+            archive_path.clear();
         }
         if (found && archive_inner.empty()) {
             archive_inner = "eboot.bin";
@@ -210,6 +211,14 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
         file = archive_path / archive_inner;
         eboot_name = archive_inner;
         rebase_to_base_game(game_folder);
+        if (FileSys::IsPkgFile(game_folder)) {
+            try {
+                FileSys::InspectArchiveInstall(game_folder);
+            } catch (const std::exception& error) {
+                LOG_ERROR(Loader, "Cannot launch PKG: {}", error.what());
+                return;
+            }
+        }
     }
 
     const auto resolve_relative_path = [](const std::filesystem::path& path,
@@ -776,8 +785,7 @@ void Emulator::Restart(std::filesystem::path eboot_path,
 
     auto& game_info = Common::ElfInfo::Instance();
     const auto& game_folder = game_info.GetGameFolder();
-    const bool from_archive =
-        std::filesystem::is_regular_file(game_folder) && game_folder.extension() == ".zar";
+    const bool from_archive = FileSys::IsGameArchive(game_folder);
 
     args.push_back("--log-append");
 

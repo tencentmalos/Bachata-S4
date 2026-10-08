@@ -13,8 +13,9 @@
 
 namespace Core::HostRuntime {
 
-inline constexpr std::array<std::string_view, 6> MemoryServiceNids{
-    "DGMG3JshrZU", "BHouLQzh0X0", "BPE9s9vQQXo", "UqDGjXA5yUM", "3k6kx-zOOSQ", "yDBwVAolDgg"};
+inline constexpr std::array<std::string_view, 7> MemoryServiceNids{
+    "DGMG3JshrZU", "BHouLQzh0X0", "BPE9s9vQQXo", "UqDGjXA5yUM", "3k6kx-zOOSQ", "yDBwVAolDgg",
+    "xQIIfJ860sk"};
 
 inline u32 GuestQueryStack(GuestCpu::GuestAddressSpace& space, MemoryManager& memory,
                            u64 address, u64 start, u64 end) {
@@ -35,7 +36,7 @@ inline u32 GuestQueryStack(GuestCpu::GuestAddressSpace& space, MemoryManager& me
 }
 
 inline std::string_view MemoryServiceStatus(std::string_view nid) {
-    if (nid == "3k6kx-zOOSQ") return "desktop_stub_no_residency";
+    if (nid == "3k6kx-zOOSQ" || nid == "xQIIfJ860sk") return "desktop_stub_no_residency";
     if (nid == "BPE9s9vQQXo") return "android_bridge_guest_file_mapping";
     return "android_bridge";
 }
@@ -96,6 +97,8 @@ inline GuestCpu::Result<u64> DispatchMemoryService(
         // memory, alter permissions or promise host residency. Audit it as such.
         return u64(u32(Libraries::Kernel::sceKernelMlock(reinterpret_cast<void*>(a[0]), a[1])));
     }
+    // Paired with the no-residency Mlock above: there is no host lock to release.
+    if (nid == "xQIIfJ860sk") return u64{0};
     return MakeError(ErrorCategory::Unsupported, "GuestMemory", "unknown memory service");
 }
 } // namespace Core::HostRuntime

@@ -256,7 +256,7 @@ std::vector<MemoryManager::MappingSnapshot> MemoryManager::SnapshotMappings(VAdd
             continue;
         }
         const VAddr low = std::max(vma.base, begin);
-        const VAddr high = std::min(vma.base + vma.size, end);
+        const VAddr high = std::min<VAddr>(vma.base + vma.size, end);
         auto& mapping = mappings.emplace_back(
             MappingSnapshot{low, high - low, vma.type, vma.prot, vma.name, {}});
         const u64 clip_begin = low - vma.base;
@@ -577,7 +577,7 @@ bool MemoryManager::ResolveSrtWindow(VAddr address, u64 size, VAddr& begin, VAdd
     if (size > segment_end - address)
         return false; // crosses into another backing segment: per-read path
     begin = std::max(segment_begin, Common::AlignDown(address, WindowSize));
-    end = std::min(segment_end, Common::AlignUp(address + size, WindowSize));
+    end = std::min<VAddr>(segment_end, Common::AlignUp(address + size, WindowSize));
     if (guest_backend && !impl.OwnsGuestRange(begin, end - begin)) {
         // Ownership only proven for the read itself (IsValidMapping above).
         begin = address;
@@ -2383,13 +2383,13 @@ VAddr MemoryManager::SearchFree(VAddr virtual_addr, u64 size, u32 alignment) {
                 const VAddr begin = std::max(base, lower);
                 if (begin > UINT64_MAX - (alignment - 1)) continue;
                 const VAddr candidate = Common::AlignUp(begin, alignment);
-                const VAddr end = std::min(vma.base + vma.size, upper);
+                const VAddr end = std::min<VAddr>(vma.base + vma.size, upper);
                 if (candidate < end && size <= end - candidate)
                     return candidate;
             }
             return VAddr(-1);
         };
-        const VAddr hint = std::clamp(virtual_addr, min_search_address, max_search_address);
+        const VAddr hint = std::clamp<VAddr>(virtual_addr, min_search_address, max_search_address);
         if (const auto address = search(hint, max_search_address); address != VAddr(-1))
             return address;
         return search(min_search_address, max_search_address);

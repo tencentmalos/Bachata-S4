@@ -67,6 +67,8 @@ import com.shadps4.android.runtime.input.ControllerSnapshot
 import com.shadps4.android.runtime.input.Ps4Button
 import com.shadps4.android.runtime.session.NativeFexSession
 import com.shadps4.android.runtime.input.NativePad
+import com.shadps4.android.runtime.input.GamepadInputManager
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
@@ -91,6 +93,8 @@ fun SessionScreen(
     val dependencies = remember { EntryPointAccessors.fromApplication(context.applicationContext, TouchLayoutDependencies::class.java) }
     var touchLayout by remember { mutableStateOf(TouchLayout()) }
     val state by viewModel.state.collectAsState()
+    val connectedControllers by GamepadInputManager.connectedControllers.collectAsState()
+    val hasPhysicalController = connectedControllers.isNotEmpty()
     val device by viewModel.deviceTelemetry.collectAsState()
     // Terminal publication follows native teardown. This renderer owns no guest
     // Surface and therefore also works when Prepare never produced a frame.
@@ -153,6 +157,7 @@ fun SessionScreen(
     }
 
     LaunchedEffect(gameId) {
+        dependencies.runtimeProfileStore().initializeControllerMappings(GamepadInputManager.connectedControllers.value)
         val global = dependencies.runtimeProfileStore().load(ProfileScope.Global)
         val game = dependencies.runtimeProfileStore().load(ProfileScope.Game(gameId))
         touchLayout = dependencies.touchLayoutRepository().load(game.touchLayoutId ?: global.touchLayoutId)
@@ -165,6 +170,11 @@ fun SessionScreen(
             android.widget.Toast.makeText(context, "The game session has ended", android.widget.Toast.LENGTH_SHORT).show()
             onExit()
         }
+        combine(
+            dependencies.runtimeProfileStore().observe(ProfileScope.Global),
+            dependencies.runtimeProfileStore().observe(ProfileScope.Game(gameId)),
+        ) { globalProfile, gameProfile -> gameProfile.controllerSlots.ifEmpty { globalProfile.controllerSlots } }
+            .collect { com.shadps4.android.runtime.input.NativePadBridge.configureProfiles(it) }
     }
 
     LaunchedEffect(state) {
@@ -254,7 +264,7 @@ fun SessionScreen(
 
         // Removing the View stops drawing AND hit testing; its disposal sends
         // only the overlay neutral state. Physical/debugbus sources stay independent.
-        if (showTouchControls) FixedControllerOverlay(
+        if (showTouchControls && !hasPhysicalController) FixedControllerOverlay(
             layout = touchLayout,
             onOverlayPointer = com.shadps4.android.runtime.input.NativePadBridge::overlayPointer,
             onOverlayCancel = com.shadps4.android.runtime.input.NativePadBridge::cancelOverlayPointers,
@@ -392,7 +402,7 @@ fun SessionScreen(
                     )
 
                     // Overlay Settings (Show/Hide overlay switch)
-                    Row(
+                    if (!hasPhysicalController) Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {

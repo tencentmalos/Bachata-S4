@@ -19,6 +19,10 @@ inline constexpr GuestLibcEntry GuestLibcEntries[]{
     {"VOBg+iNwB-4", "strtoll", "runtime"},
     {"MELi-cKqWq0", "_ZSt19_Xbad_function_callv", "runtime"},
     {"AEJdIVZTEmo", "qsort", "runtime"},
+    // PNG codecs unwind their own guest decoder frames; keep both endpoints
+    // in the same guest libc (never substitute host setjmp/longjmp).
+    {"gNQ1V2vfXDE", "setjmp", "runtime"},
+    {"lKEN2IebgJ0", "longjmp", "runtime"},
     {"3BytPOQgVKc", "snprintf_s", "io"},
     {"xGT4Mc55ViQ", "_Fofind", "io"},
     {"jVDuvE3s5Bs", "_Fofree", "io"},

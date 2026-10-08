@@ -22,6 +22,7 @@ include(":feature:setup", ":feature:library", ":feature:session", ":feature:sett
 // library with its own namespace; the app's version catalog supplies the plugin
 // versions. It declares no native library and no app-specific JNI.
 include(":foundation-input-android")
+include(":foundation-online-content")
+project(":foundation-online-content").projectDir = file("../../foundation/modules/online_content/android")
 project(":foundation-input-android").projectDir =
     file("../../foundation/modules/input/android")
-

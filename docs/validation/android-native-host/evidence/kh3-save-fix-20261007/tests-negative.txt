@@ -1,0 +1,5 @@
+FAIL line 37: transfer() == E::NOT_FOUND
+FAIL line 41: transfer("") == E::PARAMETER
+FAIL line 68: result == E::OK
+FAIL line 94: transfer("CUSA99993") == E::INTERNAL
+GUEST_FILE_IO checks=825 failures=4

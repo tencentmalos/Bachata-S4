@@ -57,6 +57,9 @@ data class ControllerProfile(
     fun bindingFor(control: String): PhysicalBinding? = bindings[bindingKey(control)]
 
     companion object {
+        fun autoMap(device: ControllerDeviceKey? = null, useHatDpad: Boolean = false): ControllerProfile =
+            if (useHatDpad) standardWithHatDpad(device) else standard(device)
+
         val LOGICAL_CONTROLS = setOf(
             "left_x", "left_y", "right_x", "right_y", "left_trigger", "right_trigger",
             "cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "l3", "r3",

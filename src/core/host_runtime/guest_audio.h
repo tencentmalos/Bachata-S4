@@ -17,7 +17,8 @@ namespace Core::HostRuntime {
 class GuestClock;
 inline constexpr std::string_view AudioNids[]{"JfEPXVxhFqA", "ekNvsT22rsY", "s1--uE9mBFw",
                                               "QOQtbeDqsT4", "w3PdaSTSwGE", "b+uAV89IlxE",
-                                              "Ptlts326pds", "GrQ9s4IrNaQ", "R5hemoKKID8"};
+                                              "Ptlts326pds", "GrQ9s4IrNaQ", "R5hemoKKID8",
+                                              "wVwPU50pS1c"};
 bool IsAudioNid(std::string_view nid);
 // DebugBus `audio_capture start <seconds> | status | save`: raw guest PCM per port and the time
 // each block was accepted, written under the log directory (audio-capture/).

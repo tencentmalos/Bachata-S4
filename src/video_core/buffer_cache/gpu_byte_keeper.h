@@ -8,6 +8,7 @@
 #include <cstring>
 #include <mutex>
 #include "common/futex_mutex.h"
+#include "common/spin_lock.h"
 #include "common/types.h"
 #include "video_core/buffer_cache/range_set.h"
 #include "video_core/buffer_cache/region_definitions.h"
@@ -238,7 +239,12 @@ private:
         return true;
     }
 
+#if defined(__linux__) || defined(_WIN32)
     Common::FutexMutex mutex;
+#else
+    // Match the fault-side tracker fallback on hosts without a raw address wait.
+    Common::SpinLock mutex;
+#endif
     RangeSet written;
     std::array<Slot, MaxKeptPages> slots{};
     u64 sequence{};

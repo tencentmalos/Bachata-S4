@@ -39,13 +39,29 @@ int main() {
     u64 handle{};
     check(bool(space->Read(GuestAddress{base}, std::as_writable_bytes(std::span{&handle, 1}))));
     check(handle == allocation);
-    check(invoke(ThreadAttrOp::Init, false, base) == POSIX_EBUSY);
     check(invoke(ThreadAttrOp::StackSize, false, base, 0x3fff) == POSIX_EINVAL);
     check(invoke(ThreadAttrOp::Stack, false, base, UINT64_MAX - 31, 0x4000) == POSIX_EINVAL);
     check(invoke(ThreadAttrOp::StackSize, false, base, GuestThreadAttributeDomain::MaxStack + 1) ==
           POSIX_EINVAL);
     check(invoke(ThreadAttrOp::StackSize, false, base, 0x40000) == 0);
     check(domain.Snapshot(base, snapshot) == 0 && snapshot.size == 0x40000);
+    // An uninitialized/reused stack slot may still contain another live handle.
+    // Init must overwrite it with defaults without treating it as a live object
+    // or destroying the attribute that the old value happens to name.
+    put(base + 8, handle);
+    check(invoke(ThreadAttrOp::Init, false, base + 8) == 0);
+    u64 fresh_handle{};
+    check(bool(space->Read(GuestAddress{base + 8},
+                          std::as_writable_bytes(std::span{&fresh_handle, 1}))) &&
+          fresh_handle != handle);
+    check(domain.Snapshot(base + 8, snapshot) == 0 && snapshot.size == (1 << 20));
+    check(domain.Snapshot(base, snapshot) == 0 && snapshot.size == 0x40000);
+    check(invoke(ThreadAttrOp::Destroy, false, base + 8) == 0);
+    check(domain.Snapshot(base, snapshot) == 0 && snapshot.size == 0x40000);
+    put(base + 16, u64{0xdeadbeefdeadbeef});
+    check(invoke(ThreadAttrOp::Init, false, base + 16) == 0);
+    check(domain.Snapshot(base + 16, snapshot) == 0 && snapshot.size == (1 << 20));
+    check(invoke(ThreadAttrOp::Destroy, false, base + 16) == 0);
     check(invoke(ThreadAttrOp::Guard, false, base, 0x8000) == 0);
     check(invoke(ThreadAttrOp::Detach, false, base, 2) == POSIX_EINVAL);
     check(invoke(ThreadAttrOp::Detach, false, base, 1) == 0);

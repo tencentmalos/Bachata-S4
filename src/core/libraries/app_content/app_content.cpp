@@ -61,36 +61,14 @@ int PS4_SYSV_ABI sceAppContentAddcontEnqueueDownloadSp() {
 /// Content roots for this title, from the addcont install folder plus any
 /// "<game>-DLC" sibling of the game itself, so a title can ship as
 /// CUSA12878.zar + CUSA12878-UPD.zar + CUSA12878-DLC.zar in one directory.
-static std::vector<std::filesystem::path> CollectContentRoots() {
+static std::vector<Core::FileSys::AdditionalContentRoot> CollectContentRoots() {
     auto roots =
         Core::FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / title_id);
 
     const auto& game_folder = Common::ElfInfo::Instance().GetGameFolder();
-    if (!game_folder.empty()) {
-        // An all-in-one archive carries its DLC inside, as "dlc/".
-        if (Core::FileSys::IsAllInOneArchive(game_folder)) {
-            auto found = Core::FileSys::ListContentRoots(game_folder /
-                                                         Core::FileSys::AllInOneDlc);
-            roots.insert(roots.end(), std::make_move_iterator(found.begin()),
-                         std::make_move_iterator(found.end()));
-        }
-
-        const auto sibling = Core::FileSys::OverlayPath(game_folder, Core::FileSys::DlcSuffix);
-        if (const auto resolved = Core::FileSys::ResolveGameRoot(sibling)) {
-            // Either a directory holding one entry per package, or an archive
-            // bundling them; both expand to the same shape.
-            auto found = Core::FileSys::IsZArchiveFile(*resolved)
-                             ? Core::FileSys::ExpandBundleRoots(*resolved)
-                             : Core::FileSys::ListContentRoots(*resolved);
-            roots.insert(roots.end(), std::make_move_iterator(found.begin()),
-                         std::make_move_iterator(found.end()));
-        }
-    }
-
-    // Indices are assigned by position, so the order must not vary.
-    std::sort(roots.begin(), roots.end());
-    roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
-    return roots;
+    auto siblings = Core::FileSys::ListGameAdditionalContentRoots(game_folder);
+    roots.insert(roots.end(), siblings.begin(), siblings.end());
+    return Core::FileSys::SelectAdditionalContent(std::move(roots), title_id);
 }
 
 int PS4_SYSV_ABI sceAppContentAddcontMount(u32 service_label,
@@ -118,7 +96,8 @@ int PS4_SYSV_ABI sceAppContentAddcontMount(u32 service_label,
 
     // Find which content root corresponds to this entitlement. Enumeration order
     // matches sceAppContentInitialize, so mount point indices line up.
-    for (const auto& content_root : CollectContentRoots()) {
+    for (const auto& content : CollectContentRoots()) {
+        const auto& content_root = content.root;
         const auto sfo_data =
             Core::FileSys::ReadGameFile(content_root, "sce_sys/param.sfo");
         if (!sfo_data.has_value()) {
@@ -333,7 +312,8 @@ int PS4_SYSV_ABI sceAppContentInitialize(const OrbisAppContentInitParam* initPar
         UNREACHABLE_MSG("Failed to get TITLE_ID");
     }
 
-    for (const auto& content_root : CollectContentRoots()) {
+    for (const auto& content : CollectContentRoots()) {
+        const auto& content_root = content.root;
         const auto display_name = content_root.filename().string();
 
         // Look for a param.sfo in the additional content. The root may be a
@@ -380,9 +360,12 @@ int PS4_SYSV_ABI sceAppContentInitialize(const OrbisAppContentInitParam* initPar
         LOG_INFO(Lib_AppContent, "Entitlement {} found", entitlement_id);
 
         // Save the additional content info in addcont_info.
+        if (addcont_count == addcont_info.size())
+            break;
         auto& info = addcont_info[addcont_count++];
         entitlement_id.copy(info.entitlement_label, entitlement_id.length());
-        info.status = OrbisAppContentAddcontDownloadStatus::Installed;
+        info.status = content.has_data ? OrbisAppContentAddcontDownloadStatus::Installed
+                                       : OrbisAppContentAddcontDownloadStatus::NoExtraData;
     }
 
     // Load license files for any license-only DLC.
@@ -404,6 +387,14 @@ int PS4_SYSV_ABI sceAppContentInitialize(const OrbisAppContentInitParam* initPar
                 for (const auto& entitlement_id : entitlements) {
                     LOG_INFO(Lib_AppContent, "License-only entitlement {} found", entitlement_id);
 
+                    if (addcont_count == addcont_info.size())
+                        break;
+                    if (std::any_of(addcont_info.begin(), addcont_info.begin() + addcont_count,
+                                    [&](const auto& item) {
+                                        return std::string_view(item.entitlement_label) ==
+                                               entitlement_id;
+                                    }))
+                        continue;
                     auto& info = addcont_info[addcont_count++];
                     entitlement_id.copy(info.entitlement_label, entitlement_id.length());
                     info.status = OrbisAppContentAddcontDownloadStatus::NoExtraData;

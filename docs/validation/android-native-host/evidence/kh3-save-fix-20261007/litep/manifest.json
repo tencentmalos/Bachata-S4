@@ -1,0 +1,174 @@
+{
+  "scene": "KH3 CUSA15072 opening movie and subsequent stained-glass platform; same PID, different scenes, not a causal performance A/B",
+  "pid": 19475,
+  "run_uuid": "fc9aa0f91f949c9cf2ba86206126f2db",
+  "files": [
+    {
+      "path": "01108YHE01017563-19475-file-1791384776187297-1.prof",
+      "bytes": 19437822,
+      "sha256": "144cd79fb16b15969140905dd3ea5b0dc66e2eb39941981b53f58219782a3def"
+    },
+    {
+      "path": "01108YHE01017563-19475-file-1791384776187297-1.prof.json",
+      "bytes": 18220,
+      "sha256": "c17e27c775e73de39c29b2e0faaebdefb523ca7b28703f13539f15c49b3aade7"
+    },
+    {
+      "path": "01108YHE01017563-19475-ring-1791384319582738-1.prof",
+      "bytes": 12757596,
+      "sha256": "ffa8716cd54e9a3db3129b560df208bdacc1d957d122fd9defeaec8c5645543d"
+    },
+    {
+      "path": "01108YHE01017563-19475-ring-1791384319582738-1.prof.json",
+      "bytes": 11346,
+      "sha256": "150bdfaa7247b2e76d1dfbc11afe81d4e0c695b17e7e3267f0d5f5b98858cbc7"
+    },
+    {
+      "path": "01108YHE01017563-19475-ring-1791384631926435-2.prof",
+      "bytes": 22891308,
+      "sha256": "30c5f6dc00b9f20a3be90f7ba2181ca16abe6efd94925b2331c590645fc892bb"
+    },
+    {
+      "path": "01108YHE01017563-19475-ring-1791384631926435-2.prof.json",
+      "bytes": 9470,
+      "sha256": "6230c98f0cff133415042c3e45a445bd0b0812636ebd82da57e7aa6ed3914b05"
+    },
+    {
+      "path": "01108YHE01017563-19475-ring-1791385208926815-3.prof",
+      "bytes": 4160395,
+      "sha256": "ec33ce7e92bf619560c7458610424b71f1ab55284279cd071f4bac7ad693eeca"
+    },
+    {
+      "path": "01108YHE01017563-19475-ring-1791385208926815-3.prof.json",
+      "bytes": 7066,
+      "sha256": "485a046bf91fcacd0dc4d67d424c484b6beb3f36435193e6dd0c9eef9d04db1f"
+    },
+    {
+      "path": "budget-main.json",
+      "bytes": 10058,
+      "sha256": "ec4c5429b241a85e4200b54109a5197122faa18d2ae1b3fe37f51bd2f4714f34"
+    },
+    {
+      "path": "budget-submit.json",
+      "bytes": 9581,
+      "sha256": "2e423b4ffaf685b6863b4bf8124cb6ab6cb719dd915cf63e377f12866beb9688"
+    },
+    {
+      "path": "crash-after.txt",
+      "bytes": 27678,
+      "sha256": "f30b370ef604b212ddac2c84ea116d996f0a8bd3489cbf19fc3650f2fedfaf32"
+    },
+    {
+      "path": "decoder-compatibility.json",
+      "bytes": 1237,
+      "sha256": "3af26018a85d34e92ec793d63aa2ad2fa822014829d808bbeb4550b79326e26f"
+    },
+    {
+      "path": "gpu-6fps.json",
+      "bytes": 38741,
+      "sha256": "970b16e2e889efeed3c4380bf42b1b86a49567d2ebd3fc75a989cb387257955b"
+    },
+    {
+      "path": "gpu-timing-restored.txt",
+      "bytes": 2053,
+      "sha256": "e1d5f04ac273fc50e36571d6e0b933671840775dd62af7cb24673f761cf0acb8"
+    },
+    {
+      "path": "hotspot-guest57-late.json",
+      "bytes": 7245,
+      "sha256": "97bebb260d7b8370698d24dad43a449d037d385b3ad5ab5e0be7ecee52e37788"
+    },
+    {
+      "path": "hotspots-6fps.json",
+      "bytes": 57816,
+      "sha256": "0f5be056b2d9c321b1bfe91536b3016723377224607ad8c1fefff79580c73752"
+    },
+    {
+      "path": "index-6fps.json",
+      "bytes": 3139,
+      "sha256": "f9f0934b0b155d070b70f8d14360dd7cbe96412531aa71023cc519eec2e951b0"
+    },
+    {
+      "path": "index-continuous.json",
+      "bytes": 4473,
+      "sha256": "1f4f4ddd5334f3c5c84e610d85b9120347ca46941201546a4bd3d54a4232c994"
+    },
+    {
+      "path": "index-video.json",
+      "bytes": 3170,
+      "sha256": "3202019be2cef658e26ea1fc03b45544ef913df2165ff1106d57de472c418b95"
+    },
+    {
+      "path": "litep-after.png",
+      "bytes": 146533,
+      "sha256": "9016154ed6ea773c4f0495c0e34ce0556e94b2859ffa60e2a9571edc864fff2e"
+    },
+    {
+      "path": "litep-scene.png",
+      "bytes": 2298514,
+      "sha256": "34991853d22e498a9066ac69e4de6a9f9da290fbb84902c0f1e97ad7c5b81360"
+    },
+    {
+      "path": "logcat-after.txt",
+      "bytes": 937,
+      "sha256": "67033bef8a3071b1e29db1d5ea837d8d249595ea00f2033a77937c2ee3afaa10"
+    },
+    {
+      "path": "schedstat-10s.json",
+      "bytes": 11508,
+      "sha256": "969b4f47bb32deacc7ddff2eddc94446bf22bf0a9d5d5e743e3b2a43593d5f67"
+    },
+    {
+      "path": "schedstat-summary.json",
+      "bytes": 12715,
+      "sha256": "c85f9cc6ea7642046df329003a987c6ddb953d6ac92a946a3a6a0767594e2933"
+    },
+    {
+      "path": "simpleperf-guest57.txt",
+      "bytes": 7450,
+      "sha256": "868ac87b8beae96e2b7194945250c2e794b42e0a3dc782ee853731469f474e24"
+    },
+    {
+      "path": "simpleperf-record.txt",
+      "bytes": 414,
+      "sha256": "5baf7e2e0d64a9610a71a80c54afa968aa127e9034ab2b202e8150af9e495b93"
+    },
+    {
+      "path": "simpleperf-report.txt",
+      "bytes": 6021,
+      "sha256": "593db604bb663504a6ee248243ad2c5bd09102cf33818734ff45e0b1d1d35f00"
+    },
+    {
+      "path": "simpleperf.data",
+      "bytes": 3618418,
+      "sha256": "ca5c43d030893ac8b98b7471108f5109c591b0c32075f6446d55d82572e09165"
+    },
+    {
+      "path": "slow-frame.json",
+      "bytes": 47052,
+      "sha256": "d93a84d923ca17f4f4d3b46552ddca2189eca4d4bfaebb5370d8ada26941d2c4"
+    },
+    {
+      "path": "thermal-6fps.txt",
+      "bytes": 8808,
+      "sha256": "5c056d0082a691ef6607694ed822b0c503c6e8933a101fc96972c88447babd5e"
+    },
+    {
+      "path": "thread-names.txt",
+      "bytes": 6218,
+      "sha256": "7cdfc5c656dfd729f1eeb74a5ad2f103c26caeb9b150ec4a5512b5be3909b67b"
+    },
+    {
+      "path": "top-6fps.txt",
+      "bytes": 5930,
+      "sha256": "e93e3dfb55db9afbddeea97d05945f3ebd08bd18ce6a2b4b8748ce023c95ac40"
+    }
+  ],
+  "notes": [
+    "Raw original PROF and producer sidecars retained unchanged. decoder-compatible copies select verified compatible decoder, preserving original producer version.",
+    "GPU timing enabled temporarily before dump 2 and restored off before dump 3.",
+    "12-second file has 44 dropped-chunk markers; do not treat its unannotated gaps as complete CPU coverage.",
+    "Simpleperf recorded 13218 samples, 7 lost. schedstat is a later independent window, not aligned to PROF.",
+    "By 23:01 FexSessionService no longer exists; no restart performed."
+  ]
+}

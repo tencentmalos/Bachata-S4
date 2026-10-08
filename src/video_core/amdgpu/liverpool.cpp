@@ -262,6 +262,13 @@ bool Liverpool::ResumeTask(GpuQueue& queue, Task::Handle task) {
     SHAD_HANDOFF(generation, "queue_resume", curr_qid, task.promise().diagnostic_id);
     auto& promise = task.promise();
     if (VideoCore::Replay::CaptureHooksActive()) [[unlikely]] {
+        if (!promise.replay_resumed && promise.replay_submit.source &&
+            promise.replay_submit.source != promise.replay_submit.dcb_addr) {
+            // The submission may have been queued before capture began. Its Android host
+            // copy must be recorded here, while the coroutine still owns the exact bytes.
+            VideoCore::Replay::NoteSubmitContents(promise.diagnostic_id, promise.replay_dcb,
+                                                   promise.replay_ccb);
+        }
         VideoCore::Replay::Recorder::Instance().OnResume(
             curr_qid, promise.diagnostic_id,
             promise.replay_resumed ? nullptr : &promise.replay_submit);
@@ -360,6 +367,10 @@ void Liverpool::RunReplay() {
                     event.payload.begin() + sizeof(SubmitRecord), event.payload.end());
                 dcb = reinterpret_cast<const u32*>(contents.data());
                 ccb = dcb + record.dcb_dwords;
+            } else if (record.source && record.source != record.dcb_addr) {
+                player.Fail(fmt::format("submission {} is missing its host command buffer copy",
+                                        record.submission));
+                break;
             }
             u32 qid = GfxQueueId;
             if (record.queue == static_cast<u32>(SubmitQueue::Graphics)) {
@@ -1976,26 +1987,31 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VA
         reinterpret_cast<u64>(ccb.data()),
         ccb.size(),
         source};
-    if (source && source != reinterpret_cast<VAddr>(dcb.data())) {
-        VideoCore::Replay::NoteSubmitContents(submission, dcb, ccb);
-    }
     if (!owned_submissions && EmulatorSettings.IsCopyGpuBuffers()) {
         std::tie(dcb, ccb) = CopyCmdBuffers(dcb, ccb);
     }
 
     std::vector<u32> owned_dcb;
+    std::vector<u32> owned_ccb;
+    std::span<const u32> replay_dcb = dcb;
+    std::span<const u32> replay_ccb = ccb;
     if (owned_submissions) {
         owned_dcb.assign(dcb.begin(), dcb.end());
+        owned_ccb.assign(ccb.begin(), ccb.end());
+        replay_dcb = owned_dcb;
+        replay_ccb = owned_ccb;
         if (Pm4ValidateEnabled())
             ValidateSubmission(owned_dcb, dcb, source);
     }
     auto task = owned_submissions
-                    ? ProcessOwnedGraphics(std::move(owned_dcb), {ccb.begin(), ccb.end()},
+                    ? ProcessOwnedGraphics(std::move(owned_dcb), std::move(owned_ccb),
                                            submission, source, dcb.data())
                     : ProcessGraphics(dcb, ccb, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
     task.handle.promise().diagnostic_id = submission;
     task.handle.promise().replay_submit = replay_submit;
+    task.handle.promise().replay_dcb = replay_dcb;
+    task.handle.promise().replay_ccb = replay_ccb;
     {
         std::scoped_lock lock{queue.m_access};
         SHAD_HANDOFF(generation, "queue_enqueue", GfxQueueId, task.handle.promise().diagnostic_id, dcb.size());

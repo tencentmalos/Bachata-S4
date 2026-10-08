@@ -88,6 +88,9 @@ public:
     /// With draw_event, every draw and dispatch of that event is hashed the same way.
     void EnableImageHashes(const std::filesystem::path& path, u64 draw_event = ~u64{0});
 
+    /// Also save image bytes for this inclusive event range (requires image hashes).
+    void EnableImageDump(std::filesystem::path directory, u64 first, u64 last);
+
     // Command processor thread.
 
     /// The next control event (Submit, Resume, WaitPoll, Command, BurstEnd, End). Memory writes,
@@ -138,6 +141,9 @@ private:
     std::optional<Event> pending;
     bool ended{};
     std::ofstream image_hashes;
+    std::filesystem::path image_dump_directory;
+    u64 image_dump_first{};
+    u64 image_dump_last{~u64{0}};
     std::unordered_map<u64, u64> hashed_epochs;
     u64 draw_hash_event{~u64{0}};
     u64 current_event{};

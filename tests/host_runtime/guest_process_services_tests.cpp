@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
 #include "core/host_runtime/guest_audio_input.h"
+#include "core/host_runtime/guest_companion.h"
+#include "core/libraries/companion/companion_error.h"
 #include "core/host_runtime/guest_process_services.h"
 #include "core/host_runtime/guest_backtrace.h"
 #include "core/host_runtime/guest_kernel_time.h"
@@ -17,6 +19,20 @@ int main() {
     auto space = std::move(made).Value();
     const auto base = space->ReservationBase().value;
     CHECK(space->Map({{base}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+    {
+        std::array<u32, 3> values{0xa5a5a5a5, 0xa5a5a5a5, 0xa5a5a5a5};
+        CHECK(space->WriteData({base}, std::as_bytes(std::span{values})));
+        CHECK(DispatchCompanionOffline(*space, "Vku4big+IYM", base + 4) ==
+              u32(ORBIS_COMPANION_HTTPD_ERROR_NO_EVENT));
+        CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{values})));
+        CHECK(values[0] == 0xa5a5a5a5 && values[2] == 0xa5a5a5a5);
+        CHECK(values[1] == Libraries::CompanionHttpd::ORBIS_COMPANION_HTTPD_EVENT_DISCONNECT);
+        CHECK(DispatchCompanionOffline(*space, "Vku4big+IYM", UINT64_MAX) ==
+              u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(DispatchCompanionOffline(*space, "Vku4big+IYM", base + 0x3ffe) ==
+              u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(!IsCompanionOfflineNid("8pWltDG7h6A")); // Request/response APIs stay unavailable.
+    }
     {
         std::array<u8, 48> bytes{};
         bytes.fill(0xa5);
@@ -254,12 +270,16 @@ int main() {
 #if defined(__ANDROID__)
     std::array<u64, 6> mic{1, 1, 0, 512, 48000, 0};
     CHECK(DispatchAudioInput("5NE8Sjc7VC8", mic) == u32(ORBIS_AUDIO_IN_ERROR_NOT_OPENED));
+    CHECK(DispatchAudioInput("nya-R5gDYhM", mic) == u32(ORBIS_AUDIO_IN_ERROR_NOT_OPENED));
     mic[3] = 0;
     CHECK(DispatchAudioInput("5NE8Sjc7VC8", mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_SIZE));
+    CHECK(DispatchAudioInput("nya-R5gDYhM", mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_SIZE));
     mic[3] = 512; mic[4] = 44100;
     CHECK(DispatchAudioInput("5NE8Sjc7VC8", mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_FREQ));
+    CHECK(DispatchAudioInput("nya-R5gDYhM", mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_FREQ));
     mic[4] = 48000; mic[5] = 99;
     CHECK(DispatchAudioInput("5NE8Sjc7VC8", mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_PARAM));
+    CHECK(DispatchAudioInput("nya-R5gDYhM", mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_PARAM));
     for (auto nid : {"Jh6WbHhnI68", "BohEAQ7DlUE", "LozEOU8+anM"}) {
         mic = {0, UINT64_MAX};
         CHECK(DispatchAudioInput(nid, mic) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_HANDLE));

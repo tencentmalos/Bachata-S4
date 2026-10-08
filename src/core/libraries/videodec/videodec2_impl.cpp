@@ -108,6 +108,14 @@ s32 VdecDecoder::Decode(const OrbisVideodec2InputData& input_data,
     const bool is_avc = m_codec_context->codec_id == AV_CODEC_ID_H264;
     const u64 info_size =
         is_avc ? sizeof(OrbisVideodec2AvcPictureInfo) : sizeof(OrbisVideodec2HevcPictureInfo);
+    const u64 frame_bytes = u64(Common::AlignUp<u32>(frame->width, 64)) *
+                            Common::AlignUp<u32>(frame->height, 16) * 3 / 2;
+    if (!frame_buffer.frame_buffer || frame_buffer.frame_buffer_size < info_size ||
+        frame_bytes > frame_buffer.frame_buffer_size - info_size) {
+        av_frame_free(&frame);
+        av_packet_free(&packet);
+        return ORBIS_VIDEODEC2_ERROR_FRAME_BUFFER_SIZE;
+    }
     Videodec::CopyNV12Data((u8*)frame_buffer.frame_buffer,
                            frame_buffer.frame_buffer_size - info_size, *frame);
     frame_buffer.is_accepted = true;
@@ -201,6 +209,13 @@ s32 VdecDecoder::Flush(OrbisVideodec2FrameBuffer& frame_buffer,
     const bool is_avc = m_codec_context->codec_id == AV_CODEC_ID_H264;
     const u64 info_size =
         is_avc ? sizeof(OrbisVideodec2AvcPictureInfo) : sizeof(OrbisVideodec2HevcPictureInfo);
+    const u64 frame_bytes = u64(Common::AlignUp<u32>(frame->width, 64)) *
+                            Common::AlignUp<u32>(frame->height, 16) * 3 / 2;
+    if (!frame_buffer.frame_buffer || frame_buffer.frame_buffer_size < info_size ||
+        frame_bytes > frame_buffer.frame_buffer_size - info_size) {
+        av_frame_free(&frame);
+        return ORBIS_VIDEODEC2_ERROR_FRAME_BUFFER_SIZE;
+    }
     Videodec::CopyNV12Data((u8*)frame_buffer.frame_buffer,
                            frame_buffer.frame_buffer_size - info_size, *frame);
     frame_buffer.is_accepted = true;

@@ -306,8 +306,14 @@ bool PipelineCache::LoadPipelineStage(Serialization::Archive& ar, size_t stage) 
     Shader::StageSpecialization spec{};
     spec.info = info.get();
     size_t perm_idx{};
-    if (!LoadShaderMeta(ar, *info, fetch_shader, spec, perm_idx))
+    std::optional<Shader::Gcn::FetchShaderData> stage_fetch_shader;
+    if (!LoadShaderMeta(ar, *info, stage_fetch_shader, spec, perm_idx))
         return false;
+    // Match RefreshGraphicsStages: the geometry stage following the vertex stage has no
+    // fetch shader. It must not erase the vertex inputs restored for this pipeline.
+    if (stage_fetch_shader) {
+        fetch_shader = std::move(stage_fetch_shader);
+    }
     // A malformed cache must not allocate an unbounded sparse module vector.
     if (perm_idx > 4095)
         return false;

@@ -1,0 +1,94 @@
+{
+  "trace": "kh3-fixed-r3-20261007",
+  "recorded_pid": 10020,
+  "recorded_run_uuid": "988d635cf39fe527caa6cd3d1f2ffa1d",
+  "replay_event": 311,
+  "pm4_capture_uuid": "f473cdbab2bffe6eb9875ac688c67ca6",
+  "action": 121,
+  "vertex_base": "0x20198529f0",
+  "stride": 64,
+  "vertices": [
+    {
+      "position": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "uv": [
+        0.0,
+        0.0
+      ],
+      "rgba": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "position": [
+        1920.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "uv": [
+        1.0,
+        0.0
+      ],
+      "rgba": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "position": [
+        0.0,
+        1080.0,
+        0.0,
+        1.0
+      ],
+      "uv": [
+        0.0,
+        1.0
+      ],
+      "rgba": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "position": [
+        1920.0,
+        1080.0,
+        0.0,
+        1.0
+      ],
+      "uv": [
+        1.0,
+        1.0
+      ],
+      "rgba": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "white_texture_address": "0x2000840400",
+  "white_texture_rgba": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "blend_register": "0x61000504",
+  "blend": "src_alpha * src + (1-src_alpha) * dst",
+  "final_rgb_mask": 7
+}

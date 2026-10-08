@@ -202,7 +202,7 @@ public:
             const bool cross = predict_cross_region.load(std::memory_order_relaxed);
             const size_t window_end =
                 cross ? NUM_PAGES_PER_REGION
-                      : std::min(Common::DivCeil(end_page, ReleaseWindow) * ReleaseWindow,
+                      : std::min<size_t>(Common::DivCeil(end_page, ReleaseWindow) * ReleaseWindow,
                                  NUM_PAGES_PER_REGION);
             bool reached_end = false;
             predicted = ReleaseAhead(end_page, window_end, reached_end);

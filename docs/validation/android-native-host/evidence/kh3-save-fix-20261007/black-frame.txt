@@ -1,0 +1,1246 @@
+frame after flip 44115
+#1 draw n=4 inst=1 prim=6 fs=0x138f3760de852b1e vs=0xd54afae401335ef8
+  RT c0 0x200c900000 300x300x1 R8G8B8A8Unorm scale=0.5
+  buf read  fs 0x203000bc00+0x80
+  >> pass 2645528 begin guest 150x150 150x150x1 c0=0x200c900000:R8G8B8A8Unorm:L
+#2 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203001c000+0x10
+  << pass 2645528 end buffer_upload draws=1 load_px=22500
+  >> pass 2645529 begin guest 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#3 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203002c400+0x10
+  << pass 2645529 end buffer_upload draws=1 load_px=16384
+  >> pass 2645530 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#4 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203003c800+0x10
+  << pass 2645530 end buffer_upload draws=1 load_px=16384
+  >> pass 2645531 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#5 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203004cc00+0x10
+  << pass 2645531 end buffer_upload draws=1 load_px=16384
+  >> pass 2645532 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#6 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203005d000+0x10
+  << pass 2645532 end buffer_upload draws=1 load_px=16384
+  >> pass 2645533 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#7 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203006d400+0x10
+  << pass 2645533 end buffer_upload draws=1 load_px=16384
+  >> pass 2645534 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#8 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203007d800+0x10
+  << pass 2645534 end buffer_upload draws=1 load_px=16384
+  >> pass 2645535 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#9 draw_indexed n=6 inst=10 prim=4 fs=0xeb36c05422c0e9db vs=0x1b139ed947aa84ad
+  RT c0 0x2000b00000 256x256x1 R32G32B32A32Sfloat scale=0.5
+  buf read  vs 0x203008dc00+0x10
+  << pass 2645535 end buffer_upload draws=1 load_px=16384
+  >> pass 2645536 begin resumed after buffer_upload 128x128 128x128x1 c0=0x2000b00000:R32G32B32A32Sfloat:L
+#10 dispatch 512x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x20021c0040+0x10
+  buf WRITE cs 0x2003d00000+0x20000 fmt
+  == replaced by compute meta clear
+#11 dispatch 7168x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x20021c0050+0x10
+  buf WRITE cs 0x2005400000+0x1c0000 fmt
+  << pass 2645536 end dispatch draws=1 load_px=16384
+#12 draw_indexed n=3 inst=1 prim=4 fs=0x9d5b0a1550cc44c6 vs=0x85bc13730c898eb6
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 clear
+  buf read  fs 0x20021c0060+0x10
+  buf read  vs 0x203008e000+0x30
+  >> pass 2645537 begin guest 1600x900 1600x900x1 d=0x200c000000:D32SfloatS8Uint:C:rw
+  << pass 2645537 end attachment draws=1 load_px=1440000  [hoist conflict: copy writes 0x200c000000-0x200c700000, pass wrote it]
+#13 draw_indexed n=48780 inst=1 prim=4 fs=0xb7d0114313c7450 vs=0x3402dd13e1484ece
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x2008478000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x200847c000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200abf0000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2008474000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x200abf8000 128x128x1 mips=8 Bc7/Unorm 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x201508e800+0x660
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x201246c800+0x600 fmt
+  buf read  vs 0x201508e800+0x660
+  buf read  vs 0x2015120000+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  >> pass 2645538 begin guest 1600x900 1600x900x1 d=0x200c000000:D32SfloatS8Uint:L:rw
+#14 draw_indexed n=12111 inst=1 prim=4 fs=0xb7d0114313c7450 vs=0x3402dd13e1484ece
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x2008478000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x200847c000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200abf0000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2008474000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x200abf8000 128x128x1 mips=8 Bc7/Unorm 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x201508f000+0x660
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x201246e000+0x600 fmt
+  buf read  vs 0x201508f000+0x660
+  buf read  vs 0x2015120020+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+#15 draw_indexed n=3150 inst=1 prim=4 fs=0xb12740beb1d2088e vs=0xd35cccd409ed9db2
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2013906800+0x3d0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x2013907400+0x180 fmt
+  buf read  vs 0x2015120040+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2013906800+0x3d0
+#16 draw_indexed n=14574 inst=1 prim=4 fs=0x6ddaf69e5b781604 vs=0x4d2fb97ef89eb233
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2015027000+0x8a0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x201502c000+0xc00 fmt
+  buf read  vs 0x2015120060+0x20
+  buf read  vs 0x2015027000+0x8a0
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+#17 draw_indexed n=5328 inst=1 prim=4 fs=0xe8aadd0e4aa6a27b vs=0xb6058e00ee0660cb
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x201508f800+0x5b0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x2013908c00+0x60 fmt
+  buf read  vs 0x2015120080+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x201508f800+0x5b0
+#18 draw_indexed n=4320 inst=1 prim=4 fs=0x7160b563dd6e6445 vs=0xe2307645ba57ab46
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2015230000+0x6c0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x2013909800+0x60 fmt
+  buf read  vs 0x20151200a0+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015230000+0x6c0
+#19 draw_indexed n=40773 inst=1 prim=4 fs=0x100d3128f7ed83c6 vs=0x80c6794d39a555c
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2015230800+0x7f0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x201502f000+0xc00 fmt
+  buf read  vs 0x20151200c0+0x20
+  buf read  vs 0x2015230800+0x7f0
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+#20 draw_indexed n=22674 inst=1 prim=4 fs=0x100d3128f7ed83c6 vs=0x80c6794d39a555c
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2015231000+0x7f0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x2015092000+0xc00 fmt
+  buf read  vs 0x20151200e0+0x20
+  buf read  vs 0x2015231000+0x7f0
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+#21 draw_indexed n=38136 inst=1 prim=4 fs=0x100d3128f7ed83c6 vs=0x80c6794d39a555c
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2015231800+0x7f0
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x2015081000+0x600 fmt
+  buf read  vs 0x2015120100+0x20
+  buf read  vs 0x2015231800+0x7f0
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+#22 draw_indexed n=10908 inst=1 prim=4 fs=0x85c9e989b7f72df3 vs=0xfc3fe233e4be170f
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x200681a000+0x830
+  buf read  fs 0x2019d00200+0x140
+  buf read  vs 0x2015095000+0xc00 fmt
+  buf read  vs 0x2015120120+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x200681a000+0x830
+  << pass 2645538 end attachment draws=10 load_px=1440000  [hoist conflict: copy writes 0x200c000000-0x200c700000, pass wrote it]
+#23 draw n=4 inst=1 prim=6 fs=0x138f3760de852b1e vs=0xd54afae401335ef8
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  buf read  fs 0x2030094800+0x80
+  >> pass 2645539 begin guest 1600x900 1600x900x1 d=0x200c000000:D32SfloatS8Uint:L:rw
+#24 draw n=3 inst=1 prim=17 vs=0x8d4ccf566488b687
+  << pass 2645539 end state_change draws=1 load_px=1440000
+  >> pass 2645540 begin guest 1600x900 1600x900x1
+#25 draw_indexed n=3 inst=1 prim=4 fs=0xa736df2afdf83211 vs=0xa3155031f10b3428
+  RT c0 0x2020a00000 1024x512x1 R16Sfloat scale=1
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  buf read  fs 0x2015210040+0x30
+  buf read  vs 0x203008e400+0x30
+  << pass 2645540 end state_change draws=1 load_px=0
+  >> pass 2645541 begin guest 1024x512 1024x512x1 c0=0x2020a00000:R16Sfloat:L:native(copy-inherit,0x0,-)
+  << pass 2645541 end sampled_image draws=1 load_px=524288  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#26 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020a00000 1024x512x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=1 16/Float 2D
+  buf read  fs 0x2015210070+0x10
+  buf read  vs 0x203008e800+0x30
+  >> pass 2645542 begin guest 512x256 512x256x1 c0=0x2020a00000:R16Sfloat:L:native(copy-inherit,0x0,-)
+  << pass 2645542 end sampled_image draws=1 load_px=131072  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#27 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020a00000 1024x512x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=2 16/Float 2D
+  buf read  fs 0x2015210080+0x10
+  buf read  vs 0x203008ec00+0x30
+  >> pass 2645543 begin guest 256x128 256x128x1 c0=0x2020a00000:R16Sfloat:L:native(copy-inherit,0x0,-)
+  << pass 2645543 end sampled_image draws=1 load_px=32768  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#28 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b50000 128x64x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=3 16/Float 2D
+  buf read  fs 0x2015210090+0x10
+  buf read  vs 0x203008f000+0x30
+  >> pass 2645544 begin guest 128x64 128x64x1 c0=0x2020b50000:R16Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645544 end sampled_image draws=1 load_px=8192  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#29 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b54000 64x32x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=4 16/Float 2D
+  buf read  fs 0x20152100a0+0x10
+  buf read  vs 0x203008f400+0x30
+  >> pass 2645545 begin guest 64x32 64x32x1 c0=0x2020b54000:R16Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645545 end sampled_image draws=1 load_px=2048  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#30 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b55000 32x16x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=5 16/Float 2D
+  buf read  fs 0x20152100b0+0x10
+  buf read  vs 0x203008f800+0x30
+  >> pass 2645546 begin guest 32x16 32x16x1 c0=0x2020b55000:R16Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645546 end sampled_image draws=1 load_px=512  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#31 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b55400 16x8x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=6 16/Float 2D
+  buf read  fs 0x20152100c0+0x10
+  buf read  vs 0x203008fc00+0x30
+  >> pass 2645547 begin guest 16x8 16x8x1 c0=0x2020b55400:R16Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645547 end sampled_image draws=1 load_px=128  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#32 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b55500 8x4x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=7 16/Float 2D
+  buf read  fs 0x20152100d0+0x10
+  buf read  vs 0x2030090000+0x30
+  >> pass 2645548 begin guest 8x4 8x4x1 c0=0x2020b55500:R16Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645548 end sampled_image draws=1 load_px=32  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#33 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b55600 4x2x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=8 16/Float 2D
+  buf read  fs 0x20152100e0+0x10
+  buf read  vs 0x2030090400+0x30
+  >> pass 2645549 begin guest 4x2 4x2x1 c0=0x2020b55600:R16Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645549 end sampled_image draws=1 load_px=8  [hoist conflict: copy writes 0x2020a00000-0x2020b55800, pass wrote it]
+#34 draw_indexed n=3 inst=1 prim=4 fs=0xb5f47ddeec3b9c87 vs=0xa3155031f10b3428
+  RT c0 0x2020b55700 2x1x1 R16Sfloat scale=1
+  img read  fs 0x2020a00000 1024x512x1 mips=9 16/Float 2D
+  buf read  fs 0x20152100f0+0x10
+  buf read  vs 0x2030090800+0x30
+  >> pass 2645550 begin guest 2x1 2x1x1 c0=0x2020b55700:R16Sfloat:L:native(size-protect,0x0,-)
+#35 dispatch 104x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210100+0x10
+  buf WRITE cs 0x2003ed0000+0x6800 fmt
+  << pass 2645550 end dispatch draws=1 load_px=2
+#36 dispatch 4x2x8 cs=0xdbeef8f713486d5c
+  buf read  cs 0x2030091000+0x230
+  buf read  cs 0x203000b000+0xb10
+  buf read  cs 0x2030090c00+0x100 fmt
+  buf WRITE cs 0x200bc62000+0x4
+  buf WRITE cs 0x2003ed0000+0x6800
+  buf WRITE cs 0x2013a00000+0x1a0000 fmt
+  buf read  cs 0x2030000400+0xaa80
+  !! barrier shader-write sh=0xdbeef8f713486d5c 0x200bc62000+0x4 0x0 -> ShaderWrite
+  !! barrier shader-write sh=0xdbeef8f713486d5c 0x2003ed0000+0x6800 0x0 -> ShaderWrite
+  !! barrier shader-read sh=0xdbeef8f713486d5c 0x2030000400+0xaa80 0x0 -> ShaderRead
+#37 dispatch 4x2x8 cs=0xcb11ccb2607d8618
+  buf read  cs 0x2030091000+0x230
+  buf read  cs 0x2003ed0000+0x6800 fmt
+  buf read  cs 0x2013a00000+0x1a0000 fmt
+  buf WRITE cs 0x200bc62400+0x4
+  buf WRITE cs 0x2003ec0000+0xd000 fmt
+  buf WRITE cs 0x2006280000+0x68000 fmt
+  !! barrier shader-read sh=0xcb11ccb2607d8618 0x2003ed0000+0x6800 0x0 -> ShaderRead
+  !! barrier shader-read sh=0xcb11ccb2607d8618 0x2013a00000+0x1a0000 0x0 -> ShaderRead
+#38 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x2045e18000+0x4000 fmt
+  == replaced by compute meta clear
+#39 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x202ae18000+0x4000 fmt
+  == replaced by compute meta clear
+#40 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x202e618000+0x4000 fmt
+  == replaced by compute meta clear
+#41 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x202ee18000+0x4000 fmt
+  == replaced by compute meta clear
+#42 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x2043e18000+0x4000 fmt
+  == replaced by compute meta clear
+#43 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x2045618000+0x4000 fmt
+  == replaced by compute meta clear
+#44 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210110+0x10
+  buf WRITE cs 0x2046c30000+0x4000 fmt
+  == replaced by compute meta clear
+#45 draw_indexed n=48780 inst=1 prim=4 fs=0xb04cecc4ae3dda77 vs=0xa820a2e46d8d8c8e
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1 clear
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1 clear
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1 clear
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1 clear
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1 clear
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1 clear
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1 clear
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2008474000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2008478000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x200847c000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200abf0000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x201de00000 1024x1024x1 mips=11 Bc7/Unorm 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x200a624000 128x128x1 mips=8 Bc1/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x201508e800+0x660
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x201246c800+0x600 fmt
+  buf read  vs 0x2015210120+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x201508e800+0x660
+  >> pass 2645551 begin guest 1600x900 1600x900x1 c0=0x2045800000:B10G11R11UfloatPack32:C:native(mixed-pass,0x40,mixed attachment pass) c1=0x202a800000:A2B10G10R10UnormPack32:C:native(mixed-pass,0x40,mixed attachment pass) c2=0x202e000000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c3=0x202e800000:R8G8B8A8Srgb:C:native(mixed-pass,0x40,mixed attachment pass) c4=0x2043800000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c5=0x2045000000:R8G8B8A8Unorm:C:native(mixed-pass,0x40,mixed attachment pass) c6=0x2046000000:R16G16B16A16Unorm:C:native(mixed-pass,0x40,mixed attachment pass) d=0x200c000000:D32SfloatS8Uint:L:rw
+#46 draw_indexed n=12111 inst=1 prim=4 fs=0xb04cecc4ae3dda77 vs=0xa820a2e46d8d8c8e
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2008474000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2008478000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x200847c000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200abf0000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x201de00000 1024x1024x1 mips=11 Bc7/Unorm 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x200a624000 128x128x1 mips=8 Bc1/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x201508f000+0x660
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x201246e000+0x600 fmt
+  buf read  vs 0x2015210140+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x201508f000+0x660
+  << pass 2645551 end state_change draws=1 load_px=1440000
+  >> pass 2645552 begin guest 1600x900 1600x900x1 c0=0x2045800000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x202a800000:A2B10G10R10UnormPack32:L:native(mixed-pass,0x40,mixed attachment pass) c2=0x202e000000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c3=0x202e800000:R8G8B8A8Srgb:L:native(mixed-pass,0x40,mixed attachment pass) c4=0x2043800000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c5=0x2045000000:R8G8B8A8Unorm:L:native(mixed-pass,0x40,mixed attachment pass) c6=0x2046000000:R16G16B16A16Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x200c000000:D32SfloatS8Uint:L:rw
+#47 draw_indexed n=3150 inst=1 prim=4 fs=0x5fa105ceeedd079e vs=0xc7ea4069b2f73def
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2007f18000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2007f20000 64x64x1 mips=7 Bc3/Srgb 2D
+  img read  fs 0x2007f1c000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2013906800+0x3d0
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2013907400+0x180 fmt
+  buf read  vs 0x2013906800+0x3d0
+  buf read  vs 0x2015210160+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+#48 draw_indexed n=14574 inst=1 prim=4 fs=0x9893504942f2bb80 vs=0xc22be8861f9479d8
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x200f198000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2018420000 256x256x1 mips=9 Bc7/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x20084f4000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200a798000 128x128x1 mips=8 Bc7/Unorm 2D
+  img read  fs 0x2018100000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x200f190000 128x128x1 mips=8 Bc7/Srgb 2D
+  img read  fs 0x200f190000 128x128x1 mips=8 Bc7/Srgb 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x201de00000 1024x1024x1 mips=11 Bc7/Unorm 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x2015027000+0x8a0
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x201502c000+0xc00 fmt
+  buf read  vs 0x2015210180+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015027000+0x8a0
+#49 draw_indexed n=5328 inst=1 prim=4 fs=0x114d7e87d5dc5529 vs=0xab0e9c3f2f53690b
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2008434000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2007ee6000 64x64x1 mips=7 Bc1/Srgb 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x201508f800+0x5b0
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2013908c00+0x60 fmt
+  buf read  vs 0x20152101a0+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x201508f800+0x5b0
+#50 draw_indexed n=4320 inst=1 prim=4 fs=0xc15baf3e01973b87 vs=0xf0dce5dd371b81d1
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2007f00000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200843c000 64x64x1 mips=7 Bc7/Unorm 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x200232c000 64x64x1 mips=7 Bc1/Srgb 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2015230000+0x6c0
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2013909800+0x60 fmt
+  buf read  vs 0x20152101c0+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015230000+0x6c0
+#51 draw_indexed n=40773 inst=1 prim=4 fs=0x89aefe5ead667f66 vs=0x5d0871c1d74e8c81
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2007eee000 64x64x1 mips=7 Bc1/Srgb 2D
+  img read  fs 0x2007fc0000 64x64x1 mips=7 Bc7/Srgb 2D
+  img read  fs 0x2007fc0000 64x64x1 mips=7 Bc7/Srgb 2D
+  img read  fs 0x2007eee000 64x64x1 mips=7 Bc1/Srgb 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x20085b8000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x2007fc0000 64x64x1 mips=7 Bc7/Srgb 2D
+  img read  fs 0x2018440000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2015e18000 128x128x1 mips=8 Bc3/Srgb 2D
+  img read  fs 0x2015e18000 128x128x1 mips=8 Bc3/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x2018580000 512x512x1 mips=10 Bc1/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x2015230800+0x7f0
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x201502f000+0xc00 fmt
+  buf read  vs 0x20152101e0+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015230800+0x7f0
+#52 draw_indexed n=22674 inst=1 prim=4 fs=0x89aefe5ead667f66 vs=0x5d0871c1d74e8c81
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2018460000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2015700000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2015700000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2018460000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x2018400000 256x256x1 mips=9 Bc5/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x201de00000 1024x1024x1 mips=11 Bc7/Unorm 2D
+  img read  fs 0x2018440000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2015e18000 128x128x1 mips=8 Bc3/Srgb 2D
+  img read  fs 0x2015e18000 128x128x1 mips=8 Bc3/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x2018580000 512x512x1 mips=10 Bc1/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x2015231000+0x7f0
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2015092000+0xc00 fmt
+  buf read  vs 0x2015210200+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015231000+0x7f0
+#53 draw_indexed n=38136 inst=1 prim=4 fs=0x89aefe5ead667f66 vs=0x5d0871c1d74e8c81
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2015720000 256x256x1 mips=9 Bc1/Srgb 2D
+  img read  fs 0x2018480000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2018480000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2015720000 256x256x1 mips=9 Bc1/Srgb 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x20184a0000 256x256x1 mips=9 Bc5/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x201de00000 1024x1024x1 mips=11 Bc7/Unorm 2D
+  img read  fs 0x2018440000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x2015e18000 128x128x1 mips=8 Bc3/Srgb 2D
+  img read  fs 0x2015e18000 128x128x1 mips=8 Bc3/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x2018580000 512x512x1 mips=10 Bc1/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x2015231800+0x7f0
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2015081000+0x600 fmt
+  buf read  vs 0x2015210220+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015231800+0x7f0
+#54 draw_indexed n=10908 inst=1 prim=4 fs=0x7de2aacc7490524c vs=0x4b4669e3bbac4cf7
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x202a800000 1600x900x1 A2B10G10R10UnormPack32 scale=1
+  RT c2 0x202e000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c3 0x202e800000 1600x900x1 R8G8B8A8Srgb scale=1
+  RT c4 0x2043800000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c5 0x2045000000 1600x900x1 R8G8B8A8Unorm scale=1
+  RT c6 0x2046000000 1600x900x1 R16G16B16A16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2018420000 256x256x1 mips=9 Bc7/Unorm 2D
+  img read  fs 0x2018400000 256x256x1 mips=9 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x200a624000 128x128x1 mips=8 Bc1/Unorm 2D
+  img read  fs 0x2015700000 256x256x1 mips=9 Bc7/Srgb 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x201de00000 1024x1024x1 mips=11 Bc7/Unorm 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x200681a000+0x830
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2015095000+0xc00 fmt
+  buf read  vs 0x2015210240+0x20
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x200681a000+0x830
+#55 draw n=3 inst=1 prim=17 vs=0x8d4ccf566488b687
+  << pass 2645552 end state_change draws=9 load_px=11520000
+  >> pass 2645553 begin guest 1600x900 1600x900x1
+#56 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210260+0x10
+  buf WRITE cs 0x2047618000+0x4000 fmt
+  == replaced by compute meta clear
+#57 draw_indexed n=48780 inst=1 prim=4 fs=0x29cd662d25d799b2 vs=0xd3c4f508f5eb3c5
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1 clear
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  fs 0x2008474000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200abf0000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2008478000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x200847c000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x200abf8000 128x128x1 mips=8 Bc7/Unorm 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x201508e800+0x660
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x201246c800+0x600 fmt
+  buf read  vs 0x2015210270+0x60
+  buf read  vs 0x2012463000+0x600 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x201508e800+0x660
+  << pass 2645553 end state_change draws=1 load_px=0
+  >> pass 2645554 begin guest 1600x900 1600x900x1 c0=0x2047000000:R16G16Unorm:C:native(mixed-pass,0x40,mixed attachment pass) d=0x200c000000:D32SfloatS8Uint:L:ro
+#58 draw_indexed n=12111 inst=1 prim=4 fs=0x29cd662d25d799b2 vs=0xd3c4f508f5eb3c5
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  fs 0x2008474000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x200abf0000 128x128x1 mips=8 Bc5/Unorm 2D
+  img read  fs 0x2008478000 64x64x1 mips=7 Bc3/Unorm 2D
+  img read  fs 0x200847c000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x200abf8000 128x128x1 mips=8 Bc7/Unorm 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x201508f000+0x660
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x201246e000+0x600 fmt
+  buf read  vs 0x20152102d0+0x60
+  buf read  vs 0x2012461800+0x600 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x201508f000+0x660
+  << pass 2645554 end state_change draws=1 load_px=1440000
+  >> pass 2645555 begin guest 1600x900 1600x900x1 c0=0x2047000000:R16G16Unorm:L:native(mixed-pass,0x40,mixed attachment pass) d=0x200c000000:D32SfloatS8Uint:L:ro
+#59 draw_indexed n=3150 inst=1 prim=4 fs=0xe2459c102dae5ffd vs=0x573329d897c605db
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2013906800+0x3d0
+  buf read  vs 0x2013907400+0x180 fmt
+  buf read  vs 0x2015210330+0x60
+  buf read  vs 0x2016fbb400+0x180 fmt
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x2013906800+0x3d0
+#60 draw_indexed n=14574 inst=1 prim=4 fs=0x4b1004342791e6f vs=0xf52c0f89f0b514b6
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2015027000+0x8a0
+  buf read  vs 0x201502c000+0xc00 fmt
+  buf read  vs 0x2015210390+0x60
+  buf read  vs 0x20193fc000+0xc00 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015027000+0x8a0
+#61 draw_indexed n=5328 inst=1 prim=4 fs=0xb6f339606ae0fa23 vs=0x7e8d39b5b0f3d729
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x201508f800+0x5b0
+  buf read  vs 0x2013908c00+0x60 fmt
+  buf read  vs 0x20152103f0+0x60
+  buf read  vs 0x2016fbd800+0x60 fmt
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x201508f800+0x5b0
+#62 draw_indexed n=4320 inst=1 prim=4 fs=0x78b741859a6a04a4 vs=0x2e9c9e7d6bcb4209
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2015230000+0x6c0
+  buf read  vs 0x2013909800+0x60 fmt
+  buf read  vs 0x2015210450+0x60
+  buf read  vs 0x2016fbcc00+0x60 fmt
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x2015230000+0x6c0
+#63 draw_indexed n=40773 inst=1 prim=4 fs=0xa501897d4304e77b vs=0xb2a54a1277865a8b
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2015230800+0x7f0
+  buf read  vs 0x201502f000+0xc00 fmt
+  buf read  vs 0x20152104b0+0x60
+  buf read  vs 0x20193f9000+0xc00 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015230800+0x7f0
+#64 draw_indexed n=22674 inst=1 prim=4 fs=0xa501897d4304e77b vs=0xb2a54a1277865a8b
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2015231000+0x7f0
+  buf read  vs 0x2015092000+0xc00 fmt
+  buf read  vs 0x2015210510+0x60
+  buf read  vs 0x20193f6000+0xc00 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015231000+0x7f0
+#65 draw_indexed n=38136 inst=1 prim=4 fs=0xa501897d4304e77b vs=0xb2a54a1277865a8b
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2015231800+0x7f0
+  buf read  vs 0x2015081000+0x600 fmt
+  buf read  vs 0x2015210570+0x60
+  buf read  vs 0x2016ffe800+0x600 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2015231800+0x7f0
+#66 draw_indexed n=10908 inst=1 prim=4 fs=0xafd6c55bb2d84506 vs=0xa325284e0b62c95d
+  RT c0 0x2047000000 1600x900x1 R16G16Unorm scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x200681a000+0x830
+  buf read  vs 0x2015095000+0xc00 fmt
+  buf read  vs 0x20152105d0+0x60
+  buf read  vs 0x20193f3000+0xc00 fmt
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x200681a000+0x830
+#67 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210630+0x10
+  buf WRITE cs 0x200d618000+0x4000 fmt
+  == replaced by compute meta clear
+#68 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210630+0x10
+  buf WRITE cs 0x2010e18000+0x4000 fmt
+  == replaced by compute meta clear
+#69 draw n=4 inst=1 prim=6 fs=0x183c3762c11acc37 vs=0xd54afae401335ef8
+  RT c0 0x200d000000 1600x900x1 B10G11R11UfloatPack32 scale=1 clear
+  RT c1 0x2010800000 1600x900x1 B10G11R11UfloatPack32 scale=1 clear
+  buf read  fs 0x203009cc00+0x80
+  << pass 2645555 end state_change draws=9 load_px=2880000
+  >> pass 2645556 begin guest 1600x900 1600x900x1 c0=0x200d000000:B10G11R11UfloatPack32:C:native(mixed-pass,0x40,mixed attachment pass) c1=0x2010800000:B10G11R11UfloatPack32:C:native(mixed-pass,0x40,mixed attachment pass)
+#70 dispatch 200x113x1 cs=0xb903b5f213ef7d4d
+  img read  cs 0x2045800000 1600x900x1 mips=1 10_11_11/Float 2D
+  img WRITE cs 0x201a000000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  cs 0x2015210680+0x10
+  << pass 2645556 end dispatch draws=1 load_px=0
+#71 draw_indexed n=3 inst=1 prim=4 fs=0x12b19abd547af8b4 vs=0xa3155031f10b3428
+  RT c0 0x2024c00000 800x450x1 R16G16B16A16Sfloat scale=0.5
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  buf read  fs 0x2015210690+0x20
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030091400+0x30
+  >> pass 2645557 begin guest 400x225 400x225x1 c0=0x2024c00000:R16G16B16A16Sfloat:L
+#72 draw_indexed n=3 inst=1 prim=4 fs=0x573c63ee547af8b4 vs=0xa3155031f10b3428
+  RT c0 0x2018800000 400x225x1 R16G16B16A16Sfloat scale=0.5
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  buf read  fs 0x20152106b0+0x20
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030091800+0x30
+  << pass 2645557 end state_change draws=1 load_px=90000
+  >> pass 2645558 begin guest 200x112 200x112x1 c0=0x2018800000:R16G16B16A16Sfloat:L
+  << pass 2645558 end sampled_image draws=1 load_px=22400  [hoist conflict: copy writes 0x2018800000-0x2018900000, pass wrote it]
+#73 draw_indexed n=3 inst=1 prim=4 fs=0x75504b4c80692efc vs=0xa3155031f10b3428
+  RT c0 0x2015580000 400x225x1 R8G8B8A8Unorm scale=0.5
+  img read  fs 0x2018800000 400x225x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x200585e000 64x64x1 mips=1 8_8/Unorm 2D
+  img read  fs 0x2020a00000 1024x512x1 mips=10 16/Float 2D
+  buf read  fs 0x20152106d0+0x70
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030091c00+0x30
+  >> pass 2645559 begin guest 200x112 200x112x1 c0=0x2015580000:R8G8B8A8Unorm:L
+  << pass 2645559 end sampled_image draws=1 load_px=22400  [hoist conflict: copy writes 0x2015580000-0x2015600000, pass wrote it]
+#74 draw_indexed n=3 inst=1 prim=4 fs=0xab9cf5498046bc85 vs=0xa3155031f10b3428
+  RT c0 0x2026a00000 800x450x1 R8G8B8A8Unorm scale=0.5
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x2024c00000 800x450x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x200585e000 64x64x1 mips=1 8_8/Unorm 2D
+  img read  fs 0x2020a00000 1024x512x1 mips=10 16/Float 2D
+  img read  fs 0x2015580000 400x225x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x2024c00000 800x450x1 mips=1 16_16_16_16/Float 2D
+  buf read  fs 0x2015210740+0x80
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030092000+0x30
+  >> pass 2645560 begin guest 400x225 400x225x1 c0=0x2026a00000:R8G8B8A8Unorm:L
+  << pass 2645560 end sampled_image draws=1 load_px=90000  [hoist conflict: copy writes 0x2026a00000-0x2026bc0000, pass wrote it]
+#75 draw_indexed n=3 inst=1 prim=4 fs=0x1ea4639d7ded0108 vs=0xa3155031f10b3428
+  RT c0 0x200de00000 1600x900x1 R8Unorm scale=1
+  img read  fs 0x202e000000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x200585e000 64x64x1 mips=1 8_8/Unorm 2D
+  img read  fs 0x2020a00000 1024x512x1 mips=10 16/Float 2D
+  img read  fs 0x2024c00000 800x450x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x2026a00000 800x450x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x20152107c0+0x80
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030092400+0x30
+  >> pass 2645561 begin guest 1600x900 1600x900x1 c0=0x200de00000:R8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  << pass 2645561 end sampled_image draws=1 load_px=1440000  [hoist conflict: copy writes 0x200de00000-0x200dfc0000, pass wrote it]
+#76 draw_indexed n=3 inst=1 prim=4 fs=0x573c63eee4271f5e vs=0xa3155031f10b3428
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x202e000000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x200de00000 1600x900x1 mips=1 8/Unorm 2D
+  buf read  fs 0x2015210840+0x60
+  buf read  vs 0x2030092800+0x30
+  >> pass 2645562 begin guest 1600x900 1600x900x1 c0=0x2045800000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass)
+#77 draw_indexed n=3 inst=1 prim=4 fs=0x75f72992df9a3a81 vs=0xa3155031f10b3428
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x2010800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x202e000000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x202e800000 1600x900x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x2043800000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  img read  fs 0x200de00000 1600x900x1 mips=1 8/Unorm 2D
+  img read  fs 0x2008e00000 128x128x1 mips=8 Bc6/Unorm Cube
+  img read  fs 0x2002e38000 128x32x1 mips=1 16_16/Unorm 2D
+  img read  fs 0x2046000000 1600x900x1 mips=1 16_16_16_16/Unorm 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x20152108a0+0x20
+  buf read  vs 0x2030092c00+0x30
+  << pass 2645562 end state_change draws=1 load_px=1440000
+  >> pass 2645563 begin guest 1600x900 1600x900x1 c0=0x2045800000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x2010800000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass)
+#78 dispatch 7168x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x20152108c0+0x10
+  buf WRITE cs 0x2005400000+0x1c0000 fmt
+  << pass 2645563 end dispatch draws=1 load_px=2880000
+#79 dispatch 90x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x20152108d0+0x10
+  buf WRITE cs 0x2015e10000+0x5910 fmt
+#80 dispatch 100x57x1 cs=0xf6074445e584dd9e
+  img read  cs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img WRITE cs 0x200aa00000 800x450x1 mips=1 16_16/Float 2D
+  buf read  cs 0x20152108e0+0x40
+  buf read  cs 0x203000b000+0xb10
+  buf read  cs 0x2030093000+0x160 fmt
+  buf read  cs 0x2030093400+0xb0 fmt
+  buf WRITE cs 0x2015e10000+0x5910 fmt
+  !! barrier shader-write sh=0xf6074445e584dd9e 0x2015e10000+0x5910 0x0 -> ShaderWrite
+  !! barrier shader-read sh=0x4f545aa622833908 0x2015e10000+0x5910 0x0 -> ShaderRead
+#81 draw_indexed n=6 inst=5700 prim=4 fs=0xa829424d92961160 vs=0x4f545aa622833908
+  RT c0 0x2045800000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  RT c1 0x200de00000 1600x900x1 R8Unorm scale=1
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x200aa00000 800x450x1 mips=1 16_16/Float 2D
+  img read  fs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x2015210940+0x20
+  buf read  vs 0x2015e10000+0x5910 fmt
+  buf read  vs 0x2015210920+0x20
+  buf read  vs 0x203000b000+0xb10
+  >> pass 2645564 begin guest 1600x900 1600x900x1 c0=0x2045800000:B10G11R11UfloatPack32:L:native(mixed-pass,0x40,mixed attachment pass) c1=0x200de00000:R8Unorm:L:native(mixed-pass,0x40,mixed attachment pass)
+  << pass 2645564 end sampled_image draws=1 load_px=2880000  [hoist conflict: copy writes 0x2045800000-0x2045e18000, pass wrote it]
+#82 draw_indexed n=3 inst=1 prim=4 fs=0x15d40fbd995abba6 vs=0xa3155031f10b3428
+  RT c0 0x2039000000 1600x900x1 R16G16B16A16Sfloat scale=0.5
+  img read  fs 0x202e000000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x2043800000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  img read  fs 0x2020a00000 1024x512x1 mips=10 16/Float 2D
+  img read  fs 0x2047000000 1600x900x1 mips=1 16_16/Unorm 2D
+  img read  fs 0x2045800000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210960+0x20
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030093800+0x30
+  >> pass 2645565 begin guest 800x450 800x450x1 c0=0x2039000000:R16G16B16A16Sfloat:L
+  << pass 2645565 end sampled_image draws=1 load_px=360000  [hoist conflict: copy writes 0x2039000000-0x2039c30000, pass wrote it]
+#83 draw_indexed n=3 inst=1 prim=4 fs=0x1bde3c68febe1042 vs=0x4faa1f37ee3b6703
+  RT c0 0x2049000000 1600x900x1 R16G16B16A16Sfloat scale=0.5
+  img read  fs 0x2039000000 1600x900x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  fs 0x2047000000 1600x900x1 mips=1 16_16/Unorm 2D
+  img read  fs 0x204a000000 1600x900x1 mips=1 16_16_16_16/Float 2D
+  img read  vs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  buf read  fs 0x20152109d0+0xc0
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2030094000+0x30
+  buf read  vs 0x2015210980+0x50
+  >> pass 2645566 begin guest 800x450 800x450x1 c0=0x2049000000:R16G16B16A16Sfloat:L
+#84 dispatch 200x113x1 cs=0xc0c7dbbd66199cb9
+  img read  cs 0x202e000000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  cs 0x202e800000 1600x900x1 mips=1 8_8_8_8/Srgb 2D
+  img read  cs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  img read  cs 0x202a800000 1600x900x1 mips=1 2_10_10_10/Unorm 2D
+  img read  cs 0x2049000000 1600x900x1 mips=1 16_16_16_16/Float 2D
+  img read  cs 0x2043800000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  img read  cs 0x2002e38000 128x32x1 mips=1 16_16/Unorm 2D
+  img read  cs 0x2046000000 1600x900x1 mips=1 16_16_16_16/Unorm 2D
+  img read  cs 0x2045800000 1600x900x1 mips=1 10_11_11/Float 2D
+  img WRITE cs 0x2048000000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  cs 0x2015220000+0x20
+  buf read  cs 0x203000b000+0xb10
+  << pass 2645566 end sampled_image draws=1 load_px=360000  [hoist conflict: copy writes 0x2049000000-0x2049c30000, pass wrote it]
+#85 draw_indexed n=3 inst=1 prim=4 fs=0x39fafdb3930a042c vs=0x85bc13730c898eb6
+  RT depth 0x2048800000 1600x900x1 D32SfloatS8Uint scale=0.5
+  img read  fs 0x200c000000 1600x900x1 mips=1 32/Float 2D
+  buf read  fs 0x2015210a90+0x40
+  buf read  fs 0x203000b000+0xb10
+  buf read  vs 0x2030094400+0x30
+  >> pass 2645567 begin guest 800x450 800x450x1 d=0x2048800000:D32SfloatS8Uint:L:rw
+#86 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210ad0+0x10
+  buf WRITE cs 0x204cc30000+0x4000 fmt
+  == replaced by compute meta clear
+  << pass 2645567 end attachment draws=1 load_px=360000  [hoist conflict: copy writes 0x200c000000-0x200c700000, pass read it]
+#87 draw_indexed n=1290 inst=1 prim=4 fs=0xf5623e05cf6a991e vs=0xa7b4c346aebd3359
+  RT c0 0x204c000000 1600x900x1 R16G16B16A16Sfloat scale=1 clear
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x2008438000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x2000831800 1x1x1 mips=1 8_8_8_8/Unorm Cube
+  img read  vs 0x2000820800 1x1x1 mips=1 8_8_8_8/Unorm 3D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x200bc63000+0x240
+  buf read  fs 0x2030000000+0x160
+  buf read  fs 0x2008d26e00+0x110
+  buf read  vs 0x2013908000+0x300 fmt
+  buf read  vs 0x200bc63000+0x240
+  buf read  vs 0x2015210ae0+0xf0
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x2019d00200+0x140
+  >> pass 2645568 begin guest 1600x900 1600x900x1 c0=0x204c000000:R16G16B16A16Sfloat:C:native(mixed-pass,0x40,mixed attachment pass) d=0x200c000000:D32SfloatS8Uint:L:ro
+#88 draw_indexed n=1152 inst=1 prim=4 fs=0x34ab9e7b47f7cf9b vs=0xe1ad60b91542bbff
+  RT c0 0x204c000000 1600x900x1 R16G16B16A16Sfloat scale=1
+  RT depth 0x200c000000 1600x900x1 D32SfloatS8Uint scale=1 ro
+  img read  fs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  img read  fs 0x2007f04000 64x64x1 mips=7 Bc5/Unorm 2D
+  img read  fs 0x2002f58000 64x64x1 mips=7 Bc7/Srgb 2D
+  img read  fs 0x2002f80000 256x512x1 mips=1 8_8_8_8/Srgb 2D
+  img read  fs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  fs 0x2025800000 2048x2048x1 mips=12 Bc5/Unorm 2D
+  img read  fs 0x2002f58000 64x64x1 mips=7 Bc7/Srgb 2D
+  img read  fs 0x2007f08000 64x64x1 mips=7 Bc7/Srgb 2D
+  img read  vs 0x202b000000 2048x2048x1 mips=12 Bc7/Srgb 2D
+  img read  vs 0x2000831800 1x1x1 mips=1 8_8_8_8/Unorm Cube
+  img read  vs 0x2000820800 1x1x1 mips=1 8_8_8_8/Unorm 3D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x20151b5000+0x380
+  buf read  fs 0x2019d00200+0x140
+  buf read  fs 0x2008d26e00+0x110
+  buf read  fs 0x2030000000+0x160
+  buf read  vs 0x201246f800+0x600 fmt
+  buf read  vs 0x20151b5000+0x380
+  buf read  vs 0x2015210bd0+0xf0
+  buf read  vs 0x2019d00200+0x140
+  buf read  vs 0x203000b000+0xb10
+  << pass 2645568 end state_change draws=1 load_px=1440000
+  >> pass 2645569 begin guest 1600x900 1600x900x1 c0=0x204c000000:R16G16B16A16Sfloat:L:native(mixed-pass,0x40,mixed attachment pass) d=0x200c000000:D32SfloatS8Uint:L:ro
+#89 dispatch 64x1x1 cs=0xeb6153695de6e61
+  buf read  cs 0x2015210cc0+0x10
+  buf WRITE cs 0x204dc30000+0x4000 fmt
+  == replaced by compute meta clear
+  << pass 2645569 end image_copy draws=1 load_px=2880000
+#90 dispatch 200x113x1 cs=0xb903b5f213ef7d4d
+  img read  cs 0x2048000000 1600x900x1 mips=1 10_11_11/Float 2D
+  img WRITE cs 0x2010000000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  cs 0x2015210cd0+0x10
+#91 draw_indexed n=3 inst=1 prim=4 fs=0xb5473086ed153980 vs=0xa3155031f10b3428
+  RT c0 0x2048000000 1600x900x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x204c000000 1600x900x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x2010000000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210ce0+0x20
+  buf read  vs 0x2030094c00+0x30
+  >> pass 2645570 begin guest 1600x900 1600x900x1 c0=0x2048000000:B10G11R11UfloatPack32:L:native(semantic-native,0x4,created as storage)
+  << pass 2645570 end sampled_image draws=1 load_px=1440000  [hoist conflict: copy writes 0x2048000000-0x2048618000, pass wrote it]
+#92 draw_indexed n=3 inst=1 prim=4 fs=0x59f538c07a51ac0 vs=0xa3155031f10b3428
+  RT c0 0x204e800000 1600x900x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x204d000000 1600x900x1 mips=1 16_16_16_16/Float 2D
+  img read  fs 0x2048000000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210d00+0x10
+  buf read  vs 0x2030095000+0x30
+  >> pass 2645571 begin guest 800x450 800x450x1 c0=0x204e800000:B10G11R11UfloatPack32:L
+  << pass 2645571 end sampled_image draws=1 load_px=360000  [hoist conflict: copy writes 0x204e800000-0x204ee18000, pass wrote it]
+#93 draw_indexed n=3 inst=1 prim=4 fs=0x57811fd404f1a0e3 vs=0xc88aa7b87f80b373
+  RT c0 0x2027a00000 800x450x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x204e800000 1600x900x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210d10+0x10
+  buf read  vs 0x2030095400+0x30
+  >> pass 2645572 begin guest 400x225 400x225x1 c0=0x2027a00000:B10G11R11UfloatPack32:L
+#94 draw_indexed n=3 inst=1 prim=4 fs=0xf0d250a8725c91 vs=0xa3155031f10b3428
+  RT c0 0x20035b0000 1x1x1 R32G32Sfloat scale=1
+  img read  fs 0x2002c10000 1x1x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x2015210d20+0x30
+  buf read  vs 0x2030095800+0x30
+  << pass 2645572 end state_change draws=1 load_px=90000
+  >> pass 2645573 begin guest 1x1 1x1x1 c0=0x20035b0000:R32G32Sfloat:L:native(size-protect,0x0,-)
+  << pass 2645573 end sampled_image draws=1 load_px=1  [hoist conflict: copy writes 0x20035b0000-0x20035c0000, pass wrote it]
+#95 draw_indexed n=3 inst=1 prim=4 fs=0xa3155031d10db6cd vs=0xa315503126f71113
+  RT c0 0x2027c00000 800x450x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x2027a00000 800x450x1 mips=1 10_11_11/Float 2D
+  img read  vs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  buf read  fs 0x2015210d50+0x10
+  buf read  vs 0x2030095c00+0x30
+  >> pass 2645574 begin guest 400x225 400x225x1 c0=0x2027c00000:B10G11R11UfloatPack32:L
+  << pass 2645574 end sampled_image draws=1 load_px=90000  [hoist conflict: copy writes 0x2027c00000-0x2027dc0000, pass wrote it]
+#96 draw_indexed n=3 inst=1 prim=4 fs=0x57811fd404f1a0e3 vs=0xc88aa7b87f80b373
+  RT c0 0x201a680000 400x225x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x2027c00000 800x450x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210d60+0x10
+  buf read  vs 0x2030096000+0x30
+  >> pass 2645575 begin guest 200x112 200x112x1 c0=0x201a680000:B10G11R11UfloatPack32:L
+  << pass 2645575 end sampled_image draws=1 load_px=22400  [hoist conflict: copy writes 0x201a680000-0x201a700000, pass wrote it]
+#97 draw_indexed n=3 inst=1 prim=4 fs=0x57811fd404f1a0e3 vs=0xc88aa7b87f80b373
+  RT c0 0x2019da0000 200x113x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x201a680000 400x225x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210d70+0x10
+  buf read  vs 0x2030096400+0x30
+  >> pass 2645576 begin guest 100x56 100x56x1 c0=0x2019da0000:B10G11R11UfloatPack32:L
+#98 draw n=10 inst=1 prim=6 fs=0x138f3760de852b1e vs=0xd54afae401335ef8
+  RT c0 0x2019d70000 100x57x1 B10G11R11UfloatPack32 scale=1
+  buf read  fs 0x203009d000+0x80
+  << pass 2645576 end state_change draws=1 load_px=5600
+  >> pass 2645577 begin guest 100x57 100x57x1 c0=0x2019d70000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+#99 draw_indexed n=3 inst=1 prim=4 fs=0x57811fd404f1a0e3 vs=0xc88aa7b87f80b373
+  RT c0 0x2019d70000 100x57x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2019da0000 200x113x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210e20+0x10
+  buf read  vs 0x2030096800+0x30
+#100 draw n=10 inst=1 prim=6 fs=0x138f3760de852b1e vs=0xd54afae401335ef8
+  RT c0 0x2018778000 50x29x1 B10G11R11UfloatPack32 scale=1
+  buf read  fs 0x203009d400+0x80
+  << pass 2645577 end state_change draws=2 load_px=5700
+  >> pass 2645578 begin guest 50x29 50x29x1 c0=0x2018778000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+#101 draw_indexed n=3 inst=1 prim=4 fs=0x57811fd404f1a0e3 vs=0xc88aa7b87f80b373
+  RT c0 0x2018778000 50x29x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2019d70000 100x57x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210ed0+0x10
+  buf read  vs 0x2030096c00+0x30
+#102 draw n=10 inst=1 prim=6 fs=0x138f3760de852b1e vs=0xd54afae401335ef8
+  RT c0 0x2018770000 25x15x1 B10G11R11UfloatPack32 scale=1
+  buf read  fs 0x203009d800+0x80
+  << pass 2645578 end state_change draws=2 load_px=1450
+  >> pass 2645579 begin guest 25x15 25x15x1 c0=0x2018770000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+#103 draw_indexed n=3 inst=1 prim=4 fs=0x57811fd404f1a0e3 vs=0xc88aa7b87f80b373
+  RT c0 0x2018770000 25x15x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2018778000 50x29x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015210f80+0x10
+  buf read  vs 0x2030097000+0x30
+  << pass 2645579 end sampled_image draws=2 load_px=375  [hoist conflict: copy writes 0x2018770000-0x2018778000, pass wrote it]
+#104 draw_indexed n=3 inst=1 prim=4 fs=0x9e19472e1212f44e vs=0xb767e7ec40ca7b2d
+  RT c0 0x2018738000 25x15x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2018770000 25x15x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211090+0x200
+  buf read  vs 0x2030097400+0x30
+  buf read  vs 0x2015210f90+0x100
+  >> pass 2645580 begin guest 25x15 25x15x1 c0=0x2018738000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  << pass 2645580 end sampled_image draws=1 load_px=375  [hoist conflict: copy writes 0x2018738000-0x2018740000, pass wrote it]
+#105 draw_indexed n=3 inst=1 prim=4 fs=0x9e19472e1212f44e vs=0xb767e7ec40ca7b2d
+  RT c0 0x2018770000 25x15x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2018738000 25x15x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211390+0x200
+  buf read  vs 0x2030097800+0x30
+  buf read  vs 0x2015211290+0x100
+  >> pass 2645581 begin guest 25x15 25x15x1 c0=0x2018770000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+#106 draw_indexed n=3 inst=1 prim=4 fs=0x6de1452bacae2e53 vs=0xb5aae7e940ca7b2d
+  RT c0 0x2018730000 50x29x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2018778000 50x29x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211690+0x1f0
+  buf read  vs 0x2030097c00+0x30
+  buf read  vs 0x2015211590+0x100
+  << pass 2645581 end state_change draws=1 load_px=375
+  >> pass 2645582 begin guest 50x29 50x29x1 c0=0x2018730000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  << pass 2645582 end sampled_image draws=1 load_px=1450  [hoist conflict: copy writes 0x2018730000-0x2018738000, pass wrote it]
+#107 draw_indexed n=3 inst=1 prim=4 fs=0x698d1b590f2df7bf vs=0xb5aae7e940ca7b2d
+  RT c0 0x2018778000 50x29x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2018770000 25x15x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2018730000 50x29x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211980+0x1f0
+  buf read  vs 0x2030098000+0x30
+  buf read  vs 0x2015211880+0x100
+  >> pass 2645583 begin guest 50x29 50x29x1 c0=0x2018778000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+#108 draw_indexed n=3 inst=1 prim=4 fs=0x32b142291e290bea vs=0xf5a8e4e936f3f036
+  RT c0 0x2018378000 100x57x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2019d70000 100x57x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211c20+0x150
+  buf read  vs 0x2030098400+0x30
+  buf read  vs 0x2015211b70+0xb0
+  << pass 2645583 end state_change draws=1 load_px=1450
+  >> pass 2645584 begin guest 100x57 100x57x1 c0=0x2018378000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+  << pass 2645584 end sampled_image draws=1 load_px=5700  [hoist conflict: copy writes 0x2018378000-0x2018380000, pass wrote it]
+#109 draw_indexed n=3 inst=1 prim=4 fs=0xf83818572e30c927 vs=0xf5a8e4e936f3f036
+  RT c0 0x2019d70000 100x57x1 B10G11R11UfloatPack32 scale=1
+  img read  fs 0x2018778000 50x29x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2018378000 100x57x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211e20+0x150
+  buf read  vs 0x2030098800+0x30
+  buf read  vs 0x2015211d70+0xb0
+  >> pass 2645585 begin guest 100x57 100x57x1 c0=0x2019d70000:B10G11R11UfloatPack32:L:native(size-protect,0x0,-)
+#110 draw_indexed n=3 inst=1 prim=4 fs=0xfd7edeb997650b60 vs=0x2f2eaaa5eae352bc
+  RT c0 0x2015620000 200x113x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x2019da0000 200x113x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015211fc0+0x90
+  buf read  vs 0x2030098c00+0x30
+  buf read  vs 0x2015211f70+0x50
+  << pass 2645585 end state_change draws=1 load_px=5700
+  >> pass 2645586 begin guest 100x56 100x56x1 c0=0x2015620000:B10G11R11UfloatPack32:L
+  << pass 2645586 end sampled_image draws=1 load_px=5600  [hoist conflict: copy writes 0x2015620000-0x2015640000, pass wrote it]
+#111 draw_indexed n=3 inst=1 prim=4 fs=0x6fe3594320939535 vs=0x2f2eaaa5eae352bc
+  RT c0 0x2019da0000 200x113x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x2019d70000 100x57x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2015620000 200x113x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x20152120a0+0x90
+  buf read  vs 0x2030099000+0x30
+  buf read  vs 0x2015212050+0x50
+  >> pass 2645587 begin guest 100x56 100x56x1 c0=0x2019da0000:B10G11R11UfloatPack32:L
+#112 draw_indexed n=3 inst=1 prim=4 fs=0xfd7edeb997650b60 vs=0x2f2eaaa5eae352bc
+  RT c0 0x2018780000 400x225x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x201a680000 400x225x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015212180+0x90
+  buf read  vs 0x2030099400+0x30
+  buf read  vs 0x2015212130+0x50
+  << pass 2645587 end state_change draws=1 load_px=5600
+  >> pass 2645588 begin guest 200x112 200x112x1 c0=0x2018780000:B10G11R11UfloatPack32:L
+  << pass 2645588 end sampled_image draws=1 load_px=22400  [hoist conflict: copy writes 0x2018780000-0x2018800000, pass wrote it]
+#113 draw_indexed n=3 inst=1 prim=4 fs=0x6fe3594320939535 vs=0x2f2eaaa5eae352bc
+  RT c0 0x201a680000 400x225x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x2019da0000 200x113x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2018780000 400x225x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015212260+0x90
+  buf read  vs 0x2030099800+0x30
+  buf read  vs 0x2015212210+0x50
+  >> pass 2645589 begin guest 200x112 200x112x1 c0=0x201a680000:B10G11R11UfloatPack32:L
+#114 draw_indexed n=3 inst=1 prim=4 fs=0x98c2dbad83b564e6 vs=0x9d89a4a26a4c2b45
+  RT c0 0x2027a00000 800x450x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x2027c00000 800x450x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x2015212320+0x60
+  buf read  vs 0x2030099c00+0x30
+  buf read  vs 0x20152122f0+0x30
+  << pass 2645589 end state_change draws=1 load_px=22400
+  >> pass 2645590 begin guest 400x225 400x225x1 c0=0x2027a00000:B10G11R11UfloatPack32:L
+  << pass 2645590 end sampled_image draws=1 load_px=90000  [hoist conflict: copy writes 0x2027a00000-0x2027bc0000, pass wrote it]
+#115 draw_indexed n=3 inst=1 prim=4 fs=0xd44e5637a9ac2fc6 vs=0x9d89a4a26a4c2b45
+  RT c0 0x2027c00000 800x450x1 B10G11R11UfloatPack32 scale=0.5
+  img read  fs 0x201a680000 400x225x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2027a00000 800x450x1 mips=1 10_11_11/Float 2D
+  buf read  fs 0x20152123b0+0x60
+  buf read  vs 0x203009a000+0x30
+  buf read  vs 0x2015212380+0x30
+  >> pass 2645591 begin guest 400x225 400x225x1 c0=0x2027c00000:B10G11R11UfloatPack32:L
+  << pass 2645591 end image_copy draws=1 load_px=90000
+#116 draw n=4 inst=32 prim=6 fs=0xbf93e1b9a9b13256 vs=0x87643fcb61eeb549 gs=0x87643fcb39dd575f
+  RT c0 0x2007380000 32x32x32 A2B10G10R10UnormPack32 scale=1
+  img read  fs 0x2008db0000 256x16x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x2015212430+0x290
+  buf read  fs 0x20020038c4+0x1c0 fmt
+  buf read  vs 0x2015212410+0x20
+  >> pass 2645592 begin guest 32x32 32x32x32 c0=0x2007380000:A2B10G10R10UnormPack32:L:native(alias,0x12,copy alias)
+  << pass 2645592 end image_copy draws=1 load_px=32768
+#117 draw n=4 inst=32 prim=6 fs=0xdc5e60886f079912 vs=0x87643fcb61eeb549 gs=0x87643fcb39dd575f
+  RT c0 0x200a900000 32x32x32 A2B10G10R10UnormPack32 scale=1
+  buf read  fs 0x20152126e0+0x240
+  buf read  fs 0x200200768c+0x1c0 fmt
+  buf read  vs 0x20152126c0+0x20
+  >> pass 2645593 begin guest 32x32 32x32x32 c0=0x200a900000:A2B10G10R10UnormPack32:L:native(alias,0x12,copy alias)
+  << pass 2645593 end image_copy draws=1 load_px=32768
+#118 draw_indexed n=3 inst=1 prim=4 fs=0x44f1e20d409f43f7 vs=0x4faa1f37ee3b6703
+  RT c0 0x204f800000 1600x900x1 R8G8B8A8Unorm scale=0.5
+  img read  fs 0x2002c10000 1x1x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x204e800000 1600x900x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2027c00000 800x450x1 mips=1 10_11_11/Float 2D
+  img read  fs 0x2007380000 32x32x32 mips=1 2_10_10_10/Unorm 3D
+  img read  fs 0x2046000000 1600x900x1 mips=1 16_16_16_16/Unorm 2D
+  img read  fs 0x200a900000 32x32x32 mips=1 2_10_10_10/Unorm 3D
+  img read  fs 0x204c000000 1600x900x1 mips=1 16_16_16_16/Float 2D
+  img read  vs 0x20035b0000 1x1x1 mips=1 32_32/Float 2D
+  buf read  fs 0x203000b000+0xb10
+  buf read  fs 0x203009a400+0x10
+  buf read  fs 0x2015212970+0x40
+  buf read  vs 0x203000b000+0xb10
+  buf read  vs 0x203009a800+0x30
+  buf read  vs 0x2015212920+0x50
+  >> pass 2645594 begin guest 800x450 800x450x1 c0=0x204f800000:R8G8B8A8Unorm:L
+  << pass 2645594 end sampled_image draws=1 load_px=360000  [hoist conflict: copy writes 0x204f800000-0x204fe18000, pass wrote it]
+#119 draw_indexed n=6 inst=1 prim=4 fs=0xeb29f9489ee13818 vs=0x989dcfdb2da269c0
+  RT c0 0x204f000000 1600x900x1 R8G8B8A8Unorm scale=0.5
+  img read  fs 0x204f800000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x20152129c0+0x20
+  buf read  vs 0x203009ac00+0x30
+  buf read  vs 0x20152129b0+0x10
+  >> pass 2645595 begin guest 800x450 800x450x1 c0=0x204f000000:R8G8B8A8Unorm:L
+  << pass 2645595 end sampled_image draws=1 load_px=360000  [hoist conflict: copy writes 0x204f000000-0x204f618000, pass wrote it]
+#120 draw_indexed n=3 inst=1 prim=4 fs=0x493e67e5db3634e8 vs=0xa3155031f10b3428
+  RT c0 0x4001000000 1920x1080x1 R8G8B8A8Srgb scale=0.5
+  img read  fs 0x204f000000 1600x900x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x20152129e0+0x10
+  buf read  vs 0x203009b000+0x30
+  >> pass 2645596 begin guest 960x540 960x540x1 c0=0x4001000000:R8G8B8A8Srgb:L
+#121 draw_indexed n=6 inst=1 prim=4 fs=0xa0e85c5d98817438 vs=0xc466daed88d126d3
+  RT c0 0x4001000000 1920x1080x1 R8G8B8A8Srgb scale=0.5
+  img read  fs 0x2000840400 1x1x1 mips=1 8_8_8_8/Unorm 2D
+  img read  fs 0x2000840400 1x1x1 mips=1 8_8_8_8/Unorm 2D
+  buf read  fs 0x2015212b4c+0x30
+  buf read  vs 0x2015212afc+0x50
+  << pass 2645596 end state_change draws=1 load_px=518400
+  >> pass 2645597 begin guest 960x540 960x540x1 c0=0x4001000000:R8G8B8A8Srgb:L
+  << pass 2645597 end present draws=1 load_px=518400

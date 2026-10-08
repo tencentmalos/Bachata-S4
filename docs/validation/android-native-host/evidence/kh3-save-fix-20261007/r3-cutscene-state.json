@@ -1,0 +1,46 @@
+{
+  "source": "kh3-fixed-r3-20261007.sgpurply",
+  "event": 311,
+  "eboot_elf_sha256": "29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9",
+  "derivation": "UObject/FName and reflected property metadata in recorded writable memory; native methods identified from reflected exec thunks and vtables",
+  "camera": {
+    "object": "0x1028190040",
+    "class": "TresCameraManager",
+    "fade_amount_offset": "0x410",
+    "fade_amount": 0,
+    "flags_offset": "0x2878",
+    "flags": "0x8010",
+    "fade_enabled_mask": "0x4",
+    "fade_enabled": false
+  },
+  "level_script": {
+    "object": "0x1034451750",
+    "class": "bt_50_gameflow_C",
+    "frame": "0x1024f631a0",
+    "last_entrypoint": 9039,
+    "remote_event": "bt_50_gameflow_REvt_cutscene_bt50_bt051"
+  },
+  "cutscene_script": {
+    "object": "0x10221b0e30",
+    "class": "cutscene_bt50_bt051_C",
+    "frame": "0x1022671780",
+    "last_entrypoint": 5242,
+    "video": "Tres/mv_bt051.usm",
+    "prepare_video_bytecode_offset": "0x1309",
+    "wait_video_prepare_bytecode_offset": "0x1339",
+    "resume_video_bytecode_offset": "0x1294"
+  },
+  "matinee": {
+    "object": "0x102c7765f0",
+    "name": "bt051a",
+    "playing": false,
+    "position": 0
+  },
+  "pre_fix_sysmodule": {
+    "pid": 14413,
+    "id": "0xcf",
+    "name": "libSceVideodec2",
+    "result": "0x805a10ff",
+    "all_imported_videodec2_functions": "refused/unsupported_import"
+  }
+}

@@ -1,11 +1,17 @@
 package com.shadps4.android.runtime.input
 
+import android.content.Context
+import android.hardware.input.InputManager
+import android.os.Handler
+import android.os.Looper
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.shadps4.android.runtime.session.ManagedSession
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class NavControllerEvent(
     val control: String,
@@ -13,6 +19,36 @@ data class NavControllerEvent(
 )
 
 object GamepadInputManager {
+    private val mutableConnectedControllers = MutableStateFlow<List<ConnectedController>>(emptyList())
+    val connectedControllers = mutableConnectedControllers.asStateFlow()
+    private var deviceMonitoringStarted = false
+    private val deviceListener = object : InputManager.InputDeviceListener {
+        override fun onInputDeviceAdded(deviceId: Int) = refreshConnectedControllers()
+        override fun onInputDeviceRemoved(deviceId: Int) = refreshConnectedControllers()
+        override fun onInputDeviceChanged(deviceId: Int) = refreshConnectedControllers()
+    }
+
+    // Application-owned inventory; losing window focus must not make a connected
+    // handheld disappear or briefly restore the touch overlay.
+    fun startDeviceMonitoring(context: Context) {
+        check(Looper.myLooper() == Looper.getMainLooper())
+        if (!deviceMonitoringStarted) {
+            val manager = context.applicationContext.getSystemService(InputManager::class.java)
+            manager.registerInputDeviceListener(deviceListener, Handler(Looper.getMainLooper()))
+            deviceMonitoringStarted = true
+        }
+        refreshConnectedControllers()
+    }
+
+    private fun refreshConnectedControllers() {
+        mutableConnectedControllers.value = InputDevice.getDeviceIds().sorted().mapNotNull { id ->
+            val device = InputDevice.getDevice(id) ?: return@mapNotNull null
+            if (!isGameController(id)) return@mapNotNull null
+            ConnectedController(id,
+                ControllerDeviceKey(device.descriptor, device.vendorId, device.productId, device.name),
+                hasHatDpad(id))
+        }
+    }
     private val mapper = ControllerMapper()
     private val resolver = ControllerBindingResolver()
     private val profile = AtomicReference(ControllerProfile.standard())
@@ -35,7 +71,7 @@ object GamepadInputManager {
     private const val KEYCODE_DPAD_RIGHT = 22
 
     val hasPhysicalController: Boolean
-        get() = NativePadBridge.hasPhysicalController()
+        get() = connectedControllers.value.isNotEmpty()
 
     /** Update the active controller profile at runtime (called when settings change). */
     fun setProfile(p: ControllerProfile) { profile.set(p) }

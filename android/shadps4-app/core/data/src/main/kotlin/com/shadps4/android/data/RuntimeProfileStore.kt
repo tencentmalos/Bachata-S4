@@ -3,6 +3,8 @@ package com.shadps4.android.data
 import com.shadps4.android.runtime.settings.CURRENT_SCHEMA_VERSION
 import com.shadps4.android.runtime.settings.ProfileScope
 import com.shadps4.android.runtime.settings.RuntimeProfile
+import com.shadps4.android.runtime.input.ConnectedController
+import com.shadps4.android.runtime.input.ControllerProfile
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.AtomicMoveNotSupportedException
@@ -26,6 +28,17 @@ class RuntimeProfileStore(private val filesDir: File) {
     private val observed = ConcurrentHashMap<ProfileScope, MutableStateFlow<RuntimeProfile>>()
 
     suspend fun load(scope: ProfileScope): RuntimeProfile = mutex.withLock { loadUnlocked(scope) }
+
+    /** First detected pads get Auto Map defaults. A saved (even deliberately
+     * empty) controller profile is a user choice and is never replaced. */
+    suspend fun initializeControllerMappings(devices: List<ConnectedController>): Boolean = mutex.withLock {
+        if (devices.isEmpty()) return@withLock false
+        val profile = loadUnlocked(ProfileScope.Global)
+        if (profile.controllerSlots.isNotEmpty()) return@withLock false
+        val slots = devices.take(4).map { ControllerProfile.autoMap(it.key, it.hasHatDpad) }
+        writeUnlocked(ProfileScope.Global, profile.copy(controllerSlots = slots))
+        true
+    }
 
     fun observe(scope: ProfileScope): Flow<RuntimeProfile> =
         observed.getOrPut(scope) { MutableStateFlow(loadUnlocked(scope)) }

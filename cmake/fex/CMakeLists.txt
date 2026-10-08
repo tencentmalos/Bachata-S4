@@ -142,6 +142,12 @@ if(V0_BUILD_TESTS)
     add_executable(guest_thread_attribute_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_thread_attribute_tests.cpp")
     target_link_libraries(guest_thread_attribute_tests PRIVATE guest_cpu_api Threads::Threads)
+    add_executable(guest_login_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_login_tests.cpp")
+    target_link_libraries(guest_login_tests PRIVATE guest_cpu_api Threads::Threads)
+    add_executable(guest_kernel_app_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_kernel_app_tests.cpp")
+    target_link_libraries(guest_kernel_app_tests PRIVATE guest_cpu_api Threads::Threads)
     add_executable(guest_rwlock_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_rwlock_tests.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"

@@ -296,6 +296,9 @@ private:
             u64 diagnostic_id{};
             /// The top-level command buffer this task runs, for GPU replay capture.
             VideoCore::Replay::SubmitRecord replay_submit{};
+            // Views into the coroutine-owned copies, valid until this task is destroyed.
+            std::span<const u32> replay_dcb;
+            std::span<const u32> replay_ccb;
             bool replay_resumed{};
             void return_void() {}
             struct empty {};

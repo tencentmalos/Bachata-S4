@@ -65,8 +65,7 @@ void AesEcbEncryptBlock(std::span<const u8, 16> key, const u8 in[16], u8 out[16]
 }
 
 void AesEcbDecryptBlock(std::span<const u8, 16> key, const u8 in[16], u8 out[16]) {
-    unsigned long padded = 0;
-    aes::decrypt_ecb(in, AES_BLOCK, key.data(), key.size(), out, AES_BLOCK, &padded);
+    aes::decrypt_ecb(in, AES_BLOCK, key.data(), key.size(), out, AES_BLOCK, nullptr);
 }
 
 void XtsXorBlock(u8* x, const u8* a, const u8* b) {
@@ -132,9 +131,9 @@ void AesCbcCfb128Decrypt(std::span<const u8, 32> ivkey, std::span<const u8> ciph
     if (usable == 0) {
         return;
     }
-    unsigned long padded = 0;
+    // PKG entries are raw CBC blocks, not PKCS#7-padded messages.
     aes::decrypt_cbc(ciphertext.data(), static_cast<unsigned long>(usable), key.data(), key.size(),
-                     iv.data(), decrypted.data(), static_cast<unsigned long>(usable), &padded);
+                     iv.data(), decrypted.data(), static_cast<unsigned long>(usable), nullptr);
 }
 
 void PfsGenCryptoKey(std::span<const u8, 32> ekpfs, std::span<const u8, 16> seed,

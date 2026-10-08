@@ -67,6 +67,11 @@ struct GuestGraphics::Impl : Libraries::Kernel::SessionEqueues {
         if (!Frontend::BindWindow(window)) throw std::runtime_error("A platform window is already bound");
     }
     void Stop() {
+        {
+            std::scoped_lock lock(queues_mutex);
+            for (auto& [handle, entry] : queues)
+                entry.queue->Close();
+        }
         Libraries::GnmDriver::RequestStop();
         if (liverpool)
             liverpool->RequestStop();
@@ -177,6 +182,7 @@ s32 GuestGraphics::DeleteEqueue(s64 handle) {
     // IRQ handlers may already hold this queue. Retain its allocation until
     // renderer/VideoOut workers have joined, but refuse new guest operations.
     it->second.deleted = true;
+    it->second.queue->Close();
     return 0;
 }
 Libraries::Kernel::EqueueInternal* GuestGraphics::FindEqueue(s64 handle) {

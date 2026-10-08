@@ -1,0 +1,8 @@
+{
+  "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceJson2.sprx",
+  "device": "files/host/sys_modules/libSceJson2.sprx",
+  "bytes": 127784,
+  "sha256": "6a9d3894497cdfbe8720a5720cc0ab06f4aefbc73dff6e5c86885770b58097c5",
+  "existed_before": false,
+  "failed_deployment_attempts": "exec-in writes did not pass SHA; replaced via adb push plus run-as cp before accepted test"
+}

@@ -59,29 +59,13 @@ public:
                                              GuestPermission::Write))
                 return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
             std::vector<Entry> inventory;
-            auto sorted = roots;
-            std::sort(sorted.begin(), sorted.end());
-            sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
-            for (const auto& root : sorted) {
-                auto bytes = Core::FileSys::ReadGameFile(root, "sce_sys/param.sfo");
-                if (!bytes)
-                    continue;
-                PSF psf;
-                if (!psf.Open(*bytes))
-                    continue;
-                const auto category = psf.GetString("CATEGORY").value_or("");
-                const auto content = psf.GetString("CONTENT_ID").value_or("");
-                if (category != "ac" || content.size() != 36 || content.substr(7, 9) != title)
-                    continue;
+            for (const auto& selected : Core::FileSys::SelectAdditionalContent(roots, title)) {
                 Entry entry{};
-                entry.root = root;
-                std::memcpy(entry.info.entitlement_label.data, content.data() + 20, 16);
-                entry.info.status = OrbisAppContentAddcontDownloadStatus::Installed;
-                if (std::any_of(inventory.begin(), inventory.end(), [&](const auto& previous) {
-                        return std::memcmp(previous.info.entitlement_label.data,
-                                           entry.info.entitlement_label.data, 16) == 0;
-                    }))
-                    continue;
+                entry.root = selected.root;
+                std::memcpy(entry.info.entitlement_label.data, selected.content_id.data() + 20, 16);
+                entry.info.status = selected.has_data
+                                        ? OrbisAppContentAddcontDownloadStatus::Installed
+                                        : OrbisAppContentAddcontDownloadStatus::NoExtraData;
                 if (inventory.size() == ORBIS_APP_CONTENT_INFO_LIST_MAX_SIZE)
                     return u32(ORBIS_APP_CONTENT_ERROR_BUSY);
                 inventory.push_back(std::move(entry));

@@ -190,6 +190,9 @@ public:
     void Close();
 
     bool AddSmallTimer(EqueueEvent& event);
+    // Session HR timers share the deadline queue, avoiding desktop-global asio
+    // callbacks. The copied event never retains a native or guest time pointer.
+    bool AddHRTimer(u64 id, std::chrono::nanoseconds interval, void* udata);
     bool HasSmallTimer() {
         std::scoped_lock lock{m_mutex};
         return !m_small_timers.empty();

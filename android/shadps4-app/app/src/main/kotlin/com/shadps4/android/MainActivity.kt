@@ -21,15 +21,19 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import com.shadps4.android.data.LegacyRuntimeSettingsMigration
 import com.shadps4.android.data.UiOrientationPreference
+import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.runtime.input.GamepadInputManager
 import androidx.activity.enableEdgeToEdge
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 open class MainActivity : ComponentActivity() {
     internal open val openXrEnabled = false
     @Inject lateinit var legacyRuntimeSettingsMigration: LegacyRuntimeSettingsMigration
+    @Inject lateinit var runtimeProfileStore: RuntimeProfileStore
     private var requestedGameId by mutableStateOf<String?>(null)
     private var openLastGameRequest by mutableIntStateOf(0)
 
@@ -140,7 +144,15 @@ open class MainActivity : ComponentActivity() {
         if (savedInstanceState == null && !openXrEnabled) {
             requestedOrientation = UiOrientationPreference.toActivityOrientation(uiOrientation)
         }
-        lifecycleScope.launch { legacyRuntimeSettingsMigration.migrate() }
+        GamepadInputManager.startDeviceMonitoring(applicationContext)
+        lifecycleScope.launch {
+            legacyRuntimeSettingsMigration.migrate()
+            GamepadInputManager.connectedControllers.collect { devices ->
+                runCatching {
+                    withContext(Dispatchers.IO) { runtimeProfileStore.initializeControllerMappings(devices) }
+                }.onFailure { android.util.Log.e("ControllerSetup", "Could not save initial mapping", it) }
+            }
+        }
         // The FEX CPU backend (libshadps4_fex_session.so) is compiled into the APK, so unlike the
         // reference (which downloaded/extracted a glibc runtime into filesDir/runtime/box64-*),
         // there is no external runtime to install — the backend is always present.

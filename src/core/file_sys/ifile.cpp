@@ -6,17 +6,19 @@
 
 #include "common/logging/log.h"
 #include "common/path_util.h"
+#include "core/file_format/psf.h"
 #include "core/file_sys/backends/host_fs.h"
+#include "core/file_sys/backends/pkg_fs.h"
 #include "core/file_sys/backends/zarchive_fs.h"
 #include "core/file_sys/fs.h"
 #include "core/file_sys/ifile.h"
-#include "core/file_format/psf.h"
 
 namespace Core::FileSys {
 
 ArchiveInstallMetadata InspectArchiveInstall(const std::filesystem::path& base) {
     const auto fail = [](const char* why) { throw std::runtime_error(why); };
-    if (!IsZArchiveFile(base)) fail("game archive missing");
+    if (!IsGameArchive(base))
+        fail("game archive missing");
     auto root = OpenGameBackend(base);
     if (!root) fail("invalid game archive");
     const bool bundled = root->IsDirectory("app") && !root->IsDirectory("sce_sys");
@@ -36,6 +38,8 @@ ArchiveInstallMetadata InspectArchiveInstall(const std::filesystem::path& base) 
     if (!base_psf.Open(sfo)) fail("invalid archive param.sfo");
     const auto title = base_psf.GetString("TITLE_ID").value_or("");
     if (title.size() != 9) fail("archive title ID missing");
+    if (IsPkgFile(base) && base_psf.GetString("CATEGORY").value_or("") != "gd")
+        fail("PKG is not a base game; mount updates and DLC with their base");
     auto entry = root->Open("eboot.bin", Common::FS::FileAccessMode::Read);
     if (!entry || !entry->Size()) fail("archive eboot.bin missing");
     const auto check_update = [&](const std::filesystem::path& path) {
@@ -45,6 +49,8 @@ ArchiveInstallMetadata InspectArchiveInstall(const std::filesystem::path& base) 
         const auto bytes = metadata(*update);
         if (!psf.Open(bytes) || psf.GetString("TITLE_ID").value_or("") != title)
             fail("update archive title ID mismatch");
+        if (IsPkgFile(path) && psf.GetString("CATEGORY").value_or("") != "gp")
+            fail("PKG overlay is not an update");
     };
     if (bundled) {
         auto container = OpenGameBackend(base);
@@ -73,8 +79,17 @@ bool IsZArchiveFile(const std::filesystem::path& path) {
     return path.extension() == ".zar" && std::filesystem::is_regular_file(path, ec) && !ec;
 }
 
-std::filesystem::path StripZArchiveExtension(const std::filesystem::path& path) {
-    if (path.extension() == ".zar") {
+bool IsPkgFile(const std::filesystem::path& path) {
+    std::error_code ec;
+    return path.extension() == ".pkg" && std::filesystem::is_regular_file(path, ec) && !ec;
+}
+
+bool IsGameArchive(const std::filesystem::path& path) {
+    return IsZArchiveFile(path) || IsPkgFile(path);
+}
+
+std::filesystem::path StripGameArchiveExtension(const std::filesystem::path& path) {
+    if (path.extension() == ".zar" || path.extension() == ".pkg") {
         std::filesystem::path stripped = path;
         stripped.replace_extension();
         return stripped;
@@ -124,6 +139,10 @@ std::unique_ptr<IBackend> OpenGameBackend(const std::filesystem::path& root) {
         return nullptr;
     }
 
+    if (IsPkgFile(*resolved)) {
+        auto backend = std::make_unique<PkgBackend>(*resolved);
+        return backend->IsOpen() ? std::move(backend) : nullptr;
+    }
     if (IsZArchiveFile(*resolved)) {
         auto backend = std::make_unique<ZArchiveBackend>(*resolved);
         if (!backend->IsOpen()) {
@@ -201,7 +220,7 @@ std::optional<std::filesystem::path> ResolveGameFilePath(const std::filesystem::
 u64 GetGameRootSize(const std::filesystem::path& game_root) {
     std::error_code ec;
 
-    if (IsZArchiveFile(game_root)) {
+    if (IsGameArchive(game_root)) {
         const auto size = std::filesystem::file_size(game_root, ec);
         return ec ? 0ull : static_cast<u64>(size);
     }

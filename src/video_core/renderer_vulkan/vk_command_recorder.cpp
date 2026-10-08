@@ -54,9 +54,8 @@ void CommandRecorder::EnsureRoom(size_t payload_bytes) {
     } else {
         Stage();
     }
-    // A command larger than a whole chunk cannot be deferred; callers fall back first.
-    ASSERT_MSG(slot->HasRoom(payload_bytes), "recorded command payload {} too large",
-               payload_bytes);
+    // Keep oversized commands in the ordered stream, including held/pre-pass work.
+    slot->ReservePayload(payload_bytes);
 }
 
 std::unique_ptr<CommandChunk> CommandRecorder::TakeChunk() {

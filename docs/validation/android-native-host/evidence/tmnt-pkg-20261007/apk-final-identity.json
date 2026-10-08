@@ -1,0 +1,31 @@
+{
+  "apk_sha256": "cad7d03c302794becb1be8bef34abe702c9586b36861b6712ba8362903043c28",
+  "driver": {
+    "abi": "android-arm64-bionic",
+    "archive_sha256": "99d3fa584396b101965a571198b8c0718e765967820527605ec69405c70d4cdf",
+    "build_id": "872fcd9bf15bf54a2a4ef7be75d65fe12518abd9",
+    "library": "vulkan.ad07xx.so",
+    "library_sha256": "01a3548fbd2695f3b27ad896bfbbbf0561e28c49ad1de8a19b05745acd01ba19",
+    "lock_sha256": "dcc1f6fb2fc24e104e25d4bfea46e29b5272e9f2f599f6d1d75738326299f99c",
+    "patch_sha256": "a9965902fa43d2e5d9c9194ec784d12a9910061ff4cf7c76a64d40335dfc965a",
+    "prebuilt": true,
+    "prebuilt_lock": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/drivers/turnip-user-before-pkg-test.json",
+    "recipe_sha256": "3fc1643f051cb610a2db188ae9ae93929e5e98a8b5c1e0225b8e996ce82d105b",
+    "recovery_provenance": {
+      "apk_sha256": "bb00a108584776fea167b2c121286d05ce3fc4a6332f2156730989270512b052",
+      "asset": "assets/native-turnip-mainline/vulkan.ad07xx.so",
+      "original_archive_sha256": "8fa94f4e5b7eb5c4586c2c93bd8559fd94495adf34833c0da672f83db24810d8"
+    },
+    "release": "local-351a4847-barycentric-wsl",
+    "scope": "Local test using the user-built WSL barycentric Turnip already installed before this task.",
+    "source": "https://github.com/tencentmalos/mesa-mirror",
+    "source_commit": "351a4847a04dbcc9e18de3b609adacae6d3c796a + uncommitted barycentric patch",
+    "source_identity_sha256": "f60b6a8d71b5ff66dfd7b9b70f37e408225137ce754524087560035dbf97a7e5",
+    "url": "local: exact driver recovered from pre-test installed APK; see recovery_provenance"
+  },
+  "host_binding": {
+    "host_sha256": "f2e903beb4adc3b0fb48d1c0e65d045a9d3be5a52fecd6e6beec362a99b864be",
+    "library_sha256": "01a3548fbd2695f3b27ad896bfbbbf0561e28c49ad1de8a19b05745acd01ba19",
+    "source_identity_sha256": "f60b6a8d71b5ff66dfd7b9b70f37e408225137ce754524087560035dbf97a7e5"
+  }
+}

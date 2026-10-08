@@ -59,6 +59,9 @@ private:
     std::unique_ptr<VideoCore::Replay::Player> player;
     bool png{true};
     bool hash_images{};
+    bool dump_images{};
+    unsigned long long dump_first{};
+    unsigned long long dump_last{~0ULL};
     unsigned long long hash_draws{~0ULL};
     std::string debugbus;
     std::string report;

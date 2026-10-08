@@ -1,0 +1,38 @@
+SERVICE com.shadps4.android/.service.FexSessionService d96a385 pid=19475 user=0
+  Client:
+    gpu_timing: off
+    detailed: 0
+    requested: 0
+    ring_enabled: 1
+    coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+    generation: 1
+    supported: 1
+    calibrated: 0
+    estimated_alignment: 1
+    calibration_deviation_ns: 21850182
+    timestamp_valid_bits: 48
+    timestamp_period_ns: 52.0833
+    retired_batches: 43034
+    pending: 4
+    dropped_batches: 0
+    dropped_zones: 0
+    discarded: 14
+    errors: 0
+    incomplete_batches: 0
+    unavailable_queries: 0
+    unwritten_queries: 0
+    GPU.DrawBatch: count=5039 last_ms=0.0015625 total_ms=82785 max_ms=40.3707 observed_ns=38954814497273
+    GPU.GuestCommands: count=5039 last_ms=0.000520833 total_ms=82779.9 max_ms=40.3697 observed_ns=38954814497273
+    GPU.HostPrepare: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.FSR: count=2522 last_ms=1.43885 total_ms=3936.98 max_ms=2.04464 observed_ns=38954852676544
+    GPU.PostProcess: count=2522 last_ms=0.398177 total_ms=1120.96 max_ms=0.692865 observed_ns=38954852676544
+    GPU.Present: count=5044 last_ms=2.20854 total_ms=10914.4 max_ms=3.55479 observed_ns=38954852683211
+    GPU.OverlayRedraw: count=16469 last_ms=2.76708 total_ms=34737.1 max_ms=3.75312 observed_ns=38954995961961
+    GPU.BlankFlip: count=16468 last_ms=0.000520833 total_ms=8.42812 max_ms=0.000520833 observed_ns=38954995664356
+    GPU.GuestFrame: count=2516 last_ms=32.3718 total_ms=82683.2 max_ms=40.3702 observed_ns=38954814488992
+    GPU.GuestRenderPass: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.GuestDispatch: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.HostTransfer: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.BufferUpload: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.HostReadback: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.GuestDraw: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0

@@ -65,7 +65,12 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     var page by remember { mutableStateOf<SettingsPage?>(null) }
-    var focused by remember(page) { mutableIntStateOf(0) }
+    val connectedControllers by GamepadInputManager.connectedControllers.collectAsState()
+    val availablePages = SettingsPage.entries.filter { it != SettingsPage.Touch || connectedControllers.isEmpty() }
+    var focused by remember(page, availablePages) { mutableIntStateOf(0) }
+    LaunchedEffect(availablePages) {
+        if (page == SettingsPage.Touch && SettingsPage.Touch !in availablePages) page = null
+    }
     val pageSettings = state.settings.filter { if (page == SettingsPage.System) it.category == "System" else it.category == "GPU" }
     LaunchedEffect(initialGameId) {
         viewModel.selectScope(initialGameId?.let(ProfileScope::Game) ?: ProfileScope.Global)
@@ -75,7 +80,7 @@ fun SettingsScreen(
 
     // Controller mapping owns its capture/navigation listener while open.
     if (page != SettingsPage.Controllers) {
-        DisposableEffect(page, focused, state) {
+        DisposableEffect(page, focused, state, availablePages) {
             GamepadInputManager.registerNavListener { event ->
                 if (!event.pressed) return@registerNavListener false
                 when {
@@ -83,8 +88,8 @@ fun SettingsScreen(
                     page == null -> {
                         when (event.control) {
                             "dpad_up" -> focused = (focused - 1).coerceAtLeast(0)
-                            "dpad_down" -> focused = (focused + 1).coerceAtMost(SettingsPage.entries.lastIndex)
-                            "cross" -> page = SettingsPage.entries[focused]
+                            "dpad_down" -> focused = (focused + 1).coerceAtMost(availablePages.lastIndex)
+                            "cross" -> page = availablePages[focused]
                             else -> return@registerNavListener false
                         }
                         true
@@ -127,7 +132,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    SettingsPage.entries.forEachIndexed { index, destination ->
+                    availablePages.forEachIndexed { index, destination ->
                         Surface(
                             onClick = { page = destination },
                             color = BachataPalette.Surface,
@@ -204,7 +209,7 @@ fun SettingsScreen(
 }
 
 /**
- * Folder of `.zar` archives outside app storage. Archives are linked, never copied, so
+ * Folder of `.pkg` and `.zar` archives outside app storage. Archives are linked, never copied, so
  * the library shows them without a multi-gigabyte import and the runtime opens each one
  * where it lies, next to its `-UPD` / `-DLC` siblings.
  */
@@ -225,9 +230,9 @@ private fun ZarLibraryPage(state: ZarLibraryUiState, viewModel: SettingsViewMode
     ) {
         BachataPanel(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("ZAR folder", style = MaterialTheme.typography.titleMedium, color = BachataPalette.Primary)
+                Text("PKG / ZAR folder", style = MaterialTheme.typography.titleMedium, color = BachataPalette.Primary)
                 Text(
-                    "Games kept as .zar archives in this folder appear in the library without " +
+                    "Games kept as .zar or .pkg archives in this folder appear in the library without " +
                         "being copied. Update and DLC archives next to a game are picked up with it.",
                     color = BachataPalette.Secondary,
                 )

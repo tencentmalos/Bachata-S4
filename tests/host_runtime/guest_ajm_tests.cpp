@@ -36,6 +36,8 @@ int main(int argc, char** argv) {
     auto call = [&](std::string_view nid, std::array<u64, 10> a = {}) {
         return ajm.Dispatch(nid, a);
     };
+    CHECK(IsAjmNid("WfAiBW8Wcek"));
+    CHECK(call("WfAiBW8Wcek") == 0); // desktop diagnostic stub, no context required
     auto read = [&]<class T>(u64 address) {
         T value{};
         CHECK(space->Read(GuestAddress{address}, std::as_writable_bytes(std::span{&value, 1})));

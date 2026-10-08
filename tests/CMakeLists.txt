@@ -215,6 +215,11 @@ set(CONTENT_ROOTS_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/core/file_sys/ifile.cpp
     ${CMAKE_SOURCE_DIR}/src/core/file_sys/backends/host_fs.cpp
     ${CMAKE_SOURCE_DIR}/src/core/file_sys/backends/zarchive_fs.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/backends/pkg_fs.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_format/pkg_reader.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_format/pkg_type.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_format/psf.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/crypto/crypto.cpp
     ${CMAKE_SOURCE_DIR}/src/core/file_sys/devices/base_device.cpp
     ${CMAKE_SOURCE_DIR}/src/core/file_sys/devices/logger.cpp
 
@@ -226,6 +231,7 @@ set(CONTENT_ROOTS_TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/assert.cpp
     ${CMAKE_SOURCE_DIR}/src/common/error.cpp
     ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/classes.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
     ${CMAKE_SOURCE_DIR}/src/common/logging/log_stats.cpp
     ${CMAKE_SOURCE_DIR}/src/common/profiler.cpp
@@ -240,6 +246,7 @@ set(CONTENT_ROOTS_TEST_SOURCES
 
     # Tests
     test_content_roots.cpp
+    test_pkg_filesystem.cpp
 )
 
 add_executable(shadps4_settings_test ${SETTINGS_TEST_SOURCES})
@@ -328,6 +335,8 @@ target_link_libraries(shadps4_content_roots_test PRIVATE
     SDL3::SDL3
     spatial::foundation_log
     ZArchive::zarchive
+    ${SSL_DEPENDENCIES}
+    ZLIB::ZLIB
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
@@ -476,3 +485,12 @@ add_subdirectory(video_core)
 
 # COMMON libc and ARM64 signal-context regressions.
 add_subdirectory(common)
+
+# Standalone package reader / verification tool (does not start a guest).
+add_executable(shadps4_pkg_read
+    ${CMAKE_SOURCE_DIR}/tools/pkg_read_cli.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_format/pkg_reader.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_format/pkg_type.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/crypto/crypto.cpp)
+target_include_directories(shadps4_pkg_read PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(shadps4_pkg_read PRIVATE nlohmann_json::nlohmann_json ${SSL_DEPENDENCIES} ZLIB::ZLIB)

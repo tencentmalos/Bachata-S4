@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
     std::atomic_bool hold_publication{}, publication_entered{};
     std::atomic_bool hold_pause{}, pause_entered{};
     std::atomic_uint play_events{}, ready_events{};
+    std::string expected_path = "../../../tresgame/Content/Movies/ja/probe.mp4";
     u64 next = base + 0x100000;
     auto pc = [&](u64 n) { return base + n * 16; };
     auto read = [&]<class T>(u64 at) {
@@ -128,7 +129,11 @@ int main(int argc, char** argv) {
                 }
                 if (entry == pc(5)) {
                     CHECK(args.size() == 2 && args[0] == 0x4321);
-                    CHECK(read.template operator()<char>(args[1]) == '/');
+                    std::vector<char> received(expected_path.size() + 1);
+                    CHECK(space->Read(GuestAddress{args[1]},
+                                      std::as_writable_bytes(std::span{received})));
+                    CHECK(received.back() == '\0' &&
+                          std::string_view(received.data(), received.size() - 1) == expected_path);
                     return 1;
                 }
                 if (entry == pc(6))
@@ -221,7 +226,9 @@ int main(int argc, char** argv) {
     put(path, network);
     CHECK(call("KMcEa+rHsIo", {handle, path}) == u32(ORBIS_AVPLAYER_ERROR_NOT_SUPPORTED));
     CHECK(reads == 0);
-    const char filename[] = "/app0/probe.mp4";
+    put(path, "");
+    CHECK(call("KMcEa+rHsIo", {handle, path}) == u32(ORBIS_AVPLAYER_ERROR_NOT_SUPPORTED));
+    const char filename[] = "../../../tresgame/Content/Movies/ja/probe.mp4";
     put(path, filename);
     CHECK(call("KMcEa+rHsIo", {handle, path}) == 0);
     CHECK(call("k-q+xOxdc3E", {handle, 1}) == 0);
@@ -278,6 +285,27 @@ int main(int argc, char** argv) {
     CHECK(call("NkJwDzKmIlw", {handle}) == 0);
     CHECK(begins == ends && allocs == frees && allocations.empty());
     CHECK(call("NkJwDzKmIlw", {handle}) == u32(ORBIS_AVPLAYER_ERROR_INVALID_PARAMS));
+    // Without a complete replacement, relative names must not reach the host
+    // filesystem. Match the same all-or-nothing policy used by Player::Open.
+    put(path, "../../../tresgame/Content/Movies/ja/probe.mp4");
+    const auto reads_before = reads.load();
+    for (unsigned missing = 0; missing < 5; ++missing) {
+        auto partial = data;
+        if (missing == 0) partial.file_replacement = {};
+        if (missing == 1) partial.file_replacement.open = nullptr;
+        if (missing == 2) partial.file_replacement.close = nullptr;
+        if (missing == 3) partial.file_replacement.read_offset = nullptr;
+        if (missing == 4) partial.file_replacement.size = nullptr;
+        put(at, partial);
+        const u64 hp = call("aS66RI0gGgo", {at});
+        CHECK(hp);
+        CHECK(call("KMcEa+rHsIo", {hp, path}) == u32(ORBIS_AVPLAYER_ERROR_NOT_SUPPORTED));
+        CHECK(call("NkJwDzKmIlw", {hp}) == 0);
+    }
+    CHECK(reads == reads_before);
+    put(at, data);
+    expected_path = "/app0/probe.mp4";
+    put(path, "/app0/probe.mp4");
     // Close must drain events accepted before it started. A queued Play event
     // behind an entered Pause callback cannot disappear just because Close
     // has set its admission flag while waiting for the worker barrier.

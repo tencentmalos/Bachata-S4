@@ -1,0 +1,13 @@
+FAIL line 168: storage.Stat(path, stat).error == 0 && stat.st_size == 8
+FAIL line 169: storage.Stat(point, stat).error == 0 && (stat.st_mode & 0040000)
+FAIL line 171: storage.Open(std::string(point) + "/missing", 0, 0).error == ENOENT
+FAIL line 173: fd.error == 0
+FAIL line 168: storage.Stat(path, stat).error == 0 && stat.st_size == 8
+FAIL line 169: storage.Stat(point, stat).error == 0 && (stat.st_mode & 0040000)
+FAIL line 171: storage.Open(std::string(point) + "/missing", 0, 0).error == ENOENT
+FAIL line 173: fd.error == 0
+FAIL line 168: storage.Stat(path, stat).error == 0 && stat.st_size == 8
+FAIL line 169: storage.Stat(point, stat).error == 0 && (stat.st_mode & 0040000)
+FAIL line 171: storage.Open(std::string(point) + "/missing", 0, 0).error == ENOENT
+FAIL line 173: fd.error == 0
+GUEST_FILE_IO checks=752 failures=12

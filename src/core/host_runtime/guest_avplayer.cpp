@@ -150,6 +150,10 @@ struct GuestAvPlayer::Impl {
         size_t resident{};
         Player(Impl& owner, const AvPlayerInitData& data)
             : owner(owner), callbacks(owner.make_callbacks()), guest(data) {}
+        bool HasFileReplacement() const {
+            const auto& f = guest.file_replacement;
+            return f.open && f.close && f.read_offset && f.size;
+        }
         void Open() {
             if (guest.default_language) {
                 language =
@@ -201,8 +205,7 @@ struct GuestAvPlayer::Impl {
             AvPlayerInitData data = guest;
             data.memory_replacement = {this, Allocate, Deallocate, AllocateTexture,
                                        DeallocateTexture};
-            const auto& f = guest.file_replacement;
-            if (f.open && f.close && f.read_offset && f.size)
+            if (HasFileReplacement())
                 data.file_replacement = {this, OpenFile, CloseFile, ReadFile, SizeFile};
             else
                 data.file_replacement = {}; // same partial-replacement policy as desktop
@@ -647,11 +650,13 @@ struct GuestAvPlayer::Impl {
                 Need(path.find('\0') == std::string::npos);
                 type = d.source_type;
             }
-            // Local mounted content only. Do not let an FFmpeg protocol URL escape
-            // the guest mount policy; HLS is also unsupported on desktop.
-            Need(path.starts_with('/') && path.find("://") == std::string::npos &&
+            // A complete file replacement owns name resolution (including relative
+            // names inside game archives). Without it, require a mounted guest path.
+            // FFmpeg protocol URLs and HLS remain unsupported.
+            Need(!path.empty() && (p->HasFileReplacement() || path.starts_with('/')) &&
+                     path.find("://") == std::string::npos &&
                      type != AvPlayerSourceType::Hls,
-                 ORBIS_AVPLAYER_ERROR_NOT_SUPPORTED);
+                 ORBIS_AVPLAYER_ERROR_NOT_SUPPORTED, "unsupported source path or type");
             return u32(player.AddSourceEx(path, type));
         }
         if (nid == "hdTyRzCXQeQ")

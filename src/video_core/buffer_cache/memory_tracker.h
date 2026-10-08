@@ -299,7 +299,7 @@ private:
                 continue;
             }
             const VAddr begin = std::max(lo, page);
-            const VAddr end = std::min(hi, page + TRACKER_BYTES_PER_PAGE);
+            const VAddr end = std::min<VAddr>(hi, page + TRACKER_BYTES_PER_PAGE);
             if (!keeper.OnCpuWrite(page, begin, end - begin)) {
                 Core::gpu_watch_counters.NoteGpuDataOverwrite(begin);
             }

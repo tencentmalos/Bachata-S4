@@ -1,0 +1,4 @@
+path=/storage/emulated/0/game/ps4/roms/CUSA15072.pkg
+bytes=47067103232
+modifiedAtMs=1608384334000
+overlays=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855

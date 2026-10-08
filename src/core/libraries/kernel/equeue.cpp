@@ -371,6 +371,26 @@ bool EqueueInternal::AddSmallTimer(EqueueEvent& ev) {
     return true;
 }
 
+bool EqueueInternal::AddHRTimer(u64 id, std::chrono::nanoseconds interval, void* udata) {
+    SmallTimer timer{};
+    timer.event.ident = id;
+    timer.event.filter = OrbisKernelEvent::Filter::HrTimer;
+    timer.event.flags = OrbisKernelEvent::Flags::OneShot | OrbisKernelEvent::Flags::Clear;
+    timer.event.data = 1; // one expiration, not the input timespec pointer
+    timer.event.udata = udata;
+    timer.added = std::chrono::steady_clock::now();
+    timer.interval = interval;
+    {
+        std::scoped_lock lock{m_mutex};
+        if (m_closed)
+            return false;
+        m_small_timers[id] = timer;
+        ++m_small_timer_generation;
+    }
+    m_cond.notify_all();
+    return true;
+}
+
 bool EqueueInternal::EventExists(u64 id, s16 filter) {
     std::scoped_lock lock{m_mutex};
 

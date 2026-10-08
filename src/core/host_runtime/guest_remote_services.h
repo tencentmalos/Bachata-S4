@@ -40,7 +40,13 @@ inline bool AdmitsRemoteService(std::string_view nid, std::string_view suffix) {
     const auto* entry = FindRemoteService(nid);
     return entry && entry->suffix == suffix;
 }
-inline u32 DispatchRemoteService(const RemoteServiceEntry& entry, const std::array<u64, 6>& a) {
+// With no SharePlay transport there can be no remote viewer. A request to
+// prohibit sharing is enforceable even if initializing the transport failed;
+// approving sharing and querying a connection still require the provider.
+inline u32 DispatchRemoteService(const RemoteServiceEntry& entry, const std::array<u64, 6>& a,
+                                 bool allow_offline_prohibition = false) {
+    if (allow_offline_prohibition && entry.nid == "co2NCj--pnc" && u32(a[0]) == 1)
+        return 0;
     if (!entry.initialize) return entry.error_base | 4; // NOT_INITIALIZED
     // A null workspace asks the system client to allocate its own 0x1800 bytes.
     if (a[0] && a[1] < 0x1800) return entry.error_base | 1;

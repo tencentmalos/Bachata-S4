@@ -492,6 +492,10 @@ struct GuestAjm::Impl {
         return a[0] + size;
     }
     u64 Dispatch(std::string_view nid, const std::array<u64, 10>& a, std::stop_token stop) {
+        // Diagnostic-only desktop stub; it neither owns a context nor changes
+        // the batch/sideband errors already returned to the game.
+        if (nid == "WfAiBW8Wcek")
+            return u32(sceAjmBatchErrorDump());
         if (nid == "-qLsfDAywIY")
             return Wait(a, stop);
         const bool builder = nid == "dmDybN--Fn8" || nid == "stlghnic3Jc" || nid == "ElslOCpOIns" ||

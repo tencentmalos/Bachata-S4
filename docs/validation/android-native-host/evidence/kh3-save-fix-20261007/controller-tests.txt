@@ -1,0 +1,2 @@
+com.shadps4.android.data.RuntimeProfileStoreTest: 8 tests, 0 failures, 0 errors
+com.shadps4.android.feature.settings.input.ControllerMappingViewModelTest: 9 tests, 0 failures, 0 errors

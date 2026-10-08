@@ -8,9 +8,11 @@
 #include <cstring>
 #include <deque>
 #include <exception>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -57,7 +59,23 @@ public:
 
     // Space for one command of at most MaxCommandSize plus payload_bytes of copied data.
     bool HasRoom(size_t payload_bytes) const noexcept {
-        return front + MaxCommandSize + payload_bytes + alignof(std::max_align_t) * 2 <= back;
+        constexpr size_t overhead = MaxCommandSize + alignof(std::max_align_t) * 2;
+        return back - front >= overhead && payload_bytes <= back - front - overhead;
+    }
+
+    // Grow only an unused chunk: recorded commands contain pointers into its storage.
+    // Large texture uploads can need more barrier data than the normal chunk capacity.
+    void ReservePayload(size_t payload_bytes) {
+        if (HasRoom(payload_bytes))
+            return;
+        ASSERT(Empty() && front == 0 && back == capacity);
+        constexpr size_t overhead = MaxCommandSize + alignof(std::max_align_t) * 2;
+        if (payload_bytes > std::numeric_limits<size_t>::max() - overhead)
+            throw std::length_error("recorded command payload size overflow");
+        const size_t required = payload_bytes + overhead;
+        auto replacement = std::make_unique<std::byte[]>(required);
+        storage = std::move(replacement);
+        capacity = back = required;
     }
 
     // Payload is carved from the back; it lives until the chunk is reset after execution.
@@ -97,7 +115,7 @@ public:
         }
         first = last = nullptr;
         front = 0;
-        back = Capacity;
+        back = capacity;
         count = 0;
     }
 
@@ -118,6 +136,7 @@ private:
     };
 
     std::unique_ptr<std::byte[]> storage{new std::byte[Capacity]};
+    size_t capacity{Capacity};
     size_t front{};
     size_t back{Capacity};
     Command* first{};

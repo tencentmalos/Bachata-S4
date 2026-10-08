@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
 #include "core/host_runtime/guest_capture_services.h"
+#include "core/host_runtime/guest_remote_services.h"
 using namespace Core::GuestCpu;
 using namespace Core::HostRuntime;
 static unsigned checks{}, failures{};
@@ -30,6 +31,11 @@ int main() {
     for (const auto& entry : CaptureServiceEntries) {
         CHECK(AdmitsCaptureService(entry.nid, entry.suffix));
         CHECK(!AdmitsCaptureService(entry.nid, "#libkernel#1#libkernel#Function"));
+        if (entry.call == CaptureServiceCall::RecordingAbsent) {
+            CHECK(call(entry.nid, {UINT64_MAX, UINT64_MAX, UINT64_MAX}) ==
+                  u32(ORBIS_VIDEO_RECORDING_ERROR_UNSUPPORTED));
+            CHECK(call(entry.nid) == u32(ORBIS_VIDEO_RECORDING_ERROR_UNSUPPORTED));
+        }
         if (entry.call == CaptureServiceCall::ScreenControl)
             CHECK(call(entry.nid) == absent);
     }
@@ -58,6 +64,24 @@ int main() {
     text.back() = 0;
     CHECK(space->WriteData({base}, std::as_bytes(std::span{text})));
     CHECK(call("ahHhOf+QNkQ", {base}) == absent);
+    GuestCapturePolicy policy;
+    const auto* overlay = FindCaptureService("73WQ4Jj0nJI");
+    CHECK(DispatchCaptureService(*space, *overlay, {base, 12, 34, 9}, 0x09000000, &policy) == 0);
+    CHECK(policy.overlay_path == std::string(1023, 'x'));
+    CHECK(policy.overlay_x == 12 && policy.overlay_y == 34 && policy.overlay_origin == 9);
+    CHECK(DispatchCaptureService(*space, *overlay, {UINT64_MAX, 0, 0, 9}, 0x09000000, &policy) == invalid);
+    CHECK(policy.overlay_x == 12 && policy.overlay_path.size() == 1023);
+    CHECK(DispatchCaptureService(*space, *FindCaptureService("tIYf0W5VTi8"), {}, 0, &policy) == 0);
+    CHECK(!policy.screenshot_enabled && policy.notification_enabled);
+    CHECK(DispatchCaptureService(*space, *FindCaptureService("BDUaqlVdSAY"), {}, 0, &policy) == 0);
+    CHECK(policy.notification_enabled);
+    GuestCapturePolicy second_session;
+    CHECK(second_session.screenshot_enabled && second_session.overlay_path.empty());
+    const auto* prohibit = FindRemoteService("co2NCj--pnc");
+    CHECK(DispatchRemoteService(*prohibit, {1}, true) == 0);
+    CHECK(DispatchRemoteService(*prohibit, {0}, true) == 0x810e0004);
+    CHECK(DispatchRemoteService(*prohibit, {1}, false) == 0x810e0004);
+    CHECK(DispatchRemoteService(*FindRemoteService("+MCXJlWdi+s"), {UINT64_MAX}, true) == 0x810e0004);
     CHECK(space->Protect({{base}, 0x4000}, GuestPermission::Read));
     CHECK(call("ahHhOf+QNkQ", {base}) == absent);
     std::array<char, 1024> after{};

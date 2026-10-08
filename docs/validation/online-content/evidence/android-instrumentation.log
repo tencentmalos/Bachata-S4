@@ -1,0 +1,84 @@
+> Task :foundation-online-content:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :foundation-online-content:preBuild UP-TO-DATE
+> Task :foundation-online-content:preDebugBuild UP-TO-DATE
+> Task :foundation-online-content:generateDebugResValues UP-TO-DATE
+> Task :foundation-online-content:generateDebugResources UP-TO-DATE
+> Task :foundation-online-content:packageDebugResources UP-TO-DATE
+> Task :foundation-online-content:processDebugNavigationResources UP-TO-DATE
+> Task :foundation-online-content:parseDebugLocalResources UP-TO-DATE
+> Task :foundation-online-content:generateDebugRFile UP-TO-DATE
+> Task :foundation-online-content:compileDebugKotlin UP-TO-DATE
+> Task :foundation-online-content:javaPreCompileDebug UP-TO-DATE
+> Task :foundation-online-content:compileDebugJavaWithJavac NO-SOURCE
+> Task :foundation-online-content:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :foundation-online-content:preDebugAndroidTestBuild UP-TO-DATE
+> Task :foundation-online-content:writeDebugAarMetadata UP-TO-DATE
+> Task :foundation-online-content:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :foundation-online-content:processDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :foundation-online-content:compileDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :foundation-online-content:compileDebugLibraryResources UP-TO-DATE
+> Task :foundation-online-content:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :foundation-online-content:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :foundation-online-content:generateDebugAndroidTestResources UP-TO-DATE
+> Task :foundation-online-content:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :foundation-online-content:extractDeepLinksDebug UP-TO-DATE
+> Task :foundation-online-content:processDebugManifest UP-TO-DATE
+> Task :foundation-online-content:processDebugAndroidTestManifest UP-TO-DATE
+> Task :foundation-online-content:processDebugAndroidTestResources UP-TO-DATE
+> Task :foundation-online-content:compileDebugAndroidTestKotlin UP-TO-DATE
+> Task :foundation-online-content:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :foundation-online-content:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :foundation-online-content:mergeDebugAndroidTestShaders UP-TO-DATE
+> Task :foundation-online-content:compileDebugAndroidTestShaders NO-SOURCE
+> Task :foundation-online-content:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :foundation-online-content:mergeDebugShaders UP-TO-DATE
+> Task :foundation-online-content:compileDebugShaders NO-SOURCE
+> Task :foundation-online-content:generateDebugAssets UP-TO-DATE
+> Task :foundation-online-content:mergeDebugAssets UP-TO-DATE
+> Task :foundation-online-content:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :foundation-online-content:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :foundation-online-content:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :foundation-online-content:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :foundation-online-content:dexBuilderDebugAndroidTest UP-TO-DATE
+> Task :foundation-online-content:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :foundation-online-content:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :foundation-online-content:processDebugJavaRes UP-TO-DATE
+> Task :foundation-online-content:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :foundation-online-content:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :foundation-online-content:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :foundation-online-content:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :foundation-online-content:mergeProjectDexDebugAndroidTest UP-TO-DATE
+> Task :foundation-online-content:mergeLibDexDebugAndroidTest UP-TO-DATE
+> Task :foundation-online-content:configureCMakeDebug[arm64-v8a]
+> Task :foundation-online-content:buildCMakeDebug[arm64-v8a][foundation_online_content_jni]
+> Task :foundation-online-content:mergeDebugJniLibFolders UP-TO-DATE
+> Task :foundation-online-content:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :foundation-online-content:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :foundation-online-content:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :foundation-online-content:checkDebugAarMetadata UP-TO-DATE
+> Task :foundation-online-content:extractDebugAnnotations UP-TO-DATE
+> Task :foundation-online-content:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :foundation-online-content:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :foundation-online-content:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :foundation-online-content:prepareDebugArtProfile UP-TO-DATE
+> Task :foundation-online-content:prepareLintJarForPublish UP-TO-DATE
+> Task :foundation-online-content:mergeDebugJavaResource UP-TO-DATE
+> Task :foundation-online-content:syncDebugLibJars UP-TO-DATE
+> Task :foundation-online-content:mergeDebugNativeLibs
+> Task :foundation-online-content:copyDebugJniLibsProjectOnly
+> Task :foundation-online-content:stripDebugDebugSymbols
+> Task :foundation-online-content:mergeDebugAndroidTestNativeLibs
+> Task :foundation-online-content:copyDebugJniLibsProjectAndLocalJars
+> Task :foundation-online-content:stripDebugAndroidTestDebugSymbols
+> Task :foundation-online-content:bundleDebugAar
+> Task :foundation-online-content:assembleDebug
+> Task :foundation-online-content:packageDebugAndroidTest
+> Task :foundation-online-content:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+
+> Task :foundation-online-content:connectedDebugAndroidTest
+Starting 1 tests on Pocket DS - 13
+
+Finished 1 tests on Pocket DS - 13
+
+BUILD SUCCESSFUL in 1m 10s
+66 actionable tasks: 11 executed, 55 up-to-date

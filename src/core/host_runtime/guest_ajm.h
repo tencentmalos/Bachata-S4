@@ -13,7 +13,8 @@ namespace Core::HostRuntime {
 inline constexpr std::string_view AjmNids[]{
     "dl+4eHSzUu4", "Q3dyFuwGn64", "diXjQNiMu-s", "AxoDrINp4J8", "RbLbuKv8zho", "NVDXiUesSbA",
     "fFFkk0xfGWs", "-qLsfDAywIY", "dmDybN--Fn8", "stlghnic3Jc", "ElslOCpOIns", "7jdAXK+2fMo",
-    "bkRHEYG6lEM", "pIpGiaYkHkM", "eDFeTyi+G3Y", "MHur6qCsUus", "Wi7DtlLV+KI"};
+    "bkRHEYG6lEM", "pIpGiaYkHkM", "eDFeTyi+G3Y", "MHur6qCsUus", "Wi7DtlLV+KI",
+    "WfAiBW8Wcek"};
 bool IsAjmNid(std::string_view nid);
 // Guest descriptors and buffers never escape into desktop AjmContext. The worker
 // only sees owned copies and shared decoders. VM identity is rechecked before a

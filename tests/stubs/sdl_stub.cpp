@@ -22,3 +22,8 @@ bool SDL_ShowSimpleMessageBox(SDL_MessageBoxFlags /* flags */, const char* /* ti
 }
 
 } // extern "C"
+
+bool Frontend::WindowSDL::RequestKeyboard() {
+    return true;
+}
+void Frontend::WindowSDL::ReleaseKeyboard() {}

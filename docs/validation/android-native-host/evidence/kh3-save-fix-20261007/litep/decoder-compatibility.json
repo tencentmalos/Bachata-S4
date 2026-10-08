@@ -1,0 +1,26 @@
+{
+  "note": "Derived analysis sidecar only. sdk_revision selects the byte-compatible bundled decoder; actual producer revision remains producer_sdk_revision. Original capture and sidecar retained unchanged one directory above. Slow-frame-v1 does not add wire tags.",
+  "reader_checks": [
+    {
+      "file": "decoder.py",
+      "identical_after_relative_import_normalization": true,
+      "local_sha256": "c3522edc71d9f92a1a821f56983be78eca9e3e259e22d1447b25bed64713a344"
+    },
+    {
+      "file": "flows.py",
+      "identical_after_relative_import_normalization": true,
+      "local_sha256": "0f0e9e3592092d54d66734f613d698f14fb97af90438fe257130ebfe7b0033e4"
+    },
+    {
+      "file": "dependencies.py",
+      "identical_after_relative_import_normalization": true,
+      "local_sha256": "fac41c01da5add966643af5fb760d685b306303083c063dfe0572f5e9c5d15ed"
+    },
+    {
+      "file": "intervals.py",
+      "identical_after_relative_import_normalization": true,
+      "local_sha256": "c05211d0257b8c2e7d5f614794903e651b7dc7525419f8ab227e26f11fd89be9"
+    }
+  ],
+  "source_sidecar": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/kh3-save-fix-20261007/litep/01108YHE01017563-19475-ring-1791384319582738-1.prof.json"
+}

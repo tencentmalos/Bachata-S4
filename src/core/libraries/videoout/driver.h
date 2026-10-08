@@ -41,6 +41,7 @@ struct VideoOutPort {
     std::mutex port_mutex;
     std::condition_variable vo_cv;
     std::condition_variable vblank_cv;
+    std::condition_variable flip_cv; // port_mutex: host presentation queue admission
     std::atomic<int> flip_rate{0};
     int prev_index = -1;
     std::atomic<bool> is_open{false};

@@ -29,6 +29,23 @@ struct Mount1 {
     std::array<u8, 36> reserved;
 };
 static_assert(sizeof(Mount2) == 64 && sizeof(Mount1) == 80);
+// Bounded, opt-in ABI evidence for save discovery/migration loops.
+void TraceMount(bool transfer, s32 user, std::string_view title, std::string_view directory,
+                u64 blocks, u32 mode, GuestStorage::Error result) {
+#if defined(__ANDROID__)
+    static const bool enabled = [] {
+        char value[PROP_VALUE_MAX]{};
+        return __system_property_get("debug.shadps4.save_mount_trace", value) > 0 &&
+               std::string_view(value) == "1";
+    }();
+    static std::atomic<unsigned> count{};
+    if (enabled && count.fetch_add(1, std::memory_order_relaxed) < 16) {
+        LOG_INFO(Lib_SaveData,
+                 "SAVE_MOUNT transfer={} user={} title='{}' directory='{}' blocks={} mode={:#x} result={:#x}",
+                 transfer, user, title, directory, blocks, mode, static_cast<u32>(result));
+    }
+#endif
+}
 template <class T>
 bool Copy(GuestAddressSpace& space, u64 address, T& value) {
     return bool(
@@ -215,7 +232,8 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         if(!title || !directory || (request.fingerprint && !Copy(space,request.fingerprint,fingerprint))) return error(EFAULT);
         return publish({{{{a[1]},sizeof(GuestStorage::MountResult)},GuestPermission::Write}},[&](auto& outputs) {
             GuestStorage::MountResult value{};
-            const auto rc=storage.Mount(request.user,*title,*directory,0,1,value);
+            const auto rc=storage.MountTransferring(request.user,*title,*directory,value);
+            TraceMount(true, request.user, *title, *directory, 0, 1, rc);
             outputs[0].resize(sizeof(value)); std::memcpy(outputs[0].data(),&value,sizeof(value)); return rc;
         });
     }
@@ -520,6 +538,7 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
             return error(EFAULT);
         GuestStorage::MountResult value{};
         auto result = storage.Mount(m.user, title, *dir, m.blocks, m.mode, value);
+        TraceMount(false, m.user, title, *dir, m.blocks, m.mode, result);
         if (result == SE::OK || result == SE::NO_SPACE_FS)
             std::memcpy(out.Value().WritableBytes().data(), &value, sizeof(value));
         return static_cast<u32>(result);

@@ -60,6 +60,9 @@ public:
     Error Terminate();
     Error Mount(int user, std::string_view title, std::string_view directory, u64 blocks, u32 mode,
                 MountResult& result);
+    // Save migration probes another title for the same user; never creates or writes it.
+    Error MountTransferring(int user, std::string_view title, std::string_view directory,
+                           MountResult& result);
     Error Unmount(std::string_view point);
     Error UnmountBackup(std::string_view point);
     Error CheckBackup(int user, std::string_view title, std::string_view directory,
@@ -206,6 +209,8 @@ private:
     Parent Resolve(std::string_view path, bool write, bool allow_root = false);
     int CheckGrowth(const File& file, u64 old_size, u64 end);
     Error UnmountLocked(std::string_view point);
+    Error MountLocked(int user, std::string_view title, std::string_view directory, u64 blocks,
+                      u32 mode, bool transferring, MountResult& result);
     int UnmountTemporaryLocked();
     int ValidateTemporaryLocked(std::string_view point);
     static u64 Used(const std::filesystem::path& root);

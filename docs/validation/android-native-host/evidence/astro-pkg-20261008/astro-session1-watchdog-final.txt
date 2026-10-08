@@ -1,0 +1,3 @@
+TASK 10190:com.shadps4.android id=2728 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity 63e132f pid=6549
+guest_watchdog: on stall_after=20s session=running frames=16213 frame_age_ms=0 stalls=0 dumps=0 threads=28

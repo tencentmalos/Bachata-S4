@@ -53,7 +53,7 @@ int main() {
     check("invalid display", call("E+dPfjeQLHI", {1,0,1}) == u32(ORBIS_HMD_ERROR_REPROJECTION_WRONG_DISPLAY_BUFFER));
     check("valid display", call("E+dPfjeQLHI", {1,2,3}) == 0);
     check("display owns presentation", active);
-    cadence(); check("cadence before first submission", starts == 1 && ends == 0);
+    cadence(); check("idle cadence before first submission", starts == 1 && ends == 1);
     OrbisHmdReprojectionLayer layer{};
     layer.roots00[0] = base+0x400; layer.roots00[1] = base+0x440; layer.root20 = base+0x500;
     AmdGpu::Image eye{}; eye.base_address = 0x400; eye.width = 1919; eye.height = 1079;
@@ -74,19 +74,33 @@ int main() {
     layer.kind78 = 0; write(0x100, layer);
     check("first real submission", call("8gH1aLgty5I", args) == 0);
     check("copied eye identity and sequence", frames.size()==1 && frames[0].eyes[1].base_array==1 && frames[0].sequence==73 && frames[0].display_index==2);
-    check("no early completion", ends == 0);
+    cadence(); check("no early completion while reading eyes", starts == 2 && ends == 1);
     check("second submission", call("8gH1aLgty5I", args) == 0 && frames[1].display_index == 3);
-    check("bounded in-flight", call("8gH1aLgty5I", args) == u32(ORBIS_HMD_ERROR_REPROJECTION_DISPLAY_BUFFER_BUSY));
-    completions[0](true); check("retirement completion", ends == 1);
+    const auto retire_first = completions[0];
+    auto third = std::async(std::launch::async, [&] { return call("8gH1aLgty5I", args); });
+    check("bounded in-flight waits for retirement", third.wait_for(std::chrono::milliseconds(20)) == std::future_status::timeout);
+    retire_first(true);
+    check("waiting submit uses retired slot", third.get() == 0 && frames.size() == 3 && frames[2].display_index == 2);
+    check("retirement completion", ends == 2);
+    cadence(); check("remaining GPU reader blocks idle END", starts == 3 && ends == 2);
+    std::stop_source cancel_submit;
+    auto cancelled = std::async(std::launch::async, [&] {
+        return transport.Dispatch("8gH1aLgty5I", args, true, cancel_submit.get_token());
+    });
+    check("another submit waits", cancelled.wait_for(std::chrono::milliseconds(20)) == std::future_status::timeout);
+    cancel_submit.request_stop();
+    check("submit wait cancellation", cancelled.get() == u32(ORBIS_HMD_ERROR_REPROJECTION_THREAD_NOT_WORKING) && frames.size() == 3);
     auto stop = std::async(std::launch::async, [&] { return call("vzMEkwBQciM"); });
     check("stop waits for pending GPU reader", stop.wait_for(std::chrono::milliseconds(20)) == std::future_status::timeout);
-    completions[1](true); check("stop completes after retirement", stop.get()==0 && ends==2);
+    completions[1](true); completions[2](true);
+    check("stop completes after retirement", stop.get()==0 && ends==4);
     check("stop releases presentation", !active);
-    cadence(); check("stopped cadence silent", starts==1);
+    cadence(); check("stopped display keeps cadence without GPU work", starts==4 && ends==5);
     check("unset", call("iGNNpDDjcwo")==0);
+    cadence(); check("unset display cadence silent", starts==4 && ends==5);
     check("no stale display submit", call("8gH1aLgty5I", args)==u32(ORBIS_HMD_ERROR_REPROJECTION_NO_DISPLAY_BUFFER));
     check("finalize", call("ZrV5YIqD09I")==0);
-    cadence(); check("finalized cadence silent", starts==1);
+    cadence(); check("finalized cadence silent", starts==4 && ends==5);
     check("reinitialize", call("OuygGEWkins", {base,2})==0);
     check("events cleared by finalize", call("mdyFbaJj66M")==u32(ORBIS_HMD_ERROR_REPROJECTION_RESOURCE_NOT_SET));
     check("finalize before segmented workspace", call("ZrV5YIqD09I")==0);
@@ -163,7 +177,13 @@ int main() {
     completions[first+1](true);
     check("out-of-order retire can reuse only freed slot",call("dntZTJ7meIU",{base+0x800,base+0x700,101,0})==0 && frames[first+2].display_index==frames[first+1].display_index);
     completions[first+1](true); // stale duplicate must not retire a different submission
-    check("duplicate completion cannot release newer work",call("dntZTJ7meIU",{base+0x800,base+0x700,102,0})==u32(ORBIS_HMD_ERROR_REPROJECTION_DISPLAY_BUFFER_BUSY));
+    std::stop_source duplicate_cancel;
+    auto duplicate_wait = std::async(std::launch::async, [&] {
+        return transport.Dispatch("dntZTJ7meIU", {base+0x800,base+0x700,102,0}, true, duplicate_cancel.get_token());
+    });
+    check("duplicate completion cannot release newer work", duplicate_wait.wait_for(std::chrono::milliseconds(20)) == std::future_status::timeout);
+    duplicate_cancel.request_stop();
+    check("duplicate wait cancelled without publishing", duplicate_wait.get() == u32(ORBIS_HMD_ERROR_REPROJECTION_THREAD_NOT_WORKING));
     completions[first](true);completions[first+2](true);
     for (u32 eye=0;eye<2;++eye) {
         legacy.tan_to_uv[eye][1]=-tan_uv[eye*4+1];

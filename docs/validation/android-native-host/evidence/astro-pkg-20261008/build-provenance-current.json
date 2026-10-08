@@ -1,0 +1,10 @@
+{
+  "apk_sha256": "0470d8fec7d3c3d732a0c8661275198bcaec8f28f5a811373e227337cee07987",
+  "native_build_id": "5ce2233a5db5567c821f66a6bc039e03f514afab",
+  "installed_apk_path": "/data/app/~~BAHRfR6i1VD-JMdlXv-Rzw==/com.shadps4.android-RkeQt-mTg8TwoCTI92iSqQ==/base.apk",
+  "installed_apk_sha256": "0470d8fec7d3c3d732a0c8661275198bcaec8f28f5a811373e227337cee07987",
+  "packaged_host_sha256": "a36b6a4c67cc7cc2a39529550f26a51cf10b533451fac7b34633ea72c9c646d4",
+  "packaged_host_build_id": "5ce2233a5db5567c821f66a6bc039e03f514afab",
+  "assets/native-turnip/vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+  "assets/native-turnip-mainline/vulkan.ad07xx.so": "01a3548fbd2695f3b27ad896bfbbbf0561e28c49ad1de8a19b05745acd01ba19"
+}

@@ -158,13 +158,9 @@ public:
         std::lock_guard lock(mutex);
         // No guest wait/callback in an attribute operation; pins stay local.
 
-        u64 handle{};
-        if (!Read(slot, handle))
-            return POSIX_EFAULT;
-        auto it = objects.find(handle);
         if (entry.op == ThreadAttrOp::Init) {
-            if (it != objects.end())
-                return POSIX_EBUSY;
+            // The caller supplies uninitialized storage. A reused stack slot can
+            // still contain a live handle; init must neither inspect nor retire it.
             if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
                                      GuestCpu::GuestPermission::Write))
                 return POSIX_EFAULT;
@@ -179,6 +175,10 @@ public:
             std::memcpy(pin.Value().WritableBytes().data(), &address, 8);
             return 0;
         }
+        u64 handle{};
+        if (!Read(slot, handle))
+            return POSIX_EFAULT;
+        auto it = objects.find(handle);
         if (it == objects.end())
             return POSIX_EINVAL;
         auto& value = it->second;

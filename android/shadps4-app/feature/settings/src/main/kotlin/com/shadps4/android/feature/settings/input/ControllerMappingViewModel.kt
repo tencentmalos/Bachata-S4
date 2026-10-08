@@ -81,7 +81,7 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
 
     fun cancelConflict() { mutableState.value = mutableState.value.copy(conflict = null) }
     fun autoMap(device: ControllerDeviceKey? = current().device, useHatDpad: Boolean = false) {
-        val std = if (useHatDpad) ControllerProfile.standardWithHatDpad(device) else ControllerProfile.standard(device)
+        val std = ControllerProfile.autoMap(device, useHatDpad)
         replaceCurrent(std.copy(swapFaceButtons = current().swapFaceButtons)); save()
     }
     fun clear() { replaceCurrent(ControllerProfile(device = current().device)); save() }

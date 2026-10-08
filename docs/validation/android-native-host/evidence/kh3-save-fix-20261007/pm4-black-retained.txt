@@ -1,0 +1,23 @@
+TASK 10167:com.shadps4.android id=111 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity fec51ba pid=16208
+armed=1 frames=924 per_frame: calls=5.44 dcbs=8.01 draws=109.2 dispatches=22.0 ib_calls=0.0 kdwords=29.0 dcbs_with_clear_state=1.00 truncated=0
+stream_copies per_frame(flips=925): copies=592.2 kbytes=539.7 keys=2306 same_frame_unchanged=357.1 (433.7 KB) cross_frame_unchanged=195.1 (63.0 KB) changed=37.6 (42.3 KB) first_seen_total=2306
+hle_copies per_frame: dispatches=0.0 regions=0.0 kbytes=0.0 max_regions=0 sizes(<=64/<=256/<=4K/<=64K/more)=0.0/0.0/0.0/0.0/0.0 adjacent=0.0 sorted_adjacent=0.0 same_base_consecutive=0.0
+frame 1 calls=5 dcbs=8 ctx_regs_union=230
+  call=0 dcb=0 dwords=2211 draws=10 dispatches=2 ib=0 ccb=0 clear_state=1 ctx_before_first_draw=122 sh_before_first_draw=26 ctx_total=175
+  call=0 dcb=1 dwords=253 draws=0 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=76 sh_before_first_draw=0 ctx_total=76
+  call=1 dcb=0 dwords=1449 draws=10 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=92 sh_before_first_draw=38 ctx_total=92
+  call=1 dcb=1 dwords=2882 draws=13 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=87 sh_before_first_draw=16 ctx_total=102
+  call=2 dcb=0 dwords=8752 draws=29 dispatches=11 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=0 sh_before_first_draw=15 ctx_total=170
+  call=3 dcb=0 dwords=4260 draws=13 dispatches=7 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=41 sh_before_first_draw=8 ctx_total=99
+  call=3 dcb=1 dwords=8240 draws=33 dispatches=2 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=56 sh_before_first_draw=36 ctx_total=113
+  call=4 dcb=0 dwords=1096 draws=2 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=48 sh_before_first_draw=32 ctx_total=69
+frame 2 calls=5 dcbs=8 ctx_regs_union=229
+  call=0 dcb=0 dwords=2211 draws=10 dispatches=2 ib=0 ccb=0 clear_state=1 ctx_before_first_draw=122 sh_before_first_draw=26 ctx_total=175
+  call=0 dcb=1 dwords=253 draws=0 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=76 sh_before_first_draw=0 ctx_total=76
+  call=0 dcb=2 dwords=1449 draws=10 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=92 sh_before_first_draw=38 ctx_total=92
+  call=1 dcb=0 dwords=2672 draws=12 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=87 sh_before_first_draw=16 ctx_total=101
+  call=2 dcb=0 dwords=8752 draws=29 dispatches=11 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=0 sh_before_first_draw=15 ctx_total=170
+  call=3 dcb=0 dwords=4260 draws=13 dispatches=7 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=41 sh_before_first_draw=8 ctx_total=99
+  call=3 dcb=1 dwords=8240 draws=33 dispatches=2 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=56 sh_before_first_draw=36 ctx_total=113
+  call=4 dcb=0 dwords=1096 draws=2 dispatches=0 ib=0 ccb=0 clear_state=0 ctx_before_first_draw=48 sh_before_first_draw=32 ctx_total=69

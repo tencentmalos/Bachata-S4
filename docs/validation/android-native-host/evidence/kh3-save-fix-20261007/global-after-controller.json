@@ -1,0 +1,142 @@
+{
+    "schemaVersion": 1,
+    "values": {},
+    "unknownShadPs4": {},
+    "guestBackend": null,
+    "driverId": null,
+    "maliGpuOptimizations": null,
+    "controllerSlots": [
+        {
+            "device": {
+                "descriptor": "d0c26b84777e535727a12910bc7c7677a9f65fea",
+                "vendorId": 16385,
+                "productId": 1064,
+                "fallbackName": "AYANEO Controller"
+            },
+            "bindings": {
+                "left_x": {
+                    "kind": "AXIS",
+                    "code": 0,
+                    "direction": "BOTH"
+                },
+                "left_y": {
+                    "kind": "AXIS",
+                    "code": 1,
+                    "direction": "BOTH"
+                },
+                "right_x": {
+                    "kind": "AXIS",
+                    "code": 11,
+                    "direction": "BOTH"
+                },
+                "right_y": {
+                    "kind": "AXIS",
+                    "code": 14,
+                    "direction": "BOTH"
+                },
+                "left_trigger": {
+                    "kind": "AXIS",
+                    "code": 17,
+                    "direction": "BOTH"
+                },
+                "right_trigger": {
+                    "kind": "AXIS",
+                    "code": 18,
+                    "direction": "BOTH"
+                },
+                "cross": {
+                    "kind": "BUTTON",
+                    "code": 97,
+                    "direction": "BOTH"
+                },
+                "circle": {
+                    "kind": "BUTTON",
+                    "code": 96,
+                    "direction": "BOTH"
+                },
+                "square": {
+                    "kind": "BUTTON",
+                    "code": 100,
+                    "direction": "BOTH"
+                },
+                "triangle": {
+                    "kind": "BUTTON",
+                    "code": 99,
+                    "direction": "BOTH"
+                },
+                "l1": {
+                    "kind": "BUTTON",
+                    "code": 102,
+                    "direction": "BOTH"
+                },
+                "r1": {
+                    "kind": "BUTTON",
+                    "code": 103,
+                    "direction": "BOTH"
+                },
+                "l2": {
+                    "kind": "BUTTON",
+                    "code": 104,
+                    "direction": "BOTH"
+                },
+                "r2": {
+                    "kind": "BUTTON",
+                    "code": 105,
+                    "direction": "BOTH"
+                },
+                "l3": {
+                    "kind": "BUTTON",
+                    "code": 106,
+                    "direction": "BOTH"
+                },
+                "r3": {
+                    "kind": "BUTTON",
+                    "code": 107,
+                    "direction": "BOTH"
+                },
+                "options": {
+                    "kind": "BUTTON",
+                    "code": 108,
+                    "direction": "BOTH"
+                },
+                "share": {
+                    "kind": "BUTTON",
+                    "code": 109,
+                    "direction": "BOTH"
+                },
+                "dpad_up": {
+                    "kind": "AXIS",
+                    "code": 16,
+                    "direction": "NEGATIVE"
+                },
+                "dpad_down": {
+                    "kind": "AXIS",
+                    "code": 16,
+                    "direction": "POSITIVE"
+                },
+                "dpad_left": {
+                    "kind": "AXIS",
+                    "code": 15,
+                    "direction": "NEGATIVE"
+                },
+                "dpad_right": {
+                    "kind": "AXIS",
+                    "code": 15,
+                    "direction": "POSITIVE"
+                },
+                "ps": {
+                    "kind": "BUTTON",
+                    "code": 188,
+                    "direction": "BOTH"
+                }
+            },
+            "deadZone": 0.08,
+            "invertAxes": [],
+            "triggerThreshold": 0.5,
+            "vibrationEnabled": true,
+            "motionEnabled": false,
+            "swapFaceButtons": false
+        }
+    ],
+    "touchLayoutId": null
+}

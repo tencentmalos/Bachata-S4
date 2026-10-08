@@ -1,0 +1,4 @@
+simpleperf W kallsyms.cpp:162] Access to kernel symbol addresses is restricted. If possible, please do `echo 0 >/proc/sys/kernel/kptr_restrict` to fix this.
+simpleperf I cmd_record.cpp:729] Recorded for 9.95738 seconds. Start post processing.
+simpleperf W dso.cpp:448] /vendor/lib64/egl/eglSubDriverAndroid.so doesn't contain symbol table
+simpleperf I cmd_record.cpp:809] Samples recorded: 13218. Samples lost: 7.

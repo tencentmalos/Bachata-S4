@@ -3,9 +3,11 @@
 
 #include <algorithm>
 #include <array>
+#include <map>
 #include <unordered_set>
 #include "common/assert.h"
 #include "common/string_util.h"
+#include "core/file_format/psf.h"
 #include "core/file_sys/backends/host_fs.h"
 #include "core/file_sys/backends/zarchive_fs.h"
 #include "core/file_sys/devices/logger.h"
@@ -49,7 +51,7 @@ std::string RemoveTrailingSlashes(const std::string& path) {
 
 std::filesystem::path OverlayPath(const std::filesystem::path& base, std::string_view suffix) {
     std::filesystem::path result = base;
-    if (result.extension() == ".zar") {
+    if (result.extension() == ".zar" || result.extension() == ".pkg") {
         result.replace_extension();
     }
     result += std::string{suffix};
@@ -58,7 +60,7 @@ std::filesystem::path OverlayPath(const std::filesystem::path& base, std::string
 
 std::optional<std::filesystem::path> BaseGameFromOverlay(const std::filesystem::path& path) {
     std::filesystem::path stem_path = path;
-    if (stem_path.extension() == ".zar") {
+    if (stem_path.extension() == ".zar" || stem_path.extension() == ".pkg") {
         stem_path.replace_extension();
     }
     const std::string name = stem_path.filename().string();
@@ -77,13 +79,13 @@ std::optional<std::filesystem::path> ResolveGameRoot(const std::filesystem::path
     if (std::filesystem::is_directory(root)) {
         return root;
     }
-    if (root.extension() == ".zar" && std::filesystem::is_regular_file(root)) {
+    if (IsGameArchive(root))
         return root;
-    }
-    std::filesystem::path with_ext = root;
-    with_ext += ".zar";
-    if (std::filesystem::is_regular_file(with_ext)) {
-        return with_ext;
+    for (const auto extension : {".zar", ".pkg"}) {
+        auto with_ext = root;
+        with_ext += extension;
+        if (std::filesystem::is_regular_file(with_ext))
+            return with_ext;
     }
     return std::nullopt;
 }
@@ -117,8 +119,11 @@ bool IsAllInOneArchive(const std::filesystem::path& path) {
 
 std::vector<std::filesystem::path> ExpandBundleRoots(const std::filesystem::path& archive) {
     std::vector<std::filesystem::path> roots;
-    ZArchiveBackend probe{archive};
-    if (!probe.IsOpen()) {
+    auto backend = OpenGameBackend(archive);
+    if (!backend)
+        return roots;
+    auto& probe = *backend;
+    if (!IsGameArchive(archive)) {
         return roots;
     }
     // An archive holding one piece of content has its sce_sys at the root.
@@ -169,7 +174,7 @@ std::vector<std::filesystem::path> ListContentRoots(const std::filesystem::path&
             roots.push_back(entry.path());
             continue;
         }
-        if (!IsZArchiveFile(entry.path())) {
+        if (!IsGameArchive(entry.path())) {
             continue;
         }
         for (auto& root : ExpandBundleRoots(entry.path())) {
@@ -182,34 +187,76 @@ std::vector<std::filesystem::path> ListContentRoots(const std::filesystem::path&
     return roots;
 }
 
+std::vector<std::filesystem::path> ListGameAdditionalContentRoots(
+    const std::filesystem::path& game) {
+    std::vector<std::filesystem::path> roots;
+    if (game.empty())
+        return roots;
+    const auto append = [&](std::vector<std::filesystem::path> found) {
+        roots.insert(roots.end(), std::make_move_iterator(found.begin()),
+                     std::make_move_iterator(found.end()));
+    };
+    if (IsAllInOneArchive(game))
+        append(ListContentRoots(game / AllInOneDlc));
+    if (const auto sibling = ResolveGameRoot(OverlayPath(game, DlcSuffix))) {
+        append(IsGameArchive(*sibling) ? ExpandBundleRoots(*sibling) : ListContentRoots(*sibling));
+    }
+    // Keep original distribution names with base.pkg + DLC/*.pkg. Content IDs
+    // are checked against the title by SelectAdditionalContent before use.
+    if (IsPkgFile(game))
+        append(ListContentRoots(game.parent_path() / "DLC"));
+    return roots;
+}
+
+std::vector<AdditionalContentRoot> SelectAdditionalContent(std::vector<std::filesystem::path> roots,
+                                                           std::string_view title_id) {
+    std::sort(roots.begin(), roots.end());
+    roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
+    std::map<std::string, AdditionalContentRoot> selected;
+    for (const auto& root : roots) {
+        auto backend = OpenGameBackend(root);
+        if (!backend)
+            continue;
+        auto file = backend->Open("sce_sys/param.sfo", Common::FS::FileAccessMode::Read);
+        if (!file || !file->Size() || file->Size() > 1024 * 1024)
+            continue;
+        std::vector<u8> bytes(file->Size());
+        if (file->Read(bytes.data(), bytes.size()) != s64(bytes.size()))
+            continue;
+        PSF sfo;
+        if (!sfo.Open(bytes))
+            continue;
+        const auto category = sfo.GetString("CATEGORY").value_or("");
+        const auto content = sfo.GetString("CONTENT_ID").value_or("");
+        if (!category.starts_with("ac") || content.size() != 36 || content.substr(7, 9) != title_id)
+            continue;
+        bool has_data = false;
+        if (auto dir = backend->OpenDir("")) {
+            DirEntry child;
+            while (dir->Next(child)) {
+                if (child.name != "sce_sys" && child.name != "." && child.name != "..") {
+                    has_data = true;
+                    break;
+                }
+            }
+        }
+        AdditionalContentRoot candidate{root, std::string(content), has_data};
+        const auto found = selected.find(candidate.content_id);
+        if (found == selected.end() || (!found->second.has_data && has_data))
+            selected.insert_or_assign(std::string(content), std::move(candidate));
+    }
+    std::vector<AdditionalContentRoot> result;
+    for (auto& [_, content] : selected)
+        result.push_back(std::move(content));
+    return result;
+}
+
 std::shared_ptr<IBackend> MntPoints::CreateBackend(const std::filesystem::path& host_path,
                                                    bool read_only) {
     if (std::filesystem::is_directory(host_path)) {
         return std::make_shared<HostFsBackend>(host_path, read_only);
     }
-    const auto try_zar = [](const std::filesystem::path& zar) -> std::shared_ptr<IBackend> {
-        if (std::filesystem::is_regular_file(zar) && zar.extension() == ".zar") {
-            auto backend = std::make_shared<ZArchiveBackend>(zar);
-            if (backend->IsOpen()) {
-                return backend;
-            }
-        }
-        return nullptr;
-    };
-    if (auto b = try_zar(host_path)) {
-        return b;
-    }
-    // A path pointing at a directory inside an archive, e.g. a DLC bundle
-    // mounted as "addcont.zar/P1S1XXXX".
-    if (const auto split = SplitArchivePath(host_path); split && !split->inner.empty()) {
-        auto backend = std::make_shared<ZArchiveBackend>(split->archive, split->inner);
-        if (backend->IsOpen()) {
-            return backend;
-        }
-    }
-    std::filesystem::path with_ext = host_path;
-    with_ext += ".zar";
-    return try_zar(with_ext);
+    return OpenGameBackend(host_path);
 }
 
 void MntPoints::Mount(const std::filesystem::path& host_folder, const std::string& guest_folder,
@@ -223,7 +270,25 @@ void MntPoints::Mount(const std::filesystem::path& host_folder, const std::strin
 
     const auto probe_overlay = [this](const std::filesystem::path& base,
                                       std::string_view suffix) -> std::shared_ptr<IBackend> {
-        return CreateBackend(OverlayPath(base, suffix), /*ro=*/true);
+        const auto path = OverlayPath(base, suffix);
+        auto backend = CreateBackend(path, /*ro=*/true);
+        if (!backend) {
+            if (const auto resolved = ResolveGameRoot(path); resolved && IsPkgFile(*resolved))
+                throw std::runtime_error("Cannot read PKG overlay: " + resolved->string());
+        }
+        if (backend && suffix != ModsSuffix &&
+            (IsPkgFile(base) || IsPkgFile(backend->RootPath()))) {
+            PSF base_sfo, patch_sfo;
+            const auto a = ReadGameFile(base, "sce_sys/param.sfo");
+            const auto b = backend->ReadFile("sce_sys/param.sfo");
+            if (!a || !b || !base_sfo.Open(*a) || !patch_sfo.Open(*b) ||
+                base_sfo.GetString("TITLE_ID").value_or("").size() != 9 ||
+                base_sfo.GetString("TITLE_ID") != patch_sfo.GetString("TITLE_ID") ||
+                (IsPkgFile(backend->RootPath()) &&
+                 patch_sfo.GetString("CATEGORY").value_or("") != "gp"))
+                throw std::runtime_error("PKG update does not match the base title/category");
+        }
+        return backend;
     };
 
     const auto layout =

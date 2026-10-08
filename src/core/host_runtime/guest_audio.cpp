@@ -260,7 +260,7 @@ struct GuestAudio::Impl {
             port.in_flight.swap(port.pending[port.head]);
             port.head = (port.head + 1) % Port::Capacity;
             --port.queued;
-            const auto volume = port.native.volume;
+            const auto volume = OutputVolume(port);
             port.busy = true;
             Common::Profiler::Counter("Audio.Port", port.handle);
             Common::Profiler::Counter("Audio.QueuedFrames", port.queued * port.native.buffer_frames);
@@ -301,9 +301,9 @@ struct GuestAudio::Impl {
                     !(type != 0 && (a[5] & 0x70000000)),
                 ORBIS_AUDIO_OUT_ERROR_INVALID_FORMAT);
         Require(s32(a[2]) == 0, ORBIS_AUDIO_OUT_ERROR_INVALID_ARG);
-        // Pad speaker needs a real controller endpoint; don't redirect it to the phone.
-        Require(type != 4, ORBIS_AUDIO_OUT_ERROR_NOT_OPENED);
-        const size_t max_ports = type == 0 ? 8 : (type == 2 || type == 3) ? 4 : 1;
+        // As on desktop, emulate controller speakers through the host audio sink.
+        // They retain independent queues/handles and a separate mix level.
+        const size_t max_ports = type == 0 ? 8 : (type == 2 || type == 3 || type == 4) ? 4 : 1;
         {
             std::lock_guard lock(mutex);
             CheckAlive();
@@ -349,6 +349,8 @@ struct GuestAudio::Impl {
         LOG_INFO(Lib_AudioOut, "Opened port {:#x}: type {} format {} ({} ch) {} frames, {}",
                  port->handle, type, format, port->native.format_info.num_channels, frames,
                  port->callback ? "callback queue" : "worker");
+        if (type == 4)
+            LOG_INFO(Lib_AudioOut, "Controller speaker {:#x} routed to host audio output", port->handle);
         try {
             if (!port->callback)
                 port->worker = std::jthread(
@@ -378,6 +380,13 @@ struct GuestAudio::Impl {
     static std::chrono::nanoseconds Period(const Port& port) {
         return std::chrono::nanoseconds(1000000000ull * port.native.buffer_frames /
                                         port.native.sample_rate);
+    }
+    static std::array<int, 8> OutputVolume(const Port& port) {
+        auto volume = port.native.volume;
+        if (port.native.type == OrbisAudioOutPort::PadSpk)
+            for (auto& channel : volume)
+                channel = s32(s64(channel) * port.native.mixLevelPadSpk / 32768);
+        return volume;
     }
     // The PS4 returns from sceAudioOutOutput once the previous block has played, so a game's
     // output thread takes one block per period from its mixer. The device here takes several
@@ -501,7 +510,7 @@ struct GuestAudio::Impl {
                 Capture().Add(port.handle, port.native, {input, port.native.BufferSize()});
                 if (port.callback) {
                     auto& block = port.prepared[port.accepted % port.prepared.size()];
-                    port.native.impl->Prepare(input, port.native.volume, block);
+                    port.native.impl->Prepare(input, OutputVolume(port), block);
                 } else {
                     auto& block = port.pending[(port.head + port.queued) % Port::Capacity];
                     std::memcpy(block.data(), input, block.size());
@@ -551,6 +560,17 @@ struct GuestAudio::Impl {
                 return Close(u32(a[0]));
             if (nid == "QOQtbeDqsT4" || nid == "w3PdaSTSwGE")
                 return Output(nid, a, stop);
+            if (nid == "wVwPU50pS1c") {
+                std::lock_guard lock(mutex);
+                CheckAlive();
+                auto port = Find(u32(a[0]));
+                Require(port->native.type == OrbisAudioOutPort::PadSpk,
+                        ORBIS_AUDIO_OUT_ERROR_INVALID_PORT_TYPE);
+                Require(s32(a[1]) >= 0 && s32(a[1]) <= 32768,
+                        ORBIS_AUDIO_OUT_ERROR_INVALID_MIXLEVEL);
+                port->native.mixLevelPadSpk = s32(a[1]);
+                return 0;
+            }
             if (nid == "b+uAV89IlxE") {
                 s32 volume{};
                 {

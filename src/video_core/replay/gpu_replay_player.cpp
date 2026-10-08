@@ -606,6 +606,20 @@ void AfterDrawSlow(const char* kind, u64 hash0, u64 hash1) {
 void Player::EnableImageHashes(const std::filesystem::path& path, u64 draw_event) {
     image_hashes.open(path, std::ios::trunc);
     draw_hash_event = draw_event;
+    if (const char* directory = std::getenv("SHADPS4_GPU_REPLAY_DUMP")) {
+        unsigned long long first = 0, last = ~0ULL;
+        if (const char* range = std::getenv("SHADPS4_GPU_REPLAY_DUMP_EVENTS")) {
+            std::sscanf(range, "%llu-%llu", &first, &last);
+        }
+        EnableImageDump(directory, first, last);
+    }
+}
+
+void Player::EnableImageDump(std::filesystem::path directory, u64 first, u64 last) {
+    std::filesystem::create_directories(directory);
+    image_dump_directory = std::move(directory);
+    image_dump_first = first;
+    image_dump_last = last;
 }
 
 void Player::BeforeEvent(const Event& event) {
@@ -623,9 +637,9 @@ void Player::BeforeEvent(const Event& event) {
 void Player::AfterDraw(const char* kind, u64 hash0, u64 hash1) {
     const u32 index = draw_index++;
     std::string dump_prefix;
-    if (const char* dump_dir = std::getenv("SHADPS4_GPU_REPLAY_DUMP")) {
-        std::filesystem::create_directories(dump_dir);
-        dump_prefix = (std::filesystem::path{dump_dir} /
+    if (!image_dump_directory.empty() && current_event >= image_dump_first &&
+        current_event <= image_dump_last) {
+        dump_prefix = (image_dump_directory /
                        fmt::format("e{:04}_d{:04}_{}_{:08x}", current_event, index, kind,
                                    static_cast<u32>(hash1 ? hash1 : hash0)))
                           .string();
@@ -669,20 +683,8 @@ void Player::AfterEvent(const Event& event) {
     // Diagnostic: SHADPS4_GPU_REPLAY_DUMP=<dir> [SHADPS4_GPU_REPLAY_DUMP_EVENTS=<first>-<last>]
     // writes level 0 of every image the events write, next to the image_hashes.txt lines.
     std::string dump_prefix;
-    static const char* dump_dir = std::getenv("SHADPS4_GPU_REPLAY_DUMP");
-    if (dump_dir) {
-        static const auto range = [] {
-            u64 first = 0, last = ~u64{0};
-            if (const char* events = std::getenv("SHADPS4_GPU_REPLAY_DUMP_EVENTS")) {
-                std::sscanf(events, "%llu-%llu", reinterpret_cast<unsigned long long*>(&first),
-                            reinterpret_cast<unsigned long long*>(&last));
-            }
-            return std::pair{first, last};
-        }();
-        if (index >= range.first && index <= range.second) {
-            std::filesystem::create_directories(dump_dir);
-            dump_prefix = (std::filesystem::path{dump_dir} / fmt::format("e{:04}", index)).string();
-        }
+    if (!image_dump_directory.empty() && index >= image_dump_first && index <= image_dump_last) {
+        dump_prefix = (image_dump_directory / fmt::format("e{:04}", index)).string();
     }
     for (const auto& image :
          rasterizer->GetTextureCache().HashWrittenImages(hashed_epochs, dump_prefix)) {

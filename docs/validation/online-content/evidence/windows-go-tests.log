@@ -1,0 +1,71 @@
+=== RUN   TestContentNamesUseExplicitRolesAndPortableMetadata
+--- PASS: TestContentNamesUseExplicitRolesAndPortableMetadata (0.00s)
+=== RUN   TestContentNamingPublicationSurvivesOldJournalAndPreservesBytes
+--- PASS: TestContentNamingPublicationSurvivesOldJournalAndPreservesBytes (0.09s)
+=== RUN   TestContentNamingNeverOverwritesConflictingFile
+--- PASS: TestContentNamingNeverOverwritesConflictingFile (0.04s)
+=== RUN   TestPS4ContainerBounds
+=== RUN   TestPS4ContainerBounds/valid
+=== RUN   TestPS4ContainerBounds/magic
+=== RUN   TestPS4ContainerBounds/size
+=== RUN   TestPS4ContainerBounds/entry_table
+=== RUN   TestPS4ContainerBounds/body_overflow
+=== RUN   TestPS4ContainerBounds/content
+=== RUN   TestPS4ContainerBounds/pfs
+--- PASS: TestPS4ContainerBounds (0.09s)
+    --- PASS: TestPS4ContainerBounds/valid (0.01s)
+    --- PASS: TestPS4ContainerBounds/magic (0.01s)
+    --- PASS: TestPS4ContainerBounds/size (0.01s)
+    --- PASS: TestPS4ContainerBounds/entry_table (0.01s)
+    --- PASS: TestPS4ContainerBounds/body_overflow (0.01s)
+    --- PASS: TestPS4ContainerBounds/content (0.01s)
+    --- PASS: TestPS4ContainerBounds/pfs (0.01s)
+=== RUN   TestPS4PublicationAndTamperRejection
+--- PASS: TestPS4PublicationAndTamperRejection (0.06s)
+=== RUN   TestSolidNSZReconstructsEncryptedNCA
+--- PASS: TestSolidNSZReconstructsEncryptedNCA (0.17s)
+=== RUN   TestPatchNSZWithManyCTRSections
+--- PASS: TestPatchNSZWithManyCTRSections (0.06s)
+=== RUN   TestSafeRelative
+--- PASS: TestSafeRelative (0.00s)
+=== RUN   TestOriginAndProtocol
+--- PASS: TestOriginAndProtocol (0.00s)
+=== RUN   TestPreparePublishesAndRevalidates
+--- PASS: TestPreparePublishesAndRevalidates (0.03s)
+=== RUN   TestArchiveVolumesAndPassword
+    prepare_test.go:81: Set FOUNDATION_CONTENT_TEST_7ZIP to an absolute trusted 7-Zip executable
+--- SKIP: TestArchiveVolumesAndPassword (0.00s)
+=== RUN   TestRejectsArchiveTraversalAndSymlink
+    prepare_test.go:121: Set FOUNDATION_CONTENT_TEST_7ZIP to an absolute trusted 7-Zip executable
+--- SKIP: TestRejectsArchiveTraversalAndSymlink (0.00s)
+=== RUN   TestRemoveOnlyOneManagedTask
+--- PASS: TestRemoveOnlyOneManagedTask (0.03s)
+=== RUN   TestNumericStringsInBaiduAPI
+--- PASS: TestNumericStringsInBaiduAPI (0.00s)
+=== RUN   TestParallelRangesRetryAndVerifiedResume
+--- PASS: TestParallelRangesRetryAndVerifiedResume (1.50s)
+=== RUN   TestRangeCancellationStopsWritersAndIdentityFailureDoesNotRetry
+--- PASS: TestRangeCancellationStopsWritersAndIdentityFailureDoesNotRetry (0.01s)
+=== RUN   TestDownloadConcurrencyOptions
+--- PASS: TestDownloadConcurrencyOptions (0.00s)
+=== RUN   TestShareListingDistinguishesEmptyFoldersFromInvalidResponses
+=== RUN   TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/nested
+[]
+=== RUN   TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/empty
+[]
+=== RUN   TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/missing_list
+[]
+=== RUN   TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/restricted
+[]
+=== RUN   TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/cycle
+[]
+--- PASS: TestShareListingDistinguishesEmptyFoldersFromInvalidResponses (0.00s)
+    --- PASS: TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/nested (0.00s)
+    --- PASS: TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/empty (0.00s)
+    --- PASS: TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/missing_list (0.00s)
+    --- PASS: TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/restricted (0.00s)
+    --- PASS: TestShareListingDistinguishesEmptyFoldersFromInvalidResponses/cycle (0.00s)
+=== RUN   TestRangeResponsesMustMatchExactIdentity
+--- PASS: TestRangeResponsesMustMatchExactIdentity (0.00s)
+PASS
+ok  	spatial.local/online-content/baidu	2.498s

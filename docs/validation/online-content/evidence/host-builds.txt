@@ -1,0 +1,5 @@
+PASS Citron macOS Qt full executable target: citron (isolated official-1.4.2-rollup build)
+PASS Citron Android: :foundation-online-content:assembleDebug :app:compileMainlineDebugKotlin
+PASS shadPS4 Android: :foundation-online-content:assembleDebug :core:data:compileDebugKotlin
+PASS Android APK instrumentation: :foundation-online-content:connectedDebugAndroidTest
+No stable app publication, account/cloud transfer or gameplay test was performed.

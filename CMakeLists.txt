@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # CMAKE_ANDROID_NDK are available earlier (passed via -D or the toolchain file), so
 # gate the Apple-only ObjC language on them to avoid an ObjC compiler probe under NDK.
 if(APPLE AND NOT ANDROID AND NOT ANDROID_ABI AND NOT CMAKE_ANDROID_NDK)
-    list(APPEND ADDITIONAL_LANGUAGES OBJC)
+    list(APPEND ADDITIONAL_LANGUAGES OBJC OBJCXX)
     # Minimum OS version for KosmicKrisp
     set(CMAKE_OSX_DEPLOYMENT_TARGET 26.0 CACHE STRING "")
 endif()
@@ -948,6 +948,10 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/file_sys/directories/pfs_directory.h
          src/core/file_format/pfs.h
          src/core/file_format/pkg.cpp
+         src/core/file_format/pkg_reader.cpp
+         src/core/file_format/pkg_reader.h
+         src/core/file_sys/backends/pkg_fs.cpp
+         src/core/file_sys/backends/pkg_fs.h
          src/core/file_format/pkg.h
          src/core/file_format/pkg_type.cpp
          src/core/file_format/pkg_type.h
@@ -1434,6 +1438,9 @@ set(SHADNET src/shadnet/client.cpp
 )
 if (APPLE)
     list(APPEND EMULATOR src/sdl_window_apple.mm)
+    # Mach's ERR_SUCCESS macro leaks into libatrac9 in a mixed unity batch.
+    set_source_files_properties(src/core/libraries/ajm/ajm_at9.cpp
+        PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 endif()
 
 if(NOT ENABLE_TESTS)
@@ -1558,6 +1565,17 @@ add_executable(shadps4
     src/sdl_window.h
     src/sdl_window.cpp
 )
+endif()
+
+if(NOT BUILD_HOST_CORE)
+    add_subdirectory(foundation/modules/online_content foundation/online_content EXCLUDE_FROM_ALL)
+    target_sources(shadps4 PRIVATE src/imgui/online_content/online_content.cpp
+        foundation/third_party/imgui/misc/cpp/imgui_stdlib.cpp)
+    target_link_libraries(shadps4 PRIVATE spatial::foundation_online_content)
+    add_custom_command(TARGET shadps4 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:foundation_baidu>" "$<TARGET_FILE_DIR:shadps4>"
+        VERBATIM)
 endif()
 
 target_sources(shadps4 PRIVATE src/frontend/window.cpp)
@@ -1825,6 +1843,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_audio3d.cpp
         src/core/host_runtime/guest_audio.cpp
         src/core/host_runtime/guest_avplayer.cpp
+        src/core/host_runtime/guest_videodec.cpp
         src/core/host_runtime/guest_ajm.cpp
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp
@@ -2038,6 +2057,10 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_avplayer_tests PRIVATE shadps4_host)
         target_include_directories(guest_avplayer_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_avplayer_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_videodec_tests tests/host_runtime/guest_videodec_tests.cpp)
+        target_link_libraries(guest_videodec_tests PRIVATE shadps4_host)
+        target_include_directories(guest_videodec_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_videodec_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_aio_tests tests/host_runtime/guest_aio_tests.cpp)
         target_link_libraries(guest_aio_tests PRIVATE shadps4_host)
         target_include_directories(guest_aio_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -2142,6 +2165,10 @@ if(BUILD_HOST_CORE)
         target_compile_definitions(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_np_tests tests/host_runtime/guest_np_tests.cpp)
         add_executable(guest_reprojection_tests tests/host_runtime/guest_reprojection_tests.cpp)
+        add_executable(command_recorder_tests tests/video_core/command_recorder_tests.cpp)
+        target_link_libraries(command_recorder_tests PRIVATE shadps4_host)
+        target_include_directories(command_recorder_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(command_recorder_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(openxr_pose_tests tests/host_runtime/openxr_pose_tests.cpp)
         target_link_libraries(openxr_pose_tests PRIVATE shadps4_host)
         target_include_directories(openxr_pose_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -2223,7 +2250,8 @@ if(BUILD_HOST_CORE)
         target_include_directories(guest_rtc_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_rtc_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_file_io_tests tests/host_runtime/guest_file_io_tests.cpp)
-        target_link_libraries(guest_file_io_tests PRIVATE shadps4_host ZArchive::zarchive)
+        target_link_libraries(guest_file_io_tests PRIVATE shadps4_host ZArchive::zarchive
+            ${SSL_DEPENDENCIES} ZLIB::ZLIB)
         target_include_directories(guest_file_io_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_file_io_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_data_mapping_tests tests/host_runtime/guest_data_mapping_tests.cpp)

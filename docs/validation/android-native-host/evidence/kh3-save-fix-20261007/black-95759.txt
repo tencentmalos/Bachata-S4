@@ -1,0 +1,6 @@
+SERVICE com.shadps4.android/.service.FexSessionService a5eeaaf pid=23000 user=0
+  Client:
+    cache_epoch=1 request_id=4 completed_id=4
+    sample_ns=28956477390983 cache_epoch=1 selector=mip0-layer0 physical_backing=true final_output_equivalence=unverified
+    image_uid=95759 address=138772742144 width=800 height=450 depth=1 format=R8G8B8A8Unorm samples=1 layers=1 mips=1 write_epoch=11188 flags=72 layout=ShaderReadOnlyOptimal
+    status=ready bytes=1440000 path=/data/user/0/com.shadps4.android/files/host/captures/gpu-images/image-28956477390983-4-95759-L0.bin

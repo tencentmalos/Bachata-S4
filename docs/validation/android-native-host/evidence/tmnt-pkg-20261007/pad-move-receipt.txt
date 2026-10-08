@@ -1,0 +1,3 @@
+SERVICE com.shadps4.android/.service.FexSessionService 72968a4 pid=17285 user=0
+  Client:
+    {"schema":1,"status":"ok","pid":17285,"generation":1,"run_uuid":"0f9454d904357a2272024181373669b4","phase":3,"input_token":1,"focused":true,"owner":"pkgtest","action_id":3,"port":0,"state":"released","published_timestamp_us":1621975765,"deadline_ns":1622875763337,"guest_poll_seen":true,"guest_poll_count":54,"first_guest_poll_ns":1621976700837,"release_reason":"timeout","requested":{"buttons":0,"left_x":0.800000011920929,"left_y":-0.4000000059604645,"right_x":0.0,"right_y":0.0,"left_trigger":0.0,"right_trigger":0.0,"touch_down":false,"touch_x":0.0,"touch_y":0.0},"duplicate":false}

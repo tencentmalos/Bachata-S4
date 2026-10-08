@@ -370,6 +370,7 @@ endif()
 
 # LibreSSL
 shadps4_add_host_portable_dependency(libressl)
+set(SSL_DEPENDENCIES "${SSL_DEPENDENCIES}" PARENT_SCOPE)
 
 # cpp-httplib
 add_library(Cpp_Httplib INTERFACE)

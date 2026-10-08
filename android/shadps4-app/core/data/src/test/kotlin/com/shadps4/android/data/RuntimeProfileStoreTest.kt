@@ -3,6 +3,9 @@ package com.shadps4.android.data
 import com.shadps4.android.runtime.settings.ProfileScope
 import com.shadps4.android.runtime.settings.RuntimeProfile
 import com.shadps4.android.runtime.settings.RuntimeGuestBackend
+import com.shadps4.android.runtime.input.ConnectedController
+import com.shadps4.android.runtime.input.ControllerDeviceKey
+import com.shadps4.android.runtime.input.ControllerProfile
 import java.io.File
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonPrimitive
@@ -17,6 +20,34 @@ import org.junit.rules.TemporaryFolder
 class RuntimeProfileStoreTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
+
+    @Test
+    fun firstConnectedControllersAreAutoMappedAndSurviveRestart() = runTest {
+        val store = RuntimeProfileStore(temporaryFolder.root)
+        val handheld = ConnectedController(9, ControllerDeviceKey("handheld", 1, 2, "Built-in pad"), true)
+        val gamepad = ConnectedController(10, ControllerDeviceKey("usb", 3, 4, "USB pad"))
+        assertFalse(store.initializeControllerMappings(emptyList()))
+        assertFalse(File(temporaryFolder.root, "settings/global.json").exists())
+        assertTrue(store.initializeControllerMappings(listOf(handheld, gamepad)))
+        val restarted = RuntimeProfileStore(temporaryFolder.root)
+        assertEquals(listOf(ControllerProfile.standardWithHatDpad(handheld.key), ControllerProfile.standard(gamepad.key)),
+            restarted.load(ProfileScope.Global).controllerSlots)
+        assertFalse(restarted.initializeControllerMappings(listOf(gamepad)))
+        assertEquals(handheld.key, restarted.load(ProfileScope.Global).controllerSlots.first().device)
+    }
+
+    @Test
+    fun autoMapPreservesClearedMappingsAndGameOverrides() = runTest {
+        val store = RuntimeProfileStore(temporaryFolder.root)
+        val game = ProfileScope.Game("CUSA15072")
+        val custom = ControllerProfile.standard().copy(swapFaceButtons = true, deadZone = 0.2f)
+        store.update(game) { it.copy(controllerSlots = listOf(custom)) }
+        store.update(ProfileScope.Global) { it.copy(controllerSlots = listOf(ControllerProfile())) }
+        val device = ConnectedController(9, ControllerDeviceKey("handheld", 1, 2, "Built-in pad"), true)
+        assertFalse(store.initializeControllerMappings(listOf(device)))
+        assertEquals(listOf(ControllerProfile()), store.load(ProfileScope.Global).controllerSlots)
+        assertEquals(listOf(custom), store.load(game).controllerSlots)
+    }
 
     @Test
     fun updatePersistsGlobalAndGameProfilesSeparately() = runTest {

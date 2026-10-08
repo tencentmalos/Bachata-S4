@@ -1,0 +1,22 @@
+[2026-10-07 22:32:45.737][Info][19540][Lib.SysModule](Guest-1) guest_runtime.cpp:1976 SysmoduleLoad: session sysmodule id=0xcf name=libSceVideodec2 result=0x0
+[2026-10-07 22:32:45.737][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:55 sceVideodec2QueryComputeMemoryInfo: called
+[2026-10-07 22:32:45.737][Info][19540][Lib.SysModule](Guest-1) guest_runtime.cpp:1976 SysmoduleLoad: session sysmodule id=0xcf name=libSceVideodec2 result=0x0
+[2026-10-07 22:32:45.737][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:55 sceVideodec2QueryComputeMemoryInfo: called
+[2026-10-07 22:32:45.741][Info][19540][Lib.SysModule](Guest-1) guest_runtime.cpp:1976 SysmoduleLoad: session sysmodule id=0xcf name=libSceVideodec2 result=0x0
+[2026-10-07 22:32:45.741][Warn][19540][Lib.Vdec2](Guest-1) videodec2.cpp:75 sceVideodec2AllocateComputeQueue: called
+[2026-10-07 22:33:12.701][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.701][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.701][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.705][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.705][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.705][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.705][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:33:12.709][Info][19540][Lib.Vdec2](Guest-1) guest_videodec.cpp:114 Invoke: Guest decoder=1 codec=1 dimensions=1920x1088
+[2026-10-07 22:36:19.513][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.513][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.517][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.517][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.517][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.533][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.533][Info][19540][Lib.Vdec2](Guest-1) videodec2.cpp:115 sceVideodec2QueryDecoderMemoryInfo: called
+[2026-10-07 22:36:19.537][Info][19540][Lib.Vdec2](Guest-1) guest_videodec.cpp:114 Invoke: Guest decoder=2 codec=1 dimensions=1920x1088

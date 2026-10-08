@@ -1,0 +1,12 @@
+FAIL 233: call("KMcEa+rHsIo", {handle, path}) == 0
+FAIL 251: publication_entered
+FAIL 254: active.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout
+FAIL 255: streams.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout
+FAIL 257: publish.get()
+FAIL 259: active.get() == 1
+FAIL 260: streams.get() == 2
+decoded video=1 audio=0 callbacks=0 events=0 reads=0
+FAIL 283: video == 12 && audio >= 90 && nonzero && events > 0 && reads > 0
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0xb400007a821294f0] Packet corrupt (stream = 1, dts = 10240).
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0xb400007a821294f0] stream 1, offset 0x10ba: partial file
+guest_avplayer_tests: 1120 checks, 8 failures

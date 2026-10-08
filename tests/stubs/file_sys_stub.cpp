@@ -13,6 +13,14 @@ bool IsZArchiveFile(const std::filesystem::path& path) {
     return path.extension() == ".zar" && std::filesystem::is_regular_file(path, ec) && !ec;
 }
 
+bool IsPkgFile(const std::filesystem::path& path) {
+    std::error_code ec;
+    return path.extension() == ".pkg" && std::filesystem::is_regular_file(path, ec) && !ec;
+}
+bool IsGameArchive(const std::filesystem::path& path) {
+    return IsZArchiveFile(path) || IsPkgFile(path);
+}
+
 std::optional<std::vector<u8>> ReadGameFile(const std::filesystem::path& game_root,
                                             std::string_view rel_path) {
     std::error_code ec;

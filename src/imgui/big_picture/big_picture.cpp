@@ -18,6 +18,7 @@
 #include "core/guest_patch_desktop.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
+#include "imgui/online_content/online_content.h"
 #include "imgui/big_picture/imgui_impl_sdl3_big_picture.h"
 #include "imgui/big_picture/imgui_impl_sdlrenderer3.h"
 #include "imgui/big_picture/settings_dialog_imgui.h"
@@ -41,34 +42,18 @@ SDL_Renderer* renderer;
 namespace {
 
 std::filesystem::path UpdateChecker(const std::string sceItem, std::filesystem::path game_folder) {
-    std::filesystem::path updatedPath = "";
-    std::filesystem::path basePath = game_folder.parent_path();
-    std::string fileName;
-    std::string item = "sce_sys/" + sceItem;
-
-    if (Core::FileSys::IsZArchiveFile(game_folder)) {
-        fileName = Core::FileSys::StripZArchiveExtension(game_folder).filename().string();
-    } else {
-        fileName = game_folder.filename().string();
+    namespace vfs = Core::FileSys;
+    const std::string item = "sce_sys/" + sceItem;
+    if (auto path = vfs::ResolveGameFilePath(vfs::OverlayPath(game_folder, vfs::ModsSuffix), item))
+        return *path;
+    for (const auto suffix : vfs::UpdateSuffixes) {
+        if (const auto update = vfs::ResolveGameRoot(vfs::OverlayPath(game_folder, suffix))) {
+            if (auto path = vfs::ResolveGameFilePath(*update, item))
+                return *path;
+            break; // Only the first installed update belongs to the mount stack.
+        }
     }
-
-    if (std::filesystem::exists(basePath / (fileName + "-UPDATE") / item)) {
-        updatedPath = basePath / (fileName + "-UPDATE") / item;
-    } else if (Core::FileSys::ResolveGameFilePath(basePath / (fileName + "-UPDATE.zar"), item)
-                   .has_value()) {
-        updatedPath =
-            Core::FileSys::ResolveGameFilePath(basePath / (fileName + "-UPDATE.zar"), item).value();
-    } else if (std::filesystem::exists(basePath / (fileName + "-patch") / item)) {
-        updatedPath = basePath / (fileName + "-patch") / item;
-    } else if (Core::FileSys::ResolveGameFilePath(basePath / (fileName + "-patch.zar"), item)
-                   .has_value()) {
-        updatedPath =
-            Core::FileSys::ResolveGameFilePath(basePath / (fileName + "-patch.zar"), item).value();
-    } else if (Core::FileSys::ResolveGameFilePath(game_folder, item).has_value()) {
-        updatedPath = Core::FileSys::ResolveGameFilePath(game_folder, item).value();
-    }
-
-    return updatedPath;
+    return vfs::ResolveGameFilePath(game_folder, item).value_or(std::filesystem::path{});
 }
 
 // Launch options: the desktop counterpart of the Android Launch sheet. Choosing a
@@ -113,7 +98,7 @@ std::filesystem::path GameConfigPath(const std::string& serial) {
 std::string EffectiveModuleSha(const IconInfo& game, bool ignorePatches, const std::string& module) {
     namespace vfs = Core::FileSys;
     const auto base =
-        vfs::IsZArchiveFile(game.ebootPath) ? game.ebootPath : game.ebootPath.parent_path();
+        vfs::IsGameArchive(game.ebootPath) ? game.ebootPath : game.ebootPath.parent_path();
     const auto key = base.string() + (ignorePatches ? "|base|" : "|mounted|") + module;
     static std::map<std::string, std::string> cache;
     if (const auto it = cache.find(key); it != cache.end()) {
@@ -576,26 +561,16 @@ void GetGameIconInfo(std::vector<IconInfo>& icons) {
             for (const auto& entry : std::filesystem::directory_iterator(installLoc.path)) {
 
                 std::string pathstring = entry.path().filename().string();
-                if (pathstring.ends_with("-UPDATE") || pathstring.ends_with("-patch") ||
-                    (!entry.is_directory() && !Core::FileSys::IsZArchiveFile(entry))) {
+                const auto stem =
+                    Core::FileSys::StripGameArchiveExtension(entry.path()).filename().string();
+                if (Core::FileSys::BaseGameFromOverlay(entry.path()) || stem.ends_with("-DLC") ||
+                    (!entry.is_directory() && !Core::FileSys::IsGameArchive(entry))) {
                     continue;
-                }
-
-                if (Core::FileSys::IsZArchiveFile(entry)) {
-                    size_t start = pathstring.length() - 3;
-                    for (size_t i = start; i < pathstring.length(); ++i) {
-                        pathstring[i] = static_cast<char>(
-                            std::tolower(static_cast<unsigned char>(pathstring[i])));
-                    }
-
-                    if (pathstring.ends_with("-UPDATE.zar") || pathstring.ends_with("-patch.zar")) {
-                        continue;
-                    }
                 }
 
                 IconInfo icon;
                 PSF psf;
-                if (Core::FileSys::IsZArchiveFile(entry.path())) {
+                if (Core::FileSys::IsGameArchive(entry.path())) {
                     // Same metadata view the runtime mounts: handles bundled app/ + update
                     // archives and -UPDATE/-patch siblings, which a root sce_sys lookup misses.
                     Core::FileSys::ArchiveInstallMetadata metadata;
@@ -642,7 +617,7 @@ void GetGameIconInfo(std::vector<IconInfo>& icons) {
                 icon.textureId = ImTextureID(texture);
 
                 icon.ebootPath = entry.path() / "eboot.bin";
-                if (Core::FileSys::IsZArchiveFile(entry.path())) {
+                if (Core::FileSys::IsGameArchive(entry.path())) {
                     icon.ebootPath = entry.path();
                 }
 
@@ -657,7 +632,7 @@ void GetGameIconInfo(std::vector<IconInfo>& icons) {
     });
 }
 
-void Launch(char* executableName, bool sameProcess) {
+void Launch(char* executableName, bool sameProcess, bool onlineStore) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         LOG_ERROR(ImGui, "SDL_INIT_VIDEO Error: {}", SDL_GetError());
         SDL_Quit();
@@ -719,6 +694,7 @@ void Launch(char* executableName, bool sameProcess) {
     };
     applySettings();
 
+    std::unique_ptr<OnlineContent::Page> online_page;
     while (!done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -773,6 +749,19 @@ void Launch(char* executableName, bool sameProcess) {
         ImGui::BeginChild("ContentRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()),
                           child_flags, child_window_flags);
 
+        if (ImGui::Selectable("Game Library", !onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = false;
+        ImGui::SameLine();
+        if (ImGui::Selectable("Baidu Online", onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = true;
+        ImGui::Separator();
+        if (onlineStore) {
+            if (!online_page) online_page = std::make_unique<OnlineContent::Page>(
+                std::filesystem::absolute(std::filesystem::u8path(executableName)).parent_path());
+            online_page->Draw([](const std::filesystem::path& directory) {
+                EmulatorSettings.AddGameInstallDir(directory);
+                EmulatorSettings.Save();
+                GetGameIconInfo(gameIcons);
+            });
+        } else {
         Overlay::TextCentered("Select Game");
         ImGui::Dummy(ImVec2(0.0f, 10.f * uiScale));
 
@@ -781,6 +770,7 @@ void Launch(char* executableName, bool sameProcess) {
         }
 
         SetGameIcons(gameIcons);
+        }
         ImGui::EndChild();
         ImGui::Separator();
 
@@ -856,6 +846,7 @@ void Launch(char* executableName, bool sameProcess) {
         SDL_RenderPresent(renderer);
     }
 
+    online_page.reset();
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();

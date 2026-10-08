@@ -513,7 +513,17 @@ void Recorder::BurstEnd(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* raste
     if (!submit_done) {
         return;
     }
+    {
+        std::scoped_lock lock{pending_mutex};
+        pending_mappings.clear();
+        pending_flips.clear();
+        submit_contents.clear();
+        // Arm notifications before checking the IRQ queue. The guest can register the next
+        // frame's flip while GPU writeback and the initial snapshot block this thread.
+        Detail::capture_hooks = true;
+    }
     if (Platform::IrqC::Instance()->PendingOnce(Platform::InterruptId::GfxFlip) != 0) {
+        Detail::capture_hooks = false;
         u32 count{};
         {
             std::scoped_lock lock{mutex};
@@ -607,20 +617,12 @@ bool Recorder::Start(AmdGpu::Liverpool& liverpool_, Vulkan::Rasterizer* rasteriz
     writer->Write(RecordType::Info, std::vector<u8>(info.begin(), info.end()));
 
     const auto snapshot_begin = Clock::now();
-    {
-        std::scoped_lock lock{pending_mutex};
-        pending_mappings.clear();
-        pending_flips.clear();
-        submit_contents.clear();
-    }
     end_pending = false;
     fault_base = seen_faults = VideoCore::PageManager::RecorderWriteFaults();
-    // From here on, other threads report stacks, mapping changes and armed flips. A change the
-    // mapping list below already shows is applied again at the first boundary, which is
-    // harmless.
+    // Notifications have been armed since the boundary check. A mapping change the snapshot
+    // already shows is applied again at the first boundary, which is harmless.
     VideoCore::PageManager::SetRecorderActive(true);
     tracking = true;
-    Detail::capture_hooks = true;
     WriteInitialMemory();
 
     PayloadBuilder liverpool_state;

@@ -257,25 +257,37 @@ u64 GuestStorage::Used(const fs::path& root) {
 GuestStorage::Error GuestStorage::Mount(int uid, std::string_view tid, std::string_view dir,
                                         u64 blocks, u32 mode, MountResult& result) {
     std::lock_guard lock(namespace_mutex);
+    return MountLocked(uid, tid, dir, blocks, mode, false, result);
+}
+GuestStorage::Error GuestStorage::MountTransferring(int uid, std::string_view tid,
+                                                  std::string_view dir, MountResult& result) {
+    std::lock_guard lock(namespace_mutex);
+    return MountLocked(uid, tid, dir, 0, 1, true, result);
+}
+GuestStorage::Error GuestStorage::MountLocked(int uid, std::string_view tid, std::string_view dir,
+                                             u64 blocks, u32 mode, bool transferring,
+                                             MountResult& result) {
     result = {};
     if (!initialized)
         return Error::NOT_INITIALIZED;
     if (uid != user)
         return Error::INVALID_LOGIN_USER;
-    if ((!tid.empty() && tid != title) || !Component(dir) || dir.starts_with(".") ||
+    if ((transferring ? !ValidTitle(tid) : (!tid.empty() && tid != title)) ||
+        !Component(dir) || dir.starts_with(".") ||
         dir.size() >= 32 || (mode & ~0x3fu) || ((mode & 3) != 1 && (mode & 3) != 2) ||
         ((mode & 4) && (mode & 32)) || ((mode & 1) && (mode & (4 | 32))))
         return Error::PARAMETER;
+    const auto save_title = transferring ? tid : std::string_view(title);
+    const auto path = home / std::to_string(user) / "savedata" / save_title / dir;
     int slot = -1;
     for (int i = 0; i < 16; ++i) {
-        if (slots[i] && slots[i]->GetDirName() == dir)
+        if (slots[i] && slots[i]->GetSavePath() == path)
             return Error::BUSY;
         if (!slots[i] && slot < 0)
             slot = i;
     }
     if (slot < 0)
         return Error::MOUNT_FULL;
-    const auto path = home / std::to_string(user) / "savedata" / title / dir;
     bool created_directory = false;
     try {
         // An existing partial/corrupt save must never be recreated over in place.
@@ -303,7 +315,8 @@ GuestStorage::Error GuestStorage::Mount(int uid, std::string_view tid, std::stri
             }
         }
         auto instance = std::make_unique<Save>(
-            slot, uid, title, dir, static_cast<int>(std::min<u64>(blocks, 32768)), &mounts, path);
+            slot, uid, std::string(save_title), dir,
+            static_cast<int>(std::min<u64>(blocks, 32768)), &mounts, path);
         instance->SetupAndMount(mode & 1, mode & 16, mode & 8, true);
         std::copy(instance->GetMountPoint().begin(), instance->GetMountPoint().end(),
                   result.point.begin());
@@ -537,7 +550,9 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bo
             return p;
         }
         root = m->host_path;
-        if (m->backends.size() > 1 || FileSys::SplitArchivePath(root)) {
+        if (m->backends.size() != 1 || !m->backends.front()->RootHostPath()) {
+            // A single archive (including PKG DLC) is virtual too; only a
+            // single host directory can use the descriptor-relative fast path.
             // Read-only native overlay layers keep the same no-symlink rule
             // as the descriptor-relative path, including intermediate dirs.
             const auto relative = slash == path.npos ? fs::path{} : fs::path(path.substr(slash + 1));
@@ -1452,6 +1467,9 @@ GuestStorage::Error GuestStorage::UnmountBackup(std::string_view point) {
     auto* save = Find(point);
     if (!save)
         return Error::NOT_MOUNTED;
+    // Migration mounts must not mutate the source title, including its backups.
+    if (save->GetTitleId() != title)
+        return Error::BAD_MOUNTED;
     const auto path = save->GetSavePath();
     const auto directory = save->GetDirName();
     if (events.size() >= 64)

@@ -86,6 +86,8 @@ void VideoOutDriver::RequestStop() {
     for (auto* port : {&main_port, &social_port}) {
         port->vblank_cv.notify_all();
         port->vo_cv.notify_all();
+        std::lock_guard lock(port->port_mutex);
+        port->flip_cv.notify_all();
     }
 }
 void VideoOutDriver::Join() {
@@ -125,6 +127,10 @@ void VideoOutDriver::Close(s32 handle) {
 
     // Mark as closed
     closing.is_open = false;
+    {
+        std::lock_guard port_lock(closing.port_mutex);
+        closing.flip_cv.notify_all();
+    }
     closing.flip_rate = 0;
     closing.prev_index = -1;
 
@@ -361,6 +367,7 @@ void VideoOutDriver::CompleteFlip(VideoOutPort* port, s32 index, s64 flip_arg, b
             --flip_status.gc_queue_num;
         }
         --flip_status.flip_pending_num;
+        port->flip_cv.notify_all();
     }
 
     // Trigger flip events for the port.
@@ -491,9 +498,14 @@ bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
                                    const VideoCore::VrFrameSource& source,
                                    std::function<void(bool)> complete) {
     {
-        std::lock_guard lock(port->port_mutex);
-        if (!port->is_open || port->stopping || index < 0 || index >= MaxDisplayBuffers ||
-            port->buffer_slots[index].group_index < 0 || port->flip_status.flip_pending_num >= 2)
+        std::unique_lock lock(port->port_mutex);
+        // A completed eye read can precede window presentation. Bound both
+        // queues independently: wait for the presenter instead of returning a
+        // guest error merely because the host window is a frame behind.
+        if (!port->flip_cv.wait_for(lock, std::chrono::seconds(2), [&] {
+                return !port->is_open || port->stopping || port->flip_status.flip_pending_num < 2;
+            }) || !port->is_open || port->stopping || index < 0 || index >= MaxDisplayBuffers ||
+            port->buffer_slots[index].group_index < 0)
             return false;
         ++port->flip_status.flip_pending_num;
         port->flip_status.submit_tsc = read_tsc();
@@ -503,6 +515,7 @@ bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
         const auto cancel_flip = [port] {
             std::lock_guard lock(port->port_mutex);
             --port->flip_status.flip_pending_num;
+            port->flip_cv.notify_all();
         };
         if (port->stopping) {
             cancel_flip();
@@ -636,6 +649,7 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
             status.flip_arg = flip_arg;
             status.current_buffer = index;
             --status.flip_pending_num;
+            port->flip_cv.notify_all();
         }
         if (port->prev_index != -1) {
             port->buffer_labels[port->prev_index] = 0;

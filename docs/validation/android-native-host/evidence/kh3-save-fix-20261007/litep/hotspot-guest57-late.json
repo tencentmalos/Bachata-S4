@@ -1,0 +1,274 @@
+{
+  "start_ns": 39175162455116,
+  "end_ns": 39177976924492,
+  "trace_origin_ns": 39175162455116,
+  "time_basis": "source CPU clock nanoseconds; half-open window",
+  "diagnostics": [
+    "1 unclosed spans on tid 19642",
+    "1 unclosed spans on tid 19611",
+    "1 unclosed spans on tid 19595",
+    "1 unclosed spans on tid 19597",
+    "1 unclosed spans on tid 19594",
+    "1 unclosed spans on tid 19593",
+    "1 unclosed spans on tid 19610",
+    "1 unclosed spans on tid 19605",
+    "1 unclosed spans on tid 19665",
+    "1 unclosed spans on tid 19666",
+    "1 unclosed spans on tid 19667",
+    "1 unclosed spans on tid 19616",
+    "1 unclosed spans on tid 19643",
+    "1 unclosed spans on tid 19686",
+    "1 unclosed spans on tid 19577",
+    "1 unclosed spans on tid 19578",
+    "1 unclosed spans on tid 19579",
+    "1 unclosed spans on tid 19580",
+    "1 unclosed spans on tid 19706",
+    "1 unclosed spans on tid 19711",
+    "1 unclosed spans on tid 19582",
+    "3 unclosed spans on tid 19761",
+    "1 unclosed spans on tid 19765",
+    "1 unclosed spans on tid 19583",
+    "1 unclosed spans on tid 19584",
+    "1 unclosed spans on tid 19586",
+    "1 unclosed spans on tid 19587",
+    "29 open scopes excluded"
+  ],
+  "truncated": false,
+  "chunks_skipped": 0,
+  "retention_complete": "unknown_per_thread_byte_ring",
+  "scheduling": "unavailable",
+  "critical_path": "unknown",
+  "rows": [
+    {
+      "name": "VM.DataMapping",
+      "src_loc": "",
+      "count": 2470,
+      "inclusive_ms": 1092.167666,
+      "self_ms": 1092.167666,
+      "covered_ms": 1092.167666,
+      "per_thread_covered_ms": {
+        "19761": 1092.167666
+      },
+      "duration_distribution": {
+        "count": 2470,
+        "mean_ms": 0.44217314412955466,
+        "p50_ms": 0.345521,
+        "p90_ms": 0.4913653,
+        "p99_ms": 2.60042251999999,
+        "max_ms": 9.895729
+      }
+    },
+    {
+      "name": "HLE.pthread_cond_wait",
+      "src_loc": "",
+      "count": 15,
+      "inclusive_ms": 303.093854,
+      "self_ms": 303.093854,
+      "covered_ms": 303.093854,
+      "per_thread_covered_ms": {
+        "19761": 303.093854
+      },
+      "duration_distribution": {
+        "count": 15,
+        "mean_ms": 20.206256933333332,
+        "p50_ms": 7.845781,
+        "p90_ms": 60.78003179999999,
+        "p99_ms": 77.64546941999998,
+        "max_ms": 78.974062
+      }
+    },
+    {
+      "name": "Memory.WriteHold.PoolCommit",
+      "src_loc": "",
+      "count": 41,
+      "inclusive_ms": 1009.406666,
+      "self_ms": 67.58608,
+      "covered_ms": 1009.406666,
+      "per_thread_covered_ms": {
+        "19761": 1009.406666
+      },
+      "duration_distribution": {
+        "count": 41,
+        "mean_ms": 24.619674780487806,
+        "p50_ms": 19.852292,
+        "p90_ms": 59.497187,
+        "p99_ms": 99.10191660000008,
+        "max_ms": 121.633125
+      }
+    },
+    {
+      "name": "HLE.shadSyncWait",
+      "src_loc": "",
+      "count": 7,
+      "inclusive_ms": 40.969634,
+      "self_ms": 40.969634,
+      "covered_ms": 40.969634,
+      "per_thread_covered_ms": {
+        "19761": 40.969634
+      },
+      "duration_distribution": {
+        "count": 7,
+        "mean_ms": 5.852804857142857,
+        "p50_ms": 6.179427,
+        "p90_ms": 8.079573,
+        "p99_ms": 8.1005817,
+        "max_ms": 8.102916
+      }
+    },
+    {
+      "name": "HLE.pthread_rwlock_rdlock",
+      "src_loc": "",
+      "count": 588,
+      "inclusive_ms": 27.669059,
+      "self_ms": 27.669059,
+      "covered_ms": 27.669059,
+      "per_thread_covered_ms": {
+        "19761": 27.669059
+      },
+      "duration_distribution": {
+        "count": 588,
+        "mean_ms": 0.04705622278911564,
+        "p50_ms": 0.0046615,
+        "p90_ms": 0.09939060000000001,
+        "p99_ms": 0.7274522199999991,
+        "max_ms": 4.164271
+      }
+    },
+    {
+      "name": "HLE.scePthreadGetspecific",
+      "src_loc": "",
+      "count": 9123,
+      "inclusive_ms": 26.346897,
+      "self_ms": 26.346897,
+      "covered_ms": 26.346897,
+      "per_thread_covered_ms": {
+        "19761": 26.346897
+      },
+      "duration_distribution": {
+        "count": 9123,
+        "mean_ms": 0.0028879641565274583,
+        "p50_ms": 0.000678,
+        "p90_ms": 0.001302,
+        "p99_ms": 0.0025,
+        "max_ms": 3.431771
+      }
+    },
+    {
+      "name": "HLE.pthread_cond_signal",
+      "src_loc": "",
+      "count": 141,
+      "inclusive_ms": 23.151304,
+      "self_ms": 23.151304,
+      "covered_ms": 23.151304,
+      "per_thread_covered_ms": {
+        "19761": 23.151304
+      },
+      "duration_distribution": {
+        "count": 141,
+        "mean_ms": 0.16419364539007092,
+        "p50_ms": 0.030208,
+        "p90_ms": 0.417552,
+        "p99_ms": 1.4573855999999983,
+        "max_ms": 3.601146
+      }
+    },
+    {
+      "name": "Memory.LockWait",
+      "src_loc": "",
+      "count": 5,
+      "inclusive_ms": 22.746718,
+      "self_ms": 22.746718,
+      "covered_ms": 22.746718,
+      "per_thread_covered_ms": {
+        "19761": 22.746718
+      },
+      "duration_distribution": {
+        "count": 5,
+        "mean_ms": 4.549343599999999,
+        "p50_ms": 2.994062,
+        "p90_ms": 7.7598852,
+        "p99_ms": 8.748816719999999,
+        "max_ms": 8.858698
+      }
+    },
+    {
+      "name": "HLE.sceKernelMemoryPoolCommit",
+      "src_loc": "",
+      "count": 41,
+      "inclusive_ms": 1066.27896,
+      "self_ms": 21.349689,
+      "covered_ms": 1066.27896,
+      "per_thread_covered_ms": {
+        "19761": 1066.27896
+      },
+      "duration_distribution": {
+        "count": 41,
+        "mean_ms": 26.006803902439025,
+        "p50_ms": 20.349844,
+        "p90_ms": 60.164896,
+        "p99_ms": 99.68867720000007,
+        "max_ms": 122.225052
+      }
+    },
+    {
+      "name": "HLE.pthread_rwlock_unlock",
+      "src_loc": "",
+      "count": 588,
+      "inclusive_ms": 17.965365,
+      "self_ms": 17.965365,
+      "covered_ms": 17.965365,
+      "per_thread_covered_ms": {
+        "19761": 17.965365
+      },
+      "duration_distribution": {
+        "count": 588,
+        "mean_ms": 0.030553341836734693,
+        "p50_ms": 0.003125,
+        "p90_ms": 0.015677,
+        "p99_ms": 0.60725316,
+        "max_ms": 1.824635
+      }
+    },
+    {
+      "name": "VM.RangeRetirement",
+      "src_loc": "",
+      "count": 42,
+      "inclusive_ms": 12.94396,
+      "self_ms": 12.94396,
+      "covered_ms": 12.94396,
+      "per_thread_covered_ms": {
+        "19761": 12.94396
+      },
+      "duration_distribution": {
+        "count": 42,
+        "mean_ms": 0.3081895238095238,
+        "p50_ms": 0.1425785,
+        "p90_ms": 0.7829530999999998,
+        "p99_ms": 1.6743876599999998,
+        "max_ms": 1.675156
+      }
+    },
+    {
+      "name": "HLE.shadSyncWake",
+      "src_loc": "",
+      "count": 57,
+      "inclusive_ms": 9.179011,
+      "self_ms": 9.179011,
+      "covered_ms": 9.179011,
+      "per_thread_covered_ms": {
+        "19761": 9.179011
+      },
+      "duration_distribution": {
+        "count": 57,
+        "mean_ms": 0.16103528070175438,
+        "p50_ms": 0.016719,
+        "p90_ms": 0.4927393999999997,
+        "p99_ms": 0.8829123599999998,
+        "max_ms": 0.903125
+      }
+    }
+  ],
+  "total": 18,
+  "next_offset": 12,
+  "basis": "clipped elapsed scope time; inclusive rows overlap"
+}

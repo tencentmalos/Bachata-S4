@@ -1,0 +1,10 @@
+files/games/CUSA15072:
+total 11
+-rw------- 1 u0_a167 u0_a167  172 2026-10-07 15:26 archive.link
+-rw------- 1 u0_a167 u0_a167  245 2026-10-07 15:26 install.manifest
+drwx------ 2 u0_a167 u0_a167 3452 2026-10-07 15:26 sce_sys
+
+files/games/CUSA15072/sce_sys:
+total 120
+-rw------- 1 u0_a167 u0_a167 115550 2026-10-07 15:26 icon0.png
+-rw------- 1 u0_a167 u0_a167   2220 2026-10-07 15:26 param.sfo

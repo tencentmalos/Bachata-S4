@@ -1,0 +1,54 @@
+Cmdline: /system/bin/simpleperf record -p 19475 -e cpu-cycles -f 500 --duration 10 -g -o files/kh3-6fps-perf.data
+Arch: arm64
+Event: cpu-cycles (type 0, config 0)
+Samples: 3368
+Error Callchains: 10, 0.296912%
+Event count: 14727185159
+
+Children  Self    Symbol
+91.32%    0.28%   Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)
+91.32%    0.00%   Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::InvokeGuest(Core::GuestCpu::ThreadHandle, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallArgs const&, Core::GuestCpu::GuestCallOptions const&)
+91.32%    0.00%   Core::HostRuntime::GuestRuntime::Impl::Call(unsigned long, Core::GuestCpu::GuestCallArgs const&)
+91.32%    0.00%   __pthread_start(void*)
+91.32%    0.00%   __start_thread
+91.32%    0.00%   void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct> >, unsigned long Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_176::operator()<std::__ndk1::array<unsigned long, 6ul> >(std::__ndk1::array<unsigned long, 6ul> const&) const::'lambda'()> >(void*)
+80.08%    0.12%   Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallHandler::DispatchNative(FEXCore::Core::CpuStateFrame*, Core::GuestCpu::Fex::(anonymous namespace)::ThreadInterruptBinding*, bool)
+79.79%    0.05%   Core::HostRuntime::(anonymous namespace)::FunctionAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&) const
+78.54%    0.05%   std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_0::operator()(std::initializer_list<char const*>, std::__ndk1::function<unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(Core::GuestCpu::Hle::HleCallFrame&), std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_0::operator()(std::initializer_list<char const*>, std::__ndk1::function<unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(Core::GuestCpu::Hle::HleCallFrame&)>, Core::GuestCpu::Result<void> (Core::GuestCpu::Hle::HleCallFrame&)>::operator()(Core::GuestCpu::Hle::HleCallFrame&)
+75.78%    0.02%   Core::HostRuntime::DispatchDirectMemoryService(Core::GuestCpu::GuestAddressSpace&, std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char> >, std::__ndk1::array<unsigned long, 6ul> const&)
+75.78%    0.00%   std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_152, std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_152>, unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>::operator()(std::__ndk1::array<unsigned long, 6ul> const&)
+75.75%    4.30%   Core::MemoryManager::PoolCommit(unsigned long, unsigned long, Core::MemoryProt, int)
+69.52%    0.49%   Core::HostRuntime::GuestRuntime::Impl::Update(Core::GuestCpu::GuestAddressSpace::VmOperation, unsigned long, unsigned long, Core::GuestCpu::GuestPermission, int, unsigned long, bool)
+68.60%    43.56%  Core::GuestCpu::GuestAddressSpace::UpdateDataMapping(Core::GuestCpu::GuestAddressSpace::VmOperation, Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission, int, unsigned long, std::__ndk1::stop_token, bool)
+36.91%    0.00%   Core::HostRuntime::GuestRuntime::Impl::Map(unsigned long, unsigned long, unsigned long, bool)
+14.35%    0.00%   [kernel.kallsyms][+ffffffe5bea11646]
+14.00%    0.00%   [kernel.kallsyms][+ffffffe5c00d4666]
+13.94%    0.00%   [kernel.kallsyms][+ffffffe5c00d46ee]
+13.92%    0.00%   [kernel.kallsyms][+ffffffe5bea9c65a]
+12.67%    0.00%   [kernel.kallsyms][+ffffffe5bea9c756]
+12.63%    0.00%   [kernel.kallsyms][+ffffffe5bea9c822]
+11.37%    0.29%   syscall
+10.21%    10.21%  std::__ndk1::vector<Core::GuestCpu::GuestAddressSpace::Mapping, std::__ndk1::allocator<Core::GuestCpu::GuestAddressSpace::Mapping> >::push_back[abi:ne210000](Core::GuestCpu::GuestAddressSpace::Mapping const&)
+10.20%    0.03%   std::__ndk1::mutex::unlock()
+10.18%    0.28%   pthread_mutex_unlock
+9.84%     0.00%   [kernel.kallsyms][+ffffffe5bec90cfe]
+9.10%     0.00%   [kernel.kallsyms][+ffffffe5bec88836]
+8.71%     8.68%   bool std::__ndk1::any_of[abi:ne210000]<std::__ndk1::__wrap_iter<Core::GuestCpu::GuestAddressSpace::Mapping*>, Core::GuestCpu::GuestAddressSpace::UpdateDataMapping(Core::GuestCpu::GuestAddressSpace::VmOperation, Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission, int, unsigned long, std::__ndk1::stop_token, bool)::$_1>(std::__ndk1::__wrap_iter<Core::GuestCpu::GuestAddressSpace::Mapping*>, std::__ndk1::__wrap_iter<Core::GuestCpu::GuestAddressSpace::Mapping*>, Core::GuestCpu::GuestAddressSpace::UpdateDataMapping(Core::GuestCpu::GuestAddressSpace::VmOperation, Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission, int, unsigned long, std::__ndk1::stop_token, bool)::$_1)
+8.50%     0.00%   [kernel.kallsyms][+ffffffe5bec897a2]
+8.44%     0.00%   [kernel.kallsyms][+ffffffe5beb9e292]
+8.33%     8.33%   [kernel.kallsyms][+ffffffe5beb9aa40]
+6.90%     0.17%   Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)::'lambda'()::operator()() const
+2.73%     0.03%   std::__ndk1::mutex::lock()
+2.70%     0.17%   pthread_mutex_lock
+2.48%     0.03%   mmap64
+2.32%     0.00%   [kernel.kallsyms][+ffffffe5bea8f0ee]
+2.23%     0.00%   [kernel.kallsyms][+ffffffe5bee94f06]
+2.13%     0.00%   [kernel.kallsyms][+ffffffe5bee4dcb2]
+2.04%     0.00%   [kernel.kallsyms][+ffffffe5bee9156a]
+1.91%     0.03%   NonPI::MutexLockWithTimeout(pthread_mutex_internal_t*, bool, timespec const*)
+1.83%     0.03%   std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_23::operator()(char const*, char const*, std::__ndk1::function<int (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(auto const&), std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_23::operator()(char const*, char const*, std::__ndk1::function<int (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(auto const&)>, unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>::operator()(std::__ndk1::array<unsigned long, 6ul> const&)
+1.37%     0.21%   Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const
+1.33%     0.00%   Vulkan::Rasterizer::MapMemory(unsigned long, unsigned long)
+1.27%     0.06%   __futex_wait_ex(void volatile*, bool, int, bool, timespec const*)
+1.25%     0.00%   VideoCore::TextureCache::UnmapMemory(unsigned long, unsigned long)
+1.23%     1.23%   auto::size_type std::__ndk1::__libcpp_erase_if_container[abi:ne210000]<std::__ndk1::map<std::__ndk1::array<unsigned long, 12ul>, VideoCore::ScalePlanTable::Entry, std::__ndk1::less<std::__ndk1::array<unsigned long, 12ul> >, std::__ndk1::allocator<std::__ndk1::pair<std::__ndk1::array<unsigned long, 12ul> const, VideoCore::ScalePlanTable::Entry> > >, VideoCore::ScalePlanTable::Unmap(unsigned long, unsigned long)::'lambda'(auto const&)>(auto&, VideoCore::ScalePlanTable::Unmap(unsigned long, unsigned long)::'lambda'(auto const&)&)

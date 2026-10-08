@@ -248,7 +248,12 @@ def summarize(path, list_events=None):
             elif rtype == 9:
                 in_stream = True
             elif rtype == 16:
-                submission = SUBMIT.unpack_from(payload)[2]
+                queue, vqid, submission, dcb, dwords, ccb, cwords, source = SUBMIT.unpack_from(payload)
+                attached = len(payload) - SUBMIT.size
+                if attached not in (0, (dwords + cwords) * 4):
+                    s.problems.append(f"submission {submission} has an invalid command copy size")
+                if source and source != dcb and attached != (dwords + cwords) * 4:
+                    s.problems.append(f"submission {submission} is missing its host command buffer copy")
                 if submission in started:
                     s.problems.append(f"submission {submission} submitted twice")
                 started.add(submission)

@@ -6,6 +6,7 @@
 #include <foundation/audio/callback_mixer.h>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_audio.h"
+#include "core/host_runtime/guest_audio_input.h"
 #include "core/host_runtime/guest_clock.h"
 #include "core/libraries/audio/audioout_error.h"
 #include "core/libraries/audio/audioout_transfer.h"
@@ -173,7 +174,6 @@ int main() {
     CHECK(call("JfEPXVxhFqA") == 0);
     CHECK(call("JfEPXVxhFqA") == u32(ORBIS_AUDIO_OUT_ERROR_ALREADY_INIT));
     CHECK(call("ekNvsT22rsY", {1, 0, 0, 0, 48000, 1}) == u32(ORBIS_AUDIO_OUT_ERROR_INVALID_SIZE));
-    CHECK(call("ekNvsT22rsY", {1, 4, 0, 256, 48000, 1}) == u32(ORBIS_AUDIO_OUT_ERROR_NOT_OPENED));
     const u64 handle = call("ekNvsT22rsY", {1, 0, 0, 256, 48000, 1});
     CHECK(s32(handle) > 0);
     CHECK(call("QOQtbeDqsT4", {handle, 1}) == u32(ORBIS_AUDIO_OUT_ERROR_INVALID_POINTER));
@@ -334,6 +334,7 @@ int main() {
     CHECK(stereo[0] == 0 && stereo[1] == 0);
 
     auto cb = std::make_shared<CallbackState>();
+    cb->mixer.SetLimiter(false); // Check queue/mixing arithmetic independently of output limiting.
     GuestAudio direct(*space, clock,
                       [cb](PortOut& port) { return std::make_unique<CallbackSink>(cb, port); });
     auto direct_call = [&](std::string_view nid, std::array<u64, 6> args = {}) {
@@ -406,6 +407,85 @@ int main() {
     cb->mixer.Render(last);
     CHECK(std::all_of(last.begin(), last.end(), [](float x) { return x == 0; }));
     CHECK(cb->mixer.Snapshot().sources == 0);
+    // Controller speaker PCM goes through the real host queue, including mix gain,
+    // drain/close and stale-handle rejection. No physical DS4 endpoint is required.
+    auto pad_cb = std::make_shared<CallbackState>();
+    GuestAudio pad_audio(*space, clock, [pad_cb](PortOut& port) {
+        return std::make_unique<CallbackSink>(pad_cb, port);
+    });
+    auto pad_call = [&](std::string_view nid, std::array<u64, 6> args = {}) {
+        return pad_audio.Dispatch(nid, args);
+    };
+    CHECK(IsAudioNid("wVwPU50pS1c"));
+    CHECK(pad_call("JfEPXVxhFqA") == 0);
+    std::array<u64, 4> pad_handles{};
+    for (auto& h : pad_handles) {
+        h = pad_call("ekNvsT22rsY", {1, 4, 0, 256, 48000, 0});
+        CHECK(s32(h) > 0);
+    }
+    CHECK(pad_call("ekNvsT22rsY", {1, 4, 0, 256, 48000, 0}) == u32(ORBIS_AUDIO_OUT_ERROR_PORT_FULL));
+    const auto ph = pad_handles[0];
+    CHECK(pad_call("wVwPU50pS1c", {ph, u32(-1)}) == u32(ORBIS_AUDIO_OUT_ERROR_INVALID_MIXLEVEL));
+    CHECK(pad_call("wVwPU50pS1c", {ph, 32769}) == u32(ORBIS_AUDIO_OUT_ERROR_INVALID_MIXLEVEL));
+    std::array<s16, 256> pad_pcm{};
+    pad_pcm.fill(16384);
+    write(base + 0x1000, pad_pcm);
+    CHECK(pad_call("QOQtbeDqsT4", {ph, base + 0x1000}) == 256);
+    pad_cb->mixer.Render(last);
+    CHECK(std::all_of(last.begin(), last.end(), [](float x) {
+        return x == 0.5f * ORBIS_AUDIO_OUT_MIXLEVEL_PADSPK_DEFAULT / 32768.f;
+    }));
+    CHECK(pad_call("wVwPU50pS1c", {ph, 16384}) == 0);
+    CHECK(pad_call("QOQtbeDqsT4", {ph, base + 0x1000}) == 256);
+    pad_cb->mixer.Render(last);
+    CHECK(std::all_of(last.begin(), last.end(), [](float x) { return x == 0.25f; }));
+    CHECK(pad_call("QOQtbeDqsT4", {ph, 0}) == 0);
+    CHECK(pad_call("GrQ9s4IrNaQ", {ph, base}) == 0);
+    CHECK(read.operator()<OrbisAudioOutPortState>(base).output == ORBIS_AUDIO_OUT_STATE_OUTPUT_CONNECTED_PRIMARY);
+    for (auto h : pad_handles) CHECK(pad_call("s1--uE9mBFw", {h}) == 0);
+    CHECK(pad_call("wVwPU50pS1c", {ph, 32768}) == u32(ORBIS_AUDIO_OUT_ERROR_INVALID_PORT));
+    const auto main_h = pad_call("ekNvsT22rsY", {1, 0, 0, 256, 48000, 1});
+    CHECK(pad_call("wVwPU50pS1c", {main_h, 32768}) == u32(ORBIS_AUDIO_OUT_ERROR_INVALID_PORT_TYPE));
+    CHECK(pad_call("s1--uE9mBFw", {main_h}) == 0);
+    pad_audio.RequestStop();
+    pad_cb->mixer.Render(last);
+    CHECK(pad_cb->mixer.Snapshot().sources == 0);
+    GuestAudioInput mic_audio(*space);
+    auto mic_call = [&](std::string_view nid, std::array<u64, 6> args = {}) {
+        return mic_audio.Dispatch(nid, args);
+    };
+    CHECK(mic_call("nya-R5gDYhM", {1, 1, 0, 0, 48000, 2}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_SIZE));
+    CHECK(mic_call("nya-R5gDYhM", {1, 1, 0, 128, 44100, 2}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_FREQ));
+    CHECK(mic_call("nya-R5gDYhM", {1, 1, 0, 128, 48000, 1}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_PARAM));
+    CHECK(mic_call("nya-R5gDYhM", {1, 9, 0, 128, 48000, 2}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_TYPE));
+    const auto mh = mic_call("nya-R5gDYhM", {1, 1, 0, 128, 48000, 2});
+    CHECK(s32(mh) > 0);
+    CHECK(mic_call("BohEAQ7DlUE", {mh}) == Libraries::AudioIn::ORBIS_AUDIO_IN_SILENT_STATE_DEVICE_NONE);
+    CHECK(mic_call("LozEOU8+anM", {mh, 0}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_POINTER));
+    CHECK(mic_call("LozEOU8+anM", {mh, base + 0x3ff0}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_POINTER));
+    pad_pcm.fill(1234); write(base + 0x1000, pad_pcm);
+    write(base + 0x1200, u32(0xabcdef01));
+    CHECK(mic_call("LozEOU8+anM", {mh, base + 0x1000}) == 128);
+    const auto silent = read.operator()<std::array<s16, 256>>(base + 0x1000);
+    CHECK(std::all_of(silent.begin(), silent.end(), [](s16 x) { return x == 0; }));
+    CHECK(read.operator()<u32>(base + 0x1200) == 0xabcdef01);
+    CHECK(mic_call("Jh6WbHhnI68", {mh}) == 0);
+    CHECK(mic_call("BohEAQ7DlUE", {mh}) == u32(ORBIS_AUDIO_IN_ERROR_INVALID_HANDLE));
+    std::array<u32, 7> mic_handles{};
+    for (auto& h : mic_handles) {
+        h = mic_call("5NE8Sjc7VC8", {1, 1, 0, 2048, 16000, 0});
+        CHECK(s32(h) > 0 && h != mh);
+    }
+    CHECK(mic_call("5NE8Sjc7VC8", {1, 1, 0, 2048, 16000, 0}) == u32(ORBIS_AUDIO_IN_ERROR_PORT_FULL));
+    CHECK(mic_call("LozEOU8+anM", {mic_handles[0], base + 0x1000}) == 2048);
+    auto mic_wait = std::async(std::launch::async, [&] {
+        return mic_call("LozEOU8+anM", {mic_handles[0], base + 0x1000});
+    });
+    CHECK(mic_wait.wait_for(std::chrono::milliseconds(10)) == std::future_status::timeout);
+    mic_audio.RequestStop();
+    CHECK(mic_wait.wait_for(std::chrono::milliseconds(200)) == std::future_status::ready);
+    CHECK(mic_wait.get() == u32(ORBIS_AUDIO_IN_ERROR_NOT_OPENED));
+    CHECK(mic_call("nya-R5gDYhM", {1, 1, 0, 128, 48000, 2}) == u32(ORBIS_AUDIO_IN_ERROR_NOT_OPENED));
     std::printf("GUEST_AUDIO checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

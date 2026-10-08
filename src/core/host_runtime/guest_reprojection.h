@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <stop_token>
 #include <string_view>
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
@@ -49,7 +50,7 @@ private:
     };
     struct State {
         std::mutex mutex;
-        std::condition_variable done;
+        std::condition_variable_any done;
         bool initialized{}, display{}, stopped{};
         s32 video{}, indices[2]{};
         u32 next{}, pending{};
@@ -218,7 +219,8 @@ public:
     GuestReprojection(GuestCpu::GuestAddressSpace& space, Backend backend)
         : space(space), backend(std::move(backend)) {}
 
-    u32 Dispatch(std::string_view nid, const std::array<u64, 6>& a, bool enabled) {
+    u32 Dispatch(std::string_view nid, const std::array<u64, 6>& a, bool enabled,
+                 std::stop_token stop = {}) {
         using namespace Libraries::Hmd;
         using namespace GuestCpu;
         if (!enabled)
@@ -286,15 +288,26 @@ public:
             backend.set_cadence([weak, trigger] {
                 if (auto state = weak.lock()) {
                     std::lock_guard guard(state->mutex);
-                    if (state->initialized && state->display && !state->stopped &&
-                        state->start.queue)
+                    if (!state->initialized || !state->display)
+                        return;
+                    if (state->start.queue)
                         trigger(state->start.queue, state->start.id);
+                    // Reprojection has a display cadence even before its first
+                    // submitted frame, while repeating an image, and after Stop.
+                    // Stop drains submitted work; UnsetDisplayBuffers/Finalize
+                    // remove the display cadence.
+                    // ASTRO BOT uses END to schedule its first submission. Do not
+                    // signal an idle END while eye reads are still in flight;
+                    // their retirement callback supplies that notification.
+                    if (!state->pending && state->end.queue)
+                        trigger(state->end.queue, state->end.id);
                 }
             });
             return 0;
         }
         if (nid == "vzMEkwBQciM" || nid == "ZrV5YIqD09I" || nid == "iGNNpDDjcwo") {
             s.stopped = true;
+            s.done.notify_all();
             backend.set_active(false);
             // Only our in-flight eye reads must retire. No queue/device-idle.
             if (!s.done.wait_for(lock, std::chrono::seconds(2), [&] { return s.pending == 0; }))
@@ -314,8 +327,18 @@ public:
             return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
         if (!s.display)
             return ORBIS_HMD_ERROR_REPROJECTION_NO_DISPLAY_BUFFER;
-        if (s.pending >= 2)
-            return ORBIS_HMD_ERROR_REPROJECTION_DISPLAY_BUFFER_BUSY;
+        if (s.pending >= 2) {
+            // These two slots bound host GPU read leases, not the guest's render
+            // buffer ring. Backpressure must wait for a real retired lease rather
+            // than fail a valid submission when the host GPU falls behind.
+            const auto epoch = s.epoch;
+            if (!s.done.wait_for(lock, stop, std::chrono::seconds(2), [&] {
+                    return s.pending < 2 || s.stopped || s.epoch != epoch;
+                }) || stop.stop_requested() || s.stopped || s.epoch != epoch)
+                return ORBIS_HMD_ERROR_REPROJECTION_THREAD_NOT_WORKING;
+            if (!s.display)
+                return ORBIS_HMD_ERROR_REPROJECTION_NO_DISPLAY_BUFFER;
+        }
         ReprojectionFrame frame{};
         const u32 slot = s.busy[s.next] ? (s.next ^ 1) : s.next;
         frame.video_handle = s.video;

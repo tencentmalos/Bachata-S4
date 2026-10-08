@@ -17,8 +17,11 @@ object GameInstallVerifier {
      */
     fun executableFile(gameDir: File): File {
         ArchiveLinkIo.target(gameDir)?.let { return it }
-        val archive = File(gameDir, "${gameDir.name}.zar")
-        return if (archive.isFile) archive else File(gameDir, "eboot.bin")
+        for (extension in listOf("zar", "pkg")) {
+            val archive = File(gameDir, "${gameDir.name}.$extension")
+            if (archive.isFile) return archive
+        }
+        return File(gameDir, "eboot.bin")
     }
 
     /** True when [executable] is inside [root] or is the archive [root] links to. */
@@ -54,7 +57,7 @@ object GameInstallVerifier {
             return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "Game directory missing")
         }
         val eboot = executableFile(gameDir)
-        if (eboot.extension == "zar") {
+        if (eboot.extension.lowercase() in setOf("zar", "pkg")) {
             val root = gameDir.canonicalFile.toPath()
             if (gameDir.listFiles().orEmpty().any { !it.canonicalFile.toPath().startsWith(root) }) {
                 return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "archive install escapes game directory")

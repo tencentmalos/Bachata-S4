@@ -1,0 +1,2 @@
+C ABI load, command, snapshot, missing-auth, source gating, close/reopen PASS
+Shared worker ABI: 12 concurrent isolated operations, sequence, invalid input, cancel/join PASS

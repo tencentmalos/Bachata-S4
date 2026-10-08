@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <set>
 #include <zarchive/zarchivewriter.h>
+#include "../pkg_fixture.h"
 #include "core/file_format/psf.h"
 #include "common/path_util.h"
 #include "core/file_sys/fs.h"
@@ -153,6 +154,36 @@ static void SegmentedFileBuffers(GuestStorage& storage, std::string_view path, s
     CHECK(space->Counts().live_pins == 0);
     CHECK(storage.Close(fd.value).value == 0);
 }
+static void SinglePackageMounts(const std::filesystem::path& root) {
+    const auto package = root / "single.pkg";
+    PkgFixture::Make(package, {{"asset", {'P', 'K', 'G', '-', 'D', 'A', 'T', 'A'}}});
+    Core::FileSys::MntPoints mounts;
+    // No update/MOD layer: the Android resolver must still use the backend.
+    for (const auto point : {"/app0", "/hostapp", "/addcont0"})
+        mounts.Mount(package, point, true);
+    GuestStorage storage(mounts, root / "users", "CUSA99999", 1000);
+    for (const auto point : {"/app0", "/hostapp", "/addcont0"}) {
+        const auto path = std::string(point) + "/asset";
+        Libraries::Kernel::OrbisKernelStat stat{};
+        CHECK(storage.Stat(path, stat).error == 0 && stat.st_size == 8);
+        CHECK(storage.Stat(point, stat).error == 0 && (stat.st_mode & 0040000));
+        CHECK(storage.Open(path, 1, 0).error == EROFS);
+        CHECK(storage.Open(std::string(point) + "/missing", 0, 0).error == ENOENT);
+        auto fd = storage.Open(path, 0, 0);
+        CHECK(fd.error == 0);
+        if (fd.error) continue;
+        std::array<u8, 8> data{};
+        CHECK(storage.Read(fd.value, data).value == 8 &&
+              std::memcmp(data.data(), "PKG-DATA", 8) == 0);
+        CHECK(storage.Seek(fd.value, 2, 0).value == 2);
+        GuestStorage::Buffer buffer{data.data(), 4};
+        CHECK(storage.Positioned(fd.value, std::span{&buffer, 1}, 4, false).value == 4 &&
+              std::memcmp(data.data(), "DATA", 4) == 0);
+        CHECK(storage.Seek(fd.value, 0, 1).value == 2);
+        CHECK(storage.Close(fd.value).error == 0);
+    }
+}
+
 static void Archives(const std::filesystem::path& root) {
     using namespace Core::FileSys;
     const auto base = root / "CUSA99991.zar";
@@ -264,6 +295,8 @@ static void Archives(const std::filesystem::path& root) {
     try { (void)InspectArchiveInstall(base); } catch (const std::exception&) { rejected = true; }
     CHECK(rejected);
 }
+#include "guest_save_transfer_checks.h"
+
 int main(int argc, char** argv) {
     if (argc != 2)
         return 2;
@@ -271,6 +304,7 @@ int main(int argc, char** argv) {
     if (std::filesystem::exists(root))
         return 2; // never reuse a real save directory
     Common::FS::InitializeAndroidUserPaths(root);
+    CheckSaveTransfer(root);
     {
         std::filesystem::create_directory(root / "content");
         std::ofstream(root / "content/asset") << "ABCDEFGH";
@@ -837,6 +871,7 @@ int main(int argc, char** argv) {
         CHECK(std::filesystem::file_size(current / "cancel-sentinel") == 4);
     }
     Archives(root);
+    SinglePackageMounts(root);
     std::printf("GUEST_FILE_IO checks=%u failures=%u\n", checks, failures);
     // Only the fresh test root above is owned by this executable.
     std::filesystem::remove_all(root);

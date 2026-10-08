@@ -49,13 +49,47 @@ class ExternalArchiveLibraryTest {
         assertEquals(listOf("CUSA03023"), result.linked.map { it.id })
         val dir = File(filesDir, "games/CUSA03023")
         assertTrue(File(dir, "sce_sys/param.sfo").isFile)
-        assertEquals(base.absolutePath, ArchiveLinkIo.read(dir)?.path)
+        assertEquals(base.canonicalPath, ArchiveLinkIo.read(dir)?.path)
         // Only metadata is cached; the archive itself is never copied.
         assertFalse(File(dir, "CUSA03023.zar").exists())
         assertTrue(dir.walkTopDown().filter { it.isFile }.sumOf { it.length() } < base.length())
-        assertEquals(base.absolutePath, GameInstallVerifier.executableFile(dir).absolutePath)
+        assertEquals(base.canonicalPath, GameInstallVerifier.executableFile(dir).absolutePath)
         assertTrue(GameInstallVerifier.canLaunch(filesDir, "games/CUSA03023"))
         assertEquals(ExternalArchiveLibrary.MODE, InstallManifestIo.read(dir)?.mode)
+    }
+
+    @Test
+    fun `pkg base is linked without copying and pkg overlays are skipped`() {
+        val filesDir = temp.newFolder("files")
+        val folder = temp.newFolder("roms")
+        val base = archive(folder, "CUSA15072.pkg", bytes = 4096)
+        archive(folder, "CUSA15072-UPD.pkg")
+        archive(folder, "CUSA15072-DLC.pkg")
+        assertEquals(listOf(base), ExternalArchiveLibrary.baseArchives(folder))
+        val result = ExternalArchiveLibrary.sync(filesDir, folder, inspectArchive = { metadata("CUSA15072") })
+        assertTrue(result.failures.toString(), result.failures.isEmpty())
+        val dir = File(filesDir, "games/CUSA15072")
+        assertEquals(base.canonicalFile, GameInstallVerifier.executableFile(dir))
+        assertTrue(GameInstallVerifier.canLaunch(filesDir, "games/CUSA15072"))
+        assertFalse(File(dir, base.name).exists())
+    }
+
+    @Test
+    fun `adding replacing and removing a pkg update refreshes cached metadata`() {
+        val filesDir = temp.newFolder("files")
+        val folder = temp.newFolder("roms")
+        archive(folder, "CUSA15072.pkg")
+        var inspected = 0
+        val inspect: (File) -> Array<ByteArray> = { inspected++; metadata("CUSA15072") }
+        ExternalArchiveLibrary.sync(filesDir, folder, inspectArchive = inspect)
+        val update = archive(folder, "CUSA15072-UPD.pkg")
+        ExternalArchiveLibrary.sync(filesDir, folder, inspectArchive = inspect)
+        update.writeBytes(ByteArray(128))
+        ExternalArchiveLibrary.sync(filesDir, folder, inspectArchive = inspect)
+        assertTrue(update.delete())
+        ExternalArchiveLibrary.sync(filesDir, folder, inspectArchive = inspect)
+        ExternalArchiveLibrary.sync(filesDir, folder, inspectArchive = inspect)
+        assertEquals(4, inspected)
     }
 
     @Test

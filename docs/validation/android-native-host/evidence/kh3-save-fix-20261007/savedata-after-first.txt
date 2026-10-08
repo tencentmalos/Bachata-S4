@@ -1,0 +1,21 @@
+files/host/home/1000/savedata/CUSA15072:
+total 3
+drwx------ 5 u0_a167 u0_a167 3452 2026-10-07 19:16 kh3sv2
+
+files/host/home/1000/savedata/CUSA15072/kh3sv2:
+total 9
+drwx------ 2 u0_a167 u0_a167 3452 2026-10-07 19:16 data
+drwx------ 2 u0_a167 u0_a167 3452 2026-10-07 19:16 photos
+drwx------ 2 u0_a167 u0_a167 3452 2026-10-07 19:16 sce_sys
+
+files/host/home/1000/savedata/CUSA15072/kh3sv2/data:
+total 32
+-rwx------ 1 u0_a167 u0_a167 31512 2026-10-07 19:16 system.bin
+
+files/host/home/1000/savedata/CUSA15072/kh3sv2/photos:
+total 0
+
+files/host/home/1000/savedata/CUSA15072/kh3sv2/sce_sys:
+total 28
+-rw------- 1 u0_a167 u0_a167 22191 2026-10-07 19:16 icon0.png
+-rw------- 1 u0_a167 u0_a167  1596 2026-10-07 19:16 param.sfo

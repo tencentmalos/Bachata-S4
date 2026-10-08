@@ -162,7 +162,7 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeReadLaunchParamS
     env->ReleaseStringUTFChars(path, value);
     try {
         Core::FileSys::MntPoints mount;
-        mount.Mount(std::filesystem::canonical(Core::FileSys::IsZArchiveFile(executable)
+        mount.Mount(std::filesystem::canonical(Core::FileSys::IsGameArchive(executable)
                         ? executable : executable.parent_path()), "/app0", true);
         auto file = mount.Open("/app0/sce_sys/param.sfo");
         if (!file || !file->Size() || file->Size() > 1024 * 1024) return nullptr;

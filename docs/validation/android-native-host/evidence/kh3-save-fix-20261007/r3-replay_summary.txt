@@ -1,0 +1,13 @@
+result=complete
+events=320
+wait_polls=262
+forced_waits=0
+divergences=0
+recorded_flips=2
+delta_records=97
+delta_pages=24783
+mapping_changes=15
+commands=0
+processor_wall_ms=452.397
+processor_cpu_ms=371.916
+replay_seconds=0.452468

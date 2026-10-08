@@ -10,6 +10,7 @@
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/gnmdriver/gnmdriver_init.h"
 #include "core/libraries/kernel/orbis_error.h"
+#include "core/libraries/kernel/time.h"
 #include "core/libraries/videoout/driver.h"
 #include "core/libraries/videoout/videoout_error.h"
 #include "guest_graphics.h"
@@ -293,6 +294,9 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     DESKTOP_SCALAR("ln33zjBrfjk", sceGnmGetTheTessellationFactorRingBufferBaseAddress);
     DESKTOP_SCALAR("d88anrgNoKY", sceGnmDriverTriggerCapture);
     DESKTOP_SCALAR("jg33rEKLfVs", sceGnmIsUserPaEnabled);
+    // ASTRO BOT imports this desktop/AstroQuest compatibility entry through
+    // libSceGnmWaitFreeSubmit. It consumes no guest pointers or output buffers.
+    DESKTOP_SCALAR("R3TYO7Tdv5o", Func_4774D83BB4DDBF9A);
 #undef DESKTOP_SCALAR
     install("RU74kek-N0c", 2, [](GuestGraphics&, const Args& a) -> u64 {
         return u32(GnmDriver::sceGnmLogicalCuMaskToPhysicalCuMask(a[0], a[1]));
@@ -478,6 +482,29 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     install("jpFjmgAC5AE", 1, [](GuestGraphics& graphics, const Args& a) -> u64 {
         return u32(graphics.DeleteEqueue(a[0]));
     });
+    install("R74tt43xP6k", 4, [&](GuestGraphics& graphics, const Args& a) -> u64 {
+        auto* queue = graphics.FindEqueue(a[0]);
+        if (!queue) return u32(ORBIS_KERNEL_ERROR_EBADF);
+        Kernel::OrbisKernelTimespec time{};
+        if (!a[2] || !space.ReadData(GuestAddress{a[2]},
+                                    std::as_writable_bytes(std::span{&time, 1})))
+            return u32(ORBIS_KERNEL_ERROR_EFAULT);
+        using Clock = std::chrono::steady_clock;
+        const auto maximum = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            Clock::time_point::max() - Clock::now()).count();
+        if (time.tv_sec < 0 || time.tv_nsec < 0 || time.tv_nsec >= 1000000000 ||
+            time.tv_sec > (maximum - time.tv_nsec) / 1000000000)
+            return u32(ORBIS_KERNEL_ERROR_EINVAL);
+        const auto interval = std::chrono::nanoseconds(time.tv_sec * 1000000000 + time.tv_nsec);
+        return queue->AddHRTimer(u64(s64(s32(a[1]))), interval, reinterpret_cast<void*>(a[3]))
+                   ? u32(0) : u32(ORBIS_KERNEL_ERROR_EBADF);
+    });
+    install("J+LF6LwObXU", 2, [](GuestGraphics& graphics, const Args& a) -> u64 {
+        auto* queue = graphics.FindEqueue(a[0]);
+        if (!queue) return u32(ORBIS_KERNEL_ERROR_EBADF);
+        return queue->RemoveSmallTimer(u64(s64(s32(a[1]))))
+                   ? u32(0) : u32(ORBIS_KERNEL_ERROR_ENOENT);
+    });
     // These getters consume a copied wire event, never a native queue pointer.
     // User data is an opaque guest value and must not be dereferenced.
     install("23CPPI1tyBY", 1, [&](GuestGraphics&, const Args& a) -> u64 {
@@ -543,7 +570,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     {GuestAddress{a[1]}, u64(capacity) * sizeof(Kernel::OrbisKernelEvent)}, true));
                 auto result = Output<s32>(space, a[3]);
                 std::vector<Kernel::OrbisKernelEvent> local(capacity);
-                const auto n = queue->GetTriggeredEvents(local.data(), capacity);
+                const auto n = queue->TakeTriggered(local.data(), capacity);
                 if (n > 0) {
                     std::memcpy(events.WritableBytes().data(), local.data(), n * sizeof(local[0]));
                     std::memcpy(result.WritableBytes().data(), &n, sizeof(n));
@@ -552,7 +579,12 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             }
             if (a[4] && std::chrono::steady_clock::now() >= deadline)
                 return u32(ORBIS_KERNEL_ERROR_ETIMEDOUT);
-            HleScope::Current()->WaitFor(std::chrono::milliseconds(1));
+            const auto result = queue->WaitReady(a[4] ? std::optional{deadline} : std::nullopt,
+                                                 HleScope::Current()->CancellationToken());
+            if (result == Kernel::EqueueWaitResult::Closed)
+                return u32(ORBIS_KERNEL_ERROR_EBADF);
+            if (result == Kernel::EqueueWaitResult::Interrupted)
+                return u32(ORBIS_KERNEL_ERROR_EINTR);
         }
     });
     for (const auto* nid : {"D0OdFMjp46I", "jpFjmgAC5AE", "fzyMKs9kim0",

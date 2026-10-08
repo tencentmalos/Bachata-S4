@@ -50,6 +50,36 @@ int main() {
     const OrbisKernelUseconds poll = 0;
 
     {
+        // Android HR timers use native deadlines and opaque guest user data.
+        // Re-arming the same id replaces the deadline; a poll must not deliver
+        // early, and the eventual wire event must not expose a timespec pointer.
+        EqueueInternal q(10, "session_hr");
+        auto* data = reinterpret_cast<void*>(0x123456789);
+        CHECK(q.AddHRTimer(4, 10s, nullptr));
+        CHECK(q.TakeTriggered(ev, 8) == 0);
+        CHECK(q.AddHRTimer(4, 600ms, data));
+        const auto start = Clock::now();
+        CHECK(q.WaitReady(start + 2s, {}) == EqueueWaitResult::Ready);
+        CHECK(Ms(Clock::now() - start) >= 590.0);
+        CHECK(q.TakeTriggered(ev, 8) == 1);
+        CHECK(ev[0].ident == 4 && ev[0].filter == OrbisKernelEvent::Filter::HrTimer);
+        CHECK(ev[0].data == 1 && ev[0].udata == data);
+        CHECK(ev[0].flags == (OrbisKernelEvent::Flags::OneShot | OrbisKernelEvent::Flags::Clear));
+        CHECK(q.TakeTriggered(ev, 8) == 0);
+        CHECK(q.AddHRTimer(5, 0ns, data));
+        CHECK(q.RemoveSmallTimer(5));
+        CHECK(!q.RemoveSmallTimer(5));
+        CHECK(q.TakeTriggered(ev, 8) == 0);
+        CHECK(q.AddHRTimer(6, 0ns, data));
+        CHECK(q.AddHRTimer(7, 0ns, data));
+        CHECK(q.TakeTriggered(ev, 1) == 1);
+        CHECK(q.TakeTriggered(ev, 1) == 1);
+        CHECK(q.TakeTriggered(ev, 1) == 0);
+        q.Close();
+        CHECK(!q.AddHRTimer(8, 0ns, data));
+    }
+
+    {
         // Poll, level and edge user events.
         EqueueInternal q(1, "poll");
         CHECK(q.WaitForEvents(ev, 8, &poll) == 0);

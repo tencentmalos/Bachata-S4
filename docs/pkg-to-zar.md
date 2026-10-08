@@ -2,8 +2,9 @@
 
 ## The three layers
 
-shadPS4 does not read PKG files at runtime. Getting a game onto disk is three
-distinct steps, and conflating them is the usual source of confusion:
+This fork can now mount supported local FPKGs directly at runtime; see
+[PKG direct mounting](guides/pkg-direct-mount.md) for setup and limitations.
+The conversion workflow below remains useful for producing ZARs or loose files:
 
 ```
 game.pkg  --[external tool]-->  loose file tree  --[optional]-->  game.zar
@@ -15,9 +16,9 @@ game.pkg  --[external tool]-->  loose file tree  --[optional]-->  game.zar
   fpkg code"); this fork restores it under `src/core/file_format/pkg.*` and
   `src/core/crypto/*`, rebuilt on LibreSSL (RSA/SHA/HMAC) and the fork's
   header-only `common/aes.h` instead of the Crypto++ dependency that removal
-  was meant to shed. The emulator still does not mount a PKG directly — the
-  restored code is for tooling and future in-app install.
-- **Loose tree** is what the emulator actually mounts at `/app0`.
+  was meant to shed. The separate `pkg_reader.*` and `PkgBackend` now supply
+  seekable, read-only runtime access to supported FPKGs without full extraction.
+- **Loose tree** is one of the backends the emulator mounts at `/app0`.
 - **`.zar`** is [ZArchive](https://github.com/Exzap/ZArchive), a read-only
   archive format from the Cemu project, wired in here via
   `externals/zarchive`. It compresses with **zstd at level 6 over 64 KiB
@@ -29,23 +30,23 @@ game.pkg  --[external tool]-->  loose file tree  --[optional]-->  game.zar
   It replaces the *loose tree*, not the PKG. There is no decryption in a
   `.zar`; it just stops a game from being tens of thousands of small files.
 
-`src/core/file_format/pfs.h` in this repo is for runtime mounting, not for
-unpacking — don't mistake it for a PKG reader.
+`src/core/file_format/pfs.h` handles runtime mount services; the direct PKG
+reader lives in `pkg_reader.*`.
 
 ## What the emulator will and will not accept
 
-| Content | Directory | `.zar` | Mount |
-|---|---|---|---|
-| Base game | yes | yes | `/app0`, `/hostapp` |
-| Update / patch | yes | yes | overlaid onto `/app0` |
-| Mods | yes | yes | overlaid onto `/app0` |
-| DLC (addcont) | yes | yes | `/addcont0..N` |
+| Content | Directory | `.zar` | supported `.pkg` | Mount |
+|---|---|---|---|---|
+| Base game | yes | yes | yes | `/app0`, `/hostapp` |
+| Update / patch | yes | yes | full file-overlay update | overlaid onto `/app0` |
+| Mods | yes | yes | use the formats at left | overlaid onto `/app0` |
+| DLC (addcont) | yes | yes | yes, including metadata-only content | `/addcont0..N` for data |
 
 DLC in a `.zar` needs the archive-aware addcont scan this fork adds. Upstream
 enumerates with `directory_iterator` and reads `param.sfo` through a raw host
 path, so an archive is skipped without a word. Three pieces fix that:
 
-- `Core::FileSys::ListContentRoots` returns subdirectories, standalone `.zar`
+- `Core::FileSys::ListContentRoots` returns subdirectories, standalone `.zar` / `.pkg`
   files, and — for a bundle archive — one root per directory inside it.
 - `SplitArchivePath` cuts a path at its `.zar` component, so
   `addcont.zar/P1S1XXXX` names a directory inside the archive.
@@ -79,7 +80,7 @@ first that resolves wins; `-UPD` is the short form the packer writes. Overlay
 precedence is `-mods` → update → base; the first backend holding a path wins,
 and directory listings are merged across the stack (`MntPoints::Mount`,
 [fs.cpp](../src/core/file_sys/fs.cpp)). Each layer can independently be a
-directory or a `.zar` — they mix freely.
+directory, `.zar`, or supported `.pkg` — they mix freely.
 
 Android's library uses a per-title wrapper directory under the app's private
 `files/games/` directory:

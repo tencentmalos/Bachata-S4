@@ -1,5 +1,11 @@
 # V0 子仓归属与开发分支
 
+2026-10-08增量：Foundation 从主仓原 pin `355eeba05a87d038523a42db21d44b777bd1e1eb`
+引入独立的 online content SDK，提交 `5fbdef1c180d41bbd173aa34dcf155cac6911738`
+已先推送至 owned `tencentmalos/foundation` 的 `codex/shadps4-online-content`，并用
+`ls-remote` 核对。主仓随后更新 gitlink；其他 reference pins 不变。
+见 [SDK 记录](validation/online-content/sdk-extraction-20261007.md)。
+
 2026-10-03增量：新增 `externals/cubeb`（桌面音频输出，与 citron PC 相同），指向 owned `tencentmalos/cubeb` 分支 `citron-submodule-42767df98ed0` 的 `42767df98ed045e7699c28bbf0616053c55a1b4f`，即 citron 当前所用提交（上游 mozilla/cubeb `48689ae7` 加一条把 cubeb 自身子模块改指 tencentmalos 镜像的提交）。不改 cubeb 源码，不拉它的 googletest/sanitizers 子模块（构建时关闭 tests/tools/sanitizers）。Android 不编译 cubeb，继续用 `externals/oboe`。见 [实现记录](validation/android-native-host/desktop-cubeb-audio-20261003.md)。
 
 2026-09-20增量：`externals/ffmpeg` 推进到 owned `tencentmalos/FFmpeg` 分支 `codex/windows-host-build` 的 `88b5e6b852`（基于 `e17ba6e2`，仅增加 Windows 主机上的 Android configure/归档/安装适配，Linux/macOS 路径不变）；子仓已先 push，主仓随后更新 gitlink。证据见 [Tier A 报告](validation/android-native-host/fex-sync-tier-a-20260920.md) 的 Windows 构建段落。

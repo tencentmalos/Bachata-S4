@@ -2,9 +2,10 @@ package com.shadps4.android.data
 
 import com.shadps4.android.runtime.session.NativeFexSession
 import java.io.File
+import java.security.MessageDigest
 
 /**
- * Registers `.zar` archives that live in a user folder ([ZarLibraryFolder]) without
+ * Registers `.zar` and `.pkg` archives that live in a user folder ([ZarLibraryFolder]) without
  * copying them into app storage.
  *
  * Each archive gets an app-private directory `games/<TITLE_ID>/` holding only a link
@@ -31,7 +32,7 @@ object ExternalArchiveLibrary {
 
     /** True when [name] (a file name or stem) is an overlay of some base archive. */
     fun isOverlayName(name: String): Boolean {
-        val stem = name.removeSuffix(".zar")
+        val stem = name.removeSuffix(".zar").removeSuffix(".pkg")
         return OVERLAY_SUFFIXES.any { stem.endsWith(it, ignoreCase = true) }
     }
 
@@ -40,7 +41,7 @@ object ExternalArchiveLibrary {
         if (folder == null) return emptyList()
         val entries = runCatching { folder.listFiles() }.getOrNull() ?: return emptyList()
         return entries
-            .filter { it.isFile && it.extension.equals("zar", ignoreCase = true) && it.length() > 0L }
+            .filter { it.isFile && it.extension.lowercase() in setOf("zar", "pkg") && it.length() > 0L }
             .filterNot { isOverlayName(it.name) }
             .sortedBy { it.name.lowercase() }
     }
@@ -99,7 +100,8 @@ object ExternalArchiveLibrary {
             // runtime will open; a rejected archive leaves no half-registered entry.
             ArchiveLinkIo.write(
                 directory,
-                ArchiveLink(canonical.absolutePath, canonical.length(), canonical.lastModified()),
+                ArchiveLink(canonical.absolutePath, canonical.length(), canonical.lastModified(),
+                    ArchiveLinkIo.overlayStamp(canonical)),
             )
             val verify = GameInstallVerifier.verifyTreeForRegistration(
                 directory,
@@ -156,7 +158,12 @@ object ExternalArchiveLibrary {
 }
 
 /** Where an external archive lives, with the identity the link was validated against. */
-data class ArchiveLink(val path: String, val bytes: Long, val modifiedAtMs: Long)
+data class ArchiveLink(
+    val path: String,
+    val bytes: Long,
+    val modifiedAtMs: Long,
+    val overlays: String = "",
+)
 
 object ArchiveLinkIo {
     const val FILE_NAME = "archive.link"
@@ -164,7 +171,7 @@ object ArchiveLinkIo {
     fun write(dir: File, link: ArchiveLink) {
         dir.mkdirs()
         File(dir, FILE_NAME).writeText(
-            "path=${link.path}\nbytes=${link.bytes}\nmodifiedAtMs=${link.modifiedAtMs}\n",
+            "path=${link.path}\nbytes=${link.bytes}\nmodifiedAtMs=${link.modifiedAtMs}\noverlays=${link.overlays}\n",
         )
     }
 
@@ -180,6 +187,7 @@ object ArchiveLinkIo {
             path = path,
             bytes = map["bytes"]?.trim()?.toLongOrNull() ?: 0L,
             modifiedAtMs = map["modifiedAtMs"]?.trim()?.toLongOrNull() ?: 0L,
+            overlays = map["overlays"].orEmpty(),
         )
     }
 
@@ -196,7 +204,29 @@ object ArchiveLinkIo {
         if (link.path != archive.absolutePath) return false
         if (!archive.isFile) return false
         if (link.bytes != archive.length() || link.modifiedAtMs != archive.lastModified()) return false
+        if (link.overlays != overlayStamp(archive)) return false
         return File(dir, "sce_sys/param.sfo").isFile &&
             InstallManifestIo.read(dir)?.status == InstallManifestIo.STATUS_INSTALLED
+    }
+
+    /** Invalidate cached title/version/icon when an update or metadata mod changes. */
+    fun overlayStamp(archive: File): String {
+        val identities = buildString {
+            for (suffix in ExternalArchiveLibrary.OVERLAY_SUFFIXES.filterNot { it == "-DLC" }) {
+                val stem = File(archive.parentFile, archive.nameWithoutExtension + suffix)
+                for (candidate in listOf(stem, File("$stem.zar"), File("$stem.pkg"))) {
+                    if (candidate.isDirectory) {
+                        for (name in listOf("param.sfo", "icon0.png")) {
+                            val file = File(candidate, "sce_sys/$name")
+                            if (file.isFile) append("${file.absolutePath}:${file.length()}:${file.lastModified()}\n")
+                        }
+                    } else if (candidate.isFile) {
+                        append("${candidate.absolutePath}:${candidate.length()}:${candidate.lastModified()}\n")
+                    }
+                }
+            }
+        }
+        return MessageDigest.getInstance("SHA-256").digest(identities.toByteArray())
+            .joinToString("") { "%02x".format(it) }
     }
 }

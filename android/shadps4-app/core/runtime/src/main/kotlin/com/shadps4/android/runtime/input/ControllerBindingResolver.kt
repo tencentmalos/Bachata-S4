@@ -2,7 +2,7 @@ package com.shadps4.android.runtime.input
 
 import kotlin.math.abs
 
-data class ConnectedController(val deviceId: Int, val key: ControllerDeviceKey)
+data class ConnectedController(val deviceId: Int, val key: ControllerDeviceKey, val hasHatDpad: Boolean = false)
 
 class ControllerBindingResolver {
     fun assignSlots(profiles: List<ControllerProfile>, devices: List<ConnectedController>): Map<Int, Int> {
