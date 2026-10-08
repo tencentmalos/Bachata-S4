@@ -20,6 +20,9 @@ VkResult CreateBuffer(VmaAllocator allocator, const VkBufferCreateInfo* ci,
                       const VmaAllocationCreateInfo* ai, VkBuffer* buffer,
                       VmaAllocation* allocation, VmaAllocationInfo* info,
                       std::string category = "buffer");
+// Allocations VMA refused under WITHIN_BUDGET and that were then made without it. The driver
+// budget follows free system memory, which on Android leaves out zram and reclaimable apps.
+uint64_t BudgetOverruns();
 void DestroyImage(VmaAllocator allocator, VkImage image, VmaAllocation allocation);
 void DestroyBuffer(VmaAllocator allocator, VkBuffer buffer, VmaAllocation allocation);
 void Tag(VmaAllocator allocator, VmaAllocation allocation, const char* category,

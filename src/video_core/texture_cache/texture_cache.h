@@ -46,6 +46,9 @@ class TextureCache {
     static constexpr s64 DEFAULT_PRESSURE_GC_MEMORY = 1_GB + 512_MB;
     static constexpr s64 DEFAULT_CRITICAL_GC_MEMORY = 3_GB;
     static constexpr s64 TARGET_GC_THRESHOLD = 8_GB;
+    // Driver budget headroom below which collection runs under pressure / aggressively.
+    static constexpr u64 BUDGET_PRESSURE_HEADROOM = 1_GB;
+    static constexpr u64 BUDGET_CRITICAL_HEADROOM = 512_MB;
 
     using ImageIds = boost::container::small_vector<ImageId, 16>;
 
@@ -521,6 +524,8 @@ private:
     u64 trigger_gc_memory = 0;
     u64 pressure_gc_memory = 0;
     u64 critical_gc_memory = 0;
+    u64 gc_budget_overruns = 0;
+    bool gc_budget_pressured = false; // Driver budget headroom was short at the last pass.
     u64 total_used_samplers = 0;
     u64 trigger_gc_samplers = 0;
     u64 pressure_gc_samplers = 0;

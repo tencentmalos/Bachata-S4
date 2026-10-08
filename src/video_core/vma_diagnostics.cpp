@@ -2,6 +2,8 @@
 #include "video_core/vma_diagnostics.h"
 
 #include <algorithm>
+#include <array>
+#include <atomic>
 #include <chrono>
 #include <fstream>
 #include <map>
@@ -11,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <vk_mem_alloc.h>
+#include "common/logging/log.h"
 
 namespace VideoCore::VmaDiagnostics {
 struct Allocation {
@@ -148,6 +151,48 @@ void Complete(VmaAllocator allocator) {
     --ledger.operations;
     ++ledger.version;
 }
+static std::atomic<uint64_t> budget_overruns{};
+uint64_t BudgetOverruns() {
+    return budget_overruns.load(std::memory_order_relaxed);
+}
+// VMA refuses a WITHIN_BUDGET allocation once usage reaches the driver budget. Turnip reports
+// usage plus 90% of MemAvailable, and on Android MemAvailable leaves out zram swap and the
+// memory lmkd frees from cached apps, so the budget can reach zero headroom while the kernel
+// would still back the allocation. Failing there aborted the session (a 16 MiB buffer with
+// 4272 of 4277 MiB used); retry without the budget limit and let the driver decide. The texture
+// cache sees the overrun and collects harder.
+template <class Create>
+static VkResult CreateWithinBudget(VmaAllocator allocator, VmaAllocationCreateInfo& effective,
+                                   VkDeviceSize size, const std::string& category,
+                                   Create&& create) {
+    auto result = create(effective);
+    if (result != VK_ERROR_OUT_OF_DEVICE_MEMORY ||
+        !(effective.flags & VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT))
+        return result;
+    const uint64_t overrun = budget_overruns.fetch_add(1, std::memory_order_relaxed);
+    if (overrun < 16 || (overrun & (overrun - 1)) == 0) {
+        std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets{};
+        vmaGetHeapBudgets(allocator, budgets.data());
+        const VkPhysicalDeviceMemoryProperties* props{};
+        vmaGetMemoryProperties(allocator, &props);
+        uint32_t heap = 0;
+        for (uint32_t i = 1; props && i < props->memoryHeapCount; ++i) {
+            const auto headroom = [&](uint32_t h) {
+                return budgets[h].budget > budgets[h].usage ? budgets[h].budget - budgets[h].usage
+                                                            : 0;
+            };
+            if (headroom(i) < headroom(heap))
+                heap = i;
+        }
+        LOG_WARNING(Render_Vulkan,
+                    "VMA budget reached ({} size={:#x}): heap {} usage={} MiB budget={} MiB; "
+                    "allocating past it (overrun {})",
+                    category, size, heap, budgets[heap].usage >> 20, budgets[heap].budget >> 20,
+                    overrun + 1);
+    }
+    effective.flags &= ~VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT;
+    return create(effective);
+}
 VkResult CreateImage(VmaAllocator allocator, const VkImageCreateInfo* ci,
                      const VmaAllocationCreateInfo* ai, VkImage* image, VmaAllocation* allocation,
                      VmaAllocationInfo* info, const char* category) {
@@ -155,7 +200,11 @@ VkResult CreateImage(VmaAllocator allocator, const VkImageCreateInfo* ci,
     auto effective = *ai;
     if (policy.compact_allocations && !(effective.flags & VMA_ALLOCATION_CREATE_STRATEGY_MASK))
         effective.flags |= VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT;
-    const auto result = vmaCreateImage(allocator, ci, &effective, image, allocation, info);
+    const auto result = CreateWithinBudget(
+        allocator, effective, 0, category ? category : "image",
+        [&](const VmaAllocationCreateInfo& create_info) {
+            return vmaCreateImage(allocator, ci, &create_info, image, allocation, info);
+        });
     Created(allocator, result == VK_SUCCESS ? *allocation : nullptr, 0, category);
     return result;
 }
@@ -166,7 +215,10 @@ VkResult CreateBuffer(VmaAllocator allocator, const VkBufferCreateInfo* ci,
     auto effective = *ai;
     if (policy.compact_allocations && !(effective.flags & VMA_ALLOCATION_CREATE_STRATEGY_MASK))
         effective.flags |= VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT;
-    const auto result = vmaCreateBuffer(allocator, ci, &effective, buffer, allocation, info);
+    const auto result = CreateWithinBudget(
+        allocator, effective, ci->size, category, [&](const VmaAllocationCreateInfo& create_info) {
+            return vmaCreateBuffer(allocator, ci, &create_info, buffer, allocation, info);
+        });
     Created(allocator, result == VK_SUCCESS ? *allocation : nullptr, ci->size, std::move(category));
     return result;
 }

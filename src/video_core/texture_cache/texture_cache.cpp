@@ -2065,14 +2065,34 @@ void TextureCache::GarbageCollectIdleAssets() {
 }
 
 void TextureCache::GarbageCollectImages() {
-    if (VideoCore::Replay::Replaying()) {
+    const bool replaying = VideoCore::Replay::Replaying();
+    u64 budget = 0;
+    if (replaying) {
         // Pressure measured by the driver differs between runs; evicting a GPU-modified image
         // rebuilds it from its write-back, so a replay keeps them.
         total_used_memory = 0;
     } else if (instance.CanReportMemoryUsage()) {
-        total_used_memory = instance.GetDeviceMemoryUsage();
+        total_used_memory = instance.GetDeviceMemoryUsage(&budget);
     }
-    if (total_used_memory < trigger_gc_memory) {
+    // The static thresholds come from the heap size. On a UMA device the driver budget follows
+    // free system memory (Mesa: usage plus 90% of MemAvailable) and runs out long before usage
+    // reaches them once guest memory and other processes take the rest: ASTRO BOT in VR on Swan
+    // stopped with 4272 MiB of an 11550 MiB heap in use and a 4277 MiB budget. A small headroom,
+    // or an allocation that had to go past the budget since the last pass, counts as pressure.
+    const u64 headroom = budget > total_used_memory ? budget - total_used_memory : 0;
+    const u64 overruns = VideoCore::VmaDiagnostics::BudgetOverruns();
+    const bool overran = !replaying && overruns != gc_budget_overruns;
+    gc_budget_overruns = overruns;
+    const bool budget_pressure = budget && headroom < BUDGET_PRESSURE_HEADROOM;
+    const bool budget_critical = overran || (budget && headroom < BUDGET_CRITICAL_HEADROOM);
+    const auto over_pressure = [&] {
+        return total_used_memory >= pressure_gc_memory || budget_pressure || budget_critical;
+    };
+    const auto over_critical = [&] {
+        return total_used_memory >= critical_gc_memory || budget_critical;
+    };
+    gc_budget_pressured = budget_pressure || budget_critical;
+    if (total_used_memory < trigger_gc_memory && !over_pressure()) {
         return;
     }
     std::scoped_lock lock{mutex};
@@ -2082,8 +2102,8 @@ void TextureCache::GarbageCollectImages() {
     size_t num_deletions = 0;
 
     const auto configure = [&](bool allow_aggressive) {
-        pressured = total_used_memory >= pressure_gc_memory;
-        aggresive = allow_aggressive && total_used_memory >= critical_gc_memory;
+        pressured = over_pressure();
+        aggresive = allow_aggressive && over_critical();
         ticks_to_destroy = aggresive ? 160 : pressured ? 80 : 16;
         ticks_to_destroy = std::min(ticks_to_destroy, gc_tick);
         num_deletions = aggresive ? 40 : pressured ? 20 : 10;
@@ -2092,10 +2112,12 @@ void TextureCache::GarbageCollectImages() {
             // Once per transition: pressure decisions evict GPU-modified images and
             // are otherwise invisible in the trace.
             LOG_INFO(Render_Vulkan,
-                     "Texture GC {}: used {} MiB (trigger {} / pressure {} / critical {} MiB, budget {})",
+                     "Texture GC {}: used {} MiB (trigger {} / pressure {} / critical {} MiB, "
+                     "budget {}, headroom {} MiB, overruns {})",
                      state == 2 ? "aggressive" : state == 1 ? "pressured" : "idle",
                      total_used_memory >> 20, trigger_gc_memory >> 20, pressure_gc_memory >> 20,
-                     critical_gc_memory >> 20, instance.CanReportMemoryUsage() ? "driver" : "default");
+                     critical_gc_memory >> 20, instance.CanReportMemoryUsage() ? "driver" : "default",
+                     budget ? static_cast<s64>(headroom >> 20) : -1, overruns);
             gc_logged_state = state;
         }
         if (pressured) coverage->gc_pressured_ticks.fetch_add(1, std::memory_order_relaxed);
@@ -2161,13 +2183,13 @@ void TextureCache::GarbageCollectImages() {
         } else {
             FreeImage(image_id);
         }
-        if (total_used_memory < critical_gc_memory) {
+        if (!over_critical()) {
             if (aggresive) {
                 num_deletions >>= 2;
                 aggresive = false;
                 return false;
             }
-            if (pressured && total_used_memory < pressure_gc_memory) {
+            if (pressured && !over_pressure()) {
                 num_deletions >>= 1;
                 pressured = false;
             }
@@ -2180,7 +2202,7 @@ void TextureCache::GarbageCollectImages() {
     lru_cache.ForEachItemBelow(gc_tick - ticks_to_destroy, clean_up);
     write_back_evicted();
 
-    if (total_used_memory >= critical_gc_memory) {
+    if (over_critical()) {
         // If we are still over the critical limit, run an aggressive GC
         configure(true);
         lru_cache.ForEachItemBelow(gc_tick - ticks_to_destroy, clean_up);
@@ -2237,7 +2259,8 @@ void TextureCache::RunGarbageCollector() {
     {
         std::scoped_lock lock{mutex};
         if (!parked_images.empty()) {
-            const bool pressured = total_used_memory >= pressure_gc_memory;
+            const bool pressured =
+                total_used_memory >= pressure_gc_memory || gc_budget_pressured;
             ReleaseParkedImages(0, 0, pressured ? 0 : ParkedImageMaxAge);
         }
     }

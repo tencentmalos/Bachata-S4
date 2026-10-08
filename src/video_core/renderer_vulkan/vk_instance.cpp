@@ -1158,7 +1158,7 @@ void Instance::CollectToolingInfo() const {
     }
 }
 
-u64 Instance::GetDeviceMemoryUsage() const {
+u64 Instance::GetDeviceMemoryUsage(u64* budget) const {
     vk::PhysicalDeviceMemoryBudgetPropertiesEXT memory_budget_props{};
     vk::PhysicalDeviceMemoryProperties2 props = {
         .pNext = &memory_budget_props,
@@ -1166,8 +1166,13 @@ u64 Instance::GetDeviceMemoryUsage() const {
     physical_device.getMemoryProperties2(&props);
 
     u64 total_usage = 0;
+    u64 total_budget = 0;
     for (const size_t heap : valid_heaps) {
         total_usage += memory_budget_props.heapUsage[heap];
+        total_budget += memory_budget_props.heapBudget[heap];
+    }
+    if (budget) {
+        *budget = total_budget;
     }
     return total_usage;
 }

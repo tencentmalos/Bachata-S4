@@ -597,8 +597,9 @@ public:
         return supports_memory_budget;
     }
 
-    /// Returns the amount of memory used.
-    [[nodiscard]] u64 GetDeviceMemoryUsage() const;
+    /// Returns the amount of memory used and, when requested, the driver's current budget for
+    /// the same heaps. The budget changes with free system memory on UMA devices.
+    [[nodiscard]] u64 GetDeviceMemoryUsage(u64* budget = nullptr) const;
 
     /// Returns the total memory budget available to the device.
     [[nodiscard]] u64 GetTotalMemoryBudget() const {
