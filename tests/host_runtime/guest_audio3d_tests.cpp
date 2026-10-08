@@ -137,6 +137,22 @@ int main() {
           u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
     write(b + 0x244, u32(2));
     CHECK(call("V1FBFpNIAzk", {port, object, 6, b + 0x244, 4}) == 0);
+    {
+        // Position, priority and the other defined attributes are stored as given
+        // (ASTRO BOT sets position every frame); undefined ids are refused.
+        CHECK(call("jO2tec4dJ2M", {port, b + 0x124}) == 0);
+        const auto placed = read(b + 0x124);
+        write(b + 0x260, std::array<float, 3>{1.0f, 0.0f, -2.0f});
+        write(b + 0x270, u32(3));
+        std::array<Attr, 3> set{{{2, 0, b + 0x260, 12}, {5, 0, b + 0x270, 4}, {3, 0, b + 0x240, 4}}};
+        write(b + 0x380, set);
+        CHECK(call("4uyHN9q4ZeU", {port, placed, 3, b + 0x380}) == 0);
+        CHECK(call("V1FBFpNIAzk", {port, placed, 12, b + 0x270, 4}) ==
+              u32(ORBIS_AUDIO3D_ERROR_NOT_SUPPORTED));
+        CHECK(call("V1FBFpNIAzk", {port, placed, 8, b + 0x270, 8192}) ==
+              u32(ORBIS_AUDIO3D_ERROR_INVALID_PARAMETER));
+        CHECK(call("1HXxo-+1qCw", {port, placed}) == 0);
+    }
     CHECK(call("1HXxo-+1qCw", {port, object}) == 0);
     CHECK(call("ZOGrxWLgQzE", {port}) == 0);
     {

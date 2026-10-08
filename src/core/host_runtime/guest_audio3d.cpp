@@ -64,6 +64,8 @@ struct Pcm {
     u32 samples, pad2;
 };
 static_assert(sizeof(Attribute) == 24 && sizeof(Pcm) == 24);
+// Upper bound on a stored (non-PCM) attribute value; the defined ones are a few floats.
+constexpr u64 MaxAttributeSize = 4096;
 } // namespace
 struct GuestAudio3d::Impl {
     GuestAddressSpace& space;
@@ -388,6 +390,13 @@ struct GuestAudio3d::Impl {
                     std::memcpy(&ear, item.blob.data(), 4);
                     Require(ear <= 2);
                 }
+            } else if (attr.id >= 2 && attr.id <= 11) {
+                // Position, spread, priority and the rest are kept as given, as on the
+                // desktop: the shared mixer reads position and spread from them.
+                Require(attr.size <= MaxAttributeSize);
+                item.blob.resize(attr.size);
+                if (attr.size)
+                    Read(attr.value, item.blob, stop);
             } else {
                 Require(false, ORBIS_AUDIO3D_ERROR_NOT_SUPPORTED);
             }

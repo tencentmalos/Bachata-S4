@@ -19,6 +19,7 @@
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_audio.h"
 #include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/audio/audioout.h"
 #include "core/libraries/audio/audioout_error.h"
 namespace Core::HostRuntime {
@@ -351,6 +352,9 @@ struct GuestAudio::Impl {
                  port->callback ? "callback queue" : "worker");
         if (type == 4)
             LOG_INFO(Lib_AudioOut, "Controller speaker {:#x} routed to host audio output", port->handle);
+        if (type == 127)
+            LOG_INFO(Lib_AudioOut, "AUX port {:#x} (television mix) is silent while a headset is ready ({})",
+                     port->handle, GuestVrSensor::Instance().HeadsetReady() ? "ready now" : "not ready now");
         try {
             if (!port->callback)
                 port->worker = std::jthread(
@@ -381,8 +385,16 @@ struct GuestAudio::Impl {
         return std::chrono::nanoseconds(1000000000ull * port.native.buffer_frames /
                                         port.native.sample_rate);
     }
+    // With a headset as the display (an OpenXR session or the virtual SBS one), the AUX port
+    // carries the mix for the television and the wearer hears the main port, as on a PS4 with
+    // PS VR. ASTRO BOT feeds AUX the same mix as main plus its surround channels; playing both
+    // doubles every sound. The port stays paced and completes its blocks, silently.
+    static bool AuxMuted(const Port& port) {
+        return port.native.type == OrbisAudioOutPort::Aux && GuestVrSensor::Instance().HeadsetReady();
+    }
     static std::array<int, 8> OutputVolume(const Port& port) {
         auto volume = port.native.volume;
+        if (AuxMuted(port)) volume.fill(0);
         if (port.native.type == OrbisAudioOutPort::PadSpk)
             for (auto& channel : volume)
                 channel = s32(s64(channel) * port.native.mixLevelPadSpk / 32768);
