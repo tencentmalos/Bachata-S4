@@ -237,6 +237,10 @@ VrTracker 对 DS4 只回 NOT_TRACKING。Swan 上给 CUSA12392 写入每游戏设
   更重的场景仍可能超过 512 KiB；彻底修复要在 Turnip 里让溢出的 pass 不依赖可见性流重画，待做。
 - **验证**（APK `ad4e852d` / host `3bc8bd07`，无任何调试属性）：日志 `Turnip TU_DEBUG=gmem_warmup (large initial VSC streams)`；
   150 s 4322 帧、稳定约 30 FPS（与原 GMEM 相同），无 KGSL 故障、XR 未停止（repro5）。只测了这个场景，关卡内未测。
+- **驱动确实收到**（APK `e8c8d0c1`，正常启动）：Turnip 在每进程首个 `vkCreateInstance` 用 `call_once` 读一次 `TU_DEBUG`（先环境变量、后
+  `debug.mesa.tu.debug` 属性）；应用内四处取驱动都经 `LoadAndroidTurnip`，进程内只加载一次，`PrepareTurnipDebugFlags` 在加载前执行。
+  设 `debug.mesa.tu.debug=startup` 让驱动打印解析结果：宿主日志 `Turnip TU_DEBUG=startup,gmem_warmup`，驱动日志
+  `TU: TU_DEBUG=0x4000000001`（bit 0 startup、bit 38 `GMEM_WARMUP`）。反例：`debug.shadps4.vsc_warmup=0` 两轮分别在 41 s、70 s 挂死。
 
 ## 显存预算：18:29 `ErrorOutOfDeviceMemory`
 
