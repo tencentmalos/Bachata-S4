@@ -194,9 +194,24 @@ VrTracker 对 DS4 只回 NOT_TRACKING。Swan 上给 CUSA12392 写入每游戏设
 - **验证**（APK `5cc5e0c2`）：repro2（20:30:39）、repro4（20:57:02）两次 GPU 故障后，宿主日志
   `OpenXR stopped: Vulkan device lost (GPU fault or hang); XR frames stopped`，Pico runtime 只报 `Could not submit to queue: -4`，
   无新 tombstone，进程存活。
-- **剩余**：XR 模式下 flip 只能经 XR 完成，XR 停止后游戏停在最后一帧。现场：渲染线程 Guest-21 持有主线程要的 app 锁，
-  在 `0x100cc47f0` 里 `while (frame_id − 已完成 flip 数 > 2) cond_wait`，已完成 flip 停在 804；GPU 线程全部空闲。会话不会报错退出，
-  需要时可在 XR 停止时让会话以错误结束。这就是之前记录的“908 帧后 Guest-1 卡在 `shadSyncWait`”。
+- **停在最后一帧**（上面改动后的现象）：XR 模式下 flip 只能经 XR 完成，XR 停止后游戏停在最后一帧。现场：渲染线程 Guest-21 持有主线程要的 app 锁，
+  在 `0x100cc47f0` 里 `while (frame_id − 已完成 flip 数 > 2) cond_wait`，已完成 flip 停在 804；GPU 线程全部空闲，会话不报错退出。
+  这就是之前记录的“908 帧后 Guest-1 卡在 `shadSyncWait`”。
+
+### XR 停止后会话以错误结束
+
+- **改动**：
+  - `Runtime::SetFailureHandler`：XR 帧循环因异常停止时，在 XR 线程上调用一次。`GuestGraphics` 注册它，转为与 GPU 故障相同的
+    `Fail`（请求停止 GPU/VideoOut/presenter，再取消 guest），teardown 前清除。不依赖后续 flip 到达 presenter。
+  - 取消后 guest 线程会自己再出故障：ASTRO 的 `sndx_file_dequeue_0` 信号量等待返回 EINTR，随后 Guest-28 在 rip `0x1042e8bb6`
+    （eboot+0xccf07d）GuestFault。原先子线程故障优先于后端错误，结果被报成 `Faulted`。现在 GPU 故障先于任何 guest 故障时
+    （`graphics_fault_first`）报告 GPU 错误。今天另外 3 次同一 rip 的 GuestFault 可能也是会话取消引起的，未核实。
+  - `Swapchain::~Swapchain`：提交线程失败后 `DrainSubmissions` 每次都重抛，析构里抛出会 `std::terminate`（第一轮验证即此崩溃，
+    tombstone_18 `~Swapchain → ~Presenter → ~GuestGraphics::Impl`）。teardown 时改为记日志后继续释放；重建 swapchain 时仍抛出。
+- **验证**（APK `e8c8d0c1`，`debug.shadps4.vsc_warmup=0` 复现挂死）：第 70 s KGSL 故障，3 ms 后
+  `run: terminal outcome=BackendFailed detail=BackendFailure in GuestRuntime::Run: OpenXR stopped: Vulkan device lost (GPU fault or hang)`；
+  无新 tombstone，进程存活，同一 OpenXR Activity 里起了错误面板会话（72 FPS），约 14 s 后 Activity 被 Pico 系统界面暂停（当时有手柄输入）。
+  属性已清空。中间版本（无后两项）的那一轮：结果 `Faulted`，随后 teardown SIGABRT。
 
 ## GPU 挂死定位（KGSL snapshot）
 

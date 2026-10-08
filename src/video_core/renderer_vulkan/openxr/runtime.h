@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -51,6 +52,9 @@ public:
     void StartError(const Instance& instance, std::string detail);
     int ErrorAction() const;
     std::string ErrorStatus() const;
+    // Called once on the XR thread when the frame loop stops on an error (device
+    // loss, a failed XR call). The handler must not block or call into this runtime.
+    void SetFailureHandler(std::function<void(const std::string&)> handler);
     void Stop();
     // Actual allocated SBS extent, independent of the Android mirror Surface.
     VkExtent2D FrameExtent() const;

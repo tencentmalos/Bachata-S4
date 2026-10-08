@@ -82,6 +82,10 @@ struct GuestGraphics::Impl : Libraries::Kernel::SessionEqueues {
     }
     ~Impl() {
         LOG_INFO(Render, "Session graphics teardown");
+#if defined(__ANDROID__)
+        if (presenter)
+            presenter->SetXrFailureHandler({});
+#endif
         Stop();
         // Keep the VideoOut port alive until the GPU worker has retired too.
         if (video) video->Join();
@@ -116,6 +120,14 @@ GuestGraphics::GuestGraphics(std::shared_ptr<Frontend::Window> window,
     liverpool->UseOwnedSubmissions();
     presenter = std::make_unique<Vulkan::Presenter>(impl->window, liverpool.get(),
                                                    std::move(driver), std::move(splash_visible));
+#if defined(__ANDROID__)
+    // In the headset, flips complete only through the XR frame loop. If it stops
+    // (device loss after a GPU hang) the game would sit on its last frame: fail
+    // the session instead, like any other GPU fault.
+    presenter->SetXrFailureHandler([owner = impl.get()](const std::string& error) {
+        owner->Fail(std::make_exception_ptr(std::runtime_error("OpenXR stopped: " + error)));
+    });
+#endif
     impl->video = std::make_unique<Libraries::VideoOut::VideoOutDriver>(
         EmulatorSettings.GetInternalScreenWidth(), EmulatorSettings.GetInternalScreenHeight(),
         std::move(process_time), std::move(tsc), reinterpret_cast<u64*>(guest_labels),

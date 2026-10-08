@@ -520,7 +520,14 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 [this] { return clock.ticks.GetTimeUS(clock.origin); },
                 [this] { return clock.ReadTsc(); },
                 [this] { return platform && platform->SplashVisible(); }, video_labels,
-                [this] { (void)Cancel(); });
+                [this] {
+                    {
+                        std::lock_guard lock(threads_mutex);
+                        if (!child_fault && !child_error)
+                            graphics_fault_first = true;
+                    }
+                    (void)Cancel();
+                });
             std::scoped_lock lock(graphics_mutex);
             if (cancelling)
                 created->RequestStop();
@@ -627,6 +634,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 next_event_flag{1};
     std::optional<GuestCallResult> child_fault;
     std::optional<Error> child_error;
+    // A GPU fault came before any guest one. The faults guest threads take while
+    // the cancel unwinds them are its consequence, so the GPU error is reported.
+    bool graphics_fault_first{};
     std::atomic_flag fault_logged = ATOMIC_FLAG_INIT;
     bool prepared{}, has_system_libc{};
     std::vector<u32> init_order;
@@ -1566,6 +1576,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     }
     std::optional<Result<GuestCallResult>> ChildFailure() {
         std::lock_guard lock(threads_mutex);
+        if (graphics_fault_first) return {};
         if (child_error) return Result<GuestCallResult>(*child_error);
         if (child_fault) return Result<GuestCallResult>(*child_fault);
         return {};

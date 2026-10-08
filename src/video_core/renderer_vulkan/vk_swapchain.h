@@ -131,8 +131,9 @@ private:
     /// desktop, which never loses its surface.
     void RebuildSurface();
 
-    /// Destroys current swapchain resources
-    void Destroy();
+    /// Destroys current swapchain resources. On teardown a failed submission
+    /// worker (device loss) is logged instead of rethrown.
+    void Destroy(bool teardown = false);
 
     /// Performs creation of image views and framebuffers from the swapchain images
     void SetupImages();

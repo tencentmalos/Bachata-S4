@@ -278,6 +278,10 @@ struct Runtime::Impl {
     std::atomic_uint64_t ui_frames{};
     std::mutex failure_mutex;
     std::string failure;
+    // Called on the XR thread when the frame loop stops on an error. Held while
+    // it runs, so clearing it waits out a call in progress.
+    std::mutex failure_handler_mutex;
+    std::function<void(const std::string&)> failure_handler;
     bool error_left{}, error_right{}, error_up{}, error_down{}, error_accept{}, error_cancel{};
     Sensor::HardwareFrame error_input{};
     bool presence_extension{}, user_present{};
@@ -1212,6 +1216,9 @@ struct Runtime::Impl {
             failed = true;
             LOG_ERROR(Render_Vulkan, "OpenXR stopped: {}", e.what());
             __android_log_print(ANDROID_LOG_ERROR, "ShadOpenXR", "OpenXR stopped: %s", e.what());
+            std::scoped_lock lock(failure_handler_mutex);
+            if (failure_handler)
+                failure_handler(e.what());
         }
         ReleaseInput();
     }
@@ -1408,6 +1415,10 @@ std::string Runtime::ErrorStatus() const {
     std::scoped_lock lock(impl->failure_mutex);
     return "XR error panel: frames=" + std::to_string(impl->ui_frames.load()) +
            " failed=" + std::to_string(impl->failed.load()) + " detail=" + impl->failure;
+}
+void Runtime::SetFailureHandler(std::function<void(const std::string&)> handler) {
+    std::scoped_lock lock(impl->failure_handler_mutex);
+    impl->failure_handler = std::move(handler);
 }
 std::string Runtime::GazeStatus() const {
     std::scoped_lock lock(impl->gaze_mutex);

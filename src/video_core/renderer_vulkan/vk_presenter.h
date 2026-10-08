@@ -89,6 +89,12 @@ public:
         free_cv.notify_all();
     }
 
+#if defined(__ANDROID__)
+    // Called on the XR thread if the headset frame loop stops on an error; an
+    // empty handler clears it and waits out a call in progress.
+    void SetXrFailureHandler(std::function<void(const std::string&)> handler);
+#endif
+
     const auto& Diagnostics() const { return instance.Diagnostics(); }
     void CheckSubmissionHealth() const { instance.CheckSubmissionHealth(); }
     void DrainSubmissions() const { instance.DrainSubmissions(); }

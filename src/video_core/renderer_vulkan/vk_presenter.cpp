@@ -1605,6 +1605,13 @@ bool Presenter::WantsIdleRedraw() const {
     return CurrentOutput() == Output::Window;
 }
 
+#if defined(__ANDROID__)
+void Presenter::SetXrFailureHandler(std::function<void(const std::string&)> handler) {
+    if (instance.Xr())
+        instance.Xr()->SetFailureHandler(std::move(handler));
+}
+#endif
+
 void Presenter::UpdateOverlayLayers() {
 #if defined(__ANDROID__)
     if (instance.Xr())

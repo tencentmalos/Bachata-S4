@@ -44,7 +44,7 @@ Swapchain::Swapchain(const Instance& instance_, const Frontend::Window& window_)
 }
 
 Swapchain::~Swapchain() {
-    Destroy();
+    Destroy(true);
     instance.GetInstance().destroySurfaceKHR(surface);
 }
 
@@ -374,11 +374,19 @@ void Swapchain::SetSurfaceProperties() {
     }
 }
 
-void Swapchain::Destroy() {
+void Swapchain::Destroy(bool teardown) {
     vk::Device device = instance.GetDevice();
     // vkDeviceWaitIdle requires external synchronization of every device queue.
     const auto wait_result = [&] {
-        instance.DrainSubmissions();
+        try {
+            instance.DrainSubmissions();
+        } catch (const std::exception& e) {
+            // A failed worker rethrows its error from every drain. The owner has
+            // already failed on it; teardown must still release the swapchain.
+            if (!teardown)
+                throw;
+            LOG_ERROR(Render_Vulkan, "Swapchain teardown: {}", e.what());
+        }
         std::scoped_lock lock{instance.QueueMutex()};
         return device.waitIdle();
     }();
