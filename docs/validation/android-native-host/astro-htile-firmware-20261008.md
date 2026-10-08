@@ -136,6 +136,115 @@ VrTracker 对 DS4 只回 NOT_TRACKING。Swan 上给 CUSA12392 写入每游戏设
   `0xfffffffe00980424`，返回链 eboot+0xccf07d / +0xccf5f9 / +0xebc31c。同一 rip 和 rdx 今天还出现过两次：
   16:14（第 541 s，旧 8× 包）、16:35（第 836 s）。这是已有的间歇性故障，未定位。
 
+## 音频杂音
+
+- **现象**：用户反馈 ASTRO 有很重的杂音。日志 17:52:42–17:54:00（进入新关卡加载、约 30 FPS）Oboe `starved`
+  每秒涨 6–8 万帧（设备每秒 4.8 万帧）。四个端口在同一次多端口调用里提交，欠载时 MAIN/AUX 一起断，听感为持续噼啪。
+  之后场景下欠载为 0，所以只能在这段时间听到。
+- **guest 数据是干净的**：`audio_capture` 10 s 四个端口：无 NaN/Inf、无超过 1.0 的值；能量集中在 200–1000 Hz，
+  频谱平坦度约 0，块边界无跳变；四个端口每 5.23 ms 一起到达，最大间隔 7 ms。
+- **根因（CPU）**：音频线程 Guest-13 平静场景下约 433 ms/s，simpleperf 显示约 35% 耗在
+  `GuestAudio3d::SetAttributes` 抛出的 C++ 异常展开上（`__cxa_throw` → `dl_iterate_phdr` → `findUnwindSectionsByPhdr`）。
+  ASTRO 每个音频帧对 8 个 Audio3d 对象调用 `sceAudio3dObjectSetAttributes`，带 POSITION 等属性。Android 实现只认
+  PCM/GAIN/PASSTHROUGH/RESET，其余返回 `NOT_SUPPORTED`（`0x80ea0008`），对象 PCM 也一并丢弃。重场景下线程预算不够，交不上块。
+- **修复**：属性 2–11 与桌面一致按原样保存为对象的持久属性（共用的 `audio3d_mixer` 读 POSITION/SPREAD），上限 4096 字节，
+  未定义的 ID 仍为 `NOT_SUPPORTED`。修复后 Guest-13 约 99 ms/s，linker64/异常展开消失（启动后不同时刻，场景不完全相同）；
+  Audio3d 报错 0；启动后 2 分钟欠载不再增长。ASTRO 在这段时间只设置对象属性、不推 Audio3d 输出（`audio3d_spatial` 仍为 2 块）。
+- **AUX 端口**：MAIN 端口恰好等于 0.894 × type 127（AUX）端口（零延迟、残差 0），AUX 另带后置与 LFE。PS VR 下 AUX
+  是电视/社交屏混音，戴头显的人听 MAIN；原来两路都混进输出，声音双份。现在 `GuestVrSensor::HeadsetReady()`
+  为真时 AUX 端口音量为 0，仍照常排队、完成，节拍不变（同 AstroQuest）。日志
+  `AUX port … (television mix) is silent while a headset is ready (ready now)`。
+- **单测**：Swan 上 `guest_audio3d_tests` 5111/0（新增：POSITION/PRIORITY 被接受、ID 12 拒绝、8192 字节拒绝），`guest_audio_tests` 179/0。
+  APK `5081b8f1` / host `21c7b05a`。实际听感待用户确认。
+- **另记（与音频无关）**：见下一节“`xrEndFrame` 内崩溃”。
+
+## `xrEndFrame` 内崩溃：GPU 挂死后 Pico runtime 层数组越界
+
+- **现象**：Swan 上 ASTRO 6 次进程崩溃在 `xrEndFrame`（`runtime.cpp:1188`）内 Pico `libpxrruntime.so` 的 memmove
+  （SEGV_ACCERR，故障地址多为 `0x703d9ff000`）：16:36、17:15、17:44、17:45、18:14、19:38，多在启动后 30–40 s。
+  17:44/17:45 两次是 MSAA 三档验证中的 Game/2× 轮（当时 flips 读数为空即因此）。
+- **符号**：spatial debug tool `version.query_lib_by_build_id`（BuildId `d1465576…`）在 PDM 无记录，Slardar 有符号；
+  `crash.analyze_tombstone` / `crash.unwind_crash_text` 下载到 `libpxrruntime.so`（69 MB，带 DWARF）后卡在解栈步骤 30 分钟未返回，
+  改用 llvm-symbolizer 直接解。栈：`oxr_xrEndFrame` → `oxr_session_frame_end`（`oxr_session_frame_end.c:5088`）→
+  `submit_quad_layer` → `client_vk_compositor_layer_quad` → `ipc_compositor_layer_quad` → `handle_layer`（`ipc_client_compositor.c:2261`）。
+- **runtime 缺陷**（反汇编确认，Pico 基于 Monado）：
+  - `xrt_comp_native_layer_quad_client` 把层写到 `icc + slot_id×0x6020 + layer_count×0x600`，每个 slot 16 层、共 3 个 slot，无边界检查。
+    崩溃时 x23−x19 = 0x12040 = 2×0x6020 + 16×0x600，即 slot 2 写第 17 层，越过分配末尾；slot 0/1 越界只会踩坏下一个 slot。
+  - `layer_count` 只在原生 commit（`xrt_comp_native_layer_commit_client`）末尾清零，`layer_begin` 不清。
+  - `layer_commit_impl_vk`（`comp_vk_client.c`）先 `vkCreateFence`，再用 `vk_locked_submit` 往应用的队列提交一个空 submit，
+    任一失败都返回 -9，且不调用原生 commit；`oxr_session_frame_end` 只检查 -1，`xrEndFrame` 仍返回成功。
+    于是每帧加的层持续累积，约 4 帧后越界。
+- **触发条件（19:38 复现，全程录 logcat）**：
+  - 19:38:26 KGSL `MISC: GPU hang detected`，`shadps4.android` ctx 48 ts 5474，902 MHz；
+    BR IB1 `0x41922B7000`/0x1a71，IB2 `0x423D017100` 已取完；生成 snapshot。
+  - 19:38:27.443 起 runtime 每帧 `Could not submit to queue: -4`（`VK_ERROR_DEVICE_LOST`）+ `vk_locked_submit Failed!!!!!`。
+    宿主日志里同时出现 Turnip `submit failed: Protocol error (VK_ERROR_DEVICE_LOST)`（XR 线程）。
+  - 19:38:27.829 崩溃。
+  - 17:15/17:44/17:45/18:14/19:38 的崩溃各有一份同时间的 KGSL snapshot（`/data/vendor/gpu_snapshot/kgsl-*-devcd2..6.bin`），
+    已拉到 `build/validation/astro-swan-20261008/gpu-snapshots/`，分析见“GPU 挂死定位”。
+- **结论**：根因是 ASTRO 的 GPU 命令挂死，进程崩溃是 runtime 在设备丢失后的二次故障。设备丢失后会话本来也无法继续；
+  XR 线程现在在每次 `xrEndFrame` 前检查设备是否丢失（见下一节）。
+- **另一种崩溃（18:29）**：`UniqueBuffer::Create` 断言，分配 16 MiB HostUncached 缓冲时 `ErrorOutOfDeviceMemory`，
+  当时 heap usage 4272 MiB、budget 4277 MiB（budget 随系统内存下降，本次启动初期为 6272 MiB）。
+
+## 设备丢失后停止 XR 帧
+
+- **改动**（`openxr/runtime.cpp` `CheckDeviceAlive`）：每次 `xrEndFrame` 前查询 XR 拷贝用的 fence；Mesa 在任一提交发现设备丢失后，
+  fence 状态查询立即返回 `VK_ERROR_DEVICE_LOST`。丢失则抛出，由 `Run` 的 catch 记下原因并结束 XR 循环，不再进 runtime。
+- **验证**（APK `5cc5e0c2`）：repro2（20:30:39）、repro4（20:57:02）两次 GPU 故障后，宿主日志
+  `OpenXR stopped: Vulkan device lost (GPU fault or hang); XR frames stopped`，Pico runtime 只报 `Could not submit to queue: -4`，
+  无新 tombstone，进程存活。
+- **剩余**：XR 模式下 flip 只能经 XR 完成，XR 停止后游戏停在最后一帧。现场：渲染线程 Guest-21 持有主线程要的 app 锁，
+  在 `0x100cc47f0` 里 `while (frame_id − 已完成 flip 数 > 2) cond_wait`，已完成 flip 停在 804；GPU 线程全部空闲。会话不会报错退出，
+  需要时可在 XR 停止时让会话以错误结束。这就是之前记录的“908 帧后 Guest-1 卡在 `shadSyncWait`”。
+
+## GPU 挂死定位（KGSL snapshot）
+
+- **快照**：16:19、16:36（MSAA 改动前，8×）、19:38、20:30（4×）四份解析，20:57 第五份（devcd8）KGSL 状态相同。
+  - 都是同一个 pass：1440×1536，RGBA16F 颜色 + D32F 深度 + S8 模板。GMEM 模式下每个 bin 先 LOAD 三个附件，8× 时 16 个 bin，4× 时 9 个 bin。
+  - BR 的 IB2（64 dword 的每 bin store IB）已取完，IB1 停在第 4–5 个 bin；BV 已越过最后一个 bin。
+  - RBBM_STATUS `0x00FE0107` = CP 忙 + **PC_BUSY** + slice 忙，SP/HLSQ/UCHE/VPC 空闲。
+  - 12 个 SP 的 L0 指令缓存行都含 `end`，没有波停在循环里，不是着色器死循环。
+- **对照**（Swan，同一场景，默认约 33 s 挂死）：
+
+  | 设置 | 结果 |
+  |---|---|
+  | 默认 GMEM | 3/3 挂死（repro1/2/4） |
+  | `TU_DEBUG=sysmem` | 150 s 无故障，约 29 FPS |
+  | `nolrz` | 仍挂死 |
+  | `nobin`（GMEM，不用可见性流） | 81 s 无故障 |
+  | `gmem_warmup`（初始 VSC 流加大） | 91 s 无故障 |
+
+- **根因**：快照里该 pass 的 VSC 流仍是 Turnip 初始大小（`VSC_PIPE_DATA_PRIM_LENGTH 0x4000`、`DRAW_LENGTH 0x1000`，每 pipe 16/4 KiB）。
+  Turnip 检测到溢出后只给之后录制的命令缓冲翻倍；A8xx 上发生溢出的那个 pass 本身就让 PC 卡在被截断的流上。
+- **修复**（`vk_driver_android.cpp`）：加载 Turnip 前把 `gmem_warmup` 并入 `TU_DEBUG`（保留 `debug.mesa.tu.debug` 原有值），
+  初始流为每 pipe 512/16 KiB，32 个 pipe 共约 16.5 MiB；`debug.shadps4.vsc_warmup=0` 关闭。
+  更重的场景仍可能超过 512 KiB；彻底修复要在 Turnip 里让溢出的 pass 不依赖可见性流重画，待做。
+- **验证**（APK `ad4e852d` / host `3bc8bd07`，无任何调试属性）：日志 `Turnip TU_DEBUG=gmem_warmup (large initial VSC streams)`；
+  150 s 4322 帧、稳定约 30 FPS（与原 GMEM 相同），无 KGSL 故障、XR 未停止（repro5）。只测了这个场景，关卡内未测。
+
+## 显存预算：18:29 `ErrorOutOfDeviceMemory`
+
+- **失败的不是驱动**：缓冲与图像都带 `VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT`，VMA 在用量 + 请求超过驱动预算时直接拒绝，随后断言。
+  Turnip 的预算 = 用量 + 0.9 × `/proc/meminfo` MemAvailable，18:29 时余量只有 5 MiB。
+  Android 的 MemAvailable 不含 zram（Swan 交换区 20 GB、约 18.9 GB 空闲）和 lmkd 可回收的后台进程。
+- **用量构成**（sysmem，标题画面）：驱动用量 2458 MB / 预算 6191 MB。
+  - VMA 1262 MB，其中 XR 呈现帧 `image/present` 8 张 × 50 MB（5184×2400，池大小按 Android 窗口 swapchain 张数 +1）。
+  - 非 VMA 约 1.2 GB（Turnip 内部、导入的 XR swapchain 144 MB 等）。
+  - 18:29 时非 VMA 同样约 1.2 GB，增长的是 VMA（1.26 → 3.07 GB，关卡资源）；guest 内存（Shmem 4–5 GB）同时增长，二者把 MemAvailable 挤到接近 0。
+- **纹理 GC 原先不会加压**：Android 上 GC 预算取整个 heap（11550 MiB），算出 pressure 6634 / critical 9911 MiB，实际耗尽前永远到不了。
+  所以 GPU 写过的 render target、暂存图像从不会在压力下回收（未用过 16 帧的普通贴图本来就会回收）。
+- **修复**：
+  - `vma_diagnostics.cpp`：VMA 因预算拒绝时记一次超预算，去掉 `WITHIN_BUDGET` 重试一次，由驱动/内核决定。驱动也失败才走原断言。
+    日志 `VMA budget reached (…): heap N usage=… budget=…; allocating past it (overrun N)`，前 16 次与 2 的幂次打印。
+  - `texture_cache.cpp`：GC 同时按驱动实时预算余量判断：余量 < 1 GiB 为 pressured，< 512 MiB 或上一轮后发生过超预算分配为 aggressive；
+    清理中的降级与第二轮也用这套条件，暂存图像同样跟随。状态切换日志加 `headroom`、`overruns`。
+  - 未改：XR 呈现帧池（可省约 200 MB）、非 VMA 的 1.2 GB 尚未细分。
+- **验证**（同上 APK）：游戏运行中用 root 在 tmpfs 写入 2.5 GB，把 MemAvailable 从 2.84 GB 压到约 1.09 GB，
+  日志 `Texture GC pressured: used 2237 MiB (… headroom 1023 MiB, overruns 0)`，游戏照常约 31 FPS；
+  释放后 `Texture GC idle (… headroom 1041 MiB)`。aggressive 档与“超预算重试”分支未在设备上触发（需把可用内存压到 0.5 GB 以下，
+  有触发系统查杀的风险，未做）；tmpfs 已卸载删除。
+
 ## 右手柄 DS4 偏高
 
 用户反馈右手柄模拟的 DS4 比实际位置偏上。Swan grip 的 −Z 近乎朝上（`xr_tracking status`：沿 −Z 75 mm 的点 Y 高 6.8 cm），
