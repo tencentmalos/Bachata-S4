@@ -433,6 +433,16 @@ struct Runtime::Impl {
         CheckVk(VKF(ResetFences)(vk->GetDevice(), 1, &c.fence), "XR reset fence");
         c.pending = false;
     }
+    // A GPU fault or hang lost the device. Stop before the next xrEndFrame: on a lost device the
+    // Pico runtime's commit fails to submit, skips the commit that resets its per-frame layer
+    // count and still reports success, so each frame's layers pile up until they overrun its
+    // 16-layer slot and crash the process (handle_layer in its IPC client compositor).
+    // Mesa answers a fence status query with DEVICE_LOST as soon as any submit saw the loss.
+    void CheckDeviceAlive() {
+        if (consumer.fence &&
+            VKF(GetFenceStatus)(vk->GetDevice(), consumer.fence) == VK_ERROR_DEVICE_LOST)
+            throw std::runtime_error("Vulkan device lost (GPU fault or hang); XR frames stopped");
+    }
     void BeginCopy(CopyContext& c) {
         Settle(c);
         CheckVk(VKF(ResetCommandPool)(vk->GetDevice(), c.pool, 0), "XR reset pool");
@@ -1185,6 +1195,7 @@ struct Runtime::Impl {
                     layers[end.layerCount++] = reinterpret_cast<const XrCompositionLayerBaseHeader*>(&layers_quad);
                     end.layers = layers.data();
                 }
+                CheckDeviceAlive();
                 CheckXr(QueueCall(EndFrame, session, &end), "xrEndFrame");
                 status_panel_lock.unlock();
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)

@@ -8,10 +8,13 @@
 #include <mutex>
 #include <stdexcept>
 #include <vector>
+#include <cstdlib>
 #include <dlfcn.h>
+#include <sys/system_properties.h>
 #include <adrenotools/driver.h>
 #include <fmt/format.h>
 #include <openssl/sha.h>
+#include "common/logging/log.h"
 
 namespace Vulkan {
 namespace {
@@ -51,6 +54,32 @@ std::string VerifyFile(const std::string& path) {
     if (hex != DriverSha && hex != MainlineDriverSha)
         throw std::runtime_error("Pinned bionic Turnip SHA256 mismatch");
     return hex;
+}
+
+// Turnip sizes the binning pass's visibility streams (VSC) at 16 KiB of primitive and 4 KiB of
+// draw data per pipe and grows them only for command buffers recorded after it saw an overflow.
+// On A8xx the overflowing pass itself hangs the GPU: the PC stalls on the truncated stream.
+// ASTRO BOT's 1440x1536 MSAA scene pass did so about 33 s into Swan sessions (KGSL "Fault id:2",
+// BR stopped mid-bin with PC busy, all four snapshots still at the initial sizes); TU_DEBUG
+// nobin, sysmem and gmem_warmup each avoided it. gmem_warmup starts the streams at 512 KiB and
+// 16 KiB per pipe. Turnip reads TU_DEBUG from the environment before debug.mesa.tu.debug, so the
+// flag joins whatever that property holds; debug.shadps4.vsc_warmup=0 leaves TU_DEBUG alone.
+void PrepareTurnipDebugFlags() {
+    char value[PROP_VALUE_MAX]{};
+    if (__system_property_get("debug.shadps4.vsc_warmup", value) > 0 && value[0] == '0')
+        return;
+    std::string flags;
+    if (const char* env = std::getenv("TU_DEBUG"))
+        flags = env;
+    else if (__system_property_get("debug.mesa.tu.debug", value) > 0)
+        flags = value;
+    if (flags.find("gmem_warmup") != std::string::npos)
+        return;
+    if (!flags.empty())
+        flags += ',';
+    flags += "gmem_warmup";
+    setenv("TU_DEBUG", flags.c_str(), 1);
+    LOG_INFO(Render_Vulkan, "Turnip TU_DEBUG={} (large initial VSC streams)", flags);
 }
 
 template <typename T>
@@ -135,6 +164,7 @@ DriverLease LoadAndroidTurnip(const std::string& hook_directory, const std::stri
     attempted = true;
     selected = key;
     try {
+        PrepareTurnipDebugFlags();
         void* handle = adrenotools_open_libvulkan(RTLD_NOW, ADRENOTOOLS_DRIVER_CUSTOM, nullptr,
             hooks.c_str(), files.c_str(), DriverFile, nullptr, nullptr);
         if (!handle) throw std::runtime_error("adrenotools could not load pinned bionic Turnip");
