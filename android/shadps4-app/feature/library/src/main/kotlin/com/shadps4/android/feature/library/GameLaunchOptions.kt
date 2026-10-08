@@ -54,6 +54,9 @@ data class GameLaunchOptions(
             add(if (xr) InternalScale.XR_ID else InternalScale.ID)
             if (xr) addAll(listOf(XrRendering.UPSCALER, XrRendering.OUTPUT, XrRendering.FOVEATION, XrRendering.STATUS))
             else add(XrRendering.SCREEN_UPSCALER)
+            // Only an XR session places the DualShock 4 (light-bar tracking titles stop at
+            // their controller check without it).
+            if (psvr && xr) add(XrDs4Pose.ID)
         }
         val catalog = RuntimeSettingCatalog.loadAndroidSettings().associateBy { it.id }
         return ids.map { catalog.getValue(it) }

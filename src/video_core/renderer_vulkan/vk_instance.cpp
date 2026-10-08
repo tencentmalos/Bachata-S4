@@ -6,7 +6,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/emulator_settings.h"
+#include <bit>
 #include <sstream>
+#include <string_view>
 #include <boost/container/static_vector.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -267,6 +269,23 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
     format_properties = GetFormatProperties(physical_device);
     properties = physical_device.getProperties();
     memory_properties = physical_device.getMemoryProperties();
+    {
+        // Largest sample count every framebuffer attachment kind accepts (see HostSamples).
+        const auto counts = u32(properties.limits.framebufferColorSampleCounts &
+                                properties.limits.framebufferDepthSampleCounts &
+                                properties.limits.framebufferStencilSampleCounts);
+        const char* env = std::getenv("SHADPS4_MSAA_PER_FORMAT");
+        bool per_format = env && std::string_view(env) == "1";
+#ifdef __ANDROID__
+        char prop[PROP_VALUE_MAX]{};
+        __system_property_get("debug.shadps4.msaa_per_format", prop);
+        per_format |= std::string_view(prop) == "1";
+#endif
+        if (!per_format && counts != 0)
+            max_host_samples = 1u << (std::bit_width(counts) - 1);
+        LOG_INFO(Render_Vulkan, "MSAA: framebuffer sample counts {:#x}, host samples at most {}{}",
+                 counts, max_host_samples, per_format ? " (per-format override)" : "");
+    }
     CollectDeviceParameters();
     ASSERT_MSG(properties.apiVersion >= TargetVulkanApiVersion,
                "Vulkan {}.{} is required, but only {}.{} is supported by device!",

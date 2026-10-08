@@ -66,6 +66,60 @@ VrTracker 对 DS4 只回 NOT_TRACKING。Swan 上给 CUSA12392 写入每游戏设
 （`files/settings/games/CUSA12392.json`，设备配置，不在仓库），重启后日志 `XR DualShock 4 pose source=2`，
 游戏随即注册 DS4 并调用 `sceVrTrackerRecalibrate`。当时头显未佩戴、手柄 confidence 0，确认页能否通过待佩戴验证。
 
+## 确认页仍卡住：玩家位置相对摄像头为 0
+
+开 DS4 模拟后游戏进入就坐校准页（“请调整你的位置，与阴影部分大致贴合即可。带有红色光条的控制器也需要保持在摄像头的可视范围内。”），
+两只 Swan 手柄 grip 均有效，但仍不能通过。VrTracker 直接给出 OpenXR LOCAL 坐标，头约在 (0.02, −0.05, 0.08)，
+即在游戏看来玩家坐在 PS 摄像头上。PSVR 追踪空间以摄像头为原点；AstroQuest 把头相对座位的位置加上
+`origin_offset {0, 0, 1.5}` 再报给游戏（`vr_runtime.h:126`），DS4 标准位置为头 + (0, −0.17, −0.5)。
+
+修改：
+- `sceVrTrackerGetResult` 的 OpenXR 分支对 HMD、眼、Move、DS4 的位置统一加 z +1.5 m（两空间都面向摄像头 −Z，不需旋转）。
+  宿主自身的投影位姿（`RecordHmdQuery` 记录的 LOCAL 眼位）不受影响。
+- DebugBus `xr_tracking seat on|off`（默认 on），`xr_tracking status` 输出 `seat_offset` 与 `ds4_source`，便于和 Beat Saber 对照。
+- Launch 面板：PSVR 游戏在 XR 模式下增加 “XR DualShock 4 Position” 行（Off / Right Controller / Both Controllers /
+  Hand Tracking），保存为每游戏设置；`GameLaunchOptionsTest` 8/0（新增 1 例）。
+- 按用户要求 Swan 上 CUSA12392 改为 `right`（右手柄模拟 DS4）。
+
+## 帧率：Litep 抓取（Swan，APK `d8a1d28a`）
+
+- **MSAA 开（默认）**：校准页 10 s PROF，240 个游戏帧（约 24 FPS），另一视角 15.5 flips/s；GPU 98–99% busy、频率 902 MHz（最高）。
+  GpuDone 每帧等 GPU 约 40.6 ms，GpuComm `PM4.Resume` 仅 16.4 ms/帧，属 GPU 受限。
+- **pass_log（约 3 帧、120 个 pass）**：
+  - 1440×1536 的 4× MSAA RGBA16F + D32S8 眼图 pass 约 8 ms/帧（单个 2.3–4.2 ms）；
+  - 两个无 draw、只 clear、以 image_copy 结束的 pass 每帧 2–6.6 ms；
+  - 一个单 draw 全屏 RGBA16F pass 约 4 ms/帧；
+  - 宿主 XR 合成 `GPU.HostPrepare` 约 6.4 ms/帧（每眼 2592×2400 + FSR1）。
+  - MSAA 图像被标为 semantic-native，不随 render scale 缩放。
+- **MSAA 关（每游戏 `gpu.force_disable_msaa=true`，重启）**：标题画面 8 s PROF 正好 30.0 FPS（帧长 33.3–34.4 ms），
+  GPU 68% busy、频率降到 726 MHz，GpuComm 3.7 ms/帧。每帧 GPU 工作约 18 ms（按 902 MHz 折算）仍超过 16.7 ms，错过隔帧 vsync 落到 30。
+  场景不同（标题 vs 校准/天空），非严格 A/B，但 GPU 由满载变为不满载。AstroQuest 在 Quest 上同样以 msaa=1 运行 ASTRO。
+- **下一步候选**：XR 输出/超分开销（HostPrepare）、MSAA 关闭后重新排 pass 耗时、上述 clear pass 与全屏 pass。
+
+## MSAA 慢的原因与修复
+
+- **原因**：ASTRO 用 4 颜色 / 8 深度采样（PS4 EQAA；颜色 `NumSamples()` 取 fragments=4，深度 8）。Turnip 不支持
+  颜色/深度采样数不同（无 mixed samples），管线键把颜色升到深度的 8×（`vk_pipeline_cache.cpp` “Force all color
+  samples to match depth samples”）。同一颜色目标在带深度的 pass 要 8×、在只有颜色的 pass 要 4×，
+  `Image::SetBackingSamples` 每次都换 backing 并用全屏 MSAA blit 拷贝（pass_log 中无 draw 的 2–6.6 ms pass）。
+  8× RGBA16F + 8× D32S8 在 1440×1536 上本身也很重；且 Turnip 声明的 `framebufferColor/Depth/StencilSampleCounts`
+  只有 1|2|4。
+- **修复**：`Instance::HostSamples` 把客体采样数夹到设备声明的 framebuffer 颜色/深度/模板采样数上限（Turnip 为 4）。
+  ASTRO 变成 4/4，不再升格与来回拷贝，深度采样减半；着色器读 MS 纹理已按实际采样数取模，无需改。宿主
+  `ms_image_blit.frag` 读源采样时夹到源采样数以内（4×→8× 时原为未定义读）。`SHADPS4_MSAA_PER_FORMAT=1` /
+  `debug.shadps4.msaa_per_format=1` 恢复旧的按格式 8×。Beat Saber 的 8× 也随之变为 4×（此前按格式保留 8×）。
+- **Swan 同场景 A/B（标题画面，MSAA 开，APK `169b51f1` / host `7e2fcad5`）**：
+  - 旧 8×（`msaa_per_format=1`）：17.2 flips/s，GPU 99%、902 MHz；
+  - 新 4× 上限：30.3 flips/s，GPU 77%、826 MHz，画面正常；日志 `framebuffer sample counts 0x7, host samples at most 4`。
+  - pass_log（120 个 pass）：4× 合计 35 ms，无 draw 的清除 pass 10 个共 5.25 ms（8× 时同类 pass 每个 2–6.6 ms，3 帧共 24.6 ms）。
+  - 仍停在 30：GuestCommands 约 7.4 ms/批（每帧 2 批）+ HostPrepare 约 6.4 ms/帧。校准页与关卡未测；调试属性已恢复为 0。
+
+## 右手柄 DS4 偏高
+
+用户反馈右手柄模拟的 DS4 比实际位置偏上。Swan grip 的 −Z 近乎朝上（`xr_tracking status`：沿 −Z 75 mm 的点 Y 高 6.8 cm），
+原偏移 (−0.08, 0, −0.02) 还额外把 DS4 往上抬约 2 cm，且 Swan grip 原点位置未经实物标定。新增 DebugBus
+`xr_tracking ds4_offset X Y Z`（grip 局部坐标，米，进程内有效）用于佩戴时实时调整，确定后再改默认值。
+
 ## 提交
 
 主仓改动（子仓引用、锁文件、打包脚本、Gradle、`FirmwareModules`、`TryHtileClear`、文档）随本记录提交并推送

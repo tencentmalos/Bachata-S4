@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <mutex>
 #include <optional>
 #include "video_core/texture_cache/scale_policy.h"
@@ -40,7 +41,17 @@ public:
 
     const auto& ScalePolicy() const { return scale_policy; }
     bool IsMsaaDisabled() const { return force_disable_msaa; }
-    u32 HostSamples(u32 guest_samples) const { return force_disable_msaa ? 1u : guest_samples; }
+    /// Host sample count for a guest MSAA target: 1 with Force Disable MSAA, else the guest count
+    /// clamped to what the device advertises for framebuffer colour and depth/stencil
+    /// attachments (Turnip: 4). A title that renders 4 colour / 8 depth samples (PS4 EQAA, ASTRO
+    /// BOT) then gets one consistent count instead of colour promoted to 8x and copied between
+    /// 4x and 8x backings every pass. SHADPS4_MSAA_PER_FORMAT=1 /
+    /// debug.shadps4.msaa_per_format=1 keeps the per-format counts (8x where the image format
+    /// allows it), as before.
+    u32 HostSamples(u32 guest_samples) const {
+        return force_disable_msaa ? 1u : std::min(guest_samples, max_host_samples);
+    }
+    u32 MaxHostSamples() const { return max_host_samples; }
     auto MemoryPolicy() const { return VideoCore::HostMemoryPolicy::For(scale_policy); }
 
     const auto& Diagnostics() const { return diagnostics; }
@@ -615,6 +626,7 @@ private:
 private:
     const VideoCore::ScalePolicySnapshot scale_policy;
     const bool force_disable_msaa;
+    u32 max_host_samples{64};
     std::unique_lock<std::mutex> dispatcher_lease;
     std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     DriverLease driver; // Destroyed after every Vulkan child and the instance.

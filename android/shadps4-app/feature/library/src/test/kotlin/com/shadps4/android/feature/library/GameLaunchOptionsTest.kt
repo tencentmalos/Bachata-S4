@@ -25,6 +25,18 @@ class GameLaunchOptionsTest {
             values = mapOf(DisplayMode.ID to JsonPrimitive("xr"))))
         assertTrue(cinema.specs().any { it.id == XrRendering.STATUS })
     }
+    @Test fun psvrXrOffersDualShock4PlacementAndSavesItPerGame() {
+        val options = GameLaunchOptions("psvr", loaded = true, psvr = true)
+        val spec = options.specs().single { it.id == XrDs4Pose.ID }
+        assertEquals("off", options.value(spec))
+        assertEquals(listOf("off", "right", "both", "hands"), spec.choices)
+        val saved = options.select(spec, "right").applyTo(RuntimeProfile())
+        assertEquals(XrDs4Pose.RIGHT, XrDs4Pose.resolve(RuntimeProfile(), saved))
+        val cinema = GameLaunchOptions("cinema", loaded = true, game = RuntimeProfile(
+            values = mapOf(DisplayMode.ID to JsonPrimitive("xr"))))
+        assertFalse(cinema.specs().any { it.id == XrDs4Pose.ID })
+        assertFalse(GameLaunchOptions("2d", loaded = true).specs().any { it.id == XrDs4Pose.ID })
+    }
     @Test fun outputLabelsUseQueriedPerEyeSizesAndDoNotInventMissingValues() {
         val options = GameLaunchOptions("psvr", loaded = true, psvr = true,
             outputExtents = listOf(2592 to 2400, 3376 to 2976, 4160 to 3552))

@@ -30,11 +30,25 @@ enum class Ds4PoseSource : std::uint8_t { Off = 0, Right = 1, Both = 2, Hands = 
 // the VrTracker library, in the host library the JNI side calls into.
 void SetDs4PoseSource(Ds4PoseSource source);
 Ds4PoseSource GetDs4PoseSource();
+// The PS camera is the origin of tracker space and a seated player is about 1.5 m in front
+// of it (AQ:core/vr/vr_runtime.h:126 origin_offset). OpenXR LOCAL has its origin at the
+// player's head instead. Titles that check the player's place in front of the camera
+// (ASTRO BOT's seat calibration) refuse a head at the camera, so VrTracker results are
+// moved by this offset. Both spaces face the camera along -Z, so no rotation is involved.
+// The host keeps its own LOCAL poses for presentation. On by default; DebugBus
+// `xr_tracking seat on|off`.
+void SetTrackerSeatOffset(bool on);
+bool TrackerSeatOffset();
 // PS held + D-pad / L1 / R1 moves the player's own place for the gamepad (2 cm a press),
 // PS + Triangle switches between it and the seen/standard place. Kept in the user directory
 // as vr_controller.json across sessions and games.
 void MoveDs4OwnPlace(const std::array<float, 3>& by);
 void SwitchDs4OwnPlace();
+// Right-controller mode: the gamepad middle in the right grip's own axes (metres). The grip
+// origin differs between headsets, so it can be tuned while wearing one (DebugBus
+// `xr_tracking ds4_offset X Y Z`); it lasts for the process.
+void SetDs4RightOffset(const std::array<float, 3>& offset);
+std::array<float, 3> Ds4RightOffset();
 
 class Ds4Placement final {
 public:
@@ -176,13 +190,22 @@ public:
         recalibrate_yaw = YawOnly(head.orientation);
     }
 
-    // A new session: nothing seen, nothing calibrated. The player's own place stays.
+    // A new session: nothing seen, nothing calibrated. The player's own place stays, as does
+    // a tuned right-controller offset.
     void Reset() {
         const auto own = own_offset;
         const bool used = own_used;
+        const auto right = right_offset;
         *this = Ds4Placement{};
         own_offset = own;
         own_used = used;
+        right_offset = right;
+    }
+    void SetRightOffset(const Vec3& offset) {
+        right_offset = offset;
+    }
+    [[nodiscard]] Vec3 RightOffset() const {
+        return right_offset;
     }
 
 private:
@@ -202,7 +225,7 @@ private:
                 return std::nullopt;
             const auto& grip = grips[1];
             Pose pose = grip;
-            const auto r = VrGeometry::Rotate(grip.orientation, RightGripToPad);
+            const auto r = VrGeometry::Rotate(grip.orientation, right_offset);
             for (unsigned i = 0; i < 3; ++i)
                 pose.position[i] += r[i];
             // v_pad = v_grip + w x r for the same rigid body.
@@ -345,6 +368,7 @@ private:
 
     std::optional<Vec3> anchor, shown, own_offset;
     Vec3 seen_offset{}, hands_velocity{};
+    Vec3 right_offset{RightGripToPad};
     bool seen_offset_valid{}, own_used{};
     Pose seen_pose{};
     std::uint64_t seen_ns{}, last_ns{};

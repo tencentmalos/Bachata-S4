@@ -1,3 +1,8 @@
+- **ASTRO BOT Swan：MSAA 采样上限 / 摄像头座位偏移 / Launch DS4 选项（2026-10-08，已提交）：** [记录](docs/validation/android-native-host/astro-htile-firmware-20261008.md) “MSAA 慢的原因与修复”等节。
+  - **MSAA**：ASTRO 为 4 颜色/8 深度（EQAA），Turnip 无 mixed samples，管线键把颜色升 8×，颜色目标在带/不带深度的 pass 间 4×↔8× 换 backing 并整屏拷贝（每次 2–6.6 ms）。`Instance::HostSamples` 改为夹到设备 framebuffer 颜色/深度/模板采样上限（Turnip 4×），`ms_image_blit.frag` 源采样夹值；`debug.shadps4.msaa_per_format=1` 恢复旧 8×。Swan 同一标题画面 8× 17.2 FPS/GPU 99%@902 MHz → 4× 30.3 FPS/77%@826 MHz。Beat Saber 8× 也随之变 4×，未复测。
+  - **座位偏移**：VrTracker 给游戏的 HMD/眼/Move/DS4 位置统一加 z +1.5 m（PS 摄像头为原点，同 AQ `origin_offset`），宿主投影位姿不变；`xr_tracking seat on|off`。DS4 右手柄偏移可用 `xr_tracking ds4_offset X Y Z` 实时调整（用户反馈偏高，数值待佩戴标定）。
+  - **Launch 面板**：PSVR 游戏 XR 模式新增 “XR DualShock 4 Position” 行；单测 8/0。
+  - **未验收**：校准页是否能过、关卡帧率未测；仍为 30 FPS（游戏 GPU 约 15 ms/帧 + XR 合成约 6.4 ms/帧）。
 - **ASTRO BOT Swan：固件模块打包 / HTILE 模板深度清除（2026-10-08，已提交）：** [记录](docs/validation/android-native-host/astro-htile-firmware-20261008.md)。
   - **固件**：私有仓库 `tencentmalos/ps4-firmware`（`802771d`，禁止公开），子仓 `externals/ps4-firmware`（shallow）；11.00 sys_modules 436 个 + 12.52 lib 246 个原样解压，含清单/分类/生成脚本。APK 按 `runtime/locks/ps4-firmware-modules.json` 只打包 12 个 11.00 LLE 模块（不含 LibcInternal），`FirmwareModules` 安装到 `files/host/sys_modules`（不覆盖用户文件）；无仓库权限用 `-Pshadps4.bundleFirmware=false`。Swan 上 NGS2 由 0x805a10ff 变为加载成功，ASTRO 持续出帧。
   - **渲染**：天空只在 8×8 阶梯三角中可见的根因是游戏用 DMA 拷 HTILE 模板清深度，`CopyBuffer` 未更新清除状态。移植 AstroQuest `TryHtileClear`（zmask==0 占一半以上即 `ClearMeta`），`upload_diag htile_copy on|off`。180 s 5126 次全部识别为清除；同会话 off 复现黑三角、on 正常。

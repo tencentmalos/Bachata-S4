@@ -1,5 +1,8 @@
 #include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
 #include "core/emulator_settings.h"
+#include <cmath>
+#include <cstdlib>
+#include "core/host_runtime/ds4_placement.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/host_runtime/vr_geometry.h"
 #include "shader_recompiler/srt_gate_diag.h"
@@ -391,10 +394,33 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         } else return BadArguments();
         SetSpatialOptions(options);return SpatialStatus();
     });
-    registry.Register("xr_tracking", "OpenXR head/eyes/grip/aim in LOCAL metres; status", [](const auto& args) {
-        if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
+    registry.Register("xr_tracking", "OpenXR head/eyes/grip/aim in LOCAL metres; status | "
+        "seat on|off (VrTracker results 1.5 m in front of the PS camera, default on) | "
+        "ds4_offset X Y Z (right-controller DualShock 4 middle in grip axes, metres)",
+        [](const auto& args) {
+        if (args.size() == 2 && args[0] == "seat" && (args[1] == "on" || args[1] == "off")) {
+            HostRuntime::SetTrackerSeatOffset(args[1] == "on");
+            return std::string{"seat="} + args[1] + "\n";
+        }
+        if (args.size() == 4 && args[0] == "ds4_offset") {
+            std::array<float, 3> offset{};
+            for (unsigned i = 0; i < 3; ++i) {
+                char* end = nullptr;
+                offset[i] = std::strtof(args[i + 1].c_str(), &end);
+                if (!end || *end || !std::isfinite(offset[i]) || std::abs(offset[i]) > 0.5f)
+                    return BadArguments();
+            }
+            HostRuntime::SetDs4RightOffset(offset);
+        } else if (!args.empty() && (args.size() != 1 || args[0] != "status")) {
+            return BadArguments();
+        }
         const auto s = HostRuntime::GuestVrSensor::Instance().Read();
         std::ostringstream out;
+        const auto right = HostRuntime::Ds4RightOffset();
+        out << "ds4_right_offset(grip axes, m)=" << right[0] << ',' << right[1] << ',' << right[2]
+            << ' ';
+        out << "seat_offset=" << HostRuntime::TrackerSeatOffset()
+            << " ds4_source=" << int(HostRuntime::GetDs4PoseSource()) << '\n';
         out << "openxr=" << s.openxr << " running=" << s.hardware.running
             << " focused=" << s.hardware.focused << " predicted_ns=" << s.hardware.predicted_ns << '\n';
         const auto pose = [&](const char* name, const auto& p) {

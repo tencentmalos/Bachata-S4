@@ -16,7 +16,10 @@ layout (location = 0) out vec4 out_color;
 void main()
 {
 #if defined(SRC_MSAA)
-    out_color = texelFetch(in_tex, ivec2(gl_FragCoord.xy), gl_SampleID);
+    // The destination may have more samples than the source (4x -> 8x): fetching a sample
+    // the source does not have is undefined, so reuse its last one.
+    out_color = texelFetch(in_tex, ivec2(gl_FragCoord.xy),
+                           min(gl_SampleID, textureSamples(in_tex) - 1));
 #else
     out_color = texelFetch(in_tex, ivec2(gl_FragCoord.xy), 0);
 #endif

@@ -319,6 +319,9 @@ s32 PS4_SYSV_ABI sceVrTrackerGetPlayAreaWarningInfo(OrbisVrTrackerPlayAreaWarnin
     return PlayAreaWarningInfoNoProvider(g_library_initialized, info);
 }
 
+// Metres from the PS camera to the seated player (see Core::HostRuntime::TrackerSeatOffset).
+static constexpr float SeatDistance = 1.5f;
+
 s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param,
                                        OrbisVrTrackerResultData* result) {
     if (!g_library_initialized)
@@ -349,6 +352,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         // A recalibration is reported whether or not the device can be tracked afterwards: the
         // title waits for CALIBRATING to come and go.
         const bool recalibrating = g_recalibrations.Report(device_type, now);
+        const float seat_z = Core::HostRuntime::TrackerSeatOffset() ? SeatDistance : 0.0f;
         if (pad && sensor.openxr &&
             Core::HostRuntime::GetDs4PoseSource() != Core::HostRuntime::Ds4PoseSource::Off &&
             g_pads.IsPlayers(param->handle)) {
@@ -384,7 +388,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
                 auto& dst = result->pad_info.device_pose;
                 dst.position_x = pose.position[0];
                 dst.position_y = pose.position[1];
-                dst.position_z = pose.position[2];
+                dst.position_z = pose.position[2] + seat_z;
                 dst.orientation_x = pose.orientation[0];
                 dst.orientation_y = pose.orientation[1];
                 dst.orientation_z = pose.orientation[2];
@@ -418,9 +422,9 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         };
         if (sensor.openxr) {
             const auto& hardware = sensor.hardware;
-            const auto copy = [](auto& dst, const GuestVrSensor::Pose& src) {
+            const auto copy = [seat_z](auto& dst, const GuestVrSensor::Pose& src) {
                 dst.position_x = src.position[0]; dst.position_y = src.position[1];
-                dst.position_z = src.position[2];
+                dst.position_z = src.position[2] + seat_z;
                 dst.orientation_x = src.orientation[0]; dst.orientation_y = src.orientation[1];
                 dst.orientation_z = src.orientation[2]; dst.orientation_w = src.orientation[3];
             };
@@ -883,9 +887,26 @@ void SetDs4PoseSource(Ds4PoseSource source) {
 Ds4PoseSource GetDs4PoseSource() {
     return g_ds4_source.load(std::memory_order_relaxed);
 }
+static std::atomic<bool> g_seat_offset{true};
+void SetTrackerSeatOffset(bool on) {
+    g_seat_offset.store(on, std::memory_order_relaxed);
+}
+bool TrackerSeatOffset() {
+    return g_seat_offset.load(std::memory_order_relaxed);
+}
 } // namespace Core::HostRuntime
 
 namespace Core::HostRuntime {
+void SetDs4RightOffset(const std::array<float, 3>& offset) {
+    using namespace Libraries::VrTracker;
+    std::scoped_lock lock{g_ds4_mutex};
+    g_ds4.SetRightOffset(offset);
+}
+std::array<float, 3> Ds4RightOffset() {
+    using namespace Libraries::VrTracker;
+    std::scoped_lock lock{g_ds4_mutex};
+    return g_ds4.RightOffset();
+}
 void MoveDs4OwnPlace(const std::array<float, 3>& by) {
     using namespace Libraries::VrTracker;
     std::scoped_lock lock{g_ds4_mutex};
