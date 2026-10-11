@@ -19,6 +19,7 @@
 #endif
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
+#include "core/guest_cpu/hle/scope.h"
 #include "core/libraries/kernel/orbis_error.h"
 namespace Core::HostRuntime {
 // Orbis 32-bit SlotId ABI is distinct from the POSIX sem_t guest-pointer ABI.
@@ -52,7 +53,6 @@ class GuestKernelSemaphore {
     mutable std::mutex mutex;
     std::map<u32, std::shared_ptr<Semaphore>> objects;
     static inline std::atomic<u32> next_id{1};
-    bool foreground_admitted{};
     static void Trace(std::string_view nid, u32 id, const Semaphore& sem, s32 requested,
                       s32 result) {
 #if defined(__ANDROID__)
@@ -150,16 +150,6 @@ class GuestKernelSemaphore {
 
 public:
     GuestKernelSemaphore(GuestCpu::GuestAddressSpace& space) : space(space) {}
-    // Android rendered sessions have already passed the app's foreground/
-    // Surface admission before guest startup. Unity's named SuspendSemaphore
-    // and ResumeSemaphore are created with count zero and are otherwise
-    // released by the platform's suspend/resume notifications; carry the
-    // initial foreground/resume edge into the guest domain.
-    // Desktop remains unchanged because it never enables this flag.
-    void AdmitForeground() {
-        std::lock_guard lock(mutex);
-        foreground_admitted = true;
-    }
     u32 Waiting(u32 id) const {
         std::lock_guard lock(mutex);
         auto it = objects.find(id);
@@ -193,15 +183,6 @@ public:
                 const u32 id = u32(a[0]);
                 auto sem = Find(id);
                 Need(need > 0 && need <= sem->maximum, ORBIS_KERNEL_ERROR_EINVAL);
-                if (foreground_admitted &&
-                    (sem->name == "SuspendSemaphore" || sem->name == "ResumeSemaphore") &&
-                    sem->value < need) {
-                    // Until the Android lifecycle bridge gains a matching
-                    // background/revoke callback, an admitted foreground is
-                    // a level, not a one-shot edge. Do not affect any other
-                    // guest semaphore or desktop behavior.
-                    sem->value = need;
-                }
                 Trace(nid, id, *sem, need, sem->value);
                 if (stop.stop_requested())
                     return u32(ORBIS_KERNEL_ERROR_EINTR);
@@ -220,6 +201,12 @@ public:
                     at = std::ranges::find_if(
                         sem->waiters, [&](const auto& item) { return item->priority > priority; });
                 sem->waiters.insert(at, waiter);
+                auto remove_waiter = [&](void*) {
+                    if (!lock.owns_lock()) lock.lock();
+                    sem->waiters.remove(waiter);
+                };
+                std::unique_ptr<void, decltype(remove_waiter)> waiting{
+                    reinterpret_cast<void*>(1), remove_waiter};
                 const auto deadline = Clock::now() + std::chrono::microseconds(timeout);
                 // Park on the waiter's own lock. Signal/Cancel/Delete mark
                 // `done` under that lock and notify after releasing the domain
@@ -230,14 +217,15 @@ public:
                     std::unique_lock park(waiter->park);
                     const auto ready = [&] { return waiter->done; };
                     if (a[2])
-                        waiter->parked.wait_until(park, stop, deadline, ready);
+                        GuestCpu::Hle::HleScope::WaitUntil(waiter->parked, park, stop, deadline, ready);
                     else
-                        waiter->parked.wait(park, stop, ready);
+                        GuestCpu::Hle::HleScope::WaitUntil(waiter->parked, park, stop, Clock::time_point::max(), ready);
                 }
                 lock.lock();
                 // A selection that raced with our timeout/cancel already
                 // consumed tokens for us; it must not be reported as a failure.
                 sem->waiters.remove(waiter);
+                waiting.release();
                 bool done{};
                 s32 completion{};
                 {
@@ -292,10 +280,6 @@ public:
                 sem->maximum = s32(a[4]);
                 sem->fifo = u32(a[2]) == 1;
                 sem->name = std::move(name);
-                if (foreground_admitted &&
-                    (sem->name == "SuspendSemaphore" || sem->name == "ResumeSemaphore") &&
-                    sem->value == 0)
-                    sem->value = sem->initial = 1;
                 const u32 id = next_id.fetch_add(1);
                 Need(id && id < INT32_MAX, ORBIS_KERNEL_ERROR_ENOMEM);
                 objects.emplace(id, sem);

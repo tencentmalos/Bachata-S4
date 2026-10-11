@@ -185,29 +185,26 @@ int main() {
         CHECK(leftover == (first == 0 ? u32(ORBIS_KERNEL_ERROR_EBUSY) : 0));
         CHECK(call("R1Jvn8bSCW8", {raced_id}) == 0);
     }
-    GuestKernelSemaphore foreground(*space);
-    foreground.AdmitForeground();
-    put(base + 0x200, std::array<char, 17>{'S', 'u', 's', 'p', 'e', 'n', 'd',
-                                            'S', 'e', 'm', 'a', 'p', 'h', 'o', 'r', 'e', 0});
-    auto foreground_call = [&](std::string_view n, std::array<u64, 6> a = {}) {
-        return foreground.Dispatch(n, a, 700);
-    };
-    CHECK(foreground_call("188x57JYp0g", {base + 0x300, base + 0x200, 1, 0, 1, 0}) == 0);
-    const u32 foreground_id = [&] {
-        u32 value{};
-        CHECK(space->Read(GuestAddress{base + 0x300}, std::as_writable_bytes(std::span{&value, 1})));
-        return value;
-    }();
-    CHECK(foreground_call("Zxa0VhQVTsk", {foreground_id, 1, 0}) == 0);
-    put(base + 0x240, std::array<char, 17>{'R', 'e', 's', 'u', 'm', 'e',
-                                            'S', 'e', 'm', 'a', 'p', 'h', 'o', 'r', 'e', 0});
-    CHECK(foreground_call("188x57JYp0g", {base + 0x300, base + 0x240, 1, 0, 1, 0}) == 0);
-    const u32 resume_id = [&] {
-        u32 value{};
-        CHECK(space->Read(GuestAddress{base + 0x300}, std::as_writable_bytes(std::span{&value, 1})));
-        return value;
-    }();
-    CHECK(foreground_call("Zxa0VhQVTsk", {resume_id, 1, 0}) == 0);
+    // Unity uses these names for GC stop-the-world acknowledgements. The name
+    // must not create tokens or make a wait succeed before all threads signal.
+    for (const char* name : {"SuspendSemaphore", "ResumeSemaphore"}) {
+        CHECK(space->Write(GuestAddress{base + 0x200},
+                           std::as_bytes(std::span{name, std::strlen(name) + 1})));
+        CHECK(call("188x57JYp0g", {base + 0x300, base + 0x200, 1, 0, 256, 0}) == 0);
+        const u32 gc_id = get.operator()<u32>(base + 0x300);
+        CHECK(call("12wOHk8ywb0", {gc_id, 1}) == u32(ORBIS_KERNEL_ERROR_EBUSY));
+        std::jthread collector([&](std::stop_token stop) {
+            first = sem.Dispatch("Zxa0VhQVTsk", {gc_id, 2, 0}, 700, stop);
+        });
+        entered(gc_id, 1);
+        CHECK(call("4czppHBiriw", {gc_id, 1}) == 0);
+        entered(gc_id, 1);
+        CHECK(call("4czppHBiriw", {gc_id, 1}) == 0);
+        collector.join();
+        CHECK(first == 0);
+        CHECK(call("12wOHk8ywb0", {gc_id, 1}) == u32(ORBIS_KERNEL_ERROR_EBUSY));
+        CHECK(call("R1Jvn8bSCW8", {gc_id}) == 0);
+    }
     std::printf("GUEST_KERNEL_SEMAPHORE checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

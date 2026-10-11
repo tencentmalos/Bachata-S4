@@ -11,6 +11,7 @@
 #include <stop_token>
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
+#include "core/guest_cpu/hle/scope.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
@@ -143,8 +144,8 @@ public:
                 }
             } waiting{state, write, state.changed};
             SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-            const bool acquired = deadline ? state.changed.wait_until(guard, cancel, *deadline, ready)
-                                           : state.changed.wait(guard, cancel, ready);
+            const bool acquired = deadline ? GuestCpu::Hle::HleScope::WaitUntil(state.changed, guard, cancel, *deadline, ready)
+                                           : GuestCpu::Hle::HleScope::WaitUntil(state.changed, guard, cancel, std::chrono::steady_clock::time_point::max(), ready);
             park_phase.End();
             if (cancel.stop_requested()) return POSIX_EINTR;
             if (!acquired) return POSIX_ETIMEDOUT;

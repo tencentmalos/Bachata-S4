@@ -158,6 +158,9 @@ private:
     mutable std::mutex mutex_;
     spatial::input::InputHub hub_;
     std::array<Port, kMaxPadPorts> ports_{};
+    // Special-controller ports can be opened/probed independently of DS4.
+    // No special device is supplied; these stay disconnected, as on desktop.
+    std::array<Port, kMaxPadPorts> special_ports_{};
     std::uint64_t token_{};
     bool xr_input_focused_{true};
     std::uint64_t haptic_sequence_{};

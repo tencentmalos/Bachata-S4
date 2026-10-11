@@ -10,7 +10,9 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <stop_token>
 #include <string>
 #include <vector>
 
@@ -150,6 +152,15 @@ public:
     virtual Status InstallExecutionProbes(std::shared_ptr<ExecutionProbes>) {
         return MakeError(ErrorCategory::Unsupported, "InstallExecutionProbes", "backend has no probe emitter");
     }
+
+    // Queue an OS callback for execution by the target owner, outside JIT and
+    // native wait locks. The snapshot is architectural, never a host signal PC.
+    using OwnerCallback = std::function<Status(const CpuSnapshot&)>;
+    virtual Status QueueOwnerCallback(ThreadHandle, OwnerCallback) {
+        return MakeError(ErrorCategory::Unsupported, "QueueOwnerCallback");
+    }
+    virtual std::stop_token OwnerCallbackToken(ThreadHandle) { return {}; }
+    virtual Status PollOwnerCallbacks(ThreadHandle) { return {}; }
 
     // Owner-thread operations. The thread that calls CreateThread becomes that
     // guest thread's owner and is the only thread permitted to Run, Step or

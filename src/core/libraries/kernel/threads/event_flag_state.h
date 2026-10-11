@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include <condition_variable>
+#include <functional>
 #include <list>
 #include <mutex>
 #include <stop_token>
@@ -14,6 +15,9 @@ namespace Libraries::Kernel {
 // A cancellation token wakes parked HLE owners before the session joins them.
 class EventFlagState {
 public:
+    using WaitHook = std::function<bool(std::condition_variable_any&,
+        std::unique_lock<std::mutex>&, std::stop_token,
+        std::chrono::steady_clock::time_point, const std::function<bool()>&)>;
     enum class ClearMode { None, All, Bits };
     enum class WaitMode { And, Or };
     enum class ThreadMode { Single, Multi };
@@ -96,7 +100,8 @@ public:
     }
 
     int Wait(u64 bits, WaitMode wait_mode, ClearMode clear_mode, u64* result, u32* ptr_micros,
-             int priority = 0, std::stop_token cancel = {}, bool* result_written = nullptr) {
+             int priority = 0, std::stop_token cancel = {}, bool* result_written = nullptr,
+             const WaitHook& wait_hook = {}) {
         std::unique_lock lock{m_mutex};
         if (result_written) *result_written = false;
 
@@ -127,6 +132,11 @@ public:
         }
 
         AddWaiter(waiter);
+        struct Waiting {
+            EventFlagState& state;
+            Waiter& waiter;
+            ~Waiting() { state.RemoveWaiter(waiter); }
+        } waiting{*this, waiter};
 
         u32 timeout = 0;
         bool infinite = ptr_micros == nullptr;
@@ -138,25 +148,18 @@ public:
             return waiter.ready || waiter.canceled || waiter.deleted || waiter.timed_out;
         };
 
-        if (infinite) {
-            waiter.cv.wait(lock, cancel, wake);
-        } else {
-            if (!waiter.cv.wait_for(lock, cancel, std::chrono::microseconds(timeout), wake) &&
-                !cancel.stop_requested()) {
-
-                RemoveWaiter(waiter);
-
-                if (result) {
-                    *result = m_bits;
-                    if (result_written) *result_written = true;
-                }
-
-                *ptr_micros = 0;
-                return ORBIS_KERNEL_ERROR_ETIMEDOUT;
+        const auto deadline = infinite ? std::chrono::steady_clock::time_point::max()
+            : std::chrono::steady_clock::now() + std::chrono::microseconds(timeout);
+        const bool ready = wait_hook ? wait_hook(waiter.cv, lock, cancel, deadline, wake)
+                                     : waiter.cv.wait_until(lock, cancel, deadline, wake);
+        if (!ready && !infinite && !cancel.stop_requested()) {
+            if (result) {
+                *result = m_bits;
+                if (result_written) *result_written = true;
             }
+            *ptr_micros = 0;
+            return ORBIS_KERNEL_ERROR_ETIMEDOUT;
         }
-
-        RemoveWaiter(waiter);
 
         if (result) {
             *result = waiter.result;

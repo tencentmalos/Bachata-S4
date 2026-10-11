@@ -1577,6 +1577,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             ++entry->active_runs;
             owns_frame = true;
             entry->running = true;
+            if (!entry->owner_callbacks.empty() && !entry->callback_active &&
+                ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE))
+                return BackendError(ErrorCategory::BackendFailure, "Run", "arm callback poll", errno);
             entry->interrupt->receipt.reset();
             entry->interrupt->stopped_snapshot.reset();
             if (execution_probes_)
@@ -1713,6 +1716,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                         lease.Value() = std::move(admission).Value();
                         entry->internally_parked = false;
                         entry->running = true;
+                        if (!entry->owner_callbacks.empty() && !entry->callback_active &&
+                            ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE))
+                            return BackendError(ErrorCategory::BackendFailure, "Run continuation", "arm callback poll", errno);
                         entry->interrupt->stopped_snapshot.reset();
                         return true;
                     }
@@ -1965,13 +1971,13 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 }
             }
             bool park = false;
-            if (config_.resume_internal_drains &&
-                binding.interrupted.load(std::memory_order_acquire)) {
+            if (binding.interrupted.load(std::memory_order_acquire)) {
                 std::lock_guard guard{lock_};
                 auto* entry = FindOwnedLocked(thread);
-                park =
-                    std::any_of(drain_tickets_.begin(), drain_tickets_.end(),
-                                [&](const auto& ticket) { return ticket.thread_id == thread.id; });
+                park = (!entry->owner_callbacks.empty() && !entry->callback_active) ||
+                    (config_.resume_internal_drains &&
+                     std::any_of(drain_tickets_.begin(), drain_tickets_.end(),
+                                 [&](const auto& ticket) { return ticket.thread_id == thread.id; }));
                 if (park) {
                     // Already outside ExecuteThread: restore architectural state
                     // from the interrupt snapshot before invalidating any JIT code.
@@ -1995,6 +2001,16 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             binding.interrupted.store(false, std::memory_order_release);
             call_stack.reset();
             lease.Value() = ExecutionLease{};
+            {
+                Hle::HleScope scope{*this, thread, invocation, {}};
+                auto delivered = PollOwnerCallbacks(thread);
+                if (!delivered) return delivered.GetError();
+                if (scope.FailedCallback()) {
+                    nested_stop = scope.FailedCallback();
+                    cooperative_stop = true;
+                    break;
+                }
+            }
             auto resumed = resume_continuation();
             if (!resumed)
                 return resumed.GetError();
@@ -2024,7 +2040,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             // Pause may have armed the poll page after the last JIT poll but
             // before this syscall exit. We are now safely outside JIT; retire
             // the page protection without consuming any Pause/Cancel tickets.
-            if (entry->interrupt->pending != 0 &&
+            if ((entry->interrupt->pending != 0 || !entry->owner_callbacks.empty()) &&
                 ::mprotect(entry->native->InterruptFaultPage, host_page_size_,
                            PROT_READ | PROT_WRITE) != 0)
                 return BackendError(ErrorCategory::BackendFailure, "HLE boundary",
@@ -2072,7 +2088,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             };
             std::unique_ptr<void, decltype(pop_boundary)> boundary_guard{reinterpret_cast<void*>(1), pop_boundary};
             Hle::HleScope scope{*this, thread, invocation, cancel};
+            auto delivered = PollOwnerCallbacks(thread);
+            if (!delivered) return delivered.GetError();
             syscall_handler_->DispatchNative(binding.native->CurrentFrame, &binding, true);
+            delivered = PollOwnerCallbacks(thread);
+            if (!delivered) return delivered.GetError();
             nested_stop = scope.FailedCallback();
             thread_exit = scope.ThreadExitResult();
         }
@@ -2297,6 +2317,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         }
 
         context_->DestroyThread(entry->native);
+        owner_callback_count_.fetch_sub(entry->owner_callbacks.size(), std::memory_order_relaxed);
         threads_.erase(thread.id);
         stopped_changed_.notify_all();
         return Result<void>{};
@@ -2952,6 +2973,59 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         return out;
     }
 #endif
+    Status QueueOwnerCallback(ThreadHandle thread, OwnerCallback callback) override {
+        std::stop_source wake;
+        {
+            std::lock_guard guard{lock_};
+            auto* entry = Find(thread);
+            if (!entry) return OwnershipError(thread, "QueueOwnerCallback");
+            if (entry->hle_cancel.stop_requested() || entry->owner_callbacks.size() >= 64)
+                return BackendError(ErrorCategory::Busy, "QueueOwnerCallback", "owner stopping or queue full");
+            if (entry->running && !entry->callback_active &&
+                ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE))
+                return BackendError(ErrorCategory::BackendFailure, "QueueOwnerCallback", "arm poll page", errno);
+            entry->owner_callbacks.push_back(std::move(callback));
+            owner_callback_count_.fetch_add(1, std::memory_order_release);
+            wake = entry->callback_wake;
+        }
+        // Waking a native wait can acquire its lock. Never do it under lock_.
+        wake.request_stop();
+        return {};
+    }
+    std::stop_token OwnerCallbackToken(ThreadHandle thread) override {
+        std::lock_guard guard{lock_};
+        auto* entry = FindOwnedLocked(thread);
+        return entry && !entry->callback_active ? entry->callback_wake.get_token() : std::stop_token{};
+    }
+    Status PollOwnerCallbacks(ThreadHandle thread) override {
+        if (!owner_callback_count_.load(std::memory_order_acquire)) return {};
+        for (;;) {
+            OwnerCallback callback;
+            CpuSnapshot snapshot;
+            {
+                std::lock_guard guard{lock_};
+                auto* entry = FindOwnedLocked(thread);
+                if (!entry) return OwnershipError(thread, "PollOwnerCallbacks");
+                if (entry->callback_active || entry->owner_callbacks.empty() ||
+                    entry->hle_cancel.stop_requested()) return {};
+                if (entry->running || !Hle::HleScope::Current())
+                    return BackendError(ErrorCategory::WrongState, "PollOwnerCallbacks", "owner not at HLE boundary");
+                callback = std::move(entry->owner_callbacks.front());
+                entry->owner_callbacks.erase(entry->owner_callbacks.begin());
+                owner_callback_count_.fetch_sub(1, std::memory_order_relaxed);
+                entry->callback_wake = std::stop_source{};
+                entry->callback_active = true;
+                snapshot = CaptureSnapshot(thread, *entry, SnapshotKind::HleBoundary);
+            }
+            auto reset = [&](void*) {
+                std::lock_guard guard{lock_};
+                if (auto* entry = FindOwnedLocked(thread)) entry->callback_active = false;
+            };
+            std::unique_ptr<void, decltype(reset)> active{reinterpret_cast<void*>(1), reset};
+            auto result = callback(snapshot);
+            if (!result) return result;
+        }
+    }
     [[nodiscard]] std::uint64_t ReturnGateAddress() const noexcept {
         return return_gate_.Address();
     }
@@ -2978,6 +3052,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         bool internally_parked{false};
         unsigned active_runs{};
         std::stop_source hle_cancel{};
+        std::stop_source callback_wake{};
+        std::vector<OwnerCallback> owner_callbacks;
+        bool callback_active{};
         // Stable address, so the signal handler can hold a pointer to it while the map changes.
         std::shared_ptr<InterruptState> interrupt{std::make_shared<InterruptState>()};
 
@@ -3311,6 +3388,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
 
     // Identity for tickets and receipts. Monotonic across the process, so a ticket from a
     // destroyed context cannot match its replacement even though thread ids restart.
+    std::atomic<std::size_t> owner_callback_count_{};
     const std::uint64_t context_id_{NextContextId()};
     std::uint64_t next_request_epoch_{0};
 
