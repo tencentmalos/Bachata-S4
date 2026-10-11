@@ -1,0 +1,29 @@
+[
+  {
+    "seconds": 3,
+    "reason": "Observed left planet at yaw90 is right/up of center; center gaze at yaw79 pitch14",
+    "head": [
+      0,
+      0,
+      1.5,
+      0.0940373813327319,
+      0.6313369896795558,
+      -0.07751843505956585,
+      0.7658730107533198
+    ],
+    "ds4": [
+      0,
+      -0.17,
+      1,
+      0,
+      0,
+      0,
+      1
+    ]
+  },
+  {
+    "seconds": 12,
+    "buttons": 16384,
+    "reason": "Gaze now centered on observed left planet; press Cross to enter per AstroQuest controls"
+  }
+]

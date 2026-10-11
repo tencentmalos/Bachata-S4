@@ -1,0 +1,24 @@
+[
+  {
+    "reason": "Observe the entered first level with a neutral head and centered DS4",
+    "seconds": 30,
+    "head": [
+      0,
+      0,
+      1.5,
+      0,
+      0,
+      0,
+      1
+    ],
+    "ds4": [
+      0,
+      -0.17,
+      1,
+      0,
+      0,
+      0,
+      1
+    ]
+  }
+]

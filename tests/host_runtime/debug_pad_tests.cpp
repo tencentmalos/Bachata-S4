@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-#include <nlohmann/json.hpp>
-#include "core/host_runtime/guest_pad.h"
-#include "imgui/renderer/imgui_core.h"
 #include <cstdio>
 #include <future>
 #include <thread>
+#include <nlohmann/json.hpp>
+#include "core/host_runtime/guest_pad.h"
+#include "core/host_runtime/guest_vr_sensor.h"
+#include "core/libraries/vr_tracker/vr_tracker.h"
+#include "imgui/renderer/imgui_core.h"
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
 using namespace Libraries::Pad;
@@ -95,6 +97,96 @@ int main() {
     auto trace_stop=command({"trace","stop","123","7","run",trace_id});
     CHECK(trace_stop.value("status", "") == "stopped" && !trace_stop.value("active", true));
     p.SetConnected(token,0,true);
+    // VR poses share ownership and expiry with buttons, but do not replace them.
+    {
+        using namespace Libraries::VrTracker;
+        using Sensor = GuestVrSensor;
+        auto& sensor = Sensor::Instance();
+        auto pose = [](u64 id, std::string target = "ds4", std::string ms = "2000") {
+            return std::vector<std::string>{"pose", "123", "7", "run",   "ocr", std::to_string(id),
+                                            target, ms,    "0", "-0.17", "1",   "0",
+                                            "0",    "0",   "1"};
+        };
+        CHECK(command(pose(++id))["status"] == "vr_not_ready");
+        sensor.SetSbsEnabled(true);
+        OrbisVrTrackerInitParam init{};
+        init.size = sizeof(init);
+        init.direct_memory_garlic = init.direct_memory_onion = init.work_memory =
+            reinterpret_cast<void*>(0x10000);
+        init.direct_memory_garlic_alignment = init.direct_memory_onion_alignment =
+            init.work_memory_alignment = ORBIS_VR_TRACKER_MEMORY_ALIGNMENT;
+        init.direct_memory_garlic_size = ORBIS_VR_TRACKER_GARLIC_SIZE;
+        init.direct_memory_onion_size = ORBIS_VR_TRACKER_BASE_ONION_SIZE;
+        init.work_memory_size = ORBIS_VR_TRACKER_WORK_SIZE;
+        CHECK(sceVrTrackerInit(&init) == 0);
+        CHECK(sceVrTrackerRegisterDevice(ORBIS_VR_TRACKER_DEVICE_HMD, 91) == 0);
+        CHECK(sceVrTrackerRegisterDevice(ORBIS_VR_TRACKER_DEVICE_DUALSHOCK4, handle) == 0);
+        OrbisVrTrackerGetResultParam param{};
+        param.size = sizeof(param);
+        param.handle = handle;
+        OrbisVrTrackerResultData result{};
+        Sensor::TrackerSample sample;
+        CHECK(GetResultForHost(&param, &result, sample) == 0 &&
+              result.status == ORBIS_VR_TRACKER_STATUS_NOT_TRACKING);
+        for (auto [index, value] : std::vector<std::pair<int, std::string>>{
+                 {6, "move"}, {7, "10001"}, {8, "nan"}, {9, "11"}, {14, "0"}, {14, "-0.5"}}) {
+            auto bad_pose = pose(++id);
+            bad_pose[index] = value;
+            CHECK(command(bad_pose)["status"] == "invalid_arguments");
+        }
+        const auto held = pose(++id);
+        auto sent = command(held);
+        CHECK(sent["status"] == "dispatched" && sent["kind"] == "pose");
+        CHECK(command(held)["deadline_ns"] == sent["deadline_ns"]);
+        CHECK(!query(id).value("guest_poll_seen", true));
+        CHECK(GetResultForHost(&param, &result, sample) == 0 &&
+              result.status == ORBIS_VR_TRACKER_STATUS_TRACKING);
+        CHECK(result.pad_info.device_pose.position_z == 1 &&
+              result.pad_info.device_pose.orientation_w == 1);
+        CHECK(!query(id).value("guest_poll_seen",
+                               true)); // Native calculation alone is not a guest write.
+        sensor.ObserveTrackerRead(sample);
+        CHECK(query(id).value("guest_poll_count", 0u) == 1);
+        auto foreign = pose(id + 1);
+        foreign[4] = "other";
+        CHECK(command(foreign)["status"] == "busy");
+        auto wrong = pose(id + 1);
+        wrong[2] = "8";
+        CHECK(command(wrong)["status"] == "wrong_session");
+        CHECK(command(state(++id))["status"] == "dispatched");
+        CHECK(command(pose(++id, "head"))["status"] == "dispatched");
+        CHECK(command({"status"})["poses"].size() == 2 && p.ReadButtons(0) == 0x4000);
+        param.handle = 91;
+        CHECK(GetResultForHost(&param, &result, sample) == 0);
+        CHECK(std::abs(result.hmd_info.right_eye_pose.position_x -
+                       result.hmd_info.left_eye_pose.position_x - .063f) < 1e-6f);
+        CHECK(result.hmd_info.head_pose.position_z == 1);
+        CHECK(release(++id)["status"] == "dispatched");
+        CHECK(!sensor.ReadDebugPose(Sensor::DebugTarget::Ds4) &&
+              !sensor.ReadDebugPose(Sensor::DebugTarget::Head));
+        CHECK(GetResultForHost(&param, &result, sample) == 0 &&
+              result.hmd_info.device_pose.position_z == 1.5f);
+        const auto expires = pose(++id, "ds4", "25");
+        CHECK(command(expires)["status"] == "dispatched");
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (sensor.ReadDebugPose(Sensor::DebugTarget::Ds4) &&
+               std::chrono::steady_clock::now() < until)
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        CHECK(!sensor.ReadDebugPose(Sensor::DebugTarget::Ds4));
+        CHECK(command(expires).value("duplicate", false) &&
+              !sensor.ReadDebugPose(Sensor::DebugTarget::Ds4));
+        CHECK(command(pose(++id))["status"] == "dispatched");
+        p.FocusLost(token);
+        CHECK(!sensor.ReadDebugPose(Sensor::DebugTarget::Ds4));
+        CHECK(query(id)["release_reason"] == "focus_lost");
+        p.SetConnected(token, 0, true);
+        CHECK(command(pose(++id))["status"] == "dispatched");
+        p.DebugLifecycle(123, 7, "run", 4);
+        CHECK(!sensor.ReadDebugPose(Sensor::DebugTarget::Ds4));
+        p.DebugLifecycle(123, 7, "run", 3);
+        CHECK(sceVrTrackerTerm() == 0);
+        sensor.SetSbsEnabled(false);
+    }
     auto overflow_start=command({"trace","start","123","7","run","overflow-test"});
     CHECK(overflow_start["status"]=="started");
     const auto overflow_id=overflow_start["trace_id"].get<std::string>();

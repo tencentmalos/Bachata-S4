@@ -35,6 +35,8 @@ object NativePad {
     external fun nativeSetVrSbsEnabled(enabled: Boolean)
     /** Passes monotonic Android gyro samples to the host HLE pose provider. */
     external fun nativeUpdateVrGyro(x: Float, y: Float, z: Float, timestampNs: Long)
+    external fun nativeUpdateVrRotation(x: Float, y: Float, z: Float, w: Float, rotation: Int, timestampNs: Long)
+    external fun nativeResetVrOrientation()
     // Diagnostics call the production HLE exports, not a parallel test implementation.
     external fun nativeOpenDefaultPad(): Int
     external fun nativeReadPad(handle: Int): LongArray?

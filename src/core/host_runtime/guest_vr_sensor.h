@@ -4,13 +4,15 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <cstdint>
+#include <memory>
 #include <mutex>
 
 namespace Core::HostRuntime {
 
-// Android SBS integrates display-aligned gyroscope rates from an initially
-// forward-facing orientation for the virtual PSVR. This provider owns no guest
+// Android SBS uses fused device orientation relative to a neutral pose, with
+// gyroscope integration as a fallback. This provider owns no guest
 // pointers, Vulkan objects, or OpenXR handles.  Desktop sessions leave it
 // disabled and keep their existing no-device behavior.
 class GuestVrSensor final {
@@ -31,6 +33,31 @@ public:
         std::uint64_t buttons{}; // PS4 face/option bits, independent per hand.
         float stick_x{}, stick_y{}, trigger{}, squeeze{};
     };
+    // Diagnostic guest tracking input. Camera-space metres, xyzw quaternion.
+    // Its lifetime belongs to the existing Pad DebugBus session/owner lease.
+    enum class DebugTarget : unsigned { Head, Ds4 };
+    struct DebugPose {
+        DebugTarget target{};
+        Pose pose{};
+        std::uint64_t action_id{}, deadline_ns{};
+        std::atomic<std::uint64_t> polls{}, first_poll_ns{};
+    };
+    struct TrackerSample {
+        bool valid{};
+        DebugTarget target{};
+        int handle{-1}, status{}, position_quality{}, orientation_quality{};
+        bool connected{};
+        Pose pose{};
+        std::uint64_t sampled_ns{}, polls{};
+        std::shared_ptr<DebugPose> debug;
+    };
+    void PublishDebugPose(std::shared_ptr<DebugPose> pose);
+    void ClearDebugPose(DebugTarget target);
+    std::shared_ptr<DebugPose> ReadDebugPose(DebugTarget target) const;
+    // Called only after the checked guest output write succeeds.
+    void ObserveTrackerRead(TrackerSample sample);
+    std::array<TrackerSample, 2> ReadTrackerSamples() const;
+    void ClearTrackerSamples();
     struct HardwareFrame {
         std::uint64_t generation{}, received_ns{}, predicted_ns{};
         bool running{}, focused{}, mounted{};
@@ -94,6 +121,8 @@ public:
 
     void SetSbsEnabled(bool enabled);
     void UpdateGyro(float x, float y, float z, std::uint64_t timestamp_ns);
+    void UpdateRotationVector(std::array<float, 4> orientation, unsigned display_rotation,
+                              std::uint64_t timestamp_ns);
     void UpdateMoveInput(std::uint64_t buttons, float left_x, float left_y, float right_x,
                          float right_y, float left_trigger, float right_trigger,
                          std::uint64_t timestamp_us = 0);
@@ -124,6 +153,14 @@ private:
         bool seen{};
     } head_motion;
     std::uint64_t recenters{};
+    std::array<std::shared_ptr<DebugPose>, 2> debug_poses{};
+    std::array<TrackerSample, 2> tracker_samples{};
+    struct RotationReference {
+        std::array<float, 4> orientation{};
+        std::array<float, 3> right{}, up{}, back{};
+        unsigned display_rotation{};
+        bool valid{};
+    } rotation_reference;
 };
 
 } // namespace Core::HostRuntime

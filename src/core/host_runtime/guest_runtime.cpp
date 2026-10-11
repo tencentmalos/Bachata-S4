@@ -4916,9 +4916,12 @@ void GuestRuntime::Impl::InstallHandlers() {
                                   GuestPermission::Write))
             return static_cast<u32>(ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID);
         Libraries::VrTracker::OrbisVrTrackerResultData result{};
-        const s32 status = Libraries::VrTracker::sceVrTrackerGetResult(&param, &result);
+        GuestVrSensor::TrackerSample sample;
+        const s32 status = Libraries::VrTracker::GetResultForHost(&param, &result, sample);
         if (!status && !write_guest_record(a[1], &result, sizeof(result)))
             return static_cast<u32>(ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID);
+        if (!status)
+            GuestVrSensor::Instance().ObserveTrackerRead(std::move(sample));
         return static_cast<u32>(status);
     });
     bind({"XoeWzXlrnMw"}, [this, write_guest_record](const auto& a) -> u64 {

@@ -6,6 +6,7 @@
 #include <cstddef>
 
 #include "common/types.h"
+#include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/camera/camera.h"
 
 namespace Core::Loader {
@@ -402,6 +403,9 @@ s32 PS4_SYSV_ABI sceVrTrackerCpuProcess(const OrbisVrTrackerCpuProcessParam* par
 s32 PS4_SYSV_ABI sceVrTrackerGetPlayAreaWarningInfo(OrbisVrTrackerPlayAreaWarningInfo* info);
 s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param,
                                        OrbisVrTrackerResultData* result);
+// Host adapter keeps the receipt until the guest output write is admitted.
+s32 GetResultForHost(const OrbisVrTrackerGetResultParam* param, OrbisVrTrackerResultData* result,
+                     Core::HostRuntime::GuestVrSensor::TrackerSample& sample);
 s32 PS4_SYSV_ABI sceVrTrackerGetTime(u64* time);
 s32 PS4_SYSV_ABI sceVrTrackerGpuSubmit(const OrbisVrTrackerGpuSubmitParam* param);
 s32 PS4_SYSV_ABI sceVrTrackerGpuWait(const OrbisVrTrackerGpuWaitParam* param);

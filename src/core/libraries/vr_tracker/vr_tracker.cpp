@@ -248,6 +248,8 @@ s32 PS4_SYSV_ABI sceVrTrackerRegisterDeviceInternal(const OrbisVrTrackerDeviceTy
             return ORBIS_VR_TRACKER_ERROR_DEVICE_ALREADY_REGISTERED;
         }
         g_hmd_handle = handle;
+        if (VirtualSbsEnabled())
+            GuestVrSensor::Instance().ResetOrientation();
         break;
     }
     case OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_DUALSHOCK4: {
@@ -322,8 +324,8 @@ s32 PS4_SYSV_ABI sceVrTrackerGetPlayAreaWarningInfo(OrbisVrTrackerPlayAreaWarnin
 // Metres from the PS camera to the seated player (see Core::HostRuntime::TrackerSeatOffset).
 static constexpr float SeatDistance = 1.5f;
 
-s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param,
-                                       OrbisVrTrackerResultData* result) {
+static s32 GetResultImpl(const OrbisVrTrackerGetResultParam* param,
+                         OrbisVrTrackerResultData* result, GuestVrSensor::TrackerSample& sample) {
     if (!g_library_initialized)
         return ORBIS_VR_TRACKER_ERROR_NOT_INIT;
     if (!param || !result || param->size != sizeof(OrbisVrTrackerGetResultParam))
@@ -353,6 +355,52 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         // title waits for CALIBRATING to come and go.
         const bool recalibrating = g_recalibrations.Report(device_type, now);
         const float seat_z = Core::HostRuntime::TrackerSeatOffset() ? SeatDistance : 0.0f;
+        if (is_hmd || (pad && g_pads.IsPlayers(param->handle))) {
+            sample.valid = true;
+            sample.target =
+                is_hmd ? GuestVrSensor::DebugTarget::Head : GuestVrSensor::DebugTarget::Ds4;
+            sample.debug = GuestVrSensor::Instance().ReadDebugPose(sample.target);
+            if (sample.debug) {
+                const auto& p = sample.debug->pose;
+                const auto copy = [&](auto& dst) {
+                    dst.position_x = p.position[0];
+                    dst.position_y = p.position[1];
+                    dst.position_z = p.position[2];
+                    dst.orientation_x = p.orientation[0];
+                    dst.orientation_y = p.orientation[1];
+                    dst.orientation_z = p.orientation[2];
+                    dst.orientation_w = p.orientation[3];
+                };
+                result->position_quality = result->orientation_quality =
+                    ORBIS_VR_TRACKER_QUALITY_FULL;
+                result->status = recalibrating ? ORBIS_VR_TRACKER_STATUS_CALIBRATING
+                                               : ORBIS_VR_TRACKER_STATUS_TRACKING;
+                result->device_timestamp = now;
+                if (is_hmd) {
+                    copy(result->hmd_info.device_pose);
+                    copy(result->hmd_info.head_pose);
+                    copy(result->hmd_info.left_eye_pose);
+                    copy(result->hmd_info.right_eye_pose);
+                    const auto left =
+                        Core::HostRuntime::VrGeometry::Rotate(p.orientation, {-0.0315f, 0, 0});
+                    const auto right =
+                        Core::HostRuntime::VrGeometry::Rotate(p.orientation, {0.0315f, 0, 0});
+                    auto offset = [](auto& dst, const auto& v) {
+                        dst.position_x += v[0];
+                        dst.position_y += v[1];
+                        dst.position_z += v[2];
+                    };
+                    offset(result->hmd_info.left_eye_pose, left);
+                    offset(result->hmd_info.right_eye_pose, right);
+                    result->hmd_info.rear_tracking_status = ORBIS_VR_TRACKER_REAR_TRACKING_READY;
+                    result->hmd_info.sensor_read_system_timestamp = now;
+                } else {
+                    copy(result->pad_info.device_pose);
+                    result->led_color = pad->color;
+                }
+                return ORBIS_OK;
+            }
+        }
         if (pad && sensor.openxr &&
             Core::HostRuntime::GetDs4PoseSource() != Core::HostRuntime::Ds4PoseSource::Off &&
             g_pads.IsPlayers(param->handle)) {
@@ -463,6 +511,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
             result->hmd_info.device_pose.orientation_y = sensor.orientation_y;
             result->hmd_info.device_pose.orientation_z = sensor.orientation_z;
             result->hmd_info.device_pose.orientation_w = sensor.orientation_w;
+            result->hmd_info.device_pose.position_z = seat_z;
             result->hmd_info.head_pose = result->hmd_info.device_pose;
             result->hmd_info.left_eye_pose = result->hmd_info.device_pose;
             result->hmd_info.right_eye_pose = result->hmd_info.device_pose;
@@ -470,10 +519,10 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
             const auto right_eye = sensor.EyeOffset(0.0315f);
             result->hmd_info.left_eye_pose.position_x = left_eye[0];
             result->hmd_info.left_eye_pose.position_y = left_eye[1];
-            result->hmd_info.left_eye_pose.position_z = left_eye[2];
+            result->hmd_info.left_eye_pose.position_z = left_eye[2] + seat_z;
             result->hmd_info.right_eye_pose.position_x = right_eye[0];
             result->hmd_info.right_eye_pose.position_y = right_eye[1];
-            result->hmd_info.right_eye_pose.position_z = right_eye[2];
+            result->hmd_info.right_eye_pose.position_z = right_eye[2] + seat_z;
             result->hmd_info.rear_tracking_status = ORBIS_VR_TRACKER_REAR_TRACKING_READY;
             result->hmd_info.sensor_read_system_timestamp = result->timestamp;
         } else {
@@ -483,7 +532,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
             // It is independent of the headset's gyroscope orientation.
             pose.position_x = left ? -0.25f : 0.25f;
             pose.position_y = -0.15f;
-            pose.position_z = -0.45f;
+            pose.position_z = -0.45f + seat_z;
             pose.orientation_w = 1.0f;
         }
         calibrating();
@@ -493,6 +542,36 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
     // No camera/HMD provider or validated diagnostic provider is attached.
     // Do not write a fabricated connected/full-quality result.
     return ORBIS_VR_TRACKER_ERROR_PLAYSTATION_CAMERA_NOT_CONNECTED;
+}
+
+s32 GetResultForHost(const OrbisVrTrackerGetResultParam* param, OrbisVrTrackerResultData* result,
+                     GuestVrSensor::TrackerSample& sample) {
+    sample = {};
+    const auto status = GetResultImpl(param, result, sample);
+    if (status || !sample.valid) {
+        sample.valid = false;
+        return status;
+    }
+    sample.handle = result->handle;
+    sample.status = result->status;
+    sample.connected = result->connected;
+    sample.position_quality = result->position_quality;
+    sample.orientation_quality = result->orientation_quality;
+    const auto& pose = sample.target == GuestVrSensor::DebugTarget::Head
+                           ? result->hmd_info.device_pose
+                           : result->pad_info.device_pose;
+    sample.pose.position = {pose.position_x, pose.position_y, pose.position_z};
+    sample.pose.orientation = {pose.orientation_x, pose.orientation_y, pose.orientation_z,
+                               pose.orientation_w};
+    return status;
+}
+s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param,
+                                       OrbisVrTrackerResultData* result) {
+    GuestVrSensor::TrackerSample sample;
+    const auto status = GetResultForHost(param, result, sample);
+    if (!status)
+        GuestVrSensor::Instance().ObserveTrackerRead(std::move(sample));
+    return status;
 }
 
 s32 PS4_SYSV_ABI sceVrTrackerGetTime(u64* time) {
@@ -614,6 +693,8 @@ s32 PS4_SYSV_ABI sceVrTrackerRecalibrate(const OrbisVrTrackerRecalibrateParam* p
             g_ds4.Recalibrate(sensor.hardware.head);
         }
     }
+    if (device_type == OrbisVrTrackerDeviceType::ORBIS_VR_TRACKER_DEVICE_HMD && VirtualSbsEnabled())
+        GuestVrSensor::Instance().ResetOrientation();
     // Results for this kind of device say CALIBRATING for a moment (see Recalibrations).
     g_recalibrations.Begin(device_type, Libraries::Kernel::sceKernelGetProcessTime());
     return ORBIS_OK;

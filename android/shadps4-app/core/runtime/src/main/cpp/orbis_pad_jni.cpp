@@ -326,19 +326,50 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeSetVrSbsEnabled(JNIEnv *,
     }
 }
 
+namespace {
+std::int64_t SensorMonotonicNs(jlong timestamp_ns) {
+    // SensorEvent timestamps include suspend time; host tracking does not.
+    timespec boot{}, mono{};
+    clock_gettime(CLOCK_BOOTTIME, &boot);
+    clock_gettime(CLOCK_MONOTONIC, &mono);
+    const std::int64_t offset =
+        (std::int64_t(boot.tv_sec) - mono.tv_sec) * 1'000'000'000 +
+        (boot.tv_nsec - mono.tv_nsec);
+    return timestamp_ns - std::max<std::int64_t>(offset, 0);
+}
+} // namespace
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeResetVrOrientation(
+    JNIEnv *, jclass) {
+    try {
+        Core::HostRuntime::GuestVrSensor::Instance().ResetOrientation();
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag,
+                            "resetVrOrientation threw");
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeUpdateVrRotation(
+    JNIEnv *, jclass, jfloat x, jfloat y, jfloat z, jfloat w, jint rotation,
+    jlong timestamp_ns) {
+    try {
+        const auto ns = SensorMonotonicNs(timestamp_ns);
+        if (ns > 0 && rotation >= 0 && rotation <= 3)
+            Core::HostRuntime::GuestVrSensor::Instance().UpdateRotationVector(
+                {x, y, z, w}, rotation, ns);
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "updateVrRotation threw");
+    }
+}
+
 extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_input_NativePad_nativeUpdateVrGyro(JNIEnv *, jclass, jfloat x,
                                                                     jfloat y, jfloat z,
                                                                     jlong timestamp_ns) {
     try {
-        // SensorEvent.timestamp is CLOCK_BOOTTIME; VR samples are kept in CLOCK_MONOTONIC (see
-        // vr_time.h), which stops while the device sleeps.
-        timespec boot{}, mono{};
-        clock_gettime(CLOCK_BOOTTIME, &boot);
-        clock_gettime(CLOCK_MONOTONIC, &mono);
-        const std::int64_t offset = (std::int64_t(boot.tv_sec) - mono.tv_sec) * 1'000'000'000 +
-                                    (boot.tv_nsec - mono.tv_nsec);
-        const std::int64_t monotonic_ns = timestamp_ns - std::max<std::int64_t>(offset, 0);
+        const auto monotonic_ns = SensorMonotonicNs(timestamp_ns);
         if (std::isfinite(x) && std::isfinite(y) && std::isfinite(z) && monotonic_ns > 0)
             Core::HostRuntime::GuestVrSensor::Instance().UpdateGyro(
                 x, y, z, static_cast<std::uint64_t>(monotonic_ns));

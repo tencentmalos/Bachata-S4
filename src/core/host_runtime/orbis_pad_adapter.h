@@ -141,6 +141,7 @@ private:
     void DebugFocusLocked(bool focused);
     void ReleaseDebugLocked(std::string_view reason, bool discard_history);
     void ReleaseDebugPortLocked(int port, std::string_view reason, bool discard_history);
+    void ReleaseDebugPoseLocked(unsigned target, std::string_view reason);
     void ObserveDebugLocked(const Sample& sample, bool intercepted);
     void TracePublishLocked(int port);
     void TraceGuestPollLocked(int port, const Sample& sample, bool intercepted);
