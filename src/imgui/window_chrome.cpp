@@ -153,10 +153,10 @@ void DrawMenuBar() {
         }
         Separator();
         if (BeginMenu("Status Overlay")) {
-            static constexpr const char* kLabels[] = {"Off", "Only FPS", "Summary"};
-            static constexpr const char* kRequests[] = {"hide", "simple", "summary"};
-            for (int mode = 0; mode < 3; ++mode) {
-                if (MenuItem(kLabels[mode], nullptr, status.overlay_mode == mode)) {
+            static constexpr const char* kLabels[] = {"Off", "Summary"};
+            static constexpr const char* kRequests[] = {"hide", "summary"};
+            for (int mode = 0; mode < 2; ++mode) {
+                if (MenuItem(kLabels[mode], nullptr, (status.overlay_mode != 0) == (mode != 0))) {
                     OverlayRequest(kRequests[mode]);
                 }
             }
@@ -269,11 +269,9 @@ void DrawStatusBar() {
                                        ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoNav;
     if (BeginViewportSideBar("##WindowStatusBar", GetMainViewport(), ImGuiDir_Down, height, kFlags)) {
         if (BeginMenuBar()) {
-            static constexpr const char* kOverlay[] = {"Status: Off", "Status: FPS", "Status: Summary"};
-            static constexpr const char* kNext[] = {"simple", "summary", "hide"};
-            const int mode = std::clamp(status.overlay_mode, 0, 2);
-            if (StatusButton(kOverlay[mode], mode != 0)) {
-                OverlayRequest(kNext[mode]);
+            const bool enabled = status.overlay_mode != 0;
+            if (StatusButton(enabled ? "Status: On" : "Status: Off", enabled)) {
+                OverlayRequest(enabled ? "hide" : "summary");
             }
             if (presenter) {
                 auto& fsr = presenter->GetFsrSettingsRef();

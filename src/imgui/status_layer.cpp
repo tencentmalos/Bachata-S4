@@ -15,6 +15,13 @@
 #endif
 
 namespace ImGui {
+namespace {
+std::string MemoryText(std::optional<uint64_t> bytes) {
+    if (!bytes) return "--";
+    return *bytes >= (1ULL << 30) ? fmt::format("{:.1f} GiB", *bytes / 1073741824.0)
+                                : fmt::format("{:.0f} MiB", *bytes / 1048576.0);
+}
+}
 spatial::imgui::overlay::StatusSnapshot StatusLayer::Summary(bool xr) {
     namespace ov = spatial::imgui::overlay;
     ov::StatusSnapshot model;
@@ -37,8 +44,40 @@ spatial::imgui::overlay::StatusSnapshot StatusLayer::Summary(bool xr) {
     }
     auto settings = xr ? spatial::perf::PerfHudSettings::preset(spatial::perf::PerfPreset::Full)
                        : overlay.HudSettings();
+    settings.graph[static_cast<size_t>(spatial::perf::PerfMetric::Cpu)] = false;
+    settings.graph[static_cast<size_t>(spatial::perf::PerfMetric::Gpu)] = false;
     if (xr) settings.graph.fill(false);
     hud.appendSummary(model, settings);
+    model.ensure_fps = false;
+    if (!settings.shows(spatial::perf::PerfMetric::Fps))
+        std::erase_if(model.summary_items, [](const auto& item) { return item.id.value() == ov::summary_item::kFps; });
+    if (settings.shows(spatial::perf::PerfMetric::Memory)) {
+        auto memory = memory_metrics.Latest();
+#ifndef __ANDROID__
+        if (const auto device = device_metrics.latest()) {
+            memory.system_used = device->memory_used_bytes;
+            memory.system_total = device->memory_total_bytes;
+        }
+#endif
+        auto item = std::find_if(model.summary_items.begin(), model.summary_items.end(),
+                                [](const auto& value) { return value.id == ov::StableId("perf.ram"); });
+        // Android framework and kernel availability have different meanings. Replace the
+        // kernel HUD reading; an unavailable framework sample must not change its definition.
+        ov::SummaryItem system;
+        if (item != model.summary_items.end()) system = *item;
+        system.style.label_color = system.style.value_color =
+            ov::perfMetricColor(spatial::perf::PerfMetric::Memory, settings.color_intensity);
+        system.id = ov::StableId("perf.ram");
+        system.label = ov::LocalizedText("RAM");
+        system.value = memory.system_used && memory.system_total
+                           ? fmt::format("{:.1f}/{:.1f} GiB", *memory.system_used / 1073741824.0,
+                                         *memory.system_total / 1073741824.0)
+                           : "--";
+        if (item != model.summary_items.end())
+            *item = std::move(system);
+        else
+            model.summary_items.push_back(std::move(system));
+    }
     return model;
 }
 void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
@@ -134,6 +173,23 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
         section->properties.push_back(
             {ov::LocalizedText(label), value, 0, ov::StatusSeverity::Normal, {}, style});
     };
+    auto memory = memory_metrics.Latest();
+#ifndef __ANDROID__
+    if (const auto device = device_metrics.latest()) {
+        memory.system_used = device->memory_used_bytes;
+        memory.system_total = device->memory_total_bytes;
+        if (memory.system_total && memory.system_used)
+            memory.system_available = *memory.system_total - *memory.system_used;
+    }
+#endif
+    field("Memory", "RAM / total", MemoryText(memory.system_used) + " / " + MemoryText(memory.system_total));
+#ifdef __ANDROID__
+    field("Memory", "RAM source", "Android ActivityManager: totalMem - availMem", dim);
+    field("Memory", "Android available", MemoryText(memory.system_available));
+#else
+    field("Memory", "RAM source", "OS physical memory: total - available", dim);
+    field("Memory", "System available", MemoryText(memory.system_available));
+#endif
     ov::MetricSeries frames;
     frames.id = ov::StableId("frame_time");
     frames.label = ov::LocalizedText("New game frame interval");
@@ -241,17 +297,6 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
             field("GPU timing", "Present / redraw",
                   fmt::format("{:.2f} / {:.2f} ms", timing.stages[size_t(Stage::Present)].last_ms,
                               timing.stages[size_t(Stage::Redraw)].last_ms));
-            ov::MetricSeries series;
-            series.id = ov::StableId("gpu_guest");
-            series.label = ov::LocalizedText("GPU guest elapsed");
-            series.unit = ov::LocalizedText("ms");
-            series.reference_value = 33.333f;
-            const auto n =
-                std::min<uint64_t>(timing.guest_history_count, timing.guest_history.size());
-            for (uint64_t i = 0; i < n; ++i)
-                series.push(timing.guest_history[(timing.guest_history_count - n + i) %
-                                                 timing.guest_history.size()]);
-            model.detail_sections.back().graphs.push_back(std::move(series));
         }
         field("GPU timing", "Pending / dropped / errors",
               fmt::format("{} / {} / {}", timing.pending,
@@ -264,6 +309,30 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
                                   : "Duration only",
               dim);
     }
+    // Keep the first level short; diagnostic counters and graphs are opt-in subgroups.
+    auto sections = std::move(model.detail_sections);
+    model.detail_sections.clear();
+    auto category = [&](const char* id, const char* title,
+                        std::initializer_list<const char*> children) {
+        ov::DetailSection parent;
+        parent.id = ov::StableId(id);
+        parent.title = ov::LocalizedText(title);
+        parent.initially_open = false;
+        for (const auto* child : children) {
+            auto found = std::find_if(sections.begin(), sections.end(), [&](const auto& section) {
+                return section.id == ov::StableId(child);
+            });
+            if (found != sections.end()) {
+                found->initially_open = false;
+                parent.groups.push_back(std::move(*found));
+            }
+        }
+        if (!parent.groups.empty())
+            model.detail_sections.push_back(std::move(parent));
+    };
+    category("detail.performance", "Performance", {"Frame timing", "Memory", "GPU timing"});
+    category("detail.rendering", "Rendering", {"Renderer", "Render passes"});
+    category("detail.textures", "Textures & scaling", {"Texture uploads", "Scaling"});
     overlay.Prepare(std::move(model));
 }
 void StatusLayer::Draw() {

@@ -1959,6 +1959,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libSceCoredump#1#libkernel#Function") ||
              (nid == "f7KBOafysXo" &&
               symbol.name.substr(nid.size()) == "#libkernel_psmkit#1#libkernel#Function") ||
+             ((nid == "QgsKEUfkqMA" || nid == "ZzzC3ZGVAkc") &&
+              symbol.name.substr(nid.size()) == "#libkernel_module_info#1#libkernel#Function") ||
              // IsProspero also has this desktop-registered platform export.
              // Keep the alias scoped to its NID, library version and module.
              (nid == "mpxAdqW7dKY" && symbol.name.substr(nid.size()) ==
@@ -3328,7 +3330,10 @@ void GuestRuntime::Impl::InstallHandlers() {
             }
             return result;
         };
-        if (FileSys::SplitArchivePath(mount->host_path)) {
+        // PKG mounts, like ZAR mounts, keep module identities in the guest
+        // namespace. Canonicalizing "game.pkg/Media/..." as a host file would
+        // report ENOENT for already prepared modules and leave Unity callbacks null.
+        if (FileSys::IsPkgFile(mount->host_path) || FileSys::SplitArchivePath(mount->host_path)) {
             for (s32 id = 0; auto* module = linker->GetModule(id); ++id)
                 if (module->file.lexically_normal().generic_string() == guest) return start(id);
             if (const auto id = alias(std::filesystem::path(guest)))
@@ -3362,6 +3367,33 @@ void GuestRuntime::Impl::InstallHandlers() {
         // and arbitrary file loads remain unsupported, without misreporting ENOENT.
         return finish(ORBIS_KERNEL_ERROR_ENOTSUP);
     };
+    for (const auto nid : {"IuxnUuXk6Bg", "ZzzC3ZGVAkc"}) {
+        bind({nid}, [this, hide = std::string_view(nid) == "ZzzC3ZGVAkc"](const auto& a) -> u64 {
+            return DispatchModuleList(space, hide, a[0], a[1], a[2],
+                [this](s32 id) -> std::optional<bool> {
+                    if (auto* module = linker->GetModule(id)) return module->IsSystemLib();
+                    return std::nullopt;
+                });
+        });
+    }
+    for (const auto nid : {"kUpgrXIrz7Q", "QgsKEUfkqMA"}) {
+        bind({nid}, [this, hide = std::string_view(nid) == "QgsKEUfkqMA"](const auto& a) -> u64 {
+            return DispatchModuleHandleInfo<OrbisKernelModuleInfo>(space, hide, s32(a[0]), a[1],
+                [this](s32 id) -> std::optional<std::pair<OrbisKernelModuleInfo, bool>> {
+                    if (auto* module = linker->GetModule(id))
+                        return std::pair{module->GetModuleInfo(), module->IsSystemLib()};
+                    return std::nullopt;
+                });
+        });
+    }
+    bind({"HZO7xOos4xc"}, [this](const auto& a) -> u64 {
+        return DispatchModuleHandleInfo<OrbisKernelModuleInfoEx>(space, false, s32(a[0]), a[1],
+            [this](s32 id) -> std::optional<std::pair<OrbisKernelModuleInfoEx, bool>> {
+                if (auto* module = linker->GetModule(id))
+                    return std::pair{module->GetModuleInfoEx(), module->IsSystemLib()};
+                return std::nullopt;
+            });
+    });
     for (const auto nid : {"RpQJJVKTiFM", "4fU5yvOkVG4", "f7KBOafysXo"}) {
         bind({nid}, [this, nid = std::string_view{nid}](const auto& a) -> u64 {
             const auto result = DispatchModuleInfo(space, nid != "f7KBOafysXo",

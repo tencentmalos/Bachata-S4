@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 data class NavControllerEvent(
     val control: String,
     val pressed: Boolean,
+    val value: Float = if (pressed) 1f else 0f,
 )
 
 object GamepadInputManager {
@@ -92,6 +93,10 @@ object GamepadInputManager {
         navSink.set(null)
     }
 
+    fun unregisterNavListener(listener: (NavControllerEvent) -> Boolean) {
+        navSink.compareAndSet(listener, null)
+    }
+
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val deviceId = event.deviceId
         if (!isGameController(deviceId)) return false
@@ -118,10 +123,9 @@ object GamepadInputManager {
             event.action == KeyEvent.ACTION_DOWN,
         ) ?: return false
 
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            val nav = navSink.get()
-            if (nav != null && nav(NavControllerEvent(controlEvent.control, true))) return true
-        }
+        val nav = navSink.get()
+        if (nav != null && nav(NavControllerEvent(
+                controlEvent.control, event.action == KeyEvent.ACTION_DOWN, controlEvent.value))) return true
 
         val activeProfile = profile.get()
         val binding = activeProfile.bindings[controlEvent.control] ?: return false
@@ -155,18 +159,20 @@ object GamepadInputManager {
         val nav = navSink.get()
         if (nav != null) {
             // HAT axes → nav controls via synthetic button conversion
+            var handled = false
             val hatControls = hatToNavControls(event)
             for (hc in hatControls) {
-                if (nav(NavControllerEvent(hc.first, hc.second))) return true
+                handled = nav(NavControllerEvent(hc.first, hc.second)) || handled
             }
             for (axis in AXIS_CODES) {
                 if (axis == MotionEvent.AXIS_HAT_X || axis == MotionEvent.AXIS_HAT_Y) continue // handled above
                 val raw = event.getAxisValue(axis)
                 val controlEvent = mapper.axis(deviceId, event.eventTime, axis, raw) ?: continue
-                val navEvent = NavControllerEvent(controlEvent.control, abs(controlEvent.value) >= AXIS_CAPTURE_THRESHOLD)
-                if (nav(navEvent)) return true
+                val navEvent = NavControllerEvent(controlEvent.control,
+                    abs(controlEvent.value) >= AXIS_CAPTURE_THRESHOLD, controlEvent.value)
+                handled = nav(navEvent) || handled
             }
-            return false
+            return handled
         }
 
         if (NativePadBridge.currentToken() != 0L)

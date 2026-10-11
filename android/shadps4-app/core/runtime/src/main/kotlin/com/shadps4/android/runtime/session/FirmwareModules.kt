@@ -27,6 +27,13 @@ object FirmwareModules {
             Log.w(TAG, "APK has no firmware modules")
             return Result(0, 0, emptyList(), 0)
         }
+        // A developer build may omit the private firmware bundle. An empty asset
+        // set is not an uninstall request; keep both the files and ownership record
+        // so a later complete bundle can still upgrade its own files safely.
+        if (index.getJSONArray("modules").length() == 0) {
+            Log.i(TAG, "APK omits firmware modules; preserving installed modules")
+            return Result(0, 0, emptyList(), 0)
+        }
         val directory = File(context.filesDir, "host/sys_modules").apply { mkdirs() }
         val recordFile = File(directory, RECORD)
         // file -> SHA-256 of every file a bundle wrote here, across APK updates.

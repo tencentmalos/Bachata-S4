@@ -447,6 +447,7 @@ class FexSessionService : Service() {
         surfaceJob?.cancel()
         val generation = NativeFexSession.nativeCurrentGeneration()
         if (generation == 0L) { stopSelf(); return }
+        if (stopRequestedGeneration == generation) return
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))
         // Mark the stop and give teardown a bounded budget; the observer treats a
         // WaitTerminal timeout past this budget as a wedged teardown, not as a
@@ -458,6 +459,14 @@ class FexSessionService : Service() {
         thread(name = "fex-session-stop-$generation") {
             NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
         }
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        // A started service otherwise survives a swipe out of Recents, retaining every guest
+        // thread and its Vulkan resources. Keep the observer alive until native teardown ends.
+        Log.i(TAG, "Task removed; stopping the guest session")
+        handleStop()
+        super.onTaskRemoved(rootIntent)
     }
 
     private fun publishTerminal(gameId: String, generation: Long, outcome: Int) {
@@ -516,7 +525,7 @@ class FexSessionService : Service() {
         // let the observer publish the terminal and reclaim. onDestroy returns
         // immediately.
         val generation = NativeFexSession.nativeCurrentGeneration()
-        if (generation != 0L) {
+        if (generation != 0L && stopRequestedGeneration != generation) {
             stopRequestedGeneration = generation
             stopDeadlineUptimeMs = android.os.SystemClock.uptimeMillis() + STOP_COMPLETION_BUDGET_MS
             thread(name = "fex-session-destroy-$generation") {

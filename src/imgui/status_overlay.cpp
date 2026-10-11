@@ -26,7 +26,34 @@ StatusOverlay::~StatusOverlay() {
         Core::ReleaseGamepadInputCapture();
 }
 void StatusOverlay::submit(const ov::OverlayIntent& intent) {
-    shell.controller().submitIntent(intent);
+    auto& controller = shell.controller();
+    controller.processIntents();
+    if (intent.kind == ov::OverlayIntentKind::CycleStatusMode) {
+        ov::OverlayIntent mode;
+        mode.kind = ov::OverlayIntentKind::SetStatusMode;
+        mode.status_mode = ov::StatusMode::Summary;
+        controller.submitIntent(mode);
+        ov::OverlayIntent toggle;
+        toggle.kind = ov::OverlayIntentKind::ToggleDetail;
+        controller.submitIntent(toggle);
+        return;
+    }
+    if (intent.kind == ov::OverlayIntentKind::SetStatusMode && controller.detailOpen()) {
+        ov::OverlayIntent close;
+        close.kind = ov::OverlayIntentKind::ToggleDetail;
+        controller.submitIntent(close);
+    }
+    if (intent.kind == ov::OverlayIntentKind::ToggleDetail && !controller.detailOpen()) {
+        ov::OverlayIntent summary;
+        summary.kind = ov::OverlayIntentKind::SetStatusMode;
+        summary.status_mode = ov::StatusMode::Summary;
+        controller.submitIntent(summary);
+    }
+    auto normalized = intent;
+    if (normalized.kind == ov::OverlayIntentKind::SetStatusMode &&
+        normalized.status_mode == ov::StatusMode::Simple)
+        normalized.status_mode = ov::StatusMode::Summary;
+    controller.submitIntent(normalized);
 }
 void StatusOverlay::emit(const ov::OverlayCommand& command) {
     shell.controller().emitCommand(command);
@@ -56,8 +83,7 @@ void StatusOverlay::Request(const std::string& command) {
         return;
     } else {
         intent.kind = ov::OverlayIntentKind::SetStatusMode;
-        intent.status_mode = command == "summary" || command == "show" ? ov::StatusMode::Summary
-                                                                       : ov::StatusMode::Simple;
+        intent.status_mode = ov::StatusMode::Summary;
     }
     submit(intent);
 }
@@ -90,6 +116,8 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
         metrics.simple_height_dp = 32.f;
         metrics.minimum_touch_target_dp = 32.f;
 #endif
+        metrics.show_detail_button = false;
+        metrics.detail_below_status = true;
         init.metrics = metrics;
         init.typography = ov::makeOverlayTypography(text_size);
         init.requested_font_mode = si::FontRenderMode::Sdf;
@@ -110,6 +138,8 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
                 const auto json = nlohmann::json::parse(input);
                 ov::OverlayPersistentState state;
                 if (ov::deserializeOverlayState(json.value("shell", ""), state)) {
+                    for (auto& mode : state.status_modes)
+                        if (mode.mode == ov::StatusMode::Simple) mode.mode = ov::StatusMode::Summary;
                     shell.restorePersistentState(state);
                     restored = true;
                 }
@@ -129,6 +159,12 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
             Request("hide");
 #endif
         shell.setTypography(ov::makeOverlayTypography(text_size));
+        ov::OverlayIntent horizontal;
+        horizontal.kind = ov::OverlayIntentKind::SetStatusOrientation;
+        horizontal.status_orientation = ov::StatusOrientation::Horizontal;
+        shell.controller().submitIntent(horizontal);
+        shell.controller().processIntents();
+        if (shell.controller().statusMode() == ov::StatusMode::Simple) Request("summary");
         metrics.status_anchor = status_anchor;
         initialized = true;
     }
@@ -226,11 +262,12 @@ void StatusOverlay::Controls() {
             c.options.push_back({ov::StableId(std::to_string(i++)), ov::LocalizedText(name)});
         page.controls.push_back(std::move(c));
     };
-    choice("mode", "Status", int(shell.controller().statusMode()), {"None", "Only FPS", "Summary"});
+    choice("mode", "Status", shell.controller().statusMode() == ov::StatusMode::None ? 0 : 1,
+           {"Off", "On"});
     choice("text_size", "Text size", int(text_size), {"Small", "Medium", "Large"});
-    choice("status_anchor", "FPS position", int(status_anchor),
+    choice("status_anchor", "Status position", int(status_anchor),
            {"Top left", "Top right", "Bottom left", "Bottom right"});
-    // Only FPS and Summary are drawn without a background; this is the Detail and Controls panels'.
+    // This opacity controls the settings panel; Status and Detail stay transparent.
     ov::ControlDescriptor opacity;
     opacity.id = ov::StableId("opacity");
     opacity.label = ov::LocalizedText("Panel opacity");
@@ -242,8 +279,29 @@ void StatusOverlay::Controls() {
     auto hud = ov::makePerfHudControlPage(perf_hud, shell.controller().statusMode(),
                                           shell.controller().statusOrientation());
     std::erase_if(hud.controls, [](const ov::ControlDescriptor& control) {
-        return control.id == ov::StableId(ov::perf_hud::kOpacityControl);
+        return control.id == ov::StableId(ov::perf_hud::kOpacityControl) ||
+               control.id == ov::StableId(ov::perf_hud::kLayoutControl) ||
+               control.id == ov::StableId(std::string(ov::perf_hud::kGraphPrefix) + "cpu") ||
+               control.id == ov::StableId(std::string(ov::perf_hud::kGraphPrefix) + "gpu");
     });
+    std::erase_if(hud.controls, [](const ov::ControlDescriptor& control) {
+        return control.id == ov::StableId(ov::perf_hud::kPresetControl);
+    });
+    const auto toggle = [](std::string id, const char* label, bool value) {
+        ov::ControlDescriptor control;
+        control.id = ov::StableId(id);
+        control.action = ov::StableId(id);
+        control.kind = ov::ControlKind::Toggle;
+        control.label = ov::LocalizedText(label);
+        control.bool_value = value;
+        return control;
+    };
+    auto rows = std::find_if(hud.controls.begin(), hud.controls.end(), [](const auto& control) {
+        return control.id == ov::StableId("perf-hud.rows");
+    });
+    if (rows != hud.controls.end())
+        hud.controls.insert(std::next(rows), toggle(std::string(ov::perf_hud::kShowPrefix) + "fps",
+                                                  "FPS", perf_hud.shows(spatial::perf::PerfMetric::Fps)));
     snapshot.controls.pages = {std::move(page), std::move(hud)};
     snapshot.controls.initial_page = ov::StableId("overlay");
 }
@@ -253,10 +311,16 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
         ov::DetailSection section;
         section.id = ov::StableId("Overlay renderer");
         section.title = ov::LocalizedText("Overlay renderer");
+        section.initially_open = false;
         auto* renderer = Core::Renderer();
         section.properties.push_back({ov::LocalizedText("Font mode"),
                                       renderer ? renderer->FontDiagnostics() : std::string{}});
-        snapshot.status.detail_sections.push_back(std::move(section));
+        ov::DetailSection diagnostics;
+        diagnostics.id = ov::StableId("detail.diagnostics");
+        diagnostics.title = ov::LocalizedText("Diagnostics");
+        diagnostics.initially_open = false;
+        diagnostics.groups.push_back(std::move(section));
+        snapshot.status.detail_sections.push_back(std::move(diagnostics));
     }
     if (shell.controller().controlPanelOpen())
         Controls();
@@ -270,6 +334,9 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
     }
     shell.setResolvedFonts(resolved);
     ov::measureOverlayStatus(snapshot, shell.fonts(), theme, metrics, environment);
+    // One visual block: Detail shares the horizontal HUD's width and starts at its bottom edge.
+    if (metrics.summary_horizontal_width_dp)
+        metrics.detail_width_dp = *metrics.summary_horizontal_width_dp;
     shell.setMetrics(metrics);
     if (!width || !height)
         return;
@@ -330,7 +397,8 @@ void StatusOverlay::ApplyCommands() {
                 if (value->value() == "0" || value->value() == "1" || value->value() == "2") {
                     ov::OverlayIntent intent;
                     intent.kind = ov::OverlayIntentKind::SetStatusMode;
-                    intent.status_mode = ov::StatusMode(value->value()[0] - '0');
+                    intent.status_mode = value->value() == "0" ? ov::StatusMode::None
+                                                              : ov::StatusMode::Summary;
                     submit(intent);
                 }
             } else if (command.control == ov::StableId("text_size") && value) {
@@ -368,11 +436,12 @@ void StatusOverlay::Draw() {
     draw.snapshot = &snapshot;
     draw.theme = &theme;
     draw.intents = this;
-    // Only FPS and Summary are text over the game, without a panel; their two buttons keep a
-    // translucent fill so they still read as buttons.
+    // Detail shares Summary's transparent, outlined text appearance.
+    // Controls remains an icon without a permanent or touch-hover background.
     draw.status_appearance = ov::perfHudAppearance(perf_hud);
     draw.status_appearance.background_opacity = 0.f;
-    draw.status_appearance.button_opacity = .4f;
+    draw.status_appearance.button_opacity = 0.f;
+    draw.status_appearance.hover_feedback = false;
     draw.sectionOpen = [&](const ov::StableId& id, bool fallback) {
         return shell.controller().detailSectionOpen(id, fallback);
     };

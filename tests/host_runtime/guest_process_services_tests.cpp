@@ -115,6 +115,74 @@ int main() {
         CHECK(DispatchKernelTimezone(*space, "kOcnerypnQA", {base + 0x3ffe}) == u32(ORBIS_KERNEL_ERROR_EFAULT));
         CHECK(DispatchKernelTimezone(*space, "unknown", {}) == u32(ORBIS_KERNEL_ERROR_ENOSYS));
     }
+    {
+        const auto lookup = [](s32 id) -> std::optional<bool> {
+            if (id < 0 || id >= 4) return std::nullopt;
+            return id == 1 || id == 3;
+        };
+        const u64 count_address = base + 0x100;
+        auto list = [&](bool hide, u64 capacity, u64 handles, u64 count) {
+            return DispatchModuleList(*space, hide, handles, capacity, count, lookup);
+        };
+        u64 count = 99;
+        std::array<s32, 6> handles{};
+        handles.fill(-1);
+        auto reset = [&] {
+            count = 99; handles.fill(-1);
+            CHECK(space->WriteData({count_address}, std::as_bytes(std::span{&count, 1})));
+            CHECK(space->WriteData({base}, std::as_bytes(std::span{handles})));
+        };
+        auto read = [&] {
+            CHECK(space->ReadData({count_address}, std::as_writable_bytes(std::span{&count, 1})));
+            CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{handles})));
+        };
+        reset(); CHECK(list(false, 64, base, count_address) == 0); read();
+        CHECK(count == 4 && handles[0] == 0 && handles[3] == 3 && handles[4] == -1);
+        reset(); CHECK(list(true, 2, base, count_address) == 0); read();
+        CHECK(count == 2 && handles[0] == 0 && handles[1] == 2 && handles[2] == -1);
+        reset(); CHECK(list(false, 2, base, count_address) == u32(ORBIS_KERNEL_ERROR_ENOMEM)); read();
+        CHECK(count == 99 && handles[0] == 0 && handles[1] == 1 && handles[2] == -1);
+        reset(); CHECK(list(false, 0, base, count_address) == u32(ORBIS_KERNEL_ERROR_ENOMEM)); read();
+        CHECK(count == 99 && handles[0] == -1);
+        CHECK(list(false, UINT64_MAX, base, count_address) == 0);
+        CHECK(list(false, 4, 0, count_address) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(list(false, 4, base, 0) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        reset(); CHECK(list(false, 4, base, base + 0x3ffc) == u32(ORBIS_KERNEL_ERROR_EFAULT)); read();
+        CHECK(count == 99 && handles[0] == -1);
+        CHECK(list(false, 4, base + 0x3ffc, count_address) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(space->Protect({{base}, 0x4000}, GuestPermission::Read));
+        CHECK(list(false, 4, base, count_address) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(space->Protect({{base}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
+        auto check_info = [&]<class T>() {
+            T info{}; info.name[0] = 'm';
+            auto lookup_info = [&](s32 id) -> std::optional<std::pair<T, bool>> {
+                if (id < 0 || id > 1) return std::nullopt;
+                return std::pair{info, id == 1};
+            };
+            auto invoke = [&](bool hide, s32 id, u64 out) {
+                return DispatchModuleHandleInfo<T>(*space, hide, id, out, lookup_info);
+            };
+            CHECK(space->WriteData({base}, std::as_bytes(std::span{&info, 1})));
+            CHECK(invoke(false, 0, base) == 0);
+            T result{}; CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{&result, 1})));
+            CHECK(result.name[0] == 'm' && result.st_size == sizeof(T));
+            CHECK(invoke(false, 1, base) == 0);
+            CHECK(invoke(true, 1, base) == u32(ORBIS_KERNEL_ERROR_EPERM));
+            CHECK(invoke(true, 0, base) == 0);
+            CHECK(invoke(false, -1, base) == u32(ORBIS_KERNEL_ERROR_ESRCH));
+            CHECK(invoke(false, 4, base) == u32(ORBIS_KERNEL_ERROR_ESRCH));
+            CHECK(invoke(false, 0, 0) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+            CHECK(invoke(false, 0, UINT64_MAX) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+            const u64 size = sizeof(T);
+            CHECK(space->WriteData({base + 0x3ff8}, std::as_bytes(std::span{&size, 1})));
+            CHECK(invoke(false, 0, base + 0x3ff8) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+            info.st_size = sizeof(T) - 1;
+            CHECK(space->WriteData({base}, std::as_bytes(std::span{&info, 1})));
+            CHECK(invoke(false, 0, base) == u32(ORBIS_KERNEL_ERROR_EINVAL));
+        };
+        check_info.template operator()<Core::OrbisKernelModuleInfo>();
+        check_info.template operator()<Core::OrbisKernelModuleInfoEx>();
+    }
     Core::OrbisKernelModuleInfoEx source{};
     source.id = 7; source.name[0] = 'x'; source.eh_frame_hdr_addr = base + 0x3100;
     source.eh_frame_addr = base + 0x3200; source.eh_frame_size = 0x123;

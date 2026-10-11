@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -95,7 +96,6 @@ fun SessionScreen(
     val state by viewModel.state.collectAsState()
     val connectedControllers by GamepadInputManager.connectedControllers.collectAsState()
     val hasPhysicalController = connectedControllers.isNotEmpty()
-    val device by viewModel.deviceTelemetry.collectAsState()
     // Terminal publication follows native teardown. This renderer owns no guest
     // Surface and therefore also works when Prepare never produced a frame.
     LaunchedEffect(state) {
@@ -137,9 +137,9 @@ fun SessionScreen(
     var showTouchControls by remember(sessionUiPreferences) {
         mutableStateOf(sessionUiPreferences.getBoolean("show_touch_controls", true))
     }
-    var showMemory by remember { mutableStateOf(true) }
     var showStopOverlay by remember { mutableStateOf(false) }
     var showSessionStopReport by remember { mutableStateOf(false) }
+    var observedGeneration by rememberSaveable(gameId) { mutableStateOf(0L) }
     var notificationMessage by remember { mutableStateOf<String?>(null) }
     var notificationVisible by remember { mutableStateOf(false) }
 
@@ -179,11 +179,25 @@ fun SessionScreen(
 
     LaunchedEffect(state) {
         val current = state
-        // Show the stop/report sheet for unexpected failures and for user-requested stops
-        // so players can still export logs after a manual exit.
+        when (current) {
+            is ManagedSessionState.Preparing -> observedGeneration = current.generation
+            is ManagedSessionState.Ready -> observedGeneration = current.generation
+            is ManagedSessionState.Running -> observedGeneration = current.generation
+            is ManagedSessionState.Stopping -> observedGeneration = current.generation
+            else -> Unit
+        }
+        // A normal Stop returns to the library only after native teardown publishes terminal.
+        // Reports stay available from the library; don't strand a cancelled session on this page.
+        if (current is ManagedSessionState.Stopped && current.generation == observedGeneration &&
+            current.userRequestedStop && !current.isUnexpected) {
+            showStopOverlay = false
+            showSessionStopReport = false
+            onExit()
+            return@LaunchedEffect
+        }
         val shouldOfferReport = when (current) {
             is ManagedSessionState.Stopped ->
-                current.reportContext != null && (current.isUnexpected || current.userRequestedStop)
+                current.reportContext != null && current.isUnexpected
             is ManagedSessionState.Failed -> current.reportContext != null
             else -> false
         }
@@ -281,20 +295,6 @@ fun SessionScreen(
             }
         )
 
-        if (showMemory) PerEye(stereo, Alignment.BottomStart) {
-            Text(
-                text = "System RAM %d/%d MB".format(
-                    device.ramUsedMb, device.ramTotalMb,
-                ),
-                color = Color.White,
-                modifier = Modifier
-                    .padding(12.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(Color.Black.copy(alpha = 0.65f))
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-            )
-        }
-
         // Notification pill sliding down from top, staying 5s, vanishing moving down
         PerEye(stereo, Alignment.TopCenter) {
             AnimatedVisibility(
@@ -370,119 +370,26 @@ fun SessionScreen(
             }
         }
 
-        // Overlay with stop button when clicking PS button
         if (showStopOverlay) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.75f))
-                    .clickable { showStopOverlay = false },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .background(BachataPalette.Surface, shape = RoundedCornerShape(16.dp))
-                        .border(1.dp, BachataPalette.Secondary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-                        .padding(28.dp)
-                        .clickable(enabled = false) {}
-                ) {
-                    Text(
-                        text = "Emulation Interrupted",
-                        color = BachataPalette.Primary,
-                        style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+            SessionMenu(
+                showTouchOption = !hasPhysicalController,
+                showTouchControls = showTouchControls,
+                onToggleTouch = {
+                    showTouchControls = !showTouchControls
+                    sessionUiPreferences.edit().putBoolean("show_touch_controls", showTouchControls).apply()
+                },
+                onOverlayControls = {
+                    showStopOverlay = false
+                    com.shadps4.android.runtime.input.NativePadBridge.openOverlayControls()
+                },
+                onResume = { showStopOverlay = false },
+                onStop = {
+                    context.startService(
+                        Intent(ManagedSession.ACTION_STOP).setClassName(context.packageName, ManagedSession.SERVICE_CLASS),
                     )
-                    Text(
-                        text = "Do you want to stop the current session?",
-                        color = BachataPalette.Secondary,
-                        style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
-
-                    // Overlay Settings (Show/Hide overlay switch)
-                    if (!hasPhysicalController) Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    ) {
-                        Text(
-                            text = "Touch controls",
-                            color = BachataPalette.Secondary,
-                            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
-                        Button(
-                            onClick = {
-                                showTouchControls = !showTouchControls
-                                sessionUiPreferences.edit().putBoolean("show_touch_controls", showTouchControls).apply()
-                            },
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = if (!showTouchControls) BachataPalette.Accent else BachataPalette.RaisedSurface,
-                                contentColor = if (!showTouchControls) BachataPalette.OnAccent else BachataPalette.Primary
-                            )
-                        ) {
-                            Text(if (!showTouchControls) "Hidden" else "Shown")
-                        }
-                    }
-
-                    Button(onClick = {
-                        showStopOverlay = false
-                        com.shadps4.android.runtime.input.NativePadBridge.openOverlayControls()
-                    }) { Text("Status overlay controls") }
-
-                    // Memory overlay (FPS is shown by the native StatusLayer)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    ) {
-                        Text(
-                            text = "Show system memory usage",
-                            color = BachataPalette.Secondary,
-                            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
-                        Button(
-                            onClick = { showMemory = !showMemory },
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = if (showMemory) BachataPalette.Accent else BachataPalette.RaisedSurface,
-                                contentColor = if (showMemory) BachataPalette.OnAccent else BachataPalette.Primary
-                            )
-                        ) {
-                            Text(if (showMemory) "Show" else "Hide")
-                        }
-                    }
-
-                    Row {
-                        Button(
-                            onClick = { showStopOverlay = false },
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = BachataPalette.RaisedSurface,
-                                contentColor = BachataPalette.Primary
-                            ),
-                            modifier = Modifier.padding(end = 12.dp)
-                        ) {
-                            Text("Resume")
-                        }
-                        Button(
-                            onClick = {
-                                // Stop guest process; SessionStopReportOverlay opens once
-                                // ManagedSession reports Stopped with userRequestedStop.
-                                context.startService(
-                                    Intent(ManagedSession.ACTION_STOP).setClassName(context.packageName, ManagedSession.SERVICE_CLASS),
-                                )
-                                showStopOverlay = false
-                            },
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFD32F2F),
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text("Stop")
-                        }
-                    }
-                }
-            }
+                    showStopOverlay = false
+                },
+            )
         }
     }
 }

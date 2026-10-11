@@ -1328,6 +1328,8 @@ set(IMGUI src/imgui/imgui_config.h
           src/imgui/status_overlay.h
           src/imgui/status_layer.cpp
           src/imgui/status_layer.h
+          src/imgui/status_memory.cpp
+          src/imgui/status_memory.h
           src/imgui/window_chrome.cpp
           src/imgui/window_chrome.h
           src/imgui/imgui_layer.h
@@ -2032,6 +2034,10 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_sparse_probe PRIVATE shadps4_host)
         target_include_directories(android_sparse_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_sparse_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_font_copy_probe tests/video_core/android_font_copy_probe.cpp)
+        target_link_libraries(android_font_copy_probe PRIVATE shadps4_host)
+        target_include_directories(android_font_copy_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_font_copy_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(android_shader_int64_probe tests/video_core/android_shader_int64_probe.cpp)
         target_link_libraries(android_shader_int64_probe PRIVATE shadps4_host)
         target_include_directories(android_shader_int64_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

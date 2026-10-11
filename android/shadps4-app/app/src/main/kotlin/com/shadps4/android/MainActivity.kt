@@ -36,6 +36,7 @@ open class MainActivity : ComponentActivity() {
     @Inject lateinit var runtimeProfileStore: RuntimeProfileStore
     private var requestedGameId by mutableStateOf<String?>(null)
     private var openLastGameRequest by mutableIntStateOf(0)
+    private var handingOffDisplayActivity = false
 
     private fun consumeLaunchIntent(value: Intent) {
         val requested = value.getBooleanExtra("open_last_game", false) ||
@@ -67,6 +68,11 @@ open class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        // Home/background and configuration recreation retain the session. Finishing the app
+        // must stop the started service as well; destroying an Activity does not do that for us.
+        if (isFinishing && !handingOffDisplayActivity) {
+            stopService(Intent(this, com.shadps4.android.service.FexSessionService::class.java))
+        }
         com.shadps4.android.runtime.input.NativePad.nativeReleaseOpenXr(this)
         super.onDestroy()
     }
@@ -130,6 +136,7 @@ open class MainActivity : ComponentActivity() {
         // A launcher tap must bring the running mode forward, never reconfigure its Vulkan device.
         if (com.shadps4.android.runtime.session.NativeFexSession.nativeCurrentGeneration() != 0L &&
             nativePad.nativeIsOpenXrConfigured() != openXrEnabled) {
+            handingOffDisplayActivity = true
             startActivity(Intent(this, if (openXrEnabled) MainActivity::class.java else OpenXrActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
             finish()
@@ -167,10 +174,12 @@ open class MainActivity : ComponentActivity() {
                         onGameRequestConsumed = { requestedGameId = null },
                         openXrEnabled = openXrEnabled,
                         exitXrToLibrary = {
+                            handingOffDisplayActivity = true
                             startActivity(Intent(this, MainActivity::class.java))
                             finish()
                         },
                         switchDisplayActivity = { gameId, xr ->
+                            handingOffDisplayActivity = true
                             startActivity(Intent(this, if (xr) OpenXrActivity::class.java else MainActivity::class.java)
                                 .putExtra(DirectGameLaunchRequest.EXTRA_GAME_ID, gameId))
                             finish()

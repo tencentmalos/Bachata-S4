@@ -7,6 +7,7 @@
 #include "core/diagnostics/frame_history.h"
 #include "imgui/runtime_tooltips.h"
 #include "imgui/status_overlay.h"
+#include "imgui/status_memory.h"
 #include "video_core/renderer_vulkan/render_pass_stats.h"
 #include "video_core/texture_cache/scale_coverage.h"
 #include "video_core/texture_cache/scale_policy.h"
@@ -49,6 +50,7 @@ private:
     // Performance HUD in Summary: device metrics sampled once a second on their own thread, and
     // new game frames per second. Emulator-specific numbers stay in Detail.
     spatial::perf::DeviceMetricsSampler device_metrics;
+    StatusMemorySampler memory_metrics;
     spatial::perf::FrameRateCounter frame_rate;
     spatial::imgui::overlay::PerfHud hud;
     uint64_t hud_sequence{};

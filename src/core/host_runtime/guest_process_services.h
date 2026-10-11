@@ -4,6 +4,7 @@
 #include <cstring>
 #include <optional>
 #include <string_view>
+#include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/kernel/coredump/coredump_error.h"
 #include "core/libraries/kernel/orbis_error.h"
@@ -12,6 +13,52 @@
 #include "core/module.h"
 
 namespace Core::HostRuntime {
+// Enumerate the prepared Linker graph, preserving its handles. No host module or
+// pointer is exposed. GetModuleList2 omits system libraries, as on desktop.
+template <class Lookup>
+u32 DispatchModuleList(GuestCpu::GuestAddressSpace& space, bool hide_system,
+                       u64 handles, u64 capacity, u64 out_count, Lookup&& lookup) {
+    if (!handles || !out_count) return ORBIS_KERNEL_ERROR_EFAULT;
+    std::vector<s32> ids;
+    bool truncated = false;
+    for (s32 id = 0;; ++id) {
+        const auto system = lookup(id);
+        if (!system) break;
+        if (hide_system && *system) continue;
+        if (ids.size() == capacity) { truncated = true; break; }
+        ids.push_back(id);
+    }
+    auto count = space.AcquireDataSpan({{out_count}, sizeof(u64)}, true);
+    if (!count) return ORBIS_KERNEL_ERROR_EFAULT;
+    if (!ids.empty()) {
+        auto output = space.AcquireDataSpan({{handles}, ids.size() * sizeof(s32)}, true);
+        if (!output) return ORBIS_KERNEL_ERROR_EFAULT;
+        std::memcpy(output.Value().WritableBytes().data(), ids.data(), ids.size() * sizeof(s32));
+    }
+    // Desktop fills the available handle slots but leaves count untouched on ENOMEM.
+    if (truncated) return ORBIS_KERNEL_ERROR_ENOMEM;
+    const u64 size = ids.size();
+    std::memcpy(count.Value().WritableBytes().data(), &size, sizeof(size));
+    return 0;
+}
+
+template <class Info, class Lookup>
+u32 DispatchModuleHandleInfo(GuestCpu::GuestAddressSpace& space, bool hide_system,
+                             s32 handle, u64 output, Lookup&& lookup) {
+    if (!output) return ORBIS_KERNEL_ERROR_EFAULT;
+    u64 requested{};
+    if (!space.ReadData({output}, std::as_writable_bytes(std::span{&requested, 1})))
+        return ORBIS_KERNEL_ERROR_EFAULT;
+    if (requested != sizeof(Info)) return ORBIS_KERNEL_ERROR_EINVAL;
+    auto pin = space.AcquireDataSpan({{output}, sizeof(Info)}, true);
+    if (!pin) return ORBIS_KERNEL_ERROR_EFAULT;
+    const auto source = lookup(handle);
+    if (!source) return ORBIS_KERNEL_ERROR_ESRCH;
+    if (hide_system && source->second) return ORBIS_KERNEL_ERROR_EPERM;
+    std::memcpy(pin.Value().WritableBytes().data(), &source->first, sizeof(Info));
+    return 0;
+}
+
 // Generate into native storage, then publish the complete 16-byte result through
 // a checked guest pin. No guest address is passed to the host UUID provider.
 inline u32 DispatchKernelUuidCreate(GuestCpu::GuestAddressSpace& space, u64 address) {
