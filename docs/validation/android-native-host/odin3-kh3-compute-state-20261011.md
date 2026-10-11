@@ -44,7 +44,7 @@ snapshot 用 root 一次性读取：15,844,268 字节，SHA-256 `4db25a0aee867b7
 
 ### snapshot 工具的唯一约束错误
 
-已安装的 gpu-snapshot MCP 解析该机 snapshot 仍报 `UNIQUE constraint failed: program_candidate_mappings`。原因是 `GpuSnapshotDatabase.FindMemoryIndex` 先做值相等比较，MEMLIST 中值完全相同的多条记录都会落到第一条。本机开发树 `my_mcp_tools/dev_tools/mcp/mcp_service_layer/Features/GpuSnapshot/GpuSnapshotDatabase.cs` 改为先按引用身份查找、再按值回退（与另一台机器上已做的修改一致），Debug 构建后用本地 stdio 客户端离线分析，0 警告 0 错误；未提交、未替换已安装的发布包。
+已安装的 gpu-snapshot MCP 解析该机 snapshot 仍报 `UNIQUE constraint failed: program_candidate_mappings`。原因是 `GpuSnapshotDatabase.FindMemoryIndex` 先做值相等比较，MEMLIST 中值完全相同的多条记录都会落到第一条。本机开发树 `my_mcp_tools/dev_tools/mcp/mcp_service_layer/Features/GpuSnapshot/GpuSnapshotDatabase.cs` 改为先按引用身份查找、再按值回退（与另一台机器上已做的修改一致），Debug 构建后用本地 stdio 客户端离线分析，0 警告 0 错误。随后提交到 my_mcp_tools `master` `f309a13`，附回归测试（旧代码上报同样的唯一键错误）；已安装的发布包需重新构建才包含该修复。
 
 ## 2. 挂死点：IB1 dword 5270，未完成的是 dword 5084 的 dispatch
 

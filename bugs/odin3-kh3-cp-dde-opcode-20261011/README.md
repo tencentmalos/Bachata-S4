@@ -94,7 +94,7 @@ snapshot 7,074,740 字节，本轮未逐包分析。IB2 页内偏移 `0xe88`、�
 
 ## 重新分析
 
-- snapshot：gpu-snapshot MCP `gpu.snapshot_analyze`（`snapshotPath` 指向 `evidence/fault53/snapshot.bin`），数据库可重建。已发布的 MCP 解析该机 snapshot 会报 `UNIQUE constraint failed: program_candidate_mappings`；本机开发树 `my_mcp_tools/dev_tools/mcp/mcp_service_layer/Features/GpuSnapshot/GpuSnapshotDatabase.cs` 的 `FindMemoryIndex` 已改为先按引用身份查找（未提交）。
+- snapshot：gpu-snapshot MCP `gpu.snapshot_analyze`（`snapshotPath` 指向 `evidence/fault53/snapshot.bin`），数据库可重建。此前发布的 MCP 解析该机 snapshot 会报 `UNIQUE constraint failed: program_candidate_mappings`，my_mcp_tools `master` `f309a13` 已修复（`FindMemoryIndex` 先按引用身份查找，附回归测试）；在其之前构建的发布包仍会报此错，需用新版本。
 - IB2 解码：`gpu.pm4_decode`，`inputPath` 为 snapshot，`byteOffset` 5030448，`dwordCount` 2118，`baseGpuAddress` `0x426ba05644`。
 
 ## 文件

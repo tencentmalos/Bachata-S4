@@ -91,7 +91,7 @@ Odin3 上用 DebugBus 手柄推进；每次 GPU 故障后需要 root 立即读�
 | 唤醒代理 | DebugBus `wake_proxy on`、`off`、`spin <us>`、`status` |
 | GPU 计时 | DebugBus `gpu_timing start` / `stop` |
 | LiteP 采集 | DebugBus `profiler_capture file <MiB> <sec>`，`index_trace` 时 SDK 修订去掉 `+slow-frame-v1` 后缀 |
-| snapshot 解析 | gpu-snapshot MCP `gpu.snapshot_analyze`；已发布版解析该机 snapshot 报唯一键错误，开发树 `FindMemoryIndex` 已修（未提交） |
+| snapshot 解析 | gpu-snapshot MCP `gpu.snapshot_analyze`；旧发布版解析该机 snapshot 报唯一键错误，my_mcp_tools `master` `f309a13` 已修复（`FindMemoryIndex` 先按引用身份查找，附回归测试）；在其之前构建的发布包仍会报此错，需用新版本 |
 
 ## 证据位置
 
