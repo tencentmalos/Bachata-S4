@@ -1170,8 +1170,24 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
     new_vma.type = Core::VMAType::Pooled;
     new_vma.phys_areas.clear();
 
-    // Find suitable physical addresses
-    auto handle = dmem_map.begin();
+    // Find suitable physical addresses. Every separate physical area costs its own host mapping,
+    // and a fragmented pool turned one commit into dozens of them while the write lock is held,
+    // so prefer the smallest free pooled area that holds the whole commit. Without one, take
+    // the free areas in address order as before (PS4 commits may be physically sparse).
+    auto handle = dmem_map.end();
+    for (auto it = dmem_map.begin(); it != dmem_map.end(); ++it) {
+        if (it->second.dma_type == PhysicalMemoryType::Pooled && it->second.size >= size &&
+            (handle == dmem_map.end() || it->second.size < handle->second.size)) {
+            handle = it;
+            if (it->second.size == size) {
+                break;
+            }
+        }
+    }
+    if (handle == dmem_map.end()) {
+        handle = dmem_map.begin();
+    }
+    const auto permission = ToMemoryPermission(prot);
     u64 remaining_size = size;
     VAddr current_addr = mapped_addr;
     while (handle != dmem_map.end() && remaining_size > 0) {
@@ -1194,9 +1210,12 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
         new_vma.phys_areas[current_addr - mapped_addr] = new_dmem_handle->second;
         MergeAdjacent(new_vma.phys_areas, new_vma.phys_areas.find(current_addr - mapped_addr));
 
-        // Perform an address space mapping for each physical area
+        // Perform an address space mapping for each physical area. Map already grants
+        // read/write, so only a different permission needs a second pass.
         void* out_addr = impl.Map(current_addr, size_to_map, new_dmem_area.base);
-        impl.Protect(current_addr, size_to_map, ToMemoryPermission(prot));
+        if (permission != MemoryPermission::ReadWrite) {
+            impl.Protect(current_addr, size_to_map, permission);
+        }
         // Tracy memory tracking breaks from merging memory areas. Disabled for now.
         // TRACK_ALLOC(out_addr, size_to_map, "VMEM");
 
