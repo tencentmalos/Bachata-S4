@@ -1,0 +1,263 @@
+{
+  "title": "Turnip 架构剖析",
+  "subtitle": "从 PS4 的 GCN / PM4 到 Adreno 硬件 · shadPS4 Android",
+  "voice": "Microsoft Huihui Desktop",
+  "rate": 2,
+  "note": "sub 是屏幕字幕；say 仅在朗读需要不同写法时提供（去掉下划线、提交哈希、十六进制等）。每个场景的 cue 序号与 make_video.py 中的动画时间点一一对应，增删 cue 时要同步修改。",
+  "scenes": [
+    {
+      "id": "s0",
+      "chapter": "",
+      "title": "",
+      "cues": [
+        {
+          "sub": "Turnip 架构剖析：从 PS4 的命令，到 Adreno 硬件。"
+        }
+      ]
+    },
+    {
+      "id": "s1",
+      "chapter": "01",
+      "title": "全景：从 GCN / PM4 到 Adreno",
+      "cues": [
+        {
+          "sub": "这一集剖析 Turnip 在 shadPS4 安卓版中的位置，以及几类 GPU 故障出在哪一层。"
+        },
+        {
+          "sub": "PS4 游戏交给 GPU 的是 GCN 着色器和 PM4 命令包，而安卓设备上没有 AMD 显卡。"
+        },
+        {
+          "sub": "shadPS4 解析 PM4，翻译成 Vulkan 调用，并把 GCN 着色器重编译成 SPIR-V。"
+        },
+        {
+          "sub": "Turnip 是 Mesa 的开源 Adreno Vulkan 驱动，把 Vulkan 命令编码成 Adreno 的 PM4，把 SPIR-V 编译成机器码。"
+        },
+        {
+          "sub": "注意有两种 PM4：AMD 的和 Adreno 的，名字一样，指令集完全不同。"
+        },
+        {
+          "sub": "Turnip 经 KGSL 内核驱动提交命令、分配显存、等待 fence，最后由 Adreno 的命令处理器 CP 执行。"
+        },
+        {
+          "sub": "下面一层一层往下看。"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "chapter": "02",
+      "title": "Vulkan 层：vkCmd* 如何变成 PM4",
+      "cues": [
+        {
+          "sub": "先看 Vulkan 层。Turnip 的命令缓冲是一段 PM4 流：type4 包写寄存器，type7 包是 CP 操作码。"
+        },
+        {
+          "sub": "管线状态在创建管线时，就预先编码进一块块 state IB。"
+        },
+        {
+          "sub": "绘制前发一条 CP_SET_DRAW_STATE，每组给出组号、长度、地址和生效阶段：binning、GMEM 或 sysmem。",
+          "say": "绘制前发一条 CP SET DRAW STATE，每组给出组号、长度、地址和生效阶段：binning、GMEM 或 sysmem。"
+        },
+        {
+          "sub": "DDE 按需读取这些 state IB；内容不变的组会被固件跳过，所以 Turnip 用 DIRTY 位强制重载。"
+        },
+        {
+          "sub": "计算管线不走这条路：绑定时用 CP_INDIRECT_BUFFER 直接执行一次状态 IB，之后假设 CS 寄存器一直保持。",
+          "say": "计算管线不走这条路：绑定时用 CP INDIRECT BUFFER 直接执行一次状态 IB，之后假设 CS 寄存器一直保持。"
+        },
+        {
+          "sub": "王国之心三的 loading 挂死出在这里：由于跳过重复绑定，计算管线绑定后录入了二十多个 render pass 和 blit，才再次派发。"
+        },
+        {
+          "sub": "挂死时 SQE 停在 CP_WAIT_FOR_ME，未完成的是 104×1×1 这次派发；SP 的 CS 配置寄存器全为零，只剩基址。",
+          "say": "挂死时 SQE 停在 CP WAIT FOR ME，未完成的是 104 乘 1 乘 1 这次派发；SP 的 CS 配置寄存器全为零，只剩基址。"
+        },
+        {
+          "sub": "提交 2d96f4bc287：在 A8XX 上，若上次发出计算状态后又录入过别的命令，派发前就重发状态 IB。",
+          "say": "这个提交在 A8XX 上，若上次发出计算状态后又录入过别的命令，派发前就重发状态 IB。"
+        },
+        {
+          "sub": "修复后 loading 通过。寄存器为何丢失，我们推断是 gen8.0 固件的上下文切换没有保留，尚无直接证据。",
+          "say": "修复后 loading 通过。寄存器为何丢失，我们推断是 gen 8.0 固件的上下文切换没有保留，尚无直接证据。"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "chapter": "03",
+      "title": "着色器：SPIR-V → NIR → IR3",
+      "cues": [
+        {
+          "sub": "着色器方面，shadPS4 先把 GCN 指令翻译成中间表示，再生成 SPIR-V。"
+        },
+        {
+          "sub": "Turnip 用 spirv_to_nir 转成 NIR，经过降级和优化，再由 IR3 做指令选择、寄存器分配和调度。",
+          "say": "Turnip 用 spirv to nir 转成 NIR，经过降级和优化，再由 IR3 做指令选择、寄存器分配和调度。"
+        },
+        {
+          "sub": "第一个差异是 wave 宽度：GCN 固定 64 lane；Adreno 支持 64 和 128，Turnip 默认报告 128。"
+        },
+        {
+          "sub": "GCN 代码用 64 位 lane 掩码，还会读第 31、63 号 lane；在 128 lane 上两半会混在一起，所以 shadPS4 要求子组大小 64。"
+        },
+        {
+          "sub": "第二个差异是 Int64：Adreno 没有原生 64 位整数运算，IR3 把它拆成 32 位指令；Turnip 报告支持，但不是硬件原生。"
+        },
+        {
+          "sub": "高通私有驱动则不报告 Int64，由 shadPS4 自己做 32 位成对降级。"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "chapter": "04",
+      "title": "渲染模式：GMEM 分块与 sysmem",
+      "cues": [
+        {
+          "sub": "Adreno 是分块渲染：片上有高速 GMEM，屏幕切成若干 bin，一次渲染一个。"
+        },
+        {
+          "sub": "GMEM 模式先跑只算位置的 binning pass，把各 bin 的可见图元写进 VSC 流；A7XX 起由 BV 执行。"
+        },
+        {
+          "sub": "随后 BR 逐 bin 渲染：载入附件、只画可见图元、写回内存；BV 可以领先 BR 并发分箱。"
+        },
+        {
+          "sub": "sysmem 模式不分块，直接读写系统内存；Turnip 按 pass 选择。"
+        },
+        {
+          "sub": "此外：LRZ 是低分辨率深度，提前剔除；UBWC 是带宽压缩；FDM 是片元密度图，XR 注视点渲染在用。"
+        },
+        {
+          "sub": "例子是 ASTRO BOT：Swan 上约 33 秒挂死，五份快照是同一个 pass，BR 停在第 4、5 个 bin，PC 忙，SP 空闲。"
+        },
+        {
+          "sub": "VSC 流还是 Turnip 的初始大小：每个 pipe 图元流 16 KiB、draw 流 4 KiB。",
+          "say": "VSC 流还是 Turnip 的初始大小：每个 pipe 图元流 16 千字节、draw 流 4 千字节。"
+        },
+        {
+          "sub": "Turnip 检测到溢出后只让下一个命令缓冲加倍；而在 A8xx 上，溢出的那个 pass 本身就卡死了。"
+        },
+        {
+          "sub": "对照：sysmem、nobin、gmem_warmup 都不挂，关 LRZ 仍挂。于是默认开启 gmem_warmup，初始流加大到每 pipe 512 / 16 KiB。",
+          "say": "对照：sysmem、nobin、gmem warmup 都不挂，关 LRZ 仍挂。于是默认开启 gmem warmup，初始流加大到每 pipe 512 和 16 千字节。"
+        },
+        {
+          "sub": "这只是规避，更重的场景仍可能溢出。"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "chapter": "05",
+      "title": "CP 内部：RB / IB1 / IB2 与固件流水",
+      "cues": [
+        {
+          "sub": "进入命令处理器 CP。KGSL 维护几条 ringbuffer，RB 跳到 IB1，IB1 再调用 IB2。"
+        },
+        {
+          "sub": "Turnip 的命令缓冲就是 IB1；绘制命令、每个 bin 的存储命令、计算状态 IB 都以 IB2 调用。"
+        },
+        {
+          "sub": "CP 里有多个运行固件的微控制器：BR 上的 SQE 执行主命令流，BV 负责分箱，DDE_BR、DDE_BV 读取 draw state，LPAC 是另一条异步计算流水。",
+          "say": "CP 里有多个运行固件的微控制器：BR 上的 SQE 执行主命令流，BV 负责分箱，DDE BR、DDE BV 读取 draw state，LPAC 是另一条异步计算流水。"
+        },
+        {
+          "sub": "这些缩写没有公开全称，这里只讲功能。"
+        },
+        {
+          "sub": "看 fault53：王国之心三运行约 19 分钟后，KGSL 报告 CP DDE BR opcode error，操作码为零。",
+          "say": "看 fault 53：王国之心三运行约 19 分钟后，KGSL 报告 CP DDE BR opcode error，操作码为零。"
+        },
+        {
+          "sub": "BR 的 IB2 共 2118 个 dword，剩余 0x317，说明已经取到第 1327 个。",
+          "say": "BR 的 IB2 共 2118 个 dword，剩余 791 个，说明已经取到第 1327 个。"
+        },
+        {
+          "sub": "解码 IB2：第 1293 个 dword 是 CP_DRAW_INDX_OFFSET，第 1301 个是 11 组的 CP_SET_DRAW_STATE。",
+          "say": "解码 IB2：第 1293 个 dword 是 CP DRAW INDX OFFSET，第 1301 个是 11 组的 CP SET DRAW STATE。"
+        },
+        {
+          "sub": "但这些载荷不在 snapshot 里，无法核对 DDE 读到了什么；而且 ROQ 预取，真正出错的包可能更早。"
+        },
+        {
+          "sub": "Swan 的同类故障经固件 PC 映射：DDE 停在非法包陷阱，包头为零；三次都在 shadPS4 的 RB 从一级抢占恢复后约 0.1 毫秒发生。"
+        },
+        {
+          "sub": "这是目前最强的线索，根因仍未定位。"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "chapter": "06",
+      "title": "内核接口：tu_knl_kgsl.cc",
+      "cues": [
+        {
+          "sub": "最底层是 tu_knl_kgsl.cc，Turnip 与 KGSL 之间的接口。",
+          "say": "最底层是 tu knl kgsl 点 cc，Turnip 与 KGSL 之间的接口。"
+        },
+        {
+          "sub": "提交用 GPU_COMMAND，传入 IB 列表和同步点，返回时间戳；fence 就是上下文加时间戳。",
+          "say": "提交用 GPU command，传入 IB 列表和同步点，返回时间戳；fence 就是上下文加时间戳。"
+        },
+        {
+          "sub": "稀疏绑定基于虚拟 BO，排队绑定走 GPU_AUX_COMMAND，与提交同一条时间线；显存用 GPUOBJ_ALLOC 等分配。",
+          "say": "稀疏绑定基于虚拟 BO，排队绑定走 GPU aux command，与提交同一条时间线；显存用 GPU obj alloc 等分配。"
+        },
+        {
+          "sub": "回到 fault53：故障后 shadPS4 恰好提交稀疏绑定，KGSL 返回 EPROTO，表示上下文出过故障。",
+          "say": "回到 fault 53：故障后 shadPS4 恰好提交稀疏绑定，KGSL 返回 E PROTO，表示上下文出过故障。"
+        },
+        {
+          "sub": "Turnip 报 bind submit failed、标记设备丢失，shadPS4 收到 DeviceLost 后断言退出。这是后果，不是起因。"
+        },
+        {
+          "sub": "再看 4 GiB 边界：固件在抢占恢复时，IB 预取地址的高 32 位不进位，所以上游要求命令 BO 不跨 4 GiB。",
+          "say": "再看 4 G 边界：固件在抢占恢复时，IB 预取地址的高 32 位不进位，所以上游要求命令 BO 不跨 4 G 边界。"
+        },
+        {
+          "sub": "KGSL 后端用 FORCE_32BIT 实现，但这个标志在第 32 位，flags 字段只有 32 位，被截断，从未生效。",
+          "say": "KGSL 后端用 force 32 bit 实现，但这个标志在第 32 位，flags 字段只有 32 位，被截断，从未生效。"
+        },
+        {
+          "sub": "我们曾让它真正生效，BO 全落到低 4 GiB，结果字体着色器读错，游戏缺字。",
+          "say": "我们曾让它真正生效，BO 全落到低 4 G，结果字体着色器读错，游戏缺字。"
+        },
+        {
+          "sub": "提交 92c96071dc5 改为检查实际分配：起止地址高 32 位必须相同，跨界就留作占位重试，最多四次。",
+          "say": "这个提交改为检查实际分配：起止地址高 32 位必须相同，跨界就留作占位重试，最多四次。"
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "chapter": "07",
+      "title": "收尾：已证实 vs 推测",
+      "cues": [
+        {
+          "sub": "最后，把已证实和推测分开。"
+        },
+        {
+          "sub": "已证实：ASTRO 挂死与 VSC 初始大小有关，gmem_warmup 可规避；KH3 挂死时 CS 寄存器为零，重发状态后通过。",
+          "say": "已证实：ASTRO 挂死与 VSC 初始大小有关，gmem warmup 可规避；KH3 挂死时 CS 寄存器为零，重发状态后通过。"
+        },
+        {
+          "sub": "fault53 之后的 bind submit failed 和 DeviceLost 是后果；FORCE_32BIT 从未生效。",
+          "say": "fault 53 之后的 bind submit failed 和 DeviceLost 是后果；force 32 bit 从未生效。"
+        },
+        {
+          "sub": "推测：KH3 寄存器丢失来自 gen8.0 固件的上下文切换；DDE 读到零与抢占恢复有关。",
+          "say": "推测：KH3 寄存器丢失来自 gen 8.0 固件的上下文切换；DDE 读到零与抢占恢复有关。"
+        },
+        {
+          "sub": "未定位：DDE BR opcode error 的根因，以及低 4 GiB 为何让着色器出错。",
+          "say": "未定位：DDE BR opcode error 的根因，以及低 4 G 为何让着色器出错。"
+        },
+        {
+          "sub": "DDE、BR、BV 没有公开全称，本片只讲功能。谢谢观看。"
+        }
+      ]
+    }
+  ]
+}
