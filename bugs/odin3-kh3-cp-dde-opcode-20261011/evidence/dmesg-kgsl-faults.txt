@@ -1,0 +1,88 @@
+# KGSL fault records from fault53/dmesg.txt (line numbers refer to that file); faults 52 and 53, same boot.
+12469: [170167.780863] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+12470: [170167.781075] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+12471: [170168.473543] adreno-gen8-gmu 3d37000.qcom,gmu: CP | Protected mode error | WRITE | addr=0x00000 | status=0x00600000
+12472: [170168.473562] kgsl kgsl-3d0: Fault id:2 and GX is ON
+12473: [170168.473565] kgsl kgsl-3d0: shadps4.android[28009]: ctx 6 ctx_type ANY ts 5593 policy 2
+12474: [170168.473567] kgsl kgsl-3d0: shadps4.android[28009]: cmdline: com.shadps4.android
+12475: [170168.473594] kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+12476: [170168.473596] kgsl kgsl-3d0: BR: rb 00b3/015b ib1 000000418FBAE000/33d3 ib2 000000418F9F6E88/0000 ib3 0000000000000000/0000
+12477: [170168.473599] kgsl kgsl-3d0: BV: rb 00b3/015b ib1 0000004038428000/0000 ib2 0001FF8002A36190/0000 ib3 0000000000000000/0000
+12478: [170168.713941] type=1400 audit(1791722429.740:325356): avc:  denied  { read } for  comm="crash_dump64" name="vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1
+12479: [170168.713974] type=1400 audit(1791722429.740:325357): avc:  denied  { open } for  comm="crash_dump64" path="/data/data/com.shadps4.android/files/native-drivers/bfc3af8b891de220c13190daf9386fd271b574e9df6656ce33161dd1360b57db/vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1
+12480: [170168.713987] type=1400 audit(1791722429.740:325358): avc:  denied  { getattr } for  comm="crash_dump64" path="/data/data/com.shadps4.android/files/native-drivers/bfc3af8b891de220c13190daf9386fd271b574e9df6656ce33161dd1360b57db/vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1
+12481: [170168.713998] type=1400 audit(1791722429.740:325359): avc:  denied  { map } for  comm="crash_dump64" path="/data/data/com.shadps4.android/files/native-drivers/bfc3af8b891de220c13190daf9386fd271b574e9df6656ce33161dd1360b57db/vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1
+12482: [170168.780536] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+12483: [170168.780861] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+12484: [170168.780934] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+12485: [170168.783210] type=1400 audit(1791722429.812:325360): avc:  denied  { read } for  comm="crash_dump64" name="bachata.db-shm" dev="dm-54" ino=31969 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0 tclass=file permissive=1
+12486: [170168.783233] type=1400 audit(1791722429.812:325361): avc:  denied  { open } for  comm="crash_dump64" path="/data/data/com.shadps4.android/databases/bachata.db-shm" dev="dm-54" ino=31969 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0 tclass=file permissive=1
+12487: [170168.783245] type=1400 audit(1791722429.812:325362): avc:  denied  { getattr } for  comm="crash_dump64" path="/data/data/com.shadps4.android/databases/bachata.db-shm" dev="dm-54" ino=31969 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0 tclass=file permissive=1
+12488: [170168.783257] type=1400 audit(1791722429.812:325363): avc:  denied  { map } for  comm="crash_dump64" path="/data/data/com.shadps4.android/databases/bachata.db-shm" dev="dm-54" ino=31969 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0 tclass=file permissive=1
+12489: [170168.791559] audit: audit_lost=288240 audit_rate_limit=5 audit_backlog_limit=64
+12490: [170168.791563] audit: rate limit exceeded
+12491: [170168.791577] type=1400 audit(1791722429.820:325364): avc:  denied  { read } for  comm="crash_dump64" name="data@resource-cache@com.android.systemui-dynamic-h417.frro@idmap" dev="dm-54" ino=2355 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:resourcecache_data_file:s0 tclass=file permissive=1
+12492: [170168.836512] [kevin]state_store: 14000 50000
+12493: [170168.836522] kevin fan_en_gpio = 1!
+12494: [170168.844812] init: Untracked pid 28356 exited with status 0
+12495: [170168.844819] init: Untracked pid 28356 did not have an associated service entry and will not be reaped
+12496: [170168.887576] init: Untracked pid 28358 exited with status 0
+12497: [170168.887584] init: Untracked pid 28358 did not have an associated service entry and will not be reaped
+12498: [170169.781297] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+12499: [170169.783064] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+12500: [170169.783303] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+12501: [170169.958791] type=1400 audit(1791722430.984:325375): avc:  denied  { execute_no_trans } for  comm="me.Stats.Thread" path="/system/bin/service" dev="dm-7" ino=502 scontext=u:r:system_server:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+12502: [170170.081182] kgsl kgsl-3d0: GPU snapshot froze 1544Kb of GPU buffers
+12503: [170170.081228] kgsl kgsl-3d0: GPU snapshot created at pa ee000000++0x4bc16c
+12504: [170170.081247] Entry name already exist
+12505: [170170.085102] adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU
+12506: [170170.101167] qrtr: ctrl_cmd_del_client(): del client cmd failed: [0x3c:0x1] 0x4020 -28
+12507: [170170.121973] [Awinic][5-0034]aw_dev_sysint_check: int check fail:0x0310
+12508: [170170.286670] [Awinic][5-0035]aw_dev_sysint_check: int check fail:0x0310
+12509: [170170.782788] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+12510: [170170.784219] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+12511: [170170.784596] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+...
+16379: [171359.361756] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+16380: [171359.361909] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+16381: [171360.077765] adreno-gen8-gmu 3d37000.qcom,gmu: CP DDE BR opcode error | opcode=0x00000000
+16382: [171360.077785] kgsl kgsl-3d0: Fault id:2 and GX is ON
+16383: [171360.077789] kgsl kgsl-3d0: shadps4.android[28627]: ctx 6 ctx_type ANY ts 195670 policy 2
+16384: [171360.077791] kgsl kgsl-3d0: shadps4.android[28627]: cmdline: com.shadps4.android
+16385: [171360.077852] kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+16386: [171360.077854] kgsl kgsl-3d0: BR: rb 1b88/1c30 ib1 000000425F88B000/4b56 ib2 000000426BA05644/0317 ib3 0000000000000000/0000
+16387: [171360.077856] kgsl kgsl-3d0: BV: rb 1b8c/1c30 ib1 0000004038028000/0000 ib2 0001FF8002A36190/0000 ib3 0000000000000000/0000
+16388: [171360.361411] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+16389: [171360.361836] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+16390: [171360.361970] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+16391: [171360.466652] type=1400 audit(1791723621.496:325906): avc:  denied  { read } for  comm="crash_dump64" name="vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1 app=com.shadps4.android
+16392: [171360.466686] type=1400 audit(1791723621.496:325907): avc:  denied  { open } for  comm="crash_dump64" path="/data/data/com.shadps4.android/files/native-drivers/bfc3af8b891de220c13190daf9386fd271b574e9df6656ce33161dd1360b57db/vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1 app=com.shadps4.android
+16393: [171360.466700] type=1400 audit(1791723621.496:325908): avc:  denied  { getattr } for  comm="crash_dump64" path="/data/data/com.shadps4.android/files/native-drivers/bfc3af8b891de220c13190daf9386fd271b574e9df6656ce33161dd1360b57db/vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1 app=com.shadps4.android
+16394: [171360.466712] type=1400 audit(1791723621.496:325909): avc:  denied  { map } for  comm="crash_dump64" path="/data/data/com.shadps4.android/files/native-drivers/bfc3af8b891de220c13190daf9386fd271b574e9df6656ce33161dd1360b57db/vulkan.ad07xx.so" dev="dm-54" ino=387506 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c113,c256,c512,c768 tclass=file permissive=1 app=com.shadps4.android
+16395: [171360.653919] audit: audit_lost=288336 audit_rate_limit=5 audit_backlog_limit=64
+16396: [171360.653922] audit: rate limit exceeded
+16397: [171360.653963] type=1400 audit(1791723621.680:325910): avc:  denied  { read } for  comm="crash_dump64" name="bachata.db-shm" dev="dm-54" ino=31969 scontext=u:r:crash_dump:s0:c113,c256,c512,c768 tcontext=u:object_r:app_data_file:s0 tclass=file permissive=1 app=com.shadps4.android
+16398: [171360.751200] [kevin]state_store: 23000 50000
+16399: [171360.751211] kevin fan_en_gpio = 1!
+16400: [171360.903414] init: Untracked pid 32708 exited with status 0
+16401: [171360.903421] init: Untracked pid 32708 did not have an associated service entry and will not be reaped
+16402: [171360.963435] init: Untracked pid 32710 exited with status 0
+16403: [171360.963441] init: Untracked pid 32710 did not have an associated service entry and will not be reaped
+16404: [171361.361811] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+16405: [171361.362260] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+16406: [171361.362336] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+16407: [171361.768316] kgsl kgsl-3d0: GPU snapshot froze 7424Kb of GPU buffers
+16408: [171361.768333] kgsl kgsl-3d0: GPU snapshot created at pa ee000000++0x4e6358
+16409: [171361.768340] Entry name already exist
+16410: [171361.770682] adreno-gen8-gmu 3d37000.qcom,gmu: Suspended GMU
+16411: [171361.784162] qrtr: ctrl_cmd_del_client(): del client cmd failed: [0x3c:0x1] 0x4020 -28
+16412: [171361.808992] [Awinic][5-0034]aw_dev_sysint_check: int check fail:0x0310
+16413: [171361.974237] [Awinic][5-0035]aw_dev_sysint_check: int check fail:0x0310
+16414: [171362.362924] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+16415: [171362.364247] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+16416: [171362.364590] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+16417: [171363.364075] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+16418: [171363.365437] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
+16419: [171363.365782] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Tried to start aidl service vendor.qti.qesdsys.IQesdSys/default as a lazy service, but was unable to. Usually this happens when a service is not installed, but if the service is intended to be used as a lazy service, then it may be configured incorrectly.
+16420: [171364.365113] servicemanager: Caller(pid=1522,uid=1000,sid=u:r:vendor_qesdsect:s0) Since 'vendor.qti.qesdsys.IQesdSys/default' could not be found trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+16421: [171364.366710] init: Control message: Could not find 'aidl/vendor.qti.qesdsys.IQesdSys/default' for ctl.interface_start from pid: 832 (/system/bin/servicemanager)
