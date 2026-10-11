@@ -1,0 +1,4 @@
+pipe_name | ib_level | gpu_address_hex | remaining_dwords | initial_dwords
+BR | 1 | 0x000000418e052000 | 27249 | 32753
+BR | 2 | 0x0000004032891b80 | 0 | 44
+BV | 1 | 0x00000041dfdfe000 | 694 | 13462
