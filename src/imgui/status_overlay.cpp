@@ -118,6 +118,12 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
 #endif
         metrics.show_detail_button = false;
         metrics.detail_below_status = true;
+        // Outlined text without a background: sit in the screen corner, only clear of its edge,
+        // with a frame that hugs the readings instead of a 48dp touch-target row.
+        metrics.status_margin_dp = 2.f;
+        metrics.summary_touch_target_dp = 20.f;
+        metrics.summary_padding_x_dp = 4.f;
+        metrics.summary_padding_y_dp = 2.f;
         init.metrics = metrics;
         init.typography = ov::makeOverlayTypography(text_size);
         init.requested_font_mode = si::FontRenderMode::Sdf;
@@ -440,6 +446,8 @@ void StatusOverlay::Draw() {
     // Controls remains an icon without a permanent or touch-hover background.
     draw.status_appearance = ov::perfHudAppearance(perf_hud);
     draw.status_appearance.background_opacity = 0.f;
+    draw.status_appearance.transparent_frame = true;
+    draw.status_appearance.transparent_frame_width_dp = 2.f;
     draw.status_appearance.button_opacity = 0.f;
     draw.status_appearance.hover_feedback = false;
     draw.sectionOpen = [&](const ov::StableId& id, bool fallback) {

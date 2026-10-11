@@ -13,6 +13,7 @@
 - Detail 使用四个一级折叠组：Performance、Rendering、Textures & scaling、Diagnostics；具体统计在二级折叠组，默认收起。
 - **最终要求是无背景**：曾试用的 40% 背景已撤销。Detail 标题、属性名/值、说明和图表文字复用 FPS 的四方向黑色描边。与 Summary 共用 Controls 中的 Text outline 设置。面板及折叠标题背景均透明；设置面板自身的背景设置不受影响。
 - 上述状态层实现为 PC/Android 共用代码；Windows 主机 SSH 不通，本次没有声称完成 PC 实机验证。
+- **位置与边框（2026-10-11）**：状态层原先离安全区左上角 12 dp（Foundation `flat_margin_dp`），再加面板内边距 8×6 dp。Foundation 新增 `OverlayMetrics::status_margin_dp`（只作用于 Status 和贴在其下的 Detail，未设置时仍用 `flat_margin_dp`）与 `StatusAppearance::transparent_frame`（背景透明时保留主题边框，线宽随几何缩放取 1 dp）；shadPS4 设为 2 dp 并开启边框。Foundation overlay 单测 292 例 / 75,299 断言通过（新增 2 例，还原绘制代码后新例 2 项断言失败作负对照）。Odin3 APK `cd997564…` 实机截图：边框距屏幕左/上约 5 px，文字左缘约 22 px，但条高由 Controls 图标的 48 dp 触控尺寸撑开（约 110 px），边框离文字较远。随后按用户要求紧凑化：Foundation 新增 `summary_touch_target_dp`、`summary_padding_x_dp/y_dp`（Summary 行高/按钮尺寸与内边距，测量与绘制经 frame 取同一值）和 `transparent_frame_width_dp`；shadPS4 设为 20 dp、4×2 dp、边框 2 dp。Foundation `6cfa969`（分支 `codex/shadps4-online-content`），overlay 单测 293 例 / 75,309 断言通过。APK `f55bd9a7…` 实机：条高约 50 px，读数离屏幕左缘约 14 px，图标紧贴右边框。整条仍可点击，但 20 dp 低于 Android 推荐的 48 dp 触控尺寸。
 
 ## 会话退出和手柄
 
