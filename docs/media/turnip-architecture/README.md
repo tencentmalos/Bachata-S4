@@ -36,7 +36,7 @@ python make_video.py all
 | 02 位域示例 | `CP_SET_DRAW_STATE` 第 2 组 `0x0161002C` | fault53 snapshot 中 IB2 第 1301 dword 的原始字；字段位置见 `src/freedreno/registers/adreno/adreno_pm4.xml` |
 | 03 着色器 | wave64/128、Int64 | `tu_device.cc`（`threadsize_base`、double threadsize）、`ir3_compiler.c`（`nir_lower_int64`）、shadPS4 `vk_compute_pipeline.cpp` / `vk_graphics_pipeline.cpp`（`requiredSubgroupSize = 64`） |
 | 04 渲染模式 | ASTRO BOT VSC 溢出 | [astro-htile-firmware-20261008](../../validation/android-native-host/astro-htile-firmware-20261008.md)「GPU 挂死定位」；`tu_device.cc` 的初始 VSC 大小与 `gmem_warmup` |
-| 05 CP 内部 | fault53 `CP DDE BR opcode error` | [odin3-kh3-performance-20261011](../../validation/android-native-host/odin3-kh3-performance-20261011.md)「会话在 21:00:21 闪退」；本地 `build/validation/odin3-kh3-20261011b/perf-pool/crash-arena/fault53/`（dmesg、snapshot、IB2 解码，不入库） |
+| 05 CP 内部 | fault53 `CP DDE BR opcode error` | [odin3-kh3-performance-20261011](../../validation/android-native-host/odin3-kh3-performance-20261011.md)「会话在 21:00:21 闪退」；[bugs/odin3-kh3-cp-dde-opcode-20261011](../../../bugs/odin3-kh3-cp-dde-opcode-20261011/README.md)（dmesg、snapshot、IB2 解码） |
 | 05 抢占线索 | Swan devcd13/14/15 | [swan-cp-opcode-firmware-20260930](../../validation/android-native-host/swan-cp-opcode-firmware-20260930.md) |
 | 06 内核接口 | `bind submit failed` → DeviceLost、`92c96071dc5` | `tu_knl_kgsl.cc`（提交、fence、稀疏绑定、分配）；fault53 宿主日志；[odin3-kh3-compute-state-20261011](../../validation/android-native-host/odin3-kh3-compute-state-20261011.md) 第 8 节 |
 
