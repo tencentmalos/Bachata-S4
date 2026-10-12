@@ -2,11 +2,13 @@
 
 约 8 分钟、1920×1080、60 fps，中文旁白（Windows 离线 TTS「慧慧」）加内嵌中文字幕。
 按顺序讲七部分：全景 → Vulkan 层 → 着色器 → 渲染模式 → CP 内部 → 内核接口 → 已证实与推测。
+续集《[KGSL 架构剖析](../kgsl-architecture/README.md)》往下讲内核驱动本身。
 
 | 文件 | 内容 |
 |---|---|
 | `turnip-architecture.mp4` | 成片（H.264 crf 12 + AAC 192k，字幕已烧录） |
 | `turnip-architecture.srt` | 同一份字幕的外挂版本 |
+| `turnip-architecture.md` | **文字版**：七章的表格、代码与出处，以及读 KMD 源码后的补充 |
 | `narration.json` | 旁白与字幕文本；`sub` 是屏幕字幕，`say` 是朗读用写法（去掉下划线、哈希、十六进制） |
 | `make_video.py` | 全部动画、时间轴、混音与封装 |
 | `tts.ps1` | 调用 Windows SAPI 合成每一句旁白 |
