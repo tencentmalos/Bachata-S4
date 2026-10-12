@@ -674,6 +674,8 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
     if (write_begin >= write_end) {
         return {};
     }
+    // The write-back puts rendered pixels in guest memory: images created there upload them.
+    ReleaseUndefinedContent(write_begin, write_end - write_begin, UndefinedRelease::Range);
     // A readback no longer promotes the identity to native: a scaled backing is
     // transferred through a temporary native-extent copy inside Image::Download and
     // the plan keeps its scale (see scale_plan->upscaled_readback).
@@ -729,6 +731,9 @@ void TextureCache::InvalidateMemory(VAddr addr, size_t size) {
     std::scoped_lock lock{mutex};
     const auto pages_start = PageManager::GetPageAddr(addr);
     const auto pages_end = PageManager::GetNextPageAddr(addr + size - 1);
+    // The guest wrote freshly committed pool memory: the whole commit is defined from here on,
+    // and the range is not write protected at later commits.
+    ReleaseUndefinedContent(pages_start, pages_end - pages_start, UndefinedRelease::CpuWrite);
     const bool upload_diag = UploadDiagnostics::armed.load(std::memory_order_relaxed);
     ForEachImageInRegion(pages_start, pages_end - pages_start, [&](ImageId image_id, Image& image) {
         const auto image_begin = image.info.guest_address;
@@ -1046,17 +1051,278 @@ void TextureCache::NoteUploadDirty(const Image& image, UploadDiagnostics::DirtyS
                                  source, address, size, writer);
 }
 
-void TextureCache::UnmapMemory(VAddr cpu_addr, size_t size) {
+void TextureCache::UnmapMemory(VAddr cpu_addr, size_t size, bool pool_commit) {
     std::scoped_lock lk{mutex};
 
+    ReleaseUndefinedContent(cpu_addr, size, UndefinedRelease::Range);
     scale_plans.Unmap(cpu_addr, size);
     ImageIds deleted_images;
     ForEachImageInRegion(cpu_addr, size, [&](ImageId id, Image&) { deleted_images.push_back(id); });
+    const bool upload_diag = UploadDiagnostics::armed.load(std::memory_order_relaxed);
     for (const ImageId id : deleted_images) {
+        if (upload_diag) {
+            NoteFreedGpuImage(slot_images[id], false);
+        }
         // TODO: Download image data back to host.
         FreeImage(id);
     }
     ReleaseParkedImages(cpu_addr, size, ~u64{0});
+    if (!pool_commit) {
+        // Any other mapping replaces the pool memory a kept image stood for.
+        ReleaseDecommittedImages(cpu_addr, size, ~u64{0});
+    }
+}
+
+void TextureCache::DecommitMemory(VAddr addr, size_t size) {
+    std::scoped_lock lk{mutex};
+
+    ReleaseUndefinedContent(addr, size, UndefinedRelease::Range);
+    scale_plans.Unmap(addr, size);
+    // Images kept by an earlier decommit of this range hold older contents than the ones
+    // being decommitted now.
+    ReleaseDecommittedImages(addr, size, ~u64{0});
+    ImageIds deleted_images;
+    ForEachImageInRegion(addr, size, [&](ImageId id, Image&) { deleted_images.push_back(id); });
+    const bool keep = UploadDiagnostics::pool_revive.load(std::memory_order_relaxed);
+    const bool upload_diag = UploadDiagnostics::armed.load(std::memory_order_relaxed);
+    for (const ImageId id : deleted_images) {
+        Image& image = slot_images[id];
+        // Only contents that exist on the GPU alone, for the whole image.
+        const bool kept = keep && image.SafeToDownload() && image.info.guest_address >= addr &&
+                          image.info.guest_address + image.info.guest_size <= addr + size;
+        if (upload_diag) {
+            NoteFreedGpuImage(image, kept);
+        }
+        if (kept) {
+            // Protects the range at the next commit even when the image's first refresh was a
+            // sampled one: a CPU write there must stop the revival.
+            LearnGpuWriteRange(image.info.guest_address, image.info.guest_size);
+            KeepDecommittedImage(id);
+        } else {
+            FreeImage(id);
+        }
+    }
+    ReleaseParkedImages(addr, size, ~u64{0});
+}
+
+void TextureCache::NoteFreedGpuImage(const Image& image, bool kept) {
+    if (False(image.flags & ImageFlagBits::GpuModified)) {
+        return;
+    }
+    UploadDiagnostics::NoteFreedGpuImage(
+        image.info.guest_address, image.info.guest_size, static_cast<u32>(image.info.pixel_format),
+        static_cast<UploadDiagnostics::WriteKind>(image.last_write_kind), image.last_writer,
+        DebugState.GetFrameNum(), kept);
+}
+
+void TextureCache::KeepDecommittedImage(ImageId image_id) {
+    UntrackImage(image_id);
+    UnregisterImage(image_id);
+    ReleaseImageMetas(slot_images[image_id]);
+    {
+        std::unique_lock lk{download_images_mutex};
+        download_images.erase(image_id);
+    }
+    decommitted_images.push_back({image_id, gc_tick});
+    decommitted_bytes += slot_images[image_id].info.guest_size;
+    UploadDiagnostics::pool_revive_kept.fetch_add(1, std::memory_order_relaxed);
+    while (decommitted_images.size() > MaxDecommittedImages ||
+           decommitted_bytes > MaxDecommittedBytes) {
+        const ImageId oldest = decommitted_images.front().id;
+        decommitted_bytes -= slot_images[oldest].info.guest_size;
+        DeleteImage(oldest);
+        decommitted_images.erase(decommitted_images.begin());
+        UploadDiagnostics::pool_revive_released.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
+ImageId TextureCache::TakeDecommittedImage(const ImageInfo& info) {
+    if (decommitted_images.empty() ||
+        !UploadDiagnostics::pool_revive.load(std::memory_order_relaxed)) {
+        return {};
+    }
+    const auto it = std::ranges::find_if(decommitted_images, [&](const ParkedImage& kept) {
+        const auto& other = slot_images[kept.id].info;
+        return other.guest_address == info.guest_address && other.guest_size == info.guest_size &&
+               other.pixel_format == info.pixel_format && other.type == info.type &&
+               other.size == info.size && other.pitch == info.pitch &&
+               other.resources == info.resources && other.num_samples == info.num_samples &&
+               other.num_bits == info.num_bits && other.props.is_depth == info.props.is_depth &&
+               other.props.has_stencil == info.props.has_stencil &&
+               other.tile_mode == info.tile_mode && other.bank_swizzle == info.bank_swizzle &&
+               other.alt_tile == info.alt_tile;
+    });
+    if (it == decommitted_images.end()) {
+        return {};
+    }
+    // The guest memory may hold other bytes now: written by the CPU since the commit (the range
+    // is defined), or by the GPU through the buffer path.
+    if (!IsUndefinedContent(info.guest_address, info.guest_size) ||
+        buffer_cache.IsRegionGpuModified(info.guest_address, info.guest_size)) {
+        UploadDiagnostics::pool_revive_stale.fetch_add(1, std::memory_order_relaxed);
+        return {};
+    }
+    const ImageId image_id = it->id;
+    decommitted_images.erase(it);
+    Image& image = slot_images[image_id];
+    decommitted_bytes -= image.info.guest_size;
+    // Its contents are current; the buffer cache was invalidated with the range.
+    image.flags = ImageFlagBits::GpuModified;
+    image.binding = {};
+    image.buffer_synced_version = ~u64{0};
+    // Keeps the run learned and protected at the next commit (see ReleaseUndefinedContent):
+    // a revived image is never refreshed, which is what marks a run as used otherwise.
+    NoteUndefinedUse(info.guest_address, info.guest_size);
+    UploadDiagnostics::pool_revive_revived.fetch_add(1, std::memory_order_relaxed);
+    UploadDiagnostics::pool_revive_bytes.fetch_add(info.guest_size, std::memory_order_relaxed);
+    return image_id;
+}
+
+void TextureCache::ReleaseDecommittedImages(VAddr address, u64 size, u64 max_age) {
+    std::erase_if(decommitted_images, [&](const ParkedImage& kept) {
+        const auto& info = slot_images[kept.id].info;
+        const bool overlaps = size && info.guest_address < address + size &&
+                              address < info.guest_address + info.guest_size;
+        if (!overlaps && gc_tick - kept.tick <= max_age) {
+            return false;
+        }
+        decommitted_bytes -= info.guest_size;
+        DeleteImage(kept.id);
+        UploadDiagnostics::pool_revive_released.fetch_add(1, std::memory_order_relaxed);
+        return true;
+    });
+}
+
+void TextureCache::MarkUndefinedContent(VAddr addr, size_t size) {
+    if (!size || !UploadDiagnostics::pool_undefined.load(std::memory_order_relaxed)) {
+        return;
+    }
+    using Interval = decltype(undefined_content)::interval_type;
+    const auto commit = Interval::right_open(PageManager::GetPageAddr(addr),
+                                             PageManager::GetNextPageAddr(addr + size - 1));
+    std::scoped_lock lock{undefined_mutex};
+    // Only pages that held an image the GPU wrote first (render, depth or storage target) are
+    // protected: the guest also commits pool memory for data it writes from the CPU, and every
+    // first write to a protected page costs a fault.
+    const auto targets = rt_history & commit;
+    if (targets.empty()) {
+        UploadDiagnostics::pool_undefined_unlearned.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    for (const auto& run : targets) {
+        const VAddr first = boost::icl::first(run);
+        const u64 bytes = boost::icl::last(run) - first + 1;
+        // A page another cache still watches may have lost its protection with the previous
+        // mapping, and a CPU write to it would go unseen: such runs keep uploading. Otherwise
+        // every page gets its first watcher here, so the run is write protected.
+        if (tracker.HasWriteWatchers(first, bytes)) {
+            UploadDiagnostics::pool_undefined_watched.fetch_add(1, std::memory_order_relaxed);
+            continue;
+        }
+        tracker.UpdatePageWatchers<1>(first, bytes);
+        undefined_content += Interval::right_open(first, first + bytes);
+        UploadDiagnostics::pool_undefined_marked.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
+bool TextureCache::IsUndefinedContent(VAddr addr, size_t size) {
+    if (!size) {
+        return false;
+    }
+    using Interval = decltype(undefined_content)::interval_type;
+    // Runs are kept separate per commit: the range must lie in one of them.
+    const auto range = Interval::right_open(PageManager::GetPageAddr(addr),
+                                            PageManager::GetNextPageAddr(addr + size - 1));
+    std::scoped_lock lock{undefined_mutex};
+    const auto it = undefined_content.find(range);
+    return it != undefined_content.end() && boost::icl::contains(*it, range);
+}
+
+void TextureCache::LearnGpuWriteRange(VAddr addr, size_t size) {
+    using Interval = decltype(rt_history)::interval_type;
+    const auto range = Interval::right_open(PageManager::GetPageAddr(addr),
+                                            PageManager::GetNextPageAddr(addr + size - 1));
+    std::scoped_lock lock{undefined_mutex};
+    if (!boost::icl::contains(rt_history, range)) {
+        rt_history += range;
+        UploadDiagnostics::pool_undefined_learned.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
+void TextureCache::ReleaseUndefinedContent(VAddr addr, size_t size, UndefinedRelease kind) {
+    if (!size) {
+        return;
+    }
+    using Interval = decltype(undefined_content)::interval_type;
+    const auto range = Interval::right_open(PageManager::GetPageAddr(addr),
+                                            PageManager::GetNextPageAddr(addr + size - 1));
+    std::scoped_lock lock{undefined_mutex};
+    if (undefined_content.empty()) {
+        return;
+    }
+    boost::container::small_vector<Interval, 4> released;
+    const auto [first_it, last_it] = undefined_content.equal_range(range);
+    for (auto it = first_it; it != last_it; ++it) {
+        // A CPU write defines the whole commit; other releases cover only their range.
+        released.push_back(kind == UndefinedRelease::CpuWrite ? *it : (*it & range));
+    }
+    for (const auto& run : released) {
+        const VAddr first = boost::icl::first(run);
+        const u64 bytes = boost::icl::last(run) - first + 1;
+        tracker.UpdatePageWatchers<0>(first, bytes);
+        undefined_content -= run;
+        const bool used = boost::icl::intersects(undefined_used, run);
+        undefined_used -= run;
+        if (kind == UndefinedRelease::Range && !used) {
+            // No image was refreshed here between the commit and now: protecting the range at
+            // the next commit would likely be wasted. It is learned again when an image uses it.
+            rt_history -= run;
+            UploadDiagnostics::pool_undefined_unused.fetch_add(1, std::memory_order_relaxed);
+        }
+        if (kind == UndefinedRelease::CpuWrite) {
+            // The guest keeps CPU data here: stop protecting the range at later commits.
+            rt_history -= run;
+            const u64 count = UploadDiagnostics::pool_undefined_cpu_writes.fetch_add(
+                1, std::memory_order_relaxed);
+            if (count < 32) {
+                // The log line names the writing thread: guest code or an emulator write-back.
+                LOG_INFO(Render_Vulkan, "pool_undefined: write {:#x}+{:#x} defines run {:#x}+{:#x}",
+                         addr, size, first, bytes);
+            }
+        }
+    }
+}
+
+void TextureCache::NoteUndefinedUse(VAddr addr, size_t size) {
+    using Interval = decltype(undefined_content)::interval_type;
+    const auto range = Interval::right_open(PageManager::GetPageAddr(addr),
+                                            PageManager::GetNextPageAddr(addr + size - 1));
+    std::scoped_lock lock{undefined_mutex};
+    const auto [first_it, last_it] = undefined_content.equal_range(range);
+    for (auto it = first_it; it != last_it; ++it) {
+        undefined_used += *it;
+    }
+}
+
+bool TextureCache::TrySkipUndefinedUpload(const Image& image) {
+    using Miss = UploadDiagnostics::UndefinedMiss;
+    const VAddr begin = image.info.guest_address;
+    const u64 size = image.info.guest_size;
+    Miss miss;
+    if (!IsUndefinedContent(begin, size)) {
+        miss = Miss::Defined;
+    } else if (!(image.track_addr <= begin && begin + size <= image.track_addr_end)) {
+        // Its own watchers must report CPU writes once the range is released.
+        miss = Miss::Untracked;
+    } else if (buffer_cache.IsRegionGpuModified(begin, size)) {
+        miss = Miss::GpuBuffer;
+    } else {
+        return true;
+    }
+    UploadDiagnostics::NoteUndefinedMiss(miss, begin, size,
+                                         static_cast<u32>(image.info.pixel_format),
+                                         image.uploaded);
+    return false;
 }
 
 ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, BindingType binding,
@@ -1125,6 +1391,7 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
         // Inherit image usage
         auto& new_image = slot_images[new_image_id];
         new_image.usage = source_image.usage;
+        new_image.created_by = static_cast<u8>(UploadDiagnostics::Created::DepthCopy);
         new_image.flags &= ~ImageFlagBits::Dirty;
         // When creating a depth buffer through overlap resolution don't clear it on first use.
         new_image.info.meta_info.htile_clear_mask = 0;
@@ -1407,22 +1674,86 @@ std::tuple<ImageId, int, int> TextureCache::ResolveOverlap(const ImageInfo& imag
     return {merged_image_id, -1, -1};
 }
 
+namespace {
+
+// Whether Image::CopyImage from an image with `src` writes every texel of an image with `dst`
+// at the same address: same texel grid, and at least as many levels and layers (or slices,
+// across a 3D <-> 2D array reinterpretation).
+bool CopyCoversImage(const ImageInfo& src, const ImageInfo& dst) {
+    if (src.guest_address != dst.guest_address || src.props.is_block != dst.props.is_block ||
+        src.num_bits != dst.num_bits || src.num_samples != dst.num_samples ||
+        src.size.width != dst.size.width || src.size.height != dst.size.height ||
+        src.resources.levels < dst.resources.levels) {
+        return false;
+    }
+    const bool src_3d = src.type == AmdGpu::ImageType::Color3D;
+    const bool dst_3d = dst.type == AmdGpu::ImageType::Color3D;
+    const u32 src_slices = src_3d ? src.size.depth : src.resources.layers;
+    const u32 dst_slices = dst_3d ? dst.size.depth : dst.resources.layers;
+    // Mipmapped volumes halve their depth per level, arrays keep their layers.
+    if (src_3d != dst_3d && dst.resources.levels > 1) {
+        return false;
+    }
+    return src_slices >= dst_slices;
+}
+
+} // namespace
+
 ImageId TextureCache::ExpandImage(const ImageInfo& info, ImageId image_id) {
-    const auto new_image_id =
-        slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this);
+    const bool twin_mode = UploadDiagnostics::expand_twin.load(std::memory_order_relaxed);
+    const ImageInfo src_info = slot_images[image_id].info;
+    // The copy below overwrites the whole new image: uploading guest memory first is wasted.
+    const bool covers = twin_mode && CopyCoversImage(src_info, info);
+    // A pure reinterpretation (each covers the other, e.g. a volume LUT rendered as a 2D array
+    // and sampled as 3D every frame) tends to alternate: the replaced image is parked for the
+    // conversion back.
+    const bool twin = covers && CopyCoversImage(info, src_info);
+    ImageId new_image_id = twin ? TakeParkedImage(info) : ImageId{};
+    const bool reused = bool(new_image_id);
+    if (!new_image_id) {
+        new_image_id =
+            slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this);
+    }
     RegisterImage(new_image_id);
 
     auto& src_image = slot_images[image_id];
     auto& new_image = slot_images[new_image_id];
+    using Created = UploadDiagnostics::Created;
+    new_image.created_by = static_cast<u8>(!twin    ? Created::Expand
+                                           : reused ? Created::ExpandTwinReused
+                                                    : Created::ExpandTwin);
+    if (reused) {
+        UploadDiagnostics::expand_twin_reuses.fetch_add(1, std::memory_order_relaxed);
+    }
 
-    RefreshImage(new_image);
-    new_image.CopyImage(src_image);
+    if (!covers) {
+        RefreshImage(new_image);
+        new_image.CopyImage(src_image);
+    } else if (True(src_image.flags & (ImageFlagBits::CpuDirty | ImageFlagBits::GpuDirty))) {
+        // Guest memory or the buffer cache holds newer contents than the source image: take
+        // them instead of copying the stale source over them.
+        new_image.flags |= ImageFlagBits::Dirty;
+        RefreshImage(new_image);
+        UploadDiagnostics::expand_stale_sources.fetch_add(1, std::memory_order_relaxed);
+    } else {
+        // Settles a MaybeCpuDirty source by its hash; nothing to do for a current one.
+        RefreshImage(src_image);
+        new_image.CopyImage(src_image);
+        // The copied contents are the GPU's when the source's were.
+        new_image.flags |= src_image.flags & ImageFlagBits::GpuModified;
+        UploadDiagnostics::expand_upload_skips.fetch_add(1, std::memory_order_relaxed);
+    }
+    UploadDiagnostics::expansions.fetch_add(1, std::memory_order_relaxed);
 
     if (src_image.binding.is_bound || src_image.binding.is_target) {
         src_image.binding.needs_rebind = 1u;
     }
 
-    FreeImage(image_id);
+    if (twin) {
+        ParkImage(image_id);
+    } else {
+        FreeImage(image_id);
+    }
 
     TrackImage(new_image_id);
     new_image.flags &= ~ImageFlagBits::Dirty;
@@ -1493,7 +1824,15 @@ ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
             LOG_WARNING(Render_Vulkan, "Image overlap resolve failed");
         }
     }
-    // Create and register a new image
+    // Create and register a new image. Nothing else cached over the range: decommitted pool
+    // memory committed again may bring its image back (see DecommitMemory).
+    if (!image_id && image_ids.empty()) {
+        image_id = TakeDecommittedImage(info);
+        if (image_id) {
+            slot_images[image_id].created_by = static_cast<u8>(UploadDiagnostics::Created::Revived);
+            RegisterImage(image_id);
+        }
+    }
     if (!image_id) {
         image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this, desc.type);
         RegisterImage(image_id);
@@ -1594,6 +1933,9 @@ ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
     if (desc.type == BindingType::Storage) {
         image.MarkGpuWrite(true);
         image.flags |= ImageFlagBits::GpuModified;
+        // Known before the refresh, like render_target in FindRenderTarget.
+        image.usage.storage = 1u;
+        NoteGpuWriter(image, UploadDiagnostics::WriteKind::Storage);
         if (readback_linear_images && (!image.info.props.is_tiled || image.info.size.width <= 8) &&
             image.info.guest_address != 0) {
             std::unique_lock lk{download_images_mutex};
@@ -1609,6 +1951,7 @@ ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& des
     Image& image = slot_images[image_id];
     image.MarkGpuWrite();
     image.flags |= ImageFlagBits::GpuModified;
+    NoteGpuWriter(image, UploadDiagnostics::WriteKind::RenderTarget);
     if (readback_linear_images && (!image.info.props.is_tiled || image.info.size.width <= 8)) {
         std::unique_lock lk{download_images_mutex};
         download_images.emplace(image_id);
@@ -1637,6 +1980,7 @@ ImageView& TextureCache::FindDepthTarget(ImageId image_id, const ImageDesc& desc
     image.MarkGpuWrite();
     image.flags |= ImageFlagBits::GpuModified;
     image.usage.depth_target = 1u;
+    NoteGpuWriter(image, UploadDiagnostics::WriteKind::DepthTarget);
     UpdateImage(image_id);
 
     // Register meta data for this depth buffer
@@ -1682,6 +2026,31 @@ void TextureCache::RefreshImage(Image& image) {
     image.CheckUploadBudget();
     // A codec fallback may have synchronously refreshed the replacement backing.
     if (False(image.flags & ImageFlagBits::Dirty)) return;
+
+    if (UploadDiagnostics::pool_undefined.load(std::memory_order_relaxed)) {
+        // Runs an image uses stay learned; see ReleaseUndefinedContent.
+        NoteUndefinedUse(image.info.guest_address, image.info.guest_size);
+        // An image the GPU writes first (render, depth or storage target) created in freshly
+        // committed pool memory starts with undefined contents, as the guest's does, instead of
+        // uploading guest memory: guest memory never holds what the GPU wrote there before the
+        // decommit anyway. The range stays undefined for aliasing images until the CPU writes
+        // it, the GPU writes an image back to it, or it is decommitted.
+        if (image.usage.render_target || image.usage.depth_target || image.usage.storage) {
+            LearnGpuWriteRange(image.info.guest_address, image.info.guest_size);
+            if (TrySkipUndefinedUpload(image)) {
+                image.flags &= ~ImageFlagBits::Dirty;
+                UploadDiagnostics::pool_undefined_skips.fetch_add(1, std::memory_order_relaxed);
+                UploadDiagnostics::pool_undefined_skip_bytes.fetch_add(
+                    image.info.guest_size, std::memory_order_relaxed);
+                return;
+            }
+        } else if (IsUndefinedContent(image.info.guest_address, image.info.guest_size)) {
+            // Sampled before any GPU write: still uploaded, counted to size the case.
+            UploadDiagnostics::NoteUndefinedMiss(
+                UploadDiagnostics::UndefinedMiss::Sampled, image.info.guest_address,
+                image.info.guest_size, static_cast<u32>(image.info.pixel_format), image.uploaded);
+        }
+    }
     RENDERER_TRACE;
     TRACE_HINT(fmt::format("{:x}:{:x}", image.info.guest_address, image.info.guest_size));
 
@@ -1862,6 +2231,12 @@ void TextureCache::NoteUploadDiagnostics(const Image& image,
         .frame = DebugState.GetFrameNum(),
         .mips = mips,
         .hashes = hashes,
+        .usage = static_cast<u8>(u32(image.usage.texture) | u32(image.usage.storage) << 1 |
+                                 u32(image.usage.render_target || image.binding.is_target) << 2 |
+                                 u32(image.usage.depth_target) << 3),
+        .created = image.created_by,
+        .action = UploadDiagnostics::current_action.load(std::memory_order_relaxed),
+        .action_dispatch = UploadDiagnostics::current_action_dispatch.load(std::memory_order_relaxed),
     });
 }
 
@@ -2258,10 +2633,12 @@ void TextureCache::RunGarbageCollector() {
 
     {
         std::scoped_lock lock{mutex};
+        const bool pressured = total_used_memory >= pressure_gc_memory || gc_budget_pressured;
         if (!parked_images.empty()) {
-            const bool pressured =
-                total_used_memory >= pressure_gc_memory || gc_budget_pressured;
             ReleaseParkedImages(0, 0, pressured ? 0 : ParkedImageMaxAge);
+        }
+        if (!decommitted_images.empty()) {
+            ReleaseDecommittedImages(0, 0, pressured ? 0 : ParkedImageMaxAge);
         }
     }
     GarbageCollectIdleAssets();
@@ -2335,6 +2712,7 @@ ImageId TextureCache::TakeParkedImage(const ImageInfo& info) {
     parked_images.erase(it);
     // Same state as a newly inserted image whose contents are about to be copied in.
     slot_images[image_id].flags = ImageFlagBits::Empty;
+    slot_images[image_id].binding = {};
     slot_images[image_id].NoteWrite();
     return image_id;
 }

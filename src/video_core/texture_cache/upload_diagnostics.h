@@ -30,6 +30,39 @@ struct ImageKey {
     bool operator==(const ImageKey&) const = default;
 };
 
+// How an uploaded image was made (Image::created_by).
+enum class Created : u8 {
+    Fresh,            // FindImage created it: nothing cached matched
+    Expand,           // ExpandImage: a larger or reinterpreted copy of a cached image
+    ExpandTwin,       // ExpandImage of a pure reinterpretation (e.g. 3D <-> 2D array)
+    ExpandTwinReused, // the same, reusing the image parked by the previous conversion
+    Revived,          // an image of decommitted pool memory, back after a commit
+    DepthCopy,        // ResolveDepthOverlap: depth <-> colour reinterpretation
+    Count,
+};
+// How the last shader that wrote an image bound it (Image::last_write_kind).
+enum class WriteKind : u8 { None, Storage, RenderTarget, DepthTarget, Count };
+
+// The guest shader of the draw (pixel shader, else vertex) or dispatch being bound, set by the
+// rasterizer while armed: names the action that refreshed or wrote an image.
+inline std::atomic<u64> current_action{0};
+inline std::atomic<bool> current_action_dispatch{false};
+
+// ExpandImage copies a cached image into the new one. When the copy covers the new image the
+// guest upload before it is skipped, and a pure reinterpretation parks the replaced image for
+// the conversion back (`upload_diag expand_twin on|off`, on by default).
+inline std::atomic<bool> expand_twin{true};
+inline std::atomic<u64> expansions{0}, expand_upload_skips{0}, expand_twin_reuses{0},
+    expand_stale_sources{0};
+
+// Decommitted pool memory keeps its GPU-written images; a commit of the same range the CPU has
+// not written revives the exact image with its contents (`upload_diag pool_revive on|off`, on
+// by default). Counters: images kept, revived (and their bytes), deleted unrevived, and
+// found but not revived because the range was defined or GPU buffer data was there.
+inline std::atomic<bool> pool_revive{true};
+inline std::atomic<u64> pool_revive_kept{0}, pool_revive_revived{0}, pool_revive_bytes{0},
+    pool_revive_released{0}, pool_revive_stale{0};
+
 struct UploadEvent {
     ImageKey key;
     u32 width{}, height{}, depth{}, layers{}, levels{};
@@ -41,7 +74,19 @@ struct UploadEvent {
     u32 frame{};
     std::span<const u32> mips;    // uploaded mip levels
     std::span<const u64> hashes;  // guest hash per uploaded mip, empty when gpu_resident
+    // Image::usage at the refresh (bits: texture, storage, render target, depth target),
+    // Image::created_by, and the action refreshing it (current_action).
+    u8 usage{};
+    u8 created{};
+    u64 action{};
+    bool action_dispatch{};
 };
+
+// A GPU-written image was freed with its range (unmap, decommit): a later upload of an image
+// over the same range is uploading guest memory that never held what the GPU wrote there.
+// Recorded while armed, last few per address.
+void NoteFreedGpuImage(VAddr address, u64 size, u32 format, WriteKind kind, u64 writer,
+                       u32 frame, bool kept);
 
 // One buffer binding of a compute dispatch that writes a formatted storage buffer over an
 // image base. `head` holds the first guest dwords when the guest copy is current.
@@ -147,6 +192,25 @@ inline std::atomic<bool> stream_barriers{false};
 // the buffer cache released it: images watch their pages, so a page without watchers is tracked
 // by no image (`upload_diag fault_textures skip|always`, skip by default).
 inline std::atomic<bool> skip_unwatched_fault_textures{true};
+// Pool memory the guest commits holds undefined contents until the CPU writes it (the commit
+// may map any free physical pages). Images the GPU writes first (render, depth or storage
+// targets) created there skip the guest upload (`upload_diag pool_undefined on|off`, on by
+// default). Only pages that held such an image before are write protected at a commit.
+// Counters: runs protected, commits with no such pages, runs left defined because a page was
+// still watched, ranges learned, skipped uploads and their bytes, runs released by a CPU write,
+// runs decommitted without any image refreshed in them (forgotten until used again).
+inline std::atomic<bool> pool_undefined{true};
+inline std::atomic<u64> pool_undefined_marked{0}, pool_undefined_unlearned{0},
+    pool_undefined_watched{0}, pool_undefined_learned{0}, pool_undefined_skips{0},
+    pool_undefined_skip_bytes{0}, pool_undefined_cpu_writes{0}, pool_undefined_unused{0};
+// Why an image the GPU writes first still uploaded: its range was defined, it was not fully
+// tracked yet, or the buffer cache held GPU data for it. Sampled: an image read before any GPU
+// write found its range undefined (uploaded as before).
+enum class UndefinedMiss : u32 { Defined, Untracked, GpuBuffer, Sampled, Count };
+inline std::array<std::atomic<u64>, static_cast<size_t>(UndefinedMiss::Count)>
+    pool_undefined_misses{};
+// Counts the miss and logs the first few with the image range.
+void NoteUndefinedMiss(UndefinedMiss miss, VAddr address, u64 size, u32 format, bool uploaded);
 inline std::atomic<u64> raw_copies{0}, raw_copy_bytes{0}, raw_copy_fallbacks{0};
 void NoteFill(FillOutcome outcome, u32 images_cleared, u64 bytes);
 

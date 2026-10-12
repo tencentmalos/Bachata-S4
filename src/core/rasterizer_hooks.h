@@ -29,6 +29,18 @@ public:
     virtual void MapMemory(VAddr addr, u64 size) = 0;
     virtual void UnmapMemory(VAddr addr, u64 size) = 0;
 
+    // Pooled memory was committed: like MapMemory, but the contents are undefined until the
+    // CPU writes them (the commit may map any free physical pages).
+    virtual void CommitPoolMemory(VAddr addr, u64 size) {
+        MapMemory(addr, size);
+    }
+
+    // Pooled memory is being decommitted: like UnmapMemory, but the renderer may keep GPU
+    // contents for a later commit of the same range (see CommitPoolMemory).
+    virtual void DecommitPoolMemory(VAddr addr, u64 size) {
+        UnmapMemory(addr, size);
+    }
+
     // Guest memory at [addr, addr+size) was written on the CPU side. Returns true
     // if the rasterizer handled (invalidated) tracked data in the range.
     virtual bool InvalidateMemory(VAddr addr, u64 size) = 0;

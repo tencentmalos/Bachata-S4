@@ -13,6 +13,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <boost/container/small_vector.hpp>
+#include <boost/icl/interval_set.hpp>
+#include <boost/icl/separate_interval_set.hpp>
 #include <queue>
 #include <tsl/robin_map.h>
 
@@ -138,8 +140,28 @@ public:
     [[nodiscard]] std::string DescribeImagesForDiagnostics(VAddr address, u64 size,
                                                            bool& base_match);
 
-    /// Evicts any images that overlap the unmapped range.
-    void UnmapMemory(VAddr cpu_addr, size_t size);
+    /// Evicts any images that overlap the unmapped range. `pool_commit`: the range is a pool
+    /// commit, whose images decommitted earlier may come back (see DecommitMemory).
+    void UnmapMemory(VAddr cpu_addr, size_t size, bool pool_commit = false);
+
+    /// Pooled memory in [addr, addr + size) is decommitted. Like UnmapMemory, except that the
+    /// images the GPU wrote and the CPU did not, entirely inside the range, are kept alive
+    /// (`upload_diag pool_revive`): when the guest commits the range again and the CPU has not
+    /// written it, the same image created there takes its old contents instead of uploading
+    /// the new pages, as if the commit got the same physical pages back.
+    void DecommitMemory(VAddr addr, size_t size);
+
+    /// Pooled memory was committed over [addr, addr + size): its contents are undefined until the
+    /// CPU writes it. Images the GPU writes first (render, depth or storage targets) created in
+    /// pages that held such images before start without uploading guest memory
+    /// (`upload_diag pool_undefined`).
+    void MarkUndefinedContent(VAddr addr, size_t size);
+
+    /// Guest memory in [addr, addr + size) is about to hold meaningful bytes from another source
+    /// (a GPU write-back, a buffer readback): it is no longer undefined.
+    void ReleaseUndefinedContent(VAddr addr, size_t size) {
+        ReleaseUndefinedContent(addr, size, UndefinedRelease::Range);
+    }
 
     /// Schedules a copy of pending images for download back to CPU memory.
     void ProcessDownloadImages(bool sync = true);
@@ -254,11 +276,34 @@ public:
     /// Reuploads image contents.
     void RefreshImage(Image& image);
 
+    enum class UndefinedRelease {
+        Range,    ///< Only the pages of the range become defined (decommit, GPU write-back).
+        CpuWrite, ///< The CPU wrote the range: its whole commit becomes defined.
+    };
+    /// True when every page of [addr, addr + size) lies in one committed run the CPU has not
+    /// written since the commit.
+    bool IsUndefinedContent(VAddr addr, size_t size);
+    /// Drops the undefined-content state, and the page watchers holding it.
+    void ReleaseUndefinedContent(VAddr addr, size_t size, UndefinedRelease kind);
+    /// Records pages that held an image the GPU wrote first; later commits protect only those.
+    void LearnGpuWriteRange(VAddr addr, size_t size);
+    /// True when `image`, which the GPU writes first, may start with undefined contents.
+    bool TrySkipUndefinedUpload(const Image& image);
+    /// Marks the undefined runs overlapping [addr, addr + size) as used by an image.
+    void NoteUndefinedUse(VAddr addr, size_t size);
+
     /// Upload diagnostics (default off): record which write dirtied an image and hash the
     /// guest bytes of the mips about to be uploaded. Called only while armed.
     void NoteUploadDirty(const Image& image, UploadDiagnostics::DirtySource source, VAddr address,
                          u64 size, u64 writer = 0);
     void NoteUploadDiagnostics(const Image& image, std::span<const vk::BufferImageCopy> copies);
+    /// The image is freed (or kept) with its range: records its GPU contents' writer.
+    void NoteFreedGpuImage(const Image& image, bool kept);
+    /// The image is bound for writing by the current action (diagnostics only).
+    static void NoteGpuWriter(Image& image, UploadDiagnostics::WriteKind kind) {
+        image.last_write_kind = static_cast<u8>(kind);
+        image.last_writer = UploadDiagnostics::current_action.load(std::memory_order_relaxed);
+    }
 
     /// Retrieves the sampler that matches the provided S# descriptor.
     [[nodiscard]] vk::Sampler GetSampler(const AmdGpu::Sampler& sampler,
@@ -491,6 +536,15 @@ private:
     /// Deletes parked images overlapping [address, address + size) or older than max_age ticks.
     void ReleaseParkedImages(VAddr address, u64 size, u64 max_age);
 
+    /// Keeps an image of decommitted pool memory alive, unregistered (see DecommitMemory).
+    void KeepDecommittedImage(ImageId image_id);
+    /// The kept image with exactly `info`, when its range is still undefined (committed again
+    /// and not written by the CPU) and the buffer cache holds no GPU data there. Registered by
+    /// the caller.
+    ImageId TakeDecommittedImage(const ImageInfo& info);
+    /// Deletes kept images overlapping [address, address + size) or older than max_age ticks.
+    void ReleaseDecommittedImages(VAddr address, u64 size, u64 max_age);
+
     void GarbageCollectImages();
     void GarbageCollectIdleAssets();
     void GarbageCollectSamplers();
@@ -537,6 +591,16 @@ private:
     PageTable page_table;
     std::atomic<u64> image_set_generation{};
     std::atomic<u64> content_generation{1};
+    /// Runs of committed pool memory not written by the CPU since the commit, one per commit.
+    /// Each page holds one write watcher, so a CPU write faults and releases its run.
+    boost::icl::separate_interval_set<VAddr> undefined_content;
+    /// Pages that held an image the GPU wrote first; only these are protected at a commit.
+    boost::icl::interval_set<VAddr> rt_history;
+    /// Undefined runs an image was refreshed in since their commit.
+    boost::icl::separate_interval_set<VAddr> undefined_used;
+    /// Guards the two sets. Taken after `mutex` and before page-manager locks; download
+    /// write-backs take it without `mutex`.
+    std::mutex undefined_mutex;
     std::mutex mutex;
     std::mutex samplers_mutex;
     std::mutex download_images_mutex;
@@ -545,8 +609,12 @@ private:
         u64 tick;
     };
     std::vector<ParkedImage> parked_images; // guarded by mutex
-    static constexpr size_t MaxParkedImages = 4;
+    static constexpr size_t MaxParkedImages = 8;
     static constexpr u64 ParkedImageMaxAge = 240; // submissions
+    std::vector<ParkedImage> decommitted_images; // guarded by mutex, oldest first
+    u64 decommitted_bytes{};
+    static constexpr size_t MaxDecommittedImages = 32;
+    static constexpr u64 MaxDecommittedBytes = 256_MB;
     struct MetaDataInfo {
         MetaType type;
         s32 clear_mask = -1;

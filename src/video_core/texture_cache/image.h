@@ -275,6 +275,11 @@ public:
     u64 state_version{};
     u32 backing_epoch{};
     bool uploaded{}; // contents were uploaded from guest memory at least once
+    // Upload diagnostics: how the image was made (UploadDiagnostics::Created) and the shader
+    // that last bound it for writing, with the binding kind (UploadDiagnostics::WriteKind).
+    u8 created_by{};
+    u8 last_write_kind{};
+    u64 last_writer{};
     // Raw buffer reads of a GPU-written image tile it back into the buffer cache (see
     // BufferCache::SynchronizeMemoryFromGpuImage). write_epoch counts writes to the image's
     // contents; buffer_synced_version is the epoch last tiled back. buffer_overwritten is set when

@@ -351,6 +351,9 @@ void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
         image_id = bound_images.emplace_back(texture_cache.FindImage(desc));
         auto& image = texture_cache.GetImage(image_id);
         image.binding.is_target = 1u;
+        // Known before any refresh of this draw (textures bound below, BeginRendering's
+        // UpdateImage): a new target in undefined memory skips the guest upload.
+        image.usage.render_target = 1u;
     }
 
     if ((regs.depth_control.depth_enable && regs.depth_buffer.DepthValid()) ||
@@ -363,6 +366,7 @@ void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
         image_id = bound_images.emplace_back(texture_cache.FindImage(desc));
         auto& image = texture_cache.GetImage(image_id);
         image.binding.is_target = 1u;
+        image.usage.depth_target = 1u;
     } else {
         db_desc.first = {};
     }
@@ -938,6 +942,20 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     // A loading frame can issue thousands of draws before TickFrame. Allow requested
     // allocation snapshots there too, without waiting for the frame or GPU to finish.
     texture_cache.PublishMemoryDiagnostics();
+    if (VideoCore::UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
+        // Names this action in the upload diagnostics of the images it refreshes or writes:
+        // the compute shader, else the pixel shader, else the vertex shader.
+        const auto stages = pipeline->GetStages();
+        const Shader::Info* named = pipeline->IsCompute()
+                                        ? stages[0]
+                                        : stages[u32(Shader::SwStage::Fragment)]
+                                              ? stages[u32(Shader::SwStage::Fragment)]
+                                              : stages[u32(Shader::SwStage::Vertex)];
+        VideoCore::UploadDiagnostics::current_action.store(named ? named->pgm_hash : 0,
+                                                           std::memory_order_relaxed);
+        VideoCore::UploadDiagnostics::current_action_dispatch.store(pipeline->IsCompute(),
+                                                                    std::memory_order_relaxed);
+    }
     const char* replaced = nullptr;
     {
         Common::Profiler::FineScope hle_scope{"Bind.HleCheck"};
@@ -2241,6 +2259,9 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
                 image->binding.force_general |= image_desc.is_written;
             }
             image->binding.is_bound = 1u;
+            // Known before the second pass refreshes the images: a sampled binding of an image
+            // this shader also writes may come first.
+            image->usage.storage |= image_desc.is_written;
         }
 
         image_descriptor_array_sizes.push_back(num_bindings);
@@ -2826,6 +2847,8 @@ bool Rasterizer::ReadMemory(VAddr addr, u64 size) {
         // Not GPU mapped memory, can skip invalidation logic entirely.
         return false;
     }
+    // The readback writes GPU data to guest memory: it is no longer undefined pool memory.
+    texture_cache.ReleaseUndefinedContent(addr, size);
     buffer_cache.ReadMemory(addr, size);
     return true;
 }
@@ -2861,10 +2884,35 @@ void Rasterizer::MapMemory(VAddr addr, u64 size) {
     page_manager.OnGpuMap(addr, size);
 }
 
+void Rasterizer::CommitPoolMemory(VAddr addr, u64 size) {
+    // MapMemory, keeping the images a decommit of this range kept for a revival.
+    buffer_cache.InvalidateMapping(addr, size);
+    texture_cache.UnmapMemory(addr, size, true);
+    {
+        std::scoped_lock lock{mapped_ranges_mutex};
+        mapped_ranges += decltype(mapped_ranges)::interval_type::right_open(addr, addr + size);
+    }
+    page_manager.OnGpuMap(addr, size);
+    // The commit maps whichever free physical pages the pool has: the guest cannot rely on
+    // their contents until it writes them, so render targets created there need no upload.
+    texture_cache.MarkUndefinedContent(addr, size);
+}
+
 void Rasterizer::UnmapMemory(VAddr addr, u64 size) {
     buffer_cache.InvalidateMemory(addr, size);
     buffer_cache.ForgetGpuWrites(addr, size);
     texture_cache.UnmapMemory(addr, size);
+    page_manager.OnGpuUnmap(addr, size);
+    {
+        std::scoped_lock lock{mapped_ranges_mutex};
+        mapped_ranges -= decltype(mapped_ranges)::interval_type::right_open(addr, addr + size);
+    }
+}
+
+void Rasterizer::DecommitPoolMemory(VAddr addr, u64 size) {
+    buffer_cache.InvalidateMemory(addr, size);
+    buffer_cache.ForgetGpuWrites(addr, size);
+    texture_cache.DecommitMemory(addr, size);
     page_manager.OnGpuUnmap(addr, size);
     {
         std::scoped_lock lock{mapped_ranges_mutex};

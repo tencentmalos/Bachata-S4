@@ -67,6 +67,48 @@ u64 sequence{};
 u64 dispatch_sequence{};
 std::unordered_map<u64, u64> image_dispatches; // shader program hash -> image-writing dispatches
 
+constexpr size_t CreatedCount = static_cast<size_t>(Created::Count);
+constexpr std::array<const char*, CreatedCount> CreatedNames{
+    "fresh", "expand", "expand_twin", "twin_reused", "revived", "depth_copy"};
+constexpr std::array<const char*, static_cast<size_t>(WriteKind::Count)> WriteKindNames{
+    "-", "storage", "rt", "depth"};
+
+// GPU-written images freed with their range, newest last (NoteFreedGpuImage).
+struct Freed {
+    VAddr address{};
+    u64 size{};
+    u32 format{};
+    WriteKind kind{};
+    u64 writer{};
+    u32 frame{};
+    bool kept{};
+};
+constexpr size_t FreedRingSize = 64;
+std::array<Freed, FreedRingSize> freed_ring{};
+size_t freed_next{};
+// "usage created prior" -> uploads, and the writer of the prior GPU content -> uploads.
+std::unordered_map<std::string, u64> causes;
+std::unordered_map<u64, u64> prior_writers;
+
+// Usage bits of UploadEvent::usage as letters: Texture Storage Rendertarget Depth.
+std::string UsageName(u8 usage) {
+    std::string out;
+    if (usage & 1) out += 'T';
+    if (usage & 2) out += 'S';
+    if (usage & 4) out += 'R';
+    if (usage & 8) out += 'D';
+    return out.empty() ? "none" : out;
+}
+
+// The newest freed GPU image overlapping [address, address + size), or nullptr.
+const Freed* FindFreed(VAddr address, u64 size) {
+    for (size_t i = 0; i < FreedRingSize; ++i) {
+        const auto& f = freed_ring[(freed_next + FreedRingSize - 1 - i) % FreedRingSize];
+        if (f.size && f.address < address + size && address < f.address + f.size) return &f;
+    }
+    return nullptr;
+}
+
 constexpr size_t FillOutcomeCount = static_cast<size_t>(FillOutcome::Count);
 constexpr std::array<const char*, FillOutcomeCount> FillOutcomeNames{
     "cleared", "no_image", "partial", "pattern", "format", "gpu_resident", "disabled"};
@@ -132,6 +174,17 @@ std::string Summary() {
                            texture_bind_cache.load() ? "on" : "off",
                            texture_bind_fast.load() ? "on" : "off", texture_bind_hits.load(),
                            texture_bind_misses.load(), texture_bind_fast_hits.load());
+        out += fmt::format("pool_undefined={} marked={} unlearned={} watched={} learned={} "
+                           "skips={} skip_bytes={} cpu_writes={} miss_defined={} "
+                           "miss_untracked={} miss_gpu_buffer={} sampled_undefined={} "
+                           "unused={}\n",
+                           pool_undefined.load() ? "on" : "off", pool_undefined_marked.load(),
+                           pool_undefined_unlearned.load(), pool_undefined_watched.load(),
+                           pool_undefined_learned.load(), pool_undefined_skips.load(),
+                           pool_undefined_skip_bytes.load(), pool_undefined_cpu_writes.load(),
+                           pool_undefined_misses[0].load(), pool_undefined_misses[1].load(),
+                           pool_undefined_misses[2].load(), pool_undefined_misses[3].load(),
+                           pool_undefined_unused.load());
     }
     out += fmt::format("ignore_storage_dirty={} ignored_storage_dirty={}\n",
                        ignore_storage_dirty.load() ? 1 : 0, ignored_storage_dirty.load());
@@ -165,13 +218,37 @@ std::string Summary() {
     std::vector<std::pair<u64, u64>> by_dispatch(image_dispatches.begin(), image_dispatches.end());
     std::sort(by_dispatch.begin(), by_dispatch.end(),
               [](const auto& a, const auto& b) { return a.second > b.second; });
-    out += fmt::format("image-writing dispatches={} dispatch_log_left={} (pgm_hash dispatches):\n",
+    // Dispatches binding a written buffer that starts at a cached image; storage image writes
+    // are not counted here (see the upload causes and the writers of freed GPU content).
+    out += fmt::format("buffer writes at image bases: dispatches={} dispatch_log_left={} (pgm_hash dispatches):\n",
                        dispatch_sequence, dispatch_budget.load());
     for (size_t i = 0; i < std::min<size_t>(by_dispatch.size(), 24); ++i)
         out += fmt::format("  {:#018x} {}\n", by_dispatch[i].first, by_dispatch[i].second);
     out += "uploads by writing shader (pgm_hash uploads):\n";
     for (size_t i = 0; i < std::min<size_t>(by_writer.size(), 24); ++i)
         out += fmt::format("  {:#018x} {}\n", by_writer[i].first, by_writer[i].second);
+    out += fmt::format("expand_twin={} expansions={} upload_skips={} twin_reuses={} stale_sources={}\n",
+                       expand_twin.load() ? "on" : "off", expansions.load(),
+                       expand_upload_skips.load(), expand_twin_reuses.load(),
+                       expand_stale_sources.load());
+    out += fmt::format("pool_revive={} kept={} revived={} revived_bytes={} released={} stale={}\n",
+                       pool_revive.load() ? "on" : "off", pool_revive_kept.load(),
+                       pool_revive_revived.load(), pool_revive_bytes.load(),
+                       pool_revive_released.load(), pool_revive_stale.load());
+    // Usage at the refresh (T texture, S storage, R render target, D depth), how the image was
+    // made, and what the GPU had written over the range before it was freed.
+    std::vector<std::pair<std::string, u64>> by_cause(causes.begin(), causes.end());
+    std::sort(by_cause.begin(), by_cause.end(),
+              [](const auto& a, const auto& b) { return a.second > b.second; });
+    out += "upload causes (usage created prior_gpu_content uploads):\n";
+    for (size_t i = 0; i < std::min<size_t>(by_cause.size(), 24); ++i)
+        out += fmt::format("  {} {}\n", by_cause[i].first, by_cause[i].second);
+    std::vector<std::pair<u64, u64>> by_prior(prior_writers.begin(), prior_writers.end());
+    std::sort(by_prior.begin(), by_prior.end(),
+              [](const auto& a, const auto& b) { return a.second > b.second; });
+    out += "uploads over freed GPU content, by its writer (pgm_hash uploads):\n";
+    for (size_t i = 0; i < std::min<size_t>(by_prior.size(), 24); ++i)
+        out += fmt::format("  {:#018x} {}\n", by_prior[i].first, by_prior[i].second);
     out += "outcome_by_source (unchanged changed partial first gpu_resident):\n";
     for (size_t s = 0; s < SourceCount; ++s) {
         u64 row = 0;
@@ -212,6 +289,10 @@ void Reset(u32 lines) {
     sequence = 0;
     dispatch_sequence = 0;
     image_dispatches.clear();
+    freed_ring = {};
+    freed_next = 0;
+    causes.clear();
+    prior_writers.clear();
     log_budget.store(lines);
     dispatch_budget.store(lines);
 }
@@ -271,6 +352,16 @@ void NoteUpload(const UploadEvent& event) {
     }
     ++total_uploads;
     ++sequence;
+    const Freed* prior = FindFreed(event.key.address, event.key.size);
+    const std::string prior_text =
+        prior ? fmt::format("{}:{}:{}{}", WriteKindNames[static_cast<size_t>(prior->kind)],
+                            FormatName(prior->format), event.frame - prior->frame,
+                            prior->kept ? ":kept" : "")
+              : std::string{"none"};
+    const char* created = event.created < CreatedCount ? CreatedNames[event.created] : "unknown";
+    ++causes[fmt::format("{} {} {}", UsageName(event.usage), created,
+                         prior ? WriteKindNames[static_cast<size_t>(prior->kind)] : "none")];
+    if (prior && prior->writer) ++prior_writers[prior->writer];
 
     u32 budget = log_budget.load(std::memory_order_relaxed);
     while (budget && !log_budget.compare_exchange_weak(budget, budget - 1)) {}
@@ -279,7 +370,7 @@ void NoteUpload(const UploadEvent& event) {
         LOG_INFO(Render_Vulkan,
                  "Upload diag #{} frame={} {:#x}+{:#x} {} {}x{}x{} L{} M{}/{} tile={} {} flags={}{}{}{} "
                  "source={} write={:+#x}+{} writer={:#x} gpu_resident={} outcome={} mips_same={}/{} "
-                 "image_uploads={}",
+                 "image_uploads={} usage={} created={} action={:#x}{} prior={} prior_writer={:#x}",
                  sequence, event.frame, event.key.address, event.key.size, FormatName(event.key.format),
                  event.width, event.height, event.depth, event.layers, event.mips.size(), event.levels,
                  event.tile_mode, event.scaled ? "scaled" : "native", event.cpu_dirty ? "C" : "",
@@ -287,12 +378,33 @@ void NoteUpload(const UploadEvent& event) {
                  event.gpu_modified ? "R" : "", SourceNames[source],
                  r.pending_source == DirtySource::None ? 0 : offset, r.pending_write_size,
                  r.pending_writer,
-                 event.gpu_resident ? 1 : 0, OutcomeNames[outcome], same, compared, r.uploads);
+                 event.gpu_resident ? 1 : 0, OutcomeNames[outcome], same, compared, r.uploads,
+                 UsageName(event.usage), created, event.action,
+                 event.action_dispatch ? "(cs)" : "(draw)", prior_text,
+                 prior ? prior->writer : 0);
     }
     r.pending_source = DirtySource::None;
     r.pending_write = 0;
     r.pending_write_size = 0;
     r.pending_writer = 0;
+}
+
+void NoteFreedGpuImage(VAddr address, u64 size, u32 format, WriteKind kind, u64 writer,
+                       u32 frame, bool kept) {
+    std::scoped_lock lock{mutex};
+    freed_ring[freed_next] = {address, size, format, kind, writer, frame, kept};
+    freed_next = (freed_next + 1) % FreedRingSize;
+}
+
+void NoteUndefinedMiss(UndefinedMiss miss, VAddr address, u64 size, u32 format, bool uploaded) {
+    pool_undefined_misses[static_cast<size_t>(miss)].fetch_add(1, std::memory_order_relaxed);
+    static std::atomic<u32> logged{};
+    if (logged.fetch_add(1, std::memory_order_relaxed) < 32) {
+        static constexpr std::array<const char*, 4> names{"defined", "untracked", "gpu_buffer",
+                                                          "sampled"};
+        LOG_INFO(Render_Vulkan, "pool_undefined miss {} {:#x}+{:#x} format {} uploaded {}",
+                 names[static_cast<size_t>(miss)], address, size, format, uploaded);
+    }
 }
 
 void NoteFill(FillOutcome outcome, u32 images_cleared, u64 bytes) {
@@ -358,6 +470,17 @@ std::string Command(const std::vector<std::string>& args) {
         ignore_storage_dirty.store(args[1] == "on");
         return fmt::format("ignore_storage_dirty={} (diagnostic A/B only; may show stale images)\n",
                            args[1]);
+    }
+    if (sub == "expand_twin" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        expand_twin.store(args[1] == "on");
+        return fmt::format("expand_twin={} (ExpandImage {})\n", args[1],
+                           args[1] == "on" ? "skips covered uploads, parks reinterpretations"
+                                           : "uploads then copies, frees the source");
+    }
+    if (sub == "pool_revive" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        pool_revive.store(args[1] == "on");
+        return fmt::format("pool_revive={} (GPU images of decommitted pool memory {})\n", args[1],
+                           args[1] == "on" ? "come back at the next commit" : "are freed");
     }
     if (sub == "format_list" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         format_list.store(args[1] == "on" ? 1 : 0);
@@ -474,6 +597,13 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1] == "on" ? "copied into VRAM on the transfer queue where available"
                                            : "as selected by stream_host");
     }
+    if (sub == "pool_undefined" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        pool_undefined.store(args[1] == "on");
+        return fmt::format("pool_undefined={} (images the GPU writes first, created in freshly "
+                           "committed pool memory, {}); skips={} skip_bytes={}\n",
+                           args[1], args[1] == "on" ? "skip the guest upload" : "upload it",
+                           pool_undefined_skips.load(), pool_undefined_skip_bytes.load());
+    }
     if (sub == "fault_textures" && args.size() == 2 &&
         (args[1] == "skip" || args[1] == "always")) {
         skip_unwatched_fault_textures.store(args[1] == "skip");
@@ -528,7 +658,8 @@ std::string Command(const std::vector<std::string>& args) {
            "stream_barriers on|off | "
            "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
            "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
-           "fault_textures skip|always\n";
+           "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "
+           "pool_revive on|off\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

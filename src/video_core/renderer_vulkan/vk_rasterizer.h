@@ -96,7 +96,9 @@ public:
     void ProcessDownloadImages(bool sync = true);
     bool IsMapped(VAddr addr, u64 size);
     void MapMemory(VAddr addr, u64 size) override;
+    void CommitPoolMemory(VAddr addr, u64 size) override;
     void UnmapMemory(VAddr addr, u64 size) override;
+    void DecommitPoolMemory(VAddr addr, u64 size) override;
 
     u64 Flush();
     void Finish();

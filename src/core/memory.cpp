@@ -1231,7 +1231,7 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
 
     lk2.unlock();
     if (IsValidGpuMapping(mapped_addr, size)) {
-        rasterizer->MapMemory(mapped_addr, size);
+        rasterizer->CommitPoolMemory(mapped_addr, size);
     }
 
     RecordMapping("pool-commit", mapped_addr, size, static_cast<u64>(prot));
@@ -1638,7 +1638,7 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
 
     // Perform early GPU unmap to avoid potential deadlocks
     if (IsValidGpuMapping(virtual_addr, size)) {
-        rasterizer->UnmapMemory(virtual_addr, size);
+        rasterizer->DecommitPoolMemory(virtual_addr, size);
     }
 
     // Aquire writer mutex
