@@ -223,3 +223,7 @@
 	url = https://github.com/tencentmalos/ps4-firmware.git
 	branch = main
 	shallow = true
+[submodule "references/bloodborne_pc"]
+	path = references/bloodborne_pc
+	url = https://github.com/deadinside28/bloodborne_pc.git
+	branch = master
