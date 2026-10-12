@@ -263,6 +263,100 @@ int main() {
         CHECK(sensor.Read().hardware.head.linear_velocity[0] == 0);
         sensor.EndOpenXr(vgen);
     }
+    // XREAL head and the handheld IMU have separate clocks, neutral poses and ownership.
+    {
+        using namespace Core::HostRuntime;
+        sensor.SetSbsEnabled(true);
+        sensor.SelectExternalHead(true);
+        CHECK(sensor.HeadsetReady());
+        CHECK(sensor.Read().hardware.head.position_emulated);
+        CHECK(sensor.Read().hardware.head.orientation==std::array<float,4>{0,0,0,1});
+        auto t=std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count()-300'000'000;
+        const float h=std::sqrt(.5f);
+        GuestVrSensor::Pose head;
+        head.position={1,2,3}; head.orientation={0,std::sin(.2f),0,std::cos(.2f)};
+        head.orientation_valid=head.position_valid=true;
+        sensor.UpdateRotationVector({0,0,0,1},0,t);
+        sensor.UpdateExternalHead(head,t);
+        auto a=sensor.Read();
+        CHECK(a.external_head && !a.openxr && a.HardwareTracking());
+        CHECK(!a.hardware.head.position_emulated);
+        CHECK(a.hardware.head.position==std::array<float,3>{0,0,0});
+        CHECK(Near(a.hardware.head.orientation[3],1));
+        CHECK(a.hardware.hands[1].active && !a.hardware.hands[0].active);
+        CHECK(a.hardware.hands[1].grip.position_emulated);
+        sensor.UpdateRotationVector({0,0,h,h},0,t+=10'000'000);
+        auto b=sensor.Read();
+        CHECK(b.hardware.head.orientation==a.hardware.head.orientation);
+        CHECK(Near(b.hardware.hands[1].grip.orientation[1],h));
+        head.orientation=VrGeometry::Multiply(head.orientation,{std::sin(.1f),0,0,std::cos(.1f)});
+        head.position[0]+=.02f;
+        sensor.UpdateExternalHead(head,t+=10'000'000);
+        auto c=sensor.Read();
+        CHECK(c.hardware.hands[1].grip.orientation==b.hardware.hands[1].grip.orientation);
+        CHECK(c.hardware.hands[1].grip.position==b.hardware.hands[1].grip.position);
+        CHECK(std::abs(c.hardware.head.orientation[0])>.09f);
+        CHECK(c.hardware.head.position[0]>.01f);
+        const auto ipd=VrGeometry::HeadLocalEye(c.hardware.head,c.hardware.eyes[1]);
+        CHECK(Near(ipd[0],.0315f) && Near(ipd[1],0) && Near(ipd[2],0));
+        sensor.ResetOrientation(); // Guest HMD calibration must not rotate the handheld.
+        sensor.UpdateExternalHead(head,t+=10'000'000);
+        auto d=sensor.Read();
+        CHECK(d.hardware.hands[1].grip.orientation==c.hardware.hands[1].grip.orientation);
+        CHECK(d.hardware.head.position==std::array<float,3>{0,0,0});
+        sensor.ResetDeviceOrientation(); // Android focus/sensor restart must not recenter the head.
+        sensor.UpdateRotationVector({0,0,h,h},0,t+=10'000'000);
+        CHECK(sensor.Read().hardware.head.orientation==d.hardware.head.orientation);
+        CHECK(Near(sensor.Read().hardware.hands[1].grip.orientation[3],1));
+        const auto before=sensor.Read().hardware.head.position;
+        head.position[0]+=.86f;
+        sensor.UpdateExternalHead(head,t+=50'000'000);
+        CHECK(sensor.Read().external_position_rebases==1);
+        for(unsigned i=0;i<3;++i) CHECK(Near(sensor.Read().hardware.head.position[i],before[i]));
+        sensor.UpdateExternalHead({},t+=10'000'000);
+        CHECK(sensor.Read().hardware.head.orientation_valid);
+        CHECK(sensor.Read().hardware.head.position_emulated);
+        CHECK(sensor.Read().hardware.head.orientation==std::array<float,4>{0,0,0,1});
+        CHECK(sensor.Read().hardware.head.position==std::array<float,3>{0,0,0});
+        CHECK(sensor.Read().hardware.hands[1].active);
+        CHECK(sensor.HeadsetReady());
+        sensor.SelectExternalHead(false); sensor.SelectExternalHead(true);
+        sensor.UpdateExternalHead(head,t-1'000'000'000);
+        CHECK(sensor.Read().hardware.head.position_emulated && sensor.HeadsetReady());
+        sensor.UpdateExternalHead(head, now());
+        CHECK(!sensor.Read().hardware.head.position_emulated);
+        const auto generation=sensor.BeginOpenXr();
+        sensor.UpdateExternalHead(head,t+=10'000'000);
+        CHECK(sensor.Read().openxr && !sensor.Read().external_head);
+        sensor.EndOpenXr(generation);
+        // A tilted starting headset is level in-game; world-up motion remains yaw.
+        sensor.SelectExternalHead(false);
+        sensor.SelectExternalHead(true);
+        sensor.SetSbsEnabled(true);
+        sensor.RecenterExternalRig();
+        t=now()-100'000'000;
+        const auto tilted=VrGeometry::Multiply(
+            std::array<float,4>{0,std::sin(.3f),0,std::cos(.3f)},
+            std::array<float,4>{std::sin(.25f),0,0,std::cos(.25f)});
+        head.orientation=tilted;
+        sensor.UpdateExternalHead(head,t);
+        CHECK(Near(sensor.Read().hardware.head.orientation[3],1));
+        for(unsigned i=0;i<3;++i) CHECK(Near(sensor.Read().hardware.head.orientation[i],0));
+        head.orientation=VrGeometry::Multiply({0,std::sin(.1f),0,std::cos(.1f)},tilted);
+        sensor.UpdateExternalHead(head,t+=10'000'000);
+        const auto turned=sensor.Read().hardware.head.orientation;
+        CHECK(Near(turned[0],0) && Near(turned[2],0));
+        CHECK(Near(turned[1],std::sin(.1f)) && Near(turned[3],std::cos(.1f)));
+        sensor.UpdateRotationVector({0,0,0,1},0,t);
+        sensor.UpdateRotationVector({0,0,h,h},0,t+=10'000'000);
+        sensor.RecenterExternalRig();
+        sensor.UpdateRotationVector({0,0,h,h},0,t+=10'000'000);
+        sensor.UpdateExternalHead(head,t);
+        CHECK(Near(sensor.Read().hardware.hands[1].grip.orientation[3],1));
+        CHECK(Near(sensor.Read().hardware.head.orientation[3],1));
+        sensor.SelectExternalHead(false); sensor.SetSbsEnabled(false);
+    }
     std::printf("guest_vr_sensor_tests: %u checks / %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

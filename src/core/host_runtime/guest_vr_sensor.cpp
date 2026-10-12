@@ -91,6 +91,8 @@ void GuestVrSensor::SetSbsEnabled(bool enabled) {
     if (snapshot.openxr)
         return; // Runtime owns tracking until its generation is retired.
     rotation_reference = {};
+    external.reference_valid = external.previous_valid = false;
+    external.correction = {};
     snapshot.enabled = enabled;
     if (!enabled) {
         snapshot = {};
@@ -239,19 +241,113 @@ void GuestVrSensor::UpdateMoveInput(std::uint64_t buttons, float left_x, float l
     move_input.timestamp_us = timestamp_us;
 }
 
+void GuestVrSensor::ResetDeviceOrientationLocked() {
+    rotation_reference = {};
+    snapshot.orientation_x = snapshot.orientation_y = snapshot.orientation_z = 0;
+    snapshot.orientation_w = 1;
+    snapshot.angular_velocity_x = snapshot.angular_velocity_y = snapshot.angular_velocity_z = 0;
+    snapshot.timestamp_ns = 0;
+}
+void GuestVrSensor::ResetDeviceOrientation() {
+    std::scoped_lock lock{mutex};
+    if (!snapshot.openxr) ResetDeviceOrientationLocked();
+}
 void GuestVrSensor::ResetOrientation() {
     std::scoped_lock lock{mutex};
-    if (snapshot.openxr)
-        return; // Recenter belongs to the runtime's reference space.
-    rotation_reference = {};
-    snapshot.orientation_x = 0.0f;
-    snapshot.orientation_y = 0.0f;
-    snapshot.orientation_z = 0.0f;
-    snapshot.orientation_w = 1.0f;
-    snapshot.angular_velocity_x = 0.0f;
-    snapshot.angular_velocity_y = 0.0f;
-    snapshot.angular_velocity_z = 0.0f;
-    snapshot.timestamp_ns = 0;
+    if (snapshot.openxr) return;
+    if (external.selected) {
+        external.reference_valid = external.previous_valid = false;
+        external.correction = {};
+        ++recenters;
+    } else {
+        ResetDeviceOrientationLocked();
+    }
+}
+void GuestVrSensor::SelectExternalHead(bool selected) {
+    std::scoped_lock lock{mutex};
+    if (selected == external.selected) return;
+    external = {};
+    external.selected = selected;
+    // Switching the phone from head to controller starts its own neutral orientation.
+    if (!snapshot.openxr) ResetDeviceOrientationLocked();
+}
+void GuestVrSensor::RecenterExternalRig() {
+    std::scoped_lock lock{mutex};
+    if (snapshot.openxr || !external.selected) return;
+    external.reference_valid = external.previous_valid = false;
+    external.correction = {};
+    ResetDeviceOrientationLocked();
+    ++recenters;
+}
+void GuestVrSensor::UpdateExternalHead(Pose pose, std::uint64_t received_ns) {
+    std::scoped_lock lock{mutex};
+    if (!external.selected || snapshot.openxr || !received_ns ||
+        received_ns < external.received_ns) return;
+    Sanitize(pose);
+    const auto previous_time = external.received_ns;
+    external.received_ns = received_ns;
+    if (!pose.orientation_valid || !snapshot.enabled) {
+        external.pose.orientation_valid = external.pose.position_valid = false;
+        external.previous_valid = false;
+        return;
+    }
+    const auto raw = pose;
+    if (!external.reference_valid) {
+        // Position axes preserve gravity. Separately neutralize the starting head
+        // attitude so a headset resting at an angle does not tilt the game's camera.
+        const auto forward = VrGeometry::Rotate(pose.orientation, {0, 0, -1});
+        const float yaw = std::atan2(-forward[0], -forward[2]);
+        external.origin.orientation = {0, std::sin(yaw/2), 0, std::cos(yaw/2)};
+        external.origin.position = pose.position;
+        external.neutral_rotation = pose.orientation;
+        external.reference_valid = true;
+        external.previous_valid = false;
+        external.correction = {};
+    }
+    const float dt = previous_time ? float(received_ns-previous_time)*1e-9f : 0;
+    bool rebased = false;
+    if (raw.position_valid && external.previous_valid && external.previous_raw.position_valid) {
+        float distance = 0;
+        for (unsigned i=0;i<3;++i) {
+            const float delta=raw.position[i]-external.previous_raw.position[i];
+            distance += delta*delta;
+        }
+        // Thor recordings had 0.65/0.86 m relocations in 50 ms while SDK said Tracking.
+        // Keep continuity after those or a tracking gap; retain the raw evidence in Java.
+        if ((dt>0 && dt<.1f && distance>.35f*.35f && distance>64*dt*dt) || dt>.5f) {
+            for (unsigned i=0;i<3;++i)
+                external.correction[i] += external.previous_raw.position[i]-raw.position[i];
+            ++external.position_rebases;
+            rebased = true;
+        }
+    }
+    const auto& origin = external.origin.orientation;
+    const std::array<float,4> inverse{-origin[0],-origin[1],-origin[2],origin[3]};
+    const auto& neutral = external.neutral_rotation;
+    const auto attitude_offset = VrGeometry::Multiply(
+        {-neutral[0], -neutral[1], -neutral[2], neutral[3]}, origin);
+    pose.orientation = VrGeometry::Multiply(VrGeometry::Multiply(inverse, raw.orientation),
+                                            attitude_offset);
+    std::array<float,3> relative{};
+    for (unsigned i=0;i<3;++i)
+        relative[i] = raw.position[i]+external.correction[i]-external.origin.position[i];
+    pose.position = VrGeometry::Rotate(inverse, relative);
+    if (external.previous_valid && dt>.002f && dt<.1f && !rebased) {
+        const auto& old=external.pose.orientation;
+        auto delta=VrGeometry::Multiply(pose.orientation, {-old[0],-old[1],-old[2],old[3]});
+        if(delta[3]<0) for(auto& v:delta)v=-v;
+        const float length=std::hypot(delta[0],delta[1],delta[2]);
+        const float scale=length>1e-6f ? 2*std::atan2(length,delta[3])/(length*dt) : 2/dt;
+        for(unsigned i=0;i<3;++i) {
+            pose.angular_velocity[i]=delta[i]*scale;
+            if(pose.position_valid && external.pose.position_valid)
+                pose.linear_velocity[i]=(pose.position[i]-external.pose.position[i])/dt;
+        }
+    }
+    pose.linear_velocity_valid = pose.position_valid;
+    external.pose = pose;
+    external.previous_raw = raw;
+    external.previous_valid = true;
 }
 
 void GuestVrSensor::NotifyRecenter() {
@@ -263,6 +359,7 @@ void GuestVrSensor::NotifyRecenter() {
 
 bool GuestVrSensor::HeadsetReady() const {
     std::scoped_lock lock{mutex};
+    // SBS can run with a neutral emulated head while the external device initializes or stalls.
     return snapshot.enabled && (!snapshot.openxr || snapshot.hardware.running);
 }
 
@@ -274,6 +371,56 @@ std::uint64_t GuestVrSensor::RecenterCount() const {
 GuestVrSensor::Snapshot GuestVrSensor::Read() const {
     std::scoped_lock lock{mutex};
     auto result = snapshot;
+    if (snapshot.enabled && !snapshot.openxr && external.selected) {
+        result.external_head = true;
+        result.external_position_rebases = external.position_rebases;
+        auto& frame = result.hardware;
+        frame.received_ns = frame.predicted_ns = external.received_ns;
+        frame.head = external.pose;
+        const bool tracked = Fresh(external.received_ns) && frame.head.orientation_valid;
+        frame.running = frame.focused = frame.mounted = true;
+        frame.eye_width = 960;
+        frame.eye_height = 1080; // Existing virtual PSVR SBS geometry.
+        if (!tracked) {
+            frame.head = {};
+            frame.head.orientation_valid = frame.head.position_valid = true;
+            frame.head.position_emulated = true;
+            frame.received_ns = frame.predicted_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count();
+        }
+        for (unsigned eye = 0; eye < 2; ++eye) {
+            frame.eyes[eye] = frame.head;
+            const auto offset = VrGeometry::Rotate(frame.head.orientation,
+                                                   {eye ? .0315f : -.0315f, 0, 0});
+            for (unsigned i = 0; i < 3; ++i) frame.eyes[eye].position[i] += offset[i];
+        }
+        // One IMU: right controller only. The virtual seat-space placement stays
+        // independent of head rotation/translation. Left remains untracked.
+        auto& hand = frame.hands[1];
+        hand.active = Fresh(snapshot.timestamp_ns);
+        hand.grip.orientation = {snapshot.orientation_x, snapshot.orientation_y,
+                                 snapshot.orientation_z, snapshot.orientation_w};
+        hand.grip.orientation_valid = hand.active;
+        hand.grip.position = {.08f, -.17f, -.48f};
+        hand.grip.position_valid = hand.active;
+        hand.grip.position_emulated = true;
+        hand.grip.angular_velocity = {snapshot.angular_velocity_x, snapshot.angular_velocity_y,
+                                     snapshot.angular_velocity_z};
+        hand.aim = hand.grip;
+        hand.buttons = move_input.buttons;
+        hand.trigger = move_input.right_trigger;
+        hand.squeeze = move_input.left_trigger;
+        hand.stick_x = move_input.right_x;
+        hand.stick_y = move_input.right_y;
+        result.orientation_x = frame.head.orientation[0];
+        result.orientation_y = frame.head.orientation[1];
+        result.orientation_z = frame.head.orientation[2];
+        result.orientation_w = frame.head.orientation[3];
+        result.angular_velocity_x = frame.head.angular_velocity[0];
+        result.angular_velocity_y = frame.head.angular_velocity[1];
+        result.angular_velocity_z = frame.head.angular_velocity[2];
+        result.timestamp_ns = frame.predicted_ns;
+    }
     const auto now = std::chrono::duration_cast<std::chrono::nanoseconds>(
                          std::chrono::steady_clock::now().time_since_epoch())
                          .count();

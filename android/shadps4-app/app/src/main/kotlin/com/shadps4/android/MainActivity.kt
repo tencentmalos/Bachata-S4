@@ -37,6 +37,9 @@ open class MainActivity : ComponentActivity() {
     private var requestedGameId by mutableStateOf<String?>(null)
     private var openLastGameRequest by mutableIntStateOf(0)
     private var handingOffDisplayActivity = false
+    private val xrealPermission = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { XrealHeadTracking.permissionResult(it) }
 
     private fun consumeLaunchIntent(value: Intent) {
         val requested = value.getBooleanExtra("open_last_game", false) ||
@@ -59,10 +62,13 @@ open class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!openXrEnabled && !handingOffDisplayActivity)
+            XrealHeadTracking.resume(this) { xrealPermission.launch(android.Manifest.permission.CAMERA) }
         if (openXrEnabled) com.shadps4.android.runtime.input.NativePad.nativeOpenXrForeground(this, true)
     }
 
     override fun onPause() {
+        XrealHeadTracking.pause(this)
         if (openXrEnabled) com.shadps4.android.runtime.input.NativePad.nativeOpenXrForeground(this, false)
         super.onPause()
     }
@@ -94,6 +100,10 @@ open class MainActivity : ComponentActivity() {
         // guest session/service exists. No game launch is needed to export an
         // installed title that currently fails during Prepare.
         if (BuildConfig.DEBUG && args?.firstOrNull() == "debugbus") {
+            if (args.getOrNull(1) == "xreal_status") {
+                writer.println(XrealHeadTracking.status())
+                return
+            }
             try {
                 val ready = com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(
                     java.io.File(filesDir, "host").absolutePath, applicationContext)

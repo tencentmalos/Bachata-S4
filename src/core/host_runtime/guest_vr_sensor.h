@@ -23,6 +23,7 @@ public:
         std::array<float, 3> angular_velocity{};
         std::array<float, 3> linear_velocity{};
         bool orientation_valid{}, position_valid{};
+        bool position_emulated{}; // A placement model, not an optical position measurement.
         // The runtime reported linear_velocity (XR_SPACE_VELOCITY_LINEAR_VALID_BIT). When it
         // does not, PublishOpenXr derives the head's from successive positions.
         bool linear_velocity_valid{};
@@ -73,6 +74,9 @@ public:
     struct Snapshot final {
         bool enabled{};
         bool openxr{};
+        bool external_head{}; // Tracking only; the window still presents SBS, not OpenXR.
+        std::uint64_t external_position_rebases{};
+        [[nodiscard]] bool HardwareTracking() const { return openxr || external_head; }
         HardwareFrame hardware{};
         float orientation_x{};
         float orientation_y{};
@@ -127,6 +131,12 @@ public:
                          float right_y, float left_trigger, float right_trigger,
                          std::uint64_t timestamp_us = 0);
     void ResetOrientation();
+    void ResetDeviceOrientation();
+    void RecenterExternalRig();
+    // External tracking is already in right-handed Y-up/-Z-forward coordinates.
+    // Query receipt uses CLOCK_MONOTONIC; it is not a hardware sample timestamp.
+    void SelectExternalHead(bool selected);
+    void UpdateExternalHead(Pose pose, std::uint64_t received_ns);
     // The runtime recentred its LOCAL space (the player reset the view). Titles are told with a
     // ResetVrPosition system event; RecenterCount lets the session that owns the event queue see
     // each one once.
@@ -142,6 +152,14 @@ public:
 private:
     mutable std::mutex mutex;
     Snapshot snapshot;
+    struct ExternalHead {
+        bool selected{}, reference_valid{}, previous_valid{};
+        Pose pose{}, origin{}, previous_raw{};
+        std::array<float, 4> neutral_rotation{0, 0, 0, 1};
+        std::array<float, 3> correction{};
+        std::uint64_t received_ns{}, position_rebases{};
+    } external;
+    void ResetDeviceOrientationLocked();
     MoveInputSnapshot move_input;
     std::uint64_t xr_generation{};
     std::array<Pose, 2> render_eyes{};

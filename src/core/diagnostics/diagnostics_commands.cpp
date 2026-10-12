@@ -394,10 +394,16 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         } else return BadArguments();
         SetSpatialOptions(options);return SpatialStatus();
     });
-    registry.Register("xr_tracking", "OpenXR head/eyes/grip/aim in LOCAL metres; status | "
+    registry.Register("xr_tracking", "Head/eyes/grip/aim in LOCAL metres; status | recenter (external SBS rig) | "
         "seat on|off (VrTracker results 1.5 m in front of the PS camera, default on) | "
         "ds4_offset X Y Z (right-controller DualShock 4 middle in grip axes, metres)",
         [](const auto& args) {
+        if (args.size() == 1 && args[0] == "recenter") {
+            if (!HostRuntime::GuestVrSensor::Instance().Read().external_head)
+                return std::string{"recenter requires external-head SBS tracking\n"};
+            HostRuntime::GuestVrSensor::Instance().RecenterExternalRig();
+            return std::string{"head and handheld neutral poses reset on the next valid samples\n"};
+        }
         if (args.size() == 2 && args[0] == "seat" && (args[1] == "on" || args[1] == "off")) {
             HostRuntime::SetTrackerSeatOffset(args[1] == "on");
             return std::string{"seat="} + args[1] + "\n";
@@ -421,7 +427,8 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             << ' ';
         out << "seat_offset=" << HostRuntime::TrackerSeatOffset()
             << " ds4_source=" << int(HostRuntime::GetDs4PoseSource()) << '\n';
-        out << "openxr=" << s.openxr << " running=" << s.hardware.running
+        out << "openxr=" << s.openxr << " external_head=" << s.external_head
+            << " position_rebases=" << s.external_position_rebases << " running=" << s.hardware.running
             << " focused=" << s.hardware.focused << " predicted_ns=" << s.hardware.predicted_ns << '\n';
         const auto pose = [&](const char* name, const auto& p) {
             out << name << " valid=" << p.orientation_valid << ',' << p.position_valid

@@ -2,6 +2,8 @@ package com.shadps4.android
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -221,6 +223,16 @@ private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrE
             }
         } catch (e: CancellationException) { throw e }
         catch (e: Exception) { failure = e.message ?: "Could not select display mode" }
+    }
+    val sessionState by ManagedSession.state.collectAsState()
+    val trackingActive = admitted && stereo && !openXrEnabled && when (sessionState) {
+        is ManagedSessionState.Preparing, is ManagedSessionState.Ready,
+        is ManagedSessionState.Running -> true
+        else -> false
+    }
+    DisposableEffect(trackingActive) {
+        XrealHeadTracking.setSbsActive(trackingActive)
+        onDispose { XrealHeadTracking.setSbsActive(false) }
     }
     if (admitted) SessionScreen(gameId = gameId, onExit = onExit, stereo = stereo)
     else Column {

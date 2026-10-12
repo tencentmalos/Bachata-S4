@@ -248,7 +248,9 @@ s32 PS4_SYSV_ABI sceVrTrackerRegisterDeviceInternal(const OrbisVrTrackerDeviceTy
             return ORBIS_VR_TRACKER_ERROR_DEVICE_ALREADY_REGISTERED;
         }
         g_hmd_handle = handle;
-        if (VirtualSbsEnabled())
+        if (GuestVrSensor::Instance().Read().external_head)
+            GuestVrSensor::Instance().RecenterExternalRig();
+        else if (VirtualSbsEnabled())
             GuestVrSensor::Instance().ResetOrientation();
         break;
     }
@@ -401,8 +403,8 @@ static s32 GetResultImpl(const OrbisVrTrackerGetResultParam* param,
                 return ORBIS_OK;
             }
         }
-        if (pad && sensor.openxr &&
-            Core::HostRuntime::GetDs4PoseSource() != Core::HostRuntime::Ds4PoseSource::Off &&
+        if (pad && sensor.HardwareTracking() &&
+            (sensor.external_head || Core::HostRuntime::GetDs4PoseSource() != Core::HostRuntime::Ds4PoseSource::Off) &&
             g_pads.IsPlayers(param->handle)) {
             const auto& hardware = sensor.hardware;
             Core::HostRuntime::Ds4Placement::Result placed{};
@@ -416,7 +418,8 @@ static s32 GetResultImpl(const OrbisVrTrackerGetResultParam* param,
                     g_ds4_recenters = recenters;
                     g_ds4.Recalibrate(hardware.head);
                 }
-                placed = g_ds4.Update(Core::HostRuntime::GetDs4PoseSource(), hardware.head,
+                placed = g_ds4.Update(sensor.external_head ? Core::HostRuntime::Ds4PoseSource::Right
+                                                         : Core::HostRuntime::GetDs4PoseSource(), hardware.head,
                                       {hardware.hands[0].grip, hardware.hands[1].grip},
                                       {hardware.hands[0].active, hardware.hands[1].active},
                                       Core::HostRuntime::VrTime::SteadyNowNs(), hardware.palms);
@@ -429,7 +432,7 @@ static s32 GetResultImpl(const OrbisVrTrackerGetResultParam* param,
                 // controller the camera briefly lost.
                 const auto quality = placed.seen ? ORBIS_VR_TRACKER_QUALITY_FULL
                                                  : ORBIS_VR_TRACKER_QUALITY_PARTIAL;
-                result->position_quality = quality;
+                result->position_quality = sensor.external_head ? ORBIS_VR_TRACKER_QUALITY_PARTIAL : quality;
                 result->orientation_quality = quality;
                 result->status = recalibrating ? ORBIS_VR_TRACKER_STATUS_CALIBRATING
                                                : ORBIS_VR_TRACKER_STATUS_TRACKING;
@@ -468,7 +471,7 @@ static s32 GetResultImpl(const OrbisVrTrackerGetResultParam* param,
             if (recalibrating && result->status == ORBIS_VR_TRACKER_STATUS_TRACKING)
                 result->status = ORBIS_VR_TRACKER_STATUS_CALIBRATING;
         };
-        if (sensor.openxr) {
+        if (sensor.HardwareTracking()) {
             const auto& hardware = sensor.hardware;
             const auto copy = [seat_z](auto& dst, const GuestVrSensor::Pose& src) {
                 dst.position_x = src.position[0]; dst.position_y = src.position[1];
@@ -482,7 +485,7 @@ static s32 GetResultImpl(const OrbisVrTrackerGetResultParam* param,
                 Core::HostRuntime::VrGeometry::MoveSpherePose(hardware.hands[hand_index].grip);
             result->connected = hardware.running && (is_hmd || hardware.hands[hand_index].active);
             result->orientation_quality = pose.orientation_valid ? ORBIS_VR_TRACKER_QUALITY_FULL : ORBIS_VR_TRACKER_QUALITY_NONE;
-            result->position_quality = pose.position_valid ? ORBIS_VR_TRACKER_QUALITY_FULL : ORBIS_VR_TRACKER_QUALITY_NONE;
+            result->position_quality = pose.position_valid ? (pose.position_emulated ? ORBIS_VR_TRACKER_QUALITY_PARTIAL : ORBIS_VR_TRACKER_QUALITY_FULL) : ORBIS_VR_TRACKER_QUALITY_NONE;
             result->status = result->connected && pose.orientation_valid ? ORBIS_VR_TRACKER_STATUS_TRACKING : ORBIS_VR_TRACKER_STATUS_NOT_TRACKING;
             result->angular_velocity_x = pose.angular_velocity[0];
             result->angular_velocity_y = pose.angular_velocity[1];
@@ -688,7 +691,7 @@ s32 PS4_SYSV_ABI sceVrTrackerRecalibrate(const OrbisVrTrackerRecalibrateParam* p
         VirtualSbsEnabled()) {
         // Whatever the stand-in controller points at now is straight ahead and level.
         const auto sensor = GuestVrSensor::Instance().Read();
-        if (sensor.openxr) {
+        if (sensor.HardwareTracking()) {
             std::scoped_lock lock{g_ds4_mutex};
             g_ds4.Recalibrate(sensor.hardware.head);
         }

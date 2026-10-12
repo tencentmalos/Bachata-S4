@@ -32,6 +32,8 @@ object NativePad {
     external fun nativeFocusLost(token: Long)
     external fun nativeDrainHaptics(token: Long): LongArray?
     /** Enables Android SBS's virtual PSVR provider for the current guest. */
+    external fun nativeSelectExternalHead(selected: Boolean)
+    external fun nativeUpdateExternalHead(pose: FloatArray, valid: Boolean, positionValid: Boolean, timestampNs: Long)
     external fun nativeSetVrSbsEnabled(enabled: Boolean)
     /** Passes monotonic Android gyro samples to the host HLE pose provider. */
     external fun nativeUpdateVrGyro(x: Float, y: Float, z: Float, timestampNs: Long)

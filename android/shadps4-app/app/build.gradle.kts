@@ -183,6 +183,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:data"))
     implementation(project(":core:runtime"))
+    implementation(project(":foundation-xreal"))
     implementation(project(":feature:setup"))
     implementation(project(":feature:library"))
     implementation(project(":feature:session"))
@@ -352,3 +353,15 @@ val preparePs4Firmware = tasks.register<Exec>("preparePs4Firmware") {
         if (bundleFirmware) emptyList() else listOf("--skip"))
 }
 tasks.named("preBuild").configure { dependsOn(preparePs4Firmware) }
+
+// Experimental opt-in SDK packaging. Normal builds keep the adapter but contain no
+// proprietary XREAL binaries and never initialize an unavailable runtime.
+val xrealSdk = providers.gradleProperty("shadps4.xrealSdk").orNull?.let { file(it) }
+if (xrealSdk != null) {
+    check(xrealSdk.resolve("assets/sdk-manifest.json").isFile) {
+        "Stage the pinned SDK with foundation/modules/xreal/tools/prepare-sdk.py first"
+    }
+    android.sourceSets.getByName("main").jniLibs.srcDir(xrealSdk.resolve("jniLibs"))
+    android.sourceSets.getByName("main").assets.srcDir(xrealSdk.resolve("assets"))
+    dependencies { implementation(fileTree(xrealSdk.resolve("aars")) { include("*.aar") }) }
+}

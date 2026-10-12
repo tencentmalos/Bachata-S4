@@ -26,3 +26,6 @@ include(":foundation-online-content")
 project(":foundation-online-content").projectDir = file("../../foundation/modules/online_content/android")
 project(":foundation-input-android").projectDir =
     file("../../foundation/modules/input/android")
+
+include(":foundation-xreal")
+project(":foundation-xreal").projectDir = file("../../foundation/modules/xreal/android")

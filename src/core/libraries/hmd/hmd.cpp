@@ -96,7 +96,7 @@ s32 PS4_SYSV_ABI sceHmdGet2DEyeOffset(s32 handle, OrbisHmdEyeOffset* left_offset
     }
 
     const auto sensor = GuestVrSensor::Instance().Read();
-    if (sensor.openxr && sensor.hardware.head.orientation_valid &&
+    if (sensor.HardwareTracking() && sensor.hardware.head.orientation_valid &&
         sensor.hardware.head.position_valid && sensor.hardware.eyes[0].position_valid &&
         sensor.hardware.eyes[1].position_valid) {
         // Convert runtime eye positions from LOCAL into head-local offsets.
@@ -146,7 +146,7 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformation(OrbisHmdDeviceInformation* info) {
 
     memset(info, 0, sizeof(OrbisHmdDeviceInformation));
     const auto sensor = GuestVrSensor::Instance().Read();
-    info->status = sensor.enabled && (!sensor.openxr || sensor.hardware.running)
+    info->status = sensor.enabled && (!sensor.HardwareTracking() || sensor.hardware.running)
                        ? OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_READY
                        : OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_NOT_DETECTED;
     info->user_id = g_user_id;
@@ -155,7 +155,7 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformation(OrbisHmdDeviceInformation* info) {
         info->device_info.flip_to_display_latency = {
             .refresh_rate_90hz = FlipToDisplayLatency90Hz,
             .refresh_rate_120hz = FlipToDisplayLatency120Hz};
-        info->hmu_mount = sensor.openxr ? sensor.hardware.mounted : 1;
+        info->hmu_mount = sensor.HardwareTracking() ? sensor.hardware.mounted : 1;
         if (sensor.openxr) info->device_info.panel_resolution = {
             sensor.hardware.eye_width * 2, sensor.hardware.eye_height};
     }
@@ -182,7 +182,7 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformationByHandle(s32 handle, OrbisHmdDeviceIn
 
     memset(info, 0, sizeof(OrbisHmdDeviceInformation));
     const auto sensor = GuestVrSensor::Instance().Read();
-    info->status = sensor.enabled && (!sensor.openxr || sensor.hardware.running)
+    info->status = sensor.enabled && (!sensor.HardwareTracking() || sensor.hardware.running)
                        ? OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_READY
                        : OrbisHmdDeviceStatus::ORBIS_HMD_DEVICE_STATUS_NOT_DETECTED;
     info->user_id = g_user_id;
@@ -191,7 +191,7 @@ s32 PS4_SYSV_ABI sceHmdGetDeviceInformationByHandle(s32 handle, OrbisHmdDeviceIn
         info->device_info.flip_to_display_latency = {
             .refresh_rate_90hz = FlipToDisplayLatency90Hz,
             .refresh_rate_120hz = FlipToDisplayLatency120Hz};
-        info->hmu_mount = sensor.openxr ? sensor.hardware.mounted : 1;
+        info->hmu_mount = sensor.HardwareTracking() ? sensor.hardware.mounted : 1;
         if (sensor.openxr) info->device_info.panel_resolution = {
             sensor.hardware.eye_width * 2, sensor.hardware.eye_height};
     }

@@ -70,7 +70,7 @@ constexpr float kMoveGravity = 9.81f;
 void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
     data = {};
     const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
-    if (sensor.openxr) {
+    if (sensor.HardwareTracking()) {
         const auto& state = sensor.hardware.hands[static_cast<unsigned>(hand)];
         data.button_data.button_data = FaceButtonsToMove(state.buttons);
         data.button_data.trigger_data = static_cast<u16>(std::lround(state.trigger * 255.f));
@@ -133,9 +133,9 @@ s32 PS4_SYSV_ABI sceMoveInit() {
         return ORBIS_MOVE_ERROR_ALREADY_INIT;
     }
     const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
-    g_active_swap_hands = sensor.openxr && g_xr_swap_hands.load(std::memory_order_relaxed);
-    if (sensor.openxr)
-        LOG_INFO(Lib_Move, "OpenXR Move order: index 0={}, index 1={} (pose/buttons/haptics)",
+    g_active_swap_hands = sensor.external_head || (sensor.openxr && g_xr_swap_hands.load(std::memory_order_relaxed));
+    if (sensor.HardwareTracking())
+        LOG_INFO(Lib_Move, "Tracked Move order: index 0={}, index 1={} (pose/buttons/haptics)",
                  g_active_swap_hands ? "right" : "left", g_active_swap_hands ? "left" : "right");
     else if (!VirtualSbsEnabled())
         LOG_WARNING(Lib_Move, "Move controllers are not supported yet");
@@ -208,7 +208,7 @@ s32 PS4_SYSV_ABI sceMoveReadStateLatest(s32 handle, OrbisMoveData* data) {
                      input.buttons, input.left_x, input.left_y, input.right_x, input.right_y);
         }
         const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
-        if (sensor.openxr && !sensor.hardware.hands[static_cast<unsigned>(HandForHandle(handle))].active)
+        if (sensor.HardwareTracking() && !sensor.hardware.hands[static_cast<unsigned>(HandForHandle(handle))].active)
             return ORBIS_MOVE_ERROR_NO_CONTROLLER_CONNECTED;
         FillVirtualState(*data, HandForHandle(handle));
         return ORBIS_OK;
@@ -236,7 +236,7 @@ s32 PS4_SYSV_ABI sceMoveReadStateRecent(s32 handle, s64 timestamp, OrbisMoveData
                      input.buttons, input.left_x, input.left_y, input.right_x, input.right_y);
         }
         const auto sensor = Core::HostRuntime::GuestVrSensor::Instance().Read();
-        if (sensor.openxr && !sensor.hardware.hands[static_cast<unsigned>(HandForHandle(handle))].active)
+        if (sensor.HardwareTracking() && !sensor.hardware.hands[static_cast<unsigned>(HandForHandle(handle))].active)
             return ORBIS_MOVE_ERROR_NO_CONTROLLER_CONNECTED;
         FillVirtualState(*data, HandForHandle(handle));
         if (data->timestamp == 0)

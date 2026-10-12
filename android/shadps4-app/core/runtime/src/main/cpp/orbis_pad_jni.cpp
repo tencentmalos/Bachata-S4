@@ -343,7 +343,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_input_NativePad_nativeResetVrOrientation(
     JNIEnv *, jclass) {
     try {
-        Core::HostRuntime::GuestVrSensor::Instance().ResetOrientation();
+        Core::HostRuntime::GuestVrSensor::Instance().ResetDeviceOrientation();
     } catch (...) {
         __android_log_print(ANDROID_LOG_ERROR, kTag,
                             "resetVrOrientation threw");
@@ -376,6 +376,26 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeUpdateVrGyro(JNIEnv *, jc
     } catch (...) {
         __android_log_print(ANDROID_LOG_ERROR, kTag, "updateVrGyro threw");
     }
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeSelectExternalHead(JNIEnv*, jclass, jboolean selected) {
+    Core::HostRuntime::GuestVrSensor::Instance().SelectExternalHead(selected);
+    __android_log_print(ANDROID_LOG_INFO, kTag, "externalHead selected=%d; device IMU=%s",
+                       selected, selected ? "right controller" : "virtual head");
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeUpdateExternalHead(
+    JNIEnv* env, jclass, jfloatArray values, jboolean valid, jboolean position_valid, jlong timestamp_ns) {
+    Core::HostRuntime::GuestVrSensor::Pose pose;
+    if(valid && values && env->GetArrayLength(values)==7) {
+        float data[7]; env->GetFloatArrayRegion(values,0,7,data);
+        if(env->ExceptionCheck()) return;
+        std::copy_n(data,3,pose.position.begin());
+        std::copy_n(data+3,4,pose.orientation.begin());
+        pose.orientation_valid=true; pose.position_valid=position_valid;
+    }
+    const auto ns=SensorMonotonicNs(timestamp_ns);
+    if(ns>0) Core::HostRuntime::GuestVrSensor::Instance().UpdateExternalHead(pose,ns);
 }
 // Diagnostics invoke real HLE exports; no substitute pad implementation.
 extern "C" JNIEXPORT jint JNICALL
