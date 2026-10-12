@@ -1,4 +1,4 @@
-# 王国之心 III（CUSA15072）问题汇总（截至 2026-10-11）
+# 王国之心 III（CUSA15072）问题汇总（截至 2026-10-12）
 
 把 10-07 以来在 AYANEO Pocket DS（Adreno 740）和 AYN Odin3（Adreno 830，gen8.0）上查到的 KH3 问题集中到一处，标明状态、证据位置和下一步，便于后续继续定位。细节以各条链接的原始记录为准；本文只做索引和归纳，不新增结论。
 
@@ -19,7 +19,7 @@
 | 9 | 帧率低（池提交碎片化，每帧数百次宿主映射且持写锁） | Odin3、Pocket DS | 已修复主要部分（8.6 → 28–31 FPS） | [odin3-kh3-performance](../../docs/validation/android-native-host/odin3-kh3-performance-20261011.md) |
 | 10 | 运行约 19 分钟后 `CP DDE BR opcode=0` → DeviceLost 闪退 | Odin3 | **未定位** | [bugs/odin3-kh3-cp-dde-opcode-20261011](../odin3-kh3-cp-dde-opcode-20261011/README.md) |
 | 11 | 启动期 `CP Protected mode error WRITE addr=0`（IB2 页内偏移 `0xe88`，CRB 跨 4 KiB 页） | Odin3 | **未定位**，间歇出现 | 见下文 |
-| 12 | 每帧约 10 张 1600×900 目标整图重传（`Texture.Stage` 约 10 ms/帧） | Odin3 | **未核实原因** | 性能文档“纹理重传诊断” |
+| 12 | 每帧约 10 张 1600×900 目标整图重传（`Texture.Stage` 约 10 ms/帧） | Odin3 | 已修复：池回收/提交释放图像，彩色渲染目标先刷新后标记，两张 LUT 每帧在二维数组与 3D 间重建。“觉醒之所”每帧上传约 12 → 0，帧率约 +15%，GpuComm 约 −56%（`pool_undefined`、`pool_revive`、`expand_twin`） | [kh3-pool-undefined](../../docs/validation/android-native-host/kh3-pool-undefined-20261012.md) |
 | 13 | 平台限制：大核被 core_ctl 挂起、GPU 停在 660–734 MHz；唤醒代理占用中核 | Odin3 | 未处理（设备策略） | 性能文档第 2、3 节 |
 | 14 | ATRAC9 解码失败（`ERR_UNPACK_SUPERFRAME_FLAG_INVALID`）与一次 `ReadHuffmanValue` 空指针 | Odin3、Pocket DS | **未定位**；池提交修改后的一轮未出现 | 性能文档第 5 节、fix-experiments“独立字体复制” |
 
@@ -56,10 +56,25 @@ fault 53：会话约 19 分钟、进入新区域时，KGSL 报 DDE 非法包头�
 | 10-12 fault 60、61（`c5a0d6fd990` + `nocsreemit`，默认抢占） | 197536.2 ctx21/29931；197649.6 ctx4/5657 | `0x418ff16e88`、`0x418ea66e88` | `build/validation/odin3-kh3-preempt-20261012/A-nocsreemit/` |
 | 10-12 fault 64、65、66（同上，**`preempt_level=0`**） | 198382.1 ctx14/5710；198523.6 ctx14/13383；198613.1 ctx4/5586 | `0x418da96e88`、`0x418e956e88`、`0x418fb16e88` | `…/C-nocsreemit-level0/`，fault 64 读取记录与 dmesg 见 [计算状态 bug 的 evidence](../odin3-kh3-compute-state-20261011/evidence/fault64-level0-opening/) |
 | 10-12 fault 68（新 Turnip `1efc1d3f5c9`，默认抢占、计算状态重发开启） | 201235.6 ctx15/5872 | `0x418e6c6e88` | `…/D-reemit2/fault68/`；IB1 取指位置同样是 960，宿主随后在 `GetRenderFrame` 断言退出 |
+| 10-12 fault 69、70（合并版 `65b63f66bf5`，驱动 `a847eb5a…`，默认设置） | 210205.9 ctx15/7773；210269.8 ctx15/5427 | `0x41c27f6e88`、`0x418e9a6e88` | `…/F-reupload/fault69/`、`fault70/`；片头，签名同上 |
+| 10-12 fault 71、72（同一合并版，**loading 之后**，见下文“变体”） | 210660.6 ctx15/69490；211138.2 ctx6/70015 | `0x41cf0f6880`、`0x41ca386880`（剩余 `0x217`） | `…/F-reupload/fault71/`、`fault72/`；GMU 报 `Preemption Fault`，没有保护写 |
+| 10-12 fault 73、74、76（合并版驱动 + #12 测试包，片头） | 212875.6 ctx15/5948；214348.3 ctx15/5712；217436.8 ctx15/5995 | `0x4164636e88`、`0x4186876e88`、`0x418f016e88` | `…/G-pool-undefined/fault73/`、`…/H-pool-undefined2/fault74/`、`…/J-pool-undefined4/fault76/`；签名同上 |
 
 10-12 这 5 次的 BR IB1 取指位置都是 960（IB1 长 14223，fault 60 为 17494），SQE PC `0x362`、`$19=0xbad4`；IB2 是 304 dword 的 draw IB2，结尾为 `CP_DRAW_INDX_OFFSET`，已全部取完。fault 64 的 CP 上下文记录里没有任何中途切出（level 0 下预期如此），计算状态完好（`SP_CS_CONFIG=0x105`）。**在 level 0 下仍出现 3 次，说明 #11 不依赖 L1 中途抢占**；当天 8 次启动（7 个出故障的进程加 1 次通过）中 5 次在片头出这个故障，比之前频繁，但各次之间除抢占参数外条件相同，原因未知。换成新 Turnip `1efc1d3f5c9` 后的两次启动又出了一次（fault 68，IB1 长 14542，取指位置仍是 960），所以与计算状态重发的位置无关。gpu-snapshot MCP 解析结果：`build/gpu-snapshot/odin3-kh3-20261012/fault64.sqlite`。
 
-共同点：都在片头到 loading 之前；IB2 尾部页内偏移 `0xe88`（fault 49 为 `0xeac`），IB2 的第 38 dword 起是 130 个 payload 的 `CP_CONTEXT_REG_BUNCH`，跨到下一 4 KiB 页；SQE 停在 `$19=0xbad4` 的错误恢复入口（PC `0x362`），重读并跳过 169 dword。snapshot 里该 CRB 的寄存器对全部合法，与 SQE 留下的零包头不一致。
+**变体（fault 71、72，合并版）**：两次都在 loading 结束、开场影片开始处，现场相同：
+- BR IB1 剩余 `0x304f`；IB2 起点页内偏移 `0x880`，长 1047 dword，剩余 `0x217`。
+- IB2 第 402 dword 起是一条 90 dword 的 `CP_SET_DRAW_STATE`，跨到下一 4 KiB 页。
+- 固件同样停在 PC `0x362`、`$19=0xbad4`；计算状态完好。
+- GMU 报的是 `Preemption Fault`（CP 卡在陷阱里，回应不了抢占请求），不是保护写。fault 71 前约 5 秒，KMD 还报过一次 `possible gpu syncpoint deadlock for context 15 timestamp 0`。
+
+合并版在这一位置 3 次启动错了 2 次；`1efc1d3f5c9` 版 2 次都通过。其后用合并版驱动做 #12 测试，走到这个位置的 4 次都过去了，所以出现频率并不稳定。
+
+另有一次新签名（fault 75，#12 测试包 v2，片头，ctx15/ts12512）：`CP BV opcode error | opcode=0x70970001`，出错的是 BV 管线，BR 的 IB2 剩余 0。它与上面的保护写不同类，snapshot 在 `…/H-pool-undefined2/fault75/`，未分析。推测是合并版带入的 LRZ 修复改变了命令布局，让另一条包落到了跨页处，没有核实。这仍是零包头陷阱，没有新的根因结论。
+
+这 4 份 snapshot 用 `pull_kgsl_snapshot_once.sh` 拉取时，本机校验都报失败（Windows Python 拿到的是 MSYS 路径），脚本把文件留成了 `.partial.*`。手工检查 magic `0x504d0002` 和结尾的 END 段（`0xabcd/0xffff`）都在，确认完整后改名为 `kgsl_snapshot.bin`。
+
+共同点：都在片头到 loading 之前（变体除外）；IB2 尾部页内偏移 `0xe88`（fault 49 为 `0xeac`），IB2 的第 38 dword 起是 130 个 payload 的 `CP_CONTEXT_REG_BUNCH`，跨到下一 4 KiB 页；SQE 停在 `$19=0xbad4` 的错误恢复入口（PC `0x362`），重读并跳过 169 dword。snapshot 里该 CRB 的寄存器对全部合法，与 SQE 留下的零包头不一致。
 
 已否定或未证实：`vk_recorder off`、`bind_skip off`、MRT 改逐寄存器写（PKT4 版本改为在 IB2 dword 121 处跨页，同样恢复）都不能消除；`crb_page_align` 诊断只覆盖 GROW 命令流的 CRB builder，未证明覆盖出错的发射路径。PKT4 诊断驱动上 root 全局关闭抢占后出现的是 GPU timeout（不是保护写），不能据此合并为同一机制；10-12 在正式驱动上 `preempt_level=0` 时保护写照样出现，抢占不是必要条件。**这是命令读取跨页时的可见性线索，不是已证明的页表或硬件根因。**
 
@@ -67,7 +82,20 @@ fault 53：会话约 19 分钟、进入新区域时，KGSL 报 DDE 非法包头�
 
 ### #12 每帧纹理整图重传
 
-`upload_diag` 39 帧：35 张图像 461 次上传，395 次内容与上次相同。两张 32×32×32 层 A2B10G10R10 体纹理约每帧各一次；约 25 张 1600×900 R16G16B16A16/B10G11R11 目标每张约 3 帧一次，`last_writer` 为空。推测：游戏每帧约 11 次 pool commit/decommit，`PoolCommit`/`PoolDecommit` 都会让纹理缓存释放区内图像，下次绑定时重建并从 guest 内存整图上传（既浪费，也可能用旧 guest 内容覆盖 GPU 结果）。**未核实**：先用 DebugBus `memory_describe <地址>` 确认这些地址是否在池提交区，再看图像被释放的调用点。
+`upload_diag` 39 帧：35 张图像 461 次上传，395 次内容与上次相同。两张 32×32×32 层 A2B10G10R10 体纹理约每帧各一次；约 25 张 1600×900 R16G16B16A16/B10G11R11 目标每张约 3 帧一次，`last_writer` 为空。
+
+10-12 已修复，记录见 [kh3-pool-undefined](../../docs/validation/android-native-host/kh3-pool-undefined-20261012.md)。
+
+- **原因 1（池内存）**：这些地址每隔几帧被 Guest-44 池回收、Guest-57 池提交，物理页每次不同。两者都让纹理缓存释放区内图像，重建后从 guest 内存整图上传；guest 内存里是新物理页的残留，不含 GPU 结果。
+- **原因 2（先刷新后标记）**：`BeginRendering` 先刷新彩色渲染目标、后设置 `usage.render_target`，新建的渲染目标不被当作 GPU 先写，v4 中记为“先被采样”（约 2.9 张/帧）。
+- **原因 3（LUT）**：两张 32×32 A2B10G10R10 LUT 每帧在 32 层二维数组和 32×32×32 体纹理之间切换（二维数组一侧从记录推断是渲染目标）。每次切换 `ExpandImage` 都新建图像、先整图上传再从旧图拷贝。上午把它们归给计算着色器 `0x0eb6153695de6e61` 是误判：那个着色器写的是另一块缓冲。
+- **修复**：
+  - `pool_undefined`：新提交、CPU 没写过的池内存视为内容未定义，GPU 先写的目标在这里新建时不上传；CPU 写入靠提交时的写保护检测，只保护放过这类目标的页。
+  - 渲染/深度/存储用途提前到刷新之前标记。
+  - `pool_revive`：池回收时保留 GPU 写过的图像，同一范围再提交且 CPU 没写过时原样复用。
+  - `expand_twin`：`ExpandImage` 在拷贝覆盖整图时不上传；3D ↔ 二维数组这类纯重新解释停放旧图，下次反向转换取回。
+- **效果**：“觉醒之所”同进程交替、关诊断：全开 33.2–34.3 FPS、GpuComm 2.70–2.73 s/10 s；全关 29.0–29.4 FPS、6.12–6.28 s；每帧上传约 12 → 0；截图无差别。`RefreshImage` 在 GpuComm 采样中由约 56% 降到 1.3%。
+- **剩余**：GpuComm 采样约 20% 在 `sched_yield`（`SrtGuestReader`、`ProtectGpu` 等 MemoryManager 锁），疑为池提交/回收持写锁，未核实。只在 Odin3 KH3 上验证。
 
 ### #13 平台与调度
 
@@ -109,5 +137,5 @@ Odin3 上用 DebugBus 手柄推进；每次 GPU 故障后需要 root 立即读�
 
 1. #8 负对照：`nocsreemit` 跑同一流程，确认规避本身起作用。
 2. #10、#11：在有 bug_reports 和固件反汇编的环境里按 bugs 目录的清单确认；两者都落在 draw-state / CRB 读取路径上，可一起看抢占恢复的关联。
-3. #12：核实图像释放来源后优化，是 GpuComm 当前最大的单项。
+3. GpuComm 的 MemoryManager 锁等待（#12 修复后约占 GpuComm 样本 20%）：先确认是否在等池提交/回收的写锁，再看能否缩短持锁时间。
 4. #14：多轮复现确认 ATRAC9 错误是否随池提交修改消失。

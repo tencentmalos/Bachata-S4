@@ -51,13 +51,16 @@
 2. **单线程减负，按测量排序。**
    - 对照 bbport 的渲染状态记忆和纹理集记忆，看本仓 `PrepareRenderState`、`BindTextures` 在 Thor 回放里的命中潜力；本仓的 T# 绑定缓存粒度是单个 T#，它们是整组。
    - KH3 每帧约 10 张整图重传（问题 #12）是 Odin3 上 GpuComm 最大的单项，优先于任何拆分。
+   - 进展（10-12）：
+     - **#12**：已修复，见 [kh3-pool-undefined](validation/android-native-host/kh3-pool-undefined-20261012.md)。“觉醒之所”每帧上传约 12 → 0，帧率约 +15%，GpuComm 约 −56%；`RefreshImage` 在 GpuComm 采样中由约 56% 降到 1.3%。GpuComm 新的最大项是等 MemoryManager 锁的 `sched_yield`（约 20%）。
+     - **渲染状态记忆、纹理集记忆**：同一场景的 simpleperf 中，`PrepareRenderState` 低于报告阈值（< 2.5%）；`BindTextures` 去掉其中的刷新约 2–3%；`GetProgram` 与 `RefreshGraphicsKey` 各约 7%（这一组数据是开着 `upload_diag` 采的）。在 KH3 上，这两种记忆的收益上限明显小于剩下的上传。Thor 回放上的命中潜力尚未测。
 3. **定下重新评估拆分的判据。** 当某个目标场景同时满足下面几条，再按 GCN v2 阶段 B 规划拆分：
    - GpuComm 在 CPU 上的时间占帧长 80% 以上；
    - GPU 忙低于约 85%；
    - Guest-1 不是更长的杆；
    - 设备在该场景下有空闲大核。
 
-   桌面配 60 FPS 补丁、跑在 30 FPS 以上档位，或 Android 上 GPU 与 Guest-1 问题解决之后，都可能出现这种情况。
+   桌面配 60 FPS 补丁、跑在 30 FPS 以上档位，或 Android 上 GPU 与 Guest-1 问题解决之后，都可能出现这种情况。已写入 [GCN v2 spec](specs/gcn-translation-layer-v2-20261003.md) 的“阶段 B 的启动条件”。
 
 ## 若将来实施，可直接借鉴 bbport 的部分
 

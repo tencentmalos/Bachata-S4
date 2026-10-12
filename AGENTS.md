@@ -1,3 +1,17 @@
+- **KH3 池内存与类型切换目标不再整图重传 / 两阶段流水线评估（2026-10-12，已提交）：** [修复与数据](docs/validation/android-native-host/kh3-pool-undefined-20261012.md)、[两阶段评估](docs/two-stage-pipeline-evaluation-20261012.md)、[KH3 问题汇总 #12](bugs/kh3-cusa15072/README.md)。
+  - **原因**：
+    - KH3 每隔几帧把 1600×900 目标所在的池内存回收再提交，纹理缓存随之释放图像，重建后从 guest 内存整图上传；那里只有新物理页的残留，不含 GPU 结果。
+    - `BeginRendering` 先刷新彩色渲染目标、后设 `usage.render_target`，新建的渲染目标不被当作 GPU 先写。
+    - 两张 LUT 每帧在 32 层二维数组和 32×32×32 体纹理之间切换，`ExpandImage` 每次新建图像、先整图上传再拷贝。上午把 LUT 归给计算着色器 `0x0eb6…` 是误判：那个着色器写的是另一块缓冲；`upload_diag` 的“image-writing dispatches”已改名为“buffer writes at image bases”。
+  - **修复**（开关都在 `upload_diag`，默认开）：
+    - `pool_undefined`：`PoolCommit` → `RasterizerHooks::CommitPoolMemory` → `MarkUndefinedContent`，只对放过 GPU 先写图像的页加写保护；GPU 先写的目标在未定义段上新建时不上传。
+    - 渲染/深度/存储用途提前到刷新之前标记（`PrepareRenderState`、`BindTextures` 第一轮）。
+    - `pool_revive`：`PoolDecommit` → 新的 `DecommitPoolMemory` → `TextureCache::DecommitMemory`，保留 GPU 写过的图像（≤32 张、256 MiB），同范围再提交且 CPU 没写过时原样复用。
+    - `expand_twin`：拷贝覆盖整图时不上传；3D ↔ 二维数组停放旧图、下次取回。源图过期时只上传、不再用过期内容覆盖。
+    - 诊断：`upload_diag status` 增加上传成因表（刷新时用途 / 建图方式 / 同址上一张 GPU 图）和写入它的着色器。
+  - **效果**（Odin3 觉醒之所，同进程交替，关诊断）：全开 33.2–34.3 FPS、GpuComm 2.70–2.73 s/10 s；全关 29.0–29.4 FPS、6.12–6.28 s；每帧上传约 12 → 0，截图无差别。`RefreshImage` 在 GpuComm 采样中由约 56% 降到 1.3%。APK `d12d487c`。
+  - **剩余**：GpuComm 约 20% 在 `sched_yield`（等 MemoryManager 锁，疑为池提交/回收持写锁，未核实）。只在 Odin3 KH3 上验证。上午 #11 又出现 3 次；新签名 `CP BV opcode error 0x70970001`（fault 75）未分析。`upload_diag` 会对每次上传做 XXH3，A/B 要关诊断。
+  - **两阶段流水线**：现在不照搬 bbport 的拆分；GCN v2 spec 加了“阶段 B 的启动条件”。桌面 GpuIdle / 延迟 fence 计数暂不做。
 - **Odin3 KH3：计算状态丢失原因对照 / 重发挪到紧挨 CP_EXEC_CS（2026-10-12，已提交）：** [bugs/odin3-kh3-compute-state-20261011](bugs/odin3-kh3-compute-state-20261011/README.md) “对照实验”“对修复的影响”两节，[KH3 问题汇总](bugs/kh3-cusa15072/README.md)。
   - **原因**：`TU_DEBUG=nocsreemit` 下，默认抢占复现 loading 挂死（fault 62，与 fault 51 同位置：GMEM pass 结束处 bin 边界切出后 SP_CS 程序寄存器为 0、BASE 保留）；`skipsaverestore=0`（MVC 读回 `CP_CONTEXT_SWITCH_CNTL=0x140`）仍挂死（fault 63）；`preempt_level=0` 通过。即 L1 中途抢占切回后这些寄存器不恢复，CP 保存/恢复也不覆盖，只能由 UMD 重发。设备抢占参数与 `debug.mesa.tu.debug` 已恢复。
   - **Turnip `1efc1d3f5c9`（`codex/a8xx-compute-state-reemit`，已合入 shadPS4 Turnip 主干 `codex/shadps4-xr-turnip` 的 `65b63f66bf5`，与 LRZ 修复同在，父仓引用 `65b63f66bf5`）**：A8XX 每次 dispatch 在缓存刷新与非对齐间接参数复制（都含 WFI）之后重发计算 shader 状态，再加载常量/驱动参数/描述符（状态 IB 的 `SP_UPDATE_CNTL` 会作废它们），只在上次发出后命令流里无任何包时跳过；`tu_emit_compute_driver_params` 拆为 `TU_DP_COPY`/`TU_DP_LOAD`。BVH 用的非对齐间接路径仍有一次 WAIT_FOR_ME 未覆盖。Odin3 默认设置 loading 约 2 分 20 秒完成、6 分钟无故障、进入开场；APK `6fd84310`（本机主干构建，驱动 `127cbf2a`）；合并版（驱动 `a847eb5a`，APK `94268505`）同样过 loading、进入开场。未做帧率对比；共用的 `malos/main`（含 Azahar，尚无 10-08 上游 Mesa 合并）未合。
