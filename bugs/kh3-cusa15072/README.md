@@ -15,7 +15,7 @@
 | 5 | 开场 USM 影片黑屏（`libSceVideodec2` 未接入，游戏停在视频准备，最终一层不透明遮罩） | Pocket DS | 已修复（`GuestVideodec2`） | 同上“开场流程定位” |
 | 6 | 缺 `libSceJson2` | Odin3 | 已修复，可到标题与 loading | [odin3-session-status-games](../../docs/validation/android-native-host/odin3-session-status-games-20261010.md) |
 | 7 | 文字缺字（命令 BO 被强制进低 4 GiB 后字体复制着色器读错） | Odin3 | 已修复（Turnip `92c96071dc5`） | [odin3-kh3-fix-experiments](../../docs/validation/android-native-host/odin3-kh3-fix-experiments-20261011.md) |
-| 8 | loading 必现 GPU hang（`00EC2405`，`CP_WAIT_FOR_ME`） | Odin3 | 已规避（Turnip `c5a0d6fd990`）；10-12 对照确认原因是 bin 边界的 L1 中途抢占，重发移到紧挨 `CP_EXEC_CS` 的 `1efc1d3f5c9` 已过 loading（本地提交，未推送） | [bugs/odin3-kh3-compute-state-20261011](../odin3-kh3-compute-state-20261011/README.md) |
+| 8 | loading 必现 GPU hang（`00EC2405`，`CP_WAIT_FOR_ME`） | Odin3 | 已规避（Turnip `c5a0d6fd990`）；10-12 对照确认原因是 bin 边界的 L1 中途抢占，重发移到紧挨 `CP_EXEC_CS` 的 `1efc1d3f5c9` 已合入 Turnip 主干 `codex/shadps4-xr-turnip`（`65b63f66bf5`，含 LRZ 修复），合并版过 loading | [bugs/odin3-kh3-compute-state-20261011](../odin3-kh3-compute-state-20261011/README.md) |
 | 9 | 帧率低（池提交碎片化，每帧数百次宿主映射且持写锁） | Odin3、Pocket DS | 已修复主要部分（8.6 → 28–31 FPS） | [odin3-kh3-performance](../../docs/validation/android-native-host/odin3-kh3-performance-20261011.md) |
 | 10 | 运行约 19 分钟后 `CP DDE BR opcode=0` → DeviceLost 闪退 | Odin3 | **未定位** | [bugs/odin3-kh3-cp-dde-opcode-20261011](../odin3-kh3-cp-dde-opcode-20261011/README.md) |
 | 11 | 启动期 `CP Protected mode error WRITE addr=0`（IB2 页内偏移 `0xe88`，CRB 跨 4 KiB 页） | Odin3 | **未定位**，间歇出现 | 见下文 |

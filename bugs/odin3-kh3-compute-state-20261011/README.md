@@ -14,15 +14,15 @@
 | 判断 | RB 在 GMEM pass 的 bin 边界被 L1 抢占切出，切回后 SP 的计算程序寄存器为 0（Turnip 自身没有把这些寄存器写 0 的路径；`skipsaverestore` 的取值不影响）。shadPS4 10-07 起默认跳过重复 pipeline 绑定，正好形成“绑定 → GMEM pass → 再 dispatch”的模式 |
 | 对照 | `pipeline_cache bind_skip off`（每次 dispatch 前重新绑定）loading 通过；10-12 的 `nocsreemit` 三组对照见“对照实验（2026-10-12）” |
 | 修复 | Turnip `2d96f4bc287`：A8XX 上若计算状态最后一次发出后又录入了其它命令，dispatch 前重发 CS shader 状态与 load state；`c5a0d6fd990` 加 `TU_DEBUG=nocsreemit` 关闭开关、设备创建时一次性日志与注释；`fd6ba8f106b` 精简 fork 的 `AGENTS.md`。10-12 `1efc1d3f5c9`：改为在缓存刷新和间接参数复制（两者都含 WFI）之后、紧挨常量/描述符加载与 `CP_EXEC_CS` 重发，A8XX 每次 dispatch 都发，只在上次发出后命令流里一个包都没有时跳过（见“对修复的影响”） |
-| 分支 | `tencentmalos/mesa-mirror` 的 `codex/a8xx-compute-state-reemit`，基于 `92c96071dc5`；父仓 `references/mesa-turnip` 引用 `c5a0d6fd990`。`1efc1d3f5c9` 目前只在本机子仓提交，未推送，父仓引用未改 |
-| 验证 | `2d96f4bc287`（APK `52110f66…`）与 `c5a0d6fd990`（驱动 `bfc3af8b…`，APK `6cdd9e54…`）默认配置 loading 通过、进入剧情过场，faultcount 保持 51；`c5a0` 的 logcat 有 `I TU : A8XX: compute state is re-emitted after intervening commands (shadPS4 workaround, TU_DEBUG=nocsreemit disables it)`。10-12 `1efc1d3f5c9`（驱动 `127cbf2a…`，宿主 `e6c7a1b6…`，APK `6fd84310…`，主干 `2821fb4d6` 构建）：默认抢占设置、`TU_DEBUG` 为空，loading 15:24:40 开始，约 2 分 20 秒内出现“開始遊戲”，6 分钟内 faultcount 不变（68），进入开场影片（约 56 FPS）后正常停止；logcat 有 `A8XX: compute state is re-emitted right before every dispatch`。同一包的第一次启动在片头出了一次 #11 保护写（fault 68，与本问题无关） |
+| 分支 | `tencentmalos/mesa-mirror` 的 `codex/a8xx-compute-state-reemit`（基于 `92c96071dc5`，现到 `1efc1d3f5c9`）。10-12 合入 shadPS4 Turnip 主干 `codex/shadps4-xr-turnip`（合并提交 `65b63f66bf5`，与 LRZ 修复 `04e1d665b27`、`fa9873b2cab` 同在；唯一冲突是 TU_DEBUG 开关表，`lrzfc` 与 `nocsreemit` 都保留），父仓 `references/mesa-turnip` 引用 `65b63f66bf5`。共用分支 `malos/main`（含 Azahar）未合：它还没有 10-08 的上游 Mesa 合并，合入会一并带进去 |
+| 验证 | `2d96f4bc287`（APK `52110f66…`）与 `c5a0d6fd990`（驱动 `bfc3af8b…`，APK `6cdd9e54…`）默认配置 loading 通过、进入剧情过场，faultcount 保持 51；`c5a0` 的 logcat 有 `I TU : A8XX: compute state is re-emitted after intervening commands (shadPS4 workaround, TU_DEBUG=nocsreemit disables it)`。10-12 `1efc1d3f5c9`（驱动 `127cbf2a…`，宿主 `e6c7a1b6…`，APK `6fd84310…`，主干 `2821fb4d6` 构建）：默认抢占设置、`TU_DEBUG` 为空，loading 15:24:40 开始，约 2 分 20 秒内出现“開始遊戲”，6 分钟内 faultcount 不变（68），进入开场影片（约 56 FPS）后正常停止；logcat 有 `A8XX: compute state is re-emitted right before every dispatch`。同一包的第一次启动在片头出了一次 #11 保护写（fault 68，与本问题无关）。合并版 `65b63f66bf5`（驱动 `a847eb5a…`，宿主 `e0d872d9…`，APK `94268505…`）同样默认设置：loading 16:53:26 开始，6 分钟内 36 次采样 faultcount 都是 68，出现“開始遊戲”后进入开场影片（60 FPS），正常停止 |
 
 ## 待确认
 
 1. ~~**负对照**~~：10-12 已完成，`nocsreemit` 下 loading 复现挂死（fault 62），见“对照实验”。
 2. **固件**：10-12 已查（见文末）。bug_reports 没有 gen8.0 丢失计算寄存器的记录；但 Swan（gen8.2，SQE `0x01510103`）10-08 的 ASTRO snapshot 也出现同样的清零，所以规避**不应收窄到 gen8.0**，也不能指望换固件解决。
-3. **合入 fork 主分支**：`codex/shadps4-xr-turnip` 上另有 LRZ 修复 `04e1d665b27`、`fa9873b2cab`，尚未与本分支合并。
-4. ~~**重发位置**~~：10-12 已在 `1efc1d3f5c9` 实现并在 Odin3 默认设置下过 loading，见“对修复的影响”。待做：推送到 fork 并更新父仓引用（需用户确认），以及上面第 3 项的合并。
+3. ~~**合入 fork 主分支**~~：10-12 已合入 `codex/shadps4-xr-turnip`（`65b63f66bf5`），合并版在 Odin3 默认设置下过 loading。是否再合入共用的 `malos/main` 待定（见上表“分支”）。
+4. ~~**重发位置**~~：10-12 已在 `1efc1d3f5c9` 实现并在 Odin3 默认设置下过 loading，见“对修复的影响”。
 
 ## 证据
 
