@@ -1,0 +1,145 @@
+## fault51\snapshot.bin
+   IB1 0x418e052000 fetch position 5504 of 32753; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x10d at 5438 (66 dwords before the fetch position), SP_CS_BASE written 0x581ee400
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   last at least 600 dwords before the fetch position: SP_CS_CONFIG write 0x105 at 1697 (3807 dwords before the fetch position), SP_CS_BASE written 0x55a0980
+     after it: EXEC_CS x7, BIN_START|GMEM x1, BIN_RESOLVE|GMEM x1, BIN_END x1, BLIT x6
+     recorded switch-out of this IB1 after it: info 0x80000007 at 2077
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x55a0980, SP_CS_INSTR_SIZE 0x0
+## fault52\snapshot.bin
+   IB1 0x418fbae000 fetch position 960 of 14227; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x105 at 174 (786 dwords before the fetch position), SP_CS_BASE written 0x32bbd480
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0x32bbd480, SP_CS_INSTR_SIZE 0x2
+## fault53\snapshot.bin
+   IB1 0x425f88b000 fetch position 8448 of 27734; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x400105 at 8263 (185 dwords before the fetch position), SP_CS_BASE written 0x32488880
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   last at least 600 dwords before the fetch position: SP_CS_CONFIG write 0x400105 at 7578 (870 dwords before the fetch position), SP_CS_BASE written 0x32488880
+     after it: EXEC_CS x2, BLIT x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x400105, SP_CS_BASE 0x32488880, SP_CS_INSTR_SIZE 0x6
+## cp-opcode-20260928\kgsl-1790534780-devcd10.bin
+   IB1 0x5836000 fetch position 2208 of 13116; IB2s not frozen: 5
+   no SP_CS_CONFIG write in this IB1 before the fetch position
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0x52be100/0x531b000/0x53f7c80, SP_CS_INSTR_SIZE 0x2
+## snapshots\kgsl-1790598724-devcd15.bin
+   IB1 0x413b48a000 fetch position 1760 of 1967; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x400105 at 1653 (107 dwords before the fetch position), SP_CS_BASE written 0x13c6780
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   last at least 600 dwords before the fetch position: SP_CS_CONFIG write 0x105 at 658 (1102 dwords before the fetch position), SP_CS_BASE written 0x3b6d8580
+     after it: EXEC_CS x4, BLIT x8
+     recorded switch-out of this IB1 after it: info 0x80000091 at 678
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0x3b6d8580, SP_CS_INSTR_SIZE 0x2
+## snapshots\kgsl-1790668481-devcd17.bin
+   IB1 0x423674b000 fetch position 43072 of 63981; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x400105 at 40188 (2884 dwords before the fetch position), SP_CS_BASE written 0x7f492d80
+     after it: EXEC_CS x1, BLIT x42
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x400105, SP_CS_BASE 0x7f492d80, SP_CS_INSTR_SIZE 0x9
+## gpu-snapshots\kgsl-1791361154-devcd1.bin
+   IB1 0x4191f7f000 fetch position 5888 of 8959; IB2s not frozen: 0
+   no SP_CS_CONFIG write in this IB1 before the fetch position
+   MVC (BR): SP_CS_CONFIG 0x107, SP_CS_BASE 0x13a12580, SP_CS_INSTR_SIZE 0x197
+## gpu-snapshots\kgsl-1791362212-devcd2.bin
+   IB1 0x4234d0a000 fetch position 2560 of 29126; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 347 (2213 dwords before the fetch position), SP_CS_BASE written 0x13a2d700
+     after it: EXEC_CS x1, BLIT x1, BIN_START|GMEM x4, BIN_EOD|GMEM x4, BIN_RESOLVE|GMEM x3, BIN_END x3
+     recorded switch-out of this IB1 after it: info 0x80000011 at 1533
+   MVC (BR): SP_CS_CONFIG 0x107, SP_CS_BASE 0x13a2d700, SP_CS_INSTR_SIZE 0x197
+## gpu-snapshots\kgsl-1791364523-devcd1.bin
+   IB1 0x4238f37000 fetch position 7296 of 29094; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 316 (6980 dwords before the fetch position), SP_CS_BASE written 0x1314d000
+     after it: EXEC_CS x1, BLIT x4, BIN_START|GMEM x19, BIN_EOD|GMEM x18, BIN_RESOLVE|GMEM x18, BIN_END x18
+     recorded switch-out of this IB1 after it: info 0x80000011 at 5550
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x0/0x15ea3a00, SP_CS_INSTR_SIZE 0x0
+## gpu-snapshots\kgsl-1791364557-devcd2.bin
+   IB1 0x423d5a7000 fetch position 6720 of 25425; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 347 (6373 dwords before the fetch position), SP_CS_BASE written 0x13138d80
+     after it: EXEC_CS x1, BLIT x6, BIN_START|GMEM x12, BIN_EOD|GMEM x11, BIN_RESOLVE|GMEM x11, BIN_END x11
+     recorded switch-out of this IB1 after it: info 0x80000011 at 3146
+   MVC (BR): SP_CS_CONFIG 0x107, SP_CS_BASE 0x13138d80, SP_CS_INSTR_SIZE 0x197
+## gpu-snapshots\kgsl-1791366278-devcd3.bin
+   IB1 0x4229135000 fetch position 6400 of 26587; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 347 (6053 dwords before the fetch position), SP_CS_BASE written 0x13e4d000
+     after it: EXEC_CS x1, BLIT x5, BIN_START|GMEM x12, BIN_EOD|GMEM x11, BIN_RESOLVE|GMEM x11, BIN_END x11
+     recorded switch-out of this IB1 after it: info 0x80000007 at 2706
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x0/0x15ea3a00, SP_CS_INSTR_SIZE 0x0
+## gpu-snapshots\kgsl-1791366333-devcd4.bin
+   IB1 0x423cb86000 fetch position 6848 of 26126; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 378 (6470 dwords before the fetch position), SP_CS_BASE written 0x1434d000
+     after it: EXEC_CS x1, BLIT x13, BIN_START|GMEM x8, BIN_EOD|GMEM x7, BIN_RESOLVE|GMEM x7, BIN_END x7
+     recorded switch-out of this IB1 after it: info 0x80000011 at 5679
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x0/0x15ea3700, SP_CS_INSTR_SIZE 0x0
+## gpu-snapshots\kgsl-1791368040-devcd5.bin
+   IB1 0x41924db000 fetch position 5024 of 25211; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 347 (4677 dwords before the fetch position), SP_CS_BASE written 0x13a71300
+     after it: EXEC_CS x1, BLIT x3, BIN_START|GMEM x4, BIN_EOD|GMEM x3, BIN_RESOLVE|GMEM x3, BIN_END x3
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x107, SP_CS_BASE 0x13a71300, SP_CS_INSTR_SIZE 0x197
+## gpu-snapshots\kgsl-1791373107-devcd6.bin
+   IB1 0x41922b7000 fetch position 7008 of 27197; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 409 (6599 dwords before the fetch position), SP_CS_BASE written 0x13a51300
+     after it: EXEC_CS x1, BLIT x10, BIN_START|GMEM x12, BIN_EOD|GMEM x11, BIN_RESOLVE|GMEM x11, BIN_END x11
+     recorded switch-out of this IB1 after it: info 0x80000011 at 6235
+   MVC (BR): SP_CS_CONFIG 0x107, SP_CS_BASE 0x13a51300, SP_CS_INSTR_SIZE 0x197
+## gpu-snapshots\kgsl-1791376239-devcd7.bin
+   IB1 0x4228613000 fetch position 6336 of 26511; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x107 at 316 (6020 dwords before the fetch position), SP_CS_BASE written 0x13e5ca80
+     after it: EXEC_CS x1, BLIT x4, BIN_START|GMEM x12, BIN_EOD|GMEM x12, BIN_RESOLVE|GMEM x11, BIN_END x11
+     recorded switch-out of this IB1 after it: info 0x80000011 at 5344
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x0/0x15ea3700, SP_CS_INSTR_SIZE 0x0
+
+# 2026-10-12 Odin3 A/B/C runs (TU_DEBUG=nocsreemit). Snapshots of fault 60/61/64-66 stay in the local build directory.
+## A nocsreemit fault60 (opening)
+   IB1 0x419039a000 fetch position 960 of 17494; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x105 at 174 (786 dwords before the fetch position), SP_CS_BASE written 0x32cfcc80
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0xf9f4cfa/0x2d5de25a/0x32cfcc80/0x5d851aa9/0xa8238b65/0xc4213581/0xfe1d3b3a, SP_CS_INSTR_SIZE 0x2
+## A nocsreemit fault61 (opening)
+   IB1 0x418ec08000 fetch position 960 of 14223; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x105 at 174 (786 dwords before the fetch position), SP_CS_BASE written 0x32bfe400
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0xedfccfb/0x2d7d221a/0x32bfe400/0xa8230e6d/0xae7d7b3b/0xd1854a29/0xd4213585, SP_CS_INSTR_SIZE 0x2
+## A nocsreemit fault62 (loading hang)
+   IB1 0x4190226000 fetch position 5504 of 28107; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x10d at 5438 (66 dwords before the fetch position), SP_CS_BASE written 0x32a7d900
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   last at least 600 dwords before the fetch position: SP_CS_CONFIG write 0x105 at 1697 (3807 dwords before the fetch position), SP_CS_BASE written 0x32c00680
+     after it: EXEC_CS x7, BIN_START|GMEM x1, BIN_RESOLVE|GMEM x1, BIN_END x1, BLIT x6
+     recorded switch-out of this IB1 after it: info 0x80000007 at 2077
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x32c00680, SP_CS_INSTR_SIZE 0x0
+## B nocsreemit+skipsaverestore=0 fault63 (loading hang)
+   IB1 0x418f3b2000 fetch position 6048 of 32768; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x10d at 5963 (85 dwords before the fetch position), SP_CS_BASE written 0x32a62400
+     after it: EXEC_CS x1, BLIT x1
+     recorded switch-out of this IB1 after it: none
+   last at least 600 dwords before the fetch position: SP_CS_CONFIG write 0x105 at 2127 (3921 dwords before the fetch position), SP_CS_BASE written 0x55b4c80
+     after it: EXEC_CS x7, BIN_START|GMEM x1, BIN_RESOLVE|GMEM x1, BIN_END x1, BLIT x10
+     recorded switch-out of this IB1 after it: info 0x80000007 at 2507
+   MVC (BR): SP_CS_CONFIG 0x0, SP_CS_BASE 0x55b4c80, SP_CS_INSTR_SIZE 0x0
+## C nocsreemit+preempt_level=0 fault64 (opening)
+   IB1 0x418de0a000 fetch position 960 of 14223; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x105 at 174 (786 dwords before the fetch position), SP_CS_BASE written 0x32c04600
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0x32c04600, SP_CS_INSTR_SIZE 0x2
+## C fault65 (opening)
+   IB1 0x41866ee000 fetch position 960 of 14223; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x105 at 174 (786 dwords before the fetch position), SP_CS_BASE written 0x32c04600
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0xe9fddff/0x32c04600/0x49851809/0x8d5d6278/0xa8228f61/0xaa5d3b3a/0xc5211585, SP_CS_INSTR_SIZE 0x2
+## C fault66 (opening)
+   IB1 0x418fb36000 fetch position 960 of 14223; IB2s not frozen: 0
+   last SP_CS_CONFIG write 0x105 at 174 (786 dwords before the fetch position), SP_CS_BASE written 0x32c04600
+     after it: EXEC_CS x1
+     recorded switch-out of this IB1 after it: none
+   MVC (BR): SP_CS_CONFIG 0x105, SP_CS_BASE 0x32c04600, SP_CS_INSTR_SIZE 0x2

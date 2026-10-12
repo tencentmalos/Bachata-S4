@@ -1,0 +1,16 @@
+started_at=2026-10-12 14:28:29 +0800
+expected_serial=6edb0593
+actual_serial=6edb0593
+adb_host=local
+adb_port=default
+requested_output=C:/workspace/emulations/shadps4/build/validation/odin3-kh3-preempt-20261012/B-nocsreemit-noskip/fault63/raw/kgsl_snapshot.bin
+partial_output=C:/workspace/emulations/shadps4/build/validation/odin3-kh3-preempt-20261012/B-nocsreemit-noskip/fault63/raw/kgsl_snapshot.bin.partial.qiqCrV
+timestamp=354420
+faultcount=63
+boot_id=c322cd23-e6c8-46f8-8eb7-ff032d7162db
+dump_read_count=1
+adb_exec_out_rc=0
+local_size_bytes=16763084
+local_sha256=21c87372a9daaeb25472d33711994836c9593c22f79545181aa95c44a06f7bfb
+local_validation_rc=2
+C:\Users\Admin\AppData\Local\Programs\Python\Python313\python3.exe: can't open file 'C:\\c\\workspace\\bug_reports\\skills\\qualcomm-kgsl-snapshot-analysis\\scripts\\kgsl_snapshot_tool.py': [Errno 2] No such file or directory

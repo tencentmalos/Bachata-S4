@@ -15,7 +15,7 @@
 | 5 | 开场 USM 影片黑屏（`libSceVideodec2` 未接入，游戏停在视频准备，最终一层不透明遮罩） | Pocket DS | 已修复（`GuestVideodec2`） | 同上“开场流程定位” |
 | 6 | 缺 `libSceJson2` | Odin3 | 已修复，可到标题与 loading | [odin3-session-status-games](../../docs/validation/android-native-host/odin3-session-status-games-20261010.md) |
 | 7 | 文字缺字（命令 BO 被强制进低 4 GiB 后字体复制着色器读错） | Odin3 | 已修复（Turnip `92c96071dc5`） | [odin3-kh3-fix-experiments](../../docs/validation/android-native-host/odin3-kh3-fix-experiments-20261011.md) |
-| 8 | loading 必现 GPU hang（`00EC2405`，`CP_WAIT_FOR_ME`） | Odin3 | 已规避（Turnip `c5a0d6fd990`），负对照与固件确认待做 | [bugs/odin3-kh3-compute-state-20261011](../odin3-kh3-compute-state-20261011/README.md) |
+| 8 | loading 必现 GPU hang（`00EC2405`，`CP_WAIT_FOR_ME`） | Odin3 | 已规避（Turnip `c5a0d6fd990`）；10-12 对照确认原因是 bin 边界的 L1 中途抢占，重发移到紧挨 `CP_EXEC_CS` 的 `1efc1d3f5c9` 已过 loading（本地提交，未推送） | [bugs/odin3-kh3-compute-state-20261011](../odin3-kh3-compute-state-20261011/README.md) |
 | 9 | 帧率低（池提交碎片化，每帧数百次宿主映射且持写锁） | Odin3、Pocket DS | 已修复主要部分（8.6 → 28–31 FPS） | [odin3-kh3-performance](../../docs/validation/android-native-host/odin3-kh3-performance-20261011.md) |
 | 10 | 运行约 19 分钟后 `CP DDE BR opcode=0` → DeviceLost 闪退 | Odin3 | **未定位** | [bugs/odin3-kh3-cp-dde-opcode-20261011](../odin3-kh3-cp-dde-opcode-20261011/README.md) |
 | 11 | 启动期 `CP Protected mode error WRITE addr=0`（IB2 页内偏移 `0xe88`，CRB 跨 4 KiB 页） | Odin3 | **未定位**，间歇出现 | 见下文 |
@@ -34,7 +34,7 @@
 5. **Videodec2**：开场影片 `mv_bt051.usm` 走 `libSceVideodec2`，原先模块加载返回 `0x805a10ff`、9 个导入全被拒，游戏卡在视频准备、最后一层是全屏不透明遮罩。接入 `GuestVideodec2` 后棋局开场影片与字幕正常。
 6. **Json2**：补齐系统模块后可到标题与 loading。
 7. **缺字**：上游 `118ec7f45b1` 想让命令 BO 不跨 4 GiB，KGSL 后端用的 `KGSL_MEMFLAGS_FORCE_32BIT` 在 32 位 `flags` 字段中被截断、从未生效；本 fork 曾改为真正生效（全部落到低 4 GiB），字体复制着色器随即读错。`92c96071dc5` 改为只检查实际分配不跨 4 GiB、跨界时有限重试。**低 4 GiB 为什么让着色器读错仍未解释，今后不要强制命令/着色器 BO 进低 4 GiB。**
-8. **loading GPU hang**：gen8.0 上计算管线绑定后经过 render pass、blit、LRZ 清除，再 dispatch 时 SP 的 CS 配置寄存器为 0（`SP_CS_BASE` 保留），dispatch 永不完成。shadPS4 默认跳过重复 pipeline 绑定（B2）形成该模式；`bind_skip off` 可通过。Turnip 在 A8XX 上若计算状态发出后录入过其它命令，dispatch 前重发状态；`TU_DEBUG=nocsreemit` 关闭。判断为固件上下文切换未保留寄存器，尚无固件层面证据。
+8. **loading GPU hang**：gen8.0 上计算管线绑定后经过 render pass、blit、LRZ 清除，再 dispatch 时 SP 的 CS 配置寄存器为 0（`SP_CS_BASE` 保留），dispatch 永不完成。shadPS4 默认跳过重复 pipeline 绑定（B2）形成该模式；`bind_skip off` 可通过。Turnip 在 A8XX 上若计算状态发出后录入过其它命令，dispatch 前重发状态；`TU_DEBUG=nocsreemit` 关闭。10-12 在 Odin3 上用 `nocsreemit` 对照：默认复现挂死；`skipsaverestore=0` 仍挂死；`preempt_level=0`（不做中途抢占）通过。挂死的两份 snapshot 都在 GMEM pass 结束处有一次 bin 边界切出。所以是 L1 中途抢占切回后 SP 计算程序寄存器丢失，CP 的保存/恢复不覆盖它们，只能由 UMD 重发。
 9. **池提交**：`MemoryManager::PoolCommit` 在碎片化池上把一次提交拆成约 22 块逐块映射（Map + Protect，Android 每次约 0.11 ms），全程持写锁，GpuComm 也在等这把锁。改为优先用能容纳整次提交的最小空闲池区，读写权限不再二次 `Protect`。10-07 Pocket DS 上同一热点已被采到（Guest-57 的 `PoolCommit` 占 75.75%，`UpdateDataMapping` 自身 43.56%）；`UpdateDataMapping` 每次复制整张映射表的问题仍在，只是调用次数降了。
 
 ## 未解决项
@@ -53,10 +53,15 @@ fault 53：会话约 19 分钟、进入新区域时，KGSL 报 DDE 非法包头�
 | fault 49（`TU_DEBUG=syncdraw`，`addr=0x08837`） | 164314.96 ctx6/5658 | `0x418e856eac`（307 dword） | `…/syncdraw/` |
 | fault 50（`crb_page_align` 诊断） | 164611.2 ctx4/5581 | `0x418e9f6e88` | `…/crb-align/` |
 | fault 52（含计算状态修复的版本） | 170168.5 ctx6/5593 | `0x418f9f6e88` | [bugs/…/evidence/fault52](../odin3-kh3-cp-dde-opcode-20261011/README.md) |
+| 10-12 fault 60、61（`c5a0d6fd990` + `nocsreemit`，默认抢占） | 197536.2 ctx21/29931；197649.6 ctx4/5657 | `0x418ff16e88`、`0x418ea66e88` | `build/validation/odin3-kh3-preempt-20261012/A-nocsreemit/` |
+| 10-12 fault 64、65、66（同上，**`preempt_level=0`**） | 198382.1 ctx14/5710；198523.6 ctx14/13383；198613.1 ctx4/5586 | `0x418da96e88`、`0x418e956e88`、`0x418fb16e88` | `…/C-nocsreemit-level0/`，fault 64 读取记录与 dmesg 见 [计算状态 bug 的 evidence](../odin3-kh3-compute-state-20261011/evidence/fault64-level0-opening/) |
+| 10-12 fault 68（新 Turnip `1efc1d3f5c9`，默认抢占、计算状态重发开启） | 201235.6 ctx15/5872 | `0x418e6c6e88` | `…/D-reemit2/fault68/`；IB1 取指位置同样是 960，宿主随后在 `GetRenderFrame` 断言退出 |
+
+10-12 这 5 次的 BR IB1 取指位置都是 960（IB1 长 14223，fault 60 为 17494），SQE PC `0x362`、`$19=0xbad4`；IB2 是 304 dword 的 draw IB2，结尾为 `CP_DRAW_INDX_OFFSET`，已全部取完。fault 64 的 CP 上下文记录里没有任何中途切出（level 0 下预期如此），计算状态完好（`SP_CS_CONFIG=0x105`）。**在 level 0 下仍出现 3 次，说明 #11 不依赖 L1 中途抢占**；当天 8 次启动（7 个出故障的进程加 1 次通过）中 5 次在片头出这个故障，比之前频繁，但各次之间除抢占参数外条件相同，原因未知。换成新 Turnip `1efc1d3f5c9` 后的两次启动又出了一次（fault 68，IB1 长 14542，取指位置仍是 960），所以与计算状态重发的位置无关。gpu-snapshot MCP 解析结果：`build/gpu-snapshot/odin3-kh3-20261012/fault64.sqlite`。
 
 共同点：都在片头到 loading 之前；IB2 尾部页内偏移 `0xe88`（fault 49 为 `0xeac`），IB2 的第 38 dword 起是 130 个 payload 的 `CP_CONTEXT_REG_BUNCH`，跨到下一 4 KiB 页；SQE 停在 `$19=0xbad4` 的错误恢复入口（PC `0x362`），重读并跳过 169 dword。snapshot 里该 CRB 的寄存器对全部合法，与 SQE 留下的零包头不一致。
 
-已否定或未证实：`vk_recorder off`、`bind_skip off`、MRT 改逐寄存器写（PKT4 版本改为在 IB2 dword 121 处跨页，同样恢复）都不能消除；`crb_page_align` 诊断只覆盖 GROW 命令流的 CRB builder，未证明覆盖出错的发射路径。PKT4 诊断驱动上 root 全局关闭抢占后出现的是 GPU timeout（不是保护写），不能据此合并为同一机制。**这是命令读取跨页时的可见性线索，不是已证明的页表或硬件根因。**
+已否定或未证实：`vk_recorder off`、`bind_skip off`、MRT 改逐寄存器写（PKT4 版本改为在 IB2 dword 121 处跨页，同样恢复）都不能消除；`crb_page_align` 诊断只覆盖 GROW 命令流的 CRB builder，未证明覆盖出错的发射路径。PKT4 诊断驱动上 root 全局关闭抢占后出现的是 GPU timeout（不是保护写），不能据此合并为同一机制；10-12 在正式驱动上 `preempt_level=0` 时保护写照样出现，抢占不是必要条件。**这是命令读取跨页时的可见性线索，不是已证明的页表或硬件根因。**
 
 下一步：确认出错 CRB 由哪条 Turnip 发射路径产生（`tu6_emit_mrt` 等 draw state），让页对齐诊断覆盖它；对照 bug_reports 中 gen8.0 固件 CRB/抢占恢复的记录。
 

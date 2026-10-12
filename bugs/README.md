@@ -12,4 +12,4 @@
 |---|---|---|
 | [kh3-cusa15072](kh3-cusa15072/README.md) | 汇总 | 王国之心 III 在 Pocket DS 与 Odin3 上已查到的全部问题、状态、证据位置与后续顺序 |
 | [odin3-kh3-cp-dde-opcode-20261011](odin3-kh3-cp-dde-opcode-20261011/README.md) | 未定位 | Odin3 KH3 运行约 19 分钟后 `CP DDE BR opcode=0` 导致 DeviceLost 闪退（fault 53），附启动期保护写 `addr=0`（fault 52） |
-| [odin3-kh3-compute-state-20261011](odin3-kh3-compute-state-20261011/README.md) | 已修复，待负对照与固件确认 | A8XX 计算管线寄存器在中间命令后丢失，KH3 loading GPU hang；Turnip 在 dispatch 前重发计算状态 |
+| [odin3-kh3-compute-state-20261011](odin3-kh3-compute-state-20261011/README.md) | 已修复，原因已由对照确认 | A8XX 计算管线寄存器在 bin 边界的 L1 中途抢占切回后丢失（`skipsaverestore=0` 也丢，`preempt_level=0` 不丢），KH3 loading GPU hang；Turnip 在 dispatch 前重发计算状态，建议挪到紧挨 `CP_EXEC_CS` |

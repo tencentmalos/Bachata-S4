@@ -1,0 +1,7 @@
+[198382.059805] adreno-gen8-gmu 3d37000.qcom,gmu: CP | Protected mode error | WRITE | addr=0x00000 | status=0x00600000
+[198382.059824] kgsl kgsl-3d0: Fault id:2 and GX is ON
+[198382.059829] kgsl kgsl-3d0: shadps4.android[26640]: ctx 14 ctx_type ANY ts 5710 policy 2
+[198382.059832] kgsl kgsl-3d0: shadps4.android[26640]: cmdline: com.shadps4.android
+[198382.059858] kgsl kgsl-3d0: status 00880005 gfx_status 00880004 gfx_br_status 00880004 gfx_bv_status 00880004
+[198382.059860] kgsl kgsl-3d0: BR: rb 153d/15e5 ib1 000000418DE0A000/33cf ib2 000000418DA96E88/0000 ib3 0000000000000000/0000
+[198382.059863] kgsl kgsl-3d0: BV: rb 153d/15e5 ib1 000000403C4A9000/0000 ib2 0001FF8002A36190/0000 ib3 0000000000000000/0000

@@ -1,0 +1,7 @@
+[198219.074351] adreno-gen8-gmu 3d37000.qcom,gmu: MISC: GPU hang detected
+[198219.074384] kgsl kgsl-3d0: Fault id:2 and GX is ON
+[198219.074402] kgsl kgsl-3d0: shadps4.android[25231]: ctx 4 ctx_type ANY ts 41083 policy 2
+[198219.074416] kgsl kgsl-3d0: shadps4.android[25231]: cmdline: com.shadps4.android
+[198219.074464] kgsl kgsl-3d0: status 00EC2405 gfx_status 00E80004 gfx_br_status 00E80004 gfx_bv_status 00880004
+[198219.074477] kgsl kgsl-3d0: BR: rb 16b8/1760 ib1 000000418F3B2000/6860 ib2 0000004032A43000/0000 ib3 0000000000000000/0000
+[198219.074493] kgsl kgsl-3d0: BV: rb 16b8/1760 ib1 0000004038428000/0000 ib2 0000000000000000/0000 ib3 0000000000000000/0000
