@@ -9,10 +9,14 @@
 namespace Common::Profiler {
 struct FlowToken { uint64_t id{}, generation{}; };
 FlowToken Post(const char* name) noexcept;
+struct RegisteredName { const char* value{}; };
+// Copy into Foundation's permanent pool once at binding, never on invocation.
+RegisteredName RegisterName(const char* name) noexcept;
 // Stable across the host SDK boundary; Foundation owns the only ring implementation.
 class Scope {
 public:
     explicit Scope(const char* name) noexcept;
+    explicit Scope(RegisteredName name) noexcept;
     Scope(const char* name, FlowToken flow) noexcept;
     ~Scope();
     Scope(const Scope&) = delete;

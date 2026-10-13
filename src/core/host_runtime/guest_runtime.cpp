@@ -258,6 +258,7 @@ void RestoreOfflineHttp2Imports(Module& module, GuestAddressSpace& space,
 }
 struct FunctionAdapter final : HleCallAdapter {
     std::string profile_name{"HLE.Unknown"};
+    Common::Profiler::RegisteredName registered_profile_name;
     bool profile_poll{};
     bool profile_sync{}, profile_sync_mutex{};
     std::shared_ptr<SyncMetrics::Session> sync_metrics;
@@ -265,7 +266,7 @@ struct FunctionAdapter final : HleCallAdapter {
     std::function<Status(HleCallFrame&)> call;
     explicit FunctionAdapter(std::function<Status(HleCallFrame&)> f) : call(std::move(f)) {}
     Status Invoke(HleCallFrame& frame) const override {
-        Common::Profiler::Scope profile{profile_name.c_str()};
+        Common::Profiler::Scope profile{registered_profile_name};
         bool sync_sample = profile_sync && Common::Profiler::Enabled();
         if (sync_sample && profile_sync_mutex) {
             // Independent physical-owner/operation streams, deliberately a
@@ -2089,6 +2090,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         static_cast<FunctionAdapter&>(*adapter).profile_poll =
             nid == "QBi7HCK03hw" || nid == "lLMT9vJAck0" || nid == "1jfXLRVzisc";
         auto& function = static_cast<FunctionAdapter&>(*adapter);
+        function.registered_profile_name = Common::Profiler::RegisterName(function.profile_name.c_str());
         function.sync_operation = SyncMetrics::Classify(function.profile_name);
         if (function.sync_operation != SyncMetrics::Operation::None) function.sync_metrics = sync_metrics;
         function.profile_sync_mutex = function.profile_name.find("MutexLock") != std::string::npos ||
@@ -2140,6 +2142,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 InternalVeneer(const std::string& name, std::function<Status(HleCallFrame&)> call) {
         auto adapter = std::make_shared<FunctionAdapter>(std::move(call));
         adapter->profile_name = "HLE." + name;
+        adapter->registered_profile_name = Common::Profiler::RegisterName(adapter->profile_name.c_str());
         const auto op = Require(registry.Adopt(std::move(adapter), name));
         operation_names.emplace(op, name);
         return PublishVeneer(op);
