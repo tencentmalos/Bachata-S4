@@ -28,6 +28,7 @@
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
+#include "imgui/online_content/online_content.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -100,7 +101,7 @@ int main(int argc, char* argv[]) {
                  "Disable automatic loading of game patches");
 
     app.add_flag("-b,--big-picture", bigPicture, "Start in Big Picture Mode");
-    app.add_flag("--online-store", onlineStore, "Open the PS4 / PSVR Baidu online store");
+    app.add_flag("--online-store", onlineStore, "Open EmuPSP for PS4 / PSVR content");
     app.add_flag("--same-process", sameProcess,
                  "Launch the game in the same process when using Big Picture Mode");
 
@@ -204,8 +205,13 @@ int main(int argc, char* argv[]) {
     EmulatorSettings.Load();
     UserSettings.Load();
 
-    if (bigPicture || onlineStore) {
-        BigPictureMode::Launch(argv[0], sameProcess, onlineStore);
+    if (onlineStore) {
+        if (OnlineContent::Open()) return 0;
+        std::cerr << "Install EmuPSP and register its emupsp URL handler.\n";
+        return 1;
+    }
+    if (bigPicture) {
+        BigPictureMode::Launch(argv[0], sameProcess);
         return 0;
     }
 

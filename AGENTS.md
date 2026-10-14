@@ -9,6 +9,7 @@
   - **Foundation**：`b977fef` → `dc8c18a`（`feature/malos/shadps4-capture`：原 pin 合入 `feature/malos/capture-producers` `b42ab4c`）。
   - **Swan 实测**（APK `607b7df3`）：TMNT 2D 截图 1920×1080、录像 60.4 fps 0 跳帧；ASTRO BOT PSVR xr 截图 5184×2400、左眼录像 1296×1200 34.6 fps，canvas 5184×2400 33.4 fps，均 0 跳帧。
   - **未覆盖**：普通游戏的 XR 影院合成（TMNT 在 Swan 上以 2D 运行）、PSV 状态层、直播/`--follow`、迁移前后帧率 A/B。
+- **EmuPSP 独立 online 应用（2026-10-14）：** [迁移与验证](docs/validation/online-content/emupsp-extraction-20261014.md)。从维护主干 `e6b1e0f27` 切出 `feature/online_shop_psp`；独立 private 仓库 `tencentmalos/EmuPSP` 首版 `aa62ce4`，Avalonia PC + Compose Android，首页 PS4/3DS/Switch、Icon/BG 与可调 Qt 风格 Title 卡片。三家 online 来源 Rust/Go/UI 已迁入；本仓改外部入口并去掉内容 SDK 构建依赖，Android 用通用 BROWSE action + 只读 SAF。Rust 76 项、Go race、Mac 五来源冒烟、Android APK/2 单测/lint 通过；shadPS4 仅入口语法和 Kotlin 编译验证。Swan、真实账号下载/跨应用导入、Citron/Azahar 原工程入口切换仍待做；未修改其原有工作区。
 - **KH3：Controls 面板帧率限制与逐游戏保存 / 场景闪黑二分（2026-10-14，已提交；闪黑未修复）：** [记录](docs/validation/android-native-host/kh3-flicker-controls-20261014.md)。
   - **Controls 面板**：状态层新增"游戏"页，可调帧率上限（Off/50/45/40/30/20，PresentThread 按 vblank 额度放行 flip）、管线编译模式、Android 屏幕超分与锐度（桌面为 FSR/RCAS）。修改后通过 `JniHelper` → `SessionSettingsBridge` 写入该游戏的 profile，`gpu.frame_limit` 也在 Launch 面板。单测通过；重启后保留、桌面编译未验证。
   - **闪黑**：跑跳时单帧缺阳光、只剩斜带或右侧黑边。二分结论是 rwlock 快路径与叶子 HLE 的 draw 组（DrawIndex 系列 / DispatchDirect）同时打开才出现，各自单开都不闪；全开时自动跑跳 6–12 次 / 5 min。`debug.shadps4.leaf_fastpath` 可按组设 `clock,tls,draw,marker`。

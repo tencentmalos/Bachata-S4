@@ -751,16 +751,11 @@ void Launch(char* executableName, bool sameProcess, bool onlineStore) {
 
         if (ImGui::Selectable("Game Library", !onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = false;
         ImGui::SameLine();
-        if (ImGui::Selectable("Baidu Online", onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = true;
+        if (ImGui::Selectable("EmuPSP", onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = true;
         ImGui::Separator();
         if (onlineStore) {
-            if (!online_page) online_page = std::make_unique<OnlineContent::Page>(
-                std::filesystem::absolute(std::filesystem::u8path(executableName)).parent_path());
-            online_page->Draw([](const std::filesystem::path& directory) {
-                EmulatorSettings.AddGameInstallDir(directory);
-                EmulatorSettings.Save();
-                GetGameIconInfo(gameIcons);
-            });
+            if (!online_page) online_page = std::make_unique<OnlineContent::Page>();
+            online_page->Draw();
         } else {
         Overlay::TextCentered("Select Game");
         ImGui::Dummy(ImVec2(0.0f, 10.f * uiScale));
