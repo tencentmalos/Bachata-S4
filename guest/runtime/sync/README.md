@@ -21,9 +21,10 @@ operations never leave the guest. This is runtime code, not a per-game patch
 
 | File | Role |
 |---|---|
-| `mutex.c` | Guest payload: `pthread_mutex_lock/trylock/unlock`, `scePthreadMutexLock/Trylock/Unlock`, `pthread_self`/`scePthreadSelf`. |
+| `mutex.c` | Guest payload: `pthread_mutex_lock/trylock/unlock`, `scePthreadMutexLock/Trylock/Unlock`, `pthread_self`/`scePthreadSelf`, rwlocks, thread-specific data and leaf calls. |
 | `src/core/host_runtime/guest_sync_abi.h` | Shared layout: prefix offsets, states, types, window/import table slot order, symbol names. |
 | `src/core/host_runtime/guest_mutex.h` | Host HLE on the same word protocol (slow paths, cond wait, destroy). |
+| `src/core/host_runtime/guest_rwlock.h` | Host rwlock HLE on the rwlock word and the per-thread hold tables. |
 | `scripts/android/build-guest-payload` | Compiles/links the payload with the NDK clang x86 backend, emits `guest_sync_payload.h` (image + symbol table). |
 | `tests/host_runtime/guest_sync_fastpath_tests.cpp` | Real FEX execution of this payload against the production domain. |
 
@@ -58,11 +59,46 @@ near the HLE veneers, and points the eight game-visible symbol names (both
 `debug.shadps4.sync_fastpath=0` disables it; `hle_sync status` reports
 `"fast_path"`.
 
+## Rwlocks (2026-10-13)
+
+`pthread_rwlock_{rd,tryrd,wr,trywr}lock/unlock` and the `scePthreadRwlock*`
+spellings. UE4 read-locks its pipeline-state cache once per draw (KH3 render
+thread: ~19k rdlock/unlock pairs a second, all through HLE before).
+
+- Objects live in a second 256 MiB window (`GuestRwlockObjects`, window table
+  slots 5/6) so neither fast path ever takes the other kind of object.
+  Attribute objects stay outside it.
+- Prefix (`SHAD_SYNC_RW_*`): u32 word (bit 31 write-locked, bit 30 parked
+  writers, bit 29 parked readers, bits 0..28 the number of (thread, lock) read
+  holds), u32 type (0/1/2), u64 write owner (`fs:[0x10]`).
+- Each thread keeps its read holds in a 256-byte table directly below its
+  thread-specific records (`SHAD_SYNC_RW_HOLDS_BELOW_HANDLE`): 15 entries of
+  {lock, depth} plus an overflow count. Recursion only changes the depth, so the
+  word counts each holder once. The table is what keeps EDEADLK (a reader asking
+  for the write lock, a type 2 recursive read), EPERM (unlock by a non-holder)
+  and "a thread already reading may read again" under writer preference
+  (types 1/2) exactly as the HLE had them. A 16th distinct hold is kept by the
+  host, and the overflow count sends that thread's rwlock reads and unlocks to
+  the HLE until it drops back to zero.
+- Guest: read = CAS count+1 when no writer and (type 0 or no parked writer);
+  write = CAS set bit 31 when no writer and no readers; unlock clears or
+  decrements and calls the wake import (wake all) when waiter bits remain and
+  the lock became free for them. Everything else (blocking, timeouts, errors,
+  static initializers, destroyed handles) goes to the HLE fallback imports 5..9.
+- Host (`guest_rwlock.h`): the same word under a per-lock mutex (FreeBSD umtx's
+  busy lock) that owns the parked-waiter counts and bits; waiters park on the
+  word through the mutex domain's `GuestAddressWaiters`, the instance the wake
+  import reaches. Destroy refuses a held or waited-on lock and stores
+  `SHAD_SYNC_RW_DESTROYED` in the word.
+- `debug.shadps4.rwlock_fastpath=0` (or `SHADPS4_RWLOCK_FASTPATH=0`) keeps the
+  rwlock entries on the HLE, which runs the same protocol; `rwlock_log` does the
+  same so its trace sees every call.
+
 ## Limits
 
-- Only mutex lock/trylock/unlock/self. Timed lock, cond, rwlock, sem_t and
-  kernel semaphores remain HLE (cond wait/reacquire uses the same word).
-- `hle_sync` no longer sees uncontended Mutex.Lock/Unlock: their rows count
-  slow paths only.
+- Mutex timed lock, cond, sem_t and kernel semaphores remain HLE (cond
+  wait/reacquire uses the same word); so do the timed rwlock locks.
+- `hle_sync` no longer sees uncontended Mutex.Lock/Unlock or rwlock calls: their
+  rows count slow paths only.
 - Objects are never unmapped before Session teardown; retiring an arena
   mapping under parked waiters is unsupported.

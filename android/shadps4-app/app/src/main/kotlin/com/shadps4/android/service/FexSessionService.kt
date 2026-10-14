@@ -246,6 +246,32 @@ class FexSessionService : Service() {
                 com.shadps4.android.runtime.settings.PipelineCache.DEFAULT_COMPILE_MODE
             }
             NativeFexSession.nativeSetPipelineCompileMode(compileMode)
+            val frameLimit = runCatching {
+                com.shadps4.android.runtime.settings.FrameLimit.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid frame limit, keeping the game's rate", it)
+                0
+            }
+            NativeFexSession.nativeSetFrameLimit(frameLimit)
+            Log.i(TAG, "Frame limit=$frameLimit")
+            // The in-game Controls panel applies its settings at once; keep them for this game.
+            val settingsListener = com.shadps4.android.runtime.session.SessionSettingsBridge.Listener { spec, value ->
+                serviceScope.launch(Dispatchers.IO) {
+                    runCatching {
+                        val json = if (spec.kind == com.shadps4.android.runtime.settings.SettingKind.BOOLEAN)
+                            kotlinx.serialization.json.JsonPrimitive(value == "true")
+                        else kotlinx.serialization.json.JsonPrimitive(value)
+                        runtimeProfiles.update(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)) {
+                            it.copy(values = it.values + (spec.id to json))
+                        }
+                        Log.i(TAG, "Saved ${spec.id}=$value for $gameId from the Controls panel")
+                    }.onFailure { Log.w(TAG, "Cannot save ${spec.id}=$value for $gameId", it) }
+                }
+            }
+            com.shadps4.android.runtime.session.SessionSettingsBridge.install(settingsListener)
             val commandRecorder = runCatching {
                 com.shadps4.android.runtime.settings.PipelineCache.resolveRecorder(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
@@ -432,6 +458,7 @@ class FexSessionService : Service() {
                     // is allowed to run for hours).
                 }
                 publishTerminal(gameId, generation, outcome)
+                com.shadps4.android.runtime.session.SessionSettingsBridge.uninstall(settingsListener)
                 // Tear down the native pad session for this generation: detaches the
                 // controller sink and clears port state so a late producer cannot write
                 // into the next session's pad.

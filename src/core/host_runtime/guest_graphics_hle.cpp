@@ -402,33 +402,58 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     if (workload)
                         std::move(a.begin() + 1, a.end(), a.begin());
                     const u32 count = a[0];
-                    if (!count || count > 64 || !a[1] || !a[2] || bool(a[3]) != bool(a[4]))
+                    // Same argument rules as the desktop driver (gnmdriver.cpp): no limit on the
+                    // number of command buffers per call (UE4 in KH3 hands its async submission
+                    // 72 at once). The copies grow as each entry is read, so a bad count stops at
+                    // the first unreadable entry instead of sizing anything up front.
+                    if (!count || !a[1] || !a[2] || (a[4] && !a[3])) {
+                        LOG_ERROR(Lib_GnmDriver,
+                                  "submit rejected: count={} dcb_addrs={:#x} dcb_sizes={:#x} "
+                                  "ccb_addrs={:#x} ccb_sizes={:#x}",
+                                  count, a[1], a[2], a[3], a[4]);
                         return 0x80d11000u;
-                    std::vector<std::vector<u32>> dcbs(count), ccbs(count);
-                    std::vector<u32*> dp(count), cp(count);
-                    std::vector<u32> ds(count), cs(count);
-                    std::vector<VAddr> source_addresses(count);
+                    }
+                    std::vector<std::vector<u32>> dcbs, ccbs;
+                    std::vector<u32> ds, cs;
+                    std::vector<VAddr> source_addresses;
                     for (u32 i = 0; i < count; ++i) {
-                        ds[i] = Read<u32>(space, a[2] + i * 4);
-                        cs[i] = a[4] ? Read<u32>(space, a[4] + i * 4) : 0;
-                        if (!ds[i] || ds[i] > 0x3ffffc || cs[i] > 0x3ffffc || ((ds[i] | cs[i]) & 3))
+                        const u32 dcb_size = Read<u32>(space, a[2] + u64(i) * 4);
+                        const u32 ccb_size = a[4] ? Read<u32>(space, a[4] + u64(i) * 4) : 0;
+                        if (!dcb_size || dcb_size > 0x3ffffc || ccb_size > 0x3ffffc ||
+                            ((dcb_size | ccb_size) & 3)) {
+                            LOG_ERROR(Lib_GnmDriver, "submit rejected: buffer {} of {} dcb={} ccb={} bytes",
+                                      i, count, dcb_size, ccb_size);
                             return 0x80d11000u;
-                        dcbs[i].resize(ds[i] / 4);
-                        ccbs[i].resize(cs[i] / 4);
-                        source_addresses[i] = Read<u64>(space, a[1] + i * 8);
+                        }
+                        const VAddr dcb_address = Read<u64>(space, a[1] + u64(i) * 8);
+                        auto& dcb = dcbs.emplace_back(dcb_size / 4);
+                        auto& ccb = ccbs.emplace_back(ccb_size / 4);
+                        ds.push_back(dcb_size);
+                        cs.push_back(ccb_size);
+                        source_addresses.push_back(dcb_address);
                         {
                             auto pin = AcquireGraphicsByteBuffer(
-                                space, {GuestAddress{source_addresses[i]}, ds[i]}, false);
-                            if (!pin) return 0x80d11000u;
-                            std::memcpy(dcbs[i].data(), pin.Value().Bytes().data(), ds[i]);
+                                space, {GuestAddress{dcb_address}, dcb_size}, false);
+                            if (!pin) {
+                                LOG_ERROR(Lib_GnmDriver, "submit rejected: dcb {} at {:#x} ({} bytes) not readable",
+                                          i, dcb_address, dcb_size);
+                                return 0x80d11000u;
+                            }
+                            std::memcpy(dcb.data(), pin.Value().Bytes().data(), dcb_size);
                         }
-                        if (cs[i]) {
+                        if (ccb_size) {
                             auto pin = AcquireGraphicsByteBuffer(
-                                space, {GuestAddress{Read<u64>(space, a[3] + i * 8)}, cs[i]},
+                                space, {GuestAddress{Read<u64>(space, a[3] + u64(i) * 8)}, ccb_size},
                                 false);
-                            if (!pin) return 0x80d11000u;
-                            std::memcpy(ccbs[i].data(), pin.Value().Bytes().data(), cs[i]);
+                            if (!pin) {
+                                LOG_ERROR(Lib_GnmDriver, "submit rejected: ccb {} ({} bytes) not readable", i, ccb_size);
+                                return 0x80d11000u;
+                            }
+                            std::memcpy(ccb.data(), pin.Value().Bytes().data(), ccb_size);
                         }
+                    }
+                    std::vector<u32*> dp(count), cp(count);
+                    for (u32 i = 0; i < count; ++i) {
                         dp[i] = dcbs[i].data();
                         cp[i] = ccbs[i].data();
                     }
@@ -436,8 +461,10 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     // their guest VA; VM mutations drain GPU work before changing backing.
                     GnmDriver::ScopedSubmitSources source_scope{source_addresses};
                     if (flip) {
-                        if (ds.back() < 256 || dcbs.back()[dcbs.back().size() - 64] != 0xc03e1000)
+                        if (ds.back() < 256 || dcbs.back()[dcbs.back().size() - 64] != 0xc03e1000) {
+                            LOG_ERROR(Lib_GnmDriver, "submit and flip rejected: no flip request in the last dcb");
                             return 0x80d11000u;
+                        }
                         const u32 flip_result = u32(GnmDriver::sceGnmSubmitAndFlipCommandBuffers(
                             count, dp.data(), ds.data(), a[3] ? cp.data() : nullptr,
                             a[4] ? cs.data() : nullptr, a[5], a[6], a[7], a[8]));

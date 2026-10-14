@@ -8,6 +8,14 @@
 #include "common/logging/log.h"
 #include "common/path_util.h"
 #include "core/diagnostics/overlay_control.h"
+#include "core/emulator_settings.h"
+#include "core/game_options.h"
+#include "video_core/renderer_vulkan/vk_pipeline_stats.h"
+#ifdef __ANDROID__
+#include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
+#else
+#include "video_core/renderer_vulkan/vk_presenter.h"
+#endif
 #include "imgui/renderer/imgui_core.h"
 #include "spatial/imgui/VulkanRenderer.hpp"
 #include "imgui/status_overlay.h"
@@ -15,10 +23,31 @@
 #include "imgui/window_chrome.h"
 #endif
 
+#ifndef __ANDROID__
+extern std::unique_ptr<Vulkan::Presenter> presenter;
+#endif
+
 namespace ImGui {
 namespace ov = spatial::imgui::overlay;
 namespace si = spatial::imgui;
 namespace diag = ::Core::Diagnostics;
+namespace game_options = ::Core::GameOptions;
+namespace {
+// Shader compilation choices, in the profile's spelling (vulkan.pipeline_compile_mode).
+constexpr std::array<std::pair<const char*, const char*>, 3> kCompileModes{{
+    {"sync", "Wait"}, {"async_accurate", "Background"}, {"async_graphics_skip", "Skip until ready"}}};
+#ifdef __ANDROID__
+// gpu.screen_upscaler, and gpu.xr_upscale_sharpness (the 2D screen shares the XR sharpness key).
+constexpr std::array<std::pair<const char*, const char*>, 3> kUpscalers{{
+    {"off", "Off (bilinear)"}, {"fsr1", "AMD FSR 1"}, {"sgsr1", "Qualcomm SGSR 1"}}};
+constexpr std::array<u32, 5> kSharpness{0, 25, 50, 75, 100};
+#else
+// gpu.rcas_attenuation in thousandths: lower is sharper.
+constexpr std::array<std::pair<int, const char*>, 5> kRcasAttenuation{{
+    {0, "Strongest (0.0)"}, {250, "Strong (0.25)"}, {500, "Medium (0.5)"}, {1000, "Light (1.0)"},
+    {2000, "Lightest (2.0)"}}};
+#endif
+} // namespace
 StatusOverlay::StatusOverlay() : owner(diag::StatusOverlayMailbox().Begin()) {}
 StatusOverlay::~StatusOverlay() {
     diag::StatusOverlayMailbox().End(owner);
@@ -308,8 +337,157 @@ void StatusOverlay::Controls() {
     if (rows != hud.controls.end())
         hud.controls.insert(std::next(rows), toggle(std::string(ov::perf_hud::kShowPrefix) + "fps",
                                                   "FPS", perf_hud.shows(spatial::perf::PerfMetric::Fps)));
-    snapshot.controls.pages = {std::move(page), std::move(hud)};
-    snapshot.controls.initial_page = ov::StableId("overlay");
+    snapshot.controls.pages = {GameControls(), std::move(page), std::move(hud)};
+    snapshot.controls.initial_page = ov::StableId("game");
+}
+ov::ControlPage StatusOverlay::GameControls() {
+    ov::ControlPage page;
+    page.id = ov::StableId("game");
+    page.title = ov::LocalizedText("Game");
+    // Choice rows whose option ids are the values the per-game profile stores.
+    auto choice = [&](const char* id, const char* label, const char* description,
+                      const std::string& selected,
+                      const std::vector<std::pair<std::string, std::string>>& options) {
+        ov::ControlDescriptor c;
+        c.id = ov::StableId(id);
+        c.label = ov::LocalizedText(label);
+        c.description = ov::LocalizedText(description);
+        c.kind = ov::ControlKind::Choice;
+        c.selected_option = ov::StableId(selected);
+        for (const auto& [value, name] : options)
+            c.options.push_back({ov::StableId(value), ov::LocalizedText(name)});
+        page.controls.push_back(std::move(c));
+    };
+    std::vector<std::pair<std::string, std::string>> limits;
+    for (const u32 fps : game_options::FrameLimits)
+        limits.emplace_back(game_options::FrameLimitName(fps),
+                            fps ? std::to_string(fps) + " FPS" : std::string("Off"));
+    choice("game.frame_limit", "Frame limit",
+           "Presents at most this many frames a second; the game slows to match. Saved for "
+           "this game.",
+           game_options::FrameLimitName(game_options::FrameLimit()), limits);
+    std::vector<std::pair<std::string, std::string>> modes;
+    for (const auto& [value, name] : kCompileModes)
+        modes.emplace_back(value, name);
+    choice("game.compile_mode", "Shader compilation",
+           "For pipelines built from now on. Skip until ready can leave objects missing for a "
+           "few frames. Saved for this game.",
+           Vulkan::PipelineStats::CompileModeName(Vulkan::PipelineStats::ConfiguredCompileMode()),
+           modes);
+#ifdef __ANDROID__
+    const auto spatial = Vulkan::HostPasses::GetSpatialOptions();
+    std::vector<std::pair<std::string, std::string>> upscalers;
+    for (const auto& [value, name] : kUpscalers)
+        upscalers.emplace_back(value, name);
+    choice("game.screen_upscaler", "Screen upscaler",
+           "Reconstructs the game image at the screen size when Render Scale is below it. "
+           "Saved for this game.",
+           kUpscalers[std::min<std::size_t>(std::size_t(spatial.filter), kUpscalers.size() - 1)]
+               .first,
+           upscalers);
+    std::vector<std::pair<std::string, std::string>> sharpness;
+    u32 nearest = kSharpness[0];
+    for (const u32 value : kSharpness) {
+        sharpness.emplace_back(std::to_string(value), std::to_string(value));
+        if (std::abs(int(value) - int(spatial.sharpness)) <
+            std::abs(int(nearest) - int(spatial.sharpness)))
+            nearest = value;
+    }
+    choice("game.sharpness", "Upscaler sharpness", "FSR 1 / SGSR 1 only. Saved for this game.",
+           std::to_string(nearest), sharpness);
+#else
+    if (presenter) {
+        const auto& fsr = presenter->GetFsrSettingsRef();
+        auto toggle = [&](const char* id, const char* label, const char* description, bool value) {
+            ov::ControlDescriptor c;
+            c.id = ov::StableId(id);
+            c.action = ov::StableId(id);
+            c.kind = ov::ControlKind::Toggle;
+            c.label = ov::LocalizedText(label);
+            c.description = ov::LocalizedText(description);
+            c.bool_value = value;
+            page.controls.push_back(std::move(c));
+        };
+        toggle("game.fsr", "FSR", "AMD FSR 1 to the window size. Saved for this game.",
+               fsr.enable);
+        toggle("game.rcas", "RCAS sharpening", "Sharpens after FSR. Saved for this game.",
+               fsr.use_rcas);
+        std::vector<std::pair<std::string, std::string>> attenuation;
+        int nearest = kRcasAttenuation[0].first;
+        const int current = int(std::lround(fsr.rcas_attenuation * 1000.f));
+        for (const auto& [value, name] : kRcasAttenuation) {
+            attenuation.emplace_back(std::to_string(value), name);
+            if (std::abs(value - current) < std::abs(nearest - current))
+                nearest = value;
+        }
+        choice("game.rcas_attenuation", "Sharpening strength", "Saved for this game.",
+               std::to_string(nearest), attenuation);
+    }
+#endif
+    return page;
+}
+bool StatusOverlay::ApplyGameControl(const ov::OverlayCommand& command) {
+    const std::string id = command.control.value();
+    if (!id.starts_with("game."))
+        return false;
+    const auto* choice = std::get_if<ov::StableId>(&command.value);
+    if (id == "game.frame_limit" && choice) {
+        const u32 fps = game_options::ParseFrameLimit(choice->value());
+        if (game_options::FrameLimitName(fps) != choice->value())
+            return true;
+        game_options::SetFrameLimit(fps);
+        EmulatorSettings.SetFrameLimit(fps);
+        game_options::Save("gpu.frame_limit", choice->value());
+    } else if (id == "game.compile_mode" && choice) {
+        for (const auto& [value, name] : kCompileModes) {
+            if (choice->value() != value)
+                continue;
+            EmulatorSettings.SetPipelineCompileMode(value);
+            Vulkan::PipelineStats::LatchConfiguredCompileMode();
+            game_options::Save("vulkan.pipeline_compile_mode", value);
+        }
+    }
+#ifdef __ANDROID__
+    else if (id == "game.screen_upscaler" && choice) {
+        for (std::size_t i = 0; i < kUpscalers.size(); ++i) {
+            if (choice->value() != kUpscalers[i].first)
+                continue;
+            auto options = Vulkan::HostPasses::GetSpatialOptions();
+            options.filter = Vulkan::HostPasses::SpatialFilter(i);
+            Vulkan::HostPasses::SetSpatialOptions(options);
+            game_options::Save("gpu.screen_upscaler", kUpscalers[i].first);
+        }
+    } else if (id == "game.sharpness" && choice) {
+        for (const u32 value : kSharpness) {
+            if (choice->value() != std::to_string(value))
+                continue;
+            auto options = Vulkan::HostPasses::GetSpatialOptions();
+            options.sharpness = value;
+            Vulkan::HostPasses::SetSpatialOptions(options);
+            game_options::Save("gpu.xr_upscale_sharpness", choice->value());
+        }
+    }
+#else
+    else if (presenter) {
+        auto& fsr = presenter->GetFsrSettingsRef();
+        const auto* toggled = std::get_if<bool>(&command.value);
+        if (id == "game.fsr" && toggled) {
+            fsr.enable = *toggled;
+            game_options::Save("gpu.fsr_enabled", *toggled ? "true" : "false");
+        } else if (id == "game.rcas" && toggled) {
+            fsr.use_rcas = *toggled;
+            game_options::Save("gpu.rcas_enabled", *toggled ? "true" : "false");
+        } else if (id == "game.rcas_attenuation" && choice) {
+            for (const auto& [value, name] : kRcasAttenuation) {
+                if (choice->value() != std::to_string(value))
+                    continue;
+                fsr.rcas_attenuation = float(value) / 1000.f;
+                game_options::Save("gpu.rcas_attenuation", choice->value());
+            }
+        }
+    }
+#endif
+    return true;
 }
 void StatusOverlay::Prepare(ov::StatusSnapshot status) {
     snapshot.status = std::move(status);
@@ -389,6 +567,8 @@ void StatusOverlay::ApplyCommands() {
         else if (command.kind == ov::OverlayCommandKind::CopyToClipboard)
             SetClipboardText(command.text.c_str());
         else if (command.kind == ov::OverlayCommandKind::ControlChanged) {
+            if (ApplyGameControl(command))
+                continue;
             // The HUD page's layout choice is controller state; its other rows are settings.
             const auto hud = ov::applyPerfHudControl(command, perf_hud);
             if (hud.handled) {

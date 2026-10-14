@@ -69,6 +69,9 @@ public:
         ImageInfo info;
         ImageViewInfo view_info;
         BindingType type{BindingType::Texture};
+        // A storage write that may follow the image's render scale (see
+        // Rasterizer::ScalableStorageWrite); FindImage keeps the scale plan of such an image.
+        bool scalable_write{};
 
         ImageDesc() = default;
         ImageDesc(const AmdGpu::Image& image, const Shader::ImageResource& desc)
@@ -245,6 +248,12 @@ public:
     /// Creates a new image with provided image info and copies subresources from image_id
     [[nodiscard]] ImageId ExpandImage(const ImageInfo& info, ImageId image_id);
 
+    /// A newly created image contains cached images the GPU wrote as single mips of it (e.g.
+    /// UE4 renders every face of mip 1 of a scratch cube before the cube is first sampled):
+    /// copies them in after the guest upload and frees them. Guest memory never received those
+    /// GPU writes. Returns the number of images adopted.
+    u32 AdoptGpuSubresources(ImageId image_id);
+
     std::shared_ptr<ResourceScalePlan> AcquireScalePlan(const ImageInfo& info, ScaleUse use);
     void RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
                               bool scaled, bool began_rendering, bool resumed);
@@ -304,6 +313,14 @@ public:
         image.last_write_kind = static_cast<u8>(kind);
         image.last_writer = UploadDiagnostics::current_action.load(std::memory_order_relaxed);
     }
+
+    /// A color target of at most TinyTargetPixels pixels was bound for rendering: queues its
+    /// write-back unless it is rendered every submit (see UploadDiagnostics::tiny_writeback).
+    void NoteTinyTargetWrite(ImageId image_id, Image& image);
+    /// `upload_diag tiny_writeback dump`: keeps the last image lookups, uploads and draws; the
+    /// record is printed when a single-row tiny target (an SH map) is first written back.
+    void TinyTrace(std::string entry);
+    void DumpTinyTrace(VAddr trigger);
 
     /// Retrieves the sampler that matches the provided S# descriptor.
     [[nodiscard]] vk::Sampler GetSampler(const AmdGpu::Sampler& sampler,
@@ -488,6 +505,12 @@ private:
     /// NaN and zero words, to tell never-drawn backings from drawn NaN content.
     void DescribeRetiredImage(ImageId image_id, const ImageInfo& next);
 
+public:
+    /// `upload_diag image_stats`: downloads the first level and logs per-layer channel stats.
+    void LogImageStats(ImageId image_id);
+
+private:
+
     /// Thread function for copying downloaded images out to CPU memory.
     void DownloadedImagesThread(const std::stop_token& token);
 
@@ -604,6 +627,10 @@ private:
     std::mutex mutex;
     std::mutex samplers_mutex;
     std::mutex download_images_mutex;
+    std::mutex tiny_trace_mutex;
+    std::vector<std::string> tiny_trace;
+    size_t tiny_trace_next{};
+    u32 tiny_trace_dumps{};
     struct ParkedImage {
         ImageId id;
         u64 tick;

@@ -917,6 +917,8 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/address_space.cpp
          src/core/address_space.h
          src/core/guest_read_cache.h
+         src/core/crypto/aes_xts.cpp
+         src/core/crypto/aes_xts.h
          src/core/crypto/crypto.cpp
          src/core/crypto/crypto.h
          src/core/crypto/keys.h
@@ -1043,6 +1045,8 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/emulator_state.h
          src/core/emulator_settings.cpp
          src/core/emulator_settings.h
+         src/core/game_options.cpp
+         src/core/game_options.h
          src/core/user_manager.cpp
          src/core/user_manager.h
          src/core/user_settings.cpp
@@ -2125,6 +2129,10 @@ if(BUILD_HOST_CORE)
         target_include_directories(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_dependencies(guest_gnm_fastpath_tests guest_gnm_payload)
+        add_executable(pkg_reader_tests tests/host_runtime/pkg_reader_tests.cpp)
+        target_link_libraries(pkg_reader_tests PRIVATE shadps4_host)
+        target_include_directories(pkg_reader_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(pkg_reader_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(thread_priority_tests tests/host_runtime/thread_priority_tests.cpp)
         target_link_libraries(thread_priority_tests PRIVATE shadps4_host)
         target_include_directories(thread_priority_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

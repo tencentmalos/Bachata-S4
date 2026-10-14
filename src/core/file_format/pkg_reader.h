@@ -30,6 +30,9 @@ public:
     };
 
     static std::shared_ptr<PkgReader> Open(const std::filesystem::path& path);
+    // A separate, uncached reader that decrypts one 4 KiB sector at a time with
+    // LibreSSL and serializes reads: the original behavior, for comparisons in tests.
+    static std::shared_ptr<PkgReader> OpenReference(const std::filesystem::path& path);
     ~PkgReader();
     const std::vector<Entry>& Entries() const;
     size_t Find(std::string_view path) const;
@@ -39,7 +42,7 @@ public:
 
 private:
     struct Impl;
-    explicit PkgReader(const std::filesystem::path& path);
+    PkgReader(const std::filesystem::path& path, bool reference = false);
     std::unique_ptr<Impl> impl;
 };
 

@@ -1,0 +1,104 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "kh3_cpu_waits_01_10",
+  "name": "Sleep instead of spinning",
+  "description": "KH3 (APP_VER 01.00, VERSION 01.10): the render thread sleeps while it waits for GPU query results, and the game thread sleeps through the frame-rate cap instead of yielding in a loop. Same frames, less CPU.",
+  "title": "CUSA15072",
+  "module": "eboot.bin",
+  "module_signatures": [
+    {
+      "offset": 3804432,
+      "hex": "554889e54157415641554154534883ec184989f74989fde8f48a3a07488945d0e8eb8a3a0741803f000f850a020000",
+      "evidence": "eboot+0x3a0d10: entry of the GnmRHI query wait loop (prologue, two sceKernelGetProcessTimeCounter calls, cmp byte [r15],0)."
+    },
+    {
+      "offset": 3804856,
+      "hex": "e863893a07c4e1f96ec0c5f9620556a14307c5f95c055ea14307c5f97cc0c5fb59051a57360ac5fb5c45c8c5f92e45c00f87bb00000041803f000f8478feffff",
+      "evidence": "eboot+0x3a0eb8: the query loop's timeout check (process time counter to seconds, compare, ja to the timeout exit) and its back edge at eboot+0x3a0eee."
+    },
+    {
+      "offset": 3757520,
+      "hex": "554889e54157415641554154534883ec184c8b25084b360a4989f64189cf",
+      "evidence": "eboot+0x3955d0: GnmRHI RHIGetRenderQueryResult (the only caller of the query wait loop, twice)."
+    },
+    {
+      "offset": 98099136,
+      "hex": "554889e54157415641554154534883ec384c8b2d18c196044989fe498b4500488945d08a05ffe41e0684c07552488d3d",
+      "evidence": "eboot+0x5d8dfc0: entry of UEngine::UpdateTimeAndHandleMaxTickRate (UnrealEngine.cpp lines 1534/1634 in its log calls)."
+    },
+    {
+      "offset": 98099946,
+      "hex": "e881c89b01e82cb59b01c4e1f96ec0c5f962057f7db501c5f95c05877db501c5f97cc0c5fb5905e3829704c5f92e45c072ce",
+      "evidence": "eboot+0x5d8e2ea: the tick-rate wait loop: call scePthreadYield; call sceKernelGetProcessTimeCounter; convert, times the seconds-per-cycle global; compare with [rbp-0x40]; jb back to the yield."
+    }
+  ],
+  "sources": [
+    "../query_wait.cpp",
+    "../tick_wait.cpp"
+  ],
+  "bindings": [
+    {
+      "name": "kh3_sceKernelUsleep",
+      "kind": "function",
+      "offset": 125082080,
+      "expected": "ff25c208fb02",
+      "prototype": "int kh3_sceKernelUsleep(unsigned int microseconds)",
+      "evidence": "eboot+0x77499e0: PLT entry of the eboot's sceKernelUsleep import (jmp [rip+disp] through its GOT slot)."
+    },
+    {
+      "name": "kh3_scePthreadYield",
+      "kind": "function",
+      "offset": 125086576,
+      "expected": "ff25fafffa02",
+      "prototype": "void kh3_scePthreadYield(void)",
+      "evidence": "eboot+0x774ab70: PLT entry of the eboot's scePthreadYield import, the call the tick-rate loop makes."
+    },
+    {
+      "name": "kh3_sceKernelGetProcessTimeCounter",
+      "kind": "function",
+      "offset": 125081632,
+      "expected": "ff25a209fb02",
+      "prototype": "shad_u64 kh3_sceKernelGetProcessTimeCounter(void)",
+      "evidence": "eboot+0x7749820: PLT entry of the eboot's sceKernelGetProcessTimeCounter import, the clock the tick-rate loop compares."
+    },
+    {
+      "name": "kh3_seconds_per_cycle",
+      "kind": "data",
+      "offset": 175138296,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "double",
+      "evidence": "eboot+0xa7065f8: double the tick-rate code multiplies the process time counter by (vmulsd ... cs:qword_A7065F8 after the u64-to-double conversion) to get seconds, as for [rbp-0x40]."
+    }
+  ],
+  "sites": [
+    {
+      "name": "query_wait_back_edge",
+      "offset": 3804910,
+      "expected": "41803f000f8478feffff",
+      "mode": "before",
+      "handler": "kh3_query_wait_sleep",
+      "evidence": "eboot+0x3a0eee in the query wait loop eboot+0x3a0d10: cmp byte [r15],0; jz eboot+0x3a0d70 (loop head). r15 is the caller's result flag, written at eboot+0x3a0ea3 (or 0x3a0fa0) in this round. Reached only by falling through the timeout check at eboot+0x3a0ee8; neither instruction is a branch target."
+    },
+    {
+      "name": "tick_wait_round",
+      "offset": 98099946,
+      "expected": "e881c89b01",
+      "mode": "replace",
+      "handler": "kh3_tick_wait_round",
+      "evidence": "eboot+0x5d8e2ea in UEngine::UpdateTimeAndHandleMaxTickRate: call scePthreadYield (5 bytes), the body of the wait loop that ends at eboot+0x5d8e31a (jb back here while the process time is below the end time at rbp-0x40). Branches into it (jz at eboot+0x5d8e1f4, jb at eboot+0x5d8e31a) land on its first byte. The yield's result is unused; rax is overwritten by the next call."
+    }
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "query_sleeps"
+    },
+    {
+      "id": 2,
+      "name": "tick_sleeps"
+    }
+  ]
+}

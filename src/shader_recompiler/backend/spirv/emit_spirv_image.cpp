@@ -20,6 +20,16 @@ bool SupportsScale(const EmitContext& ctx, u32 handle) {
          texture.view_type == AmdGpu::ImageType::Cube);
 }
 
+// A compute shader's plain store to a 2D storage image: the runtime may keep that image at the
+// render scale (Vulkan::ScalableStorageWrite) and say so through the binding's scale code.
+bool SupportsScaledStorage(const EmitContext& ctx, u32 handle) {
+    const auto& texture = ctx.images[handle & 0xffff];
+    return ctx.profile.internal_scale && texture.is_storage &&
+           ctx.info.sw_stage == SwStage::Compute && !ctx.info.images[handle & 0xffff].is_atomic &&
+           texture.scale_binding < PushData::MaxScaledBinding &&
+           texture.view_type == AmdGpu::ImageType::Color2D;
+}
+
 Id SharpWord(EmitContext& ctx, u32 handle, u32 word) {
     const auto& fetch = ctx.info.images[handle & 0xffff].sharp_fetch;
     if ((fetch.load_mask & (1u << word)) && fetch.offsets[word] != UNKNOWN_LOCATION)
@@ -40,6 +50,29 @@ Id GuestDimensions(EmitContext& ctx, u32 handle, Id lod) {
                          ctx.OpShiftRightLogical(ctx.U32[1], size, level));
     };
     return ctx.OpCompositeConstruct(ctx.U32[2], dimension(0), dimension(14));
+}
+
+// Guest texel coordinates of a scaled storage image on its host extent, the mapping the
+// sampled reads use: host = floor((guest + 0.5) * host_size / guest_size). A dispatch over the
+// guest grid then writes every host texel; out-of-range coordinates stay out of range.
+Id ScaleStorageCoords(EmitContext& ctx, u32 handle, Id image, Id coords) {
+    const Id scaled = ctx.OpINotEqual(ctx.U1[1],
+        ctx.ImageScaleCode(ctx.images[handle & 0xffff].scale_binding), ctx.u32_zero_value);
+    const Id guest_size = GuestDimensions(ctx, handle, ctx.u32_zero_value);
+    const Id host_size = ctx.OpImageQuerySize(ctx.U32[2], image);
+    const auto coordinate = [&](u32 component) {
+        const Id original = ctx.OpCompositeExtract(ctx.U32[1], coords, component);
+        const Id guest = ctx.OpConvertUToF(ctx.F32[1],
+            ctx.OpCompositeExtract(ctx.U32[1], guest_size, component));
+        const Id host = ctx.OpConvertUToF(ctx.F32[1],
+            ctx.OpCompositeExtract(ctx.U32[1], host_size, component));
+        const Id value = ctx.OpConvertSToF(ctx.F32[1], ctx.OpBitcast(ctx.S32[1], original));
+        const Id mapped = ctx.OpConvertFToS(ctx.S32[1], ctx.OpFloor(ctx.F32[1],
+            ctx.OpFMul(ctx.F32[1], ctx.OpFAdd(ctx.F32[1], value, ctx.ConstF32(0.5f)),
+                       ctx.OpFDiv(ctx.F32[1], host, guest))));
+        return ctx.OpSelect(ctx.U32[1], scaled, ctx.OpBitcast(ctx.U32[1], mapped), original);
+    };
+    return ctx.OpCompositeConstruct(ctx.U32[2], coordinate(0), coordinate(1));
 }
 
 // The texel offset as a normalized-coordinate delta at guest `level` (see
@@ -469,8 +502,8 @@ Id EmitImageQueryDimensions(EmitContext& ctx, IR::Inst* inst, u32 handle, Id lod
         UNREACHABLE_MSG("SPIR-V Instruction");
     }
     }();
-    if (!SupportsScale(ctx, handle)) return original;
-    const Id sizes = GuestDimensions(ctx, handle, lod);
+    if (!SupportsScale(ctx, handle) && !SupportsScaledStorage(ctx, handle)) return original;
+    const Id sizes = GuestDimensions(ctx, handle, Sirit::ValidId(lod) ? lod : zero);
     const Id levels = SharpWord(ctx, handle, 3);
     const Id base = ctx.OpBitFieldUExtract(ctx.U32[1], levels, ctx.ConstU32(12u), ctx.ConstU32(4u));
     const Id last = ctx.OpBitFieldUExtract(ctx.U32[1], levels, ctx.ConstU32(16u), ctx.ConstU32(4u));
@@ -583,6 +616,9 @@ Id EmitImageRead(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id lod
 #endif
         }
         const Id image = ctx.OpLoad(texture.image_type, image_ptr);
+        if (SupportsScaledStorage(ctx, handle)) {
+            coords = ScaleStorageCoords(ctx, handle, image, coords);
+        }
         if (!ctx.profile.force_disable_msaa && Sirit::ValidId(ms)) {
             operands.Add(spv::ImageOperandsMask::Sample,
                          ctx.OpUMod(ctx.U32[1], ms, ctx.OpImageQuerySamples(ctx.U32[1], image)));
@@ -611,7 +647,10 @@ void EmitImageWrite(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id 
     }
     const Id image = ctx.OpLoad(texture.image_type, image_ptr);
     const Id texel = texture.is_integer ? ctx.OpBitcast(color_type, color) : color;
-    ctx.OpImageWrite(image, fixed_coords, texel, operands.mask, operands.operands);
+    const Id host_coords = SupportsScaledStorage(ctx, handle)
+                               ? ScaleStorageCoords(ctx, handle, image, fixed_coords)
+                               : fixed_coords;
+    ctx.OpImageWrite(image, host_coords, texel, operands.mask, operands.operands);
 }
 
 static Id SelectCubeResult(EmitContext& ctx, Id x, Id y, Id z, Id x_res, Id y_res, Id z_res) {

@@ -44,6 +44,8 @@ object NativeFexSession {
     external fun nativeSetPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetDriverPipelineCacheEnabled(enabled: Boolean)
     external fun nativeSetPipelineCompileMode(mode: Int)
+    /** Most guest frames presented a second; 0 = the game's own rate. */
+    external fun nativeSetFrameLimit(fps: Int)
     external fun nativeSetCommandRecorder(enabled: Boolean)
     external fun nativeSetDirectMemoryAccess(enabled: Boolean)
     external fun nativeSetSilentDialogs(enabled: Boolean)

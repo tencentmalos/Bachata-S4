@@ -197,6 +197,11 @@ struct Image {
     bool InheritCopyPlan(Image& source, bool whole_image = false);
     const ResourceScalePlan& ScalePlan() const { return *scale_plan; }
     void MarkSampled() { scale_plan->sampled = true; }
+    // A plain compute store whose coordinates the shader maps onto the host extent: unlike
+    // ObserveUsage(Storage) it leaves the scale plan as it is (native until a render use).
+    void ObserveScalableStorage() {
+        scale_plan->history |= 1u << u32(ScaleUse::Storage);
+    }
     void MarkGpuWrite(bool storage = false) {
         scale_plan->origin = storage ? ScaleOrigin::Compute : ScaleOrigin::Render;
         ++scale_plan->content_version;
@@ -286,6 +291,11 @@ public:
     // guest memory under the image is written through the buffer path after the image's last
     // write: the memory is then newer and the image must not be tiled over it.
     u64 write_epoch{};
+    // Tiny color targets (TextureCache::NoteTinyTargetWrite): the submit (gc tick) and time of
+    // the last render, and how many submits in a row rendered it.
+    u64 tiny_write_tick{~u64{0}};
+    s64 tiny_write_ns{};
+    u32 tiny_streak{};
     u64 buffer_synced_version{~u64{0}};
     bool buffer_overwritten{};
     void NoteWrite() {

@@ -34,6 +34,10 @@ private:
     void Save();
     void ApplyCommands();
     void Controls();
+    // Per-game settings that apply at once (frame limit, upscaling, shader compilation).
+    spatial::imgui::overlay::ControlPage GameControls();
+    // True for the Game page's commands (applied and saved, or ignored as invalid).
+    bool ApplyGameControl(const spatial::imgui::overlay::OverlayCommand& command);
     // Ends the touch that ImGui follows; for the desktop mouse only the button is released.
     void ReleasePointer();
     spatial::imgui::overlay::OverlayShell shell;

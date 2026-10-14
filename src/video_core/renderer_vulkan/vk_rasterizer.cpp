@@ -10,7 +10,16 @@
 #include <chrono>
 #include <cstring>
 #include <cmath>
+#include <ctime>
+#include <thread>
+#include <unordered_set>
+#include <numeric>
+#include <ranges>
+#include <string>
 #include <xxhash.h>
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
 
 #include "common/debug.h"
 #include "video_core/renderdoc.h"
@@ -55,6 +64,268 @@ struct StreamReadScope {
     StreamReadScope& operator=(const StreamReadScope&) = delete;
     VideoCore::BufferCache& cache;
 };
+
+/// Diagnostic allow-list (SHADPS4_SCALED_STORAGE_SHADERS / debug.shadps4.scaled_storage_shaders,
+/// comma-separated hex program hashes): when set, only these compute shaders scale their stores.
+const std::vector<u64>& ScaledStorageShaders() {
+    static const std::vector<u64> list = [] {
+        std::string text;
+        if (const char* value = std::getenv("SHADPS4_SCALED_STORAGE_SHADERS")) text = value;
+#ifdef __ANDROID__
+        char prop[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.scaled_storage_shaders", prop) > 0) text = prop;
+#endif
+        std::vector<u64> hashes;
+        for (const auto part : std::views::split(text, ',')) {
+            std::string item(part.begin(), part.end());
+            if (item.starts_with("0x")) item = item.substr(2);
+            if (!item.empty()) hashes.push_back(std::strtoull(item.c_str(), nullptr, 16));
+        }
+        if (!hashes.empty())
+            LOG_INFO(Render_Vulkan, "Scaled storage stores limited to {} shader(s)", hashes.size());
+        return hashes;
+    }();
+    return list;
+}
+
+/// A compute shader's plain store to a single-level 2D colour image may follow the image's
+/// render scale instead of pinning it native. The dispatch keeps the guest grid; the backend
+/// maps every store coordinate onto the host extent (EmitImageWrite), so each host texel is
+/// written by the guest threads that cover it. Mirrors the backend's SupportsScaledStorage;
+/// the texture cache additionally requires the bound view to be the whole image.
+bool ScalableStorageWrite(const Shader::Info& stage, const Shader::ImageResource& resource,
+                          const AmdGpu::Image& sharp, u32 descriptor) {
+    if (const auto& only = ScaledStorageShaders();
+        !only.empty() && std::ranges::find(only, stage.pgm_hash) == only.end())
+        return false;
+    return stage.sw_stage == Shader::SwStage::Compute && resource.is_written &&
+           !resource.is_atomic && !resource.requires_native_scale &&
+           resource.post_op == Shader::SharpFetchPostOp::None &&
+           descriptor < Shader::PushData::MaxScaledBinding &&
+           sharp.GetViewType(resource.is_array) == AmdGpu::ImageType::Color2D &&
+           sharp.base_level == 0 && sharp.NumViewLevels(resource.is_array) == 1 &&
+           !AmdGpu::IsInteger(sharp.GetNumberFmt());
+}
+/// `upload_diag frame_shape on`: one log line per guest frame (flip epoch) with the draws and
+/// dispatches the renderer issued and an order-sensitive hash of their kinds, shaders and
+/// primitive types; a frame whose hash differs from both neighbours while those two agree (a
+/// one-frame anomaly such as a flicker) also gets its differences from the previous frame
+/// logged. Called on the GPU command thread only.
+namespace FrameShape {
+enum Kind : u32 { Draw = 0, Dispatch = 1, Dropped = 2, Replaced = 3 };
+struct Action {
+    u64 a{}, b{}; // vs/ps, or cs/0
+    u64 rt0{};
+    u32 kind{}, prim{}, count{}, instances{};
+    float xscale{}, xoffset{}, yscale{}, yoffset{};
+    u32 scissor_w{}, scissor_h{};
+    bool SameShape(const Action& o) const {
+        return kind == o.kind && a == o.a && b == o.b && prim == o.prim;
+    }
+};
+struct Frame {
+    u64 epoch{~u64{0}};
+    u64 end_us{};
+    u64 hash{};
+    u32 draws{}, dispatches{}, dropped{}, replaced{}, rect{}, passes{};
+    u64 indices{};
+    std::vector<Action> actions;
+};
+std::array<Frame, 3> frames;
+u32 newest{};
+u32 dumps{};
+
+u64 NowUs() {
+    timespec ts{};
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return u64(ts.tv_sec) * 1000000 + u64(ts.tv_nsec) / 1000;
+}
+
+std::string Describe(const Action& x) {
+    return fmt::format("k{} {:#x}/{:#x} prim={} n={}x{} rt0={:#x} vp={:g},{:g},{:g},{:g} sc={}x{}",
+                       x.kind, x.a, x.b, x.prim, x.count, x.instances, x.rt0, x.xscale, x.xoffset,
+                       x.yscale, x.yoffset, x.scissor_w, x.scissor_h);
+}
+
+void Close(Frame& f) {
+    f.end_us = NowUs();
+    LOG_INFO(Render_Vulkan,
+             "frame_shape epoch={} end_us={} hash={:#018x} draws={} dispatches={} rect={} "
+             "dropped={} replaced={} passes={} indices={}",
+             f.epoch, f.end_us, f.hash, f.draws, f.dispatches, f.rect, f.dropped, f.replaced,
+             f.passes, f.indices);
+}
+
+// `mid` is the frame before the newest one; `old` the one before it.
+void CheckAnomaly(const Frame& old, const Frame& mid, const Frame& now) {
+    if (old.epoch == ~u64{0} || mid.hash == old.hash || mid.hash == now.hash ||
+        old.hash != now.hash || dumps >= 64) {
+        return;
+    }
+    ++dumps;
+    LOG_INFO(Render_Vulkan, "frame_shape anomaly epoch={} end_us={} actions={} (neighbours {})",
+             mid.epoch, mid.end_us, mid.actions.size(), old.actions.size());
+    const size_t n = std::max(old.actions.size(), mid.actions.size());
+    u32 shown = 0;
+    for (size_t i = 0; i < n && shown < 48; ++i) {
+        const Action* p = i < old.actions.size() ? &old.actions[i] : nullptr;
+        const Action* q = i < mid.actions.size() ? &mid.actions[i] : nullptr;
+        if (p && q && p->SameShape(*q)) continue;
+        ++shown;
+        LOG_INFO(Render_Vulkan, "frame_shape diff #{} prev: {} | this: {}", i,
+                 p ? Describe(*p) : "-", q ? Describe(*q) : "-");
+    }
+}
+
+Frame& Current(u64 epoch) {
+    Frame& f = frames[newest];
+    if (f.epoch == epoch) return f;
+    if (f.epoch != ~u64{0}) {
+        Close(f);
+        CheckAnomaly(frames[(newest + 1) % 3], frames[(newest + 2) % 3], f);
+    }
+    newest = (newest + 1) % 3;
+    Frame& next = frames[newest];
+    next.epoch = epoch;
+    next.hash = 0xcbf29ce484222325ull;
+    next.draws = next.dispatches = next.dropped = next.replaced = next.rect = next.passes = 0;
+    next.indices = 0;
+    next.actions.clear();
+    return next;
+}
+
+void Record(u64 epoch, const AmdGpu::Regs& regs, Action x, bool began_pass = false) {
+    if (!VideoCore::UploadDiagnostics::frame_shape.load(std::memory_order_relaxed)) [[likely]]
+        return;
+    Frame& f = Current(epoch);
+    if (x.kind == Draw || x.kind == Dropped) {
+        x.prim = static_cast<u32>(regs.primitive_type);
+        x.rt0 = regs.color_buffers[0].Address();
+        x.xscale = regs.viewports[0].xscale;
+        x.xoffset = regs.viewports[0].xoffset;
+        x.yscale = regs.viewports[0].yscale;
+        x.yoffset = regs.viewports[0].yoffset;
+        x.scissor_w = regs.viewport_scissors[0].GetWidth();
+        x.scissor_h = regs.viewport_scissors[0].GetHeight();
+    }
+    for (const u64 v : {u64(x.kind), x.a, x.b, u64(x.prim)}) {
+        f.hash = (f.hash ^ v) * 0x100000001b3ull;
+    }
+    switch (x.kind) {
+    case Draw:
+        ++f.draws;
+        f.indices += x.count;
+        f.rect += regs.primitive_type == AmdGpu::PrimitiveType::RectList;
+        f.passes += began_pass;
+        break;
+    case Dispatch: ++f.dispatches; break;
+    case Dropped: ++f.dropped; break;
+    case Replaced: ++f.replaced; break;
+    }
+    f.actions.push_back(x);
+}
+
+std::pair<u64, u64> StageHashes(const Pipeline& pipeline) {
+    const auto stages = pipeline.GetStages();
+    const auto* vs = stages[u32(Shader::SwStage::Vertex)];
+    const auto* fs = stages[u32(Shader::SwStage::Fragment)];
+    return {vs ? vs->pgm_hash : 0, fs ? fs->pgm_hash : 0};
+}
+
+/// `upload_diag draw_pairs on`: logs every (VS, PS, primitive type) combination the first time
+/// a draw uses it after the switch, with the time on the CLOCK_MONOTONIC base of the capture
+/// recordings. A combination that shows up once on a flicker frame and never again points at a
+/// draw issued with the wrong pipeline.
+std::unordered_set<u64> pairs_seen;
+u64 pairs_enabled_us{};
+u32 pairs_logged{};
+void NotePair(u64 epoch, const AmdGpu::Regs& regs, u64 vs, u64 ps, u32 count) {
+    const u32 prim = static_cast<u32>(regs.primitive_type);
+    u64 key = 0xcbf29ce484222325ull;
+    for (const u64 v : {vs, ps, u64(prim)}) key = (key ^ v) * 0x100000001b3ull;
+    if (!pairs_seen.insert(key).second) return;
+    const u64 now = NowUs();
+    if (pairs_seen.size() == 1) pairs_enabled_us = now;
+    if (pairs_logged >= 4096) return;
+    ++pairs_logged;
+    LOG_INFO(Render_Vulkan,
+             "draw_pairs new #{} t={} (+{} ms) epoch={} vs={:#x} ps={:#x} prim={} n={} rt0={:#x} "
+             "vp={:g},{:g},{:g},{:g}",
+             pairs_seen.size(), now, (now - pairs_enabled_us) / 1000, epoch, vs, ps, prim, count,
+             regs.color_buffers[0].Address(), regs.viewports[0].xscale, regs.viewports[0].xoffset,
+             regs.viewports[0].yscale, regs.viewports[0].yoffset);
+}
+} // namespace FrameShape
+
+/// `upload_diag vb_watch on`: the vertex buffer V#s a draw binds are read straight from guest
+/// memory (Info::ReadUdReg). Each one is read again once the draw is recorded; a V# that changed
+/// meanwhile was being written by the guest while the GPU command thread used it. A V# whose
+/// base is not mapped guest memory is logged with two later re-reads and left unbound.
+namespace VbWatch {
+struct Entry {
+    VAddr addr{};
+    std::array<u32, 4> raw{};
+    u32 semantic{};
+};
+std::vector<Entry> entries;
+std::atomic<u32> changed_reports{}, invalid_reports{};
+std::atomic<u64> checked{}, changed{}, invalid{};
+
+std::array<u32, 4> Read(VAddr addr) {
+    std::array<u32, 4> raw{};
+    std::memcpy(raw.data(), reinterpret_cast<const void*>(addr), sizeof(raw));
+    return raw;
+}
+
+void Capture(const Pipeline& pipeline, const Shader::Gcn::FetchShaderData& fetch,
+             const Shader::Info& vs) {
+    entries.clear();
+    for (const auto& attrib : fetch.attributes) {
+        if (attrib.sgpr_base == Shader::IR::NumScalarRegs) continue;
+        u64 table{};
+        std::memcpy(&table, &vs.user_data[attrib.sgpr_base], sizeof(table));
+        table &= 0xFFFFFFFFFFFFULL;
+        const VAddr addr = table + attrib.dword_offset * 4u;
+        entries.push_back({addr, Read(addr), attrib.semantic});
+    }
+}
+
+std::string Hex(const std::array<u32, 4>& r) {
+    return fmt::format("{:08x} {:08x} {:08x} {:08x}", r[0], r[1], r[2], r[3]);
+}
+
+void Verify(u64 vs_hash, u64 ps_hash, u64 epoch) {
+    for (const auto& e : entries) {
+        checked.fetch_add(1, std::memory_order_relaxed);
+        const auto now = Read(e.addr);
+        if (now == e.raw) continue;
+        changed.fetch_add(1, std::memory_order_relaxed);
+        if (changed_reports.fetch_add(1, std::memory_order_relaxed) < 128)
+            LOG_WARNING(Render_Vulkan,
+                        "vb_watch: V# changed during draw epoch={} vs={:#x} ps={:#x} sem={} "
+                        "at {:#x}: bound [{}] now [{}]",
+                        epoch, vs_hash, ps_hash, e.semantic, e.addr, Hex(e.raw), Hex(now));
+    }
+    entries.clear();
+}
+
+void ReportInvalid(const AmdGpu::Buffer& buffer, u64 vs_hash, u64 epoch) {
+    invalid.fetch_add(1, std::memory_order_relaxed);
+    if (invalid_reports.fetch_add(1, std::memory_order_relaxed) >= 16) return;
+    std::string bound;
+    for (const auto& e : entries)
+        bound += fmt::format(" sem{}@{:#x}=[{}]", e.semantic, e.addr, Hex(e.raw));
+    LOG_WARNING(Render_Vulkan, "vb_watch: unmapped vertex buffer {:#x}+{:#x} epoch={} vs={:#x}:{}",
+                u64(buffer.base_address), buffer.GetSize(), epoch, vs_hash, bound);
+    for (const int ms : {2, 20}) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+        std::string later;
+        for (const auto& e : entries)
+            later += fmt::format(" sem{}=[{}]", e.semantic, Hex(Read(e.addr)));
+        LOG_WARNING(Render_Vulkan, "vb_watch: +{} ms re-read:{}", ms, later);
+    }
+}
+} // namespace VbWatch
 } // namespace
 
 static bool SkippedByShaderHash(const GraphicsPipeline& pipeline) {
@@ -426,6 +697,8 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     if (!pipeline) {
         if (HostMarkersEnabled())
             InsertDroppedDrawTag(is_indexed, false);
+        FrameShape::Record(liverpool->flip_epoch, regs,
+                           {.kind = FrameShape::Dropped, .count = regs.num_indices});
         return;
     }
 
@@ -457,6 +730,10 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
     std::optional<StreamReadScope> stream_reads{std::in_place, buffer_cache};
     if (!BindResources(pipeline)) {
+        const auto [vs, ps] = FrameShape::StageHashes(*pipeline);
+        FrameShape::Record(liverpool->flip_epoch, regs,
+                           {.a = vs, .b = ps, .kind = FrameShape::Dropped,
+                            .count = regs.num_indices});
         return;
     }
     const auto state = BeginRendering(pipeline);
@@ -485,6 +762,17 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     scheduler.NoteDraw();
     if (HostMarkersEnabled())
         InsertDrawTag(pipeline, is_indexed, false);
+    if (VideoCore::UploadDiagnostics::frame_shape.load(std::memory_order_relaxed)) [[unlikely]] {
+        const auto [vs, ps] = FrameShape::StageHashes(*pipeline);
+        FrameShape::Record(liverpool->flip_epoch, regs,
+                           {.a = vs, .b = ps, .kind = FrameShape::Draw, .count = regs.num_indices,
+                            .instances = regs.num_instances.NumInstances()},
+                           began_rendering);
+    }
+    if (VideoCore::UploadDiagnostics::draw_pairs.load(std::memory_order_relaxed)) [[unlikely]] {
+        const auto [vs, ps] = FrameShape::StageHashes(*pipeline);
+        FrameShape::NotePair(liverpool->flip_epoch, regs, vs, ps, regs.num_indices);
+    }
 
     const auto& vs_info = pipeline->GetStage(Shader::SwStage::Vertex);
     const auto& fetch_shader = pipeline->GetFetchShader();
@@ -526,6 +814,10 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     DebugState.IncDrawCall();
     if (const auto& diag = instance.Diagnostics())
         diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
+    if (!VbWatch::entries.empty()) [[unlikely]] {
+        const auto [vs, ps] = FrameShape::StageHashes(*pipeline);
+        VbWatch::Verify(vs, ps, liverpool->flip_epoch);
+    }
 
     if (VideoCore::Replay::Detail::draw_hashes.load(std::memory_order_relaxed)) [[unlikely]] {
         const auto stages = pipeline->GetStages();
@@ -611,6 +903,13 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
     scheduler.NoteDraw();
     if (HostMarkersEnabled())
         InsertDrawTag(pipeline, is_indexed, true);
+    if (VideoCore::UploadDiagnostics::frame_shape.load(std::memory_order_relaxed)) [[unlikely]] {
+        const auto [vs, ps] = FrameShape::StageHashes(*pipeline);
+        FrameShape::Record(liverpool->flip_epoch, liverpool->regs,
+                           {.a = vs, .b = ps, .kind = FrameShape::Draw, .count = max_count,
+                            .instances = 0xffffffffu},
+                           began_rendering);
+    }
 
     const auto cmdbuf = scheduler.CommandBuffer();
     pipeline->Bind(cmdbuf, vk::PipelineBindPoint::eGraphics);
@@ -664,6 +963,10 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
                               Core::Diagnostics::DiagnosticNowNs());
         }
     }
+    if (!VbWatch::entries.empty()) [[unlikely]] {
+        const auto [vs, ps] = FrameShape::StageHashes(*pipeline);
+        VbWatch::Verify(vs, ps, liverpool->flip_epoch);
+    }
     if (VideoCore::Replay::Detail::draw_hashes.load(std::memory_order_relaxed)) [[unlikely]] {
         const auto stages = pipeline->GetStages();
         const auto* vs = stages[u32(Shader::SwStage::Vertex)];
@@ -713,6 +1016,8 @@ void Rasterizer::DispatchDirect() {
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "copy-shader HLE");
+        FrameShape::Record(liverpool->flip_epoch, liverpool->regs,
+                           {.a = cs.pgm_hash, .kind = FrameShape::Replaced});
         return;
     }
     if (TryComputeRawImageCopy(cs, cs_program)) {
@@ -721,6 +1026,8 @@ void Rasterizer::DispatchDirect() {
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "raw image copy");
+        FrameShape::Record(liverpool->flip_epoch, liverpool->regs,
+                           {.a = cs.pgm_hash, .kind = FrameShape::Replaced});
         return;
     }
     if (TryComputeImageFill(cs, cs_program) || TryComputeConstantFill(cs, cs_program)) {
@@ -729,6 +1036,8 @@ void Rasterizer::DispatchDirect() {
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "image fill clear");
+        FrameShape::Record(liverpool->flip_epoch, liverpool->regs,
+                           {.a = cs.pgm_hash, .kind = FrameShape::Replaced});
         return;
     }
     if (TryComputeImageStoreFill(cs, cs_program)) {
@@ -737,6 +1046,8 @@ void Rasterizer::DispatchDirect() {
         if (tracing)
             AmdGpu::Pm4Trace::NoteHost(AmdGpu::Pm4Trace::HostEvent::Replaced, 0, 0, 0, 0,
                                        "image store fill clear");
+        FrameShape::Record(liverpool->flip_epoch, liverpool->regs,
+                           {.a = cs.pgm_hash, .kind = FrameShape::Replaced});
         return;
     }
 
@@ -749,6 +1060,8 @@ void Rasterizer::DispatchDirect() {
     }
 
     scheduler.EndRendering(Vulkan::RenderBreak::Dispatch);
+    if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]]
+        scheduler.FullBarrier();
     if (needs_barrier) {
         runtime.FlushBarriers();
     }
@@ -762,10 +1075,15 @@ void Rasterizer::DispatchDirect() {
                                     cs_program.dim_z, false, BreadcrumbContext());
     }
     cmdbuf.dispatch(cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
+    if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]]
+        scheduler.FullBarrier();
     if (breadcrumbs) {
         breadcrumbs->AfterDispatch(cmdbuf);
     }
     DebugState.IncDispatch();
+    FrameShape::Record(liverpool->flip_epoch, liverpool->regs,
+                       {.a = cs.pgm_hash, .kind = FrameShape::Dispatch, .count = cs_program.dim_x,
+                        .instances = cs_program.dim_y});
     if (const auto& diag = instance.Diagnostics())
         diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
 
@@ -807,6 +1125,8 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     TrackRead(buffer, base, size);
 
     scheduler.EndRendering(Vulkan::RenderBreak::Dispatch);
+    if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]]
+        scheduler.FullBarrier();
     if (needs_barrier) {
         runtime.FlushBarriers();
     }
@@ -821,6 +1141,8 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
                                     0, true, BreadcrumbContext());
     }
     cmdbuf.dispatchIndirect(buffer->Handle(), base);
+    if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]]
+        scheduler.FullBarrier();
     if (breadcrumbs) {
         breadcrumbs->AfterDispatch(cmdbuf);
     }
@@ -936,6 +1258,92 @@ void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool beg
                                       began_rendering && scheduler.LastBeginResumed());
 }
 
+// `upload_diag sharp_watch on`: every buffer V# and image T# a draw or dispatch binds whose base
+// is not mapped guest memory, with the shader, the binding and the raw descriptor words. Wrong
+// descriptor data read from guest memory points at unmapped space more often than not.
+void Rasterizer::CheckSharps(const Pipeline& pipeline) {
+    static std::atomic<u32> reports{};
+    static std::atomic<u64> bad{};
+    for (const auto* stage : pipeline.GetStages()) {
+        if (!stage) continue;
+        const auto report = [&](const char* kind, u32 index, VAddr base, u64 size,
+                                std::span<const u32> raw) {
+            bad.fetch_add(1, std::memory_order_relaxed);
+            if (reports.fetch_add(1, std::memory_order_relaxed) >= 256) return;
+            std::string words, ud;
+            for (const u32 w : raw) words += fmt::format(" {:08x}", w);
+            for (u32 i = 0; i < 16; ++i) ud += fmt::format(" {:08x}", stage->user_data[i]);
+            LOG_WARNING(Render_Vulkan,
+                        "sharp_watch: {} {} #{} base={:#x} size={:#x} epoch={} t={} {} {:#x} "
+                        "raw:{} ud:{}",
+                        reports.load(std::memory_order_relaxed), kind, index, base, size,
+                        liverpool->flip_epoch, FrameShape::NowUs(),
+                        magic_enum::enum_name(stage->sw_stage), stage->pgm_hash, words, ud);
+        };
+        for (u32 i = 0; i < stage->buffers.size(); ++i) {
+            const auto& desc = stage->buffers[i];
+            if (desc.IsSpecial()) continue;
+            const auto sharp = desc.GetSharp(*stage);
+            const VAddr base = sharp.base_address;
+            if (!base || !sharp.GetSize()) continue;
+            if (!memory->IsValidMapping(base, 1)) {
+                std::array<u32, 4> raw{};
+                std::memcpy(raw.data(), &sharp, sizeof(raw));
+                report("buffer", i, base, sharp.GetSize(), raw);
+            }
+        }
+        for (u32 i = 0; i < stage->images.size(); ++i) {
+            const auto sharp = stage->images[i].GetSharp(*stage);
+            const VAddr base = sharp.Address();
+            if (!base || sharp.GetDataFmt() == AmdGpu::DataFormat::FormatInvalid) continue;
+            if (!memory->IsValidMapping(base, 1)) {
+                std::array<u32, 8> raw{};
+                std::memcpy(raw.data(), &sharp, std::min(sizeof(raw), sizeof(sharp)));
+                report("image", i, base, 0, raw);
+            }
+        }
+    }
+}
+
+// `upload_diag cb_dump`: the first 64 bytes of every buffer the stages of a matching program
+// bind, read from guest memory (CPU-written constants; GPU-only contents are not visible here).
+void Rasterizer::DumpBoundBuffers(const Pipeline& pipeline) {
+    using namespace VideoCore::UploadDiagnostics;
+    const u64 wanted = cb_dump_hash.load(std::memory_order_relaxed);
+    const auto stages = pipeline.GetStages();
+    if (std::ranges::none_of(stages, [&](const auto* stage) {
+            return stage && stage->pgm_hash == wanted;
+        }) ||
+        cb_dump_left.fetch_sub(1, std::memory_order_relaxed) <= 0) {
+        return;
+    }
+    for (const auto* stage : stages) {
+        if (!stage) continue;
+        for (u32 i = 0; i < stage->buffers.size(); ++i) {
+            const auto& desc = stage->buffers[i];
+            if (desc.IsSpecial()) continue;
+            const auto buffer = desc.GetSharp(*stage);
+            const u32 total = std::min<u32>(buffer.GetSize(),
+                                            cb_dump_bytes.load(std::memory_order_relaxed));
+            for (u32 offset = 0; offset < total; offset += 64) {
+                std::array<u32, 16> words{};
+                const u32 bytes = std::min<u32>(total - offset, sizeof(words));
+                const bool read = memory->TryReadSrtMemory(buffer.base_address + offset,
+                                                           words.data(), bytes);
+                std::string hex, floats;
+                for (u32 w = 0; w < bytes / 4; ++w) {
+                    hex += fmt::format(" {:08x}", words[w]);
+                    floats += fmt::format(" {:g}", std::bit_cast<f32>(words[w]));
+                }
+                LOG_INFO(Render_Vulkan, "cb_dump {:#x} {} buf{} {:#x}+{:#x} @{:#x}{}:{} |{}",
+                         wanted, magic_enum::enum_name(stage->sw_stage), i,
+                         u64(buffer.base_address), buffer.GetSize(), offset,
+                         read ? "" : " unreadable", hex, floats);
+            }
+        }
+    }
+}
+
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
     Common::Profiler::FineScope profile_scope{"Rasterizer.BindResources"};
     const StreamReadScope stream_reads{buffer_cache};
@@ -955,6 +1363,22 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                                                            std::memory_order_relaxed);
         VideoCore::UploadDiagnostics::current_action_dispatch.store(pipeline->IsCompute(),
                                                                     std::memory_order_relaxed);
+    }
+    if (VideoCore::UploadDiagnostics::cb_dump_left.load(std::memory_order_relaxed) > 0) [[unlikely]] {
+        DumpBoundBuffers(*pipeline);
+    }
+    if (VideoCore::UploadDiagnostics::sharp_watch.load(std::memory_order_relaxed)) [[unlikely]] {
+        CheckSharps(*pipeline);
+    }
+    if (VideoCore::UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed))
+        [[unlikely]] {
+        std::string hashes;
+        for (const auto* stage : pipeline->GetStages()) {
+            if (stage) {
+                hashes += fmt::format(" {}:{:#x}", static_cast<u32>(stage->sw_stage), stage->pgm_hash);
+            }
+        }
+        texture_cache.TinyTrace(fmt::format("action{}", hashes));
     }
     const char* replaced = nullptr;
     {
@@ -985,6 +1409,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
         // in a later shader stage of the same draw, not only the first binding.
         u32 descriptor = 0;
         bool fragment_buffer_writes = false, fragment_image_writes = false;
+        const bool scalable_storage_writes = instance.ScalePolicy().scaled_storage;
         for (const auto* stage : pipeline->GetStages()) {
             if (!stage) continue;
             descriptor += stage->buffers.size();
@@ -996,7 +1421,10 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
             }
             for (const auto& resource : stage->images) {
                 const auto sharp = resource.GetSharp(*stage);
-                const bool unsafe = resource.is_written || resource.is_atomic || resource.requires_native_scale ||
+                const bool scalable_write = scalable_storage_writes &&
+                    ScalableStorageWrite(*stage, resource, sharp, descriptor);
+                const bool unsafe = (resource.is_written && !scalable_write) || resource.is_atomic ||
+                    resource.requires_native_scale ||
                     resource.post_op == Shader::SharpFetchPostOp::ConvertCubeTo2DArray ||
                     descriptor >= Shader::PushData::MaxScaledBinding ||
                     AmdGpu::IsInteger(sharp.GetNumberFmt());
@@ -1175,6 +1603,20 @@ void Rasterizer::BindVertexBuffers(const GraphicsPipeline* pipeline) {
     VertexInputs<AmdGpu::Buffer> guest_buffers;
     pipeline->GetVertexInputs(attributes, bindings, divisors, guest_buffers,
                               regs.vgt_instance_step_rate_0, regs.vgt_instance_step_rate_1);
+    const bool vb_watch = VideoCore::UploadDiagnostics::vb_watch.load(std::memory_order_relaxed);
+    if (vb_watch) [[unlikely]] {
+        if (const auto& fetch = pipeline->GetFetchShader()) {
+            VbWatch::Capture(*pipeline, *fetch, pipeline->GetStage(Shader::SwStage::Vertex));
+        }
+        const auto vs_hash = FrameShape::StageHashes(*pipeline).first;
+        for (auto& buffer : guest_buffers) {
+            if (buffer.base_address != 0 && buffer.GetSize() > 0 &&
+                !memory->IsValidMapping(buffer.base_address, buffer.GetSize())) {
+                VbWatch::ReportInvalid(buffer, vs_hash, liverpool->flip_epoch);
+                buffer.base_address = 0;
+            }
+        }
+    }
 
     if (instance.IsVertexInputDynamicState()) {
         // Update current vertex inputs.
@@ -2195,6 +2637,12 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
 
         const Shader::MipStorageFallbackMode mip_fallback_mode = image_desc.mip_fallback_mode;
         const u32 num_bindings = image_desc.NumBindings(stage);
+        // Same decision as the scale check in BindResources, at this image's unified binding.
+        const u32 unified = binding.unified + std::accumulate(image_descriptor_array_sizes.begin(),
+                                                              image_descriptor_array_sizes.end(), 0u);
+        const bool scalable_write = num_bindings == 1 && instance.ScalePolicy().ShaderMapping() &&
+                                    instance.ScalePolicy().scaled_storage &&
+                                    ScalableStorageWrite(stage, image_desc, tsharp, unified);
 
         for (u32 i = 0; i < num_bindings; i++) {
             key.element = i;
@@ -2226,6 +2674,7 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
                 }
                 auto& [found_id, desc] = image_bindings.emplace_back(
                     std::piecewise_construct, std::tuple{}, std::tuple{tsharp, image_desc});
+                desc.scalable_write = scalable_write;
                 if (mip_fallback_mode == Shader::MipStorageFallbackMode::ConstantIndex) {
                     ASSERT(num_bindings == 1);
                     desc.view_info.range.base.level += image_desc.constant_mip_index;
@@ -2286,6 +2735,12 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
         bound_images.emplace_back(image_id);
 
         auto& image = texture_cache.GetImage(image_id);
+        if (u64 wanted = VideoCore::UploadDiagnostics::stats_address.load(std::memory_order_relaxed);
+            wanted != 0 && wanted == image.info.guest_address &&
+            VideoCore::UploadDiagnostics::stats_address.compare_exchange_strong(wanted, 0))
+            [[unlikely]] {
+            texture_cache.LogImageStats(image_id);
+        }
         scheduler.StageAccess(image.info.guest_address, image.info.guest_size, is_storage);
         MissingContent::Read(image.info.guest_address, image.info.guest_size);
         if (is_storage) {

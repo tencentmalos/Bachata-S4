@@ -8,6 +8,7 @@
 #include <jni.h>
 #include "spatial/platform/android/JniHelper.h"
 #include "core/diagnostics/overlay_control.h"
+#include "core/game_options.h"
 
 #include "common/path_util.h"
 #include "common/profiler.h"
@@ -202,6 +203,15 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeInitializeHost(JNIEnv *en
         std::call_once(logging, [] { Common::Log::Setup("android-host.log"); });
         if (context && !spatial::platform::JniHelper::initJniEnviroment(env, context)) {
             __android_log_print(ANDROID_LOG_WARN, kTag, "Native metrics Context unavailable");
+        } else if (context) {
+            // Settings the in-game Controls panel changes go to the app, which saves them in the
+            // running game's profile (SessionSettingsBridge; it ignores keys it does not know).
+            Core::GameOptions::SetSaveHandler([](const std::string& key, const std::string& value) {
+                spatial::platform::JniHelper::CallStaticFunction(
+                    "onNativeSettingChanged",
+                    "com.shadps4.android.runtime.session.SessionSettingsBridge", key.c_str(),
+                    value.c_str());
+            });
         }
         return JNI_TRUE;
     } catch (...) {

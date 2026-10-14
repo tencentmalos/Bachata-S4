@@ -3,6 +3,7 @@
 
 #include "core/guest_cpu/api/access_fault.h"
 #include "core/guest_cpu/api/address_space.h"
+#include "common/step_stats.h"
 
 #include <algorithm>
 #include <atomic>
@@ -712,6 +713,57 @@ const GuestAddressSpace::Mapping* GuestAddressSpace::FindContainingMappingLocked
         }
     }
     return nullptr;
+}
+
+GuestAddressSpace::LedgerEdit GuestAddressSpace::PlanLedgerEditLocked(VmOperation operation,
+                                                                     GuestRange range,
+                                                                     GuestPermission permission) {
+    LedgerEdit edit;
+    for (std::size_t i = 0; i < mappings.size(); ++i) {
+        const Mapping& m = mappings[i];
+        if (!RangesOverlap(m.range, range))
+            continue;
+        edit.removed.push_back(i);
+        edit.executable |= HasPermission(m.permission, GuestPermission::Execute);
+        const auto begin = std::max(m.range.base.value, range.base.value);
+        const auto end = std::min(m.range.End(), range.End());
+        edit.covered += end - begin;
+        if (m.range.base.value < begin) {
+            auto left = m;
+            left.range.size = begin - left.range.base.value;
+            edit.added.push_back(left);
+        }
+        if (operation == VmOperation::Protect) {
+            auto middle = m;
+            middle.range = {GuestAddress{begin}, end - begin};
+            middle.permission = permission;
+            middle.generation = mapping_generation + 1;
+            edit.added.push_back(middle);
+        }
+        if (end < m.range.End()) {
+            auto right = m;
+            right.range = {GuestAddress{end}, m.range.End() - end};
+            edit.added.push_back(right);
+        }
+    }
+    if (operation == VmOperation::Map)
+        edit.added.push_back(
+            Mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation + 1});
+    // The commit removes before it appends, so this capacity covers every append.
+    mappings.reserve(mappings.size() + edit.added.size());
+    return edit;
+}
+
+void GuestAddressSpace::CommitLedgerEditLocked(const LedgerEdit& edit) noexcept {
+    // Remove by moving the last record into the slot, highest index first: the record moved
+    // never sits below a slot that is still to be removed. Cached lookup indices recheck the
+    // record they find, so the move needs no invalidation.
+    for (auto it = edit.removed.rbegin(); it != edit.removed.rend(); ++it) {
+        mappings[*it] = mappings.back();
+        mappings.pop_back();
+    }
+    for (const auto& mapping : edit.added)
+        mappings.push_back(mapping);
 }
 
 std::vector<MappingInfo> GuestAddressSpace::Mappings() const {
@@ -1619,28 +1671,10 @@ Status GuestAddressSpace::ProtectData(GuestRange range, GuestPermission permissi
         std::any_of(data_edits.begin(), data_edits.end(),
                     [&](const auto& e) { return RangesOverlap(e.range, range); }))
         return MakeError(ErrorCategory::Busy, name, "range pinned or code transaction active");
-    std::vector<Mapping> updated;
-    updated.reserve(mappings.size() + 2);
-    std::uint64_t covered{};
-    for (auto m : mappings) {
-        if (!RangesOverlap(m.range, range)) { updated.push_back(m); continue; }
-        if (HasPermission(m.permission, GuestPermission::Execute))
-            return MakeError(ErrorCategory::InvalidArgument, name, "executable data requires token");
-        const auto begin = std::max(m.range.base.value, range.base.value);
-        const auto end = std::min(m.range.End(), range.End());
-        covered += end - begin;
-        if (m.range.base.value < begin) {
-            auto left = m; left.range.size = begin - m.range.base.value; updated.push_back(left);
-        }
-        auto middle = m; middle.range = {GuestAddress{begin}, end - begin};
-        middle.permission = permission; middle.generation = mapping_generation + 1;
-        updated.push_back(middle);
-        if (end < m.range.End()) {
-            auto right = m; right.range = {GuestAddress{end}, m.range.End() - end};
-            updated.push_back(right);
-        }
-    }
-    if (covered != range.size)
+    const auto edit = PlanLedgerEditLocked(VmOperation::Protect, range, permission);
+    if (edit.executable)
+        return MakeError(ErrorCategory::InvalidArgument, name, "executable data requires token");
+    if (edit.covered != range.size)
         return MakeError(ErrorCategory::InvalidArgument, name, "protection crosses unmapped data");
     if (SeamMprotect(HostPointer(range.base), range.size, ToHostProtection(permission)) != 0) {
         const int saved = errno;
@@ -1648,7 +1682,7 @@ Status GuestAddressSpace::ProtectData(GuestRange range, GuestPermission permissi
         error.system_error = saved;
         return error;
     }
-    mappings.swap(updated);
+    CommitLedgerEditLocked(edit);
     ++mapping_generation;
     return Ok();
 }
@@ -1736,7 +1770,9 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
         offset > INT64_MAX || range.size > INT64_MAX - offset ||
         (operation != VmOperation::Map && (fd != -1 || offset != 0)))
         return MakeError(ErrorCategory::InvalidArgument, name, "invalid VM range/backing");
+    Common::StepStats::Timer lock_time{"VM.DataMapping.lock"};
     std::unique_lock guard{lock};
+    lock_time.Stop();
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
     auto owned_preparation = [&]() -> std::uint64_t {
         for (const auto& edit : data_edits)
@@ -1753,16 +1789,15 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
                });
     };
     IdleWaiter waiting{leases_idle_waiters};
+    Common::StepStats::Timer admission_time{"VM.DataMapping.admission"};
     if (stop.stop_requested() || !leases_idle.wait_until(guard, stop, deadline, idle))
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
                          name, "mapping admission cancelled or timed out");
+    admission_time.Stop();
     if (!poisoned_ranges.empty())
         return MakeError(ErrorCategory::WrongState, name, "code generation requires recovery");
-    if (HasPermission(permission, GuestPermission::Execute) ||
-        std::any_of(mappings.begin(), mappings.end(), [&](const Mapping& m) {
-            return RangesOverlap(m.range, range) &&
-                   HasPermission(m.permission, GuestPermission::Execute);
-        }))
+    Common::StepStats::Value("VM.DataMapping.ledger_entries", mappings.size());
+    if (HasPermission(permission, GuestPermission::Execute))
         return MakeError(ErrorCategory::Unsupported, name,
                          "executable mapping requires publication");
     if (static_cast<unsigned>(permission) & ~3u)
@@ -1778,52 +1813,29 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
         }
     } retiring{*this, id}; // destroyed before guard, including exceptions
     IdleWaiter waiting_retire{leases_idle_waiters};
+    Common::StepStats::Timer pins_time{"VM.DataMapping.pins"};
     if (!leases_idle.wait_until(guard, stop, deadline,
                                 [&] { return !AnyPinOverlapsLocked(range); }))
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
                          name, "overlapping data leases did not retire");
+    pins_time.Stop();
 
     if (stop.stop_requested())
         return MakeError(ErrorCategory::WrongState, name, "mapping edit cancelled before commit");
 
-    // Build the complete post-operation ledger before changing any host mapping.
-    // Allocation failure leaves the old ledger and backing intact.
-    std::vector<Mapping> updated;
-    updated.reserve(mappings.size() + 2);
-    std::uint64_t covered{};
-    for (auto m : mappings) {
-        if (!RangesOverlap(m.range, range)) {
-            updated.push_back(m);
-            continue;
-        }
-        const auto begin = std::max(m.range.base.value, range.base.value);
-        const auto end = std::min(m.range.End(), range.End());
-        covered += end - begin;
-        if (m.range.base.value < begin) {
-            auto left = m;
-            left.range.size = begin - left.range.base.value;
-            updated.push_back(left);
-        }
-        if (operation == VmOperation::Protect) {
-            auto middle = m;
-            middle.range = {GuestAddress{begin}, end - begin};
-            middle.permission = permission;
-            middle.generation = mapping_generation + 1;
-            updated.push_back(middle);
-        }
-        if (end < m.range.End()) {
-            auto right = m;
-            right.range = {GuestAddress{end}, m.range.End() - end};
-            updated.push_back(right);
-        }
-    }
-    if (operation == VmOperation::Protect && covered != range.size)
+    // Plan the post-operation ledger before changing any host mapping. The lock is held from
+    // here to the commit, so the planned indices stay valid; allocation failure leaves the old
+    // ledger and backing intact.
+    Common::StepStats::Timer build_time{"VM.DataMapping.ledger"};
+    const auto edit = PlanLedgerEditLocked(operation, range, permission);
+    if (edit.executable)
+        return MakeError(ErrorCategory::Unsupported, name,
+                         "executable mapping requires publication");
+    if (operation == VmOperation::Protect && edit.covered != range.size)
         return MakeError(ErrorCategory::InvalidArgument, name,
                          "protection crosses unmapped memory");
-    if (operation == VmOperation::Map)
-        updated.push_back(
-            Mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation + 1});
-
+    build_time.Stop();
+    Common::StepStats::Timer syscall_time{"VM.DataMapping.syscall"};
     bool success;
     if (operation == VmOperation::Protect) {
         success =
@@ -1835,6 +1847,7 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
         success = SeamMmap(HostPointer(range.base), range.size, ToHostProtection(prot), flags,
                            backed ? fd : -1, backed ? offset : 0) != MAP_FAILED;
     }
+    syscall_time.Stop();
     if (!success) {
         const int saved = errno;
         auto error = MakeError(CategoriseMapFailure(saved), name,
@@ -1842,7 +1855,7 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
         error.system_error = saved;
         return error;
     }
-    mappings.swap(updated);
+    CommitLedgerEditLocked(edit);
     shared_backing_seen |= operation == VmOperation::Map && fd >= 0;
     ++mapping_generation;
     return Ok();

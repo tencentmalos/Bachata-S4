@@ -209,7 +209,7 @@ Package Package::Load(const std::filesystem::path& file) {
         p.imports.push_back(std::move(i));
     }
     const size_t patch_count = j.contains("patches") ? j.at("patches").size() : 0;
-    Check(p.sdk_version == 2 || patch_count == 0, "code patches require sdk_version 2");
+    Check(p.sdk_version >= 2 || patch_count == 0, "code patches require sdk_version 2 or later");
     Check(j.at("hooks").size() <= 64 && j.at("hooks").size() + patch_count >= 1,
           "invalid hook count");
     std::set<std::string> hook_names, originals;
@@ -244,7 +244,7 @@ Package Package::Load(const std::filesystem::path& file) {
               "hook aliases SDK/replacement import");
         const auto mode = item.value("mode", std::string("typed"));
         Check(mode == "typed" || mode == "entry-observer-x86_64-avx" ||
-                  (mode == "site-x86_64-avx" && p.sdk_version == 2),
+                  (mode == "site-x86_64-avx" && p.sdk_version >= 2),
               "unsupported hook mode");
         if (mode == "entry-observer-x86_64-avx") {
             h.kind = HookKind::EntryObserver;

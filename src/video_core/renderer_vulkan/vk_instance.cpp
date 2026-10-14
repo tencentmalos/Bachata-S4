@@ -172,7 +172,8 @@ static VideoCore::ScalePolicySnapshot CaptureScalePolicy() {
             static_cast<VideoCore::TextureQuality>(EmulatorSettings.GetTextureQuality()),
             flag("SHADPS4_LEGACY_RESOURCE_SCALE", "debug.shadps4.legacy_resource_scale"),
             flag("SHADPS4_SCALE_SIDE_EFFECT_PASSES", "debug.shadps4.scale_side_effect_passes"),
-            !flag("SHADPS4_FUSED_READBACK_OFF", "debug.shadps4.fused_readback_off")};
+            !flag("SHADPS4_FUSED_READBACK_OFF", "debug.shadps4.fused_readback_off"),
+            !flag("SHADPS4_SCALED_STORAGE_OFF", "debug.shadps4.scaled_storage_off")};
 }
 
 Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverLease driver_)

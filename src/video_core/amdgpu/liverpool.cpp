@@ -14,6 +14,7 @@
 #include "common/debug.h"
 #include "common/profiler.h"
 #include "common/polyfill_thread.h"
+#include "common/shared_first_mutex.h"
 #include "common/thread.h"
 #include "core/debug_state.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
@@ -461,6 +462,8 @@ void Liverpool::Process(std::stop_token stoken) {
     Common::SetCurrentThreadName("shadPS4:GpuCommandProcessor");
     Common::SetCurrentThreadPriority(Common::ThreadPriority::High);
     gpu_id = std::this_thread::get_id();
+    // The guest mapping lock counts this thread's waits apart (`memory_lock status`).
+    Common::SharedFirstMutex::wait_class = 1;
 
     while (!stoken.stop_requested()) {
         {
@@ -994,7 +997,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 break;
             }
             case PM4ItOpcode::SetPredication: {
-                LOG_WARNING(Render, "Unimplemented IT_SET_PREDICATION");
+                // Per packet: MHW sends it on most frames (350k warnings, 46 MB of log
+                // in 4.5 minutes). The count and last dwords are kept for breadcrumbs.
+                LOG_DEBUG(Render, "Unimplemented IT_SET_PREDICATION");
                 dispatch_diag.predication_dw1 = count >= 1 ? header[1].raw : 0;
                 dispatch_diag.predication_dw2 = count >= 2 ? header[2].raw : 0;
                 ++dispatch_diag.predications;

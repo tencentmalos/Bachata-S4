@@ -31,6 +31,10 @@ struct ScalePolicySnapshot {
     // shader (no native temporary, blit or linear copy). debug.shadps4.fused_readback_off=1
     // restores the old chain for A/B.
     bool fused_readback = true;
+    // A compute shader's plain store to a 2D colour image keeps the image's render scale: the
+    // backend maps each store coordinate onto the host extent. debug.shadps4.scaled_storage_off=1
+    // restores the old rule (every storage write pins its image native) for A/B.
+    bool scaled_storage = true;
     bool ShaderMapping() const {
         return render_eighths != 8 || texture != TextureQuality::High;
     }

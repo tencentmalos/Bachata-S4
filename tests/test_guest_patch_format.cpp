@@ -140,6 +140,32 @@ TEST(GuestPatchFormat, ImportHooksRejectOffsetsAndSites) {
     EXPECT_THROW(LoadJson(j), std::exception); // import hook in version 2
 }
 
+TEST(GuestPatchFormat, SignedBuildsKeepSitesAndCodePatches) {
+    // Version 3 only adds to version 2: a build named by signatures can still carry
+    // mid-function sites (KH3 query wait) and same-length code patches.
+    auto j = BasePackage();
+    j["imports"].push_back({{"name", "original_site"}, {"slot", 16}});
+    j["hooks"].push_back({{"name", "site"},
+                          {"offset", 0x40},
+                          {"expected", "41803f000f8478feffff"},
+                          {"mode", "site-x86_64-avx"},
+                          {"replacement", "replacement"},
+                          {"site_mode", "before"},
+                          {"handler", "handler"},
+                          {"original", "original_site"},
+                          {"prototype", "opaque-machine-site"},
+                          {"evidence", "test"}});
+    j["patches"] = Json::array({{{"name", "p"},
+                                 {"offset", 0x80},
+                                 {"expected", "9090"},
+                                 {"replacement", "cccc"},
+                                 {"evidence", "test"}}});
+    const auto p = LoadJson(j);
+    ASSERT_EQ(p.hooks.size(), 2u);
+    EXPECT_EQ(p.hooks[1].offset, 0x40u);
+    EXPECT_EQ(p.patches.size(), 1u);
+}
+
 TEST(PltImport, FindsTheEntryThroughAGotSlot) {
     // Three PLT rows at 0x1000: jmp [rip+disp] through 0x5000, 0x5008, 0x5010.
     std::array<std::uint8_t, 48> code{};

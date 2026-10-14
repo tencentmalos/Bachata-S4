@@ -28,6 +28,25 @@ inline constexpr Route kRoutes[] = {
     {"jg33rEKLfVs", "shad_sceGnmIsUserPaEnabled"},
 };
 
+// Draw, dispatch and marker encoders, routed only with debug.shadps4.leaf_fastpath
+// (default on). `neo_export` is used instead of `export_name` when
+// sceKernelIsNeoMode() is set for the session; null when the output does not depend
+// on it.
+struct LeafRoute {
+    const char* nid;
+    const char* export_name;
+    const char* neo_export;
+};
+
+inline constexpr LeafRoute kLeafRoutes[] = {
+    {"HlTPoZ-oY7Y", "shad_sceGnmDrawIndex", "shad_sceGnmDrawIndexNeo"},
+    {"GGsn7jMTxw4", "shad_sceGnmDrawIndexAuto", "shad_sceGnmDrawIndexAutoNeo"},
+    {"oYM+YzfCm2Y", "shad_sceGnmDrawIndexOffset", "shad_sceGnmDrawIndexOffsetNeo"},
+    {"0BzLGljcwBo", "shad_sceGnmDispatchDirect", nullptr},
+    {"W1Etj-jlW7Y", "shad_sceGnmInsertPushMarker", nullptr},
+    {"7qZVNgEu+SY", "shad_sceGnmInsertPopMarker", nullptr},
+};
+
 inline constexpr char kLibrarySuffix[] = "#libSceGnmDriver#1#libSceGnmDriver#Function";
 
 } // namespace Core::HostRuntime::GnmFastPath

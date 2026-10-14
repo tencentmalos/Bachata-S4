@@ -332,6 +332,21 @@
     "risk": "NORMAL"
   },
   {
+    "id": "gpu.frame_limit",
+    "nativeKey": "GPU.frame_limit",
+    "section": "GPU",
+    "category": "GPU",
+    "title": "Frame Limit",
+    "help": "Present at most this many frames a second; the game slows down to match, which saves power and heat on handhelds. Off keeps the game's own rate. Can also be changed during play in the Controls panel, which saves it for that game.",
+    "kind": "ENUM",
+    "defaultValue": "off",
+    "choices": ["off", "50", "45", "40", "30", "20"],
+    "choiceLabels": ["Off", "50 FPS", "45 FPS", "40 FPS", "30 FPS", "20 FPS"],
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true,
+    "risk": "NORMAL"
+  },
+  {
     "id": "vulkan.pipeline_cache_enabled",
     "nativeKey": "Vulkan.pipeline_cache_enabled",
     "section": "Vulkan",

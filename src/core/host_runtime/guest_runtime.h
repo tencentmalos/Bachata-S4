@@ -48,4 +48,9 @@ private:
     struct Impl;
     std::unique_ptr<Impl> impl;
 };
+
+// DebugBus hle_caller_log: status | arm [lines]. The functions to log are fixed at session start
+// by debug.shadps4.hle_caller_log; `arm` gives the sampler a fresh line budget (default 256), so
+// a scene can be sampled after loading has used up the first one.
+std::string HleCallerLogCommand(const std::vector<std::string>& args);
 } // namespace Core::HostRuntime

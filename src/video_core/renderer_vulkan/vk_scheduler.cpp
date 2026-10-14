@@ -15,6 +15,7 @@
 #include "video_core/renderdoc.h"
 #include "video_core/renderdoc_capture.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 
 namespace Vulkan {
 
@@ -499,6 +500,20 @@ void Scheduler::EndRendering(RenderBreak cause) {
     pass_trackable = false;
     if (recorder)
         recorder->EndPass(); // queue pre-pass work, then the pass
+    if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]] {
+        FullBarrier();
+    }
+}
+
+// `upload_diag full_barriers on`: every write before this point is made visible to every later
+// command. Diagnostic only; tells a missing barrier from other causes of a wrong result.
+void Scheduler::FullBarrier() {
+    const vk::MemoryBarrier barrier{
+        .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,
+        .dstAccessMask = vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
+    };
+    CommandBuffer().pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                                    vk::PipelineStageFlagBits::eAllCommands, {}, barrier, {}, {});
 }
 
 void Scheduler::Flush(SubmitInfo& info) {

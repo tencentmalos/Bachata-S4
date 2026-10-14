@@ -9,6 +9,7 @@
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/kernel/time.h"
+#include "core/game_options.h"
 #include "core/libraries/videoout/driver.h"
 #include "core/libraries/videoout/redraw_pacer.h"
 #include "core/libraries/videoout/videoout_error.h"
@@ -731,8 +732,28 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
         return {};
     };
 
+    // Host frame-rate limit (Controls panel, per game): each vblank earns limit/vblank_frequency
+    // of a flip, a presented flip spends one. An unused slot is kept but never more than one,
+    // so frames after a stall are not presented in a burst. The guest slows down because its
+    // flips (and the buffers they release) complete later, as with a lower flip rate.
+    u32 limit_credit{};
+    bool limit_slot{true};
+
     while (!token.stop_requested()) {
         timer.Start();
+
+        bool limit_open = true;
+        if (const u32 limit = Core::GameOptions::FrameLimit(); limit && limit < vblank_frequency) {
+            limit_credit += limit;
+            if (limit_credit >= vblank_frequency) {
+                limit_credit -= vblank_frequency;
+                limit_slot = true;
+            }
+            limit_open = limit_slot;
+        } else {
+            limit_credit = 0;
+            limit_slot = true;
+        }
 
         if (DebugState.IsGuestThreadsPaused()) {
 #ifdef __ANDROID__
@@ -745,7 +766,7 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
 
         // Check if it's time to take a request.
         auto& vblank_status = main_port.vblank_status;
-        if (vblank_status.count % (main_port.flip_rate + 1) == 0) {
+        if (vblank_status.count % (main_port.flip_rate + 1) == 0 && limit_open) {
             const auto request = receive_request();
             if (!request) {
 #ifdef __ANDROID__
@@ -761,6 +782,7 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
                 }
             } else {
                 Flip(request);
+                limit_slot = false;
                 FRAME_END;
             }
         }

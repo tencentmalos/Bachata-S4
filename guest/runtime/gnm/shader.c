@@ -293,3 +293,132 @@ EXPORT s32 shad_sceGnmUpdateVsShader(u32* p, u32 size, const u32* vs, u32 modifi
 EXPORT u32 shad_sceGnmIsUserPaEnabled(void) {
     return 0;
 }
+
+/* Draw, dispatch and marker encoders (debug.shadps4.leaf_fastpath). UE4 titles call
+ * sceGnmDrawIndex once per draw from the render and parallel translate threads (KH3:
+ * ~13k/s). The *Neo variants keep the draw-initiator bits 29-31 of `flags`, which the
+ * host encoders keep only when sceKernelIsNeoMode() is set; the runtime routes the
+ * variant that matches the session. */
+enum {
+    OpDispatchDirect = 0x15u,
+    OpDrawIndex2 = 0x27u,
+    OpDrawIndexAuto = 0x2Du,
+    OpDrawIndexOffset2 = 0x35u,
+    DebugMarkerPush = 0x68750001u,
+    DebugMarkerPop = 0x68750002u,
+};
+#define SHADER_COMPUTE 0x2u /* PM4 type-3 header bit 1 */
+#define PREDICATE(flags) ((flags) & 1u)
+
+static inline s32 DrawIndex(u32* p, u32 size, u32 index_count, __UINT64_TYPE__ index_addr,
+                            u32 flags, u32 initiator_mask) {
+    if (!Admitted(p, size) || size != 10 || !index_addr || (index_addr & 1) ||
+        (flags & 0x1ffffffeu))
+        return -1;
+    Put(p, 0, Header(OpDrawIndex2, 5));
+    Put(p, 1, index_count); /* max_size */
+    Put(p, 2, (u32)index_addr);
+    Put(p, 3, (u32)(index_addr >> 32));
+    Put(p, 4, index_count);
+    Put(p, 5, flags & initiator_mask);
+    TrailingNop(p + 6, 3);
+    return 0;
+}
+EXPORT s32 shad_sceGnmDrawIndex(u32* p, u32 size, u32 index_count, __UINT64_TYPE__ index_addr,
+                                u32 flags, u32 type) {
+    (void)type;
+    return DrawIndex(p, size, index_count, index_addr, flags, 0u);
+}
+EXPORT s32 shad_sceGnmDrawIndexNeo(u32* p, u32 size, u32 index_count,
+                                   __UINT64_TYPE__ index_addr, u32 flags, u32 type) {
+    (void)type;
+    return DrawIndex(p, size, index_count, index_addr, flags, 0xe0000000u);
+}
+
+static inline s32 DrawIndexAuto(u32* p, u32 size, u32 index_count, u32 flags, u32 initiator_mask) {
+    if (!Admitted(p, size) || size != 7 || (flags & 0x1ffffffeu))
+        return -1;
+    Put(p, 0, Header(OpDrawIndexAuto, 2));
+    Put(p, 1, index_count);
+    Put(p, 2, (flags & initiator_mask) | 2u); /* auto-index source */
+    TrailingNop(p + 3, 3);
+    return 0;
+}
+EXPORT s32 shad_sceGnmDrawIndexAuto(u32* p, u32 size, u32 index_count, u32 flags) {
+    return DrawIndexAuto(p, size, index_count, flags, 0u);
+}
+EXPORT s32 shad_sceGnmDrawIndexAutoNeo(u32* p, u32 size, u32 index_count, u32 flags) {
+    return DrawIndexAuto(p, size, index_count, flags, 0xe0000000u);
+}
+
+static inline s32 DrawIndexOffset(u32* p, u32 size, u32 index_offset, u32 index_count, u32 flags,
+                                  u32 initiator_mask) {
+    if (!Admitted(p, size) || size != 9)
+        return -1;
+    Put(p, 0, Header(OpDrawIndexOffset2, 4) | PREDICATE(flags));
+    Put(p, 1, index_count); /* max_size */
+    Put(p, 2, index_offset);
+    Put(p, 3, index_count);
+    Put(p, 4, flags & initiator_mask);
+    TrailingNop(p + 5, 3);
+    return 0;
+}
+EXPORT s32 shad_sceGnmDrawIndexOffset(u32* p, u32 size, u32 index_offset, u32 index_count,
+                                      u32 flags) {
+    return DrawIndexOffset(p, size, index_offset, index_count, flags, 0u);
+}
+EXPORT s32 shad_sceGnmDrawIndexOffsetNeo(u32* p, u32 size, u32 index_offset, u32 index_count,
+                                         u32 flags) {
+    return DrawIndexOffset(p, size, index_offset, index_count, flags, 0xe0000000u);
+}
+
+EXPORT s32 shad_sceGnmDispatchDirect(u32* p, u32 size, u32 x, u32 y, u32 z, u32 flags) {
+    if (!Admitted(p, size) || size != 9 || (s32)(x | y | z) < 0)
+        return -1;
+    Put(p, 0, Header(OpDispatchDirect, 4) | SHADER_COMPUTE | PREDICATE(flags));
+    Put(p, 1, x);
+    Put(p, 2, y);
+    Put(p, 3, z);
+    Put(p, 4, (flags & 0x18u) + 1u); /* ordered append mode */
+    TrailingNop(p + 5, 3);
+    return 0;
+}
+
+EXPORT s32 shad_sceGnmInsertPopMarker(u32* p, u32 size) {
+    if (!Admitted(p, size) || size != 6)
+        return -1;
+    Put(p, 0, Header(OpNop, 5));
+    Put(p, 1, DebugMarkerPop);
+    Put(p, 2, 0);
+    Put(p, 3, 0);
+    Put(p, 4, 0);
+    Put(p, 5, 0);
+    return 0;
+}
+
+/* NOP packet carrying the marker text with its terminator, zero padded to the end of
+ * the packet. The HLE wrapper refuses markers of 1024 or more characters. */
+EXPORT s32 shad_sceGnmInsertPushMarker(u32* p, u32 size, const char* marker) {
+    if (!Admitted(p, size) || !marker)
+        return -1;
+    u32 len = 0;
+    while (marker[len]) {
+        if (++len == 1024)
+            return -1;
+    }
+    const u32 packet = ((len + 8u) >> 2) + ((len + 0xcu) >> 3) * 2u;
+    if (packet + 2u != size)
+        return -1;
+    Put(p, 0, Header(OpNop, packet + 1u));
+    Put(p, 1, DebugMarkerPush);
+    for (u32 i = 0; i < packet; ++i) {
+        u32 word = 0;
+        for (u32 b = 0; b < 4; ++b) {
+            const u32 at = i * 4 + b;
+            if (at < len)
+                word |= (u32)(unsigned char)marker[at] << (8 * b);
+        }
+        Put(p, 2 + (int)i, word);
+    }
+    return 0;
+}

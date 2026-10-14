@@ -27,6 +27,7 @@
 #include <jni.h>
 #include <nlohmann/json.hpp>
 #include "core/emulator_settings.h"
+#include "core/game_options.h"
 #include "core/host_runtime/guest_patch_format.h"
 #include "core/host_runtime/ds4_placement.h"
 #include "core/host_runtime/orbis_pad_adapter.h"
@@ -752,6 +753,16 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetDriverPipelineCacheEnabled(
     JNIEnv*, jobject, jboolean enabled) {
     EmulatorSettings.SetDriverPipelineCache(enabled == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetFrameLimit(
+    JNIEnv*, jobject, jint fps) {
+    try {
+        Core::GameOptions::SetFrameLimit(fps > 0 ? u32(fps) : 0u);
+        EmulatorSettings.SetFrameLimit(Core::GameOptions::FrameLimit());
+    }
+    catch (...) { /* Never unwind across JNI. */ }
 }
 
 extern "C" JNIEXPORT void JNICALL

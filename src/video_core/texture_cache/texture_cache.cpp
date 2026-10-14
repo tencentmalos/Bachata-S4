@@ -2,8 +2,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <chrono>
+#include <cstdlib>
+#include <cmath>
+#include <limits>
 #include <cstring>
 #include <fstream>
 #include <map>
@@ -37,6 +41,9 @@
 #include "video_core/texture_cache/tile_manager.h"
 
 #include <vk_mem_alloc.h>
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
 #include <vulkan/vulkan_format_traits.hpp>
 #include "video_core/vma_diagnostics.h"
 
@@ -44,6 +51,13 @@ namespace VideoCore {
 
 static constexpr u64 PageShift = 12;
 static constexpr u64 NumFramesBeforeRemoval = 32;
+// Color targets this small that the GPU renders now and then are written back to guest memory
+// (NoteTinyTargetWrite): the CPU reads results like UE4's 9x1 sky light SH map directly.
+static constexpr u32 TinyTargetPixels = 16;
+// Renders in consecutive submits less than TinyTargetGapNs apart count as one streak; past
+// TinyTargetStreak the target is per-frame (exposure, reductions) and stays on the GPU.
+static constexpr u32 TinyTargetStreak = 4;
+static constexpr s64 TinyTargetGapNs = 250'000'000;
 
 TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
                            Vulkan::Runtime& runtime_, AmdGpu::Liverpool* liverpool_,
@@ -55,6 +69,23 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
       readback_linear_images{EmulatorSettings.IsReadbackLinearImagesEnabled()} {
 
     memory_diagnostics_epoch = MemoryDiagnostics::Begin(instance.ScalePolicy());
+
+    {
+        bool tiny_writeback = true;
+        if (const char* env = std::getenv("SHADPS4_TINY_WRITEBACK"); env && *env) {
+            tiny_writeback = *env != '0';
+        }
+#ifdef __ANDROID__
+        char property[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.tiny_writeback", property) > 0) {
+            tiny_writeback = property[0] != '0';
+            // "dump": also log the written-back targets (upload_diag tiny_writeback dump).
+            UploadDiagnostics::tiny_writeback_dump.store(property[0] == 'd',
+                                                         std::memory_order_relaxed);
+        }
+#endif
+        UploadDiagnostics::tiny_writeback.store(tiny_writeback, std::memory_order_relaxed);
+    }
 
     u32 max_samplers = instance.GetMaxSamplerAllocationCount();
     trigger_gc_samplers = max_samplers * 3 / 4;
@@ -378,7 +409,29 @@ void TextureCache::ProcessDownloadImages(bool sync) {
             Vulkan::MissingContent::CheckEscape(Vulkan::MissingContent::Escape::Readback,
                                                 image.info.guest_address, image.info.guest_size);
         }
+        const auto& info = slot_images[image_id].info;
+        const bool dump = UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed) &&
+                          info.size.width * info.size.height <= TinyTargetPixels;
+        if (dump) [[unlikely]] {
+            LogImageStats(image_id);
+        }
         DownloadImageMemory(image_id, sync, false, ~VAddr{0}, "image_writeback_queue");
+        if (dump && sync) [[unlikely]] {
+            const u64 size = std::min<u64>(512, info.guest_size & ~u64{63});
+            for (u64 offset = 0; offset < size; offset += 64) {
+                std::array<u8, 64> bytes{};
+                if (!Core::Memory::Instance()->TryReadSrtMemory(info.guest_address + offset,
+                                                                bytes.data(), bytes.size())) {
+                    break;
+                }
+                std::string line;
+                for (u64 i = 0; i < bytes.size(); i += 2) {
+                    line += fmt::format(" {:02x}{:02x}", bytes[i + 1], bytes[i]);
+                }
+                LOG_INFO(Render_Vulkan, "tiny target guest {:#x}+{:#x}:{}", info.guest_address,
+                         offset, line);
+            }
+        }
     }
     download_images.clear();
 }
@@ -655,6 +708,181 @@ void TextureCache::DescribeRetiredImage(ImageId image_id, const ImageInfo& next)
              image.tick_accessed_last, scheduler.CurrentTick(), content);
 }
 
+namespace {
+
+float StatsHalfToFloat(u16 h);
+
+// Unsigned 11/10-bit float with a 5-bit exponent and 6/5-bit mantissa.
+float SmallFloatToFloat(u32 bits, u32 mantissa_bits) {
+    const u32 exponent = (bits >> mantissa_bits) & 0x1f;
+    const u32 mantissa = bits & ((1u << mantissa_bits) - 1);
+    if (exponent == 0x1f) {
+        return mantissa ? std::numeric_limits<float>::quiet_NaN()
+                        : std::numeric_limits<float>::infinity();
+    }
+    if (exponent == 0) {
+        return std::ldexp(float(mantissa), -14 - int(mantissa_bits));
+    }
+    return std::ldexp(1.0f + float(mantissa) / float(1u << mantissa_bits), int(exponent) - 15);
+}
+
+// Decodes one texel of the formats the stats know into up to four channels.
+u32 DecodeTexel(vk::Format format, const u8* texel, std::array<float, 4>& out) {
+    u32 word;
+    switch (format) {
+    case vk::Format::eR16G16B16A16Sfloat:
+        for (u32 c = 0; c < 4; ++c) {
+            u16 h;
+            std::memcpy(&h, texel + c * 2, 2);
+            out[c] = StatsHalfToFloat(h);
+        }
+        return 4;
+    case vk::Format::eR16G16B16A16Unorm:
+        for (u32 c = 0; c < 4; ++c) {
+            u16 v;
+            std::memcpy(&v, texel + c * 2, 2);
+            out[c] = float(v) / 65535.0f;
+        }
+        return 4;
+    case vk::Format::eR16Sfloat: {
+        u16 h;
+        std::memcpy(&h, texel, 2);
+        out[0] = StatsHalfToFloat(h);
+        return 1;
+    }
+    case vk::Format::eB10G11R11UfloatPack32:
+        std::memcpy(&word, texel, 4);
+        out[0] = SmallFloatToFloat(word & 0x7ff, 6);
+        out[1] = SmallFloatToFloat((word >> 11) & 0x7ff, 6);
+        out[2] = SmallFloatToFloat((word >> 22) & 0x3ff, 5);
+        return 3;
+    case vk::Format::eA2B10G10R10UnormPack32:
+        std::memcpy(&word, texel, 4);
+        out[0] = float(word & 0x3ff) / 1023.0f;
+        out[1] = float((word >> 10) & 0x3ff) / 1023.0f;
+        out[2] = float((word >> 20) & 0x3ff) / 1023.0f;
+        out[3] = float(word >> 30) / 3.0f;
+        return 4;
+    case vk::Format::eR8G8B8A8Unorm:
+    case vk::Format::eR8G8B8A8Srgb:
+    case vk::Format::eB8G8R8A8Unorm:
+    case vk::Format::eB8G8R8A8Srgb:
+        for (u32 c = 0; c < 4; ++c) {
+            out[c] = float(texel[c]) / 255.0f;
+        }
+        return 4;
+    case vk::Format::eR32Sfloat:
+        std::memcpy(&out[0], texel, 4);
+        return 1;
+    case vk::Format::eR32G32Sfloat:
+        std::memcpy(out.data(), texel, 8);
+        return 2;
+    case vk::Format::eR32G32B32A32Sfloat:
+        std::memcpy(out.data(), texel, 16);
+        return 4;
+    default:
+        return 0;
+    }
+}
+
+} // namespace
+
+void TextureCache::LogImageStats(ImageId image_id) {
+    Image& image = slot_images[image_id];
+    const auto& info = image.info;
+    const auto format = image.backing->image.image_ci.format;
+    std::array<float, 4> probe{};
+    const u32 channels = DecodeTexel(format, std::array<u8, 16>{}.data(), probe);
+    const u32 texel_bytes = info.num_bits / 8;
+    if (channels == 0 || info.props.is_block || info.num_samples != 1 || texel_bytes == 0 ||
+        image.backing->state.layout == vk::ImageLayout::eUndefined) {
+        LOG_INFO(Render_Vulkan, "image_stats {:#x}: {} not decoded (layout {})",
+                 info.guest_address, vk::to_string(format),
+                 vk::to_string(image.backing->state.layout));
+        return;
+    }
+    const auto extent = image.HostExtent();
+    const bool volume = info.type == AmdGpu::ImageType::Color3D;
+    const u32 layers = volume ? 1u : std::min<u32>(info.resources.layers, 64u);
+    const u32 depth = volume ? extent.depth : 1u;
+    const u64 slice_texels = u64(extent.width) * extent.height;
+    const u64 bytes = slice_texels * depth * layers * texel_bytes;
+    if (bytes == 0 || bytes > (64ull << 20)) {
+        LOG_INFO(Render_Vulkan, "image_stats {:#x}: {} bytes not downloaded", info.guest_address,
+                 bytes);
+        return;
+    }
+    const auto staging =
+        runtime.GetStagingPool().Request(bytes, MemoryType::HostCached, 16, /*deferred=*/true);
+    const vk::BufferImageCopy copy{
+        .bufferOffset = staging.offset,
+        .imageSubresource = {image.aspect_mask & ~vk::ImageAspectFlagBits::eStencil, 0, 0, layers},
+        .imageExtent = {extent.width, extent.height, depth},
+    };
+    image.Download(std::span{&copy, 1}, staging.buffer->Handle(), staging.offset, bytes);
+    const vk::MemoryBarrier2 host_barrier{
+        .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+        .srcAccessMask = vk::AccessFlagBits2::eMemoryWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eHost,
+        .dstAccessMask = vk::AccessFlagBits2::eHostRead};
+    scheduler.CommandBuffer().pipelineBarrier2(
+        vk::DependencyInfo{.memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
+    scheduler.Finish();
+    staging.Invalidate();
+    // One line per layer (per depth slice of a volume), at most 64.
+    const u32 groups = volume ? depth : layers;
+    const u64 group_texels = slice_texels;
+    for (u32 g = 0; g < groups; ++g) {
+        std::array<float, 4> lo, hi, sum{}, texel{};
+        lo.fill(std::numeric_limits<float>::infinity());
+        hi.fill(-std::numeric_limits<float>::infinity());
+        u64 nan = 0, inf = 0;
+        const u8* base = staging.mapped + g * group_texels * texel_bytes;
+        for (u64 t = 0; t < group_texels; ++t) {
+            DecodeTexel(format, base + t * texel_bytes, texel);
+            for (u32 c = 0; c < channels; ++c) {
+                const float v = texel[c];
+                if (std::isnan(v)) {
+                    ++nan;
+                    continue;
+                }
+                if (std::isinf(v)) {
+                    ++inf;
+                    continue;
+                }
+                lo[c] = std::min(lo[c], v);
+                hi[c] = std::max(hi[c], v);
+                sum[c] += v;
+            }
+        }
+        std::string text;
+        for (u32 c = 0; c < channels; ++c) {
+            text += fmt::format(" c{}[{:.4g},{:.4g} mean {:.4g}]", c, lo[c], hi[c],
+                                sum[c] / float(group_texels));
+        }
+        LOG_INFO(Render_Vulkan, "image_stats {:#x} {}x{} {} {} {}:{} nan={} inf={}",
+                 info.guest_address, extent.width, extent.height, vk::to_string(format),
+                 volume ? "slice" : "layer", g, text, nan, inf);
+        if (group_texels <= TinyTargetPixels) {
+            // Tiny targets (e.g. a 9x1 SH map): every texel.
+            std::string texels;
+            for (u64 t = 0; t < group_texels; ++t) {
+                DecodeTexel(format, base + t * texel_bytes, texel);
+                texels += " (";
+                for (u32 c = 0; c < channels; ++c) {
+                    if (c) {
+                        texels += ',';
+                    }
+                    texels += fmt::format("{:.6g}", texel[c]);
+                }
+                texels += ')';
+            }
+            LOG_INFO(Render_Vulkan, "image_stats {:#x} texels:{}", info.guest_address, texels);
+        }
+    }
+    runtime.GetStagingPool().FreeDeferred(staging);
+}
+
 std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool tracked_only,
                                                        VAddr write_limit, const char* writer) {
     Image& image = slot_images[image_id];
@@ -815,6 +1043,10 @@ float HalfToFloat(u16 h) {
         ++shift;
     } while (!(mantissa & 0x400));
     return std::bit_cast<float>(sign | (113 - shift) << 23 | (mantissa & 0x3ff) << 13);
+}
+
+float StatsHalfToFloat(u16 h) {
+    return HalfToFloat(h);
 }
 
 // Clear value that makes vkCmdClearColorImage write exactly `texel` (guest byte order) into a
@@ -1760,6 +1992,54 @@ ImageId TextureCache::ExpandImage(const ImageInfo& info, ImageId image_id) {
     return new_image_id;
 }
 
+u32 TextureCache::AdoptGpuSubresources(ImageId image_id) {
+    struct Part {
+        ImageId id;
+        s32 mip;
+        s32 slice;
+    };
+    boost::container::small_vector<Part, 8> parts;
+    {
+        const ImageInfo& info = slot_images[image_id].info;
+        ForEachImageInRegion(info.guest_address, info.guest_size, [&](ImageId cache_id, Image& cache) {
+            // Equal-address images are expanded or reused by ResolveOverlap; images the CPU
+            // wrote since, or bound in the current pass, keep the old handling.
+            if (cache_id == image_id || cache.info.guest_address <= info.guest_address ||
+                False(cache.flags & ImageFlagBits::GpuModified) ||
+                True(cache.flags & ImageFlagBits::Dirty) || cache.binding.is_bound ||
+                cache.binding.is_target || cache.info.num_samples != info.num_samples) {
+                return;
+            }
+            const s32 mip = cache.info.MipOf(info);
+            const s32 slice = mip >= 0 ? cache.info.SliceOf(info, mip) : -1;
+            if (slice >= 0) {
+                parts.push_back({cache_id, mip, slice});
+            }
+        });
+    }
+    if (parts.empty()) {
+        return 0;
+    }
+    Image& image = slot_images[image_id];
+    // The guest upload first: the adopted mips are copied over it.
+    TrackImage(image_id);
+    RefreshImage(image);
+    for (const Part& part : parts) {
+        Image& cache = slot_images[part.id];
+        image.CopyMip(cache, part.mip, part.slice);
+        if (UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed)) [[unlikely]] {
+            TinyTrace(fmt::format("adopt img{} {:#x} {}x{} A{} -> img{} m{} s{}", part.id.index,
+                                  cache.info.guest_address, cache.info.size.width,
+                                  cache.info.size.height, cache.info.resources.layers,
+                                  image_id.index, part.mip, part.slice));
+        }
+        FreeImage(part.id);
+    }
+    image.flags |= ImageFlagBits::GpuModified;
+    UploadDiagnostics::adopted_subresources.fetch_add(parts.size(), std::memory_order_relaxed);
+    return static_cast<u32>(parts.size());
+}
+
 ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
     const auto& info = desc.info;
     ASSERT(info.guest_address != 0);
@@ -1834,21 +2114,50 @@ ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
         }
     }
     if (!image_id) {
-        image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this, desc.type);
+        // An image first written by a scalable store is created without a usage: it stays
+        // native until a render-target use gives it the render scale (ObserveUsage).
+        const auto use = desc.type == BindingType::Storage && desc.scalable_write
+                             ? ScaleUse::Unknown : desc.type;
+        image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this, use);
         RegisterImage(image_id);
+        if (!image_ids.empty() && UploadDiagnostics::adopt_subresources.load(std::memory_order_relaxed)) {
+            AdoptGpuSubresources(image_id);
+        }
     }
 
     Image& image = slot_images[image_id];
     if (desc.type == BindingType::Texture && image.info.guest_address == info.guest_address &&
         image.info.resources.levels != info.resources.levels && !instance.ScalePolicy().legacy)
         image.ForceNative("streaming identity");
-    image.ObserveUsage(desc.type);
-    if (desc.type == BindingType::Storage) {
-        image.ForceNative("storage or format alias");
+    // The scaled store maps whole-image coordinates: the view must be the image itself.
+    const bool scalable_write = desc.type == BindingType::Storage && desc.scalable_write &&
+        image.info.guest_address == info.guest_address && image.info.size == info.size &&
+        image.info.pixel_format == info.pixel_format && image.info.type == info.type &&
+        image.info.resources.levels == 1 && image.info.resources.layers == 1 &&
+        image.info.num_samples == 1 && !image.info.props.is_depth && !image.info.props.is_block;
+    if (scalable_write) {
+        image.ObserveScalableStorage();
+    } else {
+        image.ObserveUsage(desc.type);
+        if (desc.type == BindingType::Storage) {
+            image.ForceNative("storage or format alias");
+        }
     }
     image.tick_accessed_last = scheduler.CurrentTick();
     TouchImage(image);
 
+    if (UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed)) [[unlikely]] {
+        TinyTrace(fmt::format(
+            "find {} req {:#x}+{:#x} {}x{}x{} L{} A{} {} t{} -> img{} {:#x} {}x{}x{} L{} A{} t{} "
+            "view m{} s{} cands={} created_by={} uploaded={}",
+            static_cast<u32>(desc.type), info.guest_address, info.guest_size, info.size.width,
+            info.size.height, info.size.depth, info.resources.levels, info.resources.layers,
+            vk::to_string(info.pixel_format), static_cast<u32>(info.type), image_id.index,
+            image.info.guest_address, image.info.size.width, image.info.size.height,
+            image.info.size.depth, image.info.resources.levels, image.info.resources.layers,
+            static_cast<u32>(image.info.type), view_mip, view_slice, image_ids.size(),
+            image.created_by, image.uploaded));
+    }
     // If the image requested is a subresource of the image from cache record its location.
     if (view_mip > 0) {
         desc.view_info.range.base.level = view_mip;
@@ -1947,6 +2256,79 @@ ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
     return image.FindView(desc.view_info);
 }
 
+void TextureCache::TinyTrace(std::string entry) {
+    static constexpr size_t Capacity = 768;
+    std::scoped_lock lock{tiny_trace_mutex};
+    if (tiny_trace.size() < Capacity) {
+        tiny_trace.push_back(std::move(entry));
+        return;
+    }
+    tiny_trace[tiny_trace_next] = std::move(entry);
+    tiny_trace_next = (tiny_trace_next + 1) % Capacity;
+}
+
+void TextureCache::DumpTinyTrace(VAddr trigger) {
+    std::scoped_lock lock{tiny_trace_mutex};
+    if (tiny_trace_dumps >= 2) {
+        return;
+    }
+    ++tiny_trace_dumps;
+    const size_t count = tiny_trace.size();
+    LOG_INFO(Render_Vulkan, "tiny trace for {:#x}: last {} entries", trigger, count);
+    for (size_t i = 0; i < count; ++i) {
+        LOG_INFO(Render_Vulkan, "tiny trace {}", tiny_trace[(tiny_trace_next + i) % count]);
+    }
+    tiny_trace.clear();
+    tiny_trace_next = 0;
+}
+
+void TextureCache::NoteTinyTargetWrite(ImageId image_id, Image& image) {
+    const auto& info = image.info;
+    if (!UploadDiagnostics::tiny_writeback.load(std::memory_order_relaxed) ||
+        info.guest_address == 0 || info.resources.levels != 1 || info.resources.layers != 1 ||
+        info.num_samples != 1 || info.props.is_depth) {
+        return;
+    }
+    const s64 now = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now().time_since_epoch())
+                        .count();
+    // Renders within one submit are one step of the streak (UE4 draws the SH map once per
+    // coefficient); consecutive submits close in time extend it.
+    if (image.tiny_write_tick != gc_tick) {
+        const bool continued = image.tiny_write_tick != ~u64{0} &&
+                               now - image.tiny_write_ns < TinyTargetGapNs;
+        image.tiny_streak = continued ? image.tiny_streak + 1 : 1;
+        image.tiny_write_tick = gc_tick;
+    }
+    image.tiny_write_ns = now;
+    if (image.tiny_streak > TinyTargetStreak) {
+        UploadDiagnostics::tiny_writeback_skips.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    bool queued;
+    {
+        std::unique_lock lk{download_images_mutex};
+        queued = download_images.emplace(image_id).second;
+    }
+    if (!queued) {
+        return;
+    }
+    if (UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed) &&
+        info.size.height == 1 && info.size.width >= 5) [[unlikely]] {
+        DumpTinyTrace(info.guest_address);
+    }
+    const u64 count = UploadDiagnostics::tiny_writebacks.fetch_add(1, std::memory_order_relaxed);
+    if (count < 64) {
+        LOG_INFO(Render_Vulkan,
+                 "tiny target write-back {:#x} {}x{} {} tile_mode={} size={:#x} streak={} "
+                 "submit={} (#{})",
+                 info.guest_address, info.size.width, info.size.height,
+                 vk::to_string(info.pixel_format), static_cast<u32>(info.tile_mode),
+                 info.guest_size,
+                 image.tiny_streak, gc_tick, count + 1);
+    }
+}
+
 ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
     image.MarkGpuWrite();
@@ -1955,6 +2337,8 @@ ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& des
     if (readback_linear_images && (!image.info.props.is_tiled || image.info.size.width <= 8)) {
         std::unique_lock lk{download_images_mutex};
         download_images.emplace(image_id);
+    } else if (image.info.size.width * image.info.size.height <= TinyTargetPixels) {
+        NoteTinyTargetWrite(image_id, image);
     }
     image.usage.render_target = 1u;
     UpdateImage(image_id);
@@ -2122,6 +2506,15 @@ void TextureCache::RefreshImage(Image& image) {
 
     if (UploadDiagnostics::armed.load(std::memory_order_relaxed)) {
         NoteUploadDiagnostics(image, image_copies);
+    }
+    if (UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed)) [[unlikely]] {
+        std::string mips;
+        for (const auto& copy : image_copies) {
+            mips += fmt::format(" m{}", copy.imageSubresource.mipLevel);
+        }
+        TinyTrace(fmt::format("upload {:#x} {}x{} L{} A{} guest mips:{}", image.info.guest_address,
+                              image.info.size.width, image.info.size.height,
+                              image.info.resources.levels, image.info.resources.layers, mips));
     }
     u64 upload_bytes = 0;
     for (const auto& copy : image_copies)

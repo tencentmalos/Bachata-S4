@@ -32,6 +32,7 @@
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_sync_metrics.h"
 #include "core/host_runtime/guest_watchdog.h"
+#include "core/host_runtime/guest_runtime.h"
 #include "core/host_runtime/guest_wake_proxy.h"
 #include "core/host_runtime/guest_cpu_placement.h"
 #include "core/host_runtime/guest_audio.h"
@@ -201,6 +202,10 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) { return ExecutableExport::Command(args); });
     registry.Register("hle_sync", "HLE synchronization metrics: status | dump | start/detail/stop <context>",
         [](const std::vector<std::string>& args) { return HostRuntime::SyncMetrics::Command(args); });
+    registry.Register("hle_caller_log",
+        "Sampled guest callers of the HLE functions named by debug.shadps4.hle_caller_log: "
+        "status | arm [lines]",
+        [](const std::vector<std::string>& args) { return HostRuntime::HleCallerLogCommand(args); });
     registry.Register("guest_watchdog",
         "Dump each guest thread's HLE call and guest return chain once no frame was presented for "
         "20 s (default on), or now: status | dump | on | off",
@@ -531,6 +536,13 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         "MemoryManager::Free direct-mapping lookup: status | verify on|off",
         [](const std::vector<std::string>& args) {
             return Core::Memory::Instance()->FreeIndexControl(args);
+        });
+
+    registry.Register("memory_lock",
+        "Guest mapping lock: waits (shared/exclusive, GPU thread/other), writer holds by "
+        "operation, waiter spin mode: status | reset | spin syscall|pause|timed [us]",
+        [](const std::vector<std::string>& args) {
+            return Core::Memory::Instance()->LockControl(args);
         });
 
     registry.Register("memory_describe",

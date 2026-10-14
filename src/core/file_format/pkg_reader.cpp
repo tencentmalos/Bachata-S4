@@ -5,6 +5,8 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
+#include <cerrno>
 #include <cstring>
 #include <fstream>
 #include <functional>
@@ -17,6 +19,15 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <zlib.h>
+#ifndef _WIN32
+#include <fcntl.h>
+#include <unistd.h>
+#endif
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
+#include "common/logging/log.h"
+#include "core/crypto/aes_xts.h"
 #include "core/crypto/crypto.h"
 #include "core/file_format/pkg_type.h"
 
@@ -48,6 +59,63 @@ u64 BE(std::span<const u8> bytes, size_t offset, size_t width) {
         value = (value << 8) | bytes[offset + i];
     return value;
 }
+// The package file, read at explicit offsets so concurrent guest reads need no shared
+// file position. Windows keeps a locked stream (no pread).
+class SourceFile {
+public:
+    explicit SourceFile(const std::filesystem::path& path) {
+#ifdef _WIN32
+        stream.open(path, std::ios::binary);
+        open = stream.is_open();
+#else
+        fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+        open = fd >= 0;
+#endif
+    }
+    ~SourceFile() {
+#ifndef _WIN32
+        if (fd >= 0)
+            ::close(fd);
+#endif
+    }
+    SourceFile(const SourceFile&) = delete;
+    SourceFile& operator=(const SourceFile&) = delete;
+    bool IsOpen() const {
+        return open;
+    }
+    // Reads exactly output.size() bytes at `offset`; false on a short read or error.
+    bool ReadAt(u64 offset, std::span<u8> output) {
+#ifdef _WIN32
+        std::scoped_lock lock(mutex);
+        stream.clear();
+        stream.seekg(static_cast<std::streamoff>(offset));
+        stream.read(reinterpret_cast<char*>(output.data()),
+                    static_cast<std::streamsize>(output.size()));
+        return stream && stream.gcount() == static_cast<std::streamsize>(output.size());
+#else
+        size_t done = 0;
+        while (done < output.size()) {
+            const ssize_t n = ::pread(fd, output.data() + done, output.size() - done,
+                                      static_cast<off_t>(offset + done));
+            if (n < 0 && errno == EINTR)
+                continue;
+            if (n <= 0)
+                return false;
+            done += static_cast<size_t>(n);
+        }
+        return true;
+#endif
+    }
+
+private:
+    bool open{};
+#ifdef _WIN32
+    std::mutex mutex;
+    std::ifstream stream;
+#else
+    int fd{-1};
+#endif
+};
 std::string Name(std::span<const u8> bytes) {
     std::string name(reinterpret_cast<const char*>(bytes.data()), bytes.size());
     Require(!name.empty() && name != "." && name != ".." &&
@@ -231,39 +299,60 @@ struct PkgReader::Impl {
     struct File {
         ReadFn read;
     };
-    std::ifstream source;
+    SourceFile source;
     u64 source_size{};
-    mutable std::mutex mutex;
-    Statistics stats;
+    // Reference mode (OpenReference, tests only): the original serial reader, one
+    // 4 KiB sector read and one LibreSSL tweak setup at a time, under one lock.
+    const bool reference;
+    std::mutex reference_mutex;
+    std::atomic<u64> source_bytes{}, inflated_blocks{}, cache_hits{};
     std::vector<Entry> entries;
     std::vector<File> files;
     std::unordered_map<std::string, size_t> index;
-    std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> xts{EVP_CIPHER_CTX_new(),
-                                                                        EVP_CIPHER_CTX_free};
     std::array<u8, 32> xts_key{};
+    std::unique_ptr<Crypto::Aes128Xts> xts;
     std::shared_ptr<PfsVolume> outer, inner;
     std::vector<u64> offsets;
     u64 pfsc_size{}, block_size{}, logical_size{};
     ReadFn pfsc_read;
-    // At most 8 MiB of decompressed data per open package. Directory/index
-    // metadata is immutable; this LRU and the seekable source share one lock.
+    // Decompressed PFSC blocks, at most 32 MiB per open package. Readers inflate
+    // outside the lock; a block two readers inflate at once is simply kept once.
+    // Directory/index metadata is immutable after construction.
     struct Cached {
         u64 id;
         Bytes data;
     };
+    std::mutex cache_mutex;
     std::list<Cached> cache;
     std::unordered_map<u64, std::list<Cached>::iterator> cached;
+    static constexpr u64 CacheBytes = 32 * 1024 * 1024;
 
     void Raw(u64 offset, std::span<u8> output) {
         Range(offset, output.size(), source_size);
         Require(offset <= INT64_MAX && output.size() <= INT64_MAX, "offset too large");
-        source.clear();
-        source.seekg(static_cast<std::streamoff>(offset));
-        source.read(reinterpret_cast<char*>(output.data()),
-                    static_cast<std::streamsize>(output.size()));
-        Require(source && source.gcount() == static_cast<std::streamsize>(output.size()),
-                "truncated package read");
-        stats.source_bytes += output.size();
+        Require(source.ReadAt(offset, output), "truncated package read");
+        source_bytes.fetch_add(output.size(), std::memory_order_relaxed);
+    }
+    // Copies `output` from a cached block; false when the block is not cached.
+    bool CopyCached(u64 block, u64 offset, std::span<u8> output) {
+        std::scoped_lock lock(cache_mutex);
+        const auto found = cached.find(block);
+        if (found == cached.end())
+            return false;
+        cache.splice(cache.begin(), cache, found->second);
+        std::memcpy(output.data(), found->second->data.data() + offset, output.size());
+        return true;
+    }
+    void Insert(u64 block, Bytes&& data) {
+        std::scoped_lock lock(cache_mutex);
+        if (cached.contains(block))
+            return;
+        if (cache.size() >= CacheBytes / block_size) {
+            cached.erase(cache.back().id);
+            cache.pop_back();
+        }
+        cache.push_front({block, std::move(data)});
+        cached.emplace(block, cache.begin());
     }
     void Add(std::string path, u64 size, bool directory, ReadFn read = {}, bool replace = false) {
         Require(path.size() < 4096 && entries.size() < MaxEntries, "filesystem index too large");
@@ -301,8 +390,10 @@ struct PkgReader::Impl {
         Range(pos, output.size(), logical_size);
         while (!output.empty()) {
             const u64 block = pos / block_size;
-            auto found = cached.find(block);
-            if (found == cached.end()) {
+            const auto take = std::min<u64>(output.size(), block_size - pos % block_size);
+            if (CopyCached(block, pos % block_size, output.first(take))) {
+                cache_hits.fetch_add(1, std::memory_order_relaxed);
+            } else {
                 const auto packed_size = offsets[block + 1] - offsets[block];
                 Require(packed_size > 0 && packed_size <= block_size,
                         "file references a PFSC padding block");
@@ -326,25 +417,17 @@ struct PkgReader::Impl {
                                 produced == block_size,
                             "invalid compressed block");
                 }
-                ++stats.inflated_blocks;
-                if (cache.size() >= (8 * 1024 * 1024 / block_size)) {
-                    cached.erase(cache.back().id);
-                    cache.pop_back();
-                }
-                cache.push_front({block, std::move(data)});
-                found = cached.emplace(block, cache.begin()).first;
-            } else {
-                ++stats.cache_hits;
-                cache.splice(cache.begin(), cache, found->second);
+                inflated_blocks.fetch_add(1, std::memory_order_relaxed);
+                std::memcpy(output.data(), data.data() + pos % block_size, take);
+                Insert(block, std::move(data));
             }
-            const auto take = std::min<u64>(output.size(), block_size - pos % block_size);
-            std::memcpy(output.data(), found->second->data.data() + pos % block_size, take);
             output = output.subspan(take);
             pos += take;
         }
     }
-    explicit Impl(const std::filesystem::path& path) : source(path, std::ios::binary) {
-        Require(source.is_open() && xts, "cannot open package");
+    explicit Impl(const std::filesystem::path& path, bool reference_mode)
+        : source(path), reference(reference_mode) {
+        Require(source.IsOpen(), "cannot open package");
         source_size = std::filesystem::file_size(path);
         std::array<u8, 0x1000> header{};
         Raw(0, header);
@@ -446,6 +529,8 @@ struct PkgReader::Impl {
             Crypto::PfsGenCryptoKey(ekpfs, seed, data, tweak);
             std::copy(data.begin(), data.end(), xts_key.begin());
             std::copy(tweak.begin(), tweak.end(), xts_key.begin() + 16);
+            xts = std::make_unique<Crypto::Aes128Xts>(std::span<const u8, 32>(xts_key),
+                                                      !reference);
         };
         derive(new_crypt);
         const bool encrypted_pfs = LE(pfs_header, 0x1c, 2) & 4;
@@ -456,27 +541,41 @@ struct PkgReader::Impl {
                 Raw(pfs_offset + pos, out);
                 return;
             }
-            std::array<u8, SectorSize> encrypted{}, plain{};
+            if (reference) {
+                std::array<u8, SectorSize> sector{};
+                while (!out.empty()) {
+                    const u64 aligned = pos & ~(SectorSize - 1);
+                    Range(aligned, SectorSize, pfs_size);
+                    Raw(pfs_offset + aligned, sector);
+                    if (aligned >= crypt_start)
+                        xts->Decrypt(aligned / SectorSize, SectorSize, sector);
+                    const auto take = std::min<u64>(out.size(), SectorSize - pos % SectorSize);
+                    std::memcpy(out.data(), sector.data() + pos % SectorSize, take);
+                    out = out.subspan(take);
+                    pos += take;
+                }
+                return;
+            }
+            // Whole sectors covering the request, up to 1 MiB per read: one positional
+            // read, then the cipher over the sectors at or past the encryption boundary.
+            constexpr u64 ChunkBytes = 1024 * 1024;
+            thread_local Bytes chunk;
             while (!out.empty()) {
                 const u64 aligned = pos & ~(SectorSize - 1);
-                Range(aligned, SectorSize, pfs_size);
-                Raw(pfs_offset + aligned, encrypted);
-                if (aligned < crypt_start)
-                    plain = encrypted;
-                else {
-                    std::array<u8, 16> iv{};
-                    for (size_t j = 0; j < 8; ++j)
-                        iv[j] = (aligned / SectorSize) >> (j * 8);
-                    int written = 0;
-                    Require(EVP_DecryptInit_ex(xts.get(), EVP_aes_128_xts(), nullptr,
-                                               xts_key.data(), iv.data()) == 1 &&
-                                EVP_DecryptUpdate(xts.get(), plain.data(), &written,
-                                                  encrypted.data(), encrypted.size()) == 1 &&
-                                written == SectorSize,
-                            "XTS decryption failed");
+                const u64 wanted = (pos + out.size() + SectorSize - 1) & ~(SectorSize - 1);
+                const u64 length = std::min<u64>(wanted - aligned, ChunkBytes);
+                Range(aligned, length, pfs_size);
+                if (chunk.size() < length)
+                    chunk.resize(ChunkBytes);
+                const auto sectors = std::span(chunk).first(length);
+                Raw(pfs_offset + aligned, sectors);
+                if (aligned + length > crypt_start) {
+                    const u64 plain = aligned < crypt_start ? crypt_start - aligned : 0;
+                    xts->Decrypt((aligned + plain) / SectorSize, SectorSize,
+                                 sectors.subspan(plain));
                 }
-                const auto take = std::min<u64>(out.size(), SectorSize - pos % SectorSize);
-                std::memcpy(out.data(), plain.data() + pos % SectorSize, take);
+                const auto take = std::min<u64>(out.size(), aligned + length - pos);
+                std::memcpy(out.data(), chunk.data() + (pos - aligned), take);
                 out = out.subspan(take);
                 pos += take;
             }
@@ -531,8 +630,17 @@ struct PkgReader::Impl {
     }
 };
 
-PkgReader::PkgReader(const std::filesystem::path& path) : impl(std::make_unique<Impl>(path)) {}
+PkgReader::PkgReader(const std::filesystem::path& path, bool reference)
+    : impl(std::make_unique<Impl>(path, reference)) {
+    LOG_INFO(Core, "PKG reader: {} ({} files, AES-XTS {}{})", path.filename().string(),
+             impl->entries.size(),
+             impl->xts ? Crypto::Aes128Xts::Name(impl->xts->GetBackend()) : "none",
+             reference ? ", reference mode" : "");
+}
 PkgReader::~PkgReader() = default;
+std::shared_ptr<PkgReader> PkgReader::OpenReference(const std::filesystem::path& path) {
+    return std::shared_ptr<PkgReader>(new PkgReader(std::filesystem::canonical(path), true));
+}
 std::shared_ptr<PkgReader> PkgReader::Open(const std::filesystem::path& path) {
     // Mounts, the loader and metadata inspection share the same reader. Weak
     // ownership releases file handles and caches when the last user closes it.
@@ -543,7 +651,14 @@ std::shared_ptr<PkgReader> PkgReader::Open(const std::filesystem::path& path) {
     if (auto found = readers.find(canonical); found != readers.end())
         if (auto reader = found->second.lock())
             return reader;
-    auto reader = std::shared_ptr<PkgReader>(new PkgReader(canonical));
+    bool reference = false;
+#ifdef __ANDROID__
+    // `debug.shadps4.pkg_reader=reference`: the original serial reader, for A/B runs.
+    char mode[PROP_VALUE_MAX]{};
+    __system_property_get("debug.shadps4.pkg_reader", mode);
+    reference = std::string_view(mode) == "reference";
+#endif
+    auto reader = std::shared_ptr<PkgReader>(new PkgReader(canonical, reference));
     std::erase_if(readers, [](const auto& item) { return item.second.expired(); });
     readers[canonical] = reader;
     return reader;
@@ -561,12 +676,17 @@ size_t PkgReader::Read(size_t entry, u64 offset, std::span<u8> output) {
     if (output.empty() || offset >= size)
         return 0;
     const auto take = std::min<u64>(output.size(), size - offset);
-    std::scoped_lock lock(impl->mutex);
+    // Concurrent reads are allowed: the file index is immutable, the source is read at
+    // explicit offsets, the cipher keeps no state and the block cache has its own lock.
+    std::unique_lock<std::mutex> serial;
+    if (impl->reference)
+        serial = std::unique_lock(impl->reference_mutex);
     impl->files[entry].read(offset, output.first(take));
     return take;
 }
 PkgReader::Statistics PkgReader::GetStatistics() const {
-    std::scoped_lock lock(impl->mutex);
-    return impl->stats;
+    return {impl->source_bytes.load(std::memory_order_relaxed),
+            impl->inflated_blocks.load(std::memory_order_relaxed),
+            impl->cache_hits.load(std::memory_order_relaxed)};
 }
 } // namespace Core::FileFormat

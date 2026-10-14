@@ -55,6 +55,23 @@ inline std::atomic<bool> expand_twin{true};
 inline std::atomic<u64> expansions{0}, expand_upload_skips{0}, expand_twin_reuses{0},
     expand_stale_sources{0};
 
+// Color targets of at most TinyTargetPixels pixels that the GPU writes now and then are written
+// back to guest memory before the next EOP/EOS/RELEASE_MEM fence: games read such results with
+// the CPU, e.g. UE4's 9x1 sky light SH map (`upload_diag tiny_writeback on|off`, on by default;
+// SHADPS4_TINY_WRITEBACK=0 / debug.shadps4.tiny_writeback=0 at startup). A target written in
+// more than TinyTargetStreak submits in a row (per-frame exposure or reduction targets) is not
+// written back until it pauses. Counters: write-backs queued, writes skipped as per-frame.
+inline std::atomic<bool> tiny_writeback{true};
+// A new image takes over the cached images the GPU wrote as its mips (TextureCache::
+// AdoptGpuSubresources) instead of uploading guest memory over them (`upload_diag adopt_mips
+// on|off`, on by default). Counter: images adopted.
+inline std::atomic<bool> adopt_subresources{true};
+inline std::atomic<u64> adopted_subresources{0};
+// `upload_diag tiny_writeback dump`: logs each written-back tiny target texel by texel before
+// the write-back and the first 512 bytes of guest memory after it.
+inline std::atomic<bool> tiny_writeback_dump{false};
+inline std::atomic<u64> tiny_writebacks{0}, tiny_writeback_skips{0};
+
 // Decommitted pool memory keeps its GPU-written images; a commit of the same range the CPU has
 // not written revives the exact image with its contents (`upload_diag pool_revive on|off`, on
 // by default). Counters: images kept, revived (and their bytes), deleted unrevived, and
@@ -62,6 +79,16 @@ inline std::atomic<u64> expansions{0}, expand_upload_skips{0}, expand_twin_reuse
 inline std::atomic<bool> pool_revive{true};
 inline std::atomic<u64> pool_revive_kept{0}, pool_revive_revived{0}, pool_revive_bytes{0},
     pool_revive_released{0}, pool_revive_stale{0};
+
+// Diagnostic (`upload_diag cb_dump <shader_hash> [count] [bytes]`, off by default): the next
+// `count` draws or dispatches of that program log the first `bytes` (default 64, at most 4096)
+// of every buffer each stage binds, 64 bytes per line.
+inline std::atomic<u64> cb_dump_hash{0};
+inline std::atomic<s32> cb_dump_left{0};
+inline std::atomic<u32> cb_dump_bytes{64};
+// Diagnostic (`upload_diag image_stats <guest_address>`): the next bind of the image at that
+// address downloads its first level and logs per-channel min/max/mean and NaN/Inf counts.
+inline std::atomic<u64> stats_address{0};
 
 struct UploadEvent {
     ImageKey key;
@@ -188,6 +215,18 @@ inline std::atomic<u64> texture_bind_fast_hits{0};
 // Reads of streamed buffers also go through the barrier tracker (`upload_diag stream_barriers
 // on|off`, off by default): an A/B switch for the earlier behaviour.
 inline std::atomic<bool> stream_barriers{false};
+// `upload_diag frame_shape on|off`: per-frame draw/dispatch summaries and one-frame anomaly
+// dumps in the log (Rasterizer, GPU command thread).
+inline std::atomic<bool> frame_shape{false};
+// `upload_diag vb_watch on|off`: vertex buffer V#s re-read after each draw (Rasterizer).
+inline std::atomic<bool> vb_watch{false};
+// `upload_diag draw_pairs on|off`: first use of each (VS, PS, primitive type) logged (Rasterizer).
+inline std::atomic<bool> draw_pairs{false};
+// `upload_diag sharp_watch on|off`: bound V#/T# bases outside mapped guest memory logged.
+inline std::atomic<bool> sharp_watch{false};
+// `upload_diag full_barriers on|off`: a full memory barrier after every render pass and around
+// every dispatch (Scheduler::FullBarrier).
+inline std::atomic<bool> full_barriers{false};
 // A write fault calls the texture cache only when a page it touches is still write watched after
 // the buffer cache released it: images watch their pages, so a page without watchers is tracked
 // by no image (`upload_diag fault_textures skip|always`, skip by default).

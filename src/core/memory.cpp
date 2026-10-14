@@ -4,13 +4,17 @@
 #include <optional>
 #include <algorithm>
 #include <array>
+#include <charconv>
+#include <chrono>
 #include <shared_mutex>
 #define XXH_STATIC_LINKING_ONLY
+#include <boost/container/small_vector.hpp>
 #include <xxhash.h>
 
 #include "common/alignment.h"
 #include "common/profiler.h"
 #include "common/scope_exit.h"
+#include "common/step_stats.h"
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/elf_info.h"
@@ -36,19 +40,91 @@ namespace Core {
 
 namespace {
 // The exclusive MemoryManager lock with a profiler scope over exactly the time it is held: guest
-// map/unmap/protect calls hold it while the GPU thread's reads of guest memory wait.
+// map/unmap/protect calls hold it while the GPU thread's reads of guest memory wait. The hold
+// time is also counted per name (`memory_lock status`).
 struct WriteHold {
-    WriteHold(Common::SharedFirstMutex& mutex, const char* name) : lock{mutex} {
+    WriteHold(Common::SharedFirstMutex& mutex, const char* name) : lock{mutex}, hold{name} {
         scope.emplace(name);
     }
+    // Releases early; a second call does nothing.
     void unlock() {
+        hold.Stop();
         scope.reset();
-        lock.unlock();
+        if (lock.owns_lock()) {
+            lock.unlock();
+        }
     }
     std::unique_lock<Common::SharedFirstMutex> lock;
+    Common::StepStats::Timer hold;
     std::optional<Common::Profiler::Scope> scope;
 };
+
+// Pool commit/decommit change the host mapping outside the writer lock (default). `memory_lock
+// pool_map locked` keeps it inside, as before, for comparisons.
+std::atomic<bool> pool_map_unlocked{true};
 } // Anonymous namespace
+
+std::string MemoryManager::LockControl(std::span<const std::string> args) {
+    using Mode = Common::SharedFirstMutex::SpinMode;
+    if (args.size() >= 2 && args[0] == "spin") {
+        if (args[1] == "syscall" && args.size() == 2) {
+            Common::SharedFirstMutex::spin_mode = Mode::Syscall;
+        } else if (args[1] == "pause" && args.size() == 2) {
+            Common::SharedFirstMutex::spin_mode = Mode::Pause;
+        } else if (args[1] == "timed" && args.size() <= 3) {
+            if (args.size() == 3) {
+                u32 us = 0;
+                const auto [end, ec] =
+                    std::from_chars(args[2].data(), args[2].data() + args[2].size(), us);
+                if (ec != std::errc{} || end != args[2].data() + args[2].size() || us > 10'000) {
+                    return "usage: memory_lock spin timed [us<=10000]\n";
+                }
+                Common::SharedFirstMutex::spin_us = us;
+            }
+            Common::SharedFirstMutex::spin_mode = Mode::Timed;
+        } else {
+            return "usage: memory_lock spin syscall|pause|timed [us]\n";
+        }
+    } else if (args.size() == 2 && args[0] == "holds" && (args[1] == "on" || args[1] == "off")) {
+        Common::SharedFirstMutex::hold_tracking = args[1] == "on";
+    } else if (args.size() == 2 && args[0] == "pool_map" &&
+               (args[1] == "locked" || args[1] == "unlocked")) {
+        pool_map_unlocked = args[1] == "unlocked";
+    } else if (args.size() == 1 && args[0] == "reset") {
+        mutex.ResetStats();
+        Common::StepStats::Reset();
+    } else if (!(args.empty() || (args.size() == 1 && args[0] == "status"))) {
+        return "usage: memory_lock [status] | reset | holds on|off | pool_map locked|unlocked | "
+               "spin syscall|pause|timed [us]\n";
+    }
+    constexpr auto o = std::memory_order_relaxed;
+    const Mode mode = Common::SharedFirstMutex::spin_mode.load(o);
+    std::string out = fmt::format("spin={} spin_us={} holds={} pool_map={}\n",
+                                  mode == Mode::Syscall ? "syscall"
+                                  : mode == Mode::Pause ? "pause"
+                                                        : "timed",
+                                  Common::SharedFirstMutex::spin_us.load(o),
+                                  Common::SharedFirstMutex::hold_tracking.load(o) ? "on" : "off",
+                                  pool_map_unlocked.load(o) ? "unlocked" : "locked");
+    // Waits after a failed fast path; waiter 0 is any thread, 1 the GPU command processor.
+    // "hold" rows are outermost shared hold times (waits = holds), recorded with `holds on`.
+    // Buckets: <10us <100us <1ms >=1ms.
+    const auto& stats = mutex.Stats();
+    for (const auto& [label, group] :
+         {std::pair{"shared", &stats.shared}, std::pair{"exclusive", &stats.exclusive},
+          std::pair{"hold", &stats.shared_holds}}) {
+        for (u32 waiter = 0; waiter < Common::SharedFirstMutex::WaitClasses; ++waiter) {
+            const auto& c = (*group)[waiter];
+            out += fmt::format("{} {} waits={} parked={} wait_us={} max_us={} buckets={}/{}/{}/{}\n",
+                               label, waiter ? "gpu" : "other", c.waits.load(o), c.parked.load(o),
+                               c.wait_ns.load(o) / 1000, c.max_wait_ns.load(o) / 1000,
+                               c.buckets[0].load(o), c.buckets[1].load(o), c.buckets[2].load(o),
+                               c.buckets[3].load(o));
+        }
+    }
+    // Writer holds (Memory.WriteHold.*) and the steps timed inside them.
+    return out + Common::StepStats::Report();
+}
 
 namespace {
 
@@ -1130,30 +1206,33 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
     const VAddr mapped_addr = virtual_addr;
 
     auto preparation = impl.PrepareMapping(mapped_addr, size);
-    WriteHold lk2{mutex, "Memory.WriteHold.PoolCommit"};
 
-    auto& vma = FindVMA(mapped_addr)->second;
-    if (vma.type != VMAType::PoolReserved) {
-        // If we're attempting to commit non-pooled memory, return EINVAL
-        LOG_ERROR(Kernel_Vmm, "Attempting to commit non-pooled memory at {:#x}", mapped_addr);
-        return ORBIS_KERNEL_ERROR_EINVAL;
-    }
+    // Every writer of the VMA and physical maps holds unmap_mutex, so while it is held they
+    // cannot change and reading them needs no lock. Only publishing the commit takes the writer
+    // lock: the host mapping work (on Android a VM transaction that can wait for pinned guest
+    // data) no longer blocks the readers, most of all the GPU thread.
+    {
+        const auto& vma = FindVMA(mapped_addr)->second;
+        if (vma.type != VMAType::PoolReserved) {
+            // If we're attempting to commit non-pooled memory, return EINVAL
+            LOG_ERROR(Kernel_Vmm, "Attempting to commit non-pooled memory at {:#x}", mapped_addr);
+            return ORBIS_KERNEL_ERROR_EINVAL;
+        }
 
-    if (!vma.Contains(mapped_addr, size)) {
-        // If there's not enough space to commit, return EINVAL
-        LOG_ERROR(Kernel_Vmm,
-                  "Pooled region {:#x} to {:#x} is not large enough to commit from {:#x} to {:#x}",
-                  vma.base, vma.base + vma.size, mapped_addr, mapped_addr + size);
-        return ORBIS_KERNEL_ERROR_EINVAL;
+        if (!vma.Contains(mapped_addr, size)) {
+            // If there's not enough space to commit, return EINVAL
+            LOG_ERROR(
+                Kernel_Vmm,
+                "Pooled region {:#x} to {:#x} is not large enough to commit from {:#x} to {:#x}",
+                vma.base, vma.base + vma.size, mapped_addr, mapped_addr + size);
+            return ORBIS_KERNEL_ERROR_EINVAL;
+        }
     }
 
     if (pool_budget < size) {
         // If there isn't enough pooled memory to perform the mapping, return ENOMEM
         LOG_ERROR(Kernel_Vmm, "Not enough pooled memory to perform mapping");
         return ORBIS_KERNEL_ERROR_ENOMEM;
-    } else {
-        // Track how much pooled memory this commit will take
-        pool_budget -= size;
     }
 
     if (True(prot & MemoryProt::CpuWrite)) {
@@ -1161,19 +1240,10 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
         prot |= MemoryProt::CpuRead;
     }
 
-    // Create the virtual mapping for the commit
-    const auto new_vma_handle = CarveVMA(virtual_addr, size);
-    auto& new_vma = new_vma_handle->second;
-    new_vma.disallow_merge = false;
-    new_vma.prot = prot;
-    new_vma.name = "anon";
-    new_vma.type = Core::VMAType::Pooled;
-    new_vma.phys_areas.clear();
-
     // Find suitable physical addresses. Every separate physical area costs its own host mapping,
-    // and a fragmented pool turned one commit into dozens of them while the write lock is held,
     // so prefer the smallest free pooled area that holds the whole commit. Without one, take
     // the free areas in address order as before (PS4 commits may be physically sparse).
+    Common::StepStats::Timer scan_time{"PoolCommit.scan"};
     auto handle = dmem_map.end();
     for (auto it = dmem_map.begin(); it != dmem_map.end(); ++it) {
         if (it->second.dma_type == PhysicalMemoryType::Pooled && it->second.size >= size &&
@@ -1187,49 +1257,77 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
     if (handle == dmem_map.end()) {
         handle = dmem_map.begin();
     }
-    const auto permission = ToMemoryPermission(prot);
+    struct Piece {
+        VAddr addr;
+        PAddr phys;
+        u64 size;
+    };
+    boost::container::small_vector<Piece, 4> pieces;
     u64 remaining_size = size;
     VAddr current_addr = mapped_addr;
-    while (handle != dmem_map.end() && remaining_size > 0) {
+    for (; handle != dmem_map.end() && remaining_size > 0; ++handle) {
+        // Non-pooled means it's either not for pool use, or already committed.
         if (handle->second.dma_type != PhysicalMemoryType::Pooled) {
-            // Non-pooled means it's either not for pool use, or already committed.
-            handle++;
             continue;
         }
+        // On PS4, commits can make sparse physical mappings: use the start of each area.
+        const u64 size_to_map = std::min<u64>(remaining_size, handle->second.size);
+        pieces.push_back({current_addr, handle->second.base, size_to_map});
+        current_addr += size_to_map;
+        remaining_size -= size_to_map;
+    }
+    ASSERT_MSG(remaining_size == 0, "Failed to commit pooled memory");
+    scan_time.Stop();
 
-        // On PS4, commits can make sparse physical mappings.
-        u64 size_to_map = std::min<u64>(remaining_size, handle->second.size);
+    // Map the host view before publishing: until then readers see the range as reserved and do
+    // not access it, so none reads through a mapping that is not there yet. Map already grants
+    // read/write, so only a different permission needs a second pass.
+    const auto permission = ToMemoryPermission(prot);
+    std::optional<WriteHold> lk2;
+    if (!pool_map_unlocked.load(std::memory_order_relaxed)) {
+        lk2.emplace(mutex, "Memory.WriteHold.PoolCommit");
+    }
+    Common::StepStats::Timer map_time{"PoolCommit.map"};
+    for (const auto& piece : pieces) {
+        impl.Map(piece.addr, piece.size, piece.phys);
+        if (permission != MemoryPermission::ReadWrite) {
+            impl.Protect(piece.addr, piece.size, permission);
+        }
+    }
+    map_time.Stop();
+    // Tracy memory tracking breaks from merging memory areas. Disabled for now.
+    // TRACK_ALLOC(out_addr, size_to_map, "VMEM");
 
-        // Use the start of this area as the physical backing for this mapping.
-        const auto new_dmem_handle = CarvePhysArea(dmem_map, handle->second.base, size_to_map);
+    if (!lk2) {
+        lk2.emplace(mutex, "Memory.WriteHold.PoolCommit");
+    }
+    // Track how much pooled memory this commit takes.
+    pool_budget -= size;
+
+    // Create the virtual mapping for the commit
+    const auto new_vma_handle = CarveVMA(virtual_addr, size);
+    auto& new_vma = new_vma_handle->second;
+    new_vma.disallow_merge = false;
+    new_vma.prot = prot;
+    new_vma.name = "anon";
+    new_vma.type = Core::VMAType::Pooled;
+    new_vma.phys_areas.clear();
+    for (const auto& piece : pieces) {
+        const auto new_dmem_handle = CarvePhysArea(dmem_map, piece.phys, piece.size);
         auto& new_dmem_area = new_dmem_handle->second;
         new_dmem_area.dma_type = PhysicalMemoryType::Committed;
         new_dmem_area.memory_type = mtype;
 
         // Add the dmem area to this vma, merge it with any similar tracked areas.
-        new_vma.phys_areas[current_addr - mapped_addr] = new_dmem_handle->second;
-        MergeAdjacent(new_vma.phys_areas, new_vma.phys_areas.find(current_addr - mapped_addr));
-
-        // Perform an address space mapping for each physical area. Map already grants
-        // read/write, so only a different permission needs a second pass.
-        void* out_addr = impl.Map(current_addr, size_to_map, new_dmem_area.base);
-        if (permission != MemoryPermission::ReadWrite) {
-            impl.Protect(current_addr, size_to_map, permission);
-        }
-        // Tracy memory tracking breaks from merging memory areas. Disabled for now.
-        // TRACK_ALLOC(out_addr, size_to_map, "VMEM");
-
-        handle = MergeAdjacent(dmem_map, new_dmem_handle);
-        current_addr += size_to_map;
-        remaining_size -= size_to_map;
-        handle++;
+        new_vma.phys_areas[piece.addr - mapped_addr] = new_dmem_area;
+        MergeAdjacent(new_vma.phys_areas, new_vma.phys_areas.find(piece.addr - mapped_addr));
+        MergeAdjacent(dmem_map, new_dmem_handle);
     }
-    ASSERT_MSG(remaining_size == 0, "Failed to commit pooled memory");
 
     // Merge this VMA with similar nearby areas
     MergeAdjacent(vma_map, new_vma_handle);
 
-    lk2.unlock();
+    lk2->unlock();
     if (IsValidGpuMapping(mapped_addr, size)) {
         rasterizer->CommitPoolMemory(mapped_addr, size);
     }
@@ -1643,6 +1741,7 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
 
     // Aquire writer mutex
     WriteHold lk2{mutex, "Memory.WriteHold.PoolDecommit"};
+    Common::StepStats::Timer book_time{"PoolDecommit.book"};
 
     // Loop through all vmas in the area, unmap them.
     u64 remaining_size = size;
@@ -1696,8 +1795,17 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
         remaining_size -= size_in_vma;
     }
 
-    // Unmap from address space
+    book_time.Stop();
+    // Readers already see the range as reserved, so remove the host view without the writer
+    // lock (on Android the VM transaction can wait for pinned guest data). unmap_mutex stays
+    // held: no commit can reuse the physical pages before the old view is gone.
+    if (pool_map_unlocked.load(std::memory_order_relaxed)) {
+        lk2.unlock();
+    }
+    Common::StepStats::Timer unmap_time{"PoolDecommit.unmap"};
     impl.Unmap(virtual_addr, size);
+    unmap_time.Stop();
+    lk2.unlock();
     // Tracy memory tracking breaks from merging memory areas. Disabled for now.
     // TRACK_FREE(virtual_addr, "VMEM");
 

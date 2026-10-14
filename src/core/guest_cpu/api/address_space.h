@@ -449,6 +449,19 @@ private:
     // negative results. Recheck the current record on every hit: erase/split/
     // replace may change what the index means, without requiring invalidation.
     [[nodiscard]] const Mapping* FindContainingMappingLocked(GuestRange range) const;
+    // A ledger change over one range. Planned under `lock` before the host syscall, with every
+    // allocation (including ledger capacity) done there, so a failed plan or syscall leaves the
+    // ledger unchanged and the commit cannot fail. Records are unordered; the commit only
+    // touches the overlapping ones instead of copying the whole ledger.
+    struct LedgerEdit {
+        std::vector<std::size_t> removed; // overlapping records, ascending index
+        std::vector<Mapping> added;       // remnants, reprotected middles, the new mapping
+        std::uint64_t covered{};          // bytes of `range` that were mapped
+        bool executable{};                // an overlapping record is executable
+    };
+    [[nodiscard]] LedgerEdit PlanLedgerEditLocked(VmOperation operation, GuestRange range,
+                                                  GuestPermission permission);
+    void CommitLedgerEditLocked(const LedgerEdit& edit) noexcept;
     struct Alias final {
         GuestRange primary{};
         GuestAddress alias_base{};

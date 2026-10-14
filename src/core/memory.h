@@ -418,6 +418,8 @@ public:
     /// DebugBus `vm_free_index`: status, or `verify on|off` (Free also walks every VMA and
     /// compares; on a mismatch the walk's result is used and counted).
     std::string FreeIndexControl(std::span<const std::string> args);
+    /// DebugBus `memory_lock`: waits on the mapping lock, holds of its writer side, spin mode.
+    std::string LockControl(std::span<const std::string> args);
 
     /// For crash reports: recent mapping changes (map, unmap, protect, pool commit/decommit)
     /// whose range contains one of `addresses`, newest first. Never blocks.
@@ -538,7 +540,7 @@ private:
     std::atomic<u64> free_index_lookups{}, free_index_walks{}, free_index_mismatches{};
     PhysMap fmem_map;
     VMAMap vma_map;
-    Common::SharedFirstMutex mutex{"Memory.LockWait"};
+    Common::SharedFirstMutex mutex{"Memory.LockWait", true};
     friend class HostRuntime::GuestRuntime;
     // Linker/patch publication participates in mapping-writer ordering only.
     // This capability must never be passed to data marshalling/HLE domains.

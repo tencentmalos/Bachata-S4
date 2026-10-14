@@ -12,6 +12,7 @@
 #include "core/host_runtime/guest_ssl.h"
 #include "core/host_runtime/guest_posix_network.h"
 #include "core/host_runtime/guest_random.h"
+#include <charconv>
 #include <atomic>
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -34,6 +35,7 @@
 #include "common/path_util.h"
 #include "common/profiler.h"
 #include "common/singleton.h"
+#include "common/step_stats.h"
 #include "common/string_util.h"
 #include "common/thread.h"
 #include "core/aerolib/aerolib.h"
@@ -255,16 +257,62 @@ void RestoreOfflineHttp2Imports(Module& module, GuestAddressSpace& space,
         LOG_WARNING(Core_Linker, "Content compatibility CUSA50828/01.08 text-sha256={}: restored {} HTTP2 import jumps to normal HLE; source file unchanged", digest, bindings.size());
     }
 }
+// `debug.shadps4.hle_caller_log=<name>[,<name>...]`: HLE functions whose profile name contains
+// one of the substrings log a sampled caller (every 997th call per thread): the guest return
+// address and up to six RBP-chain parents. Bounded to 256 lines per process.
+std::atomic<u32> hle_caller_log_budget{0};
+
+void LogHleCaller(const HleCallFrame& frame, const std::string& name) {
+    static thread_local u32 calls{};
+    if (calls++ % 997 != 0 || !frame.space) {
+        return;
+    }
+    u32 budget = hle_caller_log_budget.load(std::memory_order_relaxed);
+    while (budget != 0 && !hle_caller_log_budget.compare_exchange_weak(
+                              budget, budget - 1, std::memory_order_relaxed)) {
+    }
+    if (budget == 0) {
+        return;
+    }
+    u64 caller{};
+    if (!frame.space->ReadData(GuestAddress{frame.registers.Get(Gpr::Rsp)},
+                               std::as_writable_bytes(std::span{&caller, 1}))) {
+        return;
+    }
+    std::string parents;
+    auto fp = frame.registers.Get(Gpr::Rbp);
+    for (int depth = 0; depth < 6; ++depth) {
+        std::array<u64, 2> record{};
+        if (!fp || (fp & 7) ||
+            !frame.space->ReadData(GuestAddress{fp}, std::as_writable_bytes(std::span{record}))) {
+            break;
+        }
+        parents += fmt::format(" {:#x}", record[1]);
+        if (record[0] <= fp || record[0] - fp > 16 * 1024 * 1024) {
+            break;
+        }
+        fp = record[0];
+    }
+    const auto* scope = HleScope::Current();
+    LOG_INFO(Core, "HLE caller {} guest={} caller={:#x} rdi={:#x} rsi={:#x} rbp={:#x} parents:{}",
+             name, scope ? scope->Thread().id : 0, caller, frame.registers.Get(Gpr::Rdi),
+             frame.registers.Get(Gpr::Rsi), frame.registers.Get(Gpr::Rbp), parents);
+}
+
 struct FunctionAdapter final : HleCallAdapter {
     std::string profile_name{"HLE.Unknown"};
     bool profile_poll{};
     bool profile_sync{}, profile_sync_mutex{};
+    bool caller_log{};
     std::shared_ptr<SyncMetrics::Session> sync_metrics;
     SyncMetrics::Operation sync_operation{SyncMetrics::Operation::None};
     std::function<Status(HleCallFrame&)> call;
     explicit FunctionAdapter(std::function<Status(HleCallFrame&)> f) : call(std::move(f)) {}
     Status Invoke(HleCallFrame& frame) const override {
         Common::Profiler::Scope profile{profile_name.c_str()};
+        if (caller_log) [[unlikely]] {
+            LogHleCaller(frame, profile_name);
+        }
         bool sync_sample = profile_sync && Common::Profiler::Enabled();
         if (sync_sample && profile_sync_mutex) {
             // Independent physical-owner/operation streams, deliberately a
@@ -430,6 +478,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestUserCallbacks> user_callbacks;
     bool np_offline{};
     bool profile_sync{};
+    std::vector<std::string> hle_caller_filters;
     std::shared_ptr<SyncMetrics::Session> sync_metrics;
     std::unique_ptr<GuestAjm> ajm;
     // libSceFiber: guest memory reached through the session's checked data path.
@@ -541,7 +590,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestThreadAttributeDomain> thread_attributes;
     std::unique_ptr<GuestMutexDomain> mutex_domain;
     std::unique_ptr<GuestSyncArena> sync_arena;
-    std::unique_ptr<GuestSyncArena> rwlock_arena;
+    std::unique_ptr<GuestSyncArena> rwlock_arena, rwlock_attr_arena;
     std::unique_ptr<GuestRwlockDomain> rwlock_domain;
     std::unique_ptr<GuestSyncArena> semaphore_arena;
     std::unique_ptr<GuestSemaphoreDomain> semaphore_domain;
@@ -564,12 +613,52 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     // lazily on the first import resolution, before any guest thread exists;
     // `debug.shadps4.sync_fastpath=0` keeps every mutex entry on the HLE path.
     bool sync_fastpath_enabled{true}, sync_fastpath_installed{};
+    // `debug.shadps4.tls_fastpath=0` keeps getspecific/getthreadid on the HLE path
+    // while the mutex entries stay in the payload.
+    bool tls_fastpath_enabled{true};
+    // `debug.shadps4.leaf_fastpath=0` keeps the leaf calls on the HLE path: the process
+    // time counter, TSC reads, setspecific, pthread_equal (sync payload) and the draw,
+    // dispatch and marker encoders (Gnm payload). A comma list of groups (clock, tls,
+    // draw, marker) routes only those groups.
+    enum LeafGroup : u32 { LeafClock = 1, LeafTls = 2, LeafDraw = 4, LeafMarker = 8, LeafAll = 15 };
+    u32 leaf_fastpath_groups{LeafAll};
+    bool leaf_fastpath_enabled{true};
+    static u32 ParseLeafGroups(std::string_view value) {
+        if (value == "0") return 0;
+        if (value.empty() || value == "1") return LeafAll;
+        u32 groups = 0;
+        while (!value.empty()) {
+            const auto comma = value.find(',');
+            const auto item = value.substr(0, comma);
+            groups |= item == "clock" ? LeafClock : item == "tls" ? LeafTls :
+                      item == "draw" ? LeafDraw : item == "marker" ? LeafMarker : 0;
+            value = comma == std::string_view::npos ? std::string_view{} : value.substr(comma + 1);
+        }
+        return groups;
+    }
+    // `debug.shadps4.rwlock_fastpath=0` keeps the rwlock entries on the HLE path (the
+    // HLE runs the same word protocol either way); rwlock_log keeps them there too so
+    // its trace sees every call.
+    bool rwlock_fastpath_enabled{true};
     u64 sync_fastpath_base{}, sync_fastpath_size{};
     std::string sync_fastpath_status{"not_installed"};
     std::atomic<unsigned> sync_arena_outside{};
     // Arena object window [base, limit): one reservation carved into 16 KiB
     // blocks; its bounds are what the payload's `shad_sync_window` table gets.
     u64 sync_window_base{}, sync_window_limit{}, sync_window_next{};
+    // Rwlock objects get their own window, same scheme (attribute objects stay outside).
+    u64 rwlock_window_base{}, rwlock_window_limit{}, rwlock_window_next{};
+    // Thread-specific key table mirrored into guest memory for the payload's
+    // getspecific (guest_sync_abi.h). Zero until the fast path is installed;
+    // the host key array stays authoritative either way.
+    u64 tls_keys_va{};
+    void PublishSpecificKeyLocked(size_t index) {
+        if (!tls_keys_va) return;
+        const auto& key = specific_keys[index];
+        const u64 word = (key.sequence << 1) | (key.allocated ? 1u : 0u);
+        std::atomic_ref<u64>(reinterpret_cast<u64*>(tls_keys_va)[index])
+            .store(word, std::memory_order_release);
+    }
     void InstallSyncFastPath();
     // App-shipped guest Gnm shader-binding encoders (guest/runtime/gnm). Installed
     // with the sync payload; `debug.shadps4.gnm_fastpath=0` keeps the HLE path.
@@ -597,14 +686,17 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::jthread watchdog_thread;
     mutable std::mutex threads_mutex;
     std::condition_variable threads_changed;
+    // One record per key below each thread handle (guest_sync_abi.h), so the guest
+    // fast path reads it without leaving the guest. Only the owning thread writes.
     struct SpecificValue {
         u64 sequence{}, value{};
     };
+    static_assert(sizeof(SpecificValue) * SHAD_SYNC_TLS_KEYS == SHAD_SYNC_TLS_VALUES_BELOW_HANDLE);
     struct SpecificKey {
         bool allocated{};
         u64 sequence{}, destructor{};
     };
-    std::array<SpecificKey, 256> specific_keys{};
+    std::array<SpecificKey, SHAD_SYNC_TLS_KEYS> specific_keys{};
     // libkernel's libc destructor hook is per runtime; its value is a guest PC.
     std::atomic<u64> thread_dtors{};
     // Optional libc reporting callbacks. Desktop leaves these unused; retain
@@ -618,7 +710,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         Common::NativeThreadRef host_ref{};
         int startup_error{};
         bool startup_done{};
-        std::array<SpecificValue, 256> specific{};
+        // Guest address of this thread's SHAD_SYNC_TLS_KEYS records (handle - 0x1000).
+        u64 specific_va{};
+        SpecificValue& Specific(size_t index) const {
+            return reinterpret_cast<SpecificValue*>(specific_va)[index];
+        }
         ThreadHandle handle{};
         std::thread worker;
         std::optional<GuestCallResult> result;
@@ -867,9 +963,32 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char sync_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.profile_sync", sync_property);
             profile_sync = std::string_view(sync_property) == "1";
+            char caller_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.hle_caller_log", caller_property);
+            // "0" (or unset) disables it: setprop cannot clear a property.
+            for (std::string_view rest{caller_property}; !rest.empty() && rest != "0";) {
+                const auto comma = rest.find(',');
+                if (const auto item = rest.substr(0, comma); !item.empty()) {
+                    hle_caller_filters.emplace_back(item);
+                }
+                rest = comma == std::string_view::npos ? std::string_view{} : rest.substr(comma + 1);
+            }
+            if (!hle_caller_filters.empty()) {
+                hle_caller_log_budget.store(256, std::memory_order_relaxed);
+            }
             char fastpath_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.sync_fastpath", fastpath_property);
             sync_fastpath_enabled = std::string_view(fastpath_property) != "0";
+            char tls_fastpath_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.tls_fastpath", tls_fastpath_property);
+            tls_fastpath_enabled = std::string_view(tls_fastpath_property) != "0";
+            char leaf_fastpath_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.leaf_fastpath", leaf_fastpath_property);
+            leaf_fastpath_groups = ParseLeafGroups(leaf_fastpath_property);
+            leaf_fastpath_enabled = leaf_fastpath_groups != 0;
+            char rwlock_fastpath_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.rwlock_fastpath", rwlock_fastpath_property);
+            rwlock_fastpath_enabled = std::string_view(rwlock_fastpath_property) != "0";
             char gnm_fastpath_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.gnm_fastpath", gnm_fastpath_property);
             gnm_fastpath_enabled = std::string_view(gnm_fastpath_property) != "0";
@@ -906,6 +1025,14 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 hmd_diagnostics = std::string_view(value) == "1";
             if (const char* value = std::getenv("SHADPS4_SYNC_FASTPATH"))
                 sync_fastpath_enabled = std::string_view(value) != "0";
+            if (const char* value = std::getenv("SHADPS4_TLS_FASTPATH"))
+                tls_fastpath_enabled = std::string_view(value) != "0";
+            if (const char* value = std::getenv("SHADPS4_LEAF_FASTPATH")) {
+                leaf_fastpath_groups = ParseLeafGroups(value);
+                leaf_fastpath_enabled = leaf_fastpath_groups != 0;
+            }
+            if (const char* value = std::getenv("SHADPS4_RWLOCK_FASTPATH"))
+                rwlock_fastpath_enabled = std::string_view(value) != "0";
             if (const char* value = std::getenv("SHADPS4_GNM_FASTPATH"))
                 gnm_fastpath_enabled = std::string_view(value) != "0";
 #endif
@@ -1015,13 +1142,16 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 throw std::runtime_error("VM mutation overlaps resident guest patch; restart without the package");
         }
 
+        Common::StepStats::Timer ensure_time{"VM.GpuPagesEnsure"};
         gpu_pages.Ensure(address, size);
+        ensure_time.Stop();
         const GuestRange range{GuestAddress{address}, size};
         if (auto* token = CodeToken()) {
             Common::Profiler::Scope update("VM.FullCodeRetirement");
             Require(space.UpdateVmUnderToken(*token, op, range, permission, fd, offset, shared));
         } else {
             Common::Profiler::Scope update("VM.DataMapping");
+            Common::StepStats::Timer data_time{"VM.DataMapping"};
             const auto* scope = HleScope::Current();
             auto result =
                 space.UpdateDataMapping(op, range, permission, fd, offset,
@@ -1034,6 +1164,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             } else
                 Require(std::move(result));
         }
+        Common::StepStats::Timer pages_time{"VM.GpuPageStates"};
         const u8 state =
             op == GuestAddressSpace::VmOperation::Unmap ? 0 : 0x80 | static_cast<u8>(permission);
         for (u64 page = address / 4096; page < (address + size) / 4096; ++page) {
@@ -1222,16 +1353,24 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 o->attributes.guard = guard;
             }
             o->attributes.stack = o->stack;
+            // [static TLS][Tcb][dtv][...][rwlock read holds][thread-specific records]
+            // [64-byte handle]
             o->tls_size =
                 Common::AlignUp(linker->StaticTlsSize() + sizeof(Tcb) +
-                                    (linker->MaxTlsIndex() + 2) * sizeof(DtvEntry) + 0x100,
+                                    (linker->MaxTlsIndex() + 2) * sizeof(DtvEntry) + 0x100 +
+                                    SHAD_SYNC_RW_HOLDS_BELOW_HANDLE + 64,
                                 0x4000ULL);
             o->tls = Allocate(o->tls_size, "GuestTls");
             o->tcb = o->tls + linker->StaticTlsSize();
             o->dtv = Common::AlignUp(o->tcb + sizeof(Tcb), 16ULL);
             o->handle_va = o->tls + o->tls_size - 64;
+            o->specific_va = o->handle_va - SHAD_SYNC_TLS_VALUES_BELOW_HANDLE;
             auto tls_pin =
                 Require(space.AcquireDataSpan({GuestAddress{o->tls}, o->tls_size}, true));
+            std::memset(reinterpret_cast<void*>(o->handle_va - SHAD_SYNC_RW_HOLDS_BELOW_HANDLE), 0,
+                        SHAD_SYNC_RW_HOLDS_BELOW_HANDLE + 64);
+            std::memcpy(reinterpret_cast<void*>(o->handle_va + SHAD_SYNC_HANDLE_THREAD_ID), &o->id,
+                        sizeof(o->id));
             auto* tcb = reinterpret_cast<Tcb*>(o->tcb);
             *tcb = {};
             tcb->tcb_self = tcb;
@@ -1403,7 +1542,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                     u64 value{}, destructor{};
                     {
                         std::lock_guard lock(threads_mutex);
-                        auto& slot = o->specific[i];
+                        auto& slot = o->Specific(i);
                         const auto& key = specific_keys[i];
                         if (key.allocated && key.sequence == slot.sequence) {
                             value = slot.value;
@@ -2084,7 +2223,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         else
             static_cast<FunctionAdapter&>(*adapter).profile_name = "HLE." + nid;
         static_cast<FunctionAdapter&>(*adapter).profile_poll =
-            nid == "QBi7HCK03hw" || nid == "lLMT9vJAck0" || nid == "1jfXLRVzisc";
+            nid == "QBi7HCK03hw" || nid == "lLMT9vJAck0" || nid == "1jfXLRVzisc" ||
+            nid == "fgxnMeTNUtY" || nid == "-2IRUCO--PM";
         auto& function = static_cast<FunctionAdapter&>(*adapter);
         function.sync_operation = SyncMetrics::Classify(function.profile_name);
         if (function.sync_operation != SyncMetrics::Operation::None) function.sync_metrics = sync_metrics;
@@ -2092,6 +2232,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             function.profile_name.find("MutexUnlock") != std::string::npos ||
             function.profile_name.find("mutex_lock") != std::string::npos ||
             function.profile_name.find("mutex_unlock") != std::string::npos;
+        function.caller_log = std::any_of(
+            hle_caller_filters.begin(), hle_caller_filters.end(),
+            [&](const std::string& item) { return function.profile_name.find(item) != std::string::npos; });
         function.profile_sync = profile_sync && (function.profile_sync_mutex ||
             function.profile_name == "HLE.sceNetEpollWait" ||
             function.profile_name.find("PthreadCond") != std::string::npos ||
@@ -2263,12 +2406,22 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
     static constexpr const char* kPosixLock = "7H0iTOciTLo#libScePosix#1#libkernel#Function";
     static constexpr const char* kPosixTrylock = "K-jXhbt2gn4#libScePosix#1#libkernel#Function";
     static constexpr const char* kPosixUnlock = "2Z+PpY6CaJg#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixRwRdlock = "iGjsr1WAtI0#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixRwTryrdlock = "SFxTMOfuCkE#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixRwWrlock = "sIlRvQqsN2Y#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixRwTrywrlock = "XhWHn6P5R7U#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixRwUnlock = "EgmLo6EWgso#libScePosix#1#libkernel#Function";
     std::array<u64, ShadSyncImportCount> imports{};
     imports[ShadSyncImportWait] = Bind({.name = SHAD_SYNC_NID_WAIT SHAD_SYNC_LIBRARY_SUFFIX});
     imports[ShadSyncImportWake] = Bind({.name = SHAD_SYNC_NID_WAKE SHAD_SYNC_LIBRARY_SUFFIX});
     imports[ShadSyncImportMutexLock] = Bind({.name = kPosixLock});
     imports[ShadSyncImportMutexTrylock] = Bind({.name = kPosixTrylock});
     imports[ShadSyncImportMutexUnlock] = Bind({.name = kPosixUnlock});
+    imports[ShadSyncImportRwlockRdlock] = Bind({.name = kPosixRwRdlock});
+    imports[ShadSyncImportRwlockTryrdlock] = Bind({.name = kPosixRwTryrdlock});
+    imports[ShadSyncImportRwlockWrlock] = Bind({.name = kPosixRwWrlock});
+    imports[ShadSyncImportRwlockTrywrlock] = Bind({.name = kPosixRwTrywrlock});
+    imports[ShadSyncImportRwlockUnlock] = Bind({.name = kPosixRwUnlock});
     CodePublication vm(*this);
     sync_fastpath_size = Common::AlignUp(u64{sizeof(Image)}, 0x4000ULL);
     sync_fastpath_base = Allocate(sync_fastpath_size, "GuestSyncFastPath", 0x1800000000ULL);
@@ -2284,7 +2437,18 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
     const auto window = symbol(SHAD_SYNC_WINDOW_TABLE);
     if (window.size != ShadSyncWindowCount * sizeof(u64) || window.offset % 8)
         throw std::runtime_error("guest sync payload window table mismatch");
-    const std::array<u64, ShadSyncWindowCount> bounds{sync_window_base, sync_window_limit};
+    // Key table for the payload's getspecific: one page, never freed, published
+    // with the current keys before any route points at the payload.
+    tls_keys_va = Allocate(0x4000, "GuestTlsKeys");
+    std::memset(reinterpret_cast<void*>(tls_keys_va), 0, 0x4000);
+    {
+        std::lock_guard lock(threads_mutex);
+        for (size_t i = 0; i < specific_keys.size(); ++i)
+            PublishSpecificKeyLocked(i);
+    }
+    const std::array<u64, ShadSyncWindowCount> bounds{
+        sync_window_base, sync_window_limit, tls_keys_va, clock.tsc_scale.ToGuest(clock.origin),
+        clock.GetTscFrequency(), rwlock_window_base, rwlock_window_limit};
     for (unsigned i = 0; i < ShadSyncWindowCount; ++i) {
         u64 slot{};
         std::memcpy(&slot, reinterpret_cast<void*>(sync_fastpath_base + window.offset + 8 * i), 8);
@@ -2300,8 +2464,39 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
         {"2Z+PpY6CaJg", SHAD_SYNC_EXPORT_POSIX_UNLOCK},  {"EotR8a3ASf4", SHAD_SYNC_EXPORT_SELF},
         {"9UK1vLZQft4", SHAD_SYNC_EXPORT_SCE_LOCK},      {"upoVrzMHFeE", SHAD_SYNC_EXPORT_SCE_TRYLOCK},
         {"tn3VlD0hG60", SHAD_SYNC_EXPORT_SCE_UNLOCK},    {"aI+OeCz8xrQ", SHAD_SYNC_EXPORT_SELF},
+        // Thread-specific reads and the thread id: UE4 titles call these on every
+        // allocation (KH3 loading: ~470k getspecific/s across threads).
+        {"0-KXaS70xy4", SHAD_SYNC_EXPORT_GETSPECIFIC},   {"eoht7mQOCmo", SHAD_SYNC_EXPORT_GETSPECIFIC},
+        {"EI-5-jlq2dE", SHAD_SYNC_EXPORT_GETTHREADID},   {"3eqs37G74-s", SHAD_SYNC_EXPORT_GETTHREADID},
+        // Leaf calls. KH3 loading: ~35k process-counter reads/s on the async loading
+        // thread, tens of thousands of pthread_equal/setspecific per second.
+        {"WrOLvHU0yQM", SHAD_SYNC_EXPORT_SETSPECIFIC},   {"+BzXYkqYeLE", SHAD_SYNC_EXPORT_SETSPECIFIC},
+        {"3PtV6p3QNX4", SHAD_SYNC_EXPORT_EQUAL},         {"7Xl257M4VNI", SHAD_SYNC_EXPORT_EQUAL},
+        {"fgxnMeTNUtY", SHAD_SYNC_EXPORT_PROCESS_TIME},  {"-2IRUCO--PM", SHAD_SYNC_EXPORT_READ_TSC},
+        {"1j3S3n-tTW4", SHAD_SYNC_EXPORT_TSC_FREQUENCY}, {"BNowx2l588E", SHAD_SYNC_EXPORT_TSC_FREQUENCY},
+        // Rwlocks. KH3 render thread: a read lock on UE4's pipeline-state cache per draw.
+        {"iGjsr1WAtI0", SHAD_SYNC_EXPORT_RW_RDLOCK},     {"Ox9i0c7L5w0", SHAD_SYNC_EXPORT_SCE_RW_RDLOCK},
+        {"SFxTMOfuCkE", SHAD_SYNC_EXPORT_RW_TRYRDLOCK},  {"XD3mDeybCnk", SHAD_SYNC_EXPORT_SCE_RW_TRYRDLOCK},
+        {"sIlRvQqsN2Y", SHAD_SYNC_EXPORT_RW_WRLOCK},     {"mqdNorrB+gI", SHAD_SYNC_EXPORT_SCE_RW_WRLOCK},
+        {"XhWHn6P5R7U", SHAD_SYNC_EXPORT_RW_TRYWRLOCK},  {"bIHoZCTomsI", SHAD_SYNC_EXPORT_SCE_RW_TRYWRLOCK},
+        {"EgmLo6EWgso", SHAD_SYNC_EXPORT_RW_UNLOCK},     {"+L98PIbGttk", SHAD_SYNC_EXPORT_SCE_RW_UNLOCK},
     };
+    const bool rwlock_routes = rwlock_fastpath_enabled && !rwlock_diagnostics;
     for (const auto& route : routes) {
+        const std::string_view export_name = route.export_name;
+        if (!tls_fastpath_enabled && (export_name == SHAD_SYNC_EXPORT_GETSPECIFIC ||
+                                      export_name == SHAD_SYNC_EXPORT_GETTHREADID))
+            continue;
+        if (!(leaf_fastpath_groups & LeafTls) &&
+            (export_name == SHAD_SYNC_EXPORT_SETSPECIFIC || export_name == SHAD_SYNC_EXPORT_EQUAL))
+            continue;
+        if (!(leaf_fastpath_groups & LeafClock) &&
+            (export_name == SHAD_SYNC_EXPORT_PROCESS_TIME || export_name == SHAD_SYNC_EXPORT_READ_TSC ||
+             export_name == SHAD_SYNC_EXPORT_TSC_FREQUENCY))
+            continue;
+        if (!rwlock_routes && (export_name.find("rwlock") != std::string_view::npos ||
+                               export_name.find("Rwlock") != std::string_view::npos))
+            continue;
         const auto entry = sync_fastpath_base + symbol(route.export_name).offset;
         for (const char* suffix : {"#libScePosix#1#libkernel#Function", "#libkernel#1#libkernel#Function"}) {
             const auto name = std::string(route.nid) + suffix;
@@ -2312,9 +2507,13 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
     // "installed" only when objects can actually be reached from the guest.
     sync_fastpath_status = sync_window_base ? "installed" : "installed_no_arena_window";
     LOG_INFO(Core_Linker,
-             "Guest sync fast path {}: base={:#x} bytes={} image_sha256={} arena_window=[{:#x}, {:#x})",
+             "Guest sync fast path {}: base={:#x} bytes={} image_sha256={} arena_window=[{:#x}, {:#x}) "
+             "tls_keys={:#x} tls_routes={} leaf_routes={} rwlock_window=[{:#x}, {:#x}) rwlock_routes={}",
              sync_fastpath_status, sync_fastpath_base, sizeof(Image), ImageSha256, sync_window_base,
-             sync_window_limit);
+             sync_window_limit, tls_keys_va, tls_fastpath_enabled ? "guest" : "hle",
+             leaf_fastpath_enabled ? fmt::format("guest({:#x})", leaf_fastpath_groups) : "hle",
+             rwlock_window_base, rwlock_window_limit,
+             rwlock_routes ? "guest" : (rwlock_diagnostics ? "hle(rwlock_log)" : "hle"));
 #endif
 }
 
@@ -2359,9 +2558,26 @@ void GuestRuntime::Impl::InstallGnmFastPath() {
         hle_status[name] = "guest_fastpath";
         ++routed;
     }
-    gnm_fastpath_status = routed ? "installed" : "installed_no_graphics";
-    LOG_INFO(Core_Linker, "Guest Gnm fast path {}: base={:#x} bytes={} image_sha256={} routed={}",
-             gnm_fastpath_status, gnm_fastpath_base, sizeof(Image), ImageSha256, routed);
+    unsigned leaf_routed = 0;
+    const bool neo = Libraries::Kernel::sceKernelIsNeoMode() != 0;
+    for (const auto& route : GnmFastPath::kLeafRoutes) {
+        const bool marker = std::string_view(route.export_name).find("Marker") != std::string_view::npos;
+        if (!(leaf_fastpath_groups & (marker ? LeafMarker : LeafDraw)) ||
+            !graphics_gnm_nids.contains(route.nid))
+            continue;
+        const auto* export_name = neo && route.neo_export ? route.neo_export : route.export_name;
+        const auto entry = gnm_fastpath_base + symbol(export_name).offset;
+        const auto name = std::string(route.nid) + GnmFastPath::kLibrarySuffix;
+        veneers.insert_or_assign(name, entry);
+        hle_status[name] = "guest_fastpath";
+        ++leaf_routed;
+    }
+    gnm_fastpath_status = routed + leaf_routed ? "installed" : "installed_no_graphics";
+    LOG_INFO(Core_Linker,
+             "Guest Gnm fast path {}: base={:#x} bytes={} image_sha256={} routed={} leaf_routed={} "
+             "neo={}",
+             gnm_fastpath_status, gnm_fastpath_base, sizeof(Image), ImageSha256, routed,
+             leaf_routed, neo);
 #endif
 }
 
@@ -2622,8 +2838,10 @@ void GuestRuntime::Impl::InstallHandlers() {
         return error ? PosixFailure(error) : 0;
     });
     // Separate from the mutex arena: each domain serializes its own allocator.
-    // Pack immutable handles instead of mapping 16 KiB for every rwlock/attr.
-    rwlock_arena = std::make_unique<GuestSyncArena>([this] {
+    // Pack immutable handles instead of mapping 16 KiB for every rwlock/attr. The
+    // lock objects themselves live in a fast-path window (created with the mutex
+    // domain below, whose waiters they share); attributes come from here.
+    auto map_rwlock_block = [this] {
         void* address{};
         const auto result = memory->MapMemory(
             &address, GuestRuntime::ServiceAllocationBase, GuestSyncArena::BlockSize,
@@ -2632,9 +2850,8 @@ void GuestRuntime::Impl::InstallHandlers() {
         if (result == ORBIS_KERNEL_ERROR_ENOMEM) return u64{0};
         if (result) throw std::runtime_error("GuestRwlockObjects mapping failed");
         return reinterpret_cast<u64>(address);
-    });
-    rwlock_domain = std::make_unique<GuestRwlockDomain>(
-        space, [this] { return rwlock_arena->Allocate(); });
+    };
+    rwlock_attr_arena = std::make_unique<GuestSyncArena>(map_rwlock_block);
     auto pthread_bind = [&](const char* posix, const char* sce, std::function<int(const std::array<u64, 6>&)> fn) {
         bind({posix}, [fn](const auto& a) -> u64 { return fn(a); });
         bind({sce}, [fn](const auto& a) -> u64 {
@@ -2825,7 +3042,7 @@ void GuestRuntime::Impl::InstallHandlers() {
     pthread_bind("8NuOHiTr1Vw", "h-OifiouBd8", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 5, a[1]); });
     pthread_bind("ytQULN-nhL4", "6ULAa0fq4jA", [this](const auto& a) { return rwlock_domain->Init(a[0], a[1]); });
     pthread_bind("1471ajPzxh0", "BB+kb08Tl9A", [this](const auto& a) { return rwlock_domain->Destroy(a[0]); });
-    pthread_bind("EgmLo6EWgso", "+L98PIbGttk", [this](const auto& a) { return rwlock_domain->Unlock(a[0], Current()->id); });
+    pthread_bind("EgmLo6EWgso", "+L98PIbGttk", [this](const auto& a) { return rwlock_domain->Unlock(a[0], Current()->handle_va); });
     // The POSIX timed locks take an absolute timespec; scePthreadRwlockTimed{rd,wr}lock and
     // pthread_rwlock_reltimed{rd,wr}lock_np take a timeout relative to now in microseconds.
     enum class RwTimeout { None, Absolute, RelativeUs };
@@ -2842,7 +3059,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         } else if (timeout == RwTimeout::RelativeUs) {
             deadline = std::chrono::system_clock::now() + std::chrono::microseconds{u32(a[1])};
         }
-        return rwlock_domain->Lock(a[0], Current()->id, write, attempt, HleScope::Current()->CancellationToken(), deadline);
+        return rwlock_domain->Lock(a[0], Current()->handle_va, write, attempt, HleScope::Current()->CancellationToken(), deadline);
     };
     pthread_bind("iGjsr1WAtI0", "Ox9i0c7L5w0", [rw_lock](const auto& a) { return rw_lock(a, false, false, RwTimeout::None); });
     pthread_bind("sIlRvQqsN2Y", "mqdNorrB+gI", [rw_lock](const auto& a) { return rw_lock(a, true, false, RwTimeout::None); });
@@ -2896,6 +3113,29 @@ void GuestRuntime::Impl::InstallHandlers() {
     });
     mutex_domain = std::make_unique<GuestMutexDomain>(
         space, [this] { return sync_arena->Allocate(); });
+    // Rwlock objects: the same window scheme as mutexes, in a reservation of their own
+    // so neither fast path ever takes the other kind of object.
+    try {
+        rwlock_window_base = Allocate(SHAD_SYNC_ARENA_WINDOW_SIZE, "GuestRwlockObjects",
+                                      GuestRuntime::ServiceAllocationBase + 0x100000000ULL);
+        rwlock_window_limit = rwlock_window_base + SHAD_SYNC_ARENA_WINDOW_SIZE;
+        rwlock_window_next = rwlock_window_base;
+    } catch (const std::exception& e) {
+        LOG_WARNING(Core_Linker, "GuestRwlockObjects window unavailable ({}); rwlocks stay on HLE",
+                    e.what());
+    }
+    rwlock_arena = std::make_unique<GuestSyncArena>([this, map_rwlock_block] {
+        if (rwlock_window_base && rwlock_window_next + GuestSyncArena::BlockSize <= rwlock_window_limit) {
+            const auto block = rwlock_window_next; // fresh zero pages of the reservation
+            rwlock_window_next += GuestSyncArena::BlockSize;
+            return block;
+        }
+        // Outside the window: correct on the HLE path, every operation crosses.
+        return map_rwlock_block();
+    });
+    rwlock_domain = std::make_unique<GuestRwlockDomain>(
+        space, [this] { return rwlock_arena->Allocate(); }, &mutex_domain->Waiters(),
+        [this] { return rwlock_attr_arena->Allocate(); });
     // Host half of the guest fast path: expected-value wait and wake by guest
     // address. Only the app-shipped payload imports these synthetic NIDs.
     bind({SHAD_SYNC_NID_WAIT}, [this](const auto& a) -> u64 {
@@ -3028,6 +3268,7 @@ void GuestRuntime::Impl::InstallHandlers() {
             key.allocated = true;
             ++key.sequence;
             key.destructor = a[1];
+            PublishSpecificKeyLocked(i);
             return 0;
         }
         return POSIX_EAGAIN;
@@ -3037,23 +3278,27 @@ void GuestRuntime::Impl::InstallHandlers() {
         if (a[0] >= specific_keys.size() || !specific_keys[a[0]].allocated)
             return POSIX_EINVAL;
         specific_keys[a[0]].allocated = false;
+        PublishSpecificKeyLocked(a[0]);
         return 0;
     });
+    // pthread_key_t is an int: the upper half of rdi is not defined (same as the payload).
     bind({"0-KXaS70xy4", "eoht7mQOCmo"}, [this](const auto& a) -> u64 {
         auto owner = Current();
+        const u32 index = u32(a[0]);
         std::lock_guard lock(threads_mutex);
-        if (a[0] >= specific_keys.size())
+        if (index >= specific_keys.size())
             return 0;
-        const auto& key = specific_keys[a[0]];
-        const auto& value = owner->specific[a[0]];
+        const auto& key = specific_keys[index];
+        const auto& value = owner->Specific(index);
         return key.allocated && value.sequence == key.sequence ? value.value : 0;
     });
     bind({"WrOLvHU0yQM", "+BzXYkqYeLE"}, [this](const auto& a) -> u64 {
         auto owner = Current();
+        const u32 index = u32(a[0]);
         std::lock_guard lock(threads_mutex);
-        if (a[0] >= specific_keys.size() || !specific_keys[a[0]].allocated)
+        if (index >= specific_keys.size() || !specific_keys[index].allocated)
             return POSIX_EINVAL;
-        owner->specific[a[0]] = {specific_keys[a[0]].sequence, a[1]};
+        owner->Specific(index) = {specific_keys[index].sequence, a[1]};
         return 0;
     });
     bind({"9BcDykPmo1I"}, [this](const auto&) -> u64 { return ErrnoAddress(); });
@@ -6107,4 +6352,24 @@ u64 GuestRuntime::PresentCount() const {
     std::scoped_lock lock(impl->graphics_mutex);
     return impl->graphics ? impl->graphics->VideoOut().guest_presents.load() : 0;
 }
+
+std::string HleCallerLogCommand(const std::vector<std::string>& args) {
+    const std::string op = args.empty() ? "status" : args[0];
+    if (op == "arm") {
+        u32 lines = 256;
+        if (args.size() >= 2) {
+            const auto& text = args[1];
+            const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), lines);
+            if (error != std::errc{} || end != text.data() + text.size() || lines == 0 || lines > 4096)
+                return "usage: hle_caller_log arm [1..4096]\n";
+        }
+        hle_caller_log_budget.store(lines, std::memory_order_relaxed);
+    } else if (op != "status") {
+        return "usage: hle_caller_log status | arm [lines]\n";
+    }
+    return fmt::format("hle_caller_log: budget={} lines (functions from debug.shadps4.hle_caller_log "
+                       "at session start; one line per 997 calls per thread)\n",
+                       hle_caller_log_budget.load(std::memory_order_relaxed));
+}
+
 } // namespace Core::HostRuntime

@@ -426,6 +426,8 @@ struct GPUSettings {
     Setting<bool> dump_shaders{false};
     Setting<bool> patch_shaders{false};
     Setting<u32> vblank_frequency{60};
+    // Most guest frames presented a second (Core::GameOptions::FrameLimits); 0 = the game's rate.
+    Setting<u32> frame_limit{0};
     Setting<bool> full_screen{false};
     Setting<std::string> full_screen_mode{"Windowed"};
     Setting<std::string> present_mode{"Mailbox"};
@@ -467,6 +469,7 @@ struct GPUSettings {
             make_override<GPUSettings>("direct_memory_access_enabled",
                                        &GPUSettings::direct_memory_access_enabled),
             make_override<GPUSettings>("vblank_frequency", &GPUSettings::vblank_frequency),
+            make_override<GPUSettings>("frame_limit", &GPUSettings::frame_limit),
             make_override<GPUSettings>("userfaultfd", &GPUSettings::userfaultfd),
         };
     }
@@ -479,7 +482,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GPUSettings, window_width, window_height, int
                                    vblank_frequency, full_screen, full_screen_mode, present_mode,
                                    hdr_allowed, fsr_enabled, rcas_enabled, rcas_attenuation,
                                    fdm_quality, internal_scale_percent, texture_quality,
-                                   force_disable_msaa, userfaultfd)
+                                   force_disable_msaa, userfaultfd, frame_limit)
 
 // -------------------------------
 // Vulkan settings
@@ -776,6 +779,7 @@ public:
     SETTING_FORWARD_BOOL(m_gpu, FsrEnabled, fsr_enabled)
     SETTING_FORWARD_BOOL(m_gpu, RcasEnabled, rcas_enabled)
     SETTING_FORWARD(m_gpu, RcasAttenuation, rcas_attenuation)
+    SETTING_FORWARD(m_gpu, FrameLimit, frame_limit)
     SETTING_FORWARD(m_gpu, FdmQuality, fdm_quality)
     SETTING_FORWARD(m_gpu, ConfiguredInternalScalePercent, internal_scale_percent)
 

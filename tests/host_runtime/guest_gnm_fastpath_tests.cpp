@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
+#include <functional>
 #include <random>
 #include <string>
 #include <string_view>
@@ -19,6 +20,7 @@
 #include "core/host_runtime/guest_gnm_abi.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/gnmdriver/gnmdriver_init.h"
+#include "core/libraries/kernel/process.h"
 #include "guest_gnm_payload.h"
 
 extern "C" {
@@ -37,6 +39,15 @@ s32 shad_sceGnmUpdatePsShader(u32*, u32, const u32*);
 s32 shad_sceGnmUpdatePsShader350(u32*, u32, const u32*);
 s32 shad_sceGnmUpdateVsShader(u32*, u32, const u32*, u32);
 u32 shad_sceGnmIsUserPaEnabled(void);
+s32 shad_sceGnmDrawIndex(u32*, u32, u32, u64, u32, u32);
+s32 shad_sceGnmDrawIndexNeo(u32*, u32, u32, u64, u32, u32);
+s32 shad_sceGnmDrawIndexAuto(u32*, u32, u32, u32);
+s32 shad_sceGnmDrawIndexAutoNeo(u32*, u32, u32, u32);
+s32 shad_sceGnmDrawIndexOffset(u32*, u32, u32, u32, u32);
+s32 shad_sceGnmDrawIndexOffsetNeo(u32*, u32, u32, u32, u32);
+s32 shad_sceGnmDispatchDirect(u32*, u32, u32, u32, u32, u32);
+s32 shad_sceGnmInsertPopMarker(u32*, u32);
+s32 shad_sceGnmInsertPushMarker(u32*, u32, const char*);
 }
 
 namespace {
@@ -170,8 +181,26 @@ int main() {
                         [&](const auto& s) { return exported == s.name; });
         Check(std::string("payload export ") + route.export_name, present);
     }
-    Check("payload exports == routes", std::size(GuestGnmPayload::Symbols) ==
-                                           std::size(Core::HostRuntime::GnmFastPath::kRoutes));
+    // Leaf routes: base and Neo exports present, NIDs named as in the database.
+    size_t leaf_exports = 0;
+    for (const auto& route : Core::HostRuntime::GnmFastPath::kLeafRoutes) {
+        const auto* entry = Core::AeroLib::FindByNid(route.nid);
+        const std::string_view exported = route.export_name;
+        Check(std::string("leaf nid ") + route.nid,
+              entry && exported.starts_with("shad_") && exported.substr(5) == entry->name);
+        for (const char* name : {route.export_name, route.neo_export}) {
+            if (!name)
+                continue;
+            ++leaf_exports;
+            Check(std::string("payload export ") + name,
+                  std::any_of(std::begin(GuestGnmPayload::Symbols),
+                              std::end(GuestGnmPayload::Symbols),
+                              [&](const auto& s) { return std::string_view(name) == s.name; }));
+        }
+    }
+    Check("payload exports == routes",
+          std::size(GuestGnmPayload::Symbols) ==
+              std::size(Core::HostRuntime::GnmFastPath::kRoutes) + leaf_exports);
     Check("IsUserPaEnabled",
           shad_sceGnmIsUserPaEnabled() == u32(Gnm::sceGnmIsUserPaEnabled() ? 1 : 0));
 
@@ -222,6 +251,142 @@ int main() {
         for (u32 size : {kMaxSize - 1, kMaxSize, kMaxSize + 1})
             Compare(e, size, random_regs(true), 0, false, expected, actual,
                     std::min<size_t>(size, kMaxSize) + 64);
+    }
+
+    // Leaf encoders (draw, dispatch, markers) against the HLE route around the
+    // production encoder. The Neo exports must equal the production output with the
+    // draw-initiator dword keeping flags bits 29-31.
+    {
+        Check("test session is not Neo (production is the non-Neo encoder)",
+              Libraries::Kernel::sceKernelIsNeoMode() == 0);
+        // HLE `encoder` route for a production call `run(scratch)`.
+        auto route = [&](std::vector<u32>& buffer, bool null_cmdbuf, u32 size,
+                         const std::function<u32(u32*)>& run) -> u32 {
+            if (null_cmdbuf || !size || size > kMaxSize)
+                return u32(-1);
+            constexpr u32 guard = 0xa55a9187;
+            std::vector<u32> encoded(std::max<u64>(size, 4096) + 64, guard);
+            std::memcpy(encoded.data(), buffer.data(), size * 4);
+            const u32 result = run(encoded.data());
+            if (!std::all_of(encoded.begin() + size, encoded.end(),
+                             [](u32 v) { return v == guard; }))
+                return u32(-1);
+            std::memcpy(buffer.data(), encoded.data(), size * 4);
+            return result;
+        };
+        using Fn = std::function<u32(u32*)>;
+        // One case; `neo_word` (index or -1) is the dword where the Neo export differs.
+        auto compare = [&](const char* name, bool null_cmdbuf, u32 size, const Fn& production,
+                           const Fn& guest, const Fn* guest_neo, int neo_word, u32 neo_value) {
+            const size_t window = std::min<size_t>(size, 4096) + 64;
+            std::fill(expected.begin(), expected.begin() + window, kFill);
+            std::copy(expected.begin(), expected.begin() + window, actual.begin());
+            const u32 want = route(expected, null_cmdbuf, size, production);
+            const u32 got = guest(null_cmdbuf ? nullptr : actual.data());
+            bool same = want == got &&
+                        std::equal(expected.begin(), expected.begin() + window, actual.begin());
+            if (same && guest_neo) {
+                std::fill(actual.begin(), actual.begin() + window, kFill);
+                const u32 got_neo = (*guest_neo)(null_cmdbuf ? nullptr : actual.data());
+                std::vector<u32> neo_expected(expected.begin(), expected.begin() + window);
+                if (want == 0 && neo_word >= 0)
+                    neo_expected[neo_word] = neo_value;
+                same = got_neo == want &&
+                       std::equal(neo_expected.begin(), neo_expected.end(), actual.begin());
+            }
+            char text[128];
+            std::snprintf(text, sizeof(text), "%s size=0x%x null=%d want=0x%x got=0x%x", name,
+                          size, null_cmdbuf, want, got);
+            Check(same ? std::string(name) : std::string(text), same);
+        };
+        const u32 flag_set[] = {0,          1,          2,          0x18,       0x1ffffffe,
+                                0x20000000, 0x40000001, 0xe0000000, 0xe0000001, 0xffffffff,
+                                0x80000018, 0x10};
+        const u64 addresses[] = {0, 1, 2, 0x1000, 0x12345678ab, 0xfffffffffffffffeull,
+                                 0x8000000000000001ull};
+        const u32 leaf_sizes[] = {0, 1, 5, 6, 7, 8, 9, 10, 11, 0x40, kMaxSize, kMaxSize + 1};
+        for (u32 size : leaf_sizes)
+            for (u32 flags : flag_set)
+                for (u64 address : addresses)
+                    for (bool null_cmdbuf : {false, true}) {
+                        const u32 count = rng(), type = rng();
+                        const Fn neo = [&](u32* p) {
+                            return u32(shad_sceGnmDrawIndexNeo(p, size, count, address, flags, type));
+                        };
+                        compare("sceGnmDrawIndex", null_cmdbuf, size,
+                                [&](u32* p) {
+                                    return u32(Gnm::sceGnmDrawIndex(p, size, count, address, flags,
+                                                                    type));
+                                },
+                                [&](u32* p) {
+                                    return u32(shad_sceGnmDrawIndex(p, size, count, address, flags,
+                                                                    type));
+                                },
+                                &neo, 5, flags & 0xe0000000u);
+                    }
+        for (u32 size : leaf_sizes)
+            for (u32 flags : flag_set)
+                for (bool null_cmdbuf : {false, true}) {
+                    const u32 count = rng(), offset = rng();
+                    const Fn auto_neo = [&](u32* p) {
+                        return u32(shad_sceGnmDrawIndexAutoNeo(p, size, count, flags));
+                    };
+                    compare("sceGnmDrawIndexAuto", null_cmdbuf, size,
+                            [&](u32* p) { return u32(Gnm::sceGnmDrawIndexAuto(p, size, count, flags)); },
+                            [&](u32* p) { return u32(shad_sceGnmDrawIndexAuto(p, size, count, flags)); },
+                            &auto_neo, 2, (flags & 0xe0000000u) | 2u);
+                    const Fn offset_neo = [&](u32* p) {
+                        return u32(shad_sceGnmDrawIndexOffsetNeo(p, size, offset, count, flags));
+                    };
+                    compare("sceGnmDrawIndexOffset", null_cmdbuf, size,
+                            [&](u32* p) {
+                                return u32(Gnm::sceGnmDrawIndexOffset(p, size, offset, count, flags));
+                            },
+                            [&](u32* p) {
+                                return u32(shad_sceGnmDrawIndexOffset(p, size, offset, count, flags));
+                            },
+                            &offset_neo, 4, flags & 0xe0000000u);
+                    const u32 dims[] = {0, 1, 0x7fffffff, 0x80000000, u32(rng())};
+                    for (u32 x : dims)
+                        for (u32 y : {0u, 0x80000000u, 7u}) {
+                            const u32 z = rng() & 0x7fffffff;
+                            compare("sceGnmDispatchDirect", null_cmdbuf, size,
+                                    [&](u32* p) {
+                                        return u32(Gnm::sceGnmDispatchDirect(p, size, x, y, z, flags));
+                                    },
+                                    [&](u32* p) {
+                                        return u32(shad_sceGnmDispatchDirect(p, size, x, y, z, flags));
+                                    },
+                                    nullptr, -1, 0);
+                        }
+                    compare("sceGnmInsertPopMarker", null_cmdbuf, size,
+                            [&](u32* p) { return u32(Gnm::sceGnmInsertPopMarker(p, size)); },
+                            [&](u32* p) { return u32(shad_sceGnmInsertPopMarker(p, size)); },
+                            nullptr, -1, 0);
+                }
+        // Push marker: the HLE route reads the text (refusing 1024+ characters and a size
+        // too small for it) and runs the production encoder on its copy.
+        for (size_t len : {0, 1, 2, 3, 4, 5, 7, 8, 11, 12, 13, 31, 64, 255, 1022, 1023, 1024, 1025}) {
+            std::string marker(len, 'a');
+            for (size_t i = 0; i < len; ++i)
+                marker[i] = char('A' + (rng() % 26));
+            const u32 packet = u32(((len + 8) >> 2) + ((len + 0xc) >> 3) * 2);
+            for (u32 size : {packet + 1, packet + 2, packet + 3, 0u, kMaxSize + 1}) {
+                compare("sceGnmInsertPushMarker", false, size,
+                        [&](u32* p) -> u32 {
+                            const std::string copy = marker.substr(0, std::min<size_t>(len, 1024));
+                            if (copy.size() == 1024 || size < (copy.size() + 4) / 4 + 2)
+                                return u32(-1);
+                            return u32(Gnm::sceGnmInsertPushMarker(p, size, copy.c_str()));
+                        },
+                        [&](u32* p) { return u32(shad_sceGnmInsertPushMarker(p, size, marker.c_str())); },
+                        nullptr, -1, 0);
+                compare("sceGnmInsertPushMarker null", false, size,
+                        [&](u32* p) { return u32(Gnm::sceGnmInsertPushMarker(p, size, nullptr)); },
+                        [&](u32* p) { return u32(shad_sceGnmInsertPushMarker(p, size, nullptr)); },
+                        nullptr, -1, 0);
+            }
+        }
     }
 
     // The HLE route copies only HwInitPacketSize dwords through its scratch for

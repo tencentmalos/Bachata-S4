@@ -4,6 +4,7 @@
 // Verifies the uncontended path makes zero HLE calls, that guest and host
 // callers interoperate on one object through the shared word protocol, and
 // that contention, recursion, errors and cancellation behave as on the HLE path.
+#include <array>
 #include <atomic>
 #include <barrier>
 #include <chrono>
@@ -14,11 +15,14 @@
 #include <mutex>
 #include <stdexcept>
 #include <thread>
+#include "common/fex_tsc_scale.h"
+#include "common/native_clock.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/hle/call_adapter.h"
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
 #include "core/host_runtime/guest_mutex.h"
+#include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_sync_abi.h"
 #include "core/host_runtime/guest_sync_arena.h"
 #include "guest_sync_fastpath_payload.h"
@@ -50,7 +54,10 @@ struct GuestRequest {
     uint64_t mode, iterations, slot, counter;
 };
 enum { ModePosixLoop, ModeTrylock, ModeLock, ModeUnlock, ModeSelf, ModeSceLoop, ModeSceTrylock,
-       ModeRecursive };
+       ModeRecursive, ModeGetspecific, ModeGetthreadid, ModeSetspecific, ModeEqual, ModeProcessTime,
+       ModeReadTsc, ModeTscFrequency, ModeRwReadLoop, ModeRwWriteLoop, ModeRwRead, ModeRwTryRead,
+       ModeRwWrite, ModeRwTryWrite, ModeRwUnlock, ModeRwSceLoop, ModeRwReadMany, ModeRwUnlockMany,
+       ModeRwMixedLoop };
 
 struct Harness;
 // One adapter per import slot; each forwards to the production domain exactly
@@ -69,13 +76,23 @@ struct Import final : HleCallAdapter {
 // The harness's own arena window; the payload learns it through the window table.
 constexpr uint64_t kArenaBase = 0x1000000000ull;
 constexpr uint64_t kArenaLimit = kArenaBase + SHAD_SYNC_ARENA_WINDOW_SIZE;
+// The rwlock objects' own window, right above the mutex window.
+constexpr uint64_t kRwBase = kArenaLimit;
+constexpr uint64_t kRwLimit = kRwBase + SHAD_SYNC_ARENA_WINDOW_SIZE;
 
 struct Harness {
     std::unique_ptr<GuestAddressSpace> space;
     std::unique_ptr<CpuContext> cpu;
     std::unique_ptr<GuestSyncArena> arena;
     std::unique_ptr<GuestMutexDomain> domain;
-    uint64_t base{}, code{}, data{}, tcb{}, stacks{}, arena_next{};
+    std::unique_ptr<GuestSyncArena> rw_arena;
+    std::unique_ptr<GuestRwlockDomain> rw;
+    uint64_t base{}, code{}, data{}, tcb{}, stacks{}, handles_block{}, keys{}, arena_next{},
+        rw_next{};
+    // The runtime's GuestClock: host counter shifted by the FEX SMALLTSCSCALE amount.
+    Common::NativeClock host_clock;
+    const uint64_t clock_origin = host_clock.GetUptime();
+    const Common::FexTscScale tsc_scale{host_clock.GetTscFrequency()};
     std::array<std::shared_ptr<Import>, ShadSyncImportCount> imports;
     std::array<uint64_t, ShadSyncImportCount> veneers{};
     std::mutex handles_mutex;
@@ -92,7 +109,7 @@ struct Harness {
         // Place the reservation so the arena window [kArenaBase, kArenaLimit)
         // lies inside it: the payload only takes its fast path for objects
         // inside the window the host publishes.
-        cfg.reservation_size = 0x20000000;
+        cfg.reservation_size = 0x30000000; // mutex window, then the rwlock window
         cfg.preferred_base = kArenaBase - 0x10000000;
         cfg.max_address = QueryBackendCapabilities().max_guest_address;
         space = Must(GuestAddressSpace::Create(cfg));
@@ -103,10 +120,16 @@ struct Harness {
         data = base + 0x20000;
         tcb = base + 0x30000;
         stacks = base + 0x40000;
+        // Thread handles with the runtime layout: SHAD_SYNC_TLS_KEYS records end at
+        // each handle, then the 64-byte handle object (thread id at +0x10).
+        handles_block = base + 0xa0000;
+        keys = data + 0x2000;
         arena_next = kArenaBase;
         for (auto va : {code, data, tcb})
             Must(space->Map({GuestAddress{va}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
         Must(space->Map({GuestAddress{stacks}, 0x10000 * Slots},
+                        GuestPermission::Read | GuestPermission::Write));
+        Must(space->Map({GuestAddress{handles_block}, 0x2000 * Slots},
                         GuestPermission::Read | GuestPermission::Write));
         if (sizeof(SyncFastPathGuest::Image) > 0x4000)
             throw std::runtime_error("payload image too large");
@@ -119,6 +142,18 @@ struct Harness {
             return block;
         });
         domain = std::make_unique<GuestMutexDomain>(*space, [this] { return arena->Allocate(); });
+        rw_next = kRwBase;
+        rw_arena = std::make_unique<GuestSyncArena>([this] {
+            const auto block = rw_next;
+            rw_next += GuestSyncArena::BlockSize;
+            Must(space->Map({GuestAddress{block}, GuestSyncArena::BlockSize},
+                            GuestPermission::Read | GuestPermission::Write));
+            return block;
+        });
+        // Rwlock waits park on the mutex domain's waiters: the instance behind the wake
+        // import, as in the runtime.
+        rw = std::make_unique<GuestRwlockDomain>(*space, [this] { return rw_arena->Allocate(); },
+                                                 &domain->Waiters());
         auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*cpu));
         if (!registry)
             throw std::runtime_error("FEX HLE registry unavailable");
@@ -135,7 +170,10 @@ struct Harness {
         for (unsigned i = 0; i < ShadSyncImportCount; ++i)
             std::memcpy(image.data() + table + 8 * i, &veneers[i], 8);
         const auto window = Offset(SHAD_SYNC_WINDOW_TABLE);
-        const uint64_t bounds[ShadSyncWindowCount] = {kArenaBase, kArenaLimit};
+        // Clock slots exactly as GuestRuntime::InstallSyncFastPath fills them.
+        const uint64_t bounds[ShadSyncWindowCount] = {kArenaBase, kArenaLimit, keys,
+                                                      tsc_scale.ToGuest(clock_origin),
+                                                      tsc_scale.Frequency(), kRwBase, kRwLimit};
         for (unsigned i = 0; i < ShadSyncWindowCount; ++i)
             std::memcpy(image.data() + window + 8 * i, &bounds[i], 8);
         Must(space->Write(GuestAddress{code}, image));
@@ -153,7 +191,23 @@ struct Harness {
     }
     uint64_t Slot(unsigned index) { return data + 8 * index; }        // mutex handle slots
     uint64_t Counter(unsigned index) { return data + 0x80 + 8 * index; }
-    uint64_t Handle(unsigned slot) { return 0x7700 + slot; }          // guest handle values
+    // [rwlock read holds][thread-specific records][handle] per slot, as in the runtime.
+    uint64_t Handle(unsigned slot) { return handles_block + slot * 0x2000 + SHAD_SYNC_RW_HOLDS_BELOW_HANDLE; }
+    uint64_t Holds(unsigned slot) { return Handle(slot) - SHAD_SYNC_RW_HOLDS_BELOW_HANDLE; }
+    uint64_t RwSlot(unsigned index) { return data + 0x200 + 8 * index; } // rwlock handle slots
+    void RwRequest(unsigned slot, uint64_t mode, uint64_t iterations, unsigned rw_index = 0,
+                   unsigned counter_index = 0) {
+        Put(data + 0x100 + slot * 0x40, GuestRequest{mode, iterations, RwSlot(rw_index), Counter(counter_index)});
+    }
+    uint64_t SpecificRecord(unsigned slot, unsigned key) {
+        return Handle(slot) - SHAD_SYNC_TLS_VALUES_BELOW_HANDLE + 16 * key;
+    }
+    void SetKey(unsigned key, uint64_t sequence, bool allocated) {
+        Put<uint64_t>(keys + 8 * key, (sequence << 1) | (allocated ? 1 : 0));
+    }
+    void SetSpecific(unsigned slot, unsigned key, uint64_t sequence, uint64_t value) {
+        Put(SpecificRecord(slot, key), std::array<uint64_t, 2>{sequence, value});
+    }
     void Request(unsigned slot, uint64_t mode, uint64_t iterations, unsigned mutex_index = 0,
                  unsigned counter_index = 0) {
         Put(data + 0x100 + slot * 0x40, GuestRequest{mode, iterations, Slot(mutex_index), Counter(counter_index)});
@@ -237,6 +291,18 @@ Status Import::Invoke(HleCallFrame& frame) const {
         break;
     case ShadSyncImportMutexUnlock:
         result = h.domain->Unlock(a0, h.OwnerOf(scope->Thread()));
+        break;
+    case ShadSyncImportRwlockRdlock:
+    case ShadSyncImportRwlockTryrdlock:
+    case ShadSyncImportRwlockWrlock:
+    case ShadSyncImportRwlockTrywrlock:
+        result = uint64_t(h.rw->Lock(a0, h.OwnerOf(scope->Thread()),
+                                     kind == ShadSyncImportRwlockWrlock || kind == ShadSyncImportRwlockTrywrlock,
+                                     kind == ShadSyncImportRwlockTryrdlock || kind == ShadSyncImportRwlockTrywrlock,
+                                     scope->CancellationToken()));
+        break;
+    case ShadSyncImportRwlockUnlock:
+        result = uint64_t(h.rw->Unlock(a0, h.OwnerOf(scope->Thread())));
         break;
     default:
         return MakeError(ErrorCategory::InvalidArgument, "SyncFastPath.Import", "unknown import");
@@ -345,6 +411,89 @@ int main() {
                     (unsigned long long)h.imports[ShadSyncImportWait]->calls.load(),
                     (unsigned long long)h.imports[ShadSyncImportWake]->calls.load());
 
+        // Thread-specific reads and the thread id never leave the guest.
+        {
+            const auto before = h.HleCalls();
+            const auto get = [&](unsigned slot, uint64_t key) {
+                h.Request(slot, ModeGetspecific, key);
+                return h.Run(slot).return_value;
+            };
+            h.SetKey(3, 7, true);
+            h.SetSpecific(0, 3, 7, 0x1111);
+            h.SetSpecific(1, 3, 7, 0x2222);
+            Check("getspecific returns the calling thread's current value",
+                  get(0, 3) == 0x1111 && get(1, 3) == 0x2222);
+            Check("getspecific ignores the undefined upper half of an int key",
+                  get(0, 0xdead000000000003ull) == 0x1111);
+            h.SetSpecific(2, 3, 6, 0x3333);
+            Check("value stored under an older key sequence reads as 0", get(2, 3) == 0);
+            h.SetKey(3, 7, false);
+            Check("deleted key reads as 0", get(0, 3) == 0);
+            h.SetKey(255, 1, true);
+            h.SetSpecific(0, 255, 1, 0x4444);
+            Check("last key in range", get(0, 255) == 0x4444);
+            Check("out-of-range and negative keys read as 0",
+                  get(0, 256) == 0 && get(0, 0xffffffffull) == 0);
+            h.Put<uint64_t>(h.Handle(1) + SHAD_SYNC_HANDLE_THREAD_ID, 42);
+            h.Request(1, ModeGetthreadid, 0);
+            Check("getthreadid reads the id stored in the handle", h.Run(1).return_value == 42);
+            Check("thread-specific and thread-id paths made no HLE call", h.HleCalls() == before);
+        }
+
+        // Leaf calls: setspecific, pthread_equal and the clocks never leave the guest.
+        {
+            const auto before = h.HleCalls();
+            const auto set = [&](unsigned slot, uint64_t key, uint64_t value) {
+                h.Put(h.data + 0x100 + slot * 0x40, GuestRequest{ModeSetspecific, key, value, 0});
+                return h.Run(slot).return_value;
+            };
+            const auto get = [&](unsigned slot, uint64_t key) {
+                h.Request(slot, ModeGetspecific, key);
+                return h.Run(slot).return_value;
+            };
+            h.SetKey(5, 9, true);
+            Check("setspecific stores the value under the key's current sequence",
+                  set(0, 5, 0xabcd) == 0 && get(0, 5) == 0xabcd &&
+                      h.Read<std::array<uint64_t, 2>>(h.SpecificRecord(0, 5)) ==
+                          std::array<uint64_t, 2>{9, 0xabcd});
+            Check("setspecific writes only the calling thread's record", get(1, 5) == 0);
+            Check("setspecific ignores the undefined upper half of an int key",
+                  set(1, 0xfeed000000000005ull, 0x77) == 0 && get(1, 5) == 0x77);
+            h.SetKey(6, 2, false);
+            Check("setspecific on an unallocated or out-of-range key is EINVAL",
+                  set(0, 6, 1) == POSIX_EINVAL && set(0, 256, 1) == POSIX_EINVAL &&
+                      set(0, 0xffffffffull, 1) == POSIX_EINVAL);
+            const auto equal = [&](uint64_t a, uint64_t b) {
+                h.Put(h.data + 0x100, GuestRequest{ModeEqual, a, b, 0});
+                return h.Run(0).return_value;
+            };
+            Check("pthread_equal compares the full handles",
+                  equal(h.Handle(0), h.Handle(0)) == 1 && equal(h.Handle(0), h.Handle(1)) == 0 &&
+                      equal(0x100000001ull, 1) == 0);
+            const auto call = [&](uint64_t mode) {
+                h.Request(0, mode, 0);
+                return h.Run(0).return_value;
+            };
+            const auto host_process = [&] { return h.tsc_scale.ToGuest(h.host_clock.GetUptime() - h.clock_origin); };
+            const auto host_tsc = [&] { return h.tsc_scale.ToGuest(h.host_clock.GetUptime()); };
+            bool process_ok = true, tsc_ok = true;
+            for (int i = 0; i < 200; ++i) {
+                const auto lo = host_process();
+                const auto value = call(ModeProcessTime);
+                process_ok &= lo <= value && value <= host_process();
+                const auto tlo = host_tsc();
+                const auto tsc = call(ModeReadTsc);
+                tsc_ok &= tlo <= tsc && tsc <= host_tsc();
+            }
+            std::printf("tsc scale shift=%u frequency=%llu\n", h.tsc_scale.Shift(),
+                        (unsigned long long)h.tsc_scale.Frequency());
+            Check("guest process counter lies between host GuestClock reads (200 samples)", process_ok);
+            Check("guest rdtsc lies between host ReadTsc reads (200 samples)", tsc_ok);
+            Check("TSC frequency is the scaled host frequency",
+                  call(ModeTscFrequency) == h.tsc_scale.Frequency());
+            Check("leaf paths made no HLE call", h.HleCalls() == before);
+        }
+
         // Recursive type through the attribute path; depth handled in the guest.
         const auto attr = h.data + 0x70;
         h.Put<uint64_t>(attr, 0);
@@ -393,6 +542,183 @@ int main() {
         h.Request(0, ModePosixLoop, 10);
         Check("fresh owner uses the object normally after cancellation",
               h.Run(0).return_value == 0 && d.Destroy(h.Slot(0)) == 0 && d.Destroy(h.Slot(1)) == 0);
+
+        // ---- rwlocks: same window/word scheme, per-thread read-hold tables ----
+        {
+            auto& rw = *h.rw;
+            const auto word = [&](uint64_t object) { return h.Read<uint32_t>(object + SHAD_SYNC_RW_WORD); };
+            const auto writer = [&](uint64_t object) { return h.Read<uint64_t>(object + SHAD_SYNC_RW_WRITER); };
+            const auto hold = [&](unsigned slot, unsigned entry) {
+                return h.Read<std::array<uint64_t, 2>>(h.Holds(slot) + 16 + 16 * entry);
+            };
+            const auto run = [&](unsigned slot) { return h.Run(slot).return_value; };
+            const auto wait_pending = [&](uint64_t slot, unsigned n) {
+                const auto limit = std::chrono::steady_clock::now() + 3s;
+                while (rw.Pending(slot) < n && std::chrono::steady_clock::now() < limit)
+                    std::this_thread::yield();
+                return rw.Pending(slot) == n;
+            };
+            const auto calls = [&](unsigned kind) { return h.imports[kind]->calls.load(); };
+
+            h.Put<uint64_t>(h.RwSlot(0), 0);
+            h.RwRequest(0, ModeRwReadLoop, 1, 0);
+            const auto first = run(0);
+            const auto object = h.Read<uint64_t>(h.RwSlot(0));
+            Check("rwlock static initializer: one HLE rdlock creates the object in the rwlock window",
+                  first == 0 && calls(ShadSyncImportRwlockRdlock) == 1 &&
+                      calls(ShadSyncImportRwlockUnlock) == 0 && object >= kRwBase && object < kRwLimit &&
+                      word(object) == 0 && hold(0, 0)[0] == 0);
+            const auto before = h.HleCalls();
+            h.RwRequest(0, ModeRwReadLoop, 10000, 0);
+            auto begin = std::chrono::steady_clock::now();
+            const auto reads = run(0);
+            auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - begin).count();
+            Check("10000 uncontended rdlock/unlock pairs make zero HLE calls",
+                  reads == 0 && h.HleCalls() == before && word(object) == 0);
+            std::printf("BENCH rwlock read pairs=10000 elapsed_ns=%lld\n", (long long)ns);
+            h.Put<uint64_t>(h.Counter(3), 0);
+            h.RwRequest(0, ModeRwWriteLoop, 10000, 0, 3);
+            begin = std::chrono::steady_clock::now();
+            const auto writes = run(0);
+            ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - begin).count();
+            Check("10000 uncontended wrlock/unlock pairs make zero HLE calls",
+                  writes == 0 && h.Read<uint64_t>(h.Counter(3)) == 10000 && h.HleCalls() == before &&
+                      word(object) == 0 && writer(object) == 0);
+            std::printf("BENCH rwlock write pairs=10000 elapsed_ns=%lld\n", (long long)ns);
+            h.RwRequest(0, ModeRwSceLoop, 100, 0, 3);
+            Check("scePthreadRwlock entries share the object without HLE",
+                  run(0) == 0 && h.Read<uint64_t>(h.Counter(3)) == 10100 && h.HleCalls() == before);
+
+            // Read holds and recursion live in the thread's table; the host sees them.
+            h.RwRequest(0, ModeRwRead, 0, 0);
+            Check("guest rdlock counts once in the word and records the hold",
+                  run(0) == 0 && word(object) == 1 && hold(0, 0) == std::array<uint64_t, 2>{object, 1});
+            h.RwRequest(0, ModeRwRead, 0, 0);
+            Check("guest recursive rdlock only deepens the table entry",
+                  run(0) == 0 && word(object) == 1 && hold(0, 0)[1] == 2 && h.HleCalls() == before);
+            h.RwRequest(0, ModeRwTryWrite, 0, 0);
+            Check("reader trywrlock on its own lock is EBUSY from the HLE",
+                  run(0) == POSIX_EBUSY && calls(ShadSyncImportRwlockTrywrlock) == 1);
+            Check("host writer trylock sees the guest read hold",
+                  rw.Lock(h.RwSlot(0), 55, true, true, {}) == POSIX_EBUSY);
+            auto host_writer = std::async(std::launch::async, [&] { return rw.Lock(h.RwSlot(0), 55, true, false, {}); });
+            Check("host writer parks and publishes WRITE_WAITERS",
+                  wait_pending(h.RwSlot(0), 1) && (word(object) & SHAD_SYNC_RW_WRITE_WAITERS));
+            h.RwRequest(0, ModeRwUnlock, 0, 0);
+            Check("inner guest unlock keeps the hold",
+                  run(0) == 0 && host_writer.wait_for(0ms) != std::future_status::ready &&
+                      (word(object) & SHAD_SYNC_RW_READERS) == 1);
+            const auto wakes = calls(ShadSyncImportWake);
+            h.RwRequest(0, ModeRwUnlock, 0, 0);
+            Check("last guest unlock wakes the parked host writer through the wake import",
+                  run(0) == 0 && host_writer.get() == 0 && calls(ShadSyncImportWake) == wakes + 1 &&
+                      word(object) == SHAD_SYNC_RW_WRITE_LOCKED && writer(object) == 55 && hold(0, 0)[0] == 0);
+            h.RwRequest(1, ModeRwRead, 0, 0);
+            auto guest_reader = std::async(std::launch::async, [&] { return h.Run(1); });
+            Check("guest rdlock parks in the HLE behind the host writer",
+                  wait_pending(h.RwSlot(0), 1) && calls(ShadSyncImportRwlockRdlock) == 2);
+            Check("host write unlock hands the lock to the parked guest reader",
+                  rw.Unlock(h.RwSlot(0), 55) == 0 && h.Join(guest_reader).return_value == 0 &&
+                      word(object) == 1 && hold(1, 0)[0] == object);
+            h.RwRequest(1, ModeRwUnlock, 0, 0);
+            Check("guest reader recorded by the HLE releases in the guest",
+                  run(1) == 0 && word(object) == 0 && calls(ShadSyncImportRwlockUnlock) == 0);
+
+            // Errors come from the HLE with the same codes as before.
+            h.RwRequest(0, ModeRwWrite, 0, 0);
+            Check("guest wrlock stores the owner handle",
+                  run(0) == 0 && word(object) == SHAD_SYNC_RW_WRITE_LOCKED && writer(object) == h.Handle(0));
+            h.RwRequest(0, ModeRwRead, 0, 0);
+            const auto self_read = run(0);
+            h.RwRequest(0, ModeRwWrite, 0, 0);
+            const auto self_write = run(0);
+            Check("writer rdlock/wrlock on its own lock: EDEADLK",
+                  self_read == POSIX_EDEADLK && self_write == POSIX_EDEADLK);
+            h.RwRequest(1, ModeRwUnlock, 0, 0);
+            Check("unlock by a non-holder: EPERM", run(1) == POSIX_EPERM);
+            h.RwRequest(0, ModeRwUnlock, 0, 0);
+            Check("writer unlock clears word and owner", run(0) == 0 && word(object) == 0 && writer(object) == 0);
+
+            // Type 1: a parked writer keeps new readers out; the thread already reading
+            // may read again.
+            const auto attr = h.data + 0x78;
+            h.Put<uint64_t>(attr, 0);
+            h.Put<uint64_t>(h.RwSlot(1), 0);
+            Check("writer-preferring rwlock init",
+                  rw.Attribute(attr, 0) == 0 && rw.Attribute(attr, 5, 1) == 0 && rw.Init(h.RwSlot(1), attr) == 0);
+            const auto pref = h.Read<uint64_t>(h.RwSlot(1));
+            const auto pref_hle = h.HleCalls();
+            h.RwRequest(0, ModeRwRead, 0, 1);
+            Check("type 1 guest rdlock in the guest", run(0) == 0 && h.HleCalls() == pref_hle && word(pref) == 1);
+            auto pref_writer = std::async(std::launch::async, [&] { return rw.Lock(h.RwSlot(1), 77, true, false, {}); });
+            Check("type 1 host writer parks", wait_pending(h.RwSlot(1), 1));
+            h.RwRequest(1, ModeRwTryRead, 0, 1);
+            Check("new reader is kept out by the parked writer (EBUSY)", run(1) == POSIX_EBUSY);
+            const auto recursion_hle = h.HleCalls();
+            h.RwRequest(0, ModeRwRead, 0, 1);
+            Check("the thread already reading reads again in the guest",
+                  run(0) == 0 && h.HleCalls() == recursion_hle && hold(0, 0)[1] == 2);
+            h.RwRequest(0, ModeRwUnlock, 0, 1);
+            run(0);
+            h.RwRequest(0, ModeRwUnlock, 0, 1);
+            Check("releasing both levels hands the lock to the writer",
+                  run(0) == 0 && pref_writer.get() == 0 && writer(pref) == 77);
+            Check("writer releases", rw.Unlock(h.RwSlot(1), 77) == 0 && word(pref) == 0);
+
+            // A full table: the 16th distinct hold goes to the host and flags the thread.
+            bool created = true;
+            for (unsigned i = 0; i < 16; ++i) {
+                h.Put<uint64_t>(h.RwSlot(8 + i), 0);
+                created &= rw.Init(h.RwSlot(8 + i), 0) == 0;
+            }
+            h.RwRequest(2, ModeRwReadMany, 16, 8);
+            const auto many_rd = calls(ShadSyncImportRwlockRdlock);
+            Check("16 distinct read holds: 15 in the guest table, only the 16th through the HLE",
+                  created && run(2) == 0 && h.Read<uint64_t>(h.Holds(2)) == 1 && hold(2, 14)[0] != 0 &&
+                      calls(ShadSyncImportRwlockRdlock) == many_rd + 1);
+            bool counted = true;
+            for (unsigned i = 0; i < 16; ++i) counted &= word(h.Read<uint64_t>(h.RwSlot(8 + i))) == 1;
+            Check("every lock counts its holder once", counted);
+            // Reverse order: the overflow hold goes first (HLE), the flag drops, and the
+            // other 15 release in the guest.
+            h.RwRequest(2, ModeRwUnlockMany, 16, 8);
+            const auto many_unlocks = calls(ShadSyncImportRwlockUnlock);
+            bool released = run(2) == 0 && h.Read<uint64_t>(h.Holds(2)) == 0 &&
+                            calls(ShadSyncImportRwlockUnlock) == many_unlocks + 1;
+            for (unsigned i = 0; i < 16; ++i) released &= word(h.Read<uint64_t>(h.RwSlot(8 + i))) == 0;
+            Check("unlocking all clears the overflow flag and every word, one HLE unlock", released);
+            const auto after_overflow = h.HleCalls();
+            h.RwRequest(2, ModeRwReadLoop, 100, 8);
+            Check("the thread is back on the guest path afterwards",
+                  run(2) == 0 && h.HleCalls() == after_overflow);
+
+            // Contention between real FEX owners: readers never see a writer's update.
+            h.Put<uint64_t>(h.RwSlot(2), 0);
+            h.Put<uint64_t>(h.Counter(4), 0);
+            for (unsigned i = 0; i < 4; ++i) h.RwRequest(i, ModeRwMixedLoop, 20000, 2, 4);
+            std::barrier ready(4);
+            std::array<std::future<GuestCallResult>, 4> runs;
+            for (unsigned i = 0; i < 4; ++i)
+                runs[i] = std::async(std::launch::async, [&, i] { return h.Run(i, &ready); });
+            bool all_ok = true;
+            for (auto& r : runs) {
+                const auto result = h.Join(r);
+                all_ok &= result.reason == StopReason::Returned && result.return_value == 0;
+            }
+            const auto mixed = h.Read<uint64_t>(h.RwSlot(2));
+            Check("four FEX owners: 10000 writer increments, readers never see one, word ends free",
+                  all_ok && h.Read<uint64_t>(h.Counter(4)) == 10000 && word(mixed) == 0);
+            std::printf("rwlock contended: rdlock HLE=%llu wrlock HLE=%llu wakes=%llu\n",
+                        (unsigned long long)calls(ShadSyncImportRwlockRdlock),
+                        (unsigned long long)calls(ShadSyncImportRwlockWrlock),
+                        (unsigned long long)calls(ShadSyncImportWake));
+
+            // Destroyed: the slot leaves the window and the HLE reports EINVAL.
+            Check("destroy free locks", rw.Destroy(h.RwSlot(0)) == 0 && rw.Destroy(h.RwSlot(2)) == 0 &&
+                                            word(object) == SHAD_SYNC_RW_DESTROYED);
+            h.RwRequest(0, ModeRwRead, 0, 0);
+            Check("destroyed rwlock falls back to the HLE: EINVAL", run(0) == POSIX_EINVAL);
+        }
     } catch (const std::exception& e) {
         Check(e.what(), false);
     }

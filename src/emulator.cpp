@@ -35,6 +35,7 @@
 #include "core/devtools/widget/module_list.h"
 #include "core/emulator_settings.h"
 #include "core/emulator_state.h"
+#include "core/game_options.h"
 #include "core/file_format/psf.h"
 #include "core/file_format/trp.h"
 #include "core/file_sys/fs.h"
@@ -314,6 +315,25 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
     }
 
     EmulatorSettings.Load(id);
+    // The in-game Controls panel changes these while the game runs and saves them for this game.
+    Core::GameOptions::SetFrameLimit(EmulatorSettings.GetFrameLimit());
+    Core::GameOptions::SetSaveHandler([id](const std::string& key, const std::string& value) {
+        if (id.empty())
+            return;
+        if (key == "gpu.frame_limit")
+            EmulatorSettings.SetFrameLimit(Core::GameOptions::ParseFrameLimit(value), true);
+        else if (key == "vulkan.pipeline_compile_mode")
+            EmulatorSettings.SetPipelineCompileMode(value, true);
+        else if (key == "gpu.fsr_enabled")
+            EmulatorSettings.SetFsrEnabled(value == "true", true);
+        else if (key == "gpu.rcas_enabled")
+            EmulatorSettings.SetRcasEnabled(value == "true", true);
+        else if (key == "gpu.rcas_attenuation")
+            EmulatorSettings.SetRcasAttenuation(std::stoi(value), true);
+        else
+            return;
+        EmulatorSettings.Save(id);
+    });
     // Switch to configured log
     Common::Log::Switch((!id.empty() && EmulatorSettings.IsLogSeparate()) ? id + ".log"
                                                                           : "shad_log.log",
@@ -366,6 +386,7 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
     LOG_INFO(Config, "GPU directMemoryAccess: {}", EmulatorSettings.IsDirectMemoryAccessEnabled());
     LOG_INFO(Config, "GPU shouldDumpShaders: {}", EmulatorSettings.IsDumpShaders());
     LOG_INFO(Config, "GPU vblankFrequency: {}", EmulatorSettings.GetVblankFrequency());
+    LOG_INFO(Config, "GPU frameLimit: {}", EmulatorSettings.GetFrameLimit());
     LOG_INFO(Config, "GPU shouldCopyGPUBuffers: {}", EmulatorSettings.IsCopyGpuBuffers());
 #ifdef __linux__
     LOG_INFO(Config, "GPU userfaultfdTracking: {}", EmulatorSettings.IsUserfaultfdTracking());

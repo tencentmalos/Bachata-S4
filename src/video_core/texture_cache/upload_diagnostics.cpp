@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <cstdlib>
 #include <array>
 #include <charconv>
 #include <limits>
@@ -231,6 +232,11 @@ std::string Summary() {
                        expand_twin.load() ? "on" : "off", expansions.load(),
                        expand_upload_skips.load(), expand_twin_reuses.load(),
                        expand_stale_sources.load());
+    out += fmt::format("adopt_mips={} adopted={}\n", adopt_subresources.load() ? "on" : "off",
+                       adopted_subresources.load());
+    out += fmt::format("tiny_writeback={} writebacks={} per_frame_skips={}\n",
+                       tiny_writeback.load() ? "on" : "off", tiny_writebacks.load(),
+                       tiny_writeback_skips.load());
     out += fmt::format("pool_revive={} kept={} revived={} revived_bytes={} released={} stale={}\n",
                        pool_revive.load() ? "on" : "off", pool_revive_kept.load(),
                        pool_revive_revived.load(), pool_revive_bytes.load(),
@@ -482,6 +488,38 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("pool_revive={} (GPU images of decommitted pool memory {})\n", args[1],
                            args[1] == "on" ? "come back at the next commit" : "are freed");
     }
+    if (sub == "tiny_writeback" && args.size() == 2 &&
+        (args[1] == "on" || args[1] == "off" || args[1] == "dump")) {
+        tiny_writeback_dump.store(args[1] == "dump");
+        tiny_writeback.store(args[1] != "off");
+        return fmt::format("tiny_writeback={} (render targets of <= 16 pixels written now and "
+                           "then {}); writebacks={} per_frame_skips={}\n",
+                           args[1], args[1] != "off" ? "reach guest memory at the next fence"
+                                                     : "stay on the GPU",
+                           tiny_writebacks.load(), tiny_writeback_skips.load());
+    }
+    if (sub == "adopt_mips" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        adopt_subresources.store(args[1] == "on");
+        return fmt::format("adopt_mips={} (GPU-written images that are mips of a new image {}); "
+                           "adopted={}\n",
+                           args[1], args[1] == "on" ? "are copied into it" : "are left behind",
+                           adopted_subresources.load());
+    }
+    if (sub == "image_stats" && args.size() == 2) {
+        const u64 address = std::strtoull(args[1].c_str(), nullptr, 16);
+        stats_address.store(address);
+        return fmt::format("image_stats armed for the image at {:#x}\n", address);
+    }
+    if (sub == "cb_dump" && args.size() >= 2 && args.size() <= 4) {
+        const u64 hash = std::strtoull(args[1].c_str(), nullptr, 16);
+        const s32 count = args.size() >= 3 ? std::clamp(std::atoi(args[2].c_str()), 1, 64) : 4;
+        const u32 bytes = args.size() == 4 ? std::clamp(std::atoi(args[3].c_str()), 4, 4096) : 64;
+        cb_dump_left.store(0);
+        cb_dump_hash.store(hash);
+        cb_dump_bytes.store(bytes);
+        cb_dump_left.store(count);
+        return fmt::format("cb_dump armed for program {:#x}, {} binds\n", hash, count);
+    }
     if (sub == "format_list" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         format_list.store(args[1] == "on" ? 1 : 0);
         return fmt::format("format_list={} (images created from now on)\n", args[1]);
@@ -641,6 +679,29 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1] == "on" ? "reuse recent mapping lookups"
                                            : "look up the mapping every time");
     }
+    if (sub == "full_barriers" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        full_barriers.store(args[1] == "on");
+        return fmt::format("full_barriers={} (full memory barrier after each pass, around each "
+                           "dispatch)\n",
+                           args[1]);
+    }
+    if (sub == "sharp_watch" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        sharp_watch.store(args[1] == "on");
+        return fmt::format("sharp_watch={} (bound V#/T# bases outside guest memory logged)\n",
+                           args[1]);
+    }
+    if (sub == "draw_pairs" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        draw_pairs.store(args[1] == "on");
+        return fmt::format("draw_pairs={} (first use of each shader pair logged)\n", args[1]);
+    }
+    if (sub == "vb_watch" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        vb_watch.store(args[1] == "on");
+        return fmt::format("vb_watch={} (vertex buffer V#s re-read after each draw)\n", args[1]);
+    }
+    if (sub == "frame_shape" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        frame_shape.store(args[1] == "on");
+        return fmt::format("frame_shape={} (per-frame draw summaries in the log)\n", args[1]);
+    }
     if (sub == "stream_barriers" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         stream_barriers.store(args[1] == "on");
         return fmt::format("stream_barriers={} (reads of streamed buffers {} the barrier tracker)\n",
@@ -655,7 +716,8 @@ std::string Command(const std::vector<std::string>& args) {
            "ignore_storage_dirty on|off | fill_clear on|off | watch_coalesce on|off | "
            "watch_predict on|off | watch_content on|off | watch_gaps on|off | "
            "watch_decay on|off | watch_cross on|off | keep_gpu on|off | read_cache on|off | "
-           "stream_barriers on|off | "
+           "stream_barriers on|off | frame_shape on|off | vb_watch on|off | draw_pairs on|off | "
+           "sharp_watch on|off | full_barriers on|off | "
            "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
            "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "

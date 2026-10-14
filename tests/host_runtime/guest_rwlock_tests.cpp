@@ -10,11 +10,13 @@ using namespace Core::HostRuntime;
 int main() {
     unsigned checks{}, failures{};
     auto check = [&](bool ok) { ++checks; if (!ok) { ++failures; std::printf("FAIL %u\n", checks); } };
-    AddressSpaceConfig config; config.reservation_size = 65536;
+    // Lock objects now carry their state in guest memory, so every allocated object
+    // (including the 5000-lock scale run at base+1 MiB) must be mapped.
+    AddressSpaceConfig config; config.reservation_size = 8ULL << 20;
     auto made = GuestAddressSpace::Create(config); if (!made) return 2;
     auto space = std::move(made).Value(); const auto base = space->ReservationBase().value;
-    if (!space->Map({GuestAddress{base},65536},GuestPermission::Read|GuestPermission::Write)) return 3;
-    u64 allocated=base+4096;
+    if (!space->Map({GuestAddress{base},8ULL << 20},GuestPermission::Read|GuestPermission::Write)) return 3;
+    u64 allocated=base+0x20000; // clear of the slot ranges used below
     GuestRwlockDomain domain(*space,[&]{allocated+=64;return allocated;});
     check(domain.Init(0,0)==POSIX_EFAULT);
     check(domain.Init(base,0)==0);
@@ -54,6 +56,77 @@ int main() {
     check(domain.Unlock(base,1)==0); check(domain.Destroy(base)==0);
     check(domain.Lock(base+16,1,false,false,{})==0); // lazy static initialization
     check(domain.Unlock(base+16,1)==0); check(domain.Destroy(base+16)==0);
+    // Guest-visible state shared with the guest fast path: the word, the write owner
+    // and a real per-thread hold table (owners above are bare ids without a table).
+    {
+        auto r32=[&](u64 a){u32 v{}; if(!space->Read(GuestAddress{a},std::as_writable_bytes(std::span{&v,1})))std::_Exit(3);return v;};
+        auto r64=[&](u64 a){u64 v{}; if(!space->Read(GuestAddress{a},std::as_writable_bytes(std::span{&v,1})))std::_Exit(3);return v;};
+        const u64 thread = base + 0x40000 + SHAD_SYNC_RW_HOLDS_BELOW_HANDLE; // a thread handle
+        const u64 holds = thread - SHAD_SYNC_RW_HOLDS_BELOW_HANDLE;
+        const u64 s = base + 0x30000;
+        check(domain.Init(s,0)==0);
+        const u64 obj = r64(s);
+        check(domain.Lock(s,thread,false,false,{})==0);
+        check(r32(obj)==1 && r64(holds+16)==obj && r64(holds+24)==1);
+        check(domain.Lock(s,thread,false,false,{})==0); // recursion: table depth only
+        check(r32(obj)==1 && r64(holds+24)==2);
+        check(domain.Lock(s,thread,true,true,{})==POSIX_EBUSY);
+        check(domain.Unlock(s,thread)==0 && domain.Unlock(s,thread)==0);
+        check(r32(obj)==0 && r64(holds+16)==0);
+        check(domain.Unlock(s,thread)==POSIX_EPERM);
+        check(domain.Lock(s,thread,true,false,{})==0);
+        check(r32(obj)==SHAD_SYNC_RW_WRITE_LOCKED && r64(obj+SHAD_SYNC_RW_WRITER)==thread);
+        check(domain.Lock(s,thread,false,true,{})==POSIX_EBUSY);
+        check(domain.Unlock(s,thread)==0 && r32(obj)==0 && r64(obj+SHAD_SYNC_RW_WRITER)==0);
+        // A full table spills into the host's overflow list and flags the thread.
+        for (unsigned i=0;i<16;++i) check(domain.Init(s+8+8*i,0)==0 && domain.Lock(s+8+8*i,thread,false,false,{})==0);
+        bool counted = r64(holds)==1;
+        for (unsigned i=0;i<16;++i) counted &= r32(r64(s+8+8*i))==1;
+        check(counted);
+        check(domain.Lock(s+8+8*15,thread,false,false,{})==0); // recursive read of the overflow hold
+        check(domain.Unlock(s+8+8*15,thread)==0 && r32(r64(s+8+8*15))==1);
+        bool released = true;
+        for (unsigned i=0;i<16;++i) released &= domain.Unlock(s+8+8*i,thread)==0 && r32(r64(s+8+8*i))==0;
+        check(released && r64(holds)==0);
+        // Type 1: a parked writer keeps new readers out; the thread already reading
+        // may read again.
+        check(domain.Attribute(s+0x100,0)==0 && domain.Attribute(s+0x100,5,1)==0 && domain.Init(s+0x108,s+0x100)==0);
+        const u64 pref = s+0x108, pobj = r64(pref);
+        check(domain.Lock(pref,thread,false,false,{})==0);
+        auto parked=std::async(std::launch::async,[&]{return domain.Lock(pref,7,true,false,{});});
+        auto until=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+        while(domain.Pending(pref)==0 && std::chrono::steady_clock::now()<until) std::this_thread::yield();
+        check(domain.Pending(pref)==1 && (r32(pobj)&SHAD_SYNC_RW_WRITE_WAITERS));
+        check(domain.Lock(pref,8,false,true,{})==POSIX_EBUSY);
+        check(domain.Lock(pref,thread,false,false,{})==0);
+        check(domain.Unlock(pref,thread)==0 && parked.wait_for(std::chrono::milliseconds(0))!=std::future_status::ready);
+        check(domain.Unlock(pref,thread)==0);
+        if(parked.wait_for(std::chrono::seconds(2))!=std::future_status::ready) std::_Exit(4);
+        check(parked.get()==0 && r32(pobj)==SHAD_SYNC_RW_WRITE_LOCKED && r64(pobj+SHAD_SYNC_RW_WRITER)==7);
+        check(domain.Unlock(pref,7)==0 && r32(pobj)==0);
+        // A writer that gives up lets in the readers it kept out.
+        check(domain.Lock(pref,thread,false,false,{})==0);
+        std::stop_source give_up;
+        auto writer2=std::async(std::launch::async,[&]{return domain.Lock(pref,7,true,false,give_up.get_token());});
+        until=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+        while(domain.Pending(pref)==0 && std::chrono::steady_clock::now()<until) std::this_thread::yield();
+        auto reader2=std::async(std::launch::async,[&]{return domain.Lock(pref,8,false,false,{});});
+        until=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+        while(domain.Pending(pref)<2 && std::chrono::steady_clock::now()<until) std::this_thread::yield();
+        check(domain.Pending(pref)==2);
+        give_up.request_stop();
+        if(writer2.wait_for(std::chrono::seconds(2))!=std::future_status::ready ||
+           reader2.wait_for(std::chrono::seconds(2))!=std::future_status::ready) std::_Exit(4);
+        check(writer2.get()==POSIX_EINTR && reader2.get()==0 && r32(pobj)==2);
+        check(domain.Unlock(pref,8)==0 && domain.Unlock(pref,thread)==0 && r32(pobj)==0);
+        // Destroy refuses a held lock and marks the word of a destroyed one.
+        check(domain.Lock(s,thread,false,false,{})==0 && domain.Destroy(s)==POSIX_EBUSY);
+        check(domain.Unlock(s,thread)==0 && domain.Destroy(s)==0 && r32(obj)==SHAD_SYNC_RW_DESTROYED && r64(s)==1);
+        check(domain.Lock(s,thread,false,false,{})==POSIX_EINVAL && domain.Unlock(s,thread)==POSIX_EINVAL);
+        bool destroyed = domain.Destroy(pref)==0;
+        for (unsigned i=0;i<16;++i) destroyed &= domain.Destroy(s+8+8*i)==0;
+        check(destroyed);
+    }
     GuestMutexDomain mutexes(*space, [&] {
         allocated += 64;
         return allocated;

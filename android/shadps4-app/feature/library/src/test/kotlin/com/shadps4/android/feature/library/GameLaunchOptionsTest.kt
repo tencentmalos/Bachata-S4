@@ -154,4 +154,14 @@ class GameLaunchOptionsTest {
         // Ordinary games do not offer it.
         assertFalse(GameLaunchOptions("2d", loaded = true).specs().any { it.id == DisplayMode.PSVR_ID })
     }
+
+    @Test fun frameLimitIsOfferedAndSavedPerGame() {
+        val options = GameLaunchOptions("2d", loaded = true)
+        val spec = options.specs().single { it.id == FrameLimit.ID }
+        assertEquals("off", options.value(spec))
+        val saved = options.select(spec, "30").applyTo(RuntimeProfile())
+        assertEquals(JsonPrimitive("30"), saved.values[FrameLimit.ID])
+        val psvr = GameLaunchOptions("psvr", loaded = true, psvr = true)
+        assertTrue(psvr.specs().any { it.id == FrameLimit.ID })
+    }
 }

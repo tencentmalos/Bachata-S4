@@ -137,6 +137,8 @@ private:
                      Shader::PushData& push_data);
     void BindTextures(const Shader::Info& stage, Shader::Backend::Bindings& binding);
     bool BindResources(const Pipeline* pipeline);
+    void DumpBoundBuffers(const Pipeline& pipeline);
+    void CheckSharps(const Pipeline& pipeline);
     // Replaces a known pattern-fill compute kernel (Gnmx-style clear) by image clears
     // when it fills whole cached images with a uniform texel. True when the dispatch is done.
     bool TryComputeImageFill(const Shader::Info& cs, const AmdGpu::ComputeProgram& program);
