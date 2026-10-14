@@ -16,7 +16,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":foundation-online-content"))
     implementation(project(":core:model"))
     implementation(project(":core:database"))
     implementation(project(":core:runtime"))

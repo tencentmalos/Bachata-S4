@@ -311,7 +311,22 @@ fun LibraryScreen(
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showImportChooser = false },
             title = { Text("Import game") },
-            text = { Text("Choose a game folder or a PS4 .pkg package.") },
+            text = {
+                Column {
+                    Text("Choose a game folder or a PS4 .pkg package. Downloaded files are available under EmuPSP in the system file picker.")
+                    TextButton(onClick = {
+                        try {
+                            context.startActivity(Intent("io.github.tencentmalos.content.BROWSE").apply {
+                                putExtra("protocol_version", 1)
+                                putExtra("platform", "ps4")
+                            })
+                            showImportChooser = false
+                        } catch (_: android.content.ActivityNotFoundException) {
+                            Toast.makeText(context, "Install EmuPSP to manage online content", Toast.LENGTH_LONG).show()
+                        }
+                    }) { Text("Open EmuPSP") }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
                     showImportChooser = false

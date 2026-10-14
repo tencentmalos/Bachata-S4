@@ -1574,14 +1574,8 @@ add_executable(shadps4
 endif()
 
 if(NOT BUILD_HOST_CORE)
-    add_subdirectory(foundation/modules/online_content foundation/online_content EXCLUDE_FROM_ALL)
-    target_sources(shadps4 PRIVATE src/imgui/online_content/online_content.cpp
-        foundation/third_party/imgui/misc/cpp/imgui_stdlib.cpp)
-    target_link_libraries(shadps4 PRIVATE spatial::foundation_online_content)
-    add_custom_command(TARGET shadps4 POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE:foundation_baidu>" "$<TARGET_FILE_DIR:shadps4>"
-        VERBATIM)
+    # Content acquisition lives in EmuPSP; this target only launches its URI.
+    target_sources(shadps4 PRIVATE src/imgui/online_content/online_content.cpp)
 endif()
 
 target_sources(shadps4 PRIVATE src/frontend/window.cpp)
