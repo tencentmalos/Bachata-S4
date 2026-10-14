@@ -1,0 +1,102 @@
+# tiny_writeback=dump flight record, run tinytrace/run2 (APK 47e82ab7: tiny write-back on, mip adoption not yet implemented).
+# Lines before the first write of the 9x1 SH map 0x2032dc0000: first SH coefficient, scratch cubes A=0x2022c80000 and B=0x20304e0000.
+# find <binding> req <addr>+<size> WxHxD L<levels> A<layers> <format> t<type> -> img<id> <addr> ... view m<mip> s<slice> cands=<overlapping images> created_by=<0 fresh,1 expand> uploaded=<bool>
+# binding (ScaleUse): 1 = sampled texture, 2 = storage, 3 = render target. 'upload <addr> ... guest mips:' = mips uploaded from guest memory.
+# 'action 0:<vs> 3:<ps>' = shader hashes (0 vertex, 3 fragment), logged in BindResources: the render-target lookup just
+# before it and the texture lookups after it belong to that draw.
+find 3 req 0x2035356000+0x200 2x2x1 L1 A1 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m6 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x156000 128x128x1 L6 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+find 3 req 0x2035356000+0x400 2x2x1 L1 A2 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m6 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035356000+0x600 2x2x1 L1 A3 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m6 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035356000+0x800 2x2x1 L1 A4 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m6 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035356000+0xa00 2x2x1 L1 A5 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m6 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035356000+0xc00 2x2x1 L1 A6 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m6 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035357000+0x200 1x1x1 L1 A1 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m7 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x157000 128x128x1 L7 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+find 3 req 0x2035357000+0x400 1x1x1 L1 A2 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m7 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035357000+0x600 1x1x1 L1 A3 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m7 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035357000+0x800 1x1x1 L1 A4 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m7 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035357000+0xa00 1x1x1 L1 A5 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m7 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2035357000+0xc00 1x1x1 L1 A6 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m7 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f85650f0a4874 3:0x85bc13730c898eb6
+find 3 req 0x2022c80000+0x2000 32x32x1 L1 A1 R16G16B16A16Sfloat t9 -> img621 0x2022c80000 32x32x1 L1 A1 t9 view m-1 s-1 cands=0 created_by=0 uploaded=false
+action 0:0xd16f856534d1e688 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x158000 128x128x1 L8 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x2022c80000 32x32 L1 A1 guest mips: m0
+upload 0x2022c80000 32x32 L1 A2 guest mips: m0
+find 3 req 0x2022c80000+0x4000 32x32x1 L1 A2 R16G16B16A16Sfloat t9 -> img620 0x2022c80000 32x32x1 L1 A2 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f856534d1e688 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x158000 128x128x1 L8 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x2022c80000 32x32 L1 A3 guest mips: m0
+find 3 req 0x2022c80000+0x6000 32x32x1 L1 A3 R16G16B16A16Sfloat t9 -> img619 0x2022c80000 32x32x1 L1 A3 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f856534d1e688 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x158000 128x128x1 L8 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x2022c80000 32x32 L1 A4 guest mips: m0
+find 3 req 0x2022c80000+0x8000 32x32x1 L1 A4 R16G16B16A16Sfloat t9 -> img618 0x2022c80000 32x32x1 L1 A4 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f856534d1e688 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x158000 128x128x1 L8 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x2022c80000 32x32 L1 A5 guest mips: m0
+find 3 req 0x2022c80000+0xa000 32x32x1 L1 A5 R16G16B16A16Sfloat t9 -> img617 0x2022c80000 32x32x1 L1 A5 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f856534d1e688 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x158000 128x128x1 L8 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x2022c80000 32x32 L1 A6 guest mips: m0
+find 3 req 0x2022c80000+0xc000 32x32x1 L1 A6 R16G16B16A16Sfloat t9 -> img616 0x2022c80000 32x32x1 L1 A6 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f856534d1e688 3:0x85bc13730c898eb6
+find 1 req 0x2035200000+0x158000 128x128x1 L8 A8 R16G16B16A16Sfloat t9 -> img614 0x2035200000 128x128x1 L8 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+find 3 req 0x20304f0000+0x800 16x16x1 L1 A1 R16G16B16A16Sfloat t9 -> img615 0x20304f0000 16x16x1 L1 A1 t9 view m-1 s-1 cands=0 created_by=0 uploaded=false
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+upload 0x2022c80000 32x32 L6 A8 guest mips: m0 m1 m2 m3 m4 m5
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x20304f0000 16x16 L1 A1 guest mips: m0
+upload 0x20304f0000 16x16 L1 A2 guest mips: m0
+find 3 req 0x20304f0000+0x1000 16x16x1 L1 A2 R16G16B16A16Sfloat t9 -> img612 0x20304f0000 16x16x1 L1 A2 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x20304f0000 16x16 L1 A3 guest mips: m0
+find 3 req 0x20304f0000+0x1800 16x16x1 L1 A3 R16G16B16A16Sfloat t9 -> img611 0x20304f0000 16x16x1 L1 A3 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x20304f0000 16x16 L1 A4 guest mips: m0
+find 3 req 0x20304f0000+0x2000 16x16x1 L1 A4 R16G16B16A16Sfloat t9 -> img610 0x20304f0000 16x16x1 L1 A4 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x20304f0000 16x16 L1 A5 guest mips: m0
+find 3 req 0x20304f0000+0x2800 16x16x1 L1 A5 R16G16B16A16Sfloat t9 -> img609 0x20304f0000 16x16x1 L1 A5 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+upload 0x20304f0000 16x16 L1 A6 guest mips: m0
+find 3 req 0x20304f0000+0x3000 16x16x1 L1 A6 R16G16B16A16Sfloat t9 -> img608 0x20304f0000 16x16x1 L1 A6 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+find 3 req 0x2022c94000+0x200 8x8x1 L1 A1 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m2 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x20304e0000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img607 0x20304e0000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=0 uploaded=false
+upload 0x20304e0000 32x32 L6 A8 guest mips: m0 m1 m2 m3 m4 m5
+find 3 req 0x2022c94000+0x400 8x8x1 L1 A2 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m2 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 3 req 0x2022c94000+0x600 8x8x1 L1 A3 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m2 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 3 req 0x2022c94000+0x800 8x8x1 L1 A4 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m2 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 3 req 0x2022c94000+0xa00 8x8x1 L1 A5 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m2 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 3 req 0x2022c94000+0xc00 8x8x1 L1 A6 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m2 s0 cands=1 created_by=1 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 3 req 0x20304f5000+0x200 4x4x1 L1 A1 R16G16B16A16Sfloat t9 -> img607 0x20304e0000 32x32x1 L6 A8 t9 view m3 s0 cands=1 created_by=0 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 1 req 0x2022c80000+0x18000 32x32x1 L6 A8 R16G16B16A16Sfloat t9 -> img613 0x2022c80000 32x32x1 L6 A8 t9 view m-1 s-1 cands=1 created_by=1 uploaded=true
+find 3 req 0x20304f5000+0x400 4x4x1 L1 A2 R16G16B16A16Sfloat t9 -> img607 0x20304e0000 32x32x1 L6 A8 t9 view m3 s0 cands=1 created_by=0 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6
+find 3 req 0x20304f5000+0x600 4x4x1 L1 A3 R16G16B16A16Sfloat t9 -> img607 0x20304e0000 32x32x1 L6 A8 t9 view m3 s0 cands=1 created_by=0 uploaded=true
+action 0:0xd16f8565ca273747 3:0x85bc13730c898eb6

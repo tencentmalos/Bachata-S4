@@ -238,6 +238,9 @@ copy build\bb60\patch.json <user>\guest_patches\CUSA03023\bloodborne_60fps_v1.js
   的入口与 preimage；之后与普通 typed/entry-observer hook 完全相同（trampoline 重定位
   RIP 相对跳转，`original` 经原 GOT 槽到 HLE/LLE 实现）。找不到或不唯一则跳过该包。
   不能用于 site。包列表的冲突检查在安装时按解析后的偏移进行。
+- 版本 3 是版本 2 的超集：按签名识别的包同样可以带 site 和 `patches`（例：KH3
+  [`guest/games/CUSA15072`](../guest/games/CUSA15072/README.md)）。2026-10-13 之前宿主只许
+  版本 2 带它们，这类包会被拒绝。
 - 实现：`ResolveImportHooks` / `SignaturesMatch`（`guest_patch_format`），
   `Module::FindImportPltEntry`；桌面 `guest_patch_desktop.cpp` 与 Android
   `GuestRuntime` 安装前调用。单测 `tests/test_guest_patch_format.cpp`（gtest

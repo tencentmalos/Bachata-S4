@@ -1,4 +1,4 @@
-# 王国之心 III（CUSA15072）问题汇总（截至 2026-10-12）
+# 王国之心 III（CUSA15072）问题汇总（截至 2026-10-13）
 
 把 10-07 以来在 AYANEO Pocket DS（Adreno 740）和 AYN Odin3（Adreno 830，gen8.0）上查到的 KH3 问题集中到一处，标明状态、证据位置和下一步，便于后续继续定位。细节以各条链接的原始记录为准；本文只做索引和归纳，不新增结论。
 
@@ -22,6 +22,10 @@
 | 12 | 每帧约 10 张 1600×900 目标整图重传（`Texture.Stage` 约 10 ms/帧） | Odin3 | 已修复：池回收/提交释放图像，彩色渲染目标先刷新后标记，两张 LUT 每帧在二维数组与 3D 间重建。“觉醒之所”每帧上传约 12 → 0，帧率约 +15%，GpuComm 约 −56%（`pool_undefined`、`pool_revive`、`expand_twin`） | [kh3-pool-undefined](../../docs/validation/android-native-host/kh3-pool-undefined-20261012.md) |
 | 13 | 平台限制：大核被 core_ctl 挂起、GPU 停在 660–734 MHz；唤醒代理占用中核 | Odin3 | 未处理（设备策略） | 性能文档第 2、3 节 |
 | 14 | ATRAC9 解码失败（`ERR_UNPACK_SUPERFRAME_FLAG_INVALID`）与一次 `ReadHuffmanValue` 空指针 | Odin3、Pocket DS | **未定位**；池提交修改后的一轮未出现 | 性能文档第 5 节、fix-experiments“独立字体复制” |
+| 15 | Render Scale 75% 只覆盖 44% 的 draw：compute 先把场景色当 storage 写，图像被钉成原生，经 mixed-pass 把主深度和 1600×900 G-buffer 链级联成原生 | Odin3 | 已修复：compute 的普通 storage 写跟随图像缩放，覆盖率 95%，奥林匹斯 35.1 → 46.9 FPS（+33%） | [kh3-scaled-storage](../../docs/validation/android-native-host/kh3-scaled-storage-20261013.md) |
+| 16 | 进场景偶发整片过曝/偏色（白、粉、绿、紫），持续整个会话 | Odin3 | 已修复：天空光 SH 的 GPU 计算读到未合并的 mip（scratch cubemap 的 mip1 先作为独立渲染目标写入，建整张 cubemap 时没拷进来，改从 guest 内存上传），CPU 再从 guest 内存读 9×1 SH 图时读到残留。新建图时合并 GPU 写过的子资源 mip（`adopt_mips`），并把偶尔写入的 ≤16 像素渲染目标在下一个 fence 前写回（`tiny_writeback`）。有效 5/5 正常，SH 各轮逐位一致 | [kh3-sky-sh-washout](../../docs/validation/android-native-host/kh3-sky-sh-washout-20261013.md) |
+| 17 | 游戏中 UE4 断言 `async submitCommandBuffers failed: 0x80d11000, 72, …`（GnmManager.cpp:373）后退出，随后 Guest-44 在 libc.prx 内 GUEST_FAULT | Odin3 | 已修复：Android 的 GNM 提交入口（`guest_graphics_hle.cpp`）一次超过 64 个命令缓冲就无日志地返回 `0x80d11000`，桌面没有这个上限；去掉上限，拒绝时写明原因。10-13 19:42 一次，证据 `build/validation/odin3-kh3-preempt-20261012/AD-fault-1942/` | 本表 |
+| 18 | 跑跳时单帧闪黑：整帧缺阳光、只剩斜边带状区域或右侧黑边，常成串出现 | Odin3 | 未解决：rwlock 快路径 + 叶子 HLE draw 组同时打开才出现（各自单开不闪），全开自动跑跳 6–12 次 / 5 min；已排除 completion fence、写跟踪选项、pool_map、管线跳过、新着色器组合、描述符越界 | [kh3-flicker-controls](../../docs/validation/android-native-host/kh3-flicker-controls-20261014.md) |
 
 另有用户观察：另一台 8 Gen 3 设备可以进入游戏（未取得其驱动与 ROM，不能据此认定只与硬件代际有关）。
 
@@ -105,6 +109,19 @@ Thermal Status 2；大核簇 core_ctl `min_cpus=0`、几乎不参与；GPU 封�
 
 Odin3 修改前一轮：从进入新游戏开始 `Atrac9Decode failed ret = -0x7e000000`（`0x82000000`，superframe 首帧标志与解码器内序号不一致），loading 期间约 5,300 次/秒、可操作场景约 2,000 次/秒，音频线程每次提交立即失败再提交，日志写满轮转。池提交修改后的一轮 0 次（单样本）。可能与旧的稀疏映射或帧率过低导致的流读取跳跃有关，均未验证。另有一次 attract 视频在 Atrac9 `ReadHuffmanValue` 空指针崩溃（fix-experiments“独立字体复制”一节）。Pocket DS 的 AJM 批次错误同样未定位。
 
+### #16 偶发过曝
+
+10-13 下午约 17 次进场景 15 次出现，偏色每次不同，不会自行恢复。曝光固定为 1.0（EyeAdaptation 输入为黑色直方图、CPU 常量 Min = Max = 1），不是自动曝光算错。
+
+根因有两处，都在天空光漫反射 SH（UE4 `ComputeDiffuseIrradiance`）：
+
+1. GPU 端：每个 SH 系数都把天空 cubemap 投影到两张 scratch cubemap 上逐级降采样到 1×1。第一次使用时，B 的 mip1（16×16×6 面）在 B 这张 cubemap 还不存在时就作为渲染目标写入，纹理缓存为它建了独立图；随后采样整张 B 时新建 cubemap，`ResolveOverlap` 的 left overlap 分支只在已有合并目标时才 `CopyMip`，于是 mip1 从 guest 内存上传（未初始化内容）。残留沿 mip 链传到 1×1，系数 0 或全部系数变成大数/NaN。
+2. CPU 端：游戏把 9×1 RGBA16F 的 SH 图（Thin2DThin）读回 CPU，换算后写进 View 常量 0x990–0x9fc。我们不写回渲染结果，CPU 读到该地址的残留；`readback_linear_images` 只覆盖线性或宽 ≤ 8 的图。
+
+残留是有限大数时整片偏色，为 0 或 NaN 时看起来“正常”（实际缺天空环境光）。之前怀疑的错地址写入、#11、`CP BV opcode error` 均与此无关。
+
+修复（开关均在 `upload_diag`，默认开）：`adopt_mips`——新建图时把范围内 GPU 写过、是其某个 mip/slice 的旧图在 guest 上传之后拷入并释放；`tiny_writeback`——总像素 ≤ 16 的颜色渲染目标在下一个 EOP/EOS/RELEASE_MEM 前同步写回，同一张图连续 4 个 submit 都被写（每帧的曝光、降采样链）后停止写回直到它停用。启动时 `debug.shadps4.tiny_writeback=0` 关闭、`=dump` 打印每次写回的逐 texel 内容、写回后的 guest 字节，以及触发前最近 768 条图像查找/上传/draw 记录。
+
 ## 复现路径
 
 1. 主 PKG 直接挂载（`/sdcard/game/ps4/roms/CUSA15072.pkg`，SHA-256 `5f54ed49…`）。
@@ -120,6 +137,8 @@ Odin3 上用 DebugBus 手柄推进；每次 GPU 故障后需要 root 立即读�
 | Turnip 调试开关 | `debug.mesa.tu.debug`（宿主会再并入 `gmem_warmup`）：`nocsreemit`（关闭计算状态重发）、`nocb`、`syncdraw`、`cmd_no_preempt`、`kgsl_preempt_rb` / `kgsl_preempt_fg`、`sds_page_align`、`rd`（记录提交与 BO，开销大） |
 | 重复绑定 | DebugBus `pipeline_cache bind_skip on` / `off` |
 | 纹理重传 | DebugBus `upload_diag start`、`status`、`stop` |
+| 常量与纹理内容 | DebugBus `upload_diag cb_dump <程序哈希> [次数]`、`upload_diag image_stats <guest 地址>` |
+| storage 写缩放 | `debug.shadps4.scaled_storage_off=1` 关闭；`debug.shadps4.scaled_storage_shaders=<hex,...>` 只对列出的 compute 程序生效 |
 | 地址归属 | DebugBus `memory_describe <address> [bytes]` |
 | 唤醒代理 | DebugBus `wake_proxy on`、`off`、`spin <us>`、`status` |
 | GPU 计时 | DebugBus `gpu_timing start` / `stop` |
