@@ -31,3 +31,11 @@ Citron/Azahar 的 online 功能已迁入独立仓，但其原工程入口切换�
 - Mac arm64 `.app` 自包含打包、临时签名和五类 native owner open/snapshot/close 冒烟通过；Android arm64 APK、2 项发布路径单测、lint 通过（0 errors / 17 warnings）。摘要在独立仓 `docs/artifacts-20261014.json`。
 - Mac 可访问性树确认首页三入口、平台切换及目录/Title 设置。Ghost 真实目录请求取得 16,365 条、341 页，第一页 48 个 icon 和 48 个 BG 缓存；未启动游戏下载。
 - ScreenCaptureKit 持续返回 -3811/-3812，未完成像素截图验收。Swan 布局/控制器、真实账号下载与长时恢复、文件授权和模拟器导入、Windows/Linux 运行均未验收。本仓完整桌面模拟器/APK 构建未执行。
+
+## AYN 后续实机检查
+
+EmuPSP 修复提交 [e666b9863d3502c741e7a256457ab31d2433dcc4](https://github.com/tencentmalos/EmuPSP/commit/e666b9863d3502c741e7a256457ab31d2433dcc4) 已推送并装入 AYN Thor（Android 13、1920×1080），APK SHA-256 `3c80e4615c6137b0af1ccfefdb526dcce110d3493e58df542839dc0cbf36f875`，与设备安装文件一致。本轮没有更新设备上的 shadPS4（0.1.8 / 26081400）。
+
+首页在横屏改为三平台同排；目录筛选折叠、导航固定，小卡片三列；修复非正方形封面透出占位图，Icon 变大时增加卡片高度。真实 Ghost/Gamer520 目录与图片加载已确认，百度登录改用官方移动页面并限制宽屏下的网页宽度。Android native instrumentation 1/0、打包 7-Zip 执行成功、2 项发布路径单测与 lint（0 errors / 15 warnings）通过；PC 连接数选项同步修复，构建和五 owner 冒烟通过。
+
+用户已提供测试分享，链接和提取码不记录到仓库。AYN 留在登录页等待用户完成登录并授权；此时尚未开始分享下载、内容发布或 shadPS4 安装，不能算完整链路通过。最终卡片尺寸组合和 Swan 仍需补查。完整记录和本地截图索引见独立仓 [AYN 验证记录](https://github.com/tencentmalos/EmuPSP/blob/e666b9863d3502c741e7a256457ab31d2433dcc4/docs/validation-ayn-20261014.md)。
