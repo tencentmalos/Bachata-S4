@@ -34,6 +34,7 @@ import com.shadps4.android.data.InstallValidator
 import com.shadps4.android.data.OverlayRecord
 import com.shadps4.android.data.ParamSfoReader
 import com.shadps4.android.data.PkgKeyStore
+import com.shadps4.android.data.openIndependentPkgFd
 import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.pkg.PkgExtractor
 import com.shadps4.android.runtime.pkg.PkgProbeResult
@@ -503,8 +504,7 @@ class ImportService : Service() {
                 )
                 jobStore.update(job)
                 Log.i(TAG, "pkg direct saf fd (skip cache) uri=$uriString")
-                contentResolver.openFileDescriptor(uri, "r")
-                    ?: error("Cannot reopen PKG for extract")
+                contentResolver.openIndependentPkgFd(uri)
             } else {
                 val cacheDir = File(filesDir, "pkg-cache").canonicalFile
                 cacheDir.mkdirs()
@@ -770,7 +770,7 @@ class ImportService : Service() {
                 val packageBytes = probe.packageSize.coerceAtLeast(0L)
                 val safFdSeekable = contentResolver.openFileDescriptor(uri, "r")?.use { isOpenFdSeekable(it) } ?: false
                 val extractPfd: ParcelFileDescriptor = if (safFdSeekable) {
-                    contentResolver.openFileDescriptor(uri, "r") ?: error("Cannot reopen PKG for batch extract")
+                    contentResolver.openIndependentPkgFd(uri)
                 } else {
                     val cacheDir = File(filesDir, "pkg-cache").canonicalFile
                     cacheDir.mkdirs()

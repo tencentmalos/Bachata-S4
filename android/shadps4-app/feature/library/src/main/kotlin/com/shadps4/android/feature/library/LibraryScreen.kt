@@ -368,8 +368,8 @@ fun LibraryScreen(
                 Column {
                     Text(needCopyConfirm.titleHint ?: needCopyConfirm.contentId.ifBlank { "Selected package" })
                     Text(
-                        "PKG files are copied into app storage first, then extracted. " +
-                            "Peak free space needed is package + extract size.",
+                        "Extracts the package into app storage. " +
+                            "The space estimate below includes a temporary copy when needed.",
                         modifier = Modifier.padding(top = 8.dp),
                     )
                     Text(
