@@ -1,11 +1,13 @@
 // PKG stream extract for Android (adapted from shadPS4 PKG::Extract / ExtractFiles).
 #include "pkg_extractor.h"
+#include "pkg_block_io.h"
 #include "pkg_crypto.h"
 #include "pkg_type.h"
 #include "pfs.h"
 #include "types.h"
 
 #include <android/log.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <zlib.h>
 #if defined(BACHATA_HAVE_LIBDEFLATE)
@@ -15,10 +17,12 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -646,9 +650,14 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
         return false;
     }
     const Inode& node = st.iNodeBuf[table.inode];
-    const int sector_loc = node.loc;
-    const int nblocks = node.Blocks;
-    const int bsize = node.Size;
+    const uint64_t sector_loc = node.loc;
+    if (node.Size < 0 || PfsBlockCount(static_cast<uint64_t>(node.Size)) > node.Blocks) {
+        err = "Invalid file size/block count";
+        return false;
+    }
+    const uint64_t bsize = static_cast<uint64_t>(node.Size);
+    // Allocated extents may include padding (including empty files with a block).
+    const uint64_t nblocks = PfsBlockCount(bsize);
     auto path_it = st.extractPaths.find(table.inode);
     if (path_it == st.extractPaths.end()) return true;
     const fs::path out_path = path_it->second;
@@ -657,14 +666,40 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
         return false;
     }
     fs::create_directories(out_path.parent_path());
-    std::ofstream out(out_path, std::ios::binary);
+    std::unique_ptr<FILE, decltype(&std::fclose)> out(std::fopen(out_path.c_str(), "wb"), &std::fclose);
     if (!out) {
         err = "Cannot open output file";
         return false;
     }
 
-    int size_decompressed = 0;
     uint64_t written = 0;
+    uint64_t flushed = 0;
+    off_t source_cache_start = -1;
+    // Bound dirty output and consumed input cache per worker. Large parallel
+    // imports otherwise churn reclaimable pages until Android's PSI-based LMKD
+    // kills even visible apps, despite the extractor's small resident buffers.
+    constexpr uint64_t kCacheWindow = 16 * 1024 * 1024;
+    auto flush_window = [&](off_t source_end) {
+        if (std::fflush(out.get()) != 0) {
+            err = "Output write failed";
+            return false;
+        }
+        int result;
+        do { result = fdatasync(fileno(out.get())); } while (result < 0 && errno == EINTR);
+        if (result < 0) {
+            err = "Output sync failed";
+            return false;
+        }
+        // Advisory only: unsupported hints must not turn a valid import into an error.
+        posix_fadvise(fileno(out.get()), static_cast<off_t>(flushed),
+                      static_cast<off_t>(written - flushed), POSIX_FADV_DONTNEED);
+        if (source_cache_start >= 0 && source_end > source_cache_start) {
+            posix_fadvise(fd, source_cache_start, source_end - source_cache_start, POSIX_FADV_DONTNEED);
+            source_cache_start = source_end;
+        }
+        flushed = written;
+        return true;
+    };
     std::vector<char> compressedData;
     std::vector<char> decompressedData(0x10000);
     constexpr u64 pfsc_buf_size = 0x11000;
@@ -673,12 +708,12 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
     // Throttle JNI progress: every 32 blocks (~2 MiB) or last block.
     constexpr int kProgressEveryBlocks = 32;
 
-    for (int j = 0; j < nblocks; ++j) {
+    for (uint64_t j = 0; j < nblocks; ++j) {
         if (g_cancel.load()) {
             err = "CANCELLED";
             return false;
         }
-        if (sector_loc + j + 1 >= static_cast<int>(st.sectorMap.size())) {
+        if (sector_loc + j + 1 >= st.sectorMap.size()) {
             err = "sector map OOB";
             return false;
         }
@@ -686,8 +721,11 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
         const u64 sectorSize = st.sectorMap[sector_loc + j + 1] - sectorOffset;
         const u64 fileOffset = u64(st.hdr.pfs_image_offset) + st.pfsc_offset + sectorOffset;
         const u64 currentSector1 = (st.pfsc_offset + sectorOffset) / 0x1000;
-        const int sectorOffsetMask = static_cast<int>((sectorOffset + st.pfsc_offset) & 0xFFFFF000);
-        const int previousData = static_cast<int>((sectorOffset + st.pfsc_offset) - sectorOffsetMask);
+        const u64 previousData = (sectorOffset + st.pfsc_offset) & 0xFFF;
+        if (sectorSize > PfsBlockBytes || previousData + sectorSize > pfsc_buf_size) {
+            err = "Invalid PFSC sector size";
+            return false;
+        }
 
         // Tolerate short reads near the PFS/PKG end: the needed sector
         // (sectorSize bytes at offset previousData) is always within the
@@ -696,6 +734,7 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
         // sectors, so zero-filled tail bytes never reach real output.
         std::fill(pfsc.begin(), pfsc.end(), 0);
         const u64 readOff = fileOffset - previousData;
+        if (source_cache_start < 0) source_cache_start = static_cast<off_t>(readOff);
         const u64 pkgSize = u64(st.hdr.pkg_size);
         const u64 maxRead = readOff < pkgSize ? (pkgSize - readOff) : 0;
         const size_t toRead = static_cast<size_t>(std::min<u64>(pfsc_buf_size, maxRead));
@@ -722,15 +761,14 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
                 return false;
             }
         }
-        size_decompressed += 0x10000;
-        if (j < nblocks - 1) {
-            out.write(decompressedData.data(), static_cast<std::streamsize>(decompressedData.size()));
-            written += static_cast<uint64_t>(decompressedData.size());
-        } else {
-            const u32 write_size = static_cast<u32>(decompressedData.size() - (size_decompressed - bsize));
-            out.write(decompressedData.data(), static_cast<std::streamsize>(write_size));
-            written += write_size;
+        const size_t write_size = static_cast<size_t>(PfsWriteBytes(bsize, written));
+        if (std::fwrite(decompressedData.data(), 1, write_size, out.get()) != write_size) {
+            err = "Output write failed";
+            return false;
         }
+        written += write_size;
+        if ((written - flushed >= kCacheWindow || j == nblocks - 1) &&
+            !flush_window(static_cast<off_t>(readOff + toRead))) return false;
         if (progress &&
             (j == 0 || j == nblocks - 1 || ((j + 1) % kProgressEveryBlocks) == 0)) {
             const uint64_t partial =
@@ -901,7 +939,13 @@ int bachata_pkg_extract(int fd, const char* out_path, const char* passcode_or_nu
     uint64_t total = 0;
     for (const auto& t : st.fsTable) {
         if (t.type == PFS_FILE && t.inode >= 0 && static_cast<size_t>(t.inode) < st.iNodeBuf.size()) {
-            total += static_cast<uint64_t>(st.iNodeBuf[t.inode].Size);
+            const auto& node = st.iNodeBuf[t.inode];
+            if (node.Size < 0 || PfsBlockCount(static_cast<uint64_t>(node.Size)) > node.Blocks) {
+                LOGE("invalid file extent name=%s size=%lld blocks=%u", t.name.c_str(),
+                     static_cast<long long>(node.Size), node.Blocks);
+                return 3;
+            }
+            total += static_cast<uint64_t>(node.Size);
         }
     }
     LOGI("extract total_bytes=%llu", static_cast<unsigned long long>(total));
@@ -910,8 +954,12 @@ int bachata_pkg_extract(int fd, const char* out_path, const char* passcode_or_nu
         progress(progress_ctx, 0, total, "");
     }
 
+    // Drop any full-package cache left by a previous verification or failed import.
+    // The per-worker windows below retain only input still being consumed.
+    posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+
     // Parallel per-file extraction. extract_file touches only read-only
-    // ExtractState fields + its own ofstream; Crypto is stateless (no members);
+    // ExtractState fields + its own output stream; Crypto is stateless (no members);
     // pread on the shared fd is thread-safe (POSIX, no fd-offset mutation).
     // Safe to run across a worker pool. Progress accumulates via an atomic.
     std::vector<size_t> fileIdx;
@@ -931,8 +979,8 @@ int bachata_pkg_extract(int fd, const char* out_path, const char* passcode_or_nu
     std::atomic<bool> failed{false};
     std::mutex err_mu;
     std::string shared_err;
-    // Cap at 8: diminishing returns past the big.LITTLE cluster, and each extra
-    // thread is 8 MiB+ of scratch buffers (pfsc + decrypted + inflight I/O).
+    // Cap at 8: diminishing returns past the big.LITTLE cluster. Each worker
+    // also retains at most one output cache window between writeback points.
     // fileCount >= 1 here so clamp high bound is never below the low bound of 1.
     unsigned hw = std::thread::hardware_concurrency();
     if (hw == 0) hw = 4;
