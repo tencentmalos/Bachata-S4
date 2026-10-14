@@ -92,6 +92,16 @@ registry + dumpsys，不构建 basic 层。
 - `SHADPS4_VK_DISABLE_EXTENSIONS=ext[,ext]`（Android：`debug.shadps4.vk_disable_extensions`）
   把设备扩展视为不支持，用于在任意 GPU 上复现缺扩展驱动或 RenderDoc 下的回退路径。
 
+## 2026-10-14：截图/录像改用 Foundation `modules/capture`
+
+`capture_recorder` 与 `openxr/xr_capture` 改为 Foundation `FrameCapture` / `XrLayerCapture` 的适配层，
+DebugBus 的 `capture_screenshot`、`capture_video`、`capture_source`、`capture_config` 都由
+Foundation 处理（产品名 `shadps4`，canvas 生产者名仍为 `final_render_target`，属性前缀
+`debug.shadps4.capture`）。与 SteamPSP 共用同一套协议、编码器和 XR 图层合成；接入方式见
+Foundation `docs/guides/emulator-capture.md`。构建参数不变（`--scrcpy-capture-sdk-root`），未指定
+SDK 时不编译这些文件。版本、行为变化与 Swan 实测见
+[迁移记录](validation/android-native-host/foundation-capture-20261014.md)。
+
 ## 2026-09-24：可选的 scrcpy 嵌入式录制 SDK
 
 SDK 源码现由私有仓 [`tencentmalos/my_mcp_tools`](https://github.com/tencentmalos/my_mcp_tools)

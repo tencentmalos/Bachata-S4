@@ -1,3 +1,9 @@
+- **截图/录像迁到 Foundation `modules/capture`（2026-10-14）：** [记录](docs/validation/android-native-host/foundation-capture-20261014.md)、skill `scrcpy-sdk-capture`、Foundation `docs/guides/emulator-capture.md`。
+  - **共用实现**：与 SteamPSP 共用 Foundation 的 DebugBus 协议、编码器与 XR 图层合成。`capture_recorder` 包装 `FrameCapture`（2D 呈现画面），`openxr/xr_capture` 包装 `XrLayerCapture`（mailbox 进 Screen 槽，按环境 → 屏幕 → 状态登记后用宿主已定位的双眼合成）；删除 `xr_capture.comp`。新增 `capture_config`（码率/尺寸/帧率/关键帧间隔，同 scrcpy）。
+  - **行为变化**：XR 会话 > 2D 呈现画面按优先级接管；XR 中 canvas 也由会话给出（mailbox 图），不再为截图改画 Android 窗口；2D 模式选 `xr` 也给 canvas。XR 截图改为全尺寸（Swan 双眼 5184×2400），录像仍为每眼一半。
+  - **Foundation**：`b977fef` → `dc8c18a`（`feature/malos/shadps4-capture`：原 pin 合入 `feature/malos/capture-producers` `b42ab4c`）。
+  - **Swan 实测**（APK `607b7df3`）：TMNT 2D 截图 1920×1080、录像 60.4 fps 0 跳帧；ASTRO BOT PSVR xr 截图 5184×2400、左眼录像 1296×1200 34.6 fps，canvas 5184×2400 33.4 fps，均 0 跳帧。
+  - **未覆盖**：普通游戏的 XR 影院合成（TMNT 在 Swan 上以 2D 运行）、PSV 状态层、直播/`--follow`、迁移前后帧率 A/B。
 - **KH3：Controls 面板帧率限制与逐游戏保存 / 场景闪黑二分（2026-10-14，已提交；闪黑未修复）：** [记录](docs/validation/android-native-host/kh3-flicker-controls-20261014.md)。
   - **Controls 面板**：状态层新增"游戏"页，可调帧率上限（Off/50/45/40/30/20，PresentThread 按 vblank 额度放行 flip）、管线编译模式、Android 屏幕超分与锐度（桌面为 FSR/RCAS）。修改后通过 `JniHelper` → `SessionSettingsBridge` 写入该游戏的 profile，`gpu.frame_limit` 也在 Launch 面板。单测通过；重启后保留、桌面编译未验证。
   - **闪黑**：跑跳时单帧缺阳光、只剩斜带或右侧黑边。二分结论是 rwlock 快路径与叶子 HLE 的 draw 组（DrawIndex 系列 / DispatchDirect）同时打开才出现，各自单开都不闪；全开时自动跑跳 6–12 次 / 5 min。`debug.shadps4.leaf_fastpath` 可按组设 `clock,tls,draw,marker`。
@@ -214,7 +220,7 @@
 - **截图/录像图源选择：XR 双目场景（2026-10-01）：** [记录 v10](docs/validation/android-native-host/xr-cinema-editor-20261001.md)。
   - **切换**：DebugBus `capture_source [canvas|xr|status]`，默认 canvas。录像进行中或截图挂起时返回 busy；用完需切回 canvas。
   - **xr 图源**：运行时把自己提交的各层逐眼射线合成为无畸变左右并排图（每眼为运行时眼分辨率的一半，Swan 1296×1200），合成顺序为环境层 → 影院 quad 或 PSVR 眼投影 → PSV 状态层，不依赖系统合成器。
-  - **实现**：Foundation `530a60a`（`XrSceneVulkanLayer::SetCaptureTarget`）；`openxr/xr_capture.cpp` 与 `xr_capture.comp`。
+  - **实现**：Foundation `530a60a`（`XrSceneVulkanLayer::SetCaptureTarget`）；`openxr/xr_capture.cpp` 与 `xr_capture.comp`（2026-10-14 起由 Foundation `modules/capture` 实现，见该日条目）。
   - **工具**：capturectl `--source`；MCP 的 `capture_app_screenshot` / `record_app_video` 新增 `source` 参数。
   - **Swan 实测**：血源影院双眼及单眼 PNG 正常；8 s 录像 239 帧、0 跳帧；Beat Saber 投影路径正常；切回 canvas 后截图正常。
   - **未验收**：未做 FPS A/B；未佩戴验收。

@@ -923,7 +923,8 @@ struct Runtime::Impl {
                 // capture_source xr: this frame's layers are copied as submitted
                 // and composed per eye after xrEndFrame.
                 const bool capturing = !panel && frame.shouldRender && count == 2 &&
-                                       xr_capture->Begin(eye_width, eye_height);
+                                       xr_capture->Begin(eye_width, eye_height,
+                                                         frame.predictedDisplayPeriod);
 #endif
                 {
                 std::scoped_lock cinema_lock(mailbox_mutex);
@@ -1001,7 +1002,7 @@ struct Runtime::Impl {
                                                    format == VK_FORMAT_R8G8B8A8_SRGB
                                                        ? VK_FORMAT_R8G8B8A8_UNORM
                                                        : VK_FORMAT_B8G8R8A8_UNORM,
-                                                   width, height);
+                                                   content_width, content_height, stereo ? 2u : 1u);
 #endif
                         Barrier(consumer.command, images[index].image,
                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

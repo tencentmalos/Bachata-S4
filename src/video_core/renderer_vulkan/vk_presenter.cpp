@@ -570,9 +570,6 @@ Presenter::~Presenter() {
     if (instance.Xr()) instance.Xr()->Stop();
 #endif
     capture_binding.Close();
-#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-    EmbeddedScreenshots().Close(instance.DiagnosticGeneration());
-#endif
     // Release any acquire that is (or becomes) blocked so teardown never wedges on
     // a surface the platform may already have taken (HN4 bounded-acquire stop).
     swapchain.RequestStop();
@@ -1419,10 +1416,9 @@ Frame* Presenter::Compose(PresentSource& source) {
 void Presenter::RecordEmbeddedScreenshot(Frame& target, u64 diagnostic_id, Scheduler& scheduler) {
     [[maybe_unused]] auto* frame = &target;
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-    // With the XR source selected the XR frame thread takes the request.
-    if (auto request = CurrentCaptureSource() != CaptureSource::Canvas ? std::nullopt :
-            EmbeddedScreenshots().Take(instance.DiagnosticGeneration(), diagnostic_id,
-                                       Core::Diagnostics::DiagnosticNowNs())) {
+    // While an XR session runs, its capture producer takes the requests.
+    (void)diagnostic_id;
+    if (auto request = embedded_capture->TakeStill()) {
         try {
             // Only a pending request takes the raw command buffer (it drains the recorder).
             const auto cmdbuf = scheduler.RawCommandBuffer();
@@ -1501,11 +1497,11 @@ void Presenter::RecordEmbeddedScreenshot(Frame& target, u64 diagnostic_id, Sched
                     std::error_code ignored;
                     std::filesystem::remove(partial, ignored);
                 }
-                EmbeddedScreenshots().Complete(request.token, span.width, readback->height,
-                                                std::move(error), eye_count);
+                CaptureRecorder::StillDone(request.token, span.width, readback->height, error,
+                                           eye_count);
             });
         } catch (const std::exception& e) {
-            EmbeddedScreenshots().Complete(request->token, 0, 0, e.what());
+            CaptureRecorder::StillDone(request->token, 0, 0, e.what(), 1);
         }
     }
 #endif
@@ -1591,11 +1587,8 @@ Frame* Presenter::PrepareBlankFrame(bool present_thread) {
 
 Presenter::Output Presenter::CurrentOutput() const {
 #if defined(__ANDROID__)
-    if (instance.Xr() && !OpenXr::MirrorEnabled()
-#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-        && !CanvasCaptureWanted()
-#endif
-    )
+    // The XR session's capture producer serves the canvas source too (the mailbox image).
+    if (instance.Xr() && !OpenXr::MirrorEnabled())
         return Output::Xr;
 #endif
     return Output::Window;

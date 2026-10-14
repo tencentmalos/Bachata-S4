@@ -13,12 +13,13 @@ class Instance;
 }
 
 namespace Vulkan::OpenXr {
-// The "xr" capture source (DebugBus capture_source xr): what the wearer sees,
-// without the runtime's lens distortion. The layers the runtime composites
-// (cinema environment, game quad or PSVR eye projection, PSV status) are
-// copied as they are submitted and ray-cast per output eye into one
-// side-by-side image, which feeds the embedded screenshot (PNG) and the H.264
-// recorder exactly like the canvas source does.
+// The XR session as a capture producer, through Foundation XrLayerCapture
+// (foundation/modules/capture): source xr is what the wearer sees without the
+// runtime's lens distortion (cinema environment, game quad or PSVR eye
+// projection, PSV status, ray-cast per output eye side by side); source canvas
+// is the game's mailbox image. The layers are noted as the runtime frame
+// builds them and handed to Foundation bottom to top (environment, game,
+// status) when the frame is composed.
 // All calls on the XR frame thread. Destroy only after the scenes it attached
 // to, or after detaching them (Attach(scene, layer) while inactive).
 class XrCapture {
@@ -29,9 +30,9 @@ public:
     XrCapture(const XrCapture&) = delete;
     XrCapture& operator=(const XrCapture&) = delete;
 
-    // Frame start: takes a screenshot request / encoder image while the XR
-    // source is selected. False = nothing to capture this frame.
-    bool Begin(uint32_t eye_width, uint32_t eye_height);
+    // Frame start: takes a screenshot request / encoder image. False = nothing
+    // to capture this frame.
+    bool Begin(uint32_t eye_width, uint32_t eye_height, int64_t display_period_ns);
     bool Active() const;
     // Before the scene renders: route its swapchain copy into our image, or
     // detach it when inactive.
@@ -39,9 +40,10 @@ public:
     // The scene's layer went into this frame's xrEndFrame.
     void Submitted(Scene scene, spatial::xr::XrSceneVulkanLayer& layer,
                    const XrCompositionLayerProjection& submitted);
-    // Inside the mailbox -> game swapchain copy, mailbox in TRANSFER_SRC.
+    // Inside the mailbox -> game swapchain copy, mailbox in TRANSFER_SRC; the
+    // copied content area (both eyes side by side when `views` is 2).
     void CopyScreen(VkCommandBuffer cmd, VkImage mailbox, VkFormat format, uint32_t width,
-                    uint32_t height);
+                    uint32_t height, uint32_t views);
     // The game layer submitted this frame: cinema quad(s) (eye_mask bit 0 =
     // left, 1 = right) or the PSVR projection. Rects index the mailbox.
     void ScreenQuad(uint32_t eye_mask, const XrCompositionLayerQuad& quad);

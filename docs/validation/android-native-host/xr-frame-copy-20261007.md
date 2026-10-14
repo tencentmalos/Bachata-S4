@@ -22,7 +22,7 @@ Swan 推荐档每眼 2592×2400，SBS 5184×2400×4 B ≈ 49.8 MB；不压缩时
 3. **2D 影院按原尺寸放入 mailbox**：原来 2D 帧（例如 2592×1458）被拉伸 blit 到整张 5184×2400 的 mailbox，合成器显示 quad 时再采样一次。现在放进左上角原尺寸区域（格式相同用拷贝，不同用 1:1 blit；比 mailbox 大时才缩小），quad/projection 的 `subImage` 与消费端拷贝都只用这块区域：影院模式两次写入均约少 3.3 倍像素，也少了一次重采样。PSVR 帧本来就等于 `FrameExtent`，不受影响。
 4. **presenter 帧图保留 UBWC**：`RecreateFrame` 的 `frame.image` 带 `MUTABLE_FORMAT` 却没有格式列表（来自上游 #1559，现在只建同格式 view），与 B1 同一原因会在 Turnip（A740 无 `ubwc_all_formats_compatible`）上关掉 UBWC，而 XR 下它是全尺寸 SBS 图、每帧被整图读取。现附 `{表面格式, 其 sRGB/UNORM 兄弟}` 格式列表。2D 模式同样受益。
 5. **开关与计数**：DebugBus `xr_frame_copy status | new | every`，属性 `debug.shadps4.xr_copy_every_frame=1` 启动即用旧行为（每个 runtime 帧都拷），用于 A/B 和 Pico 合成器不接受时回退。`status` 输出累计 `copied` / `repeated`。LiteP scope：`XR.Mailbox.ConsumeSubmit`（提交）、`XR.Mailbox.SettleWait`（复用前等待，正常应接近 0）。
-6. XR 截图（`capture_source xr`）在消费端命令缓冲里从 mailbox 拷出，开着截图的帧仍走拷贝路径，所以**用 XR 截图看不到重复帧路径的画面**，验收重复帧须用系统合成器截图/录像（`capture_headset_view` 等）。
+6. XR 截图（`capture_source xr`）在消费端命令缓冲里从 mailbox 拷出，开着截图的帧仍走拷贝路径，所以**用 XR 截图看不到重复帧路径的画面**，验收重复帧须用系统合成器截图/录像（`capture_headset_view` 等）。2026-10-14 起 XR 会话中的 `canvas` 也从这里取（Foundation `XrLayerCapture`），不再把画面改画到 Android 窗口，见 [迁移记录](foundation-capture-20261014.md)。
 
 估计效果（90 Hz / 30 FPS、PSVR）：消费端拷贝 90 → 30 次/s（约 9.0 → 3.0 GB/s 读写），XR 线程每个重复帧不再有 acquire/拷贝/CPU 等待；UBWC 生效时实际带宽更低。影院模式两次拷贝都按 2592×1458 计。
 

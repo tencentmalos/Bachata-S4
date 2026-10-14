@@ -800,20 +800,26 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     }
 
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-    registry.Register("capture_screenshot", "request|status|cancel TOKEN -- final RT PNG without host overlays",
-        [&hub, clock](const std::vector<std::string>& args) {
-            DiagnosticsSnapshot snap;
-            hub.QuerySnapshot(snap, NowNs(clock));
-            return Vulkan::HandleEmbeddedScreenshotCommand(args, snap.has_session ? snap.generation : 0);
-        });
-    registry.Register("capture_video", "capture_video [start|start_live TOKEN|stop|status] -- embedded final RT H.264",
+    // Foundation's capture protocol (foundation/docs/guides/emulator-capture.md).
+    registry.Register("capture_screenshot", "request TOKEN [left|right|both] | status|cancel TOKEN -- "
+                      "lossless PNG of the final RT, or of the XR view per eye (capture_source)",
         [](const std::vector<std::string>& args) {
-            return Vulkan::HandleEmbeddedCaptureCommand(args);
+            return Vulkan::HandleEmbeddedCaptureCommand("capture_screenshot", args);
+        });
+    registry.Register("capture_video", "capture_video [start [EYE]|start_live TOKEN [EYE]|stop|status] -- "
+                      "H.264 of the final RT, or of the XR view (file or live socket)",
+        [](const std::vector<std::string>& args) {
+            return Vulkan::HandleEmbeddedCaptureCommand("capture_video", args);
         });
     registry.Register("capture_source", "capture_source [canvas|xr|status] -- what capture_screenshot/"
                       "capture_video encode: game canvas, or the XR cinema per eye (undistorted)",
         [](const std::vector<std::string>& args) {
-            return Vulkan::HandleCaptureSourceCommand(args);
+            return Vulkan::HandleEmbeddedCaptureCommand("capture_source", args);
+        });
+    registry.Register("capture_config", "capture_config [video_bit_rate=8M] [max_size=1024] [max_fps=30] "
+                      "[i_frame_interval=2] | reset | status -- recording settings, as scrcpy's",
+        [](const std::vector<std::string>& args) {
+            return Vulkan::HandleEmbeddedCaptureCommand("capture_config", args);
         });
 #endif
 

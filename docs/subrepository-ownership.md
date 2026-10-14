@@ -1,5 +1,11 @@
 # V0 子仓归属与开发分支
 
+2026-10-14增量：截图/录像迁到 Foundation `modules/capture`。在原 pin `b977fef0fb3f141c25b9f350e41afc81ca3f3ead`
+（`codex/prof-streaming-integrity` 末端）上合入 `feature/malos/capture-producers` 的
+`b42ab4c`，得到 `dc8c18a235bb03e58571274d4a13facdd868ef0f`，先推送至 owned `tencentmalos/foundation`
+的 `feature/malos/shadps4-capture`，主仓随后更新 gitlink；其他 reference pins 不变。
+见 [迁移记录](validation/android-native-host/foundation-capture-20261014.md)。
+
 2026-10-08增量：Foundation 从主仓原 pin `355eeba05a87d038523a42db21d44b777bd1e1eb`
 引入独立的 online content SDK，提交 `5fbdef1c180d41bbd173aa34dcf155cac6911738`
 已先推送至 owned `tencentmalos/foundation` 的 `codex/shadps4-online-content`，并用
