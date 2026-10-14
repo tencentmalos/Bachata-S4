@@ -30,7 +30,8 @@ bool HleScope::WaitFor(std::chrono::nanoseconds duration) const {
     std::condition_variable_any changed;
     std::unique_lock lock(mutex);
     context_.DebugNativeWait(thread_, true);
-    changed.wait_for(lock, cancel_, duration, [] { return false; });
+    WaitUntil(changed, lock, cancel_, std::chrono::steady_clock::now() + duration,
+              [] { return false; });
     context_.DebugNativeWait(thread_, false);
     return !cancel_.stop_requested();
 }

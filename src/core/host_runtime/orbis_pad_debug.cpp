@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-#include <nlohmann/json.hpp>
-#include "core/host_runtime/orbis_pad_adapter.h"
-#include "imgui/input_capture.h"
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <chrono>
 #include <cmath>
 #include <condition_variable>
 #include <map>
 #include <thread>
-#include <array>
+#include <nlohmann/json.hpp>
+#include "core/host_runtime/guest_vr_sensor.h"
+#include "core/host_runtime/orbis_pad_adapter.h"
+#include "imgui/input_capture.h"
 
 namespace Core::HostRuntime {
 using Json = nlohmann::ordered_json;
 using Clock = std::chrono::steady_clock;
 using namespace spatial::input;
+using VrSensor = GuestVrSensor;
 namespace {
 constexpr std::array<u32, 18> Bits{0x4000,0x2000,0x8000,0x1000,0x10,0x40,0x80,0x20,
     0x400,0x800,0x100,0x200,2,4,8,1,0x10000,0x100000};
@@ -45,6 +47,12 @@ Json Snapshot(const PadSnapshot& s) {
         {"right_x",s.right_x},{"right_y",s.right_y},{"left_trigger",s.left_trigger},
         {"right_trigger",s.right_trigger},{"touch_down",s.touch_down},
         {"touch_x",s.touch_x},{"touch_y",s.touch_y}};
+}
+const char* PoseTarget(unsigned target) {
+    return target == 0 ? "head" : "ds4";
+}
+Json PoseValue(const VrSensor::Pose& pose) {
+    return {{"position", pose.position}, {"orientation_xyzw", pose.orientation}};
 }
 const char* TraceSourceName(OrbisPadAdapter::TraceSource s) {
     switch (s) {
@@ -114,12 +122,30 @@ struct OrbisPadAdapter::DebugReceipt {
     u64 id{}, deadline_ns{}, published_timestamp_us{}, guest_poll_count{}, first_guest_poll_ns{};
     int port{};
     PadSnapshot snapshot;
+    std::shared_ptr<VrSensor::DebugPose> pose;
     Json JsonValue() const {
-        return {{"owner",owner},{"action_id",id},{"port",port},{"state",state},
-            {"published_timestamp_us",published_timestamp_us},{"deadline_ns",deadline_ns},
-            {"guest_poll_seen",guest_poll_count != 0},{"guest_poll_count",guest_poll_count},
-            {"first_guest_poll_ns",first_guest_poll_ns},{"release_reason",release_reason},
-            {"requested",Snapshot(snapshot)}};
+        auto j = Json{{"owner", owner},
+                      {"action_id", id},
+                      {"port", port},
+                      {"state", state},
+                      {"published_timestamp_us", published_timestamp_us},
+                      {"deadline_ns", deadline_ns},
+                      {"guest_poll_seen", guest_poll_count != 0},
+                      {"guest_poll_count", guest_poll_count},
+                      {"first_guest_poll_ns", first_guest_poll_ns},
+                      {"release_reason", release_reason},
+                      {"requested", Snapshot(snapshot)}};
+        if (pose) {
+            j["kind"] = "pose";
+            j["target"] = PoseTarget(unsigned(pose->target));
+            j["requested"] = PoseValue(pose->pose);
+            j["coordinate_space"] = "ps_camera_metres";
+            const auto polls = pose->polls.load();
+            j["guest_poll_count"] = polls;
+            j["guest_poll_seen"] = polls != 0;
+            j["first_guest_poll_ns"] = pose->first_poll_ns.load();
+        }
+        return j;
     }
 };
 struct OrbisPadAdapter::DebugState {
@@ -131,6 +157,7 @@ struct OrbisPadAdapter::DebugState {
     std::string uuid, owner;
     std::map<std::string,u64> high_water;
     std::deque<std::shared_ptr<DebugReceipt>> receipts;
+    std::array<std::shared_ptr<DebugReceipt>, 2> poses;
     static constexpr std::size_t kTraceCapacity = 4096;
     std::array<TraceEntry, kTraceCapacity> trace_ring{};
     std::array<TraceValue, kMaxPadPorts * 4> trace_previous{};
@@ -142,14 +169,23 @@ struct OrbisPadAdapter::DebugState {
     std::string trace_id, trace_game_id;
 };
 OrbisPadAdapter::OrbisPadAdapter() : debug_(std::make_unique<DebugState>()) {
+    // The singleton adapter can own a pose lease at process shutdown. Construct
+    // the sensor first so it outlives this adapter and its watchdog.
+    VrSensor::Instance();
     debug_->worker = std::thread([this] { DebugWatchdog(); });
 }
 OrbisPadAdapter::~OrbisPadAdapter() {
-    { std::lock_guard lock(mutex_); debug_->closing = true; debug_->cv.notify_all(); }
+    {
+        std::lock_guard lock(mutex_);
+        ReleaseDebugLocked("adapter_destroyed", true);
+        debug_->closing = true;
+        debug_->cv.notify_all();
+    }
     if (debug_->worker.joinable()) debug_->worker.join();
 }
 void OrbisPadAdapter::ResetDebugLocked() {
     ReleaseDebugLocked("session_reset", true);
+    VrSensor::Instance().ClearTrackerSamples();
     debug_->focused = false;
     debug_->high_water.clear();
     debug_->receipts.clear();
@@ -301,8 +337,19 @@ void OrbisPadAdapter::ReleaseDebugPortLocked(int port, std::string_view reason, 
 }
 void OrbisPadAdapter::ReleaseDebugLocked(std::string_view reason, bool discard_history) {
     for (int i=0; i<kMaxPadPorts; ++i) ReleaseDebugPortLocked(i, reason, discard_history);
+    for (unsigned i = 0; i < 2; ++i)
+        ReleaseDebugPoseLocked(i, reason);
     debug_->owner.clear();
     debug_->cv.notify_all();
+}
+void OrbisPadAdapter::ReleaseDebugPoseLocked(unsigned target, std::string_view reason) {
+    auto& receipt = debug_->poses[target];
+    if (!receipt)
+        return;
+    VrSensor::Instance().ClearDebugPose(VrSensor::DebugTarget(target));
+    receipt->state = "released";
+    receipt->release_reason = reason;
+    receipt.reset();
 }
 void OrbisPadAdapter::ObserveDebugLocked(const Sample& sample, bool intercepted) {
     // Called only from the checked GuestPad adapter after output admission. The
@@ -331,7 +378,18 @@ void OrbisPadAdapter::DebugWatchdog() {
             else
                 deadline = std::min(deadline, Clock::time_point(std::chrono::nanoseconds(receipt->deadline_ns)));
         }
-        const bool any = std::ranges::any_of(ports_, [](const Port& p) { return bool(p.debug); });
+        for (unsigned i = 0; i < 2; ++i) {
+            const auto& receipt = debug_->poses[i];
+            if (!receipt)
+                continue;
+            if (captured || now >= receipt->deadline_ns)
+                ReleaseDebugPoseLocked(i, captured ? "ui_captured" : "timeout");
+            else
+                deadline = std::min(
+                    deadline, Clock::time_point(std::chrono::nanoseconds(receipt->deadline_ns)));
+        }
+        const bool any = std::ranges::any_of(ports_, [](const Port& p) { return bool(p.debug); }) ||
+                         std::ranges::any_of(debug_->poses, [](const auto& p) { return bool(p); });
         if (!any) debug_->owner.clear();
         // While held, detect host modal capture even without another input packet.
         if (any) deadline = std::min(deadline, Clock::now()+std::chrono::milliseconds(10));
@@ -426,6 +484,13 @@ std::string OrbisPadAdapter::DebugCommand(const std::vector<std::string>& a) {
         j["trigger_range"]={0,1}; j["touch_range"]={0,1}; j["touch_points"]=1;
         j["hold_ms_range"]={1,2000}; j["id_policy"]="strictly_increasing_per_owner_per_session";
         j["owner_limit"]=64; j["receipt_limit"]=256;
+        j["pose_targets"] = {"head", "ds4"};
+        j["pose_hold_ms_range"] = {1, 10000};
+        j["pose_space"] = "ps_camera_metres: +X right, +Y up, camera looks +Z; quaternion xyzw";
+        j["pose_semantics"] = "guest VrTracker only; DS4 is the first registered player; no "
+                              "persistent settings or host XR pose changes";
+        j["pose_trace"] = "action receipt and latest checked guest output; pad trace v1 does not "
+                          "contain pose samples";
         j["unsupported"]={"intercepted_input","multi_touch","motion_sensors","system_ps_ui","system_share_ui"};
         j["system_button_semantics"]="ps/share publish existing guest Pad bits only";
         j["merge"]="buttons OR; strongest axis; physical then overlay win equal ties; debug touch wins while down";
@@ -434,6 +499,29 @@ std::string OrbisPadAdapter::DebugCommand(const std::vector<std::string>& a) {
     if (a.size()==1 && a[0]=="status") {
         auto j=reply("ok"); j["owner"]=debug_->owner; j["ports"]=Json::array();
         j["ui_captured"]=ImGui::Core::IsGamepadInputCaptured();
+        j["poses"] = Json::array();
+        for (const auto& p : debug_->poses)
+            if (p)
+                j["poses"].push_back(p->JsonValue());
+        j["tracking"] = Json::array();
+        const auto samples = VrSensor::Instance().ReadTrackerSamples();
+        for (unsigned i = 0; i < samples.size(); ++i) {
+            const auto& s = samples[i];
+            auto sample = PoseValue(s.pose);
+            sample.update(
+                Json{{"target", PoseTarget(i)},
+                     {"valid", s.valid},
+                     {"handle", s.handle},
+                     {"connected", s.connected},
+                     {"status", s.status},
+                     {"position_quality", s.position_quality},
+                     {"orientation_quality", s.orientation_quality},
+                     {"sampled_ns", s.sampled_ns},
+                     {"age_ms", s.valid ? Json((Ns() - s.sampled_ns) / 1000000) : Json(nullptr)},
+                     {"poll_count", s.polls},
+                     {"debug_action_id", s.debug ? s.debug->action_id : 0}});
+            j["tracking"].push_back(std::move(sample));
+        }
         for (int i=0;i<kMaxPadPorts;++i) {
             const auto& p=ports_[i];
             Json v{{"port",i},{"connected",p.data.connected},{"buttons",u32(p.data.buttons)},
@@ -447,9 +535,11 @@ std::string OrbisPadAdapter::DebugCommand(const std::vector<std::string>& a) {
         return j.dump()+"\n";
     }
     const bool state = !a.empty() && a[0]=="state";
+    const bool pose = !a.empty() && a[0] == "pose";
     const bool release = !a.empty() && a[0]=="release_all";
     const bool query = !a.empty() && a[0]=="status";
-    if ((!state && !release && !query) || a.size() != (state ? 18 : 6)) return error("invalid_arguments");
+    if ((!state && !pose && !release && !query) || a.size() != (state ? 18 : pose ? 15 : 6))
+        return error("invalid_arguments");
     u64 pid{},gen{},id{},port{},ms{},buttons{},touch{};
     if (!Uint(a[1],pid) || !Uint(a[2],gen) || !gen || !Owner(a[4]) || !Uint(a[5],id) || !id)
         return error("invalid_arguments");
@@ -472,6 +562,36 @@ std::string OrbisPadAdapter::DebugCommand(const std::vector<std::string>& a) {
     if (!debug_->high_water.contains(a[4]) && debug_->high_water.size()>=64) return error("owner_limit");
     if (!debug_->owner.empty() && debug_->owner!=a[4]) return error("busy");
     PadSnapshot value;
+    std::shared_ptr<VrSensor::DebugPose> pose_value;
+    if (pose) {
+        if (a[6] != "head" && a[6] != "ds4")
+            return error("invalid_arguments");
+        if (!Uint(a[7], ms) || !ms || ms > 10000)
+            return error("invalid_arguments");
+        pose_value = std::make_shared<VrSensor::DebugPose>();
+        pose_value->target =
+            a[6] == "head" ? VrSensor::DebugTarget::Head : VrSensor::DebugTarget::Ds4;
+        for (unsigned i = 0; i < 3; ++i)
+            if (!Float(a[8 + i], pose_value->pose.position[i], -10, 10))
+                return error("invalid_arguments");
+        float norm{};
+        for (unsigned i = 0; i < 4; ++i) {
+            if (!Float(a[11 + i], pose_value->pose.orientation[i], -1, 1))
+                return error("invalid_arguments");
+            norm += pose_value->pose.orientation[i] * pose_value->pose.orientation[i];
+        }
+        if (std::abs(norm - 1.f) > .01f)
+            return error("invalid_arguments");
+        for (auto& v : pose_value->pose.orientation)
+            v /= std::sqrt(norm);
+        pose_value->pose.position_valid = pose_value->pose.orientation_valid = true;
+        if (!debug_->focused)
+            return error("not_focused");
+        if (ImGui::Core::IsGamepadInputCaptured())
+            return error("ui_captured");
+        if (!VrSensor::Instance().HeadsetReady())
+            return error("vr_not_ready");
+    }
     if(state) {
         if(!Uint(a[6],port) || port>=kMaxPadPorts || !Uint(a[7],ms) || !ms || ms>2000 ||
            !Uint(a[8],buttons,true) || !Uint(a[15],touch) || touch>1 ||
@@ -484,7 +604,10 @@ std::string OrbisPadAdapter::DebugCommand(const std::vector<std::string>& a) {
         if(ImGui::Core::IsGamepadInputCaptured()) return error("ui_captured");
         value.buttons=buttons; value.touch_down=touch;
     }
-    TraceCommandLocked(TraceKind::CommandRequested, state ? int(port) : -1, id, "accepted");
+    // Pad trace v1 has no pose payload; do not publish a neutral Pad state as
+    // though it represented a pose. Pose delivery is exposed by its receipt.
+    if (!pose)
+        TraceCommandLocked(TraceKind::CommandRequested, state ? int(port) : -1, id, "accepted");
     // Allocate the receipt before publishing; only accepted IDs enter the dedup ledger.
     auto receipt=std::make_shared<DebugReceipt>();
     receipt->owner=a[4]; receipt->id=id; receipt->request=request; receipt->port=state?int(port):-1;
@@ -511,6 +634,17 @@ std::string OrbisPadAdapter::DebugCommand(const std::vector<std::string>& a) {
         p.debug_touch=value; p.debug_receipt=receipt; debug_->owner=a[4];
         receipt->deadline_ns=Ns()+ms*1'000'000; Publish(port);
         receipt->published_timestamp_us=p.data.timestamp;
+    } else if (pose) {
+        const auto target = unsigned(pose_value->target);
+        ReleaseDebugPoseLocked(target, "superseded");
+        receipt->pose = pose_value;
+        receipt->published_timestamp_us = Ns() / 1000;
+        receipt->deadline_ns = Ns() + ms * 1000000;
+        pose_value->deadline_ns = receipt->deadline_ns;
+        pose_value->action_id = id;
+        debug_->poses[target] = receipt;
+        debug_->owner = a[4];
+        VrSensor::Instance().PublishDebugPose(std::move(pose_value));
     } else {
         ReleaseDebugLocked("release_all",false);
         receipt->state="released"; receipt->release_reason="release_all";

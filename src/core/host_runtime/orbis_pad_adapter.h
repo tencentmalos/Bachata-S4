@@ -141,6 +141,7 @@ private:
     void DebugFocusLocked(bool focused);
     void ReleaseDebugLocked(std::string_view reason, bool discard_history);
     void ReleaseDebugPortLocked(int port, std::string_view reason, bool discard_history);
+    void ReleaseDebugPoseLocked(unsigned target, std::string_view reason);
     void ObserveDebugLocked(const Sample& sample, bool intercepted);
     void TracePublishLocked(int port);
     void TraceGuestPollLocked(int port, const Sample& sample, bool intercepted);
@@ -158,6 +159,9 @@ private:
     mutable std::mutex mutex_;
     spatial::input::InputHub hub_;
     std::array<Port, kMaxPadPorts> ports_{};
+    // Special-controller ports can be opened/probed independently of DS4.
+    // No special device is supplied; these stay disconnected, as on desktop.
+    std::array<Port, kMaxPadPorts> special_ports_{};
     std::uint64_t token_{};
     bool xr_input_focused_{true};
     std::uint64_t haptic_sequence_{};

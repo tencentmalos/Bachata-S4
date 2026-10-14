@@ -47,6 +47,19 @@ int main() {
     CHECK(handle > 0 && s32(handle) > 0);
     CHECK(call("u1GRHp+oWoY", {1000}) == handle);
     CHECK(call("xk0AcarP3V4", {1000}) == u32(ORBIS_PAD_ERROR_ALREADY_OPENED));
+    // Unity probes both port types before accepting its ordinary DS4 handle.
+    const u64 special = call("xk0AcarP3V4", {1000, ORBIS_PAD_PORT_TYPE_SPECIAL});
+    CHECK(s32(special) > 0 && special != handle);
+    CHECK(call("u1GRHp+oWoY", {1000, ORBIS_PAD_PORT_TYPE_SPECIAL}) == special);
+    CHECK(call("xk0AcarP3V4", {1000, ORBIS_PAD_PORT_TYPE_SPECIAL}) == u32(ORBIS_PAD_ERROR_ALREADY_OPENED));
+    CHECK(call("gjP9-KQzoUk", {special, base}) == 0);
+    CHECK(!read.operator()<OrbisPadControllerInformation>(base).connected);
+    CHECK(call("q1cHNfGycLI", {special, base, 1}) == 1);
+    const auto absent = read.operator()<OrbisPadData>(base);
+    CHECK(!absent.connected && u32(absent.buttons) == 0 && absent.leftStick.x == 128);
+    CHECK(call("6ncge5+l5Qs", {special}) == 0);
+    CHECK(call("YndgXqQVV7c", {special, base}) == u32(ORBIS_PAD_ERROR_INVALID_HANDLE));
+    CHECK(call("u1GRHp+oWoY", {1000}) == handle);
     CHECK(adapter.Submit(token, 0, {.buttons = 0x8000, .left_x = 1}) == PadResult::Ok);
     CHECK(call("q1cHNfGycLI", {handle, 1, 1}) == u32(ORBIS_PAD_ERROR_INVALID_ARG));
     CHECK(call("q1cHNfGycLI", {handle, base, 0}) == u32(ORBIS_PAD_ERROR_INVALID_ARG));

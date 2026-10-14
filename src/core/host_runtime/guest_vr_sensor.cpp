@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/host_runtime/guest_vr_sensor.h"
+#include "core/host_runtime/vr_geometry.h"
 
 #include <algorithm>
 #include <chrono>
@@ -49,10 +50,47 @@ GuestVrSensor& GuestVrSensor::Instance() {
     return sensor;
 }
 
+void GuestVrSensor::PublishDebugPose(std::shared_ptr<DebugPose> pose) {
+    std::scoped_lock lock{mutex};
+    debug_poses[unsigned(pose->target)] = std::move(pose);
+}
+void GuestVrSensor::ClearDebugPose(DebugTarget target) {
+    std::scoped_lock lock{mutex};
+    debug_poses[unsigned(target)].reset();
+}
+std::shared_ptr<GuestVrSensor::DebugPose> GuestVrSensor::ReadDebugPose(DebugTarget target) const {
+    std::scoped_lock lock{mutex};
+    const auto& pose = debug_poses[unsigned(target)];
+    return pose && SensorNowNs() < pose->deadline_ns ? pose : nullptr;
+}
+void GuestVrSensor::ObserveTrackerRead(TrackerSample sample) {
+    if (!sample.valid)
+        return;
+    std::scoped_lock lock{mutex};
+    auto& previous = tracker_samples[unsigned(sample.target)];
+    sample.polls = previous.polls + 1;
+    sample.sampled_ns = SensorNowNs();
+    if (sample.debug) {
+        std::uint64_t empty{};
+        sample.debug->first_poll_ns.compare_exchange_strong(empty, sample.sampled_ns);
+        ++sample.debug->polls;
+    }
+    previous = std::move(sample);
+}
+std::array<GuestVrSensor::TrackerSample, 2> GuestVrSensor::ReadTrackerSamples() const {
+    std::scoped_lock lock{mutex};
+    return tracker_samples;
+}
+void GuestVrSensor::ClearTrackerSamples() {
+    std::scoped_lock lock{mutex};
+    tracker_samples = {};
+}
+
 void GuestVrSensor::SetSbsEnabled(bool enabled) {
     std::scoped_lock lock{mutex};
     if (snapshot.openxr)
         return; // Runtime owns tracking until its generation is retired.
+    rotation_reference = {};
     snapshot.enabled = enabled;
     if (!enabled) {
         snapshot = {};
@@ -73,8 +111,9 @@ void GuestVrSensor::SetSbsEnabled(bool enabled) {
 
 void GuestVrSensor::UpdateGyro(float x, float y, float z, std::uint64_t timestamp_ns) {
     std::scoped_lock lock{mutex};
-    if (!snapshot.enabled || snapshot.openxr || !std::isfinite(x) || !std::isfinite(y) ||
-        !std::isfinite(z) || timestamp_ns == 0 || timestamp_ns <= snapshot.timestamp_ns)
+    if (!snapshot.enabled || snapshot.openxr || rotation_reference.valid || !std::isfinite(x) ||
+        !std::isfinite(y) || !std::isfinite(z) || timestamp_ns == 0 ||
+        timestamp_ns <= snapshot.timestamp_ns)
         return;
     const auto previous = snapshot.timestamp_ns;
     snapshot.timestamp_ns = timestamp_ns;
@@ -108,6 +147,82 @@ void GuestVrSensor::UpdateGyro(float x, float y, float z, std::uint64_t timestam
     snapshot.orientation_w = static_cast<float>(nw / norm);
 }
 
+void GuestVrSensor::UpdateRotationVector(std::array<float, 4> q, unsigned display_rotation,
+                                         std::uint64_t timestamp_ns) {
+    std::scoped_lock lock{mutex};
+    if (!snapshot.enabled || snapshot.openxr || display_rotation > 3 || !timestamp_ns ||
+        timestamp_ns <= snapshot.timestamp_ns)
+        return;
+    float norm{};
+    for (const auto v : q)
+        norm += v * v;
+    if (!std::isfinite(norm) || norm < .5f || norm > 1.5f)
+        return;
+    for (auto& v : q)
+        v /= std::sqrt(norm);
+    auto& ref = rotation_reference;
+    if (!ref.valid || ref.display_rotation != display_rotation) {
+        // Android's fused quaternion rotates natural-device coordinates into a
+        // world with +Z up. Express gravity and screen right in the neutral
+        // device frame, including clamshells whose IMU is in the flat base.
+        const std::array<float, 3> up{2 * (q[0] * q[2] - q[3] * q[1]),
+                                      2 * (q[1] * q[2] + q[3] * q[0]),
+                                      1 - 2 * (q[0] * q[0] + q[1] * q[1])};
+        constexpr std::array<std::array<float, 3>, 4> display_right{
+            {{1, 0, 0}, {0, 1, 0}, {-1, 0, 0}, {0, -1, 0}}};
+        auto right = display_right[display_rotation];
+        const float projection = right[0] * up[0] + right[1] * up[1] + right[2] * up[2];
+        float length{};
+        for (unsigned i = 0; i < 3; ++i) {
+            right[i] -= projection * up[i];
+            length += right[i] * right[i];
+        }
+        if (length < .04f)
+            return; // screen right is vertical; wait for a usable pose
+        for (auto& v : right)
+            v /= std::sqrt(length);
+        ref = {q,
+               right,
+               up,
+               {right[1] * up[2] - right[2] * up[1], right[2] * up[0] - right[0] * up[2],
+                right[0] * up[1] - right[1] * up[0]},
+               display_rotation,
+               true};
+        snapshot.timestamp_ns = 0;
+    }
+    // B^-1 * (Q_neutral^-1 * Q_current) * B. Rotating the quaternion's
+    // vector part changes its basis without Euler-angle singularities.
+    const auto& origin = ref.orientation;
+    const auto delta = VrGeometry::Multiply({-origin[0], -origin[1], -origin[2], origin[3]}, q);
+    const auto dot = [&](const auto& axis) {
+        return axis[0] * delta[0] + axis[1] * delta[1] + axis[2] * delta[2];
+    };
+    const std::array<float, 4> out{dot(ref.right), dot(ref.up), dot(ref.back), delta[3]};
+    snapshot.angular_velocity_x = snapshot.angular_velocity_y = snapshot.angular_velocity_z = 0;
+    if (snapshot.timestamp_ns && timestamp_ns - snapshot.timestamp_ns <= 100'000'000) {
+        auto step = VrGeometry::Multiply({-snapshot.orientation_x, -snapshot.orientation_y,
+                                          -snapshot.orientation_z, snapshot.orientation_w},
+                                         out);
+        if (step[3] < 0)
+            for (auto& v : step)
+                v = -v; // q and -q are the same pose
+        const float sine = std::hypot(step[0], step[1], step[2]);
+        if (sine > 1e-7f) {
+            const double scale = 2 * std::atan2(sine, step[3]) / sine /
+                                 (double(timestamp_ns - snapshot.timestamp_ns) * 1e-9);
+            snapshot.angular_velocity_x = step[0] * scale;
+            snapshot.angular_velocity_y = step[1] * scale;
+            snapshot.angular_velocity_z = step[2] * scale;
+        }
+    }
+    // A delivery gap suppresses velocity only, never the new absolute pose.
+    snapshot.orientation_x = out[0];
+    snapshot.orientation_y = out[1];
+    snapshot.orientation_z = out[2];
+    snapshot.orientation_w = out[3];
+    snapshot.timestamp_ns = timestamp_ns;
+}
+
 void GuestVrSensor::UpdateMoveInput(std::uint64_t buttons, float left_x, float left_y,
                                     float right_x, float right_y, float left_trigger,
                                     float right_trigger, std::uint64_t timestamp_us) {
@@ -128,6 +243,7 @@ void GuestVrSensor::ResetOrientation() {
     std::scoped_lock lock{mutex};
     if (snapshot.openxr)
         return; // Recenter belongs to the runtime's reference space.
+    rotation_reference = {};
     snapshot.orientation_x = 0.0f;
     snapshot.orientation_y = 0.0f;
     snapshot.orientation_z = 0.0f;

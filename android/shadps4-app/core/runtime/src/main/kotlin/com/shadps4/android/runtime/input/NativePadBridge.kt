@@ -104,10 +104,16 @@ object NativePadBridge {
         @Volatile var overlayResult: Int? = null
             private set
         private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        // Game rotation vector fuses gravity and gyro without magnetic north.
+        // Absolute samples survive missed callbacks during loading.
+        private val rotationSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
+            ?: sensorManager?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        private var fusedRotation = false
+        private val quaternion = FloatArray(4) // SensorManager writes w,x,y,z
         private val gyro = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         private val gravity = sensorManager?.getDefaultSensor(Sensor.TYPE_GRAVITY)
             ?: sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        private val neutralFrame = VrGyroAxes.NeutralFrame()
+        private var neutralFrame = VrGyroAxes.NeutralFrame()
         private val sensorDisplay = (context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager)
             ?.getDisplay(Display.DEFAULT_DISPLAY)
         private val gyroListener = object : SensorEventListener {
@@ -115,6 +121,13 @@ object NativePadBridge {
                 if (closed || !focused) return
                 val values = event.values
                 if (values.size < 3) return
+                if (fusedRotation) {
+                    if (event.sensor.type != rotationSensor?.type) return
+                    SensorManager.getQuaternionFromVector(quaternion, values)
+                    NativePad.nativeUpdateVrRotation(quaternion[1], quaternion[2], quaternion[3],
+                        quaternion[0], sensorDisplay?.rotation ?: 0, event.timestamp)
+                    return
+                }
                 if (event.sensor.type == gravity?.type) {
                     if (neutralFrame.observeGravity(values[0], values[1], values[2], sensorDisplay?.rotation ?: 0)) {
                         android.util.Log.i("VrGyro", "Neutral axes calibrated: rotation=${sensorDisplay?.rotation} gravity=${values.take(3)}")
@@ -151,15 +164,26 @@ object NativePadBridge {
                 main.postDelayed(this,16)
             }
         }
+        private fun startSensors() {
+            // Re-registration may restart the sensor's reference space. Take
+            // the current device pose as forward instead of restoring stale axes.
+            NativePad.nativeResetVrOrientation()
+            neutralFrame = VrGyroAxes.NeutralFrame()
+            fusedRotation = rotationSensor?.let {
+                sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main)
+            } == true
+            android.util.Log.i("VrGyro", "Tracking source=${if (fusedRotation) rotationSensor?.name else "gyro fallback"}")
+            if (!fusedRotation) {
+                gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
+                gravity?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
+            }
+        }
         fun start() {
             NativePad.nativeSetVrSbsEnabled(true)
             NativePad.nativeSetConnected(token,0,true)
             ManagedSession.attachControllerSlotSink(overlay)
             source.start(main)
-            gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
-            if (!neutralFrame.calibrated) gravity?.let {
-                sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main)
-            }
+            startSensors()
             main.post(tick)
         }
         fun close() {
@@ -188,10 +212,7 @@ object NativePadBridge {
             } else {
                 NativePad.nativeSetConnected(token,0,true)
                 source.start(main)
-                gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
-                if (!neutralFrame.calibrated) gravity?.let {
-                    sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main)
-                }
+                startSensors()
             }
         }
         fun reloadButtonMappings() {

@@ -1,0 +1,29 @@
+[
+  {
+    "reason": "Observed ASTRO title Cross starts new adventure",
+    "buttons": 16384,
+    "seconds": 4
+  },
+  {
+    "reason": "Calibration hypothesis: seated head and DS4 centered below it in PS camera space",
+    "head": [
+      0,
+      0,
+      1.5,
+      0,
+      0,
+      0,
+      1
+    ],
+    "ds4": [
+      0,
+      -0.17,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    "seconds": 120
+  }
+]

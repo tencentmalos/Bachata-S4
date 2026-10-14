@@ -19,6 +19,22 @@
 
 namespace Common::Profiler {
 std::atomic<bool> fine_enabled{false};
+RegisteredName RegisterName(const char* name) noexcept {
+#ifdef SHADPS4_PROFILER_RING
+    return {spatial::LiteTrace::registerName(name)};
+#else
+    return {};
+#endif
+}
+Scope::Scope(RegisteredName name) noexcept {
+#ifdef SHADPS4_PROFILER_RING
+    if (spatial::ProfilerRing::Enabled()) {
+        generation = spatial::ProfilerRing::Generation();
+        spatial::LiteTrace::beginRegistered(name.value ? name.value : "HLE.Unknown");
+        active = true;
+    }
+#endif
+}
 Scope::Scope(const char* name) noexcept {
 #ifdef SHADPS4_PROFILER_RING
     if (spatial::ProfilerRing::Enabled()) {

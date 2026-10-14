@@ -39,6 +39,70 @@ int main() {
         CHECK(sensor.Read().orientation_w == pose.orientation_w);
         CHECK(sensor.Read().timestamp_ns == 3'000'000'000);
     }
+    // Fused Android poses: turning on a desk is yaw for every screen rotation,
+    // even after starting inclined and recalibrating flat. Missing callbacks
+    // must not permanently lose angles as integration of sampled rates does.
+    {
+        using namespace Core::HostRuntime;
+        const auto mul = VrGeometry::Multiply;
+        const float h = std::sqrt(.5f);
+        const std::array<float, 4> identity{0, 0, 0, 1};
+        const std::array<float, 4> yaw90{0, 0, h, h}; // Android world +Z up
+        uint64_t t = 10'000'000'000;
+        for (unsigned rotation = 0; rotation < 4; ++rotation) {
+            sensor.SetSbsEnabled(true);
+            // 45-degree incline plus arbitrary global heading at startup.
+            const auto inclined = mul(yaw90, {std::sin(.39269908f), 0, 0, std::cos(.39269908f)});
+            sensor.UpdateRotationVector(inclined, rotation, ++t);
+            CHECK(Near(sensor.Read().orientation_w, 1));
+            sensor.UpdateRotationVector(identity, rotation, t += 20'000'000);
+            CHECK(std::abs(sensor.Read().orientation_x) + std::abs(sensor.Read().orientation_z) >
+                  .1f);
+            sensor.ResetOrientation(); // same path as guest HMD recalibration
+            sensor.UpdateRotationVector(identity, rotation, ++t);
+            for (float sign : {1.f, -1.f}) {
+                sensor.UpdateRotationVector({0, 0, sign * h, h}, rotation, t += 1'000'000'000);
+                const auto p = sensor.Read();
+                CHECK(Near(p.orientation_x, 0) && Near(p.orientation_z, 0));
+                CHECK(Near(p.orientation_y, sign * h) && Near(p.orientation_w, h));
+                CHECK(p.angular_velocity_y == 0); // gap invalidates velocity only
+            }
+            sensor.UpdateRotationVector(identity, rotation, t += 20'000'000);
+            CHECK(Near(sensor.Read().orientation_w, 1));
+            sensor.UpdateRotationVector({0, 0, 0, -1}, rotation, t += 20'000'000);
+            CHECK(Near(sensor.Read().angular_velocity_y, 0));    // antipodal quaternion
+            const auto stamp = sensor.Read().timestamp_ns;
+            sensor.UpdateRotationVector(yaw90, rotation, stamp); // duplicate/old/bad samples
+            sensor.UpdateRotationVector(yaw90, rotation, stamp - 1);
+            sensor.UpdateRotationVector({0, 0, 0, 0}, rotation, stamp + 1);
+            sensor.UpdateRotationVector({NAN, 0, 0, 1}, rotation, stamp + 1);
+            sensor.UpdateRotationVector(identity, 4, stamp + 1);
+            CHECK(sensor.Read().timestamp_ns == stamp);
+            sensor.UpdateGyro(50, 50, 50, t += 20'000'000); // cannot mix publishers
+            CHECK(sensor.Read().timestamp_ns == stamp);
+            // A display change starts a fresh neutral orientation.
+            sensor.UpdateRotationVector(yaw90, (rotation + 1) % 4, ++t);
+            CHECK(Near(sensor.Read().orientation_w, 1));
+        }
+        // Upright devices and clamshells use the same world-up yaw convention.
+        for (unsigned rotation = 0; rotation < 4; ++rotation) {
+            const float angle = rotation * std::numbers::pi_v<float> / 2;
+            const auto upright =
+                mul(std::array<float, 4>{h, 0, 0, h},
+                    std::array<float, 4>{0, 0, -std::sin(angle / 2), std::cos(angle / 2)});
+            sensor.SetSbsEnabled(true);
+            sensor.UpdateRotationVector(upright, rotation, ++t);
+            sensor.UpdateRotationVector(mul(yaw90, upright), rotation, t += 20'000'000);
+            const auto p = sensor.Read();
+            CHECK(Near(p.orientation_x, 0) && Near(p.orientation_z, 0));
+            CHECK(Near(p.orientation_y, h) && Near(p.orientation_w, h));
+            CHECK(std::abs(p.angular_velocity_y - std::numbers::pi_v<float> / .04f) < .001f);
+        }
+        sensor.SetSbsEnabled(false);
+        sensor.UpdateRotationVector(yaw90, 0, ++t);
+        CHECK(!sensor.Read().enabled && sensor.Read().timestamp_ns == 0);
+        sensor.SetSbsEnabled(true); // following integration tests use the fallback
+    }
     // The hardware eyes are in LOCAL. Translation and head rotation must be
     // removed exactly once before reporting guest head-local IPD offsets.
     for (unsigned axis = 0; axis < 3; ++axis) {

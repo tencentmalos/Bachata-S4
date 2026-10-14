@@ -4451,6 +4451,36 @@ void TestHleRuntime(Harness& h) {
         while (!hle_wait_entered.load(std::memory_order_acquire) &&
                std::chrono::steady_clock::now() < deadline)
             std::this_thread::yield();
+        std::atomic<bool> delivered{};
+        bool callback_valid{};
+        std::atomic<unsigned> callback_stage{};
+        auto queued = h.context->QueueOwnerCallback(owner.handle, [&](const CpuSnapshot& before) -> Status {
+            callback_stage = 1;
+            auto followup = h.context->QueueOwnerCallback(owner.handle, [&](const CpuSnapshot&) -> Status {
+                callback_valid &= callback_stage.load() == 2;
+                callback_stage.store(3, std::memory_order_release);
+                return {};
+            });
+            auto* scope = HleScope::Current();
+            GuestCallArgs callback_args{};
+            callback_args.count = 2;
+            callback_args.values[1] = chain_va.Value().value;
+            auto callback = scope->InvokeGuest(hle_chain_entry, callback_args);
+            auto after = h.context->ReadRegisters(owner.handle);
+            callback_valid = followup && callback_stage.load() == 1 &&
+                scope->Thread() == owner.handle && callback && after &&
+                callback.Value().reason == StopReason::Returned && callback.Value().return_value == 11 &&
+                before.registers.gpr == after.Value().registers.gpr &&
+                before.registers.rip == after.Value().registers.rip;
+            callback_stage = 2;
+            delivered.store(true, std::memory_order_release);
+            return {};
+        });
+        const auto callback_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (callback_stage.load(std::memory_order_acquire) != 3 && std::chrono::steady_clock::now() < callback_deadline)
+            std::this_thread::yield();
+        Check("G52a", "queued callback wakes HLE sleep, runs on its owner and restores registers",
+              queued && callback_stage.load() == 3 && delivered.load() && callback_valid);
         auto snapshot = h.context->ReadRegisters(owner.handle);
         auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
         auto receipt = ticket ? h.context->WaitStopped(ticket.Value(), 1'000'000'000)
@@ -4462,6 +4492,32 @@ void TestHleRuntime(Harness& h) {
                   result.Value().reason == StopReason::Cancelled &&
                   h.space->Counts().live_pins == 0);
     }
+}
+
+void TestOwnerCallbackJit(Harness& h) {
+    if (!LoadProgress(h)) { Check("G52b", "load callback loop", false); return; }
+    auto progress = PrepareProgress(h);
+    TestOwner owner(h, progress);
+    auto work = owner.Run();
+    bool started = WaitProgress(progress, 0);
+    std::atomic<bool> delivered{};
+    bool callback_valid{};
+    auto queued = h.context->QueueOwnerCallback(owner.handle, [&](const CpuSnapshot& snapshot) -> Status {
+        callback_valid = HleScope::Current() && HleScope::Current()->Thread() == owner.handle &&
+            HasAll(snapshot.registers.validity, RegisterValidity::Gpr | RegisterValidity::Rip);
+        delivered.store(true, std::memory_order_release);
+        return {};
+    });
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!delivered.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < deadline)
+        std::this_thread::yield();
+    const auto value = std::atomic_ref{*reinterpret_cast<std::uint64_t*>(progress)}.load();
+    const bool resumed = WaitProgress(progress, value);
+    (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto result = Await(work);
+    Check("G52b", "queued callback interrupts a JIT loop and resumes its original continuation",
+          started && queued && delivered.load() && callback_valid && resumed && result &&
+              result.Value().primary_reason == StopReason::Cancelled);
 }
 
 // Force a second publication into the release-observation/admission gap.
@@ -5002,6 +5058,7 @@ int main(int argc, char** argv) {
         TestInvokeGuestWithHle(harness);
         TestVeneerGuestCall(harness);
         TestHleRuntime(harness);
+        TestOwnerCallbackJit(harness);
         TestHleBufferPinning(harness);
         TestImmediateSyscallExit(harness);
         TestConcurrentSyscallFaultIsolation(harness);

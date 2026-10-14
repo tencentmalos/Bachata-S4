@@ -48,6 +48,7 @@
 #include "core/host_runtime/guest_aio.h"
 #include "core/host_runtime/guest_ajm.h"
 #include "core/host_runtime/guest_fiber.h"
+#include "core/host_runtime/guest_exception.h"
 #include "core/host_runtime/guest_social_screen.h"
 #include "core/host_runtime/guest_app_content.h"
 #include "core/host_runtime/guest_audio.h"
@@ -301,6 +302,7 @@ void LogHleCaller(const HleCallFrame& frame, const std::string& name) {
 
 struct FunctionAdapter final : HleCallAdapter {
     std::string profile_name{"HLE.Unknown"};
+    Common::Profiler::RegisteredName registered_profile_name;
     bool profile_poll{};
     bool profile_sync{}, profile_sync_mutex{};
     bool caller_log{};
@@ -309,7 +311,7 @@ struct FunctionAdapter final : HleCallAdapter {
     std::function<Status(HleCallFrame&)> call;
     explicit FunctionAdapter(std::function<Status(HleCallFrame&)> f) : call(std::move(f)) {}
     Status Invoke(HleCallFrame& frame) const override {
-        Common::Profiler::Scope profile{profile_name.c_str()};
+        Common::Profiler::Scope profile{registered_profile_name};
         if (caller_log) [[unlikely]] {
             LogHleCaller(frame, profile_name);
         }
@@ -702,6 +704,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     // Optional libc reporting callbacks. Desktop leaves these unused; retain
     // their full guest addresses without installing native function pointers.
     std::array<std::atomic<u64>, 2> thread_atexit_reports{};
+    std::array<std::atomic<u64>, 31> exception_handlers{};
     struct Owner {
         u64 id{}, stack{}, stack_size{}, tls{}, tls_size{}, tcb{}, dtv{}, handle_va{};
         GuestThreadAttributes attributes{};
@@ -721,6 +724,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         std::optional<Error> error;
         bool started{}, finished{}, joined{}, detached{}, destructors_started{};
         bool cancel_enabled{true};
+        std::atomic_bool exception_pending{};
     };
     std::map<u64, std::shared_ptr<Owner>> owners;
     u64 next_id{1};
@@ -1353,11 +1357,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 o->attributes.guard = guard;
             }
             o->attributes.stack = o->stack;
-            // [static TLS][Tcb][dtv][...][rwlock read holds][thread-specific records]
-            // [64-byte handle]
+            // [static TLS][Tcb][dtv][... signal context scratch][rwlock read holds]
+            // [thread-specific records][64-byte handle]. The 0x1000 slack holds the
+            // signal handler's context (GuestExceptionContext, below the read holds).
             o->tls_size =
                 Common::AlignUp(linker->StaticTlsSize() + sizeof(Tcb) +
-                                    (linker->MaxTlsIndex() + 2) * sizeof(DtvEntry) + 0x100 +
+                                    (linker->MaxTlsIndex() + 2) * sizeof(DtvEntry) + 0x1000 +
                                     SHAD_SYNC_RW_HOLDS_BELOW_HANDLE + 64,
                                 0x4000ULL);
             o->tls = Allocate(o->tls_size, "GuestTls");
@@ -2226,6 +2231,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             nid == "QBi7HCK03hw" || nid == "lLMT9vJAck0" || nid == "1jfXLRVzisc" ||
             nid == "fgxnMeTNUtY" || nid == "-2IRUCO--PM";
         auto& function = static_cast<FunctionAdapter&>(*adapter);
+        function.registered_profile_name = Common::Profiler::RegisterName(function.profile_name.c_str());
         function.sync_operation = SyncMetrics::Classify(function.profile_name);
         if (function.sync_operation != SyncMetrics::Operation::None) function.sync_metrics = sync_metrics;
         function.profile_sync_mutex = function.profile_name.find("MutexLock") != std::string::npos ||
@@ -2280,6 +2286,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 InternalVeneer(const std::string& name, std::function<Status(HleCallFrame&)> call) {
         auto adapter = std::make_shared<FunctionAdapter>(std::move(call));
         adapter->profile_name = "HLE." + name;
+        adapter->registered_profile_name = Common::Profiler::RegisterName(adapter->profile_name.c_str());
         const auto op = Require(registry.Adopt(std::move(adapter), name));
         operation_names.emplace(op, name);
         return PublishVeneer(op);
@@ -2932,7 +2939,9 @@ void GuestRuntime::Impl::InstallHandlers() {
             const s32 result = poll ? ef->Poll(a[1], wait, clear, &pattern, &pattern_written) :
                 ef->Wait(a[1], wait, clear, &pattern, a[4] ? &timeout : nullptr,
                          Current()->attributes.priority, HleScope::Current()->CancellationToken(),
-                         &pattern_written);
+                         &pattern_written, [](auto& cv, auto& lock, auto cancel, auto deadline, const auto& ready) {
+                             return HleScope::WaitUntil(cv, lock, cancel, deadline, ready);
+                         });
             park_phase.End();
             if (a[3] && pattern_written &&
                 !space.WriteData(GuestAddress{a[3]}, std::as_bytes(std::span{&pattern, 1})))
@@ -2942,29 +2951,70 @@ void GuestRuntime::Impl::InstallHandlers() {
             return result;
         });
     }
-    bind({"WkwEd3N7w0Y"}, [](const auto& a) -> u64 {
-        // Unity installs a guest callback for crash reporting. Installing a
-        // native sigaction that jumps into a guest PC is unsafe on Android;
-        // validate the signal and keep the callback as an explicit deferred
-        // capability until the signal trampoline is bridged.
+    bind({"WkwEd3N7w0Y"}, [this](const auto& a) -> u64 {
         constexpr u32 allowed[] = {1, 4, 8, 10, 11, 30};
-        return std::ranges::find(std::begin(allowed), std::end(allowed), u32(a[0])) !=
-                       std::end(allowed)
-                   ? u64(ORBIS_OK)
-                   : u64(ORBIS_KERNEL_ERROR_EINVAL);
+        if (std::ranges::find(allowed, u32(a[0])) == std::end(allowed))
+            return ORBIS_KERNEL_ERROR_EINVAL;
+        if (!a[1] || !space.ValidateRange({GuestAddress{a[1]}, 1}, GuestPermission::Execute))
+            return ORBIS_KERNEL_ERROR_EFAULT;
+        u64 empty{};
+        return exception_handlers[u32(a[0])].compare_exchange_strong(empty, a[1])
+                   ? ORBIS_OK : ORBIS_KERNEL_ERROR_EAGAIN;
     });
-    bind({"Qhv5ARAoOEc"}, [](const auto& a) -> u64 {
+    bind({"Qhv5ARAoOEc"}, [this](const auto& a) -> u64 {
         constexpr u32 allowed[] = {1, 4, 8, 10, 11, 30};
-        return std::ranges::find(std::begin(allowed), std::end(allowed), u32(a[0])) !=
-                       std::end(allowed)
-                   ? u64(ORBIS_OK)
-                   : u64(ORBIS_KERNEL_ERROR_EINVAL);
+        if (std::ranges::find(allowed, u32(a[0])) == std::end(allowed))
+            return ORBIS_KERNEL_ERROR_EINVAL;
+        exception_handlers[u32(a[0])] = 0;
+        return ORBIS_OK;
     });
-    bind({"il03nluKfMk"}, [](const auto& a) -> u64 {
-        // The guest exception callback is intentionally not installed as a
-        // native signal trampoline. Preserve the accepted SIGUSR1 request as
-        // a deferred no-op; invalid signal numbers retain kernel semantics.
-        return a[1] == 30 ? u64(ORBIS_OK) : u64(ORBIS_KERNEL_ERROR_EINVAL);
+    bind({"il03nluKfMk"}, [this](const auto& a) -> u64 {
+        if (a[1] != 30) return ORBIS_KERNEL_ERROR_EINVAL;
+        const u64 handler = exception_handlers[30].load();
+        if (!handler) return ORBIS_KERNEL_ERROR_EINVAL;
+        std::shared_ptr<Owner> target;
+        ThreadHandle handle;
+        {
+            std::lock_guard lock(threads_mutex);
+            for (const auto& [id, owner] : owners) {
+                if (owner->handle_va == a[0] && owner->started && !owner->finished) {
+                    target = owner;
+                    handle = owner->handle;
+                    break;
+                }
+            }
+        }
+        if (!target) return ORBIS_KERNEL_ERROR_ESRCH;
+        if (target->exception_pending.exchange(true)) return ORBIS_OK;
+        auto queued = cpu.QueueOwnerCallback(handle, [this, target, handler](const CpuSnapshot& snap) -> Status {
+            // Coalesce queued signals, but allow one more while this handler
+            // is active. The CPU masks nested delivery until it returns.
+            target->exception_pending = false;
+            if (!HasAll(snap.registers.validity, RegisterValidity::Gpr | RegisterValidity::Rip))
+                return MakeError(ErrorCategory::BackendFailure, "GuestException", "missing architectural registers");
+            // Per-owner scratch lies in the reserved tail of its TLS mapping, below the
+            // rwlock read holds and thread-specific records that end at the handle.
+            // No pin survives InvokeGuest; the handler may itself block in HLE.
+            const u64 address = target->handle_va - SHAD_SYNC_RW_HOLDS_BELOW_HANDLE - 0x600;
+            const auto context = MakeGuestExceptionContext(snap.registers);
+            auto written = space.WriteData({address}, std::as_bytes(std::span{&context, 1}));
+            if (!written) return written.GetError();
+            GuestCallArgs args;
+            args.values = {30, address};
+            args.count = 2;
+            auto result = Call(handler, args);
+            if (!result) return result.GetError();
+            if (result.Value().reason != StopReason::Returned &&
+                result.Value().reason != StopReason::Cancelled)
+                return MakeError(ErrorCategory::BackendFailure, "GuestException", "handler did not return");
+            return {};
+        });
+        if (!queued) {
+            target->exception_pending = false;
+            return queued.GetError().category == ErrorCategory::InvalidHandle
+                       ? ORBIS_KERNEL_ERROR_ESRCH : ORBIS_KERNEL_ERROR_EAGAIN;
+        }
+        return ORBIS_OK;
     });
     bind({"Qs0wWulgl7U"}, [](const auto&) -> u64 {
         // Desktop semantics already define Android as a named no-device
@@ -5116,9 +5166,12 @@ void GuestRuntime::Impl::InstallHandlers() {
                                   GuestPermission::Write))
             return static_cast<u32>(ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID);
         Libraries::VrTracker::OrbisVrTrackerResultData result{};
-        const s32 status = Libraries::VrTracker::sceVrTrackerGetResult(&param, &result);
+        GuestVrSensor::TrackerSample sample;
+        const s32 status = Libraries::VrTracker::GetResultForHost(&param, &result, sample);
         if (!status && !write_guest_record(a[1], &result, sizeof(result)))
             return static_cast<u32>(ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID);
+        if (!status)
+            GuestVrSensor::Instance().ObserveTrackerRead(std::move(sample));
         return static_cast<u32>(status);
     });
     bind({"XoeWzXlrnMw"}, [this, write_guest_record](const auto& a) -> u64 {
@@ -5396,14 +5449,6 @@ void GuestRuntime::ConfigureGraphics(std::shared_ptr<Frontend::Window> window,
         throw std::logic_error("ConfigureGraphics requires a complete platform before Prepare");
     impl->graphics_window = std::move(window);
     impl->graphics_driver = std::move(driver);
-#if defined(__ANDROID__)
-    // SessionCore admits the Android Surface before the guest enters Run. Feed
-    // that foreground edge to Unity's named suspend gate so startup can leave
-    // its lifecycle wait and reach the first real frame.
-    impl->kernel_semaphores->AdmitForeground();
-    __android_log_print(ANDROID_LOG_INFO, "ProductionRuntime",
-                        "android foreground admission: Suspend/ResumeSemaphore enabled");
-#endif
 }
 void GuestRuntime::Prepare(const std::filesystem::path& executable,
                            const std::vector<std::filesystem::path>& modules) {

@@ -13,6 +13,7 @@
 #include <vector>
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
+#include "core/guest_cpu/hle/scope.h"
 #include "core/host_runtime/guest_sync_metrics.h"
 #include "core/host_runtime/guest_wake_proxy.h"
 #include "core/libraries/kernel/posix_error.h"
@@ -63,6 +64,12 @@ public:
         }
         // A pre-requested token invokes the callback synchronously; it takes
         // only the waiter's own lock, never the bucket lock.
+        auto remove_waiter = [&](void*) {
+            std::lock_guard lock(bucket.guard);
+            std::erase(bucket.waiters, waiter);
+        };
+        std::unique_ptr<void, decltype(remove_waiter)> waiting{
+            reinterpret_cast<void*>(1), remove_waiter};
         std::stop_callback on_cancel(cancel, [&] {
             std::lock_guard lock(waiter->park);
             waiter->parked.notify_all();
@@ -75,10 +82,11 @@ public:
             std::unique_lock lock(waiter->park);
             const auto ready = [&] { return waiter->woken || cancel.stop_requested(); };
             if (deadline) {
-                if (!waiter->parked.wait_until(lock, *deadline, ready))
+                if (!GuestCpu::Hle::HleScope::WaitUntil(waiter->parked, lock, cancel, *deadline, ready))
                     result = POSIX_ETIMEDOUT;
             } else {
-                waiter->parked.wait(lock, ready);
+                GuestCpu::Hle::HleScope::WaitUntil(waiter->parked, lock, cancel,
+                    std::chrono::steady_clock::time_point::max(), ready);
             }
             if (!result && !waiter->woken)
                 result = POSIX_EINTR;

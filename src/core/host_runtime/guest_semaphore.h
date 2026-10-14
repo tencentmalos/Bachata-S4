@@ -12,6 +12,7 @@
 #include <optional>
 #include <stop_token>
 #include "core/guest_cpu/api/address_space.h"
+#include "core/guest_cpu/hle/scope.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
@@ -154,12 +155,15 @@ public:
         if (try_only)
             return POSIX_EAGAIN;
         ++sem.waiters;
+        struct Waiting {
+            Semaphore& sem;
+            ~Waiting() { --sem.waiters; }
+        } waiting{sem};
         const auto ready = [&] { return sem.value != 0; };
         SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-        bool acquired = deadline ? sem.changed.wait_until(lock, cancel, *deadline, ready)
-                                 : sem.changed.wait(lock, cancel, ready);
+        bool acquired = deadline ? GuestCpu::Hle::HleScope::WaitUntil(sem.changed, lock, cancel, *deadline, ready)
+                                 : GuestCpu::Hle::HleScope::WaitUntil(sem.changed, lock, cancel, std::chrono::steady_clock::time_point::max(), ready);
         park_phase.End();
-        --sem.waiters;
         if (cancel.stop_requested()) {
             // A selected waiter can cancel after Post made a token available.
             // Transfer that wake while holding the predicate guard.

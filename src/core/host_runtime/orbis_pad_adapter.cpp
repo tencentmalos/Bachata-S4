@@ -128,6 +128,7 @@ u64 OrbisPadAdapter::BeginSession() {
     token_ = hub_.BeginSession();
     xr_input_focused_ = true;
     initialized_ = false;
+    special_ports_ = {};
     for (auto &p : ports_) {
         p = {};
         p.data = Neutral();
@@ -142,6 +143,7 @@ void OrbisPadAdapter::EndSession(u64 token) {
     hub_.EndSession(token);
     token_ = 0;
     initialized_ = false;
+    special_ports_ = {};
     for (auto &p : ports_) {
         p = {};
         p.data = Neutral();
@@ -433,6 +435,9 @@ OrbisPadAdapter::Port *OrbisPadAdapter::FindHandle(int h) {
     for (auto &p : ports_)
         if (p.handle == h)
             return &p;
+    for (auto &p : special_ports_)
+        if (p.handle == h)
+            return &p;
     return nullptr;
 }
 const OrbisPadAdapter::Port *OrbisPadAdapter::FindHandle(int h) const {
@@ -447,9 +452,10 @@ int OrbisPadAdapter::Open(int user, int type, int index, int port) {
     std::lock_guard lock(mutex_);
     if (!initialized_ || !token_)
         return ORBIS_PAD_ERROR_NOT_INITIALIZED;
-    if (port < 0 || port >= kMaxPadPorts || type != ORBIS_PAD_PORT_TYPE_STANDARD || index != 0)
+    if (port < 0 || port >= kMaxPadPorts || index != 0 ||
+        (type != ORBIS_PAD_PORT_TYPE_STANDARD && type != ORBIS_PAD_PORT_TYPE_SPECIAL))
         return ORBIS_PAD_ERROR_INVALID_ARG;
-    auto &p = ports_[port];
+    auto &p = type == ORBIS_PAD_PORT_TYPE_SPECIAL ? special_ports_[port] : ports_[port];
     if (p.handle)
         return ORBIS_PAD_ERROR_ALREADY_OPENED;
     if (next_handle_ == std::numeric_limits<int>::max())
@@ -458,6 +464,7 @@ int OrbisPadAdapter::Open(int user, int type, int index, int port) {
     p.type = type;
     p.index = index;
     p.handle = next_handle_++;
+    if (type == ORBIS_PAD_PORT_TYPE_SPECIAL) p.data = Neutral();
     p.history.clear();
     p.history.push_back({p.data, p.debug_receipt});
     return p.handle;
@@ -469,6 +476,9 @@ int OrbisPadAdapter::GetHandle(int user, int type, int index) const {
     for (auto &p : ports_)
         if (p.handle && p.user == user && p.type == type && p.index == index)
             return p.handle;
+    for (auto &p : special_ports_)
+        if (p.handle && p.user == user && p.type == type && p.index == index)
+            return p.handle;
     return ORBIS_PAD_ERROR_DEVICE_NO_HANDLE;
 }
 int OrbisPadAdapter::Close(int handle) {
@@ -476,7 +486,8 @@ int OrbisPadAdapter::Close(int handle) {
     auto *p = FindHandle(handle);
     if (!p)
         return ORBIS_PAD_ERROR_INVALID_HANDLE;
-    (void)VibrateLocked(int(p - ports_.data()), 0, 0);
+    if (p->type == ORBIS_PAD_PORT_TYPE_STANDARD)
+        (void)VibrateLocked(int(p - ports_.data()), 0, 0);
     p->handle = 0;
     p->history.clear();
     return 0;

@@ -121,7 +121,7 @@ private:
         u64 mutex{};
         bool notified{};
         bool reacquiring{};
-        std::condition_variable changed;
+        std::condition_variable_any changed;
     };
     struct Cond {
         // Shared ownership lets a notifier signal a selected waiter after the
@@ -644,7 +644,7 @@ public:
             const auto deadline = *limit.relative_us > u64(available)
                                       ? std::chrono::steady_clock::time_point::max()
                                       : now + std::chrono::microseconds(*limit.relative_us);
-            if (!waiter.changed.wait_until(cond_lock, deadline, ready)) result = POSIX_ETIMEDOUT;
+            if (!GuestCpu::Hle::HleScope::WaitUntil(waiter.changed, cond_lock, cancel, deadline, ready)) result = POSIX_ETIMEDOUT;
         } else if (limit.absolute) {
             while (!ready()) {
                 Libraries::Kernel::OrbisKernelTimespec current{};
@@ -654,12 +654,13 @@ public:
                 if (!GuestClock::Duration(current, now)) { result = POSIX_EINVAL; break; }
                 if (now >= *limit.absolute) { result = POSIX_ETIMEDOUT; break; }
                 // Recheck non-monotonic/virtual clocks as before.
-                waiter.changed.wait_for(cond_lock,
-                    std::min(*limit.absolute - now,
+                GuestCpu::Hle::HleScope::WaitUntil(waiter.changed, cond_lock, cancel,
+                    std::chrono::steady_clock::now() + std::min(*limit.absolute - now,
                              std::chrono::nanoseconds(std::chrono::milliseconds(20))), ready);
             }
         } else {
-            waiter.changed.wait(cond_lock, ready);
+            GuestCpu::Hle::HleScope::WaitUntil(waiter.changed, cond_lock, cancel,
+                std::chrono::steady_clock::time_point::max(), ready);
         }
         park_phase.End();
         TraceCond(CondTraceKind::Resumed, addr, m.address, owner,
