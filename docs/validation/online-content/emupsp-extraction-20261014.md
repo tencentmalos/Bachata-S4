@@ -52,3 +52,7 @@ EmuPSP 最终设备源码 `be45bdd`，APK SHA-256 `628c2f31a5d34ed4528230ca93b8e
 本轮还修复独立核心 owner 锁释放和并发测试目录冲突，Rust workspace 77 项、Clippy、Go race、Android APK/2 单测/lint、Mac 构建和五 owner 冒烟通过。下载链接、提取码和凭证不写入仓库。
 
 边界：Swan 头显、Windows/Linux 运行、Citron/Azahar 原工程切换仍未验收。初始安装空间仍按压缩 PFS 估算，并行提取进度存在回退，需继续完善。19:45 在覆盖安装后、未运行导入时系统服务自行重启，原因未定位；恢复后完成最终导入。详细时间线、全部反例和截图索引见独立仓 [AYN 验证记录](https://github.com/tencentmalos/EmuPSP/blob/main/docs/validation-ayn-20261014.md)，包摘要见 [AYN 产物清单](https://github.com/tencentmalos/EmuPSP/blob/main/docs/artifacts-ayn-20261014.json)。
+
+## 2026-10-15《战神 3》运行补测
+
+[运行记录与完整导入绑定清单](gow3-launch-20261015.md)：AYN 上复用已安装的 CUSA01740，无重新下载或导入。两个进程均在 libc 初始化调用 `getargc` 时因 Android bridge 未接入而停止，`graphics=not-created`，未出首帧；下载/安装成功不等于游戏兼容。实际加载三模块 508 条导入、30 个不同未接入符号已归档，未伪造兼容实现。
