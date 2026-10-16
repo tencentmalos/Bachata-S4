@@ -1,5 +1,7 @@
 # KH3 GnmRHI：C++ 语义实现
 
+Tetris **UE4.26** 的独立graphics/读回参考位于 [ue426-reference](../ue426-reference/README.md)，本目录同时构建其 `gnmrhi_readback426_tests` 、`gnmrhi_graphics426_tests` 和 `gnmrhi_stages426_tests`。它使用Tetris实际二进制证据，不复用KH3对象布局。新增普通pipeline→资源准备→LCUE→direct/indirect draw，增加GS/ES、copy/ring及LS/HS重放，MSVC Debug总CTest6/6，graphics426内含8组、stages426内含9组场景。
+
 这是基于 KH3 CUSA15072 01.10 / UE4.17 分支反汇编与伪码写成的 **C++20 静态库**。已恢复的算法有函数体，可以编译、执行示例、替换后端；尚未恢复的 Sony SDK 操作通过接口交给适配器。它不是 Epic 原始 GnmRHI 源码，也没有接入 shadPS4 正式渲染路径。
 
 建议先读 [gnm_rhi_semantic.h](gnm_rhi_semantic.h) 的数据模型，再读 [gnm_rhi_semantic.cpp](gnm_rhi_semantic.cpp) 的 `GnmRhi::PrepareCompute`。完整证据见[绑定语义分析](../../../docs/gnm/kh3-gnmrhi-binding-semantics.md)与[生命周期分析](../../../docs/gnm/kh3-gnmrhi-reconstruction.md)。这些 C++ 类型便于阅读和重放，**不能 reinterpret_cast 到 guest 内存**；二进制布局在 [v2 符号包](../../../guest/games/CUSA15072/01.10/symbols/index.json)。

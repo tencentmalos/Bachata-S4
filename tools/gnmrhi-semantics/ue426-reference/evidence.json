@@ -1,0 +1,651 @@
+{
+  "schema": "gnmrhi.static-reference-evidence.v1",
+  "title_id": "CUSA13427",
+  "sfo_version": "02.05",
+  "sfo_app_ver": "01.00",
+  "engine_branch": "++UE4+Release-4.26-CL-0",
+  "elf_sha256": "157845ba4297a000ac9cfeb26b7b78925d7d903a2ee34575c74d0f5ede6e9677",
+  "address_kind": "eboot_module_offset",
+  "method": "manual x86-64 reconstruction; FDE start to next FDE (may include alignment); not Hex-Rays pseudocode or an imported symbol pack",
+  "functions": [
+    {
+      "candidate_name": "SetGraphicsPipelineCandidate",
+      "module_offset": "0xf9af50",
+      "next_fde_offset": "0xf9b160",
+      "file_offset": "0xf9ef50",
+      "range_bytes": 528,
+      "range_sha256": "29bb7daa310547a9b3a76778fef8d1ac91296fdf1aa4cd11df136aef6ba74dab",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f9af50.asm.txt"
+    },
+    {
+      "candidate_name": "ApplyFullPipeline",
+      "module_offset": "0xf9f470",
+      "next_fde_offset": "0xf9f840",
+      "file_offset": "0xfa3470",
+      "range_bytes": 976,
+      "range_sha256": "9696b2bfcce1066700da40ce0290c4c67b0b019847ee1388199ef07b3262ab57",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f9f470.asm.txt"
+    },
+    {
+      "candidate_name": "ApplyDifferentialPipeline",
+      "module_offset": "0xf9f840",
+      "next_fde_offset": "0xf9fcb0",
+      "file_offset": "0xfa3840",
+      "range_bytes": 1136,
+      "range_sha256": "5afd2c56e9ae11069f3e9321e1d520d11f2d8eeda9044b1cdfbce0bfc9ce97fa",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f9f840.asm.txt"
+    },
+    {
+      "candidate_name": "PrepareGraphics",
+      "module_offset": "0xf95620",
+      "next_fde_offset": "0xf95930",
+      "file_offset": "0xf99620",
+      "range_bytes": 784,
+      "range_sha256": "612e2cd67196b4c45a2c55e592976b875982d21e5162d97cd6f4ddce84d8adf8",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f95620.asm.txt"
+    },
+    {
+      "candidate_name": "ExpandVertexUniformResources",
+      "module_offset": "0xf95930",
+      "next_fde_offset": "0xf95be0",
+      "file_offset": "0xf99930",
+      "range_bytes": 688,
+      "range_sha256": "c1c3142ab6c03885670713ceb55a833a1bd751c41a9d69454535cf4de09e11a5",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f95930.asm.txt"
+    },
+    {
+      "candidate_name": "ExpandPixelUniformResources",
+      "module_offset": "0xf95be0",
+      "next_fde_offset": "0xf95e90",
+      "file_offset": "0xf99be0",
+      "range_bytes": 688,
+      "range_sha256": "84b01b22b7613f2fac9d7f480f6a98745c9bb5aa9163957cccde6a6bb46ca60c",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f95be0.asm.txt"
+    },
+    {
+      "candidate_name": "ExpandGeometryUniformResources",
+      "module_offset": "0xf95e90",
+      "next_fde_offset": "0xf96140",
+      "file_offset": "0xf99e90",
+      "range_bytes": 688,
+      "range_sha256": "2ebb8fcbe4ad09de518451e6ba6efa60ea647a9669cae741d9b106ec727ca02b",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f95e90.asm.txt"
+    },
+    {
+      "candidate_name": "BindUnifiedView",
+      "module_offset": "0xf96a20",
+      "next_fde_offset": "0xf96ac0",
+      "file_offset": "0xf9aa20",
+      "range_bytes": 160,
+      "range_sha256": "583c80d80ebe5330d8d4e9db2ee9dfae0a2fcee85741d555b8dd3fceae43df83",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96a20.asm.txt"
+    },
+    {
+      "candidate_name": "SetTexture",
+      "module_offset": "0xf96b70",
+      "next_fde_offset": "0xf96c40",
+      "file_offset": "0xf9ab70",
+      "range_bytes": 208,
+      "range_sha256": "13342439f5dd1940e400ad5f667ee3167390f223aafd6cdaeea40d62240488ae",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96b70.asm.txt"
+    },
+    {
+      "candidate_name": "SetShaderResourceView",
+      "module_offset": "0xf96d90",
+      "next_fde_offset": "0xf96e50",
+      "file_offset": "0xf9ad90",
+      "range_bytes": 192,
+      "range_sha256": "36acdb961dbbfea780a14f4715eab178510a43c6848091a969aa60b7452eef7c",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96d90.asm.txt"
+    },
+    {
+      "candidate_name": "SetSampler",
+      "module_offset": "0xf96f70",
+      "next_fde_offset": "0xf97030",
+      "file_offset": "0xf9af70",
+      "range_bytes": 192,
+      "range_sha256": "0a90e99ec3d09bb44bcd9fe88f46fde8780b3b9c25586d4c9f99b7550e521dcd",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96f70.asm.txt"
+    },
+    {
+      "candidate_name": "SetLooseParameter",
+      "module_offset": "0xf97130",
+      "next_fde_offset": "0xf977d0",
+      "file_offset": "0xf9b130",
+      "range_bytes": 1696,
+      "range_sha256": "cb1beaa1e376430c5220263cb81884ca190e729d1de120b0dfbbd85964a18fe9",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f97130.asm.txt"
+    },
+    {
+      "candidate_name": "SetUniformBuffer",
+      "module_offset": "0xf97c30",
+      "next_fde_offset": "0xf97d30",
+      "file_offset": "0xf9bc30",
+      "range_bytes": 256,
+      "range_sha256": "86dd182d12182c94fd4c1605809bc01538ad8d8bc2c45654d34e4dccede24fa4",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f97c30.asm.txt"
+    },
+    {
+      "candidate_name": "SetStreamSource",
+      "module_offset": "0xf99210",
+      "next_fde_offset": "0xf99250",
+      "file_offset": "0xf9d210",
+      "range_bytes": 64,
+      "range_sha256": "2da7b68db27bbe10e7a2d10765a3a1c022871feda3afac7cbd7e2f4b48c6b634",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f99210.asm.txt"
+    },
+    {
+      "candidate_name": "UploadLooseConstants",
+      "module_offset": "0xf89150",
+      "next_fde_offset": "0xf89400",
+      "file_offset": "0xf8d150",
+      "range_bytes": 688,
+      "range_sha256": "0258fe9ba5a2a4277f117e995ee868f5114fae552aa08a336bb929a57cea31c2",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f89150.asm.txt"
+    },
+    {
+      "candidate_name": "DrawPrimitive",
+      "module_offset": "0xf96140",
+      "next_fde_offset": "0xf962f0",
+      "file_offset": "0xf9a140",
+      "range_bytes": 432,
+      "range_sha256": "950359670e2e75fad5ed29109dcdee613bd29504abf8f407b01a96558308d62c",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96140.asm.txt"
+    },
+    {
+      "candidate_name": "DrawIndexedPrimitive",
+      "module_offset": "0xf96460",
+      "next_fde_offset": "0xf96670",
+      "file_offset": "0xf9a460",
+      "range_bytes": 528,
+      "range_sha256": "45bbdedbf2d9bee498ad0691cdc20a57fe7e9b7559fad0ba8cfa6641500782c6",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96460.asm.txt"
+    },
+    {
+      "candidate_name": "DrawPrimitiveIndirect",
+      "module_offset": "0xf96310",
+      "next_fde_offset": "0xf96440",
+      "file_offset": "0xf9a310",
+      "range_bytes": 304,
+      "range_sha256": "4d24a39515c55324dfb8164c1b8b43a2008d21e5078450d881c9455269779bbe",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96310.asm.txt"
+    },
+    {
+      "candidate_name": "DrawIndexedIndirect",
+      "module_offset": "0xf96690",
+      "next_fde_offset": "0xf96820",
+      "file_offset": "0xf9a690",
+      "range_bytes": 400,
+      "range_sha256": "e3499220d3e7f7a55949ec43db3c29cec80962678c6ca74b72311e87db26a561",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96690.asm.txt"
+    },
+    {
+      "candidate_name": "DrawIndexedPrimitiveIndirect",
+      "module_offset": "0xf96840",
+      "next_fde_offset": "0xf969d0",
+      "file_offset": "0xf9a840",
+      "range_bytes": 400,
+      "range_sha256": "3b46de43e96bdcedf9fc0cd08d7f327264bb09b04b0cc369ebc274dc944d1ee3",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f96840.asm.txt"
+    },
+    {
+      "candidate_name": "CommitGraphicsLcue",
+      "module_offset": "0x3c4de20",
+      "next_fde_offset": "0x3c4ef60",
+      "file_offset": "0x3c51e20",
+      "range_bytes": 4416,
+      "range_sha256": "b0dccecf143974859a39081e58bd3dc6a9559a38cf6a4f5010ec4f45668e15c6",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4de20.asm.txt"
+    },
+    {
+      "candidate_name": "AllocateLcueTable",
+      "module_offset": "0x3c4be90",
+      "next_fde_offset": "0x3c4bf30",
+      "file_offset": "0x3c4fe90",
+      "range_bytes": 160,
+      "range_sha256": "9bce897c4093bbbe7a8f15e720ad5555b6e8b5e5824108aadc037376249255b8",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4be90.asm.txt"
+    },
+    {
+      "candidate_name": "SelectVertex",
+      "module_offset": "0x3c4f510",
+      "next_fde_offset": "0x3c4f5d0",
+      "file_offset": "0x3c53510",
+      "range_bytes": 192,
+      "range_sha256": "0a07a70dc4a78c2cf185637c59c40969a530615830fc0ebfe23c13fccc57224e",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f510.asm.txt"
+    },
+    {
+      "candidate_name": "SelectPixel",
+      "module_offset": "0x3c4f5d0",
+      "next_fde_offset": "0x3c4f680",
+      "file_offset": "0x3c535d0",
+      "range_bytes": 176,
+      "range_sha256": "59b303ad6d48535b95f804361c740ebfe506c93ff4a4a6594a6e8b9d6d074c58",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f5d0.asm.txt"
+    },
+    {
+      "candidate_name": "BindConstantBuffers",
+      "module_offset": "0x3c4f6f0",
+      "next_fde_offset": "0x3c4f7d0",
+      "file_offset": "0x3c536f0",
+      "range_bytes": 224,
+      "range_sha256": "6c2359921720ebb776b74da642300f407ef39001da159fbafd54ec1386b653cd",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f6f0.asm.txt"
+    },
+    {
+      "candidate_name": "BindVertexBuffers",
+      "module_offset": "0x3c4f7d0",
+      "next_fde_offset": "0x3c4f8b0",
+      "file_offset": "0x3c537d0",
+      "range_bytes": 224,
+      "range_sha256": "4f1320886e6f7642b8a415a0cc13b76143114a70b3a1bbce9a82f0f492d817b3",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f7d0.asm.txt"
+    },
+    {
+      "candidate_name": "BindReadBuffers",
+      "module_offset": "0x3c4f8b0",
+      "next_fde_offset": "0x3c4f970",
+      "file_offset": "0x3c538b0",
+      "range_bytes": 192,
+      "range_sha256": "9e804a687a6901465fa57a1201f8e890e76ffe4e27eb005c49b08f2d47a70767",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f8b0.asm.txt"
+    },
+    {
+      "candidate_name": "BindReadWriteBuffers",
+      "module_offset": "0x3c4f970",
+      "next_fde_offset": "0x3c4fa30",
+      "file_offset": "0x3c53970",
+      "range_bytes": 192,
+      "range_sha256": "87509ff06212b704d052b91f903c671184b054e0fc068905a33ae6268052b5cd",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f970.asm.txt"
+    },
+    {
+      "candidate_name": "BindReadTextures",
+      "module_offset": "0x3c4fa30",
+      "next_fde_offset": "0x3c4faf0",
+      "file_offset": "0x3c53a30",
+      "range_bytes": 192,
+      "range_sha256": "b156b87e2255f82b1076bafe9d7eb3f417986cfe912f8f7d78d05fd9b3ac7b83",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4fa30.asm.txt"
+    },
+    {
+      "candidate_name": "BindReadWriteTextures",
+      "module_offset": "0x3c4faf0",
+      "next_fde_offset": "0x3c4fbb0",
+      "file_offset": "0x3c53af0",
+      "range_bytes": 192,
+      "range_sha256": "20607e971129eacb0ce3b3a0d3df929a479048f1031b8698672fb1484fc7e602",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4faf0.asm.txt"
+    },
+    {
+      "candidate_name": "BindSamplers",
+      "module_offset": "0x3c4fbb0",
+      "next_fde_offset": "0x3c4fc90",
+      "file_offset": "0x3c53bb0",
+      "range_bytes": 224,
+      "range_sha256": "f2885e2ce8004f45882ea64634dbce66d64471867d07b8d116d64ecf7584b581",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4fbb0.asm.txt"
+    },
+    {
+      "candidate_name": "PackVertexDescriptor",
+      "module_offset": "0x3f326d0",
+      "next_fde_offset": "0x3f32750",
+      "file_offset": "0x3f366d0",
+      "range_bytes": 128,
+      "range_sha256": "c538ff133fd56d4151e3754f4de16b5469e4c2c96f5f31149946ffc8121584e3",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f326d0.asm.txt"
+    },
+    {
+      "candidate_name": "PackConstantDescriptor",
+      "module_offset": "0x3f329b0",
+      "next_fde_offset": "0x3f329e0",
+      "file_offset": "0x3f369b0",
+      "range_bytes": 48,
+      "range_sha256": "1db3bf893aea75b658d7e751de0b341877e100c05cfdf8eb747532ecaf6979ea",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f329b0.asm.txt"
+    },
+    {
+      "candidate_name": "SetBufferMemoryType",
+      "module_offset": "0x3f32750",
+      "next_fde_offset": "0x3f32790",
+      "file_offset": "0x3f36750",
+      "range_bytes": 64,
+      "range_sha256": "11fdc679e5ca7d70512f14cc16c215038c6e0abb9f855712361c6aa20a97ae34",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f32750.asm.txt"
+    },
+    {
+      "candidate_name": "FormatBytes",
+      "module_offset": "0x3f33270",
+      "next_fde_offset": "0x3f33290",
+      "file_offset": "0x3f37270",
+      "range_bytes": 32,
+      "range_sha256": "e36c03090aa675f41911a3bc2a7dfa2f78b46cd0633c1ba71a6fedc1e43d6b5d",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f33270.asm.txt"
+    },
+    {
+      "candidate_name": "SetUserDataPointer",
+      "module_offset": "0x3f364a0",
+      "next_fde_offset": "0x3f36530",
+      "file_offset": "0x3f3a4a0",
+      "range_bytes": 144,
+      "range_sha256": "058e7713e7c5b19a55b1c79577d7d7df3bf31ffbd555dadd651f0e73205630ee",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f364a0.asm.txt"
+    },
+    {
+      "candidate_name": "SetUserDataRaw",
+      "module_offset": "0x3f36530",
+      "next_fde_offset": "0x3f36660",
+      "file_offset": "0x3f3a530",
+      "range_bytes": 304,
+      "range_sha256": "9369a275361fb0e9fd1a87ab9168c3ab3d376ff2923af3b763be00399fa0882f",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f36530.asm.txt"
+    },
+    {
+      "candidate_name": "LinkPixelInputs",
+      "module_offset": "0x3f39340",
+      "next_fde_offset": "0x3f39580",
+      "file_offset": "0x3f3d340",
+      "range_bytes": 576,
+      "range_sha256": "45601c6373f49c8f07167fcadd341078fba07f6858a16310ba8e2c8d2093ec67",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f39340.asm.txt"
+    },
+    {
+      "candidate_name": "EmitPixelInputControls",
+      "module_offset": "0x3f35820",
+      "next_fde_offset": "0x3f35980",
+      "file_offset": "0x3f39820",
+      "range_bytes": 352,
+      "range_sha256": "d8daa4d74e09d3b5a5b1b869295a618da70dd0bd4812b66a697b2d2cd3e14430",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35820.asm.txt"
+    },
+    {
+      "candidate_name": "GraphicsPipelineConstructorStageBranch",
+      "module_offset": "0xf9d570",
+      "next_fde_offset": "0xf9f2f0",
+      "file_offset": "0xfa1570",
+      "range_bytes": 7552,
+      "range_sha256": "2a9e77a9c935d64cb2eb3c0333fce23c79c73efa87645726af6f7ba55ccfcbe8",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-f9d570.asm.txt"
+    },
+    {
+      "candidate_name": "DynamicRhiInitializeRingStorage",
+      "module_offset": "0xfa1c50",
+      "next_fde_offset": "0xfa2710",
+      "file_offset": "0xfa5c50",
+      "range_bytes": 2752,
+      "range_sha256": "fc9080b4d639d4984cc71064947e793741f56ee153e1e9d984f7cc1d6634a6de",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-fa1c50.asm.txt"
+    },
+    {
+      "candidate_name": "RingBackingAllocation",
+      "module_offset": "0xfec130",
+      "next_fde_offset": "0xfec220",
+      "file_offset": "0xff0130",
+      "range_bytes": 240,
+      "range_sha256": "43215b95fed11cb87d618d0b5eac274f05ff8ab55941783cd4d736635aad8acb",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-fec130.asm.txt"
+    },
+    {
+      "candidate_name": "ComputeOnChipGeometryBudget",
+      "module_offset": "0x3c4bad0",
+      "next_fde_offset": "0x3c4bb80",
+      "file_offset": "0x3c4fad0",
+      "range_bytes": 176,
+      "range_sha256": "758f707acb4e9b0377507932edc25e149b506d21ba35eda73c975c27d89f7228",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4bad0.asm.txt"
+    },
+    {
+      "candidate_name": "WriteSharedRingDescriptor",
+      "module_offset": "0x3c4bf30",
+      "next_fde_offset": "0x3c4bf50",
+      "file_offset": "0x3c4ff30",
+      "range_bytes": 32,
+      "range_sha256": "d70187a84fa95f041c232bda28eee75e198abd2fe7b123a605313fcc22cf7a86",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4bf30.asm.txt"
+    },
+    {
+      "candidate_name": "InitializeLcueAndCopyProfiles",
+      "module_offset": "0x3c4d900",
+      "next_fde_offset": "0x3c4dbe0",
+      "file_offset": "0x3c51900",
+      "range_bytes": 736,
+      "range_sha256": "dafd95d6ff781ce74893c3e93b74450cdaf0e3d8935da77457b924901b21aa5f",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4d900.asm.txt"
+    },
+    {
+      "candidate_name": "SelectExportOffChip",
+      "module_offset": "0x3c4ef60",
+      "next_fde_offset": "0x3c4efb0",
+      "file_offset": "0x3c52f60",
+      "range_bytes": 80,
+      "range_sha256": "10bb5c9af5d84eff24bb6181d112b00ad1ced7199829b47c5408c0b68c73353a",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4ef60.asm.txt"
+    },
+    {
+      "candidate_name": "SelectExportOnChip",
+      "module_offset": "0x3c4efb0",
+      "next_fde_offset": "0x3c4f000",
+      "file_offset": "0x3c52fb0",
+      "range_bytes": 80,
+      "range_sha256": "6942842805e997189b51ab1392494024a2d6d1db95b4336c2807a3e4e53dc1a9",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4efb0.asm.txt"
+    },
+    {
+      "candidate_name": "SelectGeometryOffChipAndCopyVs",
+      "module_offset": "0x3c4f000",
+      "next_fde_offset": "0x3c4f230",
+      "file_offset": "0x3c53000",
+      "range_bytes": 560,
+      "range_sha256": "95617ae66dde8fc9345121dfea68b462ab9e20062a44f78f920244725413d94c",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f000.asm.txt"
+    },
+    {
+      "candidate_name": "SelectGeometryOnChipAndCopyVs",
+      "module_offset": "0x3c4f230",
+      "next_fde_offset": "0x3c4f4e0",
+      "file_offset": "0x3c53230",
+      "range_bytes": 688,
+      "range_sha256": "194c8776adbb387c6364fa1618bdbf5e7a0875c5fb4ac8d3a8091ed289703fb3",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f230.asm.txt"
+    },
+    {
+      "candidate_name": "SetExportFactor",
+      "module_offset": "0x3c4f4e0",
+      "next_fde_offset": "0x3c4f510",
+      "file_offset": "0x3c534e0",
+      "range_bytes": 48,
+      "range_sha256": "bc22f0b3ecb135d6a68cc3abe61e3b97f821ed42500eadaaac5ab489e9bda6b3",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4f4e0.asm.txt"
+    },
+    {
+      "candidate_name": "SetupEsGsRing",
+      "module_offset": "0x3c4fc90",
+      "next_fde_offset": "0x3c4fd40",
+      "file_offset": "0x3c53c90",
+      "range_bytes": 176,
+      "range_sha256": "56faa54efcb82d48ef0ba5e148226b6f9da8850bdd0ae887aea9adc3b19eabaa",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4fc90.asm.txt"
+    },
+    {
+      "candidate_name": "SetupGsVsRings",
+      "module_offset": "0x3c4fd40",
+      "next_fde_offset": "0x3c4fe60",
+      "file_offset": "0x3c53d40",
+      "range_bytes": 288,
+      "range_sha256": "b53c7fefd9e60cabfbcc52dd7c26b9aac969208e3412b34c1fc9a67ef54098ab",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3c4fd40.asm.txt"
+    },
+    {
+      "candidate_name": "EsGsWriteDescriptor",
+      "module_offset": "0x3f32a00",
+      "next_fde_offset": "0x3f32ac0",
+      "file_offset": "0x3f36a00",
+      "range_bytes": 192,
+      "range_sha256": "34fc788d2c5129a516d7c3daddf9dafdcf25e01215f4151221cbe0f1f1a81ebe",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f32a00.asm.txt"
+    },
+    {
+      "candidate_name": "EsGsReadDescriptor",
+      "module_offset": "0x3f32ac0",
+      "next_fde_offset": "0x3f32b80",
+      "file_offset": "0x3f36ac0",
+      "range_bytes": 192,
+      "range_sha256": "d59705f1482c993aad6d063c03dbff9bb5cab1e34ee5adcd94a5ed3d0c1cd38d",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f32ac0.asm.txt"
+    },
+    {
+      "candidate_name": "GsVsWriteDescriptor",
+      "module_offset": "0x3f32b80",
+      "next_fde_offset": "0x3f32d60",
+      "file_offset": "0x3f36b80",
+      "range_bytes": 480,
+      "range_sha256": "1268726ff0b62ac2b0f19b16fb0392cd64df0c347ab026d2dde098e9268d770a",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f32b80.asm.txt"
+    },
+    {
+      "candidate_name": "GsVsReadDescriptor",
+      "module_offset": "0x3f32d60",
+      "next_fde_offset": "0x3f32e20",
+      "file_offset": "0x3f36d60",
+      "range_bytes": 192,
+      "range_sha256": "67db10d88275cbd905aebe159d74bc63fb1b79f36d7a9531df3f5eb21c4b08f3",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f32d60.asm.txt"
+    },
+    {
+      "candidate_name": "PackBufferFormat",
+      "module_offset": "0x3f32ec0",
+      "next_fde_offset": "0x3f32f00",
+      "file_offset": "0x3f36ec0",
+      "range_bytes": 64,
+      "range_sha256": "6de447cac5426a4f0aa81e474e58ca5f0d0710e3e05cb01ae9b1ac0accc6117c",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f32ec0.asm.txt"
+    },
+    {
+      "candidate_name": "EmitEsGsItemSize",
+      "module_offset": "0x3f36220",
+      "next_fde_offset": "0x3f36280",
+      "file_offset": "0x3f3a220",
+      "range_bytes": 96,
+      "range_sha256": "554df01b2211d2ce42f7a6f9dbaba55f04036a7ea84462f0ae50f9ecce16363c",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f36220.asm.txt"
+    },
+    {
+      "candidate_name": "EmitGsVsLayout",
+      "module_offset": "0x3f36280",
+      "next_fde_offset": "0x3f363a0",
+      "file_offset": "0x3f3a280",
+      "range_bytes": 288,
+      "range_sha256": "4125cab2e8c2ee8dcda9419b5819ecd28d87a62b7a29205c6fee746b79064321",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f36280.asm.txt"
+    },
+    {
+      "candidate_name": "ResetGeometryModeRegisters",
+      "module_offset": "0x3f35f20",
+      "next_fde_offset": "0x3f35f80",
+      "file_offset": "0x3f39f20",
+      "range_bytes": 96,
+      "range_sha256": "b1ff039cedb3e011ddde37cdf205c9642f9a9b19ee7165b6c877077a5547777d",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35f20.asm.txt"
+    },
+    {
+      "candidate_name": "EmitOffChipGeometryMode",
+      "module_offset": "0x3f35f80",
+      "next_fde_offset": "0x3f35ff0",
+      "file_offset": "0x3f39f80",
+      "range_bytes": 112,
+      "range_sha256": "13d21132775e076ebbae2c2bf7f8772f1adec518e4cab7412ab2493ae1bc873e",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35f80.asm.txt"
+    },
+    {
+      "candidate_name": "EmitOnChipGeometryMode",
+      "module_offset": "0x3f35ff0",
+      "next_fde_offset": "0x3f36090",
+      "file_offset": "0x3f39ff0",
+      "range_bytes": 160,
+      "range_sha256": "465edd4f195f6f134d78e114e1f891aa9193fda023a31695968a6201f46b3b57",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35ff0.asm.txt"
+    },
+    {
+      "candidate_name": "EmitShaderStagesEnable",
+      "module_offset": "0x3f36410",
+      "next_fde_offset": "0x3f364a0",
+      "file_offset": "0x3f3a410",
+      "range_bytes": 144,
+      "range_sha256": "430228ff2e8c67136eee7f159b3b516547b69ee54b75bb29a005cef6b0ec1c8e",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f36410.asm.txt"
+    },
+    {
+      "candidate_name": "PatchExportResource2",
+      "module_offset": "0x3f39a50",
+      "next_fde_offset": "0x3f39a70",
+      "file_offset": "0x3f3da50",
+      "range_bytes": 32,
+      "range_sha256": "64b8cbb9ff32852d35f3aaced1edeead9a606429cbfb9dd555102a2a8432d557",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f39a50.asm.txt"
+    },
+    {
+      "candidate_name": "PatchHullTessellationParameter",
+      "module_offset": "0x3f39a70",
+      "next_fde_offset": "0x3f39a90",
+      "file_offset": "0x3f3da70",
+      "range_bytes": 32,
+      "range_sha256": "e1456e80fa338b5f2357acbfb33ba0e3504ce7193f6e5d16103cb20d9a33c148",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f39a70.asm.txt"
+    },
+    {
+      "candidate_name": "BuildTessellationConstants",
+      "module_offset": "0x3f39a90",
+      "next_fde_offset": "0x3f39b20",
+      "file_offset": "0x3f3da90",
+      "range_bytes": 144,
+      "range_sha256": "2334f9d3dcb0e0fa303842f07fb4a2c6bf7c8484528d5eccd220b668a1e67197",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f39a90.asm.txt"
+    },
+    {
+      "candidate_name": "BuildHullConfig",
+      "module_offset": "0x3f39b20",
+      "next_fde_offset": "0x3f39b50",
+      "file_offset": "0x3f3db20",
+      "range_bytes": 48,
+      "range_sha256": "e495a06b5eff8be5f9ca2ec2e2f73b444d3217a3fae514a8bc2e963eb1ea1be1",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f39b20.asm.txt"
+    },
+    {
+      "candidate_name": "SetLocalShaderSdkBoundary",
+      "module_offset": "0x3f36090",
+      "next_fde_offset": "0x3f36100",
+      "file_offset": "0x3f3a090",
+      "range_bytes": 112,
+      "range_sha256": "4b6600ff959f07575d2295092bab1aeb6b0da4c9d269bfb962996c7450b7c45f",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f36090.asm.txt"
+    },
+    {
+      "candidate_name": "SetHullShaderSdkBoundary",
+      "module_offset": "0x3f35e40",
+      "next_fde_offset": "0x3f35eb0",
+      "file_offset": "0x3f39e40",
+      "range_bytes": 112,
+      "range_sha256": "8862122c5a7066fe29f08bb81ee805428afb31e54b55beb978dd02ba75741bad",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35e40.asm.txt"
+    },
+    {
+      "candidate_name": "UpdateHullShaderSdkBoundary",
+      "module_offset": "0x3f35eb0",
+      "next_fde_offset": "0x3f35f20",
+      "file_offset": "0x3f39eb0",
+      "range_bytes": 112,
+      "range_sha256": "c6b036135dee4a721b84ff41af30fbc7405cb7f444cc8f1248abbd6ef1d14f6b",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35eb0.asm.txt"
+    },
+    {
+      "candidate_name": "SetExportShaderSdkBoundary",
+      "module_offset": "0x3f35dd0",
+      "next_fde_offset": "0x3f35e40",
+      "file_offset": "0x3f39dd0",
+      "range_bytes": 112,
+      "range_sha256": "c57946f9d6d630553c6b1f563d775b63e90e81d42aeee31cb752ed4e378ad4a2",
+      "disassembly_local": "build/validation/tetris-gnmrhi-20261016/fn-3f35dd0.asm.txt"
+    }
+  ]
+}

@@ -245,3 +245,42 @@ IDA 已可用：工作区 `kh3-gnmrhi`，imagebase 0；已保存独立 `review.i
 [符号index](../../guest/games/CUSA15072/01.10/symbols/index.json) **r6：100 symbols /75 typed /39 types /6 shards**；新stages分片16条目、9部分类型，manager原条目补ring前缀证据。prepare dry-run和实生成到`symbols-generated-r6/`通过；clang365个size/offset断言与生成C语法检查通过。29个UE override签名匹配。MSVC Debug、CTest3/3（原13+graphics6+stages8）通过。**完整UE/PS4 SDK工程、真实GS/tess draw和设备画面未验证；本轮仅静态分析，未操作设备。**
 
 新增完整伪码：`decomp/stages-{4c3dd50,4c3e010,4c3ec80,4c37870,68bbb10,4c3e390,4c3e9f0,3bace0,3a5640,3a9470,3a8260,38f300,369830,37f900,36a9e0,36c620}.cpp`。generation=`dd667cad7bd1fbbb3ccebb78823e22b5857b22066c517c708fbef2960fed29c0`。SQL全局data-xref查空的几处，改用原始RIP扫描核对；不能将空索引解释成无引用。
+
+## 12. Tetris Release-4.26 比对与曝光读回验证（2026-10-16）
+
+后续跨游戏验证已转到 Odin 3 / Tetris CUSA13427，完整内容见 [4.26 分析](../gnm/tetris-ue426-gnmrhi-readback.md)、[实机记录](../validation/android-native-host/tetris-exposure-readback-20261016.md)和 [C++14 参考](../../tools/gnmrhi-semantics/ue426-reference/README.md)。KH3 上述偏移和 r6 符号保持自己的版本身份。
+
+- Tetris ELF SHA `157845ba4297a000ac9cfeb26b7b78925d7d903a2ee34575c74d0f5ede6e9677`，字符串明确为 Release-4.26。Reverse Study 打开被 `database_in_use` 阻止，没有关闭既有 IDA；本轮以 FDE 边界、原始指令、resolved 虚表和 RIP xref 人工重写语义。
+- 三槽纹理历史 `0x2170ba0` → readback wrapper → GNM Map `0xfa13d0` / fence Poll `0xf8c390` / context Write `0xf991a0` → ViewState+424 → View+5554 → UB+874/+878 → tonemap 已闭合。纹理三槽与 KH3 动态 buffer 的逐 Lock 轮换不是一回事；偏移均十六进制。
+- 闪烁根因为 1×1 linear storage staging 的 GPU 内容未返回 guest CPU，完成标签单独修正无效。新增默认小型 linear storage 写回，同一进程 off→on 从 151 帧 100 黑变为 152 帧 0 黑；最终 APK `b2d42cd7` 默认冷启动再次 151/0，UB 为 2/0.5。
+- C++14 参考保留 next/current 消费顺序、pending/Poll、Clear 不清 label、实际 EOP 字、Map/Unmap 和异常正数曝光行为；CTest 4/4。完整 UE4.26 PS4 SDK 工程未构建。
+- 后续继续 4.26 graphics/shader loader/LCUE、GS/ES/LS/HS 时，必须重新获取该 ELF 的布局证据；尚未把这些部分恢复为与 KH3 同等深度，也尚未输出 Tetris v2 符号包。此修复不替代 KH3 跑跳闪黑的独立排查。
+
+## 13. Tetris 4.26 graphics / LCUE、LUT范围核查与Swan部署
+
+新增[graphics深入还原](../gnm/tetris-ue426-gnmrhi-graphics.md)、`ue426-reference/GnmGraphicsCore.h`与`GnmGraphicsReference.h`。使用同一ELF的FDE/指令/虚表重新取证，未套用KH3 ABI；Reverse Study仍被database_in_use阻止，未取得Tetris Hex-Rays伪码。
+
+- `f9af50` pipeline候选：G=C+348、L=C+510，secondary interface=C+218；full/diff为`f9f470/f9f840`，static UB按VS→GS→PS。五阶段mask全fffff，vertex/discard标脏，无强制loose dirty。第三参数是apply-static低字节，未当成KH3的stencil ref。
+- `f95620`：prepared vertex entry12字节，stride在entry而不在16字节stream。FirstInstance乘积32位后MOVSXD；stride0走format字节数。Prepare为VS maps+loose→PS→GS。
+- `f95930/f95be0/f95e90`：UB+28资源，sampler(+220)→texture(+250)→SRV(+210)，PS增加UAV(+230)；清整个频率dirty。unified view binder `f96a20`不包含KH3式backing刷新。
+- `3c4de20`普通LCUE：VS/PS Set/Update→各自immutable表→semantic linker；反射offset WORD从+12开始，map从+1e/+7e/+9e/+be/+e6开始；每stage staging仍1800字节。pointer不带marker，raw/scalar带marker；commit不等于queue submit。
+- direct draw topology取pipeline+68；indexed current backing在Prepare后、LCUE前读取；indirect区别byteOffset与argumentIndex×20，保留尾部重复NumInstances(1)。SDK及固定状态/retirement为必须接入的后端边界。
+- GS alternate ES+278/reflection+280、192B ring表L+78及全局backing来源已关联；完整GS/tess commit、ring owner和shader/pipeline生成端未完成。参考ordinary context显式拒绝这些模式，没有宣布完整UE4.26 GnmRHI可运行。
+- C++14 MSVC Debug与CTest5/5通过，新增8组graphics场景；`evidence.json`固定39函数范围，identity/range验证通过。没有新设备GPU执行验证，也未导出Tetris v2符号包。
+- **16像素/LUT**：实际LUT是32层RT→tiling19的32³采样纹理，非曝光linear CPU staging。仅放大阈值无法命中其入口/布局/depth/layers条件；无条件CPU写回会增加Finish/retile且不能替代同帧GPU alias。保留≤16默认规则，扩展方案和现有trace证据见专文§9；没有以尺寸猜测CPU读回需求。
+- **设备子任务完成**：Swan PB3110PGL6240001G安装APK b2d42cd7，Odin3 CUSA13427四文件5,246,883,930bytes三端SHA一致、游戏库识别。按用户授权删除XRGameNative Steam下MonsterHunterRise约34.54GiB，余30.92GiB；外部存档/设置和99个诊断目录保留。未启动游戏，Swan XR回归未做；记录`build/validation/tetris-transfer-swan-20261016/README.md`。未commit/push本批修改。
+
+
+## 14. Tetris 4.26 GS/ES、ring、LS/HS 深入恢复与提交整理
+
+按用户要求保持≤16像素策略；新增[阶段专文](../gnm/tetris-ue426-gnmrhi-stages.md)、`GnmStagesCore.h`及9组`stages426_tests.cpp`，扩展UE职责context支持GS及ES indirect。
+
+- `f9d570` PSO工厂仅选VS2/mode0或ES4/modeb0；GS分支通过copy+26 flags分片外/片上，后者用64KiB预算算groups/LDS。native六个ring key仅片外填写，片上保留零。
+- `3c4d900`四copy profile位于L+aa44/ab58/ac6c/ad80，stride114（KH3为118）；extended的aux map+106不同于vertex map+e6，完整数据生产端未闭合。copy占VS2并参与PS semantic link，UE VS参数走ES4。
+- `fa1c50`两次`fec130(size=400000,align=400000,type=0)`初始化ESGS/GSVS，实际各4MiB/4MiB对齐；不是KH3的64KiB对齐。片外apply分配192B共享表，slots2/3 ESGS、4..7 GSVS write、8 GSVS read；helper不清未知slot也不传播dirty。生命周期仅补初始化，shutdown/free/retirement待续。
+- `3c4de20`完整顺序GS块→LS/HS块→VS/PS尾部；tess内部9DWORD常量经reflection+e4同时绑HS与domain所在VS/ES，shader不dirty时复用descriptor。HS负数override改native+18 bits17..18，config高12位由helper保留且LCUE未查明原stack初值，参考显式输入。
+- 公共UE Hull/Domain setter及PSO桥未闭合，reference仍拒绝UE tess pipeline；低层LS/HS只给定状态重放。组合mode在ES提交后重新标ES资源dirty的顺序已测试，不擅自宣判游戏bug。
+- MSVC Debug、CTest6/6；graphics426 8组、stages426 9组。ELF+71个FDE范围SHA验证通过。测试未执行原二进制/真实GPU，没有本轮设备操作；未生成Tetris v2符号包。
+- 本批按任务范围整理commit/push：曝光storage写回修复、4.26分析/参考/验证和进展索引。已有调试器、呈现、KH3闪黑诊断等工作区修改不混入。原ELF/IDA/反汇编/设备包留本地build证据目录。
+
+接续：shader loader的ES/LS变体与reflection、extended copy辅助表、ring释放/退役、TF_MEMORY_BASE及patch draw、UE HS/DS调用者、4.26 queue worker。所有偏移继续受该ELF SHA约束。

@@ -8,7 +8,8 @@
 来源包括：
 - 用户提供的《GNM / GNMX 资料与源码阅读指南》（`C:\Users\Admin\Downloads\GNM_GNMX_技术资料与源码阅读指南.md`）及其引用；
 - 本地 OpenGNM、GPCS4、UE 4.18 公开镜像；
-- KH3 eboot 与 PM4 trace。
+- KH3 eboot 与 PM4 trace；
+- Tetris CUSA13427 的 Release-4.26 eboot、PM4/常量抓取及 Odin 3 同进程修复开关对照。
 
 | 文件 | 内容 |
 |---|---|
@@ -20,6 +21,8 @@
 | [kh3-gnmrhi-ue-reference.md](kh3-gnmrhi-ue-reference.md) | 直接关联 UE command list / context / dynamic RHI / FRHIResource；新增 shader / UB / parameter setter 证据与 UE 风格 C++ 参考实现（KH3 4.17 语义、4.18 公共接口校对） |
 | [kh3-gnmrhi-graphics.md](kh3-gnmrhi-graphics.md) | graphics/draw 接回 UE：BSS、Set/Update shader、stream/vertex fetch、资源绑定、graphics LCUE、VS→PS semantic linker；新增 UE C++ 参考、共享 C++14 算法测试与 r5 符号 |
 | [kh3-gnmrhi-stages.md](kh3-gnmrhi-stages.md) | GS/ES、embedded copy VS、manager ring backing与DCB表、片上预算；LS/HS内部常量与domain绑定、阶段提交顺序；UE GS参考、tess重放和r6符号 |
+
+Tetris 4.26 的补充见 [曝光读回与 KH3 比对](tetris-ue426-gnmrhi-readback.md)和 [graphics/draw、资源绑定与LCUE](tetris-ue426-gnmrhi-graphics.md)：前者闭合Renderer三槽历史→GNM Map/fence→View UB/tonemap，后者恢复pipeline、prepared vertex、UB/loose、普通VS/PS LCUE和direct/indirect draw，并给出与KH3逐字段对照及32³ LUT为何不属于tiny CPU staging补偿的证据。均有独立C++14参考；阶段扩展见 [GS/ES、copy、ring及LS/HS](tetris-ue426-gnmrhi-stages.md)：GS已接UE，tess为给定状态重放；UE HS/DS入口、shader loader和queue worker仍待继续。
 
 进行中的 IDA 分析交接见 [kh3-gnmrhi-ida-20261016](../handoffs/kh3-gnmrhi-ida-20261016.md)。
 
