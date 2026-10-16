@@ -1,5 +1,44 @@
 [
 {
+  "id": "gpu.readbacks_mode",
+  "nativeKey": "GPU.readbacks_mode",
+  "section": "GPU",
+  "category": "GPU",
+  "title": "GPU Readbacks",
+  "help": "Synchronize GPU-written buffers when the game CPU accesses them. Precise also tracks reads; some games need it for correct textures. Restart the game after changing.",
+  "kind": "ENUM",
+  "defaultValue": "Disabled",
+  "minimum": null,
+  "maximum": null,
+  "choices": [
+    "Disabled",
+    "Relaxed",
+    "Precise"
+  ],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true,
+  "risk": "NORMAL",
+  "readOnlyReason": null,
+  "nativeEnumOrdinal": true
+},
+{
+  "id": "gpu.readback_linear_images_enabled",
+  "nativeKey": "GPU.readback_linear_images_enabled",
+  "section": "GPU",
+  "category": "GPU",
+  "title": "Read Back Linear Images",
+  "help": "Copy linear GPU images back to game memory. Enable when a game reads or reuses their pixels on the CPU. Restart the game after changing.",
+  "kind": "BOOLEAN",
+  "defaultValue": false,
+  "minimum": null,
+  "maximum": null,
+  "choices": [],
+  "scope": "GLOBAL_AND_GAME",
+  "restartRequired": true,
+  "risk": "NORMAL",
+  "readOnlyReason": null
+},
+{
   "id": "gpu.direct_memory_access_enabled",
   "nativeKey": "GPU.direct_memory_access_enabled",
   "section": "GPU",

@@ -14,6 +14,7 @@ inline constexpr std::string_view NpWebApiControlNids[]{
     "G3AnLNdRBjE", "asz3TtIqGF8", "79M-JqvvGo0", "5Mn7TYwpl30",
     "M2BUB+DNEGE", "pfaJtb7SQ80", "or0e885BlXo", "gVNNyxf-1Sg",
     "zk6c65xoyO0", "XUjdsSTTZ3U", "rdgs5Z1MyFw", "noQgleu+KLE",
+    "x1Y7yiYSk7c", "kVbL4hL3K7w", "k210oKgP80Y", "JzhYTP2fG18",
     "qWcbJkBj1Lg", "KjNeZ-29ysQ", "CQtPRSF6Ds8", "VwJ5L0Higg0", "743ZzEBzlV8"};
 inline bool IsNpWebApiControlNid(std::string_view nid) {
     return std::ranges::find(NpWebApiControlNids,nid)!=std::end(NpWebApiControlNids);
@@ -28,10 +29,11 @@ class GuestNpWebApiControl {
         std::map<s64,u32> requests; // native request -> last send error (never fake EOF)
     };
     GuestHttp& http;
+    const s32 initial_user;
     std::mutex mutex;
     std::map<s32,Context> contexts;
 public:
-    explicit GuestNpWebApiControl(GuestHttp& http) : http(http) {}
+    explicit GuestNpWebApiControl(GuestHttp& http, s32 initial_user) : http(http), initial_user(initial_user) {}
     // This is a void periodic control pump, not an online request or a fake
     // successful completion. Reuse desktop's actual timeout processing; the
     // runtime bridge preserves RAX and passes no guest pointers to it.
@@ -67,13 +69,19 @@ public:
             }
             return u32(id);
         }
-        if (nid=="zk6c65xoyO0") {
+        if (nid=="zk6c65xoyO0" || nid=="x1Y7yiYSk7c") {
             if (s32(a[0]) >= 0x8000) return u32(ORBIS_NP_WEBAPI_ERROR_INVALID_LIB_CONTEXT_ID);
-            if (s32(a[1]) == -1) return bad;
+            if (nid=="zk6c65xoyO0" && s32(a[1]) == -1) return bad;
             auto it=contexts.find(s32(a[0]));
             if (it==contexts.end()) return u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND);
             if (it->second.users.size()>=16) return u32(ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_MAX);
-            const s32 user=sceNpWebApiCreateContextA(s32(a[0]),s32(a[1]));
+            Libraries::Np::OrbisNpOnlineId online{};
+            if (nid=="x1Y7yiYSk7c" && (!a[1] ||
+                !space.ReadData({a[1]}, std::as_writable_bytes(std::span{&online,1})))) return bad;
+            // Desktop resolves an online ID to the initial local user. Use the
+            // session snapshot, avoiding its process-global UserManager lookup.
+            const s32 user=nid=="x1Y7yiYSk7c" ? sceNpWebApiCreateContextA(s32(a[0]),initial_user)
+                : sceNpWebApiCreateContextA(s32(a[0]),s32(a[1]));
             if (user>0) {
                 try { it->second.users.insert(user); }
                 catch (...) { sceNpWebApiDeleteContext(user); return u32(ORBIS_NP_WEBAPI_ERROR_OUT_OF_MEMORY); }
@@ -126,6 +134,7 @@ public:
             return u32(result);
         }
         if (nid=="noQgleu+KLE" || nid=="qWcbJkBj1Lg" || nid=="KjNeZ-29ysQ" ||
+            nid=="kVbL4hL3K7w" || nid=="k210oKgP80Y" || nid=="JzhYTP2fG18" ||
             nid=="CQtPRSF6Ds8" || nid=="VwJ5L0Higg0" || nid=="743ZzEBzlV8") {
             const s64 request=s64(a[0]);
             auto it=contexts.find(s32(a[0]>>48));
@@ -140,7 +149,16 @@ public:
                 return u32(result);
             }
             if (nid=="qWcbJkBj1Lg") return u32(sceNpWebApiSetRequestTimeout(request,u32(a[1])));
-            if (nid=="KjNeZ-29ysQ") {
+            if (nid=="JzhYTP2fG18") return u32(sceNpWebApiAbortRequest(request));
+            if (nid=="k210oKgP80Y") {
+                if (!a[1]) return bad;
+                auto pin=space.AcquireDataSpan({{a[1]},sizeof(s32)},true);
+                if (!pin) return bad;
+                // Offline send has no HTTP response. Preserve both its error
+                // and output bytes rather than publishing uninitialized status.
+                return found->second ? found->second : u32(ORBIS_HTTP_ERROR_INVALID_ID);
+            }
+            if (nid=="KjNeZ-29ysQ" || nid=="kVbL4hL3K7w") {
                 // No guest pointer is passed to the desktop API. Offline send
                 // exits before using a body or writing response information.
                 std::optional<PinnedSpan> data;
@@ -150,7 +168,7 @@ public:
                     if (!pin) return bad;
                     data.emplace(std::move(pin).Value());
                 }
-                if (a[3]) {
+                if (nid=="KjNeZ-29ysQ" && a[3]) {
                     OrbisNpWebApiResponseInformationOption option{};
                     if (!space.ReadData({a[3]},std::as_writable_bytes(std::span{&option,1}))) return bad;
                     auto pin=space.AcquireDataSpan({{a[3]},sizeof(option)},true);
@@ -163,7 +181,8 @@ public:
                 // This provider is only admitted by the runtime's offline gate.
                 // Also fail closed if the global setting changes underneath it.
                 if (EmulatorSettings.IsShadNetEnabled()) return u32(ORBIS_NP_WEBAPI_ERROR_PROHIBITED_FUNCTION_CALL);
-                const auto result=sceNpWebApiSendRequest2(request,nullptr,0,nullptr);
+                const auto result=nid=="kVbL4hL3K7w" ? sceNpWebApiSendRequest(request,nullptr,0)
+                    : sceNpWebApiSendRequest2(request,nullptr,0,nullptr);
                 found->second=u32(result);
                 return u32(result);
             }

@@ -5,6 +5,7 @@
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_videodec.h"
 #include "core/libraries/videodec/videodec2.h"
+#include "core/libraries/videodec/videodec.h"
 #include "core/libraries/videodec/videodec_error.h"
 using namespace Core::GuestCpu;
 using namespace Core::HostRuntime;
@@ -114,6 +115,72 @@ int main(int argc, char** argv) {
     CHECK(call("jwImxXRGSKA", {decoder}) == 0);
     CHECK(call("wJXikG6QFN8", {decoder}) == u32(ORBIS_VIDEODEC2_ERROR_DECODER_INSTANCE));
     CHECK(call("jwImxXRGSKA", {decoder}) == u32(ORBIS_VIDEODEC2_ERROR_DECODER_INSTANCE));
+    // Original Videodec API used by early SDK titles. Same AU, checked guest
+    // control record, no native decoder pointer, and no packet consumed on EFAULT.
+    {
+        using namespace Libraries::Videodec;
+        GuestVideodec legacy(*space), foreign(*space);
+        auto invoke = [&](std::string_view nid, std::array<u64,6> a) {
+            CHECK(IsVideodecNid(nid));
+            return u32(legacy.Dispatch(nid,a));
+        };
+        OrbisVideodecConfigInfo config{};
+        config.thisSize=sizeof(config); config.maxFrameWidth=64; config.maxFrameHeight=32;
+        OrbisVideodecResourceInfo resource{}; resource.thisSize=sizeof(resource);
+        // GoW III requests 1920x1088 AVC with -1 DPB frames. Desktop treats
+        // non-positive DPB counts as automatic (eight reference surfaces).
+        auto automatic = config;
+        automatic.profile = 100;
+        automatic.maxLevel = 42;
+        automatic.maxFrameWidth = 1920;
+        automatic.maxFrameHeight = 1088;
+        automatic.maxDpbFrameCount = -1;
+        put(0x100, automatic); put(0x200, resource);
+        CHECK(invoke("leCAscipfFY", {base+0x100, base+0x200}) == 0);
+        const auto automatic_resource = get.template operator()<OrbisVideodecResourceInfo>(0x200);
+        automatic.maxDpbFrameCount = 8;
+        put(0x100, automatic); put(0x200, resource);
+        CHECK(invoke("leCAscipfFY", {base+0x100, base+0x200}) == 0);
+        const auto explicit_resource = get.template operator()<OrbisVideodecResourceInfo>(0x200);
+        CHECK(automatic_resource.cpuGpuMemorySize == explicit_resource.cpuGpuMemorySize);
+        CHECK(automatic_resource.maxFrameBufferSize == explicit_resource.maxFrameBufferSize);
+        // Keep bounds checking for values outside the supported sentinel/range.
+        automatic.maxDpbFrameCount = -2;
+        put(0x100, automatic);
+        CHECK(invoke("leCAscipfFY", {base+0x100, base+0x200}) == u32(ORBIS_VIDEODEC_ERROR_CONFIG_INFO));
+        // Exercise automatic DPB through create, real decode, reset and delete.
+        config.maxDpbFrameCount = -1;
+        put(0x100,config); put(0x200,resource);
+        CHECK(invoke("leCAscipfFY",{base+0x100,base+0x200})==0);
+        resource=get.template operator()<OrbisVideodecResourceInfo>(0x200);
+        CHECK(resource.maxFrameBufferSize>=3072 && resource.frameBufferAlignment==256);
+        CHECK(invoke("qkgRiwHyheU",{base+0x100,base+0x200,base+0x300})==0);
+        const auto ctrl=get.template operator()<OrbisVideodecCtrl>(0x300);
+        CHECK(ctrl.thisSize==sizeof(ctrl) && ctrl.version==1 && reinterpret_cast<u64>(ctrl.handle)<base);
+        CHECK(u32(foreign.Dispatch("f8AgDv-1X8A",{base+0x300}))==u32(ORBIS_VIDEODEC_ERROR_HANDLE));
+        OrbisVideodecInputData input{};
+        input.thisSize=sizeof(input); input.pAuData=reinterpret_cast<void*>(au);
+        input.auSize=h264.size(); input.ptsData=input.dtsData=4321; input.attachedData=0x87654321;
+        OrbisVideodecFrameBuffer fb{sizeof(OrbisVideodecFrameBuffer),reinterpret_cast<void*>(base+0x4000),8192};
+        OrbisVideodecPictureInfo pic{}; pic.thisSize=sizeof(pic);
+        put(0x500,input); put(0x600,fb); put(0x700,pic);
+        put(0x700+sizeof(pic),u64{0xfeedfacecafebeef});
+        CHECK(space->Protect({{base+0x4000},4096},GuestPermission::Read));
+        CHECK(invoke("q0W5GJMovMs",{base+0x300,base+0x500,base+0x600,base+0x700})!=0);
+        CHECK(space->Protect({{base+0x4000},4096},rw));
+        CHECK(invoke("q0W5GJMovMs",{base+0x300,base+0x500,base+0x600,base+0x700})==0);
+        pic=get.template operator()<OrbisVideodecPictureInfo>(0x700);
+        CHECK(pic.isValid && pic.frameWidth==64 && pic.frameHeight==32 && pic.framePitch==64);
+        CHECK(pic.ptsData==4321 && pic.attachedData==0x87654321);
+        CHECK(get.template operator()<u8>(0x4000)==235 && get.template operator()<u8>(0x4800)==128);
+        CHECK(get.template operator()<u64>(0x700+sizeof(pic))==0xfeedfacecafebeef);
+        CHECK(invoke("jeigLlKdp5I",{base+0x300,base+0x600,base+0x700})==0);
+        CHECK(invoke("f8AgDv-1X8A",{base+0x300})==0);
+        fb.frameBufferSize=256; put(0x600,fb);
+        CHECK(invoke("q0W5GJMovMs",{base+0x300,base+0x500,base+0x600,base+0x700})==u32(ORBIS_VIDEODEC_ERROR_FRAME_BUFFER_SIZE));
+        CHECK(invoke("U0kpGF1cl90",{base+0x300})==0);
+        CHECK(invoke("U0kpGF1cl90",{base+0x300})==u32(ORBIS_VIDEODEC_ERROR_HANDLE));
+    }
     std::printf("guest_videodec_tests: %u checks, %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

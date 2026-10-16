@@ -171,6 +171,8 @@ s32 PS4_SYSV_ABI sceNpWebApiCreateRequest(s32 titleUserCtxId, const char* pApiGr
 s32 PS4_SYSV_ABI sceNpWebApiSendRequest2(s64 requestId, const void* pData, u64 dataSize,
                                          OrbisNpWebApiResponseInformationOption* pRespInfoOption);
 s32 PS4_SYSV_ABI sceNpWebApiDeleteRequest(s64 requestId);
+s32 PS4_SYSV_ABI sceNpWebApiAbortRequest(s64 requestId);
+s32 PS4_SYSV_ABI sceNpWebApiSendRequest(s64 requestId, const void* pData, u64 dataSize);
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Np::NpWebApi

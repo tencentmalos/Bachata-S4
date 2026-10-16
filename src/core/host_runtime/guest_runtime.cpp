@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include "common/alignment.h"
 #include "common/elf_info.h"
+#include "common/key_manager.h"
 #include "common/path_util.h"
 #include "common/profiler.h"
 #include "common/singleton.h"
@@ -464,6 +465,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::shared_ptr<PatchControl> patch_control;
     std::vector<GuestRange> patch_reservations;
     GuestClock clock;
+    u64 entry_params_address{};
+    u32 entry_argc{};
     std::unique_ptr<GuestStorage> storage;
     std::unique_ptr<GuestAio> aio;
     std::shared_ptr<GuestDescriptorIds> descriptor_ids = std::make_shared<GuestDescriptorIds>();
@@ -508,6 +511,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestSocialScreen> social_screen;
     std::unique_ptr<GuestAvPlayer> avplayer;
     std::unique_ptr<GuestVideodec2> videodec2;
+    std::unique_ptr<GuestVideodec> videodec;
     std::unique_ptr<GuestAudio> audio;
     std::unique_ptr<GuestAudioInput> audio_input;
     std::unique_ptr<GuestAudio3d> audio3d;
@@ -1076,6 +1080,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             if (o->worker.joinable())
                 o->worker.join();
         videodec2.reset(); // no decoder outlives the guest owners or their VM
+        videodec.reset();
         audio3d.reset();
         audio.reset(); // joins audio workers before clock/VM teardown
         ajm.reset(); // joins decoder worker before VM/backing teardown
@@ -1966,6 +1971,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                                                  "i6-sR91Wt-4", "1FZBKy8HeNU", "d1AjT2uZJn0",
                                                  "kGVLc3htQE8", "pjkDsgxli6c"};
         videoout_functions.insert("N1bEoJ4SRw4");
+        videoout_functions.insert("DYhhWbJSeRg");
         videoout_functions.insert("ktP9j1fN-zE");
         videoout_functions.insert(graphics_video_nids.begin(), graphics_video_nids.end());
         for (const auto getter : VideoEventGetterNids) videoout_functions.emplace(getter);
@@ -2017,7 +2023,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             !GuestNpAuthOffline::IsNid(nid) && !IsNpScoreOfflineNid(nid) &&
             !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) &&
             !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) &&
-            !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsVideodec2Nid(nid) &&
+            !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsVideodec2Nid(nid) && !IsVideodecNid(nid) &&
             !IsAudioNid(nid) && !IsAudio3dNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsMouseNid(nid) &&
             !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
             !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
@@ -2035,6 +2041,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             it != handlers.end() &&
             ((avplayer && IsAvPlayerNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceAvPlayer#1#libSceAvPlayer#Function") ||
+             (videodec && IsVideodecNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceVideodec#1#libSceVideodec#Function") ||
              (videodec2 && IsVideodec2Nid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceVideodec2#1#libSceVideodec2#Function") ||
              (IsAudioInputNid(nid) &&
@@ -3550,6 +3558,29 @@ void GuestRuntime::Impl::InstallHandlers() {
             return Ok();
         };
     }
+    bind({"iKJMWrAumPE"}, [this](const auto&) -> u64 { return entry_argc; });
+    bind({"FJmglmTMdr4"}, [this](const auto&) -> u64 {
+        return entry_params_address ? entry_params_address + offsetof(EntryParams, argv) : 0;
+    });
+    // Desktop aborts the emulator on these terminal paths. Keep the failure
+    // session-local and named instead of aborting Android's host process.
+    handlers["Ou3iL1abvng"] = [](HleCallFrame&) -> Status {
+        return MakeError(ErrorCategory::BackendFailure, "__stack_chk_fail", "guest stack canary failed");
+    };
+    for (const auto nid : {"OMDRKKAZ8I4", "zE-wXIZjLoM"}) {
+        handlers[nid] = [](HleCallFrame& frame) -> Status {
+            if (frame.registers.Get(Gpr::Rsi)) {
+                frame.registers.Set(Gpr::Rax, u32(ORBIS_KERNEL_ERROR_EINVAL));
+                return Ok();
+            }
+            return MakeError(ErrorCategory::BackendFailure, "sceKernelDebugRaiseException",
+                             fmt::format("guest error={:#x}", u32(frame.registers.Get(Gpr::Rdi))));
+        };
+    }
+    handlers["6Z83sYWFlA8"] = [](HleCallFrame& frame) -> Status {
+        return MakeError(ErrorCategory::BackendFailure, "_exit",
+                         fmt::format("guest exited with status {}", s32(frame.registers.Get(Gpr::Rdi))));
+    };
     bind({"FJrT5LuUBAU", "3kg7rT0NQIs"}, [this](const auto& a) -> u64 {
         if (Current()->destructors_started)
             throw std::logic_error("pthread_exit from a thread destructor");
@@ -4448,6 +4479,24 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({nid.data()},
              [this, nid](const auto& a) -> u64 { return avplayer->Dispatch(nid, a); });
     }
+    handlers["DYhhWbJSeRg"] = [this](HleCallFrame& frame) -> Status {
+        using namespace Libraries::VideoOut;
+        const u64 address = frame.registers.Get(Gpr::Rdi);
+        SceVideoOutColorSettings settings{};
+        auto pin = space.AcquireDataSpan({GuestAddress{address}, sizeof(settings)}, true);
+        if (!address || !pin) {
+            frame.registers.Set(Gpr::Rax, u32(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS));
+            return Ok();
+        }
+        std::memcpy(&settings, pin.Value().Bytes().data(), sizeof(settings));
+        const auto result = sceVideoOutColorSettingsSetGamma(
+            &settings, std::bit_cast<float>(u32(frame.registers.xmm[0].low)));
+        if (!result) std::memcpy(pin.Value().WritableBytes().data(), &settings, sizeof(settings));
+        frame.registers.Set(Gpr::Rax, u32(result));
+        return Ok();
+    };
+    for (const auto nid : VideodecNids)
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 { return videodec->Dispatch(nid, a); });
     for (const auto nid : Videodec2Nids)
         bind({nid.data()}, [this, nid](const auto& a) -> u64 { return videodec2->Dispatch(nid, a); });
     for (const auto nid : GuestErrorDialog::Nids)
@@ -5750,6 +5799,9 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     }
     impl->elf_info.InitializeGuestMetadata(install_root, sdk, serial, title, version,
                                            attributes, system_version);
+    // The native Android host does not enter desktop main(), which loads these keys.
+    // Reload before extraction so a locally configured trophy key applies next launch.
+    KeyManager::GetInstance()->LoadFromFile();
     impl->elf_info.SetTrophyIndexMap(ExtractTrophies("/app0/sce_sys/npbind.dat", "/app0/sce_sys/trophy"));
     impl->memory->SetGuestSdkVersion(sdk);
     impl->camera = std::make_unique<GuestCamera>(impl->space, [this](u64 size) {
@@ -5826,6 +5878,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->sysmodules.Publish("libSceRandom", 0x1000001d);
     impl->sysmodules.Publish("libSceDiscMap", 0x10000008);
     impl->sysmodules.Publish("libSceRtc", 0x10000009);
+    const s32 initial_user = users.front().id;
     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
                                                      EmulatorSettings.GetConsoleLanguage(),
                                                      EmulatorSettings.IsCircleEnter());
@@ -5871,6 +5924,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         std::make_unique<GuestAvPlayer>(impl->space, [p = impl.get()] { return p->CallbackOwner("AvPlayerCallbackScratch"); });
     impl->sysmodules.Publish("libSceAvPlayer", 0x1000000e);
     impl->videodec2 = std::make_unique<GuestVideodec2>(impl->space);
+    impl->videodec = std::make_unique<GuestVideodec>(impl->space);
+    impl->sysmodules.Publish("libSceVideodec", 0x1000002d);
     impl->sysmodules.Publish("libSceVideodec2", 0x10000026);
     std::map<s32, bool> signup;
     for (const auto& user : UserManagement.GetAllUsers())
@@ -5904,7 +5959,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         impl->sysmodules.Publish("libSceSsl", 0x1000001c);
         impl->http = std::make_unique<GuestHttp>();
         if (impl->np_offline) {
-            impl->np_webapi = std::make_unique<GuestNpWebApiControl>(*impl->http);
+            impl->np_webapi = std::make_unique<GuestNpWebApiControl>(*impl->http, initial_user);
             impl->sysmodules.Publish("libSceNpWebApi", 0x1000001a);
         }
         impl->sysmodules.Publish("libSceHttp", 0x10000010);
@@ -6248,6 +6303,28 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
     auto owner = impl->NewOwner(GuestThreadAttributes{.size = 2 << 20});
     try {
         impl->Attach(owner, module->GetEntryAddress());
+        // libc DT_INIT calls getargc/getargv before the executable entry.
+        u64 params_address;
+        {
+
+            params_address = impl->Allocate(0x4000, "EntryParams");
+        }
+        EntryParams params{};
+        params.argc = std::min<size_t>(args.size(), 32);
+        params.entry_addr = module->GetEntryAddress();
+        size_t cursor = sizeof(EntryParams);
+        for (int i = 0; i < params.argc; ++i) {
+            if (args[i].size() + 1 > 0x4000 - cursor)
+                throw std::runtime_error("guest argv exceeds bound");
+            params.argv[i] = reinterpret_cast<const char*>(params_address + cursor);
+            Require(impl->space.WriteData(
+                GuestAddress{params_address + cursor},
+                std::as_bytes(std::span{args[i].c_str(), args[i].size() + 1})));
+            cursor += args[i].size() + 1;
+        }
+        impl->Write(params_address, params);
+        impl->entry_params_address = params_address;
+        impl->entry_argc = params.argc;
         // Like the desktop libkernel bootstrap, initialize only the system libc
         // here. The game's libc.prx owns allocator initialization in DT_INIT;
         // calling it early initializes its default heap mutex twice (MHR aborts).
@@ -6281,25 +6358,6 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
             LOG_INFO(Core_Linker, "Guest module {}: {}", m->name,
                      m->dynamic_info.has_init ? "DT_INIT completed" : "no DT_INIT");
         }
-        u64 params_address;
-        {
-
-            params_address = impl->Allocate(0x4000, "EntryParams");
-        }
-        EntryParams params{};
-        params.argc = std::min<size_t>(args.size(), 32);
-        params.entry_addr = module->GetEntryAddress();
-        size_t cursor = sizeof(EntryParams);
-        for (int i = 0; i < params.argc; ++i) {
-            if (args[i].size() + 1 > 0x4000 - cursor)
-                throw std::runtime_error("guest argv exceeds bound");
-            params.argv[i] = reinterpret_cast<const char*>(params_address + cursor);
-            Require(impl->space.WriteData(
-                GuestAddress{params_address + cursor},
-                std::as_bytes(std::span{args[i].c_str(), args[i].size() + 1})));
-            cursor += args[i].size() + 1;
-        }
-        impl->Write(params_address, params);
         auto snapshot = Require(impl->cpu.ReadRegisters(owner->handle));
         RegisterPatch patch;
         patch.fields = RegisterValidity::Gpr | RegisterValidity::Rip;

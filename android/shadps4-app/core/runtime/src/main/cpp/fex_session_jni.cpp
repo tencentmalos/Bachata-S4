@@ -789,6 +789,18 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetDirectMemoryA
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetGpuReadbacks(
+    JNIEnv*, jobject, jint mode, jboolean linear_images) {
+    if (mode < GpuReadbacksMode::Disabled || mode > GpuReadbacksMode::Precise) return;
+    try {
+        EmulatorSettings.SetReadbacksMode(static_cast<u32>(mode));
+        EmulatorSettings.SetReadbackLinearImagesEnabled(linear_images == JNI_TRUE);
+        __android_log_print(ANDROID_LOG_INFO, kTag, "Guest GPU readbacks mode=%d linear_images=%d",
+                            mode, linear_images == JNI_TRUE);
+    } catch (...) { /* Never unwind across JNI. */ }
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetTextureQuality(
     JNIEnv*, jclass, jint quality) {
     try { EmulatorSettings.SetTextureQuality(static_cast<u32>(quality)); }

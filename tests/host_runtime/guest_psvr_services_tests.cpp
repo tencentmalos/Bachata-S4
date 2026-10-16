@@ -23,7 +23,8 @@ using namespace Libraries::UserService;
 using namespace std::chrono_literals;
 static unsigned checks{}, failures{};
 #define CHECK(...) do { ++checks; if (!(__VA_ARGS__)) { ++failures; std::printf("FAIL %d: %s\n",__LINE__,#__VA_ARGS__); } } while(0)
-int main() {
+int main(int argc, char** argv) {
+    const bool webapi_only = argc == 2 && std::string_view(argv[1]) == "--webapi-only";
     std::setvbuf(stdout,nullptr,_IONBF,0);
     Common::ElfInfo metadata;
     metadata.InitializeGuestMetadata({},Common::ElfInfo::FW_900);
@@ -36,6 +37,7 @@ int main() {
     auto space=std::move(made).Value(); const u64 base=space->ReservationBase().value;
     CHECK(space->Map({{base},0x4000},GuestPermission::Read|GuestPermission::Write));
     CHECK(space->Map({{base+0x4000},0x4000},GuestPermission::Read|GuestPermission::Execute));
+    if (!webapi_only) {
     {
         using namespace Libraries::Hmd;
         const u64 left_address = base + 0x101, right_address = base + 0x201;
@@ -106,9 +108,10 @@ int main() {
     CHECK(call("kvdMF48mB3Y")==u32(ORBIS_NP_BANDWIDTH_TEST_ERROR_NOT_INITIALIZED));
     std::array<u64,7> unchanged{};
     CHECK(space->ReadData({base},std::as_writable_bytes(std::span{unchanged})) && unchanged==bandwidth);
+    }
     {
         GuestHttp http;
-        GuestNpWebApiControl web(http), foreign(http);
+        GuestNpWebApiControl web(http, 1000), foreign(http, 1000);
         CHECK(IsNpWebApiControlNid("gVNNyxf-1Sg"));
         web.CheckTimeout();
         auto webcall=[&](std::string_view nid,std::array<u64,6> a={}) { CHECK(IsNpWebApiControlNid(nid)); return web.Dispatch(*space,nid,a); };
@@ -126,6 +129,11 @@ int main() {
         CHECK(webcall("rdgs5Z1MyFw",{u32(-1),base+3000,base+3100,0,0,base+3500})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
         u64 rid{};
         CHECK(space->ReadData({base+3500},std::as_writable_bytes(std::span{&rid,1})) && rid==untouched);
+        CHECK(webcall("x1Y7yiYSk7c",{ctx,base+0x8000})==u32(ORBIS_NP_WEBAPI_ERROR_INVALID_ARGUMENT));
+        Libraries::Np::OrbisNpOnlineId online{};
+        CHECK(space->WriteData({base+3700},std::as_bytes(std::span{&online,1})));
+        const auto old_user=webcall("x1Y7yiYSk7c",{ctx,base+3700}); CHECK(s32(old_user)>0);
+        CHECK(webcall("XUjdsSTTZ3U",{old_user})==0);
         const auto user=webcall("zk6c65xoyO0",{ctx,1000}); CHECK(s32(user)>0);
         CHECK(webcall("zk6c65xoyO0",{ctx,1000})==u32(ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_ALREADY_EXIST));
         CHECK(foreign.Dispatch(*space,"XUjdsSTTZ3U",{user})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
@@ -137,6 +145,11 @@ int main() {
         CHECK(webcall("KjNeZ-29ysQ",{rid,base+0x8000,4})==u32(ORBIS_NP_WEBAPI_ERROR_INVALID_ARGUMENT));
         CHECK(webcall("KjNeZ-29ysQ",{rid,0,0})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
         CHECK(space->WriteData({base+3600},std::as_bytes(std::span{&untouched,1})));
+        CHECK(webcall("kVbL4hL3K7w",{rid,0,0,UINT64_MAX})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
+        CHECK(webcall("k210oKgP80Y",{rid,base+3600})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
+        CHECK(webcall("k210oKgP80Y",{rid,base+0x8000})==u32(ORBIS_NP_WEBAPI_ERROR_INVALID_ARGUMENT));
+        CHECK(webcall("JzhYTP2fG18",{rid})==0);
+        CHECK(foreign.Dispatch(*space,"JzhYTP2fG18",{rid})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
         CHECK(webcall("CQtPRSF6Ds8",{rid,base+3600,8})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
         CHECK(webcall("743ZzEBzlV8",{rid,base+3000,base+3600})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
         CHECK(webcall("VwJ5L0Higg0",{rid,base+3000,base+3600,8})==u32(ORBIS_NP_WEBAPI_ERROR_NOT_SIGNED_IN));
@@ -155,7 +168,7 @@ int main() {
         CHECK(webcall("XUjdsSTTZ3U",{user})==u32(ORBIS_NP_WEBAPI_ERROR_USER_CONTEXT_NOT_FOUND));
         // Termination and destructor retire live offline users/requests too.
         for (int i=0;i<8;++i) {
-            GuestNpWebApiControl scoped(http);
+            GuestNpWebApiControl scoped(http, 1000);
             const auto c=scoped.Dispatch(*space,"G3AnLNdRBjE",{http_id,4096}); CHECK(s32(c)>0);
             const auto u=scoped.Dispatch(*space,"zk6c65xoyO0",{c,1000}); CHECK(s32(u)>0);
             CHECK(scoped.Dispatch(*space,"rdgs5Z1MyFw",{u,base+3000,base+3100,0,0,base+3500})==0);
@@ -183,11 +196,15 @@ int main() {
         CHECK(webcall("79M-JqvvGo0",{ctx})==u32(ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND));
         // Repeated scopes retire live local handles/filters without explicit child deletes.
         for (int i=0;i<32;++i) {
-            GuestNpWebApiControl scoped(http);
+            GuestNpWebApiControl scoped(http, 1000);
             const auto c=scoped.Dispatch(*space,"G3AnLNdRBjE",{http_id,4096}); CHECK(s32(c)>0);
             const auto h=scoped.Dispatch(*space,"79M-JqvvGo0",{c}); CHECK(s32(h)>0);
             CHECK(s32(scoped.Dispatch(*space,"M2BUB+DNEGE",{c,h,0,u32(-1),base+512,1}))>0);
         }
+    }
+    if (webapi_only) {
+        std::printf("guest_np_webapi_tests: %u checks, %u failures\n", checks, failures);
+        return failures ? 1 : 0;
     }
     std::mutex mutex; std::condition_variable changed;
     unsigned started{},ended{},delivered{},errors{};

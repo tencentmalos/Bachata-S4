@@ -88,6 +88,15 @@ s32 VdecDecoder::Decode(const OrbisVideodecInputData& pInputDataIn,
         return ORBIS_VIDEODEC_ERROR_API_FAIL;
     }
 
+    const u64 required = u64(Common::AlignUp<u32>(frame->width, 64)) *
+                         Common::AlignUp<u32>(frame->height, 16) * 3 / 2;
+    if (frame->width <= 0 || frame->height <= 0 ||
+        !pFrameBufferInOut.pFrameBuffer || required > pFrameBufferInOut.frameBufferSize) {
+        av_packet_free(&packet);
+        av_frame_free(&frame);
+        return ORBIS_VIDEODEC_ERROR_FRAME_BUFFER_SIZE;
+    }
+
     if (frame->format != AV_PIX_FMT_NV12) {
         AVFrame* nv12_frame = ConvertNV12Frame(*frame);
         ASSERT(nv12_frame);
@@ -155,6 +164,14 @@ s32 VdecDecoder::Flush(OrbisVideodecFrameBuffer& pFrameBufferInOut,
         LOG_ERROR(Lib_Videodec, "Error receiving frame from decoder: {}", ret);
         av_frame_free(&frame);
         return ORBIS_VIDEODEC_ERROR_API_FAIL;
+    }
+
+    const u64 required = u64(Common::AlignUp<u32>(frame->width, 64)) *
+                         Common::AlignUp<u32>(frame->height, 16) * 3 / 2;
+    if (frame->width <= 0 || frame->height <= 0 ||
+        !pFrameBufferInOut.pFrameBuffer || required > pFrameBufferInOut.frameBufferSize) {
+        av_frame_free(&frame);
+        return ORBIS_VIDEODEC_ERROR_FRAME_BUFFER_SIZE;
     }
 
     if (frame->format != AV_PIX_FMT_NV12) {

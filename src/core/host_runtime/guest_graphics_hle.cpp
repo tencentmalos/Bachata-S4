@@ -782,8 +782,12 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
         true);
     install(
         "U46NwOiJpys", 4,
-        [](GuestGraphics& graphics, const Args& a) -> u64 {
-            std::scoped_lock lock(graphics.SubmissionMutex());
+        [](GuestGraphics&, const Args& a) -> u64 {
+            // Like the desktop entry, CPU flips must enqueue independently of GNM
+            // submission admission. A submitted DCB can wait for a display label;
+            // holding SubmissionMutex while WaitGpuIdle waits for that DCB would
+            // prevent the flip thread from releasing it (GoW III). VideoOut owns
+            // its queue locks, and the outer execution lease protects VM lifetime.
             return u32(VideoOut::sceVideoOutSubmitFlip(a[0], a[1], a[2], a[3]));
         },
         true);
@@ -809,6 +813,14 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             return port->flip_status.flip_pending_num;
         },
         true);
+    install("pv9CI5VC+R0", 2, [&](GuestGraphics& graphics, const Args& a) -> u64 {
+        VideoOut::SceVideoOutColorSettings settings{};
+        if (!a[1] || !space.ReadData({a[1]}, std::as_writable_bytes(std::span{&settings, 1})))
+            return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS);
+        auto* port = graphics.VideoOut().GetPort(s32(a[0]));
+        if (!port || !port->is_open) return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_HANDLE);
+        return u32(VideoOut::sceVideoOutAdjustColor(s32(a[0]), &settings));
+    }, true);
     install(
         "N5KDtkIjjJ4", 2,
         [](GuestGraphics& graphics, const Args& a) -> u64 {

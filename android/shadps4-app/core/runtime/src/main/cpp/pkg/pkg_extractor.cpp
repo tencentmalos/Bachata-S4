@@ -181,6 +181,8 @@ struct ExtractState {
     PKGHeader hdr{};
     Crypto crypto;
     std::array<u8, 32> ekpfsKey{};
+    std::array<u8, 32> entryKey3{};
+    bool hasEntryKey3{};
     std::array<u8, 16> dataKey{};
     std::array<u8, 16> tweakKey{};
     std::vector<pfs_fs_table> fsTable;
@@ -239,6 +241,8 @@ bool derive_keys_from_entries(int fd, ExtractState& st, const char* passcode, st
             try {
                 st.crypto.RSA2048Decrypt(dk3, key1[3], true);
                 dk3_ok = true;
+                st.entryKey3 = dk3;
+                st.hasEntryKey3 = true;
             } catch (const std::exception& ex) {
                 LOGI("DK3 RSA decrypt failed (may be ok for passcode pkgs): %s", ex.what());
                 dk3_ok = false;
@@ -266,6 +270,10 @@ bool derive_keys_from_entries(int fd, ExtractState& st, const char* passcode, st
         if (Crypto::ComputeKeys(st.content_id, passcode, 0, dk0)) {
             Crypto::XorSha256Digest(dk0, digest0);
             if (digests_equal(digest0, digest1[0])) {
+                if (!st.hasEntryKey3) {
+                    st.hasEntryKey3 = Crypto::ComputeKeys(st.content_id, passcode, 3,
+                                                         st.entryKey3);
+                }
                 std::array<u8, 32> ek{};
                 if (Crypto::ComputeKeys(st.content_id, passcode, 1, ek)) {
                     st.ekpfsKey = ek;
@@ -780,7 +788,8 @@ bool extract_file(int fd, ExtractState& st, const pfs_fs_table& table, std::stri
     return true;
 }
 
-// Write raw sce_sys entries from package table (param.sfo etc).
+// System files live outside PFS. NP metadata uses entry-key 3; trophy archives
+// have nested names. Neither ciphertext nor a silently failed write is an install.
 bool extract_sce_sys_entries(int fd, ExtractState& st, std::string& err) {
     const u32 offset = st.hdr.pkg_table_entry_offset;
     const u32 n_files = st.hdr.pkg_table_entry_count;
@@ -793,17 +802,66 @@ bool extract_sce_sys_entries(int fd, ExtractState& st, std::string& err) {
         }
         const auto name = GetEntryNameByType(entry.id);
         if (name.empty()) continue;
-        std::vector<u8> data(entry.size);
-        if (entry.size > 0) {
-            if (!pread_all(fd, data.data(), entry.size, entry.offset)) {
+        const u32 id = entry.id;
+        if ((id == 0x400 || id == 0x402 || id == 0x403) &&
+            (u32(entry.flags1) & 0x80000000) &&
+            ((u32(entry.flags2) >> 12) & 0xf) != 3) {
+            err = "Unsupported NP metadata key index: " + std::string(name);
+            return false;
+        }
+        const bool decrypt = id >= 0x400 && id <= 0x403 &&
+                             (u32(entry.flags1) & 0x80000000) &&
+                             ((u32(entry.flags2) >> 12) & 0xf) == 3;
+        const u64 logical_size = u32(entry.size);
+        const u64 read_size = decrypt ? (logical_size + 15) & ~u64{15} : logical_size;
+        const u64 file_offset = u32(entry.offset);
+        if (read_size > 64 * 1024 * 1024 || file_offset > u64(st.hdr.pkg_size) ||
+            read_size > u64(st.hdr.pkg_size) - file_offset) {
+            err = "Invalid system entry range: " + std::string(name);
+            return false;
+        }
+        std::vector<u8> data(read_size);
+        if (read_size > 0) {
+            if (!pread_all(fd, data.data(), data.size(), file_offset)) {
                 err = "entry data read failed";
                 return false;
             }
         }
+        if (decrypt) {
+            if (!st.hasEntryKey3) {
+                err = "Missing decryption key for system entry: " + std::string(name);
+                return false;
+            }
+            std::array<u8, 64> input{};
+            std::memcpy(input.data(), &entry, sizeof(entry));
+            std::memcpy(input.data() + sizeof(entry), st.entryKey3.data(), 32);
+            std::array<u8, 32> ivkey{};
+            st.crypto.ivKeyHASH256(input, ivkey);
+            std::vector<u8> plain(data.size());
+            // Read the actual last ciphertext block; zero padding ciphertext
+            // would corrupt the final partial plaintext block (npbind is 532 B).
+            st.crypto.aesCbcCfb128DecryptEntry(ivkey, data, plain);
+            data = std::move(plain);
+        }
+        data.resize(logical_size);
         const fs::path out = st.extract_root / "sce_sys" / std::string(name);
-        if (!safe_under(st.extract_root, out)) continue;
+        if (!safe_under(st.extract_root, out)) {
+            err = "Unsafe system entry path";
+            return false;
+        }
+        std::error_code ec;
+        fs::create_directories(out.parent_path(), ec);
+        if (ec) {
+            err = "Cannot create system entry directory: " + ec.message();
+            return false;
+        }
         std::ofstream f(out, std::ios::binary);
         f.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
+        f.close();
+        if (!f) {
+            err = "Cannot write system entry: " + std::string(name);
+            return false;
+        }
     }
     return true;
 }

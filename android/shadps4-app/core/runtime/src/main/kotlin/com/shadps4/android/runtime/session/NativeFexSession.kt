@@ -48,6 +48,8 @@ object NativeFexSession {
     external fun nativeSetFrameLimit(fps: Int)
     external fun nativeSetCommandRecorder(enabled: Boolean)
     external fun nativeSetDirectMemoryAccess(enabled: Boolean)
+    /** Before renderer creation: 0 disabled, 1 relaxed, 2 precise. */
+    external fun nativeSetGpuReadbacks(mode: Int, linearImages: Boolean)
     external fun nativeSetSilentDialogs(enabled: Boolean)
     external fun nativeSetTextureQuality(quality: Int)
     external fun nativeSetInternalScalePercent(percent: Float)

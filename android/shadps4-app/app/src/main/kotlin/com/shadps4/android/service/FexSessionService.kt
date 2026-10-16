@@ -293,6 +293,16 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetDirectMemoryAccess(directMemoryAccess)
             Log.i(TAG, "Guest direct memory access=$directMemoryAccess")
+            val readbacks = runCatching {
+                com.shadps4.android.runtime.settings.GpuReadbacks.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid GPU readback profile, using defaults", it)
+                com.shadps4.android.runtime.settings.GpuReadbacks.Options()
+            }
+            NativeFexSession.nativeSetGpuReadbacks(readbacks.mode, readbacks.linearImages)
             Log.i(TAG, "Pipeline compile mode=$compileMode recording thread=$commandRecorder")
             Log.i(TAG, "Shader cache=$pipelineCache driver pipeline cache=$driverPipelineCache")
             NativeFexSession.nativeSetTextureQuality(textureQuality)
