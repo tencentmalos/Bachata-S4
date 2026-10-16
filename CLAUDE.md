@@ -1,3 +1,8 @@
+- **KH3 GnmRHI 语义还原与 UE C++ 参考（2026-10-16，r6）：** [资料入口](docs/gnm/README.md)、[阶段分析](docs/gnm/kh3-gnmrhi-stages.md)、[交接](docs/handoffs/kh3-gnmrhi-ida-20261016.md)、[C++](tools/gnmrhi-semantics/ue4-reference/README.md)。
+  - **范围**：以 CUSA15072 01.10 / `++UE4+Release-4.17` 的原始 ELF 为准；已还原提交/回收、buffer/UB、compute、graphics/draw，以及 GS/ES → copy VS → PS 的资源绑定与 LCUE 顺序。公开 UE4.18 仅用于接口校对；OpenGNM 固定到 `4b295ca54`，只作参考。
+  - **GS/ring**：manager 前缀有两个 16 KiB 辅助 buffer、ESGS/GSVS 各 4 MiB（64 KiB 对齐）；布局变化才在 DCB NOP 内生成 192-byte 描述符表。片上预算、copy profile、ES LDS override 与四流 ring descriptor 已有 C++14 实现。
+  - **tessellation**：SDK LS/HS 提交、9 DWORD 内部常量、reflection+e8 的 HS/DS 绑定已重放；KH3 的 UE HS/DS 选择入口、patch draw、tess factor backing、非compact copy辅助表完整填充仍未闭合，BSS 参考明确拒绝 tess。未推断这些分支在游戏中实际执行。
+  - **验证/保存**：CTest 3/3（13+6+8 场景），29 个 UE override 签名匹配；SHA-pinned v2 符号 r6：100 symbols /75 typed /39 types /6 shards，prepare 与 clang 365 个布局断言通过。完整 UE/PS4 SDK 与设备未验证；原 ELF、IDA、伪码和构建产物留在 `build/validation/kh3-gnmrhi-20261016/` 等本地证据目录，不入仓。
 - **KH3：Controls 面板帧率限制与逐游戏保存 / 场景闪黑二分（2026-10-14，已提交；闪黑未修复）：** [记录](docs/validation/android-native-host/kh3-flicker-controls-20261014.md)。
   - **Controls 面板**：状态层新增"游戏"页，可调帧率上限（Off/50/45/40/30/20，PresentThread 按 vblank 额度放行 flip）、管线编译模式、Android 屏幕超分与锐度（桌面为 FSR/RCAS）。修改后通过 `JniHelper` → `SessionSettingsBridge` 写入该游戏的 profile，`gpu.frame_limit` 也在 Launch 面板。单测通过；重启后保留、桌面编译未验证。
   - **闪黑**：跑跳时单帧缺阳光、只剩斜带或右侧黑边。二分结论是 rwlock 快路径与叶子 HLE 的 draw 组（DrawIndex 系列 / DispatchDirect）同时打开才出现，各自单开都不闪；全开时自动跑跳 6–12 次 / 5 min。`debug.shadps4.leaf_fastpath` 可按组设 `clock,tls,draw,marker`。

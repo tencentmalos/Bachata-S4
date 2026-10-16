@@ -1,0 +1,1761 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "kh3-0110-eboot",
+  "domain": "gnmrhi-lifetime",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36b620",
+      "segment": "text",
+      "name": "KH3_Gnm_AllocateTransient",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Round 1 KiB, maximum single request 8 MiB, choose G+0x2e0/2e4 bank by thread identity."
+      ],
+      "size": 514,
+      "prototype": {
+        "return_type": "void *",
+        "return_location": "rax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Round 1 KiB, maximum single request 8 MiB, choose G+0x2e0/2e4 bank by thread identity."
+        ],
+        "parameters": [
+          {
+            "name": "manager",
+            "type": "KH3_GnmManagerPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Round 1 KiB, maximum single request 8 MiB, choose G+0x2e0/2e4 bank by thread identity."
+            ]
+          },
+          {
+            "name": "size",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "Round 1 KiB, maximum single request 8 MiB, choose G+0x2e0/2e4 bank by thread identity."
+            ]
+          },
+          {
+            "name": "assert_on_failure",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Round 1 KiB, maximum single request 8 MiB, choose G+0x2e0/2e4 bank by thread identity."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x372930",
+      "segment": "text",
+      "name": "KH3_Gnm_DetachCommandSegments",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Builds KH3_GnmSubmitBatch from context address/size arrays; advances chunkStart and clears metadata counts; no payload copy."
+      ],
+      "size": 483
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x372b20",
+      "segment": "text",
+      "name": "KH3_Gnm_EnqueueCommandSegments",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Worker+0x38 pending array; merges into last batch and signals worker+0x80 event; no 64-segment cap observed."
+      ],
+      "size": 1341
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x37dc50",
+      "segment": "text",
+      "name": "KH3_Gnm_RHIBeginRenderQuery",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Clears cachedReady/cache; occlusion CPU zeros all 256 bytes, calls 0x68bbed0 mode2 at 0x37ddb7, enables count, sets issued and frame."
+      ],
+      "size": 468,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Clears cachedReady/cache; occlusion CPU zeros all 256 bytes, calls 0x68bbed0 mode2 at 0x37ddb7, enables count, sets issued and frame."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Clears cachedReady/cache; occlusion CPU zeros all 256 bytes, calls 0x68bbed0 mode2 at 0x37ddb7, enables count, sets issued and frame."
+            ]
+          },
+          {
+            "name": "query",
+            "type": "KH3_GnmRenderQueryPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Clears cachedReady/cache; occlusion CPU zeros all 256 bytes, calls 0x68bbed0 mode2 at 0x37ddb7, enables count, sets issued and frame."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x37de30",
+      "segment": "text",
+      "name": "KH3_Gnm_RHIEndRenderQuery",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Occlusion mode1 dumps to base+8 and disables count; timestamp CPU clears word, sets issued/frame, emits event0x504 EOP data_sel4."
+      ],
+      "size": 274,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Occlusion mode1 dumps to base+8 and disables count; timestamp CPU clears word, sets issued/frame, emits event0x504 EOP data_sel4."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Occlusion mode1 dumps to base+8 and disables count; timestamp CPU clears word, sets issued/frame, emits event0x504 EOP data_sel4."
+            ]
+          },
+          {
+            "name": "query",
+            "type": "KH3_GnmRenderQueryPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Occlusion mode1 dumps to base+8 and disables count; timestamp CPU clears word, sets issued/frame, emits event0x504 EOP data_sel4."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3870f0",
+      "segment": "text",
+      "name": "KH3_Gnm_CommandBufferOverflow",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Appends old current segment, acquires next 64 KiB block, updates context pointers; no REWIND emission in this function."
+      ],
+      "size": 749
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x391d20",
+      "segment": "text",
+      "name": "KH3_Gnm_RHICreateUniformBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+      ],
+      "size": 1112,
+      "prototype": {
+        "return_type": "void *",
+        "return_location": "rax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+        ],
+        "parameters": [
+          {
+            "name": "out_reference",
+            "type": "void *",
+            "location": "rdi (hidden sret)",
+            "confidence": "candidate",
+            "evidence": [
+              "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+            ]
+          },
+          {
+            "name": "rhi",
+            "type": "void *",
+            "location": "rsi (unused)",
+            "confidence": "candidate",
+            "evidence": [
+              "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+            ]
+          },
+          {
+            "name": "contents",
+            "type": "const void *",
+            "location": "rdx",
+            "confidence": "candidate",
+            "evidence": [
+              "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+            ]
+          },
+          {
+            "name": "layout",
+            "type": "KH3_UniformLayoutPartial *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+            ]
+          },
+          {
+            "name": "usage",
+            "type": "uint32_t",
+            "location": "r8d",
+            "confidence": "candidate",
+            "evidence": [
+              "Allocates 0x68-byte object; ctor 0x3a3ce0; copies resource table and increments refs."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x392180",
+      "segment": "text",
+      "name": "KH3_Gnm_RHICreateIndexBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Calls multibuffer constructor at 0x3921fd; index-buffer role from adjacent RHI vtable methods and stride-bearing construction."
+      ],
+      "size": 1164
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x395590",
+      "segment": "text",
+      "name": "KH3_Gnm_RHICreateRenderQuery",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Allocates 0x60-byte query, ctor 0x3989b0, writes sret resource reference."
+      ],
+      "size": 61
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x395880",
+      "segment": "text",
+      "name": "KH3_Gnm_AdvanceProducerFrame",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Rotates producer bank and enqueues a command with vtable 0x8f15fa8; increments G+0x2cc."
+      ],
+      "size": 395
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x395a30",
+      "segment": "text",
+      "name": "KH3_Gnm_WaitForGpuAndResetTransient",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Emits label, final-submit without flip, spins at 0x395d90 until label==1, resets transient frontend, calls SubmitDone at 0x395e74. Exact public API name not proved."
+      ],
+      "size": 1720
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3989b0",
+      "segment": "text",
+      "name": "KH3_GnmRenderQuery_Construct",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "type1 allocates 256-byte results; type2 8 bytes; clears cached/issued bits, sets issueFrame=-1."
+      ],
+      "size": 359,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "type1 allocates 256-byte results; type2 8 bytes; clears cached/issued bits, sets issueFrame=-1."
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "type": "KH3_GnmRenderQueryPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "type1 allocates 256-byte results; type2 8 bytes; clears cached/issued bits, sets issueFrame=-1."
+            ]
+          },
+          {
+            "name": "query_type",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "type1 allocates 256-byte results; type2 8 bytes; clears cached/issued bits, sets issueFrame=-1."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x39a100",
+      "segment": "text",
+      "name": "KH3_GnmMultiBuffer_Lock",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x39a119..0x39a138 rotates slot per write lock; 0x39a16a allocates Volatile bytes; no local fence."
+      ],
+      "size": 184,
+      "prototype": {
+        "return_type": "void *",
+        "return_location": "rax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "0x39a119..0x39a138 rotates slot per write lock; 0x39a16a allocates Volatile bytes; no local fence."
+        ],
+        "parameters": [
+          {
+            "name": "self",
+            "type": "KH3_GnmMultiBufferPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "0x39a119..0x39a138 rotates slot per write lock; 0x39a16a allocates Volatile bytes; no local fence."
+            ]
+          },
+          {
+            "name": "lock_mode",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "0x39a119..0x39a138 rotates slot per write lock; 0x39a16a allocates Volatile bytes; no local fence."
+            ]
+          },
+          {
+            "name": "offset",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "0x39a119..0x39a138 rotates slot per write lock; 0x39a16a allocates Volatile bytes; no local fence."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x39ac00",
+      "segment": "text",
+      "name": "KH3_Gnm_InitializeCommandContext",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Initializes command recording context with 64 KiB allocations and overflow callback 0x3870f0."
+      ],
+      "size": 638
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x39c920",
+      "segment": "text",
+      "name": "KH3_Gnm_SubmitFinalBatch",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Drains worker then SubmitAndFlip at 0x39ca47 or SubmitCommandBuffers at 0x39ca90; sets SubmitDone pending, clears finalPending."
+      ],
+      "size": 641
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x39cbb0",
+      "segment": "text",
+      "name": "KH3_Gnm_DrainQueuedSubmissions",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Not worker Run: waits previous frame label, conditionally SubmitDone, submits graphics at 0x39d152 with null CCBs, handles separate compute array."
+      ],
+      "size": 2760
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x39ec20",
+      "segment": "text",
+      "name": "KH3_Gnm_FinishFrameAndBeginNext",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Emits timestamp/frame label EOP, submits final batch, increments frame, rotates pools/slots, records new deferred-free ticket EOP."
+      ],
+      "size": 4564
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a0d00",
+      "segment": "text",
+      "name": "KH3_Gnm_ApplyConsumerBankCommand",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Loads command+0x10 and stores to global 0xa7263c4 (G+0x2e4)."
+      ],
+      "size": 15,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Loads command+0x10 and stores to global 0xa7263c4 (G+0x2e4)."
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads command+0x10 and stores to global 0xa7263c4 (G+0x2e4)."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a3010",
+      "segment": "text",
+      "name": "KH3_GnmMultiBuffer_Construct",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "usage precedence: Volatile 4 -> 1; Static/UAV 9 -> 1; Dynamic 2 -> 3. SysV arguments traced through 0x3cba90 and 0x392180."
+      ],
+      "size": 1004,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "usage precedence: Volatile 4 -> 1; Static/UAV 9 -> 1; Dynamic 2 -> 3. SysV arguments traced through 0x3cba90 and 0x392180."
+        ],
+        "parameters": [
+          {
+            "name": "self",
+            "type": "KH3_GnmMultiBufferPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "usage precedence: Volatile 4 -> 1; Static/UAV 9 -> 1; Dynamic 2 -> 3. SysV arguments traced through 0x3cba90 and 0x392180."
+            ]
+          },
+          {
+            "name": "size",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "usage precedence: Volatile 4 -> 1; Static/UAV 9 -> 1; Dynamic 2 -> 3. SysV arguments traced through 0x3cba90 and 0x392180."
+            ]
+          },
+          {
+            "name": "usage",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "usage precedence: Volatile 4 -> 1; Static/UAV 9 -> 1; Dynamic 2 -> 3. SysV arguments traced through 0x3cba90 and 0x392180."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a3ce0",
+      "segment": "text",
+      "name": "KH3_GnmUniformBuffer_Construct",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "usage <=1 transient, >1 independent allocation; copy constants, build descriptor+0x50."
+      ],
+      "size": 1044,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "usage <=1 transient, >1 independent allocation; copy constants, build descriptor+0x50."
+        ],
+        "parameters": [
+          {
+            "name": "self",
+            "type": "KH3_GnmUniformBufferPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "usage <=1 transient, >1 independent allocation; copy constants, build descriptor+0x50."
+            ]
+          },
+          {
+            "name": "contents",
+            "type": "const void *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "usage <=1 transient, >1 independent allocation; copy constants, build descriptor+0x50."
+            ]
+          },
+          {
+            "name": "layout",
+            "type": "KH3_UniformLayoutPartial *",
+            "location": "rdx",
+            "confidence": "candidate",
+            "evidence": [
+              "usage <=1 transient, >1 independent allocation; copy constants, build descriptor+0x50."
+            ]
+          },
+          {
+            "name": "usage",
+            "type": "uint32_t",
+            "location": "ecx",
+            "confidence": "candidate",
+            "evidence": [
+              "usage <=1 transient, >1 independent allocation; copy constants, build descriptor+0x50."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a8370",
+      "segment": "text",
+      "name": "KH3_Gnm_SubmitWorker_Run",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "ContinuousSubmits enables event wait and DrainQueuedSubmissions; disabled branch sleeps 16659 us."
+      ],
+      "size": 657,
+      "prototype": {
+        "return_type": "uint32_t",
+        "return_location": "eax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "ContinuousSubmits enables event wait and DrainQueuedSubmissions; disabled branch sleeps 16659 us."
+        ],
+        "parameters": [
+          {
+            "name": "worker",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "ContinuousSubmits enables event wait and DrainQueuedSubmissions; disabled branch sleeps 16659 us."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a8b50",
+      "segment": "text",
+      "name": "KH3_Gnm_SubmitDoneWorker_Run",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Pending plus elapsed >=1 s triggers SubmitDone; loop sleeps 200000 us. IDA checked 2026-10-16."
+      ],
+      "size": 810,
+      "prototype": {
+        "return_type": "uint32_t",
+        "return_location": "eax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Pending plus elapsed >=1 s triggers SubmitDone; loop sleeps 200000 us. IDA checked 2026-10-16."
+        ],
+        "parameters": [
+          {
+            "name": "worker",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Pending plus elapsed >=1 s triggers SubmitDone; loop sleeps 200000 us. IDA checked 2026-10-16."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3beb60",
+      "segment": "text",
+      "name": "KH3_Gnm_AcquirePoolBlock",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Size table 0x7eb964c={64 KiB,512 KiB,8 MiB}; pool 0xa7270c8, generation 0xa72732c; marks last-used frame."
+      ],
+      "size": 648,
+      "prototype": {
+        "return_type": "void *",
+        "return_location": "rax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Size table 0x7eb964c={64 KiB,512 KiB,8 MiB}; pool 0xa7270c8, generation 0xa72732c; marks last-used frame."
+        ],
+        "parameters": [
+          {
+            "name": "memory_kind",
+            "type": "uint32_t",
+            "location": "edi",
+            "confidence": "candidate",
+            "evidence": [
+              "Size table 0x7eb964c={64 KiB,512 KiB,8 MiB}; pool 0xa7270c8, generation 0xa72732c; marks last-used frame."
+            ]
+          },
+          {
+            "name": "size_class",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "Size table 0x7eb964c={64 KiB,512 KiB,8 MiB}; pool 0xa7270c8, generation 0xa72732c; marks last-used frame."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3cba90",
+      "segment": "text",
+      "name": "KH3_Gnm_RHICreateVertexBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Calls 0x3a3010 at 0x3cbb09, installs secondary RHI interface, copies optional initial data via write Lock."
+      ],
+      "size": 1011
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3cbe90",
+      "segment": "text",
+      "name": "KH3_Gnm_RHILockVertexBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Subtracts 0x68 from incoming RHI resource, moves r8d mode to esi, tail-calls 0x39a100; wrapper size argument not consumed."
+      ],
+      "size": 29
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3cbeb0",
+      "segment": "text",
+      "name": "KH3_Gnm_RHIUnlockVertexBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Leaf prologue/return, no fence or upload."
+      ],
+      "size": 6,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Leaf prologue/return, no fence or upload."
+        ],
+        "parameters": [
+          {
+            "name": "rhi",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Leaf prologue/return, no fence or upload."
+            ]
+          },
+          {
+            "name": "resource",
+            "type": "void *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Leaf prologue/return, no fence or upload."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x37d6210",
+      "segment": "text",
+      "name": "KH3_Gnm_QueueDeferredFree",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Copies stack-passed 32-byte allocation into map keyed by current ticket at 0xa7065f0; does not immediately free."
+      ],
+      "size": 2308,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Copies stack-passed 32-byte allocation into map keyed by current ticket at 0xa7065f0; does not immediately free."
+        ],
+        "parameters": [
+          {
+            "name": "allocation",
+            "type": "KH3_GnmAllocation",
+            "location": "stack [entry rsp+0x8 .. +0x27]",
+            "confidence": "candidate",
+            "evidence": [
+              "Copies stack-passed 32-byte allocation into map keyed by current ticket at 0xa7065f0; does not immediately free."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x37d6b20",
+      "segment": "text",
+      "name": "KH3_Gnm_RetireDeferredFreesAndAdvanceTicket",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Retires entries ticket<=rdi; 0x37d7159..0x37d7183 returns old current ticket and increments it."
+      ],
+      "size": 1872,
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "rax",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Retires entries ticket<=rdi; 0x37d7159..0x37d7183 returns old current ticket and increments it."
+        ],
+        "parameters": [
+          {
+            "name": "completed_ticket",
+            "type": "uint64_t",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Retires entries ticket<=rdi; 0x37d7159..0x37d7183 returns old current ticket and increments it."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x68bbed0",
+      "segment": "text",
+      "name": "KH3_Gnm_EmitOcclusionSample",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "SDK helper emits EVENT_WRITE 0x138 then 0x139; mode1 destination=results+8, mode2 destination=results. Mode0 includes GPU WRITE_DATA clear."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "SDK helper emits EVENT_WRITE 0x138 then 0x139; mode1 destination=results+8, mode2 destination=results. Mode0 includes GPU WRITE_DATA clear."
+        ],
+        "parameters": [
+          {
+            "name": "command_buffer",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "SDK helper emits EVENT_WRITE 0x138 then 0x139; mode1 destination=results+8, mode2 destination=results. Mode0 includes GPU WRITE_DATA clear."
+            ]
+          },
+          {
+            "name": "mode",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "SDK helper emits EVENT_WRITE 0x138 then 0x139; mode1 destination=results+8, mode2 destination=results. Mode0 includes GPU WRITE_DATA clear."
+            ]
+          },
+          {
+            "name": "results",
+            "type": "uint64_t *",
+            "location": "rdx",
+            "confidence": "candidate",
+            "evidence": [
+              "SDK helper emits EVENT_WRITE 0x138 then 0x139; mode1 destination=results+8, mode2 destination=results. Mode0 includes GPU WRITE_DATA clear."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa6fc50c",
+      "segment": "data",
+      "name": "KH3_Gnm_CommandBufferSplitSize",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "int32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Static initial value32768; threshold check0x38822c."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa6fc510",
+      "segment": "data",
+      "name": "KH3_Gnm_EventBasedFrameEnd",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "int32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Static initial1; 0x39d637 wait branch."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa6fc514",
+      "segment": "data",
+      "name": "KH3_Gnm_ContinuousSubmits",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "int32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Static initial1; 0x3a8370 worker branch."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa6fc528",
+      "segment": "data",
+      "name": "KH3_Gnm_AllowDefrag",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "int32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Static initial1; only registration xref found, actual movement unresolved."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa7065f0",
+      "segment": "data",
+      "name": "KH3_Gnm_CurrentFreeTicket",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "uint64_t",
+      "size": 8,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x37d6210 enqueue; 0x37d6b20 read/increment/return."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa7260e0",
+      "segment": "data",
+      "name": "KH3_Gnm_Manager",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "KH3_GnmManagerPartial",
+      "size": 808,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Partial known prefix only; actual object continues beyond 0x328.",
+        "r6: manager prefix is KH3_GnmManagerRingsPartial: auxiliary16KiB buffers+0/+38, ESGS4MiB backing+70, GSVS4MiB backing+90. No duplicate symbol at manager+0."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa72732c",
+      "segment": "data",
+      "name": "KH3_Gnm_PoolGeneration",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "uint32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x3beb60 selects generation; frame-end increments modulo4."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa727368",
+      "segment": "data",
+      "name": "KH3_Gnm_GPUDefragPerfTest",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "int32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "BSS default0; registration0x3b2c60."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa727700",
+      "segment": "data",
+      "name": "KH3_Gnm_FlushForAsyncReallocateTexture2D",
+      "kind": "data",
+      "mode": "x86-64",
+      "data_type": "int32_t",
+      "size": 4,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "BSS default0; tested in0x3c44d0."
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "KH3_GnmAllocation",
+      "kind": "struct",
+      "size": 32,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmAllocation {\n    void * data;\n    uint32_t logical_size;\n    uint32_t allocated_size;\n    void * allocator_metadata;\n    uint32_t memory_kind;\n    unsigned char unknown_1c[4];\n} KH3_GnmAllocation;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x3a3010/0x3a3ce0 build 32-byte descriptors; 0x37d6210 queues a stack-passed descriptor by value."
+      ],
+      "fields": [
+        {
+          "name": "data",
+          "offset": "0x0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010/0x3a3ce0 build 32-byte descriptors; 0x37d6210 queues a stack-passed descriptor by value."
+          ]
+        },
+        {
+          "name": "logical_size",
+          "offset": "0x8",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010/0x3a3ce0 build 32-byte descriptors; 0x37d6210 queues a stack-passed descriptor by value."
+          ]
+        },
+        {
+          "name": "allocated_size",
+          "offset": "0xc",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010/0x3a3ce0 build 32-byte descriptors; 0x37d6210 queues a stack-passed descriptor by value."
+          ]
+        },
+        {
+          "name": "allocator_metadata",
+          "offset": "0x10",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010/0x3a3ce0 build 32-byte descriptors; 0x37d6210 queues a stack-passed descriptor by value."
+          ]
+        },
+        {
+          "name": "memory_kind",
+          "offset": "0x18",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010/0x3a3ce0 build 32-byte descriptors; 0x37d6210 queues a stack-passed descriptor by value."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmBufferSlot",
+      "kind": "struct",
+      "size": 56,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmBufferSlot {\n    void * vtable;\n    void * parent;\n    uint32_t index;\n    unsigned char unknown_14[4];\n    KH3_GnmAllocation allocation;\n} KH3_GnmBufferSlot;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x3a3010 initializes stride 0x38; 0x39a100 reads slot+0x18 data and slot+0x20 size."
+      ],
+      "fields": [
+        {
+          "name": "vtable",
+          "offset": "0x0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 initializes stride 0x38; 0x39a100 reads slot+0x18 data and slot+0x20 size."
+          ]
+        },
+        {
+          "name": "parent",
+          "offset": "0x8",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 initializes stride 0x38; 0x39a100 reads slot+0x18 data and slot+0x20 size."
+          ]
+        },
+        {
+          "name": "index",
+          "offset": "0x10",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 initializes stride 0x38; 0x39a100 reads slot+0x18 data and slot+0x20 size."
+          ]
+        },
+        {
+          "name": "allocation",
+          "offset": "0x18",
+          "type": "KH3_GnmAllocation",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 initializes stride 0x38; 0x39a100 reads slot+0x18 data and slot+0x20 size."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmMultiBufferPartial",
+      "kind": "struct",
+      "size": 104,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmMultiBufferPartial {\n    void * vtable;\n    unsigned char unknown_8[16];\n    KH3_GnmBufferSlot inline_slot;\n    KH3_GnmBufferSlot * heap_slots;\n    int32_t count;\n    int32_t capacity;\n    uint16_t current_slot;\n    uint8_t allocation_condition_flag;\n    uint8_t is_volatile;\n    unsigned char unknown_64[4];\n} KH3_GnmMultiBufferPartial;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+      ],
+      "fields": [
+        {
+          "name": "vtable",
+          "offset": "0x0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "inline_slot",
+          "offset": "0x18",
+          "type": "KH3_GnmBufferSlot",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "heap_slots",
+          "offset": "0x50",
+          "type": "KH3_GnmBufferSlot *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "count",
+          "offset": "0x58",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "capacity",
+          "offset": "0x5c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "current_slot",
+          "offset": "0x60",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "allocation_condition_flag",
+          "offset": "0x62",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        },
+        {
+          "name": "is_volatile",
+          "offset": "0x63",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a3010 constructor; 0x39a100 lock increments current_slot modulo count on every non-Volatile write lock. +0x62 semantic name unresolved."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_UniformLayoutPartial",
+      "kind": "struct",
+      "size": 24,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_UniformLayoutPartial {\n    uint32_t constant_size;\n    uint32_t resource_offset;\n    unsigned char unknown_8[8];\n    int32_t resource_count;\n    unsigned char unknown_14[4];\n} KH3_UniformLayoutPartial;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x391d20 reads layout+4/+0x10 to copy resources; 0x3a3ce0 reads layout+0 for constants. Not a complete layout definition."
+      ],
+      "fields": [
+        {
+          "name": "constant_size",
+          "offset": "0x0",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 reads layout+4/+0x10 to copy resources; 0x3a3ce0 reads layout+0 for constants. Not a complete layout definition."
+          ]
+        },
+        {
+          "name": "resource_offset",
+          "offset": "0x4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 reads layout+4/+0x10 to copy resources; 0x3a3ce0 reads layout+0 for constants. Not a complete layout definition."
+          ]
+        },
+        {
+          "name": "resource_count",
+          "offset": "0x10",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 reads layout+4/+0x10 to copy resources; 0x3a3ce0 reads layout+0 for constants. Not a complete layout definition."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmUniformBufferPartial",
+      "kind": "struct",
+      "size": 104,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmUniformBufferPartial {\n    void * vtable;\n    unsigned char unknown_8[16];\n    KH3_UniformLayoutPartial * layout;\n    void ** resources;\n    int32_t resource_count;\n    int32_t resource_capacity;\n    KH3_GnmAllocation allocation;\n    uint32_t gnm_descriptor[4];\n    uint32_t constant_size;\n    unsigned char unknown_64[4];\n} KH3_GnmUniformBufferPartial;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+      ],
+      "fields": [
+        {
+          "name": "vtable",
+          "offset": "0x0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "layout",
+          "offset": "0x18",
+          "type": "KH3_UniformLayoutPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "resources",
+          "offset": "0x20",
+          "type": "void **",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "resource_count",
+          "offset": "0x28",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "resource_capacity",
+          "offset": "0x2c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "allocation",
+          "offset": "0x30",
+          "type": "KH3_GnmAllocation",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "gnm_descriptor",
+          "offset": "0x50",
+          "type": "uint32_t[4]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        },
+        {
+          "name": "constant_size",
+          "offset": "0x60",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x391d20 allocates 0x68 and adds resource refs; 0x3a3ce0 allocates/copies constants and encodes descriptor at +0x50."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmRenderQueryPartial",
+      "kind": "struct",
+      "size": 96,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmRenderQueryPartial {\n    void * vtable;\n    unsigned char unknown_8[16];\n    KH3_GnmAllocation allocation;\n    uint64_t * occlusion_pairs;\n    uint64_t * timestamp;\n    uint64_t cached_result;\n    uint8_t flags;\n    unsigned char unknown_51[3];\n    int32_t issue_frame;\n    uint32_t query_type;\n    unsigned char unknown_5c[4];\n} KH3_GnmRenderQueryPartial;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+      ],
+      "fields": [
+        {
+          "name": "vtable",
+          "offset": "0x0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "allocation",
+          "offset": "0x18",
+          "type": "KH3_GnmAllocation",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "occlusion_pairs",
+          "offset": "0x38",
+          "type": "uint64_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "timestamp",
+          "offset": "0x40",
+          "type": "uint64_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "cached_result",
+          "offset": "0x48",
+          "type": "uint64_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "flags",
+          "offset": "0x50",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "issue_frame",
+          "offset": "0x54",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        },
+        {
+          "name": "query_type",
+          "offset": "0x58",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3989b0 allocates result storage; 0x37dc50 Begin zeros 256 bytes and sets issued; 0x37de30 End zeros timestamp then emits EOP; 0x3955d0 reads ready/cache/type."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmTransientBank",
+      "kind": "struct",
+      "size": 32,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmTransientBank {\n    void ** blocks;\n    int32_t count;\n    int32_t capacity;\n    void * cursor;\n    uint32_t bytes_used;\n    int32_t block_index;\n} KH3_GnmTransientBank;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+      ],
+      "fields": [
+        {
+          "name": "blocks",
+          "offset": "0x0",
+          "type": "void **",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+          ]
+        },
+        {
+          "name": "count",
+          "offset": "0x8",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+          ]
+        },
+        {
+          "name": "capacity",
+          "offset": "0xc",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+          ]
+        },
+        {
+          "name": "cursor",
+          "offset": "0x10",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+          ]
+        },
+        {
+          "name": "bytes_used",
+          "offset": "0x18",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+          ]
+        },
+        {
+          "name": "block_index",
+          "offset": "0x1c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b620 indexes G+0x2e8 + bank*0x20; 1 KiB alignment, 8 MiB blocks; 0x39f6e5..0x39f725 resets consumer frontend."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmSubmitBatch",
+      "kind": "struct",
+      "size": 432,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmSubmitBatch {\n    uint32_t inline_sizes[32];\n    uint32_t * heap_sizes;\n    int32_t size_count;\n    int32_t size_capacity;\n    uint64_t inline_addresses[32];\n    uint64_t * heap_addresses;\n    int32_t address_count;\n    int32_t address_capacity;\n    unsigned char unknown_1a0[16];\n} KH3_GnmSubmitBatch;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+      ],
+      "fields": [
+        {
+          "name": "inline_sizes",
+          "offset": "0x0",
+          "type": "uint32_t[32]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "heap_sizes",
+          "offset": "0x80",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "size_count",
+          "offset": "0x88",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "size_capacity",
+          "offset": "0x8c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "inline_addresses",
+          "offset": "0x90",
+          "type": "uint64_t[32]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "heap_addresses",
+          "offset": "0x190",
+          "type": "uint64_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "address_count",
+          "offset": "0x198",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        },
+        {
+          "name": "address_capacity",
+          "offset": "0x19c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x372930 builds address/size arrays; 0x372b20 merges pending batches. Last 16 bytes remain unidentified metadata; PM4 payload is not copied."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmManagerPartial",
+      "kind": "struct",
+      "size": 808,
+      "confidence": "candidate",
+      "c_declaration": "typedef struct KH3_GnmManagerPartial {\n    unsigned char unknown_0[484];\n    int32_t flip_slot;\n    int32_t producer_context_slot;\n    int32_t submit_slot;\n    void * graphics_context;\n    void * compute_context;\n    uint64_t * frame_done_labels[2];\n    unsigned char unknown_210[8];\n    uint64_t * begin_timestamps[2];\n    uint64_t * end_timestamps[2];\n    unsigned char unknown_238[32];\n    uint64_t * completed_free_ticket;\n    unsigned char unknown_260[104];\n    int32_t frame_serial;\n    int32_t producer_frame_serial;\n    int32_t last_submit_done_frame;\n    uint32_t submit_count;\n    unsigned char unknown_2d8[8];\n    uint32_t producer_bank;\n    uint32_t consumer_bank;\n    KH3_GnmTransientBank transient_banks[2];\n} KH3_GnmManagerPartial;",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; static x86-64 instructions, 2026-10-16; docs/gnm/kh3-gnmrhi-reconstruction.md. No new runtime validation.",
+        "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+      ],
+      "fields": [
+        {
+          "name": "flip_slot",
+          "offset": "0x1e4",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "producer_context_slot",
+          "offset": "0x1e8",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "submit_slot",
+          "offset": "0x1ec",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "graphics_context",
+          "offset": "0x1f0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "compute_context",
+          "offset": "0x1f8",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "frame_done_labels",
+          "offset": "0x200",
+          "type": "uint64_t *[2]",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "begin_timestamps",
+          "offset": "0x218",
+          "type": "uint64_t *[2]",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "end_timestamps",
+          "offset": "0x228",
+          "type": "uint64_t *[2]",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "completed_free_ticket",
+          "offset": "0x258",
+          "type": "uint64_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "frame_serial",
+          "offset": "0x2c8",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "producer_frame_serial",
+          "offset": "0x2cc",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "last_submit_done_frame",
+          "offset": "0x2d0",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "submit_count",
+          "offset": "0x2d4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "producer_bank",
+          "offset": "0x2e0",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "consumer_bank",
+          "offset": "0x2e4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        },
+        {
+          "name": "transient_banks",
+          "offset": "0x2e8",
+          "type": "KH3_GnmTransientBank[2]",
+          "confidence": "candidate",
+          "evidence": [
+            "Partial prefix of G at 0xa7260e0, not full manager size. 0x39cffe..0x39d021 previous-slot/frame gate; 0x39ec20 frame-end; 0x395880/0x3a0d00 producer-consumer handoff; 0x39f95a deferred-free watermark."
+          ]
+        }
+      ]
+    }
+  ]
+}
