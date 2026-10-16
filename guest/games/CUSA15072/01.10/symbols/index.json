@@ -1,0 +1,59 @@
+{
+  "schema": "spatial.guest-symbol-index.v2",
+  "bundle_id": "kh3-cusa15072-0110",
+  "revision": 6,
+  "targets": [
+    {
+      "target_id": "kh3-0110-eboot",
+      "scope": "title-module",
+      "emulator_family": "ps4",
+      "emulator": "shadps4-fex",
+      "program_id": "CUSA15072",
+      "module_name": "eboot.bin",
+      "source_sha256": "29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9",
+      "compatible_runtime_sha256": [
+        "be1ff228eecdb3bcd327a637dd538426c916eb4514cbe4b522f2461fc38e4a8d"
+      ],
+      "compatible_build_ids": [],
+      "address_model": "module-relative",
+      "architecture": "i386:x86-64",
+      "byte_order": "little",
+      "toolchain_target": "x86_64-none-elf"
+    }
+  ],
+  "shards": [
+    {
+      "target_id": "kh3-0110-eboot",
+      "path": "gnmrhi-lifetime.symbols.json",
+      "sha256": "8374dae18f508da0def59c750dd1efd4bd08cc35850165e738070b7864a17465"
+    },
+    {
+      "target_id": "kh3-0110-eboot",
+      "path": "gnmrhi-binding.symbols.json",
+      "sha256": "7ec360e7147e21a37a835950bbfffdaa8393e9214f9381b3a4deb3d1378852f6"
+    },
+    {
+      "target_id": "kh3-0110-eboot",
+      "path": "gnmrhi-ue-bridge.symbols.json",
+      "sha256": "7f0970d0a7b1dd00a96860693d8742e3f49630ca07f80cb2e5907f566901e7e3"
+    },
+    {
+      "target_id": "kh3-0110-eboot",
+      "path": "gnmrhi-graphics.symbols.json",
+      "sha256": "fc258f3a2497fc2a61715e2498bc44a668e69e3833b04458fa73eca581035cf4"
+    },
+    {
+      "target_id": "kh3-0110-eboot",
+      "path": "render-query-waits.symbols.json",
+      "sha256": "84433a9911e5509b5f6bac9bcf1b6bcde2664e67e2802c40ef46ce3c12b62061"
+    },
+    {
+      "target_id": "kh3-0110-eboot",
+      "path": "gnmrhi-stages.symbols.json",
+      "sha256": "78c7661ba9d67e54b5808e6aef7aeba3f9b60bb631c9645128307d156e8fdbe4"
+    }
+  ],
+  "annotations": {
+    "analysis": "Offsets are eboot module offsets (runtime load base 0x400000 is not part of the offsets). The IDA database is built from the ET_DYN analysis ELF and kept outside the repository."
+  }
+}

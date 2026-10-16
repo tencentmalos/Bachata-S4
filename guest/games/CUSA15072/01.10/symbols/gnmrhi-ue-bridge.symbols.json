@@ -1,0 +1,493 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "kh3-0110-eboot",
+  "domain": "gnmrhi-ue-bridge",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36cb00",
+      "segment": "text",
+      "name": "KH3_Gnm_RHISetComputeShader",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "Retains shader at context+0x920; clears tracked entries; installs embedded reflection and program; marks LCUE resources dirty, shader dirty iff program differs. No store to context+0x91c or loose dirty in this function body."
+      ],
+      "size": 560,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Retains shader at context+0x920; clears tracked entries; installs embedded reflection and program; marks LCUE resources dirty, shader dirty iff program differs. No store to context+0x91c or loose dirty in this function body.",
+          "Unused ABI arguments correlated from UE public interfaces, not from a surviving symbol name."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Retains shader at context+0x920; clears tracked entries; installs embedded reflection and program; marks LCUE resources dirty, shader dirty iff program differs. No store to context+0x91c or loose dirty in this function body."
+            ]
+          },
+          {
+            "name": "shader",
+            "type": "KH3_GnmComputeShaderSelectionPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Retains shader at context+0x920; clears tracked entries; installs embedded reflection and program; marks LCUE resources dirty, shader dirty iff program differs. No store to context+0x91c or loose dirty in this function body."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36a4c0",
+      "segment": "text",
+      "name": "KH3_Gnm_RHISetComputeUniformBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "RSI unused; constantSize !=0 binds UB+0x50 via current reflection+0xc2+2*slot; otherwise uses global default UB at0xa726658. Retains ORIGINAL UB in context+0x868+8*slot and ORs context+0x91c. Low-level binding precedes deferred resource-map expansion."
+      ],
+      "size": 858,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "RSI unused; constantSize !=0 binds UB+0x50 via current reflection+0xc2+2*slot; otherwise uses global default UB at0xa726658. Retains ORIGINAL UB in context+0x868+8*slot and ORs context+0x91c. Low-level binding precedes deferred resource-map expansion.",
+          "Unused ABI arguments correlated from UE public interfaces, not from a surviving symbol name."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "RSI unused; constantSize !=0 binds UB+0x50 via current reflection+0xc2+2*slot; otherwise uses global default UB at0xa726658. Retains ORIGINAL UB in context+0x868+8*slot and ORs context+0x91c. Low-level binding precedes deferred resource-map expansion."
+            ]
+          },
+          {
+            "name": "unused_shader",
+            "type": "KH3_GnmComputeShaderSelectionPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "RSI unused; constantSize !=0 binds UB+0x50 via current reflection+0xc2+2*slot; otherwise uses global default UB at0xa726658. Retains ORIGINAL UB in context+0x868+8*slot and ORs context+0x91c. Low-level binding precedes deferred resource-map expansion."
+            ]
+          },
+          {
+            "name": "buffer_index",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "RSI unused; constantSize !=0 binds UB+0x50 via current reflection+0xc2+2*slot; otherwise uses global default UB at0xa726658. Retains ORIGINAL UB in context+0x868+8*slot and ORs context+0x91c. Low-level binding precedes deferred resource-map expansion."
+            ]
+          },
+          {
+            "name": "uniform_buffer",
+            "type": "KH3_GnmUniformBufferPartial *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "RSI unused; constantSize !=0 binds UB+0x50 via current reflection+0xc2+2*slot; otherwise uses global default UB at0xa726658. Retains ORIGINAL UB in context+0x868+8*slot and ORs context+0x91c. Low-level binding precedes deferred resource-map expansion."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x377bc0",
+      "segment": "text",
+      "name": "KH3_Gnm_RHISetComputeShaderParameter",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+      ],
+      "size": 27,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match.",
+          "Unused ABI arguments correlated from UE public interfaces, not from a surviving symbol name."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+            ]
+          },
+          {
+            "name": "unused_shader",
+            "type": "KH3_GnmComputeShaderSelectionPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+            ]
+          },
+          {
+            "name": "unused_buffer_index",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+            ]
+          },
+          {
+            "name": "base_index",
+            "type": "uint32_t",
+            "location": "ecx",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+            ]
+          },
+          {
+            "name": "num_bytes",
+            "type": "uint32_t",
+            "location": "r8d",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+            ]
+          },
+          {
+            "name": "new_value",
+            "type": "const void *",
+            "location": "r9",
+            "confidence": "candidate",
+            "evidence": [
+              "Loads context+0xae8; MOVZX EDX,CX and MOVZX ECX,R8W; RSI=R9; tailcalls0x368f70. Shader and BufferIndex unused. Public six-argument CS interface match."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x369390",
+      "segment": "text",
+      "name": "KH3_RHICommandSetComputeShaderParameter_ExecuteCandidate",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "Reads CmdList+0x20/context+0xae8 and command payload+0x18/+0x24/+0x28, tailcalls0x368f70; CS wrapper is inlined. Command Execute interpretation correlated, full template instantiation not established."
+      ],
+      "size": 36,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Reads CmdList+0x20/context+0xae8 and command payload+0x18/+0x24/+0x28, tailcalls0x368f70; CS wrapper is inlined. Command Execute interpretation correlated, full template instantiation not established.",
+          "Unused ABI arguments correlated from UE public interfaces, not from a surviving symbol name."
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "KH3_RHISetComputeParameterCommandPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Reads CmdList+0x20/context+0xae8 and command payload+0x18/+0x24/+0x28, tailcalls0x368f70; CS wrapper is inlined. Command Execute interpretation correlated, full template instantiation not established."
+            ]
+          },
+          {
+            "name": "command_list",
+            "type": "KH3_RHICommandListContextPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Reads CmdList+0x20/context+0xae8 and command payload+0x18/+0x24/+0x28, tailcalls0x368f70; CS wrapper is inlined. Command Execute interpretation correlated, full template instantiation not established."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa726658",
+      "segment": "data",
+      "name": "KH3_Gnm_DefaultUniformBufferPointer",
+      "kind": "data",
+      "mode": "x86-64",
+      "size": 8,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x36a6d8 loads the pointer for null/zero-constant UB fallback. Default object creation, contents and descriptor bytes not recovered."
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "KH3_GnmCsProgramSelectionPartial",
+      "kind": "struct",
+      "size": 40,
+      "c_declaration": "typedef struct KH3_GnmCsProgramSelectionPartial {\n    unsigned char unknown_0[6];\n    uint16_t raw_word6;\n    unsigned char unknown_8[28];\n    uint8_t raw_byte24;\n    unsigned char unknown_25[3];\n} KH3_GnmCsProgramSelectionPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x36cbca reads program+6 for SET_SH_REG register0x218; 0x36cbb8 reads byte+0x24 &3 into dispatch mode. No original SDK field names inferred."
+      ],
+      "fields": [
+        {
+          "name": "raw_word6",
+          "offset": "0x6",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cbca reads program+6 for SET_SH_REG register0x218; 0x36cbb8 reads byte+0x24 &3 into dispatch mode. No original SDK field names inferred."
+          ]
+        },
+        {
+          "name": "raw_byte24",
+          "offset": "0x24",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cbca reads program+6 for SET_SH_REG register0x218; 0x36cbb8 reads byte+0x24 &3 into dispatch mode. No original SDK field names inferred."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmComputeShaderSelectionPartial",
+      "kind": "struct",
+      "size": 480,
+      "c_declaration": "typedef struct KH3_GnmComputeShaderSelectionPartial {\n    unsigned char unknown_0[176];\n    KH3_LcueReflectionPartial reflection_prefix;\n    unsigned char unknown_174[100];\n    KH3_GnmCsProgramSelectionPartial * program;\n} KH3_GnmComputeShaderSelectionPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x36cb7e reads +0x1d8 and LEA +0xb0; reflection is embedded, not a pointer member. Only already recovered prefix is declared; the mapping-array bounds remain unknown."
+      ],
+      "fields": [
+        {
+          "name": "reflection_prefix",
+          "offset": "0xb0",
+          "type": "KH3_LcueReflectionPartial",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb7e reads +0x1d8 and LEA +0xb0; reflection is embedded, not a pointer member. Only already recovered prefix is declared; the mapping-array bounds remain unknown."
+          ]
+        },
+        {
+          "name": "program",
+          "offset": "0x1d8",
+          "type": "KH3_GnmCsProgramSelectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb7e reads +0x1d8 and LEA +0xb0; reflection is embedded, not a pointer member. Only already recovered prefix is declared; the mapping-array bounds remain unknown."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmComputeSelectionStatePartial",
+      "kind": "struct",
+      "size": 51656,
+      "c_declaration": "typedef struct KH3_GnmComputeSelectionStatePartial {\n    unsigned char unknown_0[50040];\n    void * command_buffer;\n    unsigned char unknown_c380[8];\n    KH3_GnmCsProgramSelectionPartial * compute_program;\n    unsigned char unknown_c390[56];\n    uint32_t special_value;\n    unsigned char unknown_c3cc[156];\n    KH3_LcueReflectionPartial * compute_reflection;\n    unsigned char unknown_c470[192];\n    uint8_t compute_shader_dirty;\n    unsigned char unknown_c531[7];\n    uint8_t compute_resources_dirty;\n    unsigned char unknown_c539[21];\n    uint8_t active_stage_flags;\n    unsigned char unknown_c54f[1138];\n    uint8_t compute_dispatch_mode;\n    unsigned char unknown_c9c2[6];\n} KH3_GnmComputeSelectionStatePartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+      ],
+      "fields": [
+        {
+          "name": "command_buffer",
+          "offset": "0xc378",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "compute_program",
+          "offset": "0xc388",
+          "type": "KH3_GnmCsProgramSelectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "special_value",
+          "offset": "0xc3c8",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "compute_reflection",
+          "offset": "0xc468",
+          "type": "KH3_LcueReflectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "compute_shader_dirty",
+          "offset": "0xc530",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "compute_resources_dirty",
+          "offset": "0xc538",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "active_stage_flags",
+          "offset": "0xc54e",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        },
+        {
+          "name": "compute_dispatch_mode",
+          "offset": "0xc9c1",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb00 selection stores/ORs relative to context+0x440 GNM pointer. +0xc3c8 gets0x40 when reflection+0xd !=0xff. Full object size unknown, declared size is a rounded lower bound."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmTrackedEntriesPartial",
+      "kind": "struct",
+      "size": 1080,
+      "c_declaration": "typedef struct KH3_GnmTrackedEntriesPartial {\n    unsigned char unknown_0[1064];\n    uint64_t * tracked_entries;\n    int32_t tracked_entry_count;\n    unsigned char unknown_434[4];\n} KH3_GnmTrackedEntriesPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x36cb48..0x36cb75 zeroes count pointer-sized entries; semantic purpose and array capacity not recovered."
+      ],
+      "fields": [
+        {
+          "name": "tracked_entries",
+          "offset": "0x428",
+          "type": "uint64_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb48..0x36cb75 zeroes count pointer-sized entries; semantic purpose and array capacity not recovered."
+          ]
+        },
+        {
+          "name": "tracked_entry_count",
+          "offset": "0x430",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36cb48..0x36cb75 zeroes count pointer-sized entries; semantic purpose and array capacity not recovered."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_RHISetComputeParameterCommandPartial",
+      "kind": "struct",
+      "size": 48,
+      "c_declaration": "typedef struct KH3_RHISetComputeParameterCommandPartial {\n    unsigned char unknown_0[24];\n    const void * new_value;\n    unsigned char unknown_20[4];\n    uint16_t base_index_low16;\n    unsigned char unknown_26[2];\n    uint16_t num_bytes_low16;\n    unsigned char unknown_2a[6];\n} KH3_RHISetComputeParameterCommandPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x369390 reads source+0x18, zero-extends WORD+0x24 and WORD+0x28. Public UE command has uint32 fields; only observed low halves named here, not a claim that storage fields are uint16."
+      ],
+      "fields": [
+        {
+          "name": "new_value",
+          "offset": "0x18",
+          "type": "const void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x369390 reads source+0x18, zero-extends WORD+0x24 and WORD+0x28. Public UE command has uint32 fields; only observed low halves named here, not a claim that storage fields are uint16."
+          ]
+        },
+        {
+          "name": "base_index_low16",
+          "offset": "0x24",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x369390 reads source+0x18, zero-extends WORD+0x24 and WORD+0x28. Public UE command has uint32 fields; only observed low halves named here, not a claim that storage fields are uint16."
+          ]
+        },
+        {
+          "name": "num_bytes_low16",
+          "offset": "0x28",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x369390 reads source+0x18, zero-extends WORD+0x24 and WORD+0x28. Public UE command has uint32 fields; only observed low halves named here, not a claim that storage fields are uint16."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_RHICommandListContextPartial",
+      "kind": "struct",
+      "size": 40,
+      "c_declaration": "typedef struct KH3_RHICommandListContextPartial {\n    unsigned char unknown_0[32];\n    KH3_GnmBindingContextPartial * command_context;\n} KH3_RHICommandListContextPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 plus local UE4.18 public interface comparison. Semantic target is KH3 ++UE4+Release-4.17, not stock UE4.18. docs/gnm/kh3-gnmrhi-ue-reference.md. No new runtime validation.",
+        "0x369394 loads CmdList+0x20 then context+0xae8. Matches command Execute shape in UE public source; original template spelling not proved."
+      ],
+      "fields": [
+        {
+          "name": "command_context",
+          "offset": "0x20",
+          "type": "KH3_GnmBindingContextPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x369394 loads CmdList+0x20 then context+0xae8. Matches command Execute shape in UE public source; original template spelling not proved."
+          ]
+        }
+      ]
+    }
+  ]
+}

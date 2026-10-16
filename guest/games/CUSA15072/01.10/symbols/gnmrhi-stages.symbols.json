@@ -1,0 +1,1388 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "kh3-0110-eboot",
+  "domain": "gnmrhi-stages",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c3dd50",
+      "segment": "text",
+      "name": "KH3_Lcue_SelectGeometryAndCopyVs",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 696,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Only indexed real caller38323d in382bf0; chooses built-in offchip copy reflection, compares GS/copyVS keys, sets mode180003."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Only indexed real caller38323d in382bf0; chooses built-in offchip copy reflection, compares GS/copyVS keys, sets mode180003.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "lcue",
+            "type": "KH3_LcueExtendedStagesPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller38323d in382bf0; chooses built-in offchip copy reflection, compares GS/copyVS keys, sets mode180003."
+            ]
+          },
+          {
+            "name": "geometry_program",
+            "type": "KH3_GnmGsProgramPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller38323d in382bf0; chooses built-in offchip copy reflection, compares GS/copyVS keys, sets mode180003."
+            ]
+          },
+          {
+            "name": "geometry_reflection",
+            "type": "KH3_LcueGraphicsReflectionPartial *",
+            "location": "rdx",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller38323d in382bf0; chooses built-in offchip copy reflection, compares GS/copyVS keys, sets mode180003."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c3e010",
+      "segment": "text",
+      "name": "KH3_Lcue_SelectOnChipGeometryAndCopyVs",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 886,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Only indexed real caller383bb3 in382bf0; group count and packed GS instance factor set onchip mode600003 and scalar factor0."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Only indexed real caller383bb3 in382bf0; group count and packed GS instance factor set onchip mode600003 and scalar factor0.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "lcue",
+            "type": "KH3_LcueExtendedStagesPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller383bb3 in382bf0; group count and packed GS instance factor set onchip mode600003 and scalar factor0."
+            ]
+          },
+          {
+            "name": "geometry_program",
+            "type": "KH3_GnmGsProgramPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller383bb3 in382bf0; group count and packed GS instance factor set onchip mode600003 and scalar factor0."
+            ]
+          },
+          {
+            "name": "group_count",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller383bb3 in382bf0; group count and packed GS instance factor set onchip mode600003 and scalar factor0."
+            ]
+          },
+          {
+            "name": "geometry_reflection",
+            "type": "KH3_LcueGraphicsReflectionPartial *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "Only indexed real caller383bb3 in382bf0; group count and packed GS instance factor set onchip mode600003 and scalar factor0."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c37870",
+      "segment": "text",
+      "name": "KH3_Gnm_ComputeOnChipGeometryBudget",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 144,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Returns via output pointers. 64KiB budget, 512-byte LDS units, group cap64 or63 for32 instances. Callers382bf0 and38f300."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Returns via output pointers. 64KiB budget, 512-byte LDS units, group cap64 or63 for32 instances. Callers382bf0 and38f300.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "lds512_units",
+            "type": "uint32_t *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns via output pointers. 64KiB budget, 512-byte LDS units, group cap64 or63 for32 instances. Callers382bf0 and38f300."
+            ]
+          },
+          {
+            "name": "group_count",
+            "type": "uint32_t *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns via output pointers. 64KiB budget, 512-byte LDS units, group cap64 or63 for32 instances. Callers382bf0 and38f300."
+            ]
+          },
+          {
+            "name": "geometry_program",
+            "type": "KH3_GnmGsProgramPartial *",
+            "location": "rdx",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns via output pointers. 64KiB budget, 512-byte LDS units, group cap64 or63 for32 instances. Callers382bf0 and38f300."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c3ec80",
+      "segment": "text",
+      "name": "KH3_Gnm_BuildGsVsRingDescriptors",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 454,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "gnm_context",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10."
+            ]
+          },
+          {
+            "name": "ring_base",
+            "type": "uint64_t",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10."
+            ]
+          },
+          {
+            "name": "ring_bytes",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10."
+            ]
+          },
+          {
+            "name": "stream_item_dwords",
+            "type": "uint32_t *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10."
+            ]
+          },
+          {
+            "name": "max_vertices",
+            "type": "uint32_t",
+            "location": "r8d",
+            "confidence": "candidate",
+            "evidence": [
+              "Caller383511 in382bf0. Mutates table pointed by fullGNM+360, writes stream descriptors+40/50/60/70 and read descriptor+80; calls68bbb10."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x68bbb10",
+      "segment": "text",
+      "name": "KH3_Gnm_EmitGeometryRingLayoutRegisters",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 273,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "17 DWORDs: VGT_GS_VERT_ITEMSIZE0..3, GSVS_RING_OFFSET1..3, GS_MAX_VERT_OUT, GSVS_RING_ITEMSIZE. Low16 arithmetic then masks."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "17 DWORDs: VGT_GS_VERT_ITEMSIZE0..3, GSVS_RING_OFFSET1..3, GS_MAX_VERT_OUT, GSVS_RING_ITEMSIZE. Low16 arithmetic then masks.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "gnm_context",
+            "type": "void *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "17 DWORDs: VGT_GS_VERT_ITEMSIZE0..3, GSVS_RING_OFFSET1..3, GS_MAX_VERT_OUT, GSVS_RING_ITEMSIZE. Low16 arithmetic then masks."
+            ]
+          },
+          {
+            "name": "stream_item_dwords",
+            "type": "uint32_t *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "17 DWORDs: VGT_GS_VERT_ITEMSIZE0..3, GSVS_RING_OFFSET1..3, GS_MAX_VERT_OUT, GSVS_RING_ITEMSIZE. Low16 arithmetic then masks."
+            ]
+          },
+          {
+            "name": "max_vertices",
+            "type": "uint16_t",
+            "location": "dx",
+            "confidence": "candidate",
+            "evidence": [
+              "17 DWORDs: VGT_GS_VERT_ITEMSIZE0..3, GSVS_RING_OFFSET1..3, GS_MAX_VERT_OUT, GSVS_RING_ITEMSIZE. Low16 arithmetic then masks."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a8260",
+      "segment": "text",
+      "name": "KH3_Gnm_RecreateAuxiliaryRing16KiB",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 183,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Raw prologue consumes only RDI; pseudocode six parameters are callee inference artifacts. Replaces32byte backing, builds descriptor at+20, does not change table index+30."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Raw prologue consumes only RDI; pseudocode six parameters are callee inference artifacts. Replaces32byte backing, builds descriptor at+20, does not change table index+30.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "ring",
+            "type": "KH3_GnmAuxRingPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Raw prologue consumes only RDI; pseudocode six parameters are callee inference artifacts. Replaces32byte backing, builds descriptor at+20, does not change table index+30."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a5640",
+      "segment": "text",
+      "name": "KH3_Gnm_RhiInitializationWithGeometryRingsCandidate",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 6469,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Allocates global ESGS and GSVS backing: 4MiB each, alignment10000; recreates both16KiB auxiliary buffers. Full initializer signature not recovered."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c3e390",
+      "segment": "text",
+      "name": "KH3_Gnm_InitializeContextAndCopyProfilesCandidate",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 1605,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Initializes GNM/DCB/LCUE uploads and four0x118-byte copy profiles; zeros GNM+378 lengthc000 staging. Do not misname as HS setter. ABI not fully assigned."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3bace0",
+      "segment": "text",
+      "name": "KH3_Gnm_CreateBoundShaderStateVsPsGsCandidate",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 11017,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Six register inputs include hidden output and unused this; stores VS/PS/GS at BSS+1b0/1b8/1c0, no recovered HS/DS object input. Factory/cache returns output wrapper; full factory prototype deferred."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x369830",
+      "segment": "text",
+      "name": "KH3_Gnm_RHISetHullUniformBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 841,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Current HS reflection at GNM+c490, staging+7b78, hardware stage5; UE hull UB array/mask. Existence does not prove HS selection by KH3 BSS."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Current HS reflection at GNM+c490, staging+7b78, hardware stage5; UE hull UB array/mask. Existence does not prove HS selection by KH3 BSS.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Current HS reflection at GNM+c490, staging+7b78, hardware stage5; UE hull UB array/mask. Existence does not prove HS selection by KH3 BSS."
+            ]
+          },
+          {
+            "name": "hull_shader",
+            "type": "void *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Current HS reflection at GNM+c490, staging+7b78, hardware stage5; UE hull UB array/mask. Existence does not prove HS selection by KH3 BSS."
+            ]
+          },
+          {
+            "name": "buffer_index",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Current HS reflection at GNM+c490, staging+7b78, hardware stage5; UE hull UB array/mask. Existence does not prove HS selection by KH3 BSS."
+            ]
+          },
+          {
+            "name": "uniform_buffer",
+            "type": "KH3_GnmUniformBufferPartial *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "Current HS reflection at GNM+c490, staging+7b78, hardware stage5; UE hull UB array/mask. Existence does not prove HS selection by KH3 BSS."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x37f900",
+      "segment": "text",
+      "name": "KH3_Gnm_RHISetHullTexture",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 305,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Null no-op; reflection+22 map, hardware5 SGPR base10c; 8DWORD texture descriptor; resources dirty."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Null no-op; reflection+22 map, hardware5 SGPR base10c; 8DWORD texture descriptor; resources dirty.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Null no-op; reflection+22 map, hardware5 SGPR base10c; 8DWORD texture descriptor; resources dirty."
+            ]
+          },
+          {
+            "name": "hull_shader",
+            "type": "void *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Null no-op; reflection+22 map, hardware5 SGPR base10c; 8DWORD texture descriptor; resources dirty."
+            ]
+          },
+          {
+            "name": "bind_index",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Null no-op; reflection+22 map, hardware5 SGPR base10c; 8DWORD texture descriptor; resources dirty."
+            ]
+          },
+          {
+            "name": "texture",
+            "type": "void *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "Null no-op; reflection+22 map, hardware5 SGPR base10c; 8DWORD texture descriptor; resources dirty."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36a9e0",
+      "segment": "text",
+      "name": "KH3_RHICommandSetHullTexture_ExecuteCandidate",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 309,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "KH3_RHIGraphicsResourceCommandPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference."
+            ]
+          },
+          {
+            "name": "command_list",
+            "type": "KH3_RHICommandListContextPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36c620",
+      "segment": "text",
+      "name": "KH3_RHICommandSetHullSampler_ExecuteCandidate",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 234,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference."
+      ],
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference.",
+          "Semantic void; incidental return-register contents are not an API return contract."
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "KH3_RHIGraphicsResourceCommandPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference."
+            ]
+          },
+          {
+            "name": "command_list",
+            "type": "KH3_RHICommandListContextPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Command list+20 gives context, reflection GNM+c490 means HS stage5; payload resource+20/index+18. Texture null no-op; unused sampler avoids dereference."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa726118",
+      "segment": "data",
+      "name": "KH3_Gnm_AuxiliaryRing1",
+      "kind": "data",
+      "mode": "x86-64",
+      "size": 56,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Global storage, not runtime instance address. 3a9470 defaults,3a5640 allocation,382bf0 descriptor consumption."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa726150",
+      "segment": "data",
+      "name": "KH3_Gnm_EsGsRingBacking",
+      "kind": "data",
+      "mode": "x86-64",
+      "size": 32,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Global storage, not runtime instance address. 3a9470 defaults,3a5640 allocation,382bf0 descriptor consumption."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa726170",
+      "segment": "data",
+      "name": "KH3_Gnm_GsVsRingBacking",
+      "kind": "data",
+      "mode": "x86-64",
+      "size": 32,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Global storage, not runtime instance address. 3a9470 defaults,3a5640 allocation,382bf0 descriptor consumption."
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "KH3_GnmGsProgramPartial",
+      "kind": "struct",
+      "size": 56,
+      "c_declaration": "typedef struct KH3_GnmGsProgramPartial {\n    unsigned char unknown_0[3];\n    uint8_t metadata_dwords;\n    unsigned char unknown_4[20];\n    uint32_t streamout_config;\n    uint32_t gs_out_primitive;\n    uint32_t gs_instance_register;\n    uint32_t item_dwords0;\n    uint32_t item_dwords1;\n    uint32_t item_dwords2;\n    uint32_t item_dwords3;\n    uint32_t packed_geometry_sizes;\n} KH3_GnmGsProgramPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+      ],
+      "fields": [
+        {
+          "name": "metadata_dwords",
+          "offset": "0x3",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "streamout_config",
+          "offset": "0x18",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "gs_out_primitive",
+          "offset": "0x1c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "gs_instance_register",
+          "offset": "0x20",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "item_dwords0",
+          "offset": "0x24",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "item_dwords1",
+          "offset": "0x28",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "item_dwords2",
+          "offset": "0x2c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "item_dwords3",
+          "offset": "0x30",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        },
+        {
+          "name": "packed_geometry_sizes",
+          "offset": "0x34",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c37870/0x4c3dd50/0x4c3e010/0x4c3ec80. Copy header is base+4*byte[3]+38; copy flags at that header+26. Low11 of word34 is max vertices; other fields retained raw. Register names correlated with local gnmdriver SetGsShader."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmHsProgramPartial",
+      "kind": "struct",
+      "size": 64,
+      "c_declaration": "typedef struct KH3_GnmHsProgramPartial {\n    unsigned char unknown_0[24];\n    uint32_t vgt_tf_param;\n    uint32_t max_tess_level_bits;\n    uint32_t min_tess_level_bits;\n    uint32_t raw_word_24;\n    uint32_t raw_word_28;\n    uint32_t raw_word_2c;\n    uint32_t raw_word_30;\n    uint32_t raw_word_34;\n    unsigned char unknown_38[4];\n    uint32_t raw_word_3c;\n} KH3_GnmHsProgramPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+      ],
+      "fields": [
+        {
+          "name": "vgt_tf_param",
+          "offset": "0x18",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "max_tess_level_bits",
+          "offset": "0x1c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "min_tess_level_bits",
+          "offset": "0x20",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "raw_word_24",
+          "offset": "0x24",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "raw_word_28",
+          "offset": "0x28",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "raw_word_2c",
+          "offset": "0x2c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "raw_word_30",
+          "offset": "0x30",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "raw_word_34",
+          "offset": "0x34",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        },
+        {
+          "name": "raw_word_3c",
+          "offset": "0x3c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 LS/HS arm. SDK HS body is 7 DWORDs from+8; word+18 is VGT_TF_PARAM, NOT shader resource2. Extra words form internal tess constants and VGT_LS_HS_CONFIG."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_LcueTessConstants",
+      "kind": "struct",
+      "size": 36,
+      "c_declaration": "typedef struct KH3_LcueTessConstants {\n    uint32_t word0;\n    uint32_t word1;\n    uint32_t word2;\n    uint32_t word3;\n    uint32_t word4;\n    uint32_t word5;\n    uint32_t word6;\n    uint32_t word7;\n    uint32_t word8;\n} KH3_LcueTessConstants;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+      ],
+      "fields": [
+        {
+          "name": "word0",
+          "offset": "0x0",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word1",
+          "offset": "0x4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word2",
+          "offset": "0x8",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word3",
+          "offset": "0xc",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word4",
+          "offset": "0x10",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word5",
+          "offset": "0x14",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word6",
+          "offset": "0x18",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word7",
+          "offset": "0x1c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        },
+        {
+          "name": "word8",
+          "offset": "0x20",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 writes nine DWORDs; word7=44000000. Buffer descriptor still has records=3 and format20077fac. Deliberately not padded to48."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_LcueTessReflectionPartial",
+      "kind": "struct",
+      "size": 236,
+      "c_declaration": "typedef struct KH3_LcueTessReflectionPartial {\n    unsigned char unknown_0[232];\n    uint16_t internal_tess_constants_mapping;\n    unsigned char unknown_ea[2];\n} KH3_LcueTessReflectionPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "0x4c3a220 binds internal descriptor through reflection WORD+e8 to HS5 and domain stage2+(mode&20)/16. Not uniform map+c2 or vertex map+ea."
+      ],
+      "fields": [
+        {
+          "name": "internal_tess_constants_mapping",
+          "offset": "0xe8",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c3a220 binds internal descriptor through reflection WORD+e8 to HS5 and domain stage2+(mode&20)/16. Not uniform map+c2 or vertex map+ea."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmDescriptor4Words",
+      "kind": "struct",
+      "size": 16,
+      "c_declaration": "typedef struct KH3_GnmDescriptor4Words {\n    uint32_t word0;\n    uint32_t word1;\n    uint32_t word2;\n    uint32_t word3;\n} KH3_GnmDescriptor4Words;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Four raw DWORDs, descriptor interpretation depends on call site."
+      ],
+      "fields": [
+        {
+          "name": "word0",
+          "offset": "0x0",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Four raw DWORDs, descriptor interpretation depends on call site."
+          ]
+        },
+        {
+          "name": "word1",
+          "offset": "0x4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Four raw DWORDs, descriptor interpretation depends on call site."
+          ]
+        },
+        {
+          "name": "word2",
+          "offset": "0x8",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Four raw DWORDs, descriptor interpretation depends on call site."
+          ]
+        },
+        {
+          "name": "word3",
+          "offset": "0xc",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Four raw DWORDs, descriptor interpretation depends on call site."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmAuxRingPartial",
+      "kind": "struct",
+      "size": 56,
+      "c_declaration": "typedef struct KH3_GnmAuxRingPartial {\n    KH3_GnmAllocation backing;\n    KH3_GnmDescriptor4Words descriptor;\n    uint32_t table_slot;\n    unsigned char unknown_34[4];\n} KH3_GnmAuxRingPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "0x3a8260 replaces backing with 16KiB allocation and builds descriptor; global initializer0x3a9470 sets table indices0/1. Use of these aux buffers beyond shared table remains unidentified."
+      ],
+      "fields": [
+        {
+          "name": "backing",
+          "offset": "0x0",
+          "type": "KH3_GnmAllocation",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a8260 replaces backing with 16KiB allocation and builds descriptor; global initializer0x3a9470 sets table indices0/1. Use of these aux buffers beyond shared table remains unidentified."
+          ]
+        },
+        {
+          "name": "descriptor",
+          "offset": "0x20",
+          "type": "KH3_GnmDescriptor4Words",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a8260 replaces backing with 16KiB allocation and builds descriptor; global initializer0x3a9470 sets table indices0/1. Use of these aux buffers beyond shared table remains unidentified."
+          ]
+        },
+        {
+          "name": "table_slot",
+          "offset": "0x30",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x3a8260 replaces backing with 16KiB allocation and builds descriptor; global initializer0x3a9470 sets table indices0/1. Use of these aux buffers beyond shared table remains unidentified."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmManagerRingsPartial",
+      "kind": "struct",
+      "size": 176,
+      "c_declaration": "typedef struct KH3_GnmManagerRingsPartial {\n    KH3_GnmAuxRingPartial auxiliary0;\n    KH3_GnmAuxRingPartial auxiliary1;\n    KH3_GnmAllocation es_gs_ring;\n    KH3_GnmAllocation gs_vs_ring;\n} KH3_GnmManagerRingsPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Prefix of existing manager global A7260E0. Rings are members of this global manager, not independent per-context allocation owners. Remaining manager fields retained in earlier lifetime partial type."
+      ],
+      "fields": [
+        {
+          "name": "auxiliary0",
+          "offset": "0x0",
+          "type": "KH3_GnmAuxRingPartial",
+          "confidence": "candidate",
+          "evidence": [
+            "Prefix of existing manager global A7260E0. Rings are members of this global manager, not independent per-context allocation owners. Remaining manager fields retained in earlier lifetime partial type."
+          ]
+        },
+        {
+          "name": "auxiliary1",
+          "offset": "0x38",
+          "type": "KH3_GnmAuxRingPartial",
+          "confidence": "candidate",
+          "evidence": [
+            "Prefix of existing manager global A7260E0. Rings are members of this global manager, not independent per-context allocation owners. Remaining manager fields retained in earlier lifetime partial type."
+          ]
+        },
+        {
+          "name": "es_gs_ring",
+          "offset": "0x70",
+          "type": "KH3_GnmAllocation",
+          "confidence": "candidate",
+          "evidence": [
+            "Prefix of existing manager global A7260E0. Rings are members of this global manager, not independent per-context allocation owners. Remaining manager fields retained in earlier lifetime partial type."
+          ]
+        },
+        {
+          "name": "gs_vs_ring",
+          "offset": "0x90",
+          "type": "KH3_GnmAllocation",
+          "confidence": "candidate",
+          "evidence": [
+            "Prefix of existing manager global A7260E0. Rings are members of this global manager, not independent per-context allocation owners. Remaining manager fields retained in earlier lifetime partial type."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_LcueExtendedStagesPartial",
+      "kind": "struct",
+      "size": 50968,
+      "c_declaration": "typedef struct KH3_LcueExtendedStagesPartial {\n    unsigned char unknown_0[120];\n    void * shared_ring_table;\n    unsigned char unknown_80[49216];\n    void * es_program;\n    void * hs_program;\n    void * ls_program;\n    unsigned char unknown_c0d8[104];\n    void * es_fetch_shader;\n    unsigned char unknown_c148[8];\n    void * ls_fetch_shader;\n    unsigned char unknown_c158[24];\n    uint32_t es_modifier;\n    unsigned char unknown_c174[4];\n    uint32_t ls_modifier;\n    unsigned char unknown_c17c[28];\n    KH3_LcueGraphicsReflectionPartial * gs_reflection;\n    KH3_LcueGraphicsReflectionPartial * es_reflection;\n    KH3_LcueGraphicsReflectionPartial * hs_reflection;\n    KH3_LcueGraphicsReflectionPartial * ls_reflection;\n    unsigned char unknown_c1b8[168];\n    uint32_t stage_mode;\n    unsigned char unknown_c264[1124];\n    uint32_t geometry_mode;\n    uint32_t geometry_cut;\n    unsigned char unknown_c6d0[20];\n    uint32_t es_lds512_units;\n    uint16_t scalar_f_factor0;\n    uint16_t scalar_f_factor1;\n    uint32_t onchip_geometry_key;\n    unsigned char unknown_c6f0[4];\n    uint32_t patch_group_count_raw;\n    KH3_GnmDescriptor4Words tess_constants_descriptor;\n    int32_t tess_tf_param_override;\n    unsigned char unknown_c70c[6];\n    uint8_t tess_constants_enabled;\n    uint8_t copy_reflection_has_selector14;\n    unsigned char unknown_c714[4];\n} KH3_LcueExtendedStagesPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+      ],
+      "fields": [
+        {
+          "name": "shared_ring_table",
+          "offset": "0x78",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "es_program",
+          "offset": "0xc0c0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "hs_program",
+          "offset": "0xc0c8",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "ls_program",
+          "offset": "0xc0d0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "es_fetch_shader",
+          "offset": "0xc140",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "ls_fetch_shader",
+          "offset": "0xc150",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "es_modifier",
+          "offset": "0xc170",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "ls_modifier",
+          "offset": "0xc178",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "gs_reflection",
+          "offset": "0xc198",
+          "type": "KH3_LcueGraphicsReflectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "es_reflection",
+          "offset": "0xc1a0",
+          "type": "KH3_LcueGraphicsReflectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "hs_reflection",
+          "offset": "0xc1a8",
+          "type": "KH3_LcueGraphicsReflectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "ls_reflection",
+          "offset": "0xc1b0",
+          "type": "KH3_LcueGraphicsReflectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "stage_mode",
+          "offset": "0xc260",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "geometry_mode",
+          "offset": "0xc6c8",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "geometry_cut",
+          "offset": "0xc6cc",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "es_lds512_units",
+          "offset": "0xc6e4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "scalar_f_factor0",
+          "offset": "0xc6e8",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "scalar_f_factor1",
+          "offset": "0xc6ea",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "onchip_geometry_key",
+          "offset": "0xc6ec",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "patch_group_count_raw",
+          "offset": "0xc6f4",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "tess_constants_descriptor",
+          "offset": "0xc6f8",
+          "type": "KH3_GnmDescriptor4Words",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "tess_tf_param_override",
+          "offset": "0xc708",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "tess_constants_enabled",
+          "offset": "0xc712",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        },
+        {
+          "name": "copy_reflection_has_selector14",
+          "offset": "0xc713",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Relative to GNM+2e8. 0x4c3e390 initializes four copy profiles c268/c380/c498/c5b0; 0x4c3a220 uses mode&20 for ES/GS, mode&1 for LS/HS. Partial lower bound, not allocation size."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmGeometryContextPartial",
+      "kind": "struct",
+      "size": 1312,
+      "c_declaration": "typedef struct KH3_GnmGeometryContextPartial {\n    unsigned char unknown_0[1104];\n    uint32_t vertex_hardware_stage;\n    unsigned char unknown_454[104];\n    uint32_t stage_enable_cache;\n    unsigned char unknown_4c0[72];\n    uint32_t cached_es_item_dwords;\n    uint32_t cached_gs_item_dwords0;\n    uint32_t cached_gs_item_dwords1;\n    uint32_t cached_gs_item_dwords2;\n    uint32_t cached_gs_item_dwords3;\n    uint32_t cached_gs_max_vertices;\n} KH3_GnmGeometryContextPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 GS/ES/LS/HS static x86-64 + full Hex-Rays; docs/gnm/kh3-gnmrhi-stages.md. No new runtime hits. KH3 Release-4.17 semantics; UE4.18 interface reference only.",
+        "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+      ],
+      "fields": [
+        {
+          "name": "vertex_hardware_stage",
+          "offset": "0x450",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "stage_enable_cache",
+          "offset": "0x4bc",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "cached_es_item_dwords",
+          "offset": "0x508",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "cached_gs_item_dwords0",
+          "offset": "0x50c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "cached_gs_item_dwords1",
+          "offset": "0x510",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "cached_gs_item_dwords2",
+          "offset": "0x514",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "cached_gs_item_dwords3",
+          "offset": "0x518",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        },
+        {
+          "name": "cached_gs_max_vertices",
+          "offset": "0x51c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0 compares six ring layout fields; changed layouts allocate 192-byte table in DCB NOP, same layout reuses old table. GS mode chooses context vertex stage4."
+          ]
+        }
+      ]
+    }
+  ]
+}

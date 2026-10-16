@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.20)
+project(kh3_gnmrhi_semantics LANGUAGES CXX)
+
+add_library(gnmrhi_semantic STATIC gnm_rhi_semantic.cpp)
+target_include_directories(gnmrhi_semantic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_features(gnmrhi_semantic PUBLIC cxx_std_20)
+if(MSVC)
+    target_compile_options(gnmrhi_semantic PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(gnmrhi_semantic PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+add_executable(gnmrhi_demo demo.cpp)
+target_link_libraries(gnmrhi_demo PRIVATE gnmrhi_semantic)
+add_executable(gnmrhi_tests tests.cpp)
+target_link_libraries(gnmrhi_tests PRIVATE gnmrhi_semantic)
+enable_testing()
+add_test(NAME semantic_scenarios COMMAND gnmrhi_tests)
+
+# Compile the actual C++14 core used by the UE-style graphics implementation.
+add_executable(gnmrhi_graphics_tests graphics_tests.cpp)
+set_target_properties(gnmrhi_graphics_tests PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED YES)
+add_test(NAME graphics_scenarios COMMAND gnmrhi_graphics_tests)
+add_executable(gnmrhi_stages_tests stages_tests.cpp)
+set_target_properties(gnmrhi_stages_tests PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED YES)
+add_test(NAME stages_scenarios COMMAND gnmrhi_stages_tests)

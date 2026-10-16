@@ -1,3 +1,8 @@
+- **KH3 GnmRHI 语义还原与 UE C++ 参考（2026-10-16，r6）：** [资料入口](docs/gnm/README.md)、[阶段分析](docs/gnm/kh3-gnmrhi-stages.md)、[交接](docs/handoffs/kh3-gnmrhi-ida-20261016.md)、[C++](tools/gnmrhi-semantics/ue4-reference/README.md)。
+  - **范围**：以 CUSA15072 01.10 / `++UE4+Release-4.17` 的原始 ELF 为准；已还原提交/回收、buffer/UB、compute、graphics/draw，以及 GS/ES → copy VS → PS 的资源绑定与 LCUE 顺序。公开 UE4.18 仅用于接口校对；OpenGNM 固定到 `4b295ca54`，只作参考。
+  - **GS/ring**：manager 前缀有两个 16 KiB 辅助 buffer、ESGS/GSVS 各 4 MiB（64 KiB 对齐）；布局变化才在 DCB NOP 内生成 192-byte 描述符表。片上预算、copy profile、ES LDS override 与四流 ring descriptor 已有 C++14 实现。
+  - **tessellation**：SDK LS/HS 提交、9 DWORD 内部常量、reflection+e8 的 HS/DS 绑定已重放；KH3 的 UE HS/DS 选择入口、patch draw、tess factor backing、非compact copy辅助表完整填充仍未闭合，BSS 参考明确拒绝 tess。未推断这些分支在游戏中实际执行。
+  - **验证/保存**：CTest 3/3（13+6+8 场景），29 个 UE override 签名匹配；SHA-pinned v2 符号 r6：100 symbols /75 typed /39 types /6 shards，prepare 与 clang 365 个布局断言通过。完整 UE/PS4 SDK 与设备未验证；原 ELF、IDA、伪码和构建产物留在 `build/validation/kh3-gnmrhi-20261016/` 等本地证据目录，不入仓。
 - **截图/录像迁到 Foundation `modules/capture`（2026-10-14）：** [记录](docs/validation/android-native-host/foundation-capture-20261014.md)、skill `scrcpy-sdk-capture`、Foundation `docs/guides/emulator-capture.md`。
   - **共用实现**：与 SteamPSP 共用 Foundation 的 DebugBus 协议、编码器与 XR 图层合成。`capture_recorder` 包装 `FrameCapture`（2D 呈现画面），`openxr/xr_capture` 包装 `XrLayerCapture`（mailbox 进 Screen 槽，按环境 → 屏幕 → 状态登记后用宿主已定位的双眼合成）；删除 `xr_capture.comp`。新增 `capture_config`（码率/尺寸/帧率/关键帧间隔，同 scrcpy）。
   - **行为变化**：XR 会话 > 2D 呈现画面按优先级接管；XR 中 canvas 也由会话给出（mailbox 图），不再为截图改画 Android 窗口；2D 模式选 `xr` 也给 canvas。XR 截图改为全尺寸（Swan 双眼 5184×2400），录像仍为每眼一半。

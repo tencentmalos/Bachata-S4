@@ -227,3 +227,6 @@
 	path = references/bloodborne_pc
 	url = https://github.com/deadinside28/bloodborne_pc.git
 	branch = master
+[submodule "references/opengnm"]
+	path = references/opengnm
+	url = https://github.com/PS4-OpenGNM/opengnm

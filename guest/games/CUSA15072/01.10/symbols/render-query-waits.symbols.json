@@ -1,0 +1,154 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "kh3-0110-eboot",
+  "domain": "render-query-waits",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3955d0",
+      "segment": "text",
+      "name": "GnmRHI_RHIGetRenderQueryResult",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "RHI vtable +728; calls fn_3a0d10 at +0x10f and +0x1c6 when bWait is set and the result is missing.",
+        "2026-10-16: type1 all begin/end bit63 valid, type2 timestamp nonzero; regular nonblocking not-ready writes OutResult=0, early issue/frame rejection and timeout preserve OutResult. Begin0x37dc50 CPU clears256bytes; timestamp End0x37de30 clears8bytes."
+      ],
+      "prototype": {
+        "return_type": "uint8_t",
+        "return_location": "al",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "0x3955d0 register uses; query+0x50 flags and +0x58 type. Fresh prototype static-only; prior name confidence retained."
+        ],
+        "parameters": [
+          {
+            "name": "rhi",
+            "type": "void *",
+            "location": "rdi (unused)",
+            "confidence": "candidate",
+            "evidence": [
+              "0x3955d0 register uses; query+0x50 flags and +0x58 type. Fresh prototype static-only; prior name confidence retained."
+            ]
+          },
+          {
+            "name": "query",
+            "type": "KH3_GnmRenderQueryPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "0x3955d0 register uses; query+0x50 flags and +0x58 type. Fresh prototype static-only; prior name confidence retained."
+            ]
+          },
+          {
+            "name": "out_result",
+            "type": "uint64_t *",
+            "location": "rdx",
+            "confidence": "candidate",
+            "evidence": [
+              "0x3955d0 register uses; query+0x50 flags and +0x58 type. Fresh prototype static-only; prior name confidence retained."
+            ]
+          },
+          {
+            "name": "wait",
+            "type": "uint8_t",
+            "location": "cl",
+            "confidence": "candidate",
+            "evidence": [
+              "0x3955d0 register uses; query+0x50 flags and +0x58 type. Fresh prototype static-only; prior name confidence retained."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3a0d10",
+      "segment": "text",
+      "name": "GnmRHI_WaitForRenderQueryResult",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "Polls the query begin/end words (valid bit 63, 8 or 16 render backends), runs render-thread tasks, times out on constants at 0x7955178/80; on success increments 0xbe0e20c and adds to 0xc02ba50."
+      ],
+      "comment": "Guest patch site query_wait_back_edge at +0x1de (0x3a0eee)."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x44752a0",
+      "segment": "text",
+      "name": "FDrawSceneCommand_Execute",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "Render thread (Guest-57) root that reaches the query wait; name from UE4 structure, not a vendor symbol."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x5d8dfc0",
+      "segment": "text",
+      "name": "UEngine_UpdateTimeAndHandleMaxTickRate",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "Game thread frame cap: usleep for all but 2 ms, then scePthreadYield until the end time; guest patch site tick_wait_round at 0x5d8e2ea."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xbe0e20c",
+      "segment": "data",
+      "name": "GnmRHI_QueryWaitSuccessCount",
+      "kind": "data",
+      "data_type": "uint32_t",
+      "size": 4,
+      "confidence": "correlated",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "fn_3a0d10 success path: ++dword_BE0E20C."
+      ],
+      "mode": "x86-64"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xc02ba50",
+      "segment": "data",
+      "name": "GnmRHI_QueryWaitTime1024Ticks",
+      "kind": "data",
+      "data_type": "uint32_t",
+      "size": 4,
+      "confidence": "correlated",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "fn_3a0d10 success path: += (end >> 10) - (start >> 10) of sceKernelGetProcessTimeCounter."
+      ],
+      "mode": "x86-64"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xa7065f8",
+      "segment": "data",
+      "name": "FPlatformTime_SecondsPerCycle",
+      "kind": "data",
+      "data_type": "double",
+      "size": 8,
+      "confidence": "correlated",
+      "evidence": [
+        "Static: analysis ELF of decrypted eboot (ELF SHA 29524c83, device SELF be1ff228), IDA workspace kh3-cusa15072-0110 Hex-Rays; guest/games/CUSA15072/README.md.",
+        "Multiplies the process time counter into seconds in fn_3a0d10 and UEngine_UpdateTimeAndHandleMaxTickRate."
+      ],
+      "mode": "x86-64"
+    }
+  ],
+  "types": []
+}

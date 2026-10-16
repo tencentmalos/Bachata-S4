@@ -1,0 +1,1479 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "kh3-0110-eboot",
+  "domain": "gnmrhi-binding",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x368f70",
+      "segment": "text",
+      "name": "KH3_Gnm_WriteLooseConstants",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Copies size bytes from RSI to shadow+offset; high-water uses uint16(size) at 0x368fcc; dirty +0x40 set. Model restricts input size to <=65535."
+      ],
+      "size": 692,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Copies size bytes from RSI to shadow+offset; high-water uses uint16(size) at 0x368fcc; dirty +0x40 set. Model restricts input size to <=65535.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "shadow",
+            "type": "KH3_GnmLooseConstantsPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Copies size bytes from RSI to shadow+offset; high-water uses uint16(size) at 0x368fcc; dirty +0x40 set. Model restricts input size to <=65535."
+            ]
+          },
+          {
+            "name": "source",
+            "type": "const void *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Copies size bytes from RSI to shadow+offset; high-water uses uint16(size) at 0x368fcc; dirty +0x40 set. Model restricts input size to <=65535."
+            ]
+          },
+          {
+            "name": "offset",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Copies size bytes from RSI to shadow+offset; high-water uses uint16(size) at 0x368fcc; dirty +0x40 set. Model restricts input size to <=65535."
+            ]
+          },
+          {
+            "name": "size",
+            "type": "uint32_t",
+            "location": "ecx",
+            "confidence": "candidate",
+            "evidence": [
+              "Copies size bytes from RSI to shadow+offset; high-water uses uint16(size) at 0x368fcc; dirty +0x40 set. Model restricts input size to <=65535."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36d740",
+      "segment": "text",
+      "name": "KH3_Gnm_CommitLooseConstants",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Returns AL=0 if clean; otherwise allocates fresh 16-byte-aligned extent, copies shadow, emits descriptor; leaves dirty reset to caller."
+      ],
+      "size": 1020,
+      "prototype": {
+        "return_type": "uint8_t",
+        "return_location": "al",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Returns AL=0 if clean; otherwise allocates fresh 16-byte-aligned extent, copies shadow, emits descriptor; leaves dirty reset to caller.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "shadow",
+            "type": "KH3_GnmLooseConstantsPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns AL=0 if clean; otherwise allocates fresh 16-byte-aligned extent, copies shadow, emits descriptor; leaves dirty reset to caller."
+            ]
+          },
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns AL=0 if clean; otherwise allocates fresh 16-byte-aligned extent, copies shadow, emits descriptor; leaves dirty reset to caller."
+            ]
+          },
+          {
+            "name": "discard_old_extent",
+            "type": "uint8_t",
+            "location": "dl",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns AL=0 if clean; otherwise allocates fresh 16-byte-aligned extent, copies shadow, emits descriptor; leaves dirty reset to caller."
+            ]
+          },
+          {
+            "name": "out_descriptor",
+            "type": "uint32_t *",
+            "location": "rcx",
+            "confidence": "candidate",
+            "evidence": [
+              "Returns AL=0 if clean; otherwise allocates fresh 16-byte-aligned extent, copies shadow, emits descriptor; leaves dirty reset to caller."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36b0f0",
+      "segment": "text",
+      "name": "KH3_Gnm_BindShaderResourceView",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Refreshes buffer descriptor from current multibuffer slot; texture branch uses +0x40 descriptor; reflection uint16 selects direct SGPR or CPU table."
+      ],
+      "size": 1322,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Refreshes buffer descriptor from current multibuffer slot; texture branch uses +0x40 descriptor; reflection uint16 selects direct SGPR or CPU table.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Refreshes buffer descriptor from current multibuffer slot; texture branch uses +0x40 descriptor; reflection uint16 selects direct SGPR or CPU table."
+            ]
+          },
+          {
+            "name": "srv",
+            "type": "KH3_GnmSrvPartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Refreshes buffer descriptor from current multibuffer slot; texture branch uses +0x40 descriptor; reflection uint16 selects direct SGPR or CPU table."
+            ]
+          },
+          {
+            "name": "bind_index",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Refreshes buffer descriptor from current multibuffer slot; texture branch uses +0x40 descriptor; reflection uint16 selects direct SGPR or CPU table."
+            ]
+          },
+          {
+            "name": "gnm_stage",
+            "type": "uint32_t",
+            "location": "ecx",
+            "confidence": "candidate",
+            "evidence": [
+              "Refreshes buffer descriptor from current multibuffer slot; texture branch uses +0x40 descriptor; reflection uint16 selects direct SGPR or CPU table."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36db40",
+      "segment": "text",
+      "name": "KH3_Gnm_CommitComputeResourceTables",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "shader+0x200 & context+0x91c; UBs+0x868; texture/SRV/sampler packed maps; clears entire CS dirty mask."
+      ],
+      "size": 2178,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "shader+0x200 & context+0x91c; UBs+0x868; texture/SRV/sampler packed maps; clears entire CS dirty mask.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "shader+0x200 & context+0x91c; UBs+0x868; texture/SRV/sampler packed maps; clears entire CS dirty mask."
+            ]
+          },
+          {
+            "name": "shader",
+            "type": "KH3_GnmShaderResourceTablePartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "shader+0x200 & context+0x91c; UBs+0x868; texture/SRV/sampler packed maps; clears entire CS dirty mask."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x384e20",
+      "segment": "text",
+      "name": "KH3_Gnm_CommitVertexResourceTables",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "UBs+0x548, dirty+0x908; hardware GNM stage is caller parameter, not a fixed UE frequency."
+      ],
+      "size": 1665,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "UBs+0x548, dirty+0x908; hardware GNM stage is caller parameter, not a fixed UE frequency.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x548, dirty+0x908; hardware GNM stage is caller parameter, not a fixed UE frequency."
+            ]
+          },
+          {
+            "name": "shader",
+            "type": "KH3_GnmShaderResourceTablePartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x548, dirty+0x908; hardware GNM stage is caller parameter, not a fixed UE frequency."
+            ]
+          },
+          {
+            "name": "gnm_stage",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x548, dirty+0x908; hardware GNM stage is caller parameter, not a fixed UE frequency."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3854b0",
+      "segment": "text",
+      "name": "KH3_Gnm_CommitPixelResourceTables",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "UBs+0x728, dirty+0x914; stage1 reflection and descriptor table; texture-reference handling present."
+      ],
+      "size": 3470,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "UBs+0x728, dirty+0x914; stage1 reflection and descriptor table; texture-reference handling present.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x728, dirty+0x914; stage1 reflection and descriptor table; texture-reference handling present."
+            ]
+          },
+          {
+            "name": "shader",
+            "type": "KH3_GnmShaderResourceTablePartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x728, dirty+0x914; stage1 reflection and descriptor table; texture-reference handling present."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x386240",
+      "segment": "text",
+      "name": "KH3_Gnm_CommitGeometryResourceTables",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "UBs+0x7c8, dirty+0x918; fixed GNM stage3; packed maps and SRV binder."
+      ],
+      "size": 1087,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "UBs+0x7c8, dirty+0x918; fixed GNM stage3; packed maps and SRV binder.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x7c8, dirty+0x918; fixed GNM stage3; packed maps and SRV binder."
+            ]
+          },
+          {
+            "name": "shader",
+            "type": "KH3_GnmShaderResourceTablePartial *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "UBs+0x7c8, dirty+0x918; fixed GNM stage3; packed maps and SRV binder."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x386680",
+      "segment": "text",
+      "name": "KH3_Gnm_CommitGraphicsLooseConstants",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Shadow pointers context+0xac0/+0xad8/+0xae0; caller flag+0xab5; clears shadow dirty/update end and flag after processing."
+      ],
+      "size": 959,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Shadow pointers context+0xac0/+0xad8/+0xae0; caller flag+0xab5; clears shadow dirty/update end and flag after processing.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Shadow pointers context+0xac0/+0xad8/+0xae0; caller flag+0xab5; clears shadow dirty/update end and flag after processing."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x386a40",
+      "segment": "text",
+      "name": "KH3_Gnm_PrepareGraphicsResources",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Vertex descriptor update followed by 0x384e20/0x3854b0/0x386240 then 0x386680. Full vertex/instancing ABI not reconstructed.",
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 graphics static x86-64 / Hex-Rays reconstruction; docs/gnm/kh3-gnmrhi-graphics.md. KH3 ++UE4+Release-4.17 semantics, UE4.18 public interface comparison only. No new runtime validation.",
+        "RDI context, ESI FirstInstance; vertex declaration/remap and stream descriptors, VS/PS/GS maps, then0x386680. Other decompiler arguments incidental."
+      ],
+      "size": 819,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "RDI context, ESI FirstInstance; vertex declaration/remap and stream descriptors, VS/PS/GS maps, then0x386680. Other decompiler arguments incidental.",
+          "Semantic prototype; incidental return-register contents do not establish a return value."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "RDI context, ESI FirstInstance; vertex declaration/remap and stream descriptors, VS/PS/GS maps, then0x386680. Other decompiler arguments incidental."
+            ]
+          },
+          {
+            "name": "first_instance",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "RDI context, ESI FirstInstance; vertex declaration/remap and stream descriptors, VS/PS/GS maps, then0x386680. Other decompiler arguments incidental."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36cfb0",
+      "segment": "text",
+      "name": "KH3_Gnm_DispatchComputeDirect",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Optional pre-flush; loose constants; resource tables; SDK LCUE commit; sceGnmDispatchDirect; optional EOS/wait/acquire after dispatch."
+      ],
+      "size": 1159,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Optional pre-flush; loose constants; resource tables; SDK LCUE commit; sceGnmDispatchDirect; optional EOS/wait/acquire after dispatch.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Optional pre-flush; loose constants; resource tables; SDK LCUE commit; sceGnmDispatchDirect; optional EOS/wait/acquire after dispatch."
+            ]
+          },
+          {
+            "name": "groups_x",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "Optional pre-flush; loose constants; resource tables; SDK LCUE commit; sceGnmDispatchDirect; optional EOS/wait/acquire after dispatch."
+            ]
+          },
+          {
+            "name": "groups_y",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Optional pre-flush; loose constants; resource tables; SDK LCUE commit; sceGnmDispatchDirect; optional EOS/wait/acquire after dispatch."
+            ]
+          },
+          {
+            "name": "groups_z",
+            "type": "uint32_t",
+            "location": "ecx",
+            "confidence": "candidate",
+            "evidence": [
+              "Optional pre-flush; loose constants; resource tables; SDK LCUE commit; sceGnmDispatchDirect; optional EOS/wait/acquire after dispatch."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x3772d0",
+      "segment": "text",
+      "name": "KH3_Gnm_DispatchComputeIndirect",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Resolves RHI-buffer minus0x68 multibuffer and current backing, emits indirect base, commits resources and calls sceGnmDispatchIndirect."
+      ],
+      "size": 1294,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Resolves RHI-buffer minus0x68 multibuffer and current backing, emits indirect base, commits resources and calls sceGnmDispatchIndirect.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Resolves RHI-buffer minus0x68 multibuffer and current backing, emits indirect base, commits resources and calls sceGnmDispatchIndirect."
+            ]
+          },
+          {
+            "name": "indirect_rhi_buffer",
+            "type": "void *",
+            "location": "rsi",
+            "confidence": "candidate",
+            "evidence": [
+              "Resolves RHI-buffer minus0x68 multibuffer and current backing, emits indirect base, commits resources and calls sceGnmDispatchIndirect."
+            ]
+          },
+          {
+            "name": "argument_offset",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Resolves RHI-buffer minus0x68 multibuffer and current backing, emits indirect base, commits resources and calls sceGnmDispatchIndirect."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x36d440",
+      "segment": "text",
+      "name": "KH3_Gnm_FlushPriorGraphics",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "CPU-zero label in NOP payload; EOP event0x38504; WAIT_REG_MEM; ranged ACQUIRE_MEM 0x02003fc0 then0x00c40000; empties context+0x408 range array."
+      ],
+      "size": 756,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "CPU-zero label in NOP payload; EOP event0x38504; WAIT_REG_MEM; ranged ACQUIRE_MEM 0x02003fc0 then0x00c40000; empties context+0x408 range array.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "CPU-zero label in NOP payload; EOP event0x38504; WAIT_REG_MEM; ranged ACQUIRE_MEM 0x02003fc0 then0x00c40000; empties context+0x408 range array."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c39b50",
+      "segment": "text",
+      "name": "KH3_SDK_LcueCommitCompute",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Shader dirty calls SetCsShaderWithModifier; resource dirty snapshots staging prefix, emits table pointers selected by reflection, clears dirty."
+      ],
+      "size": 1731,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Shader dirty calls SetCsShaderWithModifier; resource dirty snapshots staging prefix, emits table pointers selected by reflection, clears dirty.",
+          "Semantic prototype; incidental unused return-register values are not assigned API meaning."
+        ],
+        "parameters": [
+          {
+            "name": "lcue",
+            "type": "KH3_LcueComputePartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Shader dirty calls SetCsShaderWithModifier; resource dirty snapshots staging prefix, emits table pointers selected by reflection, clears dirty."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x380650",
+      "segment": "text",
+      "name": "KH3_Gnm_RHIDrawPrimitive",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Call boundary confirmed: 0x386a40 -> SDK0x4c3a220(gnm+0x2e8) -> sceGnmDrawIndexAuto. Full RHI parameter names not reconstructed.",
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 graphics static x86-64 / Hex-Rays reconstruction; docs/gnm/kh3-gnmrhi-graphics.md. KH3 ++UE4+Release-4.17 semantics, UE4.18 public interface comparison only. No new runtime validation.",
+        "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0."
+      ],
+      "size": 1173,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0.",
+          "Semantic prototype; incidental return-register contents do not establish a return value."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "KH3_GnmBindingContextPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0."
+            ]
+          },
+          {
+            "name": "primitive_type",
+            "type": "uint32_t",
+            "location": "esi",
+            "confidence": "candidate",
+            "evidence": [
+              "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0."
+            ]
+          },
+          {
+            "name": "base_vertex",
+            "type": "uint32_t",
+            "location": "edx",
+            "confidence": "candidate",
+            "evidence": [
+              "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0."
+            ]
+          },
+          {
+            "name": "num_primitives",
+            "type": "uint32_t",
+            "location": "ecx",
+            "confidence": "candidate",
+            "evidence": [
+              "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0."
+            ]
+          },
+          {
+            "name": "num_instances",
+            "type": "uint32_t",
+            "location": "r8d",
+            "confidence": "candidate",
+            "evidence": [
+              "Prepare(0), topology/base/instances/indexType=0, graphics LCUE, SDK DrawIndexAuto, reset instances1 and base0."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x4c3a220",
+      "segment": "text",
+      "name": "KH3_SDK_LcueCommitGraphics",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Only caller position/LCUE argument established from 0x380650. Function body not fully analyzed; do not assume compute layout/semantics transfer.",
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 graphics static x86-64 / Hex-Rays reconstruction; docs/gnm/kh3-gnmrhi-graphics.md. KH3 ++UE4+Release-4.17 semantics, UE4.18 public interface comparison only. No new runtime validation.",
+        "Input GNM+0x2e8; mode branches ES/GS or LS/HS before normal VS/PS. SDK shader Set/Update precedes table uploads, reflection selectors then VS-to-PS linker. Not queue submit."
+      ],
+      "size": 15144,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "void",
+        "calling_convention": "sysv_amd64",
+        "confidence": "candidate",
+        "evidence": [
+          "Input GNM+0x2e8; mode branches ES/GS or LS/HS before normal VS/PS. SDK shader Set/Update precedes table uploads, reflection selectors then VS-to-PS linker. Not queue submit.",
+          "Semantic prototype; incidental return-register contents do not establish a return value."
+        ],
+        "parameters": [
+          {
+            "name": "lcue",
+            "type": "KH3_LcueGraphicsPartial *",
+            "location": "rdi",
+            "confidence": "candidate",
+            "evidence": [
+              "Input GNM+0x2e8; mode branches ES/GS or LS/HS before normal VS/PS. SDK shader Set/Update precedes table uploads, reflection selectors then VS-to-PS linker. Not queue submit."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x7ed9e50",
+      "segment": "rodata",
+      "name": "KH3_Gnm_UserSgprBaseByHardwareStage",
+      "kind": "data",
+      "mode": "x86-64",
+      "size": 14,
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Seven uint16 values:2e40,2c0c,2c4c,2c8c,2ccc,2d0c,2d4c; referenced by descriptor binding helpers."
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "KH3_GnmLooseConstantsPartial",
+      "kind": "struct",
+      "size": 88,
+      "c_declaration": "typedef struct KH3_GnmLooseConstantsPartial {\n    unsigned char unknown_0[64];\n    uint8_t dirty;\n    unsigned char unknown_41[7];\n    uint8_t * cpu_shadow;\n    uint32_t updated_end;\n    uint32_t prior_extent;\n} KH3_GnmLooseConstantsPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "0x368f70 writes shadow and sets dirty/max end; 0x36d740 reads these fields, updates aligned prior_extent, leaves dirty for caller."
+      ],
+      "fields": [
+        {
+          "name": "dirty",
+          "offset": "0x40",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x368f70 writes shadow and sets dirty/max end; 0x36d740 reads these fields, updates aligned prior_extent, leaves dirty for caller."
+          ]
+        },
+        {
+          "name": "cpu_shadow",
+          "offset": "0x48",
+          "type": "uint8_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x368f70 writes shadow and sets dirty/max end; 0x36d740 reads these fields, updates aligned prior_extent, leaves dirty for caller."
+          ]
+        },
+        {
+          "name": "updated_end",
+          "offset": "0x50",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x368f70 writes shadow and sets dirty/max end; 0x36d740 reads these fields, updates aligned prior_extent, leaves dirty for caller."
+          ]
+        },
+        {
+          "name": "prior_extent",
+          "offset": "0x54",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x368f70 writes shadow and sets dirty/max end; 0x36d740 reads these fields, updates aligned prior_extent, leaves dirty for caller."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmShaderResourceTablePartial",
+      "kind": "struct",
+      "size": 608,
+      "c_declaration": "typedef struct KH3_GnmShaderResourceTablePartial {\n    unsigned char unknown_0[512];\n    uint32_t resource_table_bits;\n    unsigned char unknown_204[4];\n    uint32_t * srv_map;\n    unsigned char unknown_210[8];\n    uint32_t * sampler_map;\n    unsigned char unknown_220[40];\n    uint32_t * texture_map;\n    unsigned char unknown_250[8];\n    uint8_t uses_loose_constants_cs;\n    unsigned char unknown_259[7];\n} KH3_GnmShaderResourceTablePartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "0x36db40 and 0x384e20 read mask and packed map pointers. 0x36cfb0 reads byte +0x258. Array metadata and other shader fields remain unknown."
+      ],
+      "fields": [
+        {
+          "name": "resource_table_bits",
+          "offset": "0x200",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36db40 and 0x384e20 read mask and packed map pointers. 0x36cfb0 reads byte +0x258. Array metadata and other shader fields remain unknown."
+          ]
+        },
+        {
+          "name": "srv_map",
+          "offset": "0x208",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36db40 and 0x384e20 read mask and packed map pointers. 0x36cfb0 reads byte +0x258. Array metadata and other shader fields remain unknown."
+          ]
+        },
+        {
+          "name": "sampler_map",
+          "offset": "0x218",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36db40 and 0x384e20 read mask and packed map pointers. 0x36cfb0 reads byte +0x258. Array metadata and other shader fields remain unknown."
+          ]
+        },
+        {
+          "name": "texture_map",
+          "offset": "0x248",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36db40 and 0x384e20 read mask and packed map pointers. 0x36cfb0 reads byte +0x258. Array metadata and other shader fields remain unknown."
+          ]
+        },
+        {
+          "name": "uses_loose_constants_cs",
+          "offset": "0x258",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36db40 and 0x384e20 read mask and packed map pointers. 0x36cfb0 reads byte +0x258. Array metadata and other shader fields remain unknown."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_LcueReflectionPartial",
+      "kind": "struct",
+      "size": 196,
+      "c_declaration": "typedef struct KH3_LcueReflectionPartial {\n    uint16_t table_dwords;\n    unsigned char unknown_2[5];\n    uint8_t table_pointer_sgpr;\n    uint8_t subtable_pointer_sgprs[4];\n    uint8_t special_pointer_sgpr;\n    uint8_t additional_data_sgprs[2];\n    unsigned char unknown_f[7];\n    uint16_t subtable0_dwords;\n    unsigned char unknown_18[2];\n    uint16_t subtable1_dwords;\n    uint16_t subtable2_dwords;\n    uint16_t subtable3_dwords;\n    unsigned char unknown_20[2];\n    uint16_t resource_slot0;\n    unsigned char unknown_24[126];\n    uint16_t sampler_slot0;\n    unsigned char unknown_a4[30];\n    uint16_t constant_buffer_slot0;\n} KH3_LcueReflectionPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+      ],
+      "fields": [
+        {
+          "name": "table_dwords",
+          "offset": "0x0",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "table_pointer_sgpr",
+          "offset": "0x7",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "subtable_pointer_sgprs",
+          "offset": "0x8",
+          "type": "uint8_t[4]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "special_pointer_sgpr",
+          "offset": "0xc",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "additional_data_sgprs",
+          "offset": "0xd",
+          "type": "uint8_t[2]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "subtable0_dwords",
+          "offset": "0x16",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "subtable1_dwords",
+          "offset": "0x1a",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "subtable2_dwords",
+          "offset": "0x1c",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "subtable3_dwords",
+          "offset": "0x1e",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "resource_slot0",
+          "offset": "0x22",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "sampler_slot0",
+          "offset": "0xa2",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        },
+        {
+          "name": "constant_buffer_slot0",
+          "offset": "0xc2",
+          "type": "uint16_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 reads extent/selectors/subtable dword offsets; 0x36db40/0x36b0f0 read resource and sampler slot maps; 0x36cfb0 reads constant slot0. Only first mapping entries are declared, array bounds not inferred."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmSrvPartial",
+      "kind": "struct",
+      "size": 96,
+      "c_declaration": "typedef struct KH3_GnmSrvPartial {\n    unsigned char unknown_0[20];\n    uint32_t buffer_descriptor[4];\n    unsigned char unknown_24[4];\n    void * multibuffer;\n    void * texture_rhi;\n    void * alternate_resource;\n    uint32_t texture_descriptor[8];\n} KH3_GnmSrvPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "0x36b0f0 selects buffer/texture branches, reads backing object at +0x28, rewrites base bits in +0x14 buffer descriptor, uses +0x40 texture descriptor. Alternate resource semantics unknown."
+      ],
+      "fields": [
+        {
+          "name": "buffer_descriptor",
+          "offset": "0x14",
+          "type": "uint32_t[4]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b0f0 selects buffer/texture branches, reads backing object at +0x28, rewrites base bits in +0x14 buffer descriptor, uses +0x40 texture descriptor. Alternate resource semantics unknown."
+          ]
+        },
+        {
+          "name": "multibuffer",
+          "offset": "0x28",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b0f0 selects buffer/texture branches, reads backing object at +0x28, rewrites base bits in +0x14 buffer descriptor, uses +0x40 texture descriptor. Alternate resource semantics unknown."
+          ]
+        },
+        {
+          "name": "texture_rhi",
+          "offset": "0x30",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b0f0 selects buffer/texture branches, reads backing object at +0x28, rewrites base bits in +0x14 buffer descriptor, uses +0x40 texture descriptor. Alternate resource semantics unknown."
+          ]
+        },
+        {
+          "name": "alternate_resource",
+          "offset": "0x38",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b0f0 selects buffer/texture branches, reads backing object at +0x28, rewrites base bits in +0x14 buffer descriptor, uses +0x40 texture descriptor. Alternate resource semantics unknown."
+          ]
+        },
+        {
+          "name": "texture_descriptor",
+          "offset": "0x40",
+          "type": "uint32_t[8]",
+          "confidence": "candidate",
+          "evidence": [
+            "0x36b0f0 selects buffer/texture branches, reads backing object at +0x28, rewrites base bits in +0x14 buffer descriptor, uses +0x40 texture descriptor. Alternate resource semantics unknown."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_GnmBindingContextPartial",
+      "kind": "struct",
+      "size": 2800,
+      "c_declaration": "typedef struct KH3_GnmBindingContextPartial {\n    unsigned char unknown_0[80];\n    uint64_t * constant_upload_blocks;\n    int32_t constant_block_count;\n    int32_t constant_block_capacity;\n    uint8_t * constant_cursor;\n    uint32_t constant_block_used;\n    int32_t constant_block_index;\n    unsigned char unknown_70[920];\n    void * flush_ranges;\n    int32_t flush_range_count;\n    int32_t flush_range_capacity;\n    unsigned char unknown_418[40];\n    void * gnm_context;\n    void * bound_shader_state;\n    uint32_t vertex_gnm_stage;\n    unsigned char unknown_454[244];\n    void * vertex_uniform_slot0;\n    unsigned char unknown_550[472];\n    void * pixel_uniform_slot0;\n    unsigned char unknown_730[152];\n    void * geometry_uniform_slot0;\n    unsigned char unknown_7d0[152];\n    void * compute_uniform_slot0;\n    unsigned char unknown_870[152];\n    uint32_t vertex_uniform_dirty;\n    unsigned char unknown_90c[8];\n    uint32_t pixel_uniform_dirty;\n    uint32_t geometry_uniform_dirty;\n    uint32_t compute_uniform_dirty;\n    void * compute_shader;\n    uint64_t stream0_gpu_base;\n    unsigned char unknown_930[376];\n    void * vertex_declaration;\n    uint32_t first_instance;\n    uint8_t vertex_descriptors_dirty;\n    uint8_t discard_loose_extent;\n    unsigned char unknown_ab6[6];\n    uint8_t post_compute_flush_flag;\n    unsigned char unknown_abd[3];\n    KH3_GnmLooseConstantsPartial * vertex_loose;\n    unsigned char unknown_ac8[16];\n    KH3_GnmLooseConstantsPartial * pixel_loose;\n    KH3_GnmLooseConstantsPartial * geometry_loose;\n    KH3_GnmLooseConstantsPartial * compute_loose;\n} KH3_GnmBindingContextPartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size.",
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 graphics static x86-64 / Hex-Rays reconstruction; docs/gnm/kh3-gnmrhi-graphics.md. KH3 ++UE4+Release-4.17 semantics, UE4.18 public interface comparison only. No new runtime validation. Corrected earlier +0x928 declaration interpretation; actual declaration at+0xaa8."
+      ],
+      "fields": [
+        {
+          "name": "constant_upload_blocks",
+          "offset": "0x50",
+          "type": "uint64_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "constant_block_count",
+          "offset": "0x58",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "constant_block_capacity",
+          "offset": "0x5c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "constant_cursor",
+          "offset": "0x60",
+          "type": "uint8_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "constant_block_used",
+          "offset": "0x68",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "constant_block_index",
+          "offset": "0x6c",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "flush_ranges",
+          "offset": "0x408",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "flush_range_count",
+          "offset": "0x410",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "flush_range_capacity",
+          "offset": "0x414",
+          "type": "int32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "gnm_context",
+          "offset": "0x440",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "bound_shader_state",
+          "offset": "0x448",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "vertex_gnm_stage",
+          "offset": "0x450",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "vertex_uniform_slot0",
+          "offset": "0x548",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "pixel_uniform_slot0",
+          "offset": "0x728",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "geometry_uniform_slot0",
+          "offset": "0x7c8",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "compute_uniform_slot0",
+          "offset": "0x868",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "vertex_uniform_dirty",
+          "offset": "0x908",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "pixel_uniform_dirty",
+          "offset": "0x914",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "geometry_uniform_dirty",
+          "offset": "0x918",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "compute_uniform_dirty",
+          "offset": "0x91c",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "compute_shader",
+          "offset": "0x920",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "stream0_gpu_base",
+          "offset": "0x928",
+          "type": "uint64_t",
+          "confidence": "candidate",
+          "evidence": [
+            "r5 correction:0x37e180 writes GPU base+Offset here; vertex declaration is+0xaa8."
+          ]
+        },
+        {
+          "name": "vertex_declaration",
+          "offset": "0xaa8",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0/0x386a40; r5 graphics correction."
+          ]
+        },
+        {
+          "name": "first_instance",
+          "offset": "0xab0",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x382bf0/0x386a40; r5 graphics correction."
+          ]
+        },
+        {
+          "name": "vertex_descriptors_dirty",
+          "offset": "0xab4",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "discard_loose_extent",
+          "offset": "0xab5",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "post_compute_flush_flag",
+          "offset": "0xabc",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "vertex_loose",
+          "offset": "0xac0",
+          "type": "KH3_GnmLooseConstantsPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "pixel_loose",
+          "offset": "0xad8",
+          "type": "KH3_GnmLooseConstantsPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "geometry_loose",
+          "offset": "0xae0",
+          "type": "KH3_GnmLooseConstantsPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        },
+        {
+          "name": "compute_loose",
+          "offset": "0xae8",
+          "type": "KH3_GnmLooseConstantsPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "Cross-read 0x36d740 allocator, 0x36d440 flush array, 0x36cfb0 dispatch, 0x384e20/0x3854b0/0x386240/0x36db40 masks and UB slot0 bases, 0x386680 loose constants, 0x386a40 vertex preparation. Partial lower-bound layout, not full object size."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KH3_LcueComputePartial",
+      "kind": "struct",
+      "size": 49752,
+      "c_declaration": "typedef struct KH3_LcueComputePartial {\n    void * upload_overflow_callback;\n    void * upload_overflow_userdata;\n    unsigned char unknown_10[16];\n    uint32_t * upload_cursor;\n    uint32_t * upload_block_base;\n    uint32_t * upload_end;\n    unsigned char unknown_38[64];\n    void * special_pointer;\n    unsigned char unknown_80[8];\n    uint8_t prefetch_enabled;\n    unsigned char unknown_89[7];\n    uint32_t compute_staging_word0;\n    unsigned char unknown_94[49148];\n    void * command_buffer;\n    unsigned char unknown_c098[8];\n    void * compute_shader;\n    unsigned char unknown_c0a8[216];\n    KH3_LcueReflectionPartial * compute_reflection;\n    unsigned char unknown_c188[192];\n    uint8_t compute_shader_dirty;\n    unsigned char unknown_c249[7];\n    uint8_t compute_resources_dirty;\n    unsigned char unknown_c251[7];\n} KH3_LcueComputePartial;",
+      "confidence": "candidate",
+      "evidence": [
+        "KH3 CUSA15072 01.10 original ELF SHA256 29524c8302995aac8207e69b3e16da81410bce4685d9b010d011c3dec72990b9; 2026-10-16 static x86-64 and Hex-Rays cross-reading; docs/gnm/kh3-gnmrhi-binding-semantics.md. No new runtime validation.",
+        "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+      ],
+      "fields": [
+        {
+          "name": "upload_overflow_callback",
+          "offset": "0x0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "upload_overflow_userdata",
+          "offset": "0x8",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "upload_cursor",
+          "offset": "0x20",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "upload_block_base",
+          "offset": "0x28",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "upload_end",
+          "offset": "0x30",
+          "type": "uint32_t *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "special_pointer",
+          "offset": "0x78",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "prefetch_enabled",
+          "offset": "0x88",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "compute_staging_word0",
+          "offset": "0x90",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "command_buffer",
+          "offset": "0xc090",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "compute_shader",
+          "offset": "0xc0a0",
+          "type": "void *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "compute_reflection",
+          "offset": "0xc180",
+          "type": "KH3_LcueReflectionPartial *",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "compute_shader_dirty",
+          "offset": "0xc248",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        },
+        {
+          "name": "compute_resources_dirty",
+          "offset": "0xc250",
+          "type": "uint8_t",
+          "confidence": "candidate",
+          "evidence": [
+            "0x4c39b50 addresses relative to LCUE, which is GNM context+0x2e8. Copies prefix at +0x90 to upload cursor then emits pointers. Other stages and intervening state remain unknown."
+          ]
+        }
+      ]
+    }
+  ]
+}

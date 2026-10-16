@@ -7,3 +7,5 @@ docs/validation/android-native-host/evidence/resource-policy-20260920/** -whites
 docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/** -whitespace
 bugs/*/evidence/** -text -whitespace
 bugs/*/SHA256SUMS -text
+# Reconstructed-symbol indexes pin the raw bytes of their JSON shards.
+guest/games/CUSA15072/01.10/symbols/*.json text eol=lf
