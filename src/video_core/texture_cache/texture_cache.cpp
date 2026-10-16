@@ -86,6 +86,19 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
 #endif
         UploadDiagnostics::tiny_writeback.store(tiny_writeback, std::memory_order_relaxed);
     }
+    {
+        bool enabled = true;
+        if (const char* env = std::getenv("SHADPS4_TINY_LINEAR_WRITEBACK"); env && *env) {
+            enabled = *env != '0';
+        }
+#ifdef __ANDROID__
+        char property[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.tiny_linear_writeback", property) > 0) {
+            enabled = property[0] != '0';
+        }
+#endif
+        UploadDiagnostics::tiny_linear_writeback.store(enabled, std::memory_order_relaxed);
+    }
 
     u32 max_samplers = instance.GetMaxSamplerAllocationCount();
     trigger_gc_samplers = max_samplers * 3 / 4;
@@ -2245,10 +2258,19 @@ ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
         // Known before the refresh, like render_target in FindRenderTarget.
         image.usage.storage = 1u;
         NoteGpuWriter(image, UploadDiagnostics::WriteKind::Storage);
-        if (readback_linear_images && (!image.info.props.is_tiled || image.info.size.width <= 8) &&
-            image.info.guest_address != 0) {
+        const auto& info = image.info;
+        const bool tiny_linear =
+            UploadDiagnostics::tiny_linear_writeback.load(std::memory_order_relaxed) &&
+            !info.props.is_tiled && !info.props.is_depth && info.num_samples == 1 &&
+            info.resources.levels == 1 && info.resources.layers == 1 &&
+            info.size.depth == 1 && u64(info.size.width) * info.size.height <= TinyTargetPixels;
+        if (info.guest_address != 0 &&
+            (tiny_linear ||
+             (readback_linear_images && (!info.props.is_tiled || info.size.width <= 8)))) {
             std::unique_lock lk{download_images_mutex};
-            download_images.emplace(image_id);
+            if (download_images.emplace(image_id).second && tiny_linear) {
+                UploadDiagnostics::tiny_linear_writebacks.fetch_add(1, std::memory_order_relaxed);
+            }
         }
     }
     UpdateImage(image_id);

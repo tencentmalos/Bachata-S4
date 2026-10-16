@@ -237,6 +237,9 @@ std::string Summary() {
     out += fmt::format("tiny_writeback={} writebacks={} per_frame_skips={}\n",
                        tiny_writeback.load() ? "on" : "off", tiny_writebacks.load(),
                        tiny_writeback_skips.load());
+    out += fmt::format("tiny_linear_writeback={} writebacks={}\n",
+                       tiny_linear_writeback.load() ? "on" : "off",
+                       tiny_linear_writebacks.load());
     out += fmt::format("pool_revive={} kept={} revived={} revived_bytes={} released={} stale={}\n",
                        pool_revive.load() ? "on" : "off", pool_revive_kept.load(),
                        pool_revive_revived.load(), pool_revive_bytes.load(),
@@ -488,6 +491,12 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("pool_revive={} (GPU images of decommitted pool memory {})\n", args[1],
                            args[1] == "on" ? "come back at the next commit" : "are freed");
     }
+    if (sub == "tiny_linear_writeback" && args.size() == 2 &&
+        (args[1] == "on" || args[1] == "off")) {
+        tiny_linear_writeback.store(args[1] == "on");
+        return fmt::format("tiny_linear_writeback={} writebacks={}\n", args[1],
+                           tiny_linear_writebacks.load());
+    }
     if (sub == "tiny_writeback" && args.size() == 2 &&
         (args[1] == "on" || args[1] == "off" || args[1] == "dump")) {
         tiny_writeback_dump.store(args[1] == "dump");
@@ -721,7 +730,7 @@ std::string Command(const std::vector<std::string>& args) {
            "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
            "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "
-           "pool_revive on|off\n";
+           "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

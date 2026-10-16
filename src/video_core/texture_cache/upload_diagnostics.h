@@ -62,6 +62,11 @@ inline std::atomic<u64> expansions{0}, expand_upload_skips{0}, expand_twin_reuse
 // more than TinyTargetStreak submits in a row (per-frame exposure or reduction targets) is not
 // written back until it pauses. Counters: write-backs queued, writes skipped as per-frame.
 inline std::atomic<bool> tiny_writeback{true};
+// Small linear storage images may hold CPU staging results (e.g. UE4.26 exposure readback).
+// Staging can be consumed every frame; do not apply the tiny render-target streak limit.
+// Publish the downloaded bytes before the following GPU label.
+inline std::atomic<bool> tiny_linear_writeback{true};
+inline std::atomic<u64> tiny_linear_writebacks{0};
 // A new image takes over the cached images the GPU wrote as its mips (TextureCache::
 // AdoptGpuSubresources) instead of uploading guest memory over them (`upload_diag adopt_mips
 // on|off`, on by default). Counter: images adopted.
