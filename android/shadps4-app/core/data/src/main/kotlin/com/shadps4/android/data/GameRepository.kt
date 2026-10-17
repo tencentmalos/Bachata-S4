@@ -6,10 +6,12 @@ import com.shadps4.android.database.GameEntity
 import com.shadps4.android.model.Game
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+@Singleton
 class GameRepository @Inject constructor(
     private val gameDao: GameDao,
     @ApplicationContext private val context: Context,
@@ -118,7 +120,7 @@ class GameRepository @Inject constructor(
                     }
                 }
                 if (insert.id !in dbIds) {
-                    gameDao.insert(
+                    gameDao.insertDiscovered(
                         GameEntity(
                             id = insert.id,
                             title = insert.title,

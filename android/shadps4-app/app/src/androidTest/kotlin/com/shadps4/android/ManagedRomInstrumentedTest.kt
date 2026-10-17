@@ -14,6 +14,7 @@ import java.io.File
 import java.nio.file.Files
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -95,8 +96,43 @@ class ManagedRomInstrumentedTest {
         repository.syncLibrary()
         assertNull(repository.getGame("emupsp-CUSA99999"))
     }
+    @Test fun existingManagedGameRetainsItsReferenceIdentityAcrossRefresh(): Unit = runBlocking {
+        val args=InstrumentationRegistry.getArguments()
+        assumeTrue(args.getString("managed_contract")=="stable")
+        val titleId=requireNotNull(args.getString("managed_title_id"))
+        require(Regex("CUSA[0-9]{5}").matches(titleId))
+        assertEquals(0L,NativeFexSession.nativeCurrentGeneration())
+        val target=InstrumentationRegistry.getInstrumentation().targetContext
+        val repository=dagger.hilt.android.EntryPointAccessors.fromApplication(target.applicationContext,BachataNavEntryPoint::class.java).gameRepository()
+        val id="emupsp-$titleId"
+        repeat(6) {
+            repository.syncLibrary()
+            val game=requireNotNull(repository.getGame(id)){"Managed reference disappeared on refresh $it"}
+            assertEquals("games/$id",game.relativePath);assertEquals("emupsp",game.sourceOwner);assertTrue(game.sourceAvailable)
+            val matches=repository.observeGames().first().filter{it.relativePath==game.relativePath}
+            assertEquals(1,matches.size);assertEquals(id,matches.single().id)
+        }
+        android.util.Log.i("ManagedRomAcceptance","stable managed identity=$id refreshes=6 payload_copied=0")
+    }
+    @Test fun concurrentDiscoveryPreservesExistingMetadata()=runBlocking {
+        val target=InstrumentationRegistry.getInstrumentation().targetContext
+        val database=androidx.room.Room.inMemoryDatabaseBuilder(target,BachataDatabase::class.java).build()
+        try {
+            val dao=database.gameDao()
+            val entity=GameEntity("emupsp-CUSA99998","Discovered game","games/emupsp-CUSA99998","content://fixture",123)
+            val results=kotlinx.coroutines.coroutineScope {
+                (1..16).map{async(kotlinx.coroutines.Dispatchers.IO){dao.insertDiscovered(entity)}}.map{it.await()}
+            }
+            assertEquals(1,results.count{it!=-1L});assertEquals(1,dao.getAll().size)
+            dao.updateTitle(entity.id,"User title");dao.updateLastLaunched(entity.id,456)
+            assertEquals(-1L,dao.insertDiscovered(entity.copy(title="Stale scan")))
+            assertEquals("User title",dao.getById(entity.id)!!.title)
+            assertEquals(456L,dao.getById(entity.id)!!.lastLaunchedAtMs)
+        } finally { database.close() }
+    }
     private class OneGameDao(private var value:GameEntity?):GameDao {
         override suspend fun insert(game:GameEntity){value=game}
+        override suspend fun insertDiscovered(game:GameEntity):Long {if(value!=null)return -1;value=game;return 1}
         override fun observeAll():Flow<List<GameEntity>> = flowOf(listOfNotNull(value))
         override suspend fun getAll()=listOfNotNull(value)
         override suspend fun getById(id:String)=value?.takeIf{it.id==id}

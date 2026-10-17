@@ -181,6 +181,7 @@ androidComponents {
 
 dependencies {
     androidTestImplementation(project(":core:database"))
+    androidTestImplementation(libs.androidx.room.runtime)
     implementation(project(":core:designsystem"))
     implementation(project(":core:data"))
     implementation(project(":core:runtime"))

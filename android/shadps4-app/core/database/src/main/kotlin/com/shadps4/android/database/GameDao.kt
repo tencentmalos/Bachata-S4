@@ -25,6 +25,10 @@ interface GameDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(game: GameEntity)
 
+    /** A concurrent discovery pass must preserve an existing row. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertDiscovered(game: GameEntity): Long
+
     @Query("SELECT * FROM games ORDER BY title COLLATE NOCASE")
     fun observeAll(): Flow<List<GameEntity>>
 

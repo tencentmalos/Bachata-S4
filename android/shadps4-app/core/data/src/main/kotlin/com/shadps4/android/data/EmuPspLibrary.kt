@@ -52,8 +52,9 @@ object EmuPspLibrary {
         return link.game.components.joinToString("\n") { file ->
             val identity=file.raw["identity"]!!.jsonObject
             val origin=file.raw["origin"]?.jsonObject?:buildJsonObject{}
-            listOf(file.kind,ManagedRomContract.string(identity,"display_version"),
-                ManagedRomContract.string(origin,"kind"),ManagedRomContract.string(origin,"provider"),
+            val role=when(file.kind){"base"->"Base";"update"->"Update";else->"DLC"}
+            val source=when(ManagedRomContract.string(origin,"kind")){"local_import"->"Local import";else->when(ManagedRomContract.string(origin,"provider")){"baidu"->"Baidu";else->ManagedRomContract.string(origin,"provider")}}
+            listOf(role,ManagedRomContract.string(identity,"display_version"),source,
                 ManagedRomContract.string(origin,"source_url")).filter{it.isNotBlank()}.joinToString(" · ")
         }
     }

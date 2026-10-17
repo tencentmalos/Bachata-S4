@@ -59,3 +59,17 @@ shadPS4 此次提交覆盖只读来源适配器、原生 FD PKG 读取与验收�
 合入维护主干 `malos/main`；另有未提交的 GPU 诊断以及 reference 子仓的原有工作区改动，均不纳入此次提交。
 
 交付前重跑：EmuPSP Rust 115 通过（1 联网用例跳过）、Clippy、两组 Go race、Android assemble / JVM / lint 及桌面库迁移测试通过；shadPS4 Android assemble、core:data / feature:library 测试通过。macOS 按生产 CMake 的参数编译包含大屏 UI、main 与外部启动器的两个 unity 对象；清理后暴露 IPC 对 `std::jthread` 的传递 include 依赖，已显式包含现有 `common/polyfill_thread.h`。此项不是完整桌面链接或新游戏运行验收。交付日志保存在本地证据目录的 `commit-*` 文件中。
+
+## Odin 3 覆盖安装、真实包与来源图标续验
+
+设备安装摘要核实：此前已经是 `d277bf17` 的只读消费版本，不能把本轮问题简单归因为旧包。真实 CUSA01740 本体与三个同版 01.02 更新（原版 / 两个 CHEAT）已在 EmuPSP；无明确变体选择会阻止消费。本轮通过 EmuPSP 的正常界面选择原版更新，保留其他文件，清单问题项归零。
+
+进一步复现到 `UNIQUE constraint failed: games.id` 及游戏刷新后消失：`LibrarySync` 用 SFO 解析出的 `CUSA01740` 登记 `games/emupsp-CUSA01740`；下一轮按目录名查找时又发现不了该行，并把旧 ID 当作目录缺失删除。现保持来源引用 ID 与包内 Title ID 分离，来源记录使用稳定的 `emupsp-CUSA01740`。`GameRepository` 同时设为 Hilt singleton，共享同步门；自动发现单独采用 INSERT IGNORE，保留现有标题与启动历史，显式安装仍使用 ABORT。
+
+Title 卡片移除长段来源 / 版本文字，封面右上角显示 EmuPSP 应用图标，可访问性说明保留只读和不可用状态；完整来源 / 组件信息放入详情。自适应图标先按固有尺寸渲染，避免固定 64 px 导致 density inset 把图案挤没。
+
+验证：APK / 测试 APK、core:data 89 与 feature:library 18 个 JVM 用例通过；Odin 实际库连续 6 次刷新保持同一引用与来源可用，Room 16 路同 ID 发现仅插入一次并保留用户标题 / 启动历史（设备类包含 2 个执行用例，另 3 个未选的互通用例跳过）。首次新增测试因 Kotlin 尾表达式 Log.i 返回 Int 导致 JUnit 初始化失败，已改为显式 Unit 后复跑通过。
+
+真实启动日志确认 `open CUSA01740 components=2 owner=emupsp payload_copied=0`。Odin 已显示战神 3 片头引语、中文字幕及后续过场画面，屏幕叠加层显示约 60 FPS；仅覆盖片头加载，不代表关卡性能、操控或长时可玩验收。引用缓存约 575 KiB，没有复制 36 GiB 本体。通过 UI Stop 返回文件库，正常终止时别名目录已清空。
+
+最终覆盖安装 APK SHA256：`bf79b32020cccc95f793169d332b88005f52a189eee9b287568a23f40d03c01b`，与设备安装文件一致。设备证据在本地 `build/validation/emupsp-reference-20261017/reinstall-odin3-*`；APK、截图、日志和 ROM 均不入仓。Windows 接续说明在 EmuPSP `docs/desktop-integration.md` 的 Windows 开发接续一节。

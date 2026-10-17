@@ -67,7 +67,9 @@ object LibrarySync {
                 val resolved = GameMetadataResolver.resolve(folderName = name, sfo = sfo)
                 inserts.add(
                     LibraryInsert(
-                        id = resolved.id,
+                        // The package Title ID describes the game, while this
+                        // directory identifies a distinct producer-owned reference.
+                        id = if (EmuPspLibrary.managed(folder)) name else resolved.id,
                         title = resolved.title,
                         relativePath = "games/$name",
                         subtitle = resolved.subtitle,

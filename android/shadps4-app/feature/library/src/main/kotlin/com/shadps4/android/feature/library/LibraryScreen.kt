@@ -65,6 +65,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -1143,6 +1145,37 @@ private fun ImportProgressBanner(importProgress: ImportProgress) {
 }
 
 @Composable
+private fun EmuPspSourceBadge(available: Boolean, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val icon = remember(context) {
+        runCatching {
+            val drawable = context.packageManager.getApplicationIcon("io.github.tencentmalos.emupsp")
+            // Adaptive icons can contain density-based insets; render at their
+            // intrinsic size before Compose scales them into the small badge.
+            val side = drawable.intrinsicWidth.coerceIn(128, 512)
+            android.graphics.Bitmap.createBitmap(side, side, android.graphics.Bitmap.Config.ARGB_8888).also {
+                drawable.setBounds(0, 0, side, side)
+                drawable.draw(android.graphics.Canvas(it))
+            }.asImageBitmap()
+        }.getOrNull()
+    }
+    Surface(
+        modifier = modifier.size(26.dp).semantics {
+            contentDescription = if (available) "EmuPSP source, read-only" else "EmuPSP source unavailable"
+        },
+        color = Color.Black.copy(alpha = 0.78f),
+        shape = RoundedCornerShape(8.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (available) Color.White.copy(alpha = 0.3f) else Color(0xFFFFB4AB)),
+    ) {
+        Box(Modifier.padding(4.dp), contentAlignment = Alignment.Center) {
+            if (icon != null) Image(icon, contentDescription = null, modifier = Modifier.fillMaxSize())
+            else Text("E", style = MaterialTheme.typography.labelMedium, color = Color.White)
+            if (!available) Box(Modifier.align(Alignment.BottomEnd).size(6.dp).clip(CircleShape).background(Color(0xFFFFB4AB)))
+        }
+    }
+}
+
+@Composable
 private fun LibraryGameCard(
     game: com.shadps4.android.model.Game,
     selected: Boolean,
@@ -1154,10 +1187,15 @@ private fun LibraryGameCard(
         selected = selected,
     ) {
         Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            GameCover(
-                relativePath = game.relativePath,
-                modifier = Modifier.fillMaxWidth().aspectRatio(0.75f),
-            )
+            Box {
+                GameCover(
+                    relativePath = game.relativePath,
+                    modifier = Modifier.fillMaxWidth().aspectRatio(0.75f),
+                )
+                if (game.sourceOwner == "emupsp") {
+                    EmuPspSourceBadge(game.sourceAvailable, Modifier.align(Alignment.TopEnd).padding(6.dp))
+                }
+            }
             Text(
                 text = game.title,
                 maxLines = 2,
@@ -1166,10 +1204,6 @@ private fun LibraryGameCard(
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.bodyMedium
             )
-        if(game.sourceOwner=="emupsp") {
-            Text(if(game.sourceAvailable)"Source: EmuPSP · read-only" else "EmuPSP source unavailable · reconnect or manage in EmuPSP",color=BachataPalette.Secondary)
-            game.sourceDetail?.takeIf{it.isNotBlank()}?.let{Text(it,style=MaterialTheme.typography.bodySmall,color=BachataPalette.Secondary)}
-        }
         val subtitle = game.subtitle
             if (!subtitle.isNullOrBlank()) {
                 Box(
@@ -1595,6 +1629,15 @@ private fun GameDetailsMeta(
             overflow = TextOverflow.Ellipsis,
             textAlign = textAlign,
         )
+        if (game.sourceOwner == "emupsp") {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                EmuPspSourceBadge(game.sourceAvailable)
+                Text(if (game.sourceAvailable) "EmuPSP · Read-only" else "EmuPSP · Reconnect library", style = MaterialTheme.typography.bodySmall, color = BachataPalette.Secondary)
+            }
+            game.sourceDetail?.takeIf { it.isNotBlank() }?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = BachataPalette.Secondary, maxLines = if (compact) 2 else 6, overflow = TextOverflow.Ellipsis)
+            }
+        }
         val subtitle = game.subtitle
         if (!subtitle.isNullOrBlank()) {
             Text(
@@ -1661,8 +1704,7 @@ private fun GameDetailsActions(
         }
 
         if (managed) {
-            Text("Managed by EmuPSP · read-only ROM reference",color=BachataPalette.Secondary)
-            Button(onClick=onAddPkgs,modifier=Modifier.fillMaxWidth().height(secondaryHeight)){Text("Manage game / Update / DLC in EmuPSP")}
+            Button(onClick=onAddPkgs,modifier=Modifier.fillMaxWidth().height(secondaryHeight)){Text("Manage in EmuPSP")}
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){CancelButton(onCancel,Modifier.weight(1f).height(secondaryHeight));OptionsButton(onOpenGameSettings,Modifier.weight(1f).height(secondaryHeight))}
         } else if (compact) {
             // A narrow column: two buttons to a row, so no label has to wrap.
