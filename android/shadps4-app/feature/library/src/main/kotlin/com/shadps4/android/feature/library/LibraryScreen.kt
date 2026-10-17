@@ -194,6 +194,16 @@ fun LibraryScreen(
         runCatching { dependencies.gameRepository().backfillTitlesFromSfo() }
         dependencies.gameRepository().observeGames().collectLatest(viewModel::setGames)
     }
+    val managedLifecycle=androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(managedLifecycle) {
+        val observer=androidx.lifecycle.LifecycleEventObserver { _,event ->
+            if(event==androidx.lifecycle.Lifecycle.Event.ON_RESUME) scope.launch {
+                if(!ImportManager.isBusy()) runCatching { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { dependencies.gameRepository().syncLibrary() } }
+            }
+        }
+        managedLifecycle.lifecycle.addObserver(observer)
+        onDispose { managedLifecycle.lifecycle.removeObserver(observer) }
+    }
     // Installed / Failed free the import slot for a new pick; clear banner after a short delay.
     LaunchedEffect(importProgress) {
         when (importProgress) {
@@ -302,9 +312,18 @@ fun LibraryScreen(
         }
     }
     val onAddPkgs: (String, String) -> Unit = { gameId, gameTitle ->
+        if(state.games.firstOrNull{it.id==gameId}?.sourceOwner=="emupsp") {openManagedRom(context,gameId)} else {
         addPkgsPendingRequest = gameId to gameTitle
         addPkgsState = AddPkgsState(gameId, gameTitle, emptyList())
         pkgMultiPicker.launch(arrayOf("*/*"))
+        }
+    }
+
+    val managedTreePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if(uri != null) scope.launch {
+            val result=runCatching { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.shadps4.android.data.EmuPspLibrary.connect(context,uri);dependencies.gameRepository().syncLibrary() } }
+            Toast.makeText(context,result.exceptionOrNull()?.message?:"EmuPSP library connected · ROMs stay in EmuPSP",Toast.LENGTH_LONG).show()
+        }
     }
 
     if (showImportChooser) {
@@ -313,7 +332,8 @@ fun LibraryScreen(
             title = { Text("Import game") },
             text = {
                 Column {
-                    Text("Choose a game folder or a PS4 .pkg package. Downloaded files are available under EmuPSP in the system file picker.")
+                    Text("Connect EmuPSP to use its PS4 ROMs without copying. Other folders and packages can still be installed.")
+                    TextButton(onClick={showImportChooser=false;managedTreePicker.launch(android.provider.DocumentsContract.buildTreeDocumentUri(com.shadps4.android.data.ManagedRomContract.AUTHORITY,"platform:ps4"))}) { Text("Connect EmuPSP PS4 library") }
                     TextButton(onClick = {
                         try {
                             context.startActivity(Intent("io.github.tencentmalos.content.BROWSE").apply {
@@ -520,7 +540,7 @@ fun LibraryScreen(
                 is PatchAction.Toggle -> launchOptions = launchOptions.togglePatch(action.name)
             }
         },
-        onRequestDelete = { gameToDelete = it },
+        onRequestDelete = { id -> if(state.games.firstOrNull{it.id==id}?.sourceOwner=="emupsp") openManagedRom(context,id) else gameToDelete=id },
         onConfirmDelete = { id ->
             scope.launch {
                 runCatching { dependencies.gameRepository().deleteGame(id) }
@@ -1146,7 +1166,11 @@ private fun LibraryGameCard(
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.bodyMedium
             )
-            val subtitle = game.subtitle
+        if(game.sourceOwner=="emupsp") {
+            Text(if(game.sourceAvailable)"Source: EmuPSP · read-only" else "EmuPSP source unavailable · reconnect or manage in EmuPSP",color=BachataPalette.Secondary)
+            game.sourceDetail?.takeIf{it.isNotBlank()}?.let{Text(it,style=MaterialTheme.typography.bodySmall,color=BachataPalette.Secondary)}
+        }
+        val subtitle = game.subtitle
             if (!subtitle.isNullOrBlank()) {
                 Box(
                     modifier = Modifier
@@ -1492,7 +1516,8 @@ private fun GlassBottomSheet(
                         }
                         GameDetailsActions(
                             onLaunch = onLaunch,
-                            launchEnabled = launchOptions.ready,
+                            launchEnabled = launchOptions.ready && game.sourceAvailable,
+                            managed = game.sourceOwner=="emupsp",
                             onCancel = onCancel,
                             onOpenGameSettings = onOpenGameSettings,
                             onRequestDelete = onRequestDelete,
@@ -1532,7 +1557,8 @@ private fun GlassBottomSheet(
                 }
                 GameDetailsActions(
                     onLaunch = onLaunch,
-                    launchEnabled = launchOptions.ready,
+                    launchEnabled = launchOptions.ready && game.sourceAvailable,
+                            managed = game.sourceOwner=="emupsp",
                     onCancel = onCancel,
                     onOpenGameSettings = onOpenGameSettings,
                     onRequestDelete = onRequestDelete,
@@ -1598,6 +1624,7 @@ private fun GameDetailsMeta(
 
 @Composable
 private fun GameDetailsActions(
+    managed: Boolean,
     onLaunch: () -> Unit,
     launchEnabled: Boolean,
     onCancel: () -> Unit,
@@ -1633,7 +1660,11 @@ private fun GameDetailsActions(
             }
         }
 
-        if (compact) {
+        if (managed) {
+            Text("Managed by EmuPSP · read-only ROM reference",color=BachataPalette.Secondary)
+            Button(onClick=onAddPkgs,modifier=Modifier.fillMaxWidth().height(secondaryHeight)){Text("Manage game / Update / DLC in EmuPSP")}
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){CancelButton(onCancel,Modifier.weight(1f).height(secondaryHeight));OptionsButton(onOpenGameSettings,Modifier.weight(1f).height(secondaryHeight))}
+        } else if (compact) {
             // A narrow column: two buttons to a row, so no label has to wrap.
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 AddPkgsButton(onAddPkgs, "Add PKG / DLC", Modifier.weight(1f).height(secondaryHeight))
@@ -1800,4 +1831,9 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 interface LibraryDependencies {
     fun gameRepository(): GameRepository
     fun runtimeProfiles(): com.shadps4.android.data.RuntimeProfileStore
+}
+
+private fun openManagedRom(context:android.content.Context,id:String) {
+    try { context.startActivity(Intent("io.github.tencentmalos.content.BROWSE").putExtra("protocol_version",1).putExtra("platform","ps4").putExtra("game_id","ps4:"+id.removePrefix("emupsp-"))) }
+    catch(_:android.content.ActivityNotFoundException) {Toast.makeText(context,"Install EmuPSP to manage this ROM",Toast.LENGTH_LONG).show()}
 }

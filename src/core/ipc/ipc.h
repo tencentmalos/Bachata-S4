@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "common/polyfill_thread.h"
 #include "common/singleton.h"
 
 #include <semaphore>

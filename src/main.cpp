@@ -14,6 +14,7 @@
 #include <fmt/ranges.h>
 
 #include "common/arch.h"
+#include "common/emupsp.h"
 #include "common/key_manager.h"
 #include "common/logging/log.h"
 #include "common/memory_patcher.h"
@@ -28,7 +29,6 @@
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
-#include "imgui/online_content/online_content.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     bool configClean = false;
     bool configGlobal = false;
     bool bigPicture = false;
-    bool onlineStore = false;
+    bool openEmuPsp = false;
     bool sameProcess = false;
     bool append_log{};
 
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
                  "Disable automatic loading of game patches");
 
     app.add_flag("-b,--big-picture", bigPicture, "Start in Big Picture Mode");
-    app.add_flag("--online-store", onlineStore, "Open EmuPSP for PS4 / PSVR content");
+    app.add_flag("--emupsp,--online-store", openEmuPsp, "Open the independent EmuPSP library app");
     app.add_flag("--same-process", sameProcess,
                  "Launch the game in the same process when using Big Picture Mode");
 
@@ -205,8 +205,8 @@ int main(int argc, char* argv[]) {
     EmulatorSettings.Load();
     UserSettings.Load();
 
-    if (onlineStore) {
-        if (OnlineContent::Open()) return 0;
+    if (openEmuPsp) {
+        if (EmuPsp::OpenLibrary()) return 0;
         std::cerr << "Install EmuPSP and register its emupsp URL handler.\n";
         return 1;
     }

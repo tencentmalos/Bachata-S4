@@ -18,16 +18,18 @@ class GameRepository @Inject constructor(
     @Volatile
     var externalArchiveSync: ExternalArchiveLibrary.SyncResult = ExternalArchiveLibrary.SyncResult()
         private set
+    @Volatile var managedLibrarySync: EmuPspLibrary.SyncResult = EmuPspLibrary.SyncResult()
+        private set
 
     fun observeGames(): Flow<List<Game>> =
-        gameDao.observeAll().map { games -> games.map { it.toModel() } }
+        gameDao.observeAll().map { games -> games.map { it.toModel(context.filesDir) } }
 
-    suspend fun getGame(id: String): Game? = gameDao.getById(id)?.toModel()
+    suspend fun getGame(id: String): Game? = gameDao.getById(id)?.toModel(context.filesDir)
 
     suspend fun getLastLaunchedGame(): Game? = gameDao.getAll()
         .filter { it.lastLaunchedAtMs > 0L }
         .maxWithOrNull(compareBy<GameEntity> { it.lastLaunchedAtMs }.thenBy { it.id })
-        ?.toModel()
+        ?.toModel(context.filesDir)
 
     suspend fun addImportedGame(
         result: ContentImportResult,
@@ -52,12 +54,22 @@ class GameRepository @Inject constructor(
      * Reconcile on-disk games with the database using the same verify+manifest path
      * as PKG/folder install. Incomplete trees are never registered.
      */
-    suspend fun syncLibrary() {
+    private val syncGate = kotlinx.coroutines.sync.Mutex()
+
+    suspend fun syncLibrary() = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        syncGate.lock()
+        try { syncLibraryLocked() } finally { syncGate.unlock() }
+    }
+
+    private suspend fun syncLibraryLocked() {
         // Archives kept in the user's ZAR folder are linked, not copied, before the
         // normal folder reconciliation runs; a missing or unreadable folder links nothing.
         externalArchiveSync = runCatching {
             ExternalArchiveLibrary.sync(context.filesDir, ZarLibraryFolder.readFolder(context))
         }.getOrElse { ExternalArchiveLibrary.SyncResult() }
+        val managed = EmuPspLibrary.sync(context)
+        managedLibrarySync = managed
+        for (id in managed.removed) gameDao.deleteById(id)
         val gamesRoot = context.filesDir.resolve("games")
         if (!gamesRoot.isDirectory) return
 
@@ -182,6 +194,7 @@ class GameRepository @Inject constructor(
 
     suspend fun deleteGame(id: String): Boolean {
         val game = gameDao.getById(id) ?: return false
+        check(!EmuPspLibrary.managed(File(context.filesDir, game.relativePath))) { "This ROM is managed by EmuPSP. Delete it in EmuPSP." }
         val gamesRoot = context.filesDir.resolve("games").canonicalFile
         val ownedPath = context.filesDir.resolve(game.relativePath).canonicalFile
         require(ownedPath.toPath().startsWith(gamesRoot.toPath())) { "Game path escapes app-owned storage" }
@@ -190,7 +203,7 @@ class GameRepository @Inject constructor(
     }
 }
 
-private fun GameEntity.toModel(): Game =
+private fun GameEntity.toModel(filesDir: File): Game =
     Game(
         id = id,
         title = title,
@@ -198,4 +211,7 @@ private fun GameEntity.toModel(): Game =
         subtitle = subtitle,
         detail = detail,
         lastLaunchedAtMs = lastLaunchedAtMs,
+        sourceOwner = if (EmuPspLibrary.managed(File(filesDir, relativePath))) "emupsp" else "shadps4",
+        sourceAvailable = if (EmuPspLibrary.managed(File(filesDir, relativePath))) EmuPspLibrary.readLink(File(filesDir, relativePath))?.available == true else true,
+        sourceDetail = EmuPspLibrary.describe(File(filesDir, relativePath)),
     )

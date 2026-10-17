@@ -7,12 +7,14 @@
 #include <array>
 #include <atomic>
 #include <cerrno>
+#include <charconv>
 #include <cstring>
 #include <fstream>
 #include <functional>
 #include <list>
 #include <map>
 #include <mutex>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <unordered_map>
@@ -22,6 +24,7 @@
 #ifndef _WIN32
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #endif
 #ifdef __ANDROID__
 #include <sys/system_properties.h>
@@ -37,6 +40,28 @@ using Bytes = std::vector<u8>;
 using ReadFn = std::function<void(u64, std::span<u8>)>;
 constexpr u64 SectorSize = 4096;
 constexpr u64 MaxEntries = 262144;
+
+std::optional<int> GrantedDescriptor(const std::filesystem::path& path) {
+#if defined(__linux__)
+    std::error_code ec;
+    const auto target = std::filesystem::read_symlink(path, ec).string();
+    constexpr std::string_view prefix{"/proc/self/fd/"};
+    if (!ec && target.starts_with(prefix)) {
+        int fd{-1};
+        const auto number = std::string_view(target).substr(prefix.size());
+        const auto [end, error] = std::from_chars(number.data(), number.data() + number.size(), fd);
+        if (error == std::errc{} && end == number.data() + number.size() && fd >= 0) {
+            const int flags = ::fcntl(fd, F_GETFL);
+            struct stat info{};
+            if (flags >= 0 && (flags & O_ACCMODE) == O_RDONLY &&
+                ::fstat(fd, &info) == 0 && S_ISREG(info.st_mode))
+                return fd;
+        }
+        throw std::runtime_error("PKG: invalid read-only descriptor alias");
+    }
+#endif
+    return std::nullopt;
+}
 
 void Require(bool condition, const char* message) {
     if (!condition)
@@ -68,7 +93,10 @@ public:
         stream.open(path, std::ios::binary);
         open = stream.is_open();
 #else
-        fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+        if (const auto granted = GrantedDescriptor(path))
+            fd = ::fcntl(*granted, F_DUPFD_CLOEXEC, 0);
+        else
+            fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
         open = fd >= 0;
 #endif
     }
@@ -82,6 +110,20 @@ public:
     SourceFile& operator=(const SourceFile&) = delete;
     bool IsOpen() const {
         return open;
+    }
+    u64 Size() {
+#ifdef _WIN32
+        stream.seekg(0, std::ios::end);
+        const auto length = static_cast<std::streamoff>(stream.tellg());
+        stream.seekg(0);
+        Require(length >= 0, "cannot read package size");
+        return static_cast<u64>(length);
+#else
+        struct stat info{};
+        Require(::fstat(fd, &info) == 0 && S_ISREG(info.st_mode) && info.st_size >= 0,
+                "package descriptor is not a regular file");
+        return static_cast<u64>(info.st_size);
+#endif
     }
     // Reads exactly output.size() bytes at `offset`; false on a short read or error.
     bool ReadAt(u64 offset, std::span<u8> output) {
@@ -428,7 +470,7 @@ struct PkgReader::Impl {
     explicit Impl(const std::filesystem::path& path, bool reference_mode)
         : source(path), reference(reference_mode) {
         Require(source.IsOpen(), "cannot open package");
-        source_size = std::filesystem::file_size(path);
+        source_size = source.Size();
         std::array<u8, 0x1000> header{};
         Raw(0, header);
         Require(BE(header, 0, 4) == 0x7f434e54, "invalid package magic");
@@ -638,8 +680,13 @@ PkgReader::PkgReader(const std::filesystem::path& path, bool reference)
              reference ? ", reference mode" : "");
 }
 PkgReader::~PkgReader() = default;
+std::filesystem::path PkgReader::ResolvePath(const std::filesystem::path& path) {
+    if (GrantedDescriptor(path))
+        return std::filesystem::absolute(path).lexically_normal();
+    return std::filesystem::canonical(path);
+}
 std::shared_ptr<PkgReader> PkgReader::OpenReference(const std::filesystem::path& path) {
-    return std::shared_ptr<PkgReader>(new PkgReader(std::filesystem::canonical(path), true));
+    return std::shared_ptr<PkgReader>(new PkgReader(ResolvePath(path), true));
 }
 std::shared_ptr<PkgReader> PkgReader::Open(const std::filesystem::path& path) {
     // Mounts, the loader and metadata inspection share the same reader. Weak
@@ -647,7 +694,7 @@ std::shared_ptr<PkgReader> PkgReader::Open(const std::filesystem::path& path) {
     static std::mutex mutex;
     static std::map<std::filesystem::path, std::weak_ptr<PkgReader>> readers;
     std::scoped_lock lock(mutex);
-    const auto canonical = std::filesystem::canonical(path);
+    const auto canonical = ResolvePath(path);
     if (auto found = readers.find(canonical); found != readers.end())
         if (auto reader = found->second.lock())
             return reader;

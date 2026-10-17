@@ -10,6 +10,11 @@ object GameDisplayMode {
                         relativePath: String): DisplayMode.Decision {
         require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "Game is not installed" }
         val root = File(filesDir, relativePath).canonicalFile
+        if (EmuPspLibrary.managed(root)) {
+            val metadata=ParamSfoReader.parse(File(root,"sce_sys/param.sfo").readBytes())
+            require(metadata.titleId != null) {"Invalid EmuPSP metadata"}
+            return DisplayMode.resolve(profiles.load(ProfileScope.Global),profiles.load(ProfileScope.Game(gameId)),metadata.isPsvr)
+        }
         val executable = GameInstallVerifier.executableFile(root).canonicalFile
         require(GameInstallVerifier.executableAdmitted(root, executable)) { "Invalid game path" }
         val bytes = requireNotNull(NativeFexSession.nativeReadLaunchParamSfo(executable.path)) {

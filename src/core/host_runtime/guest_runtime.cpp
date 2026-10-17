@@ -5513,7 +5513,10 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     }
     const bool archive = FileSys::IsGameArchive(executable);
     if (archive) (void)FileSys::InspectArchiveInstall(executable);
-    const auto install_root = std::filesystem::canonical(archive ? executable : executable.parent_path());
+    // PKG descriptor aliases keep the selected update/DLC siblings at their
+    // session-owned paths; the provider's private pathname is not a capability.
+    const auto install_root = archive ? std::filesystem::absolute(executable).lexically_normal()
+                                     : std::filesystem::canonical(executable.parent_path());
     const auto main_path = archive ? std::filesystem::path("/app0/eboot.bin")
                                    : std::filesystem::canonical(executable);
     impl->program_name = main_path.filename().string();

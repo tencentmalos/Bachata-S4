@@ -206,6 +206,7 @@ private fun DisplayModeGate(gameId: String, graph: BachataNavEntryPoint, openXrE
                 return@LaunchedEffect
             }
             val decision = withContext(Dispatchers.IO) {
+                if(gameId.startsWith("emupsp-"))graph.gameRepository().syncLibrary()
                 val game = requireNotNull(graph.gameRepository().getGame(gameId)) { "Game not found" }
                 com.shadps4.android.data.GameDisplayMode.resolve(context.filesDir,
                     graph.runtimeProfiles(), game.id, game.relativePath)

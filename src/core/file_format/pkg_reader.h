@@ -30,6 +30,9 @@ public:
     };
 
     static std::shared_ptr<PkgReader> Open(const std::filesystem::path& path);
+    // Keep a session-owned /proc/self/fd alias inside its overlay directory.
+    // Resolving it to the provider's private pathname loses the granted capability.
+    static std::filesystem::path ResolvePath(const std::filesystem::path& path);
     // A separate, uncached reader that decrypts one 4 KiB sector at a time with
     // LibreSSL and serializes reads: the original behavior, for comparisons in tests.
     static std::shared_ptr<PkgReader> OpenReference(const std::filesystem::path& path);

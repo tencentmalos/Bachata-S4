@@ -14,6 +14,10 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <fcntl.h>
+#include <unistd.h>
+#include "../pkg_fixture.h"
+#include "core/file_sys/fs.h"
 #include "common/logging/log.h"
 #include "common/path_util.h"
 #include "core/crypto/aes_xts.h"
@@ -192,14 +196,56 @@ void PackageTests(const std::filesystem::path& path, unsigned reads, unsigned th
 }
 } // namespace
 
+void DescriptorTests(const std::filesystem::path& root) {
+    namespace fs = std::filesystem;
+    namespace vfs = Core::FileSys;
+    const auto dir=root/"descriptor-fixture";
+    fs::create_directories(dir/"lease");
+    PkgFixture::Make(dir/"base.pkg",{{"eboot.bin",{'E','L','F'}},{"asset",{'b','a','s','e'}}});
+    PkgFixture::Make(dir/"update.pkg",{{"asset",{'p','a','t','c','h'}}},"gp","CUSA99999","SYNTHETIC0000000","01.06");
+    const int base=::open((dir/"base.pkg").c_str(),O_RDONLY|O_CLOEXEC);
+    const int update=::open((dir/"update.pkg").c_str(),O_RDONLY|O_CLOEXEC);
+    const auto alias=dir/"lease/CUSA99999.pkg";
+    fs::create_symlink("/proc/self/fd/"+std::to_string(base),alias);
+    fs::create_symlink("/proc/self/fd/"+std::to_string(update),dir/"lease/CUSA99999-UPD.pkg");
+    Check("granted path retains overlay siblings",Reader::ResolvePath(alias)==fs::absolute(alias));
+    const auto metadata=vfs::InspectArchiveInstall(alias);
+    PSF psf;Check("base/update descriptor inspection",psf.Open(metadata.param_sfo)&&psf.GetString("APP_VER").value_or("")=="01.06");
+    vfs::MntPoints mount;mount.Mount(alias,"/app0",true);
+    // The reader owns dup'd regular FDs. Removing source names (or the provider
+    // exiting) cannot revoke the already-open generation's inode capability.
+    ::close(base);::close(update);fs::remove(dir/"base.pkg");fs::remove(dir/"update.pkg");
+    auto file=mount.Open("/app0/asset");std::string got(5,'\0');
+    Check("read after original descriptor/name release",file&&file->Read(got.data(),got.size())==5&&got=="patch");
+    Check("managed PKG cannot be written",!mount.Open("/app0/asset",true));
+    mount.UnmountAll();file.reset();
+    PkgFixture::Make(dir/"writable.pkg",{{"eboot.bin",{'E'}}});
+    const int writable=::open((dir/"writable.pkg").c_str(),O_RDWR|O_CLOEXEC);
+    fs::create_symlink("/proc/self/fd/"+std::to_string(writable),dir/"lease/writable.pkg");
+    bool rejected=false;try{(void)Reader::ResolvePath(dir/"lease/writable.pkg");}catch(...){rejected=true;}
+    Check("writable descriptor alias rejected",rejected);::close(writable);fs::remove_all(dir);
+}
+
 int main(int argc, char** argv) {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     const auto root = std::filesystem::current_path() / "pkg-reader-root";
     std::filesystem::create_directories(root);
     Common::FS::InitializeAndroidUserPaths(root);
     Common::Log::Setup("pkg-reader-tests");
+    if (argc == 4 && std::string_view(argv[1]) == "--export-fixture") {
+        const std::filesystem::path dest{argv[2]};
+        std::ifstream input(argv[3],std::ios::binary);
+        PkgFixture::Bytes eboot(std::istreambuf_iterator<char>{input},{});
+        if (eboot.empty()) return 2;
+        PkgFixture::Make(dest/"base.pkg",{{"eboot.bin",eboot},{"asset",{'b','a','s','e'}}});
+        PkgFixture::Make(dest/"update.pkg",{{"asset",{'p','a','t','c','h'}}},"gp","CUSA99999","SYNTHETIC0000000","01.06");
+        PkgFixture::Make(dest/"dlc.pkg",{{"addon",{'D','L','C'}}},"ac","CUSA99999","EXTRAS0000000000","01.00");
+        Common::Log::Shutdown();return 0;
+    }
     CipherTests();
-    if (argc > 1)
+    if (argc > 1 && std::string_view(argv[1])=="--descriptor-fixture")
+        DescriptorTests(root);
+    else if (argc > 1)
         PackageTests(argv[1], argc > 2 ? unsigned(std::stoul(argv[2])) : 2000,
                      argc > 3 ? unsigned(std::stoul(argv[3])) : 4);
     std::printf("pkg reader: %u checks, %u failures\n", checks, failures);

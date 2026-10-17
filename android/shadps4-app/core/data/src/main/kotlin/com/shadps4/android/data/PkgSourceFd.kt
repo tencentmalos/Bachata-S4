@@ -7,7 +7,7 @@ import android.system.Os
 import android.system.OsConstants
 
 /** Own a seekable source FD without retaining ContentResolver's stable provider reference. */
-internal fun ContentResolver.openIndependentPkgFd(uri: Uri): ParcelFileDescriptor =
+fun ContentResolver.openIndependentPkgFd(uri: Uri): ParcelFileDescriptor =
     (openFileDescriptor(uri, "r") ?: error("Cannot reopen PKG for extract")).use { source ->
         // The source may have changed since probing. A pipe still needs the cache-copy path.
         Os.lseek(source.fileDescriptor, 0, OsConstants.SEEK_CUR)

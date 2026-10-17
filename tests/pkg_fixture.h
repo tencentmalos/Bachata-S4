@@ -150,6 +150,8 @@ inline void Make(const std::filesystem::path& path, const std::map<std::string, 
     const auto metadata = sfo.Encode();
     Put(head, 0, 0x7f434e54, 4, true);
     Put(head, 4, 0x40000001, 4, true);
+    const std::string content_id = "UP0000-" + title + "_00-" + label;
+    std::copy(content_id.begin(), content_id.end(), head.begin() + 0x40);
     Put(head, 0x10, 3, 4, true);
     Put(head, 0x18, 0x2000, 4, true);
     Put(head, 0x410, pfs_offset, 8, true);

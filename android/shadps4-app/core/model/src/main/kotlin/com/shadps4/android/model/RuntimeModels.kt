@@ -49,6 +49,9 @@ data class Game(
     val subtitle: String? = null,
     val detail: String? = null,
     val lastLaunchedAtMs: Long = 0L,
+    val sourceOwner: String = "shadps4",
+    val sourceAvailable: Boolean = true,
+    val sourceDetail: String? = null,
 )
 
 @Serializable

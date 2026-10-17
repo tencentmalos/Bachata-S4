@@ -32,6 +32,7 @@ object GameInstallVerifier {
     }
 
     fun requiredFilesPresent(gameDir: File): Boolean {
+        if (EmuPspLibrary.managed(gameDir)) return EmuPspLibrary.readLink(gameDir) != null && File(gameDir,"sce_sys/param.sfo").isFile
         val eboot = executableFile(gameDir)
         val sfo = File(gameDir, "sce_sys/param.sfo")
         return eboot.isFile && eboot.length() > 0L && sfo.isFile && sfo.length() > 0L
@@ -44,6 +45,7 @@ object GameInstallVerifier {
         if (!root.isDirectory) return false
         val manifest = InstallManifestIo.read(root) ?: return false
         if (manifest.status != InstallManifestIo.STATUS_INSTALLED) return false
+        if (EmuPspLibrary.managed(root)) return EmuPspLibrary.readLink(root)?.available == true && File(root,"sce_sys/param.sfo").isFile
         val eboot = executableFile(root).canonicalFile
         return executableAdmitted(root, eboot) && eboot.isFile && eboot.length() > 0L
     }
@@ -55,6 +57,12 @@ object GameInstallVerifier {
     ): VerifyResult {
         if (!gameDir.isDirectory) {
             return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "Game directory missing")
+        }
+        if (EmuPspLibrary.managed(gameDir)) {
+            val link=EmuPspLibrary.readLink(gameDir)
+            val sfo=File(gameDir,"sce_sys/param.sfo")
+            return if(link != null && sfo.isFile && ParamSfoReader.parse(sfo.readBytes()).titleId==link.game.titleId) VerifyResult.Ok(sfo.length())
+            else VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED,"Invalid EmuPSP reference; reconnect its library")
         }
         val eboot = executableFile(gameDir)
         if (eboot.extension.lowercase() in setOf("zar", "pkg")) {

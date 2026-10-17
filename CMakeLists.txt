@@ -1575,7 +1575,7 @@ endif()
 
 if(NOT BUILD_HOST_CORE)
     # Content acquisition lives in EmuPSP; this target only launches its URI.
-    target_sources(shadps4 PRIVATE src/imgui/online_content/online_content.cpp)
+    target_sources(shadps4 PRIVATE src/common/emupsp.cpp)
 endif()
 
 target_sources(shadps4 PRIVATE src/frontend/window.cpp)
@@ -2124,7 +2124,7 @@ if(BUILD_HOST_CORE)
         target_compile_definitions(guest_gnm_fastpath_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_dependencies(guest_gnm_fastpath_tests guest_gnm_payload)
         add_executable(pkg_reader_tests tests/host_runtime/pkg_reader_tests.cpp)
-        target_link_libraries(pkg_reader_tests PRIVATE shadps4_host)
+        target_link_libraries(pkg_reader_tests PRIVATE shadps4_host ZLIB::ZLIB)
         target_include_directories(pkg_reader_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(pkg_reader_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(thread_priority_tests tests/host_runtime/thread_priority_tests.cpp)

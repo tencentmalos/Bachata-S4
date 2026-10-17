@@ -176,6 +176,9 @@ class ImportService : Service() {
     }
 
     private suspend fun runFolderImport(uriString: String) {
+        if (com.shadps4.android.data.EmuPspLibrary.isSource(uriString)) {
+            ImportManager.update(ImportProgress.Failed(InstallErrorCode.SOURCE_INACCESSIBLE,"Connect the EmuPSP PS4 library instead of copying its folder"));stopSelf();return
+        }
         Log.i(TAG, "folder import prepare uri=$uriString")
         updateNotification("Validating folder…", indeterminate = true)
         val jobId = UUID.randomUUID().toString()
@@ -320,6 +323,9 @@ class ImportService : Service() {
     }
 
     private suspend fun runPkgImport(uriString: String) {
+        if (com.shadps4.android.data.EmuPspLibrary.isSource(uriString)) {
+            ImportManager.update(ImportProgress.Failed(InstallErrorCode.SOURCE_INACCESSIBLE,"Connect the EmuPSP PS4 library instead. Managed ROMs are referenced, never copied.")); stopSelf(); return
+        }
         Log.i(TAG, "pkg import prepare uri=$uriString")
         updateNotification("Validating package…", indeterminate = true)
         val jobId = UUID.randomUUID().toString()
@@ -673,6 +679,9 @@ class ImportService : Service() {
      * and the [passcodeWaiter]/[copyConfirmWaiter] gates from the single-PKG path.
      */
     private suspend fun runPkgBatchImport(gameId: String, uris: List<String>) {
+        if (uris.any { com.shadps4.android.data.EmuPspLibrary.isSource(it) } || com.shadps4.android.data.EmuPspLibrary.managed(File(filesDir,"games/$gameId"))) {
+            ImportManager.update(ImportProgress.Failed(InstallErrorCode.SOURCE_INACCESSIBLE,"Manage this ROM and its components in EmuPSP")); stopSelf(); return
+        }
         Log.i(TAG, "pkg batch start gameId=$gameId count=${uris.size}")
         updateNotification("Preparing batch install…", indeterminate = true)
         val jobId = UUID.randomUUID().toString()

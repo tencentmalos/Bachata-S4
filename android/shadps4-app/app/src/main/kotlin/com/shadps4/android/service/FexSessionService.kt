@@ -86,8 +86,12 @@ class FexSessionService : Service() {
 
     private fun handleStart(intent: Intent, startId: Int) {
         if (startJob?.isActive == true || NativeFexSession.nativeCurrentGeneration() != 0L) return
+        // A formerly timed-out drain may have finished since its observer left.
+        romLeases.values.forEach{it.close()};romLeases.clear()
         startJob = serviceScope.launch {
             var boundSurface: RuntimeSurface? = null
+            var preparingRomLease: com.shadps4.android.data.EmuPspLibrary.Lease? = null
+            try {
             val gameId = intent.getStringExtra(ManagedSession.EXTRA_GAME_ID) ?: "smoke"
 
             if (!com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(java.io.File(filesDir,"host").absolutePath, applicationContext)) {
@@ -316,6 +320,10 @@ class FexSessionService : Service() {
                 val executable = runCatching {
                     require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "content is not installed" }
                     val root = File(filesDir, relativePath).canonicalFile
+                    if (com.shadps4.android.data.EmuPspLibrary.managed(root)) {
+                        preparingRomLease=withContext(Dispatchers.IO) { com.shadps4.android.data.EmuPspLibrary.open(applicationContext,root) }
+                        return@runCatching preparingRomLease!!.executable.absolutePath
+                    }
                     val entry = GameInstallVerifier.executableFile(root).canonicalFile
                     // Either inside the install directory or the archive it links to in the
                     // configured ZAR folder; nothing else is opened.
@@ -324,6 +332,7 @@ class FexSessionService : Service() {
                     }
                     entry.absolutePath
                 }.getOrElse {
+                    ManagedSession.update(ManagedSessionState.Failed(com.shadps4.android.model.RuntimeErrorCode.CONTENT_PERMISSION_LOST,it.message?:"EmuPSP source unavailable"))
                     Log.e(TAG, "Invalid installed game path", it)
                     if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
                     return@launch
@@ -379,6 +388,7 @@ class FexSessionService : Service() {
                 Log.w(TAG, "Session already running or failed to spawn; ignoring START")
                 return@launch
             }
+            preparingRomLease?.let { romLeases[generation]=it }; preparingRomLease=null
             stopRequestedGeneration = 0L
             stopDeadlineUptimeMs = 0L
             ManagedSession.beginGeneration(generation)
@@ -467,6 +477,7 @@ class FexSessionService : Service() {
                     // else: no stop requested -> keep waiting indefinitely (the game
                     // is allowed to run for hours).
                 }
+                if (outcome != NativeFexSession.Outcome.TIMEOUT) romLeases.remove(generation)?.close()
                 publishTerminal(gameId, generation, outcome)
                 com.shadps4.android.runtime.session.SessionSettingsBridge.uninstall(settingsListener)
                 // Tear down the native pad session for this generation: detaches the
@@ -476,6 +487,7 @@ class FexSessionService : Service() {
 
                 stopSelf(startId)
             }
+            } finally { preparingRomLease?.close() }
         }
     }
 
@@ -483,6 +495,7 @@ class FexSessionService : Service() {
         startJob?.cancel()
         surfaceJob?.cancel()
         val generation = NativeFexSession.nativeCurrentGeneration()
+        if(generation==0L){romLeases.values.forEach{it.close()};romLeases.clear()}
         if (generation == 0L) { stopSelf(); return }
         if (stopRequestedGeneration == generation) return
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))
@@ -575,6 +588,8 @@ class FexSessionService : Service() {
     }
 
     private companion object {
+        // TIMEOUT is not a drain: never close a live guest's source capability.
+        val romLeases=java.util.concurrent.ConcurrentHashMap<Long,com.shadps4.android.data.EmuPspLibrary.Lease>()
         const val TAG = "FexSessionService"
         // Large but finite: stays in the JIT long enough for Stop to interrupt, yet a natural
         // Returned end is reachable. ~4 billion single-instruction iterations.

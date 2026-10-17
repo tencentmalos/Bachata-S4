@@ -34,11 +34,33 @@ open class MainActivity : ComponentActivity() {
     internal open val openXrEnabled = false
     @Inject lateinit var legacyRuntimeSettingsMigration: LegacyRuntimeSettingsMigration
     @Inject lateinit var runtimeProfileStore: RuntimeProfileStore
+    @Inject lateinit var gameRepository: com.shadps4.android.data.GameRepository
     private var requestedGameId by mutableStateOf<String?>(null)
     private var openLastGameRequest by mutableIntStateOf(0)
     private var handingOffDisplayActivity = false
 
     private fun consumeLaunchIntent(value: Intent) {
+        if (value.action == com.shadps4.android.data.ManagedRomContract.ACTION && value.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) {
+            android.util.Log.i("ManagedRom","OPEN_LIBRARY received; persistable="+(value.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION != 0))
+            val source=value.data
+            val wanted=value.getStringExtra("game_id")
+            value.action=null
+            lifecycleScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        require(value.getIntExtra("protocol_version",1)==1)
+                        com.shadps4.android.data.EmuPspLibrary.connect(this@MainActivity,requireNotNull(source))
+                        gameRepository.syncLibrary()
+                        gameRepository.managedLibrarySync.error?.let{error(it)}
+                    }
+                    val titleId=wanted?.removePrefix("ps4:")
+                    if(titleId != null && Regex("CUSA[0-9]{5}").matches(titleId) && gameRepository.getGame("emupsp-$titleId") != null) requestedGameId="emupsp-$titleId"
+                    else android.widget.Toast.makeText(this@MainActivity,"EmuPSP library connected",android.widget.Toast.LENGTH_LONG).show()
+                } catch(e:kotlinx.coroutines.CancellationException){throw e}
+                catch(e:Exception){android.util.Log.e("ManagedRom","Library connection failed",e);android.widget.Toast.makeText(this@MainActivity,e.message?:"Cannot connect EmuPSP",android.widget.Toast.LENGTH_LONG).show()}
+            }
+            return
+        }
         val requested = value.getBooleanExtra("open_last_game", false) ||
             value.getBooleanExtra("--open_last_game", false)
         value.removeExtra("open_last_game")
@@ -144,7 +166,7 @@ open class MainActivity : ComponentActivity() {
         }
         check(nativePad.nativeConfigureOpenXr(this, openXrEnabled))
         requestedGameId = savedInstanceState?.getString("pending_game")
-        if (savedInstanceState == null) consumeLaunchIntent(intent)
+        consumeLaunchIntent(intent)
         val uiOrientation = UiOrientationPreference.read(this)
         // A recreated session already owns its landscape request. Reapplying the
         // library preference here can bounce portrait/landscape indefinitely.

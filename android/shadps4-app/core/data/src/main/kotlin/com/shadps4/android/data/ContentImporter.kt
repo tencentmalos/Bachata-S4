@@ -332,6 +332,7 @@ class ContentImporter(
         validateGameId(gameId)
         val gamesDir = File(filesDir, "games").canonicalFile
         val dest = File(gamesDir, gameId).canonicalFile
+        if (EmuPspLibrary.managed(dest)) throw ContentImportException(RuntimeErrorCode.CONTENT_INVALID,"Manage this ROM and its components in EmuPSP")
         val staging = stagingDir.canonicalFile
         requireInside(gamesDir, dest)
         requireInside(gamesDir, staging)

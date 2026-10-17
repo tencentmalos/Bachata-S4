@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <stb_image.h>
 
+#include "common/emupsp.h"
 #include "common/logging/log.h"
 #include "common/path_util.h"
 #include "core/devtools/layer.h"
@@ -18,7 +19,6 @@
 #include "core/guest_patch_desktop.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
-#include "imgui/online_content/online_content.h"
 #include "imgui/big_picture/imgui_impl_sdl3_big_picture.h"
 #include "imgui/big_picture/imgui_impl_sdlrenderer3.h"
 #include "imgui/big_picture/settings_dialog_imgui.h"
@@ -632,7 +632,7 @@ void GetGameIconInfo(std::vector<IconInfo>& icons) {
     });
 }
 
-void Launch(char* executableName, bool sameProcess, bool onlineStore) {
+void Launch(char* executableName, bool sameProcess) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         LOG_ERROR(ImGui, "SDL_INIT_VIDEO Error: {}", SDL_GetError());
         SDL_Quit();
@@ -694,7 +694,7 @@ void Launch(char* executableName, bool sameProcess, bool onlineStore) {
     };
     applySettings();
 
-    std::unique_ptr<OnlineContent::Page> online_page;
+    bool emupspLaunchFailed = false;
     while (!done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -749,14 +749,13 @@ void Launch(char* executableName, bool sameProcess, bool onlineStore) {
         ImGui::BeginChild("ContentRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()),
                           child_flags, child_window_flags);
 
-        if (ImGui::Selectable("Game Library", !onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = false;
-        ImGui::SameLine();
-        if (ImGui::Selectable("EmuPSP", onlineStore, 0, ImVec2(220 * uiScale, 0))) onlineStore = true;
+        if (ImGui::Button("Open EmuPSP", ImVec2(220 * uiScale, 0))) {
+            emupspLaunchFailed = !EmuPsp::OpenLibrary();
+        }
+        if (emupspLaunchFailed) {
+            ImGui::TextWrapped("Install EmuPSP and register its emupsp URL handler.");
+        }
         ImGui::Separator();
-        if (onlineStore) {
-            if (!online_page) online_page = std::make_unique<OnlineContent::Page>();
-            online_page->Draw();
-        } else {
         Overlay::TextCentered("Select Game");
         ImGui::Dummy(ImVec2(0.0f, 10.f * uiScale));
 
@@ -765,7 +764,6 @@ void Launch(char* executableName, bool sameProcess, bool onlineStore) {
         }
 
         SetGameIcons(gameIcons);
-        }
         ImGui::EndChild();
         ImGui::Separator();
 
@@ -841,7 +839,6 @@ void Launch(char* executableName, bool sameProcess, bool onlineStore) {
         SDL_RenderPresent(renderer);
     }
 
-    online_page.reset();
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
