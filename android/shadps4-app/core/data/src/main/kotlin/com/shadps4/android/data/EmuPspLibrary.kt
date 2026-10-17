@@ -107,12 +107,18 @@ object EmuPspLibrary {
         return SyncResult(linked,removed,errors.firstOrNull())
     }
     class Lease internal constructor(val executable:File,private val directory:File,private val files:List<ParcelFileDescriptor>):AutoCloseable{
-        override fun close(){files.forEach{runCatching{it.close()}};directory.deleteRecursively()}
+        /** Set for a game session (not for library validation); reports the session's play time to EmuPSP. */
+        internal var playtime:EmuPspPlaytime?=null
+        /** How the game session ended (a [NativeFexSession.Outcome] code); sent to EmuPSP when the lease closes. */
+        fun reportOutcome(code:Int){playtime?.outcome=EmuPspPlaytime.outcomeOf(code)}
+        /** Process-wide [presented, slow] frame counters; this session's frames are counted from now. */
+        fun reportFrames(source:()->LongArray?){playtime?.frames(source)}
+        override fun close(){playtime?.close();files.forEach{runCatching{it.close()}};directory.deleteRecursively()}
     }
     fun open(context:Context,dir:File):Lease{
         val link=readLink(dir)?:error("EmuPSP reference is invalid; reconnect the library")
         val current=readGames(context,Uri.parse(link.tree)).firstOrNull{it.id==link.game.id}?:error("Game removed in EmuPSP")
-        return open(context,Uri.parse(link.tree),current)
+        return open(context,Uri.parse(link.tree),current).also{it.playtime=EmuPspPlaytime.start(context,Uri.parse(link.tree),current.id)}
     }
     private fun open(context:Context,tree:Uri,game:ManagedRomContract.Game):Lease{
         val base=game.components.singleOrNull{it.kind=="base"}?:error("Choose a base game in EmuPSP")

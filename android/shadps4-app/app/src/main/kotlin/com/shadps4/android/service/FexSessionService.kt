@@ -477,6 +477,8 @@ class FexSessionService : Service() {
                     // else: no stop requested -> keep waiting indefinitely (the game
                     // is allowed to run for hours).
                 }
+                // EmuPSP play time: the lease reports how the session ended when it closes.
+                romLeases[generation]?.reportOutcome(outcome)
                 if (outcome != NativeFexSession.Outcome.TIMEOUT) romLeases.remove(generation)?.close()
                 publishTerminal(gameId, generation, outcome)
                 com.shadps4.android.runtime.session.SessionSettingsBridge.uninstall(settingsListener)
@@ -487,7 +489,7 @@ class FexSessionService : Service() {
 
                 stopSelf(startId)
             }
-            } finally { preparingRomLease?.close() }
+            } finally { preparingRomLease?.let { it.reportOutcome(NativeFexSession.Outcome.START_FAILED); it.close() } }
         }
     }
 
