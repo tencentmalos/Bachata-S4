@@ -16,6 +16,28 @@ class ControllerBindingResolver {
         }
     }
 
+    /**
+     * Port for a pad that has just connected, or null when every port it may use is taken.
+     * A port configured for this pad comes first. Next a port configured for the same model whose
+     * own pad is not connected: the saved descriptor of a re-enumerated pad no longer matches,
+     * and without this its player 1 binding would leave the pad on a port the game does not
+     * read. Last the first port without a configured pad.
+     */
+    fun portFor(
+        profiles: List<ControllerProfile>,
+        occupied: Set<Int>,
+        device: ControllerDeviceKey,
+        otherConnected: Collection<ControllerDeviceKey>,
+    ): Int? {
+        val free = profiles.indices.filter { it !in occupied }
+        free.firstOrNull { profiles[it].device?.sameDescriptor(device) == true }?.let { return it }
+        free.firstOrNull { port ->
+            val wanted = profiles[port].device
+            wanted != null && wanted.sameModel(device) && otherConnected.none(wanted::sameDescriptor)
+        }?.let { return it }
+        return free.firstOrNull { profiles[it].device == null }
+    }
+
     fun snapshot(profile: ControllerProfile, values: Map<PhysicalBinding, Float>): ControllerSnapshot {
         fun value(control: String): Float {
             val binding = profile.bindingFor(control)
@@ -49,7 +71,7 @@ class ControllerBindingResolver {
         if (profile.device != null && (device == null || !sameDevice(profile.device, device))) ControllerSnapshot.Neutral else snapshot(profile, values)
 
     private fun sameDevice(expected: ControllerDeviceKey, actual: ControllerDeviceKey): Boolean =
-        expected.descriptor == actual.descriptor && expected.vendorId == actual.vendorId && expected.productId == actual.productId
+        expected.sameDescriptor(actual) || expected.sameModel(actual)
 
     private companion object {
         const val BUTTON_THRESHOLD = 0.5f

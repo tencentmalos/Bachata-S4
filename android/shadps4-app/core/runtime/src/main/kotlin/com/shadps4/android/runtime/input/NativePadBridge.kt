@@ -90,6 +90,8 @@ object NativePadBridge {
     }
 
     private class Binding(val port: Int,val nativeEpoch: Long,val device: DeviceIdentity, val buttons: NativeButtonMapping)
+    private fun deviceKey(d: android.view.InputDevice): ControllerDeviceKey? =
+        runCatching { ControllerDeviceKey(d.descriptor, d.vendorId, d.productId, d.name) }.getOrNull()
     private class Connection(context: Context,val generation: Long,val token: Long) : InputSink, HapticFeedbackSource {
         val bindings = LinkedHashMap<DeviceIdentity,Binding>()
         private val sustained = LinkedHashMap<DeviceIdentity,HapticCommand>()
@@ -227,11 +229,14 @@ object NativePadBridge {
         override fun onDeviceAvailable(device: DeviceIdentity,capabilities: DeviceCapabilities) {
             if (closed || !focused) return
             val androidDevice = android.view.InputDevice.getDevice(device.backendId.toInt())
-            val port = (0 until NativePad.MAX_PORTS).firstOrNull { p ->
-                val selected = profiles[p].device
-                bindings.values.none { it.port == p } && (selected == null ||
-                    (selected.descriptor == device.profileKey && androidDevice != null &&
-                     selected.vendorId == androidDevice.vendorId && selected.productId == androidDevice.productId))
+            val occupied = bindings.values.mapTo(HashSet()) { it.port }
+            val key = androidDevice?.let(::deviceKey)
+            val port = if (key == null) {
+                (0 until NativePad.MAX_PORTS).firstOrNull { it !in occupied && profiles[it].device == null }
+            } else {
+                val others = android.view.InputDevice.getDeviceIds().filter { it != device.backendId.toInt() }
+                    .mapNotNull { id -> android.view.InputDevice.getDevice(id)?.let(::deviceKey) }
+                ControllerBindingResolver().portFor(profiles, occupied, key, others)
             } ?: return
             val axes = capabilities.axes.flatMap { listOf(it.axis.ordinal.toFloat(),it.rawMin,it.rawMax,it.rawFlat) }.toFloatArray()
             // A handheld's built-in pad has no vibrator of its own (the device rumbles), so player
@@ -248,7 +253,8 @@ object NativePadBridge {
                 else if (androidDevice?.vibrator?.hasVibrator() == true) 1 else 0
             }.getOrDefault(-1)
             android.util.Log.i("NativePad", "Controller '${androidDevice?.name}' on port $port: " +
-                "rumble=${capabilities.hasRumble}, vibrators=$vibrators, device vibrator=$useSystemVibrator")
+                "rumble=${capabilities.hasRumble}, vibrators=$vibrators, device vibrator=$useSystemVibrator, " +
+                "descriptor=${key?.descriptor?.take(8)} configured=${profiles[port].device?.descriptor?.take(8)}")
         }
         override fun onInputPacket(packet: InputPacket) {
             val b = bindings[packet.device] ?: return

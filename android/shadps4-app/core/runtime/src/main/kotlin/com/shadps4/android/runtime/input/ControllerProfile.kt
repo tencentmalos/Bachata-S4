@@ -10,6 +10,18 @@ data class ControllerDeviceKey(
     val fallbackName: String,
 ) {
     init { require(descriptor.isNotBlank() || fallbackName.isNotBlank()) { "Controller identity is blank" } }
+
+    /** The pad this key was saved for. */
+    fun sameDescriptor(other: ControllerDeviceKey): Boolean =
+        descriptor.isNotBlank() && descriptor == other.descriptor &&
+            vendorId == other.vendorId && productId == other.productId
+
+    /** The same model: vendor, product and name. Android derives the descriptor of a pad without
+     * a unique id from where it is attached, so a handheld's built-in pad can come back with a new
+     * descriptor after it is enumerated again (the Odin 3's after a dock appeared). */
+    fun sameModel(other: ControllerDeviceKey): Boolean =
+        (vendorId != 0 || productId != 0) && vendorId == other.vendorId &&
+            productId == other.productId && fallbackName == other.fallbackName
 }
 
 @Serializable
