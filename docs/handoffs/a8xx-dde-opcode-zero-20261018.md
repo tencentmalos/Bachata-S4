@@ -30,8 +30,8 @@ Odin3（AYN，Adreno 830，gen8.0）上跑 GoW3（CUSA01740）时，偶发 `CP D
 
 ## 代码与分支
 
-- 主仓：`feature/malos/swan_performance`（已合入 `malos/main`），Turnip 引用 `ff5d4093fa5`，Foundation 引用 `1e63c23f`。
-- Turnip fork（`tencentmalos/mesa-mirror`）分支 `codex/a8xx-cs-recycle`，基于 `codex/shadps4-xr-turnip` 的 `65b63f66bf5`，全部默认关闭：
+- 主仓：`feature/malos/swan_performance`（已合入 `malos/main`），Turnip 引用 `ff5d4093fa5`，Foundation 引用 `d3f06642`（`feature/malos/shadps4-capture`，已合入 Foundation `main`，未推到 Foundation 的 `main`）。
+- Turnip fork（`tencentmalos/mesa-mirror`）分支 `codex/a8xx-cs-recycle`，基于 `65b63f66bf5`；shadPS4 的 Turnip 主干 `codex/shadps4-xr-turnip` 已快进到同一提交 `ff5d4093fa5`。全部开关默认关闭：
   - `bbb3e82bc8d`：cherry-pick 上游 `c88b6ebd383`（bindless descriptor invalidate）；
   - `ce8f89d4e43` `TU_DEBUG=cs_recycle`：保留退役的命令流 BO 复用，不交还 KGSL；
   - `84a5c7ac917` `TU_DEBUG=cs_dsb`：录制完命令缓冲、建完管线后执行 `DSB SY`；
