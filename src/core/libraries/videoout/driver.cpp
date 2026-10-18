@@ -53,6 +53,7 @@ VideoOutDriver::VideoOutDriver(u32 width, u32 height, std::function<u64()> proce
     : process_time(process_time_ ? std::move(process_time_)
                                  : Libraries::Kernel::sceKernelGetProcessTime),
       read_tsc(tsc_ ? std::move(tsc_) : Libraries::Kernel::sceKernelReadTsc) {
+    DebugState.RestartFlipInterval();
     if (guest_labels) {
         // The GPU writes the flip labels (PM4 WRITE_DATA): both ports keep them in the driver
         // objects page, the social screen's right after the main port's.
@@ -709,6 +710,23 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
     }
 }
 
+namespace {
+std::mutex session_pause_mutex;
+std::condition_variable_any session_pause_changed;
+bool session_paused{}; // guarded by session_pause_mutex
+std::atomic<bool> session_paused_flag{};
+} // namespace
+
+void SetSessionPaused(bool paused) {
+    {
+        std::scoped_lock lock{session_pause_mutex};
+        session_paused = paused;
+        session_paused_flag.store(paused, std::memory_order_release);
+    }
+    DebugState.RestartFlipInterval();
+    session_pause_changed.notify_all();
+}
+
 void VideoOutDriver::PresentThread(std::stop_token token) {
     const u32 vblank_frequency = std::max(1u, EmulatorSettings.GetVblankFrequency());
     const std::chrono::nanoseconds vblank_period(1000000000 / vblank_frequency);
@@ -753,6 +771,14 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
         } else {
             limit_credit = 0;
             limit_slot = true;
+        }
+
+        if (session_paused_flag.load(std::memory_order_acquire)) {
+            if (presenter->HasPresentableSurface()) DrawLastFrame();
+            std::unique_lock lock{session_pause_mutex};
+            session_pause_changed.wait_for(lock, token, std::chrono::milliseconds(100),
+                                           [] { return !session_paused; });
+            continue;
         }
 
         if (DebugState.IsGuestThreadsPaused()) {

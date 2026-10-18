@@ -97,6 +97,9 @@ public:
     OboeAudioOut();
     ~OboeAudioOut() override;
     std::unique_ptr<PortBackend> Open(PortOut& port) override;
+    // Session pause: closes the shared device stream until released (also for a device opened
+    // while paused).
+    void SetPaused(bool paused);
 private:
     struct Impl;
     std::unique_ptr<Impl> impl;

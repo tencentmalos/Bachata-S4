@@ -45,6 +45,18 @@ const char* ToString(StopResult result) noexcept {
     return "Unknown";
 }
 
+const char* ToString(PauseResult result) noexcept {
+    switch (result) {
+    case PauseResult::Applied: return "Applied";
+    case PauseResult::NotRunning: return "NotRunning";
+    case PauseResult::WrongGeneration: return "WrongGeneration";
+    case PauseResult::Busy: return "Busy";
+    case PauseResult::Unsupported: return "Unsupported";
+    case PauseResult::Error: return "Error";
+    }
+    return "Unknown";
+}
+
 SessionCore::SessionCore(ISessionBackend& backend) : backend_(backend) {}
 
 SessionCore::~SessionCore() {
@@ -432,6 +444,48 @@ StopResult SessionCore::RequestStop(std::uint64_t generation, std::uint64_t time
     }
 
     return result;
+}
+
+PauseResult SessionCore::SetPaused(std::uint64_t generation, bool paused) {
+    std::shared_ptr<SessionRuntime> rt;
+    {
+        std::unique_lock lock{mtx_};
+        if (generation != generation_)
+            return PauseResult::WrongGeneration;
+        if ((phase_ != Phase::Ready && phase_ != Phase::Running) || tearing_down_ ||
+            cancel_generation_ == generation)
+            return PauseResult::NotRunning;
+        rt = runtime_;
+        if (rt == nullptr)
+            return PauseResult::NotRunning;
+        ++in_flight_control_; // as RequestStop: teardown waits for this call
+    }
+    struct LeaseGuard {
+        SessionCore* self;
+        ~LeaseGuard() {
+            std::lock_guard lock{self->mtx_};
+            --self->in_flight_control_;
+            self->cv_.notify_all();
+        }
+    } lease_guard{this};
+    try {
+        auto status = backend_.SetPaused(*rt, paused);
+        if (status) {
+            backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(QueryPhase(generation)),
+                                      paused ? "Paused" : "Resumed", "background");
+            return PauseResult::Applied;
+        }
+        switch (status.Category()) {
+        case Core::GuestCpu::ErrorCategory::Busy:
+            return PauseResult::Busy;
+        case Core::GuestCpu::ErrorCategory::Unsupported:
+            return PauseResult::Unsupported;
+        default:
+            return PauseResult::Error;
+        }
+    } catch (...) {
+        return PauseResult::Error;
+    }
 }
 
 Phase SessionCore::QueryPhase(std::uint64_t generation) const {

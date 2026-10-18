@@ -4,9 +4,11 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <mutex>
 #include <shared_mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 #include <queue>
 
@@ -140,6 +142,10 @@ class DebugStateImpl {
 
     std::atomic_int32_t flip_frame_count = 0;
     std::atomic_int32_t gnm_frame_count = 0;
+    // Presented game frames that came more than SlowFlipNs after the previous one, and when the
+    // previous one came (0: none since the last restart, so the next interval is not measured).
+    std::atomic<u64> slow_flip_count = 0;
+    std::atomic<s64> last_flip_ns = 0;
     // Counted during the frame, then folded into a running average when the frame flips. The raw
     // per frame count changes too fast to read while playing, so only the average is shown.
     std::atomic_int32_t draw_call_count = 0;
@@ -201,7 +207,29 @@ public:
         const auto dispatches_avg = dispatch_count_avg.load(std::memory_order_relaxed);
         dispatch_count_avg.store(dispatches_avg + (float(dispatches) - dispatches_avg) * smoothing,
                                  std::memory_order_relaxed);
+        const s64 now = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::steady_clock::now().time_since_epoch())
+                            .count();
+        const s64 previous = last_flip_ns.exchange(now, std::memory_order_relaxed);
+        if (previous != 0 && now - previous > SlowFlipNs) {
+            slow_flip_count.fetch_add(1, std::memory_order_relaxed);
+        }
         ++flip_frame_count;
+    }
+
+    /// A presented game frame later than this after the previous one counts as slow (20 FPS).
+    static constexpr s64 SlowFlipNs = 50'000'000;
+
+    /// The next presented frame starts a new interval: a session start or a pause/resume is not
+    /// a slow frame.
+    void RestartFlipInterval() noexcept {
+        last_flip_ns.store(0, std::memory_order_relaxed);
+    }
+
+    /// Presented game frames and the slow ones among them, counted for the process lifetime.
+    [[nodiscard]] std::pair<u64, u64> FlipStats() const noexcept {
+        return {u64(u32(flip_frame_count.load(std::memory_order_relaxed))),
+                slow_flip_count.load(std::memory_order_relaxed)};
     }
 
     void IncDrawCall() noexcept {

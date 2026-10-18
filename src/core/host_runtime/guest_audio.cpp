@@ -153,9 +153,13 @@ struct GuestAudio::Impl {
 
     GuestClock& clock;
     Factory factory;
+#if defined(__ANDROID__)
+    std::shared_ptr<OboeAudioOut> oboe; // the default factory's device, for session pause
+#endif
     std::mutex mutex;
     std::condition_variable_any changed;
     bool initialized{}, stopping{};
+    bool paused{}; // session pause: producers wait without polling, guarded by mutex
     struct Port {
         PortOut native;
         u32 handle{};
@@ -182,7 +186,8 @@ struct GuestAudio::Impl {
         : space(space), clock(clock), factory(std::move(factory)) {
         if (!this->factory) {
 #if defined(__ANDROID__)
-            this->factory = [backend = std::make_shared<OboeAudioOut>()](PortOut& port) {
+            oboe = std::make_shared<OboeAudioOut>();
+            this->factory = [backend = oboe](PortOut& port) {
                 return backend->Open(port); // one device shared by this session's ports
             };
 #else
@@ -488,7 +493,12 @@ struct GuestAudio::Impl {
                 // Realtime consumer never locks/notifies this condition. Poll
                 // its release counters only while a guest producer is waiting.
                 if (callback) {
-                    while (!ready()) changed.wait_for(lock, stop, std::chrono::milliseconds(1), ready);
+                    while (!ready() && !stop.stop_requested()) {
+                        // The device is closed while the session is paused: block until release
+                        // instead of polling its counters.
+                        if (paused) changed.wait(lock, stop, [&] { return !paused; });
+                        else changed.wait_for(lock, stop, std::chrono::milliseconds(1), ready);
+                    }
                 } else changed.wait(lock, stop, ready);
             }
             // Recheck queue credits under the audio domain lock. A lost credit
@@ -660,5 +670,15 @@ u64 GuestAudio::OutputHost(u32 handle, std::span<const u8> pcm, std::stop_token 
 }
 void GuestAudio::RequestStop() {
     impl->Stop();
+}
+void GuestAudio::SetPaused(bool paused) {
+    {
+        std::lock_guard lock(impl->mutex);
+        impl->paused = paused;
+    }
+    impl->changed.notify_all();
+#if defined(__ANDROID__)
+    if (impl->oboe) impl->oboe->SetPaused(paused);
+#endif
 }
 } // namespace Core::HostRuntime

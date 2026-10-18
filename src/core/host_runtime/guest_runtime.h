@@ -36,6 +36,10 @@ public:
     GuestCpu::Result<GuestCpu::GuestCallResult> Run(const std::vector<std::string>& args);
     GuestCpu::Status RequestCancel();
     GuestCpu::Status WaitStopped(std::uint64_t timeout_ns);
+    // Session pause (the app went to the background), the host side: the guest sees
+    // background execution and gets OnResume on release, the audio device closes, VideoOut stops
+    // flips and vblanks. Guest threads are held by the CPU context (SetSessionPaused).
+    void SetServicesPaused(bool paused);
     std::string Diagnostics() const;
     std::string OperationName(std::uint64_t operation) const;
     // Current successful host-present count (mirrors VideoOutDriver::guest_presents).

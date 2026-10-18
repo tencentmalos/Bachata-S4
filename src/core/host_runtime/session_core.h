@@ -87,6 +87,18 @@ enum class StopResult : std::uint32_t {
 
 [[nodiscard]] const char* ToString(StopResult result) noexcept;
 
+// Result of a SetPaused call.
+enum class PauseResult : std::uint32_t {
+    Applied = 0,      // the session is now held / released (or already was)
+    NotRunning,       // not Ready/Running, or stopping: nothing to hold
+    WrongGeneration,  // gen does not match the current session
+    Busy,             // release waited out its budget; the session is still held
+    Unsupported,      // the backend has no session pause
+    Error,
+};
+
+[[nodiscard]] const char* ToString(PauseResult result) noexcept;
+
 // Result of a WaitPhase call.
 enum class WaitPhaseResult : std::uint32_t {
     ReachedTarget = 0,
@@ -114,6 +126,10 @@ public:
     // Requests a stop of `generation`. Bounded by timeout_ns for the CPU stop
     // receipt (0 = 1s default). Never joins here.
     [[nodiscard]] StopResult RequestStop(std::uint64_t generation, std::uint64_t timeout_ns);
+
+    // Holds or releases `generation` while the app is in the background (see
+    // ISessionBackend::SetPaused). A stop still works on a held session. Never joins.
+    [[nodiscard]] PauseResult SetPaused(std::uint64_t generation, bool paused);
 
     // Non-blocking snapshot.
     [[nodiscard]] Phase QueryPhase(std::uint64_t generation) const;

@@ -168,6 +168,8 @@ public:
     // blank frames) shows anything. Not for the headset: the XR runtime repeats
     // the last released image itself.
     bool WantsIdleRedraw() const;
+    // Whether the window currently has a surface to present to (Android: none in the background).
+    bool HasPresentableSurface() const { return swapchain.CanPresent(); }
     // ImGui::Layer UI hosted outside the window frame (the XR layer panel): one
     // update, for vblanks without a window redraw.
     void UpdateOverlayLayers();

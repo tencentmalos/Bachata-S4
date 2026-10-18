@@ -169,4 +169,9 @@ private:
     std::queue<Request> requests;
 };
 
+// Session pause (the Android app went to the background): the present thread takes no flips and
+// signals no vblanks until released, and redraws the last frame only while a surface exists, so
+// the paused game shows behind the session menu. Process-wide; one session runs at a time.
+void SetSessionPaused(bool paused);
+
 } // namespace Libraries::VideoOut

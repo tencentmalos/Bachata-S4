@@ -130,6 +130,14 @@ public:
                                                              const StopTicket& ticket,
                                                              std::uint64_t timeout_ns) = 0;
 
+    // Any thread. Holds (paused) or releases guest execution and the session's devices while
+    // the app is in the background. Releasing may wait, bounded, for a pause still taking
+    // effect and then returns Busy with the session still held. Default: Unsupported.
+    [[nodiscard]] virtual Core::GuestCpu::Status SetPaused(SessionRuntime&, bool) {
+        return Core::GuestCpu::MakeError(Core::GuestCpu::ErrorCategory::Unsupported,
+                                         "SetPaused", "backend has no session pause");
+    }
+
     // Owner thread. Destroys thread/context/space. Called exactly once, after the
     // control-lease has fully drained, so no other thread is inside a backend
     // call on this runtime.

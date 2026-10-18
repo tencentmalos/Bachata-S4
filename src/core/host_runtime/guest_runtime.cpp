@@ -207,48 +207,18 @@ void RestoreOfflineHttp2Imports(Module& module, GuestAddressSpace& space,
                                 const QuiescenceToken& token) {
     auto* m = &module;
     for (const auto& segment : m->elf.GetProgramHeader()) {
-        if (segment.p_type != PT_LOAD || segment.p_vaddr != 0 ||
-            segment.p_flags != (PF_READ | PF_EXEC) ||
-            segment.p_filesz != Http2CompatTextSize || segment.p_memsz != Http2CompatTextSize)
+        if (!IsHttp2CompatTextSegment(segment))
             continue;
         std::string digest;
         {
             auto text = Require(space.AcquireDataSpan(
                 {GuestAddress{m->GetBaseAddress()}, segment.p_filesz}, false));
-            std::array<u8, SHA256_DIGEST_LENGTH> hash{};
-            SHA256(reinterpret_cast<const u8*>(text.Bytes().data()), text.Bytes().size(), hash.data());
-            constexpr char hex[] = "0123456789abcdef";
-            for (auto byte : hash) { digest += hex[byte >> 4]; digest += hex[byte & 15]; }
+            digest = Http2CompatDigest(
+                {reinterpret_cast<const u8*>(text.Bytes().data()), text.Bytes().size()});
         }
         if (digest != Http2CompatTextSha)
             continue;
-        std::vector<Http2ImportBinding> bindings;
-        for (const auto& expected : Http2CompatBindings) {
-            m->ForEachRelocation([&](const elf_relocation* rel, u32, bool jump) {
-                if (rel->rel_offset != expected.got)
-                    return;
-                const auto& d = m->dynamic_info;
-                if (!jump || rel->GetType() != R_X86_64_JUMP_SLOT || rel->rel_addend != 0 ||
-                    rel->GetSymbol() >= d.symbol_table_total_size / sizeof(elf_symbol))
-                    throw std::runtime_error("HTTP2 content compatibility relocation mismatch");
-                const auto& sym = d.symbol_table[rel->GetSymbol()];
-                if (sym.st_name >= d.str_table_size || sym.GetType() != STT_FUN || sym.st_shndx != 0)
-                    throw std::runtime_error("HTTP2 content compatibility symbol mismatch");
-                const char* name = d.str_table + sym.st_name;
-                const auto* end = static_cast<const char*>(std::memchr(name, 0, d.str_table_size - sym.st_name));
-                if (!end)
-                    throw std::runtime_error("HTTP2 content compatibility unterminated import");
-                const std::string_view full{name, size_t(end - name)};
-                const auto first = full.find('#'), second = full.find('#', first == full.npos ? full.size() : first + 1);
-                if (first == full.npos || second == full.npos || full.substr(0, first) != expected.nid)
-                    throw std::runtime_error("HTTP2 content compatibility NID mismatch");
-                const auto* library = m->FindLibrary(full.substr(first + 1, second - first - 1));
-                const auto* module = m->FindModule(full.substr(second + 1));
-                if (!library || !module || library->name != "libSceHttp2" || library->version != 1 || module->name != "libSceHttp2")
-                    throw std::runtime_error("HTTP2 content compatibility provider mismatch");
-                bindings.push_back(expected);
-            });
-        }
+        const auto bindings = CollectHttp2ImportBindings(*m);
         const GuestRange patch_range{GuestAddress{m->GetBaseAddress() + Http2CompatStart}, Http2CompatSize};
         std::array<u8, Http2CompatSize> code{};
         Require(space.ReadData(patch_range.base, std::as_writable_bytes(std::span{code})));
@@ -6414,7 +6384,18 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
     }
 }
 Status GuestRuntime::RequestCancel() {
+    // A stop releases a paused present thread; the flag is process-wide.
+    Libraries::VideoOut::SetSessionPaused(false);
     return impl->Cancel();
+}
+void GuestRuntime::SetServicesPaused(bool paused) {
+    // Pause: the guest is told first, devices stop after. Release in reverse, so OnResume is
+    // queued before the guest runs again.
+    if (paused && impl->platform) impl->platform->SetBackground(true);
+    if (impl->audio) impl->audio->SetPaused(paused);
+    Libraries::VideoOut::SetSessionPaused(paused);
+    if (!paused && impl->platform) impl->platform->SetBackground(false);
+    LOG_INFO(Core, "Session {}", paused ? "paused (background)" : "resumed");
 }
 Status GuestRuntime::WaitStopped(u64 timeout_ns) {
     std::unique_lock lock(impl->threads_mutex);

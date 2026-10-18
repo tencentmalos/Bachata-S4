@@ -15,6 +15,7 @@
 #include "core/aerolib/aerolib.h"
 #include "core/cpu_patches.h"
 #include "core/guest_patch_desktop.h"
+#include "core/host_runtime/guest_http2_compat.h"
 #include "core/libraries/error_codes.h"
 #include "core/loader/dwarf.h"
 #include "core/loader/plt_import.h"
@@ -127,11 +128,35 @@ Module::Module(Core::MemoryManager* memory_, const std::filesystem::path& file_,
         LoadSymbols();
         if (memory->IsGuestBackend()) {
             RestorePreboundPltImports();
+        } else {
+            RestoreHttp2Imports();
         }
     }
 }
 
 Module::~Module() = default;
+
+void Module::RestoreHttp2Imports() {
+    if (!http2_compat_text)
+        return;
+    try {
+        const auto bindings = HostRuntime::CollectHttp2ImportBindings(*this);
+        auto* region = reinterpret_cast<u8*>(base_virtual_addr + HostRuntime::Http2CompatStart);
+        std::array<u8, HostRuntime::Http2CompatSize> code{};
+        std::memcpy(code.data(), region, code.size());
+        HostRuntime::RestoreHttp2ImportBytes(HostRuntime::Http2CompatTextSha, code, bindings);
+        // The module is still being loaded, as for the desktop guest patches: nothing runs
+        // these bytes yet.
+        std::memcpy(region, code.data(), code.size());
+        LOG_WARNING(Core_Linker,
+                    "Content compatibility CUSA50828/01.08: restored {} HTTP2 import jumps to "
+                    "normal HLE; source file unchanged",
+                    bindings.size());
+    } catch (const std::exception& e) {
+        LOG_ERROR(Core_Linker, "HTTP2 content compatibility not applied to {}: {}", name,
+                  e.what());
+    }
+}
 
 void Module::RestorePreboundPltImports() {
     std::vector<u64> slots;
@@ -412,6 +437,19 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
         }
         default:
             LOG_ERROR(Core_Linker, "Unimplemented type {}", header_type);
+        }
+    }
+
+    // Hash the text as decoded, before the Windows red-zone patching below rewrites it.
+    // (The Android guest backend checks the same entry in guest_runtime.cpp.)
+    if (!memory->IsGuestBackend()) {
+        for (const auto& segment : elf.GetProgramHeader()) {
+            if (HostRuntime::IsHttp2CompatTextSegment(segment) &&
+                HostRuntime::Http2CompatDigest(
+                    {reinterpret_cast<const u8*>(base_virtual_addr), segment.p_filesz}) ==
+                    HostRuntime::Http2CompatTextSha) {
+                http2_compat_text = true;
+            }
         }
     }
 

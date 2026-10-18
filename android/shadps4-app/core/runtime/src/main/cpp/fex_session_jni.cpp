@@ -47,6 +47,7 @@
 #include <android/log.h>
 #include <sys/system_properties.h>
 
+#include "core/debug_state.h"
 #include "core/diagnostics/diagnostics_service.h"
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/session_backend_fex.h"
@@ -276,6 +277,23 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeRequestStop(JNIE
     }
 }
 
+// Holds (paused) or releases `generation` while the app is in the background. Returns a
+// PauseResult ordinal. A release may block up to two seconds: call it off the main thread.
+extern "C" JNIEXPORT jint JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetPaused(JNIEnv*, jclass,
+                                                                         jlong generation,
+                                                                         jboolean paused) {
+    try {
+        const auto r = Session().SetPaused(static_cast<std::uint64_t>(generation), paused == JNI_TRUE);
+        __android_log_print(ANDROID_LOG_INFO, kTag, "nativeSetPaused gen=%lld paused=%d: %s",
+                            static_cast<long long>(generation), paused == JNI_TRUE ? 1 : 0,
+                            Core::HostRuntime::ToString(r));
+        return static_cast<jint>(r);
+    } catch (...) {
+        return static_cast<jint>(Core::HostRuntime::PauseResult::Error);
+    }
+}
+
 // Waits for `generation` to reach `target_phase` (or later). Returns a
 // WaitPhaseResult ordinal.
 extern "C" JNIEXPORT jint JNICALL
@@ -341,6 +359,24 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeCurrentGeneratio
         return static_cast<jlong>(Session().CurrentGeneration());
     } catch (...) {
         return 0;
+    }
+}
+
+// [presented game frames, slow ones] for the process lifetime (callers take differences), or
+// null while no session runs.
+extern "C" JNIEXPORT jlongArray JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeFrameStats(JNIEnv* env, jclass) {
+    try {
+        if (!Session().CurrentGeneration())
+            return nullptr;
+        const auto [frames, slow] = DebugState.FlipStats();
+        const jlong values[2]{static_cast<jlong>(frames), static_cast<jlong>(slow)};
+        jlongArray array = env->NewLongArray(2);
+        if (array)
+            env->SetLongArrayRegion(array, 0, 2, values);
+        return array;
+    } catch (...) {
+        return nullptr;
     }
 }
 

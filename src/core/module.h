@@ -229,6 +229,8 @@ public:
     void LoadDynamicInfo();
     void LoadSymbols();
     void RestorePreboundPltImports();
+    // Desktop: the HTTP2 content compatibility entry (host_runtime/guest_http2_compat.h).
+    void RestoreHttp2Imports();
 
     void* FindByName(std::string_view name);
 
@@ -257,6 +259,8 @@ public:
     ThreadLocalImage tls{};
     OrbisKernelModuleInfo info{};
     std::vector<u8> rela_bits;
+    // The decoded text matched the HTTP2 compatibility entry, hashed before any load-time patch.
+    bool http2_compat_text{};
 };
 
 } // namespace Core

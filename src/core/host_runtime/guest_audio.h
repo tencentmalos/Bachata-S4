@@ -37,6 +37,9 @@ public:
     u64 OutputHost(u32 handle, std::span<const u8> pcm, std::stop_token stop = {},
                    bool nonblocking = false);
     void RequestStop();
+    // Session pause (the app went to the background): closes the device stream; a producer
+    // waiting for queue space blocks until release.
+    void SetPaused(bool paused);
 
 private:
     struct Impl;

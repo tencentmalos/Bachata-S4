@@ -279,6 +279,13 @@ public:
     [[nodiscard]] virtual Result<void> Resume(ThreadHandle thread,
                                               std::uint64_t acknowledged_epoch) = 0;
 
+    // Holds every owner of this context (the app went to the background) or releases them.
+    // Owners in guest code stop at their next safe point; an owner inside a native HLE call or a
+    // host callback finishes it and stops before it runs guest code again, and new owners start
+    // held. Cancel still ends a held owner. Releasing waits up to timeout_ns for owners still
+    // in guest code to stop, and returns Busy (still held) if some have not.
+    [[nodiscard]] virtual Status SetSessionPaused(bool paused, std::uint64_t timeout_ns) = 0;
+
     // Identity of this context instance. Non-zero, and different for a context
     // created after this one is destroyed, so a stale ticket cannot match.
     [[nodiscard]] virtual std::uint64_t ContextId() const noexcept = 0;

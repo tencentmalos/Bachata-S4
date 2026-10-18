@@ -113,7 +113,13 @@ private:
 struct OboeAudioOut::Impl {
     std::mutex mutex;
     std::weak_ptr<FA::AndroidOutput> device;
+    bool paused{};
 };
+void OboeAudioOut::SetPaused(bool paused) {
+    std::lock_guard lock(impl->mutex);
+    impl->paused = paused;
+    if (auto device = impl->device.lock()) device->SetPaused(paused);
+}
 OboeAudioOut::OboeAudioOut() : impl(std::make_unique<Impl>()) {}
 OboeAudioOut::~OboeAudioOut() = default;
 std::unique_ptr<PortBackend> OboeAudioOut::Open(PortOut& port) {
@@ -123,6 +129,7 @@ std::unique_ptr<PortBackend> OboeAudioOut::Open(PortOut& port) {
         FA::AndroidOutputConfig config;
         config.observe = Observe;
         device = std::make_shared<FA::AndroidOutput>(std::move(config));
+        if (impl->paused) device->SetPaused(true);
         impl->device = device;
         std::lock_guard limiter_lock(limiter_mutex);
         device->SetLimiter(LimiterOn());

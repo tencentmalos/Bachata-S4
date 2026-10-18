@@ -389,6 +389,7 @@ class FexSessionService : Service() {
                 return@launch
             }
             preparingRomLease?.let { romLeases[generation]=it }; preparingRomLease=null
+            romLeases[generation]?.reportFrames { NativeFexSession.nativeFrameStats() }
             stopRequestedGeneration = 0L
             stopDeadlineUptimeMs = 0L
             ManagedSession.beginGeneration(generation)

@@ -1763,7 +1763,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                         e->debug_patch.reset();
                         stopped_changed_.notify_all();
                     }
-                    stopped_changed_.wait_for(guard, std::chrono::milliseconds(20));
+                    // Releases and cancels notify; the timeout only bounds a missed wake. A
+                    // background session pause holds every owner here, so wake rarely.
+                    stopped_changed_.wait_for(guard, session_paused_ ? std::chrono::milliseconds(500)
+                                                                     : std::chrono::milliseconds(20));
                 }
                 e->debug_parked = false;
                 single_step = e->debug_step;
@@ -2441,6 +2444,43 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         if (!debug_attached_) ++debug_attachment_;
         debug_attached_ = true;
         return DebugPauseLocked();
+    }
+    // The session pause holds owners in the debugger's park loop (debug_pause), without the
+    // debugger's breakpoints, watchpoints or register patches. Owners leave the loop only when
+    // released or cancelled, so releasing waits until none is in guest code: an owner whose poll
+    // page is armed but has not reached it would otherwise stop with no reason pending.
+    Status SetSessionPaused(bool paused, std::uint64_t timeout_ns) override {
+        std::unique_lock guard{lock_};
+        if (paused) {
+            if (session_paused_) return Ok();
+            if (debug_attached_)
+                return BackendError(ErrorCategory::Busy, "session pause", "guest debugger attached");
+            ++debug_attachment_;
+            debug_attached_ = true;
+            session_paused_ = true;
+            return DebugPauseLocked();
+        }
+        if (!session_paused_) return Ok();
+        const auto deadline =
+            std::chrono::steady_clock::now() + std::chrono::nanoseconds(timeout_ns);
+        const auto in_guest_code = [&] {
+            return std::any_of(threads_.begin(), threads_.end(),
+                               [](auto& item) { return item.second.running; });
+        };
+        if (!stopped_changed_.wait_until(guard, deadline, [&] { return !in_guest_code(); }))
+            return BackendError(ErrorCategory::Busy, "session resume",
+                                "an owner has not reached a safe point");
+        session_paused_ = false;
+        debug_attached_ = debug_paused_ = false;
+        for (auto& [id, e] : threads_) {
+            // As Detach: no breakpoint, watchpoint or patch exists during a session pause.
+            e.debug_pause = e.debug_step = false;
+            e.debug_patch.reset();
+            e.watch_hit.reset();
+            e.debug_boundaries.clear();
+        }
+        stopped_changed_.notify_all();
+        return Ok();
     }
     Status Continue(std::uint64_t id, bool step) override {
         std::lock_guard guard{lock_};
@@ -3395,6 +3435,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     std::atomic<bool> debug_attached_{};
     std::atomic<std::uint64_t> debug_attachment_{};
     bool debug_paused_{};
+    bool session_paused_{}; // SetSessionPaused holds owners through debug_pause; guarded by lock_
     struct DebugBreakpoint { std::byte original; std::uint64_t mapping; };
     std::map<std::uint64_t, DebugBreakpoint> debug_breakpoints_;
     std::vector<DebugModule> debug_modules_;

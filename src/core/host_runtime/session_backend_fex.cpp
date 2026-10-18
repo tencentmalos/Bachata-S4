@@ -137,6 +137,10 @@ struct FexSessionRuntime final : SessionRuntime {
     std::unordered_set<std::uint64_t> production_tickets;
     std::unordered_map<std::uint64_t, InterruptTicket> tickets;
 
+    // Session pause (app in the background); serializes pause and release requests.
+    std::mutex pause_mtx;
+    bool paused{};
+
     // DiagnosticsHub publisher for this generation (spec §3.1). Registered at
     // Prepare, revoked at Destroy. Producers push stage/present advances into it;
     // a null publisher (registration failed) makes every push a no-op.
@@ -421,6 +425,39 @@ RunReport FexSessionBackend::Run(SessionRuntime& runtime) {
         break;
     }
     return report;
+}
+
+Status FexSessionBackend::SetPaused(SessionRuntime& runtime, bool paused) {
+    auto& rt = static_cast<FexSessionRuntime&>(runtime);
+#if defined(SHADPS4_TYPED_HLE_HOST)
+    if (rt.production) {
+        // A pause still taking effect when released: owners reach a safe point within a few
+        // milliseconds, so this only bounds a stuck owner.
+        constexpr std::uint64_t ReleaseBudgetNs = 2'000'000'000;
+        std::lock_guard lock{rt.pause_mtx};
+        if (paused == rt.paused)
+            return Ok();
+        if (paused) {
+            // Devices first, so nothing the guest queues meanwhile reaches them; the guest is
+            // told it runs in the background before it stops.
+            rt.production->SetServicesPaused(true);
+            auto held = rt.context->SetSessionPaused(true, 0);
+            if (!held) {
+                rt.production->SetServicesPaused(false);
+                return held;
+            }
+        } else {
+            auto released = rt.context->SetSessionPaused(false, ReleaseBudgetNs);
+            if (!released)
+                return released; // still held, devices stay paused
+            rt.production->SetServicesPaused(false);
+        }
+        rt.paused = paused;
+        return Ok();
+    }
+#endif
+    (void)rt;
+    return MakeError(ErrorCategory::Unsupported, "SetPaused", "smoke session");
 }
 
 Result<StopTicket> FexSessionBackend::RequestCancel(SessionRuntime& runtime) {

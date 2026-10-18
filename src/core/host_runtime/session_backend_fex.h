@@ -23,6 +23,7 @@ public:
     [[nodiscard]] Core::GuestCpu::Status WaitStopped(SessionRuntime& runtime,
                                                      const StopTicket& ticket,
                                                      std::uint64_t timeout_ns) override;
+    [[nodiscard]] Core::GuestCpu::Status SetPaused(SessionRuntime& runtime, bool paused) override;
     void Destroy(SessionRuntime& runtime) override;
     void PublishLifecycle(std::uint64_t generation, std::uint32_t phase,
                           std::string_view stage, std::string_view reason = {},

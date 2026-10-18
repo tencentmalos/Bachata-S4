@@ -95,6 +95,16 @@ object NativeFexSession {
     /** Request a stop of [generation]. Returns a [StopResult] ordinal. */
     external fun nativeRequestStop(generation: Long, timeoutMs: Long): Int
 
+    /**
+     * Hold ([paused]) or release [generation] while the app is in the background. Returns a
+     * native PauseResult ordinal (0 = applied, 3 = busy: still held). A release can block for up
+     * to two seconds; never call it on the main thread.
+     */
+    external fun nativeSetPaused(generation: Long, paused: Boolean): Int
+
+    /** [presented game frames, slow ones (over 50 ms)] since process start, or null with no session. */
+    external fun nativeFrameStats(): LongArray?
+
     /** Wait until [generation] reaches [targetPhase] (or later). Returns a [WaitPhaseResult] ordinal. */
     external fun nativeWaitPhase(generation: Long, targetPhase: Int, deadlineMs: Long): Int
 
