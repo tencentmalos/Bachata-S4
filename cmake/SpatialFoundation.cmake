@@ -63,6 +63,10 @@ function(shadps4_add_foundation)
             "${foundation_root}/basic/platform/public"
             "${foundation_root}/modules/utils/include"
     )
+    # FragmentDensityMap.cpp opens profiler scopes; resolve its Profiler.h to a no-op shim
+    # rather than linking the Foundation profiler module.
+    target_include_directories(shadps4_foundation_foveation BEFORE PRIVATE
+        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/foundation-shims")
     target_link_libraries(shadps4_foundation_foveation
         PUBLIC Vulkan::Headers fmt::fmt spatial::foundation_log
     )

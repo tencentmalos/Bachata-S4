@@ -736,7 +736,12 @@ void Presenter::EnsureFdm(u32 width, u32 height) {
                                fdm_height != height;
     if (recreate_ring) {
         fdm_ring.Destroy();
-        if (!fdm_ring.Create(binding, fdm_desc, static_cast<u32>(present_frames.size()))) {
+        // Host-written linear maps: the map is static per quality, so a GPU staging upload in
+        // the frame's command buffer buys nothing. Automatic would switch to GPU uploads on
+        // devices that expose fragmentDensityMapDynamic.
+        if (!fdm_ring.Create(binding, fdm_desc, static_cast<u32>(present_frames.size()),
+                             false, spatial::foveation::vulkan::DensityMapReadMode::Automatic,
+                             spatial::foveation::vulkan::DensityMapUpload::Host)) {
             LOG_WARNING(Render_Vulkan, "FDM ring creation failed for {}x{}", width, height);
             return;
         }
