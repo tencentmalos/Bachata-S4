@@ -19,6 +19,7 @@
 | `AstroQuest` | [9ff3e43060b0a25aaa498566caa32649f06966bf](https://github.com/bigmak94/AstroQuest/tree/9ff3e43060b0a25aaa498566caa32649f06966bf)（v0.18） | PSVR《ASTRO BOT Rescue Mission》的 Quest 3 / PCVR 移植，GPL-2.0；核心 `shadps4-arm64-main` 由 `100bfd8` 导入 zenithblue-oss shadps4-arm64 `be6bc2e`（与上面 `shadps4-arm64` 同一基线），`git -C references/AstroQuest diff 100bfd8 9ff3e43 -- shadps4-arm64-main` 即其全部核心改动；2026-10-06 加入，对照见 [AstroQuest 对照](../docs/astroquest-vr-comparison-20261006.md)，引入规划见 [spec](../docs/specs/astroquest-reference-import-20261006.md) |
 | `bloodborne_pc` | [3c57da4198ad62039f63f33bfd205b9916518acf](https://github.com/deadinside28/bloodborne_pc/tree/3c57da4198ad62039f63f33bfd205b9916518acf)（0.51） | bbport：血源（CUSA03173 v1.09）专用运行时 + 图形翻译器的官方仓库，GPL-2.0；图形核心 vendored 自 shadPS4 `b4e7ae7`（`gpu/VENDOR.txt`），改动带 `bbport:` 注释。参考两阶段绘制流水线、运动向量与时域超分输入、新内存模型；2026-10-12 加入，复核见 [bbport 参考与复核](../docs/bbport-reference-20261012.md)。Windows fork 与 Paleblood 只记录链接，未引入 |
 | `opengnm` | [4b295ca54c82c83acf308d1c646a2dfa9ae57350](https://github.com/PS4-OpenGNM/opengnm/tree/4b295ca54c82c83acf308d1c646a2dfa9ae57350) | PS4 GNM 库的重写（`sceGnm*`/`sceGpa*` 接口与官方 SDK 兼容），MIT。参考 Gnm 命令编码、draw/dispatch/事件包、查询与标签内存布局等细节；2026-10-15 按用户要求加入，只作源码阅读，不参与构建；GNM/GnmRHI 资料汇总见 [docs/gnm](../docs/gnm/README.md) |
+| `Madeira` | [ca3183ea3dfb0fd706aff1bea2abb871b5d27aec](https://github.com/willfaust/Madeira/tree/ca3183ea3dfb0fd706aff1bea2abb871b5d27aec) | 在 iPhone（iOS 26，无越狱，借调试器开启 JIT）上用 FEX + ARM64EC Wine + DXMT/Metal 运行 Windows PC 游戏的单进程应用，GPL-3.0-or-later。参考其在移动端单进程内嵌 FEX 的方式（JIT 启用、地址空间、线程与信号）；2026-10-03 克隆，2026-10-18 登记为固定版本，只作源码阅读，不参与构建；嵌套 submodule（FEX `ios-port-2607`、wine、dxmt 等）不需要初始化 |
 
 版本事实截至 2026-09-07。实际 checkout 以主仓提交中的 gitlink 为准；更新时同步本表。Android 的官方来源映射及版本不一致见 [基线选择](../docs/android-foundation-selection.md)。上述七个提交已通过对应 GitHub 仓库 commit API 检查可取得。`AstroQuest`（2026-10-06 加入）同样经 commit API 确认；它带有自己的嵌套 submodule（`shadps4-arm64-main/externals/*`），源码阅读不需要初始化。`bloodborne_pc`（2026-10-12 加入）的固定提交是 0.51 标签指向的提交，经 commit API 确认；它的嵌套 submodule（FSR-Vulkan、imgui、LibAtrac9）同样不需要初始化。
 
@@ -33,7 +34,7 @@ Android、ARM64 和 FEX 的 `.gitmodules` URL 已切换为 `tencentmalos` 自有
 在新 clone 中只检出参考源码，不递归下载全部外部依赖：
 
 ```sh
-git submodule update --init references/Bachata-S4-android references/shadps4-arm64 references/FEX references/Bachata-S4 references/dynarmic-citron references/dynarmic-azahar references/ps4-pkg-tools references/AstroQuest references/bloodborne_pc references/opengnm
+git submodule update --init references/Bachata-S4-android references/shadps4-arm64 references/FEX references/Bachata-S4 references/dynarmic-citron references/dynarmic-azahar references/ps4-pkg-tools references/AstroQuest references/bloodborne_pc references/opengnm references/Madeira
 ```
 
 已有工作区先检查子仓状态；上面的命令可能切换子仓 HEAD。修改 `.gitmodules` 的来源后，可按需运行 `git submodule sync -- references/Bachata-S4`，注意它会同步本地 origin URL。

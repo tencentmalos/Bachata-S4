@@ -230,3 +230,6 @@
 [submodule "references/opengnm"]
 	path = references/opengnm
 	url = https://github.com/PS4-OpenGNM/opengnm
+[submodule "references/Madeira"]
+	path = references/Madeira
+	url = https://github.com/willfaust/Madeira.git
