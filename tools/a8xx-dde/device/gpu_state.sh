@@ -1,0 +1,1 @@
+K=/sys/class/kgsl/kgsl-3d0; echo "gpu_state_in_level: gpuclk=$(cat $K/gpuclk) max_gpuclk=$(cat $K/max_gpuclk) thermal_pwrlevel=$(cat $K/thermal_pwrlevel) temp=$(cat $K/temp) busy=$(cat $K/gpu_busy_percentage) pagefaults=$(sed -n 2p $K/pagefaults | awk "{print \$1}")"

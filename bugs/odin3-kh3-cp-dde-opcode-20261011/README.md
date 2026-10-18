@@ -2,6 +2,8 @@
 
 **状态：未修复，根因未定位。** 本文汇总现场与已能确认的事实，供在有 bug_reports、固件反汇编工具和设备的环境中继续确认。
 
+> **2026-10-17**：GoW3 上出现同签名故障（fault36）。上游与外部渠道调研（mesa#16460、mesa!44888 等）、Swan 已通过更新固件修复而手机未修的信息、Turnip 的 `TU_DEBUG=cs_recycle` 诊断开关与 A/B 方案，见 [A8XX DDE opcode=0](../../docs/validation/android-native-host/a8xx-dde-opcode-zero-20261017.md)。10-18 的定位（GPU 在本次提交中第一次读命令流 BO 的某一页时持续读到零，DDE 与 BR 都会）见该文 7.3–7.5 节与[交接](../../docs/handoffs/a8xx-dde-opcode-zero-20261018.md)；本文 KH3 fault 53 的读取位置尚未按同样方法核对。
+
 > **2026-10-12 续查更正**（详见文末“固件 PC 与实际执行点”）：
 > - 固件确认 DDE 读到全零包头进入非法包陷阱（`$19=0xbad4`），与 Swan B 类相同；BR 只是在等 DDE。
 > - BR 实际执行到 IB2 dword **814**（draw 806 之后的 `CP_SET_DRAW_STATE`），不是 1301；1327 只是 ROQ 预取位置。DDE 最后处理完的是 draw 806。
