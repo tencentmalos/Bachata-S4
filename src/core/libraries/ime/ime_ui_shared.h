@@ -11,6 +11,7 @@
 #include "core/libraries/ime/ime_kb_layout.h"
 #include "core/libraries/pad/pad.h"
 #include "core/libraries/system/userservice.h"
+#include "spatial/imgui/console/PadGlyphs.hpp"
 
 namespace Libraries::Ime {
 
@@ -30,6 +31,35 @@ constexpr Libraries::Pad::OrbisPadButtonDataOffset ImeCancelButton() {
 #else
     return Libraries::Pad::OrbisPadButtonDataOffset::Circle;
 #endif
+}
+
+// Vector glyph for a face button, for on-screen controller hints.
+constexpr spatial::imgui::console::PadGlyph PadButtonGlyph(
+    Libraries::Pad::OrbisPadButtonDataOffset button) {
+    switch (button) {
+    case Libraries::Pad::OrbisPadButtonDataOffset::Cross:
+        return spatial::imgui::console::PadGlyph::Cross;
+    case Libraries::Pad::OrbisPadButtonDataOffset::Circle:
+        return spatial::imgui::console::PadGlyph::Circle;
+    case Libraries::Pad::OrbisPadButtonDataOffset::Square:
+        return spatial::imgui::console::PadGlyph::Square;
+    case Libraries::Pad::OrbisPadButtonDataOffset::Triangle:
+        return spatial::imgui::console::PadGlyph::Triangle;
+    case Libraries::Pad::OrbisPadButtonDataOffset::L1:
+        return spatial::imgui::console::PadGlyph::L1;
+    case Libraries::Pad::OrbisPadButtonDataOffset::R1:
+        return spatial::imgui::console::PadGlyph::R1;
+    default:
+        return spatial::imgui::console::PadGlyph::None;
+    }
+}
+
+constexpr spatial::imgui::console::PadGlyph ImeConfirmGlyph() {
+    return PadButtonGlyph(ImeConfirmButton());
+}
+
+constexpr spatial::imgui::console::PadGlyph ImeCancelGlyph() {
+    return PadButtonGlyph(ImeCancelButton());
 }
 
 constexpr ImGuiKey ImeConfirmImGuiKey() {

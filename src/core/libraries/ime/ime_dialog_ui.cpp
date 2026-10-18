@@ -22,6 +22,7 @@
 #include "core/libraries/ime/ime_dialog_ui.h"
 #include "core/libraries/ime/ime_kb_layout.h"
 #include "core/libraries/ime/ime_ui_shared.h"
+#include "spatial/imgui/console/ConsoleUi.hpp"
 #include "core/libraries/pad/pad.h"
 #include "core/memory.h"
 #include "core/tls.h"
@@ -1124,6 +1125,13 @@ void ImeDialogUi::Draw() {
             SetCursorPosY(0.0f);
             SetCursorPosX(metrics.padding_x);
             SetWindowFontScale(metrics.label_font_scale);
+            // A keyboard tile before the title says at a glance that this panel takes text.
+            const float tile = std::round(GetTextLineHeight() * 0.9f);
+            const ImVec2 at = GetCursorScreenPos();
+            spatial::imgui::console::IconTile(GetWindowDrawList(),
+                                     {at.x, at.y + (GetTextLineHeight() - tile) * 0.5f}, tile,
+                                     spatial::imgui::console::Icon::Keyboard);
+            SetCursorPosX(metrics.padding_x + tile + std::round(tile * 0.35f));
             TextUnformatted(state->title.data());
             SetWindowFontScale(std::max(ui_scale, metrics.input_font_scale));
         }

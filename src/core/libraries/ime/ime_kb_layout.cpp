@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -2097,15 +2098,37 @@ void DrawImeKeyboardGrid(const ImeKbGridLayout& layout, const ImeKbDrawParams& p
             if (!hotkey_label || hotkey_label[0] == '\0') {
                 return;
             }
+            // A trailing face-button symbol is drawn as a coloured vector glyph, so it reads
+            // like the controller instead of depending on the font's geometric shapes.
+            std::string_view text{hotkey_label};
+            spatial::imgui::console::PadGlyph face = spatial::imgui::console::PadGlyph::None;
+            if (text.ends_with(kHotkeyTriangleRounded)) {
+                face = spatial::imgui::console::PadGlyph::Triangle;
+                text.remove_suffix(sizeof(kHotkeyTriangleRounded) - 1);
+            } else if (text.ends_with(kHotkeySquareRounded)) {
+                face = spatial::imgui::console::PadGlyph::Square;
+                text.remove_suffix(sizeof(kHotkeySquareRounded) - 1);
+            }
+            const auto measure = [&](float font_size) {
+                ImVec2 extent{};
+                if (!text.empty()) {
+                    extent = font->CalcTextSizeA(font_size, std::numeric_limits<float>::max(),
+                                                 -1.0f, text.data(), text.data() + text.size());
+                }
+                if (face != spatial::imgui::console::PadGlyph::None) {
+                    const float glyph_size = font_size * 1.05f;
+                    extent.x += glyph_size + (text.empty() ? 0.0f : font_size * 0.12f);
+                    extent.y = std::max(extent.y, glyph_size);
+                }
+                return extent;
+            };
             const float hotkey_padding_x = std::max(3.0f, size.y * 0.08f);
             const float hotkey_max_w = std::max(0.0f, size.x - hotkey_padding_x * 2.0f);
             float hotkey_font_size = std::max(6.0f, base_font_size * kHotkeyLabelScale);
-            ImVec2 hotkey_size = font->CalcTextSizeA(
-                hotkey_font_size, std::numeric_limits<float>::max(), -1.0f, hotkey_label);
+            ImVec2 hotkey_size = measure(hotkey_font_size);
             if (hotkey_max_w > 0.0f && hotkey_size.x > hotkey_max_w && hotkey_size.x > 0.0f) {
                 hotkey_font_size *= hotkey_max_w / hotkey_size.x;
-                hotkey_size = font->CalcTextSizeA(
-                    hotkey_font_size, std::numeric_limits<float>::max(), -1.0f, hotkey_label);
+                hotkey_size = measure(hotkey_font_size);
             }
             ImVec2 hotkey_pos{pos.x + hotkey_padding_x, pos.y};
             const float hotkey_bg_pad_x = std::max(2.0f, hotkey_font_size * 0.28f);
@@ -2121,7 +2144,22 @@ void DrawImeKeyboardGrid(const ImeKbGridLayout& layout, const ImeKbDrawParams& p
             draw->AddRectFilled(hotkey_bg_min, hotkey_bg_max, hotkey_bg_color, hotkey_bg_rounding);
             draw->AddRect(hotkey_bg_min, hotkey_bg_max, hotkey_bg_border, hotkey_bg_rounding, 0,
                           1.0f);
-            draw->AddText(font, hotkey_font_size, hotkey_pos, key_hotkey_color, hotkey_label);
+            float x = hotkey_pos.x;
+            if (!text.empty()) {
+                const ImVec2 text_size =
+                    font->CalcTextSizeA(hotkey_font_size, std::numeric_limits<float>::max(), -1.0f,
+                                        text.data(), text.data() + text.size());
+                draw->AddText(font, hotkey_font_size,
+                              {x, hotkey_pos.y + (hotkey_size.y - text_size.y) * 0.5f},
+                              key_hotkey_color, text.data(), text.data() + text.size());
+                x += text_size.x + hotkey_font_size * 0.12f;
+            }
+            if (face != spatial::imgui::console::PadGlyph::None) {
+                const float glyph_size = hotkey_font_size * 1.05f;
+                spatial::imgui::console::DrawPadGlyph(draw,
+                                      {x + glyph_size * 0.5f, hotkey_pos.y + hotkey_size.y * 0.5f},
+                                      glyph_size, face, disabled_visual ? 0.45f : 1.0f);
+            }
         };
         if ((!label || label[0] == '\0') && glyph != ImeKbKeyGlyph::None) {
             draw_key_glyph(pos, size, glyph);

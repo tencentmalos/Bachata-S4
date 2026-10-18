@@ -24,7 +24,10 @@ public:
     void Cancel();
     // Local providers use the same owned modal presentation after validating
     // their own ABI. No guest pointers cross this boundary.
-    u32 OpenLocalMessage(s32 user, std::string text, std::string title = "Message");
+    // What a dialog is for; the UI shows a matching icon next to the title.
+    enum class Purpose : u8 { Info, Question, Progress, Warning, Error, Store };
+    u32 OpenLocalMessage(s32 user, std::string text, std::string title = "Message",
+                         Purpose purpose = Purpose::Info);
     struct Snapshot {
         Status status{Status::NONE};
         u64 request{};
@@ -32,6 +35,7 @@ public:
         u32 mode{}, button_type{}, progress{};
         std::string text, first, second;
         std::string title{"Message"};
+        Purpose purpose{Purpose::Info};
         bool cancel{}, focus_second{}, acknowledgement{};
     };
     Snapshot Read() const;

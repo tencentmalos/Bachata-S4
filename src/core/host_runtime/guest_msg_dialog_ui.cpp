@@ -3,7 +3,9 @@
 #include <imgui.h>
 #include "core/libraries/ime/ime_ui_shared.h"
 #include "guest_msg_dialog.h"
+#include "spatial/imgui/console/ConsoleUi.hpp"
 #include "imgui/imgui_layer.h"
+#include "spatial/imgui/console/PadGlyphs.hpp"
 
 namespace Core::HostRuntime {
 namespace {
@@ -50,34 +52,48 @@ public:
             selected = state.focus_second ? 2 : 1;
             previous_buttons = 0;
             armed = false;
+            open.Restart();
             ImGui::OpenPopup(title);
             popup = true;
         }
         if (!running && !popup.load())
             return;
         const auto& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always,
-                                {0.5f, 0.5f});
         // Scale in display pixels, independently of the guest render resolution.
         // Keep the footer visible while long guest messages scroll above it.
         const float scale = std::clamp(std::min(io.DisplaySize.x / 1280.0f,
                                                 io.DisplaySize.y / 720.0f), 0.75f, 2.0f);
-        const float gap = 16.0f * scale;
-        const float button_height = 56.0f * scale;
+        namespace Console = spatial::imgui::console;
+        const Console::Units u{scale};
+        const float gap = u(16);
+        const float button_height = u(52);
+        // Fades in while sliding up a little.
+        const float shown_fraction = open.Advance(io.DeltaTime);
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos({center.x, center.y + (1.0f - shown_fraction) * u(20)},
+                                ImGuiCond_Always, {0.5f, 0.5f});
         ImGui::SetNextWindowSize({std::min(760.0f * scale, io.DisplaySize.x * 0.9f),
                                   std::min(300.0f * scale, io.DisplaySize.y * 0.85f)});
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {24.0f * scale, 20.0f * scale});
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {gap, 12.0f * scale});
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 12.0f * scale);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f * scale);
+        const Console::ScopedStyle style{u};
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::max(shown_fraction, 0.02f));
         if (ImGui::BeginPopupModal(title, nullptr,
                                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar |
-                                       ImGuiWindowFlags_NoSavedSettings)) {
+                                       ImGuiWindowFlags_NoSavedSettings |
+                                       ImGuiWindowFlags_NoBackground)) {
+            Console::WindowFrame(u);
             const float base_font_size = ImGui::GetFontSize();
-            ImGui::SetWindowFontScale(24.0f * scale / base_font_size);
-            ImGui::TextUnformatted(state.title.c_str());
-            ImGui::Separator();
+            if (!state.title.empty()) {
+                using Purpose = GuestMsgDialog::Purpose;
+                const auto icon = state.purpose == Purpose::Question ? Console::Icon::Question
+                                  : state.purpose == Purpose::Progress ? Console::Icon::Progress
+                                  : state.purpose == Purpose::Warning  ? Console::Icon::Warning
+                                  : state.purpose == Purpose::Error    ? Console::Icon::Error
+                                  : state.purpose == Purpose::Store    ? Console::Icon::Store
+                                                                       : Console::Icon::Info;
+                Console::Heading(state.title.c_str(), u(26), icon);
+                Console::Rule(u);
+            }
             ImGui::SetWindowFontScale(20.0f * scale / base_font_size);
             if (!running) {
                 ImGui::CloseCurrentPopup();
@@ -88,11 +104,14 @@ public:
                 const float progress_height = state.mode == 2 ? ImGui::GetFrameHeightWithSpacing() : 0.0f;
                 const float body_height = std::max(1.0f, ImGui::GetContentRegionAvail().y - footer - progress_height);
                 ImGui::BeginChild("##MessageBody", {0.0f, body_height}, ImGuiChildFlags_None);
+                ImGui::PushStyleColor(ImGuiCol_Text, Console::Color::TextBody);
                 ImGui::TextWrapped("%s", state.text.c_str());
+                ImGui::PopStyleColor();
                 ImGui::EndChild();
                 if (state.mode == 2)
-                    ImGui::ProgressBar(std::min(state.progress, 100u) / 100.0f, {-1.0f, 0.0f});
-                if (has_buttons) ImGui::Separator();
+                    Console::ProgressBar(std::min(state.progress, 100u) / 100.0f, u(10));
+                if (has_buttons)
+                    ImGui::Dummy({1.0f, gap * 0.5f});
                 const auto pad = Libraries::Ime::ReadVirtualPadSnapshot(state.user, io.DeltaTime);
                 const auto pressed = pad.buttons & ~previous_buttons;
                 previous_buttons = pad.buttons;
@@ -117,25 +136,25 @@ public:
                     (available_width - gap * (button_count - 1)) / button_count) : 0.0f;
                 if (button_count) ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
                     (available_width - button_width * button_count - gap * (button_count - 1)) * 0.5f);
-                auto button = [&](const std::string& label, u32 id) {
-                    if (selected == id)
-                        ImGui::PushStyleColor(ImGuiCol_Button,
-                                              ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-                    const bool clicked = ImGui::Button(label.c_str(), {button_width, button_height});
-                    if (selected == id)
-                        ImGui::PopStyleColor();
-                    if (clicked)
-                        action = id;
+                // Glyphs: the confirm button's on the focused answer, the cancel button's on Cancel.
+                auto button = [&](const std::string& label, const char* id, u32 value) {
+                    const auto glyph =
+                        value == 0 && state.cancel ? Libraries::Ime::ImeCancelGlyph()
+                        : selected == value        ? Libraries::Ime::ImeConfirmGlyph()
+                                                   : Console::PadGlyph::None;
+                    if (Console::Button(id, glyph, label.c_str(), {button_width, button_height},
+                                        selected == value, u))
+                        action = value;
                 };
                 if (!state.first.empty())
-                    button(state.first + "##first", 1);
+                    button(state.first, "##first", 1);
                 if (!state.second.empty()) {
                     if (!state.first.empty())
                         ImGui::SameLine();
-                    button(state.second + "##second", 2);
+                    button(state.second, "##second", 2);
                 } else if (state.cancel) {
                     if (!state.first.empty()) ImGui::SameLine();
-                    button("Cancel##cancel", 0);
+                    button("Cancel", "##cancel", 0);
                 }
                 if (armed && confirm)
                     action = selected;
@@ -150,7 +169,7 @@ public:
             ImGui::EndPopup();
         } else if (!running)
             popup = false;
-        ImGui::PopStyleVar(4);
+        ImGui::PopStyleVar();
     }
 
 private:
@@ -162,6 +181,7 @@ private:
     u32 selected{1};
     u32 previous_buttons{};
     bool armed{};
+    spatial::imgui::console::OpenAnimation open;
 };
 MessageLayer layer;
 std::once_flag registered;

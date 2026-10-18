@@ -107,7 +107,8 @@ u32 GuestMsgDialog::Publish(Snapshot next) {
     ShowGuestMsgDialog(self);
     return 0;
 }
-u32 GuestMsgDialog::OpenLocalMessage(s32 user, std::string text, std::string title) {
+u32 GuestMsgDialog::OpenLocalMessage(s32 user, std::string text, std::string title,
+                                      Purpose purpose) {
     try {
         std::lock_guard lock(mutex);
         if (stopped || (state.status != Status::INITIALIZED && state.status != Status::FINISHED))
@@ -119,6 +120,7 @@ u32 GuestMsgDialog::OpenLocalMessage(s32 user, std::string text, std::string tit
         next.mode = 1;
         next.text = std::move(text);
         next.title = std::move(title);
+        next.purpose = purpose;
         next.first = "Close";
         next.acknowledgement = true;
         next.cancel = true;
@@ -272,6 +274,9 @@ u64 GuestMsgDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_view 
             }
             next.focus_second = user.buttonType == MD::ButtonType::YESNO_FOCUS_NO ||
                                 user.buttonType == MD::ButtonType::OK_CANCEL_FOCUS_CANCEL;
+            // A choice between two answers is a question; anything else informs.
+            if (!next.second.empty())
+                next.purpose = Purpose::Question;
         } else if (param.mode == MD::MsgDialogMode::PROGRESS_BAR) {
             if (param.userMsgParam || param.sysMsgParam)
                 return Code(CD::Error::PARAM_INVALID);
@@ -281,6 +286,7 @@ u64 GuestMsgDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_view 
                 !ReadString(space, Address(progress.msg), next.text))
                 return Code(CD::Error::PARAM_INVALID);
             next.cancel = progress.barType == MD::ProgressBarType::PERCENTAGE_CANCEL;
+            next.purpose = Purpose::Progress;
         } else if (param.mode == MD::MsgDialogMode::SYSTEM_MSG) {
             if (param.userMsgParam || param.progBarParam)
                 return Code(CD::Error::PARAM_INVALID);
@@ -290,6 +296,7 @@ u64 GuestMsgDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_view 
             switch (system.sysMsgType) {
             case MD::SystemMessageType::TRC_EMPTY_STORE:
                 next.text = "No content is available in the store.";
+                next.purpose = Purpose::Store;
                 break;
             case MD::SystemMessageType::TRC_PSN_CHAT_RESTRICTION:
                 next.text = "Chat is restricted for this user.";
@@ -306,6 +313,8 @@ u64 GuestMsgDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_view 
             default:
                 return Code(CD::Error::NOT_SUPPORTED);
             }
+            if (next.purpose != Purpose::Store)
+                next.purpose = Purpose::Warning; // restrictions and missing devices
             next.first = "OK";
             next.acknowledgement = true;
         } else

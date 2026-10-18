@@ -1,14 +1,6 @@
 package com.shadps4.android
 
 import android.content.Intent
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import org.junit.Rule
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.material3.MaterialTheme
-import com.shadps4.android.feature.session.SaveDataDialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.shadps4.android.runtime.input.NativePad
@@ -21,7 +13,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class StorageRuntimeInstrumentedTest {
-    @get:Rule val compose = createEmptyComposeRule()
     @Test fun persistentGuestStorageAndDialog() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
@@ -65,22 +56,8 @@ class StorageRuntimeInstrumentedTest {
                         val id=request!!.getLong("request")
                         assertFalse(NativeFexSession.nativeSaveDialogRespond(gen+1,id,0,-1))
                         assertFalse(NativeFexSession.nativeSaveDialogRespond(gen,id+1,0,-1))
-                        val activity=instrumentation.startActivitySync(Intent(context,MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                        try {
-                            instrumentation.runOnMainSync {
-                                val compose=ComposeView(activity)
-                                activity.setContentView(compose)
-                                compose.setContent { MaterialTheme { SaveDataDialog(gen) {} } }
-                            }
-                            compose.waitUntil(10000) {
-                                compose.onAllNodesWithText("Cancel").fetchSemanticsNodes().isNotEmpty()
-                            }
-                            compose.onNodeWithText("Cancel").performClick()
-
-                        } finally {
-                            instrumentation.runOnMainSync { activity.finish() }
-                            instrumentation.waitForIdleSync()
-                        }
+                        // The dialog is an ImGui panel drawn by the host; answer it as its Cancel does.
+                        assertTrue(NativeFexSession.nativeSaveDialogRespond(gen,id,0,-1))
                         assertFalse(NativeFexSession.nativeSaveDialogRespond(gen,id,0,-1))
                     }
                     val outcome=NativeFexSession.nativeWaitTerminal(gen,15000)

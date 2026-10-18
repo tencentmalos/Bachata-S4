@@ -57,7 +57,8 @@ public:
             // Desktop displays the code and doesn't require PSN identity. This
             // local presentation user is unrelated to the opaque guest user ID.
             return dialog->OpenLocalMessage(0, fmt::format("An error has occurred.\nCode: {:#X}",
-                                                          u32(param.errorCode)), "Error");
+                                                          u32(param.errorCode)), "Error",
+                                            GuestMsgDialog::Purpose::Error);
         } catch (const std::bad_alloc&) {
             return u32(CD::Error::OUT_OF_MEMORY);
         }

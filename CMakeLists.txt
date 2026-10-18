@@ -1830,6 +1830,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_msg_dialog.cpp
         src/core/host_runtime/guest_commerce_dialog.cpp
         src/core/host_runtime/guest_msg_dialog_ui.cpp
+        src/core/host_runtime/guest_save_dialog_ui.cpp
         src/core/host_runtime/guest_ime_dialog.cpp
         src/core/host_runtime/guest_storage.cpp
         src/core/host_runtime/guest_sockets.cpp

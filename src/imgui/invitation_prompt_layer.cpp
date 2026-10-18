@@ -14,6 +14,7 @@
 #include "core/libraries/np/np_handler.h"
 #include "imgui/imgui_layer.h"
 #include "imgui/invitation_prompt_layer.h"
+#include "spatial/imgui/console/PadGlyphs.hpp"
 #include "imgui/renderer/imgui_core.h"
 #include "imgui/shadnet_notifications_layer.h"
 
@@ -225,8 +226,19 @@ void InvitationPromptUI::Draw() {
         }
 
         ImGui::Spacing();
-        ImGui::TextDisabled(g_focused ? "D-Pad: select   Cross: confirm   Circle/Esc: back to game"
-                                      : "Hold Share/Back to respond, or click");
+        if (g_focused) {
+            // ImGui navigation: FaceDown activates, FaceRight (or Esc) returns to the game.
+            namespace Console = spatial::imgui::console;
+            const float glyph = 22.0f * std::max(scale, 0.75f);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+            Console::PadHint({Console::PadGlyph::DPadHorizontal}, "Select", glyph);
+            Console::PadHint({Console::PadGlyph::Cross}, "Confirm", glyph);
+            Console::PadHint({Console::PadGlyph::Circle}, "Back to game", glyph);
+            ImGui::NewLine();
+            ImGui::PopStyleColor();
+        } else {
+            ImGui::TextDisabled("Hold Share/Back to respond, or click");
+        }
     }
     ImGui::End();
 }

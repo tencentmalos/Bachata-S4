@@ -2,6 +2,7 @@
 #include <atomic>
 #include <imgui.h>
 #include "core/libraries/ime/ime_ui_shared.h"
+#include "spatial/imgui/console/ConsoleUi.hpp"
 #include "imgui/imgui_layer.h"
 #include "signindialog.h"
 
@@ -33,26 +34,44 @@ public:
             shown = dialog;
             generation = snapshot.request;
             armed = false; // require release after the press that opened the dialog
+            open.Restart();
             ImGui::OpenPopup(title);
             popup = true;
         }
         if (!running && !popup.load())
             return;
         const auto& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always,
-                                {0.5f, 0.5f});
-        ImGui::SetNextWindowSize({std::min(520.0f, io.DisplaySize.x * 0.9f), 0.0f});
+        namespace Console = spatial::imgui::console;
+        const float scale = std::clamp(std::min(io.DisplaySize.x / 1280.0f,
+                                                io.DisplaySize.y / 720.0f), 0.75f, 2.0f);
+        const Console::Units u{scale};
+        const float shown_fraction = open.Advance(io.DeltaTime);
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos({center.x, center.y + (1.0f - shown_fraction) * u(20)},
+                                ImGuiCond_Always, {0.5f, 0.5f});
+        ImGui::SetNextWindowSize({std::min(u(560), io.DisplaySize.x * 0.9f), 0.0f});
+        const Console::ScopedStyle style{u};
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::max(shown_fraction, 0.02f));
         if (ImGui::BeginPopupModal(title, nullptr,
                                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove |
-                                       ImGuiWindowFlags_NoSavedSettings)) {
+                                       ImGuiWindowFlags_NoTitleBar |
+                                       ImGuiWindowFlags_NoSavedSettings |
+                                       ImGuiWindowFlags_NoBackground)) {
+            Console::WindowFrame(u);
             if (!running) {
                 ImGui::CloseCurrentPopup();
                 popup = false;
             } else {
+                Console::Heading("PlayStation Network", u(26), Console::Icon::User);
+                Console::Rule(u);
+                const float base_font_size = ImGui::GetFontSize();
+                ImGui::SetWindowFontScale(20.0f * scale / base_font_size);
+                ImGui::PushStyleColor(ImGuiCol_Text, Console::Color::TextBody);
                 ImGui::TextWrapped("PlayStation Network sign-in is unavailable.\n\n"
                                    "You are using a local profile. Close this dialog to return "
                                    "to the game without signing in.");
-                ImGui::Spacing();
+                ImGui::PopStyleColor();
+                ImGui::Dummy({1.0f, u(8)});
                 const auto pad = Ime::ReadVirtualPadSnapshot(snapshot.user, io.DeltaTime);
                 const u32 buttons = static_cast<u32>(Ime::ImeConfirmButton()) |
                                     static_cast<u32>(Ime::ImeCancelButton());
@@ -60,16 +79,20 @@ public:
                                  ImGui::IsKeyDown(ImGuiKey_Escape) || (pad.buttons & buttons);
                 if (!key && !ImGui::IsMouseDown(0))
                     armed = true;
-                const bool clicked = ImGui::Button("Continue offline", {-1.0f, 40.0f});
+                const bool clicked = Console::Button(
+                    "##ContinueOffline", Ime::ImeConfirmGlyph(), "Continue offline",
+                    {ImGui::GetContentRegionAvail().x, u(48)}, true, u);
                 if (armed && (clicked || key) && dialog->CompleteCancelled(snapshot.request)) {
                     ImGui::CloseCurrentPopup();
                     popup = false;
                 }
+                ImGui::SetWindowFontScale(1.0f);
             }
             ImGui::EndPopup();
         } else if (!running) {
             popup = false;
         }
+        ImGui::PopStyleVar();
     }
 
 private:
@@ -78,6 +101,7 @@ private:
     std::atomic<bool> popup{};
     u64 generation{};
     bool armed{};
+    spatial::imgui::console::OpenAnimation open;
 };
 SigninLayer layer;
 std::once_flag registered;

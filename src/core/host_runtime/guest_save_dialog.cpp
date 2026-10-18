@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <algorithm>
 #include <cstring>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include "core/libraries/save_data/dialog/savedatadialog_ui.h"
 #include "guest_save_dialog.h"
 #include "guest_storage.h"
+#include "imgui/renderer/imgui_core.h"
 namespace Core::HostRuntime {
 using namespace Libraries::SaveData;
 using namespace Libraries::SaveData::Dialog;
@@ -49,15 +51,52 @@ void GuestSaveDialog::Configure(std::filesystem::path h, std::string t, int u) {
     title = std::move(t);
     user = u;
 }
+void GuestSaveDialog::ReleaseCapture() {
+    if (capture) {
+        ImGui::Core::ReleaseImeInputCapture();
+        capture = false;
+    }
+}
 void GuestSaveDialog::Cancel() {
     std::lock_guard lock(mutex);
     stopped = true;
     common->Release(this);
+    ReleaseCapture();
     if (status == 2) {
         status = 3;
         result = 1;
         button = 0;
     }
+}
+bool GuestSaveDialog::Snapshot(View& out, bool with_rows) const {
+    std::lock_guard lock(mutex);
+    if (stopped || status != 2)
+        return false;
+    out.request = request;
+    out.mode = mode;
+    out.disp_type = disp_type;
+    out.buttons = buttons;
+    out.progress = progress;
+    out.can_cancel = can_cancel;
+    out.user = user;
+    out.focus = focus;
+    out.text = text;
+    if (with_rows) {
+        out.rows.clear();
+        out.rows.reserve(items.size());
+        for (const auto& item : items) {
+            const bool is_new = item.directory.empty();
+            out.rows.push_back(Row{
+                .directory = item.directory,
+                .title = is_new ? item.label : item.param.title.to_string(),
+                .subtitle = is_new ? std::string{} : item.param.subTitle.to_string(),
+                .detail = is_new ? std::string{} : item.param.detail.to_string(),
+                .mtime = is_new ? 0 : s64(item.param.mtime),
+                .is_new = is_new,
+            });
+        }
+    }
+    return true;
 }
 std::string GuestSaveDialog::SnapshotJson() const {
     std::lock_guard lock(mutex);
@@ -94,6 +133,7 @@ bool GuestSaveDialog::Respond(u64 id, int action, int selection) {
     } else
         return false;
     status = 3;
+    ReleaseCapture();
     return true;
 }
 u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
@@ -123,6 +163,7 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
             return err(CD::Error::NOT_INITIALIZED);
         initialized = false;
         common->Release(this);
+        ReleaseCapture();
         status = 0;
         items.clear();
         return 0;
@@ -136,6 +177,7 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
         result = 0;
         button = 0;
         selected = -1;
+        ReleaseCapture();
         return 0;
     }
     if (nid == "V-uEeFKARJU" || nid == "hay1CfTmLyA") {
@@ -250,11 +292,18 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
         item.label = item.param.title.to_string() + " — " + *dir;
         next_items.push_back(std::move(item));
     }
+    std::string focus_dir;
     if (list.focusPosDirName) {
         auto f = String(space, Address(list.focusPosDirName), 32);
         if (!f || !Directory(*f))
             return err(CD::Error::PARAM_INVALID);
+        focus_dir = std::move(*f);
     }
+    // Newest first, as the system lists saved data: the guest receives the chosen directory
+    // name, not a position, so the order is the dialog's own.
+    std::ranges::stable_sort(next_items, std::ranges::greater{},
+                             [](const Item& item) { return item.param.mtime; });
+    bool has_new_item = false;
     if (list.newItem) {
         SaveDialogNewItem item{};
         if (!Read(space, Address(list.newItem), item) || item.iconSize > 4 * 1024 * 1024)
@@ -267,8 +316,34 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
                                 : std::optional<std::string>{"New save"};
         if (!label)
             return err(CD::Error::PARAM_INVALID);
-        if (p.dispType == DialogType::SAVE)
+        if (p.dispType == DialogType::SAVE) {
             next_items.insert(next_items.begin(), Item{"", *label, {}});
+            has_new_item = true;
+        }
+    }
+    // Where the cursor starts. Data rows follow the new-save row and are ordered newest first,
+    // so "latest" is the first data row and "oldest" the last.
+    const int first_data = has_new_item ? 1 : 0;
+    const int last_row = std::max(0, int(next_items.size()) - 1);
+    int next_focus = 0;
+    switch (list.focusPos) {
+    case FocusPos::LISTHEAD:
+        next_focus = 0;
+        break;
+    case FocusPos::LISTTAIL:
+    case FocusPos::DATATAIL:
+    case FocusPos::DATAOLDEST:
+        next_focus = last_row;
+        break;
+    case FocusPos::DATAHEAD:
+    case FocusPos::DATALTATEST:
+        next_focus = std::min(first_data, last_row);
+        break;
+    case FocusPos::DIRNAME:
+        for (size_t i = 0; i < next_items.size(); ++i)
+            if (!focus_dir.empty() && next_items[i].directory == focus_dir)
+                next_focus = int(i);
+        break;
     }
     std::string message;
     u32 next_buttons = 0;
@@ -364,6 +439,8 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
     text = std::move(message);
     buttons = next_buttons;
     mode = u32(p.mode);
+    disp_type = u32(p.dispType);
+    focus = next_focus;
     user_data = Address(p.userData);
     can_cancel = cancel;
     ok_is_cancel = cancel_result;
@@ -373,6 +450,13 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
     button = 0;
     ++request;
     status = 2;
+    // The panel takes the controller (and touch) while it is open; the game sees a neutral pad.
+    if (!capture) {
+        ImGui::Core::AcquireImeInputCapture();
+        capture = true;
+    }
+    if (auto self = weak_from_this().lock())
+        ShowGuestSaveDialog(self);
     return 0;
 }
 } // namespace Core::HostRuntime

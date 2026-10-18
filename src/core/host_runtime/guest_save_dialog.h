@@ -10,10 +10,11 @@
 #include "core/libraries/save_data/savedata.h"
 #include "core/host_runtime/guest_common_dialog.h"
 namespace Core::HostRuntime {
-// Platform-neutral, copied dialog model. Android polls it and submits an explicit
-// request-id-tagged action; no JNI/native worker calls Java, no guest pointers
-// survive Open. The host retains userData only as an opaque guest integer.
-class GuestSaveDialog {
+// Platform-neutral, copied dialog model, shown by the ImGui save-data panel (2D and the
+// OpenXR layer panel; gamepad and touch). The panel reads a copy and submits an explicit
+// request-id-tagged action; no guest pointers survive Open. The host retains userData only
+// as an opaque guest integer. Saved data is listed newest first.
+class GuestSaveDialog final : public std::enable_shared_from_this<GuestSaveDialog> {
 public:
     ~GuestSaveDialog() { Cancel(); }
     std::shared_ptr<GuestCommonDialog> CommonDomain() const { return common; }
@@ -26,14 +27,31 @@ public:
     static bool IsSaveNid(std::string_view nid);
     static bool IsCommonNid(std::string_view nid);
 
+    struct Row {
+        std::string directory, title, subtitle, detail;
+        s64 mtime{};    // Last write of the save's param.sfo, seconds since the epoch.
+        bool is_new{};  // The "new saved data" entry of a save dialog.
+    };
+    struct View {
+        u64 request{};
+        u32 mode{}, disp_type{}, buttons{}, progress{};
+        bool can_cancel{};
+        int user{}, focus{};
+        std::string text;
+        std::vector<Row> rows;
+    };
+    // False unless a dialog is open. Rows are copied only when `with_rows` is set.
+    bool Snapshot(View& out, bool with_rows) const;
+
 private:
+    void ReleaseCapture(); // mutex held
     mutable std::mutex mutex;
     std::shared_ptr<GuestCommonDialog> common = std::make_shared<GuestCommonDialog>();
-    bool initialized{}, stopped{};
-    u32 status{}, mode{}, buttons{}, progress{};
+    bool initialized{}, stopped{}, capture{};
+    u32 status{}, mode{}, disp_type{}, buttons{}, progress{};
     bool can_cancel{}, ok_is_cancel{};
     u64 request{}, user_data{};
-    int user{};
+    int user{}, focus{};
     std::filesystem::path home;
     std::string title, text;
     struct Item {
@@ -44,6 +62,7 @@ private:
     u32 result{}, button{};
     int selected{-1};
 };
+void ShowGuestSaveDialog(const std::shared_ptr<GuestSaveDialog>& dialog);
 inline constexpr std::string_view SaveDialogNids[]{
     "fH46Lag88XY", "yEiJ-qqr6Cg", "ERKzksauAJA", "s9e3+YpRnzw", "en7gNVnh878",
     "4tPhsP6FpDI", "V-uEeFKARJU", "hay1CfTmLyA", "YuH2FA7azqQ", "KK3Bdg1RWK0"};

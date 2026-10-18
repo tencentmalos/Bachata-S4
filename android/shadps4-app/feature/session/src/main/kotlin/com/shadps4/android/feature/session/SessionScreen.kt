@@ -29,10 +29,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.activity.compose.BackHandler
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
+import com.shadps4.android.runtime.session.PauseReason
 import com.shadps4.android.runtime.session.RuntimeSurface
 import com.shadps4.android.feature.session.controller.FixedControllerOverlay
 import com.shadps4.android.feature.session.controller.TouchLayout
@@ -216,11 +219,11 @@ fun SessionScreen(
         is ManagedSessionState.Running -> sessionState.generation
         else -> 0L
     }
-    var saveDialogVisible by remember(inputGeneration) { mutableStateOf(false) }
-    SaveDataDialog(inputGeneration) { saveDialogVisible = it }
+    // Guest save-data dialogs are an ImGui panel drawn by the host (2D and XR); it takes the
+    // controller itself, so only the session menu captures input here.
     val publishController = remember(inputGeneration) { ManagedSession.controllerPublisher(inputGeneration) }
-    DisposableEffect(inputGeneration, showStopOverlay, saveDialogVisible) {
-        com.shadps4.android.runtime.input.NativePadBridge.setUiCaptured(inputGeneration,showStopOverlay || saveDialogVisible)
+    DisposableEffect(inputGeneration, showStopOverlay) {
+        com.shadps4.android.runtime.input.NativePadBridge.setUiCaptured(inputGeneration,showStopOverlay)
         onDispose { com.shadps4.android.runtime.input.NativePadBridge.setUiCaptured(inputGeneration,false) }
     }
 
@@ -230,6 +233,27 @@ fun SessionScreen(
             state is ManagedSessionState.Stopping,
     ) {
         showStopOverlay = !showStopOverlay
+    }
+
+    // The game is held while the menu is open. Coming back from the background (the app held it
+    // there, see App.BackgroundPause), the hold becomes the menu's: the player resumes from it.
+    // A Stop from the menu keeps the hold; ending the session drops it.
+    var stopRequested by remember { mutableStateOf(false) }
+    LaunchedEffect(showStopOverlay, stopRequested) {
+        if (showStopOverlay) ManagedSession.requestPause(PauseReason.Menu)
+        else if (!stopRequested) ManagedSession.releasePause(PauseReason.Menu)
+    }
+    DisposableEffect(Unit) { onDispose { ManagedSession.releasePause(PauseReason.Menu) } }
+    LaunchedEffect(lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            ManagedSession.pauseReasons.collect { reasons ->
+                if (PauseReason.Background in reasons) {
+                    ManagedSession.requestPause(PauseReason.Menu)
+                    ManagedSession.releasePause(PauseReason.Background)
+                    showStopOverlay = true
+                }
+            }
+        }
     }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -384,6 +408,7 @@ fun SessionScreen(
                 },
                 onResume = { showStopOverlay = false },
                 onStop = {
+                    stopRequested = true
                     context.startService(
                         Intent(ManagedSession.ACTION_STOP).setClassName(context.packageName, ManagedSession.SERVICE_CLASS),
                     )

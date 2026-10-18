@@ -9,11 +9,13 @@
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "core/libraries/error_codes.h"
+#include "core/libraries/ime/ime_ui_shared.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/system/commondialog.h"
 #include "error_dialog.h"
 #include "imgui/imgui_layer.h"
 #include "imgui/imgui_std.h"
+#include "spatial/imgui/console/ConsoleUi.hpp"
 
 static constexpr ImVec2 BUTTON_SIZE{100.0f, 30.0f};
 
@@ -99,7 +101,9 @@ public:
                 ws.x / 2.0f - BUTTON_SIZE.x / 2.0f,
                 ws.y - 10.0f - BUTTON_SIZE.y,
             });
-            if (Button("OK", BUTTON_SIZE)) {
+            if (spatial::imgui::console::Button(
+                    "##ErrorDialogOk", Ime::ImeConfirmGlyph(), "OK", BUTTON_SIZE, true,
+                    spatial::imgui::console::Units{BUTTON_SIZE.y / 40.0f})) {
                 Finish();
             }
             if (first_render) {

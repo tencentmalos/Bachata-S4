@@ -171,7 +171,9 @@ u64 GuestCommerceDialog::Invoke(GuestCpu::GuestAddressSpace& space, std::string_
                 return Code(CD::Error::PARAM_INVALID);
             message += "\n" + target;
         }
-        const auto result = dialog->OpenLocalMessage(param.userId, std::move(message));
+        const auto result = dialog->OpenLocalMessage(param.userId, std::move(message),
+                                                     "PlayStation Store",
+                                                     GuestMsgDialog::Purpose::Store);
         if (!result) {
             user_data = reinterpret_cast<u64>(param.userData);
             closed_by_program = false;
