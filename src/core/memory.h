@@ -324,6 +324,15 @@ public:
     void ProtectGpu(VAddr address, u64 size, MemoryPermission permission);
 
     bool TryWriteBacking(void* address, const void* data, u64 size);
+    /// Reads [address, address + size) through its physical backing (never faults on
+    /// protected pages). False, with nothing read, unless the whole range is backed.
+    bool TryReadBacking(VAddr address, void* data, u64 size);
+    /// TryWriteBacking, except for the bytes that no longer equal `before` (read with
+    /// TryReadBacking when the write was decided): another writer changed them since, and they
+    /// keep their value. `kept_bytes` receives how many bytes were kept; `kept`, when not null,
+    /// marks them (one byte per byte, 1 = kept).
+    bool WriteBackingUnchanged(VAddr address, const u8* data, const u8* before, u64 size,
+                               u64& kept_bytes, u8* kept = nullptr);
 
     struct GuestCopy {
         VAddr source;
@@ -476,6 +485,15 @@ private:
 
     // Callers hold `mutex` (at least shared).
     bool TryReadSrtMemoryLocked(VAddr address, void* data, u64 size);
+    /// A run of [address, address + size) in host backing: `offset` from `address`.
+    struct BackingSpan {
+        u8* host;
+        u64 offset;
+        u64 size;
+    };
+    /// The backing of [address, address + size) in order. False, with `spans` incomplete,
+    /// unless every byte is mapped with physical backing. Caller holds `mutex` (at least shared).
+    bool ResolveBackingLocked(VAddr address, u64 size, std::vector<BackingSpan>& spans);
     bool ResolveSrtWindow(VAddr address, u64 size, VAddr& begin, VAddr& end, const u8*& host);
 
     VMAHandle FindVMA(VAddr target) {

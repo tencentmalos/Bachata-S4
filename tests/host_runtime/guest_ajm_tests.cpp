@@ -8,6 +8,7 @@
 #include "core/host_runtime/guest_ajm.h"
 #include "core/libraries/ajm/ajm.h"
 #include "core/libraries/ajm/ajm_error.h"
+#include "core/libraries/ajm/ajm_mp3.h"
 using namespace Core::GuestCpu;
 using namespace Core::HostRuntime;
 using namespace Libraries::Ajm;
@@ -161,6 +162,27 @@ int main(int argc, char** argv) {
     write(base + 0x200, u32(0x6490fbff));
     CHECK(call("eDFeTyi+G3Y", {base + 0x200, 4, 1, base + 0x400}) == 0);
     CHECK(read.operator()<u64>(base + 0x400) == 417);
+    // Mono MPEG1 layer3/64kbps/44.1kHz frame (208 bytes). Each granule's side info declares
+    // 4095 main-data bits; with the bit reservoir that data begins in earlier frames, so it
+    // runs past this frame. The frame is valid and simply carries no OFL tag.
+    {
+        std::array<u8, 208> frame{0xff, 0xfb, 0x50, 0xc0};
+        size_t bit = 32 + 18; // header, then main_data_begin/private bits/scfsi
+        auto put = [&](u32 value, u32 nbits) {
+            for (u32 i = nbits; i-- > 0; ++bit)
+                if ((value >> i) & 1)
+                    frame[bit / 8] |= u8(0x80 >> (bit % 8));
+        };
+        for (int granule = 0; granule < 2; ++granule) {
+            put(4095, 12); // part2_3_length
+            bit += 47;
+        }
+        CHECK(space->Write(GuestAddress{base + 0x800}, std::as_bytes(std::span{frame})));
+        CHECK(call("eDFeTyi+G3Y", {base + 0x800, frame.size(), 1, base + 0x400}) == 0);
+        const auto parsed = read.operator()<AjmDecMp3ParseFrame>(base + 0x400);
+        CHECK(parsed.frame_size == 208 && parsed.num_channels == 1 &&
+              parsed.samples_per_channel == 1152 && parsed.total_samples == 0);
+    }
     // The statistics worker follows existing desktop estimates, bounds its array.
     write(base + 0x200, AjmSidebandStatisticsEngineParameters{4, {}});
     CHECK(call("dmDybN--Fn8", {batch, AJM_INSTANCE_STATISTICS, 1 | (1ull << 31), base + 0x200, 16,

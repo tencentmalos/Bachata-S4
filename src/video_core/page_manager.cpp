@@ -42,6 +42,64 @@
 
 namespace VideoCore {
 
+namespace {
+thread_local PageManager::WatchContext t_watch_context{};
+std::atomic<u64> watcher_underflows{};
+std::atomic<u32> watcher_underflow_log_left{32};
+std::atomic<u64> watcher_overflows{};
+std::atomic<u32> watcher_overflow_log_left{32};
+
+/// A track found the page at the most watchers its count holds: the count stays there.
+void NoteWatcherOverflow(VAddr page_addr, VAddr addr, u64 size, bool is_read) {
+    watcher_overflows.fetch_add(1, std::memory_order_relaxed);
+    if (watcher_overflow_log_left.load(std::memory_order_relaxed) == 0) {
+        return;
+    }
+    watcher_overflow_log_left.fetch_sub(1, std::memory_order_relaxed);
+    const auto& context = t_watch_context;
+    LOG_ERROR(Render,
+              "Page {:#x}: tracking a {} watcher of [{:#x}, {:#x}) beyond the most the page "
+              "counts; kept at the maximum (by {} {:#x}+{:#x} format {})",
+              page_addr, is_read ? "read" : "write", addr, addr + size,
+              context.what ? context.what : "unknown", context.address, context.size,
+              context.format);
+}
+
+/// A release found the page without a watcher: an earlier release of it matched no track.
+void NoteWatcherUnderflow(VAddr page_addr, VAddr addr, u64 size, bool is_read) {
+    watcher_underflows.fetch_add(1, std::memory_order_relaxed);
+    if (watcher_underflow_log_left.load(std::memory_order_relaxed) == 0) {
+        return;
+    }
+    watcher_underflow_log_left.fetch_sub(1, std::memory_order_relaxed);
+    const auto& context = t_watch_context;
+    LOG_ERROR(Render,
+              "Page {:#x}: releasing a {} watcher of [{:#x}, {:#x}) with none left; kept at 0 "
+              "(by {} {:#x}+{:#x} format {})",
+              page_addr, is_read ? "read" : "write", addr, addr + size,
+              context.what ? context.what : "unknown", context.address, context.size,
+              context.format);
+}
+} // namespace
+
+PageManager::WatchContextScope::WatchContextScope(const char* what, VAddr address, u64 size,
+                                                  u32 format)
+    : saved{t_watch_context} {
+    t_watch_context = {what, address, size, format};
+}
+
+PageManager::WatchContextScope::~WatchContextScope() {
+    t_watch_context = saved;
+}
+
+u64 PageManager::WatcherUnderflows() {
+    return watcher_underflows.load(std::memory_order_relaxed);
+}
+
+u64 PageManager::WatcherOverflows() {
+    return watcher_overflows.load(std::memory_order_relaxed);
+}
+
 constexpr size_t PM_PAGE_SIZE = 4_KB;
 constexpr size_t PM_PAGE_BITS = 12;
 
@@ -66,23 +124,38 @@ struct PageManager::Impl {
             return ReadPerm() | WritePerm();
         }
 
+        static constexpr u8 MaxWriteWatchers = 127;
+        static constexpr u8 MaxReadWatchers = 1;
+
+        template <bool is_read>
+        u8 Watchers() const {
+            return is_read ? num_read_watchers : num_write_watchers;
+        }
+        template <bool is_read>
+        bool WatchersFull() const {
+            return is_read ? num_read_watchers == MaxReadWatchers
+                           : num_write_watchers == MaxWriteWatchers;
+        }
+
         template <s32 delta, bool is_read>
         u8 AddDelta() {
             if constexpr (is_read) {
                 if constexpr (delta == 1) {
-                    return ++num_read_watchers;
+                    // Overflow is reported by the caller (NoteWatcherOverflow).
+                    return num_read_watchers == MaxReadWatchers ? num_read_watchers
+                                                                : ++num_read_watchers;
                 } else if (delta == -1) {
-                    ASSERT_MSG(num_read_watchers > 0, "Not enough watchers");
-                    return --num_read_watchers;
+                    // Underflow is reported by the caller (NoteWatcherUnderflow).
+                    return num_read_watchers == 0 ? 0 : --num_read_watchers;
                 } else {
                     return num_read_watchers;
                 }
             } else {
                 if constexpr (delta == 1) {
-                    return ++num_write_watchers;
+                    return num_write_watchers == MaxWriteWatchers ? num_write_watchers
+                                                                  : ++num_write_watchers;
                 } else if (delta == -1) {
-                    ASSERT_MSG(num_write_watchers > 0, "Not enough watchers");
-                    return --num_write_watchers;
+                    return num_write_watchers == 0 ? 0 : --num_write_watchers;
                 } else {
                     return num_write_watchers;
                 }
@@ -279,6 +352,15 @@ struct PageManager::Impl {
 
         for (; page != page_end; ++page) {
             PageState& state = cached_pages[page];
+            if constexpr (!track) {
+                if (state.template Watchers<is_read>() == 0) [[unlikely]] {
+                    NoteWatcherUnderflow(page << PM_PAGE_BITS, addr, size, is_read);
+                }
+            } else {
+                if (state.template WatchersFull<is_read>()) [[unlikely]] {
+                    NoteWatcherOverflow(page << PM_PAGE_BITS, addr, size, is_read);
+                }
+            }
 
             // Apply the change to the page state
             const u8 new_count = state.AddDelta<track ? 1 : -1, is_read>();
@@ -343,6 +425,17 @@ struct PageManager::Impl {
         for (size_t page = start_range.first; page < end_range.second; ++page) {
             PageState& state = cached_pages[base_page + page];
             const bool update = mask.Get(page);
+            if constexpr (!track) {
+                if (update && state.template Watchers<is_read>() == 0) [[unlikely]] {
+                    NoteWatcherUnderflow((base_page + page) << PM_PAGE_BITS, base_addr,
+                                         NUM_PAGES_PER_REGION << PM_PAGE_BITS, is_read);
+                }
+            } else {
+                if (update && state.template WatchersFull<is_read>()) [[unlikely]] {
+                    NoteWatcherOverflow((base_page + page) << PM_PAGE_BITS, base_addr,
+                                        NUM_PAGES_PER_REGION << PM_PAGE_BITS, is_read);
+                }
+            }
 
             // Apply the change to the page state
             const u8 new_count =

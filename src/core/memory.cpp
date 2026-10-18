@@ -819,26 +819,16 @@ bool MemoryManager::TryReadSrtMemoryLocked(VAddr address, void* data, u64 size) 
     return true;
 }
 
-bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
-    const VAddr virtual_addr = std::bit_cast<VAddr>(address);
-    if (!size)
-        return true;
-    if (!data || virtual_addr > UINT64_MAX - size)
+bool MemoryManager::ResolveBackingLocked(VAddr address, u64 size,
+                                         std::vector<BackingSpan>& spans) {
+    spans.clear();
+    if (!IsValidMapping(address, size))
         return false;
-    std::shared_lock lk{mutex};
-    if (!IsValidMapping(virtual_addr, size))
-        return false;
-
-    // Validate the whole destination before modifying backing. A GPU readback
+    // Validate the whole range before the caller touches backing. A GPU readback
     // can span several VMAs or noncontiguous physical segments within one pool.
-    // Never repeat source bytes at a segment boundary or report a partial copy
-    // as a successful write when a later span has no backing.
-    struct Copy {
-        u8* destination;
-        u64 offset, size;
-    };
-    std::vector<Copy> copies;
-    VAddr cursor = virtual_addr;
+    // Never repeat bytes at a segment boundary or report a partial copy as a
+    // success when a later span has no backing.
+    VAddr cursor = address;
     u64 remaining = size;
     while (remaining) {
         const auto& vma = FindVMA(cursor)->second;
@@ -855,15 +845,81 @@ bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
         const u64 count = std::min({remaining, vma.size - offset, physical->second.size - within});
         if (!count)
             return false;
-        copies.push_back(
-            {impl.BackingBase() + physical->second.base + within, cursor - virtual_addr, count});
+        spans.push_back(
+            {impl.BackingBase() + physical->second.base + within, cursor - address, count});
         cursor += count;
         remaining -= count;
     }
+    return true;
+}
+
+bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
+    const VAddr virtual_addr = std::bit_cast<VAddr>(address);
+    if (!size)
+        return true;
+    if (!data || virtual_addr > UINT64_MAX - size)
+        return false;
+    std::shared_lock lk{mutex};
+    std::vector<BackingSpan> spans;
+    if (!ResolveBackingLocked(virtual_addr, size, spans))
+        return false;
     GuestWriteWatch::Check(virtual_addr, data, size);
     const auto* source = static_cast<const u8*>(data);
-    for (const auto& copy : copies)
-        std::memcpy(copy.destination, source + copy.offset, copy.size);
+    for (const auto& span : spans)
+        std::memcpy(span.host, source + span.offset, span.size);
+    return true;
+}
+
+bool MemoryManager::TryReadBacking(VAddr address, void* data, u64 size) {
+    if (!size)
+        return true;
+    if (!data || address > UINT64_MAX - size)
+        return false;
+    std::shared_lock lk{mutex};
+    std::vector<BackingSpan> spans;
+    if (!ResolveBackingLocked(address, size, spans))
+        return false;
+    auto* out = static_cast<u8*>(data);
+    for (const auto& span : spans)
+        std::memcpy(out + span.offset, span.host, span.size);
+    return true;
+}
+
+bool MemoryManager::WriteBackingUnchanged(VAddr address, const u8* data, const u8* before,
+                                          u64 size, u64& kept_bytes, u8* kept) {
+    kept_bytes = 0;
+    if (!size)
+        return true;
+    if (!data || !before || address > UINT64_MAX - size)
+        return false;
+    std::shared_lock lk{mutex};
+    std::vector<BackingSpan> spans;
+    if (!ResolveBackingLocked(address, size, spans))
+        return false;
+    GuestWriteWatch::Check(address, data, size);
+    constexpr u64 Block = 64;
+    for (const auto& span : spans) {
+        for (u64 at = 0; at < span.size; at += Block) {
+            const u64 count = std::min(Block, span.size - at);
+            const u64 offset = span.offset + at;
+            u8* host = span.host + at;
+            if (std::memcmp(host, before + offset, count) == 0) {
+                std::memcpy(host, data + offset, count);
+                if (kept)
+                    std::memset(kept + offset, 0, count);
+                continue;
+            }
+            for (u64 i = 0; i < count; ++i) {
+                const bool unchanged = host[i] == before[offset + i];
+                if (unchanged)
+                    host[i] = data[offset + i];
+                else
+                    ++kept_bytes;
+                if (kept)
+                    kept[offset + i] = unchanged ? 0 : 1;
+            }
+        }
+    }
     return true;
 }
 

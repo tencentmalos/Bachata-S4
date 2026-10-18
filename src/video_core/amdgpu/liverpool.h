@@ -420,8 +420,18 @@ private:
     VideoCore::Replay::Player* replay_player{};
 
     /// Performs an EOP/EOS/RELEASE_MEM write and interrupt when the GPU completed the work
-    /// recorded before it (or at once, without completion fences or a rasterizer).
-    void SignalFence(Fence fence);
+    /// recorded before it (`deferred`, see PrepareFence), else at once.
+    void SignalFence(Fence fence, bool deferred);
+    /// Writes the images queued for download back to guest memory ahead of the fence that
+    /// follows, and returns whether that fence waits for the GPU: always with completion
+    /// fences; in parse mode when only tiny images are queued (they are written back on GPU
+    /// completion, before the fence), or while earlier deferred fences are outstanding, so
+    /// fences take effect in order. Other write-backs wait for the GPU here.
+    bool PrepareFence();
+    /// At the end of a submission, leaves the queued image write-backs to GPU completion when
+    /// allowed (UploadDiagnostics::async_writeback), ordered before later fences and flips by
+    /// a fence without a write; else Rasterizer::OnSubmit waits for the GPU and writes them.
+    void QueueSubmitWritebacks();
     /// The open command buffer holds work a deferred fence waits for.
     bool FencesUnsubmitted() const;
     /// Submits the open command buffer when a deferred fence waits for it.

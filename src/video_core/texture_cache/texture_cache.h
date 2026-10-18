@@ -6,6 +6,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <span>
@@ -166,8 +167,43 @@ public:
         ReleaseUndefinedContent(addr, size, UndefinedRelease::Range);
     }
 
-    /// Schedules a copy of pending images for download back to CPU memory.
-    void ProcessDownloadImages(bool sync = true);
+    /// Copies the images queued for write-back to guest memory: at once after waiting for the
+    /// GPU (`sync`), else once the GPU completed them (deferred write-backs, see
+    /// WaitPendingWritebacks). Returns the number of images.
+    size_t ProcessDownloadImages(bool sync = true);
+
+    /// Images are queued for write-back and UploadDiagnostics::async_writeback lets them wait
+    /// for GPU completion.
+    bool AsyncDownloadsAllowed();
+
+    /// Deferred write-backs that have not written guest memory yet.
+    bool HasPendingWritebacks() const {
+        return pending_writebacks_count.load(std::memory_order_acquire) != 0;
+    }
+
+    /// Blocks until every deferred write-back overlapping [addr, addr + size) wrote guest
+    /// memory: host reads of that memory would find the bytes from before the GPU wrote the
+    /// image, and host writes would be overwritten by the late write-back. Command processor
+    /// thread (it may submit the work the write-backs follow); one atomic load when no
+    /// write-back is pending.
+    void WaitPendingWritebacks(VAddr addr, u64 size, UploadDiagnostics::WritebackReader reader) {
+        if (pending_writebacks_count.load(std::memory_order_acquire) == 0) [[likely]] {
+            return;
+        }
+        // The bounds only shrink off this thread: a stale value is wider, never narrower.
+        if (addr >= pending_writebacks_hi.load(std::memory_order_relaxed) ||
+            addr + size <= pending_writebacks_lo.load(std::memory_order_relaxed)) {
+            return;
+        }
+        WaitPendingWritebacksSlow(addr, size, reader);
+    }
+    /// Blocks until every deferred write-back wrote guest memory (fences performed ahead of the
+    /// GPU follow them). Command processor thread.
+    void WaitAllPendingWritebacks(UploadDiagnostics::WritebackReader reader) {
+        if (HasPendingWritebacks()) {
+            WaitPendingWritebacksSlow(0, ~VAddr{0}, reader);
+        }
+    }
 
     /// GPU replay: writes every image the GPU modified, and the CPU has not written since, back
     /// to guest memory in guest layout. Command processor thread; waits for the GPU.
@@ -253,6 +289,18 @@ public:
     /// copies them in after the guest upload and frees them. Guest memory never received those
     /// GPU writes. Returns the number of images adopted.
     u32 AdoptGpuSubresources(ImageId image_id);
+
+    /// A texture request smaller than the GPU-written image `cache` at the same base address,
+    /// reading its top-left texels (same layout, single 2D mip and layer).
+    bool IsCornerOf(const ImageInfo& info, BindingType type, const Image& cache) const;
+
+    /// Copies the corner of its source into a corner texture when the source was written since.
+    void RefreshCorner(ImageId image_id);
+
+    /// Frees the least recently used corner textures at `address` so a new one keeps at most
+    /// MaxCornerImages there. Only copies of their source that the commands being recorded do not
+    /// use are freed.
+    void EvictCornerImages(VAddr address, const ImageIds& candidates);
 
     std::shared_ptr<ResourceScalePlan> AcquireScalePlan(const ImageInfo& info, ScaleUse use);
     void RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
@@ -491,14 +539,44 @@ private:
                              VAddr write_end = ~VAddr{0},
                              const char* writer = "image_writeback");
 
+    /// One image write-back: the guest range it writes and the guest bytes there when it was
+    /// decided. Bytes that differ from `before` when it lands were written by someone else in
+    /// between (the guest reusing the memory, a host copy) and keep their value: the write-back
+    /// only replaces what nobody changed.
+    struct WritebackState {
+        VAddr begin{};
+        u64 size{};
+        /// Pending write-back sequence; 0 for one written right after a GPU wait.
+        u64 sequence{};
+        std::vector<u8> before;
+        /// False when the range has no backing to snapshot: written whole, as before.
+        bool have_before{};
+    };
+
+    /// WaitPendingWritebacks past the lock-free checks.
+    void WaitPendingWritebacksSlow(VAddr addr, u64 size,
+                                   UploadDiagnostics::WritebackReader reader);
+    /// Queues a deferred write-back at the current tick: snapshots its range and returns its
+    /// sequence. Under the pending lock, so no earlier write-back lands between the two.
+    u64 AddPendingWriteback(const std::shared_ptr<WritebackState>& state);
+    /// The deferred write-back `sequence` wrote guest memory. Priority thread.
+    void CompletePendingWriteback(u64 sequence);
+    /// Writes a downloaded image over guest memory, keeping bytes changed since the snapshot.
+    /// A pending write-back also updates the snapshots of later pending write-backs of the same
+    /// bytes, so they do not take its bytes for a foreign write.
+    void LandWriteback(WritebackState& state, const u8* data);
+
     /// Records the copy of a GPU-modified image into a download buffer and returns the step
     /// that writes it to guest memory, to run once the GPU has executed the copy. With
     /// `tracked_only` only the part whose pages are still write-tracked is written: anywhere
     /// else a CPU write would have gone unnoticed. Nothing at or past `write_end` is written.
     /// `writer` names the path for the guest write watch. Empty when there is nothing to write.
+    /// The guest bytes are snapshotted now, or, with `deferred`, when the caller registers the
+    /// returned state (AddPendingWriteback).
     std::function<void()> RecordImageDownload(ImageId image_id, bool tracked_only,
                                               VAddr write_end = ~VAddr{0},
-                                              const char* writer = "image_writeback");
+                                              const char* writer = "image_writeback",
+                                              std::shared_ptr<WritebackState>* deferred = nullptr);
 
     /// Logs an image retired by a same-address extent change. With the guest write watch
     /// armed it also reads mip 0 into a staging buffer (never into guest memory) and counts
@@ -597,6 +675,26 @@ private:
     Common::SlotVector<ImageView> slot_image_views;
     tsl::robin_map<u64, Sampler> samplers;
     std::unordered_set<ImageId> download_images;
+    /// Deferred write-backs in the scheduler's priority queue, in queue (and so completion)
+    /// order. Added by the command processor thread, removed by the priority thread once the
+    /// bytes are in guest memory.
+    struct PendingWriteback {
+        VAddr begin;
+        VAddr end;
+        u64 tick;
+        u64 sequence;
+        std::shared_ptr<WritebackState> state;
+    };
+    std::mutex pending_writebacks_mutex;
+    std::condition_variable pending_writebacks_cv;
+    std::vector<PendingWriteback> pending_writebacks;
+    u64 pending_writebacks_added{};
+    /// Highest sequence written: write-backs complete in sequence order.
+    u64 pending_writebacks_done{};
+    std::atomic<u32> pending_writebacks_count{};
+    /// Union bounds of the pending ranges, for the lock-free overlap test.
+    std::atomic<VAddr> pending_writebacks_lo{};
+    std::atomic<VAddr> pending_writebacks_hi{};
     u64 total_used_memory = 0;
     u64 trigger_gc_memory = 0;
     u64 pressure_gc_memory = 0;

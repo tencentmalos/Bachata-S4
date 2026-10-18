@@ -592,7 +592,8 @@ std::string Command(const std::vector<std::string>& args) {
     }
     static constexpr std::array BlockerNames = {"none",     "side effects", "predicated",
                                                 "stream-out", "clear/meta", "skipped too long",
-                                                "skipping off", "skipping paused"};
+                                                "skipping off", "skipping paused",
+                                                "new target"};
     out += "  unbuilt draws kept instead of skipped:";
     for (u32 i = 1; i < u32(SkipBlocker::Count); ++i) {
         out += fmt::format(" {} {}{}", BlockerNames[i], skip_blocked[i].load(),

@@ -13,6 +13,7 @@
 #include "core/memory.h"
 #include "video_core/buffer_cache/gpu_byte_keeper.h"
 #include "video_core/buffer_cache/region_definitions.h"
+#include "video_core/page_manager.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 
@@ -240,6 +241,35 @@ std::string Summary() {
     out += fmt::format("tiny_linear_writeback={} writebacks={}\n",
                        tiny_linear_writeback.load() ? "on" : "off",
                        tiny_linear_writebacks.load());
+    out += fmt::format("unused_small_depth={} dropped_draws={}\n",
+                       unused_small_depth.load() ? "drop" : "keep",
+                       unused_small_depth_draws.load());
+    out += fmt::format("stream_submit={} early_submits={}\n", stream_submit_draws.load(),
+                       stream_submits.load());
+    static constexpr std::array<const char*, 3> AsyncModes{"off", "tiny", "all"};
+    out += fmt::format("async_writeback={} deferred fences={} submits={}\n",
+                       AsyncModes[static_cast<u32>(async_writeback.load())],
+                       async_writeback_fences.load(), async_writeback_submits.load());
+    out += fmt::format("writebacks sync={} sync_ms={} async={} sync fences={} submits={}\n",
+                       sync_writebacks.load(), sync_writeback_ns.load() / 1000000,
+                       async_writebacks.load(), sync_writeback_fences.load(),
+                       sync_writeback_submits.load());
+    out += "writeback waits";
+    for (u32 reader = 0; reader < static_cast<u32>(WritebackReader::Count); ++reader) {
+        out += fmt::format(" {}={}", WritebackReaderName(static_cast<WritebackReader>(reader)),
+                           writeback_waits[reader].load());
+    }
+    out += fmt::format(" wait_ms={}\n", writeback_wait_ns.load() / 1000000);
+    out += fmt::format("writeback kept_foreign={} kept_bytes={} unsnapshotted={}\n",
+                       writeback_kept.load(), writeback_kept_bytes.load(),
+                       writeback_unsnapshotted.load());
+    out += fmt::format("page_watchers underflows={} overflows={}\n",
+                       PageManager::WatcherUnderflows(), PageManager::WatcherOverflows());
+    out += fmt::format("scheduler finishes={} wait_ms={}\n", scheduler_finishes.load(),
+                       scheduler_wait_ns.load() / 1000000);
+    out += fmt::format("corner_views={} images={} copies={} misses={} evictions={}\n",
+                       corner_views.load() ? "on" : "off", corner_images.load(),
+                       corner_copies.load(), corner_misses.load(), corner_evictions.load());
     out += fmt::format("pool_revive={} kept={} revived={} revived_bytes={} released={} stale={}\n",
                        pool_revive.load() ? "on" : "off", pool_revive_kept.load(),
                        pool_revive_revived.load(), pool_revive_bytes.load(),
@@ -491,6 +521,45 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("pool_revive={} (GPU images of decommitted pool memory {})\n", args[1],
                            args[1] == "on" ? "come back at the next commit" : "are freed");
     }
+    if (sub == "async_writeback" && args.size() == 2 &&
+        (args[1] == "off" || args[1] == "tiny" || args[1] == "all")) {
+        async_writeback.store(args[1] == "off"    ? AsyncWriteback::Off
+                              : args[1] == "tiny" ? AsyncWriteback::Tiny
+                                                  : AsyncWriteback::All);
+        return fmt::format("async_writeback={} deferred fences={} submits={}\n", args[1],
+                           async_writeback_fences.load(), async_writeback_submits.load());
+    }
+    if (sub == "writeback_log" && args.size() == 2) {
+        u32 lines{};
+        const auto [ptr, ec] =
+            std::from_chars(args[1].data(), args[1].data() + args[1].size(), lines);
+        if (ec != std::errc{} || ptr != args[1].data() + args[1].size() || lines > 4096) {
+            return "status=bad_arguments writeback_log <0..4096>\n";
+        }
+        writeback_log_left.store(lines);
+        writeback_wait_log_left.store(lines);
+        return fmt::format("writeback_log={} (write-backs and waits for them)\n", lines);
+    }
+    if (sub == "corner_views" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        corner_views.store(args[1] == "on");
+        return fmt::format("corner_views={} images={} copies={} misses={}\n", args[1],
+                           corner_images.load(), corner_copies.load(), corner_misses.load());
+    }
+    if (sub == "stream_submit" && args.size() == 2) {
+        try {
+            stream_submit_draws.store(u32(std::stoul(args[1])));
+        } catch (const std::exception&) {
+            return "status=bad_arguments usage: stream_submit <draws, 0 = off>\n";
+        }
+        return fmt::format("stream_submit={} early_submits={}\n", stream_submit_draws.load(),
+                           stream_submits.load());
+    }
+    if (sub == "unused_small_depth" && args.size() == 2 &&
+        (args[1] == "drop" || args[1] == "keep")) {
+        unused_small_depth.store(args[1] == "drop");
+        return fmt::format("unused_small_depth={} dropped_draws={}\n", args[1],
+                           unused_small_depth_draws.load());
+    }
     if (sub == "tiny_linear_writeback" && args.size() == 2 &&
         (args[1] == "on" || args[1] == "off")) {
         tiny_linear_writeback.store(args[1] == "on");
@@ -730,7 +799,9 @@ std::string Command(const std::vector<std::string>& args) {
            "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
            "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "
-           "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off\n";
+           "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off | "
+           "async_writeback off|tiny|all | writeback_log <n> | corner_views on|off | "
+           "unused_small_depth drop|keep | stream_submit <draws>\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

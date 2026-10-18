@@ -93,7 +93,13 @@ public:
     bool ReadMemory(VAddr addr, u64 size);
     /// Writes back the images queued for download. `sync` waits for the GPU here; otherwise the
     /// write-back runs on the completion thread, before the fences deferred after it.
-    void ProcessDownloadImages(bool sync = true);
+    size_t ProcessDownloadImages(bool sync = true);
+    /// The queued write-backs may wait for GPU completion (TextureCache::AsyncDownloadsAllowed).
+    bool AsyncDownloadsAllowed();
+    /// Deferred write-backs that have not written guest memory yet.
+    bool HasPendingWritebacks() const;
+    /// Blocks until every deferred write-back wrote guest memory.
+    void WaitAllPendingWritebacks(VideoCore::UploadDiagnostics::WritebackReader reader);
     bool IsMapped(VAddr addr, u64 size);
     void MapMemory(VAddr addr, u64 size) override;
     void CommitPoolMemory(VAddr addr, u64 size) override;
@@ -275,6 +281,11 @@ private:
     bool fault_process_pending{};
     bool attachment_feedback_loop{};
     bool needs_barrier{};
+    // Streaming submission (UploadDiagnostics::stream_submit_draws): draws recorded into the
+    // command buffer of `stream_tick` since it began.
+    u64 stream_tick{};
+    u32 stream_draws{};
+    void MaybeStreamSubmit();
 };
 
 } // namespace Vulkan

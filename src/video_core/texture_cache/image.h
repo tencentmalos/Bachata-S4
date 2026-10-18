@@ -164,6 +164,10 @@ struct Image {
     // executed as a blit so that neither side changes its plan. False when the
     // pair is not eligible (format/type/extent mismatch, compressed, multisampled).
     bool BlitCopy(Image& src_image);
+    // This image is a smaller texture at the base address of src_image (see
+    // TextureCache::IsCornerOf): copies the source's top-left texels covering this image's
+    // guest extent into mip 0. False when the pair cannot be copied or resampled.
+    bool CopyCorner(Image& src_image);
     // A guest-layout readback served by sampling the scaled backing (TileManager fused
     // path): keeps the plan scaled and counts like an upscaled readback.
     void RecordFusedReadback();
@@ -291,6 +295,23 @@ public:
     // guest memory under the image is written through the buffer path after the image's last
     // write: the memory is then newer and the image must not be tiled over it.
     u64 write_epoch{};
+    // Flip epochs of the last two frames that bound the image as a render target (0 = none).
+    // async_graphics_skip drops a draw only into targets drawn in a recent earlier frame: those
+    // are redrawn every frame, while a target drawn once (a shadow map made at level load)
+    // would keep whatever a dropped draw left it.
+    u64 target_frame{};
+    u64 prev_target_frame{};
+    void NoteTargetFrame(u64 frame) {
+        if (target_frame != frame) {
+            prev_target_frame = target_frame;
+            target_frame = frame;
+        }
+    }
+    bool RecurringTarget(u64 frame, u64 window) const {
+        const u64 earlier = target_frame != 0 && target_frame < frame ? target_frame
+                                                                      : prev_target_frame;
+        return earlier != 0 && earlier < frame && frame - earlier <= window;
+    }
     // Tiny color targets (TextureCache::NoteTinyTargetWrite): the submit (gc tick) and time of
     // the last render, and how many submits in a row rendered it.
     u64 tiny_write_tick{~u64{0}};
@@ -298,6 +319,12 @@ public:
     u32 tiny_streak{};
     u64 buffer_synced_version{~u64{0}};
     bool buffer_overwritten{};
+    // A texture smaller than the GPU-written image at its base address holds that image's
+    // top-left texels (TextureCache::RefreshCorner): the source copied last and its write
+    // epoch then. An upload from guest memory invalidates the copy.
+    bool corner_view{};
+    u64 corner_source_uid{};
+    u64 corner_source_epoch{~u64{0}};
     void NoteWrite() {
         ++write_epoch;
         buffer_overwritten = false;

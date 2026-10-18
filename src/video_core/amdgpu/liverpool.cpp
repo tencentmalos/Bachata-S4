@@ -27,6 +27,7 @@
 #include "core/platform.h"
 #include "shader_recompiler/resource.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/amdgpu/pm4_trace.h"
@@ -530,6 +531,7 @@ void Liverpool::Process(std::stop_token stoken) {
         if (submit_done) {
             VideoCore::EndCapture();
             if (rasterizer) {
+                QueueSubmitWritebacks();
                 rasterizer->OnSubmit();
                 rasterizer->Flush();
             }
@@ -573,11 +575,52 @@ void Liverpool::IdleBackoff(u32 idle_rounds) {
     });
 }
 
-void Liverpool::SignalFence(Fence fence) {
+bool Liverpool::PrepareFence() {
+    if (!rasterizer) {
+        return false;
+    }
+    if (completion_fences.load(std::memory_order_relaxed)) {
+        rasterizer->ProcessDownloadImages(false);
+        return true;
+    }
+    if (rasterizer->AsyncDownloadsAllowed()) {
+        rasterizer->ProcessDownloadImages(false);
+        VideoCore::UploadDiagnostics::async_writeback_fences.fetch_add(1,
+                                                                       std::memory_order_relaxed);
+        return true;
+    }
+    // Waits for the GPU when write-backs are queued.
+    if (rasterizer->ProcessDownloadImages(true) != 0) {
+        VideoCore::UploadDiagnostics::sync_writeback_fences.fetch_add(1,
+                                                                      std::memory_order_relaxed);
+    }
+    // Earlier deferred fences and write-backs take effect first.
+    return fence_labels->Outstanding() != 0 || rasterizer->HasPendingWritebacks();
+}
+
+void Liverpool::QueueSubmitWritebacks() {
+    if (!rasterizer || (!completion_fences.load(std::memory_order_relaxed) &&
+                        !rasterizer->AsyncDownloadsAllowed())) {
+        // Rasterizer::OnSubmit writes them back after waiting for the GPU.
+        return;
+    }
+    if (rasterizer->ProcessDownloadImages(false) == 0) {
+        return;
+    }
+    VideoCore::UploadDiagnostics::async_writeback_submits.fetch_add(1, std::memory_order_relaxed);
+    // A fence without a write orders them: flips (FenceMark) and later fences take effect after.
+    const u64 sequence = fence_labels->Add(Fence{.writer = "image_writeback"});
+    auto& scheduler = rasterizer->GetScheduler();
+    fence_tick = scheduler.CurrentTick();
+    scheduler.DeferPriorityOperation(
+        [labels = fence_labels, sequence] { labels->PerformThrough(sequence); });
+}
+
+void Liverpool::SignalFence(Fence fence, bool deferred) {
     if (fence.size == 0 && fence.irq < 0) {
         return;
     }
-    if (!rasterizer || !completion_fences.load(std::memory_order_relaxed)) {
+    if (!rasterizer || !deferred) {
         fence_labels->PerformNow(fence);
         return;
     }
@@ -595,6 +638,12 @@ void Liverpool::SignalFence(Fence fence) {
 
 void Liverpool::SettleWaits() {
     if (wait_debt != 0) {
+        // The fences performed ahead may follow deferred write-backs: the guest must find their
+        // bytes once it sees the labels.
+        if (rasterizer && rasterizer->HasPendingWritebacks()) {
+            rasterizer->WaitAllPendingWritebacks(
+                VideoCore::UploadDiagnostics::WritebackReader::Settle);
+        }
         fence_labels->PerformThrough(wait_debt, true);
         wait_debt = 0;
     }
@@ -1254,21 +1303,22 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             }
             case PM4ItOpcode::EventWriteEos: {
                 const auto* event_eos = reinterpret_cast<const PM4CmdEventWriteEos*>(header);
-                if (rasterizer) {
-                    rasterizer->ProcessDownloadImages(!completion_fences);
-                }
-                event_eos->SignalFence([this](void* address, u64 data, u32 num_bytes) {
+                const bool deferred = PrepareFence();
+                event_eos->SignalFence([this, deferred](void* address, u64 data, u32 num_bytes) {
                     SignalFence({.address = reinterpret_cast<VAddr>(address),
                                  .size = num_bytes,
                                  .data = Fence::Data::Value,
                                  .through_backing = true,
                                  .value = data,
-                                 .writer = "eos_label"});
+                                 .writer = "eos_label"},
+                                deferred);
                 });
                 if (event_eos->command == PM4CmdEventWriteEos::Command::GdsStore) {
                     ASSERT(event_eos->size == 1);
                     if (rasterizer) {
                         rasterizer->Finish();
+                        rasterizer->WaitAllPendingWritebacks(
+                            VideoCore::UploadDiagnostics::WritebackReader::Settle);
                         // The GPU completed every queued fence: they precede the store.
                         fence_labels->PerformThrough(~u64{0}, true);
                         wait_debt = 0;
@@ -1280,10 +1330,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             }
             case PM4ItOpcode::EventWriteEop: {
                 const auto* event_eop = reinterpret_cast<const PM4CmdEventWriteEop*>(header);
-                if (rasterizer) {
-                    rasterizer->ProcessDownloadImages(!completion_fences);
-                }
-                SignalFence(EopFence(*event_eop));
+                SignalFence(EopFence(*event_eop), PrepareFence());
                 break;
             }
             case PM4ItOpcode::DmaData: {
@@ -1770,14 +1817,12 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         }
         case PM4ItOpcode::ReleaseMem: {
             const auto* release_mem = reinterpret_cast<const PM4CmdReleaseMem*>(header);
-            if (rasterizer) {
-                rasterizer->ProcessDownloadImages(!completion_fences);
-                if (release_mem->data_sel == DataSelect::GdsMemStore) {
-                    rasterizer->CopyBuffer(release_mem->Address<VAddr>(), release_mem->gds_index,
-                                           release_mem->num_dw * sizeof(u32), false, true);
-                }
+            const bool deferred = PrepareFence();
+            if (rasterizer && release_mem->data_sel == DataSelect::GdsMemStore) {
+                rasterizer->CopyBuffer(release_mem->Address<VAddr>(), release_mem->gds_index,
+                                       release_mem->num_dw * sizeof(u32), false, true);
             }
-            SignalFence(ReleaseMemFence(*release_mem, queue.pipe_id));
+            SignalFence(ReleaseMemFence(*release_mem, queue.pipe_id), deferred);
             break;
         }
         case PM4ItOpcode::EventWrite: {

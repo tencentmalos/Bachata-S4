@@ -136,9 +136,9 @@ u32 newest{};
 u32 dumps{};
 
 u64 NowUs() {
-    timespec ts{};
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return u64(ts.tv_sec) * 1000000 + u64(ts.tv_nsec) / 1000;
+    return u64(std::chrono::duration_cast<std::chrono::microseconds>(
+                   std::chrono::steady_clock::now().time_since_epoch())
+                   .count());
 }
 
 std::string Describe(const Action& x) {
@@ -370,6 +370,12 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
     }
     memory->SetRasterizer(this);
     texture_cache.GetTileManager().SetDriverCache(&pipeline_cache.GetDriverCache());
+    buffer_cache.SetMappedBytesQuery([this](VAddr addr, u64 size) {
+        u64 bytes{};
+        ForEachMappedRangeInRange(addr, size,
+                                  [&](const auto& range) { bytes += boost::icl::length(range); });
+        return bytes;
+    });
 
     scheduler.SetSubmitCallback([this](Vulkan::SubmitInfo& info) {
         runtime.FlushBarriers();
@@ -501,13 +507,52 @@ bool Rasterizer::SkipUnbuiltDraw(const GraphicsPipeline& pipeline) {
         return false;
     }
 
-    // Record what the draw would have written before committing to drop it: the guest ranges
-    // of the attachments, from the registers (no image is looked up or created for a dropped
-    // draw), so later work that reads them is known to read incomplete content.
     const auto& regs = liverpool->regs;
     const auto& key = pipeline.GetGraphicsKey();
+    const auto& db = regs.depth_buffer;
+    const auto ds_use = GetDepthStencilUse(regs);
+    const bool colors_written =
+        regs.color_control.mode != AmdGpu::ColorControl::OperationMode::Disable;
+    // Drop only draws into targets that were drawn in a recent earlier frame: those are redrawn
+    // every frame, so what a dropped draw leaves out comes back within a few frames. A target
+    // drawn for the first time, or only now and then (a shadow map rendered once at level load),
+    // would keep the incomplete content until the game happens to redraw it. Looks up existing
+    // images only; nothing is created for a draw that may be dropped.
+    const auto recurring = [&](VAddr address) {
+        bool found = false;
+        texture_cache.ForEachImageInRegion(
+            address, 1, [&](VideoCore::ImageId, VideoCore::Image& image) {
+                found = image.info.guest_address == address &&
+                        image.RecurringTarget(epoch, PipelineStats::RecurringTargetFrames);
+                return found;
+            });
+        return found;
+    };
+    bool targets_recurring = true;
+    if (colors_written) {
+        for (s32 cb = 0; cb < std::bit_width(key.mrt_mask) && targets_recurring; ++cb) {
+            const auto& col_buf = regs.color_buffers[cb];
+            if (col_buf && regs.color_target_mask.GetMask(cb) && (key.mrt_mask & (1 << cb))) {
+                targets_recurring = recurring(col_buf.Address());
+            }
+        }
+    }
+    if (targets_recurring && ((db.DepthValid() && ds_use.depth_written) ||
+                              (db.StencilValid() && ds_use.stencil_written))) {
+        targets_recurring = recurring(db.DepthValid() ? db.DepthAddress() : db.StencilAddress());
+    }
+    if (!targets_recurring) {
+        if (!ready) {
+            PipelineStats::RecordSkipBlocked(SkipBlocker::NewTarget);
+        }
+        return false;
+    }
+
+    // Record what the draw would have written before committing to drop it: the guest ranges
+    // of the attachments, from the registers, so later work that reads them is known to read
+    // incomplete content.
     bool recorded = true;
-    if (regs.color_control.mode != AmdGpu::ColorControl::OperationMode::Disable) {
+    if (colors_written) {
         for (s32 cb = 0; cb < std::bit_width(key.mrt_mask) && recorded; ++cb) {
             const auto& col_buf = regs.color_buffers[cb];
             if (col_buf && regs.color_target_mask.GetMask(cb) && (key.mrt_mask & (1 << cb))) {
@@ -518,8 +563,6 @@ bool Rasterizer::SkipUnbuiltDraw(const GraphicsPipeline& pipeline) {
             }
         }
     }
-    const auto& db = regs.depth_buffer;
-    const auto ds_use = GetDepthStencilUse(regs);
     if (recorded && db.DepthValid() && ds_use.depth_written) {
         recorded = PipelineStats::RecordSkippedTarget(db.DepthAddress(), true, epoch) &&
                    MissingContent::MarkSkipped(
@@ -627,8 +670,18 @@ void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
         image.usage.render_target = 1u;
     }
 
-    if ((regs.depth_control.depth_enable && regs.depth_buffer.DepthValid()) ||
-        (regs.depth_control.stencil_enable && regs.depth_buffer.StencilValid())) {
+    // A depth surface the draw does not use that is smaller than the color target stays
+    // unbound: the guest draws the whole color target (see Regs::DepthUnusedAndSmaller).
+    const bool depth_dropped =
+        VideoCore::UploadDiagnostics::unused_small_depth.load(std::memory_order_relaxed) &&
+        regs.DepthUnusedAndSmaller();
+    if (depth_dropped) {
+        VideoCore::UploadDiagnostics::unused_small_depth_draws.fetch_add(
+            1, std::memory_order_relaxed);
+    }
+    if (!depth_dropped &&
+        ((regs.depth_control.depth_enable && regs.depth_buffer.DepthValid()) ||
+         (regs.depth_control.stencil_enable && regs.depth_buffer.StencilValid()))) {
         const auto htile_address = regs.depth_htile_data_base.GetAddress();
         const auto& hint = liverpool->last_db_extent;
         auto& [image_id, desc] = db_desc;
@@ -826,6 +879,32 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
         VideoCore::Replay::AfterDraw("draw", vs ? vs->pgm_hash : 0, fs ? fs->pgm_hash : 0);
     }
     ResetBindings(false);
+    MaybeStreamSubmit();
+}
+
+void Rasterizer::MaybeStreamSubmit() {
+    const u32 threshold =
+        VideoCore::UploadDiagnostics::stream_submit_draws.load(std::memory_order_relaxed);
+    if (threshold == 0) {
+        return;
+    }
+    const u64 tick = scheduler.CurrentTick();
+    if (tick != stream_tick) {
+        stream_tick = tick;
+        stream_draws = 0;
+    }
+    // Checked every 16 draws past the threshold: reading the timeline is not free.
+    if (++stream_draws < threshold || (stream_draws - threshold) % 16 != 0) {
+        return;
+    }
+    // Only while the GPU has run out of earlier work: it then starts on these draws at once
+    // instead of after the whole submission is translated. While it is busy the command buffer
+    // keeps growing, so few passes are split by these submits.
+    if (!scheduler.IsFree(tick - 1)) {
+        return;
+    }
+    Flush();
+    VideoCore::UploadDiagnostics::stream_submits.fetch_add(1, std::memory_order_relaxed);
 }
 
 void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u32 stride,
@@ -1169,7 +1248,12 @@ void Rasterizer::OnSubmit() {
         fault_process_pending = false;
         buffer_cache.ProcessFaultBuffer();
     }
-    texture_cache.ProcessDownloadImages();
+    // Write-backs still queued at the end of a submission (Liverpool::QueueSubmitWritebacks
+    // defers them when allowed) wait for the GPU here.
+    if (texture_cache.ProcessDownloadImages() != 0) {
+        VideoCore::UploadDiagnostics::sync_writeback_submits.fetch_add(1,
+                                                                       std::memory_order_relaxed);
+    }
     texture_cache.RunGarbageCollector();
     runtime.TickFrame();
 }
@@ -2922,6 +3006,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         attachment.is_clear = is_clear;
 
         image->usage.render_target = 1u;
+        image->NoteTargetFrame(liverpool->flip_epoch);
     }
     for (u32 cb = state.num_color_attachments; cb < state.color_attachments.size(); ++cb) {
         state.color_attachments[cb] = {};
@@ -2985,6 +3070,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         }
 
         image.usage.depth_target = true;
+        image.NoteTargetFrame(liverpool->flip_epoch);
     } else {
         state.depth_stencil_attachment = {};
     }
@@ -3212,6 +3298,16 @@ bool Rasterizer::TryHtileClear(VAddr address, VAddr src, u32 num_bytes) {
 
 void Rasterizer::CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, bool src_gds) {
     const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
+    // The host may read the source and write the destination below: deferred image
+    // write-backs of either land first (a later one would overwrite the copied bytes).
+    if (!src_gds) {
+        texture_cache.WaitPendingWritebacks(src, num_bytes,
+                                            VideoCore::UploadDiagnostics::WritebackReader::CpCopy);
+    }
+    if (!dst_gds) {
+        texture_cache.WaitPendingWritebacks(dst, num_bytes,
+                                            VideoCore::UploadDiagnostics::WritebackReader::CpCopy);
+    }
     if (!dst_gds && !src_gds) {
         // Still copy the bytes below: shaders that read HTILE see the guest's data.
         TryHtileClear(dst, src, num_bytes);
@@ -3308,8 +3404,20 @@ bool Rasterizer::ReadMemory(VAddr addr, u64 size) {
     return true;
 }
 
-void Rasterizer::ProcessDownloadImages(bool sync) {
-    texture_cache.ProcessDownloadImages(sync);
+size_t Rasterizer::ProcessDownloadImages(bool sync) {
+    return texture_cache.ProcessDownloadImages(sync);
+}
+
+bool Rasterizer::AsyncDownloadsAllowed() {
+    return texture_cache.AsyncDownloadsAllowed();
+}
+
+bool Rasterizer::HasPendingWritebacks() const {
+    return texture_cache.HasPendingWritebacks();
+}
+
+void Rasterizer::WaitAllPendingWritebacks(VideoCore::UploadDiagnostics::WritebackReader reader) {
+    texture_cache.WaitAllPendingWritebacks(reader);
 }
 
 bool Rasterizer::IsMapped(VAddr addr, u64 size) {

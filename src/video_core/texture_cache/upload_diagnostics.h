@@ -67,6 +67,93 @@ inline std::atomic<bool> tiny_writeback{true};
 // Publish the downloaded bytes before the following GPU label.
 inline std::atomic<bool> tiny_linear_writeback{true};
 inline std::atomic<u64> tiny_linear_writebacks{0};
+// A depth surface the draw does not use that is smaller than its color target is left unbound
+// (AmdGpu::Regs::DepthUnusedAndSmaller), so the render area covers the whole color target as on
+// the guest. `upload_diag unused_small_depth drop|keep`; counts the draws it applied to.
+inline std::atomic<bool> unused_small_depth{true};
+inline std::atomic<u64> unused_small_depth_draws{0};
+// Streaming submission: after this many draws in one command buffer, submit it at the next draw
+// boundary where the GPU has finished everything submitted before, so the GPU starts on a frame
+// while the rest is still translated. 0 = off (submit at frame end, fences and idle only).
+// GoW3 on Odin3: 33 -> 51 FPS, the GPU no longer idles while a frame is translated.
+// Off by default: with 200, GoW3 on Odin3 (A8XX) hung the GPU 1-2 minutes after loading in both
+// runs (KGSL status 00880005, GMU preemption fault, context blocked on its own next timestamp).
+// `upload_diag stream_submit <draws>`; counts the early submits.
+inline std::atomic<u32> stream_submit_draws{0};
+inline std::atomic<u64> stream_submits{0};
+// A texture smaller than the GPU-written image at its base address samples that image's
+// top-left texels, as the guest's does (downsample chains render into a corner of a large
+// target and read it back at the small size): it gets its own image, copied from the corner
+// whenever the source was written since (TextureCache::RefreshCorner). Off: such textures view
+// the whole large image (`upload_diag corner_views on|off`, on by default). Counters: corner
+// images created, corner copies, refreshes skipped because no source qualified.
+inline std::atomic<bool> corner_views{true};
+// Parse-mode image write-backs (fences and the end of a submission): which queued write-backs
+// are written once the GPU completed them, with the fences that follow taking effect after
+// them, instead of the command processor waiting for the GPU there. Host reads of guest memory
+// a deferred write-back covers wait for it (TextureCache::WaitPendingWritebacks), as do writes
+// of the same range and fences the command processor performs ahead of the GPU.
+// `upload_diag async_writeback off|tiny|all`: none, only batches of images of at most
+// TinyTargetPixels pixels, every batch (default).
+enum class AsyncWriteback : u32 { Off, Tiny, All };
+inline std::atomic<AsyncWriteback> async_writeback{AsyncWriteback::All};
+// Fences and submission ends whose write-backs were left to GPU completion.
+inline std::atomic<u64> async_writeback_fences{0};
+inline std::atomic<u64> async_writeback_submits{0};
+// Image write-backs to guest memory: written after waiting for the GPU (with the time spent in
+// those batches; at fences and at submission ends) and left to GPU completion.
+inline std::atomic<u64> sync_writebacks{0};
+inline std::atomic<u64> sync_writeback_ns{0};
+inline std::atomic<u64> sync_writeback_fences{0};
+inline std::atomic<u64> sync_writeback_submits{0};
+inline std::atomic<u64> async_writebacks{0};
+// Host paths that waited for a deferred write-back of the guest memory they access, and the
+// time spent waiting (all readers).
+enum class WritebackReader : u32 {
+    ImageUpload,   // an image upload from guest memory
+    BufferUpload,  // a buffer created or synchronized from guest memory
+    CpCopy,        // a command processor copy that reads or writes guest memory on the host
+    Download,      // a later write-back of the same memory, waiting for the GPU
+    Settle,        // fences performed ahead of the GPU (FenceLabels::PerformThrough)
+    Count,
+};
+inline std::array<std::atomic<u64>, static_cast<size_t>(WritebackReader::Count)>
+    writeback_waits{};
+inline std::atomic<u64> writeback_wait_ns{0};
+// Image write-backs that kept guest bytes changed after they were decided (the guest reused
+// the memory, or a host copy wrote it), the bytes kept, and write-backs written whole because
+// their range had no backing to snapshot.
+inline std::atomic<u64> writeback_kept{0};
+inline std::atomic<u64> writeback_kept_bytes{0};
+inline std::atomic<u64> writeback_unsnapshotted{0};
+inline std::atomic<u32> writeback_kept_log_left{32};
+// Bounded logs: queued image write-backs (`upload_diag writeback_log <n>` re-arms it) and
+// waits for deferred write-backs.
+inline std::atomic<u32> writeback_log_left{16};
+inline std::atomic<u32> writeback_wait_log_left{16};
+constexpr const char* WritebackReaderName(WritebackReader reader) {
+    switch (reader) {
+    case WritebackReader::ImageUpload:
+        return "image_upload";
+    case WritebackReader::BufferUpload:
+        return "buffer_upload";
+    case WritebackReader::CpCopy:
+        return "cp_copy";
+    case WritebackReader::Download:
+        return "download";
+    case WritebackReader::Settle:
+        return "settle";
+    default:
+        return "?";
+    }
+}
+// Scheduler::Finish calls (submit and wait for the GPU) and Scheduler::Wait time, all callers.
+inline std::atomic<u64> scheduler_finishes{0};
+inline std::atomic<u64> scheduler_wait_ns{0};
+inline std::atomic<u64> corner_images{0};
+inline std::atomic<u64> corner_copies{0};
+inline std::atomic<u64> corner_misses{0};
+inline std::atomic<u64> corner_evictions{0};
 // A new image takes over the cached images the GPU wrote as its mips (TextureCache::
 // AdoptGpuSubresources) instead of uploading guest memory over them (`upload_diag adopt_mips
 // on|off`, on by default). Counter: images adopted.

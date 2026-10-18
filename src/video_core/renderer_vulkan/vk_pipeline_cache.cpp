@@ -28,6 +28,7 @@
 #include "video_core/renderer_vulkan/vk_pipeline_serialization.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 
 namespace Vulkan {
 
@@ -613,11 +614,18 @@ bool PipelineCache::RefreshGraphicsKey() {
     const auto& regs = liverpool->regs;
     auto& key = graphics_key;
 
-    const bool db_enabled = regs.depth_buffer.DepthValid() || regs.depth_buffer.StencilValid();
+    // A depth surface this draw does not use and that is smaller than its color target is not
+    // attached (Rasterizer::PrepareRenderState), so it sets neither formats nor samples.
+    const bool depth_dropped =
+        VideoCore::UploadDiagnostics::unused_small_depth.load(std::memory_order_relaxed) &&
+        regs.DepthUnusedAndSmaller();
+    const bool db_enabled =
+        !depth_dropped && (regs.depth_buffer.DepthValid() || regs.depth_buffer.StencilValid());
 
-    key.z_format = regs.depth_buffer.DepthValid() ? regs.depth_buffer.z_info.format
-                                                  : AmdGpu::DepthBuffer::ZFormat::Invalid;
-    key.stencil_format = regs.depth_buffer.StencilValid()
+    key.z_format = !depth_dropped && regs.depth_buffer.DepthValid()
+                       ? regs.depth_buffer.z_info.format
+                       : AmdGpu::DepthBuffer::ZFormat::Invalid;
+    key.stencil_format = !depth_dropped && regs.depth_buffer.StencilValid()
                              ? regs.depth_buffer.stencil_info.format
                              : AmdGpu::DepthBuffer::StencilFormat::Invalid;
     key.depth_clamp_enable = !regs.depth_render_override.disable_viewport_clamp;

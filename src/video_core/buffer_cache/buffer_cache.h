@@ -4,6 +4,7 @@
 #pragma once
 
 #include <deque>
+#include <functional>
 #include <iosfwd>
 #include <boost/container/small_vector.hpp>
 
@@ -56,6 +57,16 @@ public:
 
     // Renderer thread only; no queue synchronization or cross-thread cache reads.
     void AppendMemoryDiagnostics(std::ostream& out);
+
+    /// Bytes of guest arena backing bound so far. Residency is never released before the cache
+    /// is destroyed. Renderer thread only.
+    u64 ArenaResidentBytes() const;
+
+    /// Diagnostics only: returns how many bytes of [addr, addr + size) the guest currently maps
+    /// for the GPU, so the report can tell resident backing of unmapped ranges apart.
+    void SetMappedBytesQuery(std::function<u64(VAddr, u64)> query) {
+        mapped_bytes_query = std::move(query);
+    }
 
     /// Returns a pointer to GDS device local buffer.
     [[nodiscard]] const Buffer* GetGdsBuffer() const noexcept {
@@ -281,6 +292,7 @@ private:
         }
     };
     IntervalList<Backing> resident_ranges;
+    std::function<u64(VAddr, u64)> mapped_bytes_query;
 
     u32 arena_memory_type_index{};
     u32 block_size{};

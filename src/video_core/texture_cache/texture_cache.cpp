@@ -300,6 +300,25 @@ void TextureCache::PublishMemoryDiagnostics() {
         << "\nnotes=guest_layout_bytes_is_not_resident_RAM; VMA_includes_buffers_and_pending_resources;"
            " cached_images_include_pending_cache_deletion; host_snapshot_is_not_GPU_idle\n";
     buffer_cache.AppendMemoryDiagnostics(out);
+    {
+        // What the driver counts against the process (Turnip: every vkAllocateMemory), split
+        // into the allocations this renderer knows about. "other" is swapchain/presenter/XR
+        // images, driver-internal objects and anything allocated outside VMA and the arena.
+        VmaTotalStatistics statistics{};
+        vmaCalculateStatistics(instance.GetAllocator(), &statistics);
+        u64 budget{};
+        const u64 usage =
+            instance.CanReportMemoryUsage() ? instance.GetDeviceMemoryUsage(&budget) : 0;
+        const u64 vma = statistics.total.statistics.blockBytes;
+        const u64 arena = buffer_cache.ArenaResidentBytes();
+        out << "memory_summary driver_usage_mib=" << (usage >> 20)
+            << " driver_budget_mib=" << (budget >> 20) << " vma_reserved_mib=" << (vma >> 20)
+            << " cached_images_mib=" << (image_bytes >> 20)
+            << " guest_arena_resident_mib=" << (arena >> 20) << " other_mib="
+            << (usage > vma + arena ? (usage - vma - arena) >> 20 : 0)
+            << " gc_trigger_mib=" << (trigger_gc_memory >> 20)
+            << " gc_pressure_mib=" << (pressure_gc_memory >> 20) << '\n';
+    }
     MemoryDiagnostics::Publish(memory_diagnostics_epoch, request, out.str());
 }
 
@@ -414,8 +433,125 @@ void TextureCache::PublishImageDiagnostics() {
     }
 }
 
-void TextureCache::ProcessDownloadImages(bool sync) {
+bool TextureCache::AsyncDownloadsAllowed() {
+    const auto mode = UploadDiagnostics::async_writeback.load(std::memory_order_relaxed);
+    if (mode == UploadDiagnostics::AsyncWriteback::Off) {
+        return false;
+    }
     std::unique_lock lk{download_images_mutex};
+    if (download_images.empty()) {
+        return false;
+    }
+    return mode == UploadDiagnostics::AsyncWriteback::All ||
+           std::ranges::all_of(download_images, [&](ImageId image_id) {
+               const auto& info = slot_images[image_id].info;
+               return u64(info.size.width) * info.size.height * info.size.depth *
+                          info.resources.layers <= TinyTargetPixels;
+           });
+}
+
+u64 TextureCache::AddPendingWriteback(const std::shared_ptr<WritebackState>& state) {
+    std::scoped_lock lock{pending_writebacks_mutex};
+    const VAddr begin = state->begin;
+    const VAddr end = state->begin + state->size;
+    // Earlier write-backs of these bytes have landed or patch this snapshot when they land.
+    state->before.resize(state->size);
+    state->have_before =
+        Core::Memory::Instance()->TryReadBacking(begin, state->before.data(), state->size);
+    const u64 sequence = ++pending_writebacks_added;
+    state->sequence = sequence;
+    pending_writebacks.push_back({begin, end, scheduler.CurrentTick(), sequence, state});
+    const bool first = pending_writebacks_count.load(std::memory_order_relaxed) == 0;
+    pending_writebacks_lo.store(
+        first ? begin : std::min(begin, pending_writebacks_lo.load(std::memory_order_relaxed)),
+        std::memory_order_relaxed);
+    pending_writebacks_hi.store(
+        first ? end : std::max(end, pending_writebacks_hi.load(std::memory_order_relaxed)),
+        std::memory_order_relaxed);
+    // Published after the bounds: a reader that sees the count sees bounds covering the range.
+    pending_writebacks_count.fetch_add(1, std::memory_order_release);
+    return sequence;
+}
+
+void TextureCache::CompletePendingWriteback(u64 sequence) {
+    std::scoped_lock lock{pending_writebacks_mutex};
+    std::erase_if(pending_writebacks,
+                  [sequence](const PendingWriteback& wb) { return wb.sequence == sequence; });
+    VAddr lo = ~VAddr{0}, hi = 0;
+    for (const auto& wb : pending_writebacks) {
+        lo = std::min(lo, wb.begin);
+        hi = std::max(hi, wb.end);
+    }
+    pending_writebacks_lo.store(lo, std::memory_order_relaxed);
+    pending_writebacks_hi.store(hi, std::memory_order_relaxed);
+    pending_writebacks_count.store(static_cast<u32>(pending_writebacks.size()),
+                                   std::memory_order_release);
+    pending_writebacks_done = std::max(pending_writebacks_done, sequence);
+    pending_writebacks_cv.notify_all();
+}
+
+void TextureCache::WaitPendingWritebacksSlow(VAddr addr, u64 size,
+                                             UploadDiagnostics::WritebackReader reader) {
+    const VAddr end = size > ~VAddr{0} - addr ? ~VAddr{0} : addr + size;
+    u64 sequence = 0, tick = 0;
+    {
+        std::scoped_lock lock{pending_writebacks_mutex};
+        for (const auto& wb : pending_writebacks) {
+            if (wb.begin < end && addr < wb.end) {
+                sequence = std::max(sequence, wb.sequence);
+                tick = std::max(tick, wb.tick);
+            }
+        }
+    }
+    if (sequence == 0) {
+        return;
+    }
+    UploadDiagnostics::writeback_waits[static_cast<size_t>(reader)].fetch_add(
+        1, std::memory_order_relaxed);
+    if (UploadDiagnostics::writeback_wait_log_left.load(std::memory_order_relaxed) != 0)
+        [[unlikely]] {
+        UploadDiagnostics::writeback_wait_log_left.fetch_sub(1, std::memory_order_relaxed);
+        LOG_INFO(Render_Vulkan, "{} of [{:#x}, {:#x}) waits for deferred write-back {} (tick {})",
+                 UploadDiagnostics::WritebackReaderName(reader), addr, end, sequence, tick);
+    }
+    const auto start = std::chrono::steady_clock::now();
+    // The write-backs run on the priority thread once the GPU reached their tick.
+    scheduler.Wait(tick);
+    {
+        std::unique_lock lock{pending_writebacks_mutex};
+        const auto deadline = start + std::chrono::seconds{5};
+        while (pending_writebacks_done < sequence) {
+            if (pending_writebacks_cv.wait_until(lock, deadline) == std::cv_status::timeout) {
+                LOG_ERROR(Render_Vulkan, "deferred write-back {} not written after 5 s",
+                          sequence);
+                break;
+            }
+        }
+    }
+    UploadDiagnostics::writeback_wait_ns.fetch_add(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
+                                                             start)
+            .count(),
+        std::memory_order_relaxed);
+}
+
+size_t TextureCache::ProcessDownloadImages(bool sync) {
+    std::unique_lock lk{download_images_mutex};
+    if (download_images.empty()) {
+        return 0;
+    }
+    const size_t count = download_images.size();
+    (sync ? UploadDiagnostics::sync_writebacks : UploadDiagnostics::async_writebacks)
+        .fetch_add(count, std::memory_order_relaxed);
+    const auto start = std::chrono::steady_clock::now();
+    SCOPE_EXIT {
+        if (sync) {
+            UploadDiagnostics::sync_writeback_ns.fetch_add(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::steady_clock::now() - start).count(),
+                std::memory_order_relaxed);
+        }
+    };
     for (const ImageId image_id : download_images) {
         if (Vulkan::MissingContent::Tracking()) {
             const auto& image = slot_images[image_id];
@@ -423,6 +559,18 @@ void TextureCache::ProcessDownloadImages(bool sync) {
                                                 image.info.guest_address, image.info.guest_size);
         }
         const auto& info = slot_images[image_id].info;
+        if (UploadDiagnostics::writeback_log_left.load(std::memory_order_relaxed) != 0)
+            [[unlikely]] {
+            UploadDiagnostics::writeback_log_left.fetch_sub(1, std::memory_order_relaxed);
+            const auto& usage = slot_images[image_id].usage;
+            LOG_INFO(Render_Vulkan,
+                     "image write-back {:#x} size={:#x} {}x{}x{} {} tile_mode={} tiled={} "
+                     "rt={} storage={} sync={}",
+                     info.guest_address, info.guest_size, info.size.width, info.size.height,
+                     info.size.depth, vk::to_string(info.pixel_format),
+                     static_cast<u32>(info.tile_mode), info.props.is_tiled,
+                     u32(usage.render_target), u32(usage.storage), sync);
+        }
         const bool dump = UploadDiagnostics::tiny_writeback_dump.load(std::memory_order_relaxed) &&
                           info.size.width * info.size.height <= TinyTargetPixels;
         if (dump) [[unlikely]] {
@@ -447,6 +595,7 @@ void TextureCache::ProcessDownloadImages(bool sync) {
         }
     }
     download_images.clear();
+    return count;
 }
 
 void TextureCache::WriteBackGpuModified() {
@@ -648,7 +797,20 @@ void TextureCache::ReadbackImageForDiagnostics(ImageId image_id) {
 
 void TextureCache::DownloadImageMemory(ImageId image_id, bool sync, bool tracked_only,
                                        VAddr write_end, const char* writer) {
-    auto write_back = RecordImageDownload(image_id, tracked_only, write_end, writer);
+    if (sync) {
+        // An earlier deferred write-back of this memory lands first: it must neither land
+        // over this one nor count as a foreign change in its snapshot.
+        const auto& info = slot_images[image_id].info;
+        const VAddr begin = info.guest_address;
+        const VAddr end = std::min(begin + info.guest_size, write_end);
+        if (begin < end) {
+            WaitPendingWritebacks(begin, end - begin,
+                                  UploadDiagnostics::WritebackReader::Download);
+        }
+    }
+    std::shared_ptr<WritebackState> state;
+    auto write_back =
+        RecordImageDownload(image_id, tracked_only, write_end, writer, sync ? nullptr : &state);
     if (!write_back) {
         return;
     }
@@ -656,7 +818,14 @@ void TextureCache::DownloadImageMemory(ImageId image_id, bool sync, bool tracked
         scheduler.Finish();
         write_back();
     } else {
-        scheduler.DeferPriorityOperation(std::move(write_back));
+        const u64 sequence = AddPendingWriteback(state);
+        scheduler.DeferPriorityOperation(
+            [this, write_back = std::move(write_back), sequence] {
+                SCOPE_EXIT {
+                    CompletePendingWriteback(sequence);
+                };
+                write_back();
+            });
     }
 }
 
@@ -897,7 +1066,8 @@ void TextureCache::LogImageStats(ImageId image_id) {
 }
 
 std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool tracked_only,
-                                                       VAddr write_limit, const char* writer) {
+                                                       VAddr write_limit, const char* writer,
+                                                       std::shared_ptr<WritebackState>* deferred) {
     Image& image = slot_images[image_id];
     if (False(image.flags & ImageFlagBits::GpuModified)) {
         return {};
@@ -947,14 +1117,81 @@ std::function<void()> TextureCache::RecordImageDownload(ImageId image_id, bool t
     scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
         .memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
     const u64 skip = write_begin - image_begin;
-    return [this, staging, image_begin, writer, write_begin, write_size = write_end - write_begin,
-            source = staging.mapped + skip] {
+    auto state = std::make_shared<WritebackState>();
+    state->begin = write_begin;
+    state->size = write_end - write_begin;
+    if (deferred) {
+        // Snapshotted when registered (AddPendingWriteback).
+        *deferred = state;
+    } else {
+        state->before.resize(state->size);
+        state->have_before = Core::Memory::Instance()->TryReadBacking(
+            state->begin, state->before.data(), state->size);
+    }
+    return [this, staging, image_begin, writer, state, source = staging.mapped + skip] {
         staging.Invalidate();
         const Core::GuestWriteWatch::Scope watch_scope{writer, image_begin};
-        Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(write_begin), source,
-                                                  write_size);
+        LandWriteback(*state, source);
         runtime.GetStagingPool().FreeDeferred(staging);
     };
+}
+
+void TextureCache::LandWriteback(WritebackState& state, const u8* data) {
+    auto* memory = Core::Memory::Instance();
+    if (!state.have_before) {
+        UploadDiagnostics::writeback_unsnapshotted.fetch_add(1, std::memory_order_relaxed);
+        memory->TryWriteBacking(std::bit_cast<u8*>(state.begin), data, state.size);
+        return;
+    }
+    const VAddr end = state.begin + state.size;
+    // Pending write-backs land in queue order on one thread; the lock keeps registration
+    // (which snapshots) from interleaving with a landing.
+    std::unique_lock lock{pending_writebacks_mutex, std::defer_lock};
+    bool later_overlap = false;
+    if (state.sequence != 0) {
+        lock.lock();
+        later_overlap = std::ranges::any_of(pending_writebacks, [&](const PendingWriteback& wb) {
+            return wb.sequence > state.sequence && wb.begin < end && state.begin < wb.end;
+        });
+    }
+    std::vector<u8> kept;
+    if (later_overlap) {
+        kept.resize(state.size);
+    }
+    u64 kept_bytes = 0;
+    if (!memory->WriteBackingUnchanged(state.begin, data, state.before.data(), state.size,
+                                       kept_bytes, later_overlap ? kept.data() : nullptr)) {
+        return;
+    }
+    if (later_overlap) {
+        // A later write-back of these bytes was snapshotted before this one landed: what this
+        // one wrote is not a foreign change for it.
+        for (const auto& wb : pending_writebacks) {
+            if (wb.sequence <= state.sequence || !wb.state || !wb.state->have_before ||
+                wb.begin >= end || state.begin >= wb.end) {
+                continue;
+            }
+            const VAddr from = std::max(state.begin, wb.state->begin);
+            const VAddr to = std::min(end, wb.state->begin + wb.state->size);
+            for (VAddr at = from; at < to; ++at) {
+                if (!kept[at - state.begin]) {
+                    wb.state->before[at - wb.state->begin] = data[at - state.begin];
+                }
+            }
+        }
+    }
+    if (kept_bytes != 0) {
+        UploadDiagnostics::writeback_kept.fetch_add(1, std::memory_order_relaxed);
+        UploadDiagnostics::writeback_kept_bytes.fetch_add(kept_bytes, std::memory_order_relaxed);
+        if (UploadDiagnostics::writeback_kept_log_left.load(std::memory_order_relaxed) != 0)
+            [[unlikely]] {
+            UploadDiagnostics::writeback_kept_log_left.fetch_sub(1, std::memory_order_relaxed);
+            LOG_INFO(Render_Vulkan,
+                     "image write-back [{:#x}, {:#x}) kept {} bytes changed since it was "
+                     "decided (pending {})",
+                     state.begin, end, kept_bytes, state.sequence);
+        }
+    }
 }
 
 void TextureCache::MarkAsMaybeDirty(ImageId image_id, Image& image) {
@@ -1464,6 +1701,7 @@ void TextureCache::MarkUndefinedContent(VAddr addr, size_t size) {
             UploadDiagnostics::pool_undefined_watched.fetch_add(1, std::memory_order_relaxed);
             continue;
         }
+        const PageManager::WatchContextScope watch_scope{"pool undefined mark", first, bytes};
         tracker.UpdatePageWatchers<1>(first, bytes);
         undefined_content += Interval::right_open(first, first + bytes);
         UploadDiagnostics::pool_undefined_marked.fetch_add(1, std::memory_order_relaxed);
@@ -1514,6 +1752,7 @@ void TextureCache::ReleaseUndefinedContent(VAddr addr, size_t size, UndefinedRel
     for (const auto& run : released) {
         const VAddr first = boost::icl::first(run);
         const u64 bytes = boost::icl::last(run) - first + 1;
+        const PageManager::WatchContextScope watch_scope{"pool undefined release", first, bytes};
         tracker.UpdatePageWatchers<0>(first, bytes);
         undefined_content -= run;
         const bool used = boost::icl::intersects(undefined_used, run);
@@ -2089,11 +2328,25 @@ ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
     // Try to resolve overlaps (if any)
     int view_mip{-1};
     int view_slice{-1};
+    bool corner{};
     if (!image_id) {
+        // A texture at the corner of a larger GPU-written image gets its own image: a view of the
+        // whole image would spread the texture's coordinates over it. The larger image and other
+        // corner textures at the same address are left alone.
+        corner = std::ranges::any_of(image_ids, [&](ImageId cache_id) {
+            return IsCornerOf(info, desc.type, slot_images[cache_id]);
+        });
         for (const auto& cache_id : image_ids) {
             view_mip = -1;
             view_slice = -1;
 
+            if (corner) {
+                const Image& cache = slot_images[cache_id];
+                if (cache.info.guest_address == info.guest_address &&
+                    (cache.corner_view || IsCornerOf(info, desc.type, cache))) {
+                    continue;
+                }
+            }
             const auto& merged_info = image_id ? slot_images[image_id].info : info;
             auto [overlap_image_id, overlap_view_mip, overlap_view_slice] =
                 ResolveOverlap(merged_info, desc.type, cache_id, image_id);
@@ -2131,8 +2384,15 @@ ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
         // native until a render-target use gives it the render scale (ObserveUsage).
         const auto use = desc.type == BindingType::Storage && desc.scalable_write
                              ? ScaleUse::Unknown : desc.type;
+        if (corner) {
+            EvictCornerImages(info.guest_address, image_ids);
+        }
         image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this, use);
         RegisterImage(image_id);
+        if (corner) {
+            slot_images[image_id].corner_view = true;
+            UploadDiagnostics::corner_images.fetch_add(1, std::memory_order_relaxed);
+        }
         if (!image_ids.empty() && UploadDiagnostics::adopt_subresources.load(std::memory_order_relaxed)) {
             AdoptGpuSubresources(image_id);
         }
@@ -2250,9 +2510,117 @@ ImageId TextureCache::FindGpuWrittenImage(VAddr address, size_t size) {
     return {};
 }
 
+bool TextureCache::IsCornerOf(const ImageInfo& info, BindingType type, const Image& cache) const {
+    const auto& source = cache.info;
+    if (type != BindingType::Texture ||
+        !UploadDiagnostics::corner_views.load(std::memory_order_relaxed) ||
+        info.guest_address != source.guest_address ||
+        False(cache.flags & ImageFlagBits::GpuModified) ||
+        info.type != AmdGpu::ImageType::Color2D || source.type != AmdGpu::ImageType::Color2D ||
+        info.resources.levels != 1 || info.resources.layers != 1 ||
+        source.resources.layers != 1 || info.num_samples != 1 || source.num_samples != 1 ||
+        info.props.is_depth || source.props.is_depth || info.props.is_block ||
+        source.props.is_block || info.num_bits != source.num_bits ||
+        info.tile_mode != source.tile_mode || info.size.depth != 1 ||
+        info.size.width > source.size.width || info.size.height > source.size.height ||
+        (info.size.width == source.size.width && info.size.height == source.size.height) ||
+        !IsVulkanFormatCompatible(source.pixel_format, info.pixel_format)) {
+        return false;
+    }
+    // The texture reads the source's top-left texels when both lay rows out alike: the same
+    // pitch, or a tiled texture no taller than one micro tile row.
+    if (info.pitch == source.pitch || (info.props.is_tiled && info.size.height <= 8)) {
+        return true;
+    }
+    static std::atomic<u32> logs{};
+    if (logs.fetch_add(1, std::memory_order_relaxed) < 8) {
+        LOG_INFO(Render_Vulkan,
+                 "corner texture {:#x} {}x{} pitch {} not taken: source {}x{} pitch {} tile {}",
+                 info.guest_address, info.size.width, info.size.height, info.pitch,
+                 source.size.width, source.size.height, source.pitch,
+                 static_cast<u32>(source.tile_mode));
+    }
+    return false;
+}
+
+void TextureCache::EvictCornerImages(VAddr address, const ImageIds& candidates) {
+    // Every corner extent is an image of its own, and a game can sample the corner of one render
+    // target with a different height each frame (GoW3: 1920 wide, 91 to 1079 rows): without a
+    // bound these copies pile up over the same pages until GC pressure, past the 127 watchers a
+    // page counts.
+    static constexpr size_t MaxCornerImages = 4;
+    boost::container::small_vector<ImageId, 16> corners;
+    for (const ImageId cache_id : candidates) {
+        const Image& cache = slot_images[cache_id];
+        if (cache.corner_view && cache.info.guest_address == address) {
+            corners.push_back(cache_id);
+        }
+    }
+    if (corners.size() < MaxCornerImages) {
+        return;
+    }
+    std::ranges::sort(corners, [&](ImageId a, ImageId b) {
+        return slot_images[a].tick_accessed_last > slot_images[b].tick_accessed_last;
+    });
+    const u64 current_tick = scheduler.CurrentTick();
+    for (size_t i = MaxCornerImages - 1; i < corners.size(); ++i) {
+        const Image& cache = slot_images[corners[i]];
+        // Bound by the commands being recorded, or written in its own right.
+        if (cache.tick_accessed_last >= current_tick ||
+            True(cache.flags & ImageFlagBits::GpuModified)) {
+            continue;
+        }
+        FreeImage(corners[i]);
+        UploadDiagnostics::corner_evictions.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
+void TextureCache::RefreshCorner(ImageId image_id) {
+    std::scoped_lock lock{mutex};
+    Image& image = slot_images[image_id];
+    ImageId source_id{};
+    ForEachImageInRegion(image.info.guest_address, 1, [&](ImageId cache_id, Image& cache) {
+        if (cache_id == image_id || True(cache.flags & ImageFlagBits::Dirty) ||
+            !IsCornerOf(image.info, BindingType::Texture, cache)) {
+            return;
+        }
+        // The most recently used source when several qualify.
+        if (!source_id || cache.tick_accessed_last > slot_images[source_id].tick_accessed_last) {
+            source_id = cache_id;
+        }
+    });
+    if (!source_id) {
+        UploadDiagnostics::corner_misses.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    Image& source = slot_images[source_id];
+    if (image.corner_source_uid == source.image_uid &&
+        image.corner_source_epoch == source.write_epoch) {
+        return;
+    }
+    static std::atomic<u32> logs{};
+    if (logs.fetch_add(1, std::memory_order_relaxed) < 16) {
+        LOG_INFO(Render_Vulkan,
+                 "corner texture {:#x} {}x{} pitch {} {} from {}x{} pitch {} {} (host {}x{})",
+                 image.info.guest_address, image.info.size.width, image.info.size.height,
+                 image.info.pitch, vk::to_string(image.info.pixel_format), source.info.size.width,
+                 source.info.size.height, source.info.pitch,
+                 vk::to_string(source.info.pixel_format), source.HostExtent().width,
+                 source.HostExtent().height);
+    }
+    if (!image.CopyCorner(source)) {
+        UploadDiagnostics::corner_misses.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    image.corner_source_uid = source.image_uid;
+    image.corner_source_epoch = source.write_epoch;
+    UploadDiagnostics::corner_copies.fetch_add(1, std::memory_order_relaxed);
+}
+
 ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
     if (desc.type == BindingType::Storage) {
+        image.corner_view = false;
         image.MarkGpuWrite(true);
         image.flags |= ImageFlagBits::GpuModified;
         // Known before the refresh, like render_target in FindRenderTarget.
@@ -2274,6 +2642,9 @@ ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
         }
     }
     UpdateImage(image_id);
+    if (image.corner_view && desc.type == BindingType::Texture) {
+        RefreshCorner(image_id);
+    }
     if (desc.type == BindingType::Texture) image.MarkSampled();
     return image.FindView(desc.view_info);
 }
@@ -2353,6 +2724,8 @@ void TextureCache::NoteTinyTargetWrite(ImageId image_id, Image& image) {
 
 ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
+    // Written in its own right now, no longer a copy of a larger image's corner.
+    image.corner_view = false;
     image.MarkGpuWrite();
     image.flags |= ImageFlagBits::GpuModified;
     NoteGpuWriter(image, UploadDiagnostics::WriteKind::RenderTarget);
@@ -2383,6 +2756,7 @@ ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& des
 
 ImageView& TextureCache::FindDepthTarget(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
+    image.corner_view = false;
     image.MarkGpuWrite();
     image.flags |= ImageFlagBits::GpuModified;
     image.usage.depth_target = 1u;
@@ -2459,6 +2833,11 @@ void TextureCache::RefreshImage(Image& image) {
     }
     RENDERER_TRACE;
     TRACE_HINT(fmt::format("{:x}:{:x}", image.info.guest_address, image.info.guest_size));
+
+    // The hashes and the upload below read guest memory: a deferred write-back of it lands
+    // first.
+    WaitPendingWritebacks(image.info.guest_address, image.info.guest_size,
+                          UploadDiagnostics::WritebackReader::ImageUpload);
 
     if (True(image.flags & ImageFlagBits::MaybeCpuDirty) &&
         False(image.flags & ImageFlagBits::CpuDirty)) {
@@ -2543,6 +2922,8 @@ void TextureCache::RefreshImage(Image& image) {
         upload_bytes += image.info.mips_layout[copy.imageSubresource.mipLevel].size;
     coverage->image_uploads.fetch_add(1, std::memory_order_relaxed);
     coverage->image_upload_bytes.fetch_add(upload_bytes, std::memory_order_relaxed);
+    // Guest memory replaces the corner copied from the source image.
+    image.corner_source_epoch = ~u64{0};
     if (!image.uploaded) {
         image.uploaded = true;
         coverage->image_new_uploads.fetch_add(1, std::memory_order_relaxed);
@@ -2720,6 +3101,9 @@ void TextureCache::TrackImage(ImageId image_id) try {
         return;
     }
 
+    const PageManager::WatchContextScope watch_scope{"image track", image.info.guest_address,
+                                                   image.info.guest_size,
+                                                   static_cast<u32>(image.info.pixel_format)};
     if (!image.IsTracked()) {
         // Re-track the whole image
         image.track_addr = image_begin;
@@ -2755,6 +3139,9 @@ void TextureCache::TrackImageHead(ImageId image_id) {
     ASSERT(image.track_addr != 0 && image_begin < image.track_addr);
     const auto size = image.track_addr - image_begin;
     image.track_addr = image_begin;
+    const PageManager::WatchContextScope watch_scope{"image track head", image.info.guest_address,
+                                                   image.info.guest_size,
+                                                   static_cast<u32>(image.info.pixel_format)};
     tracker.UpdatePageWatchers<1>(image_begin, size);
 }
 
@@ -2771,6 +3158,9 @@ void TextureCache::TrackImageTail(ImageId image_id) {
     const auto addr = image.track_addr_end;
     const auto size = image_end - image.track_addr_end;
     image.track_addr_end = image_end;
+    const PageManager::WatchContextScope watch_scope{"image track tail", image.info.guest_address,
+                                                   image.info.guest_size,
+                                                   static_cast<u32>(image.info.pixel_format)};
     tracker.UpdatePageWatchers<1>(addr, size);
 }
 
@@ -2785,6 +3175,9 @@ void TextureCache::UntrackImage(ImageId image_id) {
     image.track_addr = 0;
     image.track_addr_end = 0;
     if (size != 0) {
+        const PageManager::WatchContextScope watch_scope{"image untrack", image.info.guest_address,
+                                                       image.info.guest_size,
+                                                       static_cast<u32>(image.info.pixel_format)};
         tracker.UpdatePageWatchers<false>(addr, size);
     }
 }
@@ -2805,6 +3198,9 @@ void TextureCache::UntrackImageHead(ImageId image_id) {
         // Cehck its hash later.
         MarkAsMaybeDirty(image_id, image);
     }
+    const PageManager::WatchContextScope watch_scope{"image untrack head", image.info.guest_address,
+                                                   image.info.guest_size,
+                                                   static_cast<u32>(image.info.pixel_format)};
     tracker.UpdatePageWatchers<false>(image_begin, size);
 }
 
@@ -2825,6 +3221,9 @@ void TextureCache::UntrackImageTail(ImageId image_id) {
         // Cehck its hash later.
         MarkAsMaybeDirty(image_id, image);
     }
+    const PageManager::WatchContextScope watch_scope{"image untrack tail", image.info.guest_address,
+                                                   image.info.guest_size,
+                                                   static_cast<u32>(image.info.pixel_format)};
     tracker.UpdatePageWatchers<false>(addr, size);
 }
 

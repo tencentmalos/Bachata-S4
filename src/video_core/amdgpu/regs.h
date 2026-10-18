@@ -186,6 +186,35 @@ union Regs {
         return clipper_control.clip_disable || primitive_type == PrimitiveType::RectList;
     }
 
+    /// A depth surface the draw neither tests nor writes (depth test ALWAYS without writes, no
+    /// stencil or depth bounds test) that is smaller than a bound color target. The guest draws
+    /// the whole color target; a host depth attachment would cut the render area down to the
+    /// depth surface (God of War III clears its full-screen shadow mask with the 960x540 depth
+    /// of the previous pass still bound, and only a quarter of the mask got cleared).
+    bool DepthUnusedAndSmaller() const {
+        if (!depth_buffer.DepthValid() && !depth_buffer.StencilValid()) {
+            return false;
+        }
+        const auto& dc = depth_control;
+        if ((dc.stencil_enable && depth_buffer.StencilValid()) || dc.depth_bounds_enable ||
+            (dc.depth_enable && depth_buffer.DepthValid() &&
+             (dc.depth_write_enable || dc.depth_func != CompareFunc::Always))) {
+            return false;
+        }
+        if (color_control.mode == ColorControl::OperationMode::Disable) {
+            return false;
+        }
+        for (u32 cb = 0; cb < NUM_COLOR_BUFFERS; ++cb) {
+            const auto& col_buf = color_buffers[cb];
+            if (col_buf && color_target_mask.GetMask(cb) &&
+                (depth_buffer.Pitch() < col_buf.Pitch() ||
+                 depth_buffer.Height() < col_buf.Height())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void SetDefaults();
 };
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <chrono>
 #include <fmt/format.h>
 #include <unordered_map>
 #include "common/scope_exit.h"
@@ -528,6 +529,7 @@ void Scheduler::Flush() {
 }
 
 void Scheduler::Finish() {
+    VideoCore::UploadDiagnostics::scheduler_finishes.fetch_add(1, std::memory_order_relaxed);
     // When finishing, we need to wait for the submission to have executed on the device.
     const u64 presubmit_tick = CurrentTick();
     SubmitInfo info{};
@@ -550,7 +552,12 @@ void Scheduler::Wait(u64 tick) {
         SubmitInfo info{};
         Flush(info);
     }
+    const auto start = std::chrono::steady_clock::now();
     work_semaphore.Wait(tick);
+    VideoCore::UploadDiagnostics::scheduler_wait_ns.fetch_add(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
+                                                             start).count(),
+        std::memory_order_relaxed);
 }
 
 u64 Scheduler::HoldRetirement(u64 tick) {

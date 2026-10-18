@@ -68,6 +68,31 @@ public:
     /// Write faults the recorder handled.
     static u64 RecorderWriteFaults();
 
+    /// Who releases page watchers on this thread, named in the report when a release finds a
+    /// page without a watcher left: some earlier release of that page did not match a track.
+    struct WatchContext {
+        const char* what{};
+        VAddr address{};
+        u64 size{};
+        u32 format{};
+    };
+    class WatchContextScope {
+    public:
+        WatchContextScope(const char* what, VAddr address, u64 size, u32 format = 0);
+        ~WatchContextScope();
+        WatchContextScope(const WatchContextScope&) = delete;
+        WatchContextScope& operator=(const WatchContextScope&) = delete;
+
+    private:
+        WatchContext saved;
+    };
+    /// Releases that found a page without a watcher. The count stays at zero instead of
+    /// aborting; the first ones are logged with the page and the WatchContext.
+    static u64 WatcherUnderflows();
+    /// Tracks that found a page at the most watchers it counts (127 write, 1 read): the count
+    /// stays there, so a later release can leave the page unwatched early.
+    static u64 WatcherOverflows();
+
     /// Returns page aligned address.
     static constexpr VAddr GetPageAddr(VAddr addr) {
         return Common::AlignDown(addr, PM_PAGE_SIZE);

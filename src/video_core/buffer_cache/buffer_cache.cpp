@@ -376,6 +376,14 @@ void BufferCache::VerifySparseResidency() {
     LOG_INFO(Render_Vulkan, "Sparse residency check passed ({} KiB blocks)", block_size >> 10);
 }
 
+u64 BufferCache::ArenaResidentBytes() const {
+    u64 bytes{};
+    for (const auto& range : resident_ranges) {
+        bytes += (range.end - range.start) << block_shift;
+    }
+    return bytes;
+}
+
 void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
     const auto allocation_size = [&](const Buffer& buffer) -> u64 {
         if (!buffer.buffer.allocation) {
@@ -389,15 +397,23 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
     for (const auto& arena : arenas) {
         arena_va_bytes += arena.size_bytes;
     }
+    u64 resident_mapped_bytes{};
     for (const auto& range : resident_ranges) {
-        resident_bytes += (range.end - range.start) << block_shift;
+        const u64 bytes = (range.end - range.start) << block_shift;
+        resident_bytes += bytes;
         ++resident_ranges_count;
+        if (mapped_bytes_query) {
+            // Block indices are guest addresses shifted by the block size.
+            resident_mapped_bytes += mapped_bytes_query(range.start << block_shift, bytes);
+        }
     }
     // Arena residency is allocated outside VMA, so it is reported here rather than in the VMA
     // categories.
     out << "guest_arena_count=" << arenas.size() << " guest_arena_va_bytes=" << arena_va_bytes
         << " guest_arena_resident_bytes=" << resident_bytes
         << " guest_arena_resident_ranges=" << resident_ranges_count
+        << " guest_arena_resident_unmapped_bytes="
+        << (mapped_bytes_query ? resident_bytes - resident_mapped_bytes : 0)
         << " sparse_block_bytes=" << block_size
         << " arena_page_bytes=" << (u64{1} << arena_page_bits)
         << " max_arena_bytes=" << max_arena_size << " arena_migrations=" << arena_migrations
@@ -629,6 +645,8 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
         STREAM_THRESHOLD, UploadDiagnostics::stream_max.load(std::memory_order_relaxed));
     if (!is_written && size <= stream_max && !IsRegionGpuModified(device_addr, size)) {
         Vulkan::MissingContent::Access(device_addr, size, false);
+        texture_cache.WaitPendingWritebacks(device_addr, size,
+                                            UploadDiagnostics::WritebackReader::BufferUpload);
         ++stream_copies;
         stream_bytes += size;
         ++stream_sizes[size <= 256 ? 0 : size <= 1024 ? 1 : size <= 4096 ? 2 : 3];
@@ -928,6 +946,13 @@ bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 
     constexpr u32 KeeperExtraRanges = 4 * GpuByteKeeper::MaxRunsPerPage;
     u32 keeper_budget = KeeperExtraRanges;
     auto& keeper = memory_tracker->Keeper();
+    // CPU-modified pages upload guest memory: a deferred image write-back of them lands first
+    // (outside the tracking locks the snapshot holds).
+    if (texture_cache.HasPendingWritebacks() &&
+        memory_tracker->IsRegionCpuModified(device_addr, size)) {
+        texture_cache.WaitPendingWritebacks(device_addr, size,
+                                            UploadDiagnostics::WritebackReader::BufferUpload);
+    }
     const auto uploaded_bytes = [&] {
         return memory_tracker->SnapshotForUpload(
             device_addr, size, is_written,

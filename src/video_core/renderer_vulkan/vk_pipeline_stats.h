@@ -75,6 +75,7 @@ enum class SkipBlocker : u32 {
     TooLong,     ///< This pipeline has been skipped for too long; wait instead.
     TableFull,   ///< Skipping is off for the session (see SkipOff).
     Paused,      ///< Skipping is paused (see PauseSkipping).
+    NewTarget,   ///< An attachment was not drawn in a recent earlier frame (made once, kept).
     Count,
 };
 /// Why skipping was turned off for the session.
@@ -88,6 +89,9 @@ enum class SkipOff : u32 {
 void DisableSkipping(SkipOff reason);
 /// Frames a pause lasts, and how many pauses a session gets before skipping is off for good.
 constexpr u64 SkipPauseFrames = 60;
+/// A dropped draw's attachments must have been bound as render targets within this many earlier
+/// frames (see Image::RecurringTarget).
+constexpr u64 RecurringTargetFrames = 4;
 constexpr u32 MaxSkipPauses = 16;
 /// Stale content missing from skipped draws was read (see MissingContent): draws wait for their
 /// pipelines for the next SkipPauseFrames frames before more draws are dropped. False when the

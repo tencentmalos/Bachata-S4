@@ -283,9 +283,15 @@ public:
     }
 
     void Skip(size_t nbits) {
-        if (nbits > m_limit - m_bit_offset)
+        if (!TrySkip(nbits))
             throw std::invalid_argument("truncated MP3 side info");
+    }
+
+    bool TrySkip(size_t nbits) {
+        if (nbits > m_limit - m_bit_offset)
+            return false;
         m_bit_offset += nbits;
+        return true;
     }
 
     size_t GetCurrentOffset() {
@@ -429,7 +435,11 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
             }
         }
     }
-    reader.Skip(part2_3_length);
+    // With the bit reservoir the main data may start in earlier frames, so a valid frame can
+    // declare more main-data bits than it holds. Such a frame cannot carry an OFL tag.
+    if (!reader.TrySkip(part2_3_length)) {
+        return ORBIS_OK;
+    }
 
     p_current += ((reader.GetCurrentOffset() + 7) / 8);
 

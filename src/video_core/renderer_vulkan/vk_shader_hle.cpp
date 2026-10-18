@@ -173,6 +173,24 @@ static bool ExecuteCopyShaderHLE(const Shader::Info& info, const AmdGpu::Compute
         }
     }
     if (mirror) {
+        // The mirror reads the sources and writes the destinations in guest memory: deferred
+        // image write-backs of either land first.
+        auto& texture_cache = rasterizer.GetTextureCache();
+        if (texture_cache.HasPendingWritebacks()) {
+            VAddr src_lo = ~VAddr{0}, src_hi = 0, dst_lo = ~VAddr{0}, dst_hi = 0;
+            for (const auto& c : copies) {
+                src_lo = std::min<VAddr>(src_lo, src_buf_sharp.base_address + c.srcOffset);
+                src_hi = std::max<VAddr>(src_hi, src_buf_sharp.base_address + c.srcOffset + c.size);
+                dst_lo = std::min<VAddr>(dst_lo, dst_buf_sharp.base_address + c.dstOffset);
+                dst_hi = std::max<VAddr>(dst_hi, dst_buf_sharp.base_address + c.dstOffset + c.size);
+            }
+            if (src_lo < src_hi) {
+                texture_cache.WaitPendingWritebacks(
+                    src_lo, src_hi - src_lo, VideoCore::UploadDiagnostics::WritebackReader::CpCopy);
+                texture_cache.WaitPendingWritebacks(
+                    dst_lo, dst_hi - dst_lo, VideoCore::UploadDiagnostics::WritebackReader::CpCopy);
+            }
+        }
         Common::Profiler::Scope mirror_scope{"HLE.GuestMirror"};
         // One lock and cached backing segments for the whole list; the regions are many and small.
         auto* memory = Core::Memory::Instance();

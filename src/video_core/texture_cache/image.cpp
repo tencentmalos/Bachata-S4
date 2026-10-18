@@ -1442,6 +1442,65 @@ bool Image::BlitCopy(Image& src_image) {
     return true;
 }
 
+bool Image::CopyCorner(Image& src_image) {
+    const auto& src = src_image.info;
+    if (info.num_samples != 1 || src.num_samples != 1 || info.props.is_block ||
+        src.props.is_block || mip_skip || IsReencoded() || src_image.mip_skip ||
+        src_image.IsReencoded()) {
+        return false;
+    }
+    const auto aspects = aspect_mask & ~vk::ImageAspectFlagBits::eStencil;
+    if (aspects != (src_image.aspect_mask & ~vk::ImageAspectFlagBits::eStencil)) {
+        return false;
+    }
+    // The source texels under this image's guest extent, on the source's host extent.
+    const auto dst_extent = HostExtent();
+    const auto src_extent = src_image.HostExtent();
+    const auto scaled = [](u32 guest, u32 host, u32 src_guest) {
+        return std::clamp<u32>(u32((u64(guest) * host + src_guest / 2) / src_guest), 1u, host);
+    };
+    const u32 width = scaled(info.size.width, src_extent.width, src.size.width);
+    const u32 height = scaled(info.size.height, src_extent.height, src.size.height);
+    const auto format = backing->image.image_ci.format;
+    const bool exact = width == dst_extent.width && height == dst_extent.height;
+    if (!exact && (format != src_image.backing->image.image_ci.format || !CanResample(format))) {
+        return false;
+    }
+    scheduler->EndRendering(Vulkan::RenderBreak::ImageCopy);
+    src_image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
+    Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
+    auto cmdbuf = scheduler->CommandBuffer();
+    {
+        Vulkan::GpuZoneScope gpu_zone{*scheduler, Vulkan::GpuProfiler::Stage::Transfer};
+        if (exact) {
+            const vk::ImageCopy region{
+                .srcSubresource = {aspects, 0, 0, 1},
+                .dstSubresource = {aspects, 0, 0, 1},
+                .extent = {width, height, 1},
+            };
+            cmdbuf.copyImage(src_image.GetImage(), src_image.backing->state.layout, GetImage(),
+                             backing->state.layout, region);
+        } else {
+            const vk::ImageBlit region{
+                .srcSubresource = {aspects, 0, 0, 1},
+                .srcOffsets = std::array{vk::Offset3D{}, vk::Offset3D{s32(width), s32(height), 1}},
+                .dstSubresource = {aspects, 0, 0, 1},
+                .dstOffsets = std::array{vk::Offset3D{},
+                                         vk::Offset3D{s32(dst_extent.width), s32(dst_extent.height), 1}},
+            };
+            const bool filter = !info.props.is_depth &&
+                instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear);
+            cmdbuf.blitImage(src_image.GetImage(), src_image.backing->state.layout, GetImage(),
+                             backing->state.layout, region,
+                             filter ? vk::Filter::eLinear : vk::Filter::eNearest);
+        }
+    }
+    Transit(vk::ImageLayout::eGeneral,
+            vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
+    NoteWrite();
+    return true;
+}
+
 u64 Image::CopyBufferSizeUpperBound() const {
     u64 size{};
     const u32 block = info.props.is_block ? 4 : 1;
