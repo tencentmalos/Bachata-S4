@@ -17,6 +17,7 @@
 #include "video_core/buffer_cache/region_definitions.h"
 #include "video_core/page_manager.h"
 #include "video_core/renderer_vulkan/vk_common.h"
+#include "shader_recompiler/frontend/fetch_shader.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 
 namespace VideoCore::UploadDiagnostics {
@@ -55,11 +56,14 @@ std::string TargetMemoLine() {
 std::string KeyMemoLine() {
     constexpr auto o = std::memory_order_relaxed;
     static constexpr std::array<const char*, 3> Modes{"off", "on", "verify"};
+    const auto& fetch = Shader::Gcn::FetchShaderCache::stats;
     return fmt::format("key_memo={} hits/misses={}/{} second_pass_hits={} pipeline_reuse={} "
-                       "verify_mismatches={}\n",
+                       "verify_mismatches={}\n"
+                       "fetch_shader_cache hits={} misses_new={} misses_changed={}\n",
                        Modes[std::min<u32>(key_memo_mode.load(o), 2)], key_memo_hits.load(o),
                        key_memo_misses.load(o), key_memo_final_hits.load(o),
-                       key_memo_pipeline_reuse.load(o), key_memo_mismatches.load(o));
+                       key_memo_pipeline_reuse.load(o), key_memo_mismatches.load(o),
+                       fetch.hits.load(o), fetch.misses_new.load(o), fetch.misses_changed.load(o));
 }
 } // namespace
 

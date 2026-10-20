@@ -176,23 +176,51 @@ FetchShaderMatch CompareFetchShader(const std::optional<FetchShaderData>& parsed
     return CompareParsed(*parsed, *expected);
 }
 
+namespace {
+// Counters written only by the thread that owns the cache: a plain load and store, not an atomic
+// read-modify-write (an out-of-line call on ARMv8.0 builds).
+void Count(std::atomic<u64>& counter) {
+    counter.store(counter.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
+}
+} // namespace
+
 const std::optional<FetchShaderData>& FetchShaderCache::Find(const Shader::Info& info) {
     static const std::optional<FetchShaderData> none{};
     if (!info.has_fetch_shader) {
         return none;
     }
     const auto* code = GetFetchShaderCode(info, info.fetch_shader_sgpr_base);
-    for (const auto& entry : entries) {
-        if (entry.data && entry.code == code &&
-            std::memcmp(code, entry.words.data(), entry.words.size() * sizeof(u32)) == 0) {
-            return entry.data;
+    auto& set = sets[static_cast<size_t>((reinterpret_cast<uintptr_t>(code) >> 2) *
+                                         0x9E3779B97F4A7C15ULL >> (64 - SetBits))];
+    ++clock;
+    Entry* victim = nullptr;
+    Entry* lru = &set[0];
+    for (auto& way : set) {
+        if (way.data && way.code == code) {
+            victim = &way;
+            break;
+        }
+        // Empty ways first, then the least recently used one.
+        if (lru->data && (!way.data || way.stamp < lru->stamp)) {
+            lru = &way;
         }
     }
-    auto& entry = entries[next++ % entries.size()];
-    entry.data = ParseFetchShader(info);
-    entry.code = code;
-    entry.words.assign(code, code + entry.data->size / sizeof(u32));
-    return entry.data;
+    if (victim) {
+        if (std::memcmp(code, victim->words.data(), victim->words.size() * sizeof(u32)) == 0) {
+            Count(stats.hits);
+            victim->stamp = clock;
+            return victim->data;
+        }
+        Count(stats.misses_changed);
+    } else {
+        victim = lru;
+        Count(stats.misses_new);
+    }
+    victim->data = ParseFetchShader(info);
+    victim->code = code;
+    victim->stamp = clock;
+    victim->words.assign(code, code + victim->data->size / sizeof(u32));
+    return victim->data;
 }
 
 } // namespace Shader::Gcn

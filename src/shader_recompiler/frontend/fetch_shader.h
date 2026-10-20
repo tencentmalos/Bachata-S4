@@ -6,6 +6,7 @@
 #include <boost/container/small_vector.hpp>
 
 #include <array>
+#include <atomic>
 #include <optional>
 #include <vector>
 #include "common/types.h"
@@ -87,6 +88,12 @@ enum class FetchShaderMatch {
 FetchShaderMatch CompareFetchShader(const std::optional<FetchShaderData>& parsed,
                                     const std::optional<FetchShaderData>& expected);
 
+// FetchShaderCache lookups that found their code address with unchanged words, found no entry for
+// the address, or found it with different words (the guest rewrote the code in place).
+struct FetchShaderCacheStats {
+    std::atomic<u64> hits{}, misses_new{}, misses_changed{};
+};
+
 /// ParseFetchShader for one owner, not thread safe. An entry is reused while the guest code
 /// words it was parsed from are unchanged, without the shared memo's lock or a copy of the parse.
 class FetchShaderCache {
@@ -94,14 +101,23 @@ public:
     /// The returned parse stays valid until a later Find replaces its entry.
     const std::optional<FetchShaderData>& Find(const Shader::Info& info);
 
+    static inline FetchShaderCacheStats stats{};
+
 private:
     struct Entry {
         const u32* code{};
+        u32 stamp{};
         std::vector<u32> words;
         std::optional<FetchShaderData> data;
     };
-    std::array<Entry, 4> entries{};
-    u32 next{};
+    // Set-associative by code address, one cache for all programs (the parse depends only on
+    // the code); the least recently used way of a set is replaced. A small ring per program
+    // was refilled every frame under UE4, whose vertex shaders run with dozens of fetch shaders,
+    // and a 1024-entry direct-mapped table still missed on most KH3 draws.
+    static constexpr u32 SetBits = 10;
+    static constexpr u32 Ways = 4;
+    std::array<std::array<Entry, Ways>, 1u << SetBits> sets{};
+    u32 clock{};
 };
 
 } // namespace Shader::Gcn

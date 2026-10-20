@@ -1029,7 +1029,7 @@ PipelineCache::Result PipelineCache::GetProgram(HwStage hw_stage, SwStage sw_sta
     const auto find_fetch_shader = [&](const Shader::Info& info) -> const auto& {
         if (!fetch_shader || fetch_present != info.has_fetch_shader ||
             fetch_sgpr_base != info.fetch_shader_sgpr_base) {
-            fetch_shader = &program.fetch_shaders.Find(info);
+            fetch_shader = &fetch_shaders.Find(info);
             fetch_present = info.has_fetch_shader;
             fetch_sgpr_base = info.fetch_shader_sgpr_base;
         }

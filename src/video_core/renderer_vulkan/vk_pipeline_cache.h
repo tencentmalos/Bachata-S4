@@ -52,9 +52,6 @@ struct Program {
     static constexpr size_t MaxPermutations = 8;
     using ModuleList = boost::container::small_vector<Module, MaxPermutations>;
     ModuleList modules{};
-    // The permutations run the same code, so a lookup parses its vertex fetch shader once,
-    // and finds it here while its guest code is unchanged.
-    Shader::Gcn::FetchShaderCache fetch_shaders{};
 
     void AddPermut(vk::ShaderModule module, std::unique_ptr<Shader::Info> info,
                    Shader::StageSpecialization&& spec) {
@@ -200,6 +197,8 @@ private:
     Shader::Pools pools;
     DrawIndirectParams draw_indirect_params{};
     tsl::robin_map<size_t, std::unique_ptr<Program>> program_cache;
+    // Vertex fetch shader parses by guest code address (command processor thread only).
+    Shader::Gcn::FetchShaderCache fetch_shaders{};
     tsl::robin_map<ComputePipelineKey, std::unique_ptr<ComputePipeline>> compute_pipelines;
     tsl::robin_map<GraphicsPipelineKey, std::unique_ptr<GraphicsPipeline>> graphics_pipelines;
     // Declared after the pipelines: destroyed (workers joined) before them.
