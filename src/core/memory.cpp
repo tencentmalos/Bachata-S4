@@ -91,7 +91,7 @@ std::string MemoryManager::LockControl(std::span<const std::string> args) {
             return "usage: memory_lock spin syscall|pause|timed [us]\n";
         }
     } else if (args.size() == 2 && args[0] == "holds" && (args[1] == "on" || args[1] == "off")) {
-        Common::SharedFirstMutex::hold_tracking = args[1] == "on";
+        Common::SharedFirstMutex::SetHoldTracking(args[1] == "on");
     } else if (args.size() == 2 && args[0] == "pool_map" &&
                (args[1] == "locked" || args[1] == "unlocked")) {
         pool_map_unlocked = args[1] == "unlocked";

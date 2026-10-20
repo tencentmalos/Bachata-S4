@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <span>
@@ -44,6 +45,81 @@ struct PortableSrt {
     static constexpr u32 MaxBatchDwords = 64;
     std::vector<Expr> expressions;
     std::vector<Command> commands;
+
+    /// Execution plan derived from `commands` by Prepare() (not serialized): constant offsets are
+    /// folded and consecutive constant-offset copies are merged into runs once, instead of on
+    /// every walk. Running it gives the same flat buffer and the same reads as interpreting the
+    /// commands (RunInterpreted).
+    struct Step {
+        enum class Type : u32 { PushConstant, PushExpression, Pop, CopyRun, CopyExpression };
+        Type type{};
+        u32 value{};       // byte offset (PushConstant, CopyRun) or expression id
+        u32 destination{}; // CopyRun, CopyExpression
+        u32 count{};       // CopyRun: dwords
+    };
+    std::vector<Step> steps;
+    bool prepared{};
+    bool step_expressions{}; // some step evaluates an expression
+
+    /// Plan: run the prepared steps. Interpret: the original command interpreter. Verify: run
+    /// both, count differing flat buffers and keep the interpreter's result.
+    enum class RunMode : u32 { Interpret, Plan, Verify };
+    static inline std::atomic<u32> run_mode{static_cast<u32>(RunMode::Plan)};
+    struct RunStats { // static storage: zero-initialized; only Verify counts
+        std::atomic<u64> verified, mismatches;
+    };
+    static inline RunStats run_stats;
+
+    /// Builds `steps` from validated commands.
+    void Prepare() {
+        steps.clear();
+        step_expressions = false;
+        u32 run_offset{}, run_destination{}, run_count{};
+        const auto flush = [&] {
+            if (run_count)
+                steps.push_back({Step::Type::CopyRun, run_offset, run_destination, run_count});
+            run_count = 0;
+        };
+        for (const auto command : commands) {
+            if (command.kind == Kind::Pop) {
+                flush();
+                steps.push_back({Step::Type::Pop});
+                continue;
+            }
+            const auto& e = expressions[command.expression];
+            const bool constant = e.op == Op::Constant;
+            if (command.kind == Kind::Copy && constant) {
+                // Same merge rule as RunInterpreted (offsets compared without 32-bit wrap).
+                const u32 offset = u32(e.a << 2);
+                if (run_count && run_count < MaxBatchDwords &&
+                    u64(offset) == u64(run_offset) + u64(run_count) * sizeof(u32) &&
+                    command.destination == run_destination + run_count) {
+                    ++run_count;
+                    continue;
+                }
+                flush();
+                run_offset = offset;
+                run_destination = command.destination;
+                run_count = 1;
+                continue;
+            }
+            flush();
+            if (command.kind == Kind::Push) {
+                if (constant) {
+                    steps.push_back({Step::Type::PushConstant, u32(e.a << 2)});
+                } else {
+                    steps.push_back({Step::Type::PushExpression, command.expression});
+                    step_expressions = true;
+                }
+            } else {
+                steps.push_back(
+                    {Step::Type::CopyExpression, command.expression, command.destination});
+                step_expressions = true;
+            }
+        }
+        flush();
+        prepared = true;
+    }
 
     bool Validate(u32 flat_size) const {
         if (flat_size < 16 || flat_size > MaxEntries || expressions.size() > MaxEntries ||
@@ -172,6 +248,25 @@ public:
     }
     template <class Read>
     void Run(std::span<const u32> user_data, std::span<u32> flat, Read read) const {
+        const auto mode = static_cast<RunMode>(run_mode.load(std::memory_order_relaxed));
+        if (prepared && mode == RunMode::Plan) [[likely]] {
+            RunPlan(user_data, flat, read);
+            return;
+        }
+        if (prepared && mode == RunMode::Verify) {
+            std::vector<u32> planned(flat.begin(), flat.end());
+            RunPlan(user_data, std::span<u32>{planned}, read);
+            RunInterpreted(user_data, flat, read);
+            run_stats.verified.fetch_add(1, std::memory_order_relaxed);
+            if (!std::ranges::equal(planned, flat))
+                run_stats.mismatches.fetch_add(1, std::memory_order_relaxed);
+            return;
+        }
+        RunInterpreted(user_data, flat, read);
+    }
+
+    template <class Read>
+    void RunInterpreted(std::span<const u32> user_data, std::span<u32> flat, Read& read) const {
         // Validate once at compile/deserialization; the immutable plan's lifetime is owned by Info.
         std::array<u64, MaxDepth> stack{};
         u32 depth{};
@@ -255,6 +350,87 @@ public:
             }
         }
         flush();
+    }
+
+private:
+    // Reads `count` dwords at pointer + offset into flat[destination...] with one call; when that
+    // fails each dword is read on its own and an unreadable dword becomes 0 (RunInterpreted's
+    // flush and copy_dword).
+    template <class Read>
+    static void CopyDwords(u64 pointer, u64 offset, std::span<u32> flat, u32 destination,
+                           u32 count, Read& read) {
+        const u64 bytes = u64(count) * sizeof(u32);
+        if (pointer && pointer <= UINT64_MAX - offset && bytes <= UINT64_MAX - (pointer + offset) &&
+            read(pointer + offset, flat.data() + destination, bytes))
+            return;
+        for (u32 i = 0; i < count; ++i) {
+            const u64 at = offset + u64(i) * sizeof(u32);
+            u32 value{};
+            if (pointer && pointer <= UINT64_MAX - at && !read(pointer + at, &value, sizeof(value)))
+                value = 0;
+            flat[destination + i] = value;
+        }
+    }
+
+    template <class Read>
+    void RunPlan(std::span<const u32> user_data, std::span<u32> flat, Read& read) const {
+        std::array<u64, MaxDepth> stack;
+        u32 depth{};
+        u64 pointer{};
+        // Expression steps need a memo for shared subexpressions; most plans have none.
+        constexpr size_t LocalMemo = 128;
+        std::array<Memo, LocalMemo> local_memo;
+        std::vector<Memo> heap_memo;
+        std::span<Memo> memo;
+        u32 epoch{};
+        if (step_expressions) {
+            if (expressions.size() <= LocalMemo) {
+                std::fill_n(local_memo.begin(), expressions.size(), Memo{});
+                memo = {local_memo.data(), expressions.size()};
+            } else {
+                heap_memo.resize(expressions.size());
+                memo = heap_memo;
+            }
+        }
+        for (const Step& step : steps) {
+            switch (step.type) {
+            case Step::Type::CopyRun:
+                CopyDwords(pointer, step.value, flat, step.destination, step.count, read);
+                break;
+            case Step::Type::CopyExpression: {
+                // One read, as RunInterpreted's copy_dword (not a batch with a per-dword retry).
+                const u64 offset = u32(Evaluate(step.value, flat, memo, ++epoch) << 2);
+                u32 value{};
+                if (pointer && pointer <= UINT64_MAX - offset &&
+                    !read(pointer + offset, &value, sizeof(value)))
+                    value = 0;
+                flat[step.destination] = value;
+                break;
+            }
+            case Step::Type::Pop:
+                pointer = stack[--depth];
+                break;
+            case Step::Type::PushConstant:
+            case Step::Type::PushExpression: {
+                const u64 offset = step.type == Step::Type::PushConstant
+                                       ? u64(step.value)
+                                       : u64(u32(Evaluate(step.value, flat, memo, ++epoch) << 2));
+                u64 next{};
+                if (depth == 0) {
+                    if (offset <= user_data.size_bytes() &&
+                        sizeof(next) <= user_data.size_bytes() - offset)
+                        std::memcpy(&next, reinterpret_cast<const u8*>(user_data.data()) + offset,
+                                    sizeof(next));
+                } else if (pointer && pointer <= UINT64_MAX - offset) {
+                    if (!read(pointer + offset, &next, sizeof(next)))
+                        next = 0;
+                }
+                stack[depth++] = pointer;
+                pointer = next & 0xFFFFFFFFFFFFULL;
+                break;
+            }
+            }
+        }
     }
 };
 // Uses the current MemoryManager's mapped ranges, never an arbitrary host pointer.

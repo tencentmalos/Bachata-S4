@@ -779,6 +779,7 @@ bool PersistentSrtInfo::Deserialize(Serialization::Archive& ar) {
         srt.Read(command);
     if (!plan.Validate(flattened_bufsize_dw))
         return false;
+    plan.Prepare();
     portable = std::move(plan);
     walker_func = nullptr;
     walker_func_size = 0;

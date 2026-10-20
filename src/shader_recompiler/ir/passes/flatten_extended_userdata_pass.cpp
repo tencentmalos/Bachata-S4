@@ -828,6 +828,7 @@ static void GenerateSrtProgram(Info& info, PassInfo& pass_info) {
         VisitPortablePointer(IR::Value(static_cast<u32>(sgpr)), root, pass_info, plan);
     if (!plan.Validate(pass_info.dst_off_dw))
         throw std::runtime_error("invalid generated SRT plan");
+    plan.Prepare();
     info.srt_info.portable = std::move(plan);
     info.srt_info.flattened_bufsize_dw = pass_info.dst_off_dw;
 }

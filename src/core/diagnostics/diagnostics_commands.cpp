@@ -6,6 +6,7 @@
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/host_runtime/vr_geometry.h"
 #include "shader_recompiler/srt_gate_diag.h"
+#include "shader_recompiler/ir/passes/srt_portable.h"
 #include "core/diagnostics/overlay_control.h"
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
@@ -605,6 +606,30 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
                 return BadArguments();
             }
             return Shader::SrtGateDiag::Status();
+        });
+
+    registry.Register("srt_plan",
+        "SRT walk execution: plan (prepared steps) | interpret (command interpreter) | verify "
+        "(both, count differences) | status",
+        [](const std::vector<std::string>& args) {
+            using Mode = Shader::PortableSrt::RunMode;
+            if (args.size() > 1)
+                return BadArguments();
+            const std::string sub = args.empty() ? "status" : args[0];
+            if (sub == "plan" || sub == "interpret" || sub == "verify") {
+                const Mode mode = sub == "plan"        ? Mode::Plan
+                                  : sub == "interpret" ? Mode::Interpret
+                                                       : Mode::Verify;
+                Shader::PortableSrt::run_mode.store(static_cast<u32>(mode));
+            } else if (sub != "status") {
+                return BadArguments();
+            }
+            constexpr const char* Names[] = {"interpret", "plan", "verify"};
+            const u32 mode = Shader::PortableSrt::run_mode.load();
+            auto& stats = Shader::PortableSrt::run_stats;
+            return fmt::format("srt_plan mode={} verified={} mismatches={}\n",
+                               Names[mode < 3 ? mode : 1], stats.verified.load(),
+                               stats.mismatches.load());
         });
 
     registry.Register("gpu_memory", "GPU allocation snapshot: request | status (no GPU waits)",

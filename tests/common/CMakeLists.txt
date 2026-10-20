@@ -42,3 +42,9 @@ add_executable(reg_tracker_tests reg_tracker_tests.cpp)
 target_compile_features(reg_tracker_tests PRIVATE cxx_std_20)
 target_include_directories(reg_tracker_tests PRIVATE ../../src ../../externals/fmt/include)
 add_test(NAME reg_tracker_tests COMMAND reg_tracker_tests)
+
+# Prepared SRT plans against the interpreter (header-only).
+add_executable(srt_plan_tests srt_plan_tests.cpp)
+target_compile_features(srt_plan_tests PRIVATE cxx_std_20)
+target_include_directories(srt_plan_tests PRIVATE ../../src ../../externals/fmt/include)
+add_test(NAME srt_plan_tests COMMAND srt_plan_tests)

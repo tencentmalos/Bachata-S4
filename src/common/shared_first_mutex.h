@@ -54,6 +54,12 @@ public:
         std::array<WaitCounters, WaitClasses> shared_holds{};
     };
     static inline std::atomic<bool> hold_tracking{false};
+    /// Switches hold tracking. Each switch starts a new period: a hold acquired in an earlier
+    /// period is not recorded, and a thread's slot left over from one is reset.
+    static void SetHoldTracking(bool on) {
+        hold_period.fetch_add(1, std::memory_order_relaxed);
+        hold_tracking.store(on, std::memory_order_relaxed);
+    }
 
     SharedFirstMutex() = default;
     explicit SharedFirstMutex(const char* wait_scope_, bool track_holds_ = false)
@@ -227,26 +233,37 @@ private:
         }
     }
 
-    // Only one instance tracks holds, so one per-thread slot is enough. A hold that started
-    // before tracking was switched on is not recorded.
+    // Only one instance tracks holds, so one per-thread slot is enough. The slot is touched only
+    // while tracking is on: in a dlopen'd library every thread_local access is a TLS descriptor
+    // call, and this instance is the memory manager's lock, taken for every guest read. A hold
+    // that started before tracking was switched on is not recorded.
     struct HoldSlot {
         u32 depth;
+        u32 period;
         bool timed;
         Clock::time_point start;
     };
     static inline thread_local HoldSlot hold_slot{};
+    static inline std::atomic<u32> hold_period{1};
 
     static void NoteSharedAcquired() {
+        if (!hold_tracking.load(std::memory_order_relaxed)) {
+            return;
+        }
+        const u32 period = hold_period.load(std::memory_order_relaxed);
+        if (hold_slot.period != period) {
+            hold_slot = {.depth = 0, .period = period, .timed = false};
+        }
         if (hold_slot.depth++ == 0) {
-            hold_slot.timed = hold_tracking.load(std::memory_order_relaxed);
-            if (hold_slot.timed) {
-                hold_slot.start = Clock::now();
-            }
+            hold_slot.timed = true;
+            hold_slot.start = Clock::now();
         }
     }
 
     void NoteSharedReleased() {
-        if (hold_slot.depth == 0 || --hold_slot.depth != 0 || !hold_slot.timed) {
+        if (!hold_tracking.load(std::memory_order_relaxed) ||
+            hold_slot.period != hold_period.load(std::memory_order_relaxed) ||
+            hold_slot.depth == 0 || --hold_slot.depth != 0 || !hold_slot.timed) {
             return;
         }
         hold_slot.timed = false;
