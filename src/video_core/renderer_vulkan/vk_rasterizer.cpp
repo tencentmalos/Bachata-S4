@@ -396,6 +396,10 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
             property[0] >= '0' && property[0] <= '2') {
             VideoCore::UploadDiagnostics::key_memo_mode.store(u32(property[0] - '0'));
         }
+        if (__system_property_get("debug.shadps4.sampler_memo", property) > 0 &&
+            property[0] >= '0' && property[0] <= '2') {
+            VideoCore::UploadDiagnostics::sampler_memo_mode.store(u32(property[0] - '0'));
+        }
     }
 #endif
     if (GpuBreadcrumbs::Requested()) {
@@ -3077,7 +3081,7 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
             ssharp = AmdGpu::Sampler{};
         }
         const auto vk_sampler =
-            texture_cache.GetSampler(ssharp, liverpool->regs.ta_bc_base, sampler.is_depth);
+            texture_cache.GetCommandSampler(ssharp, liverpool->regs.ta_bc_base, sampler.is_depth);
         image_infos.emplace_back(vk_sampler, VK_NULL_HANDLE, vk::ImageLayout::eGeneral);
         auto& set_write = set_writes[set_write_index++];
         set_write.dstSet = VK_NULL_HANDLE;

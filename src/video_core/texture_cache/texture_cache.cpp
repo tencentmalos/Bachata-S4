@@ -3054,6 +3054,40 @@ vk::Sampler TextureCache::GetSampler(const AmdGpu::Sampler& sampler,
     return it->second.Handle();
 }
 
+vk::Sampler TextureCache::GetCommandSampler(const AmdGpu::Sampler& sampler,
+                                            AmdGpu::BorderColorBuffer border_color_base,
+                                            const bool is_depth) {
+    namespace Diag = UploadDiagnostics;
+    const u32 mode = Diag::sampler_memo_mode.load(std::memory_order_relaxed);
+    if (mode == 0) {
+        return GetSampler(sampler, border_color_base, is_depth);
+    }
+    static_assert(sizeof(AmdGpu::Sampler) == 2 * sizeof(u64));
+    u64 raw[2];
+    std::memcpy(raw, &sampler, sizeof(raw));
+    constexpr u64 Golden = 0x9E3779B97F4A7C15ULL;
+    auto& entry =
+        sampler_memo[static_cast<size_t>(((raw[0] ^ (raw[1] * Golden) ^ u64{is_depth}) * Golden) >>
+                                         (64 - SamplerMemoBits))];
+    const bool hit = entry.handle && entry.raw0 == raw[0] && entry.raw1 == raw[1] &&
+                     entry.is_depth == is_depth && entry.tick == gc_tick &&
+                     entry.generation == sampler_generation;
+    if (hit && mode == 1) {
+        Diag::CountOwned(Diag::sampler_memo_hits);
+        return entry.handle;
+    }
+    const vk::Sampler handle = GetSampler(sampler, border_color_base, is_depth);
+    if (!hit) {
+        Diag::CountOwned(Diag::sampler_memo_misses);
+    } else if (handle != entry.handle) {
+        Diag::sampler_memo_mismatches.fetch_add(1, std::memory_order_relaxed);
+        LOG_WARNING(Render_Vulkan, "sampler_memo verify: S# {:#x}/{:#x} maps to another sampler",
+                    raw[0], raw[1]);
+    }
+    entry = {raw[0], raw[1], gc_tick, sampler_generation, handle, is_depth};
+    return handle;
+}
+
 void TextureCache::RegisterImage(ImageId image_id) {
     Image& image = slot_images[image_id];
     ASSERT_MSG(False(image.flags & ImageFlagBits::Registered),
@@ -3425,6 +3459,7 @@ void TextureCache::GarbageCollectSamplers() {
         const size_t lru_id = samplers.at(hash).lru_id;
         samplers.erase(hash);
         sampler_lru_cache.Free(lru_id);
+        ++sampler_generation;
         return false;
     };
 

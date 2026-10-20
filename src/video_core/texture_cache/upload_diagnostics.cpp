@@ -59,11 +59,15 @@ std::string KeyMemoLine() {
     const auto& fetch = Shader::Gcn::FetchShaderCache::stats;
     return fmt::format("key_memo={} hits/misses={}/{} second_pass_hits={} pipeline_reuse={} "
                        "verify_mismatches={}\n"
-                       "fetch_shader_cache hits={} misses_new={} misses_changed={}\n",
+                       "fetch_shader_cache hits={} misses_new={} misses_changed={}\n"
+                       "sampler_memo={} hits/misses={}/{} verify_mismatches={}\n",
                        Modes[std::min<u32>(key_memo_mode.load(o), 2)], key_memo_hits.load(o),
                        key_memo_misses.load(o), key_memo_final_hits.load(o),
                        key_memo_pipeline_reuse.load(o), key_memo_mismatches.load(o),
-                       fetch.hits.load(o), fetch.misses_new.load(o), fetch.misses_changed.load(o));
+                       fetch.hits.load(o), fetch.misses_new.load(o), fetch.misses_changed.load(o),
+                       Modes[std::min<u32>(sampler_memo_mode.load(o), 2)],
+                       sampler_memo_hits.load(o), sampler_memo_misses.load(o),
+                       sampler_memo_mismatches.load(o));
 }
 } // namespace
 
@@ -629,6 +633,11 @@ std::string Command(const std::vector<std::string>& args) {
     if (sub == "key_memo" && args.size() == 1) {
         return KeyMemoLine();
     }
+    if (sub == "sampler_memo" && args.size() == 2 &&
+        (args[1] == "on" || args[1] == "off" || args[1] == "verify")) {
+        sampler_memo_mode.store(args[1] == "off" ? 0u : args[1] == "on" ? 1u : 2u);
+        return KeyMemoLine();
+    }
     if (sub == "unused_small_depth" && args.size() == 2 &&
         (args[1] == "drop" || args[1] == "keep")) {
         unused_small_depth.store(args[1] == "drop");
@@ -877,7 +886,7 @@ std::string Command(const std::vector<std::string>& args) {
            "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off | "
            "async_writeback off|tiny|all | writeback_log <n> | corner_views on|off | "
            "unused_small_depth drop|keep | stream_submit <draws> | stream_reuse [on|off] | "
-           "target_memo [on|off|verify] | key_memo [on|off|verify]\n";
+           "target_memo [on|off|verify] | key_memo [on|off|verify] | sampler_memo [on|off|verify]\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

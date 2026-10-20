@@ -375,6 +375,15 @@ public:
                                          AmdGpu::BorderColorBuffer border_color_base,
                                          bool is_depth);
 
+    /// GetSampler for the GPU command thread (the thread that runs the garbage collector):
+    /// a direct-mapped memo of recent S# lookups in front of the hashed, locked map. A hit
+    /// skips the hash and the lock. The first use of an entry in each GC tick still goes
+    /// through GetSampler, so the sampler's LRU tick is the same as without the memo, and any
+    /// sampler eviction invalidates every entry (upload_diag sampler_memo).
+    [[nodiscard]] vk::Sampler GetCommandSampler(const AmdGpu::Sampler& sampler,
+                                                AmdGpu::BorderColorBuffer border_color_base,
+                                                bool is_depth);
+
     /// Retrieves the image with the specified id.
     [[nodiscard]] Image& GetImage(ImageId id) {
         auto& image = slot_images[id];
@@ -718,6 +727,19 @@ private:
     u64 gc_tick = 0;
     Common::LeastRecentlyUsedCache<ImageId, u64> lru_cache;
     Common::LeastRecentlyUsedCache<u64, u64> sampler_lru_cache;
+    // GetCommandSampler's memo. GPU command thread only; sampler_generation moves (under
+    // samplers_mutex, on that thread) whenever the garbage collector erases a sampler.
+    struct SamplerMemoEntry {
+        u64 raw0{};
+        u64 raw1{};
+        u64 tick{~0ULL};
+        u64 generation{};
+        vk::Sampler handle{};
+        bool is_depth{};
+    };
+    static constexpr u32 SamplerMemoBits = 8;
+    std::array<SamplerMemoEntry, 1u << SamplerMemoBits> sampler_memo{};
+    u64 sampler_generation{1};
     bool readback_linear_images;
     PageTable page_table;
     std::atomic<u64> image_set_generation{};

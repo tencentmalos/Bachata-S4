@@ -102,6 +102,12 @@ inline std::atomic<u64> target_memo_hits{0}, target_memo_misses{0}, begin_memo_h
 inline std::atomic<u32> key_memo_mode{1};
 inline std::atomic<u64> key_memo_hits{0}, key_memo_misses{0}, key_memo_final_hits{0},
     key_memo_pipeline_reuse{0}, key_memo_mismatches{0};
+// Memo in front of TextureCache::GetSampler for the GPU command thread
+// (TextureCache::GetCommandSampler). 0 off, 1 on, 2 verify (every hit also takes the locked
+// lookup; a different sampler is counted and logged). `upload_diag sampler_memo
+// on|off|verify`, debug.shadps4.sampler_memo=0|1|2.
+inline std::atomic<u32> sampler_memo_mode{1};
+inline std::atomic<u64> sampler_memo_hits{0}, sampler_memo_misses{0}, sampler_memo_mismatches{0};
 /// Counter written only by the GPU command thread: a plain load and store, not an atomic
 /// read-modify-write (an out-of-line call on ARMv8.0 builds).
 inline void CountOwned(std::atomic<u64>& counter) {
