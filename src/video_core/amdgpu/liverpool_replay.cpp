@@ -68,6 +68,7 @@ bool Liverpool::LoadReplayState(std::span<const u8> state_bytes,
         return false;
     }
     bool ok = state.GetBytes(regs.reg_array.data(), sizeof(regs.reg_array));
+    reg_tracker.InvalidateAll();
     for (auto& queue : mapped_queues) {
         ok = ok && state.Get(queue.cs_state);
     }

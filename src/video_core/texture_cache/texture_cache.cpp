@@ -3465,6 +3465,10 @@ void TextureCache::TouchImage(const Image& image) {
 }
 
 bool TextureCache::TouchFoundTexture(ImageId image_id) {
+    return TouchFoundImage(image_id, BindingType::Texture);
+}
+
+bool TextureCache::TouchFoundImage(ImageId image_id, BindingType type) {
     // The rest of FindImage (streaming and storage promotions) only acts on a first lookup:
     // the same descriptor against the same image set changes nothing more.
     std::scoped_lock lock{mutex};
@@ -3473,7 +3477,7 @@ bool TextureCache::TouchFoundTexture(ImageId image_id) {
         return false;
     }
     Image& image = slot_images[image_id];
-    image.ObserveUsage(BindingType::Texture);
+    image.ObserveUsage(type);
     image.tick_accessed_last = scheduler.CurrentTick();
     TouchImage(image);
     return true;

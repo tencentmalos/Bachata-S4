@@ -402,6 +402,14 @@ public:
     /// earlier in the current ImageSetGeneration. False when the image has been freed since
     /// (another thread unmapped it): the caller looks it up again.
     bool TouchFoundTexture(ImageId image_id);
+    /// The same for an image of any binding type (render and depth targets).
+    bool TouchFoundImage(ImageId image_id, BindingType type);
+
+    /// Changes whenever a metadata surface (CMASK/FMASK/HTILE) is marked cleared: a draw that
+    /// found its targets not cleared finds them so again while it is unchanged.
+    [[nodiscard]] u64 MetaClearGeneration() const noexcept {
+        return meta_clear_generation;
+    }
 
     /// Get the associated depth stencil image if it is still valid.
     ImageId GetAssociatedDepth(Image& image) {
@@ -449,6 +457,7 @@ public:
         auto it = surface_metas.find(address);
         if (it != surface_metas.end()) {
             it.value().clear_mask = u32(-1);
+            ++meta_clear_generation;
             return true;
         }
         return false;
@@ -460,6 +469,7 @@ public:
         if (it != surface_metas.end()) {
             if (is_clear) {
                 it.value().clear_mask |= 1u << slice;
+                ++meta_clear_generation;
             } else {
                 it.value().clear_mask &= ~(1u << slice);
             }
@@ -711,6 +721,8 @@ private:
     bool readback_linear_images;
     PageTable page_table;
     std::atomic<u64> image_set_generation{};
+    // GPU command thread only (surface_metas is touched there only).
+    u64 meta_clear_generation{1};
     std::atomic<u64> content_generation{1};
     /// Runs of committed pool memory not written by the CPU since the commit, one per commit.
     /// Each page holds one write watcher, so a CPU write faults and releases its run.

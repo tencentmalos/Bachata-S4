@@ -36,3 +36,9 @@ add_executable(stream_reuse_tests stream_reuse_tests.cpp)
 target_compile_features(stream_reuse_tests PRIVATE cxx_std_20)
 target_include_directories(stream_reuse_tests PRIVATE ../../src)
 add_test(NAME stream_reuse_tests COMMAND stream_reuse_tests)
+
+# Register dirty tracking (header-only).
+add_executable(reg_tracker_tests reg_tracker_tests.cpp)
+target_compile_features(reg_tracker_tests PRIVATE cxx_std_20)
+target_include_directories(reg_tracker_tests PRIVATE ../../src ../../externals/fmt/include)
+add_test(NAME reg_tracker_tests COMMAND reg_tracker_tests)

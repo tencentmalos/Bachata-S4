@@ -88,6 +88,13 @@ inline std::atomic<u64> unused_small_depth_draws{0};
 inline constexpr u32 DefaultStreamSubmitDraws = 0;
 inline std::atomic<u32> stream_submit_draws{0};
 inline std::atomic<u64> stream_submits{0};
+// Register-dirty memos of the render targets and render state of the previous draw
+// (Rasterizer::PrepareRenderState / BeginRendering; GCN v2 stage C). 0 off, 1 on, 2 verify:
+// every hit is recomputed and differences are counted and logged. `upload_diag target_memo
+// on|off|verify`, debug.shadps4.target_memo=0|1|2.
+inline std::atomic<u32> target_memo_mode{1};
+inline std::atomic<u64> target_memo_hits{0}, target_memo_misses{0}, begin_memo_hits{0},
+    begin_memo_misses{0}, memo_mismatches{0};
 // A texture smaller than the GPU-written image at its base address samples that image's
 // top-left texels, as the guest's does (downsample chains render into a corner of a large
 // target and read it back at the small size): it gets its own image, copied from the corner

@@ -41,6 +41,16 @@ std::string StreamReuseLine() {
     }
     return out + "\n";
 }
+
+std::string TargetMemoLine() {
+    constexpr auto o = std::memory_order_relaxed;
+    static constexpr std::array<const char*, 3> Modes{"off", "on", "verify"};
+    return fmt::format("target_memo={} targets hits/misses={}/{} begin hits/misses={}/{} "
+                       "verify_mismatches={}\n",
+                       Modes[std::min<u32>(target_memo_mode.load(o), 2)], target_memo_hits.load(o),
+                       target_memo_misses.load(o), begin_memo_hits.load(o),
+                       begin_memo_misses.load(o), memo_mismatches.load(o));
+}
 } // namespace
 
 namespace {
@@ -272,6 +282,7 @@ std::string Summary() {
     out += fmt::format("stream_submit={} early_submits={}\n", stream_submit_draws.load(),
                        stream_submits.load());
     out += StreamReuseLine();
+    out += TargetMemoLine();
     static constexpr std::array<const char*, 3> AsyncModes{"off", "tiny", "all"};
     out += fmt::format("async_writeback={} deferred fences={} submits={}\n",
                        AsyncModes[static_cast<u32>(async_writeback.load())],
@@ -587,6 +598,14 @@ std::string Command(const std::vector<std::string>& args) {
     if (sub == "stream_reuse" && args.size() == 1) {
         return StreamReuseLine();
     }
+    if (sub == "target_memo" && args.size() == 2 &&
+        (args[1] == "on" || args[1] == "off" || args[1] == "verify")) {
+        target_memo_mode.store(args[1] == "off" ? 0u : args[1] == "on" ? 1u : 2u);
+        return TargetMemoLine();
+    }
+    if (sub == "target_memo" && args.size() == 1) {
+        return TargetMemoLine();
+    }
     if (sub == "unused_small_depth" && args.size() == 2 &&
         (args[1] == "drop" || args[1] == "keep")) {
         unused_small_depth.store(args[1] == "drop");
@@ -834,7 +853,8 @@ std::string Command(const std::vector<std::string>& args) {
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "
            "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off | "
            "async_writeback off|tiny|all | writeback_log <n> | corner_views on|off | "
-           "unused_small_depth drop|keep | stream_submit <draws> | stream_reuse [on|off]\n";
+           "unused_small_depth drop|keep | stream_submit <draws> | stream_reuse [on|off] | "
+           "target_memo [on|off|verify]\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

@@ -23,6 +23,7 @@
 #include "common/unique_function.h"
 #include "video_core/amdgpu/cb_db_extent.h"
 #include "video_core/amdgpu/fence_labels.h"
+#include "video_core/amdgpu/reg_tracker.h"
 #include "video_core/amdgpu/regs.h"
 #include "video_core/replay/gpu_replay_format.h"
 #include "video_core/replay/gpu_replay_hooks.h"
@@ -99,6 +100,8 @@ struct Liverpool {
     bool waiting_yield{};
     std::atomic<bool> processing{};
     Regs regs{};
+    /// Register packets go through it: per-group generations of value changes (RegTracker).
+    RegTracker reg_tracker;
     std::array<CbDbExtent, NUM_COLOR_BUFFERS> last_cb_extent{};
     CbDbExtent last_db_extent{};
 

@@ -126,6 +126,14 @@ public:
 private:
     void PrepareRenderState(const GraphicsPipeline* pipeline);
     RenderState BeginRendering(const GraphicsPipeline* pipeline);
+    RenderState BeginRenderingFull(const GraphicsPipeline* pipeline);
+    // Register-dirty memos of the two (TargetMemo, BeginMemo below).
+    bool TargetMemoMatches(const GraphicsPipelineKey& key, bool depth_dropped) const;
+    bool ApplyTargetMemo(const GraphicsPipelineKey& key);
+    void RecordTargetMemo(const GraphicsPipelineKey& key, bool depth_dropped);
+    bool BeginMemoMatches(const GraphicsPipelineKey& key);
+    RenderState ApplyBeginMemo();
+    void RecordBeginMemo(const GraphicsPipelineKey& key, const RenderState& state);
     void Resolve();
     void DepthStencilCopy(bool is_depth, bool is_stencil);
     void EliminateFastClear();
@@ -220,6 +228,42 @@ private:
     using RenderTargetInfo = std::pair<VideoCore::ImageId, VideoCore::TextureCache::ImageDesc>;
     std::array<RenderTargetInfo, AmdGpu::NUM_COLOR_BUFFERS> cb_descs;
     std::pair<VideoCore::ImageId, VideoCore::TextureCache::ImageDesc> db_desc;
+    // Register-dirty memos (GCN v2 stage C; `upload_diag target_memo on|off|verify`).
+    // The targets PrepareRenderState found for the last draw, reused while the target registers
+    // (RegTracker group Targets), the extent hints, the pipeline's attachments and the texture
+    // cache's image set are unchanged.
+    struct TargetMemo {
+        bool valid{};
+        u64 touched_tick{};
+        u64 regs{};
+        u64 image_set{};
+        u32 mrt_mask{};
+        bool depth_dropped{};
+        std::array<u32, AmdGpu::NUM_COLOR_BUFFERS> cb_extents{};
+        u32 db_extent{};
+        std::array<RenderTargetInfo, AmdGpu::NUM_COLOR_BUFFERS> cb{};
+        RenderTargetInfo db{};
+    } target_memo;
+    // The render state BeginRendering produced for the last draw, reused while the scheduler
+    // still has its pass open with that state (barriers, copies, uploads and submits end it),
+    // nothing invalidated an image or marked a surface cleared, and this draw has the same
+    // targets, sample counts and sampled-target bindings with the targets' layouts untouched.
+    // States with clears are not reused: the next draw loads what the first one cleared.
+    struct BeginMemo {
+        bool valid{};
+        RenderState state{};
+        bool feedback{};
+        u64 regs{};
+        u64 image_set{};
+        u64 content{};
+        u64 meta{};
+        u32 mrt_mask{};
+        std::array<u8, AmdGpu::NUM_COLOR_BUFFERS> color_samples{};
+        u8 depth_samples{};
+        std::array<VideoCore::ImageId, AmdGpu::NUM_COLOR_BUFFERS + 1> ids{};
+        std::array<u64, AmdGpu::NUM_COLOR_BUFFERS + 1> state_versions{};
+        std::array<bool, AmdGpu::NUM_COLOR_BUFFERS + 1> bound{};
+    } begin_memo;
     boost::container::static_vector<vk::DescriptorImageInfo, Shader::NUM_IMAGES> image_infos;
     boost::container::static_vector<vk::DescriptorBufferInfo, Shader::NUM_BUFFERS> buffer_infos;
     boost::container::static_vector<VideoCore::ImageId, Shader::NUM_IMAGES> bound_images;

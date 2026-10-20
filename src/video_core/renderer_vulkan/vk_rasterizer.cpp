@@ -384,6 +384,16 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
         LOG_INFO(Render_Vulkan, "Streaming submit: {}",
                  stream_draws_default ? fmt::format("every {} draws", stream_draws_default) : "off");
     }
+#ifdef __ANDROID__
+    {
+        // Register-dirty memos of render targets and render state: 0 off, 1 on, 2 verify.
+        char property[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.target_memo", property) > 0 &&
+            property[0] >= '0' && property[0] <= '2') {
+            VideoCore::UploadDiagnostics::target_memo_mode.store(u32(property[0] - '0'));
+        }
+    }
+#endif
     if (GpuBreadcrumbs::Requested()) {
         breadcrumbs = std::make_unique<GpuBreadcrumbs>(instance);
     }
@@ -672,6 +682,28 @@ void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
         LOG_WARNING(Render_Vulkan, "Color buffers require gamma correction");
     }
 
+    // A depth surface the draw does not use that is smaller than the color target stays
+    // unbound: the guest draws the whole color target (see Regs::DepthUnusedAndSmaller).
+    const bool depth_dropped =
+        VideoCore::UploadDiagnostics::unused_small_depth.load(std::memory_order_relaxed) &&
+        regs.DepthUnusedAndSmaller();
+    if (depth_dropped) {
+        VideoCore::UploadDiagnostics::unused_small_depth_draws.fetch_add(
+            1, std::memory_order_relaxed);
+    }
+
+    namespace Diag = VideoCore::UploadDiagnostics;
+    const u32 memo_mode = Diag::target_memo_mode.load(std::memory_order_relaxed);
+    const bool memo_hit = memo_mode != 0 && TargetMemoMatches(key, depth_dropped);
+    if (memo_mode != 0) {
+        // In verify mode a hit is one the memo would have served.
+        (memo_hit ? Diag::target_memo_hits : Diag::target_memo_misses)
+            .fetch_add(1, std::memory_order_relaxed);
+    }
+    if (memo_hit && memo_mode == 1 && ApplyTargetMemo(key)) {
+        return;
+    }
+
     const bool skip_cb_binding =
         regs.color_control.mode == AmdGpu::ColorControl::OperationMode::Disable;
     for (s32 cb = 0; cb < std::bit_width(key.mrt_mask); ++cb) {
@@ -692,15 +724,6 @@ void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
         image.usage.render_target = 1u;
     }
 
-    // A depth surface the draw does not use that is smaller than the color target stays
-    // unbound: the guest draws the whole color target (see Regs::DepthUnusedAndSmaller).
-    const bool depth_dropped =
-        VideoCore::UploadDiagnostics::unused_small_depth.load(std::memory_order_relaxed) &&
-        regs.DepthUnusedAndSmaller();
-    if (depth_dropped) {
-        VideoCore::UploadDiagnostics::unused_small_depth_draws.fetch_add(
-            1, std::memory_order_relaxed);
-    }
     if (!depth_dropped &&
         ((regs.depth_control.depth_enable && regs.depth_buffer.DepthValid()) ||
          (regs.depth_control.stencil_enable && regs.depth_buffer.StencilValid()))) {
@@ -716,6 +739,100 @@ void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
     } else {
         db_desc.first = {};
     }
+
+    if (memo_hit) {
+        // Verify mode: the memo would have been used; the lookups above must agree with it.
+        bool same = target_memo.db.first == db_desc.first &&
+                    (!db_desc.first || target_memo.db.second.view_info == db_desc.second.view_info);
+        for (s32 cb = 0; cb < std::bit_width(key.mrt_mask); ++cb) {
+            same &= target_memo.cb[cb].first == cb_descs[cb].first &&
+                    (!cb_descs[cb].first ||
+                     target_memo.cb[cb].second.view_info == cb_descs[cb].second.view_info);
+        }
+        if (!same) {
+            Diag::memo_mismatches.fetch_add(1, std::memory_order_relaxed);
+            static std::atomic<u32> logged{};
+            if (logged.fetch_add(1, std::memory_order_relaxed) < 16) {
+                LOG_WARNING(Render_Vulkan,
+                            "target_memo verify: targets differ (mrt_mask={:#x}, depth {} -> {})",
+                            key.mrt_mask, target_memo.db.first.index, db_desc.first.index);
+            }
+        }
+    }
+    if (memo_mode != 0) {
+        RecordTargetMemo(key, depth_dropped);
+    }
+}
+
+bool Rasterizer::TargetMemoMatches(const GraphicsPipelineKey& key, bool depth_dropped) const {
+    const auto& memo = target_memo;
+    if (!memo.valid || memo.mrt_mask != key.mrt_mask || memo.depth_dropped != depth_dropped ||
+        memo.regs != liverpool->reg_tracker.Generation(AmdGpu::RegGroup::Targets) ||
+        memo.image_set != texture_cache.ImageSetGeneration() ||
+        memo.db_extent != liverpool->last_db_extent.raw) {
+        return false;
+    }
+    for (s32 cb = 0; cb < std::bit_width(key.mrt_mask); ++cb) {
+        if (memo.cb_extents[cb] != liverpool->last_cb_extent[cb].raw) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Rasterizer::ApplyTargetMemo(const GraphicsPipelineKey& key) {
+    using VideoCore::TextureCache;
+    const s32 num_cb = std::bit_width(key.mrt_mask);
+    // FindImage's per-use bookkeeping (usage, last access tick, LRU) once per command buffer, as
+    // for cached texture bindings; an image freed since (another thread unmapped it) sends the
+    // draw down the full path before anything is bound.
+    if (const u64 tick = scheduler.CurrentTick(); target_memo.touched_tick != tick) {
+        for (s32 cb = 0; cb < num_cb; ++cb) {
+            if (const auto id = target_memo.cb[cb].first;
+                id && !texture_cache.TouchFoundImage(id, TextureCache::BindingType::RenderTarget)) {
+                return false;
+            }
+        }
+        if (const auto id = target_memo.db.first;
+            id && !texture_cache.TouchFoundImage(id, TextureCache::BindingType::DepthTarget)) {
+            return false;
+        }
+        target_memo.touched_tick = tick;
+    }
+    for (s32 cb = 0; cb < num_cb; ++cb) {
+        cb_descs[cb] = target_memo.cb[cb];
+        if (const auto id = cb_descs[cb].first) {
+            bound_images.emplace_back(id);
+            auto& image = texture_cache.GetImage(id);
+            image.binding.is_target = 1u;
+            image.usage.render_target = 1u;
+        }
+    }
+    db_desc = target_memo.db;
+    if (const auto id = db_desc.first) {
+        bound_images.emplace_back(id);
+        auto& image = texture_cache.GetImage(id);
+        image.binding.is_target = 1u;
+        image.usage.depth_target = 1u;
+    }
+    return true;
+}
+
+void Rasterizer::RecordTargetMemo(const GraphicsPipelineKey& key, bool depth_dropped) {
+    auto& memo = target_memo;
+    memo.valid = true;
+    memo.touched_tick = scheduler.CurrentTick(); // FindImage just did the bookkeeping
+    memo.regs = liverpool->reg_tracker.Generation(AmdGpu::RegGroup::Targets);
+    memo.image_set = texture_cache.ImageSetGeneration();
+    memo.mrt_mask = key.mrt_mask;
+    memo.depth_dropped = depth_dropped;
+    memo.db_extent = liverpool->last_db_extent.raw;
+    const s32 num_cb = std::bit_width(key.mrt_mask);
+    for (s32 cb = 0; cb < AmdGpu::NUM_COLOR_BUFFERS; ++cb) {
+        memo.cb_extents[cb] = cb < num_cb ? liverpool->last_cb_extent[cb].raw : 0;
+        memo.cb[cb] = cb < num_cb ? cb_descs[cb] : RenderTargetInfo{};
+    }
+    memo.db = db_desc;
 }
 
 static std::pair<u32, u32> GetDrawOffsets(
@@ -2969,6 +3086,129 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
 }
 
 RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
+    namespace Diag = VideoCore::UploadDiagnostics;
+    const auto& key = pipeline->GetGraphicsKey();
+    const u32 memo_mode = Diag::target_memo_mode.load(std::memory_order_relaxed);
+    if (memo_mode == 0) {
+        return BeginRenderingFull(pipeline);
+    }
+    const bool memo_hit = BeginMemoMatches(key);
+    (memo_hit ? Diag::begin_memo_hits : Diag::begin_memo_misses)
+        .fetch_add(1, std::memory_order_relaxed);
+    if (memo_hit && memo_mode == 1) {
+        return ApplyBeginMemo();
+    }
+    const auto state = BeginRenderingFull(pipeline);
+    if (memo_hit && (!(state == begin_memo.state) || attachment_feedback_loop != begin_memo.feedback)) {
+        // Verify mode: the memo would have been used and gives another state.
+        Diag::memo_mismatches.fetch_add(1, std::memory_order_relaxed);
+        static std::atomic<u32> logged{};
+        if (logged.fetch_add(1, std::memory_order_relaxed) < 16) {
+            LOG_WARNING(Render_Vulkan,
+                        "target_memo verify: render state differs ({}x{} colors={} vs memo "
+                        "{}x{} colors={}, feedback {} vs {})",
+                        state.width, state.height, state.num_color_attachments,
+                        begin_memo.state.width, begin_memo.state.height,
+                        begin_memo.state.num_color_attachments, attachment_feedback_loop,
+                        begin_memo.feedback);
+        }
+    }
+    RecordBeginMemo(key, state);
+    return state;
+}
+
+bool Rasterizer::BeginMemoMatches(const GraphicsPipelineKey& key) {
+    const auto& memo = begin_memo;
+    if (!memo.valid || scheduler.WantsPassDescription() || !scheduler.IsRendering() ||
+        !(scheduler.GetRenderState() == memo.state) || memo.mrt_mask != key.mrt_mask ||
+        memo.depth_samples != key.depth_samples || memo.color_samples != key.color_samples ||
+        memo.regs != liverpool->reg_tracker.Generation(AmdGpu::RegGroup::Targets) ||
+        memo.image_set != texture_cache.ImageSetGeneration() ||
+        memo.content != texture_cache.ContentGeneration() ||
+        memo.meta != texture_cache.MetaClearGeneration()) {
+        return false;
+    }
+    const auto same = [&](u32 slot, VideoCore::ImageId id) {
+        if (memo.ids[slot] != id) {
+            return false;
+        }
+        if (!id) {
+            return true;
+        }
+        const auto& image = texture_cache.GetImage(id);
+        return !image.binding.needs_rebind && image.state_version == memo.state_versions[slot] &&
+               bool(image.binding.is_bound) == memo.bound[slot];
+    };
+    const u32 num_cb = std::bit_width(key.mrt_mask);
+    for (u32 cb = 0; cb < num_cb; ++cb) {
+        if (!same(cb, cb_descs[cb].first)) {
+            return false;
+        }
+    }
+    return same(AmdGpu::NUM_COLOR_BUFFERS, db_desc.first);
+}
+
+RenderState Rasterizer::ApplyBeginMemo() {
+    // What BeginRenderingFull does per draw that the open pass does not already hold: the
+    // targets' pass accesses (merged into the pass at the draw) and their usage notes.
+    const auto& memo = begin_memo;
+    for (u32 slot = 0; slot < memo.ids.size(); ++slot) {
+        const auto id = memo.ids[slot];
+        if (!id) {
+            continue;
+        }
+        auto& image = texture_cache.GetImage(id);
+        scheduler.StageAccess(image.info.guest_address, image.info.guest_size, true);
+        if (slot == AmdGpu::NUM_COLOR_BUFFERS) {
+            image.usage.depth_target = true;
+        } else {
+            image.usage.render_target = 1u;
+        }
+        image.NoteTargetFrame(liverpool->flip_epoch);
+    }
+    attachment_feedback_loop = memo.feedback;
+    return memo.state;
+}
+
+void Rasterizer::RecordBeginMemo(const GraphicsPipelineKey& key, const RenderState& state) {
+    auto& memo = begin_memo;
+    // A cleared attachment is loaded by the next draw: that state is never reused.
+    bool clears = state.depth_stencil_attachment.depth_clear ||
+                  state.depth_stencil_attachment.stencil_clear;
+    for (u32 cb = 0; cb < state.num_color_attachments; ++cb) {
+        clears |= state.color_attachments[cb].is_clear != 0;
+    }
+    memo.valid = !clears && !scheduler.WantsPassDescription();
+    if (!memo.valid) {
+        return;
+    }
+    memo.state = state;
+    memo.feedback = attachment_feedback_loop;
+    memo.regs = liverpool->reg_tracker.Generation(AmdGpu::RegGroup::Targets);
+    memo.image_set = texture_cache.ImageSetGeneration();
+    memo.content = texture_cache.ContentGeneration();
+    memo.meta = texture_cache.MetaClearGeneration();
+    memo.mrt_mask = key.mrt_mask;
+    memo.color_samples = key.color_samples;
+    memo.depth_samples = key.depth_samples;
+    const u32 num_cb = std::bit_width(key.mrt_mask);
+    const auto record = [&](u32 slot, VideoCore::ImageId id) {
+        memo.ids[slot] = id;
+        if (id) {
+            const auto& image = texture_cache.GetImage(id);
+            memo.state_versions[slot] = image.state_version;
+            memo.bound[slot] = image.binding.is_bound;
+        }
+    };
+    for (u32 cb = 0; cb < AmdGpu::NUM_COLOR_BUFFERS; ++cb) {
+        record(cb, cb < num_cb && state.color_attachments[cb].image_view ? cb_descs[cb].first
+                                                                         : VideoCore::ImageId{});
+    }
+    record(AmdGpu::NUM_COLOR_BUFFERS,
+           state.depth_stencil_attachment.image_view ? db_desc.first : VideoCore::ImageId{});
+}
+
+RenderState Rasterizer::BeginRenderingFull(const GraphicsPipeline* pipeline) {
     attachment_feedback_loop = false;
     const auto& regs = liverpool->regs;
     const auto& key = pipeline->GetGraphicsKey();
@@ -3981,12 +4221,14 @@ void Rasterizer::InsertDispatchTag(const Shader::Info& cs, const AmdGpu::Compute
 }
 
 bool Rasterizer::HostMarkersEnabled() const {
-    return EmulatorSettings.IsVkHostMarkersEnabled() || VideoCore::IsRenderDocLoaded() ||
+    // The setting as read at construction: EmulatorSettings takes a global lock and copies a
+    // shared pointer on each use, and this is asked several times per draw.
+    return host_markers_enabled || VideoCore::IsRenderDocLoaded() ||
            instance.GpuReshapeAdapter().IsActive();
 }
 
 void Rasterizer::ScopeMarkerBegin(const std::string_view& str, bool from_guest) {
-    if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
+    if ((from_guest && !guest_markers_enabled) ||
         (!from_guest && !HostMarkersEnabled())) {
         return;
     }
@@ -3998,7 +4240,7 @@ void Rasterizer::ScopeMarkerBegin(const std::string_view& str, bool from_guest) 
 }
 
 void Rasterizer::ScopeMarkerEnd(bool from_guest) {
-    if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
+    if ((from_guest && !guest_markers_enabled) ||
         (!from_guest && !HostMarkersEnabled())) {
         return;
     }
@@ -4006,7 +4248,7 @@ void Rasterizer::ScopeMarkerEnd(bool from_guest) {
 }
 
 void Rasterizer::ScopedMarkerInsert(const std::string_view& str, bool from_guest) {
-    if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
+    if ((from_guest && !guest_markers_enabled) ||
         (!from_guest && !HostMarkersEnabled())) {
         return;
     }
@@ -4018,7 +4260,7 @@ void Rasterizer::ScopedMarkerInsert(const std::string_view& str, bool from_guest
 
 void Rasterizer::ScopedMarkerInsertColor(const std::string_view& str, const u32 color,
                                          bool from_guest) {
-    if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
+    if ((from_guest && !guest_markers_enabled) ||
         (!from_guest && !HostMarkersEnabled())) {
         return;
     }

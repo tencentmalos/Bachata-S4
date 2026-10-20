@@ -1187,6 +1187,7 @@ set(SHADER_RECOMPILER src/shader_recompiler/profile.h
 set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/amdgpu/liverpool.cpp
                src/video_core/amdgpu/liverpool.h
+               src/video_core/amdgpu/reg_tracker.h
                src/video_core/amdgpu/liverpool_replay.cpp
                src/video_core/amdgpu/pixel_format.cpp
                src/video_core/amdgpu/pixel_format.h
@@ -1209,6 +1210,7 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/buffer_cache/buffer.h
                src/video_core/buffer_cache/buffer_cache.cpp
                src/video_core/buffer_cache/buffer_cache.h
+               src/video_core/buffer_cache/stream_reuse.h
                src/video_core/buffer_cache/fault_manager.cpp
                src/video_core/buffer_cache/fault_manager.h
                src/video_core/buffer_cache/gpu_byte_keeper.h
