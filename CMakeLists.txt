@@ -1938,8 +1938,13 @@ if(BUILD_HOST_CORE)
     add_dependencies(shadps4_host host_shaders ImGui_Resources)
     # linkernsbypass declares data pointers named like Android linker functions.
     # Exporting them interposes libvndksupport calls onto non-executable .bss.
+    # -Bsymbolic-functions binds calls to functions the host defines to its own definitions:
+    # with ~65k exported symbols every such call otherwise goes through the PLT (about 4% of
+    # the GPU command thread). Only duplicated template/inline instantiations (nlohmann::json,
+    # libc++, tsl) are also defined by other app DSOs; the host has no interposable allocator
+    # or runtime hooks, and data references still resolve globally.
     target_link_options(shadps4_host PRIVATE -Wl,--exclude-libs,liblinkernsbypass.a
-        -Wl,--build-id=sha1 -Wl,--no-undefined
+        -Wl,--build-id=sha1 -Wl,--no-undefined -Wl,-Bsymbolic-functions
         "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/shadps4_host.map")
     # The APK and load audit consume the real host DSO and the exact header
     # environment of this target, without duplicating host source/archive lists.
