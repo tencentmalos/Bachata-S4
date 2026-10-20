@@ -28,6 +28,10 @@ enum class RegGroup : u8 {
     // depth buffers with their clear values, masks, color and depth control, depth render
     // control/override, HTILE base, and the scissors used when a pass has no attachments.
     Targets,
+    // The rest of what PipelineCache::RefreshGraphicsKey reads outside the shader stages:
+    // clipper, polygon, primitive type, stage enables, LS/HS config, export formats, blend
+    // controls, viewports and their depth ranges (depth range emulation), GS mode, stream-out.
+    KeyState,
     Count,
 };
 
@@ -60,6 +64,18 @@ public:
         mark(layout.window_scissor, RegGroup::Targets);
         mark(layout.generic_scissor, RegGroup::Targets);
         mark(layout.window_offset, RegGroup::Targets);
+        mark(layout.clipper_control, RegGroup::KeyState);
+        mark(layout.polygon_control, RegGroup::KeyState);
+        mark(layout.primitive_type, RegGroup::KeyState);
+        mark(layout.stage_enable, RegGroup::KeyState);
+        mark(layout.ls_hs_config, RegGroup::KeyState);
+        mark(layout.color_export_format, RegGroup::KeyState);
+        mark(layout.blend_control, RegGroup::KeyState);
+        mark(layout.viewport_control, RegGroup::KeyState);
+        mark(layout.viewports, RegGroup::KeyState);
+        mark(layout.viewport_depths, RegGroup::KeyState);
+        mark(layout.vgt_gs_mode, RegGroup::KeyState);
+        mark(layout.vgt_strmout_config, RegGroup::KeyState);
     }
 
     /// Copies `count` dwords into the register file at `word` and moves the generation of every

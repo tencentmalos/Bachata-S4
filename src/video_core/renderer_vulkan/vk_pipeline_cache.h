@@ -141,6 +141,9 @@ public:
 
 private:
     bool RefreshGraphicsKey();
+    // RefreshGraphicsKey without the memo: the passes before and after the stages.
+    void KeyFirstPass(bool unused_small_depth, bool& db_enabled, bool& skip_cb_binding);
+    void KeySecondPass(bool db_enabled, bool skip_cb_binding);
     bool RefreshGraphicsStages();
     bool RefreshComputeKey();
 
@@ -210,6 +213,30 @@ private:
     std::array<vk::ShaderModule, MaxShaderStages> modules{};
     std::optional<Shader::Gcn::FetchShaderData> fetch_shader{};
     GraphicsPipelineKey graphics_key{};
+    // Register-dirty memo of RefreshGraphicsKey's non-stage fields (upload_diag key_memo): valid
+    // while the Targets and KeyState register generations and the unused-depth policy are
+    // unchanged. `first` is the key after the first pass (before the stages); the second-pass
+    // outputs are kept for the fragment shader's MRT mask they were computed with.
+    struct KeyMemo {
+        bool valid{};
+        bool final_valid{};
+        bool unused_small_depth{};
+        bool db_enabled{};
+        bool skip_cb_binding{};
+        u64 targets{}, state{};
+        GraphicsPipelineKey first{};
+        u32 mrt_mask{};
+        std::array<Shader::PsColorBuffer, AmdGpu::NUM_COLOR_BUFFERS> color_buffers{};
+        std::array<AmdGpu::BlendControl, AmdGpu::NUM_COLOR_BUFFERS> blend_controls{};
+        std::array<vk::ColorComponentFlags, AmdGpu::NUM_COLOR_BUFFERS> write_masks{};
+        std::array<u8, AmdGpu::NUM_COLOR_BUFFERS> color_samples{};
+        u8 num_samples{};
+    };
+    KeyMemo key_memo{};
+    // The pipeline the previous draw got and its key: an identical key skips hash and lookup.
+    // Cleared whenever a graphics pipeline is erased.
+    GraphicsPipelineKey last_key{};
+    GraphicsPipeline* last_pipeline{};
     const char* reject_reason{}; // why the last graphics key could not be built
     ComputePipelineKey compute_key{};
     u32 num_new_pipelines{}; // new pipelines added to the cache since the game start

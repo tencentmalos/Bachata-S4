@@ -95,6 +95,18 @@ inline std::atomic<u64> stream_submits{0};
 inline std::atomic<u32> target_memo_mode{1};
 inline std::atomic<u64> target_memo_hits{0}, target_memo_misses{0}, begin_memo_hits{0},
     begin_memo_misses{0}, memo_mismatches{0};
+// Register-dirty memo of the non-stage part of the graphics pipeline key and reuse of the last
+// draw's pipeline for an identical key (PipelineCache::RefreshGraphicsKey /
+// GetGraphicsPipeline). 0 off, 1 on, 2 verify (every hit recomputed, differences counted and
+// logged). `upload_diag key_memo on|off|verify`, debug.shadps4.key_memo=0|1|2.
+inline std::atomic<u32> key_memo_mode{1};
+inline std::atomic<u64> key_memo_hits{0}, key_memo_misses{0}, key_memo_final_hits{0},
+    key_memo_pipeline_reuse{0}, key_memo_mismatches{0};
+/// Counter written only by the GPU command thread: a plain load and store, not an atomic
+/// read-modify-write (an out-of-line call on ARMv8.0 builds).
+inline void CountOwned(std::atomic<u64>& counter) {
+    counter.store(counter.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
+}
 // A texture smaller than the GPU-written image at its base address samples that image's
 // top-left texels, as the guest's does (downsample chains render into a corner of a large
 // target and read it back at the small size): it gets its own image, copied from the corner

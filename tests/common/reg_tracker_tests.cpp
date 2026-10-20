@@ -52,12 +52,30 @@ void TestGroupMap(const Regs& regs, const RegTracker& tracker) {
     for (const u32 word : targets) {
         CHECK(tracker.GroupOf(word) == RegGroup::Targets);
     }
-    // Shader programs, user data, blend and viewports are not.
+    // The rest of what the pipeline key reads outside the shader stages is in KeyState.
+    const u32 key_state[] = {
+        WordOf(regs, regs.clipper_control),
+        WordOf(regs, regs.polygon_control),
+        WordOf(regs, regs.primitive_type),
+        WordOf(regs, regs.stage_enable),
+        WordOf(regs, regs.ls_hs_config),
+        WordOf(regs, regs.color_export_format),
+        WordOf(regs, regs.blend_control[0]),
+        WordOf(regs, regs.blend_control[7]),
+        WordOf(regs, regs.viewport_control),
+        WordOf(regs, regs.viewports[0]),
+        WordOf(regs, regs.viewports[15]) + u32(sizeof(regs.viewports[15]) / 4) - 1,
+        WordOf(regs, regs.viewport_depths[0]),
+        WordOf(regs, regs.viewport_depths[15]) + 1,
+        WordOf(regs, regs.vgt_gs_mode),
+        WordOf(regs, regs.vgt_strmout_config),
+    };
+    for (const u32 word : key_state) {
+        CHECK(tracker.GroupOf(word) == RegGroup::KeyState);
+    }
+    // Shader programs and user data are in no group.
     CHECK(tracker.GroupOf(WordOf(regs, regs.ps_program)) == RegGroup::None);
     CHECK(tracker.GroupOf(WordOf(regs, regs.vs_program.user_data)) == RegGroup::None);
-    CHECK(tracker.GroupOf(WordOf(regs, regs.blend_control[0])) == RegGroup::None);
-    CHECK(tracker.GroupOf(WordOf(regs, regs.viewports[0])) == RegGroup::None);
-    CHECK(tracker.GroupOf(WordOf(regs, regs.primitive_type)) == RegGroup::None);
 }
 
 void TestWrites(Regs& regs, RegTracker& tracker) {
@@ -82,31 +100,44 @@ void TestWrites(Regs& regs, RegTracker& tracker) {
     tracker.Write(regs, cb0, changed, 2);
     CHECK(tracker.Generation(RegGroup::Targets) != g1);
     const u64 g2 = tracker.Generation(RegGroup::Targets);
+    const u64 s2 = tracker.Generation(RegGroup::KeyState);
     tracker.InvalidateAll();
     CHECK(tracker.Generation(RegGroup::Targets) != g2);
+    CHECK(tracker.Generation(RegGroup::KeyState) != s2);
+    // A KeyState change leaves Targets alone.
+    const u64 g3 = tracker.Generation(RegGroup::Targets);
+    const u32 prim = WordOf(regs, regs.primitive_type);
+    const u32 tri = regs.reg_array[prim] + 1;
+    tracker.Write(regs, prim, &tri, 1);
+    CHECK(tracker.Generation(RegGroup::KeyState) != tracker.Generation(RegGroup::Targets));
+    CHECK(tracker.Generation(RegGroup::Targets) == g3);
 }
 
-// Random writes against a reference: the register file always equals the reference, and the
-// generation changes exactly when a Targets register changed value.
+// Random writes against a reference: the register file always equals the reference, and each
+// group's generation changes exactly when one of its registers changed value.
 void TestRandom(Regs& regs, RegTracker& tracker) {
     auto reference = std::make_unique<Regs>(regs);
     std::mt19937 rng{42};
-    const u32 lo = WordOf(regs, regs.depth_render_control) - 64;
-    const u32 hi = WordOf(regs, regs.color_buffers[7]) + 64;
-    for (int step = 0; step < 100000; ++step) {
+    const u32 lo = Regs::ContextRegWordOffset;
+    const u32 hi = Regs::ContextRegWordOffset + 0x400;
+    for (int step = 0; step < 200000; ++step) {
         const u32 word = lo + rng() % (hi - lo);
         const u32 count = 1 + rng() % 8;
         u32 data[8];
         bool target_change = false;
+        bool state_change = false;
         for (u32 i = 0; i < count; ++i) {
             data[i] = (rng() % 4 == 0) ? rng() : reference->reg_array[word + i];
-            target_change |= data[i] != reference->reg_array[word + i] &&
-                             tracker.GroupOf(word + i) == RegGroup::Targets;
+            const bool changed = data[i] != reference->reg_array[word + i];
+            target_change |= changed && tracker.GroupOf(word + i) == RegGroup::Targets;
+            state_change |= changed && tracker.GroupOf(word + i) == RegGroup::KeyState;
             reference->reg_array[word + i] = data[i];
         }
         const u64 before = tracker.Generation(RegGroup::Targets);
+        const u64 state_before = tracker.Generation(RegGroup::KeyState);
         tracker.Write(regs, word, data, count);
         CHECK((tracker.Generation(RegGroup::Targets) != before) == target_change);
+        CHECK((tracker.Generation(RegGroup::KeyState) != state_before) == state_change);
     }
     CHECK(std::memcmp(regs.reg_array.data(), reference->reg_array.data(),
                       sizeof(regs.reg_array)) == 0);

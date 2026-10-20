@@ -528,6 +528,14 @@ const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectPar
     if (!RefreshGraphicsKey()) {
         return nullptr;
     }
+    namespace Diag = VideoCore::UploadDiagnostics;
+    const u32 memo_mode = Diag::key_memo_mode.load(std::memory_order_relaxed);
+    const bool same_key = memo_mode != 0 && last_pipeline && graphics_key == last_key;
+    if (same_key && memo_mode == 1) {
+        Diag::CountOwned(Diag::key_memo_pipeline_reuse);
+        PromoteIfPending(*last_pipeline);
+        return last_pipeline;
+    }
     const auto [it, is_new] = graphics_pipelines.try_emplace(graphics_key);
     if (is_new) {
         const auto pipeline_hash = std::hash<GraphicsPipelineKey>{}(graphics_key);
@@ -564,6 +572,12 @@ const GraphicsPipeline* PipelineCache::GetGraphicsPipeline(const DrawIndirectPar
     } else {
         PromoteIfPending(*it->second);
     }
+    if (same_key && it->second.get() != last_pipeline) {
+        Diag::key_memo_mismatches.fetch_add(1, std::memory_order_relaxed);
+        LOG_WARNING(Render_Vulkan, "key_memo verify: identical key, different pipeline");
+    }
+    last_key = graphics_key;
+    last_pipeline = it->second.get();
     return it->second.get();
 }
 
@@ -610,16 +624,93 @@ const ComputePipeline* PipelineCache::GetPreparedComputePipeline() {
 }
 
 bool PipelineCache::RefreshGraphicsKey() {
+    namespace Diag = VideoCore::UploadDiagnostics;
+    auto& key = graphics_key;
+
+    // Everything below up to the stages reads only Targets/KeyState registers, the unused-depth
+    // policy and device constants: while those are unchanged the previous result is reused.
+    const u32 memo_mode = Diag::key_memo_mode.load(std::memory_order_relaxed);
+    const bool unused_small_depth = Diag::unused_small_depth.load(std::memory_order_relaxed);
+    const u64 targets_gen = liverpool->reg_tracker.Generation(AmdGpu::RegGroup::Targets);
+    const u64 state_gen = liverpool->reg_tracker.Generation(AmdGpu::RegGroup::KeyState);
+    const bool memo_hit = memo_mode != 0 && key_memo.valid && key_memo.targets == targets_gen &&
+                          key_memo.state == state_gen &&
+                          key_memo.unused_small_depth == unused_small_depth;
+    bool db_enabled{};
+    bool skip_cb_binding{};
+    if (memo_hit && memo_mode == 1) {
+        Diag::CountOwned(Diag::key_memo_hits);
+        key = key_memo.first;
+        db_enabled = key_memo.db_enabled;
+        skip_cb_binding = key_memo.skip_cb_binding;
+    } else {
+        KeyFirstPass(unused_small_depth, db_enabled, skip_cb_binding);
+        if (!memo_hit) {
+            Diag::CountOwned(Diag::key_memo_misses);
+        } else if (!(key == key_memo.first) || db_enabled != key_memo.db_enabled ||
+                   skip_cb_binding != key_memo.skip_cb_binding) {
+            Diag::key_memo_mismatches.fetch_add(1, std::memory_order_relaxed);
+            LOG_WARNING(Render_Vulkan, "key_memo verify: first pass differs");
+        }
+        if (memo_mode != 0 && !memo_hit) {
+            key_memo.valid = true;
+            key_memo.final_valid = false;
+            key_memo.targets = targets_gen;
+            key_memo.state = state_gen;
+            key_memo.unused_small_depth = unused_small_depth;
+            key_memo.db_enabled = db_enabled;
+            key_memo.skip_cb_binding = skip_cb_binding;
+            key_memo.first = key;
+        }
+    }
+
+    // Compile and bind shader stages
+    if (!RefreshGraphicsStages()) {
+        return false;
+    }
+
+    const bool final_hit =
+        memo_hit && key_memo.final_valid && key.mrt_mask == key_memo.mrt_mask;
+    if (final_hit && memo_mode == 1) {
+        Diag::CountOwned(Diag::key_memo_final_hits);
+        key.color_buffers = key_memo.color_buffers;
+        key.blend_controls = key_memo.blend_controls;
+        key.write_masks = key_memo.write_masks;
+        key.color_samples = key_memo.color_samples;
+        key.num_samples = key_memo.num_samples;
+        return true;
+    }
+    KeySecondPass(db_enabled, skip_cb_binding);
+    if (final_hit &&
+        (key.color_buffers != key_memo.color_buffers ||
+         key.blend_controls != key_memo.blend_controls || key.write_masks != key_memo.write_masks ||
+         key.color_samples != key_memo.color_samples || key.num_samples != key_memo.num_samples)) {
+        Diag::key_memo_mismatches.fetch_add(1, std::memory_order_relaxed);
+        LOG_WARNING(Render_Vulkan, "key_memo verify: second pass differs");
+    }
+    if (memo_mode != 0 && key_memo.valid && key_memo.targets == targets_gen &&
+        key_memo.state == state_gen) {
+        key_memo.final_valid = true;
+        key_memo.mrt_mask = key.mrt_mask;
+        key_memo.color_buffers = key.color_buffers;
+        key_memo.blend_controls = key.blend_controls;
+        key_memo.write_masks = key.write_masks;
+        key_memo.color_samples = key.color_samples;
+        key_memo.num_samples = key.num_samples;
+    }
+    return true;
+}
+
+void PipelineCache::KeyFirstPass(bool unused_small_depth, bool& db_enabled,
+                                 bool& skip_cb_binding) {
     std::memset(&graphics_key, 0, sizeof(GraphicsPipelineKey));
     const auto& regs = liverpool->regs;
     auto& key = graphics_key;
 
     // A depth surface this draw does not use and that is smaller than its color target is not
     // attached (Rasterizer::PrepareRenderState), so it sets neither formats nor samples.
-    const bool depth_dropped =
-        VideoCore::UploadDiagnostics::unused_small_depth.load(std::memory_order_relaxed) &&
-        regs.DepthUnusedAndSmaller();
-    const bool db_enabled =
+    const bool depth_dropped = unused_small_depth && regs.DepthUnusedAndSmaller();
+    db_enabled =
         !depth_dropped && (regs.depth_buffer.DepthValid() || regs.depth_buffer.StencilValid());
 
     key.z_format = !depth_dropped && regs.depth_buffer.DepthValid()
@@ -649,8 +740,7 @@ bool PipelineCache::RefreshGraphicsKey() {
     key.num_samples = key.depth_samples;
     key.cb_shader_mask = regs.color_shader_mask;
 
-    const bool skip_cb_binding =
-        regs.color_control.mode == AmdGpu::ColorControl::OperationMode::Disable;
+    skip_cb_binding = regs.color_control.mode == AmdGpu::ColorControl::OperationMode::Disable;
 
     // First pass to fill render target information needed by shader recompiler
     for (s32 cb = 0; cb < AmdGpu::NUM_COLOR_BUFFERS && !skip_cb_binding; ++cb) {
@@ -676,12 +766,11 @@ bool PipelineCache::RefreshGraphicsKey() {
             bc.color_src_factor == AmdGpu::BlendControl::BlendFactor::SrcColor &&
             bc.color_dst_factor == AmdGpu::BlendControl::BlendFactor::DstColor;
     }
+}
 
-    // Compile and bind shader stages
-    if (!RefreshGraphicsStages()) {
-        return false;
-    }
-
+void PipelineCache::KeySecondPass(bool db_enabled, bool skip_cb_binding) {
+    const auto& regs = liverpool->regs;
+    auto& key = graphics_key;
     // Second pass to mask out render targets not written by shader and fill remaining info
     u8 color_samples = 0;
     bool all_color_samples_same = true;
@@ -721,8 +810,6 @@ bool PipelineCache::RefreshGraphicsKey() {
             key.num_samples = key.depth_samples;
         }
     }
-
-    return true;
 }
 
 bool PipelineCache::RefreshGraphicsStages() {
@@ -1058,6 +1145,8 @@ std::optional<vk::ShaderModule> PipelineCache::ReplaceShader(vk::ShaderModule mo
                 if (const auto it = graphics_pipelines.find(graphics_key);
                     it != graphics_pipelines.end()) {
                     retire(*it->second);
+                    if (last_pipeline == it->second.get())
+                        last_pipeline = nullptr;
                     graphics_pipelines.erase(it);
                 }
             } else if (std::holds_alternative<ComputePipelineKey>(key)) {

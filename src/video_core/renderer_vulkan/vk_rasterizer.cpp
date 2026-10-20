@@ -392,6 +392,10 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
             property[0] >= '0' && property[0] <= '2') {
             VideoCore::UploadDiagnostics::target_memo_mode.store(u32(property[0] - '0'));
         }
+        if (__system_property_get("debug.shadps4.key_memo", property) > 0 &&
+            property[0] >= '0' && property[0] <= '2') {
+            VideoCore::UploadDiagnostics::key_memo_mode.store(u32(property[0] - '0'));
+        }
     }
 #endif
     if (GpuBreadcrumbs::Requested()) {
