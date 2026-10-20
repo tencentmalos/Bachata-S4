@@ -804,6 +804,15 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetFrameLimit(
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetStreamSubmit(
+    JNIEnv*, jobject, jint draws) {
+    try {
+        Core::GameOptions::SetStreamSubmitDraws(draws > 0 ? u32(draws) : 0u);
+    }
+    catch (...) { /* Never unwind across JNI. */ }
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetPipelineCompileMode(
     JNIEnv*, jobject, jint mode) {
     try {

@@ -386,6 +386,21 @@
     "risk": "NORMAL"
   },
   {
+    "id": "gpu.stream_submit",
+    "nativeKey": "GPU.stream_submit",
+    "section": "GPU",
+    "category": "GPU",
+    "title": "Streaming Submit",
+    "help": "Hands the GPU the part of a frame already translated instead of waiting for the whole frame, so the GPU and the command translation run at the same time. Much faster in some games (Kingdom Hearts III, God of War III), no gain or a risk of GPU faults in others, so it is off unless turned on for a game.",
+    "kind": "ENUM",
+    "defaultValue": "off",
+    "choices": ["off", "on"],
+    "choiceLabels": ["Off", "On"],
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true,
+    "risk": "NORMAL"
+  },
+  {
     "id": "vulkan.pipeline_cache_enabled",
     "nativeKey": "Vulkan.pipeline_cache_enabled",
     "section": "Vulkan",

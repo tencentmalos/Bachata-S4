@@ -75,10 +75,17 @@ inline std::atomic<u64> unused_small_depth_draws{0};
 // Streaming submission: after this many draws in one command buffer, submit it at the next draw
 // boundary where the GPU has finished everything submitted before, so the GPU starts on a frame
 // while the rest is still translated. 0 = off (submit at frame end, fences and idle only).
-// GoW3 on Odin3: 33 -> 51 FPS, the GPU no longer idles while a frame is translated.
-// Off by default: with 200, GoW3 on Odin3 (A8XX) hung the GPU 1-2 minutes after loading in both
-// runs (KGSL status 00880005, GMU preemption fault, context blocked on its own next timestamp).
+// GoW3 on Odin3: 33 -> 51 FPS in Hades; 24.5 -> 41-48 FPS on the street outside the city gate,
+// where translation and GPU otherwise take turns (thresholds 25-200 measured within noise).
+// Off by default: per game (`gpu.stream_submit`, Core::GameOptions::StreamSubmitDraws, set by
+// the app before the session; KH3 needs it, 12 -> 22.7 FPS on the Olympus street), then
+// SHADPS4_STREAM_SUBMIT / debug.shadps4.stream_submit override it (0 = off). On 10-17, 200 hung
+// the GPU in GoW3 on Odin3 (A8XX) 1-2 minutes after loading in both runs (KGSL status 00880005,
+// GMU preemption fault, context blocked on its own next timestamp; no snapshot). The A8XX CP zero
+// reads that trials with streaming submission provoke are avoided by 64 KiB aligned read-only
+// BOs, which the Android driver setup now requests (TU_DEBUG=roalign64k, vk_driver_android.cpp).
 // `upload_diag stream_submit <draws>`; counts the early submits.
+inline constexpr u32 DefaultStreamSubmitDraws = 0;
 inline std::atomic<u32> stream_submit_draws{0};
 inline std::atomic<u64> stream_submits{0};
 // A texture smaller than the GPU-written image at its base address samples that image's

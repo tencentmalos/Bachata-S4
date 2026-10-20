@@ -10,6 +10,7 @@
 namespace Core::GameOptions {
 namespace {
 std::atomic<u32> frame_limit{0};
+std::atomic<u32> stream_submit_draws{0};
 std::mutex save_mutex;
 SaveHandler save_handler;
 } // namespace
@@ -33,6 +34,14 @@ u32 ParseFrameLimit(const std::string& name) {
         if (fps != 0 && name == std::to_string(fps))
             return fps;
     return 0;
+}
+
+u32 StreamSubmitDraws() {
+    return stream_submit_draws.load(std::memory_order_relaxed);
+}
+
+void SetStreamSubmitDraws(u32 draws) {
+    stream_submit_draws.store(draws, std::memory_order_relaxed);
 }
 
 void SetSaveHandler(SaveHandler handler) {

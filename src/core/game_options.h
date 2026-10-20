@@ -24,6 +24,14 @@ void SetFrameLimit(u32 fps);
 std::string FrameLimitName(u32 fps);
 u32 ParseFrameLimit(const std::string& name);
 
+// Streaming submit (`gpu.stream_submit`, per game, off by default): once this many draws are
+// recorded and the GPU has run out of work, the open command buffer is submitted early so the
+// GPU and the command processor overlap. 0 = off. Read when the renderer is created; the
+// DebugBus `upload_diag stream_submit` and debug.shadps4.stream_submit still override it.
+inline constexpr u32 StreamSubmitOnDraws = 100;
+u32 StreamSubmitDraws();
+void SetStreamSubmitDraws(u32 draws);
+
 // Saves one change for the running game. Without a handler (tests, tools) changes stay in this
 // run only. The handler may be called on the presenting thread; it must not block for long.
 using SaveHandler = std::function<void(const std::string& key, const std::string& value)>;

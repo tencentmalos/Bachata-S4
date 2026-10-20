@@ -7,6 +7,8 @@
 #include <fstream>
 #include <mutex>
 #include <stdexcept>
+#include <string>
+#include <string_view>
 #include <vector>
 #include <cstdlib>
 #include <dlfcn.h>
@@ -66,20 +68,59 @@ std::string VerifyFile(const std::string& path) {
 // flag joins whatever that property holds; debug.shadps4.vsc_warmup=0 leaves TU_DEBUG alone.
 void PrepareTurnipDebugFlags() {
     char value[PROP_VALUE_MAX]{};
-    if (__system_property_get("debug.shadps4.vsc_warmup", value) > 0 && value[0] == '0')
+    // Diagnostic: debug.shadps4.tu_env="NAME=VALUE;NAME=VALUE" exports driver options before
+    // Turnip loads, e.g. driconf options whose property names exceed the 31-character limit
+    // Mesa's own debug.mesa.* lookup has (tu_override_uncached_as_cache_coherent=true).
+    if (__system_property_get("debug.shadps4.tu_env", value) > 0) {
+        std::string_view list{value};
+        while (!list.empty()) {
+            const auto end = list.find(';');
+            const auto item = list.substr(0, end);
+            if (const auto eq = item.find('='); eq != std::string_view::npos && eq > 0) {
+                const std::string name{item.substr(0, eq)};
+                const std::string option{item.substr(eq + 1)};
+                setenv(name.c_str(), option.c_str(), 1);
+                LOG_WARNING(Render_Vulkan, "Turnip environment {}={} (debug.shadps4.tu_env)",
+                            name, option);
+            }
+            list = end == std::string_view::npos ? std::string_view{} : list.substr(end + 1);
+        }
+    }
+    // A8XX CP zero reads (docs/validation/android-native-host/a8xx-dde-opcode-zero-20261017.md):
+    // the CP can read the 4 KiB pages at 0x6000/0x7000 of a 64 KiB VA block as zeros when the
+    // BOs below them in that block were freed, once the process has read KGSL's zero page. With
+    // roalign64k every GPU read-only BO (command streams, pipeline suballocator blocks) starts on
+    // a 64 KiB boundary, so those pages only ever belong to one BO. Streaming submission
+    // (Rasterizer::MaybeStreamSubmit, turned on per game) raised the GoW3 fault rate; with 64 KiB
+    // aligned command streams 0 of 12 trial rounds faulted against 1 of 6 without. Turnip builds
+    // without the flag ignore it. debug.shadps4.ro_align64k=0 leaves it out.
+    std::vector<const char*> wanted;
+    if (!(__system_property_get("debug.shadps4.vsc_warmup", value) > 0 && value[0] == '0'))
+        wanted.push_back("gmem_warmup");
+    if (!(__system_property_get("debug.shadps4.ro_align64k", value) > 0 && value[0] == '0'))
+        wanted.push_back("roalign64k");
+    if (wanted.empty())
         return;
     std::string flags;
     if (const char* env = std::getenv("TU_DEBUG"))
         flags = env;
     else if (__system_property_get("debug.mesa.tu.debug", value) > 0)
         flags = value;
-    if (flags.find("gmem_warmup") != std::string::npos)
+    bool added = false;
+    for (const char* flag : wanted) {
+        if (flags.find(flag) != std::string::npos)
+            continue;
+        if (!flags.empty())
+            flags += ',';
+        flags += flag;
+        added = true;
+    }
+    if (!added)
         return;
-    if (!flags.empty())
-        flags += ',';
-    flags += "gmem_warmup";
     setenv("TU_DEBUG", flags.c_str(), 1);
-    LOG_INFO(Render_Vulkan, "Turnip TU_DEBUG={} (large initial VSC streams)", flags);
+    LOG_INFO(Render_Vulkan, "Turnip TU_DEBUG={} (large initial VSC streams, 64 KiB aligned "
+                            "read-only BOs)",
+             flags);
 }
 
 template <typename T>

@@ -164,4 +164,15 @@ class GameLaunchOptionsTest {
         val psvr = GameLaunchOptions("psvr", loaded = true, psvr = true)
         assertTrue(psvr.specs().any { it.id == FrameLimit.ID })
     }
+
+    @Test fun streamSubmitIsOffByDefaultAndSavedPerGame() {
+        val options = GameLaunchOptions("2d", loaded = true)
+        val spec = options.specs().single { it.id == StreamSubmit.ID }
+        assertEquals("off", options.value(spec))
+        assertEquals(listOf("off", "on"), spec.choices)
+        val saved = options.select(spec, "on").applyTo(RuntimeProfile())
+        assertEquals(JsonPrimitive("on"), saved.values[StreamSubmit.ID])
+        val psvr = GameLaunchOptions("psvr", loaded = true, psvr = true)
+        assertTrue(psvr.specs().any { it.id == StreamSubmit.ID })
+    }
 }

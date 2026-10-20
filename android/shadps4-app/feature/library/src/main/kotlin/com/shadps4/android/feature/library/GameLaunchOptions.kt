@@ -56,6 +56,7 @@ data class GameLaunchOptions(
             else add(XrRendering.SCREEN_UPSCALER)
             add(MsaaMode.ID)
             add(FrameLimit.ID)
+            add(StreamSubmit.ID)
             // Only an XR session places the DualShock 4 (light-bar tracking titles stop at
             // their controller check without it).
             if (psvr && xr) add(XrDs4Pose.ID)

@@ -46,6 +46,8 @@ object NativeFexSession {
     external fun nativeSetPipelineCompileMode(mode: Int)
     /** Most guest frames presented a second; 0 = the game's own rate. */
     external fun nativeSetFrameLimit(fps: Int)
+    /** Before renderer creation: draws per early submit, 0 = off (StreamSubmit). */
+    external fun nativeSetStreamSubmit(draws: Int)
     external fun nativeSetCommandRecorder(enabled: Boolean)
     external fun nativeSetDirectMemoryAccess(enabled: Boolean)
     /** Before renderer creation: 0 disabled, 1 relaxed, 2 precise. */

@@ -8,6 +8,7 @@
 #include <atomic>
 #include <bit>
 #include <chrono>
+#include <cstdlib>
 #include <cstring>
 #include <cmath>
 #include <ctime>
@@ -23,6 +24,7 @@
 
 #include "common/debug.h"
 #include "video_core/renderdoc.h"
+#include "core/game_options.h"
 #include "core/debug_state.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/emulator_settings.h"
@@ -362,6 +364,26 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
       host_markers_enabled{EmulatorSettings.IsVkHostMarkersEnabled()},
       guest_markers_enabled{EmulatorSettings.IsVkGuestMarkersEnabled()} {
     Core::GuestWriteWatch::ArmFromEnvironment();
+    {
+        // Per game first (Core::GameOptions, off unless the game's profile turns it on), then
+        // the environment / debug property for experiments.
+        u32 stream_draws_default = Core::GameOptions::StreamSubmitDraws();
+        if (!stream_draws_default)
+            stream_draws_default = VideoCore::UploadDiagnostics::DefaultStreamSubmitDraws;
+        if (const char* env = std::getenv("SHADPS4_STREAM_SUBMIT"); env && *env) {
+            stream_draws_default = u32(std::strtoul(env, nullptr, 10));
+        }
+#ifdef __ANDROID__
+        char property[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.stream_submit", property) > 0) {
+            stream_draws_default = u32(std::strtoul(property, nullptr, 10));
+        }
+#endif
+        VideoCore::UploadDiagnostics::stream_submit_draws.store(stream_draws_default,
+                                                                std::memory_order_relaxed);
+        LOG_INFO(Render_Vulkan, "Streaming submit: {}",
+                 stream_draws_default ? fmt::format("every {} draws", stream_draws_default) : "off");
+    }
     if (GpuBreadcrumbs::Requested()) {
         breadcrumbs = std::make_unique<GpuBreadcrumbs>(instance);
     }

@@ -261,6 +261,17 @@ class FexSessionService : Service() {
             }
             NativeFexSession.nativeSetFrameLimit(frameLimit)
             Log.i(TAG, "Frame limit=$frameLimit")
+            val streamSubmit = runCatching {
+                com.shadps4.android.runtime.settings.StreamSubmit.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid streaming submit, keeping it off", it)
+                0
+            }
+            NativeFexSession.nativeSetStreamSubmit(streamSubmit)
+            Log.i(TAG, "Streaming submit draws=$streamSubmit")
             // The in-game Controls panel applies its settings at once; keep them for this game.
             val settingsListener = com.shadps4.android.runtime.session.SessionSettingsBridge.Listener { spec, value ->
                 serviceScope.launch(Dispatchers.IO) {
