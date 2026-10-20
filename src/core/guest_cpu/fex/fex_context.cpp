@@ -181,6 +181,9 @@ struct InterruptState final {
     // All fields are protected by FexCpuContext::lock_. No handler accesses this.
     std::map<std::uint64_t, InterruptReason> requests;
     std::uint32_t pending{};
+    // Mirror of `pending` for the owner's lock-free HLE continuation. Written under lock_
+    // (seq_cst), and published before the writer reads `running`.
+    std::atomic<std::uint32_t> pending_hint{};
     std::uint64_t request_epoch{};
     std::uint64_t acked_epoch{};
     std::optional<StopReceipt> receipt;
@@ -1457,6 +1460,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         NativeBoundaryStack hle_entry_template{};
         std::uint64_t hle_entry_attachment{};
         std::shared_ptr<std::atomic<bool>> syscall_fault;
+        // Stable for the whole Run: map nodes do not move and DestroyThread refuses an owner
+        // with active runs. Lets the HLE continuation reach its own entry without lock_.
+        ThreadEntry* owner_entry{};
         {
             std::unique_lock guard{lock_};
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
@@ -1482,6 +1488,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             auto *entry = FindOwnedLocked(thread);
             if (!entry)
                 return OwnershipError(thread, "Run");
+            owner_entry = entry;
             if (entry->running || (entry->active_runs != 0 && !nested) ||
                 (nested && entry->active_runs == 0))
                 return BackendError(ErrorCategory::AlreadyRunning, "Run",
@@ -1664,7 +1671,71 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         // start before we reacquire lock_. Retry Busy within one bounded budget,
         // and publish running=true under the coordinator lock with the lease.
         // Never rerun a native HLE or rebuild an InvokeGuest frame on this retry.
+        //
+        // Executable mapping [exec_begin, exec_end) this Run last validated for a continuation,
+        // at these generations. Every committed mapping change bumps the mapping generation, and
+        // an executable change needs a drain, which cannot finish while this owner holds a lease.
+        std::uint64_t exec_begin{}, exec_end{}, exec_mapping_gen{}, exec_code_gen{};
+        const auto continuation_executable = [&](std::uint64_t rip) -> bool {
+            const auto mapping_gen = space_.MappingGeneration();
+            const auto code_gen = space_.CodeGeneration();
+            if (rip >= exec_begin && rip < exec_end && mapping_gen == exec_mapping_gen &&
+                code_gen == exec_code_gen)
+                return true;
+            auto target = space_.Query(GuestAddress{rip});
+            if (!target || !HasPermission(target.Value().permission, GuestPermission::Execute))
+                return false;
+            exec_begin = target.Value().range.base.value;
+            exec_end = exec_begin + target.Value().range.size;
+            exec_mapping_gen = mapping_gen;
+            exec_code_gen = code_gen;
+            return true;
+        };
+        // Lock-free continuation (config_.fast_hle_resume). Controllers publish their request
+        // first (pending_hint, the owner callback count, debug_attached_, the space's execution
+        // gate) and read running/entering second. This owner publishes `entering`, takes the
+        // lease, publishes `running` and reads the requests last. All seq_cst, so either the
+        // controller sees this owner as running (arms its poll page, or waits for it to leave) or
+        // the owner sees the request and backs out to the locked path. true: lease held, running.
+        const auto fast_continuation = [&]() -> Result<bool> {
+            auto* entry = owner_entry;
+            const auto requested = [&] {
+                return entry->interrupt->pending_hint.load(std::memory_order_seq_cst) != 0 ||
+                       owner_callback_count_.load(std::memory_order_seq_cst) != 0 ||
+                       debug_attached_.load(std::memory_order_seq_cst);
+            };
+            if (!config_.fast_hle_resume || entry->internally_parked || requested())
+                return false;
+            entry->entering = true;
+            auto admission = space_.TryAcquireExecutionLeaseFast();
+            if (!admission) {
+                entry->entering = false;
+                // A drainer that saw `entering` waits for it to clear.
+                std::lock_guard guard{lock_};
+                stopped_changed_.notify_all();
+                return false;
+            }
+            entry->running = true;
+            entry->entering = false;
+            if (!requested() && continuation_executable(entry->native->CurrentFrame->State.rip)) {
+                lease.Value() = std::move(*admission);
+                return true;
+            }
+            // Back out as at an HLE boundary: a controller that saw `running` may have armed
+            // the poll page and may be waiting for this owner to leave. The lease drops on return.
+            std::lock_guard guard{lock_};
+            if ((entry->interrupt->pending != 0 || !entry->owner_callbacks.empty()) &&
+                ::mprotect(entry->native->InterruptFaultPage, host_page_size_,
+                           PROT_READ | PROT_WRITE) != 0)
+                return BackendError(ErrorCategory::BackendFailure, "Run continuation",
+                                    "restore interrupt page", errno);
+            entry->running = false;
+            stopped_changed_.notify_all();
+            return false;
+        };
         const auto resume_continuation = [&]() -> Result<bool> {
+            if (auto fast = fast_continuation(); !fast || fast.Value())
+                return fast;
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
             for (;;) {
                 // Without internal drains nothing runs between this check and
@@ -1707,10 +1778,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                     if (admission) {
                         if (entry->interrupt->pending)
                             return false;
-                        auto target =
-                            space_.Query(GuestAddress{entry->native->CurrentFrame->State.rip});
-                        if (!target ||
-                            !HasPermission(target.Value().permission, GuestPermission::Execute))
+                        if (!continuation_executable(entry->native->CurrentFrame->State.rip))
                             return BackendError(ErrorCategory::PermissionDenied, "Run continuation",
                                                 "continuation is no longer executable");
                         lease.Value() = std::move(admission).Value();
@@ -2341,8 +2409,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         for (auto& [id, e] : threads_) {
             const auto phase = e.debug_parked ? Debug::Phase::Parked :
                 e.running ? Debug::Phase::Guest : e.active_runs ? Debug::Phase::Hle : Debug::Phase::Ready;
+            // A lock-free HLE continuation leaves its HLE boundary snapshot in place while running.
             result.push_back({{id, e.generation}, e.guest_tid, e.host_tid, phase,
-                              e.debug_reason, e.interrupt->stopped_snapshot, e.watch_hit});
+                              e.debug_reason,
+                              e.running ? std::optional<CpuSnapshot>{} : e.interrupt->stopped_snapshot,
+                              e.watch_hit});
         }
         std::sort(result.begin(), result.end(), [](auto& a, auto& b) { return a.handle.id < b.handle.id; });
         return result;
@@ -2773,7 +2844,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             stopped_count = threads_.size();
             // Issue ALL stop requests before waiting. A retry keeps its original tickets.
             for (auto& [id, entry] : threads_) {
-                if (!entry.running && (entry.active_runs == 0 || config_.resume_internal_drains))
+                // `entering` may already hold a lease (read after BeginDrain closed the gate).
+                if (!entry.running && !entry.entering &&
+                    (entry.active_runs == 0 || config_.resume_internal_drains))
                     continue;
                 if (auto* scope = Hle::HleScope::Current();
                     scope && &scope->Context() == this &&
@@ -2809,7 +2882,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                         auto* entry = Find({ticket.thread_id, ticket.thread_generation});
                         // HLE return and nested entry must reacquire admission
                         // under lock_; a live frame outside JIT is quiescent too.
-                        return !entry || !entry->running;
+                        return !entry || (!entry->running && !entry->entering);
                     })) {
                     return BackendError(ErrorCategory::Timeout, "QuiesceContext",
                                         "owner has not left JIT");
@@ -2833,6 +2906,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 state.pending = 0;
                 for (const auto& [epoch, reason] : state.requests)
                     state.pending |= 1u << static_cast<std::uint32_t>(reason);
+                state.pending_hint.store(state.pending, std::memory_order_seq_cst);
                 // An internal ticket may be newer than a user's Cancel. Retiring it must
                 // leave that user's latest ticket resumable, using the same frozen snapshot.
                 state.request_epoch = state.requests.empty() ? 0 : state.requests.rbegin()->first;
@@ -2877,11 +2951,17 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         auto *entry = Find(thread);
         if (!entry)
             return BackendError(ErrorCategory::InvalidHandle, "RequestInterrupt", "stale handle");
+        auto &state = *entry->interrupt;
+        // Publish the request before reading `running`: a lock-free HLE continuation publishes
+        // `running` before it reads pending_hint, so one of the two sees the other.
+        state.pending_hint.store(state.pending | (1u << static_cast<std::uint32_t>(reason)),
+                                 std::memory_order_seq_cst);
         if (entry->running &&
-            ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE) != 0)
+            ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE) != 0) {
+            state.pending_hint.store(state.pending, std::memory_order_seq_cst);
             return BackendError(ErrorCategory::BackendFailure, "RequestInterrupt",
                                 "arm interrupt page", errno);
-        auto &state = *entry->interrupt;
+        }
         const auto epoch = ++next_request_epoch_;
         state.requests.emplace(epoch, reason);
         state.request_epoch = epoch;
@@ -3021,11 +3101,14 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             if (!entry) return OwnershipError(thread, "QueueOwnerCallback");
             if (entry->hle_cancel.stop_requested() || entry->owner_callbacks.size() >= 64)
                 return BackendError(ErrorCategory::Busy, "QueueOwnerCallback", "owner stopping or queue full");
+            // Count before reading `running`, the order a lock-free HLE continuation relies on.
+            owner_callback_count_.fetch_add(1, std::memory_order_seq_cst);
             if (entry->running && !entry->callback_active &&
-                ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE))
+                ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE)) {
+                owner_callback_count_.fetch_sub(1, std::memory_order_seq_cst);
                 return BackendError(ErrorCategory::BackendFailure, "QueueOwnerCallback", "arm poll page", errno);
+            }
             entry->owner_callbacks.push_back(std::move(callback));
-            owner_callback_count_.fetch_add(1, std::memory_order_release);
             wake = entry->callback_wake;
         }
         // Waking a native wait can acquire its lock. Never do it under lock_.
@@ -3071,6 +3154,20 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     }
 
   private:
+    // A bool readable by controllers under lock_ while the owner's lock-free HLE continuation
+    // writes it. Movable only so a ThreadEntry can be built before it is published.
+    struct OwnerFlag final {
+        std::atomic<bool> value{false};
+        OwnerFlag() = default;
+        OwnerFlag(const OwnerFlag& other) noexcept : value{other.value.load()} {}
+        OwnerFlag& operator=(bool v) noexcept {
+            value.store(v, std::memory_order_seq_cst);
+            return *this;
+        }
+        operator bool() const noexcept {
+            return value.load(std::memory_order_seq_cst);
+        }
+    };
     struct ThreadEntry final {
         std::unique_ptr<MemoryWatchCompileState> watch_compile;
         std::optional<Debug::WatchHit> watch_hit;
@@ -3088,7 +3185,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         std::optional<RegisterPatch> debug_patch;
         std::uint64_t debug_patch_epoch{};
         StopReason debug_reason{StopReason::PauseRequested};
-        bool running{false};
+        // Set only together with a held execution lease. The owner's lock-free HLE continuation
+        // sets it after taking the lease, then reads pending_hint / callbacks / debugger state.
+        OwnerFlag running;
+        // That continuation between publishing intent and publishing `running`: it may hold a
+        // lease already. A drain treats it like `running` and waits for both to clear.
+        OwnerFlag entering;
         bool internally_parked{false};
         unsigned active_runs{};
         std::stop_source hle_cancel{};
@@ -3132,6 +3234,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             return BackendError(ErrorCategory::WrongState, "Resume",
                                 "faulted execution cannot be resumed");
         state.pending = 0;
+        state.pending_hint.store(0, std::memory_order_seq_cst);
         state.requests.clear();
         state.receipt.reset();
         stopped_changed_.notify_all();

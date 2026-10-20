@@ -141,6 +141,10 @@ struct AddressSpaceConfig final {
     // Optional sorted, disjoint exact reservations inside the logical envelope.
     // Gaps remain host-owned (for example ART's compressed-reference heap).
     std::vector<GuestRange> owned_ranges;
+    // Single-range data pins inside a mapping this thread validated at the current mapping
+    // generation are registered without the space lock (AcquireDataBatch/AcquireDataSpan).
+    // false keeps every pin on the locked path.
+    bool fast_data_pins{true};
 };
 
 class GuestAddressSpace final {
@@ -246,6 +250,9 @@ public:
     // Taken by the backend around Run/Step. Refused while a transaction holds
     // quiescence, or while code is poisoned.
     [[nodiscard]] Result<ExecutionLease> AcquireExecutionLease();
+    // The lock-free half of AcquireExecutionLease only: empty whenever the execution gate is
+    // closed, instead of taking the lock to report why. The caller falls back to the locked path.
+    [[nodiscard]] std::optional<ExecutionLease> TryAcquireExecutionLeaseFast();
 
     // Success means execution after this point cannot enter stale decode --
     // not merely that an invalidation was queued (API contract §7.2).
@@ -417,6 +424,26 @@ private:
                                                  std::stop_token stop);
     [[nodiscard]] Status CheckDataRequestsLocked(std::span<const DataRequest> requests) const;
 
+    // Short data pins without the lock. An acquirer needs a thread-local record that it
+    // validated the containing mapping at the current mapping generation (left by the locked
+    // path), claims a slot, publishes it, then re-reads the data gate and the generation. Every
+    // reader that must see all pins closes the data gate before scanning the slots
+    // (AnyFastPinLocked), so a pin is either published before the scan and seen, or sees the
+    // closed gate after publishing and backs off to the locked path. The gate stays closed for
+    // the rest of that lock hold and is recomputed on unlock (RefreshExecutionGateLocked); it is
+    // also closed while any state exists in which the locked path would refuse or wait.
+    [[nodiscard]] bool TryAcquireFastPin(const DataRequest& request, PinnedSpan& out);
+    void ReleaseFastPin(std::uint64_t lease_id);
+    void RememberValidatedLocked(std::span<const DataRequest> requests) const;
+    struct FastPinView {
+        GuestRange range;
+        std::thread::id owner;
+    };
+    template <class Pred>
+    [[nodiscard]] bool AnyFastPinLocked(Pred pred) const;
+    [[nodiscard]] bool AnyPinsLocked() const;
+    [[nodiscard]] std::size_t FastPinCountLocked() const;
+
     // Requires `lock`. Shared by every token-consuming entry point so provenance, liveness and
     // epoch are checked the same way in each; having them check independently is how one of them
     // ended up accepting a token from another space.
@@ -525,11 +552,32 @@ private:
     // True while a quiescence/drain/sink/poison state exists or a mapping
     // mutation holds the lock; recomputed on every unlock.
     mutable std::atomic<bool> execution_gate_closed{};
+    // Closed while the locked data path would refuse or wait for a new pin (transaction, sink,
+    // any data edit), and for the rest of any lock hold that scanned the fast pins.
+    mutable std::atomic<bool> data_gate_closed{};
     void RefreshExecutionGateLocked() const noexcept {
         execution_gate_closed.store(active_quiescence != 0 || sink_draining ||
                                         sink_calls_in_flight != 0 || !poisoned_ranges.empty(),
                                     std::memory_order_seq_cst);
+        data_gate_closed.store(active_quiescence != 0 || sink_draining ||
+                                   sink_calls_in_flight != 0 || !data_edits.empty(),
+                               std::memory_order_seq_cst);
     }
+    // Fast pin slots: free (0), claimed by an acquirer (1) or a published pin (2). `sequence`
+    // changes on every claim, so a scan can tell a slot it read across a release and reuse.
+    static constexpr std::size_t kFastPinSlots = 128;
+    static constexpr std::uint64_t kFastPinLease = std::uint64_t{1} << 63;
+    struct alignas(64) FastPinSlot final {
+        std::atomic<std::uint32_t> state{};
+        std::atomic<std::uint32_t> sequence{};
+        std::atomic<std::uint64_t> base{};
+        std::atomic<std::uint64_t> size{};
+        std::atomic<std::thread::id> owner{};
+    };
+    std::array<FastPinSlot, kFastPinSlots> fast_pins{};
+    bool fast_data_pins_enabled{true};
+    // Distinguishes spaces in the thread-local validation records, which outlive a space.
+    std::uint64_t instance_id{};
     void DropExecutionLease();
     // Set when a publication modified bytes but could not discard the matching
     // translations. Blocks execution leases and execute permission until a

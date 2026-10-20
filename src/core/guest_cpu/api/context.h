@@ -94,6 +94,9 @@ struct CpuConfig final {
     // Production owner remains in its host Run frame across coordinator-owned
     // pauses. Explicit user Pause/Cancel retains the normal returned receipt.
     bool resume_internal_drains{false};
+    // Return from an HLE call without the coordinator lock when no interrupt, drain, owner
+    // callback or debugger involves the owner (see FexCpuContext's fast continuation).
+    bool fast_hle_resume{true};
     // Explicit opt-in loopback guest RSP; zero creates no listener or worker.
     std::uint16_t guest_debug_port{};
     bool guest_debug_wait{};

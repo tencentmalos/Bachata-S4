@@ -201,19 +201,23 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                 const u64 window = max_words ? std::min<u64>(a[1], max_words) : a[1];
                 constexpr u32 guard = 0xa55a9187;
                 constexpr u64 guard_words = 64;
-                // Reused per thread; the part the encoder may write is
-                // overwritten from the guest below, the rest is guard.
+                // Reused per thread; the part the encoder may write is overwritten from the
+                // guest below. Only the guard_words right after it are set and checked; the
+                // buffer holds at least 4096 + guard_words dwords, as before, and nothing past
+                // `window` is copied back. (Filling and checking every spare dword was 16 KiB
+                // of stores plus the same in loads on each small encoder call.)
                 thread_local std::vector<u32> encoded;
                 const u64 capacity = std::max<u64>(window, 4096) + guard_words;
                 if (encoded.size() < capacity)
                     encoded.resize(capacity);
                 std::memcpy(encoded.data(), pin.Value().Bytes().data(), window * 4);
-                std::fill(encoded.begin() + window, encoded.begin() + capacity, guard);
+                const auto guard_begin = encoded.begin() + window;
+                const auto guard_end = guard_begin + guard_words;
+                std::fill(guard_begin, guard_end, guard);
                 const auto result = EncoderCall<Fn>(
                     encoded.data(), a, a[2] && register_words ? registers.data() : nullptr,
                     marker ? text.c_str() : nullptr, std::make_index_sequence<S::count>{});
-                if (!std::all_of(encoded.begin() + window, encoded.begin() + capacity,
-                                 [](u32 value) { return value == guard; }))
+                if (!std::all_of(guard_begin, guard_end, [](u32 value) { return value == guard; }))
                     return refused("wrote past size");
                 std::memcpy(pin.Value().WritableBytes().data(), encoded.data(), window * 4);
                 return result;

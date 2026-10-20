@@ -1698,6 +1698,99 @@ void TestProductionVm() {
     });
 }
 
+// Lock-free data pins: the second pin of a mapping this thread already validated skips the lock.
+// They must stay exactly as visible as locked pins to every path that waits for or refuses pins.
+void TestFastDataPins() {
+    RunCase("F01", "lock-free data pins block unmap, protect and quiesce like locked pins", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        const GuestRange range{space->ReservationBase(), page};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map failed");
+        // First pin goes through the lock and leaves the validation record.
+        Check(bool(space->AcquireDataSpan(range, true)), "first data pin failed");
+        {
+            auto pin = space->AcquireDataSpan(range, true);
+            Check(bool(pin) && pin.Value().WritableBytes().size() == page, "second data pin failed");
+            Check(space->Counts().live_pins == 1, "fast pin is not counted");
+            auto unmap = space->Unmap(range);
+            Check(!unmap && unmap.GetError().category == ErrorCategory::Busy,
+                  "unmap must refuse a live fast pin");
+            auto protect = space->Protect(range, GuestPermission::Read);
+            Check(!protect && protect.GetError().category == ErrorCategory::Busy,
+                  "protect must refuse a live fast pin");
+            Check(!space->Quiesce(1), "quiesce must time out on a live fast pin");
+            if (pin)
+                pin.Value().WritableBytes()[0] = std::byte{0x5a};
+        }
+        Check(space->Counts().live_pins == 0, "fast pin not released");
+        // A reprotect bumps the generation: the old validation record cannot grant write.
+        Check(bool(space->Protect(range, GuestPermission::Read)), "protect after release failed");
+        auto writable = space->AcquireDataSpan(range, true);
+        Check(!writable && writable.GetError().category == ErrorCategory::PermissionDenied,
+              "stale validation granted write after reprotect");
+        Check(bool(space->AcquireDataSpan(range, false)), "read pin after reprotect failed");
+        Check(bool(space->Protect(range, GuestPermission::Read | GuestPermission::Write)),
+              "protect back failed");
+        Check(bool(space->Unmap(range)), "unmap after release failed");
+        GuestAddressSpace::DataRequest request{range, GuestPermission::Write};
+        Check(!space->AcquireDataBatch({&request, 1}), "pin of an unmapped range succeeded");
+    });
+
+    // Writers pin and fill the page while a mutator flips it read-only and back through both
+    // the refusing path (Protect) and the waiting path (UpdateDataMapping, a data edit). A pin
+    // admitted during a read-only window would fault on the store and take the test down.
+    const auto race = [](bool data_edit) {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        const GuestRange range{space->ReservationBase(), page};
+        const auto rw = GuestPermission::Read | GuestPermission::Write;
+        Check(bool(space->Map(range, rw)), "map failed");
+        std::atomic<bool> stop{false};
+        std::atomic<std::uint64_t> writes{}, refused{};
+        std::vector<std::thread> writers;
+        for (int t = 0; t < 4; ++t) {
+            writers.emplace_back([&, t] {
+                while (!stop.load(std::memory_order_relaxed)) {
+                    GuestAddressSpace::DataRequest request{range, GuestPermission::Write, {}, true};
+                    auto pin = space->AcquireDataBatch({&request, 1});
+                    if (!pin) {
+                        refused.fetch_add(1, std::memory_order_relaxed);
+                        continue;
+                    }
+                    auto bytes = pin.Value()[0].WritableBytes();
+                    std::memset(bytes.data(), t + 1, bytes.size());
+                    writes.fetch_add(1, std::memory_order_relaxed);
+                }
+            });
+        }
+        std::uint64_t flips{};
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(400);
+        while (std::chrono::steady_clock::now() < deadline) {
+            if (data_edit) {
+                if (space->UpdateDataMapping(GuestAddressSpace::VmOperation::Protect, range,
+                                             GuestPermission::Read) &&
+                    space->UpdateDataMapping(GuestAddressSpace::VmOperation::Protect, range, rw))
+                    ++flips;
+            } else if (space->Protect(range, GuestPermission::Read)) {
+                while (!space->Protect(range, rw)) {
+                }
+                ++flips;
+            }
+        }
+        stop.store(true);
+        for (auto& w : writers)
+            w.join();
+        std::printf("    flips %llu writes %llu refused %llu\n",
+                    static_cast<unsigned long long>(flips),
+                    static_cast<unsigned long long>(writes.load()),
+                    static_cast<unsigned long long>(refused.load()));
+        Check(flips > 0 && writes.load() > 0, "race did not exercise both sides");
+        Check(space->Counts().live_pins == 0, "pins left after the race");
+    };
+    RunCase("F02", "lock-free data pins race a refusing reprotect", [&] { race(false); });
+    RunCase("F03", "lock-free data pins race a waiting data-mapping edit", [&] { race(true); });
+}
+
 } // namespace
 
 void TestSegmentedReservations() {
@@ -1811,6 +1904,7 @@ int main() {
     TestUnsupportedModes();
     TestStopSemantics();
     TestProductionVm();
+    TestFastDataPins();
 
     const auto failed = static_cast<std::size_t>(
         std::count_if(g_results.begin(), g_results.end(),

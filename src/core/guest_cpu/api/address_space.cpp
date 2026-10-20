@@ -10,6 +10,7 @@
 #include <cerrno>
 #include <chrono>
 #include <cstring>
+#include <functional>
 #include <limits>
 
 #include <sys/mman.h>
@@ -109,6 +110,17 @@ int ToHostProtection(GuestPermission permission) {
 bool RangesOverlap(const GuestRange& a, const GuestRange& b) {
     return a.base.value < b.base.value + b.size && b.base.value < a.base.value + a.size;
 }
+
+// Mappings this thread passed through the locked validation, valid only while the space's
+// mapping generation is unchanged: every committed mapping change bumps it under the lock.
+struct ValidatedMapping {
+    std::uint64_t space{}, generation{}, begin{}, end{};
+    GuestPermission permission{GuestPermission::None};
+};
+thread_local std::array<ValidatedMapping, 4> t_validated{};
+thread_local unsigned t_validated_next{};
+thread_local std::size_t t_fast_pin_hint{
+    std::hash<std::thread::id>{}(std::this_thread::get_id())};
 
 // mmap failures are not all "out of memory". A W^X host refuses RWX with
 // EACCES, and reporting that as OutOfMemory would send a reader looking for a
@@ -299,6 +311,9 @@ GuestAddressSpace::GuestAddressSpace(void* reservation, std::uint64_t size,
       reservation_base{GuestAddress{reinterpret_cast<std::uint64_t>(reservation)}},
       reservation_size{size}, memory_mode{config.memory_mode}, smc_mode{config.smc_mode},
       liveness{std::make_shared<AddressSpaceLiveness>()} {
+    static std::atomic<std::uint64_t> next_instance{1};
+    instance_id = next_instance.fetch_add(1, std::memory_order_relaxed);
+    fast_data_pins_enabled = config.fast_data_pins;
     reservations.push_back({reservation_base, reservation_size});
     liveness->space = this;
 }
@@ -557,11 +572,9 @@ Status GuestAddressSpace::Unmap(GuestRange range) {
 
     // A live HLE lease wins: the span must stay valid for its whole lifetime
     // (acceptance M13). Report Busy rather than pulling it out underneath.
-    for (const auto& pin : pins) {
-        if (RangesOverlap(pin.range, range)) {
-            return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Unmap",
-                             "range has a live pinned HLE span");
-        }
+    if (AnyPinOverlapsLocked(range)) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Unmap",
+                         "range has a live pinned HLE span");
     }
 
     const auto found = std::find_if(mappings.begin(), mappings.end(), [&](const Mapping& m) {
@@ -889,6 +902,108 @@ Status GuestAddressSpace::CheckDataRequestsLocked(std::span<const DataRequest> r
     return Ok();
 }
 
+template <class Pred>
+bool GuestAddressSpace::AnyFastPinLocked(Pred pred) const {
+    // Close first: an acquirer that publishes after this store re-reads the gate and backs off,
+    // one that published before it is visible below (both sides seq_cst).
+    data_gate_closed.store(true, std::memory_order_seq_cst);
+    for (const auto& slot : fast_pins) {
+        const auto sequence = slot.sequence.load(std::memory_order_seq_cst);
+        if (slot.state.load(std::memory_order_seq_cst) != 2)
+            continue;
+        const FastPinView view{
+            GuestRange{GuestAddress{slot.base.load(std::memory_order_relaxed)},
+                       slot.size.load(std::memory_order_relaxed)},
+            slot.owner.load(std::memory_order_relaxed)};
+        // Released and claimed again while being read: that pin is gone, and the new claim
+        // will see the closed gate when it publishes.
+        if (slot.sequence.load(std::memory_order_seq_cst) != sequence)
+            continue;
+        if (pred(view))
+            return true;
+    }
+    return false;
+}
+
+bool GuestAddressSpace::AnyPinsLocked() const {
+    return !pins.empty() || AnyFastPinLocked([](const FastPinView&) { return true; });
+}
+
+std::size_t GuestAddressSpace::FastPinCountLocked() const {
+    std::size_t count{};
+    (void)AnyFastPinLocked([&](const FastPinView&) {
+        ++count;
+        return false;
+    });
+    return count;
+}
+
+bool GuestAddressSpace::TryAcquireFastPin(const DataRequest& request, PinnedSpan& out) {
+    const auto& range = request.range;
+    if (!fast_data_pins_enabled || !request.identities.empty() || range.size == 0 ||
+        (static_cast<unsigned>(request.permission) & ~3u) ||
+        range.base.value > std::numeric_limits<std::uint64_t>::max() - range.size)
+        return false;
+    if (data_gate_closed.load(std::memory_order_seq_cst))
+        return false;
+    const auto generation = mapping_generation.load(std::memory_order_seq_cst);
+    const auto end = range.base.value + range.size;
+    if (std::none_of(t_validated.begin(), t_validated.end(), [&](const ValidatedMapping& v) {
+            return v.space == instance_id && v.generation == generation &&
+                   range.base.value >= v.begin && end <= v.end &&
+                   HasPermission(v.permission, request.permission);
+        }))
+        return false;
+    const bool writable = HasPermission(request.permission, GuestPermission::Write);
+    for (std::size_t probe = 0; probe < 8; ++probe) {
+        const auto index = (t_fast_pin_hint + probe) % kFastPinSlots;
+        auto& slot = fast_pins[index];
+        std::uint32_t expected = 0;
+        if (!slot.state.compare_exchange_strong(expected, 1, std::memory_order_seq_cst))
+            continue;
+        slot.sequence.fetch_add(1, std::memory_order_seq_cst);
+        slot.base.store(range.base.value, std::memory_order_relaxed);
+        slot.size.store(range.size, std::memory_order_relaxed);
+        slot.owner.store(std::this_thread::get_id(), std::memory_order_relaxed);
+        slot.state.store(2, std::memory_order_seq_cst);
+        if (data_gate_closed.load(std::memory_order_seq_cst) ||
+            mapping_generation.load(std::memory_order_seq_cst) != generation) {
+            ReleaseFastPin(kFastPinLease | index);
+            return false;
+        }
+        t_fast_pin_hint = index;
+        out = PinnedSpan{liveness,  range.base, HostPointer(range.base),
+                         static_cast<std::size_t>(range.size), writable, kFastPinLease | index};
+        return true;
+    }
+    return false;
+}
+
+void GuestAddressSpace::ReleaseFastPin(std::uint64_t lease_id) {
+    fast_pins[lease_id & ~kFastPinLease].state.store(0, std::memory_order_seq_cst);
+    // Same pairing as DropExecutionLease: a waiter registers under the lock before it scans.
+    if (leases_idle_waiters.load(std::memory_order_seq_cst) == 0)
+        return;
+    std::lock_guard guard{lock};
+    NotifyLeasesIdleLocked();
+}
+
+void GuestAddressSpace::RememberValidatedLocked(std::span<const DataRequest> requests) const {
+    if (!fast_data_pins_enabled)
+        return;
+    for (const auto& r : requests) {
+        if (!r.identities.empty())
+            continue;
+        // Only a single containing mapping: a buffer across adjacent mappings stays locked.
+        const auto* m = FindContainingMappingLocked(r.range);
+        if (!m)
+            continue;
+        t_validated[t_validated_next++ % t_validated.size()] = {
+            instance_id, mapping_generation.load(std::memory_order_relaxed), m->range.base.value,
+            m->range.base.value + m->range.size, m->permission};
+    }
+}
+
 Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<GateMutex>& guard,
                                                   std::span<const DataRequest> requests,
                                                   std::stop_token stop) {
@@ -899,7 +1014,8 @@ Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<GateMutex>& g
         if (!active_quiescence && data_edits.empty())
             return true;
         const bool own_pin =
-            std::any_of(pins.begin(), pins.end(), [&](const Pin& p) { return p.owner == owner; });
+            std::any_of(pins.begin(), pins.end(), [&](const Pin& p) { return p.owner == owner; }) ||
+            AnyFastPinLocked([&](const FastPinView& p) { return p.owner == owner; });
         // An already admitted native operation can finish nested marshalling
         // while drain waits for its pins. No new writer enters a minted token.
         if (active_quiescence && !(quiescence_draining && own_pin)) {
@@ -918,6 +1034,9 @@ Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<GateMutex>& g
                 continue;
             // Reentry can only extend a range already retained by this owner.
             if (!std::any_of(pins.begin(), pins.end(), [&](const Pin& p) {
+                    return p.owner == owner && RangesOverlap(p.range, edit.range);
+                }) &&
+                !AnyFastPinLocked([&](const FastPinView& p) {
                     return p.owner == owner && RangesOverlap(p.range, edit.range);
                 }))
                 return false;
@@ -939,9 +1058,17 @@ Result<std::vector<PinnedSpan>> GuestAddressSpace::AcquireDataBatch(
     std::span<const DataRequest> requests, std::stop_token stop) {
     std::vector<PinnedSpan> result;
     result.reserve(requests.size());
+    if (requests.size() == 1 && !stop.stop_requested()) {
+        PinnedSpan pin;
+        if (TryAcquireFastPin(requests[0], pin)) {
+            result.push_back(std::move(pin));
+            return result;
+        }
+    }
     std::unique_lock guard{lock};
     if (auto status = WaitDataAdmissionLocked(guard, requests, stop); !status)
         return status.GetError();
+    RememberValidatedLocked(requests);
     pins.reserve(pins.size() + requests.size());
     for (const auto& r : requests) {
         const auto lease = next_lease_id++;
@@ -957,9 +1084,15 @@ Result<PinnedSpan> GuestAddressSpace::AcquireDataSpan(GuestRange range, bool wri
                                                       std::stop_token stop) {
     const DataRequest request{range, writable ? GuestPermission::Read | GuestPermission::Write
                                               : GuestPermission::Read};
+    if (!stop.stop_requested()) {
+        PinnedSpan pin;
+        if (TryAcquireFastPin(request, pin))
+            return pin;
+    }
     std::unique_lock guard{lock};
     if (auto status = WaitDataAdmissionLocked(guard, {&request, 1}, stop); !status)
         return status.GetError();
+    RememberValidatedLocked({&request, 1});
     const auto lease = next_lease_id++;
     pins.push_back(Pin{lease, range, writable});
     return PinnedSpan{
@@ -1058,11 +1191,17 @@ Result<PinnedSpan> GuestAddressSpace::AcquirePinnedSpan(GuestRange range, bool w
 
 // Requires lock. True when any live lease overlaps `range`.
 bool GuestAddressSpace::AnyPinOverlapsLocked(GuestRange range) const {
+    if (AnyFastPinLocked([&](const FastPinView& p) { return RangesOverlap(p.range, range); }))
+        return true;
     return std::any_of(pins.begin(), pins.end(),
                        [&](const Pin& pin) { return RangesOverlap(pin.range, range); });
 }
 
 void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
+    if (lease_id & kFastPinLease) {
+        ReleaseFastPin(lease_id);
+        return;
+    }
     std::lock_guard guard{lock};
     std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease_id; });
     NotifyLeasesIdleLocked();
@@ -1089,7 +1228,7 @@ Result<QuiescenceToken> GuestAddressSpace::FinishDrain(QuiescenceDrain& drain,
         return status.GetError();
     IdleWaiter waiting{leases_idle_waiters};
     if (!leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns), [&] {
-            return execution_leases == 0 && pins.empty();
+            return execution_leases == 0 && !AnyPinsLocked();
         }))
         return MakeError(ErrorCategory::Timeout, "FinishDrain", "owners or HLE pins have not drained");
     if (sink_draining || sink_calls_in_flight)
@@ -1150,13 +1289,14 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
     // In-flight HLE writers hold pins. Reporting Timeout without changing
     // anything is required: a partial stop must not be used to authorise a
     // transaction (API contract §7.2).
-    if (!pins.empty()) {
+    if (AnyPinsLocked()) {
         active_quiescence = 0;
         quiescence_draining = false;
         quiescence_owner = {};
         leases_idle.notify_all();
         auto error = MakeError(ErrorCategory::Timeout, "GuestAddressSpace::Quiesce",
-                               "HLE spans still pinned: " + std::to_string(pins.size()));
+                               "HLE spans still pinned: " +
+                                   std::to_string(pins.size() + FastPinCountLocked()));
         error.system_error = static_cast<std::int64_t>(timeout_ns);
         return error;
     }
@@ -1288,6 +1428,16 @@ Result<ExecutionLease> GuestAddressSpace::AcquireExecutionLease() {
     }
     execution_leases.fetch_add(1, std::memory_order_seq_cst);
     return ExecutionLease{this};
+}
+
+std::optional<ExecutionLease> GuestAddressSpace::TryAcquireExecutionLeaseFast() {
+    if (execution_gate_closed.load(std::memory_order_seq_cst))
+        return std::nullopt;
+    execution_leases.fetch_add(1, std::memory_order_seq_cst);
+    if (!execution_gate_closed.load(std::memory_order_seq_cst))
+        return ExecutionLease{this};
+    DropExecutionLease();
+    return std::nullopt;
 }
 
 void GuestAddressSpace::DropExecutionLease() {
@@ -1746,8 +1896,11 @@ Result<std::unique_ptr<GuestAddressSpace::DataRetirement>> GuestAddressSpace::Pr
     if (!leases_idle.wait_until(guard, stop, deadline,
                                 [&] {
                                     return std::none_of(
-                                        pins.begin(), pins.end(),
-                                        [&](const auto& pin) { return overlaps(pin.range); });
+                                               pins.begin(), pins.end(),
+                                               [&](const auto& pin) { return overlaps(pin.range); }) &&
+                                           !AnyFastPinLocked([&](const FastPinView& pin) {
+                                               return overlaps(pin.range);
+                                           });
                                 }) ||
         stop.stop_requested())
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
@@ -1876,7 +2029,7 @@ Status GuestAddressSpace::UpdateVmUnderToken(const QuiescenceToken& token, VmOpe
     std::unique_lock guard{lock};
     if (auto s = CheckTokenLocked(token, name); !s)
         return s;
-    if (sink_draining || sink_calls_in_flight || !pins.empty())
+    if (sink_draining || sink_calls_in_flight || AnyPinsLocked())
         return MakeError(ErrorCategory::Busy, name, "VM requires drained pins and sink");
     if (!poisoned_ranges.empty())
         return MakeError(ErrorCategory::WrongState, name,
@@ -2051,8 +2204,8 @@ void GuestAddressSpace::NotifyObservers(GuestRange range) {
 
 GuestAddressSpace::ResourceCounts GuestAddressSpace::Counts() const {
     std::lock_guard guard{lock};
-    return ResourceCounts{mappings.size(), aliases.size(), pins.size(), observers.size(),
-                          data_edits.size()};
+    return ResourceCounts{mappings.size(), aliases.size(), pins.size() + FastPinCountLocked(),
+                          observers.size(), data_edits.size()};
 }
 
 } // namespace Core::GuestCpu

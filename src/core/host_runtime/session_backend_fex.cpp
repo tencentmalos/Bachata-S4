@@ -161,6 +161,17 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
     AddressSpaceConfig cfg{};
     cfg.reservation_size = kReservationSize;
     cfg.max_address = QueryBackendCapabilities().max_guest_address;
+#if defined(__ANDROID__)
+    // A/B switches for the lock-free HLE paths, read once per Session generation.
+    const auto property_off = [](const char* name) {
+        char value[PROP_VALUE_MAX]{};
+        return __system_property_get(name, value) > 0 && value[0] == '0' && value[1] == 0;
+    };
+    cfg.fast_data_pins = !property_off("debug.shadps4.fast_data_pins");
+    [[maybe_unused]] const bool fast_hle_resume = !property_off("debug.shadps4.fast_hle_resume");
+#else
+    [[maybe_unused]] const bool fast_hle_resume = true;
+#endif
 #if defined(SHADPS4_TYPED_HLE_HOST)
     if (!params.executable_path.empty()) {
         cfg.preferred_base = GuestRuntime::ReservationBegin;
@@ -198,6 +209,9 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         RuntimeStage("prepare: create FEX context");
         CpuConfig cpu_config;
         cpu_config.resume_internal_drains = true;
+        cpu_config.fast_hle_resume = fast_hle_resume;
+        LOG_INFO(Core, "HLE fast paths: data pins {}, continuation {}",
+                 cfg.fast_data_pins ? "on" : "off", fast_hle_resume ? "on" : "off");
 #if defined(__ANDROID__)
         // Shell-set debug property, read once for this Session generation.
         // No listener on ordinary startup and no public-network binding.
