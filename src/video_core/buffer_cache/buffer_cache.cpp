@@ -196,6 +196,21 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
         value && value[0] >= '1' && value[0] <= '3') {
         stream_promote_cycles.store(static_cast<u32>(value[0] - '0'));
     }
+    // Reuse of streamed copies within a window: SHADPS4_STREAM_REUSE / debug.shadps4.stream_reuse
+    // =0|1; at run time `upload_diag stream_reuse on|off`.
+    if (const char* value = std::getenv("SHADPS4_STREAM_REUSE"); value && *value) {
+        StreamReuse::enabled.store(value[0] == '1');
+    }
+#ifdef __ANDROID__
+    {
+        char property[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.stream_reuse", property) > 0) {
+            StreamReuse::enabled.store(property[0] == '1');
+        }
+    }
+#endif
+    LOG_INFO(Render_Vulkan, "Streamed copy reuse: {}",
+             StreamReuse::enabled.load() ? "on" : "off");
     // The largest arena is the device's buffer size limit (some drivers, e.g. Qualcomm's, stay a
     // little under 4 GiB); pages are the largest power of two at most half of it.
     const u64 buffer_limit = instance.MaxBufferSize();
@@ -454,6 +469,10 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
         << stream_sizes[2] << "/" << stream_sizes[3]
         << " max=" << UploadDiagnostics::stream_max.load(o) << " host_memory="
         << (host_stream_buffer && UploadDiagnostics::stream_host.load(o)) << "\n";
+    out << "stream_reuse enabled=" << StreamReuse::enabled.load(o) << " reused=" << stream_reuses
+        << " bytes=" << stream_reuse_bytes << " misses empty/tick/window/memory="
+        << stream_reuse_misses[0] << "/" << stream_reuse_misses[1] << "/"
+        << stream_reuse_misses[2] << "/" << stream_reuse_misses[3] << "\n";
     out << "arena_uploads calls=" << arena_uploads.calls << " bytes=" << arena_uploads.bytes
         << " regions=" << arena_uploads.regions << " written=" << arena_uploads.written
         << " binding<=16K/64K/256K/more=" << arena_uploads.binding_sizes[0] << "/"
@@ -647,6 +666,20 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
         Vulkan::MissingContent::Access(device_addr, size, false);
         texture_cache.WaitPendingWritebacks(device_addr, size,
                                             UploadDiagnostics::WritebackReader::BufferUpload);
+        // Read after the write-backs above: the ones that ran changed the epoch.
+        const u64 view = Core::MemoryManager::GuestViewEpoch();
+        const u64 window = StreamReuse::window.load(std::memory_order_relaxed);
+        const bool reuse = StreamReuse::enabled.load(std::memory_order_relaxed);
+        if (reuse) {
+            StreamReuse::Miss miss{};
+            if (const auto* copy = stream_reuse.Find(
+                    device_addr, size, {scheduler.CurrentTick(), window, view}, &miss)) {
+                ++stream_reuses;
+                stream_reuse_bytes += size;
+                return {copy->buffer, copy->offset};
+            }
+            ++stream_reuse_misses[static_cast<size_t>(miss)];
+        }
         ++stream_copies;
         stream_bytes += size;
         ++stream_sizes[size <= 256 ? 0 : size <= 1024 ? 1 : size <= 4096 ? 2 : 3];
@@ -662,6 +695,11 @@ std::pair<const Buffer*, u64> BufferCache::ObtainBuffer(VAddr device_addr, u32 s
             memory->CopySparseMemory(device_addr, data, size, stream_read_cache);
         }
         stream.Commit();
+        if (reuse) {
+            // The tick the copy was committed in: Map may have submitted to make room.
+            stream_reuse.Insert(device_addr, size, &stream, offset,
+                                {stream.LastTick(), window, view});
+        }
         if (AmdGpu::Pm4Stats::armed.load(std::memory_order_relaxed)) [[unlikely]] {
             AmdGpu::Pm4Stats::NoteStreamCopy(liverpool->diagnostic_guest_flip, device_addr, size,
                                              data);

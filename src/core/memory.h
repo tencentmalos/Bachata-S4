@@ -311,6 +311,7 @@ public:
     }
     /// DebugBus `upload_diag read_cache on|off`.
     static inline std::atomic<bool> read_cache_enabled{true};
+    static inline std::atomic<u64> guest_view_epoch{1};
     /// CopySparseMemory for a source that may not be guest memory: one locked mapping
     /// check instead of an unlocked pre-check plus the locked one. False when unmapped.
     bool TryCopySparseMemory(VAddr source, u8* dest, u64 size);
@@ -324,6 +325,17 @@ public:
     void ProtectGpu(VAddr address, u64 size, MemoryPermission permission);
 
     bool TryWriteBacking(void* address, const void* data, u64 size);
+    /// Changes whenever what a guest address reads may have changed by other means than a plain
+    /// guest CPU store: host writes into guest memory (TryWriteBacking, WriteBackingUnchanged,
+    /// CopyGuestRegions), guest writes the HLE reports (InvalidateMemory) and mapping changes
+    /// (every writer hold). Read before copying guest memory; a copy is current while it is
+    /// unchanged (VideoCore::StreamReuse).
+    static u64 GuestViewEpoch() {
+        return guest_view_epoch.load(std::memory_order_acquire);
+    }
+    static void NoteGuestViewChange() {
+        guest_view_epoch.fetch_add(1, std::memory_order_acq_rel);
+    }
     /// Reads [address, address + size) through its physical backing (never faults on
     /// protected pages). False, with nothing read, unless the whole range is backed.
     bool TryReadBacking(VAddr address, void* data, u64 size);

@@ -27,6 +27,7 @@
 #include "core/platform.h"
 #include "shader_recompiler/resource.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/buffer_cache/stream_reuse.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/memory_diagnostics.h"
 #include "video_core/amdgpu/pm4_cmds.h"
@@ -56,6 +57,7 @@ static const char* acb_task_name[] = NAME_ARRAY(ACB_TASK, MAX_NAMES);
     if (stopping)                                                                                  \
         co_return;                                                                                 \
     co_yield {};                                                                                   \
+    VideoCore::StreamReuse::EndWindow(VideoCore::StreamReuse::End::Yield);                         \
     FIBER_ENTER(name);
 
 #define YIELD_CE() YIELD(ccb_task_name)
@@ -240,6 +242,7 @@ void Liverpool::ProcessCommands() {
         } catch (...) {
             ReportFault(std::current_exception());
         }
+        VideoCore::StreamReuse::EndWindow(VideoCore::StreamReuse::End::Commands);
     }
 }
 
@@ -732,6 +735,7 @@ std::string Liverpool::FenceCommand(const std::vector<std::string>& args) {
 
 Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submission) {
     FIBER_ENTER(ccb_task_name);
+    VideoCore::StreamReuse::EndWindow(VideoCore::StreamReuse::End::Submission);
 
     // The CE copy is owned by the submission; its guest address is not carried here.
     const u64 trace_ib = Pm4Trace::NextIb();
@@ -759,6 +763,9 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb, u64 submiss
         }
 
         const PM4ItOpcode opcode = header->type3.opcode;
+        if (!VideoCore::StreamReuse::KeepsWindow(opcode)) {
+            VideoCore::StreamReuse::EndWindow(opcode);
+        }
         const auto* it_body = reinterpret_cast<const u32*>(header) + 1;
         switch (opcode) {
         case PM4ItOpcode::Nop: {
@@ -835,6 +842,7 @@ void LogBadPacket(const u32* begin, const u32* at, const u32* end, VAddr source)
 Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb,
                                            u64 submission, VAddr source, const u32* origin) {
     FIBER_ENTER(dcb_task_name);
+    VideoCore::StreamReuse::EndWindow(VideoCore::StreamReuse::End::Submission);
 
     cblock.Reset();
 
@@ -890,6 +898,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
         case 3:
             const u32 count = header->type3.NumWords();
             const PM4ItOpcode opcode = header->type3.opcode;
+            if (!VideoCore::StreamReuse::KeepsWindow(opcode)) {
+                VideoCore::StreamReuse::EndWindow(opcode);
+            }
             switch (opcode) {
             case PM4ItOpcode::Nop: {
                 const auto* nop = reinterpret_cast<const PM4CmdNop*>(header);
@@ -903,6 +914,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     // special NOP packets. For convenience lets assume that it does.
                     Platform::IrqC::Instance()->Signal(Platform::InterruptId::GfxFlip);
                     ++flip_epoch;
+                    VideoCore::StreamReuse::EndWindow(VideoCore::StreamReuse::End::Flip);
                     break;
                 }
                 case PM4CmdNop::PayloadType::DebugMarkerPush: {
@@ -1290,6 +1302,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                     regs.cp_strmout_cntl.offset_update_done = 1;
                 } else if (event->event_index.Value() == EventIndex::ZpassDone) {
                     if (event->event_type.Value() == EventType::PixelPipeStatDump) {
+                        VideoCore::StreamReuse::EndWindow(opcode);
                         static constexpr u64 OcclusionCounterValidMask = 0x8000000000000000ULL;
                         static constexpr u64 OcclusionCounterStep = 0x2FFFFFFULL;
                         u64* results = event->Address<u64*>();
@@ -1539,6 +1552,7 @@ template <bool is_indirect>
 Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission,
                                           VAddr source, const u32* origin) {
     FIBER_ENTER(acb_task_name[vqid]);
+    VideoCore::StreamReuse::EndWindow(VideoCore::StreamReuse::End::Submission);
     auto& queue = asc_queues[{vqid}];
     const bool host_markers_enabled = rasterizer && rasterizer->HostMarkersEnabled();
 
@@ -1615,6 +1629,9 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u6
         }
 
         const PM4ItOpcode opcode = header->type3.opcode;
+        if (!VideoCore::StreamReuse::KeepsWindow(opcode)) {
+            VideoCore::StreamReuse::EndWindow(opcode);
+        }
 
         const auto* it_body = reinterpret_cast<const u32*>(header) + 1;
         switch (opcode) {

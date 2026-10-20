@@ -14,6 +14,7 @@
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/buffer_cache/fault_manager.h"
 #include "video_core/buffer_cache/range_set.h"
+#include "video_core/buffer_cache/stream_reuse.h"
 #include "video_core/texture_cache/upload_diagnostics.h"
 #include "video_core/renderer_vulkan/vk_semaphore.h"
 
@@ -265,6 +266,12 @@ private:
     u64 stream_copies{};
     u64 stream_bytes{};
     std::array<u64, 4> stream_sizes{};
+    // Streamed copies bound again within their window instead of copied (StreamReuse), and the
+    // lookups that found an older copy of the same range, by what changed since it was made.
+    StreamReuse::Table<StreamBuffer> stream_reuse;
+    u64 stream_reuses{};
+    u64 stream_reuse_bytes{};
+    std::array<u64, static_cast<size_t>(StreamReuse::Miss::Count)> stream_reuse_misses{};
     // CPU-dirty data copied into arenas for a binding: calls, bytes, copy regions, calls for
     // written bindings, and calls by binding size (<=16 KiB, <=64 KiB, <=256 KiB, larger).
     struct {

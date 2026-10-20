@@ -46,11 +46,16 @@ struct WriteHold {
     WriteHold(Common::SharedFirstMutex& mutex, const char* name) : lock{mutex}, hold{name} {
         scope.emplace(name);
     }
-    // Releases early; a second call does nothing.
+    ~WriteHold() {
+        unlock();
+    }
+    // Releases early; a second call does nothing. Mapping changes are published by now, so
+    // copies of guest memory made before are no longer current (GuestViewEpoch).
     void unlock() {
         hold.Stop();
         scope.reset();
         if (lock.owns_lock()) {
+            MemoryManager::NoteGuestViewChange();
             lock.unlock();
         }
     }
@@ -867,6 +872,7 @@ bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {
     const auto* source = static_cast<const u8*>(data);
     for (const auto& span : spans)
         std::memcpy(span.host, source + span.offset, span.size);
+    NoteGuestViewChange();
     return true;
 }
 
@@ -920,6 +926,7 @@ bool MemoryManager::WriteBackingUnchanged(VAddr address, const u8* data, const u
             }
         }
     }
+    NoteGuestViewChange();
     return true;
 }
 
@@ -985,6 +992,9 @@ u64 MemoryManager::CopyGuestRegions(std::span<const GuestCopy> copies,
         GuestWriteWatch::Check(copy.destination, std::bit_cast<const u8*>(copy.source), copy.size);
         std::memmove(destination, std::bit_cast<const u8*>(copy.source), copy.size);
         copied += copy.size;
+    }
+    if (copied) {
+        NoteGuestViewChange();
     }
     return copied;
 }
@@ -2535,6 +2545,7 @@ s32 MemoryManager::GetMemoryPoolStats(::Libraries::Kernel::OrbisKernelMemoryPool
 }
 
 void MemoryManager::InvalidateMemory(const VAddr addr, const u64 size) const {
+    NoteGuestViewChange();
     if (rasterizer) {
         rasterizer->InvalidateMemory(addr, size);
     }

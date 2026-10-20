@@ -4,11 +4,13 @@
 #include <cstdlib>
 #include <array>
 #include <charconv>
+#include <functional>
 #include <limits>
 #include <mutex>
 #include <unordered_map>
 #include <fmt/format.h>
 #include "common/logging/log.h"
+#include "video_core/buffer_cache/stream_reuse.h"
 #include "core/address_space.h"
 #include "core/memory.h"
 #include "video_core/buffer_cache/gpu_byte_keeper.h"
@@ -18,6 +20,29 @@
 #include "video_core/texture_cache/upload_diagnostics.h"
 
 namespace VideoCore::UploadDiagnostics {
+
+namespace {
+// Streamed copy reuse switch and why windows ended: by reason, and the packets that end most.
+std::string StreamReuseLine() {
+    namespace R = VideoCore::StreamReuse;
+    constexpr auto o = std::memory_order_relaxed;
+    std::string out = fmt::format(
+        "stream_reuse={} windows={} ends packet/yield/submission/commands/flip={}/{}/{}/{}/{}",
+        R::enabled.load(o) ? "on" : "off", R::window.load(o), R::ends[0].load(o),
+        R::ends[1].load(o), R::ends[2].load(o), R::ends[3].load(o), R::ends[4].load(o));
+    std::array<std::pair<u64, u32>, 256> packets{};
+    for (u32 i = 0; i < packets.size(); ++i) {
+        packets[i] = {R::packet_ends[i].load(o), i};
+    }
+    std::partial_sort(packets.begin(), packets.begin() + 6, packets.end(), std::greater<>{});
+    out += " top_packets=";
+    for (u32 i = 0; i < 6 && packets[i].first; ++i) {
+        out += fmt::format("{}{:#x}:{}", i ? "," : "", packets[i].second, packets[i].first);
+    }
+    return out + "\n";
+}
+} // namespace
+
 namespace {
 
 constexpr u32 MaxMips = 16;
@@ -246,6 +271,7 @@ std::string Summary() {
                        unused_small_depth_draws.load());
     out += fmt::format("stream_submit={} early_submits={}\n", stream_submit_draws.load(),
                        stream_submits.load());
+    out += StreamReuseLine();
     static constexpr std::array<const char*, 3> AsyncModes{"off", "tiny", "all"};
     out += fmt::format("async_writeback={} deferred fences={} submits={}\n",
                        AsyncModes[static_cast<u32>(async_writeback.load())],
@@ -554,6 +580,13 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("stream_submit={} early_submits={}\n", stream_submit_draws.load(),
                            stream_submits.load());
     }
+    if (sub == "stream_reuse" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        StreamReuse::enabled.store(args[1] == "on");
+        return StreamReuseLine();
+    }
+    if (sub == "stream_reuse" && args.size() == 1) {
+        return StreamReuseLine();
+    }
     if (sub == "unused_small_depth" && args.size() == 2 &&
         (args[1] == "drop" || args[1] == "keep")) {
         unused_small_depth.store(args[1] == "drop");
@@ -801,7 +834,7 @@ std::string Command(const std::vector<std::string>& args) {
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "
            "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off | "
            "async_writeback off|tiny|all | writeback_log <n> | corner_views on|off | "
-           "unused_small_depth drop|keep | stream_submit <draws>\n";
+           "unused_small_depth drop|keep | stream_submit <draws> | stream_reuse [on|off]\n";
 }
 
 } // namespace VideoCore::UploadDiagnostics

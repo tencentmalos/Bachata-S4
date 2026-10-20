@@ -30,3 +30,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|Android)$")
         set_tests_properties(common_signal_context_tests PROPERTIES TIMEOUT 130)
     endif()
 endif()
+
+# Reuse of streamed copies (header-only, no Vulkan).
+add_executable(stream_reuse_tests stream_reuse_tests.cpp)
+target_compile_features(stream_reuse_tests PRIVATE cxx_std_20)
+target_include_directories(stream_reuse_tests PRIVATE ../../src)
+add_test(NAME stream_reuse_tests COMMAND stream_reuse_tests)
