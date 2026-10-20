@@ -30,15 +30,16 @@ void Observe(const FA::DeviceSnapshot& s) {
     Common::Profiler::Counter("Audio.DeviceQueuedFrames", s.mixer.queued_frames);
     Common::Profiler::Counter("Audio.DeviceBufferFrames", s.buffer_size);
     Common::Profiler::Counter("Audio.Reconnects", s.reconnects);
+    Common::Profiler::Counter("Audio.Stalls", s.stalls);
     Common::Profiler::Counter("Audio.LimitedFrames", s.mixer.limited_frames);
     LOG_INFO(Lib_AudioOut,
         "Oboe gen={} api={} perf={} share={} rate={} ch={} burst={} capacity={} size={} "
         "sources={} callbacks={} frames={} consumed={} starved={} xruns={} "
-        "timestamp_result={} presented={} reconnects={} error={} limited={} peak={:.3f}",
+        "timestamp_result={} presented={} reconnects={} stalls={} error={} limited={} peak={:.3f}",
         s.generation, s.api, s.performance, s.sharing, s.sample_rate, s.channels, s.burst,
         s.capacity, s.buffer_size, s.mixer.sources, s.mixer.callbacks, s.mixer.output_frames,
         s.mixer.consumed_frames, s.mixer.starved_frames, s.xruns, s.timestamp_error,
-        s.presented_frames, s.reconnects, s.mixer.error, s.mixer.limited_frames,
+        s.presented_frames, s.reconnects, s.stalls, s.mixer.error, s.mixer.limited_frames,
         s.mixer.peak_millis / 1000.0);
 }
 
@@ -155,5 +156,26 @@ std::string OutputLimiterCommand(const std::vector<std::string>& args) {
         out += "no audio device\n";
     }
     return out;
+}
+
+std::string OutputDeviceCommand(const std::vector<std::string>& args) {
+    std::shared_ptr<FA::AndroidOutput> device;
+    {
+        std::lock_guard lock(limiter_mutex);
+        device = limiter_device.lock();
+    }
+    if (!device) return "no audio device\n";
+    if (args.size() == 1 && args[0] == "stall") {
+        // The data callback returns Stop: the stream stops calling back without an error
+        // callback, as AAudio does on a client timeout. The control thread should reopen it.
+        device->StopCallbacksForTest();
+    } else if (!args.empty() && !(args.size() == 1 && args[0] == "status")) {
+        return "usage: audio_device status | stall\n";
+    }
+    const auto s = device->Snapshot();
+    return fmt::format("generation: {}\nperformance: {}\nreconnects: {}\nstalls: {}\nerror: {}\n"
+                       "callbacks: {}\nconsumed_frames: {}\nqueued_frames: {}\n",
+                       s.generation, s.performance, s.reconnects, s.stalls, s.mixer.error,
+                       s.mixer.callbacks, s.mixer.consumed_frames, s.mixer.queued_frames);
 }
 } // namespace Libraries::AudioOut

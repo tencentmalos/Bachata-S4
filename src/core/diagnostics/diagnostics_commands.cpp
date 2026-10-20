@@ -373,6 +373,12 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
         [](const std::vector<std::string>& args) {
             return Libraries::AudioOut::OutputLimiterCommand(args);
         });
+    registry.Register("audio_device",
+        "Android audio device: status | stall (stop its callbacks without an error callback, "
+        "as an AAudio client timeout does; the stream should be reopened)",
+        [](const std::vector<std::string>& args) {
+            return Libraries::AudioOut::OutputDeviceCommand(args);
+        });
     registry.Register("xr_cinema", "Cinema environment World: status | world <tv-lounge|dusk-terrace|dark-room|seaside|void|off>",
         [](const auto& args) { return Vulkan::OpenXr::CinemaEnvironmentCommand(args); });
     registry.Register("xr_status", "PSV status: status | visible on/off | gi on/off | theme graphite/pearl/blue | recenter | indicator auto/off/running/standby/charging/charge_low/notification",

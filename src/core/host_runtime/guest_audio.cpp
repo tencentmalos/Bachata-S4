@@ -504,11 +504,19 @@ struct GuestAudio::Impl {
             // Recheck queue credits under the audio domain lock. A lost credit
             // goes back to the cancellable wait with no buffer references.
 
-            std::lock_guard lock(mutex);
+            std::unique_lock lock(mutex);
             Require(!stop.stop_requested() && !stopping, ORBIS_AUDIO_OUT_ERROR_NOT_OPENED);
             for (u32 i = 0; i < count; ++i) {
                 Refresh(*selected[i]);
                 Require(!selected[i]->closing, ORBIS_AUDIO_OUT_ERROR_NOT_OPENED);
+                if (selected[i]->error && !nonblocking) {
+                    // A failed host device fails every call at once, and a game's output loop
+                    // retries immediately: hold a blocking call for one block period first, as
+                    // the output would have, instead of letting it spin through this path.
+                    auto& port = *selected[i];
+                    changed.wait_for(lock, stop, Period(port),
+                                     [&] { return stopping || port.closing; });
+                }
                 Require(!selected[i]->error, selected[i]->error);
             }
             if (!ready()) continue;

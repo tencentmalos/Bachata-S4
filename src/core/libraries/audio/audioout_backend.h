@@ -108,6 +108,9 @@ private:
 // DebugBus `audio_limiter on | off | status`: the output limiter of the shared device (default
 // on, debug.shadps4.audio_limiter=0 starts it off).
 std::string OutputLimiterCommand(const std::vector<std::string>& args);
+// DebugBus `audio_device status | stall`: state of the shared device; `stall` stops its callbacks
+// without an error callback, to check stalled-stream recovery.
+std::string OutputDeviceCommand(const std::vector<std::string>& args);
 #endif
 
 } // namespace Libraries::AudioOut
