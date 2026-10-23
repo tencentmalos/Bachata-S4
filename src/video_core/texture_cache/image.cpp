@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <atomic>
+#include <chrono>
 #include <ranges>
 #include "common/assert.h"
 #include "common/div_ceil.h"
@@ -31,6 +32,26 @@ namespace VideoCore {
 using namespace Vulkan;
 
 Common::IncrementalIdProvider<u64> Image::global_image_uid{};
+
+// upload_diag image_life: an image keeping its id moves to another backing.
+static void LogBackingChange(const Image& image, const char* why, bool copies_contents) {
+    if (!UploadDiagnostics::image_life.load(std::memory_order_relaxed) ||
+        UploadDiagnostics::image_life_left.fetch_sub(1, std::memory_order_relaxed) <= 0) {
+        return;
+    }
+    const s64 now_us = std::chrono::duration_cast<std::chrono::microseconds>(
+                           std::chrono::steady_clock::now().time_since_epoch())
+                           .count();
+    const auto extent = image.backing->image.image_ci.extent;
+    LOG_INFO(Render_Vulkan,
+             "Image life ~ uid={} {:#x}+{:#x} {} {}x{} backing {} {}x{} samples={} copies={} "
+             "gpu_modified={} t={}us",
+             image.image_uid, image.info.guest_address, image.info.guest_size,
+             vk::to_string(image.info.pixel_format), image.info.size.width,
+             image.info.size.height, why, extent.width, extent.height,
+             image.backing->num_samples, copies_contents ? 1 : 0,
+             True(image.flags & ImageFlagBits::GpuModified) ? 1 : 0, now_us);
+}
 
 static vk::ImageUsageFlags ImageUsageFlags(const Vulkan::Instance* instance,
                                            const ImageInfo& info) {
@@ -574,6 +595,7 @@ void Image::ReallocateScale(u32 eighths, bool preserve_contents) {
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(ci, any_view_format);
+    LogBackingChange(*this, "rescale", preserve_contents);
     scale_eighths = eighths;
     mip_skip = 0;
     block_codec = BlockCodec::None;
@@ -743,6 +765,7 @@ void Image::EnsureViewFormat(vk::Format format) {
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(source->image.image_ci, true);
+    LogBackingChange(*this, "view_format", has_contents);
     const auto category = "image/" + std::string(ScaleDomainName(scale_plan->domain));
     VmaDiagnostics::Tag(instance->GetAllocator(), backing->image.allocation, category.c_str());
     if (has_contents) {
@@ -1840,6 +1863,7 @@ void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
     backing = new_backing;
     ++backing_epoch;
     ++state_version;
+    LogBackingChange(*this, "samples", copy_backing);
 }
 
 } // namespace VideoCore

@@ -50,9 +50,9 @@ bool IsImeInputCaptured();
 
 ImGuiID NewFrame(bool is_reusing_frame = false);
 
-// Side-by-side stereo on a 2D screen (PSVR SBS): the overlays lay out in the left eye and Render
-// draws them again over the right eye, so both eyes see the status layer, dialogs and notices.
-// The game display still fills the whole screen. Present thread, before NewFrame.
+// Side-by-side stereo on a 2D screen (PSVR SBS): the overlays lay out in the left eye and
+// RecordDraw draws them again over the right eye, so both eyes see the status layer, dialogs and
+// notices. The game frame still fills the whole screen. Present thread, before NewFrame.
 void SetEyeSplit(bool split);
 
 // ImGui::Layer UI (system dialogs, notifications, devtools) does not belong to one
@@ -66,11 +66,32 @@ bool ExternalLayerHost();
 // current ImGui context (inside its NewFrame/Render).
 void DrawLayers();
 
-/// Records the frame into `cmdbuf`, which completes at timeline tick `frame_tick`; every tick up to
-/// `completed_tick` has completed, so the renderer can reuse what those frames used.
-void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,
-            const vk::ImageView& image_view, const vk::Extent2D& extent);
+/// The rectangle of the window the game frame occupies this frame, in framebuffer pixels of the
+/// presentation (logical) orientation: the dock space's central node, i.e. the window minus the
+/// desktop menu/status bars and docked tool windows. The node passes through, so nothing of ImGui
+/// covers it unless a window is placed over it. After NewFrame.
+struct GameArea {
+    float x, y, width, height;
+};
+GameArea GetGameArea(ImGuiID dock_id);
 
-bool MustKeepDrawing(); // Force the emulator redraw
+/// Ends the ImGui frame and records its texture uploads into `cmdbuf`, outside any render pass.
+/// `cmdbuf` completes at timeline tick `frame_tick`; every tick up to `completed_tick` has
+/// completed, so the renderer can reuse what those frames used. Returns whether the frame has
+/// anything to draw.
+bool PrepareDraw(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick);
+
+/// Records the prepared frame's draws into the caller's dynamic rendering scope (the presenter's
+/// single pass over the window image, after the game frame). `rotation` quarter turns clockwise
+/// the window image stores the picture turned by (a pre-rotated swapchain); the vertices and clip
+/// rectangles are turned in place, the draw count is unchanged.
+void RecordDraw(const vk::CommandBuffer& cmdbuf, u32 rotation);
+
+/// Something on screen animates or takes input without a new game frame (a dialog, the status
+/// overlay being operated): the presenter redraws the last frame every vblank.
+bool MustKeepDrawing();
+/// Only stale content to refresh (the visible status overlay): redraw the last frame at a low
+/// rate when the game has presented nothing for a while.
+bool WantsPeriodicRedraw();
 
 } // namespace ImGui::Core

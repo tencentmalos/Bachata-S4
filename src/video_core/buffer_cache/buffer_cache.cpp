@@ -1207,8 +1207,12 @@ void BufferCache::SubmitPendingArenaBinds(Vulkan::SubmitInfo& info) {
         std::scoped_lock lock{instance.QueueMutex()};
         submit_result = instance.GetGraphicsQueue().bindSparse(sparse_info);
     }
-    ASSERT_MSG(submit_result == vk::Result::eSuccess, "vkQueueBindSparse failed: {}",
-               vk::to_string(submit_result));
+    if (submit_result != vk::Result::eSuccess) {
+        // Device lost after a GPU fault: fail the submission (and the session) instead of
+        // aborting, also during renderer teardown.
+        throw std::runtime_error(
+            fmt::format("vkQueueBindSparse failed: {}", vk::to_string(submit_result)));
+    }
     memory_semaphore.Submitted(signal_tick);
 
     pending_binds.clear();

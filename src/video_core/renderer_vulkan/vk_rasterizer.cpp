@@ -13,6 +13,7 @@
 #include <cmath>
 #include <ctime>
 #include <thread>
+#include <unordered_map>
 #include <unordered_set>
 #include <numeric>
 #include <ranges>
@@ -328,6 +329,82 @@ void ReportInvalid(const AmdGpu::Buffer& buffer, u64 vs_hash, u64 epoch) {
     }
 }
 } // namespace VbWatch
+
+/// `upload_diag ub_watch on`: read-only buffers of up to 16 KiB are hashed in guest memory when
+/// a draw or dispatch binds them. The first binding of an address and size in a frame (flip
+/// epoch) is the reference; a later binding of the same range in the same frame with other
+/// contents means the guest changed a buffer the frame still uses. Contents up to 4 KiB are
+/// kept so a report can name the first changed dword.
+namespace UbWatch {
+struct Entry {
+    u64 hash{};
+    u32 binds{};
+    u64 first_shader{};
+    std::vector<u32> words;
+};
+std::unordered_map<u64, Entry> entries; // key: address << 16 | size / 4 (size <= 16 KiB)
+u64 epoch_seen{~0ULL};
+u32 frame_changes{};
+std::atomic<u64> checked{}, changed{};
+std::atomic<u32> reports{};
+
+void Check(VAddr addr, u64 size, u64 shader, u64 epoch) {
+    if (size == 0 || size > 16_KB || (size & 3) != 0)
+        return;
+    if (epoch != epoch_seen) {
+        if (frame_changes != 0 && epoch_seen != ~0ULL)
+            LOG_WARNING(Render_Vulkan, "ub_watch: epoch={} had {} changed buffers", epoch_seen,
+                        frame_changes);
+        entries.clear();
+        epoch_seen = epoch;
+        frame_changes = 0;
+    }
+    if (const u64 n = checked.fetch_add(1, std::memory_order_relaxed) + 1; n % 100000 == 0)
+        LOG_INFO(Render_Vulkan, "ub_watch: {} bindings checked, {} changed, {} ranges this frame",
+                 n, changed.load(std::memory_order_relaxed), entries.size());
+    const auto* data = reinterpret_cast<const u32*>(addr);
+    const u64 hash = XXH3_64bits(data, size);
+    const u64 key = (u64(addr) << 16) | (size / 4);
+    auto [it, fresh] = entries.try_emplace(key);
+    auto& e = it->second;
+    ++e.binds;
+    if (fresh) {
+        e.hash = hash;
+        e.first_shader = shader;
+        if (size <= 4_KB)
+            e.words.assign(data, data + size / 4);
+        return;
+    }
+    if (hash == e.hash)
+        return;
+    changed.fetch_add(1, std::memory_order_relaxed);
+    ++frame_changes;
+    size_t first = 0, count = 0;
+    std::string sample;
+    if (!e.words.empty()) {
+        first = e.words.size();
+        for (size_t i = 0; i < e.words.size(); ++i) {
+            if (e.words[i] == data[i])
+                continue;
+            if (count++ == 0)
+                first = i;
+            if (count <= 4)
+                sample += fmt::format(" [{}] {:08x}->{:08x}", i, e.words[i], data[i]);
+        }
+        e.words.assign(data, data + size / 4);
+    }
+    e.hash = hash;
+    if (reports.fetch_add(1, std::memory_order_relaxed) >= 256)
+        return;
+    const auto now = std::chrono::duration_cast<std::chrono::microseconds>(
+                         std::chrono::steady_clock::now().time_since_epoch())
+                         .count();
+    LOG_WARNING(Render_Vulkan,
+                "ub_watch: epoch={} buffer {:#x}+{:#x} changed at bind {} (first bound by {:#x}, "
+                "now {:#x}): {} dwords differ, first [{}]{} t={}us",
+                epoch, addr, size, e.binds, e.first_shader, shader, count, first, sample, now);
+}
+} // namespace UbWatch
 } // namespace
 
 static bool SkippedByShaderHash(const GraphicsPipeline& pipeline) {
@@ -1902,6 +1979,15 @@ void Rasterizer::BindVertexBuffers(const GraphicsPipeline* pipeline) {
         std::tie(range.buffer, range.offset) =
             buffer_cache.ObtainBuffer(range.base_address, size, false);
         TrackRead(range.buffer, range.offset, size);
+        if (AmdGpu::Pm4Trace::Active()) [[unlikely]] {
+            // Binding 0x8000: a merged vertex buffer range, hashed up to 64 KiB.
+            const auto* data = reinterpret_cast<const u8*>(range.base_address);
+            AmdGpu::Pm4Trace::NoteHost(
+                AmdGpu::Pm4Trace::HostEvent::BufferData, range.base_address, size,
+                XXH3_64bits(data, std::min<u64>(size, 64_KB)),
+                (u64(Shader::SwStage::Vertex) << 32) | 0x8000u,
+                std::string_view{reinterpret_cast<const char*>(data), std::min<u64>(size, 64)});
+        }
     }
 
     // Bind vertex buffers
@@ -2203,6 +2289,15 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 const u64 offset =
                     vk_buffer.Copy(stage.flattened_ud_buf.data(), ubo_size, alignment);
                 buffer_infos.emplace_back(vk_buffer.Handle(), offset, ubo_size);
+                if (AmdGpu::Pm4Trace::Active()) [[unlikely]] {
+                    // Address 0: the flattened user data (what the shader read through SRTs).
+                    const auto* data = reinterpret_cast<const u8*>(stage.flattened_ud_buf.data());
+                    AmdGpu::Pm4Trace::NoteHost(
+                        AmdGpu::Pm4Trace::HostEvent::BufferData, 0, ubo_size,
+                        XXH3_64bits(data, ubo_size), (u64(stage.sw_stage) << 32) | 0xffffu,
+                        std::string_view{reinterpret_cast<const char*>(data),
+                                         std::min<u64>(ubo_size, 192)});
+                }
             } else if (desc.buffer_type == Shader::BufferType::ClipPlanes) {
                 // Permutations compiled without enabled planes never read the buffer, so the
                 // declared binding is satisfied with a null descriptor instead of a copy.
@@ -2251,6 +2346,23 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 }
                 const auto [buffer, offset] = buffer_cache.ObtainBuffer(
                     vsharp.base_address, size, desc.is_written, desc.is_formatted);
+                if (!desc.is_written &&
+                    VideoCore::UploadDiagnostics::ub_watch.load(std::memory_order_relaxed))
+                    [[unlikely]] {
+                    UbWatch::Check(vsharp.base_address, size, stage.pgm_hash,
+                                   liverpool->flip_epoch);
+                }
+                if (!desc.is_written && AmdGpu::Pm4Trace::Active()) [[unlikely]] {
+                    // Contents as the guest left them when this draw bound the buffer.
+                    const auto* data = reinterpret_cast<const u8*>(vsharp.base_address);
+                    const u64 hashed = std::min<u64>(size, 64_KB);
+                    AmdGpu::Pm4Trace::NoteHost(
+                        AmdGpu::Pm4Trace::HostEvent::BufferData, vsharp.base_address, size,
+                        XXH3_64bits(data, hashed),
+                        (u64(stage.sw_stage) << 32) | binding.buffer,
+                        std::string_view{reinterpret_cast<const char*>(data),
+                                         std::min<u64>(size, 192)});
+                }
                 const u64 offset_aligned = Common::AlignDown(offset, alignment);
                 const u64 adjust = offset - offset_aligned;
                 if (adjust % 4 != 0) {

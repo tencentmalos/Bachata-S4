@@ -130,6 +130,8 @@ enum class HostEvent : u32 {
     HoistFail = 7,  // text=why an independent op could not move before the pass
     BarrierHoisted = 8, // a=pass b=barriers: placed before the pass instead of ending it
     Skipped = 9,    // draw not issued, pipeline not built (lossy skip mode); a=pipeline hash
+    BufferData = 10, // read-only buffer contents at bind: a=address b=size c=XXH3 of up to 64 KiB
+                     // d=(stage<<32)|binding text=the first bytes
 };
 void NoteHost(HostEvent kind, u64 a, u64 b, u64 c, u64 d, std::string_view text = {});
 

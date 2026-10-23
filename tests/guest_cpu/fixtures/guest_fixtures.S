@@ -515,6 +515,95 @@ fixture_debug_watch_nt:
     int3
 fixture_debug_watch_nt_end:
 
+// 256-bit AVX accesses: FEX's AVX128 mode splits them into LoadMemPair/StoreMemPair halves.
+.globl fixture_debug_watch_ymm
+.globl fixture_debug_watch_ymm_end
+fixture_debug_watch_ymm:
+    vmovdqu ymm1, [rdi]
+    vmovdqu [rdi + 32], ymm1
+    int3
+fixture_debug_watch_ymm_end:
+
+// REP STOSB with DF set: writes [rdi - rcx + 1, rdi] downwards.
+.globl fixture_debug_watch_bulk_back
+.globl fixture_debug_watch_bulk_back_end
+fixture_debug_watch_bulk_back:
+    std
+    rep stosb
+    cld
+    int3
+fixture_debug_watch_bulk_back_end:
+
+// Register traffic around observed accesses (shape of a KH3 loop that crashed under a watch).
+.globl fixture_debug_watch_regs
+.globl fixture_debug_watch_regs_end
+fixture_debug_watch_regs:
+    mov rbx, rdi
+    add rbx, 64
+    mov r8, 3
+.Lwatch_regs_loop:
+    xor edx, edx
+    mov rcx, rbx
+    mov esi, dword ptr [rdi + 4*rdx]
+    mov dword ptr [rcx], esi
+    mov esi, dword ptr [rdi + 4*rdx + 4]
+    mov dword ptr [rcx + 32], esi
+    dec r8
+    jnz .Lwatch_regs_loop
+    int3
+fixture_debug_watch_regs_end:
+
+// 64-bit memory read-modify-writes that set flags, as observed single steps: each result must keep
+// its upper half (FEX can hold it in the raw PF/AF registers across the observer call).
+.globl fixture_debug_watch_rmw
+.globl fixture_debug_watch_rmw_end
+fixture_debug_watch_rmw:
+    mov eax, 1
+    dec qword ptr [rdi + 8]
+    add qword ptr [rdi + 16], rax
+    sub qword ptr [rdi + 24], rax
+    inc qword ptr [rdi + 32]
+    int3
+fixture_debug_watch_rmw_end:
+
+// x87 80-bit store (FSTP m80) as an observed single step.
+.globl fixture_debug_watch_x87
+.globl fixture_debug_watch_x87_end
+fixture_debug_watch_x87:
+    fld1
+    fstp tbyte ptr [rdi + 16]
+    int3
+fixture_debug_watch_x87_end:
+
+// Self-checking loop: any register or memory inconsistency stores the iteration at [rdi + 24].
+// [rdi] counts iterations; the loop never exits on its own (tests cancel the owner).
+.globl fixture_debug_watch_spin
+.globl fixture_debug_watch_spin_end
+fixture_debug_watch_spin:
+    xor eax, eax
+    mov rcx, rdi
+.Lwatch_spin:
+    inc rax
+    mov rdx, rax
+    shl rdx, 1
+    mov rbx, rdx
+    add rbx, rax
+    mov qword ptr [rcx + 16], rbx
+    mov rsi, qword ptr [rcx + 16]
+    cmp rsi, rbx
+    jne .Lwatch_spin_bad
+    lea r9, [rax + 2*rax]
+    cmp r9, rbx
+    jne .Lwatch_spin_bad
+    cmp rcx, rdi
+    jne .Lwatch_spin_bad
+    inc qword ptr [rdi]
+    jmp .Lwatch_spin
+.Lwatch_spin_bad:
+    mov qword ptr [rdi + 24], rax
+    int3
+fixture_debug_watch_spin_end:
+
 // MULTIBLOCK loop shapes (G51). With MULTIBLOCK=1 every loop below stays inside one FEX region
 // and jumps back to a guest block that is not the region start, so only LoopHeaderPollPass's
 // poll can stop it. [rdi] counts iterations, [rdi + 8] = 1 asks the loop to finish. With

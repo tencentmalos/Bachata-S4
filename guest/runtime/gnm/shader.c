@@ -372,6 +372,31 @@ EXPORT s32 shad_sceGnmDrawIndexOffsetNeo(u32* p, u32 size, u32 index_offset, u32
     return DrawIndexOffset(p, size, index_offset, index_count, flags, 0xe0000000u);
 }
 
+/* Diagnostic variants (debug.shadps4.leaf_fastpath item "drawfence"): the same encoders
+ * followed by a full fence, as the HLE crossing they replace implies one. */
+#define FENCED(ret, name, params, args)            \
+    EXPORT ret name##Fence params {                    \
+        const ret r = name args;                       \
+        __atomic_thread_fence(__ATOMIC_SEQ_CST);       \
+        return r;                                      \
+    }
+FENCED(s32, shad_sceGnmDrawIndex,
+       (u32 * p, u32 size, u32 index_count, __UINT64_TYPE__ index_addr, u32 flags, u32 type),
+       (p, size, index_count, index_addr, flags, type))
+FENCED(s32, shad_sceGnmDrawIndexNeo,
+       (u32 * p, u32 size, u32 index_count, __UINT64_TYPE__ index_addr, u32 flags, u32 type),
+       (p, size, index_count, index_addr, flags, type))
+FENCED(s32, shad_sceGnmDrawIndexAuto, (u32 * p, u32 size, u32 index_count, u32 flags),
+       (p, size, index_count, flags))
+FENCED(s32, shad_sceGnmDrawIndexAutoNeo, (u32 * p, u32 size, u32 index_count, u32 flags),
+       (p, size, index_count, flags))
+FENCED(s32, shad_sceGnmDrawIndexOffset,
+       (u32 * p, u32 size, u32 index_offset, u32 index_count, u32 flags),
+       (p, size, index_offset, index_count, flags))
+FENCED(s32, shad_sceGnmDrawIndexOffsetNeo,
+       (u32 * p, u32 size, u32 index_offset, u32 index_count, u32 flags),
+       (p, size, index_offset, index_count, flags))
+
 EXPORT s32 shad_sceGnmDispatchDirect(u32* p, u32 size, u32 x, u32 y, u32 z, u32 flags) {
     if (!Admitted(p, size) || size != 9 || (s32)(x | y | z) < 0)
         return -1;

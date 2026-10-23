@@ -13,10 +13,37 @@
 #include "video_core/renderer_vulkan/vk_swapchain.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #ifdef __ANDROID__
+#include <sys/system_properties.h>
 #include "frontend/android_window.h"
 #endif
 
 namespace Vulkan {
+
+namespace {
+
+#ifdef __ANDROID__
+// debug.shadps4.pre_rotate=0 restores the old identity swapchain, which leaves
+// the rotation to the compositor.
+bool PreRotationEnabled() {
+    char value[PROP_VALUE_MAX]{};
+    return __system_property_get("debug.shadps4.pre_rotate", value) <= 0 || value[0] != '0';
+}
+#endif
+
+u32 QuarterTurns(vk::SurfaceTransformFlagBitsKHR transform) {
+    switch (transform) {
+    case vk::SurfaceTransformFlagBitsKHR::eRotate90:
+        return 1;
+    case vk::SurfaceTransformFlagBitsKHR::eRotate180:
+        return 2;
+    case vk::SurfaceTransformFlagBitsKHR::eRotate270:
+        return 3;
+    default:
+        return 0;
+    }
+}
+
+} // namespace
 
 static constexpr vk::SurfaceFormatKHR SURFACE_FORMAT_HDR = {
     .format = vk::Format::eA2B10G10R10UnormPack32,
@@ -354,18 +381,37 @@ void Swapchain::SetSurfaceProperties() {
         image_count = std::min(image_count, capabilities.maxImageCount);
     }
 
-    // Prefer identity transform if possible.
-    //
-    // On Android the driver's currentTransform is often a rotation (the compositor
-    // rotates the display); forcing eIdentity keeps the swapchain in the frontend's
-    // orientation and lets the frontend own rotation, matching azahar/citron which
-    // both pin identity on Android. supportedTransforms includes eIdentity on the
-    // Adreno/Turnip targets we care about; the fallback below only triggers if a
-    // driver genuinely cannot present identity.
+    // Pre-rotation. When the display is rotated relative to its panel (a landscape
+    // app on a portrait panel), Android reports that rotation as currentTransform
+    // and currentExtent in the rotated (logical) orientation. An identity
+    // swapchain leaves the rotation to SurfaceFlinger; on Qualcomm the display
+    // processor cannot rotate a linear RGBA buffer, so every frame is then
+    // composed on the GPU, preempting the game. With preTransform equal to
+    // currentTransform the images are stored in the panel orientation and the
+    // presenter rotates the content itself, so the display hardware can scan
+    // the buffer out directly.
+    present_extent = extent;
+    rotation = 0;
     transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+#ifdef __ANDROID__
+    if (PreRotationEnabled() && (capabilities.supportedTransforms & capabilities.currentTransform)) {
+        rotation = QuarterTurns(capabilities.currentTransform);
+        if (rotation != 0) {
+            transform = capabilities.currentTransform;
+            if (rotation & 1)
+                std::swap(extent.width, extent.height);
+        }
+    }
+#endif
     if (!(capabilities.supportedTransforms & transform)) {
         transform = capabilities.currentTransform;
+        rotation = QuarterTurns(transform);
+        if (rotation & 1)
+            std::swap(extent.width, extent.height);
     }
+    LOG_INFO(Render_Vulkan, "Swapchain {}x{} preTransform={} (presented {}x{}, currentTransform={})",
+             extent.width, extent.height, vk::to_string(transform), present_extent.width,
+             present_extent.height, vk::to_string(capabilities.currentTransform));
 
     // Opaque is not supported everywhere.
     composite_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;

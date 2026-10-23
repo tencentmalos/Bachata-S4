@@ -223,6 +223,11 @@ public:
     // Dispatch + wait until every recorded command has been replayed.
     void Sync();
 
+    // Renderer teardown: commands still recorded or queued are dropped instead of replayed
+    // (after a failed drain they may reference pipelines and images destroyed before this
+    // recorder). Waits for the worker to go idle; never throws.
+    void Abandon() noexcept;
+
     static std::string Command(const std::vector<std::string>& args);
 
     struct Stats { // static storage: zero-initialized

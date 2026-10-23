@@ -446,64 +446,108 @@ ImGuiID NewFrame(bool is_reusing_frame) {
     return dockId;
 }
 
-void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,
-            const vk::ImageView& image_view, const vk::Extent2D& extent) {
+GameArea GetGameArea(ImGuiID dock_id) {
+    const ImGuiViewport* viewport = GetMainViewport();
+    const ImVec2 scale = GetIO().DisplayFramebufferScale;
+    ImVec2 pos = viewport->WorkPos;
+    ImVec2 size = viewport->WorkSize;
+    if (const ImGuiDockNode* node = DockBuilderGetCentralNode(dock_id)) {
+        pos = node->Pos;
+        size = node->Size;
+    }
+    return {(pos.x - viewport->Pos.x) * scale.x, (pos.y - viewport->Pos.y) * scale.y,
+            size.x * scale.x, size.y * scale.y};
+}
+
+bool PrepareDraw(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick) {
     ImGui::Render();
     ImDrawData* draw_data = GetDrawData();
     auto* active = Renderer();
     if (active == nullptr) {
-        return;
+        return false;
     }
     active->BeginFrame(frame_tick, completed_tick);
     active->UpdateTextures(cmdbuf, draw_data);
-    if (draw_data->CmdListsCount == 0) {
+    return draw_data->CmdListsCount != 0 && draw_data->TotalVtxCount != 0;
+}
+
+// A display point in the presentation orientation to the stored (pre-rotated) orientation, for
+// a picture of `size` turned clockwise by `rotation` quarter turns.
+static ImVec2 Rotated(float x, float y, u32 rotation, ImVec2 size) {
+    switch (rotation) {
+    case 1:
+        return {size.y - y, x};
+    case 2:
+        return {size.x - x, size.y - y};
+    case 3:
+        return {y, size.x - x};
+    default:
+        return {x, y};
+    }
+}
+
+static void RotateDrawData(ImDrawData& data, u32 rotation) {
+    const ImVec2 size = data.DisplaySize;
+    const ImVec2 origin = data.DisplayPos;
+    for (ImDrawList* list : data.CmdLists) {
+        for (ImDrawVert& vertex : list->VtxBuffer) {
+            vertex.pos = Rotated(vertex.pos.x - origin.x, vertex.pos.y - origin.y, rotation, size);
+        }
+        for (ImDrawCmd& cmd : list->CmdBuffer) {
+            // A quarter turn maps an axis-aligned rectangle onto one: only its corners swap.
+            const ImVec2 a =
+                Rotated(cmd.ClipRect.x - origin.x, cmd.ClipRect.y - origin.y, rotation, size);
+            const ImVec2 b =
+                Rotated(cmd.ClipRect.z - origin.x, cmd.ClipRect.w - origin.y, rotation, size);
+            cmd.ClipRect = ImVec4(std::min(a.x, b.x), std::min(a.y, b.y), std::max(a.x, b.x),
+                                  std::max(a.y, b.y));
+        }
+    }
+    data.DisplayPos = ImVec2(0.f, 0.f);
+    if (rotation & 1) {
+        std::swap(data.DisplaySize.x, data.DisplaySize.y);
+        std::swap(data.FramebufferScale.x, data.FramebufferScale.y);
+    }
+}
+
+void RecordDraw(const vk::CommandBuffer& cmdbuf, u32 rotation) {
+    ImDrawData* draw_data = GetDrawData();
+    auto* active = Renderer();
+    if (active == nullptr || draw_data == nullptr || draw_data->TotalVtxCount == 0) {
         return;
     }
-
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
-            .pLabelName = "ImGui Render",
+            .pLabelName = "ImGui overlays",
         });
     }
-
-    vk::RenderingAttachmentInfo color_attachments[1]{
-        {
-            .imageView = image_view,
-            .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
-            .loadOp = vk::AttachmentLoadOp::eClear,
-            .storeOp = vk::AttachmentStoreOp::eStore,
-        },
-    };
-    vk::RenderingInfo render_info{};
-    render_info.renderArea = vk::Rect2D{
-        .offset = {0, 0},
-        .extent = extent,
-    };
-    render_info.layerCount = 1;
-    render_info.colorAttachmentCount = 1;
-    render_info.pColorAttachments = color_attachments;
-    cmdbuf.beginRendering(render_info);
+    // Half the presentation width, the right eye's offset, before the draw data is turned.
+    const float half_width = draw_data->DisplaySize.x * 0.5f;
+    if (rotation != 0) {
+        RotateDrawData(*draw_data, rotation);
+    }
     active->RenderDrawData(cmdbuf, *draw_data);
     if (eye_split) {
-        // The overlays once more, half a screen to the right: everything but the game display
-        // and the dock space hosting it.
+        // The overlays once more, half a screen to the right: everything but the dock space.
         ImDrawData right = *draw_data;
         right.CmdLists.clear();
         right.TotalVtxCount = right.TotalIdxCount = 0;
         for (ImDrawList* list : draw_data->CmdLists) {
             const char* owner = list->_OwnerName ? list->_OwnerName : "";
-            if (std::strstr(owner, "##game_display") || std::strncmp(owner, "WindowOverViewport", 18) == 0)
+            if (std::strncmp(owner, "WindowOverViewport", 18) == 0)
                 continue;
             right.CmdLists.push_back(list);
             right.TotalVtxCount += list->VtxBuffer.Size;
             right.TotalIdxCount += list->IdxBuffer.Size;
         }
         right.CmdListsCount = right.CmdLists.Size;
-        right.DisplayPos.x -= draw_data->DisplaySize.x * 0.5f;
+        // The presentation-space shift (half_width, 0), turned with the picture.
+        const ImVec2 shift = Rotated(half_width, 0.f, rotation, ImVec2(0.f, 0.f));
+        right.DisplayPos = ImVec2(draw_data->DisplayPos.x - shift.x,
+                                  draw_data->DisplayPos.y - shift.y);
         if (right.CmdListsCount)
             active->RenderDrawData(cmdbuf, right);
     }
-    cmdbuf.endRendering();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.endDebugUtilsLabelEXT();
     }
@@ -511,10 +555,14 @@ void Render(const vk::CommandBuffer& cmdbuf, u64 frame_tick, u64 completed_tick,
 
 bool MustKeepDrawing() {
     return ::Core::Diagnostics::StatusOverlayMailbox().Pending() ||
-           ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed) ||
+           ::Core::Diagnostics::status_overlay_interactive.load(std::memory_order_relaxed) ||
            std::ranges::any_of(Registry().layers,
                                [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
            Registry().change_layers.size() > 1;
+}
+
+bool WantsPeriodicRedraw() {
+    return ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed);
 }
 
 } // namespace Core

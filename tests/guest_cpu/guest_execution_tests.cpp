@@ -4153,10 +4153,223 @@ void TestWatchDetachAndNegative(Harness& h) {
         auto failed = AwaitDebugPark(debug, owner.handle, latest->snapshot->stop_epoch);
         std::uint32_t after{};
         (void)h.space->Read(GuestAddress{h.data_base}, std::as_writable_bytes(std::span{&after, 1}));
-        Check(remap ? "DW15" : mode == 2 ? "DW16" : "DW14", remap ? "stale watch mapping stops before execution" : mode == 2 ? "unhandled non-temporal access is refused before mutation" : "unsupported bulk access stops before mutation",
-              failed && failed->reason == StopReason::Unsupported && failed->snapshot->registers.rip == h.code_base && before == after);
+        if (remap)
+            Check("DW15", "stale watch mapping stops before execution",
+                  failed && failed->reason == StopReason::Unsupported && failed->snapshot->registers.rip == h.code_base && before == after);
+        else
+            Check(mode == 2 ? "DW16" : "DW14",
+                  mode == 2 ? "non-temporal store is observed with its full width"
+                            : "REP MOVSB write is observed with its run-time length",
+                  failed && failed->reason == StopReason::Watchpoint && failed->watch_hit &&
+                      failed->watch_hit->address == h.data_base &&
+                      failed->watch_hit->bytes == (mode == 2 ? 16u : 4u) &&
+                      failed->watch_hit->instruction_rip == h.code_base,
+                  failed ? "reason=" + std::to_string(static_cast<int>(failed->reason)) + " bytes=" +
+                               std::to_string(failed->watch_hit ? failed->watch_hit->bytes : 0)
+                         : std::string("no stop"));
         (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
         (void)Await(running);
+        (void)debug.Detach();
+    }
+    {
+        // 256-bit loads/stores are observed as one 32-byte access each (FEX AVX128 pairs).
+        if (!LoadFixture(h, *FindFixture("debug_watch_ymm"), detail)) std::_Exit(4);
+        std::array<std::uint8_t, 64> pattern{};
+        for (std::size_t i = 0; i < 32; ++i) pattern[i] = static_cast<std::uint8_t>(0x40 + i);
+        (void)h.space->Write(GuestAddress{h.data_base}, std::as_bytes(std::span{pattern}));
+        (void)debug.Pause();
+        TestOwner owner(h, h.data_base);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 24}, 8}, Debug::WatchAccess::Read, true);
+        (void)debug.Continue(0, false);
+        auto load = AwaitDebugPark(debug, owner.handle, first->snapshot->stop_epoch);
+        Check("DW18", "256-bit load is observed as one 32-byte read",
+              load && load->reason == StopReason::Watchpoint && load->watch_hit &&
+                  load->watch_hit->address == h.data_base && load->watch_hit->bytes == 32 &&
+                  load->watch_hit->instruction_rip == h.code_base,
+              load ? "reason=" + std::to_string(static_cast<int>(load->reason)) + " bytes=" +
+                             std::to_string(load->watch_hit ? load->watch_hit->bytes : 0)
+                   : std::string("no stop"));
+        if (load && load->watch_hit) {
+            (void)debug.SetWatchpoint({GuestAddress{h.data_base + 24}, 8}, Debug::WatchAccess::Read, false);
+            (void)debug.SetWatchpoint({GuestAddress{h.data_base + 56}, 8}, Debug::WatchAccess::Write, true);
+            (void)debug.Continue(0, false);
+            auto store = AwaitDebugPark(debug, owner.handle, load->snapshot->stop_epoch);
+            std::array<std::uint8_t, 32> copied{};
+            (void)h.space->Read(GuestAddress{h.data_base + 32}, std::as_writable_bytes(std::span{copied}));
+            Check("DW19", "256-bit store is observed as one 32-byte write and keeps its data",
+                  store && store->reason == StopReason::Watchpoint && store->watch_hit &&
+                      store->watch_hit->address == h.data_base + 32 && store->watch_hit->bytes == 32 &&
+                      store->watch_hit->instruction_rip == h.code_base + 4 &&
+                      std::equal(copied.begin(), copied.end(), pattern.begin()));
+            (void)debug.SetWatchpoint({GuestAddress{h.data_base + 56}, 8}, Debug::WatchAccess::Write, false);
+        }
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }
+    {
+        // Backward REP STOSB (DF=1): rdi = base + 7, rcx = 8 writes [base, base + 8).
+        if (!LoadFixture(h, *FindFixture("debug_watch_bulk_back"), detail)) std::_Exit(4);
+        (void)debug.Pause();
+        TestOwner owner(h, h.data_base + 7);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        RegisterPatch patch{}; patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rcx)) | (1u << Index(Gpr::Rax));
+        patch.values.Set(Gpr::Rcx, 8); patch.values.Set(Gpr::Rax, 0x5a);
+        (void)debug.WriteStoppedRegisters(owner.handle, patch, first->snapshot->stop_epoch);
+        auto latest = AwaitDebugPark(debug, owner.handle);
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base}, 1}, Debug::WatchAccess::Write, true);
+        (void)debug.Continue(0, false);
+        auto hit = AwaitDebugPark(debug, owner.handle, latest->snapshot->stop_epoch);
+        Check("DW20", "backward REP STOSB is observed over its descending range",
+              hit && hit->reason == StopReason::Watchpoint && hit->watch_hit &&
+                  hit->watch_hit->address == h.data_base && hit->watch_hit->bytes == 8 &&
+                  hit->watch_hit->instruction_rip == h.code_base + 1,
+              hit ? "reason=" + std::to_string(static_cast<int>(hit->reason)) + " address=" +
+                        std::to_string(hit->watch_hit ? hit->watch_hit->address - h.data_base : 0) +
+                        " bytes=" + std::to_string(hit->watch_hit ? hit->watch_hit->bytes : 0)
+                  : std::string("no stop"));
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base}, 1}, Debug::WatchAccess::Write, false);
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }    {
+        // Every instruction runs as an observed single step; registers must survive the observer.
+        if (!LoadFixture(h, *FindFixture("debug_watch_regs"), detail)) std::_Exit(4);
+        const std::uint32_t words[2] = {0x11223344u, 0x55667788u};
+        (void)h.space->Write(GuestAddress{h.data_base}, std::as_bytes(std::span{words}));
+        (void)debug.Pause();
+        TestOwner owner(h, h.data_base);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 256}, 8}, Debug::WatchAccess::Write, true);
+        (void)debug.Continue(0, false);
+        auto end = AwaitDebugPark(debug, owner.handle, first->snapshot->stop_epoch);
+        std::uint32_t copied[9]{};
+        (void)h.space->Read(GuestAddress{h.data_base + 64}, std::as_writable_bytes(std::span{copied}));
+        const RegisterFile r = end ? end->snapshot->registers : RegisterFile{};
+        Check("DW21", "observed single steps keep every register and store the right values",
+              end && end->reason == StopReason::Breakpoint && r.Get(Gpr::Rdx) == 0 &&
+                  r.Get(Gpr::Rbx) == h.data_base + 64 && r.Get(Gpr::Rcx) == h.data_base + 64 &&
+                  r.Get(Gpr::Rsi) == words[1] && r.Get(Gpr::R8) == 0 &&
+                  r.Get(Gpr::Rdi) == h.data_base && copied[0] == words[0] && copied[8] == words[1],
+              end ? "reason=" + std::to_string(static_cast<int>(end->reason)) + " rcx=" +
+                        std::to_string(r.Get(Gpr::Rcx) - h.data_base) + " rdx=" +
+                        std::to_string(r.Get(Gpr::Rdx)) + " rbx=" +
+                        std::to_string(r.Get(Gpr::Rbx) - h.data_base) + " rsi=" +
+                        std::to_string(r.Get(Gpr::Rsi)) + " r8=" + std::to_string(r.Get(Gpr::R8))
+                  : std::string("no stop"));
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 256}, 8}, Debug::WatchAccess::Write, false);
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }
+    {
+        // Flag-setting 64-bit read-modify-writes as observed single steps.
+        if (!LoadFixture(h, *FindFixture("debug_watch_rmw"), detail)) std::_Exit(4);
+        const std::uint64_t init[5] = {0, 0x1000000005ull, 0x2000000005ull, 0x3000000005ull, 0x4000000005ull};
+        (void)h.space->Write(GuestAddress{h.data_base}, std::as_bytes(std::span{init}));
+        (void)debug.Pause();
+        TestOwner owner(h, h.data_base);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 256}, 8}, Debug::WatchAccess::Write, true);
+        (void)debug.Continue(0, false);
+        auto end = AwaitDebugPark(debug, owner.handle, first->snapshot->stop_epoch);
+        std::uint64_t after[5]{};
+        (void)h.space->Read(GuestAddress{h.data_base}, std::as_writable_bytes(std::span{after}));
+        Check("DW23", "flag-setting 64-bit read-modify-writes keep their upper half when observed",
+              end && end->reason == StopReason::Breakpoint && after[1] == 0x1000000004ull &&
+                  after[2] == 0x2000000006ull && after[3] == 0x3000000004ull && after[4] == 0x4000000006ull,
+              "dec=" + std::to_string(after[1]) + " add=" + std::to_string(after[2]) + " sub=" +
+                  std::to_string(after[3]) + " inc=" + std::to_string(after[4]));
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 256}, 8}, Debug::WatchAccess::Write, false);
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }
+    {
+        // x87 FSTP m80: observed as one 10-byte write (FEX StoreStackMem).
+        if (!LoadFixture(h, *FindFixture("debug_watch_x87"), detail)) std::_Exit(4);
+        (void)debug.Pause();
+        TestOwner owner(h, h.data_base);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 25}, 1}, Debug::WatchAccess::Write, true);
+        (void)debug.Continue(0, false);
+        auto hit = AwaitDebugPark(debug, owner.handle, first->snapshot->stop_epoch);
+        Check("DW24", "x87 80-bit store is observed as one 10-byte write",
+              hit && hit->reason == StopReason::Watchpoint && hit->watch_hit &&
+                  hit->watch_hit->address == h.data_base + 16 && hit->watch_hit->bytes == 10 &&
+                  hit->watch_hit->instruction_rip == h.code_base + 2,
+              hit ? "reason=" + std::to_string(static_cast<int>(hit->reason)) + " address=" +
+                        std::to_string(hit->watch_hit ? hit->watch_hit->address - h.data_base : 0) +
+                        " bytes=" + std::to_string(hit->watch_hit ? hit->watch_hit->bytes : 0)
+                  : std::string("no stop"));
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 25}, 1}, Debug::WatchAccess::Write, false);
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }    {
+        // Owners paused while running (loop polls inside multiblock regions), then resumed
+        // under a watch: the switch into observed single steps must keep their state.
+        if (!LoadFixture(h, *FindFixture("debug_watch_spin"), detail)) std::_Exit(4);
+        constexpr std::size_t kOwners = 3;
+        std::array<std::uint64_t, kOwners> slots{};
+        std::vector<std::unique_ptr<TestOwner>> owners;
+        std::vector<decltype(std::declval<TestOwner&>().Run())> runs;
+        for (std::size_t i = 0; i < kOwners; ++i) {
+            slots[i] = PrepareProgress(h, i);
+            *reinterpret_cast<std::uint64_t*>(slots[i] + 24) = 0;
+            owners.push_back(std::make_unique<TestOwner>(h, slots[i]));
+            runs.push_back(owners.back()->Run());
+        }
+        const auto wait_progress = [&](std::uint64_t delta, std::chrono::seconds limit) {
+            std::array<std::uint64_t, kOwners> start{};
+            for (std::size_t i = 0; i < kOwners; ++i) start[i] = Progress(slots[i]);
+            const auto deadline = std::chrono::steady_clock::now() + limit;
+            for (;;) {
+                bool done = true;
+                for (std::size_t i = 0; i < kOwners; ++i) done &= Progress(slots[i]) - start[i] >= delta;
+                if (done) return true;
+                if (std::chrono::steady_clock::now() > deadline) return false;
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            }
+        };
+        const auto bad = [&] {
+            std::uint64_t any = 0;
+            for (auto slot : slots) any |= *reinterpret_cast<std::uint64_t*>(slot + 24);
+            return any;
+        };
+        const bool warmed = wait_progress(20000, std::chrono::seconds(10));
+        (void)debug.Pause();
+        bool parked = true;
+        for (auto& owner : owners) parked &= bool(AwaitDebugPark(debug, owner->handle));
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base}, 8}, Debug::WatchAccess::Write, true);
+        (void)debug.Continue(0, false);
+        const bool stepped = wait_progress(500, std::chrono::seconds(20));
+        (void)debug.Pause();
+        for (auto& owner : owners) parked &= bool(AwaitDebugPark(debug, owner->handle));
+        const auto bad_watched = bad();
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base}, 8}, Debug::WatchAccess::Write, false);
+        (void)debug.Continue(0, false);
+        const bool resumed = wait_progress(20000, std::chrono::seconds(10));
+        const auto bad_after = bad();
+        Check("DW22", "owners paused mid-loop keep their state through observed steps and back",
+              warmed && parked && stepped && resumed && bad_watched == 0 && bad_after == 0,
+              "warmed=" + std::to_string(warmed) + " parked=" + std::to_string(parked) +
+                  " stepped=" + std::to_string(stepped) + " resumed=" + std::to_string(resumed) +
+                  " bad_watched=" + std::to_string(bad_watched) + " bad_after=" + std::to_string(bad_after));
+        for (auto& owner : owners) (void)h.context->RequestInterrupt(owner->handle, InterruptReason::Cancel);
+        for (auto& run : runs) (void)Await(run);
         (void)debug.Detach();
     }
 }

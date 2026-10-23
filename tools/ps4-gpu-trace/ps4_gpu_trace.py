@@ -97,7 +97,8 @@ STAGES = {0: "fs", 1: "tcs", 2: "tes", 3: "vs", 4: "gs", 5: "cs"}
 ACTION_KIND = {1: "draw", 2: "draw_indexed", 3: "draw_indirect", 4: "draw_indexed_indirect",
                5: "dispatch", 6: "dispatch_indirect"}
 HOST_KIND = {1: "pass_begin", 2: "pass_end", 3: "barrier", 4: "hle_copy", 5: "native",
-             6: "replaced", 7: "hoist_fail", 8: "barrier_hoisted", 9: "skipped"}
+             6: "replaced", 7: "hoist_fail", 8: "barrier_hoisted", 9: "skipped",
+             10: "buffer_data"}
 BREAKS = ["state_change", "dispatch", "buffer_barrier", "image_barrier", "attachment",
           "sampled_image", "buffer_upload", "image_upload", "detile", "image_copy",
           "download", "flush", "cp_sync", "hle", "present", "other"]
@@ -228,7 +229,9 @@ def decode_action(data):
 
 def decode_host(data):
     action, kind, text_len, a, b, c, d = HOST.unpack_from(data, 0)
-    text = data[HOST.size:HOST.size + text_len].decode("utf-8", "replace")
+    raw = data[HOST.size:HOST.size + text_len]
+    # buffer_data carries the first bytes of a buffer, not text.
+    text = raw.hex() if kind == 10 else raw.decode("utf-8", "replace")
     return {"action": action, "kind": HOST_KIND.get(kind, kind), "a": a, "b": b, "c": c,
             "d": d, "text": text}
 
@@ -343,6 +346,12 @@ def describe_host(h):
         return f"  == replaced by {h['text']}"
     if k == "skipped":
         return f"  xx skipped: pipeline {h['a']:#x} not built yet ({h['text']})"
+    if k == "buffer_data":
+        slot = h["d"] & 0xFFFFFFFF
+        where = ("flatbuf" if slot == 0xFFFF else f"vb" if slot & 0x8000 else f"b{slot}")
+        stage = STAGES.get(h["d"] >> 32, h["d"] >> 32)
+        return (f"  .. data {stage} {where} {h['a']:#x}+{h['b']:#x} hash={h['c']:016x} "
+                f"{h['text'][:64]}")
     if k == "barrier_hoisted":
         return f"  ^^ {h['b']} buffer barrier(s) placed before pass {h['a']} (pass kept open)"
     return f"  ?? host {k} {h}"

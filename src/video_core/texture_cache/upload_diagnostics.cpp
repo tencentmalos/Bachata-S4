@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <chrono>
 #include <algorithm>
 #include <cstdlib>
 #include <array>
@@ -465,7 +466,8 @@ void NoteUpload(const UploadEvent& event) {
         LOG_INFO(Render_Vulkan,
                  "Upload diag #{} frame={} {:#x}+{:#x} {} {}x{}x{} L{} M{}/{} tile={} {} flags={}{}{}{} "
                  "source={} write={:+#x}+{} writer={:#x} gpu_resident={} outcome={} mips_same={}/{} "
-                 "image_uploads={} usage={} created={} action={:#x}{} prior={} prior_writer={:#x}",
+                 "image_uploads={} usage={} created={} action={:#x}{} prior={} prior_writer={:#x} "
+                 "t={}us",
                  sequence, event.frame, event.key.address, event.key.size, FormatName(event.key.format),
                  event.width, event.height, event.depth, event.layers, event.mips.size(), event.levels,
                  event.tile_mode, event.scaled ? "scaled" : "native", event.cpu_dirty ? "C" : "",
@@ -476,7 +478,10 @@ void NoteUpload(const UploadEvent& event) {
                  event.gpu_resident ? 1 : 0, OutcomeNames[outcome], same, compared, r.uploads,
                  UsageName(event.usage), created, event.action,
                  event.action_dispatch ? "(cs)" : "(draw)", prior_text,
-                 prior ? prior->writer : 0);
+                 prior ? prior->writer : 0,
+                 std::chrono::duration_cast<std::chrono::microseconds>(
+                     std::chrono::steady_clock::now().time_since_epoch())
+                     .count());
     }
     r.pending_source = DirtySource::None;
     r.pending_write = 0;
@@ -659,6 +664,13 @@ std::string Command(const std::vector<std::string>& args) {
                            args[1], args[1] != "off" ? "reach guest memory at the next fence"
                                                      : "stay on the GPU",
                            tiny_writebacks.load(), tiny_writeback_skips.load());
+    }
+    if (sub == "image_life" && (args.size() == 2 || args.size() == 3) &&
+        (args[1] == "on" || args[1] == "off")) {
+        const s64 lines = args.size() == 3 ? std::max<s64>(std::atoll(args[2].c_str()), 0) : 20000;
+        image_life_left.store(args[1] == "on" ? lines : 0);
+        image_life.store(args[1] == "on");
+        return fmt::format("image_life={} lines={}\n", args[1], image_life_left.load());
     }
     if (sub == "adopt_mips" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         adopt_subresources.store(args[1] == "on");
@@ -847,6 +859,29 @@ std::string Command(const std::vector<std::string>& args) {
                            "dispatch)\n",
                            args[1]);
     }
+    if (sub == "ub_watch" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        ub_watch.store(args[1] == "on");
+        return fmt::format("ub_watch={} (read-only buffers hashed per bind; changes within a "
+                           "frame logged)\n",
+                           args[1]);
+    }
+    if (sub == "cp_delay" && args.size() == 2) {
+        const u32 us = static_cast<u32>(std::strtoul(std::string(args[1]).c_str(), nullptr, 0));
+        cp_delay_us.store(us);
+        return fmt::format("cp_delay={}us (GPU command thread sleep before each frame's work)\n",
+                           us);
+    }
+    if (sub == "submit_drain" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        submit_drain.store(args[1] == "on");
+        return fmt::format("submit_drain={} (sceGnmSubmitDone waits for the command processor)\n",
+                           args[1]);
+    }
+    if (sub == "dcb_verify" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        dcb_verify.store(args[1] == "on");
+        return fmt::format("dcb_verify={} (owned command buffer copies compared with guest "
+                           "memory when processing starts; checked={} changed={})\n",
+                           args[1], dcb_verify_checked.load(), dcb_verify_changed.load());
+    }
     if (sub == "sharp_watch" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         sharp_watch.store(args[1] == "on");
         return fmt::format("sharp_watch={} (bound V#/T# bases outside guest memory logged)\n",
@@ -879,7 +914,8 @@ std::string Command(const std::vector<std::string>& args) {
            "watch_predict on|off | watch_content on|off | watch_gaps on|off | "
            "watch_decay on|off | watch_cross on|off | keep_gpu on|off | read_cache on|off | "
            "stream_barriers on|off | frame_shape on|off | vb_watch on|off | draw_pairs on|off | "
-           "sharp_watch on|off | full_barriers on|off | "
+           "sharp_watch on|off | full_barriers on|off | dcb_verify on|off | ub_watch on|off | cp_delay <us> | "
+           "submit_drain on|off | image_life on|off [lines] | "
            "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
            "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "

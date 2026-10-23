@@ -16,6 +16,10 @@ inline std::atomic<bool> status_overlay_enabled{
     false
 #endif
 };
+// The status overlay is being operated (a pointer on it, or the Controls panel open): redraw
+// every vblank so it responds while the game presents slowly. A visible but idle overlay is
+// redrawn with the next game frame, and only at a low rate while the game presents none.
+inline std::atomic<bool> status_overlay_interactive{false};
 struct OverlayTouch {
     int id{}, phase{};
     float x{}, y{};

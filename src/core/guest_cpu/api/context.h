@@ -134,6 +134,11 @@ struct DebugModule final {
     std::string name;
     std::uint64_t load_base{};
     std::vector<GuestRange> segments;
+    // Identity for debugger module registries. Optional: empty when not computed.
+    std::vector<std::int32_t> segment_prot; // parallel to segments, ELF p_flags (X 1, W 2, R 4)
+    std::string kind;                       // "main" for the executable, "prx" otherwise
+    std::string sha256;                     // SHA-256 of the module file as loaded
+    std::uint64_t load_generation{};
 };
 
 // Owns the backend, its code cache and its association with one address space.
@@ -152,6 +157,8 @@ public:
     [[nodiscard]] virtual BackendCapabilities Capabilities() const = 0;
     // Loader-owned guest addresses, never host ELF/module pointers.
     virtual void SetDebugModules(std::vector<DebugModule>) {}
+    // Title identity (e.g. CUSA15072) reported to guest debuggers with the module registry.
+    virtual void SetDebugProgramId(std::string) {}
     virtual Status InstallExecutionProbes(std::shared_ptr<ExecutionProbes>) {
         return MakeError(ErrorCategory::Unsupported, "InstallExecutionProbes", "backend has no probe emitter");
     }

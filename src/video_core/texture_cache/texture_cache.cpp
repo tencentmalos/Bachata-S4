@@ -44,6 +44,9 @@
 #ifdef __ANDROID__
 #include <sys/system_properties.h>
 #endif
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
 #include <vulkan/vulkan_format_traits.hpp>
 #include "video_core/vma_diagnostics.h"
 
@@ -58,6 +61,47 @@ static constexpr u32 TinyTargetPixels = 16;
 // TinyTargetStreak the target is per-frame (exposure, reductions) and stays on the GPU.
 static constexpr u32 TinyTargetStreak = 4;
 static constexpr s64 TinyTargetGapNs = 250'000'000;
+
+namespace {
+// Offset of a code address in the library holding it, for llvm-symbolizer.
+uintptr_t LibraryOffset(const void* pc) {
+#ifndef _WIN32
+    Dl_info dl{};
+    if (pc != nullptr && dladdr(pc, &dl) != 0 && dl.dli_fbase != nullptr) {
+        return reinterpret_cast<uintptr_t>(pc) - reinterpret_cast<uintptr_t>(dl.dli_fbase);
+    }
+#endif
+    return reinterpret_cast<uintptr_t>(pc);
+}
+
+// upload_diag image_life: '+' registered, '-' unregistered (freed, replaced or parked).
+void LogImageLife(char kind, ImageId image_id, const Image& image, u64 tick, const void* caller,
+                  const void* caller_parent) {
+    const auto& info = image.info;
+    const bool gpu_written =
+        image.usage.render_target || image.usage.depth_target || image.usage.storage;
+    if (!gpu_written && u64{info.size.width} * info.size.height < 256u * 256u) {
+        return;
+    }
+    if (UploadDiagnostics::image_life_left.fetch_sub(1, std::memory_order_relaxed) <= 0) {
+        return;
+    }
+    const s64 now_us = std::chrono::duration_cast<std::chrono::microseconds>(
+                           std::chrono::steady_clock::now().time_since_epoch())
+                           .count();
+    LOG_INFO(Render_Vulkan,
+             "Image life {} id={} uid={} {:#x}+{:#x} {} {}x{}x{} L{} M{} tile={} usage={}{}{}{}{} "
+             "gpu_modified={} scale={}/8 tick={} caller={:#x},{:#x} t={}us",
+             kind, image_id.index, image.image_uid, info.guest_address, info.guest_size,
+             vk::to_string(info.pixel_format), info.size.width, info.size.height,
+             info.size.depth, info.resources.layers, info.resources.levels,
+             static_cast<u32>(info.tile_mode), image.usage.texture ? "T" : "",
+             image.usage.storage ? "S" : "", image.usage.render_target ? "R" : "",
+             image.usage.depth_target ? "D" : "", image.usage.vo_surface ? "V" : "",
+             True(image.flags & ImageFlagBits::GpuModified) ? 1 : 0, image.ScaleEighths(), tick,
+             LibraryOffset(caller), LibraryOffset(caller_parent), now_us);
+}
+} // namespace
 
 TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
                            Vulkan::Runtime& runtime_, AmdGpu::Liverpool* liverpool_,
@@ -3098,12 +3142,20 @@ void TextureCache::RegisterImage(ImageId image_id) {
     ForEachPage(image.info.guest_address, image.info.guest_size,
                 [this, image_id](u64 page) { page_table[page].push_back(image_id); });
     image_set_generation.fetch_add(1, std::memory_order_acq_rel);
+    if (UploadDiagnostics::image_life.load(std::memory_order_relaxed)) [[unlikely]] {
+        LogImageLife('+', image_id, image, gc_tick, __builtin_return_address(0),
+                     __builtin_return_address(1));
+    }
 }
 
 void TextureCache::UnregisterImage(ImageId image_id) {
     Image& image = slot_images[image_id];
     ASSERT_MSG(True(image.flags & ImageFlagBits::Registered),
                "Trying to unregister an already unregistered image");
+    if (UploadDiagnostics::image_life.load(std::memory_order_relaxed)) [[unlikely]] {
+        LogImageLife('-', image_id, image, gc_tick, __builtin_return_address(0),
+                     __builtin_return_address(1));
+    }
     image.flags &= ~ImageFlagBits::Registered;
     image_set_generation.fetch_add(1, std::memory_order_acq_rel);
     lru_cache.Free(image.lru_id);

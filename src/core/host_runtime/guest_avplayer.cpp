@@ -114,7 +114,14 @@ struct GuestAvPlayer::Impl {
         std::recursive_timed_mutex api;
         std::mutex queue_mutex, buffers_mutex;
         std::condition_variable changed;
-        std::deque<std::packaged_task<u64()>> queue;
+        // Guest events run in order on the callback worker. A call (file, allocation, barrier)
+        // is something another thread waits for in OnWorker: a guest event callback that
+        // waits for the API lock runs pending calls meanwhile (RunPendingCall).
+        struct Task {
+            std::packaged_task<u64()> run;
+            bool event{};
+        };
+        std::deque<Task> queue;
         std::atomic_bool stopped{}, closing{};
         bool ready{};
         std::exception_ptr startup_error;
@@ -176,7 +183,7 @@ struct GuestAvPlayer::Impl {
                             changed.wait(lock, [this] { return stopped || !queue.empty(); });
                             if (stopped)
                                 break;
-                            task = std::move(queue.front());
+                            task = std::move(queue.front().run);
                             queue.pop_front();
                         }
                         task();
@@ -230,7 +237,7 @@ struct GuestAvPlayer::Impl {
                 auto done = barrier.get_future();
                 {
                     std::lock_guard lock(queue_mutex);
-                    queue.push_back(std::move(barrier));
+                    queue.push_back({std::move(barrier), false});
                 }
                 changed.notify_one();
                 if (done.wait_for(std::chrono::milliseconds(200)) != std::future_status::ready) {
@@ -265,10 +272,25 @@ struct GuestAvPlayer::Impl {
             {
                 std::lock_guard lock(queue_mutex);
                 Need(!stopped, ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
-                queue.push_back(std::move(task));
+                queue.push_back({std::move(task), false});
             }
             changed.notify_one();
             return result.get();
+        }
+        // Callback worker only: runs the oldest queued call another thread waits for in
+        // OnWorker (events stay queued, in order). False when there is none.
+        bool RunPendingCall() {
+            std::packaged_task<u64()> task;
+            {
+                std::lock_guard lock(queue_mutex);
+                const auto it = std::ranges::find_if(queue, [](const Task& t) { return !t.event; });
+                if (it == queue.end())
+                    return false;
+                task = std::move(it->run);
+                queue.erase(it);
+            }
+            task();
+            return true;
         }
         u64 Invoke(u64 pc, std::initializer_list<u64> args, bool is_event = false) {
             Common::Profiler::Scope profile{is_event ? "AvPlayer.GuestEvent" : "AvPlayer.GuestCallback"};
@@ -490,7 +512,7 @@ struct GuestAvPlayer::Impl {
                     self.stopped = true;
                     self.callbacks.cancel();
                 } else
-                    self.queue.push_back(std::move(task));
+                    self.queue.push_back({std::move(task), true});
             }
             self.changed.notify_one();
         }
@@ -603,9 +625,16 @@ struct GuestAvPlayer::Impl {
         }
         std::unique_lock lock(p->api, std::defer_lock);
         if (callback_player == p.get()) {
-            // A native API may be waiting for this callback worker. Blocking
-            // here would form an API -> callback -> API cycle.
-            lock.try_lock();
+            // An API on another thread may hold the lock while it waits in OnWorker for a call
+            // queued behind this callback: run those calls here until the lock is free. A bare
+            // try_lock failed whenever the guest queried the player from an event callback
+            // while the opening thread was still inside AddSource (KH3 intro movie: StreamCount
+            // in the StateReady callback returned an error, no stream was enabled and the game
+            // waited for the movie forever).
+            while (!p->closing && !p->stopped && !lock.try_lock()) {
+                if (!p->RunPendingCall())
+                    std::this_thread::sleep_for(std::chrono::microseconds(100));
+            }
         } else {
             // Desktop queries wait for source ownership; contention is not EOF
             // or an operation failure. In particular IsActive must not return

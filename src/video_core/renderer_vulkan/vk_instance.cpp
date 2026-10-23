@@ -270,6 +270,11 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
     format_properties = GetFormatProperties(physical_device);
     properties = physical_device.getProperties();
     memory_properties = physical_device.getMemoryProperties();
+    for (u32 i = 0; i < memory_properties.memoryTypeCount; ++i) {
+        LOG_INFO(Render_Vulkan, "Memory type {}: heap {} {}", i,
+                 memory_properties.memoryTypes[i].heapIndex,
+                 vk::to_string(memory_properties.memoryTypes[i].propertyFlags));
+    }
     {
         // Largest sample count every framebuffer attachment kind accepts (see HostSamples).
         const auto counts = u32(properties.limits.framebufferColorSampleCounts &

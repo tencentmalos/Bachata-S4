@@ -2,7 +2,9 @@
 #pragma once
 #include <filesystem>
 #include <optional>
+#include <vector>
 #pragma push_macro("assert_invariant")
+#include "core/diagnostics/overlay_control.h"
 #include "spatial/imgui/overlay/OverlayComponents.hpp"
 #include "spatial/imgui/overlay/PerfHud.hpp"
 #undef assert_invariant
@@ -62,6 +64,8 @@ private:
     float inset_top{}, inset_bottom{};
     std::uint64_t owner{}, sequence{};
     std::optional<int> pointer;
+    // Touches drained after this frame's press or release, delivered next frame.
+    std::vector<::Core::Diagnostics::OverlayTouch> deferred_touches;
     bool pad_captured{};
     bool ime_captured{};
     bool initialized{};

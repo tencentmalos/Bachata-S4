@@ -4,6 +4,7 @@
 #include "core/guest_cpu/api/probes.h"
 #include "Interface/IR/IREmitter.h"
 #include "Interface/IR/PassManager.h"
+#include "core/guest_cpu/fex/raw_flag_stores.h"
 #include <FEXCore/Core/CoreState.h>
 
 namespace Core::GuestCpu::Fex {
@@ -34,6 +35,9 @@ public:
             e->_GuestProfileProbe(sp, id);
         }
         e->SetWriteCursor(saved);
+        // Probes call out mid-block: keep 64-bit values out of the PF/AF registers.
+        if (!pending.empty())
+            IsolateRawFlagStores(e);
     }
 private:
     std::shared_ptr<ExecutionProbes> probes;

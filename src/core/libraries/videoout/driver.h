@@ -151,6 +151,13 @@ private:
     void SignalVblank(VideoOutPort& port);
     void DrawBlankFrame(); // Video port out not open
     void DrawLastFrame();  // Used when there is no flip request
+    // A redraw when the window keeps no composed frame (direct presentation): the displayed
+    // guest buffer is captured again on the GPU command thread, which owns the texture cache.
+    // The guest does not write a displayed buffer before its next flip completes.
+    void RequestRedrawCapture();
+    // The captured redraw source, if it still shows the displayed buffer.
+    std::shared_ptr<Vulkan::PresentSource> TakeRedrawSource();
+    void DropRedrawSource();
     void SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop = false);
     void PresentThread(std::stop_token token);
 
@@ -167,6 +174,13 @@ private:
     std::atomic<bool> replay{};
     std::jthread present_thread;
     std::queue<Request> requests;
+    std::mutex redraw_mutex;
+    std::shared_ptr<Vulkan::PresentSource> redraw_source;
+    u64 redraw_serial{};
+    std::atomic<bool> redraw_capturing{};
+    // The main port's buffer on screen, and a count of its completed flips.
+    std::atomic<s32> displayed_index{-1};
+    std::atomic<u64> displayed_serial{};
 };
 
 // Session pause (the Android app went to the background): the present thread takes no flips and

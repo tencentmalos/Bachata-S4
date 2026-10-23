@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
+#include <future>
 #include <limits>
 #include "video_core/renderer_vulkan/vk_command_recorder.h"
 
@@ -110,6 +111,38 @@ int main() {
         check("oversized command outside a pass stays ordered",
               order == std::vector<unsigned>{40, 400, 41});
         check("all copied barrier arrays intact across worker/pool reuse", copied && callbacks == 10);
+    }
+    {
+        // A failed chunk is still destroying its captures when Abandon starts. An
+        // unconsumed worker error must not bypass the wait before renderer teardown.
+        Vulkan::CommandRecorder recorder;
+        Vulkan::CommandRecorder::requested_mode = 1;
+        recorder.ApplyRequestedMode();
+        std::promise<void> resetting, release_reset;
+        auto reset_started = resetting.get_future();
+        auto may_reset = release_reset.get_future();
+        auto capture = std::shared_ptr<int>(new int{}, [&](int* value) {
+            resetting.set_value();
+            may_reset.wait();
+            delete value;
+        });
+        recorder.Record(0, [capture = std::move(capture)](Vulkan::CommandChunk&) {
+            return [capture](vk::CommandBuffer) { throw std::runtime_error("test recording failure"); };
+        });
+        recorder.Dispatch();
+        reset_started.wait();
+        bool replayed = false;
+        recorder.Record(0, [&](Vulkan::CommandChunk&) {
+            return [&](vk::CommandBuffer) { replayed = true; };
+        });
+        auto abandoned = std::async(std::launch::async, [&] { recorder.Abandon(); });
+        check("abandon waits for failed worker cleanup",
+              abandoned.wait_for(std::chrono::milliseconds(100)) == std::future_status::timeout);
+        release_reset.set_value();
+        abandoned.get();
+        check("abandon discards unsubmitted commands", !replayed);
+        recorder.Sync();
+        check("sync after abandon does not replay discarded commands", !replayed);
     }
     VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdPipelineBarrier2 = old_barrier;
     std::printf("command_recorder_tests: %u checks, %u failures\n", checks, failures);

@@ -13,6 +13,7 @@
 #include "imgui/status_layer.h"
 #include "video_core/renderer_vulkan/host_passes/fsr_pass.h"
 #include "video_core/renderer_vulkan/host_passes/pp_pass.h"
+#include "video_core/renderer_vulkan/host_passes/present_pass.h"
 #include "video_core/renderer_vulkan/host_passes/spatial_upscale.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_runtime.h"
@@ -23,6 +24,12 @@
 namespace Frontend {
 class Window;
 }
+
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+namespace spatial::capture {
+struct FrameStill;
+}
+#endif
 
 namespace AmdGpu {
 struct Liverpool;
@@ -50,8 +57,6 @@ struct Frame {
     std::array<Core::HostRuntime::GuestVrSensor::Pose, 2> xr_render_eyes{};
     std::array<std::array<float, 4>, 2> xr_render_fov{};
     u8 id{};
-
-    ImTextureID imgui_texture;
 };
 
 // A guest VideoOut image handed from the GPU command thread to the present thread,
@@ -153,14 +158,32 @@ public:
     // the deferred recorder is not drained and the frame pool is not waited on;
     // Compose (present thread) builds the frame from it. Null when stopping.
     bool ComposesOnPresentThread() const { return present_compose; }
+    // `redraw`: the displayed buffer again for a redraw, which consumes no screenshot request
+    // and no replay frame.
     std::shared_ptr<PresentSource> CaptureFrame(
         const Libraries::VideoOut::BufferAttributeGroup& attribute, VAddr cpu_address,
-        u64 diagnostic_id = 0);
+        u64 diagnostic_id = 0, bool redraw = false);
     Frame* Compose(PresentSource& source);
     // Releases the draw scheduler hold of a source that is dropped uncomposed.
     void DropSource(PresentSource& source);
 
     Frame* PrepareBlankFrame(bool present_thread);
+
+    // Presents a guest image (present thread). The 2D window draws it straight into the
+    // window image: post-process, pre-rotation and the overlays in one pass, the window image
+    // written once. The headset, its window mirror and canvas captures take a composed frame
+    // instead (Compose + Present). is_reusing_frame: a redraw of the displayed picture.
+    // retain: compose it anyway, so further redraws reuse the frame (PrepareLastFrame).
+    bool PresentGuestImage(PresentSource& source, bool is_reusing_frame = false,
+                           bool is_game_frame = true, bool retain = false);
+    // The window with no game picture (VideoOut not open yet): black and the overlays.
+    bool PresentEmpty();
+    // Whether guest images go straight into the window (PresentGuestImage does not compose).
+    bool PresentsDirect();
+    // Whether the window keeps a composed frame of what it shows, which PrepareLastFrame
+    // redraws. After a direct presentation it keeps none: a redraw needs the displayed guest
+    // image captured again.
+    bool HasRetainedFrame();
 
     bool Present(Frame* frame, bool is_reusing_frame = false, bool is_game_frame = true);
     Frame* PrepareLastFrame();
@@ -175,7 +198,23 @@ public:
     void UpdateOverlayLayers();
 
 private:
+    // A frame of the pool for its present fence and per-frame pass slots, its image untouched.
+    Frame* GetPresentSlot();
+    // A frame sized for composing (GetPresentSlot, then the image fitted to the game's area).
     Frame* GetRenderFrame(bool stereo = false);
+    // The window image for `slot`: the picture is `composed`'s image, `source` (post-processed
+    // in the pass) or nothing, then the overlays. Returns whether it was presented.
+    bool PresentWindow(Frame& slot, Frame* composed, PresentSource* source, bool is_reusing_frame,
+                       bool is_game_frame);
+    void ReleaseWindowFrames(Frame& slot, Frame* composed, bool presented);
+    // FSR1/SGSR1 (Android) or FSR (desktop) of a guest image to the output size, when it is
+    // smaller. Returns the view to present and whether it holds linear values.
+    std::pair<vk::ImageView, bool> RecordUpscale(Scheduler& scheduler, vk::CommandBuffer cmdbuf,
+                                                 const Frame& slot, const PresentSource& source,
+                                                 vk::Extent2D output);
+    // The title's splash picture, uploaded on first use and released once hidden.
+    bool EnsureSplash(vk::CommandBuffer cmdbuf);
+    void DropSplash();
     // Where finished frames go. Window: the Android Surface / desktop swapchain.
     // Xr: the OpenXR runtime only; the window is not presented to (as in Azahar)
     // unless the mirror is switched on or a canvas recording needs it.
@@ -201,6 +240,9 @@ private:
     // Host passes of VideoOut frames on the present thread (debug.shadps4.present_compose,
     // default on; read once: the passes must stay on one thread for a session).
     bool present_compose{true};
+    // 2D window frames drawn straight into the window image (debug.shadps4.present_direct /
+    // SHADPS4_PRESENT_DIRECT=0 composes them into a frame first, as the headset path does).
+    bool present_direct{true};
     // pp_pass/spatial_pass record from the present thread (VideoOut frames) and the
     // GPU command thread (HMD frames, which a PSVR title mixes with 2D ones).
     std::mutex host_pass_mutex;
@@ -222,6 +264,9 @@ private:
     VideoCore::CaptureBinding capture_binding;
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
     std::unique_ptr<CaptureRecorder> embedded_capture;
+    // A still taken by PresentsDirect; the next composed frame serves it.
+    std::mutex deferred_still_mutex;
+    std::unique_ptr<spatial::capture::FrameStill> deferred_still;
 #endif
     std::unique_ptr<ImGui::StatusLayer> status_layer;
     u64 xr_status_updated_ns{};
@@ -230,6 +275,7 @@ private:
     HostPasses::PostProcessingPass::Settings pp_settings{};
     std::unique_ptr<HostPasses::SpatialUpscalePass> spatial_pass;
     HostPasses::PostProcessingPass pp_pass;
+    HostPasses::PresentPass present_pass;
     AmdGpu::Liverpool* liverpool;
     Scheduler draw_scheduler;
     Scheduler present_scheduler;
@@ -245,7 +291,15 @@ private:
     std::mutex free_mutex;
     std::condition_variable free_cv;
     std::condition_variable_any frame_cv;
-    std::optional<ImGui::RefCountedTexture> splash_img;
+    struct SplashImage {
+        vk::Image image{};
+        VmaAllocation allocation{};
+        vk::ImageView view{};
+        u32 width{};
+        u32 height{};
+    };
+    std::optional<SplashImage> splash;
+    bool splash_failed{};
     std::vector<VAddr> vo_buffers_addr;
 };
 

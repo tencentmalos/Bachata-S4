@@ -166,6 +166,28 @@ void CommandRecorder::Sync() {
     ThrowIfFailed();
 }
 
+void CommandRecorder::Abandon() noexcept {
+    {
+        std::scoped_lock lk{mutex};
+        broken = true; // the worker skips every chunk from now on
+    }
+    finish_cv.notify_all();
+    // Sync can throw from Handoff before reaching its idle wait when the worker has
+    // already reported an error. Discard producer-owned commands directly, then wait
+    // for the worker to finish/reset its current chunk and discard the queued ones.
+    holding = prepass = false;
+    current->Reset();
+    pre_current->Reset();
+    held.clear();
+    pre.clear();
+    staged.clear();
+    staged_commands = 0;
+    work_cv.notify_one();
+    std::unique_lock lk{mutex};
+    idle_cv.wait(lk, [this] { return !busy && queue.empty(); });
+    error = nullptr;
+}
+
 void CommandRecorder::MarkFinished(u64 serial) {
     {
         std::scoped_lock lk{mutex};

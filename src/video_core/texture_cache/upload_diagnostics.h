@@ -193,6 +193,12 @@ inline std::atomic<bool> adopt_subresources{true};
 inline std::atomic<u64> adopted_subresources{0};
 // `upload_diag tiny_writeback dump`: logs each written-back tiny target texel by texel before
 // the write-back and the first 512 bytes of guest memory after it.
+// `upload_diag image_life on|off [lines]`: logs each image registered in or removed from the
+// page table (creation, overlap replacement, eviction, parking, decommit) that is at least
+// 256x256 or GPU-written, with the steady clock (t=, microseconds, the clock of the capture
+// timestamps) and the two calling addresses as offsets into the host library.
+inline std::atomic<bool> image_life{false};
+inline std::atomic<s64> image_life_left{0};
 inline std::atomic<bool> tiny_writeback_dump{false};
 inline std::atomic<u64> tiny_writebacks{0}, tiny_writeback_skips{0};
 
@@ -351,6 +357,21 @@ inline std::atomic<bool> sharp_watch{false};
 // `upload_diag full_barriers on|off`: a full memory barrier after every render pass and around
 // every dispatch (Scheduler::FullBarrier).
 inline std::atomic<bool> full_barriers{false};
+// `upload_diag dcb_verify on|off`: when the command processor starts an owned graphics or
+// compute submission, compare the copy taken at submit with the guest's command buffer. None
+// of the submission has run yet, so a difference means the guest rewrote the buffer after
+// submitting it (Liverpool).
+inline std::atomic<bool> dcb_verify{false};
+// `upload_diag ub_watch on|off`: read-only buffers up to 16 KiB hashed at each bind; a range whose
+// contents change between bindings of the same frame is logged (Rasterizer::BindBuffers).
+inline std::atomic<bool> ub_watch{false};
+inline std::atomic<u64> dcb_verify_checked{0}, dcb_verify_changed{0};
+// Timing experiments for guest/command-processor overlap. `upload_diag cp_delay <us>`: the GPU
+// command thread sleeps this long before it starts a frame's work, so the guest runs further
+// ahead of it. `upload_diag submit_drain on|off`: sceGnmSubmitDone returns only once the
+// command processor has consumed everything submitted, so the guest never runs ahead.
+inline std::atomic<u32> cp_delay_us{0};
+inline std::atomic<bool> submit_drain{false};
 // A write fault calls the texture cache only when a page it touches is still write watched after
 // the buffer cache released it: images watch their pages, so a page without watchers is tracked
 // by no image (`upload_diag fault_textures skip|always`, skip by default).

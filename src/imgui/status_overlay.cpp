@@ -236,11 +236,25 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
     std::vector<diag::OverlayTouch> touches;
     std::vector<std::string> requests;
     diag::StatusOverlayMailbox().Drain(touches, requests);
+    touches.insert(touches.begin(), deferred_touches.begin(), deferred_touches.end());
+    deferred_touches.clear();
     for (const auto& request : requests)
         Request(request);
     shell.controller().processIntents();
     ApplyCommands();
-    for (const auto& touch : touches) {
+    // One press or release per frame. Frames come only as often as the game presents unless
+    // something needs a redraw, so a tap can be drained whole; its press and release in one
+    // frame would reach the pointer router without a frame in between and not register.
+    bool edge = false;
+    for (size_t i = 0; i < touches.size(); ++i) {
+        const auto& touch = touches[i];
+        if (touch.id != -1 && touch.phase != 1) {
+            if (edge) {
+                deferred_touches.assign(touches.begin() + i, touches.end());
+                break;
+            }
+            edge = true;
+        }
         if (touch.id == -1) {
             shell.notifyPresentationInvalidated(si::PointerCancelReason::HostRequested);
             ReleasePointer();
@@ -557,6 +571,9 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
             ReleasePointer();
     }
     diag::status_overlay_enabled.store(frame.overlay_visible, std::memory_order_relaxed);
+    diag::status_overlay_interactive.store(
+        frame.overlay_visible && (capture || pointer.has_value() || !deferred_touches.empty()),
+        std::memory_order_relaxed);
     ApplyCommands();
 }
 void StatusOverlay::ApplyCommands() {

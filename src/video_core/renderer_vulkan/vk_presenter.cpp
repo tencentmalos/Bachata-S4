@@ -32,6 +32,7 @@
 #include "video_core/renderer_vulkan/vk_presenter.h"
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
 #include "video_core/renderer_vulkan/capture_recorder.h"
+#include "spatial/capture/CaptureHub.h"
 #endif
 #include "shader_recompiler/resource.h"
 #include "video_core/buffer_cache/buffer_cache.h"
@@ -60,7 +61,9 @@
 #include <sstream>
 #include <system_error>
 #include <vector>
+#include <boost/container/static_vector.hpp>
 #include <imgui.h>
+#include <stb_image.h>
 #include <stb_image_write.h>
 #include <vk_mem_alloc.h>
 #include <xxhash.h>
@@ -68,59 +71,6 @@
 #include "video_core/vma_diagnostics.h"
 
 namespace Vulkan {
-
-bool CanBlitToSwapchain(const vk::PhysicalDevice physical_device, vk::Format format) {
-    const vk::FormatProperties props{physical_device.getFormatProperties(format)};
-    return static_cast<bool>(props.optimalTilingFeatures & vk::FormatFeatureFlagBits::eBlitDst);
-}
-
-[[nodiscard]] vk::ImageSubresourceLayers MakeImageSubresourceLayers() {
-    return vk::ImageSubresourceLayers{
-        .aspectMask = vk::ImageAspectFlagBits::eColor,
-        .mipLevel = 0,
-        .baseArrayLayer = 0,
-        .layerCount = 1,
-    };
-}
-
-[[nodiscard]] vk::ImageBlit MakeImageBlit(s32 frame_width, s32 frame_height, s32 dst_width,
-                                          s32 dst_height, s32 offset_x, s32 offset_y) {
-    return vk::ImageBlit{
-        .srcSubresource = MakeImageSubresourceLayers(),
-        .srcOffsets =
-            std::array{
-                vk::Offset3D{
-                    .x = 0,
-                    .y = 0,
-                    .z = 0,
-                },
-                vk::Offset3D{
-                    .x = frame_width,
-                    .y = frame_height,
-                    .z = 1,
-                },
-            },
-        .dstSubresource = MakeImageSubresourceLayers(),
-        .dstOffsets =
-            std::array{
-                vk::Offset3D{
-                    .x = offset_x,
-                    .y = offset_y,
-                    .z = 0,
-                },
-                vk::Offset3D{
-                    .x = offset_x + dst_width,
-                    .y = offset_y + dst_height,
-                    .z = 1,
-                },
-            },
-    };
-}
-
-[[nodiscard]] vk::ImageBlit MakeImageBlitStretch(s32 frame_width, s32 frame_height,
-                                                 s32 swapchain_width, s32 swapchain_height) {
-    return MakeImageBlit(frame_width, frame_height, swapchain_width, swapchain_height, 0, 0);
-}
 
 static vk::Rect2D FitImage(s32 frame_width, s32 frame_height, s32 swapchain_width,
                            s32 swapchain_height) {
@@ -142,14 +92,6 @@ static vk::Rect2D FitImage(s32 frame_width, s32 frame_height, s32 swapchain_widt
     return vk::Rect2D{{offset_x, offset_y}, {dst_width, dst_height}};
 }
 
-[[nodiscard]] vk::ImageBlit MakeImageBlitFit(s32 frame_width, s32 frame_height, s32 swapchain_width,
-                                             s32 swapchain_height) {
-    const auto& dst_rect = FitImage(frame_width, frame_height, swapchain_width, swapchain_height);
-
-    return MakeImageBlit(frame_width, frame_height, dst_rect.extent.width, dst_rect.extent.height,
-                         dst_rect.offset.x, dst_rect.offset.y);
-}
-
 enum class ScreenshotKind : u8 {
     GameOnly,
     WithOverlays,
@@ -163,6 +105,9 @@ struct ScreenshotReadback {
     u32 height{};
     vk::Format format{};
     bool hdr_encoded{};
+    // Quarter turns clockwise the stored image is rotated by (a pre-rotated
+    // swapchain image); the saved picture is turned back to the screen's view.
+    u32 rotation{};
 
     ScreenshotReadback(const Instance& instance, ScreenshotKind kind_,
                        std::vector<std::filesystem::path> paths_, const u32 width_,
@@ -438,6 +383,39 @@ static bool WritePng(const std::filesystem::path& path, const std::span<const u8
     return encoded && output.ok && file.Flush();
 }
 
+// Undoes the pre-rotation of a stored RGBA8 image: returns the picture as the
+// screen shows it and its size.
+static std::vector<u8> UnrotateRgba8(const std::vector<u8>& stored, u32 stored_width,
+                                     u32 stored_height, u32 rotation, u32& width, u32& height) {
+    width = (rotation & 1) ? stored_height : stored_width;
+    height = (rotation & 1) ? stored_width : stored_height;
+    std::vector<u8> out(static_cast<size_t>(width) * height * 4);
+    for (u32 y = 0; y < height; ++y) {
+        for (u32 x = 0; x < width; ++x) {
+            u32 sx = x, sy = y;
+            switch (rotation) {
+            case 1: // content turned 90 degrees clockwise when stored
+                sx = height - 1 - y;
+                sy = x;
+                break;
+            case 2:
+                sx = width - 1 - x;
+                sy = height - 1 - y;
+                break;
+            case 3:
+                sx = y;
+                sy = width - 1 - x;
+                break;
+            default:
+                break;
+            }
+            std::memcpy(out.data() + (static_cast<size_t>(y) * width + x) * 4,
+                        stored.data() + (static_cast<size_t>(sy) * stored_width + sx) * 4, 4);
+        }
+    }
+    return out;
+}
+
 static void SavePendingScreenshot(const ScreenshotReadback& readback) {
     if (readback.paths.empty()) {
         return;
@@ -447,9 +425,15 @@ static void SavePendingScreenshot(const ScreenshotReadback& readback) {
     if (!ConvertReadbackToRgba8(readback, rgba)) {
         return;
     }
+    u32 png_width = readback.width;
+    u32 png_height = readback.height;
+    if (readback.rotation != 0) {
+        rgba = UnrotateRgba8(rgba, readback.width, readback.height, readback.rotation, png_width,
+                             png_height);
+    }
 
     const auto& primary_path = readback.paths.front();
-    if (!WritePng(primary_path, rgba, readback.width, readback.height)) {
+    if (!WritePng(primary_path, rgba, png_width, png_height)) {
         LOG_ERROR(Render_Vulkan, "Failed saving screenshot to {}", primary_path.string());
         return;
     }
@@ -534,13 +518,18 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
         char value[PROP_VALUE_MAX]{};
         if (__system_property_get("debug.shadps4.present_compose", value) > 0)
             present_compose = value[0] != '0';
+        if (__system_property_get("debug.shadps4.present_direct", value) > 0)
+            present_direct = value[0] != '0';
     }
 #else
     if (const char* env = std::getenv("SHADPS4_PRESENT_COMPOSE"); env && *env)
         present_compose = *env != '0';
+    if (const char* env = std::getenv("SHADPS4_PRESENT_DIRECT"); env && *env)
+        present_direct = *env != '0';
 #endif
-    LOG_INFO(Render_Vulkan, "VideoOut host passes on the {} thread",
-             present_compose ? "present" : "GPU command");
+    LOG_INFO(Render_Vulkan, "VideoOut host passes on the {} thread, 2D window frames {}",
+             present_compose ? "present" : "GPU command",
+             present_compose && present_direct ? "drawn directly" : "composed");
     fsr_settings.enable = EmulatorSettings.IsFsrEnabled();
 #if defined(__ANDROID__)
     // Keep the first Android SBS path on the guest VideoOut image directly.
@@ -554,6 +543,7 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
 
     fsr_pass.Create(instance, instance.GetAllocator(), num_images);
     pp_pass.Create(instance, swapchain.GetSurfaceFormat().format);
+    present_pass.Create(instance);
 
 #if defined(__ANDROID__)
     if (instance.Xr()) instance.Xr()->Start(instance);
@@ -602,11 +592,24 @@ Presenter::~Presenter() {
     embedded_capture->Close();
 #endif
 
+    // Members are destroyed in reverse order: the rasterizer (pipelines, images) goes
+    // before the schedulers. After a failed drain (device lost) their recording threads may
+    // still hold commands that use those objects; drop them now instead of replaying them
+    // from ~Scheduler into destroyed pipelines.
+    draw_scheduler.AbandonRecording();
+    present_scheduler.AbandonRecording();
+    flip_scheduler.AbandonRecording();
+
     const vk::Device device = instance.GetDevice();
     for (auto& frame : present_frames) {
         VideoCore::VmaDiagnostics::DestroyImage(instance.GetAllocator(), frame.image, frame.allocation);
         device.destroyImageView(frame.image_view);
         device.destroyFence(frame.present_done);
+    }
+    if (splash) {
+        device.destroyImageView(splash->view);
+        VideoCore::VmaDiagnostics::DestroyImage(instance.GetAllocator(), splash->image,
+                                                splash->allocation);
     }
 }
 
@@ -616,10 +619,6 @@ bool Presenter::IsVideoOutSurface(const AmdGpu::ColorBuffer& color_buffer) const
 
 void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
     const vk::Device device = instance.GetDevice();
-    if (frame->imgui_texture) {
-        ImGui::Core::ReleaseTexture(frame->imgui_texture);
-        frame->imgui_texture = nullptr;
-    }
     if (frame->image_view) {
         device.destroyImageView(frame->image_view);
     }
@@ -697,10 +696,6 @@ void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
     frame->width = width;
     frame->height = height;
 
-    if (auto* imgui_renderer = ImGui::Core::Renderer()) {
-        frame->imgui_texture =
-            imgui_renderer->AddTexture(view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    }
     frame->is_hdr = swapchain.GetHDR();
 }
 
@@ -811,8 +806,10 @@ Frame* Presenter::PrepareLastFrame() {
         if (result == vk::Result::eTimeout) {
             continue;
         }
-        ASSERT_MSG(result != vk::Result::eErrorDeviceLost,
-                   "Device lost during waiting for a frame");
+        // A GPU fault ends the session through the present thread's fault handler instead
+        // of aborting the process.
+        throw std::runtime_error(fmt::format("GPU device lost while waiting for a frame ({})",
+                                             vk::to_string(result)));
     }
 
     auto& scheduler = flip_scheduler;
@@ -1249,7 +1246,7 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
 
 std::shared_ptr<PresentSource> Presenter::CaptureFrame(
     const Libraries::VideoOut::BufferAttributeGroup& attribute, VAddr cpu_address,
-    u64 diagnostic_id) {
+    u64 diagnostic_id, bool redraw) {
     auto desc = VideoCore::TextureCache::ImageDesc{attribute, cpu_address};
     const auto image_id = [&] {
         Common::Profiler::Scope scope{"Prepare.FindImage"};
@@ -1282,14 +1279,15 @@ std::shared_ptr<PresentSource> Presenter::CaptureFrame(
 
     // Readbacks of the guest image itself stay here, before any host pass. Only a
     // pending request takes the raw command buffer (draining the recorder).
-    const u32 capture_game_only_count = VideoCore::ConsumeGameOnlyScreenshotRequests();
+    const u32 capture_game_only_count =
+        redraw ? 0 : VideoCore::ConsumeGameOnlyScreenshotRequests();
     std::optional<ScreenshotReadback> pending_screenshot;
     std::optional<ScreenshotReadback> replay_frame;
     u32 replay_frame_index = 0;
     const auto readback_format = swap_red_blue ? vk::Format::eB8G8R8A8Srgb : view_info.format;
     const bool hdr_encoded =
         attribute.attrib.pixel_format == Libraries::VideoOut::PixelFormat::A2R10G10B10Bt2020Pq;
-    if (VideoCore::Replay::FrameDumpEnabled()) {
+    if (!redraw && VideoCore::Replay::FrameDumpEnabled()) {
         replay_frame_index = VideoCore::Replay::NextFrameIndex();
         replay_frame.emplace(instance, ScreenshotKind::GameOnly,
                              std::vector<std::filesystem::path>{}, image_size.width,
@@ -1423,7 +1421,18 @@ void Presenter::RecordEmbeddedScreenshot(Frame& target, u64 diagnostic_id, Sched
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
     // While an XR session runs, its capture producer takes the requests.
     (void)diagnostic_id;
-    if (auto request = embedded_capture->TakeStill()) {
+    std::optional<spatial::capture::FrameStill> request;
+    {
+        std::scoped_lock lock{deferred_still_mutex};
+        if (deferred_still) {
+            request = std::move(*deferred_still);
+            deferred_still.reset();
+        }
+    }
+    if (!request) {
+        request = embedded_capture->TakeStill();
+    }
+    if (request) {
         try {
             // Only a pending request takes the raw command buffer (it drains the recorder).
             const auto cmdbuf = scheduler.RawCommandBuffer();
@@ -1662,6 +1671,69 @@ bool Presenter::PresentToXr(Frame* frame, bool is_reusing_frame, bool is_game_fr
 }
 #endif
 
+bool Presenter::PresentsDirect() {
+    if (!present_compose || !present_direct) {
+        return false;
+    }
+#if defined(__ANDROID__)
+    // The headset, and its window mirror, take a composed frame.
+    if (instance.Xr()) {
+        return false;
+    }
+#endif
+#if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
+    // Canvas recordings and stills read the composed game frame. Foundation has no query for a
+    // pending still, so a still taken here waits for the composed frame that follows.
+    if (spatial::capture::RecordingWanted()) {
+        return false;
+    }
+    {
+        std::scoped_lock lock{deferred_still_mutex};
+        if (!deferred_still) {
+            if (auto still = embedded_capture->TakeStill()) {
+                deferred_still = std::make_unique<spatial::capture::FrameStill>(std::move(*still));
+            }
+        }
+        if (deferred_still) {
+            return false;
+        }
+    }
+#endif
+    // Something on screen animates or takes input between game frames (a dialog, the status
+    // overlay being operated): keep a composed frame, so every vblank can redraw from it
+    // without the GPU command thread. The extra write lasts as long as that does.
+    if (ImGui::Core::MustKeepDrawing()) {
+        return false;
+    }
+    return true;
+}
+
+bool Presenter::HasRetainedFrame() {
+    std::scoped_lock lock{free_mutex};
+    return last_submit_frame != nullptr;
+}
+
+bool Presenter::PresentGuestImage(PresentSource& source, bool is_reusing_frame,
+                                  bool is_game_frame, bool retain) {
+    expected_ratio = static_cast<float>(source.size.width) / static_cast<float>(source.size.height);
+    if (retain || !PresentsDirect()) {
+        Frame* frame = Compose(source);
+        return frame != nullptr && Present(frame, is_reusing_frame, is_game_frame);
+    }
+    Core::Diagnostics::Handoff::Scope present_scope{"Present.Frame", instance.DiagnosticGeneration()};
+    Frame* slot = GetPresentSlot();
+    if (!slot) {
+        DropSource(source);
+        return false;
+    }
+    return PresentWindow(*slot, nullptr, &source, is_reusing_frame, is_game_frame);
+}
+
+bool Presenter::PresentEmpty() {
+    Frame* slot = GetPresentSlot();
+    return slot != nullptr && PresentWindow(*slot, nullptr, nullptr, false, false);
+}
+
 bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame) {
     Core::Diagnostics::Handoff::Scope present_scope{"Present.Frame", instance.DiagnosticGeneration()};
     if (!frame)
@@ -1669,31 +1741,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
 #if defined(__ANDROID__)
     if (CurrentOutput() == Output::Xr)
         return PresentToXr(frame, is_reusing_frame, is_game_frame);
-#endif
-    // A displayed frame stays owned by this thread while DrawLastFrame can
-    // reuse its image/fence. Only its replacement releases it to the producer.
-    // Failed acquire/present returns the new frame and preserves the last image.
-    const auto free_frame = [&](bool presented = false) {
-        if (!is_reusing_frame) {
-            std::scoped_lock fl{free_mutex};
-            if (presented) {
-                if (last_submit_frame)
-                    free_queue.push(last_submit_frame);
-                last_submit_frame = frame;
-            } else {
-                free_queue.push(frame);
-            }
-            free_cv.notify_one();
-        }
-    };
-
-    if (swapchain.StopRequested()) {
-        free_frame();
-        return false;
-    }
-
-#if defined(__ANDROID__)
-    if (instance.Xr()) {
+    if (instance.Xr() && !swapchain.StopRequested()) {
         const auto now = Core::Diagnostics::DiagnosticNowNs();
         if (!is_reusing_frame && is_game_frame) {
             // Mirrored: the window submission below reuses present_done, so wait here.
@@ -1711,12 +1759,188 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
         instance.Xr()->UpdateLayers();
     }
 #endif
-    // SurfaceView may withdraw its ANativeWindow without ending the Guest
-    // session. Keep the frame pool moving until a replacement is published.
-    if (!swapchain.CanPresent()) {
-        free_frame();
+    return PresentWindow(*frame, frame, nullptr, is_reusing_frame, is_game_frame);
+}
+
+void Presenter::ReleaseWindowFrames(Frame& slot, Frame* composed, bool presented) {
+    std::scoped_lock lock{free_mutex};
+    if (composed) {
+        // A displayed composed frame stays owned by this thread: a redraw reuses its image.
+        // Its replacement returns it to the producer; a redraw of it changes nothing.
+        if (composed != last_submit_frame) {
+            if (presented) {
+                if (last_submit_frame)
+                    free_queue.push(last_submit_frame);
+                last_submit_frame = composed;
+            } else {
+                free_queue.push(composed);
+            }
+        }
+    } else {
+        // A direct presentation only borrowed the frame for its fence and pass slots. The
+        // window now shows a picture no frame holds, so a retained frame is stale.
+        free_queue.push(&slot);
+        if (presented && last_submit_frame) {
+            free_queue.push(last_submit_frame);
+            last_submit_frame = nullptr;
+        }
+    }
+    free_cv.notify_one();
+}
+
+std::pair<vk::ImageView, bool> Presenter::RecordUpscale(Scheduler& scheduler,
+                                                        vk::CommandBuffer cmdbuf,
+                                                        const Frame& slot,
+                                                        const PresentSource& source,
+                                                        vk::Extent2D output) {
+    // pp_pass/spatial_pass are shared with the GPU command thread (HMD frames).
+    std::scoped_lock pass_lock{host_pass_mutex};
+    Common::Profiler::Scope scope{"Present.Upscale"};
+    const auto zone = scheduler.GpuProfile().Begin(cmdbuf, GpuProfiler::Stage::Fsr);
+    vk::ImageView view = source.view;
+    bool linear = false;
+#if defined(__ANDROID__)
+    // FSR1/SGSR1 reconstruction to the rectangle's size, without foveation, when the guest
+    // image is smaller. Its slot belongs to `slot`, reused after that frame's fence.
+    auto options = HostPasses::GetSpatialOptions();
+    options.foveation = spatial::foveation::Mode::Off;
+    if (!swapchain.GetHDR() && options.filter != HostPasses::SpatialFilter::Off &&
+        (source.size.width < output.width || source.size.height < output.height)) {
+        if (!spatial_pass)
+            spatial_pass = std::make_unique<HostPasses::SpatialUpscalePass>(instance);
+        if (auto upscaled = spatial_pass->Render(scheduler, slot.id * 2, source.view, source.size,
+                                                 {1, 1, 0, 0}, output, options, {},
+                                                 source.srgb_10bit)) {
+            view = upscaled;
+            linear = true;
+        }
+    }
+#else
+    view = fsr_pass.Render(scheduler, source.view, source.size, output, fsr_settings,
+                           swapchain.GetHDR());
+#endif
+    scheduler.GpuProfile().End(cmdbuf, zone);
+    return {view, linear};
+}
+
+bool Presenter::EnsureSplash(vk::CommandBuffer cmdbuf) {
+    if (splash) {
+        return true;
+    }
+    if (splash_failed) {
         return false;
     }
+    splash_failed = true;
+    const auto& png = Common::ElfInfo::Instance().GetSplashData();
+    if (png.empty()) {
+        return false;
+    }
+    int width{}, height{};
+    stbi_uc* pixels = stbi_load_from_memory(png.data(), static_cast<int>(png.size()), &width,
+                                            &height, nullptr, 4);
+    if (!pixels) {
+        return false;
+    }
+    const u64 bytes = static_cast<u64>(width) * static_cast<u64>(height) * 4;
+    auto staging = std::make_unique<VideoCore::Buffer>(instance, 0, bytes,
+                                                       VideoCore::MemoryType::HostUncached,
+                                                       "upload/splash");
+    std::memcpy(staging->mapped_data.data(), pixels, bytes);
+    stbi_image_free(pixels);
+    staging->Flush(0, bytes);
+
+    SplashImage image{.width = static_cast<u32>(width), .height = static_cast<u32>(height)};
+    // UNORM: the PNG holds window values, which the present pass copies unchanged.
+    const vk::ImageCreateInfo image_info{
+        .imageType = vk::ImageType::e2D,
+        .format = vk::Format::eR8G8B8A8Unorm,
+        .extent = {image.width, image.height, 1},
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = vk::SampleCountFlagBits::e1,
+        .usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+    };
+    const VmaAllocationCreateInfo alloc_info{.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
+    VkImage raw_image{};
+    VkImageCreateInfo raw_info = static_cast<VkImageCreateInfo>(image_info);
+    if (VideoCore::VmaDiagnostics::CreateImage(instance.GetAllocator(), &raw_info, &alloc_info,
+                                               &raw_image, &image.allocation, nullptr,
+                                               "image/splash") != VK_SUCCESS) {
+        return false;
+    }
+    image.image = vk::Image{raw_image};
+    image.view = Check<"create splash image view">(instance.GetDevice().createImageView(
+        vk::ImageViewCreateInfo{
+            .image = image.image,
+            .viewType = vk::ImageViewType::e2D,
+            .format = image_info.format,
+            .subresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1},
+        }));
+
+    const vk::ImageSubresourceRange range{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
+    const vk::ImageMemoryBarrier2 to_transfer{
+        .srcStageMask = vk::PipelineStageFlagBits2::eNone,
+        .dstStageMask = vk::PipelineStageFlagBits2::eTransfer,
+        .dstAccessMask = vk::AccessFlagBits2::eTransferWrite,
+        .oldLayout = vk::ImageLayout::eUndefined,
+        .newLayout = vk::ImageLayout::eTransferDstOptimal,
+        .image = image.image,
+        .subresourceRange = range,
+    };
+    cmdbuf.pipelineBarrier2(
+        vk::DependencyInfo{.imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &to_transfer});
+    cmdbuf.copyBufferToImage(staging->Handle(), image.image, vk::ImageLayout::eTransferDstOptimal,
+                             vk::BufferImageCopy{
+                                 .imageSubresource{vk::ImageAspectFlagBits::eColor, 0, 0, 1},
+                                 .imageExtent = {image.width, image.height, 1},
+                             });
+    const vk::ImageMemoryBarrier2 to_sampled{
+        .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+        .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eFragmentShader,
+        .dstAccessMask = vk::AccessFlagBits2::eShaderRead,
+        .oldLayout = vk::ImageLayout::eTransferDstOptimal,
+        .newLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
+        .image = image.image,
+        .subresourceRange = range,
+    };
+    cmdbuf.pipelineBarrier2(
+        vk::DependencyInfo{.imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &to_sampled});
+    // The staging copy goes once the upload ran.
+    present_scheduler.DeferOperation([staging = std::move(staging)] {});
+    splash = image;
+    splash_failed = false;
+    return true;
+}
+
+void Presenter::DropSplash() {
+    if (!splash) {
+        return;
+    }
+    // Presentations still in flight may sample it: released with this scheduler's work.
+    present_scheduler.DeferOperation([device = instance.GetDevice(),
+                                      allocator = instance.GetAllocator(), image = *splash] {
+        device.destroyImageView(image.view);
+        VideoCore::VmaDiagnostics::DestroyImage(allocator, image.image, image.allocation);
+    });
+    splash.reset();
+}
+
+bool Presenter::PresentWindow(Frame& slot, Frame* composed, PresentSource* source,
+                              bool is_reusing_frame, bool is_game_frame) {
+    // Failed acquire/present returns the frames and preserves the displayed picture.
+    const auto fail = [&] {
+        if (source)
+            DropSource(*source);
+        ReleaseWindowFrames(slot, composed, false);
+        return false;
+    };
+    if (swapchain.StopRequested())
+        return fail();
+    // SurfaceView may withdraw its ANativeWindow without ending the Guest
+    // session. Keep the frame pool moving until a replacement is published.
+    if (!swapchain.CanPresent())
+        return fail();
     if (swapchain.SurfaceChanged())
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
 
@@ -1738,13 +1962,12 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
     if (acquired != AcquireStatus::Acquired) {
         // Timeout/cancel does not retire or rebuild a working swapchain. Leave
         // this frame's fence signalled so it can be safely reused next time.
-        free_frame();
-        return false;
+        return fail();
     }
 
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
-    if (!is_reusing_frame) {
-        embedded_capture->SyncRequest(*frame, swapchain.GetSurfaceFormat().format,
+    if (composed && !is_reusing_frame) {
+        embedded_capture->SyncRequest(*composed, swapchain.GetSurfaceFormat().format,
                                       static_cast<u32>(present_frames.size()));
     }
 #endif
@@ -1752,12 +1975,12 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
     // Reset fence for queue submission. Do it here instead of GetRenderFrame() because we may
     // skip frame because of slow swapchain recreation. If a frame skip occurs, we skip signal
     // the frame's present fence and future GetRenderFrame() call will hang waiting for this frame.
-    const auto reset_result = instance.GetDevice().resetFences(frame->present_done);
+    const auto reset_result = instance.GetDevice().resetFences(slot.present_done);
     ASSERT_MSG(reset_result == vk::Result::eSuccess,
                "Unexpected error resetting present done fence: {}", vk::to_string(reset_result));
 
     // A side-by-side stereo frame on the screen (PSVR SBS): the overlays go in both eyes.
-    const bool eye_split = frame->xr_stereo;
+    const bool eye_split = composed && composed->xr_stereo;
     ImGui::Core::SetEyeSplit(eye_split);
     status_layer->Prepare(Core::Diagnostics::DiagnosticNowNs(),
                           eye_split ? swapchain.GetWidth() / 2 : swapchain.GetWidth(),
@@ -1784,8 +2007,91 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
         TracyVkNamedZoneC(profiler_ctx, renderer_gpu_zone, cmdbuf, "Host frame",
                           MarkersPalette::GpuMarkerColor, profiler_ctx != nullptr);
 
+        // Window image as stored (swapped by a 90/270 degree pre-rotation) and as presented.
         const vk::Extent2D extent = swapchain.GetExtent();
-        const std::array pre_barriers{
+        const vk::Extent2D logical = swapchain.GetPresentExtent();
+        const u32 rotation = swapchain.GetRotation();
+        const vk::Format target_format = swapchain.GetHDR() ? vk::Format::eA2B10G10R10UnormPack32
+                                                            : swapchain.GetSurfaceFormat().format;
+
+        // Where the game goes: the dock space's central node, i.e. the window minus the desktop
+        // bars and docked tool windows. Composed frames are made at the fitted size of this
+        // area, so they cover their rectangle texel for texel.
+        const auto area = ImGui::Core::GetGameArea(dockId);
+        SetExpectedGameSize(std::max(1, static_cast<s32>(area.width)),
+                            std::max(1, static_cast<s32>(area.height)));
+        const auto fit = [&](u32 width, u32 height) {
+            auto rect = FitImage(static_cast<s32>(width), static_cast<s32>(height),
+                                 static_cast<s32>(area.width), static_cast<s32>(area.height));
+            rect.offset.x += static_cast<s32>(area.x);
+            rect.offset.y += static_cast<s32>(area.y);
+            return rect;
+        };
+
+#if defined(__ANDROID__)
+        // The first SBS bring-up must expose the actual VideoOut frame. Beat Saber keeps the
+        // generic shell splash flag set while its Unity scene is already submitting frames,
+        // which otherwise masks the SBS frame with an empty shell image.
+        const bool show_shell_splash =
+            splash_visible() && !Core::HostRuntime::GuestVrSensor::Instance().Read().enabled;
+#else
+        const bool show_shell_splash = splash_visible();
+#endif
+        if (!show_shell_splash) {
+            DropSplash();
+        }
+
+        // What goes into the game's rectangle: the guest image post-processed by the present
+        // pass itself (the 2D window), a composed frame (headset mirror, canvas capture, SBS)
+        // or the splash, both copied. Only a reconstruction (FSR1/SGSR1) writes an image of
+        // its own before the pass.
+        HostPasses::PresentPass::DrawInfo picture{.rotation = rotation};
+        vk::Rect2D game{};
+        if (show_shell_splash && EnsureSplash(cmdbuf)) {
+            picture.picture = splash->view;
+            game = fit(splash->width, splash->height);
+        } else if (EmulatorSettings.IsNullGPU()) {
+            // Nothing: the notice below takes the game's place.
+        } else if (composed) {
+            picture.picture = composed->image_view;
+            game = fit(composed->width, composed->height);
+        } else if (source) {
+            game = fit(source->size.width, source->size.height);
+            const auto [view, linear] = RecordUpscale(scheduler, cmdbuf, slot, *source, game.extent);
+            picture.picture = view;
+            picture.encode = !swapchain.GetHDR();
+            picture.srgb_input = source->srgb_10bit && !linear;
+            picture.gamma = pp_settings.gamma;
+            DebugState.output_resolution = {game.extent.width, game.extent.height};
+        }
+        if (EmulatorSettings.IsNullGPU()) {
+            const ImVec2 scale = ImGui::GetIO().DisplayFramebufferScale;
+            ImGui::SetNextWindowPos(ImVec2{area.x / scale.x, area.y / scale.y});
+            ImGui::SetNextWindowSize(ImVec2{area.width / scale.x, area.height / scale.y});
+            if (ImGui::Begin("##null_gpu_notice", nullptr,
+                             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground |
+                                 ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav |
+                                 ImGuiWindowFlags_NoSavedSettings |
+                                 ImGuiWindowFlags_NoBringToFrontOnFocus)) {
+                Core::Devtools::Layer::DrawNullGpuNotice();
+            }
+            ImGui::End();
+        }
+        status_layer->Draw();
+
+        // ImGui ends its frame and records texture uploads before the pass. Its resources are
+        // retired by this scheduler's timeline: the command buffer completes at CurrentTick().
+        bool draw_overlays;
+        {
+            auto& work = *scheduler.GetWorkSemaphore();
+            work.Refresh();
+            draw_overlays =
+                ImGui::Core::PrepareDraw(cmdbuf, scheduler.CurrentTick(), work.KnownGpuTick());
+        }
+
+        const vk::ImageSubresourceRange color_range{vk::ImageAspectFlagBits::eColor, 0, 1, 0,
+                                                    VK_REMAINING_ARRAY_LAYERS};
+        boost::container::static_vector<vk::ImageMemoryBarrier, 2> pre_barriers{
             vk::ImageMemoryBarrier{
                 .srcAccessMask = vk::AccessFlagBits::eNone,
                 .dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
@@ -1794,127 +2100,81 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .image = swapchain_image,
-                .subresourceRange{
-                    .aspectMask = vk::ImageAspectFlagBits::eColor,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = VK_REMAINING_ARRAY_LAYERS,
-                },
+                .subresourceRange = color_range,
             },
-            vk::ImageMemoryBarrier{
+        };
+        if (composed) {
+            pre_barriers.push_back(vk::ImageMemoryBarrier{
                 .srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
                 .dstAccessMask = vk::AccessFlagBits::eShaderRead,
                 .oldLayout = vk::ImageLayout::eGeneral,
                 .newLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .image = frame->image,
-                .subresourceRange{
-                    .aspectMask = vk::ImageAspectFlagBits::eColor,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = VK_REMAINING_ARRAY_LAYERS,
-                },
-            },
-        };
-
-        bool swapchain_copied_for_screenshot = false;
-
+                .image = composed->image,
+                .subresourceRange = color_range,
+            });
+        }
         cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput,
                                vk::PipelineStageFlagBits::eColorAttachmentOutput |
                                    vk::PipelineStageFlagBits::eFragmentShader,
                                vk::DependencyFlagBits::eByRegion, {}, {}, pre_barriers);
 
-        { // Draw the game
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f});
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::SetNextWindowDockID(dockId, ImGuiCond_Once);
-            if (ImGui::Begin("Display##game_display", nullptr, ImGuiWindowFlags_NoNav)) {
-                auto game_texture = frame->imgui_texture;
-                auto game_width = frame->width;
-                auto game_height = frame->height;
-
-#if defined(__ANDROID__)
-                // The first SBS bring-up must expose the actual VideoOut
-                // frame.  Beat Saber keeps the generic shell splash flag set
-                // while its Unity scene is already submitting frames, which
-                // otherwise masks the SBS frame with an empty shell image.
-                const bool show_shell_splash =
-                    splash_visible() && !Core::HostRuntime::GuestVrSensor::Instance().Read().enabled;
-#else
-                const bool show_shell_splash = splash_visible();
-#endif
-                if (show_shell_splash) { // draw splash
-                    if (!splash_img.has_value()) {
-                        splash_img.emplace();
-                        const auto& splash_data = Common::ElfInfo::Instance().GetSplashData();
-                        if (!splash_data.empty()) {
-                            splash_img = ImGui::RefCountedTexture::DecodePngTexture(splash_data);
-                        }
-                    }
-                    if (auto& splash_image = this->splash_img.value()) {
-                        auto [im_id, width, height] = splash_image.GetTexture();
-                        game_texture = im_id;
-                        game_width = width;
-                        game_height = height;
-                    }
-                }
-
-                ImVec2 contentArea = ImGui::GetContentRegionAvail();
-                SetExpectedGameSize((s32)contentArea.x, (s32)contentArea.y);
-
-                const auto imgRect =
-                    FitImage(game_width, game_height, (s32)contentArea.x, (s32)contentArea.y);
-                ImVec2 offset{
-                    static_cast<float>(imgRect.offset.x),
-                    static_cast<float>(imgRect.offset.y),
-                };
-                ImVec2 size{
-                    static_cast<float>(imgRect.extent.width),
-                    static_cast<float>(imgRect.extent.height),
-                };
-
-                ImGui::SetCursorPos(ImGui::GetCursorStartPos() + offset);
-                ImGui::Image(game_texture, size);
-
-                if (EmulatorSettings.IsNullGPU()) {
-                    Core::Devtools::Layer::DrawNullGpuNotice();
-                }
+        // One pass over the window image: cleared (the borders), the picture into the game's
+        // rectangle, then the overlays on top. The window image is written once and never read
+        // back, and a pre-rotated image leaves the compositor nothing to rotate.
+        const auto pass_zone = scheduler.GpuProfile().Begin(cmdbuf, GpuProfiler::Stage::PostProcess);
+        const vk::RenderingAttachmentInfo attachment{
+            .imageView = swapchain_image_view,
+            .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+            .loadOp = vk::AttachmentLoadOp::eClear,
+            .storeOp = vk::AttachmentStoreOp::eStore,
+            .clearValue = vk::ClearValue{vk::ClearColorValue{std::array{0.f, 0.f, 0.f, 1.f}}},
+        };
+        cmdbuf.beginRendering(vk::RenderingInfo{
+            .renderArea = {.extent = extent},
+            .layerCount = 1,
+            .colorAttachmentCount = 1,
+            .pColorAttachments = &attachment,
+        });
+        if (picture.picture) {
+            // The rectangle in presentation coordinates, then as stored.
+            const s32 x = game.offset.x, y = game.offset.y;
+            const s32 w = static_cast<s32>(game.extent.width);
+            const s32 h = static_cast<s32>(game.extent.height);
+            const s32 lw = static_cast<s32>(logical.width);
+            const s32 lh = static_cast<s32>(logical.height);
+            picture.rect = game;
+            if (rotation == 1) {
+                picture.rect = {{lh - (y + h), x}, {game.extent.height, game.extent.width}};
+            } else if (rotation == 2) {
+                picture.rect = {{lw - (x + w), lh - (y + h)}, game.extent};
+            } else if (rotation == 3) {
+                picture.rect = {{y, lw - (x + w)}, {game.extent.height, game.extent.width}};
             }
-            ImGui::End();
-            ImGui::PopStyleVar(3);
-            ImGui::PopStyleColor();
+            present_pass.Draw(scheduler, cmdbuf, target_format, picture);
         }
-        status_layer->Draw();
-        {
-            // ImGui resources are retired by this scheduler's timeline: the command buffer
-            // completes at CurrentTick().
-            auto& work = *scheduler.GetWorkSemaphore();
-            work.Refresh();
-            ImGui::Core::Render(cmdbuf, scheduler.CurrentTick(), work.KnownGpuTick(),
-                                swapchain_image_view, swapchain.GetExtent());
+        if (draw_overlays) {
+            ImGui::Core::RecordDraw(cmdbuf, rotation);
         }
+        cmdbuf.endRendering();
+        scheduler.GpuProfile().End(cmdbuf, pass_zone);
 
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
         // Frame::image contains the complete application render target. Host
         // ImGui was drawn to swapchain_image and does not enter this copy.
-        if (!is_reusing_frame && embedded_capture->Acquire(*frame)) {
-            embedded_capture->Record(cmdbuf, *frame);
+        if (composed && !is_reusing_frame && embedded_capture->Acquire(*composed)) {
+            embedded_capture->Record(cmdbuf, *composed);
         }
 #endif
 
+        bool swapchain_copied_for_screenshot = false;
         if (capture_with_overlays_count > 0) {
             auto& readback = pending_screenshot.emplace(
                 instance, ScreenshotKind::WithOverlays,
                 BuildScreenshotPaths(ScreenshotKind::WithOverlays, capture_with_overlays_count),
-                extent.width, extent.height,
-                swapchain.GetHDR() ? vk::Format::eA2B10G10R10UnormPack32
-                                   : swapchain.GetSurfaceFormat().format,
-                swapchain.GetHDR());
+                extent.width, extent.height, target_format, swapchain.GetHDR());
+            readback.rotation = rotation;
 
             const vk::ImageMemoryBarrier to_transfer{
                 .srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
@@ -1924,13 +2184,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .image = swapchain_image,
-                .subresourceRange{
-                    .aspectMask = vk::ImageAspectFlagBits::eColor,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = VK_REMAINING_ARRAY_LAYERS,
-                },
+                .subresourceRange = color_range,
             };
 
             cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput,
@@ -1955,13 +2209,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
             .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image = swapchain_image,
-            .subresourceRange{
-                .aspectMask = vk::ImageAspectFlagBits::eColor,
-                .baseMipLevel = 0,
-                .levelCount = 1,
-                .baseArrayLayer = 0,
-                .layerCount = VK_REMAINING_ARRAY_LAYERS,
-            },
+            .subresourceRange = color_range,
         };
         cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
                                vk::PipelineStageFlagBits::eAllCommands,
@@ -1984,11 +2232,20 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
 
     SubmitInfo info{};
     info.AddWait(swapchain.GetImageAcquiredSemaphore());
-    // The frame is consumed by transfer/blit or fragment sampling before color
-    // output. Waiting only at COLOR_ATTACHMENT_OUTPUT does not protect those reads.
-    info.AddWait(frame->ready_semaphore, frame->ready_tick);
+    // The picture is consumed by fragment sampling (or a transfer) before color output.
+    // Waiting only at COLOR_ATTACHMENT_OUTPUT does not protect those reads.
+    if (composed) {
+        info.AddWait(composed->ready_semaphore, composed->ready_tick);
+    }
+    if (source) {
+        info.AddWait(source->ready_semaphore, source->ready_tick);
+        // The draw scheduler releases resources of later ticks once this submission ran.
+        draw_scheduler.SetRetirementReader(source->retire_hold, scheduler.GetWorkSemaphore(),
+                                           scheduler.CurrentTick());
+        source->retire_hold = 0;
+    }
     info.AddSignal(swapchain.GetPresentReadySemaphore());
-    info.AddSignal(frame->present_done);
+    info.AddSignal(slot.present_done);
 #if defined(SHADPS4_HAS_SCRCPY_CAPTURE_SDK)
     embedded_capture->AddSubmitSync(info);
 #endif
@@ -2026,7 +2283,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
     }
 
-    free_frame(presented);
+    ReleaseWindowFrames(slot, composed, presented);
     if (!is_reusing_frame && is_game_frame) {
         DebugState.IncFlipFrameNum();
         Common::PerformanceHint::NoteGameFrame();
@@ -2034,7 +2291,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame, bool is_game_frame)
     return presented;
 }
 
-Frame* Presenter::GetRenderFrame(bool stereo) {
+Frame* Presenter::GetPresentSlot() {
     // Wait for free presentation frames
     Frame* frame;
     {
@@ -2067,13 +2324,26 @@ Frame* Presenter::GetRenderFrame(bool stereo) {
             free_queue.push(frame);
             return nullptr;
         }
-        ASSERT_MSG(result != vk::Result::eErrorDeviceLost,
-                   "Device lost during waiting for a frame");
         // Retry if the waiting times out
         if (result == vk::Result::eTimeout) {
             continue;
         }
+        // A GPU fault (device lost) ends the session through the present thread's fault
+        // handler instead of aborting the process.
+        {
+            std::scoped_lock lock(free_mutex);
+            free_queue.push(frame);
+        }
+        throw std::runtime_error(fmt::format("GPU device lost while waiting for a frame ({})",
+                                             vk::to_string(result)));
     }
+    return frame;
+}
+
+Frame* Presenter::GetRenderFrame(bool stereo) {
+    Frame* frame = GetPresentSlot();
+    if (!frame)
+        return nullptr;
 
     // Keep the eye boundary between texels. Rescaling an odd-width SBS atlas
     // can otherwise put the middle (right-eye) texel in the left XR rectangle.

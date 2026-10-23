@@ -31,6 +31,7 @@
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 #include "video_core/replay/gpu_replay_format.h"
+#include "video_core/texture_cache/upload_diagnostics.h"
 
 std::unique_ptr<Vulkan::Presenter> presenter;
 std::unique_ptr<AmdGpu::Liverpool> liverpool;
@@ -2638,6 +2639,8 @@ s32 PS4_SYSV_ABI sceGnmSubmitDone() {
     liverpool->SubmitDone();
     send_init_packet = true;
     ++frames_submitted;
+    if (VideoCore::UploadDiagnostics::submit_drain.load(std::memory_order_relaxed))
+        WaitGpuIdle();
     DebugState.IncGnmFrameNum();
     return ORBIS_OK;
 }

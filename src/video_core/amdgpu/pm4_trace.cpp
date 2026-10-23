@@ -376,8 +376,9 @@ std::string Status(u64 now) {
                            capture.gcmd_bytes, capture.gcmd_fnv);
     }
     if (capture.start_ns)
-        out += fmt::format("capture_ms: {:.1f}\n",
-                           ((capture.end_ns ? capture.end_ns : now) - capture.start_ns) / 1e6);
+        out += fmt::format("capture_ms: {:.1f} steady_ns: {}..{}\n",
+                           ((capture.end_ns ? capture.end_ns : now) - capture.start_ns) / 1e6,
+                           capture.start_ns, capture.end_ns);
     return out;
 }
 

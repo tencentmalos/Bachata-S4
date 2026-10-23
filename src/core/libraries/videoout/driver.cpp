@@ -323,13 +323,13 @@ void VideoOutDriver::Flip(const Request& req) {
     // Update HDR status before presenting.
     presenter->SetHDR(req.port->is_hdr);
 
-    // Present the frame. A handed-over guest image is composed here first, so the
-    // host passes run on this thread and its command buffer, not on the guest's.
-    auto* frame = req.frame;
-    if (!frame && req.source) {
-        frame = presenter->Compose(*req.source);
-    }
-    const bool presented = presenter->Present(frame) && req.index >= 0;
+    // A redraw still waiting would show the picture this flip replaces.
+    DropRedrawSource();
+    // Present the frame. A handed-over guest image is post-processed here, so the host
+    // passes run on this thread and its command buffer, not on the guest's.
+    const bool shown = !req.frame && req.source ? presenter->PresentGuestImage(*req.source)
+                                                : presenter->Present(req.frame);
+    const bool presented = shown && req.index >= 0;
     u64 present_id{};
     const auto generation = presenter->CaptureGeneration();
     if (presented) {
@@ -398,6 +398,10 @@ void VideoOutDriver::CompleteFlip(VideoOutPort* port, s32 index, s64 flip_arg, b
     }
     // save to prev buf index
     port->prev_index = index;
+    if (port == &main_port) {
+        displayed_index.store(index, std::memory_order_relaxed);
+        displayed_serial.fetch_add(1, std::memory_order_release);
+    }
 }
 
 void VideoOutDriver::SignalVblank(VideoOutPort& port) {
@@ -429,6 +433,10 @@ void VideoOutDriver::DrawBlankFrame() {
         presenter->UpdateOverlayLayers(); // dialogs before the first frame
         return;
     }
+    if (presenter->PresentsDirect()) {
+        presenter->PresentEmpty();
+        return;
+    }
     const auto empty_frame = presenter->PrepareBlankFrame(true);
     // A blank frame is not a guest flip; it must not advance the flip frame counter.
     if (empty_frame) {
@@ -442,9 +450,85 @@ void VideoOutDriver::DrawLastFrame() {
         presenter->UpdateOverlayLayers();
         return;
     }
-    const auto frame = presenter->PrepareLastFrame();
-    if (frame != nullptr) {
-        presenter->Present(frame, true);
+    if (presenter->HasRetainedFrame()) {
+        const auto frame = presenter->PrepareLastFrame();
+        if (frame != nullptr) {
+            presenter->Present(frame, true);
+        }
+        return;
+    }
+    // Direct presentation keeps no copy of the picture: the displayed guest buffer, captured
+    // again, is presented one vblank after it was asked for. It is composed and kept, so the
+    // redraws after it (a stalled or paused game) reuse that frame.
+    if (auto source = TakeRedrawSource()) {
+        presenter->PresentGuestImage(*source, true, false, true);
+        return;
+    }
+    RequestRedrawCapture();
+}
+
+void VideoOutDriver::RequestRedrawCapture() {
+    if (redraw_capturing.exchange(true, std::memory_order_acq_rel)) {
+        return;
+    }
+    liverpool->SendCommand([this] {
+        // Read before the index: a flip completing in between leaves this capture stale, and
+        // TakeRedrawSource drops it.
+        const u64 serial = displayed_serial.load(std::memory_order_acquire);
+        const s32 index = displayed_index.load(std::memory_order_relaxed);
+        bool flip_pending;
+        {
+            std::scoped_lock lock{mutex};
+            flip_pending = !requests.empty();
+        }
+        std::shared_ptr<Vulkan::PresentSource> source;
+        if (index >= 0 && !flip_pending && !main_port.stopping) {
+            const auto& buffer = main_port.buffer_slots[index];
+            if (buffer.group_index >= 0) {
+                source = presenter->CaptureFrame(main_port.groups[buffer.group_index],
+                                                 buffer.address_left, 0, true);
+            }
+        }
+        if (source) {
+            std::shared_ptr<Vulkan::PresentSource> previous;
+            {
+                std::scoped_lock lock{redraw_mutex};
+                previous = std::exchange(redraw_source, std::move(source));
+                redraw_serial = serial;
+            }
+            if (previous) {
+                presenter->DropSource(*previous);
+            }
+        }
+        redraw_capturing.store(false, std::memory_order_release);
+    });
+}
+
+std::shared_ptr<Vulkan::PresentSource> VideoOutDriver::TakeRedrawSource() {
+    std::shared_ptr<Vulkan::PresentSource> source;
+    bool current;
+    {
+        std::scoped_lock lock{redraw_mutex};
+        source = std::exchange(redraw_source, nullptr);
+        current = redraw_serial == displayed_serial.load(std::memory_order_acquire);
+    }
+    if (source && !current) {
+        // A flip completed after the capture: it shows a replaced picture.
+        presenter->DropSource(*source);
+        source.reset();
+    }
+    return source;
+}
+
+void VideoOutDriver::DropRedrawSource() {
+    std::shared_ptr<Vulkan::PresentSource> source;
+    {
+        std::scoped_lock lock{redraw_mutex};
+        source = std::exchange(redraw_source, nullptr);
+    }
+    if (source) {
+        // Its hold on the draw scheduler's retirement goes with it.
+        presenter->DropSource(*source);
     }
 }
 
@@ -757,6 +841,12 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
     u32 limit_credit{};
     bool limit_slot{true};
 
+    // A visible status overlay changes with every game frame anyway; without one it is refreshed
+    // this often, so a stalled game still shows current numbers. Redrawing it every vblank would
+    // present each game frame several times over.
+    constexpr std::chrono::milliseconds StaleOverlayRefresh{250};
+    auto last_present = std::chrono::steady_clock::now();
+
     while (!token.stop_requested()) {
         timer.Start();
 
@@ -800,14 +890,19 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
 #else
                 if (timer.GetTotalWait().count() < 0) { // Dont draw too fast
 #endif
+                    const auto now = std::chrono::steady_clock::now();
                     if (!main_port.is_open) {
                         DrawBlankFrame();
-                    } else if (ImGui::Core::MustKeepDrawing()) {
+                    } else if (ImGui::Core::MustKeepDrawing() ||
+                               (ImGui::Core::WantsPeriodicRedraw() &&
+                                now - last_present >= StaleOverlayRefresh)) {
                         DrawLastFrame();
+                        last_present = now;
                     }
                 }
             } else {
                 Flip(request);
+                last_present = std::chrono::steady_clock::now();
                 limit_slot = false;
                 FRAME_END;
             }

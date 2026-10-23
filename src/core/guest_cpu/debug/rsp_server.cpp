@@ -13,10 +13,27 @@
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#if defined(__ANDROID__)
+#include <android/log.h>
+#endif
 #include "core/guest_cpu/debug/rsp_server.h"
 
 namespace Core::GuestCpu::Debug {
 namespace {
+// Bounded trace of the debugger connection (logcat tag GuestRsp): control packets,
+// stop replies and the reason a connection ends. Memory/register reads are not logged.
+std::atomic<int> g_trace_left{2000};
+void Trace(const char* what, std::string_view text = {}) {
+    if (g_trace_left.fetch_sub(1, std::memory_order_relaxed) <= 0)
+        return;
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_INFO, "GuestRsp", "%s %.*s", what,
+                        static_cast<int>(std::min<size_t>(text.size(), 200)), text.data());
+#else
+    (void)what;
+    (void)text;
+#endif
+}
 constexpr char digits[] = "0123456789abcdef";
 int Digit(char c) {
     if (c >= '0' && c <= '9')
@@ -255,7 +272,79 @@ struct RspServer::Impl {
     bool no_ack{}, detach{}, awaiting{};
     bool await_new_stop{};
     std::map<std::uint64_t, std::uint64_t> previous_stops;
-    std::string last, thread_xml, library_xml, mixed_json;
+    std::string last, thread_xml, library_xml, mixed_json, state_json, modules_json;
+    // Distinguishes this listener from an earlier one in the same process (MCP identity check).
+    const std::string instance_id = Hex(static_cast<std::uint64_t>(::getpid())) + "-" +
+        Hex(static_cast<std::uint64_t>(
+            std::chrono::steady_clock::now().time_since_epoch().count()));
+    static std::string JsonText(std::string_view text) {
+        std::string r = "\"";
+        for (const char c : text) {
+            if (c == '"' || c == '\\')
+                (r += '\\') += c;
+            else if (static_cast<unsigned char>(c) < 0x20)
+                r += "\\u00" + std::string{digits[(c >> 4) & 15], digits[c & 15]};
+            else
+                r += c;
+        }
+        return r + "\"";
+    }
+    // Target identity for the debugger: program, main module identity, registry generation and
+    // whether the debugger holds the guest paused. Attach never pauses this target.
+    std::string DebugStateJson() {
+        std::string main_id;
+        for (const auto& m : target.Modules())
+            if (m.kind == "main") {
+                main_id = m.sha256;
+                break;
+            }
+        const bool stopped = target.DebugStopped();
+        return std::string("{\"schema\":\"citron.guest-debug-state.v1\",\"process_id\":\"") +
+               std::to_string(::getpid()) + "\",\"stopped\":" + (stopped ? "true" : "false") +
+               ",\"registry_generation\":" + std::to_string(target.ModuleRegistryGeneration()) +
+               ",\"program_id\":" + JsonText(target.ProgramId()) +
+               ",\"main_build_id\":" + JsonText(main_id) +
+               ",\"gdb_server_instance_id\":" + JsonText(instance_id) +
+               ",\"pre_attach_state\":\"" + (stopped ? "paused" : "running") +
+               "\",\"attach_introduced_pause\":false,\"attach_stops_target\":false"
+               ",\"supports_non_stop_attach\":true,\"supports_dynamic_listener\":false}";
+    }
+    // Loaded modules with their file identity and segments (kind from ELF p_flags).
+    std::string ModulesJson() {
+        std::string r = "{\"schema\":\"citron.guest-modules.v1\",\"registry_generation\":" +
+                        std::to_string(target.ModuleRegistryGeneration()) + ",\"modules\":[";
+        bool first = true;
+        for (const auto& m : target.Modules()) {
+            if (!first)
+                r += ',';
+            first = false;
+            std::uint64_t mapped = 0;
+            for (const auto& s : m.segments)
+                if (s.base.value >= m.load_base)
+                    mapped = std::max(mapped, s.base.value - m.load_base + s.size);
+            r += "{\"name\":" + JsonText(m.name) + ",\"kind\":" + JsonText(m.kind) +
+                 ",\"build_id\":" + JsonText(m.sha256) + ",\"module_id\":" + JsonText(m.name) +
+                 ",\"load_base\":\"0x" + Hex(m.load_base) + "\",\"mapped_size\":" +
+                 std::to_string(mapped) + ",\"load_generation\":" +
+                 std::to_string(m.load_generation) + ",\"segments\":[";
+            for (std::size_t i = 0; i < m.segments.size(); ++i) {
+                const auto& s = m.segments[i];
+                const auto flags = i < m.segment_prot.size() ? m.segment_prot[i] : 0;
+                const char* kind = (flags & 1) ? "text" : (flags & 2) ? "data" : "rodata";
+                const std::string permissions = std::string((flags & 4) ? "r" : "-") +
+                                                ((flags & 2) ? "w" : "-") + ((flags & 1) ? "x" : "-");
+                if (i)
+                    r += ',';
+                r += std::string("{\"kind\":\"") + kind + "\",\"guest_address\":\"0x" +
+                     Hex(s.base.value) + "\",\"image_offset\":\"0x" +
+                     Hex(s.base.value >= m.load_base ? s.base.value - m.load_base : 0) +
+                     "\",\"file_size\":" + std::to_string(s.size) + ",\"mapped_size\":" +
+                     std::to_string(s.size) + ",\"permissions\":\"" + permissions + "\"}";
+            }
+            r += "]}";
+        }
+        return r + "]}";
+    }
     std::uint64_t mixed_thread{};
     std::chrono::steady_clock::time_point interrupt_deadline{};
     explicit Impl(Target& t) : target(t) {}
@@ -323,11 +412,16 @@ struct RspServer::Impl {
         auto eligible = [&](const auto& t) {
             return t.phase == Phase::Parked && (!await_new_stop || fresh(t));
         };
+        // A hit names the stop before a completed step: when one owner hits a watch or a
+        // breakpoint, the others pause wherever their own instruction steps ended.
         auto it = std::find_if(threads.begin(), threads.end(), [&](auto& t) {
             return eligible(t) &&
-                   (t.reason == StopReason::Watchpoint || t.reason == StopReason::Breakpoint ||
-                    t.reason == StopReason::StepComplete);
+                   (t.reason == StopReason::Watchpoint || t.reason == StopReason::Breakpoint);
         });
+        if (it == threads.end())
+            it = std::find_if(threads.begin(), threads.end(), [&](auto& t) {
+                return eligible(t) && t.reason == StopReason::StepComplete;
+            });
         if (it == threads.end())
             it = std::find_if(threads.begin(), threads.end(), eligible);
         if (it == threads.end())
@@ -369,7 +463,8 @@ struct RspServer::Impl {
     bool Handle(std::string_view p) {
         if (p.starts_with("qSupported"))
             return Send("PacketSize=2000;qXfer:features:read+;qXfer:threads:read+;qXfer:libraries:"
-                        "read+;QStartNoAckMode+;swbreak+;qXfer:shadps4-mixed-stack:read+");
+                        "read+;QStartNoAckMode+;swbreak+;qXfer:shadps4-mixed-stack:read+;"
+                        "qXfer:citron-debug-state:read+;qXfer:citron-modules:read+");
         if (p == "QStartNoAckMode") {
             bool ok = Send("OK");
             no_ack = true;
@@ -431,6 +526,26 @@ struct RspServer::Impl {
             const auto n = std::min<std::uint64_t>({*len, 4096, mixed_json.size() - *off});
             return Send(std::string(*off + n == mixed_json.size() ? "l" : "m") +
                         mixed_json.substr(*off, n));
+        }
+        if (p.starts_with("qXfer:citron-debug-state:read::") ||
+            p.starts_with("qXfer:citron-modules:read::")) {
+            // Generic module/target identity contract of the guest debugger MCP (named after the
+            // emulator that introduced it). JSON, read in chunks like the XML objects below.
+            const bool state = p.starts_with("qXfer:citron-debug-state:");
+            auto arg = p.substr(state ? std::string_view("qXfer:citron-debug-state:read::").size()
+                                      : std::string_view("qXfer:citron-modules:read::").size());
+            auto comma = arg.find(',');
+            auto off = Number(arg.substr(0, comma)),
+                 len = comma == arg.npos ? std::nullopt : Number(arg.substr(comma + 1));
+            if (!off || !len || !*len)
+                return Send("E22");
+            auto& json = state ? state_json : modules_json;
+            if (!*off)
+                json = state ? DebugStateJson() : ModulesJson();
+            if (*off > json.size())
+                return Send("E22");
+            const auto n = std::min<std::uint64_t>({*len, json.size() - *off, 4096});
+            return Send(std::string(*off + n == json.size() ? "l" : "m") + json.substr(*off, n));
         }
         if (p.starts_with("qXfer:threads:read::") || p.starts_with("qXfer:libraries:read::")) {
             const bool threads = p.starts_with("qXfer:threads:");
@@ -676,8 +791,11 @@ struct RspServer::Impl {
             if (awaiting) {
                 if (auto reply = StopReply()) {
                     awaiting = false;
-                    if (!Send(*reply))
+                    Trace("stop", *reply);
+                    if (!Send(*reply)) {
+                        Trace("end: stop reply send failed");
                         break;
+                    }
                 } else if (interrupt_deadline.time_since_epoch().count() &&
                            std::chrono::steady_clock::now() > interrupt_deadline) {
                     awaiting = false;
@@ -689,13 +807,17 @@ struct RspServer::Impl {
             int ready = ::poll(&fd, 1, 20);
             if (ready < 0 && errno == EINTR)
                 continue;
-            if (ready < 0 || fd.revents & (POLLERR | POLLHUP | POLLNVAL))
+            if (ready < 0 || fd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                Trace(ready < 0 ? "end: poll error" : "end: socket hangup/error");
                 break;
+            }
             if (!ready)
                 continue;
             char c{};
-            if (::recv(fd.fd, &c, 1, 0) != 1)
+            if (::recv(fd.fd, &c, 1, 0) != 1) {
+                Trace("end: client closed or recv failed");
                 break;
+            }
             if (state == 0) {
                 if (c == '$') {
                     wire.clear();
@@ -753,9 +875,15 @@ struct RspServer::Impl {
                     break;
                 continue;
             }
-            if (!Handle(decoded))
+            if (decoded.empty() || (decoded[0] != 'm' && decoded[0] != 'g' &&
+                                    decoded[0] != 'p' && !decoded.starts_with("qXfer")))
+                Trace("packet", decoded);
+            if (!Handle(decoded)) {
+                Trace("end: handler failed for", decoded);
                 break;
+            }
         }
+        Trace(detach ? "detached by client" : "connection lost: pausing and detaching");
         if (!detach) {
             (void)target.Pause();
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
@@ -797,6 +925,7 @@ Result<std::unique_ptr<RspServer>> RspServer::Listen(Target& target, std::uint16
             int client = ::accept4(ptr->listener, nullptr, nullptr, SOCK_CLOEXEC);
             if (client < 0)
                 continue;
+            Trace("client connected");
             timeval timeout{1, 0};
             ::setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
             ptr->client.store(client);

@@ -32,6 +32,7 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -197,7 +198,25 @@ struct ThreadInterruptBinding final {
     std::size_t watch_count{};
     std::optional<Debug::WatchHit> watch_hit;
     std::uint64_t watch_rip{};
+    // REP count register width of the stepped instruction (ECX with an address-size prefix).
+    std::uint64_t bulk_count_mask{~std::uint64_t{0}};
+    // Cached watch mode: a hit protects the owner's interrupt page so it stops at its next
+    // block entry (the hit itself names the exact instruction).
+    bool watch_cached{};
+    std::size_t fault_page_size{};
+    // Watch translation generation this owner last emptied its return and lookup caches for.
+    std::uint64_t watch_generation{};
     MemoryWatchCompileState* watch_compile{};
+    // Last instruction steps of this owner (debugger single step and watch mode), written on the
+    // owner thread around each step and dumped by the fatal fault diagnostic. Records whose
+    // `after` is unset were interrupted by the fault.
+    struct StepRecord {
+        std::uint64_t rip{}, next_rip{};
+        std::array<std::uint64_t, 16> before{}, after{};
+        std::uint32_t outcome{}; // bit 0 completed, bit 1 HLE, bit 2 TF trap, bit 3 other trap
+    };
+    std::array<StepRecord, 16> step_ring{};
+    std::uint32_t step_ring_next{};
     std::unique_ptr<ExecutionProbeOwner> profile_owner;
     FEXCore::Context::Context *fex{};
     FEXCore::Core::InternalThreadState *native{};
@@ -245,17 +264,35 @@ thread_local ThreadInterruptBinding *t_binding = nullptr;
 
 // Called only by opt-in debug IR, on the executing guest owner. No locks,
 // allocation, VM access, guest calls, logging or FP operations are permitted.
-void ObserveGuestMemory(FEXCore::Core::CpuStateFrame*, std::uint64_t address,
+void ObserveGuestMemory(FEXCore::Core::CpuStateFrame* frame, std::uint64_t address,
                         std::uint64_t bytes, std::uint64_t access) noexcept {
     auto* b = t_binding;
     if (!b || b->watch_hit || !bytes) return;
+    const std::uint64_t rip = access >> kWatchRipShift;
+    access &= (std::uint64_t{1} << kWatchRipShift) - 1;
+    if (access & kWatchBulkAccess) {
+        // REP MOVS/STOS: the JIT spilled the guest registers before this call, so the state
+        // holds the count and direction the instruction is about to use; bytes is the element.
+        const auto& state = frame->State;
+        const std::uint64_t count = state.gregs[FEXCore::X86State::REG_RCX] & b->bulk_count_mask;
+        if (!count) return;
+        const std::uint64_t total = count > UINT64_MAX / bytes ? UINT64_MAX : count * bytes;
+        if (static_cast<std::int8_t>(state.flags[FEXCore::X86State::RFLAG_DF_RAW_LOC]) < 0)
+            address -= total - bytes; // backward: the range ends at the first element
+        bytes = total;
+        access &= 3;
+    }
     for (std::size_t i = 0; i < b->watch_count; ++i) {
         const auto& w = b->watches[i];
         if (!(access & static_cast<unsigned>(w.access))) continue;
         const auto base = w.range.base.value;
         if ((address <= base && base - address < bytes) ||
             (address > base && address - base < w.range.size)) {
-            b->watch_hit = Debug::WatchHit{address, bytes, b->watch_rip, base, w.access};
+            b->watch_hit = Debug::WatchHit{address, bytes, rip ? rip : b->watch_rip, base, w.access};
+            // Not single-stepping: stop at this owner's next block entry, which with one
+            // instruction per translation is the accessing instruction's successor.
+            if (b->watch_cached)
+                (void)::mprotect(reinterpret_cast<void*>(b->fault_page), b->fault_page_size, PROT_NONE);
             return;
         }
     }
@@ -456,6 +493,24 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
             (void)::write(STDERR_FILENO, message, length);
             if (binding->fatal_log_fd >= 0)
                 (void)::write(binding->fatal_log_fd, message, length);
+            // Instruction steps that led here, oldest first (empty unless this owner was
+            // stepping: debugger step or an armed watchpoint).
+            for (std::uint32_t i = 0; i < binding->step_ring.size(); ++i) {
+                const auto& r = binding->step_ring[(binding->step_ring_next + i) % binding->step_ring.size()];
+                if (!r.rip) continue;
+                length = 0;
+                append("step rip="); hex(r.rip);
+                append(" next="); hex(r.next_rip);
+                append(" outcome="); hex(r.outcome);
+                append(" before");
+                for (const auto v : r.before) { append(" "); hex(v); }
+                append(" after");
+                for (const auto v : r.after) { append(" "); hex(v); }
+                append("\n");
+                (void)::write(STDERR_FILENO, message, length);
+                if (binding->fatal_log_fd >= 0)
+                    (void)::write(binding->fatal_log_fd, message, length);
+            }
             errno = saved_errno;
         }
     }
@@ -1174,6 +1229,22 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
 #endif
         FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, multiblock ? "1" : "0");
         multiblock_loop_poll_ = multiblock && loop_poll;
+#if defined(__ANDROID__)
+        // Diagnostic: debug.shadps4.fex_tso=vector|memcpy|vector,memcpy also orders vector
+        // loads/stores and REP MOVS/STOS as x86 does (FEX defaults: scalar accesses only).
+        property[0] = '\0';
+        if (__system_property_get("debug.shadps4.fex_tso", property) > 0) {
+            const std::string_view tso{property};
+            const bool vector = tso.find("vector") != std::string_view::npos;
+            const bool memcpy_set = tso.find("memcpy") != std::string_view::npos;
+            if (vector)
+                FEXCore::Config::Set(FEXCore::Config::CONFIG_VECTORTSOENABLED, "1");
+            if (memcpy_set)
+                FEXCore::Config::Set(FEXCore::Config::CONFIG_MEMCPYSETTSOENABLED, "1");
+            __android_log_print(ANDROID_LOG_WARN, "FexCore", "TSO for vector accesses %s, REP MOVS/STOS %s",
+                                vector ? "on" : "off", memcpy_set ? "on" : "off");
+        }
+#endif
 
         {
             // Read it back rather than assuming the write landed; a silently 32-bit context
@@ -1453,6 +1524,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         ThreadInterruptBinding binding{};
         std::optional<StepInfo> step_info;
         std::optional<StopReason> debug_stop;
+        // A cached-mode watch hit whose owner left the JIT for an HLE call first: reported once
+        // the HLE completes, at the top of the loop.
+        std::optional<Debug::WatchHit> pending_watch;
         std::uint64_t invocation{};
         // This physical Run frame and its host callers remain on the stack for
         // the whole invocation. Cache only that entry template; native waits
@@ -1597,6 +1671,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             binding.watch_compile = entry->watch_compile.get();
             binding.fault_page =
                 reinterpret_cast<std::uintptr_t>(entry->native->InterruptFaultPage);
+            binding.fault_page_size = host_page_size_;
             binding.stop_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
             syscall_fault = entry->syscall_fault;
             binding.syscall_fault_flag = syscall_fault.get();
@@ -1806,7 +1881,15 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             bool debug_wait{};
             if (debug_attached_.load(std::memory_order_relaxed)) {
                 std::lock_guard guard{lock_};
-                debug_wait = FindOwnedLocked(thread)->debug_pause;
+                auto* e = FindOwnedLocked(thread);
+                if (pending_watch && debug_attached_) {
+                    e->watch_hit = pending_watch;
+                    e->debug_reason = StopReason::Watchpoint;
+                    pending_watch.reset();
+                    auto paused = DebugPauseLocked();
+                    if (!paused) return paused.GetError();
+                }
+                debug_wait = e->debug_pause;
             }
             if (debug_wait) {
                 call_stack.reset();
@@ -1866,16 +1949,55 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 }
             }
             bool watching{};
+            std::uint32_t watch_mode = 0;
+            std::uint64_t watch_generation = 0;
             if (debug_attached_.load(std::memory_order_relaxed)) {
                 std::lock_guard guard{lock_};
                 watching = !debug_watches_.empty();
+                watch_mode = watch_mode_;
+                watch_generation = debug_watch_generation_;
                 binding.watch_count = debug_watches_.size();
                 std::copy(debug_watches_.begin(), debug_watches_.end(), binding.watches.begin());
             }
             binding.watch_compile->enabled = watching;
+            // Default: cached instrumented translations. watch_mode 0x4000 (diagnostic) keeps the
+            // older mode that runs every owner as observed single steps.
+            const bool step_watch = watching && (watch_mode & 0x4000);
+            binding.watch_cached = watching && !step_watch && !single_step;
+            if (watch_generation != binding.watch_generation) {
+                // Translations were discarded when watches were armed or removed. Entries in
+                // this owner's return stack and L1 lookup cache still point at the old code;
+                // empty both (owner thread, outside JIT code) so it is retranslated.
+                binding.watch_generation = watch_generation;
+                auto* native = binding.native;
+                FEXCore::Allocator::VirtualDontNeed(native->CallRetStackBase,
+                                                    FEXCore::Core::InternalThreadState::CALLRET_STACK_SIZE);
+                FEXCore::Allocator::VirtualDontNeed(
+                    reinterpret_cast<void*>(native->LookupCache->GetL1Pointer()),
+                    native->LookupCache->GetScaledL1PointerMask() + sizeof(FEXCore::LookupCache::LookupCacheEntry),
+                    false);
+            }
             binding.watch_compile->unsupported = false;
             binding.watch_hit.reset();
-            if (watching) {
+            if (binding.watch_cached) {
+                // A watch whose mapping was replaced is refused before running anything, as in
+                // the single-step mode.
+                bool current = true;
+                for (std::size_t i = 0; i < binding.watch_count; ++i) {
+                    auto mapping = space_.Query(binding.watches[i].range.base);
+                    const auto& range = binding.watches[i].range;
+                    current &= mapping && mapping.Value().mapping_generation == binding.watches[i].mapping_generation &&
+                        range.size <= mapping.Value().range.size - (range.base.value - mapping.Value().range.base.value);
+                }
+                if (!current) {
+                    std::lock_guard guard{lock_};
+                    FindOwnedLocked(thread)->debug_reason = StopReason::Unsupported;
+                    auto paused = DebugPauseLocked();
+                    if (!paused) return paused.GetError();
+                    continue;
+                }
+            }
+            if (step_watch) {
                 const auto rip = binding.native->CurrentFrame->State.rip;
                 binding.watch_rip = rip;
                 bool supported = true;
@@ -1892,9 +2014,29 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 supported &= !decoded->Blocks.empty() && decoded->TotalInstructionCount == 1 &&
                     decoded->Blocks.front().BlockStatus == FEXCore::Frontend::Decoder::DecodedBlockStatus::SUCCESS &&
                     DebugStepInstructionSupported(decoded->Blocks.front().DecodedInstructions[0]);
-                if (supported)
+                if (supported) {
+                    binding.bulk_count_mask =
+                        (decoded->Blocks.front().DecodedInstructions[0].Flags &
+                         FEXCore::X86Tables::DecodeFlags::FLAG_ADDRESS_SIZE) != 0
+                            ? 0xffffffffull
+                            : ~std::uint64_t{0};
+                    // The compile ends with FEX's deferred-signal store to this owner's interrupt
+                    // page, which a concurrent pause or interrupt request has protected. The
+                    // fault handler skips that host store only for the published binding.
+                    t_binding = &binding;
                     static_cast<FEXCore::Context::ContextImpl*>(context_.get())->CompileSingleStep(binding.native->CurrentFrame, rip);
+                    t_binding = nullptr;
+                }
                 if (!supported || binding.watch_compile->unsupported) {
+#if defined(__ANDROID__)
+                    static std::atomic<int> unsupported_logs{64};
+                    if (unsupported_logs.fetch_sub(1, std::memory_order_relaxed) > 0)
+                        __android_log_print(ANDROID_LOG_WARN, "GuestRsp",
+                                            "watch step refused: thread=%llu rip=%#llx decode_ok=%d ir_unsupported=%d",
+                                            static_cast<unsigned long long>(thread.id),
+                                            static_cast<unsigned long long>(rip), supported ? 1 : 0,
+                                            binding.watch_compile->unsupported ? 1 : 0);
+#endif
                     std::lock_guard guard{lock_};
                     FindOwnedLocked(thread)->debug_reason = StopReason::Unsupported;
                     auto paused = DebugPauseLocked();
@@ -1903,7 +2045,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 }
                 step_info = StepInfo{rip, false, decoded->Blocks.front().DecodedInstructions[0].InstSize};
             }
-            const bool instruction_step = single_step || watching;
+            const bool instruction_step = single_step || step_watch;
             t_binding = &binding;
             binding.hle_pending = false;
             binding.interrupted.store(false, std::memory_order_release);
@@ -1962,7 +2104,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         auto& tf = native_state.flags[FEXCore::X86State::RFLAG_TF_RAW_LOC];
         const auto saved_tf = tf;
         binding.native->CurrentFrame->SynchronousFaultData = {};
-        sys_ptrs->DebugMemoryAccess = watching ? reinterpret_cast<std::uint64_t>(&ObserveGuestMemory) : 0;
+        // Always set: translations instrumented while watches were armed may still be reached
+        // through a stale return before they are retranslated; the observer then finds no watch.
+        sys_ptrs->DebugMemoryAccess = reinterpret_cast<std::uint64_t>(&ObserveGuestMemory);
         if (instruction_step) {
             tf = 1; // blocked once, then trap before the next instruction
             // FEX's TF check sits at block entries and only single-step compiles have it. A
@@ -1980,7 +2124,24 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 native->LookupCache->GetScaledL1PointerMask() + sizeof(FEXCore::LookupCache::LookupCacheEntry),
                 false);
         }
+        ThreadInterruptBinding::StepRecord* step_record{};
+        if (instruction_step) {
+            step_record = &binding.step_ring[binding.step_ring_next++ % binding.step_ring.size()];
+            *step_record = {};
+            std::copy_n(native_state.gregs, 16, step_record->before.begin());
+            // Published last: the fault diagnostic skips records with rip 0.
+            step_record->rip = native_state.rip;
+        }
         context_->ExecuteThread(binding.native);
+        if (step_record) {
+            std::copy_n(native_state.gregs, 16, step_record->after.begin());
+            step_record->next_rip = native_state.rip;
+            const auto& fault = binding.native->CurrentFrame->SynchronousFaultData;
+            step_record->outcome = 1u | (binding.hle_pending ? 2u : 0u) |
+                (fault.FaultToTopAndGeneratedException
+                     ? (fault.Signal == FEXCore::Core::FAULT_SIGTRAP && fault.TrapNo == FEXCore::X86State::X86_TRAPNO_DB ? 4u : 8u)
+                     : 0u);
+        }
         sys_ptrs->GuestSignal_SIGTRAP = saved_trap;
         sys_ptrs->GuestSignal_SIGILL = saved_ill;
         sys_ptrs->GuestSignal_SIGSEGV = saved_segv;
@@ -1988,6 +2149,20 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         sys_ptrs->DebugMemoryAccess = 0;
         binding.watch_compile->enabled = false;
         if (instruction_step) tf = saved_tf; // never expose debugger TF to an HLE callback
+        if (binding.watch_hit && !instruction_step) {
+            pending_watch = binding.watch_hit;
+            binding.watch_hit.reset();
+#if defined(__ANDROID__)
+            static std::atomic<int> cached_hit_logs{64};
+            if (cached_hit_logs.fetch_sub(1, std::memory_order_relaxed) > 0)
+                __android_log_print(ANDROID_LOG_INFO, "GuestRsp",
+                                    "watch hit: thread=%llu rip=%#llx address=%#llx bytes=%llu",
+                                    static_cast<unsigned long long>(thread.id),
+                                    static_cast<unsigned long long>(pending_watch->instruction_rip),
+                                    static_cast<unsigned long long>(pending_watch->address),
+                                    static_cast<unsigned long long>(pending_watch->bytes));
+#endif
+        }
         if (trap.FaultToTopAndGeneratedException && trap.Signal == FEXCore::Core::FAULT_SIGTRAP) {
             if (trap.TrapNo == FEXCore::X86State::X86_TRAPNO_DB && trap.si_code == 2) {
                 // TF is checked at a block entry, before any guest operation.
@@ -2005,15 +2180,35 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         errno = host_errno.value;
         t_binding = nullptr;
         if (!binding.hle_pending) {
+            if (pending_watch && debug_attached_.load(std::memory_order_relaxed)) {
+                debug_stop = StopReason::Watchpoint;
+                std::lock_guard guard{lock_};
+                FindOwnedLocked(thread)->watch_hit = pending_watch;
+                pending_watch.reset();
+            }
             if (watching && debug_stop == StopReason::StepComplete) {
                 std::lock_guard guard{lock_};
                 auto* e = FindOwnedLocked(thread);
                 if (binding.watch_hit) {
+#if defined(__ANDROID__)
+                    static std::atomic<int> hit_logs{64};
+                    if (hit_logs.fetch_sub(1, std::memory_order_relaxed) > 0)
+                        __android_log_print(ANDROID_LOG_INFO, "GuestRsp",
+                                            "watch hit: thread=%llu rip=%#llx address=%#llx bytes=%llu",
+                                            static_cast<unsigned long long>(thread.id),
+                                            static_cast<unsigned long long>(binding.watch_hit->instruction_rip),
+                                            static_cast<unsigned long long>(binding.watch_hit->address),
+                                            static_cast<unsigned long long>(binding.watch_hit->bytes));
+#endif
                     e->watch_hit = binding.watch_hit;
                     debug_stop = StopReason::Watchpoint;
                 } else if (!single_step && !e->debug_pause && !e->interrupt->pending) {
                     debug_stop.reset();
                     continue;
+                } else if (!single_step && e->debug_pause) {
+                    // A watch step of a bystander owner, stopped because another owner hit a
+                    // watch or breakpoint (or the client paused): report a pause, not a step.
+                    debug_stop = StopReason::PauseRequested;
                 }
             }
             if (debug_attached_.load(std::memory_order_relaxed)) {
@@ -2432,6 +2627,23 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     void SetDebugModules(std::vector<DebugModule> modules) override {
         std::lock_guard guard{lock_};
         debug_modules_ = std::move(modules);
+        ++debug_module_generation_;
+    }
+    void SetDebugProgramId(std::string program_id) override {
+        std::lock_guard guard{lock_};
+        debug_program_id_ = std::move(program_id);
+    }
+    std::string ProgramId() override {
+        std::lock_guard guard{lock_};
+        return debug_program_id_;
+    }
+    std::uint64_t ModuleRegistryGeneration() override {
+        std::lock_guard guard{lock_};
+        return debug_module_generation_;
+    }
+    bool DebugStopped() override {
+        std::lock_guard guard{lock_};
+        return debug_attached_ && debug_paused_;
     }
     std::vector<DebugModule> Modules() override {
         std::lock_guard guard{lock_};
@@ -2684,7 +2896,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             return w.range.base == range.base && w.range.size == range.size && w.access == access;
         });
         if (!insert) {
-            if (found != debug_watches_.end()) debug_watches_.erase(found);
+            if (found != debug_watches_.end()) {
+                debug_watches_.erase(found);
+                if (debug_watches_.empty()) SetWatchTranslationsLocked(false);
+            }
             return Ok();
         }
         if (found != debug_watches_.end()) return Ok();
@@ -2695,6 +2910,15 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
                 (range.base.value - mapping.Value().range.base.value))
             return BackendError(ErrorCategory::PermissionDenied, "debug watchpoint", "range is not mapped");
         debug_watches_.push_back({range, access, mapping.Value().mapping_generation});
+        // Arming the first watch: retranslate everything with access observations.
+        if (debug_watches_.size() == 1) SetWatchTranslationsLocked(true);
+#if defined(__ANDROID__)
+        // debug.shadps4.watch_mode=0x4000 (read when a watch is added) runs watched owners as
+        // observed single steps, the slower mode, instead of one-instruction translations.
+        char mode[PROP_VALUE_MAX]{};
+        watch_mode_ = __system_property_get("debug.shadps4.watch_mode", mode) > 0
+                          ? static_cast<std::uint32_t>(std::strtoul(mode, nullptr, 0)) : 0;
+#endif
         return Ok();
     }
     Status Detach() override {
@@ -2719,7 +2943,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         }
         std::lock_guard guard{lock_};
         debug_attached_ = debug_paused_ = false;
-        debug_watches_.clear();
+        if (!debug_watches_.empty()) {
+            debug_watches_.clear();
+            SetWatchTranslationsLocked(false);
+        }
         for (auto& [id, e] : threads_) {
             e.debug_pause = e.debug_step = false;
             e.debug_patch.reset();
@@ -2731,6 +2958,37 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     }
 
   private:
+    // Switches translations for software watchpoints (all owners stopped, lock_ held): while armed,
+    // one guest instruction per translation, so a hit stops the owner right after the accessing
+    // instruction at the next block entry. Every translation is discarded, so the next ones are
+    // compiled with or without access observations; owners empty their return stack and L1
+    // lookup cache when they see the new generation.
+    void SetWatchTranslationsLocked(bool armed) {
+        auto& config = static_cast<FEXCore::Context::ContextImpl*>(context_.get())->Config;
+        using MaxInst = decltype(config.MaxInstPerBlock());
+        if (armed && !saved_max_inst_) {
+            saved_max_inst_ = config.MaxInstPerBlock();
+            static_cast<FEXCore::Config::Value<MaxInst>&>(config.MaxInstPerBlock) =
+                FEXCore::Config::Value<MaxInst>{MaxInst{1}};
+        } else if (!armed && saved_max_inst_) {
+            static_cast<FEXCore::Config::Value<MaxInst>&>(config.MaxInstPerBlock) =
+                FEXCore::Config::Value<MaxInst>{static_cast<MaxInst>(*saved_max_inst_)};
+            saved_max_inst_.reset();
+        }
+        DiscardAllTranslationsLocked();
+    }
+    void DiscardAllTranslationsLocked() {
+        std::scoped_lock code_guard{context_->GetCodeInvalidationMutex()};
+        const auto discard = [&](std::uint64_t base, std::uint64_t size) {
+            context_->InvalidateCodeBuffersCodeRange(base, size);
+            for (auto& [id, entry] : threads_)
+                if (entry.native)
+                    context_->InvalidateThreadCachedCodeRange(entry.native, base, size);
+        };
+        discard(space_.ReservationBase().value, space_.ReservationSize());
+        discard(return_gate_.Address(), return_gate_.Size());
+        ++debug_watch_generation_;
+    }
     template<class Entry>
     bool DebugExternalPendingLocked(ThreadHandle thread, const Entry& e) const {
         if (!config_.resume_internal_drains) return e.interrupt->pending != 0;
@@ -3542,7 +3800,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     struct DebugBreakpoint { std::byte original; std::uint64_t mapping; };
     std::map<std::uint64_t, DebugBreakpoint> debug_breakpoints_;
     std::vector<DebugModule> debug_modules_;
+    std::uint64_t debug_module_generation_{};
+    std::string debug_program_id_;
     std::vector<Debug::Watchpoint> debug_watches_;
+    std::uint32_t watch_mode_{};
+    std::uint64_t debug_watch_generation_{};
+    std::optional<std::int64_t> saved_max_inst_;
     std::unique_ptr<Debug::RspServer> debug_server_;
     std::shared_ptr<ExecutionProbes> execution_probes_;
     mutable std::mutex lock_;

@@ -399,6 +399,13 @@ public:
     /// Sends the current execution context to the GPU and waits for it to complete.
     void Finish();
 
+    /// Renderer teardown: drops recorded commands that were not replayed yet instead of
+    /// replaying them after the objects they use are gone (see CommandRecorder::Abandon).
+    void AbandonRecording() noexcept {
+        if (recorder)
+            recorder->Abandon();
+    }
+
     // The present binary semaphore must have an actual submitted signal before
     // vkQueuePresentKHR. This waits for host submission only, not GPU completion.
     void WaitSubmitted();

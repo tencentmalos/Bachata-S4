@@ -52,5 +52,10 @@ public:
     virtual Status Breakpoint(GuestAddress, bool insert) = 0;
     virtual Status SetWatchpoint(GuestRange, WatchAccess, bool insert) = 0;
     virtual Status Detach() = 0;
+    // Module registry identity (qXfer:citron-modules/-debug-state). Defaults report nothing.
+    virtual std::string ProgramId() { return {}; }
+    virtual std::uint64_t ModuleRegistryGeneration() { return 0; }
+    // True while the debugger holds the guest paused (between Pause and Continue/Detach).
+    virtual bool DebugStopped() { return false; }
 };
 } // namespace Core::GuestCpu::Debug

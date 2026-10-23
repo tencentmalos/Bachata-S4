@@ -595,19 +595,32 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     // `debug.shadps4.leaf_fastpath=0` keeps the leaf calls on the HLE path: the process
     // time counter, TSC reads, setspecific, pthread_equal (sync payload) and the draw,
     // dispatch and marker encoders (Gnm payload). A comma list of groups (clock, tls,
-    // draw, marker) routes only those groups.
-    enum LeafGroup : u32 { LeafClock = 1, LeafTls = 2, LeafDraw = 4, LeafMarker = 8, LeafAll = 15 };
-    u32 leaf_fastpath_groups{LeafAll};
+    // draw = drawidx + dispatch, marker) routes only those groups; `all` routes every group.
+    enum LeafGroup : u32 {
+        LeafClock = 1, LeafTls = 2, LeafDrawIndex = 4, LeafMarker = 8, LeafDispatch = 16,
+        LeafAll = 31,
+        // Default (and "1"): every group but the DrawIndex encoders. Together with the rwlock
+        // fast path they expose a one-frame black flicker in KH3 that is not understood yet
+        // (docs/validation/android-native-host/kh3-flicker-controls-20261014.md).
+        LeafDefault = LeafAll & ~LeafDrawIndex,
+        // Diagnostic: the DrawIndex group uses the encoder variants that end in a full fence.
+        LeafDrawFence = 32
+    };
+    u32 leaf_fastpath_groups{LeafDefault};
     bool leaf_fastpath_enabled{true};
     static u32 ParseLeafGroups(std::string_view value) {
         if (value == "0") return 0;
-        if (value.empty() || value == "1") return LeafAll;
+        if (value.empty() || value == "1") return LeafDefault;
+        if (value == "all") return LeafAll;
         u32 groups = 0;
         while (!value.empty()) {
             const auto comma = value.find(',');
             const auto item = value.substr(0, comma);
             groups |= item == "clock" ? LeafClock : item == "tls" ? LeafTls :
-                      item == "draw" ? LeafDraw : item == "marker" ? LeafMarker : 0;
+                      item == "draw" ? LeafDrawIndex | LeafDispatch :
+                      item == "drawidx" ? LeafDrawIndex : item == "dispatch" ? LeafDispatch :
+                      item == "marker" ? LeafMarker :
+                      item == "drawfence" ? LeafDrawIndex | LeafDrawFence : 0;
             value = comma == std::string_view::npos ? std::string_view{} : value.substr(comma + 1);
         }
         return groups;
@@ -2546,11 +2559,16 @@ void GuestRuntime::Impl::InstallGnmFastPath() {
     unsigned leaf_routed = 0;
     const bool neo = Libraries::Kernel::sceKernelIsNeoMode() != 0;
     for (const auto& route : GnmFastPath::kLeafRoutes) {
-        const bool marker = std::string_view(route.export_name).find("Marker") != std::string_view::npos;
-        if (!(leaf_fastpath_groups & (marker ? LeafMarker : LeafDraw)) ||
+        const std::string_view route_name = route.export_name;
+        const u32 group = route_name.find("Marker") != std::string_view::npos ? LeafMarker
+                          : route_name.find("Dispatch") != std::string_view::npos ? LeafDispatch
+                                                                                    : LeafDrawIndex;
+        if (!(leaf_fastpath_groups & group) ||
             !graphics_gnm_nids.contains(route.nid))
             continue;
-        const auto* export_name = neo && route.neo_export ? route.neo_export : route.export_name;
+        std::string export_name = neo && route.neo_export ? route.neo_export : route.export_name;
+        if (group == LeafDrawIndex && (leaf_fastpath_groups & LeafDrawFence))
+            export_name += "Fence";
         const auto entry = gnm_fastpath_base + symbol(export_name).offset;
         const auto name = std::string(route.nid) + GnmFastPath::kLibrarySuffix;
         veneers.insert_or_assign(name, entry);
@@ -6230,17 +6248,38 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         return status();
     };
     GuestPatch::SetControl(impl->patch_control);
+    // Module file hashes identify the modules to guest debuggers (reconstructed symbols bind to
+    // them); hashing the executable costs a fraction of a second, so only with a listener.
+    bool debug_listener = false;
+#if defined(__ANDROID__)
+    char debug_port[PROP_VALUE_MAX]{};
+    debug_listener = __system_property_get("debug.shadps4.guest_debug_port", debug_port) > 0 &&
+                     std::strtoul(debug_port, nullptr, 10) != 0;
+#endif
     std::vector<DebugModule> debug_modules;
     for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
         DebugModule debug_module{m->name, m->GetBaseAddress(), {}};
         const auto info = m->GetModuleInfo();
         for (u32 i = 0; i < std::min<u32>(info.num_segments, info.segments.size()); ++i) {
             const auto& segment = info.segments[i];
-            if (segment.size)
+            if (segment.size) {
                 debug_module.segments.push_back({GuestAddress{segment.address}, segment.size});
+                debug_module.segment_prot.push_back(segment.prot); // ELF p_flags
+            }
+        }
+        debug_module.kind = m->IsSharedLib() ? "prx" : "main";
+        debug_module.load_generation = 1;
+        if (debug_listener) {
+            try {
+                debug_module.sha256 = module_sha(m->file);
+            } catch (const std::exception& e) {
+                LOG_WARNING(Core_Linker, "guest debugger: cannot hash module {}: {}", m->name,
+                            e.what());
+            }
         }
         debug_modules.push_back(std::move(debug_module));
     }
+    impl->cpu.SetDebugProgramId(serial);
     for (const auto& installed : impl->guest_patches) {
         auto patch_modules = installed.manager->DebugModules();
         debug_modules.insert(debug_modules.end(), patch_modules.begin(), patch_modules.end());

@@ -157,7 +157,7 @@ public:
     /// Waits until the completion thread performed every deferred fence. Command processor
     /// thread, after the scheduler finished the work the fences follow.
     void DrainFences();
-    /// DebugBus gpu_fences: status | completion | parse | flip_wait on|off.
+    /// DebugBus gpu_fences: status | completion | parse | flip_wait on|off | frame_finish on|off.
     std::string FenceCommand(const std::vector<std::string>& args);
 
     /// The fences deferred so far, for a flip prepared now. Command processor thread.
@@ -458,6 +458,10 @@ private:
     /// VideoOut completes flips after the fences before them (WaitFences); DebugBus switch for
     /// comparisons.
     std::atomic<bool> flip_waits_fences{true};
+    /// Diagnostic (DebugBus gpu_fences frame_finish on|off, default off): wait for the host GPU
+    /// to go idle after each frame's submission, so no host resource is reused across frames
+    /// while the GPU still reads it.
+    std::atomic<bool> frame_finish{false};
     /// Scheduler tick the newest deferred fence waits for (0: none).
     u64 fence_tick{};
 };

@@ -91,8 +91,22 @@ public:
         return frame_index;
     }
 
+    /// Size of the swapchain images as stored. With pre-rotation by 90 or 270
+    /// degrees this is the logical size with width and height swapped.
     vk::Extent2D GetExtent() const {
         return extent;
+    }
+
+    /// Size in the presentation (logical) orientation, the one the frontend,
+    /// ImGui and the game frame are laid out in.
+    vk::Extent2D GetPresentExtent() const {
+        return present_extent;
+    }
+
+    /// Quarter turns clockwise the content must be rotated by before it is
+    /// stored (0..3), matching the swapchain's preTransform.
+    u32 GetRotation() const {
+        return rotation;
     }
 
     [[nodiscard]] vk::Semaphore GetImageAcquiredSemaphore() const {
@@ -154,6 +168,8 @@ private:
     vk::Format view_format;
     vk::PresentModeKHR present_mode;
     vk::Extent2D extent;
+    vk::Extent2D present_extent;
+    u32 rotation = 0;
     vk::SurfaceCapabilitiesKHR created_capabilities{};
     bool reported_unchanged_suboptimal{};
     vk::SurfaceTransformFlagBitsKHR transform;
