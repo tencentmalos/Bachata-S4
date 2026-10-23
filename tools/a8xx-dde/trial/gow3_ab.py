@@ -24,7 +24,16 @@ SERIAL = os.environ.get("ANDROID_SERIAL", "6edb0593")
 PKG = "com.shadps4.android"
 OUT = os.environ.get("GOW3_OUT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "build", "validation", "a8xx-dde"))
 ENV = dict(os.environ, MSYS_NO_PATHCONV="1", GOW3_OUT=OUT)
-ARMS = {"A": "", "B": "cmd_no_preempt", "C": "cs_recycle", "D": "cs_recycle,cs_dsb", "E": "cs_recycle,syncdraw", "F": "cs_recycle,cs_skip_head", "G": "cs_recycle,dde_touch", "H": "cs_recycle,dde_check"}
+ARMS = {"A": "", "B": "cmd_no_preempt", "C": "cs_recycle", "D": "cs_recycle,cs_dsb", "E": "cs_recycle,syncdraw", "F": "cs_recycle,cs_skip_head", "G": "cs_recycle,dde_touch", "H": "cs_recycle,dde_check",
+        # 64 KiB aligned command-stream BO VAs (KH3 #11 workaround, Turnip 38e2fbe4a65).
+        "I": "cs_recycle,csalign64k", "J": "csalign64k",
+        # TU_CS_HAZARD arms (Turnip a0a119410a1+): no cs_recycle, since recycled BOs keep their
+        # old VA. "none" is an unknown TU_DEBUG word, used because adb cannot set an empty property.
+        "N": "none", "K": "none", "L": "none", "P": "none", "Q": "none"}
+# debug.shadps4.tu_env per arm; TU_CS_HAZARD=-1 (off) for every other arm. ":keep" needs
+# Turnip 68dafb89a26+.
+TU_ENV = {"K": "TU_CS_HAZARD=6", "L": "TU_CS_HAZARD=14", "P": "TU_CS_HAZARD=6:keep",
+          "Q": "TU_CS_HAZARD=3"}
 # Driver log line that proves each arm's flag took effect.
 NOTES = {"B": "cmd_no_preempt wraps primary command buffers",
          "C": "cs_recycle keeps retired command-stream BOs",
@@ -67,6 +76,10 @@ def prep(arm):
     value = adb("shell", "getprop", "debug.mesa.tu.debug")
     if value != ARMS[arm]:
         raise SystemExit(f"property is [{value}], wanted [{ARMS[arm]}]")
+    env = TU_ENV.get(arm, "TU_CS_HAZARD=-1")
+    adb("shell", f"setprop debug.shadps4.tu_env '{env}'")
+    if adb("shell", "getprop", "debug.shadps4.tu_env") != env:
+        raise SystemExit(f"debug.shadps4.tu_env is not [{env}]")
     start = adb("shell", "date '+%m-%d %H:%M:%S.000'")
     os.makedirs(OUT, exist_ok=True)
     open(os.path.join(OUT, f"prep-{arm}.txt"), "w").write(start + "\n")

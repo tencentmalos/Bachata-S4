@@ -84,6 +84,29 @@ fault 53：会话约 19 分钟、进入新区域时，KGSL 报 DDE 非法包头�
 
 下一步：确认出错 CRB 由哪条 Turnip 发射路径产生（`tu6_emit_mrt` 等 draw state），让页对齐诊断覆盖它；对照 bug_reports 中 gen8.0 固件 CRB/抢占恢复的记录。
 
+**10-15 续查：CP 取到的是零，固定落在 draw cs BO 的第 2 页**
+
+工具：Turnip 诊断分支 `codex/a8xx-cmdstream-audit`（本地，未推送）。`TU_DEBUG=cmdaudit` 在每次提交时复制 IB1、IB2 和全部 `CP_SET_DRAW_STATE` 组的内容，记录每页被多少次提交引用；故障时与内存比对，写到 `/data/data/<包>/cache/cmdaudit.<pid>.txt`。同时用 native-debugger MCP 的 KGSL 非停止跟踪（经 root 桥，带 TLBI、`kgsl_mem_*`、抢占和 `kgsl_mmu_pagefault` 事件）。每次故障后拉取新的 snapshot。注意：KGSL 在旧 snapshot 被读走之前不会覆盖它，所以要先读走旧的，并核对 ctx/ts。证据在 `build/validation/kh3-crash-1015/kgsltrace/`。
+
+- **零 dword 就是保护写的来源**：CP 把 0 当作 PKT0（写寄存器 0）执行，于是报 `Protected mode error WRITE addr=0`。DDE 类（#10）则是 DDE 读到 opcode 0。
+- **ROQ 与提交时副本的比对**：fault 27、28、29 中，BR IB2 ROQ 环（[512,1024)）在 BO 偏移 0xffc 之前与副本逐字一致，从 0x1000 起全部为 0（三次分别为 145、153、393 个非零 dword 读成 0）。提交时副本和故障时内存都正确。各次 trace 完整无丢失，`kgsl_mmu_pagefault` 都是 0，故障时 TTBR0 是本进程的。
+- **不是首次读取**：fault 28 中，出错的页此前已被 87 次提交引用，最近一次在 40 个提交之前。
+- **与跨页无关，与 BO 第 2 页有关**：
+  - 不改：出错的是第一个从 BO 第 1 页跨入第 2 页的 IB2。
+  - `TU_DRAW_CS_PAD_DW=128`（流整体后移 0x200）：出错的是另一个跨入第 2 页的 IB2。
+  - `TU_DEBUG=ib2pagesplit`（IB2/draw state 不跨页）：第 2 页作为一个独立 IB2 从头取，整页读成 0，表现为 gpu timeout。
+  - `TU_DRAW_CS_PAD_DW=1024`（流从第 2 页开始，第 1 页不被 CP 读取）：**8 轮无故障**。对照组同日 6 轮出 5 次。
+- **时序**：故障都发生在提交开始执行后 0.6 ms 以内。与抢占切换没有固定关系（两次在切回 rb2 后 50–90 µs，两次距切换 9–21 ms）。与 TLBI 也没有固定关系（距上次 TLBI 0.9 ms 到 819 ms 不等）。
+- **共同的 VA 布局**：4 次 #11 中，故障 BO 正下方相邻的 BO（通常紧挨着在它之前分配）都已在故障前释放（32 ms 到 4 s 前）。BO 基址都在 64K 内 0x6000 处，所以本 BO 第 1、2 页的 PTE 与那个已释放 BO 最后 6 页的 PTE 在同一个 64 字节页表缓存行里。当时只是位置上的共同点；10-19 在 GoW3 上人为构造同样的布局后每轮都出错，下方 BO 保留或换到槽 14/槽 3 则不出错，因果关系已确认（见下方 10-19 段落）。
+- **surfaceflinger**：所有图层都是 CLIENT 合成（游戏 SurfaceView 带 ROT_90）。SF 每帧在 rb0 上抢占我们，累计约 247 ms/s 的 GPU 时间，每帧都会跨进程切换页表（所有进程共用一个 ASID）。
+
+- **HTW LLC 排除**：`gpuhtw_llc_slice_enable=0`（经用户同意，测后恢复为 1）第 2 轮即出 #11（fault 31，ctx 19 ts 6289，`run7.out`）。
+- **命令 BO 按 64 KiB 对齐**（`TU_DEBUG=cmdaudit,csalign64k`，Turnip 本地提交 `38e2fbe4a65`，`tu_cs_add_bo` 申请 64K 对齐的 VA）：**8 轮无故障**（`run8-align64k/`、`run8.out`）。trace8 中命令 BO 的 `kgsl_mem_alloc` 标志为 `0x1100000`（对照为 `0x10c0000`），地址确实落在 64K 边界上。此时 BO 第 1、2 页的 PTE 不再与前一个 BO 的 PTE 共处一个 64 字节缓存行。
+
+**10-19 与 GoW3 DDE 故障合并分析**（[A8XX DDE 记录第 9 节](../../docs/validation/android-native-host/a8xx-dde-opcode-zero-20261017.md)）：GoW3 的 14 次与这里的 4 次零读，页 VA 都在 64 KiB 块的第 6、7 个 4 KiB 页（相位 0x6000/0x7000），而这些 trace 中只读 BO 的相位 0x6 只占 3–13%；决定因素是 VA 槽位，不是 BO 第几页。两者是同一个问题。用 Turnip 诊断 `TU_CS_HAZARD` 把只读命令流 BO 刻意放到槽 6、并释放同块低位的垫片，GoW3 9/9 出错（多数在 25 s 内）；垫片保留 0/3、槽 14 0/4、槽 3 0/3、不放置 0/4。所以“槽 6/7”和“同块低位 BO 已释放”两个条件缺一不可。
+
+结论边界：问题发生在 GPU 取数路径上（某次地址翻译给了错误或被终止的结果），不是主机写坏、提前释放或 VA 复用。`gpu_llc_slice_enable=0`、`gpuhtw_llc_slice_enable=0` 和 IFPC 关闭都不能消除。两种规避都有效：流从第 2 页开始（pad 1024，8/8），或命令 BO 64K 对齐（8/8）；10-19 的布局实验说明问题不只是“与已释放 BO 共用 PTE 缓存行”（槽 14 同样共用一条缓存行却不出错），而与 64 KiB 块内的位置有关；具体是 TBU 深预取还是页表遍历给出错误翻译，仍未区分，也未经高通确认。
+
 ### #12 每帧纹理整图重传
 
 `upload_diag` 39 帧：35 张图像 461 次上传，395 次内容与上次相同。两张 32×32×32 层 A2B10G10R10 体纹理约每帧各一次；约 25 张 1600×900 R16G16B16A16/B10G11R11 目标每张约 3 帧一次，`last_writer` 为空。

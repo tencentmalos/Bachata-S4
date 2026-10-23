@@ -8,11 +8,11 @@
 
 | 路径 | 精确提交与来源 | 用途 |
 |---|---|---|
-| `mesa-turnip` | [351a4847a04dbcc9e18de3b609adacae6d3c796a](https://github.com/tencentmalos/mesa-mirror/tree/351a4847a04dbcc9e18de3b609adacae6d3c796a) | Swan XR 源码驱动，基于 Azahar `1b588fce`，含 Mapper 5 编码 Surface、FDM 分块/缩放修复及默认关闭的 CP 诊断；分支 `codex/shadps4-xr-turnip`，直接参与 Android host 源码构建；GPU hang 尚未修复 |
+| `mesa-turnip` | [68dafb89a26adefeaa12411f08e841aaf0b57384](https://github.com/tencentmalos/mesa-mirror/tree/68dafb89a26adefeaa12411f08e841aaf0b57384) | Android Turnip 驱动；2026-10-23 归档 `codex/a8xx-dde-merge`，含只读 BO 64 KiB VA 对齐规避、命令流审计及默认关闭的故障布局诊断。直接参与 Android host 构建；A8xx CP 零读机理仍待确认，见 [发布记录](../docs/validation/android-native-host/git-publish-20261023.md) |
 | `Bachata-S4-android` | [67dbf4e5b54b0467bf8a93de3de0a557a71f9f43](https://github.com/zFitness/Bachata-S4/tree/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43) | 本次选定的 Android 前端、session、输入、打包与配套历史核心 |
 | `shadps4-arm64` | [be6bc2e9c60799e071dd2fafa6216e8d80ec619c](https://github.com/zenithblue-oss/shadps4-arm64/tree/be6bc2e9c60799e071dd2fafa6216e8d80ec619c) | ARM64/FEX guest/HLE/线程回调移植参考；没有 Android Gradle 工程 |
 | `FEX` | [3f1f30a060b633980ed8e7674eb8d8997457edad](https://github.com/tencentmalos/FEX/tree/3f1f30a060b633980ed8e7674eb8d8997457edad) | 当前 Android FEX 依赖，含已有 opt-in 调试/执行探针与 FXRSTOR TOP 修复；原始上游审计基线仍为 50e6eee95 |
-| `Bachata-S4` | [16e850602a9b9e87c936f885a757001b1886228e](https://github.com/tencentmalos/Bachata-S4/tree/16e850602a9b9e87c936f885a757001b1886228e) | 既有 SG8275 bring-up 分支；2026-09-19 保存原有 X11/NDK 修改，本轮未重跑该工程 |
+| `Bachata-S4` | [bd230a27c427fed4f39f882f5b933820ceb1df69](https://github.com/tencentmalos/Bachata-S4/tree/bd230a27c427fed4f39f882f5b933820ceb1df69) | SG8275 bring-up 参考；在原 `16e850602` 上删除五个阻止 Windows 检出的 `*:Zone.Identifier` 元数据文件，并忽略该模式。分支 `fix/windows-invalid-zone-identifier-paths`；未改运行时代码，本轮未重跑该工程 |
 | `dynarmic-citron` | [a593d9262388e3216985b982e400f19ef9ce9749](https://github.com/tencentmalos/dynarmic/tree/a593d9262388e3216985b982e400f19ef9ce9749) | citron 所用 Dynarmic 的源码计量/API 对照 |
 | `dynarmic-azahar` | [96a803e921ba19bde0fbb315264971fd268fb2ed](https://github.com/tencentmalos/dynarmic/tree/96a803e921ba19bde0fbb315264971fd268fb2ed) | azahar 所用 Dynarmic 的源码计量/API 对照 |
 | `ps4-pkg-tools` | [45baedaa29b8da42b3c6fe912800d2fa4119834b](https://github.com/xXJSONDeruloXx/ps4-pkg-tools/tree/45baedaa29b8da42b3c6fe912800d2fa4119834b) | 既有 PS4 内容格式/导入参考 |

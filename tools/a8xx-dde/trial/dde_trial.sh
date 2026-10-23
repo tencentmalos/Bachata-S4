@@ -38,7 +38,7 @@ fi
 sleep 20
 PID=$(A shell pidof com.shadps4.android | tr -d '\r')
 A shell run-as com.shadps4.android cat files/host/log/android-host.log | grep -a -o 'Turnip TU_DEBUG=[^ ]*' | tail -1 | tee -a $D/timeline.txt
-A logcat -d -v time | grep -a -o -E 'Turnip: cs_dsb issues[^,]*|Turnip: cs_recycle keeps[^(]*|Turnip: cs_skip_head leaves|Turnip: dde_touch reads|Turnip: dde_check waits|native-drivers/[0-9a-f]{16}' | sort | uniq -c | tee -a $D/timeline.txt
+A logcat -d -v time | grep -a -o -E 'Turnip: cs_dsb issues[^,]*|Turnip: cs_recycle keeps[^(]*|Turnip: cs_skip_head leaves|Turnip: dde_touch reads|Turnip: dde_check waits|TU_CS_HAZARD[^(]*|native-drivers/[0-9a-f]{16}' | sort | uniq -c | tee -a $D/timeline.txt
 for m in 0x8 0x8 0x4000; do python -I $S/gow3.py pad $m 150 > /dev/null; sleep 3; done
 sleep 3
 python -I $S/gow3.py pad 0x40 150 > /dev/null; sleep 1.5

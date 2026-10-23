@@ -11,7 +11,7 @@ Windows 上的 Git Bash，换设备或机器时用环境变量覆盖。
 |---|---|
 | `trial/dde_trial.sh TAG ARM STREAM WATCH_S` | 一轮试验：起独立 tracefs 实例、冷启动 GoW3（按 `ARM` 设 `debug.mesa.tu.debug`）、开 `upload_diag stream_submit STREAM`、读最新存档、观察 `WATCH_S` 秒的 KGSL 故障计数；出故障时冻结 trace、拉取快照与 dmesg。结果追加到 `$DDE_OUT/trials/trials.jsonl`，每轮目录 `$DDE_OUT/trials/TAG/` |
 | `trial/dde_ab.sh` | 批量轮换示例（C/H/H × 6）；标签在不同批次之间不能重复 |
-| `trial/gow3_ab.py` | `prep ARM`：检查前台、强停、设置并核对 Turnip 属性、记录 logcat 起点；`ARMS` 表定义各组的 `TU_DEBUG` |
+| `trial/gow3_ab.py` | `prep ARM`：检查前台、强停、设置并核对 Turnip 属性与 `debug.shadps4.tu_env`、记录 logcat 起点；`ARMS`/`TU_ENV` 表定义各组。10-19 加：I = `cs_recycle,csalign64k`、J = `csalign64k`（Turnip `d60b40d2709` 起）；N/K/L/Q = 不放置 / `TU_CS_HAZARD=6` / `14` / `3`（`a0a119410a1` 起），P = `TU_CS_HAZARD=6:keep`（`68dafb89a26` 起），这几组都不开 `cs_recycle` |
 | `trial/gow3.py` | 通过 adb 与 DebugBus 操作游戏：`launch`、`status`、`pad MASK [HOLD_MS]`、`shot NAME`、`bus …` 等 |
 | `trial/rootsh-odin3.sh SCRIPT` | 把脚本推到设备并以 root 运行，输出结果；root 走 devices 仓库的 `rootctl` 桥 |
 | `device/trace_start.sh` | 建 `shadps4dde` tracefs 实例（4 MiB/CPU），开 KGSL、抢占、内存、`arm_smmu` 页表/TLB 事件，`adreno_gpu_fault` 触发 traceoff |
@@ -23,13 +23,15 @@ Windows 上的 Git Bash，换设备或机器时用环境变量覆盖。
 | `analysis/dde_sds_pages.py DB SNAPSHOT VB_ADDR…` | 找到引用给定 VB 组地址的 SDS，报告 BO 及此前引用过的页 |
 | `analysis/ib_range.py DB SNAPSHOT IB_ADDR FROM TO` | 打印 IB 中一段 dword 范围的包 |
 | `analysis/dde_table.py DB SNAPSHOT` | 组表槽位概览（页内偏移、首个包头） |
+| `analysis/trace_neighbors.py TRACE ADDR` | 在本轮的 KGSL trace 中找出包含 `ADDR` 的分配、它在 64 KiB 块中的相位，以及 VA 上紧邻的下方/上方分配和它们的分配、释放时间（10-19 用它确认零读页所在 BO 的下方 BO 已释放） |
+| `minicase/` | 脱离 shadPS4、Mesa 与 Vulkan 的最小复现：`kgsl_slot_repro.c` 只用 KGSL ioctl 构造“槽 6 + 下方已释放”的布局并让 CP 读它，`build.sh` 编译、`run_device.sh TAG 选项…` 在设备上跑一轮并收故障证据。用法与选项见 [minicase/README.md](minicase/README.md)，结果见记录第 10 节 |
 | `wsl/wsl-turnip-prepare.sh COMMIT`、`wsl/wsl-turnip-build.sh NAME` | 在 WSL 里取 Windows 检出的本地 Turnip 提交（无需推送）、用仓库的 `build-turnip-source` 编译，结果拷到 `build/turnip-wsl-NAME`，供 Windows host 构建用 `SHADPS4_TURNIP_PREBUILT` 绑定。需要 WSL 中的 `/opt/mesa`、NDK 与 meson 环境（见 CLAUDE.md 中 Turnip 构建条目）；完整提交哈希（短哈希 fetch 会失败） |
 
 ## 环境变量
 
 - `ANDROID_SERIAL`：设备序列号，默认 `6edb0593`。
 - `DDE_OUT`：结果目录，默认仓库下 `build/validation/a8xx-dde`（被 gitignore）。
-- `ROOTCTL`：root 桥脚本，默认 `/d/workspace/devices/tools/android-root/rootctl-win`。
+- `ROOTCTL`：root 桥脚本，默认 `/d/workspace/devices/tools/android-root/rootctl-win`（devices 仓库在 C 盘的机器上设为 `/c/workspace/devices/tools/android-root/rootctl-win`）。
 - `GOW3_OUT`：`gow3.py`/`gow3_ab.py` 的截图与临时脚本目录；`dde_trial.sh` 会把它设成 `DDE_OUT`。
 
 ## 读快照的要点

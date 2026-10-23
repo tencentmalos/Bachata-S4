@@ -1,0 +1,24 @@
+#version 460
+// Shader (UCHE) read of the target pages, compared word by word with a golden copy.
+#extension GL_EXT_buffer_reference : require
+#extension GL_EXT_buffer_reference_uvec2 : require
+layout(local_size_x = 64) in;
+layout(buffer_reference, std430, buffer_reference_align = 4) buffer U32 { uint v[]; };
+layout(push_constant) uniform PC { uvec2 target; uvec2 golden; uvec2 result; uint words; uint tindex; } pc;
+void main() {
+    uint i = gl_GlobalInvocationID.x;
+    if (i >= pc.words)
+        return;
+    uint got = U32(pc.target).v[i];
+    uint want = U32(pc.golden).v[i];
+    if (got != want) {
+        U32 r = U32(pc.result);
+        uint base = pc.tindex * 4u;
+        uint n = atomicAdd(r.v[base], 1u);
+        if (n == 0u) {
+            r.v[base + 1u] = i;
+            r.v[base + 2u] = got;
+            r.v[base + 3u] = want;
+        }
+    }
+}

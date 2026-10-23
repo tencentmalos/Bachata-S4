@@ -1,68 +1,71 @@
-# 交接：A8XX `CP DDE BR opcode=0` / GPU 读到零（2026-10-18）
+# 交接：A8XX `CP DDE BR opcode=0` / GPU 读到零（2026-10-18，10-19 更新）
 
-完整过程与数据见 [a8xx-dde-opcode-zero-20261017.md](../validation/android-native-host/a8xx-dde-opcode-zero-20261017.md)（第 7.2–7.5 节、第 8 节）。本文只列出接手所需的状态。
+完整过程与数据见 [a8xx-dde-opcode-zero-20261017.md](../validation/android-native-host/a8xx-dde-opcode-zero-20261017.md)：10-17～18 的过程在第 7–8 节，10-19 的定位在第 9 节（结论汇总 9.7），脱离 shadPS4 的最小复现在第 10 节。汇总报告（可直接对外说明）见 [a8xx-cp-zero-read-report-20261019.md](../validation/android-native-host/a8xx-cp-zero-read-report-20261019.md)。本文只列出接手所需的状态。
 
 ## 问题
 
-Odin3（AYN，Adreno 830，gen8.0）上跑 GoW3（CUSA01740）时，偶发 `CP DDE BR opcode error | opcode=0x00000000`，随后 DeviceLost。同一签名在 Swan（Adreno 840）上已由我们推动高通更新 GPU 固件修复；手机固件预计没有修，只能在驱动或模拟器侧规避。
+Odin3（AYN，Adreno 830，gen8.0）上跑 GoW3（CUSA01740）时，偶发 `CP DDE BR opcode error | opcode=0x00000000`，随后 DeviceLost。KH3 的 #11（片头保护写、CP 从命令流 BO 某页起读到全零）和 `CP BV opcode error | opcode=0x70970001` 是同一个问题。同一签名在 Swan（Adreno 840）上已由我们推动高通更新 GPU 固件修复；手机固件预计没有修，只能在驱动或模拟器侧规避。
 
-## 已确认的事实
+## 结论（10-19）
 
-- **位置**：已定位的 12 次 DDE 故障中，10 次在 2/4 MiB `sub_cs` 命令流 BO 的第 1 页读到零，2 次在 128 KiB BO 的起点。逐个核对过的 fault 43/44/45/49–52，都是**本次提交中第一次读该 BO 第 1 页**时出错。典型情形是：组 9（顶点缓冲）在第 0 页，组 11 的包头在第 1 页；组 11 在组 9 之后执行时，读到的包头为零。CPU 侧（KGSL 快照）内容始终正确。
-- **不只是 DDE**：fault 53 中 BR 在一个新 IB2 的第一个包上读到零（`pc=0x362`，`$19=0xbad4`），这是本次提交第一次读该 256 KiB BO 的第 0 页；快照里 ROQ 中的数据与内存一致，但 BR 执行时读到的是零。fault 42、46 的 BR 也停在零包头上，地址未定位。
-- **持续而非短暂**（fault 54，`TU_DEBUG=dde_check`）：BR 用 `CP_WAIT_REG_MEM`（`WRITE_NE`）轮询第 1 页的组 11 包头 `0x4160167218`，从提交后约 12 ms 起连续约 10 秒都读到零；快照中该地址的值是 `40ab0a02`，最后表现为抢占超时。由此推断是 GPU 对这一页的视图有误（翻译或 GPU 侧缓存），而不是写入时序问题；两者尚未区分。
-- **已排除**：CPU 写缓冲未排空（`cs_dsb` 下仍出故障）；SMMU 缺页（KMD 在任何策略下都会发 `kgsl_mmu_pagefault` 并打 `GPU PAGE FAULT`，均未出现）；故障前页表被改写（fault 49、54 所在 2 MiB 区域的 L3 页表在 BO 分配后没有回收或重建）；`cs_recycle` 清零（复用时不清内容）。
-- **无效的规避**：`cmd_no_preempt`、`cs_recycle`、mesa `c88b6ebd383`、`cs_dsb`、`dde_touch`（BR 先用 mask 0 读一次该页）。
-- **抢占**：fault 51 从提交到故障约 0.41 ms，其间 trace 中没有抢占事件；fault 54 的这次提交与上一次之间做过一次 rb0↔rb2 抢占切换（level 0）。不能把问题归到提交中途的抢占。
-- **线索（未证实）**：fault 54 中，GPU 区域 `0x4160000000` 的 L3 页表物理页 `97996e000`，此前 73 秒反复被 USB 控制器（`a600000.dwc3`，即 ADB）的 IOMMU 域用作页表，最后一次释放 83 ms 后成为 GPU 的页表。之后 GPU 正确读了这个 BO 约 83 秒，是否相关未知。
+- **触发条件**：只读 BO 的第 0 页位于 64 KiB GPU VA 块的槽 6（第 1 页在槽 7），且同一 64 KiB 块低位的 BO 已被释放（解除映射）。CP 读槽 7 得到全零，不报缺页，CPU 侧内容正确。
+- **证据**：已定位的历史零读（GoW3 14 次、KH3 4 次）全部在槽 6/7，而只读 BO 落在这个相位的比例只有 3–13%。用 Turnip 诊断 `TU_CS_HAZARD=<槽位>[:keep]` 刻意制造布局：
 
-## A/B 汇总（读档进冥界存档点，stream submit 200，看 180 s）
+  | 实际布局 | 结果 |
+  |---|---|
+  | 槽 6，同块低位已释放 | 9/9 出错，多数在读档后 25 s 内 |
+  | 槽 6，下方垫片保留 | 0/3 |
+  | 槽 14，下方已释放 | 0/4 |
+  | 槽 3，下方已释放 | 0/3 |
+  | 不放置 | 0/4 |
 
-| 组（`debug.mesa.tu.debug`） | 轮数 | 故障 |
-|---|---|---|
-| `cs_recycle`（对照 C） | 24 | 6 |
-| `cs_recycle,cs_skip_head` | 6 | 0 |
-| `cs_recycle,dde_touch` | 6 | 2 |
-| `cs_recycle,dde_check` | 5 | 2（都变成抢占超时，见上） |
-| `cs_recycle,cs_dsb` / `cs_recycle,syncdraw` | 各 4 | 各 1 |
+- **读路径**：DDE 取 draw-state 组、BV 取 IB1、BR 取 IB2 都出现过零读。
+- **规避**：只读 BO 用 64 KiB 对齐 VA。自然状态 GoW3 `csalign64k` 0/12（同批对照 1/6），KH3 8/8（对照 6 轮 5 次）。
+- **KGSL 侧事实**（工作站 ROM 源码）：释放 BO 时 KGSL 对 GFX 用户、LPAC、GMU 三个域做 `iommu_flush_iotlb_all`，映射时不做 TLB 失效；非 SVM 区的 VA 按 `va_hint` 递增分配（释放最高的那块时 hint 退回到前一块末尾）；VA 对齐只支持 4K/64K/1M/2M；GPU SMMU 的 `qcom,actlr = 0x32B`（“+15 deep PF”），Odin3（sun）与 Swan（canoe）相同。
+- **未确认**：机理（SMMU 深预取/部分解除映射后的 64 KiB 组翻译，还是 KGSL 解除映射流程）需高通确认；为什么只在块的前半出错；非 CP 读是否受影响。
 
-复现率随时间漂移（早期 7 轮 4 次，后期很低），单批 4–6 轮不足以区分各组。
+## 最小复现（10-19 下午，第 10 节）
+
+- `tools/a8xx-dde/minicase/kgsl_slot_repro.c` 只用 KGSL ioctl 构造“槽 6 + 同块低位已释放”的布局并让 CP 读它，adb shell 用户即可运行。
+- 只有 CP 读 T（IB1/IB2 取指、`CP_MEM_TO_MEM`），再加并发分配释放、TLB 压力、跨进程高优先级提交，数百万次提交都不复现。
+- 加上一个零页映射的 KGSL VBO（与 Turnip 的 sparse residency、shadPS4 的缓冲区 arena 相同）并让 CP 读它（落在 PRR 零页上）后复现：槽 7 整页读到零、槽 6 正确；IB1 读法下变成 GPU hang，SQE `$19=0xbad4`（与游戏同一陷阱）。逐项剥离后，第二个进程、TLB 压力、VBO 绑定活动、并发分配释放都不是必要条件，VBO 读是必要条件。
+- 对照（停掉 xrgamenative 后，快速配置每组 60 s）：槽 0–15 扫描只有槽 6、槽 7 出现零读，读到零的永远是块内槽 7；垫片保留、只释放槽 5、64K 对齐、不放置、只从槽 7 开始读（槽 6 映射但不读）都不出现；VBO 读落在普通页（`--vbo-fill`）不出现，64 MiB 零页 VBO、每次提交只读 1 次都出现。
+- `--t-rw`：零读期间写入槽 7 的标记被丢弃（2151 次，全部与零读同一提交），槽 6 不受影响，与“槽 7 的翻译落到 PRR 零页”一致。
+- Swan（Adreno 840，当前固件 SQE `0x01510103`，Steam 在前台运行、无外部故障）上同一套测试结果完全相同：只有槽 6/7 布局出错、零在槽 7、写同时丢失；“不放置”组有一个 T 自然落在槽 6 也出错。之前“Swan 已由固件修复”的结论没有覆盖这个机制。
+- 第一批时后台 xrgamenative 的 `steamwebhelper` 出了几次 GPU 故障（fault 12–14，含 BV `0x70970001` 与 DDE opcode=0 签名）；停掉它后 30 轮无任何故障。是否与复现程序有关尚未确定。
+
+## 早期已排除或无效的方向（10-17～18）
+
+- 已排除：CPU 写缓冲未排空（`cs_dsb` 下仍出故障）；SMMU 缺页（KMD 任何策略都会发 `kgsl_mmu_pagefault` 并打 `GPU PAGE FAULT`，均未出现）；故障前页表被改写；`cs_recycle` 清零；HTW LLC（KH3，`gpuhtw_llc_slice_enable=0` 仍出现）。
+- 无效的规避：`cmd_no_preempt`、`cs_recycle`、mesa `c88b6ebd383`、`cs_dsb`、`dde_touch`。
+- 不能把问题归到提交中途的抢占（fault 51 期间无抢占事件）。
+- 第 7.5 节末尾提出的 CP 读值转存、别名映射、不接 USB 的对照没有做，已被布局实验部分取代；别名映射仍可用来区分“该 VA 的翻译出错”与“物理内存过期”。
 
 ## 代码与分支
 
-- 主仓：`feature/malos/swan_performance`（已合入 `malos/main`），Turnip 引用 `ff5d4093fa5`，Foundation 引用 `d3f06642`（`feature/malos/shadps4-capture`；Foundation `main` 已快进到同一提交）。
-- Turnip fork（`tencentmalos/mesa-mirror`）分支 `codex/a8xx-cs-recycle`，基于 `65b63f66bf5`；shadPS4 的 Turnip 主干 `codex/shadps4-xr-turnip` 已快进到同一提交 `ff5d4093fa5`。全部开关默认关闭：
-  - `bbb3e82bc8d`：cherry-pick 上游 `c88b6ebd383`（bindless descriptor invalidate）；
-  - `ce8f89d4e43` `TU_DEBUG=cs_recycle`：保留退役的命令流 BO 复用，不交还 KGSL；
-  - `84a5c7ac917` `TU_DEBUG=cs_dsb`：录制完命令缓冲、建完管线后执行 `DSB SY`；
-  - `69bf236e9de` `TU_DEBUG=cs_skip_head`（≥64 KiB 的命令流 BO 前 8 KiB 不用）与 `TU_DEBUG=dde_touch`；
-  - `ff5d4093fa5` `TU_DEBUG=dde_check`。
-  - 这些提交推送前补过 `Generated-by: LLM` 尾注，树与日志里出现的旧哈希 `ca038cc10f1`、`10f23b2bdc0`、`84db376cfde`、`f610504c89c` 相同。
-- 主机侧：`upload_diag stream_submit <draws>`（默认 0）会显著提高复现率，用来加速复现。
+- 主仓：`feature/malos/swan_performance`，已对齐远端 `ce8111f2f`，本地改动未提交（合并前的 stash `pre-sync-1019 worktree` 仍保留）。Foundation 引用 `d3f06642`。
+- Turnip 本地分支 `codex/a8xx-dde-merge`（未推送，父仓引用仍是 `ff5d4093fa5`）：
+  - `d60b40d2709`：合并 `ff5d4093fa5`（`cs_recycle`、`cs_dsb`、`cs_skip_head`、`dde_touch`、`dde_check`）与 KH3 诊断分支 `d39dca430ca`（`cmdaudit`、`csbocache`、`TU_DRAW_CS_PAD_DW`、`ib2pagesplit`、`csalign64k`、`lrznoreuse`）；
+  - `9fa8f70827a`：`TU_DEBUG=roalign64k`（所有 `GPU_READ_ONLY` 分配 64K 对齐，含 pipeline 子分配块）；
+  - `a0a119410a1`：`TU_CS_HAZARD=<槽位>`；
+  - `68dafb89a26`：`TU_CS_HAZARD=<槽位>:keep`。
+  - 以上开关全部默认关闭；经 `debug.mesa.tu.debug` / `debug.shadps4.tu_env` 导出。
+- fork（`tencentmalos/mesa-mirror`）上已推送的是 `codex/a8xx-cs-recycle`（`ff5d4093fa5`）。推送 fork 时需补 `Generated-by: LLM` 尾注。
+- 主机侧：`upload_diag stream_submit <draws>`（默认 0）显著提高复现率。
 
-## 设备状态（Odin3，序列号 `6edb0593`）
+## 设备状态（Odin3，序列号 `6edb0593`，10-19 14:10）
 
-APK `94003880`（驱动 `44f215fc…`，含上述全部开关），`debug.mesa.tu.debug=cs_recycle,cs_skip_head`（故障最少的组合；重启后失效），app 停在桌面。设备上的 tracefs 实例与临时文件已清理，KGSL 故障计数为 54。
+APK `4171cbbe…`（Turnip `68dafb89a26`，新开关默认关闭）；`debug.mesa.tu.debug`、`debug.shadps4.tu_env` 已清空；GoW3 逐游戏配置为用户设定的倍率 0.75（实验中临时改 1.0 后已逐字节恢复）；tracefs 实例与临时文件已清理。10-19 晚经用户同意停掉了 xrgamenative（Steam 客户端），未重新启动；最小复现留在 `/data/local/tmp/a8xxmini/`，KGSL 故障计数 14。
 
 ## 复现与分析
 
-脚本见 [`tools/a8xx-dde`](../../tools/a8xx-dde/README.md)：
-
-- `trial/dde_trial.sh` 跑一轮；
-- `analysis/*` 解析快照；
-- `wsl/*` 在 WSL 编 Turnip。
-
-需要：
-
-- devices 仓库的 root 桥（`rootctl`）；
-- 已安装的 gpu-snapshot MCP；
-- GoW3 存档在冥界存档点。
-
-各轮的快照、trace、截图只在原机器的 `build/validation/preempt-ab-20261017/`，没有入库。高通固件、反汇编与内部对比文档按要求不入库。
+- 游戏内：[`tools/a8xx-dde`](../../tools/a8xx-dde/README.md) 的 `trial/dde_trial.sh` 跑一轮，`trial/gow3_ab.py` 定义各组（K/L/P/Q/N 为布局实验组）；`analysis/*` 解析快照，`analysis/trace_neighbors.py` 在 trace 中找出错页所在 BO 及其上下邻居。需要 devices 仓库的 root 桥（本机 `ROOTCTL=/c/workspace/devices/tools/android-root/rootctl-win`）、已安装的 gpu-snapshot MCP、GoW3 存档在冥界存档点。
+- 最小复现：`tools/a8xx-dde/minicase/`（第 10 节），只用 KGSL ioctl，不需要游戏、Mesa 或 root（收快照才需要 root）。最小配置 `kgsl_slot_repro --mode m2m --churn-us 0 --vbo 2048 --vbo-reads 64 --life-ms 3000`；`m2m` 读法下零读是静默的，不会让 GPU 出故障。
+- 各轮快照、trace、截图在原机器的 `build/validation/a8xx-dde/` 与 `build/validation/preempt-ab-20261017/`，没有入库。高通固件、反汇编与内部对比文档按要求不入库。
 
 ## 建议的下一步
 
-1. **CP 读值转存**：在 `dde_check` 的 WAIT 之前，用 `CP_MEM_TO_MEM` 把 CP 在故障页几个偏移（页首、目标包头、页内其它处）及相邻页读到的值，写进同一 BO 中能正常读取的页，让快照抓到。整页为零指向翻译问题，单行为零指向缓存行问题。
-2. **别名映射**：同一物理页再映射一个 GPU 地址（dma-buf 或 user-mem 导入），出问题时比较两处的读值。
-3. **USB 对照**：不接 USB 调试（无线 adb）时统计复现率；在新故障的 trace 中检查故障区域的 L3 页表页之前是否属于 `a600000.dwc3` 域。
-4. 若确认是翻译问题：评估每次提交前触发 GPU 上下文 TLB 失效的代价（例如分配并释放一个小 BO），或避免页表页跨 IOMMU 域复用（属于 KMD 层面）。
+1. 把最小复现（`tools/a8xx-dde/minicase`，第 10 节）连同游戏数据交给高通，注明 Odin3（SQE `0x01500081`）与 Swan（SQE `0x01510103`）都复现；可补 IB1/DDE 读法对照。
+2. 评估第二种规避：sparse VBO 不映射零页（`KGSL_MEMFLAGS_VBO_NO_MAP_ZERO`）或保证 CP 不读未绑定区，需要先确认对 sparse residency 语义的影响，再在游戏中 A/B。
+3. GoW3 上跑 `roalign64k` 对照；无故障则改成 A8XX 默认开启，推送 Turnip 并推进父仓引用（需用户确认）。
+4. 非 CP 读（着色器取数）是否受影响：可在最小复现之外用 Vulkan 计算着色器读同样布局的缓冲（`minicase/*.comp` 是这一方向的草稿，未接入）。
