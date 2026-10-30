@@ -21,11 +21,11 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 40u; // compute storage stores follow a scaled image
+static constexpr u32 ShaderBinaryVersion = 43u; // Ordered workgroup loop and group-ID virtualization
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 23u; // dynamic image slot masks
+static constexpr u32 ShaderMetaVersion = 27u; // ordered count / TG_SIZE / texture view masks
 #else
-static constexpr u32 ShaderMetaVersion = 24u; // dynamic image slot masks
+static constexpr u32 ShaderMetaVersion = 28u; // ordered count / TG_SIZE / texture view masks
 #endif
 static constexpr u32 PipelineKeyVersion = 7u; // indirect draw base vertex/instance parameters
 } // namespace Serialization

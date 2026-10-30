@@ -125,6 +125,7 @@ NpProfileDialogUi::NpProfileDialogUi(NpProfileDialogUi&& other) noexcept
 }
 
 NpProfileDialogUi& NpProfileDialogUi::operator=(NpProfileDialogUi other) {
+    auto layer_lock = LockRegistry();
     using std::swap;
     swap(state, other.state);
     swap(status, other.status);
@@ -139,6 +140,7 @@ NpProfileDialogUi& NpProfileDialogUi::operator=(NpProfileDialogUi other) {
 }
 
 void NpProfileDialogUi::Finish(Result user_action) {
+    RemoveLayer(this);
     if (result) {
         result->result = 0; // ORBIS_OK
         result->userAction = user_action;
@@ -149,7 +151,6 @@ void NpProfileDialogUi::Finish(Result user_action) {
     state = nullptr;
     status = nullptr;
     result = nullptr;
-    RemoveLayer(this);
 }
 
 void NpProfileDialogUi::Draw() {

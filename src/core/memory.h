@@ -293,6 +293,7 @@ public:
     u64 ClampRangeSize(VAddr virtual_addr, u64 size);
 
     void SetPrtArea(u32 id, VAddr address, u64 size);
+    std::pair<VAddr, u64> GetPrtArea(u32 id);
 
     void CopySparseMemory(VAddr source, u8* dest, u64 size);
 

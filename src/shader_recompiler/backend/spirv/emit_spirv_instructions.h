@@ -498,6 +498,7 @@ Id EmitClusteredAnd32(EmitContext& ctx, Id value, u32 cluster_size);
 Id EmitClusteredOr32(EmitContext& ctx, Id value, u32 cluster_size);
 Id EmitClusteredXor32(EmitContext& ctx, Id value, u32 cluster_size);
 Id EmitDataAppend(EmitContext& ctx, Id gds_dw_offset, Id exec);
+Id EmitDataOrderedCount(EmitContext& ctx, u32 binding, Id address, Id value, Id exec, bool swap);
 Id EmitDataConsume(EmitContext& ctx, Id gds_dw_offset, Id exec);
 
 void EmitEmitVertex(EmitContext& ctx);

@@ -226,6 +226,7 @@ public:
             return desc.sharp_fetch == existing.sharp_fetch && desc.is_array == existing.is_array &&
                    desc.mip_fallback_mode == existing.mip_fallback_mode &&
                    desc.constant_mip_index == existing.constant_mip_index &&
+                   desc.dw1_and_mask == existing.dw1_and_mask &&
                    desc.post_op == existing.post_op;
         })};
         auto& image = image_resources[index];
@@ -360,6 +361,7 @@ void PatchImageSharp(const ResourceDiscovery& resource, Info& info, Descriptors&
         .is_written = is_written,
         .is_r128 = bool(inst_info.is_r128),
         .post_op = resource.sharps[0].post_op,
+        .dw1_and_mask = resource.sharps[0].dw1_and_mask,
     };
 
     auto image = image_res.GetSharp(info);
@@ -563,6 +565,11 @@ void PatchGlobalDataShareAccess(IR::Inst& inst, Info& info, Descriptors& descrip
     });
 
     IR::IREmitter ir{*inst.GetParent(), IR::Block::InstructionList::s_iterator_to(inst)};
+
+    if (inst.GetOpcode() == IR::Opcode::DataOrderedCount) {
+        inst.SetArg(0, ir.Imm32(binding));
+        return;
+    }
 
     if (inst.GetOpcode() == IR::Opcode::DataAppend || inst.GetOpcode() == IR::Opcode::DataConsume) {
         RemoveAppendBufferLaneOffset(inst);

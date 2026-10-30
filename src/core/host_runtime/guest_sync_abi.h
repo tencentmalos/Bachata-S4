@@ -25,6 +25,7 @@
 #define SHAD_SYNC_STATE_FREE 0u
 #define SHAD_SYNC_STATE_HELD 1u
 #define SHAD_SYNC_STATE_CONTENDED 2u
+#define SHAD_SYNC_STATE_DESTROYED 0xffffffffu /* tombstone; never acquire/overwrite */
 
 /* Mutex types written by the attribute HLE (desktop PthreadMutexType). */
 #define SHAD_SYNC_TYPE_MASK 0xffu
@@ -38,7 +39,8 @@
  * the payload's `shad_sync_window` table at publication. The window is NOT a
  * compile-time address: the service allocation base already moved once
  * (64 GiB -> 112 GiB) and silently sent every mutex back to HLE. base == limit
- * == 0 means no window: every object takes the HLE path. */
+ * == 0 means no initial window. Later windows are published through the separate
+ * writable directory; their addresses, nodes and retired objects never get reused. */
 #define SHAD_SYNC_ARENA_WINDOW_SIZE 0x10000000ull /* 256 MiB reserved by the host */
 enum ShadSyncWindow {
     ShadSyncWindowBase = 0,    /* u64: first arena object address */
@@ -52,7 +54,34 @@ enum ShadSyncWindow {
     /* u64 pair: the rwlock objects' own window [base, limit); zero sends every rwlock to HLE. */
     ShadSyncWindowRwlockBase = 5,
     ShadSyncWindowRwlockLimit = 6,
-    ShadSyncWindowCount = 7
+    ShadSyncWindowProcessClock = 7, /* pointer to ShadProcessClock; zero uses ClockOrigin */
+    ShadSyncWindowArenaDirectory = 8, /* pointer to ShadSyncArenaDirectory, or zero */
+    ShadSyncWindowCount = 9
+};
+
+/* Acquire-load a head, then walk immutable range nodes. Each domain has one
+ * serialized writer. A node lives in the first block of its own new mapping,
+ * outside [base, limit); publish it before returning any object in that range.
+ * No executable-page updates and no table-size ceiling during a long session. */
+struct ShadSyncArenaRange {
+    __UINT64_TYPE__ next;
+    __UINT64_TYPE__ base;
+    __UINT64_TYPE__ limit;
+};
+struct ShadSyncArenaDirectory {
+    __UINT64_TYPE__ mutex_head;
+    __UINT64_TYPE__ rwlock_head;
+};
+
+/* Mutable data on its own RW page, never in the executable payload. The host updates it
+ * under an odd/even sequence; readers retry a changed/odd sequence. Values use the same
+ * scaled domain as RDTSC. A nonzero frozen value holds process time during session pause;
+ * resume advances origin by the excluded interval before any guest owner is released.
+ * Raw RDTSC/ReadTsc and wall-clock time deliberately keep their hardware/system meaning. */
+struct ShadProcessClock {
+    __UINT64_TYPE__ sequence;
+    __UINT64_TYPE__ origin;
+    __UINT64_TYPE__ frozen;
 };
 
 /* Rwlock object prefix (rwlock arena objects, 0x100 bytes, in their own window so a

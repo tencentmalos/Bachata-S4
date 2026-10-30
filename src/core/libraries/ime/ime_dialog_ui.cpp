@@ -104,6 +104,7 @@ ImeDialogState::ImeDialogState(const OrbisImeDialogParam* param,
     fixed_position = True(param->option & OrbisImeOption::FIXED_POSITION);
     use_over2k = True(param->option & OrbisImeOption::USE_OVER_2K_COORDINATES);
     is_numeric = param->type == OrbisImeType::Number;
+    is_password = True(param->option & OrbisImeOption::PASSWORD);
     type = param->type;
     supported_languages = param->supported_languages;
     enter_label = param->enter_label;
@@ -198,7 +199,7 @@ ImeDialogState::ImeDialogState(ImeDialogState&& other) noexcept
       panel_req_height(other.panel_req_height), ext_option(other.ext_option),
       disable_device(other.disable_device), panel_priority(other.panel_priority),
       style_config(other.style_config), user_id(other.user_id), is_multi_line(other.is_multi_line),
-      is_numeric(other.is_numeric), fixed_position(other.fixed_position), type(other.type),
+      is_numeric(other.is_numeric), is_password(other.is_password), fixed_position(other.fixed_position), type(other.type),
       supported_languages(other.supported_languages), enter_label(other.enter_label),
       text_filter(other.text_filter), keyboard_filter(other.keyboard_filter),
       max_text_length(other.max_text_length), text_buffer(other.text_buffer),
@@ -226,6 +227,7 @@ ImeDialogState& ImeDialogState::operator=(ImeDialogState&& other) {
         user_id = other.user_id;
         is_multi_line = other.is_multi_line;
         is_numeric = other.is_numeric;
+        is_password = other.is_password;
         fixed_position = other.fixed_position;
         type = other.type;
         supported_languages = other.supported_languages;
@@ -407,20 +409,21 @@ ImeDialogUi::ImeDialogUi(ImeDialogState* state, OrbisImeDialogStatus* status,
         Libraries::Ime::InitializeDefaultOskSelectionAnchor(
             kb_layout_selection, state->ext_option, pending_keyboard_row, pending_keyboard_col,
             last_keyboard_selected_row, last_keyboard_selected_col);
-        AddLayer(this);
         ImGui::Core::AcquireImeInputCapture();
         gamepad_input_capture_active = true;
+        AddLayer(this);
     }
 }
 
 ImeDialogUi::~ImeDialogUi() {
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex);
 
     Free();
 }
 
 ImeDialogUi::ImeDialogUi(ImeDialogUi&& other) noexcept
-    : state(other.state), status(other.status), result(other.result),
+    : state(other.state), status(other.status), result(other.result), pinyin(std::move(other.pinyin)),
       first_render(other.first_render), accept_armed(other.accept_armed),
       native_input_active(other.native_input_active),
       pointer_navigation_active(other.pointer_navigation_active),
@@ -475,7 +478,9 @@ ImeDialogUi::ImeDialogUi(ImeDialogUi&& other) noexcept
       kb_alpha_family(other.kb_alpha_family),
       gamepad_input_capture_active(other.gamepad_input_capture_active) {
 
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex, other.draw_mutex);
+    RemoveLayer(&other);
     other.state = nullptr;
     other.status = nullptr;
     other.result = nullptr;
@@ -522,9 +527,15 @@ ImeDialogUi::ImeDialogUi(ImeDialogUi&& other) noexcept
 }
 
 ImeDialogUi& ImeDialogUi::operator=(ImeDialogUi&& other) {
+    if (this == &other) {
+        return *this;
+    }
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex, other.draw_mutex);
     Free();
+    RemoveLayer(&other);
 
+    pinyin = std::move(other.pinyin);
     state = other.state;
     status = other.status;
     result = other.result;
@@ -636,6 +647,7 @@ ImeDialogUi& ImeDialogUi::operator=(ImeDialogUi&& other) {
 }
 
 void ImeDialogUi::Free() {
+    pinyin = {};
     RemoveLayer(this);
     if (gamepad_input_capture_active) {
         ImGui::Core::ReleaseImeInputCapture();
@@ -1182,28 +1194,15 @@ void ImeDialogUi::Draw() {
                             {metrics.predict_pos.x + metrics.predict_size.x,
                              metrics.predict_pos.y + metrics.predict_size.y},
                             pane_bg, metrics.corner_radius);
-        SetCursorScreenPos(metrics.predict_pos);
-        PushID("##ImeDialogPredict");
-        PushItemFlag(ImGuiItemFlags_NoNav, true);
-        InvisibleButton("##ImeDialogPredict", metrics.predict_size);
-        PopItemFlag();
-        const bool prediction_clicked =
-            IsMouseClicked(ImGuiMouseButton_Left, false) && IsItemHovered();
-        const int prediction_element_idx =
-            element_index_for_target(PanelSelectionTarget::Prediction);
-        if (pointer_navigation_active && prediction_clicked && prediction_element_idx >= 0) {
-            const auto& prediction_element =
-                top_elements[static_cast<std::size_t>(prediction_element_idx)];
-            set_top_selection(PanelSelectionTarget::Prediction,
-                              SelectionIndex::GridColumnFromX(
-                                  io.MousePos.x, metrics.predict_pos.x, metrics.predict_size.x,
-                                  prediction_element.min_col, prediction_element.max_col));
-        }
-        PopID();
+        const int prediction_index = element_index_for_target(PanelSelectionTarget::Prediction);
+        const int prediction_min = prediction_index >= 0 ? top_elements[prediction_index].min_col : 0;
+        const int prediction_columns = prediction_index >= 0 ?
+            top_elements[prediction_index].max_col - prediction_min + 1 : top_cols_cfg;
+        pinyin.Draw(metrics.predict_pos, metrics.predict_size, state->type == OrbisImeType::Default && !state->is_password,
+                    !menu_modal && panel_selection == PanelSelectionTarget::Prediction && panel_activate_pressed_raw,
+                    panel_selection == PanelSelectionTarget::Prediction ? top_virtual_col - prediction_min : -1, prediction_columns);
         draw_selector(kSelectorPredictId, metrics.predict_pos, metrics.predict_size,
-                      panel_selection == PanelSelectionTarget::Prediction,
-                      prediction_clicked || (panel_selection == PanelSelectionTarget::Prediction &&
-                                             panel_activate_pressed_raw));
+                      panel_selection == PanelSelectionTarget::Prediction, false);
         const ImU32 close_button_bg =
             Libraries::Ime::ImeColorToImU32(state->style_config.color_button_function);
         PushStyleColor(ImGuiCol_Button, BrightenColor(close_button_bg, 0.0f));
@@ -1682,14 +1681,22 @@ void ImeDialogUi::Draw() {
                 shortcut_repeat_state);
         bool keyboard_action_from_hotkey = false;
         if (shortcut_action.clear_all) {
+            pinyin.Reset();
             (void)clear_all_text();
         } else if (shortcut_action.action != Libraries::Ime::ImeKbKeyAction::None) {
             kb_state.pressed_action = shortcut_action.action;
             keyboard_action_from_hotkey = true;
         }
+        if (!pinyin.pending.empty()) {
+            (void)insert_text_at_caret(pinyin.pending.c_str());
+            pinyin.pending.clear();
+        }
         switch (kb_state.pressed_action) {
         case Libraries::Ime::ImeKbKeyAction::Character:
-            consume_temporary_uppercase(insert_text_at_caret(kb_state.pressed_label));
+            if (!pinyin.Letter(kb_state.pressed_label)) {
+                if (pinyin.composer.composing()) (void)insert_text_at_caret(pinyin.Commit().c_str());
+                consume_temporary_uppercase(insert_text_at_caret(kb_state.pressed_label));
+            }
             break;
         case Libraries::Ime::ImeKbKeyAction::Shift:
             Libraries::Ime::CycleKeyboardCaseState(kb_layout_selection);
@@ -1743,10 +1750,10 @@ void ImeDialogUi::Draw() {
             Libraries::Ime::FlipKeyboardModePage(kb_layout_selection, 1);
             break;
         case Libraries::Ime::ImeKbKeyAction::Space:
-            (void)insert_text_at_caret(" ");
+            (void)insert_text_at_caret(pinyin.composer.composing() ? pinyin.Commit().c_str() : " ");
             break;
         case Libraries::Ime::ImeKbKeyAction::Backspace:
-            (void)backspace_at_caret();
+            if (!pinyin.Backspace()) (void)backspace_at_caret();
             break;
         case Libraries::Ime::ImeKbKeyAction::NewLine:
             if (state->is_multi_line) {
@@ -1841,6 +1848,14 @@ void ImeDialogUi::Draw() {
 
         Dummy({metrics.kb_size.x, metrics.kb_size.y + metrics.padding_bottom});
 
+        if (accept_pressed && pinyin.composer.composing()) {
+            (void)insert_text_at_caret(pinyin.Commit().c_str());
+            accept_pressed = false;
+        }
+        if (cancel_pressed && pinyin.composer.composing()) {
+            pinyin.Reset();
+            cancel_pressed = false;
+        }
         if (accept_pressed) {
             LOG_INFO(Lib_ImeDialog, "ImeDialog OK text(len={}): \"{}\"", state->current_text.size(),
                      state->current_text.begin());

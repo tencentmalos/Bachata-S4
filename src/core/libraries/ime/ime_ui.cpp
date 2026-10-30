@@ -244,21 +244,28 @@ ImeUi::ImeUi(ImeState* state, const OrbisImeParam* param, const OrbisImeParamExt
         InitializeDefaultOskSelectionAnchor(kb_layout_selection, ext_option, pending_keyboard_row,
                                             pending_keyboard_col, last_keyboard_selected_row,
                                             last_keyboard_selected_col);
-        AddLayer(this);
         ImGui::Core::AcquireImeInputCapture();
         gamepad_input_capture_active = true;
+        AddLayer(this);
     }
 }
 
 ImeUi::~ImeUi() {
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex);
     Free();
 }
 
 ImeUi& ImeUi::operator=(ImeUi&& other) {
+    if (this == &other) {
+        return *this;
+    }
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex, other.draw_mutex);
     Free();
+    RemoveLayer(&other);
 
+    pinyin = std::move(other.pinyin);
     state = other.state;
     ime_param = other.ime_param;
     extended_param = other.extended_param;
@@ -802,28 +809,15 @@ void ImeUi::Draw() {
                             {metrics.predict_pos.x + metrics.predict_size.x,
                              metrics.predict_pos.y + metrics.predict_size.y},
                             pane_bg, metrics.corner_radius);
-        SetCursorScreenPos(metrics.predict_pos);
-        PushID("##ImePredict");
-        PushItemFlag(ImGuiItemFlags_NoNav, true);
-        InvisibleButton("##ImePredict", metrics.predict_size);
-        PopItemFlag();
-        const bool prediction_clicked =
-            IsMouseClicked(ImGuiMouseButton_Left, false) && IsItemHovered();
-        const int prediction_element_idx =
-            element_index_for_target(PanelSelectionTarget::Prediction);
-        if (pointer_navigation_active && prediction_clicked && prediction_element_idx >= 0) {
-            const auto& prediction_element =
-                top_elements[static_cast<std::size_t>(prediction_element_idx)];
-            set_top_selection(PanelSelectionTarget::Prediction,
-                              SelectionIndex::GridColumnFromX(
-                                  io.MousePos.x, metrics.predict_pos.x, metrics.predict_size.x,
-                                  prediction_element.min_col, prediction_element.max_col));
-        }
-        PopID();
+        const int prediction_index = element_index_for_target(PanelSelectionTarget::Prediction);
+        const int prediction_min = prediction_index >= 0 ? top_elements[prediction_index].min_col : 0;
+        const int prediction_columns = prediction_index >= 0 ?
+            top_elements[prediction_index].max_col - prediction_min + 1 : top_cols_cfg;
+        pinyin.Draw(metrics.predict_pos, metrics.predict_size, ime_param->type == OrbisImeType::Default && !True(ime_param->option & OrbisImeOption::PASSWORD),
+                    !menu_modal && panel_selection == PanelSelectionTarget::Prediction && panel_activate_pressed_raw,
+                    panel_selection == PanelSelectionTarget::Prediction ? top_virtual_col - prediction_min : -1, prediction_columns);
         draw_selector(kSelectorPredictId, metrics.predict_pos, metrics.predict_size,
-                      panel_selection == PanelSelectionTarget::Prediction,
-                      prediction_clicked || (panel_selection == PanelSelectionTarget::Prediction &&
-                                             panel_activate_pressed_raw));
+                      panel_selection == PanelSelectionTarget::Prediction, false);
         const ImU32 close_button_bg = ImeColorToImU32(style_config.color_button_function);
         PushStyleColor(ImGuiCol_Button, BrightenColor(close_button_bg, 0.0f));
         PushStyleColor(ImGuiCol_ButtonHovered, BrightenColor(close_button_bg, 0.08f));
@@ -1331,14 +1325,22 @@ void ImeUi::Draw() {
             shortcut_repeat_state);
         bool keyboard_action_from_hotkey = false;
         if (shortcut_action.clear_all) {
+            pinyin.Reset();
             (void)clear_all_text();
         } else if (shortcut_action.action != Libraries::Ime::ImeKbKeyAction::None) {
             kb_state.pressed_action = shortcut_action.action;
             keyboard_action_from_hotkey = true;
         }
+        if (!pinyin.pending.empty()) {
+            (void)insert_text_at_caret(pinyin.pending.c_str());
+            pinyin.pending.clear();
+        }
         switch (kb_state.pressed_action) {
         case Libraries::Ime::ImeKbKeyAction::Character:
-            consume_temporary_uppercase(insert_text_at_caret(kb_state.pressed_label));
+            if (!pinyin.Letter(kb_state.pressed_label)) {
+                if (pinyin.composer.composing()) (void)insert_text_at_caret(pinyin.Commit().c_str());
+                consume_temporary_uppercase(insert_text_at_caret(kb_state.pressed_label));
+            }
             break;
         case Libraries::Ime::ImeKbKeyAction::Shift:
             CycleKeyboardCaseState(kb_layout_selection);
@@ -1383,10 +1385,10 @@ void ImeUi::Draw() {
             FlipKeyboardModePage(kb_layout_selection, 1);
             break;
         case Libraries::Ime::ImeKbKeyAction::Space:
-            (void)insert_text_at_caret(" ");
+            (void)insert_text_at_caret(pinyin.composer.composing() ? pinyin.Commit().c_str() : " ");
             break;
         case Libraries::Ime::ImeKbKeyAction::Backspace:
-            (void)backspace_at_caret();
+            if (!pinyin.Backspace()) (void)backspace_at_caret();
             break;
         case Libraries::Ime::ImeKbKeyAction::NewLine:
             if (metrics_cfg.multiline) {
@@ -1482,6 +1484,14 @@ void ImeUi::Draw() {
 
         Dummy({metrics.kb_size.x, metrics.kb_size.y + metrics.padding_bottom});
 
+        if (accept_pressed && pinyin.composer.composing()) {
+            (void)insert_text_at_caret(pinyin.Commit().c_str());
+            accept_pressed = false;
+        }
+        if (cancel_pressed && pinyin.composer.composing()) {
+            pinyin.Reset();
+            cancel_pressed = false;
+        }
         if (accept_pressed) {
             state->SendEnterEvent();
         } else if (cancel_pressed) {
@@ -1789,6 +1799,7 @@ int ImeUi::InputTextCallback(ImGuiInputTextCallbackData* data) {
 }
 
 void ImeUi::Free() {
+    pinyin = {};
     RemoveLayer(this);
     if (gamepad_input_capture_active) {
         ImGui::Core::ReleaseImeInputCapture();

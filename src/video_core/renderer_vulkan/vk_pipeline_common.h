@@ -126,16 +126,18 @@ public:
         return is_compute;
     }
 
-    /// Driver time of the create call and whether the VkPipelineCache already held it.
+    /// Create-call timing and the driver's cache feedback (not independently verified).
     const PipelineCreation& Creation() const noexcept {
         return creation;
     }
+
+    /// Names and hashes of the immutable shader stages, for creation diagnostics.
+    [[nodiscard]] std::string GetDebugString() const;
 
     using DescriptorWrites = std::vector<vk::WriteDescriptorSet>;
     void BindResources(DescriptorWrites& set_writes, const Shader::PushData& push_data) const;
 
 protected:
-    [[nodiscard]] std::string GetDebugString() const;
 
     /// Creates the driver object from the prepared create state; any thread, exactly once.
     virtual void CreateNative() const = 0;

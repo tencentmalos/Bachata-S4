@@ -46,6 +46,7 @@ InvitationDialogUi::InvitationDialogUi(InvitationDialogUi&& other) noexcept
 }
 
 InvitationDialogUi& InvitationDialogUi::operator=(InvitationDialogUi&& other) noexcept {
+    auto layer_lock = LockRegistry();
     first_render = other.first_render;
     status = other.status;
     state = other.state;
@@ -61,6 +62,7 @@ InvitationDialogUi& InvitationDialogUi::operator=(InvitationDialogUi&& other) no
 }
 
 void InvitationDialogUi::Finish(Result result) {
+    RemoveLayer(this);
     if (state) {
         state->result = result;
     }
@@ -68,7 +70,6 @@ void InvitationDialogUi::Finish(Result result) {
         *status = Status::FINISHED;
     }
     status = nullptr;
-    RemoveLayer(this);
 }
 
 void InvitationDialogUi::Draw() {

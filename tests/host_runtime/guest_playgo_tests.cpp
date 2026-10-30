@@ -26,6 +26,36 @@ int main() {
     CHECK(space->Map({GuestAddress{base}, 0x204000}, GuestPermission::Read | GuestPermission::Write));
     auto put = [&]<typename T>(u64 p, const T& v) { CHECK(space->WriteData(GuestAddress{p}, std::as_bytes(std::span{&v,1}))); };
     auto read = [&]<typename T>(u64 p) { T v{}; CHECK(space->ReadData(GuestAddress{p}, std::as_writable_bytes(std::span{&v,1}))); return v; };
+    {
+        using namespace Libraries::PlayGo::Dialog;
+        using Libraries::CommonDialog::Error;
+        auto dialog = [&](std::string_view nid, u64 ptr = 0) {
+            CHECK(IsPlayGoDialogNid(nid));
+            return DispatchPlayGoDialog(*space, nid, {ptr});
+        };
+        for (const auto nid : {"fbigNQiZpm0", "NOAMxY2EGS0", "fECamTJKpsM", "okgIGdr5Iz0", "Yb60K7BST48"})
+            CHECK(dialog(nid) == 0);
+        CHECK(dialog("kHd72ukqbxw") == u32(Error::ARG_NULL));
+        CHECK(dialog("kHd72ukqbxw", UINT64_MAX) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        OrbisPlayGoDialogParam p{};
+        put(base, p);
+        CHECK(dialog("kHd72ukqbxw", base) == u32(Error::PARAM_INVALID));
+        p.size = sizeof(p); p.baseParam.size = sizeof(p.baseParam);
+        put(base, p);
+        CHECK(dialog("kHd72ukqbxw", base) == 0);
+        CHECK(dialog("wx9TDplJKB4") == u32(Error::ARG_NULL));
+        CHECK(dialog("wx9TDplJKB4", base + 0x204000 - 8) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        std::array<u8, sizeof(OrbisPlayGoDialogResult)> bytes;
+        bytes.fill(0xa5); put(base, bytes);
+        CHECK(dialog("wx9TDplJKB4", base) == 0);
+        const u32 expected = 3;
+        std::memcpy(bytes.data() + offsetof(OrbisPlayGoDialogResult, result), &expected, 4);
+        CHECK(read.operator()<decltype(bytes)>(base) == bytes);
+        CHECK(space->Protect({{base}, 0x204000}, GuestPermission::Read));
+        CHECK(dialog("wx9TDplJKB4", base) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(read.operator()<decltype(bytes)>(base) == bytes);
+        CHECK(space->Protect({{base}, 0x204000}, GuestPermission::Read | GuestPermission::Write));
+    }
     OrbisPlayGoInitParams init{reinterpret_cast<void*>(base+0x4000),0x200000,0}; put(base,init);
     auto fixtures = [&](bool with_chunks) {
         if (!with_chunks) return;
@@ -85,6 +115,32 @@ int main() {
         CHECK(call("Uco1I0dlDi8",{2})==u32(ORBIS_PLAYGO_ERROR_BAD_HANDLE));
         CHECK(call("Uco1I0dlDi8",{1})==0);
         if (round!=1) CHECK(call("MPe0EeBGM-E")==0); // middle round tests destructor retirement
+    }
+    // A guest allocator may commit the scratch arena in separate adjacent VM
+    // mappings. PlayGo consumes a byte buffer, not one VM allocation identity.
+    const u64 scratch = base + 0x400000;
+    CHECK(space->Map({{scratch}, 0x100000}, GuestPermission::Read | GuestPermission::Write));
+    CHECK(space->Map({{scratch + 0x100000}, 0x100000}, GuestPermission::Read | GuestPermission::Write));
+    init = {reinterpret_cast<void*>(scratch), 0x200000, 0};
+    put(base, init);
+    {
+        GuestPlayGo split;
+        CHECK(split.Dispatch(*space, "ts6GlZOKRrE", {base}) == 0);
+        CHECK(split.Dispatch(*space, "M1Gma1ocrGE", {base + 128}) == 0);
+        CHECK(read.operator()<u32>(base + 128) == 1);
+    }
+    CHECK(space->Protect({{scratch + 0x100000}, 0x100000}, GuestPermission::Read));
+    {
+        GuestPlayGo readonly;
+        CHECK(readonly.Dispatch(*space, "ts6GlZOKRrE", {base}) == u32(ORBIS_PLAYGO_ERROR_BAD_POINTER));
+    }
+    CHECK(space->Unmap({{scratch + 0x100000}, 0x100000}));
+    {
+        GuestPlayGo hole;
+        CHECK(hole.Dispatch(*space, "ts6GlZOKRrE", {base}) == u32(ORBIS_PLAYGO_ERROR_BAD_POINTER));
+        init = {reinterpret_cast<void*>(UINT64_MAX - 0x100000), 0x200000, 0};
+        put(base, init);
+        CHECK(hole.Dispatch(*space, "ts6GlZOKRrE", {base}) == u32(ORBIS_PLAYGO_ERROR_BAD_POINTER));
     }
     std::printf("guest_playgo_tests: %u checks, %u failures\n",checks,failures);
     return failures?1:0;

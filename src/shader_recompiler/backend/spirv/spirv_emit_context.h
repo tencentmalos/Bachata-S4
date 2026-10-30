@@ -308,6 +308,7 @@ public:
     std::array<Id, 30> patches{};
 
     Id workgroup_id{};
+    Id host_workgroup_id{};
     Id num_workgroups_id{};
     Id workgroup_index_id{};
     Id local_invocation_id{};

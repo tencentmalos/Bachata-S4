@@ -489,7 +489,8 @@ s32 PS4_SYSV_ABI sceKernelBatchMap2(OrbisKernelBatchMapEntry* entries, s32 numEn
         }
 
         if (result != ORBIS_OK) {
-            LOG_ERROR(Kernel_Vmm, "failed with error code {:#x}", result);
+            LOG_ERROR(Kernel_Vmm, "batch entry {} op={} address={} size={:#x} offset={:#x} failed: {:#x}",
+                      i, entries[i].operation, entries[i].start, entries[i].length, entries[i].offset, result);
             break;
         }
     }
@@ -801,14 +802,14 @@ s32 PS4_SYSV_ABI posix_msync(void* addr, u64 len, s32 flags) {
 static constexpr s32 MAX_PRT_APERTURES = 3;
 static constexpr VAddr PRT_AREA_START_ADDR = 0x1000000000;
 static constexpr u64 PRT_AREA_SIZE = 0xec00000000;
-static std::array<std::pair<VAddr, u64>, MAX_PRT_APERTURES> PrtApertures{};
 
 s32 PS4_SYSV_ABI sceKernelSetPrtAperture(s32 id, VAddr address, u64 size) {
     if (id < 0 || id >= MAX_PRT_APERTURES) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
-    if (address < PRT_AREA_START_ADDR || address + size > PRT_AREA_START_ADDR + PRT_AREA_SIZE) {
+    if (address < PRT_AREA_START_ADDR || address > PRT_AREA_START_ADDR + PRT_AREA_SIZE ||
+        size > PRT_AREA_START_ADDR + PRT_AREA_SIZE - address) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
@@ -823,7 +824,6 @@ s32 PS4_SYSV_ABI sceKernelSetPrtAperture(s32 id, VAddr address, u64 size) {
     auto* memory = Core::Memory::Instance();
     memory->SetPrtArea(id, address, size);
 
-    PrtApertures[id] = {address, size};
     return ORBIS_OK;
 }
 
@@ -832,7 +832,9 @@ s32 PS4_SYSV_ABI sceKernelGetPrtAperture(s32 id, VAddr* address, u64* size) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
-    std::tie(*address, *size) = PrtApertures[id];
+    if (!address || !size)
+        return ORBIS_KERNEL_ERROR_EFAULT;
+    std::tie(*address, *size) = Core::Memory::Instance()->GetPrtArea(id);
     return ORBIS_OK;
 }
 

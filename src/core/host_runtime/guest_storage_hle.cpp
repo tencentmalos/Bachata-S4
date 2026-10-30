@@ -393,9 +393,11 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         }
         if (total > u64(INT64_MAX) - a[3])
             return error(EOVERFLOW);
-        // One bounded regular-file admission; partial I/O is legal. Validate all
-        // buffers participating in it before disk I/O, including later vectors.
-        u64 remaining = std::min<u64>(total, 16 * 1024 * 1024);
+        // Preserve the complete regular-file read request. Artificial short reads
+        // leave resource sections incomplete even when the backing file has all
+        // bytes. Validate every output before I/O; actual EOF/errors still come
+        // from the backend. Keep the existing bounded write admission.
+        u64 remaining = write ? std::min<u64>(total, 16 * 1024 * 1024) : total;
         std::vector<GuestAddressSpace::DataRequest> requests;
         for (const auto& item : input) {
             if (!remaining)
@@ -633,10 +635,13 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
         return io(slow([&] { return storage.Sync(s32(a[0])); }));
     case StorageOp::Read:
     case StorageOp::Write: {
-        // Regular files only; bound one I/O admission so Cancel has an HLE boundary.
+        // Read the full requested regular-file range, as on the desktop. The
+        // backend owns the cursor/descriptor for the whole operation and returns
+        // genuine EOF or I/O errors; the bridge must not synthesize a short read.
         if (a[2] > u64(INT64_MAX))
             return error(EINVAL);
-        const auto count = std::min<u64>(a[2], 16 * 1024 * 1024);
+        const auto count = e.op == StorageOp::Read ? a[2]
+                                                  : std::min<u64>(a[2], 16 * 1024 * 1024);
         if (!a[2])
             return e.op == StorageOp::Read ? io(slow([&] { return storage.Read(a[0], {}); }))
                                            : io(slow([&] { return storage.Write(a[0], {}); }));

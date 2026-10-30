@@ -230,6 +230,8 @@ private:
     bool SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 size, bool is_written,
                            bool is_texel_buffer);
 
+    void UploadMemory(const Buffer* arena, VAddr device_addr, u32 size, bool is_written);
+
     bool SynchronizeMemoryFromImage(const Buffer* arena, VAddr device_addr, u32 size);
 
     /// Raw (unformatted) read of a whole GPU-written image, e.g. a compute shader copying a

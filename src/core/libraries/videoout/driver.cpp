@@ -315,6 +315,7 @@ int VideoOutDriver::ChangeBufferAttribute(VideoOutPort* port, s32 attributeIndex
 }
 
 void VideoOutDriver::Flip(const Request& req) {
+    Common::Profiler::Scope dispatch{"VideoOut.FlipDispatch", req.profile_flow};
     SHAD_HANDOFF(presenter->CaptureGeneration(), "present_dequeue", 0, req.diagnostic_id);
     SHAD_HANDOFF(presenter->CaptureGeneration(), "vo_flip_buffer", req.index + 1,
                  req.diagnostic_id, req.port->prev_index + 1);
@@ -330,6 +331,7 @@ void VideoOutDriver::Flip(const Request& req) {
     const bool shown = !req.frame && req.source ? presenter->PresentGuestImage(*req.source)
                                                 : presenter->Present(req.frame);
     const bool presented = shown && req.index >= 0;
+    Common::Profiler::PresentedFrame(presented);
     u64 present_id{};
     const auto generation = presenter->CaptureGeneration();
     if (presented) {
@@ -620,7 +622,9 @@ bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
         }
         {
             std::lock_guard lock(mutex);
-            requests.push({.diagnostic_id = diagnostic_id, .frame = frame, .port = port,
+            requests.push({.diagnostic_id = diagnostic_id,
+                           .profile_flow = Common::Profiler::Post("VideoOut.FlipDispatch"),
+                           .frame = frame, .port = port,
                            .flip_arg = s64(sequence), .index = index, .eop = false});
         }
         const auto guest_flip = ++liverpool->diagnostic_guest_flip;
@@ -769,6 +773,7 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
     std::scoped_lock lock{mutex};
     requests.push({
         .diagnostic_id = diagnostic_id,
+        .profile_flow = Common::Profiler::Post("VideoOut.FlipDispatch"),
         .frame = frame,
         .source = std::move(source),
         .port = port,
@@ -804,6 +809,7 @@ std::atomic<bool> session_paused_flag{};
 void SetSessionPaused(bool paused) {
     {
         std::scoped_lock lock{session_pause_mutex};
+        if (session_paused != paused) Common::Profiler::ResetFrameHistory();
         session_paused = paused;
         session_paused_flag.store(paused, std::memory_order_release);
     }
@@ -826,6 +832,7 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
 
     const auto receive_request = [this] -> Request {
         std::scoped_lock lk{mutex};
+        Common::Profiler::Counter("VideoOut.ReadyFlipDepth", requests.size());
         if (!requests.empty()) {
             const auto request = requests.front();
             requests.pop();
@@ -872,17 +879,23 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
         }
 
         if (DebugState.IsGuestThreadsPaused()) {
+            Common::Profiler::ResetFrameHistory();
 #ifdef __ANDROID__
             if (redraw_pacer.TryAcquire(RedrawPacer::Clock::now(), timer.GetTotalWait()))
 #endif
             DrawLastFrame();
-            timer.End();
+            {
+                Common::Profiler::Scope wait{"VideoOut.PacingWait"};
+                timer.End();
+            }
             continue;
         }
 
         // Check if it's time to take a request.
         auto& vblank_status = main_port.vblank_status;
-        if (vblank_status.count % (main_port.flip_rate + 1) == 0 && limit_open) {
+        const bool flip_eligible = vblank_status.count % (main_port.flip_rate + 1) == 0 && limit_open;
+        Common::Profiler::Counter("VideoOut.FlipEligible", flip_eligible);
+        if (flip_eligible) {
             const auto request = receive_request();
             if (!request) {
 #ifdef __ANDROID__
@@ -921,7 +934,10 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
         std::function<void()> cadence;
         { std::lock_guard lock(vr_cadence_mutex); cadence = vr_cadence; }
         if (cadence) cadence();
-        timer.End();
+        {
+            Common::Profiler::Scope wait{"VideoOut.PacingWait"};
+            timer.End();
+        }
     }
 }
 

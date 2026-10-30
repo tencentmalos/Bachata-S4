@@ -23,6 +23,7 @@
 #include "font_stack.h"
 #include "frontend/window.h"
 #include "imgui/imgui_layer.h"
+#include "imgui/layer_registry.h"
 #include "imgui_core.h"
 #include "core/diagnostics/overlay_control.h"
 #ifndef __ANDROID__
@@ -40,17 +41,8 @@ namespace {
 // are static objects in other translation units (dialog UIs, notification layers) destroyed at
 // process exit in an unspecified order relative to this file. The registry is created on first
 // use and deliberately never destroyed, so those calls always find it alive.
-struct LayerRegistry {
-    std::vector<ImGui::Layer*> layers;
-    // Update layers before rendering to allow layer changes to be applied during rendering.
-    // Using deque to keep the order of changes in case a Layer is removed then added again
-    // between frames.
-    std::deque<std::pair<bool, ImGui::Layer*>> change_layers;
-    std::mutex change_layers_mutex;
-};
-
-LayerRegistry& Registry() {
-    static LayerRegistry* const registry = new LayerRegistry{};
+ImGui::LayerRegistry& Registry() {
+    static auto* const registry = new ImGui::LayerRegistry{};
     return *registry;
 }
 
@@ -374,28 +366,8 @@ bool ExternalLayerHost() {
     return external_layer_host.load(std::memory_order_acquire);
 }
 
-static void ApplyLayerChanges() {
-    auto& registry = Registry();
-    std::scoped_lock lock{registry.change_layers_mutex};
-    auto& layers = registry.layers;
-    auto& change_layers = registry.change_layers;
-    while (!change_layers.empty()) {
-        const auto [to_be_added, layer] = change_layers.front();
-        if (to_be_added) {
-            layers.push_back(layer);
-        } else {
-            const auto [begin, end] = std::ranges::remove(layers, layer);
-            layers.erase(begin, end);
-        }
-        change_layers.pop_front();
-    }
-}
-
 void DrawLayers() {
-    ApplyLayerChanges();
-    for (auto* layer : Registry().layers) {
-        layer->Draw();
-    }
+    Registry().Draw();
 }
 
 static bool eye_split{};
@@ -405,8 +377,6 @@ void SetEyeSplit(bool split) {
 }
 
 ImGuiID NewFrame(bool is_reusing_frame) {
-    ApplyLayerChanges();
-
 #ifndef __ANDROID__
     if (using_sdl)
         Sdl::NewFrame(is_reusing_frame);
@@ -556,9 +526,7 @@ void RecordDraw(const vk::CommandBuffer& cmdbuf, u32 rotation) {
 bool MustKeepDrawing() {
     return ::Core::Diagnostics::StatusOverlayMailbox().Pending() ||
            ::Core::Diagnostics::status_overlay_interactive.load(std::memory_order_relaxed) ||
-           std::ranges::any_of(Registry().layers,
-                               [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
-           Registry().change_layers.size() > 1;
+           Registry().MustKeepDrawing();
 }
 
 bool WantsPeriodicRedraw() {
@@ -568,15 +536,15 @@ bool WantsPeriodicRedraw() {
 } // namespace Core
 
 void Layer::AddLayer(Layer* layer) {
-    auto& registry = Registry();
-    std::scoped_lock lock{registry.change_layers_mutex};
-    registry.change_layers.emplace_back(true, layer);
+    Registry().Add(layer);
 }
 
 void Layer::RemoveLayer(Layer* layer) {
-    auto& registry = Registry();
-    std::scoped_lock lock{registry.change_layers_mutex};
-    registry.change_layers.emplace_back(false, layer);
+    Registry().Remove(layer);
+}
+
+std::unique_lock<std::recursive_mutex> Layer::LockRegistry() {
+    return Registry().Lock();
 }
 
 } // namespace ImGui

@@ -13,7 +13,8 @@ namespace Core::HostRuntime {
 inline constexpr std::string_view NpOfflineNids[]{
     "rbknaUjpqWo", "p-o74CnoNzY", "XDncXQIJUSk", "eQH7nWPcAgc", "e-ZuhGEoeC4", "oPO9U42YpgI",
     "VgYczPGB5ss", "F6E4ycq9Dbg", "Oad3rvY-NJQ", "a8R9-75u4iM", "IPb1hd1wAGc", "3Zl8BePTh9Y",
-    "JELHf4xPufo", "A2CQ3kgSopQ", "Ec63y59l9tw", "JT+t00a3TxA"};
+    "JELHf4xPufo", "A2CQ3kgSopQ", "Ec63y59l9tw", "JT+t00a3TxA", "q3M7XzBKC3s",
+    "8VBTeRf1ZwI", "Ghz9iWDUtC4"};
 inline bool IsNpOfflineNid(std::string_view nid) {
     return IsNpControlNid(nid) || std::ranges::find(NpOfflineNids, nid) != std::end(NpOfflineNids);
 }
@@ -23,7 +24,7 @@ inline bool AdmitsNpOffline(std::string_view nid, std::string_view suffix, bool 
     return suffix == "#libSceNpManager#1#libSceNpManager#Function" ||
            ((nid == "JELHf4xPufo" || nid == "0c7HbXRKUt4" || nid == "YIvqqvJyjEc") &&
             suffix == "#libSceNpManagerForToolkit#1#libSceNpManager#Function") ||
-           ((nid == "a8R9-75u4iM" || nid == "IPb1hd1wAGc") &&
+           ((nid == "a8R9-75u4iM" || nid == "IPb1hd1wAGc" || nid == "8VBTeRf1ZwI") &&
             suffix == "#libSceNpManagerCompat#1#libSceNpManager#Function");
 }
 // Session snapshot of only local user ids / signup bits and compiled SDK. No
@@ -41,15 +42,24 @@ public:
         static_assert(sizeof(OrbisNpId) == 36 && sizeof(OrbisNpOnlineId) == 20 &&
                       sizeof(OrbisNpState) == 4 && sizeof(OrbisNpReachabilityState) == 4 &&
                       sizeof(OrbisNpGamePresenseStatus) == 4 && sizeof(bool) == 1);
-        if (nid == "JT+t00a3TxA") {
+        if (nid == "JT+t00a3TxA" || nid == "q3M7XzBKC3s") {
             // Match desktop account-country validation and preserve its output
             // on an absent local user / signed-out account. No country is invented.
             if (s32(a[0]) == -1 || !a[1] ||
-                !space.ValidateRange({GuestAddress{a[1]}, sizeof(OrbisNpCountryCode)},
+                !space.ValidateRange({GuestAddress{a[1]}, nid == "JT+t00a3TxA" ?
+                                        sizeof(OrbisNpCountryCode) : sizeof(OrbisNpDate)},
                                      GuestPermission::Write))
                 return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
             return u32(signup.contains(s32(a[0])) ? ORBIS_NP_ERROR_SIGNED_OUT
                                                   : ORBIS_NP_ERROR_USER_NOT_FOUND);
+        }
+        if (nid == "8VBTeRf1ZwI" || nid == "Ghz9iWDUtC4") {
+            if (!a[0] || !a[1]) return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+            OrbisNpOnlineId online{};
+            if (!space.ReadData({a[0]}, std::as_writable_bytes(std::span{&online, 1})))
+                return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+            // Offline session has no online-ID mapping; desktop returns before writing output.
+            return u32(ORBIS_NP_ERROR_USER_NOT_FOUND);
         }
         if (nid == "A2CQ3kgSopQ") {
             // Desktop validates this local policy; it does not start an NP request.

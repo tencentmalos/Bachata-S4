@@ -45,6 +45,17 @@ int main() {
     CHECK(call("j7DlalBzHh8", {1, 0x20000, UINT64_MAX, UINT64_MAX}) == absent);
     CHECK(call("DUWhxkyVPj4") == 0x81170102);
     CHECK(call("8hZ2EEl2Tto", {UINT64_MAX}) == 0x81170102);
+    CHECK(call("u4bCGkqhOB4", {1, 0x20000}) == 0x81170003);
+    CHECK(call("u4bCGkqhOB4", {2, 0x1ffff}) == 0x81170003);
+    CHECK(call("u4bCGkqhOB4", {2, 0x20000, UINT64_MAX, UINT64_MAX}) == absent);
+    CHECK(call("karnJhakdKg", {0, 1}) == 0x81170003);
+    CHECK(call("karnJhakdKg", {base, 0}) == 0x81170003);
+    CHECK(call("karnJhakdKg", {base, 0x2000}) == 0x81170004);
+    CHECK(call("karnJhakdKg", {base, UINT64_MAX}) == 0x81170004);
+    CHECK(call("karnJhakdKg", {UINT64_MAX, 1}) == 0x81170003);
+    CHECK(call("karnJhakdKg", {base + 0x3fff, 1}) == 0x81170003);
+    CHECK(call("karnJhakdKg", {base, 1}) == 0x81170102);
+    CHECK(call("karnJhakdKg", {base, 0x1fff}) == 0x81170102);
     for (const auto origin : {0u, 10u, UINT32_MAX})
         CHECK(call("73WQ4Jj0nJI", {base, 0, 0, origin}) == invalid);
     for (u32 origin = 1; origin <= 9; ++origin)

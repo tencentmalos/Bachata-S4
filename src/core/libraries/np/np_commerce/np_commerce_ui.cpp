@@ -140,6 +140,7 @@ CommerceDialogUi::CommerceDialogUi(CommerceDialogUi&& other) noexcept
 }
 
 CommerceDialogUi& CommerceDialogUi::operator=(CommerceDialogUi&& other) noexcept {
+    auto layer_lock = LockRegistry();
     if (this != &other) {
         first_render = other.first_render;
         state = other.state;
@@ -157,6 +158,7 @@ CommerceDialogUi& CommerceDialogUi::operator=(CommerceDialogUi&& other) noexcept
 }
 
 void CommerceDialogUi::Finish(CommerceResult r) {
+    RemoveLayer(this);
     if (result) {
         *result = static_cast<s32>(r);
     }
@@ -166,7 +168,6 @@ void CommerceDialogUi::Finish(CommerceResult r) {
     state = nullptr;
     status = nullptr;
     result = nullptr;
-    RemoveLayer(this);
 }
 
 void CommerceDialogUi::Draw() {

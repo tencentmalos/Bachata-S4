@@ -1830,6 +1830,47 @@ void TestSegmentedReservations() {
 }
 
 int main() {
+    RunCase("M34", "large mapping index survives data edits and failed syscalls", [] {
+        constexpr unsigned pages = 2048;
+        const auto page = HostPageSize();
+        auto space = MakeSpace(page * pages);
+        const auto base = space->ReservationBase().value;
+        const auto rw = GuestPermission::Read | GuestPermission::Write;
+        using Op = GuestAddressSpace::VmOperation;
+        std::array<int, pages> model{}; // 0 unmapped, 1 read, 3 read/write
+        for (unsigned i = 0; i < pages; ++i) {
+            const auto slot = (i * 997) % pages;
+            Check(bool(space->MapFreshData({{base + slot * page}, page}, rw)), "fresh map");
+            model[slot] = 3;
+        }
+        for (unsigned step = 0; step < 256; ++step) {
+            const unsigned first = (step * 53) % (pages - 8), count = 1 + step % 7;
+            const GuestRange range{{base + first * page}, count * page};
+            const auto operation = step % 3 == 0 ? Op::Unmap : step % 3 == 1 ? Op::Map : Op::Protect;
+            const auto permission = step % 2 ? rw : GuestPermission::Read;
+            bool covered = true;
+            for (unsigned p = first; p < first + count; ++p) covered &= model[p] != 0;
+            const bool fail = step % 11 == 0 && operation != Op::Protect;
+            Test::SetMmapFailureForTest(fail);
+            const auto result = space->UpdateDataMapping(operation, range, permission);
+            Test::SetMmapFailureForTest(false);
+            const bool expected = !fail && (operation != Op::Protect || covered);
+            Check(bool(result) == expected, "edit result differs from model");
+            if (expected)
+                for (unsigned p = first; p < first + count; ++p)
+                    model[p] = operation == Op::Unmap ? 0 : step % 2 ? 3 : 1;
+            for (unsigned p = 0; p < pages; ++p) {
+                const GuestRange sample{{base + p * page}, page};
+                auto mapping = space->Query(sample.base);
+                Check(bool(mapping) == (model[p] != 0), "index lost or invented a mapping");
+                Check(bool(space->ValidateRange(sample, rw)) == (model[p] == 3),
+                      "stale write permission after edit/failure");
+                if (mapping)
+                    Check(mapping.Value().range.base.value <= sample.base.value &&
+                          mapping.Value().range.End() >= sample.End(), "index points at wrong record");
+            }
+        }
+    });
     RunCase("M33", "unordered mappings and VM replacement preserve checked lookup", [] {
         const auto page = HostPageSize();
         auto space = MakeSpace(page * 260);

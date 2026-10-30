@@ -1799,7 +1799,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             // Back out as at an HLE boundary: a controller that saw `running` may have armed
             // the poll page and may be waiting for this owner to leave. The lease drops on return.
             std::lock_guard guard{lock_};
-            if ((entry->interrupt->pending != 0 || !entry->owner_callbacks.empty()) &&
+            // Debug/session pauses also arm the page without an InterruptTicket.
+            if ((entry->interrupt->pending != 0 || entry->debug_pause ||
+                 !entry->owner_callbacks.empty()) &&
                 ::mprotect(entry->native->InterruptFaultPage, host_page_size_,
                            PROT_READ | PROT_WRITE) != 0)
                 return BackendError(ErrorCategory::BackendFailure, "Run continuation",
@@ -2306,7 +2308,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
             // Pause may have armed the poll page after the last JIT poll but
             // before this syscall exit. We are now safely outside JIT; retire
             // the page protection without consuming any Pause/Cancel tickets.
-            if ((entry->interrupt->pending != 0 || !entry->owner_callbacks.empty()) &&
+            // A session/debugger pause has no InterruptTicket. Resume can clear debug_pause
+            // while this owner is still inside HLE, without visiting the debugger park loop;
+            // leaving its page armed would turn the next JIT poll into an orphan PauseRequested.
+            if ((entry->interrupt->pending != 0 || entry->debug_pause ||
+                 !entry->owner_callbacks.empty()) &&
                 ::mprotect(entry->native->InterruptFaultPage, host_page_size_,
                            PROT_READ | PROT_WRITE) != 0)
                 return BackendError(ErrorCategory::BackendFailure, "HLE boundary",
@@ -2732,7 +2738,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
     // debugger's breakpoints, watchpoints or register patches. Owners leave the loop only when
     // released or cancelled, so releasing waits until none is in guest code: an owner whose poll
     // page is armed but has not reached it would otherwise stop with no reason pending.
-    Status SetSessionPaused(bool paused, std::uint64_t timeout_ns) override {
+    Status SetSessionPaused(bool paused, std::uint64_t timeout_ns,
+                            const std::function<void()>& before_resume) override {
         std::unique_lock guard{lock_};
         if (paused) {
             if (session_paused_) return Ok();
@@ -2753,6 +2760,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         if (!stopped_changed_.wait_until(guard, deadline, [&] { return !in_guest_code(); }))
             return BackendError(ErrorCategory::Busy, "session resume",
                                 "an owner has not reached a safe point");
+        if (before_resume) before_resume();
         session_paused_ = false;
         debug_attached_ = debug_paused_ = false;
         for (auto& [id, e] : threads_) {

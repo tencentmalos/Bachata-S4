@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <optional>
+#include <fstream>
+#include <sstream>
+#include "common/path_util.h"
 #include "common/profiler.h"
 #include "video_core/renderer_vulkan/vk_pipeline_stats.h"
 #include <boost/container/static_vector.hpp>
@@ -36,8 +39,10 @@
 #include "video_core/amdgpu/depth_range.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/buffer_cache/buffer_cache.h"
+#include "video_core/memory_diagnostics.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_ordered_dispatch.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_missing_content.h"
 #include "video_core/renderer_vulkan/draw_skip.h"
@@ -760,6 +765,13 @@ bool Rasterizer::FilterDraw() {
 }
 
 void Rasterizer::PrepareRenderState(const GraphicsPipeline* pipeline) {
+    const auto before_shader =
+        VideoCore::MemoryDiagnostics::image_before_shader.load(std::memory_order_acquire);
+    if (before_shader && std::ranges::any_of(pipeline->GetStages(), [&](const auto* stage) {
+            return stage && stage->pgm_hash == before_shader;
+        })) [[unlikely]] {
+        texture_cache.PublishImageDiagnostics(before_shader);
+    }
     // Prefetch render targets to handle overlaps with bound textures (e.g. mipgen)
     const auto& key = pipeline->GetGraphicsKey();
     const auto& regs = liverpool->regs;
@@ -1369,6 +1381,14 @@ void Rasterizer::DispatchDirect() {
         runtime.FlushBarriers();
     }
     GpuZoneScope gpu_zone{scheduler, GpuProfiler::Stage::Dispatch};
+    const bool ordered_batch = cs.uses_ordered_count &&
+        VideoCore::UploadDiagnostics::ordered_batch.load(std::memory_order_relaxed);
+    if (cs.uses_ordered_count) {
+        push_data.xoffset = std::bit_cast<float>(cs_program.dim_x);
+        push_data.yoffset = std::bit_cast<float>(cs_program.dim_y);
+        push_data.xscale = std::bit_cast<float>(cs_program.dim_z);
+        push_data.yscale = std::bit_cast<float>(u32(ordered_batch));
+    }
     pipeline->BindResources(set_writes, push_data);
 
     const auto cmdbuf = scheduler.CommandBuffer();
@@ -1377,7 +1397,13 @@ void Rasterizer::DispatchDirect() {
         breadcrumbs->BeforeDispatch(cmdbuf, cs.pgm_hash, cs_program.dim_x, cs_program.dim_y,
                                     cs_program.dim_z, false, BreadcrumbContext());
     }
-    cmdbuf.dispatch(cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
+    if (ordered_batch) {
+        cmdbuf.dispatch(1, 1, 1);
+    } else if (cs.uses_ordered_count) {
+        DispatchOrderedGroups(cmdbuf, cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
+    } else {
+        cmdbuf.dispatch(cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
+    }
     if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]]
         scheduler.FullBarrier();
     if (breadcrumbs) {
@@ -1404,6 +1430,24 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     const ComputePipeline* pipeline = pipeline_cache.GetComputePipeline();
     if (!pipeline) {
         return;
+    }
+    const bool ordered = pipeline->GetStage(Shader::SwStage::Compute).uses_ordered_count;
+    std::array<u32, 3> ordered_counts{};
+    if (ordered) {
+        // Indirect counts may be GPU-written. Resolve through the normal coherency path
+        // before acquiring any bindings/command buffer that a download can invalidate.
+        ASSERT(size >= sizeof(ordered_counts));
+        [[maybe_unused]] const auto source =
+            buffer_cache.ObtainResidentBuffer(address + offset, sizeof(ordered_counts), false);
+        buffer_cache.ReadMemory(address + offset, sizeof(ordered_counts));
+        std::memcpy(ordered_counts.data(), reinterpret_cast<const void*>(address + offset),
+                    sizeof(ordered_counts));
+        const auto limits = instance.GetPhysicalDevice().getProperties().limits;
+        for (u32 axis = 0; axis < 3; ++axis) {
+            ASSERT_MSG(ordered_counts[axis] <= limits.maxComputeWorkGroupCount[axis],
+                       "Ordered indirect dispatch exceeds axis {} limit: {}", axis,
+                       ordered_counts[axis]);
+        }
     }
     const MissingContent::ActionScope content_scope{liverpool->flip_epoch};
     MissingContent::CheckEscape(MissingContent::Escape::Indirect, address + offset, size);
@@ -1443,7 +1487,20 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
                                     pipeline->GetStage(Shader::SwStage::Compute).pgm_hash, 0, 0,
                                     0, true, BreadcrumbContext());
     }
-    cmdbuf.dispatchIndirect(buffer->Handle(), base);
+    if (ordered) {
+        push_data.xoffset = std::bit_cast<float>(ordered_counts[0]);
+        push_data.yoffset = std::bit_cast<float>(ordered_counts[1]);
+        push_data.xscale = std::bit_cast<float>(ordered_counts[2]);
+        const bool batch = VideoCore::UploadDiagnostics::ordered_batch.load(std::memory_order_relaxed);
+        push_data.yscale = std::bit_cast<float>(u32(batch));
+        pipeline->BindResources(set_writes, push_data);
+        if (batch)
+            cmdbuf.dispatch(1, 1, 1);
+        else
+            DispatchOrderedGroups(cmdbuf, ordered_counts[0], ordered_counts[1], ordered_counts[2]);
+    } else {
+        cmdbuf.dispatchIndirect(buffer->Handle(), base);
+    }
     if (VideoCore::UploadDiagnostics::full_barriers.load(std::memory_order_relaxed)) [[unlikely]]
         scheduler.FullBarrier();
     if (breadcrumbs) {
@@ -1613,26 +1670,39 @@ void Rasterizer::CheckSharps(const Pipeline& pipeline) {
     }
 }
 
-// `upload_diag cb_dump`: the first 64 bytes of every buffer the stages of a matching program
-// bind, read from guest memory (CPU-written constants; GPU-only contents are not visible here).
+// `upload_diag cb_dump`: bounded prefixes of buffers and the exact flattened constants
+// bound by matching draws. Ordinary buffers are read from guest memory, not GPU storage.
 void Rasterizer::DumpBoundBuffers(const Pipeline& pipeline) {
     using namespace VideoCore::UploadDiagnostics;
     const u64 wanted = cb_dump_hash.load(std::memory_order_relaxed);
     const auto stages = pipeline.GetStages();
-    if (std::ranges::none_of(stages, [&](const auto* stage) {
-            return stage && stage->pgm_hash == wanted;
-        }) ||
+    if (std::ranges::none_of(
+            stages, [&](const auto* stage) { return stage && stage->pgm_hash == wanted; }) ||
         cb_dump_left.fetch_sub(1, std::memory_order_relaxed) <= 0) {
         return;
     }
     for (const auto* stage : stages) {
-        if (!stage) continue;
+        if (!stage)
+            continue;
+        const u32 flat_words =
+            std::min<u32>(stage->flattened_ud_buf.size(),
+                          cb_dump_bytes.load(std::memory_order_relaxed) / sizeof(u32));
+        for (u32 offset = 0; offset < flat_words; offset += 16) {
+            std::string hex;
+            for (u32 w = offset; w < std::min(offset + 16, flat_words); ++w) {
+                hex += fmt::format(" {:08x}", stage->flattened_ud_buf[w]);
+            }
+            LOG_INFO(Render_Vulkan, "cb_dump {:#x} {} stage={:#x} flat @{:#x}:{}", wanted,
+                     magic_enum::enum_name(stage->sw_stage), stage->pgm_hash, offset * sizeof(u32),
+                     hex);
+        }
         for (u32 i = 0; i < stage->buffers.size(); ++i) {
             const auto& desc = stage->buffers[i];
-            if (desc.IsSpecial()) continue;
+            if (desc.IsSpecial())
+                continue;
             const auto buffer = desc.GetSharp(*stage);
-            const u32 total = std::min<u32>(buffer.GetSize(),
-                                            cb_dump_bytes.load(std::memory_order_relaxed));
+            const u32 total =
+                std::min<u32>(buffer.GetSize(), cb_dump_bytes.load(std::memory_order_relaxed));
             for (u32 offset = 0; offset < total; offset += 64) {
                 std::array<u32, 16> words{};
                 const u32 bytes = std::min<u32>(total - offset, sizeof(words));
@@ -1900,7 +1970,122 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
         fault_process_pending = true;
     }
 
+    if (VideoCore::UploadDiagnostics::cb_snapshot_hash.load(std::memory_order_acquire)) [[unlikely]]
+        SnapshotBoundGpuBuffers(*pipeline);
     return true;
+}
+
+void Rasterizer::SnapshotBoundGpuBuffers(const Pipeline& pipeline) {
+    using namespace VideoCore::UploadDiagnostics;
+    u64 wanted{};
+    {
+        std::scoped_lock lock{cb_snapshot_mutex};
+        wanted = cb_snapshot_hash.load(std::memory_order_acquire);
+        if (!wanted || cb_snapshot_busy.load() ||
+            std::ranges::none_of(pipeline.GetStages(), [&](const auto* stage) {
+                return stage && stage->pgm_hash == wanted;
+            }))
+            return;
+        if (cb_snapshot_skip.load()) {
+            cb_snapshot_skip.fetch_sub(1);
+            return;
+        }
+        cb_snapshot_busy.store(true);
+        cb_snapshot_hash.store(0);
+    }
+    struct Copy {
+        u32 binding;
+        u64 offset, size;
+    };
+    std::vector<Copy> copies;
+    std::ostringstream metadata;
+    u64 total{};
+    u32 binding{};
+    for (const auto* stage : pipeline.GetStages()) {
+        if (!stage)
+            continue;
+        metadata << "stage=" << magic_enum::enum_name(stage->sw_stage) << " hash=" << std::hex
+                 << stage->pgm_hash << std::dec << '\n';
+        for (const auto& desc : stage->buffers) {
+            const auto& info = buffer_infos.at(binding);
+            const u64 size = info.range & ~u64{3};
+            metadata << "buffer=" << binding << " type=" << u32(desc.buffer_type)
+                     << " descriptor_offset=" << info.offset << " descriptor_bytes=" << info.range;
+            if (!desc.IsSpecial()) {
+                const auto sharp = desc.GetSharp(*stage);
+                metadata << " guest_address=" << u64(sharp.base_address)
+                         << " guest_bytes=" << sharp.GetSize();
+            }
+            if (info.buffer && size && size <= (32u << 20) - total) {
+                metadata << " captured_offset=" << total << " captured_bytes=" << size;
+                copies.push_back({binding, total, size});
+                total += size;
+            } else
+                metadata << " skipped=null-or-budget";
+            metadata << '\n';
+            ++binding;
+        }
+    }
+    if (!total) {
+        cb_snapshot_busy.store(false);
+        return;
+    }
+    std::unique_ptr<VideoCore::Buffer> output;
+    try {
+        output = std::make_unique<VideoCore::Buffer>(instance, 0, total,
+                                                     VideoCore::MemoryType::HostCached);
+    } catch (const std::exception& e) {
+        cb_snapshot_busy.store(false);
+        LOG_ERROR(Render_Vulkan, "cb_snapshot allocation failed: {}", e.what());
+        return;
+    }
+    scheduler.EndRendering(RenderBreak::Download);
+    runtime.FlushBarriers();
+    const auto cmd = scheduler.CommandBuffer();
+    const vk::MemoryBarrier2 before{.srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+                                    .srcAccessMask = vk::AccessFlagBits2::eMemoryWrite,
+                                    .dstStageMask = vk::PipelineStageFlagBits2::eCopy,
+                                    .dstAccessMask = vk::AccessFlagBits2::eTransferRead};
+    cmd.pipelineBarrier2({.memoryBarrierCount = 1, .pMemoryBarriers = &before});
+    for (const auto& copy : copies) {
+        const auto& info = buffer_infos[copy.binding];
+        cmd.copyBuffer(info.buffer, output->Handle(),
+                       vk::BufferCopy{info.offset, copy.offset, copy.size});
+    }
+    const vk::MemoryBarrier2 after{
+        .srcStageMask = vk::PipelineStageFlagBits2::eCopy,
+        .srcAccessMask = vk::AccessFlagBits2::eTransferRead | vk::AccessFlagBits2::eTransferWrite,
+        .dstStageMask =
+            vk::PipelineStageFlagBits2::eAllCommands | vk::PipelineStageFlagBits2::eHost,
+        .dstAccessMask = vk::AccessFlagBits2::eMemoryRead | vk::AccessFlagBits2::eMemoryWrite |
+                         vk::AccessFlagBits2::eHostRead};
+    cmd.pipelineBarrier2({.memoryBarrierCount = 1, .pMemoryBarriers = &after});
+    const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto path = Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) / "gpu-buffers" /
+                      fmt::format("buffers-{}-{:x}", stamp, wanted);
+    const auto push = push_data;
+    scheduler.DeferOperation(
+        [output = std::move(output), path, total, text = metadata.str(), push]() {
+            try {
+                output->Invalidate(0, total);
+                std::filesystem::create_directories(path.parent_path());
+                std::ofstream data(path.string() + ".bin", std::ios::binary);
+                data.write(reinterpret_cast<const char*>(output->mapped_data.data()), total);
+                data.close();
+                std::ofstream meta(path.string() + ".txt");
+                meta << text;
+                meta.close();
+                std::ofstream pc(path.string() + ".push", std::ios::binary);
+                pc.write(reinterpret_cast<const char*>(&push), sizeof(push));
+                pc.close();
+                if (!data || !meta || !pc)
+                    throw std::runtime_error("snapshot write failed");
+                LOG_INFO(Render_Vulkan, "cb_snapshot ready {} bytes={}", path.string(), total);
+            } catch (const std::exception& e) {
+                LOG_ERROR(Render_Vulkan, "cb_snapshot failed: {}", e.what());
+            }
+            cb_snapshot_busy.store(false);
+        });
 }
 
 void Rasterizer::BindVertexBuffers(const GraphicsPipeline* pipeline) {
@@ -2340,9 +2525,12 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
                 buffer_infos.emplace_back(VK_NULL_HANDLE, 0, VK_WHOLE_SIZE);
             } else {
                 const u64 size = memory->ClampRangeSize(vsharp.base_address, vsharp.GetSize());
-                if (size != vsharp.GetSize()) {
-                    LOG_ERROR(Render, "Clamped size from {} to {} for stage {:#x}",
-                              vsharp.GetSize(), size, stage.pgm_hash);
+                if (size != vsharp.GetSize() && clamped_buffer_stages.size() < 64 &&
+                    clamped_buffer_stages.insert(stage.pgm_hash).second) {
+                    LOG_WARNING(Render,
+                                "Clamped buffer {:#x} size from {} to {} for stage {:#x} "
+                                "(once per stage, at most 64 stages per renderer)",
+                                u64(vsharp.base_address), vsharp.GetSize(), size, stage.pgm_hash);
                 }
                 const auto [buffer, offset] = buffer_cache.ObtainBuffer(
                     vsharp.base_address, size, desc.is_written, desc.is_formatted);
@@ -3855,11 +4043,21 @@ void Rasterizer::UnmapMemory(VAddr addr, u64 size) {
 }
 
 void Rasterizer::DecommitPoolMemory(VAddr addr, u64 size) {
-    buffer_cache.InvalidateMemory(addr, size);
-    buffer_cache.ForgetGpuWrites(addr, size);
-    texture_cache.DecommitMemory(addr, size);
-    page_manager.OnGpuUnmap(addr, size);
     {
+        Common::Profiler::Scope scope{"PoolDecommit.BufferInvalidate"};
+        buffer_cache.InvalidateMemory(addr, size);
+        buffer_cache.ForgetGpuWrites(addr, size);
+    }
+    {
+        Common::Profiler::Scope scope{"PoolDecommit.TextureDecommit"};
+        texture_cache.DecommitMemory(addr, size);
+    }
+    {
+        Common::Profiler::Scope scope{"PoolDecommit.PageUnmap"};
+        page_manager.OnGpuUnmap(addr, size);
+    }
+    {
+        Common::Profiler::Scope scope{"PoolDecommit.MappedRanges"};
         std::scoped_lock lock{mapped_ranges_mutex};
         mapped_ranges -= decltype(mapped_ranges)::interval_type::right_open(addr, addr + size);
     }

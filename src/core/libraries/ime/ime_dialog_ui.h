@@ -10,6 +10,7 @@
 #include "common/types.h"
 #include "core/libraries/ime/ime_dialog.h"
 #include "core/libraries/ime/ime_kb_layout.h"
+#include "core/libraries/ime/ime_pinyin_panel.h"
 #include "imgui/imgui_layer.h"
 
 namespace Libraries::ImeDialog {
@@ -43,6 +44,7 @@ class ImeDialogState final {
     s32 user_id{};
     bool is_multi_line{};
     bool is_numeric{};
+    bool is_password{};
     bool fixed_position{};
     OrbisImeType type{};
     OrbisImeLanguage supported_languages{};
@@ -103,6 +105,7 @@ class ImeDialogUi final : public ImGui::Layer {
     OrbisImeDialogStatus* status{};
     OrbisImeDialogResult* result{};
 
+    Libraries::Ime::PinyinPanel pinyin;
     bool first_render = true;
     bool accept_armed = false;
     bool native_input_active = false;

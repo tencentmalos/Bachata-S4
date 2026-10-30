@@ -2,10 +2,12 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <mutex>
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/playgo/playgo.h"
+#include "core/libraries/playgo/playgo_dialog.h"
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view PlayGoNids[]{
@@ -14,6 +16,47 @@ inline constexpr std::string_view PlayGoNids[]{
     "-Q1-u1a7p0g", "4AAcTU9R3XM", "LosLlHOpNqQ", "gUPGiOQ1tmQ", "MPe0EeBGM-E"};
 inline bool IsPlayGoNid(std::string_view nid) {
     return std::ranges::find(PlayGoNids, nid) != std::end(PlayGoNids);
+}
+inline constexpr std::array<std::string_view, 7> PlayGoDialogNids{
+    "fbigNQiZpm0", "wx9TDplJKB4", "NOAMxY2EGS0", "fECamTJKpsM",
+    "kHd72ukqbxw", "okgIGdr5Iz0", "Yb60K7BST48"};
+inline bool IsPlayGoDialogNid(std::string_view nid) {
+    return std::ranges::find(PlayGoDialogNids, nid) != PlayGoDialogNids.end();
+}
+// Match desktop's installed-content dialog policy. It does not launch a system
+// downloader; the local content is already installed. Native pointers never
+// refer to guest memory, and only the result field owned by desktop is written.
+inline u32 DispatchPlayGoDialog(GuestCpu::GuestAddressSpace& space, std::string_view nid,
+                                const std::array<u64, 6>& a) {
+    using namespace GuestCpu;
+    using namespace Libraries::PlayGo::Dialog;
+    using Libraries::CommonDialog::Error;
+    if (nid == "kHd72ukqbxw") {
+        if (!a[0]) return u32(Error::ARG_NULL);
+        OrbisPlayGoDialogParam param{};
+        if (!space.ReadData({a[0]}, std::as_writable_bytes(std::span{&param, 1})))
+            return u32(ORBIS_KERNEL_ERROR_EFAULT);
+        if (param.size != sizeof(param) || param.baseParam.size != sizeof(param.baseParam))
+            return u32(Error::PARAM_INVALID);
+        return u32(scePlayGoDialogOpen(&param));
+    }
+    if (nid == "wx9TDplJKB4") {
+        if (!a[0]) return u32(Error::ARG_NULL);
+        auto pin = space.AcquireDataSpan({{a[0]}, sizeof(OrbisPlayGoDialogResult)}, true);
+        if (!pin) return u32(ORBIS_KERNEL_ERROR_EFAULT);
+        OrbisPlayGoDialogResult result{};
+        const auto status = scePlayGoDialogGetResult(&result);
+        if (status == Error::OK)
+            std::memcpy(pin.Value().WritableBytes().data() + offsetof(OrbisPlayGoDialogResult, result),
+                        &result.result, sizeof(result.result));
+        return u32(status);
+    }
+    if (nid == "fbigNQiZpm0") return u32(scePlayGoDialogClose());
+    if (nid == "NOAMxY2EGS0") return u32(scePlayGoDialogGetStatus());
+    if (nid == "fECamTJKpsM") return u32(scePlayGoDialogInitialize());
+    if (nid == "okgIGdr5Iz0") return u32(scePlayGoDialogTerminate());
+    if (nid == "Yb60K7BST48") return u32(scePlayGoDialogUpdateStatus());
+    return u32(ORBIS_KERNEL_ERROR_ENOSYS);
 }
 // Uses the desktop's installed-content/chunk policy. Global desktop services are
 // leased to one production Session; this domain serializes just PlayGo lifetime.
@@ -33,8 +76,14 @@ public:
             if (!space.ReadData(GuestAddress{a[0]}, std::as_writable_bytes(std::span{&p, 1})) ||
                 !p.bufAddr) return bad;
             if (p.bufSize < 0x200000) return ORBIS_PLAYGO_ERROR_BAD_SIZE;
-            if (!space.ValidateRange({GuestAddress{reinterpret_cast<u64>(p.bufAddr)}, p.bufSize},
-                                     GuestPermission::Write)) return bad;
+            {
+                GuestAddressSpace::DataRequest scratch{
+                    {{reinterpret_cast<u64>(p.bufAddr)}, p.bufSize}, GuestPermission::Write};
+                // Games commit their arena in adjacent VM chunks. Validate every
+                // byte/permission, without requiring one allocation to own it all.
+                scratch.allow_adjacent_mappings = true;
+                if (!space.AcquireDataBatch(std::span{&scratch, 1})) return bad;
+            }
             // The shared implementation reads chunk metadata from disk. No guest
             // pin crosses that I/O; the validated scratch buffer is never used.
             const auto result = Initialize(p.bufSize);

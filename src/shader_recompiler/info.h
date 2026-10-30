@@ -78,6 +78,7 @@ struct InfoPersistent {
     bool has_fetch_shader{};
     bool has_bitwise_xor{};
     bool uses_dma{};
+    bool uses_ordered_count{}; // Renderer serializes single-wave compute groups.
     // ReadConst uses a known CPU-bound base plus a 32-bit byte offset. Unknown
     // pointer producers must retain full residency synchronization.
     bool dma_unbounded{};

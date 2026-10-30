@@ -275,7 +275,7 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         RuntimeStage("prepare: ready");
         if (const auto& info = Common::ElfInfo::Instance(); info.IsInitialized()) {
             Common::Profiler::BeginSession(fmt::format(
-                "title={} app_ver={} build={} generation={} frame=gnm_submit_done",
+                "title={} app_ver={} build={} generation={} frame=videoout_present_success",
                 info.GameSerial(), info.AppVer(), Common::g_scm_rev, params.generation));
         }
         rt->args = {executable};
@@ -365,7 +365,8 @@ RunReport FexSessionBackend::Run(SessionRuntime& runtime) {
                              : run.Value().reason == StopReason::GuestFault
                                  ? RunOutcome::Faulted
                                  : RunOutcome::BackendFailed;
-            report.detail = "guest return=" + std::to_string(run.Value().return_value);
+            report.detail = "guest return=" + std::to_string(run.Value().return_value) +
+                            " reason=" + std::string(ToString(run.Value().reason));
             if (const auto& fault = run.Value().fault) {
                 if (fault->guest_rip)
                     report.detail += " guest_rip=" + std::to_string(*fault->guest_rip);
@@ -461,7 +462,8 @@ Status FexSessionBackend::SetPaused(SessionRuntime& runtime, bool paused) {
                 return held;
             }
         } else {
-            auto released = rt.context->SetSessionPaused(false, ReleaseBudgetNs);
+            auto released = rt.context->SetSessionPaused(false, ReleaseBudgetNs,
+                [&] { rt.production->ResumeProcessClock(); });
             if (!released)
                 return released; // still held, devices stay paused
             rt.production->SetServicesPaused(false);

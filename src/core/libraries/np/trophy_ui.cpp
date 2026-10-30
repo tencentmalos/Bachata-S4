@@ -163,6 +163,7 @@ TrophyUI::TrophyUI(const std::filesystem::path& trophyIconPath, const std::strin
 }
 
 TrophyUI::~TrophyUI() {
+    Finish();
 #ifndef __ANDROID__
     if (stream) {
         SDL_DestroyAudioStream(stream);
@@ -174,8 +175,6 @@ TrophyUI::~TrophyUI() {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 #endif
-
-    Finish();
 }
 
 void TrophyUI::Finish() {
@@ -393,6 +392,7 @@ void TrophyUI::PlayWav(std::vector<unsigned char> wavData) {
 
 void AddTrophyToQueue(const std::filesystem::path& trophyIconPath, const std::string& trophyName,
                       const std::string_view& rarity) {
+    auto layer_lock = ImGui::Layer::LockRegistry();
     std::lock_guard<std::mutex> lock(queueMtx);
 
     if (EmulatorSettings.IsTrophyPopupDisabled()) {

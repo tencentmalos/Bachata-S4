@@ -188,7 +188,7 @@
 [submodule "foundation"]
 	path = foundation
 	url = https://github.com/tencentmalos/foundation.git
-	branch = codex/prof-streaming-integrity
+	branch = codex/profiler-slow-frame-owner
 [submodule "externals/ffmpeg"]
 	path = externals/ffmpeg
 	url = git@github.com:tencentmalos/FFmpeg.git
@@ -204,7 +204,7 @@
 [submodule "references/mesa-turnip"]
 	path = references/mesa-turnip
 	url = https://github.com/tencentmalos/mesa-mirror.git
-	branch = codex/shadps4-xr-turnip
+	branch = codex/shadps4-kgsl-calibrated-timestamps
 [submodule "references/mesa-turnip-xr-fdm2"]
 	path = references/mesa-turnip-xr-fdm2
 	url = git@github.com:tencentmalos/mesa-mirror.git

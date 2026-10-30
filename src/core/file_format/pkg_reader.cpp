@@ -351,6 +351,13 @@ struct PkgReader::Impl {
     std::vector<Entry> entries;
     std::vector<File> files;
     std::unordered_map<std::string, size_t> index;
+    std::unordered_map<std::string, size_t> folded_index;
+    static std::string FoldPath(std::string_view path) {
+        std::string key(path);
+        for (auto& c : key)
+            if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+        return key;
+    }
     std::array<u8, 32> xts_key{};
     std::unique_ptr<Crypto::Aes128Xts> xts;
     std::shared_ptr<PfsVolume> outer, inner;
@@ -674,6 +681,12 @@ struct PkgReader::Impl {
 
 PkgReader::PkgReader(const std::filesystem::path& path, bool reference)
     : impl(std::make_unique<Impl>(path, reference)) {
+    // Match the desktop's game-filesystem lookup without extracting the PKG.
+    // Keep exact spelling authoritative, and refuse ambiguous case-only aliases.
+    for (size_t i = 0; i < impl->entries.size(); ++i) {
+        auto [it, inserted] = impl->folded_index.emplace(Impl::FoldPath(impl->entries[i].path), i);
+        if (!inserted) it->second = Missing;
+    }
     LOG_INFO(Core, "PKG reader: {} ({} files, AES-XTS {}{})", path.filename().string(),
              impl->entries.size(),
              impl->xts ? Crypto::Aes128Xts::Name(impl->xts->GetBackend()) : "none",
@@ -715,7 +728,9 @@ const std::vector<PkgReader::Entry>& PkgReader::Entries() const {
 }
 size_t PkgReader::Find(std::string_view path) const {
     auto found = impl->index.find(std::string(path));
-    return found == impl->index.end() ? Missing : found->second;
+    if (found != impl->index.end()) return found->second;
+    auto folded = impl->folded_index.find(Impl::FoldPath(path));
+    return folded == impl->folded_index.end() ? Missing : folded->second;
 }
 size_t PkgReader::Read(size_t entry, u64 offset, std::span<u8> output) {
     Require(entry < impl->entries.size() && !impl->entries[entry].directory, "invalid file handle");

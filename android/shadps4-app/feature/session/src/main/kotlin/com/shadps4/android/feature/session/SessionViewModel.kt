@@ -1,6 +1,6 @@
 package com.shadps4.android.feature.session
 
-import android.app.BackgroundServiceStartNotAllowedException
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -84,10 +84,10 @@ class SessionViewModel @Inject constructor(
             // a moment while the device goes to sleep, so a refused start is retried.
             val refusals = startWhenResumed(lifecycle) {
                 try {
-                    context.startService(intent)
+                    context.startForegroundService(intent)
                     savedState[KEY_STARTED] = true
                     true
-                } catch (error: BackgroundServiceStartNotAllowedException) {
+                } catch (error: ForegroundServiceStartNotAllowedException) {
                     Log.w(TAG, "Start of ${game.id} refused in the background, waiting for the foreground: ${error.message}")
                     false
                 }

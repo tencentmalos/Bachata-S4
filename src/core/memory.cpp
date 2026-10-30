@@ -318,6 +318,9 @@ void MemoryManager::SetRasterizer(RasterizerHooks* value) {
                 if (vma.IsMapped() && !True(vma.prot & MemoryProt::CpuExec) &&
                     IsValidGpuMapping(address, vma.size))
                     mappings.emplace_back(address, vma.size);
+            for (const auto& area : prt_areas)
+                if (area.mapped && area.end > area.start)
+                    mappings.emplace_back(area.start, area.end - area.start);
         }
         for (const auto& [address, size] : mappings)
             value->MapMemory(address, size);
@@ -453,18 +456,28 @@ std::vector<MemoryManager::MappingSnapshot> MemoryManager::SnapshotMappings() {
 }
 
 void MemoryManager::SetPrtArea(u32 id, VAddr address, u64 size) {
+    std::unique_lock lock{mutex};
     PrtArea& area = prt_areas[id];
-    if (area.mapped) {
+    if (rasterizer && area.mapped && area.end > area.start) {
         rasterizer->UnmapMemory(area.start, area.end - area.start);
     }
 
     area.start = address;
     area.end = address + size;
-    area.mapped = true;
+    area.mapped = size != 0;
 
     // Pretend the entire PRT area is mapped to avoid GPU tracking errors.
     // The caches will use CopySparseMemory to fetch data which avoids unmapped areas.
-    rasterizer->MapMemory(address, size);
+    // Android creates graphics lazily. Keep the session-owned aperture until
+    // SetRasterizer replays it; no renderer or CPU mapping is fabricated here.
+    if (rasterizer && size)
+        rasterizer->MapMemory(address, size);
+}
+
+std::pair<VAddr, u64> MemoryManager::GetPrtArea(u32 id) {
+    std::shared_lock lock{mutex};
+    const auto& area = prt_areas[id];
+    return {area.start, area.end - area.start};
 }
 
 bool MemoryManager::TryCopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
@@ -1784,7 +1797,11 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
 }
 
 s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
-    std::scoped_lock lk{unmap_mutex};
+    std::unique_lock lk{unmap_mutex, std::defer_lock};
+    {
+        Common::Profiler::Scope scope{"Memory.PoolDecommit.UnmapLock"};
+        lk.lock();
+    }
     if (!size || !Common::Is64KBAligned(virtual_addr) || !Common::Is64KBAligned(size) ||
         size > UINT64_MAX - virtual_addr || !IsValidMapping(virtual_addr, size))
         return ORBIS_KERNEL_ERROR_EINVAL;
@@ -1802,6 +1819,7 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
 
     // Perform early GPU unmap to avoid potential deadlocks
     if (IsValidGpuMapping(virtual_addr, size)) {
+        Common::Profiler::Scope scope{"Memory.PoolDecommit.GpuInvalidate"};
         rasterizer->DecommitPoolMemory(virtual_addr, size);
     }
 

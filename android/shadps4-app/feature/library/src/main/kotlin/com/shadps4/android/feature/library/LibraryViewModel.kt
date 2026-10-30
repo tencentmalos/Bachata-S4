@@ -115,7 +115,14 @@ class LibraryViewModel @Inject constructor() : ViewModel() {
         else -> 0
     }
 
+    // A modal must never launch the selected game behind it.
+    var libraryModalDismiss: (() -> Unit)? = null
+
     fun handleNavEvent(event: NavControllerEvent): Boolean {
+        libraryModalDismiss?.let { dismiss ->
+            if (event.control == "circle" && event.pressed) dismiss()
+            return true
+        }
         val currentState = mutableState.value
         val detailsId = currentState.showDetailsGameId
         if (detailsId != null && currentState.launchSubPanel) {

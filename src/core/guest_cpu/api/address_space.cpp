@@ -528,6 +528,7 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
 
     // MAP_FIXED is safe here and only here: the target is inside a reservation
     // this object already owns, so nothing else can be holding it.
+    ReserveMappingCapacityLocked(1);
     void* result = SeamMmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
                             ToHostProtection(permission),
                             MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
@@ -542,6 +543,7 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
     ++mapping_generation;
     Mapping mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation};
     mappings.push_back(mapping);
+    IndexMappingLocked(mappings.size() - 1);
 
     MappingInfo info{};
     info.range = range;
@@ -601,6 +603,7 @@ Status GuestAddressSpace::Unmap(GuestRange range) {
         return error;
     }
 
+    RemoveMappingIndexLocked(static_cast<std::size_t>(found - mappings.begin()), false);
     mappings.erase(found);
     std::erase_if(aliases, [&](const Alias& alias) {
         return RangesOverlap(alias.primary, range);
@@ -719,13 +722,52 @@ const GuestAddressSpace::Mapping* GuestAddressSpace::FindContainingMappingLocked
     };
     if (index < mappings.size() && contains(mappings[index]))
         return &mappings[index];
-    for (std::size_t i = 0; i < mappings.size(); ++i) {
-        if (contains(mappings[i])) {
-            index = i;
-            return &mappings[i];
+    auto found = std::upper_bound(mapping_index.begin(), mapping_index.end(), range.base.value,
+        [](std::uint64_t address, const MappingIndexEntry& entry) { return address < entry.base; });
+    if (found != mapping_index.begin()) {
+        const auto candidate = (--found)->index;
+        if (contains(mappings[candidate])) {
+            index = candidate;
+            return &mappings[candidate];
         }
     }
     return nullptr;
+}
+
+void GuestAddressSpace::ReserveMappingCapacityLocked(std::size_t additional) {
+    const auto needed = mappings.size() + additional;
+    const auto reserve = [needed](auto& records) {
+        if (needed > records.capacity()) {
+            const auto grown = records.capacity() <= records.max_size() / 2
+                                   ? records.capacity() * 2 : records.max_size();
+            records.reserve(std::max(needed, grown));
+        }
+    };
+    reserve(mappings);
+    reserve(mapping_index);
+}
+
+void GuestAddressSpace::IndexMappingLocked(std::size_t index) noexcept {
+    const auto base = mappings[index].range.base.value;
+    const auto at = std::lower_bound(mapping_index.begin(), mapping_index.end(), base,
+        [](const MappingIndexEntry& entry, std::uint64_t address) { return entry.base < address; });
+    mapping_index.insert(at, {base, index}); // caller prepared capacity before the syscall
+}
+
+void GuestAddressSpace::RemoveMappingIndexLocked(std::size_t index, bool replace_with_last) noexcept {
+    const auto find = [&](std::uint64_t base) {
+        return std::lower_bound(mapping_index.begin(), mapping_index.end(), base,
+            [](const MappingIndexEntry& entry, std::uint64_t address) { return entry.base < address; });
+    };
+    mapping_index.erase(find(mappings[index].range.base.value));
+    if (replace_with_last) {
+        if (index != mappings.size() - 1)
+            find(mappings.back().range.base.value)->index = index;
+    } else {
+        // Ordinary Unmap preserves the public ledger order; erase shifts its suffix.
+        for (auto& entry : mapping_index)
+            if (entry.index > index) --entry.index;
+    }
 }
 
 GuestAddressSpace::LedgerEdit GuestAddressSpace::PlanLedgerEditLocked(VmOperation operation,
@@ -763,7 +805,7 @@ GuestAddressSpace::LedgerEdit GuestAddressSpace::PlanLedgerEditLocked(VmOperatio
         edit.added.push_back(
             Mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation + 1});
     // The commit removes before it appends, so this capacity covers every append.
-    mappings.reserve(mappings.size() + edit.added.size());
+    ReserveMappingCapacityLocked(edit.added.size());
     return edit;
 }
 
@@ -772,11 +814,14 @@ void GuestAddressSpace::CommitLedgerEditLocked(const LedgerEdit& edit) noexcept 
     // never sits below a slot that is still to be removed. Cached lookup indices recheck the
     // record they find, so the move needs no invalidation.
     for (auto it = edit.removed.rbegin(); it != edit.removed.rend(); ++it) {
+        RemoveMappingIndexLocked(*it, true);
         mappings[*it] = mappings.back();
         mappings.pop_back();
     }
-    for (const auto& mapping : edit.added)
+    for (const auto& mapping : edit.added) {
         mappings.push_back(mapping);
+        IndexMappingLocked(mappings.size() - 1);
+    }
 }
 
 std::vector<MappingInfo> GuestAddressSpace::Mappings() const {
@@ -1795,7 +1840,7 @@ Status GuestAddressSpace::MapFreshData(GuestRange range, GuestPermission permiss
                     [&](const auto& e) { return RangesOverlap(e.range, range); }))
         return MakeError(ErrorCategory::Busy, name, "data range is pinned or retiring");
     // Allocate ledger capacity BEFORE mmap: failure must not leave untracked memory.
-    mappings.reserve(mappings.size() + 1);
+    ReserveMappingCapacityLocked(1);
     const int flags = MAP_FIXED | (fd >= 0 ? MAP_SHARED : MAP_PRIVATE | MAP_ANONYMOUS);
     if (SeamMmap(HostPointer(range.base), range.size, ToHostProtection(permission), flags,
                  fd, offset) == MAP_FAILED) {
@@ -1805,6 +1850,7 @@ Status GuestAddressSpace::MapFreshData(GuestRange range, GuestPermission permiss
         return error;
     }
     mappings.push_back({range, permission, ProtectionReason::GuestPermission, ++mapping_generation});
+    IndexMappingLocked(mappings.size() - 1);
     shared_backing_seen |= fd >= 0;
     return Ok();
 }
@@ -2073,6 +2119,13 @@ Status GuestAddressSpace::UpdateVmUnderToken(const QuiescenceToken& token, VmOpe
         updated.push_back(
             Mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation + 1});
 
+    std::vector<MappingIndexEntry> updated_index;
+    updated_index.reserve(updated.size());
+    for (std::size_t i = 0; i < updated.size(); ++i)
+        updated_index.push_back({updated[i].range.base.value, i});
+    std::sort(updated_index.begin(), updated_index.end(),
+        [](const auto& a, const auto& b) { return a.base < b.base; });
+
     // Full retirement also covers partial and differently placed shared backing aliases.
     // FEX walks its sparse compiled-page keys here, not every reserved host page.
     const GuestRange all{reservation_base, reservation_size};
@@ -2108,6 +2161,7 @@ Status GuestAddressSpace::UpdateVmUnderToken(const QuiescenceToken& token, VmOpe
         return error;
     }
     mappings.swap(updated);
+    mapping_index.swap(updated_index);
     shared_backing_seen |= operation == VmOperation::Map && fd >= 0;
     ++mapping_generation;
     return Ok();

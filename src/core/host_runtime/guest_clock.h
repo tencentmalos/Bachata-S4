@@ -7,6 +7,7 @@
 #include <time.h>
 #include "common/fex_tsc_scale.h"
 #include "common/native_clock.h"
+#include "core/host_runtime/guest_process_clock.h"
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/time.h"
 
@@ -18,6 +19,7 @@ public:
     Common::NativeClock ticks;
     const u64 origin = ticks.GetUptime();
     const Common::FexTscScale tsc_scale{ticks.GetTscFrequency()};
+    GuestProcessClock process{tsc_scale.ToGuest(origin)};
 
     // Only ticks exposed to the guest use FEX's scale. NativeClock still owns
     // raw host deadlines and all conversions to nanoseconds/microseconds.
@@ -25,7 +27,14 @@ public:
         return tsc_scale.ToGuest(ticks.GetUptime());
     }
     u64 GetProcessTimeCounter() const {
-        return tsc_scale.ToGuest(ticks.GetUptime() - origin);
+        return process.Read([this] { return ReadTsc(); });
+    }
+    u64 GetProcessTimeUS() const {
+        return static_cast<u64>(static_cast<__uint128_t>(GetProcessTimeCounter()) * 1'000'000 /
+                                GetTscFrequency());
+    }
+    void SetProcessPaused(bool paused) {
+        process.SetPaused(paused, [this] { return ReadTsc(); });
     }
     u64 GetTscFrequency() const {
         return tsc_scale.Frequency();
@@ -34,7 +43,7 @@ public:
     int Read(u32 id, Libraries::Kernel::OrbisKernelTimespec& out, bool resolution) const {
         using namespace Libraries::Kernel;
         if (id == ORBIS_CLOCK_PROCTIME) {
-            const u64 us = resolution ? 0 : ticks.GetTimeUS(origin);
+            const u64 us = resolution ? 0 : GetProcessTimeUS();
             out = {static_cast<s64>(us / 1000000),
                    resolution ? 1000 : static_cast<s64>(us % 1000000) * 1000};
             return 0;

@@ -9,6 +9,7 @@ data class ParamSfoMetadata(
     val subtitle: String? = null,
     val detail: String? = null,
     val attributes: Int? = null,
+    val saveTitleId: String? = null,
 ) {
     // Same ATTRIBUTE bits as Common::ElfInfo's PSFAttributes (14 / 26).
     val isPsvr: Boolean get() = ((attributes ?: 0) and ((1 shl 14) or (1 shl 26))) != 0
@@ -55,6 +56,7 @@ object ParamSfoReader {
         var subtitle: String? = null
         var detail: String? = null
         var attributes: Int? = null
+        var saveTitleId: String? = null
         for (i in 0 until count) {
             val entryPos = HEADER_SIZE + i * INDEX_ENTRY_SIZE
             if (entryPos + INDEX_ENTRY_SIZE > bytes.size) return ParamSfoMetadata(null, null)
@@ -82,9 +84,11 @@ object ParamSfoReader {
                 "TITLE_ID" -> titleId = value.ifBlank { null }
                 "SUBTITLE" -> subtitle = value.ifBlank { null }
                 "DETAIL" -> detail = value.ifBlank { null }
+                "INSTALL_DIR_SAVEDATA" -> saveTitleId = value.ifBlank { null }
             }
         }
-        return ParamSfoMetadata(title = title, titleId = titleId, subtitle = subtitle, detail = detail, attributes = attributes)
+        return ParamSfoMetadata(title = title, titleId = titleId, subtitle = subtitle, detail = detail,
+            attributes = attributes, saveTitleId = saveTitleId)
     }
 
     private fun readCString(bytes: ByteArray, start: Int, maxLen: Int = Int.MAX_VALUE): String? {

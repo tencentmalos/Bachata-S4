@@ -1,0 +1,20 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "gow4_android_log_arena_v1",
+  "title": "CUSA07413",
+  "module": "eboot.bin",
+  "module_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "executable_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "sources": [],
+  "hooks": [],
+  "patches": [
+    {
+      "name": "log_arena_address",
+      "offset": 841483,
+      "expected": "49be0000a0aafa000000",
+      "replacement": "49be0000aaaa0f000000",
+      "evidence": "Exact 01.36 ELF SHA90880b52: single MOVABS R14 initializes global +0x1e5f658, passed to checked FIXED MapNamedDirectMemory(size64KiB, name dbg::GameLog) and used by memset/Boot logger header. Original 0xfaaaa00000 is beyond Odin3 39-bit user VA; 0xfaaaa0000 is below the game PRT aperture start0x1000000000 and inside production owned envelope. No mapped pointer is rewritten; the game still allocates and maps the real backing. All other registers and flags unchanged. Candidate requires clean-session runtime validation."
+    }
+  ]
+}

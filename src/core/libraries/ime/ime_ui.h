@@ -12,6 +12,7 @@
 #include "common/types.h"
 
 #include "core/libraries/ime/ime_kb_layout.h"
+#include "core/libraries/ime/ime_pinyin_panel.h"
 #include "ime.h"
 
 namespace Libraries::Ime {
@@ -75,6 +76,7 @@ class ImeUi : public ImGui::Layer {
     const OrbisImeParamExtended* extended_param{};
     ImeStyleConfig style_config{};
 
+    Libraries::Ime::PinyinPanel pinyin;
     bool first_render = true;
     bool accept_armed = false;
     bool native_input_active = false;

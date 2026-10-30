@@ -12,7 +12,7 @@ operations never leave the guest. This is runtime code, not a per-game patch
   bounded spin, then block). libthr blocks through the kernel umtx
   "wait/wake by address"; here the same two primitives are HLE calls.
 - Lock word: the three-state futex protocol (0 free, 1 held, 2 held with
-  possible waiters) already validated on device by
+  possible waiters, with `UINT32_MAX` reserved for retired objects) validated on device by
   `tests/guest_cpu/compiled_guest` and used by Bionic's pthread_mutex.
 - Host primitives: expected-value wait / wake-on-address, the shape of Wine
   `RtlWaitOnAddress` (`src/core/host_runtime/guest_sync_waiters.h`).
@@ -31,13 +31,15 @@ operations never leave the guest. This is runtime code, not a per-game patch
 ## Protocol (guest and host identical)
 
 ```
-lock:   CAS(state 0->1) ? owner=self,count=1 : (owner==self ? recursive/EDEADLK/deadlock
-        : spin `spins` : while (xchg(state,2) != 0) wait(&state, 2)) ; owner=self,count=1
+lock:   CAS(state 0->1) ? owner=self,count=1 : (destroyed ? HLE EINVAL
+        : owner==self ? recursive/EDEADLK/deadlock : spin `spins`
+        : CAS live state -> 2, retry races, wait if previously held) ; owner=self,count=1
 unlock: owner!=self ? EPERM : count>1 ? --count : count=0,owner=0, xchg(state,0)==2 ? wake(&state,1)
+destroy: refuse held/waited-on objects; CAS 0->destroyed, retire identity, slot=2
 ```
 
 `self` is `fs:[0x10]` (`Tcb::tcb_thread`, the runtime thread handle, also what
-`pthread_self` returns). Slot values outside the arena window (0/1 static
+`pthread_self` returns). Slot values outside all arena windows (0/1 static
 initializers and 2 destroyed always are) take the HLE fallback imports, which
 initialize lazily or report EINVAL exactly as before. The window is not a
 compile-time address: the host reserves 256 MiB (`GuestSyncObjects`,
@@ -46,8 +48,22 @@ compile-time address: the host reserves 256 MiB (`GuestSyncObjects`,
 `shad_sync_window` table before the image becomes executable. A payload that
 hard-coded the window went inert when the service base moved from 64 GiB to
 112 GiB (every mutex silently returned to HLE, ~2600 lock/unlock crossings per
-frame in Bloodborne); `hle_sync status` reports `installed_no_arena_window` if
-the reservation failed.
+frame in Bloodborne).
+
+`GuestSyncWindows` grows beyond that first window as needed. Each extension has
+an immutable `{next, base, limit}` record in its first 16 KiB block, outside the
+object range. A separate RW directory has independent mutex/rwlock heads; the
+host release-publishes a head before it can return an object in that window,
+and the guest acquire-loads it after missing the initial-window test. RX code
+and import tables remain unchanged. Smaller allocations are retried down to
+32 KiB if a preferred 256 MiB extension cannot fit. Failure leaves the directory
+unchanged and returns ENOMEM; the next allocation can retry normally.
+
+There is no fixed window-count or lifetime-object quota. Addresses and range
+nodes remain unique and mapped until session teardown, including retired
+objects, so old handles cannot resolve to new locks. The destroyed word also
+rejects copied handles that still point into a valid arena window. Both host
+and guest contended acquisition use CAS instead of overwriting that tombstone.
 
 ## Loading
 
@@ -65,9 +81,10 @@ near the HLE veneers, and points the eight game-visible symbol names (both
 spellings. UE4 read-locks its pipeline-state cache once per draw (KH3 render
 thread: ~19k rdlock/unlock pairs a second, all through HLE before).
 
-- Objects live in a second 256 MiB window (`GuestRwlockObjects`, window table
+- Objects initially live in a second 256 MiB window (`GuestRwlockObjects`, window table
   slots 5/6) so neither fast path ever takes the other kind of object.
-  Attribute objects stay outside it.
+  Its extensions use the rwlock head in the same directory, separate from mutex
+  windows. Attribute objects stay outside them.
 - Prefix (`SHAD_SYNC_RW_*`): u32 word (bit 31 write-locked, bit 30 parked
   writers, bit 29 parked readers, bits 0..28 the number of (thread, lock) read
   holds), u32 type (0/1/2), u64 write owner (`fs:[0x10]`).

@@ -17,6 +17,7 @@
 #include <thread>
 #include "common/fex_tsc_scale.h"
 #include "common/native_clock.h"
+#include "core/host_runtime/guest_process_clock.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/hle/call_adapter.h"
 #include "core/guest_cpu/hle/scope.h"
@@ -86,6 +87,7 @@ struct Harness {
     std::unique_ptr<GuestSyncArena> arena;
     std::unique_ptr<GuestMutexDomain> domain;
     std::unique_ptr<GuestSyncArena> rw_arena;
+    std::unique_ptr<GuestSyncWindows> windows, rw_windows;
     std::unique_ptr<GuestRwlockDomain> rw;
     uint64_t base{}, code{}, data{}, tcb{}, stacks{}, handles_block{}, keys{}, arena_next{},
         rw_next{};
@@ -93,6 +95,7 @@ struct Harness {
     Common::NativeClock host_clock;
     const uint64_t clock_origin = host_clock.GetUptime();
     const Common::FexTscScale tsc_scale{host_clock.GetTscFrequency()};
+    GuestProcessClock process_clock{tsc_scale.ToGuest(clock_origin)};
     std::array<std::shared_ptr<Import>, ShadSyncImportCount> imports;
     std::array<uint64_t, ShadSyncImportCount> veneers{};
     std::mutex handles_mutex;
@@ -104,7 +107,7 @@ struct Harness {
             if (name == s.name) return s.offset;
         throw std::runtime_error("payload symbol missing: " + std::string(name));
     }
-    Harness() {
+    Harness(bool small_windows = false) {
         AddressSpaceConfig cfg{};
         // Place the reservation so the arena window [kArenaBase, kArenaLimit)
         // lies inside it: the payload only takes its fast path for objects
@@ -134,22 +137,29 @@ struct Harness {
         if (sizeof(SyncFastPathGuest::Image) > 0x4000)
             throw std::runtime_error("payload image too large");
         cpu = Must(CreateContext({}, *space));
-        arena = std::make_unique<GuestSyncArena>([this] {
-            const auto block = arena_next;
-            arena_next += GuestSyncArena::BlockSize;
-            Must(space->Map({GuestAddress{block}, GuestSyncArena::BlockSize},
-                            GuestPermission::Read | GuestPermission::Write));
-            return block;
-        });
+        const auto initial_size = small_windows ? GuestSyncArena::BlockSize : SHAD_SYNC_ARENA_WINDOW_SIZE;
+        const auto preferred_size = small_windows ? 0x10000ull : SHAD_SYNC_ARENA_WINDOW_SIZE;
+        Must(space->Map({{kArenaBase}, initial_size}, GuestPermission::Read | GuestPermission::Write));
+        arena_next = kArenaBase + 0x1000000;
+        windows = std::make_unique<GuestSyncWindows>([this, small_windows](u64 size) {
+            if (small_windows && size > 0x8000) return u64{0}; // fragmentation: retry smaller
+            const auto region = arena_next;
+            Must(space->MapFreshData({{region}, size}, GuestPermission::Read | GuestPermission::Write));
+            arena_next += size + 0x4000; // leave a gap: ranges need not be adjacent
+            return region;
+        }, kArenaBase, kArenaBase + initial_size, preferred_size);
+        arena = std::make_unique<GuestSyncArena>([this] { return windows->AllocateBlock(); });
         domain = std::make_unique<GuestMutexDomain>(*space, [this] { return arena->Allocate(); });
-        rw_next = kRwBase;
-        rw_arena = std::make_unique<GuestSyncArena>([this] {
-            const auto block = rw_next;
-            rw_next += GuestSyncArena::BlockSize;
-            Must(space->Map({GuestAddress{block}, GuestSyncArena::BlockSize},
-                            GuestPermission::Read | GuestPermission::Write));
-            return block;
-        });
+        Must(space->Map({{kRwBase}, initial_size}, GuestPermission::Read | GuestPermission::Write));
+        rw_next = kRwBase + 0x1000000;
+        rw_windows = std::make_unique<GuestSyncWindows>([this, small_windows](u64 size) {
+            if (small_windows && size > 0x8000) return u64{0};
+            const auto region = rw_next;
+            Must(space->MapFreshData({{region}, size}, GuestPermission::Read | GuestPermission::Write));
+            rw_next += size + 0x4000;
+            return region;
+        }, kRwBase, kRwBase + initial_size, preferred_size);
+        rw_arena = std::make_unique<GuestSyncArena>([this] { return rw_windows->AllocateBlock(); });
         // Rwlock waits park on the mutex domain's waiters: the instance behind the wake
         // import, as in the runtime.
         rw = std::make_unique<GuestRwlockDomain>(*space, [this] { return rw_arena->Allocate(); },
@@ -170,10 +180,17 @@ struct Harness {
         for (unsigned i = 0; i < ShadSyncImportCount; ++i)
             std::memcpy(image.data() + table + 8 * i, &veneers[i], 8);
         const auto window = Offset(SHAD_SYNC_WINDOW_TABLE);
+        const auto process_clock_va = data + 0x3000;
+        process_clock.Bind(reinterpret_cast<ShadProcessClock*>(process_clock_va));
+        const auto directory_va = process_clock_va + 0x100;
+        auto* directory = reinterpret_cast<ShadSyncArenaDirectory*>(directory_va);
+        windows->BindDirectory(&directory->mutex_head);
+        rw_windows->BindDirectory(&directory->rwlock_head);
         // Clock slots exactly as GuestRuntime::InstallSyncFastPath fills them.
-        const uint64_t bounds[ShadSyncWindowCount] = {kArenaBase, kArenaLimit, keys,
+        const uint64_t bounds[ShadSyncWindowCount] = {kArenaBase, kArenaBase + initial_size, keys,
                                                       tsc_scale.ToGuest(clock_origin),
-                                                      tsc_scale.Frequency(), kRwBase, kRwLimit};
+                                                      tsc_scale.Frequency(), kRwBase, kRwBase + initial_size,
+                                                      process_clock_va, directory_va};
         for (unsigned i = 0; i < ShadSyncWindowCount; ++i)
             std::memcpy(image.data() + window + 8 * i, &bounds[i], 8);
         Must(space->Write(GuestAddress{code}, image));
@@ -314,6 +331,75 @@ Status Import::Invoke(HleCallFrame& frame) const {
 
 int main() {
     try {
+        {
+            Harness h(true); // 64 objects in each window; larger extensions deliberately fail
+            auto& d = *h.domain;
+            std::vector<u64> objects, rw_objects;
+            for (unsigned i = 0; i < 256; ++i) {
+                h.Put<u64>(h.Slot(0), 0);
+                h.Put<u64>(h.RwSlot(0), 0);
+                if (d.Init(h.Slot(0), 0) || h.rw->Init(h.RwSlot(0), 0))
+                    throw std::runtime_error("growing arena init failed");
+                objects.push_back(h.Read<u64>(h.Slot(0)));
+                rw_objects.push_back(h.Read<u64>(h.RwSlot(0)));
+            }
+            const auto before = h.HleCalls();
+            bool good = true;
+            for (unsigned i : {0u, 64u, 128u, 255u}) {
+                h.Put(h.Slot(0), objects[i]);
+                h.Request(0, ModePosixLoop, 1000);
+                good &= h.Run(0).return_value == 0;
+                h.Put(h.RwSlot(0), rw_objects[i]);
+                h.RwRequest(0, ModeRwWriteLoop, 1000);
+                good &= h.Run(0).return_value == 0;
+            }
+            Check("old and new mutex/rw windows retain zero-HLE fast paths after fragmented growth",
+                  good && h.HleCalls() == before && objects[64] >= kArenaBase + 0x1000000 &&
+                  objects[128] - objects[64] == 0xc000);
+
+            // Growth while another FEX owner uses a previously published extension.
+            h.Put(h.Slot(0), objects[64]);
+            h.Put<u64>(h.Counter(0), 0);
+            h.Request(0, ModePosixLoop, 100000);
+            std::barrier ready(2);
+            auto running = std::async(std::launch::async, [&] { return h.Run(0, &ready); });
+            ready.arrive_and_wait();
+            for (unsigned i = 0; i < 192; ++i) {
+                h.Put<u64>(h.Slot(1), 0);
+                if (d.Init(h.Slot(1), 0)) throw std::runtime_error("concurrent growth failed");
+            }
+            Check("publishing more windows preserves an executing owner's old range",
+                  h.Join(running).return_value == 0 && h.Read<u64>(h.Counter(0)) == 100000 &&
+                  h.HleCalls() == before);
+
+            h.Put(h.Slot(0), rw_objects[64]);
+            h.Request(0, ModeTrylock, 0);
+            Check("mutex directory rejects an extended rwlock object", h.Run(0).return_value == POSIX_EINVAL);
+            h.Put(h.RwSlot(0), objects[64]);
+            h.RwRequest(0, ModeRwTryRead, 0);
+            Check("rwlock directory rejects an extended mutex object", h.Run(0).return_value == POSIX_EINVAL);
+            for (const auto invalid : {objects[64] + 1, objects[64] - GuestSyncArena::BlockSize,
+                                       objects[64] + GuestSyncArena::BlockSize}) {
+                h.Put(h.Slot(0), invalid);
+                h.Request(0, ModeTrylock, 0);
+                Check("unaligned pointers, range metadata and gaps fall back safely",
+                      h.Run(0).return_value == POSIX_EINVAL);
+            }
+            for (unsigned i : {0u, 64u}) {
+                h.Put(h.Slot(0), objects[i]);
+                Check("retire primary/extended mutex", d.Destroy(h.Slot(0)) == 0);
+                h.Put(h.Slot(1), objects[i]); // stale copied handle, not the slot changed to 2
+                for (const auto mode : {ModeLock, ModeTrylock, ModeUnlock}) {
+                    h.Request(0, mode, 0, 1);
+                    Check("stale copied handle cannot acquire or revive a retired prefix",
+                          h.Run(0).return_value == POSIX_EINVAL &&
+                          h.Read<u32>(objects[i] + SHAD_SYNC_MUTEX_STATE) == SHAD_SYNC_STATE_DESTROYED);
+                }
+                h.Put<u64>(h.Slot(0), 0);
+                Check("recreated mutex never reuses the retired address",
+                      d.Init(h.Slot(0), 0) == 0 && h.Read<u64>(h.Slot(0)) != objects[i]);
+            }
+        }
         Harness h;
         auto& d = *h.domain;
         std::printf("payload image=%zu entry=%llu code=%llx arena=%llx\n",
@@ -378,7 +464,10 @@ int main() {
         h.Request(0, ModeLock, 0);
         const auto waits = h.imports[ShadSyncImportWait]->calls.load();
         auto guest_waiter = std::async(std::launch::async, [&] { return h.Run(0); });
-        while (h.imports[ShadSyncImportWait]->calls == waits && std::chrono::steady_clock::now() < until + 3s)
+        // Entering the HLE increments calls before it registers the parked waiter. Observe
+        // the actual wait too; checking it immediately after the counter races the producer.
+        while ((h.imports[ShadSyncImportWait]->calls == waits || d.PendingWaits(h.Slot(0)) == 0) &&
+               std::chrono::steady_clock::now() < until + 3s)
             std::this_thread::yield();
         Check("guest contender parks on the host-held word", h.imports[ShadSyncImportWait]->calls > waits &&
                                                               d.PendingWaits(h.Slot(0)) == 1);
@@ -474,8 +563,8 @@ int main() {
                 h.Request(0, mode, 0);
                 return h.Run(0).return_value;
             };
-            const auto host_process = [&] { return h.tsc_scale.ToGuest(h.host_clock.GetUptime() - h.clock_origin); };
             const auto host_tsc = [&] { return h.tsc_scale.ToGuest(h.host_clock.GetUptime()); };
+            const auto host_process = [&] { return h.process_clock.Read(host_tsc); };
             bool process_ok = true, tsc_ok = true;
             for (int i = 0; i < 200; ++i) {
                 const auto lo = host_process();
@@ -491,6 +580,17 @@ int main() {
             Check("guest rdtsc lies between host ReadTsc reads (200 samples)", tsc_ok);
             Check("TSC frequency is the scaled host frequency",
                   call(ModeTscFrequency) == h.tsc_scale.Frequency());
+            h.process_clock.SetPaused(true, host_tsc);
+            const auto held = host_process();
+            std::this_thread::sleep_for(20ms);
+            Check("guest leaf process clock is frozen at exactly the HLE value",
+                  call(ModeProcessTime) == held && host_process() == held);
+            h.process_clock.SetPaused(false, host_tsc);
+            const auto resumed_lo = host_process();
+            const auto resumed = call(ModeProcessTime);
+            Check("resumed guest leaf matches HLE and excludes the 20 ms pause",
+                  resumed_lo <= resumed && resumed <= host_process() &&
+                  resumed - held < h.tsc_scale.Frequency() / 100);
             Check("leaf paths made no HLE call", h.HleCalls() == before);
         }
 

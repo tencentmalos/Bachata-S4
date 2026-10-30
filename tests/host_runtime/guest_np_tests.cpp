@@ -378,6 +378,37 @@ int main() {
         CHECK(!AdmitsNpTusOffline(nid, "#libkernel#1#libkernel#Function", true));
     }
     using namespace Libraries::Np::NpTus;
+    for (auto nid : {"q3M7XzBKC3s", "JT+t00a3TxA"}) {
+        reset();
+        CHECK(call(nid, 1000) == offline);
+        CHECK(call(nid, 1002) == u32(ORBIS_NP_ERROR_USER_NOT_FOUND));
+        CHECK(call(nid, invalid_user) == bad);
+        unchanged();
+    }
+    reset();
+    CHECK(current.Dispatch(*space, "8VBTeRf1ZwI", {base, output}) == u32(ORBIS_NP_ERROR_USER_NOT_FOUND));
+    CHECK(current.Dispatch(*space, "Ghz9iWDUtC4", {base, output}) == u32(ORBIS_NP_ERROR_USER_NOT_FOUND));
+    unchanged();
+    CHECK(DispatchNpTusOffline("6GKDdRCFx8c", {700, 96}, 0) == u32(sceNpTusSetThreadParam()));
+    CHECK(DispatchNpTusOffline("KMlHj+tgfdQ", {}, 0) == u32(sceNpTusSetTimeout()));
+    auto tss = [&](u64 status, u64 size, int slot, u64 opt = 0) {
+        return DispatchNpTssGetDataOffline(*space, {1, u32(slot), status, size, output, 64}, opt);
+    };
+    reset();
+    CHECK(tss(0, 24, 0) == u32(ORBIS_NP_COMMUNITY_ERROR_INSUFFICIENT_ARGUMENT));
+    CHECK(tss(output, 23, 0) == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ALIGNMENT));
+    CHECK(tss(output, 24, -1) == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ARGUMENT));
+    CHECK(tss(output, 24, 16) == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ARGUMENT));
+    CHECK(tss(output, 24, 0) == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ID));
+    CHECK(tss(output, 24, 0, 1) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+    std::array<u64,4> tssOptions{32, 0, 0, 0};
+    CHECK(space->WriteData({base}, std::as_bytes(std::span{tssOptions})));
+    CHECK(tss(output, 24, 0, base) == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ID));
+    tssOptions[1] = UINT64_MAX - 3;
+    CHECK(space->WriteData({base}, std::as_bytes(std::span{tssOptions})));
+    CHECK(tss(output, 24, 0, base) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+    unchanged();
+
     for (const s32 sdk : {-1, s32(Common::ElfInfo::FW_400), s32(Common::ElfInfo::FW_900)}) {
         for (const s32 user : {-1, 0, 1000}) {
             for (const u32 label : {0U, UINT32_MAX}) {
@@ -408,7 +439,7 @@ int main() {
         }
         unchanged();
     }
-    for (const auto nid : {"sRVb2Cf0GHg", "6GKDdRCFx8c", "KMlHj+tgfdQ", "-SUR+UoLS6c"})
+    for (const auto nid : {"sRVb2Cf0GHg"})
         CHECK(!IsNpTusOfflineNid(nid));
     {
         using namespace Libraries::Np::NpAuth;

@@ -12,12 +12,70 @@ import os
 from pathlib import Path
 import platform
 import shutil
+import struct
 import subprocess
 import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 LOCK = ROOT / "runtime/locks/turnip-bionic-mainline.json"
+
+
+def driver_dependencies(library):
+    """Check the actual ELF, including on Windows packaging hosts without readelf.
+
+    Vulkan is a C ABI boundary. The ICD must carry its own hidden C++ runtime;
+    the app's shared runtime is not guaranteed visible in the driver namespace.
+    Read PT_DYNAMIC rather than strings/section names (release ELFs may be stripped).
+    """
+    def region(offset, size):
+        if offset < 0 or size < 0 or offset + size > len(library):
+            raise ValueError("Turnip ELF has an out-of-file range")
+        return library[offset:offset + size]
+
+    header = region(0, 64)
+    if header[:7] != b"\x7fELF\x02\x01\x01" or struct.unpack_from("<HH", header, 16) != (3, 183):
+        raise ValueError("Turnip must be an ELF64 little-endian AArch64 shared library")
+    phoff = struct.unpack_from("<Q", header, 32)[0]
+    phsize, phcount = struct.unpack_from("<HH", header, 54)
+    if phsize != 56 or not phcount or phcount == 0xffff:
+        raise ValueError("Turnip ELF has an invalid program-header table")
+    headers = [struct.unpack("<IIQQQQQQ", region(phoff + i * phsize, phsize))
+               for i in range(phcount)]
+    dynamic = [p for p in headers if p[0] == 2]
+    if len(dynamic) != 1 or dynamic[0][5] % 16:
+        raise ValueError("Turnip ELF needs one complete PT_DYNAMIC table")
+    table = region(dynamic[0][2], dynamic[0][5])
+    tags = {}
+    for tag, value in struct.iter_unpack("<qQ", table):
+        if tag == 0:
+            break
+        tags.setdefault(tag, []).append(value)
+    else:
+        raise ValueError("Turnip ELF has an unterminated dynamic table")
+    if len(tags.get(5, [])) != 1 or len(tags.get(10, [])) != 1:
+        raise ValueError("Turnip ELF has no unique dynamic string table")
+    address, size = tags[5][0], tags[10][0]
+    loads = [p for p in headers if p[0] == 1 and p[3] <= address and
+             address + size <= p[3] + p[5]]
+    if len(loads) != 1 or not size:
+        raise ValueError("Turnip ELF dynamic strings are not file-backed")
+    strings = region(loads[0][2] + address - loads[0][3], size)
+    needed = []
+    for offset in tags.get(1, []):
+        end = strings.find(b"\0", offset)
+        if offset >= size or end <= offset:
+            raise ValueError("Turnip ELF has an invalid DT_NEEDED string")
+        needed.append(strings[offset:end].decode("ascii"))
+    # Inspect bytes, not identity.json: old same-source prebuilts used the NDK
+    # default shared STL and must be rebuilt even when Mesa itself is unchanged.
+    runtimes = {"libc++_shared.so", "libc++.so", "libc++abi.so", "libunwind.so",
+                "libgnustl_shared.so", "libstdc++.so", "libstdc++.so.6", "libgcc_s.so.1"}
+    rejected = sorted(set(needed) & runtimes)
+    if rejected:
+        raise ValueError("Turnip depends on a dynamic C++ runtime: " + ", ".join(rejected) +
+                         "; rebuild with the static, hidden C++ runtime recipe")
+    return sorted(set(needed))
 
 
 def sha(data):
@@ -81,6 +139,7 @@ def checked_output(directory):
     identity = json.loads((directory / "identity.json").read_text())
     if digest(directory / identity["library"]) != identity["library_sha256"]:
         raise ValueError("Built Turnip ELF does not match its identity")
+    driver_dependencies((directory / identity["library"]).read_bytes())
     if identity.get("prebuilt"):
         expected = prebuilt_identity(identity["prebuilt_lock"])[1]["source_identity_sha256"]
         if expected != identity["source_identity_sha256"]:
@@ -105,9 +164,9 @@ def prebuilt(args):
         library = source.read(lock["library"])
     if sha(library) != lock["library_sha256"]:
         raise ValueError("Turnip ELF SHA256 mismatch")
-    if library[:5] != b"\x7fELF\x02" or int.from_bytes(library[18:20], "little") != 183:
-        raise ValueError("Turnip output is not ELF64 AArch64")
-    identity = {**lock, **state, "prebuilt": True}
+    needed = driver_dependencies(library)
+    identity = {**lock, **state, "prebuilt": True, "needed": needed,
+                "cxx_runtime": "static-hidden"}
     write(args.out / lock["library"], library)
     write(args.out / "source.patch", b"")
     json_write(args.out / "identity.json", identity)
@@ -135,14 +194,21 @@ def same_source_prebuilt(args, directory):
     library = (directory / original["library"]).read_bytes()
     if sha(library) != original["library_sha256"]:
         raise ValueError("Prebuilt Turnip ELF does not match its identity")
+    needed = driver_dependencies(library)
     if state["source_dirty"] or original["untracked_files"]:
         raise ValueError("Prebuilt Turnip needs a clean Mesa tree and a prebuilt without untracked files")
     tree_diff = subprocess.check_output(["git", "-C", str(source), "diff", "--binary",
                                          original["source_commit"], "HEAD"])
     if sha(tree_diff) != original["source_diff_sha256"]:
         raise ValueError("Mesa HEAD differs from the prebuilt Turnip source; rebuild on Linux/macOS")
-    identity = {**original, **state, "library_sha256": sha(library),
+    identity = {**original, **state, "library_sha256": sha(library), "needed": needed,
+                "cxx_runtime": "static-hidden",
                 "prebuilt_source_identity_sha256": original["source_identity_sha256"]}
+    identity.pop("libcxx_sha256", None)
+    # Keep the producer's static-runtime notices when reusing its binary on
+    # Windows or another host without the producer's NDK installation.
+    if (directory / "licenses").resolve() != (args.out / "licenses").resolve():
+        shutil.copytree(directory / "licenses", args.out / "licenses", dirs_exist_ok=True)
     write(args.out / lock["library"], library)
     write(args.out / "source.patch", patch)
     json_write(args.out / "identity.json", identity)
@@ -191,6 +257,9 @@ def build(args):
         if not meson or not shutil.which("ninja"):
             raise ValueError("Install Meson, Ninja and Mesa's Python dependencies (Mako, PyYAML, packaging)")
         environment = os.environ.copy()
+        # Mesa also executes #!/usr/bin/env python3 generators directly. Use the
+        # selected Meson's environment so its Mako/PyYAML dependencies apply.
+        environment["PATH"] = str(Path(meson).resolve().parent) + os.pathsep + environment["PATH"]
         if platform.system() == "Darwin":
             brew_bins = [Path(prefix) / "opt" / package / "bin"
                          for prefix in ("/opt/homebrew", "/usr/local")
@@ -210,7 +279,11 @@ def build(args):
                    "-Dandroid-libbacktrace=disabled", f"-Dplatform-sdk-version={api}",
                    "-Dvulkan-drivers=freedreno", "-Dfreedreno-kmds=kgsl", "-Dgallium-drivers=",
                    "-Degl=disabled", "-Dgles1=disabled", "-Dgles2=disabled", "-Dopengl=false",
-                   "-Dllvm=disabled", "-Dbuild-tests=false", "-Dzstd=disabled"]
+                   "-Dllvm=disabled", "-Dbuild-tests=false", "-Dzstd=disabled",
+                   # Pass this explicitly so an existing shared-STL Meson build
+                   # changes too; cross-file defaults alone do not override it.
+                   "-Dcpp_link_args=['-static-libstdc++', "
+                   "'-Wl,--exclude-libs,libc++_static.a:libc++abi.a:libunwind.a']"]
         configuration = {"source": str(source), "ndk": str(ndk), "options": options,
                          "recipe": digest(__file__), "bison": bison,
                          "flex": shutil.which("flex", path=environment["PATH"]), "meson": meson}
@@ -228,10 +301,11 @@ def build(args):
         if source_identity()[2] != state:
             raise ValueError("Mesa source changed during compilation; rebuild required")
         library = (native / "src/freedreno/vulkan/libvulkan_freedreno.so").read_bytes()
-        if library[:5] != b"\x7fELF\x02" or int.from_bytes(library[18:20], "little") != 183:
-            raise ValueError("Turnip output is not ELF64 AArch64")
+        needed = driver_dependencies(library)
         identity = {**lock, **state, "library_sha256": sha(library),
-                    "libcxx_sha256": digest(toolchain / "sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"),
+                    "cxx_runtime": "static-hidden", "needed": needed,
+                    "libcxx_static_sha256": digest(toolchain / "sysroot/usr/lib/aarch64-linux-android/libc++_static.a"),
+                    "libcxxabi_sha256": digest(toolchain / "sysroot/usr/lib/aarch64-linux-android/libc++abi.a"),
                     "build_options": options}
         write(args.out / lock["library"], library)
         write(args.out / "source.patch", patch)
@@ -241,6 +315,7 @@ def build(args):
                   f'inline constexpr char Source[] = "{state["source_identity_sha256"]}";\n}}\n')
         write(args.out / "turnip_identity.h", header.encode())
         write(args.out / "licenses/Mesa-license.rst", (source / "docs/license.rst").read_bytes())
+        write(args.out / "licenses/NDK-toolchain-NOTICE", (ndk / "NOTICE.toolchain").read_bytes())
         for path in (source / "licenses").rglob("*"):
             if path.is_file():
                 write(args.out / "licenses/Mesa" / path.relative_to(source / "licenses"), path.read_bytes())

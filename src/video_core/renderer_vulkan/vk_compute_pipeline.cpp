@@ -116,6 +116,8 @@ ComputePipeline::ComputePipeline(const Instance& instance, Scheduler& scheduler,
     s.probe.emplace(1);
     s.create_info = {
         .pNext = s.probe->Chain(nullptr),
+        .flags = info->uses_ordered_count ? vk::PipelineCreateFlagBits::eDispatchBase
+                                         : vk::PipelineCreateFlags{},
         .stage =
             {
                 .pNext = instance.IsSubgroupSize64Supported() ? &s.subgroup_size_ci : nullptr,

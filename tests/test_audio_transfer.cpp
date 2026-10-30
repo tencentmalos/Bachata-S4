@@ -27,6 +27,34 @@ std::array<float, 8> Surround(const AudioFormatInfo& format, const void* input,
 
 } // namespace
 
+TEST(AudioTransfer, SignalSampleDistinguishesChannelsSilenceAndNonfinite) {
+    std::array<float, 16> input{};
+    input[0] = 0.5f;
+    input[8] = -0.5f;
+    input[6] = 1.0f; // Std layout: logical LS
+    input[2] = std::numeric_limits<float>::quiet_NaN();
+    input[10] = std::numeric_limits<float>::infinity();
+    const auto signal = SampleAudioSignal(Float8Std, 2, input.data());
+    EXPECT_EQ(signal.peak[0], 0.5f);
+    EXPECT_EQ(signal.rms[0], 0.5f);
+    EXPECT_EQ(signal.peak[4], 1.0f);
+    EXPECT_NEAR(signal.rms[4], std::sqrt(0.5f), 1e-6f);
+    EXPECT_EQ(signal.nonfinite[2], 2);
+    EXPECT_EQ(signal.rms[2], 0.0f);
+    EXPECT_EQ(signal.peak[1], 0.0f);
+}
+
+TEST(AudioTransfer, SignalSampleSupportsUnalignedS16) {
+    std::array<s16, 8> input{16384, -32768, 0, 0, 0, 0, 0, 8192};
+    std::array<u8, sizeof(input) + 1> unaligned{};
+    std::memcpy(unaligned.data() + 1, input.data(), sizeof(input));
+    const auto signal = SampleAudioSignal(S16_8, 1, unaligned.data() + 1);
+    EXPECT_EQ(signal.peak[0], 0.5f);
+    EXPECT_EQ(signal.rms[1], 1.0f);
+    EXPECT_EQ(signal.rms[7], 0.25f);
+    EXPECT_EQ(signal.nonfinite[1], 0);
+}
+
 // PS4 8ch order is L R C LFE Ls Rs Le Re; the device gets FL FR FC LFE BL BR SL SR.
 TEST(AudioTransfer, Surround71MapsGuestChannelsToWaveOrder) {
     constexpr std::array<int, 8> wave_index_of_guest = {0, 1, 2, 3, 6, 7, 4, 5};

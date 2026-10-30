@@ -335,6 +335,9 @@ public:
     void dispatchIndirect(vk::Buffer b, vk::DeviceSize o) const {
         Emit([=](vk::CommandBuffer c) { c.dispatchIndirect(b, o); });
     }
+    void dispatchBase(u32 bx, u32 by, u32 bz, u32 x, u32 y, u32 z) const {
+        Emit([=](vk::CommandBuffer c) { c.dispatchBase(bx, by, bz, x, y, z); });
+    }
     void bindIndexBuffer(vk::Buffer b, vk::DeviceSize o, vk::IndexType t) const {
         Emit([=](vk::CommandBuffer c) { c.bindIndexBuffer(b, o, t); });
     }

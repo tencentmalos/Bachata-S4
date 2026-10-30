@@ -89,10 +89,12 @@ private:
     std::function<u64()> allocate;
 
     std::mutex guard;
-    std::map<u64, Mutex*> mutexes;
     // Retain published identities until owners join at Session teardown. Bucket
     // chains are immutable; lookup never takes the registry lock and has no
-    // fixed population ceiling. Retired addresses cannot acquire a new object.
+    // fixed population ceiling. The retired flag also supplies live-membership
+    // checks under guard; a second tree would allocate/free one extra node for
+    // every mutex in the game's object-creation and destruction bursts.
+    // Retired addresses cannot acquire a new object through their old handle.
     std::vector<std::unique_ptr<Mutex>> mutex_storage;
     static constexpr size_t DirectorySize = 8192;
     std::array<std::atomic<Mutex*>, DirectorySize> mutex_directory{};
@@ -108,6 +110,10 @@ private:
         for (; state; state = state->directory_next)
             if (state->address == address) return state;
         return nullptr;
+    }
+    Mutex* LookupLiveMutex(u64 address) const {
+        auto* state = LookupMutex(address);
+        return state && !state->retired.load(std::memory_order_acquire) ? state : nullptr;
     }
     void PublishMutex(Mutex* state) {
         // Creation is serialized, readers only traverse fully initialized nodes.
@@ -193,8 +199,12 @@ private:
         for (;;) {
             {
                 auto o = Open(m);
-                if (o.State().exchange(SHAD_SYNC_STATE_CONTENDED, std::memory_order_acquire) ==
-                    SHAD_SYNC_STATE_FREE) {
+                u32 previous = o.State().load(std::memory_order_relaxed);
+                if (previous == SHAD_SYNC_STATE_DESTROYED) return POSIX_EINVAL;
+                if (!o.State().compare_exchange_strong(previous, SHAD_SYNC_STATE_CONTENDED,
+                                                       std::memory_order_acquire))
+                    continue;
+                if (previous == SHAD_SYNC_STATE_FREE) {
                     o.prefix->owner = owner;
                     o.prefix->count = 1;
                     return Confirm(m, o) ? 0 : POSIX_EINVAL;
@@ -236,7 +246,6 @@ private:
         state->protocol = protocol;
         auto* published = state.get();
         mutex_storage.push_back(std::move(state));
-        mutexes.emplace(addr, published);
         PublishMutex(published);
         Write(slot, addr);
         return 0;
@@ -312,7 +321,7 @@ public:
                 return POSIX_EINVAL;
             value = it->second;
         }
-        if (mutexes.contains(Read<u64>(slot)))
+        if (LookupLiveMutex(Read<u64>(slot)))
             return POSIX_EBUSY;
         return Create(slot, value.type, value.protocol);
     }
@@ -383,6 +392,7 @@ public:
                 o.prefix->count = 1;
                 return Confirm(m, o) ? 0 : POSIX_EINVAL;
             }
+            if (expected == SHAD_SYNC_STATE_DESTROYED) return POSIX_EINVAL;
             if (o.prefix->owner == owner) {
                 // Same order as the guest payload: recursive depth, try, error.
                 if (m.type == SHAD_SYNC_TYPE_RECURSIVE) {
@@ -422,26 +432,32 @@ public:
         std::lock_guard registry(guard);
         const auto addr = Read<u64>(slot);
         if (addr < 2) return 0;
-        auto it = mutexes.find(addr);
-        if (it == mutexes.end()) return POSIX_EINVAL;
-        auto state = it->second;
+        auto* state = LookupLiveMutex(addr);
+        if (!state) return POSIX_EINVAL;
+        if (!Writable(slot, 8)) return POSIX_EFAULT;
         state->retiring.store(true, std::memory_order_release);
         bool busy{};
         {
             auto o = Open(*state);
-            busy = o.prefix->owner ||
-                   o.State().load(std::memory_order_acquire) != SHAD_SYNC_STATE_FREE ||
+            busy = o.State().load(std::memory_order_acquire) != SHAD_SYNC_STATE_FREE ||
                    state->cond_waiters.load(std::memory_order_acquire) ||
                    waiters.Pending(StateAddress(*state));
+            // A copied guest handle can still name this prefix after its slot
+            // becomes 2. Claim the free word before retiring; guest/host lock
+            // contenders must never turn the tombstone back into a live lock.
+            if (!busy) {
+                u32 expected = SHAD_SYNC_STATE_FREE;
+                busy = !o.State().compare_exchange_strong(expected, SHAD_SYNC_STATE_DESTROYED,
+                                                           std::memory_order_acq_rel);
+            }
         }
-        if (busy || !Writable(slot, 8)) {
+        if (busy) {
             state->retiring.store(false, std::memory_order_release);
-            return busy ? POSIX_EBUSY : POSIX_EFAULT;
+            return POSIX_EBUSY;
         }
         state->retired.store(true, std::memory_order_release);
         state->retiring.store(false, std::memory_order_release);
         Write(slot, u64{2});
-        mutexes.erase(it);
         return 0;
     }
     enum class CondAttrOp { Init, Destroy, GetClock, SetClock, GetShared, SetShared };
@@ -585,10 +601,10 @@ public:
                 addr = Read<u64>(slot);
             }
             auto c = conditions.find(addr);
-            auto m = mutexes.find(Read<u64>(mutex_slot));
-            if (c == conditions.end() || m == mutexes.end()) return POSIX_EINVAL;
+            auto* m = LookupLiveMutex(Read<u64>(mutex_slot));
+            if (c == conditions.end() || !m) return POSIX_EINVAL;
             condition = c->second;
-            state = m->second;
+            state = m;
         }
         auto& c = *condition;
         auto& m = *state;

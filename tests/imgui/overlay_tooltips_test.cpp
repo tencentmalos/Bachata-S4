@@ -24,6 +24,10 @@ void WriteOverlayEvent(std::string_view line) noexcept {
 namespace ImGui {
 void Layer::AddLayer(Layer*) {}
 void Layer::RemoveLayer(Layer*) {}
+std::unique_lock<std::recursive_mutex> Layer::LockRegistry() {
+    static std::recursive_mutex mutex;
+    return std::unique_lock{mutex};
+}
 } // namespace ImGui
 int main() {
     ImGui::RuntimeTooltips layer;

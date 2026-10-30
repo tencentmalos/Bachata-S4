@@ -152,3 +152,21 @@ captures bounded PROF files with Session manifests. See
 [the iterative workflow](../../docs/guest-auto-tag.md). The public analysis MCP is
 `reverse_study`, default backend `study0`; default depth is two, with no 64-probe
 truncation. Deeper exploration requires an explicit next iteration.
+
+## Turnip 的 C++ 运行时边界
+
+当前生产 Android 构建使用 `runtime/locks/turnip-bionic-mainline.json` 固定的
+Mesa 和 NDK 版本；本文开头的 r28c 配置仅用于历史 V0。
+`build-turnip-source` 将 NDK libc++/libc++abi 静态链接进 Turnip，并隐藏这些符号。
+驱动仅通过 Vulkan C ABI 与宿主交互，不依赖应用的 `libc++_shared.so` 搜索路径。
+宿主、JNI 和 adrenotools hook 仍使用应用共享运行时，不应整体改为静态 STL。
+
+源码构建、预编译复用、host 绑定和 APK 打包都检查 ELF `DT_NEEDED`；发现
+动态 C++/ABI/unwind 运行时即拒绝，不能仅凭 Mesa commit 相同复用旧产物。
+遇到此错误应重建 Turnip，再重建 host 和 APK，使驱动 SHA 与 host pin 一致。
+跨主机 `SHADPS4_TURNIP_PREBUILT` 目录须包含新 ELF、identity 和 licenses；
+NDK 的静态运行时声明会随包保留。Meson 的 Python 环境须有 Mako、PyYAML 和 packaging。
+
+便携检查：`python3 tests/video_core/turnip_runtime_dependencies_tests.py`。
+设备上的纯 C HAL 加载回归与旧产物负对照见
+[2026-10-24 验证](../../docs/validation/android-native-host/turnip-static-cxx-20261024.md)。

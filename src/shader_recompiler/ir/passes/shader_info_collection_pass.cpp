@@ -171,6 +171,7 @@ void Visit(Info& info, const IR::Inst& inst) {
         info.uses_buffer_int64_atomics = true;
         break;
     case IR::Opcode::DataAppend:
+    case IR::Opcode::DataOrderedCount:
     case IR::Opcode::DataConsume:
     case IR::Opcode::Ballot:
     case IR::Opcode::InverseBallot:

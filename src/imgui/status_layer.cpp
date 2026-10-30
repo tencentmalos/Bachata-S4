@@ -309,30 +309,6 @@ void StatusLayer::Prepare(uint64_t now, unsigned width, unsigned height) {
                                   : "Duration only",
               dim);
     }
-    // Keep the first level short; diagnostic counters and graphs are opt-in subgroups.
-    auto sections = std::move(model.detail_sections);
-    model.detail_sections.clear();
-    auto category = [&](const char* id, const char* title,
-                        std::initializer_list<const char*> children) {
-        ov::DetailSection parent;
-        parent.id = ov::StableId(id);
-        parent.title = ov::LocalizedText(title);
-        parent.initially_open = false;
-        for (const auto* child : children) {
-            auto found = std::find_if(sections.begin(), sections.end(), [&](const auto& section) {
-                return section.id == ov::StableId(child);
-            });
-            if (found != sections.end()) {
-                found->initially_open = false;
-                parent.groups.push_back(std::move(*found));
-            }
-        }
-        if (!parent.groups.empty())
-            model.detail_sections.push_back(std::move(parent));
-    };
-    category("detail.performance", "Performance", {"Frame timing", "Memory", "GPU timing"});
-    category("detail.rendering", "Rendering", {"Renderer", "Render passes"});
-    category("detail.textures", "Textures & scaling", {"Texture uploads", "Scaling"});
     overlay.Prepare(std::move(model));
 }
 void StatusLayer::Draw() {

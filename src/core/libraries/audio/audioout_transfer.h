@@ -8,6 +8,40 @@
 #include <stop_token>
 #include "core/libraries/audio/audioout.h"
 namespace Libraries::AudioOut {
+// Signal evidence only: never modifies PCM or treats a silent block as a failed stream.
+// Channels are in guest logical order, before gain/downmix, so music/voice loss can be separated
+// from device starvation and host routing. Call on an occasional block, not the device callback.
+struct AudioSignalSample {
+    std::array<float, 8> peak{}, rms{};
+    std::array<u32, 8> nonfinite{};
+};
+inline AudioSignalSample SampleAudioSignal(const AudioFormatInfo& info, u32 frames,
+                                          const void* input) noexcept {
+    AudioSignalSample result;
+    if (!input || !frames || info.num_channels > 8) return result;
+    for (u32 channel = 0; channel < info.num_channels; ++channel) {
+        double energy{};
+        for (u32 frame = 0; frame < frames; ++frame) {
+            const size_t index = size_t(frame) * info.num_channels + info.channel_layout[channel];
+            float sample{};
+            if (info.is_float) std::memcpy(&sample, static_cast<const u8*>(input) + index * 4, 4);
+            else {
+                s16 integer{};
+                std::memcpy(&integer, static_cast<const u8*>(input) + index * 2, 2);
+                sample = integer / 32768.0f;
+            }
+            if (!std::isfinite(sample)) {
+                ++result.nonfinite[channel];
+                continue;
+            }
+            result.peak[channel] = std::max(result.peak[channel], std::abs(sample));
+            energy += double(sample) * sample;
+        }
+        result.rms[channel] = static_cast<float>(std::sqrt(energy / frames));
+    }
+    return result;
+}
+
 // Shared by the AAudio backend and focused fault-injection tests. The writer is
 // called with a monotonically advancing frame offset, never a replayed prefix.
 struct AudioWriteResult {

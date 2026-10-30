@@ -55,6 +55,7 @@ public:
         tracker = tracker_;
         cpu_addr = cpu_addr_;
         cpu.Fill();
+        cpu_pages.store(true, std::memory_order_release);
         gpu.Clear();
         gpu_pages.store(false, std::memory_order_release);
         writeable.Fill();
@@ -73,6 +74,14 @@ public:
 
     void SetCpuAddress(VAddr new_cpu_addr) {
         cpu_addr = new_cpu_addr;
+    }
+
+    // Set before publication. The directory remains valid throughout live tracking.
+    void SetCpuDirectory(std::atomic<u64>* summary, u64 bit) {
+        cpu_directory = summary;
+        cpu_directory_bit = bit;
+        if (MayHaveCpuPages())
+            summary->fetch_or(bit, std::memory_order_release);
     }
 
     VAddr GetCpuAddr() const {
@@ -484,6 +493,11 @@ public:
         return gpu_pages.load(std::memory_order_acquire);
     }
 
+    /// Streaming pages remain CPU dirty; a false result cannot omit their hash check.
+    [[nodiscard]] bool MayHaveCpuPages() const noexcept {
+        return cpu_pages.load(std::memory_order_acquire);
+    }
+
     /**
      * Returns true when a region has been modified
      *
@@ -519,6 +533,17 @@ private:
     template <bool track, bool is_read>
     void UpdateProtection() {
         RENDERER_TRACE;
+        if constexpr (!is_read) {
+            // Every CPU bitmap mutation ends here while holding the region lock,
+            // including rollback, explicit invalidation and fault prediction.
+            const bool dirty = cpu.Any();
+            const bool changed = dirty != cpu_pages.load(std::memory_order_relaxed);
+            if (changed && dirty && cpu_directory)
+                cpu_directory->fetch_or(cpu_directory_bit, std::memory_order_release);
+            cpu_pages.store(dirty, std::memory_order_release);
+            if (changed && !dirty && cpu_directory)
+                cpu_directory->fetch_and(~cpu_directory_bit, std::memory_order_release);
+        }
         RegionBits mask = is_read ? (~gpu ^ readable) : (cpu ^ writeable);
         if (mask.None()) {
             return;
@@ -691,6 +716,9 @@ private:
     PageManager* tracker;
     VAddr cpu_addr = 0;
     RegionBits cpu;
+    std::atomic<bool> cpu_pages{true};
+    std::atomic<u64>* cpu_directory{};
+    u64 cpu_directory_bit{};
     RegionBits gpu;
     std::atomic<bool> gpu_pages{}; ///< gpu.Any(), see MayHaveGpuPages.
     RegionBits writeable;

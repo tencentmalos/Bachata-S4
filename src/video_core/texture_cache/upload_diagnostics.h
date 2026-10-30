@@ -3,6 +3,7 @@
 
 #include <array>
 #include <atomic>
+#include <mutex>
 #include <span>
 #include <string>
 #include <vector>
@@ -216,6 +217,13 @@ inline std::atomic<u64> pool_revive_kept{0}, pool_revive_revived{0}, pool_revive
 inline std::atomic<u64> cb_dump_hash{0};
 inline std::atomic<s32> cb_dump_left{0};
 inline std::atomic<u32> cb_dump_bytes{64};
+// One renderer-owned GPU buffer snapshot, at most 32 MiB, saved after its fence retires.
+inline std::atomic<u64> cb_snapshot_hash{0};
+// Arm/cancel and the renderer's match-to-busy transition are one transaction.
+// The hash remains atomic for the unarmed render hot path.
+inline std::mutex cb_snapshot_mutex;
+inline std::atomic<u32> cb_snapshot_skip{0};
+inline std::atomic<bool> cb_snapshot_busy{false};
 // Diagnostic (`upload_diag image_stats <guest_address>`): the next bind of the image at that
 // address downloads its first level and logs per-channel min/max/mean and NaN/Inf counts.
 inline std::atomic<u64> stats_address{0};
@@ -299,6 +307,9 @@ inline std::atomic<u64> texel_sync_skips{0};
 // shaders; it re-tiled MHR's two 1080p render targets into the buffer arena on each of its
 // ~350 pointer-reading draws per frame.
 inline std::atomic<bool> dma_bounds{true};
+inline std::atomic<bool> ordered_batch{false};
+// Bounded readback coalescing experiment. Keep the existing 512 KiB policy by default.
+inline std::atomic<u32> readback_window_kib{512};
 // Diagnostic: copy depth<->color twins through the scratch buffer even when the
 // driver reports VK_KHR_maintenance8 direct depth/color image copies.
 inline std::atomic<bool> depth_copy_buffer{false};

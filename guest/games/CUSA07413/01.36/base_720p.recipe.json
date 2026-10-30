@@ -1,0 +1,84 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "gow4_base_720p_v1",
+  "title": "CUSA07413",
+  "module": "eboot.bin",
+  "module_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "executable_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "sources": [
+    "base_720p.c"
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "base_720p_applied"
+    },
+    {
+      "id": 2,
+      "name": "base_720p_original_geometry_preserved"
+    }
+  ],
+  "bindings": [
+    {
+      "name": "gow4_console_mode",
+      "kind": "data",
+      "offset": 46453628,
+      "size": 4,
+      "alignment": 4,
+      "access": "r",
+      "type": "unsigned int",
+      "evidence": "Branch at 0xe65ee compares this mode with 1 before choosing Pro 1920x2160/3840x2160 or Base 1920x1080/1920x1080. Preserve Pro mode, including its later table-driven switches in 0x1311a0."
+    },
+    {
+      "name": "gow4_render_width",
+      "kind": "data",
+      "offset": 47254692,
+      "size": 4,
+      "alignment": 4,
+      "access": "rw",
+      "type": "unsigned int",
+      "evidence": "Base initialization MOV [RIP+0x2c2a643],1920 at 0xe6657; consumed by render-target initialization."
+    },
+    {
+      "name": "gow4_render_height",
+      "kind": "data",
+      "offset": 47254696,
+      "size": 4,
+      "alignment": 4,
+      "access": "rw",
+      "type": "unsigned int",
+      "evidence": "Base initialization MOV [RIP+0x2c2a63d],1080 at 0xe6661; adjacent render dimension."
+    },
+    {
+      "name": "gow4_output_width",
+      "kind": "data",
+      "offset": 47254700,
+      "size": 4,
+      "alignment": 4,
+      "access": "rw",
+      "type": "unsigned int",
+      "evidence": "Base initialization MOV [RIP+0x2c2a637],1920 at 0xe666b; consumed by 0x9764f0 after allocation."
+    },
+    {
+      "name": "gow4_output_height",
+      "kind": "data",
+      "offset": 47254704,
+      "size": 4,
+      "alignment": 4,
+      "access": "rw",
+      "type": "unsigned int",
+      "evidence": "Base initialization MOV [RIP+0x2c2a631],1080 at 0xe6675; consumed by 0x9764f0 after allocation."
+    }
+  ],
+  "sites": [
+    {
+      "name": "base_framebuffer_geometry",
+      "offset": 943838,
+      "expected": "bf80070000",
+      "mode": "replace",
+      "handler": "gow4_base_720p",
+      "evidence": "Exact CUSA07413 01.36 SELF 19e9f057 / ELF 90880b52. Single MOV EDI,1920 at 0xe66de inside 0xe5800; next MOV ECX,ESI then CALL 0x35b190(renderW,renderH,outputW,outputH,1). No call/consumer between four global dimension stores and this site. Preserve original RDI zero-extension, flags and all other registers except base-mode RSI/RDX args. Validate console mode and original dimensions before updating all four globals and three args. Pro branch and table unchanged. No resize of live resources; selection requires restart and runtime disable does not undo allocations. Adaptation of illusion 720p patch: https://github.com/illusionyy/PS-Game-Patch/blob/main/patches/xml/GodOfWar-Orbis.xml, blob 76db50465ba870f4c4aea642a1cb1839131bd683. Original public XML does not list CUSA07413; this port is bound to exact local executable identity."
+    }
+  ]
+}

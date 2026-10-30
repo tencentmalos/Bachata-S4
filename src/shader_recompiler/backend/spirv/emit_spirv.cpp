@@ -267,6 +267,75 @@ Id DefineMain(EmitContext& ctx, const IR::Program& program) {
     return main;
 }
 
+// One admitted guest wave per workgroup, in the same x/y/z order as dispatchBase.
+// Calling the body afresh resets its guest registers and control flow. A uniform
+// barrier publishes all writes before the next virtual group, without relying on
+// GPU workgroup scheduling order or inter-workgroup spinning.
+Id DefineOrderedMain(EmitContext& ctx, Id body) {
+    const Id main = ctx.OpFunction(ctx.void_id, spv::FunctionControlMask::MaskNone,
+                                   ctx.TypeFunction(ctx.void_id));
+    ctx.AddLabel();
+    const Id cursor = ctx.DefineVar<false>(ctx.U32[3], spv::StorageClass::Function);
+    const auto count = [&](u32 axis) {
+        const Id ptr =
+            ctx.OpAccessChain(ctx.TypePointer(spv::StorageClass::PushConstant, ctx.F32[1]),
+                              ctx.push_data_block, ctx.ConstU32(axis));
+        return ctx.OpBitcast(ctx.U32[1], ctx.OpLoad(ctx.F32[1], ptr));
+    };
+    const Id nx = count(0), ny = count(1), nz = count(2);
+    const Id legacy = ctx.OpLabel(), batch = ctx.OpLabel(), done = ctx.OpLabel();
+    const Id use_legacy = ctx.OpIEqual(ctx.U1[1], count(3), ctx.ConstU32(0u));
+    ctx.OpSelectionMerge(done, spv::SelectionControlMask::MaskNone);
+    ctx.OpBranchConditional(use_legacy, legacy, batch);
+    ctx.AddLabel(legacy);
+    ctx.OpStore(ctx.workgroup_id, ctx.OpLoad(ctx.U32[3], ctx.host_workgroup_id));
+    ctx.OpFunctionCall(ctx.void_id, body);
+    ctx.OpBranch(done);
+    ctx.AddLabel(batch);
+    ctx.OpStore(cursor, ctx.ConstU32(0u, 0u, 0u));
+    const Id header = ctx.OpLabel(), run = ctx.OpLabel(), next = ctx.OpLabel(), end = ctx.OpLabel();
+    ctx.OpBranch(header);
+    ctx.AddLabel(header);
+    const Id group = ctx.OpLoad(ctx.U32[3], cursor);
+    const Id x = ctx.OpCompositeExtract(ctx.U32[1], group, 0);
+    const Id y = ctx.OpCompositeExtract(ctx.U32[1], group, 1);
+    const Id z = ctx.OpCompositeExtract(ctx.U32[1], group, 2);
+    const Id valid = ctx.OpLogicalAnd(
+        ctx.U1[1],
+        ctx.OpLogicalAnd(ctx.U1[1], ctx.OpINotEqual(ctx.U1[1], nx, ctx.ConstU32(0u)),
+                         ctx.OpINotEqual(ctx.U1[1], ny, ctx.ConstU32(0u))),
+        ctx.OpULessThan(ctx.U1[1], z, nz));
+    ctx.OpLoopMerge(end, next, spv::LoopControlMask::MaskNone);
+    ctx.OpBranchConditional(valid, run, end);
+    ctx.AddLabel(run);
+    ctx.OpStore(ctx.workgroup_id, group);
+    ctx.OpFunctionCall(ctx.void_id, body);
+    ctx.OpControlBarrier(
+        ctx.ConstU32(u32(spv::Scope::Workgroup)), ctx.ConstU32(u32(spv::Scope::Workgroup)),
+        ctx.ConstU32(u32(
+            spv::MemorySemanticsMask::AcquireRelease | spv::MemorySemanticsMask::UniformMemory |
+            spv::MemorySemanticsMask::WorkgroupMemory | spv::MemorySemanticsMask::ImageMemory)));
+    ctx.OpBranch(next);
+    ctx.AddLabel(next);
+    const Id xx = ctx.OpIAdd(ctx.U32[1], x, ctx.ConstU32(1u));
+    const Id carry_x = ctx.OpIEqual(ctx.U1[1], xx, nx);
+    const Id yy = ctx.OpIAdd(ctx.U32[1], y,
+                             ctx.OpSelect(ctx.U32[1], carry_x, ctx.ConstU32(1u), ctx.ConstU32(0u)));
+    const Id carry_y = ctx.OpIEqual(ctx.U1[1], yy, ny);
+    const Id zz = ctx.OpIAdd(ctx.U32[1], z,
+                             ctx.OpSelect(ctx.U32[1], carry_y, ctx.ConstU32(1u), ctx.ConstU32(0u)));
+    ctx.OpStore(cursor, ctx.OpCompositeConstruct(
+                            ctx.U32[3], ctx.OpSelect(ctx.U32[1], carry_x, ctx.ConstU32(0u), xx),
+                            ctx.OpSelect(ctx.U32[1], carry_y, ctx.ConstU32(0u), yy), zz));
+    ctx.OpBranch(header);
+    ctx.AddLabel(end);
+    ctx.OpBranch(done);
+    ctx.AddLabel(done);
+    ctx.OpReturn();
+    ctx.OpFunctionEnd();
+    return main;
+}
+
 spv::ExecutionMode ExecutionMode(AmdGpu::TessellationType primitive) {
     switch (primitive) {
     case AmdGpu::TessellationType::Isoline:
@@ -705,7 +774,8 @@ void PatchPhiNodes(const IR::Program& program, EmitContext& ctx) {
 std::vector<u32> EmitSPIRV(const Profile& profile, const RuntimeInfo& runtime_info,
                            const IR::Program& program, Bindings& binding) {
     EmitContext ctx{profile, runtime_info, program.info, binding};
-    const Id main{DefineMain(ctx, program)};
+    const Id body{DefineMain(ctx, program)};
+    const Id main = program.info.uses_ordered_count ? DefineOrderedMain(ctx, body) : body;
     DefineEntryPoint(program.info, ctx, main);
     SetupCapabilities(program.info, profile, runtime_info, ctx);
     SetupFloatMode(ctx, profile, runtime_info, main);

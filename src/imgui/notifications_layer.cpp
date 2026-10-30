@@ -23,12 +23,12 @@ const std::map<shadNotifications::stockIcons, std::string> iconMap = {
 };
 
 NotificationsUI::NotificationsUI(NotificationInfo info) {
-    AddLayer(this);
     currentInfo = info;
 
     // Resetting the animation
     elapsed_time = 0.0f; // Resetting animation time
     fade_opacity = 0.0f; // Starts invisible
+    AddLayer(this);
 }
 
 NotificationsUI::~NotificationsUI() {
@@ -143,6 +143,7 @@ void QueueNotification(std::string message, float timer, position pos, stockIcon
 
 void QueueNotification(std::string message, float timer, position pos, std::vector<u8> pngData,
                        bool addBackground) {
+    auto layer_lock = ImGui::Layer::LockRegistry();
     std::lock_guard<std::mutex> lock(queueMtx);
 
     NotificationInfo info;

@@ -92,6 +92,20 @@ struct GuestAjm::Impl {
         std::map<u32, std::shared_ptr<Instance>> instances;
         std::map<u64, u64> memory;
         u32 next_instance{1};
+        u32 FreeInstanceIndex() const {
+            // The low 14 bits are a reusable slot, not a lifetime creation count.
+            // Keep live slots reserved across codecs (the codec occupies the next bits).
+            u32 index = next_instance;
+            for (u32 scanned = 0; scanned < 0x3fff; ++scanned) {
+                if (index > 0x3fff)
+                    index = 1;
+                if (!instances.contains(index) && !instances.contains(index | 0x4000) &&
+                    !instances.contains(index | 0x8000))
+                    return index;
+                ++index;
+            }
+            throw Failure{ORBIS_AJM_ERROR_OUT_OF_RESOURCES};
+        }
     };
     std::map<u32, Context> contexts;
     std::map<u32, std::shared_ptr<Batch>> batches;
@@ -596,13 +610,19 @@ struct GuestAjm::Impl {
                 const u64 codec_mask = u32(a[1]) == 2 ? 15 : 0x101;
                 Need(!(flags.codec & ~codec_mask), ORBIS_AJM_ERROR_FLAG_NOT_SUPPORTED);
                 Need(Valid(a[3], 4, GuestPermission::Write), ORBIS_AJM_ERROR_INVALID_ADDRESS);
-                Need(context.next_instance <= 0x3fff && context.instances.size() < 4096,
+                Need(context.instances.size() < 4096,
                      ORBIS_AJM_ERROR_OUT_OF_RESOURCES);
                 auto instance = std::make_shared<Instance>(AjmCodecType(u32(a[1])), flags);
-                const u32 id = context.next_instance | (u32(a[1]) << 14);
-                Put(a[3], id);
+                const u32 index = context.FreeInstanceIndex();
+                const u32 id = index | (u32(a[1]) << 14);
                 context.instances.emplace(id, std::move(instance));
-                ++context.next_instance;
+                try {
+                    Put(a[3], id);
+                } catch (...) {
+                    context.instances.erase(id);
+                    throw;
+                }
+                context.next_instance = index == 0x3fff ? 1 : index + 1;
                 return 0;
             }
             if (nid == "RbLbuKv8zho") {

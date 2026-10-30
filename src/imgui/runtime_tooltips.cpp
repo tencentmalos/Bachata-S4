@@ -40,6 +40,9 @@ void RuntimeTooltips::Transition(const char* tag, std::string value, std::string
 }
 void RuntimeTooltips::Update(const ::Core::Diagnostics::DiagnosticsSnapshot& next, bool stalled,
                              bool high_uploads) {
+    // Direct-presentation eligibility can be queried by the producer while the present thread
+    // updates notices. Use the same lock as Draw/ShouldKeepDrawing and layer removal.
+    auto layer_lock = LockRegistry();
     const bool fresh = next.pid != identity.pid || next.generation != identity.generation ||
                        next.run_uuid != identity.run_uuid;
     if (fresh) {

@@ -10,9 +10,10 @@
 #include "core/libraries/kernel/orbis_error.h"
 
 namespace Core::HostRuntime {
-inline constexpr std::array<std::string_view, 9> DirectMemoryServiceNids{
+inline constexpr std::array<std::string_view, 12> DirectMemoryServiceNids{
     "B+vc2AO2Zrc", "C0f7TJcbfac", "hwVSPCmp5tM", "qCSfqDILlns", "pU-QydtGcGY",
-    "Vzl66WmfLvk", "LXo1tpFqJGs", "YN878uKRBbE", "bvD+95Q6asU"};
+    "Vzl66WmfLvk", "LXo1tpFqJGs", "YN878uKRBbE", "bvD+95Q6asU",
+    "BohYr-F7-is", "L0v2Go5jOuM", "tZ2yplY8MBY"};
 
 // Mapping calls may retire their output's mapping. Remember its identity, but
 // never hold a data pin across a mapping writer (including batch operations).
@@ -43,6 +44,26 @@ inline u64 DispatchDirectMemoryService(GuestCpu::GuestAddressSpace& space,
                                       std::string_view nid, const std::array<u64, 6>& a) {
     using namespace GuestCpu;
     using namespace Libraries::Kernel;
+    // No PS4 page-table accounting provider exists on desktop or Android.
+    // Report that boundary, leaving every output untouched. This optional
+    // diagnostic query must not abort the guest through the unknown-NID gate.
+    if (nid == "tZ2yplY8MBY") return u32(ORBIS_KERNEL_ERROR_ENOSYS);
+    if (nid == "BohYr-F7-is") return u32(sceKernelSetPrtAperture(s32(a[0]), a[1], a[2]));
+    if (nid == "L0v2Go5jOuM") {
+        if (s32(a[0]) < 0 || s32(a[0]) >= 3) return u32(ORBIS_KERNEL_ERROR_EINVAL);
+        const std::array<GuestAddressSpace::DataRequest, 2> requests{{
+            {{{a[1]}, 8}, GuestPermission::Write}, {{{a[2]}, 8}, GuestPermission::Write}}};
+        auto pins = space.AcquireDataBatch(requests);
+        if (!pins) return u32(ORBIS_KERNEL_ERROR_EFAULT);
+        VAddr address{};
+        u64 size{};
+        const auto result = sceKernelGetPrtAperture(s32(a[0]), &address, &size);
+        if (!result) {
+            std::memcpy(pins.Value()[0].WritableBytes().data(), &address, 8);
+            std::memcpy(pins.Value()[1].WritableBytes().data(), &size, 8);
+        }
+        return u32(result);
+    }
     if (nid == "B+vc2AO2Zrc" || nid == "qCSfqDILlns") {
         const bool main = nid == "B+vc2AO2Zrc";
         auto pin = space.AcquireDataSpan({{a[main ? 3 : 4]}, 8}, true);

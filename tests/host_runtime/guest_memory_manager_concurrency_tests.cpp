@@ -8,6 +8,7 @@
 #include <thread>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/memory.h"
+#include "core/rasterizer_hooks.h"
 #include "core/host_runtime/guest_direct_memory_hle.h"
 #include "core/host_runtime/guest_memory_hle.h"
 #include "core/file_sys/ifile.h"
@@ -15,6 +16,8 @@
 #include <sstream>
 #include <sys/mman.h>
 #include "core/host_runtime/guest_reservation.h"
+#include "core/host_runtime/guest_runtime.h"
+#include "common/elf_info.h"
 using namespace Core;
 using namespace Core::GuestCpu;
 using namespace std::chrono_literals;
@@ -33,12 +36,19 @@ struct Backend final : GuestMemoryBackend {
     bool prepare_ranges{true};
     bool disjoint{};
     std::array<u8, 0x40000> backing{};
-    Backend() {
-        auto made = GuestAddressSpace::Create({.reservation_size = 0x1000000});
+    explicit Backend(VAddr fixed = 0) {
+        AddressSpaceConfig config{.reservation_size = 0x1000000};
+        if (fixed) {
+            config.preferred_base = HostRuntime::GuestRuntime::ReservationBegin;
+            config.reservation_size = HostRuntime::GuestRuntime::ReservationEnd - config.preferred_base;
+            config.max_address = 1ULL << 39;
+            config.owned_ranges = {{{fixed}, 0x1000000}};
+        }
+        auto made = GuestAddressSpace::Create(config);
         if (!made)
             throw std::runtime_error("reservation");
         space = std::move(made).Value();
-        base = (space->ReservationBase().value + 0x1fffff) & ~0x1fffffULL;
+        base = fixed ? fixed : (space->ReservationBase().value + 0x1fffff) & ~0x1fffffULL;
     }
     static void Require(Status status) {
         if (!status)
@@ -181,6 +191,39 @@ static void CheckBackingWrites() {
 }
 int main(int argc, char** argv) {
     CheckBackingWrites();
+    // The production envelope must admit real game mappings above the former 288 GiB cap.
+    try {
+        constexpr VAddr address = 0x4e26000000;
+        Common::ElfInfo metadata;
+        metadata.InitializeGuestMetadata({}, Common::ElfInfo::FW_500);
+        Common::Singleton<Common::ElfInfo>::Binding metadata_binding(metadata);
+        Backend high(address);
+        MemoryManager memory(&high);
+        Memory::Binding bind(memory);
+        using namespace Libraries::Kernel;
+        s64 physical{};
+        CHECK(sceKernelAllocateDirectMemory(0, 0x40000, 0x4000, 0x4000, 0, &physical) == 0);
+        OrbisKernelBatchMapEntry entry{};
+        entry.start = reinterpret_cast<void*>(address);
+        entry.length = 0x4000;
+        entry.offset = physical;
+        entry.protection = 3;
+        entry.operation = ORBIS_KERNEL_MAP_OP_MAP_DIRECT;
+        s32 processed{};
+        CHECK(sceKernelBatchMap(&entry, 1, &processed) == 0 && processed == 1);
+        auto pin = high.space->AcquireDataSpan({{address}, 0x4000}, true);
+        CHECK(bool(pin));
+        if (pin) {
+            std::memset(reinterpret_cast<void*>(address), 0x5a, 0x4000);
+            CHECK(*reinterpret_cast<u8*>(address + 0x3fff) == 0x5a);
+        }
+        pin = MakeError(ErrorCategory::InvalidArgument, "test", "release pin");
+        CHECK(sceKernelMunmap(reinterpret_cast<void*>(address), 0x4000) == 0);
+        CHECK(sceKernelReleaseDirectMemory(physical, 0x4000) == 0);
+    } catch (const std::exception& e) {
+        std::printf("High mapping rejected: %s\n", e.what());
+        CHECK(false);
+    }
     if (argc == 2 && std::string_view(argv[1]) == "--backing-only") {
         std::printf("backing_write_tests: %u checks, %u failures\n", checks, failures);
         return failures ? 1 : 0;
@@ -221,6 +264,31 @@ int main(int argc, char** argv) {
     Backend backend;
     MemoryManager memory(&backend);
     Memory::Binding memory_binding(memory);
+    {
+        struct Tracking final : RasterizerHooks {
+            std::vector<std::pair<VAddr, u64>> maps, unmaps;
+            void MapMemory(VAddr a, u64 n) override { maps.emplace_back(a, n); }
+            void UnmapMemory(VAddr a, u64 n) override { unmaps.emplace_back(a, n); }
+            bool InvalidateMemory(VAddr, u64) override { return false; }
+        } tracking;
+        constexpr VAddr start = 0x1000000000;
+        using namespace Libraries::Kernel;
+        CHECK(sceKernelSetPrtAperture(-1, start, 0x4000) == ORBIS_KERNEL_ERROR_EINVAL);
+        CHECK(sceKernelSetPrtAperture(3, start, 0x4000) == ORBIS_KERNEL_ERROR_EINVAL);
+        CHECK(sceKernelSetPrtAperture(0, start + 1, 0x4000) == ORBIS_KERNEL_ERROR_EINVAL);
+        CHECK(sceKernelSetPrtAperture(0, start, UINT64_MAX) == ORBIS_KERNEL_ERROR_EINVAL);
+        CHECK(sceKernelSetPrtAperture(0, start, 0x8000) == 0); // no renderer yet
+        CHECK(memory.GetPrtArea(0) == std::make_pair(start, u64{0x8000}));
+        memory.SetRasterizer(&tracking);
+        CHECK(std::ranges::find(tracking.maps, std::make_pair(start, u64{0x8000})) != tracking.maps.end());
+        CHECK(sceKernelSetPrtAperture(0, start + 0x10000, 0x4000) == 0);
+        CHECK(tracking.unmaps.back() == std::make_pair(start, u64{0x8000}));
+        CHECK(tracking.maps.back() == std::make_pair(start + 0x10000, u64{0x4000}));
+        CHECK(sceKernelSetPrtAperture(0, start, 0) == 0);
+        memory.SetRasterizer(nullptr);
+        MemoryManager fresh(&backend);
+        CHECK(fresh.GetPrtArea(0) == std::make_pair(u64{0}, u64{0}));
+    }
     const auto a = backend.base, unrelated = a + 0x10000;
     auto map = [&](VAddr address, VMAType type = VMAType::File, PAddr physical = PAddr(-1)) {
         void* out{};
@@ -335,6 +403,14 @@ int main(int argc, char** argv) {
     };
     const u64 out = unrelated, pool = a + 0x200000;
     auto read64 = [&](u64 at) { u64 v{}; CHECK(bool(backend.space->ReadData({at}, std::as_writable_bytes(std::span{&v, 1})))); return v; };
+    CHECK(call("BohYr-F7-is", {1, 0x1000000000, 0x4000}) == 0);
+    CHECK(call("L0v2Go5jOuM", {1, out, out + 8}) == 0);
+    CHECK(read64(out) == 0x1000000000 && read64(out + 8) == 0x4000);
+    CHECK(call("L0v2Go5jOuM", {1, out, UINT64_MAX}) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+    CHECK(read64(out) == 0x1000000000); // reject the whole output set
+    CHECK(call("tZ2yplY8MBY", {out, out + 8, UINT64_MAX, 0}) == u32(ORBIS_KERNEL_ERROR_ENOSYS));
+    CHECK(read64(out) == 0x1000000000 && read64(out + 8) == 0x4000);
+    CHECK(call("BohYr-F7-is", {1, 0x1000000000, 0}) == 0);
     const u64 stack = a + 0x180000;
     CHECK(map(stack, VMAType::Stack) == 0);
     CHECK(GuestQueryStack(*backend.space, memory, stack + 8, out, out + 8) == 0);

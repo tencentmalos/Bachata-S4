@@ -220,6 +220,7 @@ MsgDialogUi::MsgDialogUi(MsgDialogUi&& other) noexcept
     other.result = nullptr;
 }
 MsgDialogUi& MsgDialogUi::operator=(MsgDialogUi other) {
+    auto layer_lock = LockRegistry();
     using std::swap;
     swap(state, other.state);
     swap(status, other.status);
@@ -232,6 +233,7 @@ MsgDialogUi& MsgDialogUi::operator=(MsgDialogUi other) {
 }
 
 void MsgDialogUi::Finish(ButtonId buttonId, Result r) {
+    RemoveLayer(this);
     if (result) {
         result->result = r;
         result->buttonId = buttonId;
@@ -242,7 +244,6 @@ void MsgDialogUi::Finish(ButtonId buttonId, Result r) {
     state = nullptr;
     status = nullptr;
     result = nullptr;
-    RemoveLayer(this);
 }
 
 void MsgDialogUi::Draw() {

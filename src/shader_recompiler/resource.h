@@ -160,6 +160,7 @@ struct ImageResource {
     u8 constant_mip_index{};
     MipStorageFallbackMode mip_fallback_mode{};
     SharpFetchPostOp post_op{};
+    u32 dw1_and_mask = ~0u;
 
     constexpr AmdGpu::Image GetSharp(const auto& info) const noexcept {
         AmdGpu::Image image{};
@@ -184,14 +185,18 @@ struct ImageResource {
 
     constexpr bool Fetch(const u32* flatbuf, AmdGpu::Image* out) const {
         if (!is_r128) {
-            // Fetch full 8 byte T#
-            return sharp_fetch.Fetch(flatbuf, out);
+            if (!sharp_fetch.Fetch(flatbuf, out))
+                return false;
+        } else {
+            // Fetch r128 T# and fix pitch.
+            if (!sharp_fetch.Fetch<4>(flatbuf, out))
+                return false;
+            out->pitch = out->width;
         }
-        // Fetch r128 T# and fix pitch
-        if (!sharp_fetch.Fetch<4>(flatbuf, out)) {
-            return false;
-        }
-        out->pitch = out->width;
+        u32 word;
+        std::memcpy(&word, reinterpret_cast<const u8*>(out) + 4, sizeof(word));
+        word &= dw1_and_mask;
+        std::memcpy(reinterpret_cast<u8*>(out) + 4, &word, sizeof(word));
         return true;
     }
 

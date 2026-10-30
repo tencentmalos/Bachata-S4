@@ -1,0 +1,92 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "title": "CUSA07413",
+  "module": "eboot.bin",
+  "module_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "executable_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "id": "gow4_disable_volumetric_fog_v1",
+  "sources": [
+    "disable_volumetric_fog.c"
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "fog_pass_omitted_neutral_output"
+    },
+    {
+      "id": 2,
+      "name": "fog_original_registration_fallback"
+    }
+  ],
+  "bindings": [
+    {
+      "name": "gow4_render_pass_state",
+      "kind": "data",
+      "offset": 38996256,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "unsigned long long",
+      "evidence": "Render graph states, stride176. Pass61 backend is +61*176+168=10904, initialized at 0x340c54..0x340c65 with fog object."
+    },
+    {
+      "name": "gow4_fog_vtable",
+      "kind": "data",
+      "offset": 16837856,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "unsigned long long",
+      "evidence": "SCE RELRO vtable selected at 0x34070b. Entries include prepare0x437ba0, declare0x437ed0, execute0x4381c0, shader initialization0x43c1b0."
+    },
+    {
+      "name": "gow4_fog_integrated",
+      "kind": "data",
+      "offset": 39266640,
+      "size": 8,
+      "alignment": 8,
+      "access": "rw",
+      "type": "unsigned long long",
+      "evidence": "Initialized to object+1072 zero 4x4x4 volume at0x340c2c; enabled prepare0x437ba0 redirects to integrated output object+984. Consumer0x2bd6c8 reads descriptor+20."
+    },
+    {
+      "name": "gow4_fog_scattering",
+      "kind": "data",
+      "offset": 39266648,
+      "size": 8,
+      "alignment": 8,
+      "access": "rw",
+      "type": "unsigned long long",
+      "evidence": "Initialized to same neutral volume; enabled prepare points at ping-pong scattering output. Publish neutral while omitting pass61."
+    },
+    {
+      "name": "gow4_fog_density",
+      "kind": "data",
+      "offset": 39266656,
+      "size": 8,
+      "alignment": 8,
+      "access": "rw",
+      "type": "unsigned long long",
+      "evidence": "Initialized to same neutral volume; enabled prepare points at ping-pong third volume. Publish neutral while omitting pass61."
+    },
+    {
+      "name": "gow4_register_pass",
+      "kind": "function",
+      "offset": 3375632,
+      "expected": "554889e54157415641554154534883ec",
+      "prototype": "unsigned long long gow4_register_pass(int pass_id, int view_id, unsigned long long owner)",
+      "evidence": "SysV integer args EDI/ESI/RDX and pointer return RAX from fn_338210. 98 direct calls indexed; selected call at0x34d1d0 passes61,-1,0. Function constructs graph nodes and scheduler jobs; calls returning RAX here ignore it. Binding is used only to retain original behavior if guards fail. No vector input or varargs."
+    }
+  ],
+  "sites": [
+    {
+      "name": "register_volumetric_fog",
+      "offset": 3461584,
+      "expected": "e83bb0feff",
+      "mode": "replace",
+      "handler": "gow4_disable_volumetric_fog",
+      "evidence": "Exact SELF19e9f057/ELF90880b52 main+0x34d1d0 CALL0x338210 in frame builder0x344ad0. Preceded MOV EDI,61; MOV ESI,-1; XOR EDX,EDX, followed new args for pass64; return dead. Only fallthrough xref to this single complete CALL, no interior target. Pass61 is named volumetricFog in metadata0x253e320, backend constructor binds vtable0x100ece0 and initializes 4x4x4/512-byte zero RGBA16F texture object+1072; all three published fog inputs initially point to it. Omit graph registration (including its prepare/declare/execute jobs), restore those neutral inputs before jobs run, preserve allocations and other passes. Runtime disable executes original call. Re-enabling fog requires history warmup; device visual/capture comparison remains required."
+    }
+  ]
+}

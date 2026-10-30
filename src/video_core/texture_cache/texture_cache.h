@@ -269,7 +269,7 @@ public:
     // presenter can distinguish a black guest render target from a bad host
     // composition without changing the normal frame path.
     void ReadbackImageForDiagnostics(ImageId image_id);
-    void PublishImageDiagnostics();
+    void PublishImageDiagnostics(u64 before_shader = 0);
 
     /// Resolves overlap between existing cache image and pending merged image
     [[nodiscard]] std::tuple<ImageId, int, int> ResolveOverlap(const ImageInfo& info,
@@ -450,6 +450,15 @@ public:
             return it->second.type;
         }
         return std::nullopt;
+    }
+
+    /// The host color image is expanded; single-sample GCN CMASK readers must see
+    /// expanded tiles too, not the guest's stale fast-clear metadata. Multisample
+    /// CMASK also describes FMASK and is not covered by this representation.
+    bool IsSingleSampleCMask(VAddr address) const {
+        const auto it = surface_metas.find(address);
+        return it != surface_metas.end() && it->second.type == MetaType::CMask &&
+               it->second.num_samples == 1;
     }
 
     /// Returns true if a slice of the specified metadata surface has been cleared.
@@ -777,6 +786,7 @@ private:
     struct MetaDataInfo {
         MetaType type;
         s32 clear_mask = -1;
+        u32 num_samples = 1;
     };
     tsl::robin_map<VAddr, MetaDataInfo> surface_metas;
 };

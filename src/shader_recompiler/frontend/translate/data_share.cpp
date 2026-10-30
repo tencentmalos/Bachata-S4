@@ -76,6 +76,8 @@ void Translator::EmitDataShare(const GcnInst& inst) {
         return DS_CONSUME(inst);
     case Opcode::DS_APPEND:
         return DS_APPEND(inst);
+    case Opcode::DS_ORDERED_COUNT:
+        return DS_ORDERED_COUNT(inst);
     case Opcode::DS_WRITE_B16:
         return DS_WRITE(16, false, false, false, inst);
     case Opcode::DS_WRITE_B64:
@@ -348,6 +350,31 @@ void Translator::DS_APPEND(const GcnInst& inst) {
     const IR::U32 gds_offset = ir.IAdd(base, ir.Imm32(inst_offset));
     const IR::U32 prev = ir.DataAppend(ir.ShiftRightLogical(gds_offset, ir.Imm32(2u)));
     SetDst(inst.dst[0], prev);
+}
+
+void Translator::DS_ORDERED_COUNT(const GcnInst& inst) {
+    const auto& cs = runtime_info.hw.cs;
+    const u64 threads = u64(cs.workgroup_size[0]) * cs.workgroup_size[1] * cs.workgroup_size[2];
+    // Vulkan provides no inter-workgroup forward progress guarantee. The renderer serves
+    // single-wave groups in dispatch order, rather than spinning on a device-wide ticket.
+    // Multiple waves per group and the pixel ordered-append domain need a separate lowering.
+    const u32 mode = inst.control.ds.offset1;
+    if (info.sw_stage != SwStage::Compute || !inst.control.ds.gds || threads == 0 ||
+        threads > 64 || profile.subgroup_size != 64 || inst.control.ds.offset0 != 0 ||
+        (mode != 3 && mode != 0x13)) {
+        LOG_ERROR(Render_Recompiler, "Unsupported ordered count: stage={} threads={} subgroup={} "
+                                     "gds={} offset={}:{}", u32(info.sw_stage), threads,
+                  profile.subgroup_size, u32(inst.control.ds.gds),
+                  u32(inst.control.ds.offset0), mode);
+        LogMissingOpcode(inst);
+        return;
+    }
+    info.uses_ordered_count = true;
+    const auto address = ir.BitwiseAnd(ir.ShiftRightLogical(ir.GetM0(), ir.Imm32(16u)),
+                                       ir.Imm32(0xfffcu));
+    // ADDR supplies the value from the first EXEC lane; the result is broadcast even
+    // to inactive lanes. An empty EXEC reads the counter without changing it.
+    SetDst(inst.dst[0], ir.DataOrderedCount(address, GetSrc(inst.src[0]), mode == 0x13));
 }
 
 void Translator::DS_CONSUME(const GcnInst& inst) {

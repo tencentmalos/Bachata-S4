@@ -334,7 +334,9 @@ SaveDialogUi::~SaveDialogUi() {
 
 SaveDialogUi::SaveDialogUi(SaveDialogUi&& other) noexcept
     : Layer(other), state(other.state), status(other.status), result(other.result) {
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex, other.draw_mutex);
+    RemoveLayer(&other);
     other.state = nullptr;
     other.status = nullptr;
     other.result = nullptr;
@@ -345,8 +347,13 @@ SaveDialogUi::SaveDialogUi(SaveDialogUi&& other) noexcept
 }
 
 SaveDialogUi& SaveDialogUi::operator=(SaveDialogUi&& other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+    auto layer_lock = LockRegistry();
     std::scoped_lock lock(draw_mutex, other.draw_mutex);
-    using std::swap;
+    RemoveLayer(this);
+    RemoveLayer(&other);
     state = other.state;
     other.state = nullptr;
     status = other.status;
@@ -361,6 +368,8 @@ SaveDialogUi& SaveDialogUi::operator=(SaveDialogUi&& other) noexcept {
 }
 
 void SaveDialogUi::Finish(ButtonId buttonId, Result r) {
+    auto layer_lock = LockRegistry();
+    RemoveLayer(this);
     std::unique_lock lock(draw_mutex);
     if (result) {
         result->mode = this->state->mode;
@@ -374,7 +383,6 @@ void SaveDialogUi::Finish(ButtonId buttonId, Result r) {
     if (status) {
         *status = Status::FINISHED;
     }
-    RemoveLayer(this);
 }
 
 void SaveDialogUi::Draw() {

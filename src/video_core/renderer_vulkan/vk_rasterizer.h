@@ -152,6 +152,7 @@ private:
     void BindTextures(const Shader::Info& stage, Shader::Backend::Bindings& binding);
     bool BindResources(const Pipeline* pipeline);
     void DumpBoundBuffers(const Pipeline& pipeline);
+    void SnapshotBoundGpuBuffers(const Pipeline& pipeline);
     void CheckSharps(const Pipeline& pipeline);
     // Replaces a known pattern-fill compute kernel (Gnmx-style clear) by image clears
     // when it fills whole cached images with a uniform texel. True when the dispatch is done.
@@ -190,6 +191,8 @@ private:
     bool SkipUnbuiltDraw(const GraphicsPipeline& pipeline);
     PipelineStats::SkipBlocker SkipBlockerFor(const GraphicsPipeline& pipeline) const;
     AmdGpu::Pm4Trace::Action trace_action;
+    // Bounded per-renderer diagnostics for intentionally oversized guest buffer views.
+    std::unordered_set<u64> clamped_buffer_stages;
 
     void BindVertexBuffers(const GraphicsPipeline* pipeline);
     void BindIndexBuffer(u32 index_offset = 0);

@@ -539,7 +539,8 @@ void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
         // GPU-modified ranges come as many small scattered islands,
         // so the download is widened to a window around the request. It stays within the pages
         // the arena owns: a page taken over by a newer arena is only reached through that one.
-        constexpr u64 WindowSize = 512_KB;
+        const u64 WindowSize =
+            u64{UploadDiagnostics::readback_window_kib.load(std::memory_order_relaxed)} * 1024;
         VAddr arena_start = device_addr >> arena_page_bits << arena_page_bits;
         while (arena_start > arena->cpu_addr &&
                address_space[(arena_start - 1) >> arena_page_bits] == arena) {
@@ -554,6 +555,10 @@ void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
             std::max<VAddr>(Common::AlignDown(device_addr, WindowSize), arena_start);
         const VAddr window_end = std::min<VAddr>(
             std::max<VAddr>(window_start + WindowSize, device_addr + size), arena_end);
+        Common::Profiler::Counter("Buffer.ReadbackAddress", static_cast<int64_t>(device_addr));
+        Common::Profiler::Counter("Buffer.ReadbackWrite", is_write);
+        Common::Profiler::Counter("Buffer.ReadbackQueued", queued);
+        Common::Profiler::Counter("Buffer.ReadbackWindowBytes", window_end - window_start);
         DownloadMemory(arena, window_start, window_end - window_start);
         if (is_write) {
             memory_tracker->MarkRegionAsCpuModified(device_addr, size);
@@ -977,6 +982,30 @@ void BufferCache::EnsureResident(const Buffer* arena, u64 first_block, u64 last_
 
 bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 size,
                                     bool is_written, bool is_texel_buffer) {
+    // Publish each upload before reserving the next block. Large bindings must use the
+    // bounded staging ring too: a dedicated allocation per dirty binding can otherwise
+    // retain many hundreds of MiB until a submission completes. Include snapshot page
+    // padding in the limit, including its retry after a concurrent CPU write.
+    constexpr u64 UploadBlockSize = 16_MB;
+    const VAddr end = device_addr + size;
+    for (VAddr address = device_addr; address < end;) {
+        const u32 bytes = static_cast<u32>(std::min(
+            end - address, UploadBlockSize - (address & (TRACKER_BYTES_PER_PAGE - 1))));
+        UploadMemory(arena, address, bytes, is_written);
+        address += bytes;
+    }
+    // Image aliases are matched against the complete binding, not individual upload chunks.
+    if (is_texel_buffer && !is_written) {
+        Common::Profiler::FineScope scope{"Buffer.TexelImageSync"};
+        return SynchronizeMemoryFromImage(arena, device_addr, size);
+    }
+    if (!is_written) {
+        return SynchronizeMemoryFromGpuImage(arena, device_addr, size);
+    }
+    return false;
+}
+
+void BufferCache::UploadMemory(const Buffer* arena, VAddr device_addr, u32 size, bool is_written) {
     boost::container::small_vector<vk::BufferCopy, 4> copies;
     size_t total_size_bytes{};
     Vulkan::StagingBufferRef staging{};
@@ -1034,14 +1063,6 @@ bool BufferCache::SynchronizeMemory(const Buffer* arena, VAddr device_addr, u32 
         staging.buffer->Flush(staging.offset, total_size_bytes);
         runtime.CopyBuffer(staging.buffer, arena, copies);
     }
-    if (is_texel_buffer && !is_written) {
-        Common::Profiler::FineScope scope{"Buffer.TexelImageSync"};
-        return SynchronizeMemoryFromImage(arena, device_addr, size);
-    }
-    if (!is_written) {
-        return SynchronizeMemoryFromGpuImage(arena, device_addr, size);
-    }
-    return false;
 }
 
 bool BufferCache::SynchronizeMemoryFromGpuImage(const Buffer* arena, VAddr device_addr, u32 size) {
@@ -1083,6 +1104,15 @@ bool BufferCache::SynchronizeMemoryFromImage(const Buffer* arena, VAddr device_a
         if (*type == TextureCache::MetaType::HTile) {
             static constexpr u32 ZmaskUncompressed = 0xf;
             runtime.FillBuffer(arena, arena->Offset(device_addr), size, ZmaskUncompressed);
+            return true;
+        } else if (texture_cache.IsSingleSampleCMask(device_addr)) {
+            // GCN NOAA CMASK uses one 0xf nibble per expanded color tile.
+            runtime.FillBuffer(arena, arena->Offset(device_addr), size, 0xffffffffu);
+            static u32 diagnostic_count{};
+            if (diagnostic_count++ < 8) {
+                LOG_INFO(Render_Vulkan, "Expanded single-sample CMASK read {:#x} size={:#x}",
+                         device_addr, size);
+            }
             return true;
         } else {
             LOG_WARNING(Render_Vulkan, "Unhandled metadata type {}", magic_enum::enum_name(*type));

@@ -648,13 +648,18 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
 
     registry.Register(
         "gpu_images",
-        "Cached GPU images: list | dump <image-uid> [layer] | status; dump waits for GPU, max 32 MiB",
+        "Cached GPU images: list | dump <image-uid> [layer] | before <image-uid> <graphics-shader-hash> "
+        "[layer] | cancel | status; dump waits for GPU, max 32 MiB",
         [](const std::vector<std::string>& args) {
+            if (args.size() == 1 && args[0] == "cancel")
+                return VideoCore::MemoryDiagnostics::CancelImage();
             if (args.size() == 1 && args[0] == "status")
                 return VideoCore::MemoryDiagnostics::Images(false);
             if (args.size() == 1 && args[0] == "list")
                 return VideoCore::MemoryDiagnostics::Images(true);
-            if ((args.size() != 2 && args.size() != 3) || args[0] != "dump")
+            const bool before = !args.empty() && args[0] == "before";
+            if ((!before && ((args.size() != 2 && args.size() != 3) || args[0] != "dump")) ||
+                (before && args.size() != 3 && args.size() != 4))
                 return BadArguments();
             try {
                 size_t used{};
@@ -662,13 +667,20 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
                 if (!address || used != args[1].size())
                     return BadArguments();
                 unsigned long long layer = 0;
-                if (args.size() == 3) {
-                    layer = std::stoull(args[2], &used, 0);
-                    if (used != args[2].size() || layer > 0xffff)
+                unsigned long long shader = 0;
+                if (before) {
+                    shader = std::stoull(args[2], &used, 0);
+                    if (!shader || used != args[2].size())
+                        return BadArguments();
+                }
+                const size_t layer_arg = before ? 3 : 2;
+                if (args.size() > layer_arg) {
+                    layer = std::stoull(args[layer_arg], &used, 0);
+                    if (used != args[layer_arg].size() || layer > 0xffff)
                         return BadArguments();
                 }
                 return VideoCore::MemoryDiagnostics::Images(true, address,
-                                                            static_cast<unsigned>(layer));
+                                                            static_cast<unsigned>(layer), shader);
             } catch (const std::exception&) {
                 return BadArguments();
             }

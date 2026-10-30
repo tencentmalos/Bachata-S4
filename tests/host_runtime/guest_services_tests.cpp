@@ -116,6 +116,25 @@ int main() {
     check("no dangling waiter", domain.PendingWaits(slot) == 0 && domain.CondDestroy(cond) == 0);
     check("other owner retained", domain.IsOwned(slot, 202) && domain.Unlock(slot, 202) == 0);
     GuestClock clock;
+    {
+        GuestProcessClock elapsed{100};
+        u64 now = 200;
+        const auto read = [&] { return now; };
+        check("process clock initially advances", elapsed.Read(read) == 100);
+        elapsed.SetPaused(true, read);
+        now += 8ULL * 60 * 60 * 1'000'000'000;
+        elapsed.SetPaused(true, read);
+        check("eight hour pause and repeated pause do not advance process time",
+              elapsed.Read(read) == 100);
+        elapsed.SetPaused(false, read);
+        elapsed.SetPaused(false, read);
+        now += 42;
+        check("resume excludes suspension once and time advances again", elapsed.Read(read) == 142);
+        elapsed.SetPaused(true, read);
+        now += 1000;
+        elapsed.SetPaused(false, read);
+        check("multiple pauses accumulate without losing elapsed time", elapsed.Read(read) == 142);
+    }
     Libraries::Kernel::OrbisKernelTimespec ts{};
     check("clock initialized outside desktop registry",
           clock.Read(15, ts, false) == 0 && clock.ticks.GetTscFrequency() > 0);

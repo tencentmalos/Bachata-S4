@@ -255,6 +255,7 @@ const Shader::RuntimeInfo& PipelineCache::BuildRuntimeInfo(HwStage stage, SwStag
         info.hw.cs.tgid_enable = {cs_pgm.IsTgidEnabled(0), cs_pgm.IsTgidEnabled(1),
                                   cs_pgm.IsTgidEnabled(2)};
         info.hw.cs.shared_memory_size = cs_pgm.SharedMemSize();
+        info.hw.cs.tg_size_enable = cs_pgm.settings.tg_size_enable;
         break;
     }
     default:
@@ -516,8 +517,16 @@ void PipelineCache::NotePipeline(const Pipeline& pipeline, u64 hash, bool preloa
         LOG_DEBUG(Render_Vulkan, "Created {} pipeline {:#x} in {:.2f} ms ({})",
                   pipeline.IsCompute() ? "compute" : "graphics", hash, double(creation.ns) / 1e6,
                   !creation.feedback ? "no driver feedback"
-                  : creation.cache_hit ? "driver cache hit"
-                                       : "driver compiled");
+                  : creation.cache_hit ? "driver reported cache hit"
+                                       : "driver did not report cache hit");
+        if (creation.ns >= 20'000'000) {
+            LOG_INFO(Render_Vulkan,
+                     "Slow pipeline create: kind={} key={:#x} elapsed_ms={:.2f} "
+                     "driver_ms={:.2f} feedback_valid={} reported_cache_hit={} shaders={}",
+                     pipeline.IsCompute() ? "compute" : "graphics", hash,
+                     double(creation.ns) / 1e6, double(creation.driver_ns) / 1e6,
+                     creation.feedback, creation.cache_hit, pipeline.GetDebugString());
+        }
     }
     driver_cache->NotePipelineCreated();
 }

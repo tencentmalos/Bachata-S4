@@ -633,6 +633,10 @@ U32 IREmitter::DataAppend(const U32& gds_dw_offset) {
     return Inst<U32>(Opcode::DataAppend, gds_dw_offset, GetExec());
 }
 
+U32 IREmitter::DataOrderedCount(const U32& address, const U32& value, bool swap) {
+    return Inst<U32>(Opcode::DataOrderedCount, Imm32(0u), address, value, GetExec(), Imm1(swap));
+}
+
 U32 IREmitter::DataConsume(const U32& gds_dw_offset) {
     return Inst<U32>(Opcode::DataConsume, gds_dw_offset, GetExec());
 }

@@ -4885,6 +4885,76 @@ void TestHleBoundaryDrainWake(Harness& h) {
     }
 }
 
+std::atomic_bool session_hle_entered{}, session_hle_release{};
+std::uint64_t HleSessionPauseWait(std::uint64_t value) {
+    session_hle_entered.store(true, std::memory_order_release);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(4);
+    while (!session_hle_release.load(std::memory_order_acquire) &&
+           std::chrono::steady_clock::now() < deadline) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    return value + 1;
+}
+
+// Pause after the last JIT poll but before a syscall publishes its HLE boundary. Resume while
+// that HLE call is still blocked: no debugger park loop runs to disarm the old interrupt page.
+void TestSessionPauseHleBoundary(Harness& h) {
+    std::string error;
+    if (!LoadFixture(h, *FindFixture("hle_call_returns_rax"), error)) std::_Exit(4);
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    auto op = registry->Register(&HleSessionPauseWait, "session-pause-hle");
+    if (!op) std::_Exit(4);
+    for (bool cancel : {false, true}) {
+        TestOwner owner(h, 41);
+        auto patched = owner.Submit([&] {
+            auto snapshot = h.context->ReadRegisters(owner.handle);
+            if (!snapshot) return false;
+            RegisterPatch patch;
+            patch.fields = RegisterValidity::Gpr;
+            patch.gpr_mask = 1u << Index(Gpr::Rax);
+            patch.values.Set(Gpr::Rax, op.Value());
+            return bool(h.context->WriteRegisters(owner.handle, patch, snapshot.Value().stop_epoch));
+        });
+        if (!Await(patched)) std::_Exit(4);
+        session_hle_entered = session_hle_release = false;
+        auto* gate = static_cast<Fex::FexTestRunGate*>(Fex::FexTestHleBoundaryGatePointer(*h.context));
+        const auto hold = gate->Arm(owner.handle.id, h.context->ContextId());
+        auto running = owner.Run();
+        auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (!gate->Arrived(hold) && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        if (!gate->Arrived(hold)) std::_Exit(4);
+        auto paused = h.context->SetSessionPaused(true, 0);
+        bool before_resume_called{};
+        auto busy = h.context->SetSessionPaused(false, 0, [&] { before_resume_called = true; });
+        Check(cancel ? "SP07" : "SP05", "busy resume does not publish resume state",
+              !busy && busy.GetError().category == ErrorCategory::Busy && !before_resume_called);
+        if (!gate->Release(hold, 1000)) std::_Exit(4);
+        while (!session_hle_entered.load(std::memory_order_acquire) &&
+               std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        Check(cancel ? "SP03" : "SP01", "pause reaches the forced syscall boundary",
+              paused && session_hle_entered.load());
+        if (cancel) {
+            auto stopped = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+            if (!stopped) std::_Exit(4);
+        }
+        auto resumed = h.context->SetSessionPaused(false, 1'000'000'000,
+            [&] { before_resume_called = true; });
+        Check(cancel ? "SP08" : "SP06", "resume publishes clocks before releasing the HLE owner",
+              resumed && before_resume_called && !session_hle_release.load());
+        session_hle_release.store(true, std::memory_order_release);
+        auto result = Await(running);
+        Check(cancel ? "SP04" : "SP02",
+              cancel ? "session resume preserves a simultaneous Cancel"
+                     : "session resume from HLE returns 42 without an orphan PauseRequested",
+              resumed && result && result.Value().primary_reason ==
+                  (cancel ? StopReason::Cancelled : StopReason::Returned) &&
+                  (cancel || result.Value().snapshot.registers.Get(Gpr::Rax) == 42),
+              result ? std::string(ToString(result.Value().primary_reason)) : Describe(result.GetError()));
+    }
+}
+
 void TestWarmEntryBackedge(Harness& h) {
     std::string detail;
     const auto* fixture = FindFixture("entry_backedge");
@@ -5138,13 +5208,14 @@ int main(int argc, char** argv) {
     const bool debug_server = debug_mixed_server || debug_watch_server || (argc == 2 && std::strcmp(argv[1], "--serve-debugger") == 0);
     const bool debug_only = argc == 2 && std::strcmp(argv[1], "--focused-debugger") == 0;
     const bool hle_only = argc == 2 && std::strcmp(argv[1], "--focused-hle") == 0;
-    if (argc > 1 && !focused && !clock_only && !debug_only && !debug_server && !hle_only) { std::fprintf(stderr, "unknown test selection\n"); return 2; }
+    const bool pause_only = argc == 2 && std::strcmp(argv[1], "--focused-session-pause") == 0;
+    if (argc > 1 && !focused && !clock_only && !debug_only && !debug_server && !hle_only && !pause_only) { std::fprintf(stderr, "unknown test selection\n"); return 2; }
     printf("guest execution through the public CPU API\n");
     printf("host page size: %ld\n", ::sysconf(_SC_PAGESIZE));
     printf("fixtures: %zu, generated from tests/guest_cpu/fixtures/guest_fixtures.S\n\n",
            std::size(Fixtures::kAll));
 
-    if (!focused && !clock_only && !debug_only && !debug_server && !hle_only) TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
+    if (!focused && !clock_only && !debug_only && !debug_server && !hle_only && !pause_only) TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
     Harness harness{};
 
     AddressSpaceConfig space_config{};
@@ -5289,6 +5360,11 @@ int main(int argc, char** argv) {
         printf("FOCUSED_PUBLICATION checks=%d failures=%d\n", g_checks, g_failures);
         return g_failures ? 1 : 0;
     }
+    if (pause_only) {
+        TestSessionPauseHleBoundary(harness);
+        printf("FOCUSED_SESSION_PAUSE checks=%d failures=%d\n", g_checks, g_failures);
+        return g_failures ? 1 : 0;
+    }
     TestClockDomain(harness);
     TestIntegerArithmetic(harness);
     TestBranches(harness);
@@ -5333,6 +5409,7 @@ int main(int argc, char** argv) {
     TestRetiredContextsAndFaultPriority(harness);
     TestContinuationAdmissionRace(harness);
     TestHleBoundaryDrainWake(harness);
+    TestSessionPauseHleBoundary(harness);
     harness.context.reset();
     harness.space.reset();
 

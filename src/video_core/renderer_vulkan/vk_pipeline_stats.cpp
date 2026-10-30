@@ -90,7 +90,7 @@ struct KindCounters {
         hits = 0;
     }
     std::string Describe() const {
-        return fmt::format("{}\n    driver feedback {}, cache hits {}", wall.Describe(),
+        return fmt::format("{}\n    driver feedback {}, reported cache hits {}", wall.Describe(),
                            driver.Describe(), hits.load());
     }
 };

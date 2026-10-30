@@ -470,6 +470,53 @@ Id EmitDataAppend(EmitContext& ctx, Id gds_dw_offset, Id exec) {
     UNREACHABLE_MSG("SPIR-V Instruction");
 }
 
+Id EmitDataOrderedCount(EmitContext& ctx, u32 binding, Id address, Id value, Id exec,
+                        bool swap) {
+    ctx.AddCapability(spv::Capability::GroupNonUniformVote);
+    const Id subgroup = ctx.ConstU32(u32(spv::Scope::Subgroup));
+    const Id mask = ctx.OpGroupNonUniformBallot(ctx.U32[4], subgroup, exec);
+    const Id present = ctx.OpGroupNonUniformBallot(ctx.U32[4], subgroup, ctx.true_value);
+    const Id active = ctx.OpGroupNonUniformAny(ctx.U1[1], subgroup, exec);
+    const Id selected = ctx.OpGroupNonUniformBallotFindLSB(
+        ctx.U32[1], subgroup, ctx.OpSelect(ctx.U32[4], active, mask, present));
+    const Id lane = ctx.OpLoad(ctx.U32[1], ctx.subgroup_local_invocation_id);
+    const Id elected = ctx.OpIEqual(ctx.U1[1], lane, selected);
+    const auto& buffer = ctx.buffers[binding];
+    const auto [id, type] = buffer.Alias(PointerType::U32);
+    const Id index = ctx.OpShiftRightLogical(ctx.U32[1], address, ctx.ConstU32(2u));
+    const Id pointer = ctx.OpAccessChain(type, id, ctx.u32_zero_value, index);
+    const auto [scope, semantics] = AtomicArgs(ctx);
+    const auto guarded = [&](Id condition, auto&& operation) {
+        const Id yes = ctx.OpLabel(), no = ctx.OpLabel(), merge = ctx.OpLabel();
+        ctx.OpSelectionMerge(merge, spv::SelectionControlMask::MaskNone);
+        ctx.OpBranchConditional(condition, yes, no);
+        ctx.AddLabel(yes);
+        const Id result = operation();
+        const Id result_label = ctx.last_label;
+        ctx.OpBranch(merge);
+        ctx.AddLabel(no);
+        ctx.OpBranch(merge);
+        ctx.AddLabel(merge);
+        return ctx.OpPhi(ctx.U32[1], result, result_label, ctx.u32_zero_value, no);
+    };
+    const Id result = guarded(elected, [&] {
+        if (!swap) {
+            return ctx.OpAtomicIAdd(ctx.U32[1], pointer, scope, semantics,
+                                    ctx.OpSelect(ctx.U32[1], active, value, ctx.u32_zero_value));
+        }
+        // Empty EXEC must not reset a counter, including for the swap form.
+        const Id old = guarded(active, [&] {
+            return ctx.OpAtomicExchange(ctx.U32[1], pointer, scope, semantics, value);
+        });
+        const Id unchanged = guarded(ctx.OpLogicalNot(ctx.U1[1], active), [&] {
+            return ctx.OpAtomicIAdd(ctx.U32[1], pointer, scope, semantics, ctx.u32_zero_value);
+        });
+        return ctx.OpSelect(ctx.U32[1], active, old, unchanged);
+    });
+    ctx.AddCapability(spv::Capability::GroupNonUniformShuffle);
+    return ctx.OpGroupNonUniformShuffle(ctx.U32[1], subgroup, result, selected);
+}
+
 Id EmitDataConsume(EmitContext& ctx, Id gds_dw_offset, Id exec) {
     UNREACHABLE_MSG("SPIR-V Instruction");
 }

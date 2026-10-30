@@ -97,9 +97,15 @@ void Bookmark(const char* name) noexcept {
     spatial::LiteTrace::bookmark(name);
 #endif
 }
-void Frame() noexcept {
+void PresentedFrame(bool presented) noexcept {
 #ifdef SHADPS4_PROFILER_RING
-    spatial::LiteTrace::frameStart();
+    if (presented) spatial::LiteTrace::frameStart();
+#endif
+}
+void ResetFrameHistory() noexcept {
+#ifdef SHADPS4_PROFILER_RING
+    spatial::ProfilerRing::ResetSlowFrameHistory();
+    spatial::LiteTrace::bookmark("VideoOut.Cadence.Reset");
 #endif
 }
 bool Enabled() noexcept {
@@ -114,7 +120,8 @@ void Initialize() {
     static std::once_flag once;
     std::call_once(once, [] {
         spatial::ProfilerRing::Initialize("shadPS4",
-            (FS::GetUserPath(FS::PathType::LogDir) / "profiler").string(), true);
+            (FS::GetUserPath(FS::PathType::LogDir) / "profiler").string(), true,
+            1024 * 1024, true); // Startup capture must not require a successful present.
 #if defined(__ANDROID__)
         // Explicit one-process debug opt-in: arm before launch so Prepare and
         // guest bootstrap are captured even before the service accepts commands.
@@ -149,7 +156,7 @@ void BeginSession(const std::string& identity) noexcept {
 #ifdef SHADPS4_PROFILER_RING
 namespace {
 // `profiler_ring slow ...`: the slow-frame capture of the Foundation ring (same options as
-// Foundation's own DebugBus command). Frames are guest submission epochs (sceGnmSubmitDone).
+// Foundation's own DebugBus command). Frames are successful new guest-image presents.
 std::string SlowControl(const std::vector<std::string>& args) {
     if (args.size() == 1 || (args.size() == 2 && args[1] == "status"))
         return spatial::ProfilerRing::SlowFrameStatus();

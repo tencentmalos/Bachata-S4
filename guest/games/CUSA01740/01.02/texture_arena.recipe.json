@@ -1,0 +1,124 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "gow3_texture_arena_v1",
+  "title": "CUSA01740",
+  "module": "eboot.bin",
+  "module_sha256": "6e72330e9092e5164049b865e5568f2d450904001a73fe0a2f4b39194c195b3c",
+  "executable_sha256": "6e72330e9092e5164049b865e5568f2d450904001a73fe0a2f4b39194c195b3c",
+  "sources": [
+    "texture_arena.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "renderer_init",
+      "offset": 2007936,
+      "expected": "554889e5415741564154534883ec304c8b3d92e92100498b07488945d8488d7d",
+      "replacement": "initialize_renderer",
+      "original": "original_initialize_renderer",
+      "prototype": "unsigned int original_initialize_renderer()",
+      "evidence": "Exported ELF SHA67e41b61, sub_5EA380 returns its EAX initialization success result. Its call at +0x44 enters 5F0B80 -> 5A0980, which requests/maps video_arena_bytes plus shader storage through sceKernelAllocateDirectMemory/MapDirectMemory. Later in this same initializer the root heap remainder minus 256 MiB becomes the texture arena via 5C9EC0. Set the size before that chain; never enlarge the live arena capacity independently."
+    },
+    {
+      "name": "vram_allocate",
+      "offset": 1870480,
+      "expected": "554889e5415741564154534989d74189f64989fc498b342431d24885f60f8524",
+      "replacement": "probe_allocate",
+      "original": "original_allocate",
+      "prototype": "shad_u64 original_allocate(shad_u64* slot, unsigned int size, shad_u64 key, unsigned int flags)",
+      "evidence": "Original ELF SHA67e41b61: 5c72b0 passes RDI parent+120, ESI byte size, RDX content key, ECX flags. 5c8a90 uses all four and returns allocation GPU VA in RAX. Read-only diagnostic wrapper preserves original call and result. See vram-allocate.c and exact disassembly in this investigation."
+    }
+  ],
+  "bindings": [
+    {
+      "name": "vram_used",
+      "kind": "data",
+      "offset": 21983792,
+      "size": 4,
+      "alignment": 4,
+      "access": "r",
+      "type": "unsigned int",
+      "evidence": "Exact RIP-relative accesses in original 5c8a90 allocation capacity check."
+    },
+    {
+      "name": "vram_capacity",
+      "kind": "data",
+      "offset": 21983796,
+      "size": 4,
+      "alignment": 4,
+      "access": "r",
+      "type": "unsigned int",
+      "evidence": "Exact RIP-relative accesses in original 5c8a90 allocation capacity check."
+    },
+    {
+      "name": "video_arena_bytes",
+      "kind": "data",
+      "offset": 3987736,
+      "size": 8,
+      "alignment": 8,
+      "access": "rw",
+      "type": "shad_u64",
+      "evidence": "RW global at guest EA 0x7cd918, original qword 0x50000000. Both actual direct allocation/mapping (5A0E39) and root heap extent (58D2B8) consume this value. Full module identity is pinned."
+    }
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "failure_count"
+    },
+    {
+      "id": 2,
+      "name": "call_count"
+    },
+    {
+      "id": 3,
+      "name": "requested_bytes"
+    },
+    {
+      "id": 4,
+      "name": "used_before"
+    },
+    {
+      "id": 5,
+      "name": "capacity"
+    },
+    {
+      "id": 6,
+      "name": "parent_slot"
+    },
+    {
+      "id": 7,
+      "name": "old_record"
+    },
+    {
+      "id": 8,
+      "name": "record_after"
+    },
+    {
+      "id": 9,
+      "name": "content_key"
+    },
+    {
+      "id": 10,
+      "name": "result"
+    },
+    {
+      "id": 11,
+      "name": "video_arena_before"
+    },
+    {
+      "id": 12,
+      "name": "video_arena_selected"
+    },
+    {
+      "id": 13,
+      "name": "renderer_init_result"
+    },
+    {
+      "id": 14,
+      "name": "texture_arena_capacity"
+    }
+  ],
+  "name": "Expanded texture arena",
+  "description": "Increases the game video arena from 1.25 to 2.25 GiB at initialization to prevent observed texture allocation exhaustion. Restart required; CUSA01740 01.02 only."
+}

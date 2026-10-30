@@ -320,6 +320,100 @@ int main() {
         decay_unchanged.store(false);
     }
 
+    // A clean region skipped by the first pass becomes dirty while staging waits.
+    // The retry must revisit it, including at a directory boundary.
+    for (const bool fast : {false, true}) {
+        region_cpu_flag.store(fast);
+        const VAddr first = base + (1ULL << 28) + (1ULL << 22) - region;
+        Snapshot(*tracker, first, 2 * region, false, [](u64) {}, [](u64, u64) {});
+        tracker->MarkRegionAsCpuModified(first, 1);
+        unsigned reservations = 0;
+        u64 copied_bytes = 0;
+        const auto bytes = Snapshot(*tracker, first, 2 * region, false, [&](u64) {
+            if (++reservations == 1) {
+                tracker->MarkRegionAsCpuModified(first + region, 1);
+            }
+        }, [&](u64 address, u64 count) {
+            CHECK(address == first || address == first + region);
+            copied_bytes += count;
+        });
+        CHECK(reservations == 2);
+        CHECK(bytes == 8192 && copied_bytes == bytes);
+        CHECK(!tracker->IsRegionCpuModified(first, 2 * region));
+        CHECK(Snapshot(*tracker, first, 2 * region, true,
+                       [](u64) { std::abort(); }, [](u64, u64) { std::abort(); }) == 0);
+        CHECK(tracker->IsRegionGpuModified(first + region, region));
+        tracker->InvalidateMapping(first, 2 * region);
+        CHECK(Snapshot(*tracker, first, 2 * region, false,
+                       [](u64) {}, [](u64, u64) {}) == 2 * region);
+        // A throw after cleaning a complete region must republish its CPU dirtiness.
+        tracker->MarkRegionAsCpuModified(first, region);
+        try {
+            Snapshot(*tracker, first, region, false, [](u64) {},
+                     [](u64, u64) { throw std::runtime_error("copy interrupted"); });
+            CHECK(false);
+        } catch (const std::runtime_error&) {
+            CHECK(tracker->IsRegionCpuModified(first, region));
+        }
+        CHECK(Snapshot(*tracker, first, region, false,
+                       [](u64) {}, [](u64, u64) {}) == region);
+    }
+    region_cpu_flag.store(true);
+
+    // Dirtying an omitted region while the snapshot waits on another region's
+    // lock must also be observed, even when no staging reservation was needed.
+    const VAddr omitted = base + (1ULL << 29);
+    Snapshot(*tracker, omitted, region, false, [](u64) {}, [](u64, u64) {});
+    tracker->IsRegionCpuModified(omitted + region, region);
+    std::promise<void> locked_later_region, release_later_region;
+    auto release_later = release_later_region.get_future().share();
+    auto lock_holder = std::async(std::launch::async, [&] {
+        Snapshot(*tracker, omitted + region, 4096, false, [](u64) {}, [&](u64, u64) {
+            locked_later_region.set_value();
+            release_later.wait();
+        });
+    });
+    locked_later_region.get_future().wait();
+    auto blocked_upload = std::async(std::launch::async, [&] {
+        return Snapshot(*tracker, omitted, region + 4096, false,
+                        [](u64) {}, [](u64, u64) {});
+    });
+    CHECK(blocked_upload.wait_for(20ms) == std::future_status::timeout);
+    tracker->MarkRegionAsCpuModified(omitted, 1);
+    release_later_region.set_value();
+    lock_holder.get();
+    CHECK(blocked_upload.get() == 4096);
+    CHECK(!tracker->IsRegionCpuModified(omitted, 4096));
+
+    // A directory can be present with holes. Missing managers must not be treated
+    // as clean, and dirty neighbours outside the query must not enter the upload.
+    for (const bool directory : {false, true}) {
+        directory_cpu_flag.store(directory);
+        const VAddr start = base + (1ULL << 30) + u64(directory) * (1ULL << 24);
+        CHECK(Snapshot(*tracker, start, region, false, [](u64) {}, [](u64, u64) {}) == region);
+        CHECK(Snapshot(*tracker, start, 2 * region + 4096, false,
+                       [](u64) {}, [](u64, u64) {}) == region + 4096);
+        tracker->MarkRegionAsCpuModified(start + 2 * region, 1);
+        CHECK(Snapshot(*tracker, start, 2 * region, false,
+                       [](u64) { std::abort(); }, [](u64, u64) { std::abort(); }) == 0);
+        CHECK(tracker->IsRegionCpuModified(start + 2 * region, 1));
+        constexpr u64 span = 4 * (1ULL << MemoryTracker::DIRECTORY_PAGE_BITS);
+        Snapshot(*tracker, start, span, false, [](u64) {}, [](u64, u64) {});
+        for (u32 turn = 0; turn < 16; ++turn) {
+            const VAddr dirty = start + u64((turn * 17) % 64) * region + 4096;
+            tracker->MarkRegionAsCpuModified(dirty, 1);
+            u64 bytes{};
+            CHECK(Snapshot(*tracker, start, span, false, [](u64) {}, [&](u64 addr, u64 n) {
+                CHECK(addr == dirty && n == 4096);
+                bytes += n;
+            }) == 4096);
+            CHECK(bytes == 4096);
+            CHECK(Snapshot(*tracker, start, span, false,
+                           [](u64) { std::abort(); }, [](u64, u64) { std::abort(); }) == 0);
+        }
+    }
+    directory_cpu_flag.store(true);
+
     std::printf("checks=%d failures=%d region_bytes=%llu directory_object_bytes=%zu\n", checks,
                 failures, static_cast<unsigned long long>(region), sizeof(MemoryTracker));
     return failures != 0;

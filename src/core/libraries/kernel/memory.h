@@ -178,6 +178,8 @@ s32 PS4_SYSV_ABI sceKernelBatchMap2(OrbisKernelBatchMapEntry* entries, s32 numEn
                                     s32* numEntriesOut, s32 flags);
 
 s32 PS4_SYSV_ABI sceKernelSetVirtualRangeName(const void* addr, u64 len, const char* name);
+s32 PS4_SYSV_ABI sceKernelSetPrtAperture(s32 id, VAddr address, u64 size);
+s32 PS4_SYSV_ABI sceKernelGetPrtAperture(s32 id, VAddr* address, u64* size);
 
 // Shared mapping implementation without desktop thread-local errno. The host
 // adapter must translate guest file handles before admitting file mappings.

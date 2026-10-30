@@ -106,7 +106,7 @@ int main() {
     ud[3] = 1;
     Info info;
     info.user_data = ud;
-    Common::ObjectPool<IR::Inst> pool(64);
+    IR::InstPool pool(64);
     IR::Block block(pool);
     IR::IREmitter ir(block);
     IR::Program program(info);
@@ -614,6 +614,70 @@ int main() {
                                             u32(images_info.samplers.size())};
             std::ofstream layout_file("dynamic-image-layout.bin", std::ios::binary);
             layout_file.write(reinterpret_cast<const char*>(layout.data()), sizeof(layout));
+        }
+    }
+    // GoW's r128 texture view clears NUM_FORMAT in T# dword 1 before sampling.
+    // Keep masked/unmasked views of the same source distinct, and reapply the
+    // operation whenever descriptors are refreshed (not just at compilation).
+    for (bool r128 : {false, true}) {
+        for (bool reverse : {false, true}) {
+            try {
+                Info view_info{};
+                view_info.hw_stage = HwStage::Fragment;
+                view_info.sw_stage = SwStage::Fragment;
+                auto source = AmdGpu::Image::Null(false);
+                source.num_format = u64(AmdGpu::NumberFormat::Srgb);
+                std::array<u32, 16> regs{};
+                std::memcpy(regs.data(), &source, sizeof(source));
+                view_info.user_data = regs;
+                IR::Block block(pool);
+                IR::IREmitter emit(block);
+                IR::Program program(view_info);
+                program.blocks.push_back(&block);
+                program.post_order_blocks.push_back(&block);
+                for (bool masked : {true, false}) {
+                    std::array<IR::Value, 8> words;
+                    for (u32 i = 0; i < 8; ++i)
+                        words[i] = emit.GetUserData(IR::ScalarReg(i));
+                    if (masked) {
+                        const auto mask = emit.Imm32(0xc3ffffffu);
+                        const IR::U32 input{words[1]};
+                        words[1] = reverse ? emit.BitwiseAnd(mask, input)
+                                           : emit.BitwiseAnd(input, mask);
+                    }
+                    const auto lo = emit.CompositeConstruct(words[0], words[1], words[2], words[3]);
+                    const auto hi = emit.CompositeConstruct(words[4], words[5], words[6], words[7]);
+                    const auto handle = emit.ImageHandle(lo, r128 ? IR::Value{} : hi);
+                    const auto sampler = emit.CompositeConstruct(emit.Imm32(73U),
+                        emit.Imm32(16773120U), emit.Imm32(105906176U), emit.Imm32(0U));
+                    const auto coords = emit.CompositeConstruct(emit.Imm32(.5f), emit.Imm32(.5f),
+                        emit.Imm32(0.f), emit.Imm32(0.f));
+                    IR::TextureInstInfo flags{};
+                    flags.is_r128.Assign(r128);
+                    [[maybe_unused]] const auto color = emit.ImageSampleRaw(handle, sampler,
+                        coords, coords, coords, emit.Imm32(0.f), flags);
+                }
+                Profile profile{};
+                const auto resources = Optimization::ResourceDiscoverPass(program, profile);
+                Optimization::FlattenExtendedUserdataPass(program);
+                view_info.RefreshFlatBuf();
+                Optimization::ResourcePatchingPass(view_info, resources, profile);
+                CHECK(view_info.images.size() == 2);
+                CHECK(view_info.images[0].GetSharp(view_info).num_format ==
+                      u64(AmdGpu::NumberFormat::Unorm));
+                CHECK(view_info.images[1].GetSharp(view_info).num_format ==
+                      u64(AmdGpu::NumberFormat::Srgb));
+                source.num_format = u64(AmdGpu::NumberFormat::Snorm);
+                std::memcpy(regs.data(), &source, sizeof(source));
+                view_info.RefreshFlatBuf();
+                CHECK(view_info.images[0].GetSharp(view_info).num_format ==
+                      u64(AmdGpu::NumberFormat::Unorm));
+                CHECK(view_info.images[1].GetSharp(view_info).num_format ==
+                      u64(AmdGpu::NumberFormat::Snorm));
+            } catch (const std::exception& e) {
+                ++checks; ++failures;
+                std::printf("FAIL masked texture descriptor: %s\n", e.what());
+            }
         }
     }
     std::printf("srt checks=%u failures=%u\n", checks, failures);

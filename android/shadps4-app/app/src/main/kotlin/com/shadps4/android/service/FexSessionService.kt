@@ -1,9 +1,18 @@
 package com.shadps4.android.service
 
 import android.app.Service
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import com.shadps4.android.MainActivity
+import com.shadps4.android.R
 import com.shadps4.android.data.GameInstallVerifier
 import com.shadps4.android.data.GameRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,6 +53,7 @@ class FexSessionService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var startJob: Job? = null
     private var surfaceJob: Job? = null
+    private var latestStartId = 0
     @Volatile private var observer: Thread? = null
     // Set when a stop was requested for the live generation. Distinguishes "the
     // game is still running normally" (a WaitTerminal timeout is NOT a failure)
@@ -76,12 +86,61 @@ class FexSessionService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        latestStartId = startId
         when (intent?.action) {
-            ManagedSession.ACTION_START -> handleStart(intent, startId)
+            ManagedSession.ACTION_START -> {
+                // Promote before preparation (firmware / SAF / Surface waits can take seconds).
+                // A duplicate START still has to satisfy startForegroundService's contract.
+                try {
+                    keepSessionInForeground()
+                } catch (error: Exception) {
+                    Log.e(TAG, "Cannot keep the game session in the foreground", error)
+                    if (NativeFexSession.nativeCurrentGeneration() == 0L) {
+                        ManagedSession.update(ManagedSessionState.Failed(
+                            RuntimeErrorCode.BACKEND_CRASHED,
+                            "Cannot start game session: ${error.message}"))
+                        stopSelf(startId)
+                    }
+                    return START_NOT_STICKY
+                }
+                handleStart(intent, startId)
+            }
             ManagedSession.ACTION_STOP -> handleStop()
-            else -> Log.w(TAG, "Unknown action: ${intent?.action}")
+            else -> {
+                Log.w(TAG, "Unknown action: ${intent?.action}")
+                if (NativeFexSession.nativeCurrentGeneration() == 0L && startJob?.isActive != true) {
+                    stopSelf(startId)
+                }
+            }
         }
         return START_NOT_STICKY
+    }
+
+    private fun keepSessionInForeground() {
+        getSystemService(NotificationManager::class.java).createNotificationChannel(
+            NotificationChannel(SESSION_CHANNEL, getString(R.string.session_channel),
+                NotificationManager.IMPORTANCE_LOW))
+        val returnToGame = PendingIntent.getActivity(this, 0,
+            Intent(this, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val stop = PendingIntent.getService(this, 0,
+            Intent(this, FexSessionService::class.java).setAction(ManagedSession.ACTION_STOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val notification = NotificationCompat.Builder(this, SESSION_CHANNEL)
+            .setSmallIcon(R.drawable.ic_session)
+            .setContentTitle(getString(R.string.session_notification_title))
+            .setContentText(getString(R.string.session_notification_text))
+            .setContentIntent(returnToGame)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(0, getString(R.string.session_notification_stop), stop)
+            .build()
+        ServiceCompat.startForeground(this, SESSION_NOTIFICATION_ID, notification,
+            if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0)
     }
 
     private fun handleStart(intent: Intent, startId: Int) {
@@ -499,9 +558,16 @@ class FexSessionService : Service() {
                 // into the next session's pad.
                 NativePadBridge.end(generation)
 
-                stopSelf(startId)
+                serviceScope.launch {
+                    val current = NativeFexSession.nativeCurrentGeneration()
+                    if (current == 0L || current == generation) stopSelf(latestStartId)
+                }
             }
-            } finally { preparingRomLease?.let { it.reportOutcome(NativeFexSession.Outcome.START_FAILED); it.close() } }
+            } finally {
+                preparingRomLease?.let { it.reportOutcome(NativeFexSession.Outcome.START_FAILED); it.close() }
+                // Includes early preparation failures and cancellation before native admission.
+                if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(latestStartId)
+            }
         }
     }
 
@@ -582,6 +648,7 @@ class FexSessionService : Service() {
     }
 
     override fun onDestroy() {
+        stopForeground(STOP_FOREGROUND_REMOVE)
         serviceScope.cancel()
         // Do not block the main thread on a multi-second JNI wait (review 2.4).
         // Hand teardown to a detached owner thread: request the stop, mark the
@@ -605,6 +672,8 @@ class FexSessionService : Service() {
         // TIMEOUT is not a drain: never close a live guest's source capability.
         val romLeases=java.util.concurrent.ConcurrentHashMap<Long,com.shadps4.android.data.EmuPspLibrary.Lease>()
         const val TAG = "FexSessionService"
+        const val SESSION_CHANNEL = "game_session"
+        const val SESSION_NOTIFICATION_ID = 43
         // Large but finite: stays in the JIT long enough for Stop to interrupt, yet a natural
         // Returned end is reachable. ~4 billion single-instruction iterations.
         const val DEFAULT_ITERATIONS = 1L shl 32

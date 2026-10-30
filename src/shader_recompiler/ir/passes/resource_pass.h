@@ -26,6 +26,7 @@ union PostOpData {
 struct SharpReference {
     std::array<IR::Value, 8> dwords{};
     u32 num_dwords{};
+    u32 dw1_and_mask = ~0u;
     SharpFetchPostOp post_op{};
     PostOpData post_op_data;
 };
@@ -98,6 +99,8 @@ inline bool IsBufferStore(const IR::Inst& inst) {
 
 inline bool IsDataRingInstruction(const IR::Inst& inst) {
     switch (inst.GetOpcode()) {
+    case IR::Opcode::DataOrderedCount:
+        return true;
     case IR::Opcode::DataAppend:
     case IR::Opcode::DataConsume:
         return true;

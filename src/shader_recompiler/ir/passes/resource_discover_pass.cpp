@@ -466,6 +466,19 @@ void DiscoverImageSharp(IR::Block& block, IR::Inst& inst, ResourceDiscoveryList&
         }
     }
 
+    // The shader can clear texture format bits without changing the descriptor source.
+    // Preserve the mask as a view operation; dropping the AND would bind the wrong format.
+    while (auto* masked = tsharp.dwords[1].TryInst()) {
+        if (masked->GetOpcode() != IR::Opcode::BitwiseAnd32)
+            break;
+        const bool left = masked->Arg(0).IsImmediate();
+        const u32 constant = left ? 0 : 1;
+        if (!masked->Arg(constant).IsImmediate())
+            break;
+        tsharp.dw1_and_mask &= masked->Arg(constant).U32();
+        tsharp.dwords[1] = masked->Arg(1 - constant);
+    }
+
     if (auto [tsharp_dw3, tsharp_dw4, found] =
             CheckCubeTo2DArrayPattern(tsharp.dwords[3], tsharp.dwords[4]);
         found) {

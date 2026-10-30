@@ -119,6 +119,7 @@ void StatusOverlay::Request(const std::string& command) {
 void StatusOverlay::Save() {
     try {
         nlohmann::json json{{"shell", ov::serializeOverlayState(shell.persistentState())},
+                            {"detail_layout", 1},
                             {"text_size", int(text_size)},
                             {"status_anchor", int(status_anchor)},
                             {"opacity", theme.background.a},
@@ -175,6 +176,10 @@ void StatusOverlay::Begin(unsigned w, unsigned h) {
                 if (ov::deserializeOverlayState(json.value("shell", ""), state)) {
                     for (auto& mode : state.status_modes)
                         if (mode.mode == ov::StatusMode::Simple) mode.mode = ov::StatusMode::Summary;
+                    // Migrate the nested layout once; its closed children would otherwise hide
+                    // the restored flat detail rows. Preserve subsequent user choices.
+                    if (json.value("detail_layout", 0) < 1)
+                        state.detail_sections.clear();
                     shell.restorePersistentState(state);
                     restored = true;
                 }
@@ -509,16 +514,10 @@ void StatusOverlay::Prepare(ov::StatusSnapshot status) {
         ov::DetailSection section;
         section.id = ov::StableId("Overlay renderer");
         section.title = ov::LocalizedText("Overlay renderer");
-        section.initially_open = false;
         auto* renderer = Core::Renderer();
         section.properties.push_back({ov::LocalizedText("Font mode"),
                                       renderer ? renderer->FontDiagnostics() : std::string{}});
-        ov::DetailSection diagnostics;
-        diagnostics.id = ov::StableId("detail.diagnostics");
-        diagnostics.title = ov::LocalizedText("Diagnostics");
-        diagnostics.initially_open = false;
-        diagnostics.groups.push_back(std::move(section));
-        snapshot.status.detail_sections.push_back(std::move(diagnostics));
+        snapshot.status.detail_sections.push_back(std::move(section));
     }
     if (shell.controller().controlPanelOpen())
         Controls();

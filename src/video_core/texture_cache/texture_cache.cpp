@@ -366,7 +366,7 @@ void TextureCache::PublishMemoryDiagnostics() {
     MemoryDiagnostics::Publish(memory_diagnostics_epoch, request, out.str());
 }
 
-void TextureCache::PublishImageDiagnostics() {
+void TextureCache::PublishImageDiagnostics(u64 before_shader) {
     const auto request = MemoryDiagnostics::image_requested.load(std::memory_order_acquire);
     if (request == MemoryDiagnostics::image_completed.load(std::memory_order_acquire))
         return;
@@ -376,6 +376,8 @@ void TextureCache::PublishImageDiagnostics() {
         std::scoped_lock lock{MemoryDiagnostics::mutex};
         if (!MemoryDiagnostics::active || MemoryDiagnostics::epoch != memory_diagnostics_epoch)
             return;
+        if (MemoryDiagnostics::image_before_shader.load(std::memory_order_acquire) != before_shader)
+            return;
         uid = MemoryDiagnostics::image_uid;
         layer = MemoryDiagnostics::image_layer;
     }
@@ -384,6 +386,7 @@ void TextureCache::PublishImageDiagnostics() {
                          .count();
     std::ostringstream out;
     out << "sample_ns=" << now << " cache_epoch=" << memory_diagnostics_epoch
+        << " before_shader=" << before_shader
         << " selector=mip0-layer" << layer
         << " physical_backing=true final_output_equivalence=unverified\n";
     Image* selected{};
@@ -415,26 +418,38 @@ void TextureCache::PublishImageDiagnostics() {
         auto& image = *selected;
         const auto ci = image.backing->image.image_ci;
         const auto block = vk::blockExtent(ci.format);
-        const u64 bytes = u64(ci.extent.width) * ci.extent.height * vk::blockSize(ci.format);
         const bool color = image.aspect_mask == vk::ImageAspectFlagBits::eColor;
-        const bool depth_only = image.aspect_mask == vk::ImageAspectFlagBits::eDepth;
+        const bool depth = bool(image.aspect_mask & vk::ImageAspectFlagBits::eDepth);
+        const auto copy_aspect = depth ? vk::ImageAspectFlagBits::eDepth
+                                       : vk::ImageAspectFlagBits::eColor;
+        // A depth/stencil image copy selects one aspect. Its depth texel size is
+        // not the combined format's block size (D32S8 is 8 bytes, depth is 4).
+        const u32 texel_bytes = depth ? (ci.format == vk::Format::eD16Unorm ||
+                                        ci.format == vk::Format::eD16UnormS8Uint ? 2 : 4)
+                                     : vk::blockSize(ci.format);
+        const u64 bytes = u64(ci.extent.width) * ci.extent.height * texel_bytes;
         if (ci.imageType != vk::ImageType::e2D || ci.extent.depth != 1 ||
-            ci.samples != vk::SampleCountFlagBits::e1 || !(color || depth_only) ||
+            ci.samples != vk::SampleCountFlagBits::e1 || !(color || depth) ||
             block[0] != 1 || block[1] != 1 || block[2] != 1 || !bytes || bytes > 32_MB ||
             layer >= ci.arrayLayers ||
             image.backing->state.layout == vk::ImageLayout::eUndefined ||
             !(ci.usage & vk::ImageUsageFlagBits::eTransferSrc)) {
             out << "status=unsupported (requires initialized single-sample uncompressed 2D color "
-                   "or depth-only layer, <=32 MiB)\n";
+                   "or depth aspect, <=32 MiB)\n";
         } else {
+            out << "dump_aspect=" << vk::to_string(copy_aspect)
+                << " texel_bytes=" << texel_bytes << '\n';
             // Diagnostic readback of the existing physical backing: no scale promotion,
             // guest-memory writeback, format conversion, or mutation of content versions.
             Buffer output(instance, 0, bytes, MemoryType::HostCached, "GPU image diagnostic");
             scheduler.EndRendering(Vulkan::RenderBreak::Download);
+            const auto previous_state = image.backing->subresource_states.empty()
+                                            ? image.backing->state
+                                            : image.backing->subresource_states.at(layer);
             image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead,
                           SubresourceRange{{0, layer}, {1, 1}});
             const vk::BufferImageCopy copy{
-                .imageSubresource = {image.aspect_mask, 0, layer, 1},
+                .imageSubresource = {copy_aspect, 0, layer, 1},
                 .imageExtent = ci.extent};
             scheduler.CommandBuffer().copyImageToBuffer(
                 image.GetImage(), vk::ImageLayout::eTransferSrcOptimal, output.Handle(), copy);
@@ -446,6 +461,10 @@ void TextureCache::PublishImageDiagnostics() {
                 {.memoryBarrierCount = 1, .pMemoryBarriers = &barrier});
             scheduler.Finish();
             output.Invalidate(0, bytes);
+            // A shader-triggered snapshot runs between draws. Restore the attachment/sample
+            // layout before the following draw; content and write epochs stay unchanged.
+            image.Transit(previous_state.layout, previous_state.access_mask,
+                          SubresourceRange{{0, layer}, {1, 1}});
             try {
                 const auto directory =
                     Common::FS::GetUserPath(Common::FS::PathType::CapturesDir) / "gpu-images";
@@ -471,8 +490,10 @@ void TextureCache::PublishImageDiagnostics() {
         }
     }
     std::scoped_lock lock{MemoryDiagnostics::mutex};
-    if (MemoryDiagnostics::active && MemoryDiagnostics::epoch == memory_diagnostics_epoch) {
+    if (MemoryDiagnostics::active && MemoryDiagnostics::epoch == memory_diagnostics_epoch &&
+        MemoryDiagnostics::image_requested.load() == request) {
         MemoryDiagnostics::image_snapshot = out.str();
+        MemoryDiagnostics::image_before_shader.store(0, std::memory_order_release);
         MemoryDiagnostics::image_completed.store(request, std::memory_order_release);
     }
 }
@@ -1600,7 +1621,11 @@ void TextureCache::UnmapMemory(VAddr cpu_addr, size_t size, bool pool_commit) {
 }
 
 void TextureCache::DecommitMemory(VAddr addr, size_t size) {
-    std::scoped_lock lk{mutex};
+    std::unique_lock lk{mutex, std::defer_lock};
+    {
+        Common::Profiler::Scope scope{"Texture.DecommitLock"};
+        lk.lock();
+    }
 
     ReleaseUndefinedContent(addr, size, UndefinedRelease::Range);
     scale_plans.Unmap(addr, size);
@@ -2784,8 +2809,9 @@ ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& des
 
     // Register meta data for this color buffer
     if (desc.info.meta_info.cmask_addr) {
-        surface_metas.emplace(desc.info.meta_info.cmask_addr,
-                              MetaDataInfo{.type = MetaType::CMask});
+        auto [it, inserted] = surface_metas.try_emplace(
+            desc.info.meta_info.cmask_addr, MetaDataInfo{.type = MetaType::CMask});
+        it.value().num_samples = desc.info.num_samples;
         image.info.meta_info.cmask_addr = desc.info.meta_info.cmask_addr;
     }
 

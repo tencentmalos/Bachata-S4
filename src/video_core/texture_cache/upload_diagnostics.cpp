@@ -186,6 +186,10 @@ std::string Summary() {
                        armed.load() ? 1 : 0, total_uploads, uploaded, frames,
                        frames ? double(total_uploads) / frames : 0.0, dirty_notes, log_budget.load());
     out += fmt::format("gpu_flag={}\n", region_gpu_flag.load() ? "on" : "off");
+    out += fmt::format("cpu_flag={}\n", region_cpu_flag.load() ? "on" : "off");
+    out += fmt::format("cpu_directory={} ordered_batch={} readback_window_kib={}\n",
+                       directory_cpu_flag.load() ? "on" : "off",
+                       ordered_batch.load() ? "on" : "off", readback_window_kib.load());
     out += fmt::format("watch_stream={} cycles={} checked={} copied={} promoted={} demoted={} "
                        "busy={}\n",
                        stream_pages.load() ? "on" : "off", stream_promote_cycles.load(),
@@ -684,6 +688,24 @@ std::string Command(const std::vector<std::string>& args) {
         stats_address.store(address);
         return fmt::format("image_stats armed for the image at {:#x}\n", address);
     }
+    if (sub == "cb_snapshot" && args.size() >= 2 && args.size() <= 3) {
+        std::scoped_lock lock{cb_snapshot_mutex};
+        if (args[1] == "status") {
+            return fmt::format("cb_snapshot hash={:#x} skip={} busy={}\n", cb_snapshot_hash.load(),
+                               cb_snapshot_skip.load(), cb_snapshot_busy.load());
+        }
+        if (args[1] == "cancel") {
+            cb_snapshot_hash.store(0);
+            return "cb_snapshot pending match cancelled (submitted copies still retire)\n";
+        }
+        const u64 hash = std::strtoull(args[1].c_str(), nullptr, 16);
+        if (!hash || cb_snapshot_busy.load() || cb_snapshot_hash.load())
+            return "cb_snapshot requires a nonzero hash and no pending snapshot\n";
+        cb_snapshot_skip.store(args.size() == 3 ? std::clamp(std::atoi(args[2].c_str()), 0, 4096)
+                                                : 0);
+        cb_snapshot_hash.store(hash, std::memory_order_release);
+        return "cb_snapshot armed: GPU descriptor bytes, max 32 MiB total; affects timing\n";
+    }
     if (sub == "cb_dump" && args.size() >= 2 && args.size() <= 4) {
         const u64 hash = std::strtoull(args[1].c_str(), nullptr, 16);
         const s32 count = args.size() >= 3 ? std::clamp(std::atoi(args[2].c_str()), 1, 64) : 4;
@@ -708,10 +730,32 @@ std::string Command(const std::vector<std::string>& args) {
         return fmt::format("raw_sync={} (raw buffer reads of GPU-written images {})\n", args[1],
                            args[1] == "on" ? "tile the image back first" : "read the buffer as is");
     }
+    if (sub == "readback_window" && args.size() == 2) {
+        u32 kib{};
+        const auto [end, error] = std::from_chars(args[1].data(), args[1].data() + args[1].size(), kib);
+        if (error != std::errc{} || end != args[1].data() + args[1].size() || kib < 64 ||
+            kib > 16384 || (kib & (kib - 1))) {
+            return "status=bad_arguments readback_window requires a power of two, 64..16384 KiB\n";
+        }
+        readback_window_kib.store(kib, std::memory_order_relaxed);
+        return fmt::format("readback_window_kib={} (clamped to arena ownership)\n", kib);
+    }
+    if (sub == "ordered_batch" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        ordered_batch.store(args[1] == "on");
+        return fmt::format("ordered_batch={} (single-workgroup ordered loop)\n", args[1]);
+    }
     if (sub == "dma_bounds" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
         dma_bounds.store(args[1] == "on");
         return fmt::format("dma_bounds={} (default on; off synchronizes all resident ranges)\n",
                            args[1]);
+    }
+    if (sub == "cpu_directory" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        directory_cpu_flag.store(args[1] == "on");
+        return fmt::format("cpu_directory={} (read-only snapshots skip clean directory bits)\n", args[1]);
+    }
+    if (sub == "cpu_flag" && args.size() == 2 && (args[1] == "on" || args[1] == "off")) {
+        region_cpu_flag.store(args[1] == "on");
+        return fmt::format("cpu_flag={} (read-only snapshots skip clean regions)\n", args[1]);
     }
     if (sub == "depth_copy" && args.size() == 2 && (args[1] == "maint8" || args[1] == "buffer")) {
         depth_copy_buffer.store(args[1] == "buffer");
@@ -917,7 +961,8 @@ std::string Command(const std::vector<std::string>& args) {
            "sharp_watch on|off | full_barriers on|off | dcb_verify on|off | ub_watch on|off | cp_delay <us> | "
            "submit_drain on|off | image_life on|off [lines] | "
            "stream_max <bytes> | stream_lease on|off | stream_bounce on|off | stream_host on|off | stream_dma on|off | "
-           "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | watch_stream on|off [1|2|3] | "
+           "texture_bind_cache on|off | texture_bind_fast on|off | gpu_flag on|off | cpu_flag on|off | "
+           "cpu_directory on|off | ordered_batch on|off | readback_window <KiB> | watch_stream on|off [1|2|3] | "
            "fault_textures skip|always | pool_undefined on|off | expand_twin on|off | "
            "pool_revive on|off | tiny_writeback on|off|dump | tiny_linear_writeback on|off | "
            "async_writeback off|tiny|all | writeback_log <n> | corner_views on|off | "

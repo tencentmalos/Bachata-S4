@@ -2623,9 +2623,8 @@ s32 PS4_SYSV_ABI sceGnmSubmitCommandBuffers(u32 count, const u32* dcb_gpu_addrs[
 }
 
 s32 PS4_SYSV_ABI sceGnmSubmitDone() {
-    // A guest submission epoch, including warmup iterations with no flip.
-    // This is deliberately not a displayed-frame/FPS marker.
-    Common::Profiler::Frame();
+    // Submission epochs can bunch up while presentation remains evenly paced.
+    // Preserve this boundary as a scope/counter, not the profiler's frame clock.
     Common::Profiler::Scope profile{"GNM.SubmitDone"};
     HLE_TRACE;
     LOG_DEBUG(Lib_GnmDriver, "called");
@@ -2639,6 +2638,7 @@ s32 PS4_SYSV_ABI sceGnmSubmitDone() {
     liverpool->SubmitDone();
     send_init_packet = true;
     ++frames_submitted;
+    Common::Profiler::Counter("GNM.SubmittedEpochs", frames_submitted);
     if (VideoCore::UploadDiagnostics::submit_drain.load(std::memory_order_relaxed))
         WaitGpuIdle();
     DebugState.IncGnmFrameNum();

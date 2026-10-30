@@ -6,6 +6,7 @@
 #include "video_core/vr_frame.h"
 
 #include "common/debug.h"
+#include "common/profiler.h"
 #include "common/polyfill_thread.h"
 #include "core/libraries/videoout/video_out.h"
 
@@ -128,6 +129,7 @@ public:
 private:
     struct Request {
         u64 diagnostic_id{};
+        Common::Profiler::FlowToken profile_flow{};
         Vulkan::Frame* frame;
         // Instead of a frame: a guest image the present thread composes (FSR/post-process).
         std::shared_ptr<Vulkan::PresentSource> source;

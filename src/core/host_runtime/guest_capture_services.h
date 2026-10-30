@@ -18,7 +18,10 @@ struct GuestCapturePolicy {
     std::string overlay_path;
     u32 overlay_x{}, overlay_y{}, overlay_origin{1};
 };
-enum class CaptureServiceCall { ScreenControl, Overlay, OverlayOrigin, ShareInit, ShareAbsent, RecordingAbsent };
+enum class CaptureServiceCall {
+    ScreenControl, Overlay, OverlayOrigin, ShareInit, ShareAdvanceInit, ShareUploadData,
+    ShareAbsent, RecordingAbsent
+};
 struct CaptureServiceEntry {
     std::string_view nid, suffix;
     CaptureServiceCall call;
@@ -29,7 +32,7 @@ inline constexpr std::string_view ShareUtilitySuffix =
     "#libSceShareUtility#1#libSceShareUtility#Function";
 inline constexpr std::string_view VideoRecordingSuffix =
     "#libSceVideoRecording#1#libSceVideoRecording#Function";
-inline constexpr std::array<CaptureServiceEntry, 16> CaptureServiceEntries{{
+inline constexpr std::array<CaptureServiceEntry, 18> CaptureServiceEntries{{
     {"Fc8qxlKINYQ", VideoRecordingSuffix, CaptureServiceCall::RecordingAbsent}, // SetInfo
     {"bGYkY6q3bIw", VideoRecordingSuffix, CaptureServiceCall::RecordingAbsent}, // QueryMemSize2
     {"s28dalBwp2g", VideoRecordingSuffix, CaptureServiceCall::RecordingAbsent}, // Open2
@@ -44,6 +47,8 @@ inline constexpr std::array<CaptureServiceEntry, 16> CaptureServiceEntries{{
     {"ahHhOf+QNkQ", ScreenshotSuffix, CaptureServiceCall::Overlay},
     {"73WQ4Jj0nJI", ScreenshotSuffix, CaptureServiceCall::OverlayOrigin},
     {"j7DlalBzHh8", ShareUtilitySuffix, CaptureServiceCall::ShareInit},   // InitializeEx2
+    {"u4bCGkqhOB4", ShareUtilitySuffix, CaptureServiceCall::ShareAdvanceInit}, // AdvanceInitialize
+    {"karnJhakdKg", ShareUtilitySuffix, CaptureServiceCall::ShareUploadData}, // AdvanceSetUploadContentData
     {"DUWhxkyVPj4", ShareUtilitySuffix, CaptureServiceCall::ShareAbsent}, // Terminate
     {"8hZ2EEl2Tto", ShareUtilitySuffix, CaptureServiceCall::ShareAbsent}, // OpenShareMenuDefault
 }};
@@ -77,11 +82,26 @@ inline u32 DispatchCaptureService(GuestCpu::GuestAddressSpace& space,
     }
     if (entry.call == CaptureServiceCall::ShareAbsent)
         return 0x81170102;
-    if (entry.call == CaptureServiceCall::ShareInit) {
+    if (entry.call == CaptureServiceCall::ShareInit ||
+        entry.call == CaptureServiceCall::ShareAdvanceInit) {
         // Firmware InitializeEx2(type, workspace_size, callback_priority, arg).
         // Cold initialization checks these scalars before creating its IPMI
         // client; callback arguments are consumed only after client success.
-        return a[0] == 1 && a[1] >= 0x20000 ? no_provider : 0x81170003;
+        // AdvanceInitialize uses the same initializer with type 2 (firmware
+        // 11.00 +0x14d0 -> +0xbb0); Ex2 requires type 1. No callback is entered
+        // and no initialized state is published without the system service.
+        const u64 type = entry.call == CaptureServiceCall::ShareAdvanceInit ? 2 : 1;
+        return a[0] == type && a[1] >= 0x20000 ? no_provider : 0x81170003;
+    }
+    if (entry.call == CaptureServiceCall::ShareUploadData) {
+        // Firmware 11.00 +0x1730 validates the string/size before checking the
+        // initialized client. It copies size+1 bytes; keep the guest bounds
+        // check, but do not allocate or retain upload data for an absent client.
+        if (!a[0] || !a[1]) return 0x81170003;
+        if (a[1] > 0x1fff) return 0x81170004;
+        if (!space.ValidateRange({GuestAddress{a[0]}, a[1] + 1}, GuestPermission::Read))
+            return 0x81170003;
+        return 0x81170102;
     }
     constexpr u32 invalid = 0x80be0001;
     if (entry.call == CaptureServiceCall::OverlayOrigin && (u32(a[3]) - 1u > 8u))

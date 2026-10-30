@@ -184,6 +184,69 @@ static void SinglePackageMounts(const std::filesystem::path& root) {
     }
 }
 
+// Resource loaders issue one read for a complete regular-file section. A large
+// request must not become an artificial short read at the bridge's pin boundary.
+static void LargeFileReads(const std::filesystem::path& root) {
+    constexpr size_t size = 18 * 1024 * 1024 + 257;
+    constexpr size_t split = 10 * 1024 * 1024;
+    constexpr size_t mapped = 20 * 1024 * 1024;
+    std::string data(size, '\0');
+    for (size_t i = 0; i < data.size(); ++i)
+        data[i] = char((i * 31 + i / 4096) % 251 + 1);
+    std::ofstream(root / "content/large", std::ios::binary).write(data.data(), data.size());
+    const auto archive = root / "large.zar";
+    Pack(archive, {{"large", data}});
+    for (const auto& source : {root / "content", archive}) {
+        Core::FileSys::MntPoints mounts;
+        mounts.Mount(source, "/app0", source == archive);
+        GuestStorage storage(mounts, root / "users", "CUSA99991", 1000);
+        AddressSpaceConfig cfg{}; cfg.reservation_size = 32 * 1024 * 1024;
+        auto made = GuestAddressSpace::Create(cfg); CHECK(made);
+        if (!made) continue;
+        auto space = std::move(made).Value();
+        const auto base = space->ReservationBase().value;
+        const auto rw = GuestPermission::Read | GuestPermission::Write;
+        CHECK(space->Map({{base}, split}, rw));
+        CHECK(space->Map({{base + split}, mapped - split}, rw));
+        auto fd = storage.Open("/app0/large", 0, 0); CHECK(!fd.error);
+        auto call = [&](StorageOp op, u64 bytes, u64 offset = 0) {
+            return s64(DispatchStorage(storage, *space, {"large-read", op, false},
+                {u64(fd.value), base, bytes, offset}, [](int) { CHECK(false); return UINT64_MAX; }));
+        };
+        auto contents = [&] {
+            GuestAddressSpace::DataRequest request{{{base}, size}, GuestPermission::Read, {}, true};
+            auto pins = space->AcquireDataBatch(std::span{&request, 1}); CHECK(pins);
+            return pins && std::memcmp(pins.Value()[0].Bytes().data(), data.data(), size) == 0;
+        };
+        CHECK(call(StorageOp::Read, size) == s64(size));
+        CHECK(contents());
+        CHECK(storage.Seek(fd.value, 0, 1).value == s64(size));
+        CHECK(call(StorageOp::Read, size) == 0); // genuine EOF stays a short read
+        CHECK(storage.Seek(fd.value, 7, 0).value == 7);
+        CHECK(call(StorageOp::Pread, size) == s64(size));
+        CHECK(contents());
+        CHECK(storage.Seek(fd.value, 0, 1).value == 7);
+        CHECK(call(StorageOp::Pread, mapped) == s64(size));
+        CHECK(call(StorageOp::Pread, size, size - 17) == 17);
+        struct Iovec { u64 address, length; };
+        const std::array<Iovec, 2> vectors{{{base, split}, {base + split, size - split}}};
+        const u64 table = base + mapped - 4096;
+        CHECK(space->WriteData({table}, std::as_bytes(std::span{vectors})));
+        CHECK(s64(DispatchStorage(storage, *space, {"large-readv", StorageOp::Preadv, false},
+            {u64(fd.value), table, 2, 0}, [](int) { CHECK(false); return UINT64_MAX; })) == s64(size));
+        CHECK(contents());
+        CHECK(space->Protect({{base + split}, mapped - split}, GuestPermission::Read));
+        const std::array<u8, 4> canary{0x55, 0x66, 0x77, 0x88};
+        CHECK(space->WriteData({base}, std::as_bytes(std::span{canary})));
+        CHECK(call(StorageOp::Pread, size) ==
+              s64(Libraries::Kernel::ErrnoToSceKernelError(POSIX_EFAULT)));
+        std::array<u8, 4> after{};
+        CHECK(space->ReadData({base}, std::as_writable_bytes(std::span{after})) && after == canary);
+        CHECK(space->Counts().live_pins == 0);
+        CHECK(storage.Close(fd.value).error == 0);
+    }
+}
+
 static void Archives(const std::filesystem::path& root) {
     using namespace Core::FileSys;
     const auto base = root / "CUSA99991.zar";
@@ -872,6 +935,7 @@ int main(int argc, char** argv) {
     }
     Archives(root);
     SinglePackageMounts(root);
+    LargeFileReads(root);
     std::printf("GUEST_FILE_IO checks=%u failures=%u\n", checks, failures);
     // Only the fresh test root above is owned by this executable.
     std::filesystem::remove_all(root);

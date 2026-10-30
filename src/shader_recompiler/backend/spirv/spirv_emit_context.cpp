@@ -317,9 +317,18 @@ void EmitContext::DefineWorkgroupIndex() {
     const Id workgroup_x{OpCompositeExtract(U32[1], workgroup_id_val, 0)};
     const Id workgroup_y{OpCompositeExtract(U32[1], workgroup_id_val, 1)};
     const Id workgroup_z{OpCompositeExtract(U32[1], workgroup_id_val, 2)};
-    const Id num_workgroups{OpLoad(U32[3], num_workgroups_id)};
-    const Id num_workgroups_x{OpCompositeExtract(U32[1], num_workgroups, 0)};
-    const Id num_workgroups_y{OpCompositeExtract(U32[1], num_workgroups, 1)};
+    // dispatchBase(…, 1, 1, 1) changes NumWorkgroups. Ordered count must retain the
+    // original dispatch dimensions. Compute reuses the unused viewport push words.
+    const auto count = [&](u32 axis) {
+        if (info.uses_ordered_count) {
+            const Id ptr = OpAccessChain(TypePointer(spv::StorageClass::PushConstant, F32[1]),
+                                         push_data_block, ConstU32(axis));
+            return OpBitcast(U32[1], OpLoad(F32[1], ptr));
+        }
+        return OpCompositeExtract(U32[1], OpLoad(U32[3], num_workgroups_id), axis);
+    };
+    const Id num_workgroups_x = count(0);
+    const Id num_workgroups_y = count(1);
     workgroup_index_id =
         OpIAdd(U32[1], OpIAdd(U32[1], workgroup_x, OpIMul(U32[1], workgroup_y, num_workgroups_x)),
                OpIMul(U32[1], workgroup_z, OpIMul(U32[1], num_workgroups_x, num_workgroups_y)));
@@ -535,7 +544,13 @@ void EmitContext::DefineInputs() {
         break;
     }
     case SwStage::Compute:
-        if (info.loads.GetAny(IR::Attribute::WorkgroupIndex) ||
+        if (info.uses_ordered_count) {
+            host_workgroup_id =
+                DefineVariable(U32[3], spv::BuiltIn::WorkgroupId, spv::StorageClass::Input);
+            workgroup_id = DefineVar(U32[3], spv::StorageClass::Private);
+            if (profile.supported_spirv >= 0x10400)
+                interfaces.push_back(workgroup_id);
+        } else if (info.loads.GetAny(IR::Attribute::WorkgroupIndex) ||
             info.loads.GetAny(IR::Attribute::WorkgroupId)) {
             workgroup_id =
                 DefineVariable(U32[3], spv::BuiltIn::WorkgroupId, spv::StorageClass::Input);

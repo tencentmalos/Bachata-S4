@@ -12,6 +12,27 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LibraryViewModelTest {
+    @Test fun saveModalNeverLaunchesTheGameAndBackUsesItsUnsavedEditHandler() = runTest {
+        val model = LibraryViewModel()
+        model.setGames(listOf(game("A", "Alpha")))
+        model.showDetails("A")
+        val launches = mutableListOf<String>()
+        backgroundScope.launch { model.launch.collect { launches.add(it) } }
+        runCurrent()
+        var back = 0
+        model.libraryModalDismiss = { back++ }
+        model.handleNavEvent(NavControllerEvent("cross", pressed = true))
+        model.handleNavEvent(NavControllerEvent("circle", pressed = true))
+        runCurrent()
+        assertTrue(launches.isEmpty())
+        assertEquals(1, back)
+        assertEquals("A", model.state.value.showDetailsGameId)
+        model.libraryModalDismiss = null
+        model.handleNavEvent(NavControllerEvent("cross", pressed = true))
+        runCurrent()
+        assertEquals(listOf("A"), launches)
+    }
+
     @Test fun detailOptionNavigationDoesNotLaunchWhileChangingAChoice() = runTest {
         val model = LibraryViewModel()
         model.setGames(listOf(game("A", "Alpha")))

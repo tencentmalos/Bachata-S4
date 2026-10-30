@@ -62,8 +62,8 @@ void SetEyeSplit(bool split);
 // host at a time, so a dialog's input edge detection runs once per frame.
 void SetExternalLayerHost(bool external);
 bool ExternalLayerHost();
-// Applies queued Layer::AddLayer/RemoveLayer, then draws every layer into the
-// current ImGui context (inside its NewFrame/Render).
+// Draws the registered layers into the current ImGui context (inside its NewFrame/Render).
+// Removal synchronizes with this traversal and MustKeepDrawing, including between sessions.
 void DrawLayers();
 
 /// The rectangle of the window the game frame occupies this frame, in framebuffer pixels of the

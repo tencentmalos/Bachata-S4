@@ -226,6 +226,29 @@ void DescriptorTests(const std::filesystem::path& root) {
     Check("writable descriptor alias rejected",rejected);::close(writable);fs::remove_all(dir);
 }
 
+void CaseLookupTests(const std::filesystem::path& root) {
+    const auto base = root/"case.pkg";
+    const auto update = root/"case-UPD.pkg";
+    PkgFixture::Make(base, {{"r_system.wad", {'b','a','s','e'}},
+        {"EXACT", {'A'}}, {"exact", {'B'}}, {"unique", {'U'}}});
+    PkgFixture::Make(update, {{"R_SYSTEM.WAD", {'p','a','t','c','h'}}},
+        "gp", "CUSA99999", "SYNTHETIC0000000", "01.06");
+    auto reader = Reader::Open(base);
+    Check("case fallback finds real payload", reader->Find("R_System.wad") == reader->Find("r_system.wad"));
+    Check("exact case remains authoritative", reader->Find("EXACT") != reader->Find("exact"));
+    Check("ambiguous fallback refused", reader->Find("Exact") == Reader::Missing);
+    Check("missing name stays missing", reader->Find("absent") == Reader::Missing);
+    Check("directory traversal not normalized into file", reader->Find("../unique") == Reader::Missing);
+    Core::FileSys::MntPoints mount;
+    mount.Mount(base, "/app0", true);
+    auto file = mount.Open("/app0/R_System.wad");
+    std::string got(5, '\0');
+    Check("case fallback respects update overlay", file && file->Read(got.data(), got.size()) == 5 && got == "patch");
+    Check("case lookup stays read-only", !mount.Open("/app0/R_System.wad", true));
+    mount.UnmountAll(); file.reset(); reader.reset();
+    std::filesystem::remove(base); std::filesystem::remove(update);
+}
+
 int main(int argc, char** argv) {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     const auto root = std::filesystem::current_path() / "pkg-reader-root";
@@ -242,6 +265,7 @@ int main(int argc, char** argv) {
         PkgFixture::Make(dest/"dlc.pkg",{{"addon",{'D','L','C'}}},"ac","CUSA99999","EXTRAS0000000000","01.00");
         Common::Log::Shutdown();return 0;
     }
+    CaseLookupTests(root);
     CipherTests();
     if (argc > 1 && std::string_view(argv[1])=="--descriptor-fixture")
         DescriptorTests(root);

@@ -243,6 +243,27 @@ int main(int argc, char** argv) {
     CHECK(wait(id) == 0);
     CHECK(read.operator()<AjmSidebandFormat>(output + 8).num_channels == 0);
     CHECK(call("RbLbuKv8zho", {ctx, aac}) == 0);
+    // A long play session creates more voices than the 14-bit slot space. Keep
+    // the original MP3 instance live while crossing the boundary twice using
+    // AT9 voices; neither lifetime exhaustion nor a cross-codec slot collision
+    // may invalidate it. The old allocator fails after 16,383 total creations.
+    unsigned recycled{};
+    for (; recycled < 40000; ++recycled) {
+        const auto result = call("AxoDrINp4J8", {ctx, 1, 1, base + 4});
+        CHECK(result == 0);
+        if (result != 0)
+            break;
+        const u32 voice = read.operator()<u32>(base + 4);
+        CHECK((voice >> 14) == 1 && (voice & 0x3fff) != 0 &&
+              (voice & 0x3fff) != (instance & 0x3fff));
+        CHECK(call("RbLbuKv8zho", {ctx, voice}) == 0);
+    }
+    CHECK(recycled == 40000);
+    CHECK(call("dmDybN--Fn8", {batch, instance, 1, 0, 0, output, 8, 0}) == batch + 48);
+    CHECK(start() == 0);
+    id = read.operator()<u32>(idout);
+    CHECK(wait(id) == 0);
+    CHECK(read.operator()<AjmSidebandResult>(output).result == 0);
     CHECK(call("RbLbuKv8zho", {ctx, instance}) == 0);
     CHECK(call("RbLbuKv8zho", {ctx, instance}) == u32(ORBIS_AJM_ERROR_INVALID_INSTANCE));
     CHECK(call("Wi7DtlLV+KI", {ctx, 0}) == 0);

@@ -19,7 +19,7 @@ struct PipelineCreation {
     u64 ns{};         ///< Wall time of the create call.
     u64 driver_ns{};  ///< Feedback duration.
     bool feedback{};  ///< The driver set VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT.
-    bool cache_hit{}; ///< APPLICATION_PIPELINE_CACHE_HIT: no shader was compiled.
+    bool cache_hit{}; ///< APPLICATION_PIPELINE_CACHE_HIT as reported by the driver.
 };
 
 /// Chains VkPipelineCreationFeedbackCreateInfo (core in Vulkan 1.3) in front of a create info's

@@ -36,6 +36,11 @@ using RegionBits = Common::BitArray<NUM_PAGES_PER_REGION>;
 // on by default.
 inline std::atomic<bool> region_gpu_flag{true};
 
+// Read-only snapshots can skip regions with no CPU dirtiness. Written bindings still
+// visit every region to publish GPU ownership. Kept separate for same-session A/B.
+inline std::atomic<bool> region_cpu_flag{true};
+inline std::atomic<bool> directory_cpu_flag{true};
+
 // Streaming pages (GCN v2 spec 3.5): a page the CPU rewrote in each of its last three write
 // cycles stops being write protected by the buffer cache, saving a write fault and two
 // protection changes per cycle. It stays CPU modified; every upload that covers it hashes its

@@ -54,7 +54,11 @@ private:
 };
 void Counter(const char* name, int64_t value) noexcept;
 void Bookmark(const char* name) noexcept;
-void Frame() noexcept;
+// A successful new guest-image present, excluding blank/redraw/failed attempts.
+// This measures host presentation acceptance, not physical display scanout.
+void PresentedFrame(bool presented) noexcept;
+// Discard a slow-frame baseline/post-window across a lifecycle/debugger pause.
+void ResetFrameHistory() noexcept;
 bool Enabled() noexcept;
 // Initialized after app-owned host paths exist. No SDK owner in JNI/FEX.
 void Initialize();

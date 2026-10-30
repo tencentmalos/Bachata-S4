@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Import progress notifications (optional). No FOREGROUND_SERVICE*:
-         Play rejects specialUse FGS without a declared approved use case. -->
+    <!-- User-started emulation owns an in-memory session across activity/screen changes. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="org.khronos.openxr.permission.OPENXR_SYSTEM" />
@@ -50,7 +51,11 @@
 </activity>
         <service
             android:name=".service.FexSessionService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-started console emulation session. Retains unsaved guest memory while paused during app switching or screen lock, with a persistent return/stop notification. Stops when the session ends or the user dismisses the task." />
+        </service>
         <service
             android:name=".service.ImportService"
             android:exported="false" />

@@ -12,11 +12,13 @@ static bool running = false;
 static std::optional<SettingsLayer> settingsLayer = std::nullopt;
 
 SettingsLayer::SettingsLayer() {
-    AddLayer(this);
     settingsWindow.Prepare();
+    AddLayer(this);
 }
 
-SettingsLayer::~SettingsLayer() {}
+SettingsLayer::~SettingsLayer() {
+    RemoveLayer(this);
+}
 
 void SettingsLayer::Finish() {
     RemoveLayer(this);
@@ -34,6 +36,7 @@ void SettingsLayer::Draw() {
 }
 
 void OpenInGameSettingsDialog() {
+    auto layer_lock = ImGui::Layer::LockRegistry();
     if (settingsLayer.has_value()) {
         return;
     }

@@ -21,7 +21,7 @@ class GuestSaveDialog;
 class GuestRuntime final {
 public:
     static constexpr std::uint64_t ReservationBegin = 0x400000;
-    static constexpr std::uint64_t ReservationEnd = 0x4800000000ULL; // 288 GiB segmented envelope
+    static constexpr std::uint64_t ReservationEnd = 0x6000000000ULL; // 384 GiB; keep upper 128 GiB for host on 39-bit Android
     static constexpr std::uint64_t ServiceAllocationBase = 0x1c00000000ULL; // 112 GiB
     GuestRuntime(GuestCpu::CpuContext& cpu, GuestCpu::GuestAddressSpace& space,
                  GuestCpu::Hle::HleCallRegistry& registry);
@@ -40,6 +40,7 @@ public:
     // background execution and gets OnResume on release, the audio device closes, VideoOut stops
     // flips and vblanks. Guest threads are held by the CPU context (SetSessionPaused).
     void SetServicesPaused(bool paused);
+    void ResumeProcessClock();
     std::string Diagnostics() const;
     std::string OperationName(std::uint64_t operation) const;
     // Current successful host-present count (mirrors VideoOutDriver::guest_presents).

@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <bit>
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -180,6 +181,8 @@ public:
             RegionBits original_cpu;
         };
         boost::container::small_vector<Slice, 4> slices;
+        boost::container::small_vector<RegionManager*, 16> clean_regions;
+        boost::container::small_vector<std::pair<RegionDirectory*, u64>, 4> clean_directories;
         // Hashes only decide whether a released-ahead page decays (RegionManager::EndWriteCycle).
         const bool hash_contents = predict_from_contents.load(std::memory_order_relaxed) &&
                                    decay_unchanged.load(std::memory_order_relaxed);
@@ -189,16 +192,62 @@ public:
                                                                           : StreamUpload::Keep;
         // Allocation/publication precedes locking; preparation can re-enter the
         // renderer, so this transaction's scratch must remain local.
-        IteratePages<true>(query_cpu_range, query_size,
-                           [&](RegionManager* manager, u64 offset, size_t size) {
-                               slices.push_back({manager, offset, size, {}});
-                               // For write prediction and streaming pages.
-                               manager->PrepareContentHashes();
-                           });
         const u64 max_bytes = Common::AlignUp(
             (query_cpu_range & (TRACKER_BYTES_PER_PAGE - 1)) + query_size, TRACKER_BYTES_PER_PAGE);
         u64 capacity = 0;
+        const bool skip_clean = !is_written && region_cpu_flag.load(std::memory_order_relaxed);
         for (;;) {
+            // Preparation releases all locks and can wait for the GPU. Revisit the
+            // whole range on retry: a previously clean region may now have a writer.
+            slices.clear();
+            clean_regions.clear();
+            clean_directories.clear();
+            const auto collect = [&](RegionManager* manager, u64 offset, size_t size) {
+                if (skip_clean && !manager->MayHaveCpuPages()) {
+                    clean_regions.push_back(manager);
+                    return;
+                }
+                slices.push_back({manager, offset, size, {}});
+                manager->PrepareContentHashes();
+            };
+            if (!skip_clean || !directory_cpu_flag.load(std::memory_order_relaxed)) {
+                IteratePages<true>(query_cpu_range, query_size, collect);
+            } else {
+                // An absent region still starts CPU-dirty. Only skip directory bits
+                // whose managers have been fully published. Inspect the bitmap again
+                // after acquiring all selected locks, just like the leaf summaries.
+                constexpr u64 DirectorySize = u64{1} << DIRECTORY_PAGE_BITS;
+                static_assert(REGIONS_PER_DIRECTORY < 64);
+                const VAddr query_end = query_cpu_range + query_size;
+                for (VAddr address = query_cpu_range; address < query_end;) {
+                    const VAddr base = Common::AlignDown(address, DirectorySize);
+                    const VAddr end = std::min(query_end, base + DirectorySize);
+                    const u32 first = (address - base) >> TRACKER_HIGHER_PAGE_BITS;
+                    const u32 last = ((end - base - 1) >> TRACKER_HIGHER_PAGE_BITS) + 1;
+                    const u64 mask = ((u64{1} << (last - first)) - 1) << first;
+                    auto* directory =
+                        top_tier[base >> DIRECTORY_PAGE_BITS].load(std::memory_order_acquire);
+                    if (!directory ||
+                        (directory->present.load(std::memory_order_acquire) & mask) != mask) {
+                        IteratePages<true>(address, end - address, collect);
+                    } else {
+                        u64 dirty = directory->cpu_dirty.load(std::memory_order_acquire) & mask;
+                        if (const u64 clean = mask & ~dirty)
+                            clean_directories.emplace_back(directory, clean);
+                        while (dirty) {
+                            const u32 bit = std::countr_zero(dirty);
+                            dirty &= dirty - 1;
+                            auto* manager = directory->regions[bit].load(std::memory_order_acquire);
+                            const VAddr lo =
+                                std::max(address, base + (u64{bit} << TRACKER_HIGHER_PAGE_BITS));
+                            const VAddr hi =
+                                std::min(end, base + (u64{bit + 1} << TRACKER_HIGHER_PAGE_BITS));
+                            collect(manager, lo - manager->GetCpuAddr(), hi - lo);
+                        }
+                    }
+                    address = end;
+                }
+            }
             u64 required = 0;
             {
                 size_t locked = 0;
@@ -216,10 +265,23 @@ public:
                 for (auto& slice : slices) {
                     slice.manager->lock.lock();
                     ++locked;
+                }
+                // A writer may have dirtied a skipped region while we waited for
+                // one of the other locks. Validate after ALL selected locks are held.
+                // Only this renderer clears CPU bits, so false flags here prove
+                // every omitted region was clean when this validation began.
+                if (std::ranges::any_of(clean_directories, [](const auto& entry) {
+                        return (entry.first->cpu_dirty.load(std::memory_order_acquire) & entry.second) != 0;
+                    }) || std::ranges::any_of(clean_regions, [](const auto* manager) {
+                        return manager->MayHaveCpuPages();
+                    })) {
+                    continue;
+                }
+                for (auto& slice : slices) {
                     slice.original_cpu = slice.manager->template GetRegionBits<Type::CPU>();
-                    slice.manager->ForEachPendingUpload(
-                        slice.manager->GetCpuAddr() + slice.offset, slice.size, stream_mode,
-                        hash_pages, [&](u64, u64 bytes) { required += bytes; });
+                    slice.manager->ForEachPendingUpload(slice.manager->GetCpuAddr() + slice.offset,
+                                                        slice.size, stream_mode, hash_pages,
+                                                        [&](u64, u64 bytes) { required += bytes; });
                 }
                 if (required <= capacity) {
                     modified = true;
@@ -346,6 +408,8 @@ private:
 
     struct RegionDirectory {
         std::array<std::atomic<RegionManager*>, REGIONS_PER_DIRECTORY> regions{};
+        std::atomic<u64> cpu_dirty{};
+        std::atomic<u64> present{};
     };
 
     RegionManager* FindRegion(std::size_t page_index) const {
@@ -378,8 +442,11 @@ private:
             directory = directories.back().get();
             top_tier[directory_index].store(directory, std::memory_order_release);
         }
+        const u64 bit = u64{1} << (page_index % REGIONS_PER_DIRECTORY);
+        new_manager->SetCpuDirectory(&directory->cpu_dirty, bit);
         directory->regions[page_index % REGIONS_PER_DIRECTORY].store(new_manager,
                                                                      std::memory_order_release);
+        directory->present.fetch_or(bit, std::memory_order_release);
     }
 
     PageManager* tracker;

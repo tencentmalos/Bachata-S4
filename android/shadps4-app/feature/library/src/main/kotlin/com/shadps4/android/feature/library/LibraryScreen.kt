@@ -113,6 +113,12 @@ fun LibraryScreen(
     }
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
+    var savesGame by remember { mutableStateOf<com.shadps4.android.model.Game?>(null) }
+    val closeSaves = { savesGame = null; viewModel.libraryModalDismiss = null }
+    DisposableEffect(viewModel) { onDispose { viewModel.libraryModalDismiss = null } }
+    savesGame?.let { game ->
+        SaveLibraryDialog(game, dependencies.runtimeProfiles(), closeSaves) { viewModel.libraryModalDismiss = it }
+    }
     var launchOptions by remember { mutableStateOf(GameLaunchOptions()) }
     var outputExtents by remember { mutableStateOf<List<Pair<Int, Int>>?>(null) }
     LaunchedEffect(state.showDetailsGameId) {
@@ -553,6 +559,10 @@ fun LibraryScreen(
         onShowDetails = viewModel::showDetails,
         onSetNumColumns = viewModel::setNumColumns,
         onAddPkgs = onAddPkgs,
+        onOpenSaves = { id ->
+            savesGame = state.games.firstOrNull { it.id == id }
+            if (savesGame != null) viewModel.libraryModalDismiss = closeSaves
+        },
     )
 }
 
@@ -574,6 +584,7 @@ fun LibraryContent(
     onShowDetails: (String?) -> Unit,
     onSetNumColumns: (Int) -> Unit,
     onAddPkgs: (String, String) -> Unit,
+    onOpenSaves: (String) -> Unit = {},
     launchOptions: GameLaunchOptions = GameLaunchOptions(),
     onLaunchOption: (com.shadps4.android.runtime.settings.RuntimeSettingSpec, String) -> Unit = { _, _ -> },
     onPatch: (PatchAction) -> Unit = {},
@@ -930,6 +941,7 @@ fun LibraryContent(
                                 onRequestDelete(detailsGame.id)
                             },
                             onAddPkgs = { onAddPkgs(detailsGame.id, detailsGame.title) },
+                            onOpenSaves = { onOpenSaves(detailsGame.id) },
                             maxHeight = localMaxHeight,
                             isLandscape = isLandscape,
                             modifier = Modifier.align(Alignment.BottomCenter)
@@ -1478,6 +1490,7 @@ private fun GlassBottomSheet(
     onOpenGameSettings: () -> Unit,
     onRequestDelete: () -> Unit,
     onAddPkgs: () -> Unit,
+    onOpenSaves: () -> Unit,
     maxHeight: androidx.compose.ui.unit.Dp,
     isLandscape: Boolean,
     modifier: Modifier = Modifier,
@@ -1556,6 +1569,7 @@ private fun GlassBottomSheet(
                             onOpenGameSettings = onOpenGameSettings,
                             onRequestDelete = onRequestDelete,
                             onAddPkgs = onAddPkgs,
+                            onOpenSaves = onOpenSaves,
                             compact = true,
                         )
                     }
@@ -1597,6 +1611,7 @@ private fun GlassBottomSheet(
                     onOpenGameSettings = onOpenGameSettings,
                     onRequestDelete = onRequestDelete,
                     onAddPkgs = onAddPkgs,
+                    onOpenSaves = onOpenSaves,
                     compact = false,
                 )
             }
@@ -1674,6 +1689,7 @@ private fun GameDetailsActions(
     onOpenGameSettings: () -> Unit,
     onRequestDelete: () -> Unit,
     onAddPkgs: () -> Unit,
+    onOpenSaves: () -> Unit,
     compact: Boolean,
 ) {
     val launchHeight = if (compact) 48.dp else 56.dp
@@ -1703,6 +1719,11 @@ private fun GameDetailsActions(
             }
         }
 
+        androidx.compose.material3.OutlinedButton(
+            onClick = onOpenSaves,
+            modifier = Modifier.fillMaxWidth().height(secondaryHeight),
+            shape = RoundedCornerShape(12.dp),
+        ) { Text("存档管理") }
         if (managed) {
             Button(onClick=onAddPkgs,modifier=Modifier.fillMaxWidth().height(secondaryHeight)){Text("Manage in EmuPSP")}
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){CancelButton(onCancel,Modifier.weight(1f).height(secondaryHeight));OptionsButton(onOpenGameSettings,Modifier.weight(1f).height(secondaryHeight))}

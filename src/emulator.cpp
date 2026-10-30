@@ -503,7 +503,7 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
     {
         const auto& info = Common::ElfInfo::Instance();
         Common::Profiler::BeginSession(fmt::format(
-            "title={} app_ver={} build={} frame=gnm_submit_done", info.GameSerial(),
+            "title={} app_ver={} build={} frame=videoout_present_success", info.GameSerial(),
             info.AppVer(), Common::g_scm_rev));
     }
     if (debugBusPort) {

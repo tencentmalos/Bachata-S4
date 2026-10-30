@@ -18,6 +18,7 @@ inline ScalePolicySnapshot scale_policy;
 inline std::atomic<unsigned long long> image_requested{}, image_completed{};
 inline unsigned long long image_uid{};
 inline unsigned image_layer{};
+inline std::atomic<unsigned long long> image_before_shader{};
 inline std::string image_snapshot;
 // Allocation events only, never sampled per draw. These count upload source images
 // until their scheduler-owned objects are destroyed, including GPU retirement.
@@ -35,6 +36,7 @@ inline unsigned long long Begin(ScalePolicySnapshot policy = {}) {
     snapshot.clear();
     image_requested.store(0);
     image_completed.store(0);
+    image_before_shader.store(0);
     image_snapshot.clear();
     return epoch;
 }
@@ -53,6 +55,7 @@ inline void End(unsigned long long owner) {
     active = false;
     image_requested.store(0);
     image_completed.store(0);
+    image_before_shader.store(0);
     image_snapshot.clear();
     requested.store(0);
     snapshot.clear();
@@ -78,7 +81,8 @@ inline std::string Read(bool request) {
 // Explicit diagnostic only. UID 0 lists cached identities; a nonzero UID
 // reads one layer (mip 0) of an existing color or depth-only image without
 // copying data into guest memory.
-inline std::string Images(bool request, unsigned long long uid = 0, unsigned layer = 0) {
+inline std::string Images(bool request, unsigned long long uid = 0, unsigned layer = 0,
+                          unsigned long long before_shader = 0) {
     std::scoped_lock lock{mutex};
     if (!active)
         return "status=unavailable (no renderer)\n";
@@ -88,10 +92,21 @@ inline std::string Images(bool request, unsigned long long uid = 0, unsigned lay
         image_uid = uid;
         image_layer = layer;
         image_snapshot.clear();
+        image_before_shader.store(before_shader, std::memory_order_release);
         image_requested.fetch_add(1, std::memory_order_release);
     }
     return "cache_epoch=" + std::to_string(epoch) +
            " request_id=" + std::to_string(image_requested.load()) +
            " completed_id=" + std::to_string(image_completed.load()) + "\n" + image_snapshot;
+}
+
+inline std::string CancelImage() {
+    std::scoped_lock lock{mutex};
+    image_before_shader.store(0, std::memory_order_release);
+    // Invalidate an in-flight readback's publication as well as a pending match.
+    const auto request = image_requested.fetch_add(1) + 1;
+    image_completed.store(request, std::memory_order_release);
+    image_snapshot = "status=cancelled\n";
+    return image_snapshot;
 }
 } // namespace VideoCore::MemoryDiagnostics

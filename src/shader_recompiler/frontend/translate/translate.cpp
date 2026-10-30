@@ -298,6 +298,21 @@ void Translator::EmitPrologue(IR::Block* first_block) {
         if (runtime_info.hw.cs.tgid_enable[2]) {
             ir.SetScalarReg(dst_sreg++, ir.GetAttributeU32(IR::Attribute::WorkgroupId, 2));
         }
+        if (runtime_info.hw.cs.tg_size_enable) {
+            const auto& size = runtime_info.hw.cs.workgroup_size;
+            const u32 waves = (size[0] * size[1] * size[2] + 63u) / 64u;
+            const auto wave = ir.ShiftRightLogical(
+                ir.GetAttributeU32(IR::Attribute::LocalInvocationIndex), ir.Imm32(6u));
+            const auto term = ir.BitwiseAnd(
+                ir.IAdd(ir.IMul(ir.GetAttributeU32(IR::Attribute::WorkgroupIndex), ir.Imm32(waves)),
+                        wave), ir.Imm32(0x7ffu));
+            const IR::U32 first{ir.Select(ir.IEqual(wave, ir.Imm32(0u)),
+                                          ir.Imm32(0x80000000u), ir.Imm32(0u))};
+            ir.SetScalarReg(dst_sreg++, ir.BitwiseOr(
+                ir.BitwiseOr(ir.Imm32(waves), first),
+                ir.BitwiseOr(ir.ShiftLeftLogical(wave, ir.Imm32(20u)),
+                             ir.ShiftLeftLogical(term, ir.Imm32(6u)))));
+        }
         break;
     case SwStage::Geometry:
         // The GS wave's input VGPRs have a fixed layout, whatever the input primitive: ES

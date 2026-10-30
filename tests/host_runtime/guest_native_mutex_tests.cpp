@@ -97,6 +97,61 @@ int main(int argc, char** argv) {
         return failures ? 1 : 0;
     }
     {
+        constexpr u64 window = SHAD_SYNC_ARENA_WINDOW_SIZE;
+        auto made = GuestAddressSpace::Create({.reservation_size = 2 * window});
+        if (!made) std::_Exit(2);
+        auto& space = *made.Value();
+        const auto base = space.ReservationBase().value;
+        const auto rw = GuestPermission::Read | GuestPermission::Write;
+        if (!space.MapFreshData({{base}, window}, rw)) std::_Exit(2);
+        unsigned extensions{};
+        u64 head{};
+        GuestSyncWindows windows([&](u64 size) {
+            if (extensions || size != window) return u64{0};
+            if (!space.MapFreshData({{base + window}, size}, rw)) return u64{0};
+            ++extensions;
+            return base + window;
+        }, base, base + window);
+        windows.BindDirectory(&head);
+        GuestSyncArena arena([&] { return windows.AllocateBlock(); });
+        u64 previous{};
+        bool unique = true;
+        for (unsigned i = 0; i < 1100000; ++i) {
+            const auto address = arena.Allocate();
+            unique &= address > previous;
+            previous = address;
+        }
+        Check(unique && extensions == 1 && head == base + window &&
+                  previous >= base + window + GuestSyncArena::BlockSize &&
+                  space.Mappings().size() == 2,
+              "1.1 million unique objects cross the real 256 MiB threshold using only two mappings");
+    }
+    {
+        Fixture f;
+        unsigned attempts{};
+        bool oom = true;
+        u64 head{};
+        u64 next = f.base + 0x40000;
+        GuestSyncWindows windows([&](u64 size) {
+            ++attempts;
+            if (oom || size > 0x8000) return u64{0};
+            const auto result = next;
+            next += size + 0x4000;
+            return result;
+        }, 0, 0, 0x20000);
+        windows.BindDirectory(&head);
+        Check(windows.AllocateBlock() == 0 && head == 0 && attempts == 3,
+              "window OOM tries bounded smaller sizes without publishing a partial range");
+        oom = false;
+        const auto first = windows.AllocateBlock();
+        const auto first_head = head;
+        const auto second = windows.AllocateBlock();
+        const auto* node = reinterpret_cast<const ShadSyncArenaRange*>(head);
+        Check(first == f.base + 0x44000 && second == f.base + 0x50000 &&
+                  head != first_head && node->next == first_head && node->base == second,
+              "growth recovers from OOM and retains immutable nonadjacent old ranges");
+    }
+    {
         Fixture large;
         large.locks.reset();
         large.next = large.base + 0x40000;
@@ -273,6 +328,23 @@ int main(int argc, char** argv) {
     }
     done.store(true); lookup.join();
     Check(errors == 0 && d.Destroy(recycled) == 0, "concurrent lookup lifetime");
+    {
+        const auto alias = f.base + 40;
+        Check(d.Init(recycled, 0) == 0, "aliased handle init");
+        u64 address{};
+        Check(bool(f.space->ReadData(GuestAddress{recycled},
+                                    std::as_writable_bytes(std::span{&address, 1}))) &&
+                  bool(f.space->WriteData(GuestAddress{alias},
+                                         std::as_bytes(std::span{&address, 1}))),
+              "copy a live handle");
+        Check(d.Init(alias, 0) == POSIX_EBUSY, "aliased live handle cannot be initialized twice");
+        Check(d.Destroy(recycled) == 0 && d.Destroy(alias) == POSIX_EINVAL &&
+                  d.CondWait(cond, alias, 19, {}, {.relative_us = 0}) == POSIX_EINVAL,
+              "retired alias rejected by destroy and condition wait");
+        Check(d.Init(alias, 0) == 0 && d.Lock(alias, 19, false, {}) == 0 &&
+                  d.Unlock(alias, 19) == 0 && d.Destroy(alias) == 0,
+              "retired alias can be explicitly reinitialized as a distinct object");
+    }
     Check(d.CondDestroy(cond) == 0 && d.Destroy(mutex) == 0 && d.Destroy(other) == 0,
           "all objects destroy without dangling waiters");
     std::printf("GUEST_NATIVE_MUTEX checks=%u failures=%u\n", checks, failures);

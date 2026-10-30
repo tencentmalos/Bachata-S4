@@ -542,7 +542,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             }
             auto created = std::make_unique<GuestGraphics>(
                 graphics_window, graphics_driver,
-                [this] { return clock.ticks.GetTimeUS(clock.origin); },
+                [this] { return clock.GetProcessTimeUS(); },
                 [this] { return clock.ReadTsc(); },
                 [this] { return platform && platform->SplashVisible(); }, video_labels,
                 [this] {
@@ -631,12 +631,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     bool rwlock_fastpath_enabled{true};
     u64 sync_fastpath_base{}, sync_fastpath_size{};
     std::string sync_fastpath_status{"not_installed"};
-    std::atomic<unsigned> sync_arena_outside{};
-    // Arena object window [base, limit): one reservation carved into 16 KiB
-    // blocks; its bounds are what the payload's `shad_sync_window` table gets.
-    u64 sync_window_base{}, sync_window_limit{}, sync_window_next{};
+    std::unique_ptr<GuestSyncWindows> sync_windows, rwlock_windows;
+    // First windows retain their original layout. Extensions are immutable
+    // ranges published through a separate writable directory.
+    u64 sync_window_base{}, sync_window_limit{};
     // Rwlock objects get their own window, same scheme (attribute objects stay outside).
-    u64 rwlock_window_base{}, rwlock_window_limit{}, rwlock_window_next{};
+    u64 rwlock_window_base{}, rwlock_window_limit{};
     // Thread-specific key table mirrored into guest memory for the payload's
     // getspecific (guest_sync_abi.h). Zero until the fast path is installed;
     // the host key array stays authoritative either way.
@@ -2005,7 +2005,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             !FindCaptureService(nid) && !random_nid && !posix_net_nid && !np_nid &&
             !GuestNpAuthOffline::IsNid(nid) && !IsNpScoreOfflineNid(nid) &&
             !IsNpTusOfflineNid(nid) && !IsNpUtilityNid(nid) && !IsNpWebApiControlNid(nid) &&
-            !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) &&
+            !ssl_nid && !IsMatching2Nid(nid) && !IsTrophyNid(nid) && !IsPlayGoNid(nid) && !IsPlayGoDialogNid(nid) &&
             !IsHttpNid(nid) && !IsHttp2Nid(nid) && !IsAvPlayerNid(nid) && !IsVideodec2Nid(nid) && !IsVideodecNid(nid) &&
             !IsAudioNid(nid) && !IsAudio3dNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsMouseNid(nid) &&
             !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
@@ -2033,6 +2033,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
              AdmitsLiveStreamingUnavailable(nid, symbol.name.substr(nid.size())) ||
              AdmitsRemoteService(nid, symbol.name.substr(nid.size())) ||
              AdmitsCaptureService(nid, symbol.name.substr(nid.size())) ||
+             (IsPlayGoDialogNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libScePlayGoDialog#1#libScePlayGoDialog#Function") ||
              (GuestVrServiceDialog::IsNid(nid) &&
               symbol.name.substr(nid.size()) == GuestVrServiceDialog::Suffix) ||
              (audio && IsAudioNid(nid) &&
@@ -2444,9 +2446,16 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
         for (size_t i = 0; i < specific_keys.size(); ++i)
             PublishSpecificKeyLocked(i);
     }
+    const auto process_clock = Allocate(0x4000, "GuestProcessClock");
+    clock.process.Bind(reinterpret_cast<ShadProcessClock*>(process_clock));
+    // Share the clock's RW page without moving any existing service allocation.
+    const auto directory_va = process_clock + 0x100;
+    auto* directory = reinterpret_cast<ShadSyncArenaDirectory*>(directory_va);
+    sync_windows->BindDirectory(&directory->mutex_head);
+    rwlock_windows->BindDirectory(&directory->rwlock_head);
     const std::array<u64, ShadSyncWindowCount> bounds{
         sync_window_base, sync_window_limit, tls_keys_va, clock.tsc_scale.ToGuest(clock.origin),
-        clock.GetTscFrequency(), rwlock_window_base, rwlock_window_limit};
+        clock.GetTscFrequency(), rwlock_window_base, rwlock_window_limit, process_clock, directory_va};
     for (unsigned i = 0; i < ShadSyncWindowCount; ++i) {
         u64 slot{};
         std::memcpy(&slot, reinterpret_cast<void*>(sync_fastpath_base + window.offset + 8 * i), 8);
@@ -2503,7 +2512,7 @@ void GuestRuntime::Impl::InstallSyncFastPath() {
         }
     }
     // "installed" only when objects can actually be reached from the guest.
-    sync_fastpath_status = sync_window_base ? "installed" : "installed_no_arena_window";
+    sync_fastpath_status = "installed";
     LOG_INFO(Core_Linker,
              "Guest sync fast path {}: base={:#x} bytes={} image_sha256={} arena_window=[{:#x}, {:#x}) "
              "tls_keys={:#x} tls_routes={} leaf_routes={} rwlock_window=[{:#x}, {:#x}) rwlock_routes={}",
@@ -3115,8 +3124,8 @@ void GuestRuntime::Impl::InstallHandlers() {
     bind({"9zklzAl9CGM"}, [rw_lock](const auto& a) -> u64 { return rw_lock(a, true, false, RwTimeout::Absolute); });
     pthread_bind("dYv-+If2GPk", "iPtZRWICjrM", [rw_lock](const auto& a) { return rw_lock(a, false, false, RwTimeout::RelativeUs); });
     pthread_bind("RRnSj8h8VR4", "adh--6nIqTk", [rw_lock](const auto& a) { return rw_lock(a, true, false, RwTimeout::RelativeUs); });
-    // The guest fast path only touches objects inside one arena window whose
-    // bounds it learns at publication (InstallSyncFastPath). Reserve that window
+    // The guest fast path first tests a window whose bounds it learns at
+    // publication (InstallSyncFastPath). Reserve that window
     // here, before any object exists: address space only, pages are committed as
     // objects are created, and its placement follows the memory manager rather
     // than a hard-coded address (the service base already moved 64 -> 112 GiB
@@ -3130,33 +3139,26 @@ void GuestRuntime::Impl::InstallHandlers() {
         sync_window_base = Allocate(SHAD_SYNC_ARENA_WINDOW_SIZE, "GuestSyncObjects",
                                     GuestRuntime::ServiceAllocationBase + 0x100000000ULL);
         sync_window_limit = sync_window_base + SHAD_SYNC_ARENA_WINDOW_SIZE;
-        sync_window_next = sync_window_base;
     } catch (const std::exception& e) {
-        LOG_WARNING(Core_Linker, "GuestSyncObjects window unavailable ({}); mutex fast path stays on HLE",
+        LOG_WARNING(Core_Linker, "GuestSyncObjects first window unavailable ({}); will grow on demand",
                     e.what());
     }
-    sync_arena = std::make_unique<GuestSyncArena>([this] {
-        if (sync_window_base && sync_window_next + GuestSyncArena::BlockSize <= sync_window_limit) {
-            const auto block = sync_window_next; // fresh zero pages of the reservation
-            sync_window_next += GuestSyncArena::BlockSize;
-            return block;
-        }
+    const auto extend_window = [this](u64 size, const char* name) {
         void* address{};
         const auto result = memory->MapMemory(
-            &address, GuestRuntime::ServiceAllocationBase, GuestSyncArena::BlockSize, MemoryProt::CpuReadWrite,
-            MemoryMapFlags::NoFlags, VMAType::File, "GuestSyncObjects");
+            &address, GuestRuntime::ServiceAllocationBase + 0x100000000ULL, size,
+            MemoryProt::CpuReadWrite, MemoryMapFlags::NoFlags, VMAType::File, name);
         if (result == ORBIS_KERNEL_ERROR_ENOMEM) return u64{0};
-        if (result) throw std::runtime_error("GuestSyncObjects mapping failed");
+        if (result) throw std::runtime_error(std::string(name) + " extension mapping failed");
         const auto block = reinterpret_cast<u64>(address);
-        // Outside the published window: still correct on the HLE path, but every
-        // operation on these objects pays a crossing again.
-        if (sync_arena_outside.fetch_add(1, std::memory_order_relaxed) == 0)
-            LOG_WARNING(Core_Linker,
-                        "GuestSyncObjects block {:#x} is outside the fast-path arena window [{:#x}, {:#x}): {}",
-                        block, sync_window_base, sync_window_limit,
-                        sync_window_base ? "window exhausted" : "no window reserved");
+        LOG_INFO(Core_Linker, "{} extended: [{:#x}, {:#x}), fast-path directory retained",
+                 name, block + GuestSyncArena::BlockSize, block + size);
         return block;
-    });
+    };
+    sync_windows = std::make_unique<GuestSyncWindows>(
+        [extend_window](u64 size) { return extend_window(size, "GuestSyncObjects"); },
+        sync_window_base, sync_window_limit);
+    sync_arena = std::make_unique<GuestSyncArena>([this] { return sync_windows->AllocateBlock(); });
     mutex_domain = std::make_unique<GuestMutexDomain>(
         space, [this] { return sync_arena->Allocate(); });
     // Rwlock objects: the same window scheme as mutexes, in a reservation of their own
@@ -3165,20 +3167,14 @@ void GuestRuntime::Impl::InstallHandlers() {
         rwlock_window_base = Allocate(SHAD_SYNC_ARENA_WINDOW_SIZE, "GuestRwlockObjects",
                                       GuestRuntime::ServiceAllocationBase + 0x100000000ULL);
         rwlock_window_limit = rwlock_window_base + SHAD_SYNC_ARENA_WINDOW_SIZE;
-        rwlock_window_next = rwlock_window_base;
     } catch (const std::exception& e) {
-        LOG_WARNING(Core_Linker, "GuestRwlockObjects window unavailable ({}); rwlocks stay on HLE",
+        LOG_WARNING(Core_Linker, "GuestRwlockObjects first window unavailable ({}); will grow on demand",
                     e.what());
     }
-    rwlock_arena = std::make_unique<GuestSyncArena>([this, map_rwlock_block] {
-        if (rwlock_window_base && rwlock_window_next + GuestSyncArena::BlockSize <= rwlock_window_limit) {
-            const auto block = rwlock_window_next; // fresh zero pages of the reservation
-            rwlock_window_next += GuestSyncArena::BlockSize;
-            return block;
-        }
-        // Outside the window: correct on the HLE path, every operation crosses.
-        return map_rwlock_block();
-    });
+    rwlock_windows = std::make_unique<GuestSyncWindows>(
+        [extend_window](u64 size) { return extend_window(size, "GuestRwlockObjects"); },
+        rwlock_window_base, rwlock_window_limit);
+    rwlock_arena = std::make_unique<GuestSyncArena>([this] { return rwlock_windows->AllocateBlock(); });
     rwlock_domain = std::make_unique<GuestRwlockDomain>(
         space, [this] { return rwlock_arena->Allocate(); }, &mutex_domain->Waiters(),
         [this] { return rwlock_attr_arena->Allocate(); });
@@ -3456,7 +3452,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({"smIj7eqzZE8"}, [clock_call](const auto& a) { return clock_call(a, true, false); });
         bind({"QBi7HCK03hw"}, [clock_call](const auto& a) { return clock_call(a, false, true); });
         bind({"wRYVA5Zolso"}, [clock_call](const auto& a) { return clock_call(a, true, true); });
-        bind({"4J2sUJmuHZQ"}, [this](const auto&) { return clock.ticks.GetTimeUS(clock.origin); });
+        bind({"4J2sUJmuHZQ"}, [this](const auto&) { return clock.GetProcessTimeUS(); });
         bind({"fgxnMeTNUtY"},
              [this](const auto&) { return clock.GetProcessTimeCounter(); });
         bind({"-2IRUCO--PM"}, [this](const auto&) { return clock.ReadTsc(); });
@@ -4495,6 +4491,20 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({nid.data()}, [this, nid](const auto& a) -> u64 {
             return DispatchNpTusOffline(nid, a, s32(elf_info.CompiledSdkVer()));
         });
+    for (auto nid : {"-SUR+UoLS6c", "DS2yu3Sjj1o"}) {
+        handlers[nid] = [this](HleCallFrame& frame) {
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            u64 option{};
+            const auto rsp = frame.registers.Get(Gpr::Rsp);
+            const auto result = rsp > UINT64_MAX - 8 ||
+                !space.ReadData({rsp + 8}, std::as_writable_bytes(std::span{&option, 1}))
+                ? u32(ORBIS_KERNEL_ERROR_EFAULT) : DispatchNpTssGetDataOffline(space, args, option);
+            frame.registers.Set(Gpr::Rax, result);
+            return Ok();
+        };
+    }
     for (const auto nid : NpScoreOfflineNids)
         bind({nid.data()}, [nid](const auto& a) -> u64 { return DispatchNpScoreOffline(nid, a); });
     for (const auto nid : GuestNpAuthOffline::Nids)
@@ -4567,6 +4577,11 @@ void GuestRuntime::Impl::InstallHandlers() {
     for (const auto nid : PlayGoNids) {
         bind({nid.data()}, [this, nid](const auto& a) -> u64 {
             return playgo->Dispatch(space, nid, a);
+        });
+    }
+    for (const auto nid : PlayGoDialogNids) {
+        bind({nid.data()}, [this, nid](const auto& a) -> u64 {
+            return DispatchPlayGoDialog(space, nid, a);
         });
     }
     for (const auto nid : HttpNids) {
@@ -5806,7 +5821,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         // Frames the title has had presented: the camera does not run ahead of them.
         std::scoped_lock lock(p->graphics_mutex);
         return p->graphics ? p->graphics->VideoOut().guest_presents.load() : 0;
-    }, [p = impl.get()] { return p->clock.ticks.GetTimeUS(p->clock.origin); });
+    }, [p = impl.get()] { return p->clock.GetProcessTimeUS(); });
     // Snapshot only the local gameplay identity, never credentials or desktop events.
     std::array<GuestUser, 4> users{};
     if (const auto* user = UserManagement.GetUserByPlayerIndex(1))
@@ -5880,6 +5895,10 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
     impl->sysmodules.Publish("libSceScreenShot", 0x1000002c);
     impl->sysmodules.Publish("libSceVideoRecording", 0x1000002b);
+    // The checked capture adapter owns this module surface, as for recording.
+    // Loading the API does not create a PS4 share service: initialization and
+    // upload operations still return their explicit unavailable/cold errors.
+    impl->sysmodules.Publish("libSceShareUtility", 0x1000002e);
     impl->sysmodules.Publish("libSceCompanionHttpd", 0x1000002a);
     impl->sysmodules.Publish("libSceLoginService", 0x10000028);
     impl->sysmodules.Publish("libSceLoginDialog", 0x10000029);
@@ -5945,6 +5964,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->sysmodules.Publish("libSceNpTrophy", 0x10000013);
     impl->playgo = std::make_unique<GuestPlayGo>();
     impl->sysmodules.Publish("libScePlayGo", 0x10000011);
+    impl->sysmodules.Publish("libScePlayGoDialog", 0x1000002f);
     if (!EmulatorSettings.IsConnectedToNetwork()) {
         impl->ssl = std::make_unique<GuestSslOffline>();
         impl->sysmodules.Publish("libSceSsl", 0x1000001c);
@@ -6428,6 +6448,7 @@ Status GuestRuntime::RequestCancel() {
     return impl->Cancel();
 }
 void GuestRuntime::SetServicesPaused(bool paused) {
+    impl->clock.SetProcessPaused(paused);
     // Pause: the guest is told first, devices stop after. Release in reverse, so OnResume is
     // queued before the guest runs again.
     if (paused && impl->platform) impl->platform->SetBackground(true);
@@ -6435,6 +6456,10 @@ void GuestRuntime::SetServicesPaused(bool paused) {
     Libraries::VideoOut::SetSessionPaused(paused);
     if (!paused && impl->platform) impl->platform->SetBackground(false);
     LOG_INFO(Core, "Session {}", paused ? "paused (background)" : "resumed");
+}
+void GuestRuntime::ResumeProcessClock() {
+    // CPU context invokes this after all owners have stopped and before releasing any owner.
+    impl->clock.SetProcessPaused(false);
 }
 Status GuestRuntime::WaitStopped(u64 timeout_ns) {
     std::unique_lock lock(impl->threads_mutex);

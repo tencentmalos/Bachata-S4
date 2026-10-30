@@ -489,6 +489,9 @@ private:
     [[nodiscard]] LedgerEdit PlanLedgerEditLocked(VmOperation operation, GuestRange range,
                                                   GuestPermission permission);
     void CommitLedgerEditLocked(const LedgerEdit& edit) noexcept;
+    void ReserveMappingCapacityLocked(std::size_t additional);
+    void IndexMappingLocked(std::size_t index) noexcept;
+    void RemoveMappingIndexLocked(std::size_t index, bool replace_with_last) noexcept;
     struct Alias final {
         GuestRange primary{};
         GuestAddress alias_base{};
@@ -516,6 +519,14 @@ private:
     SmcMode smc_mode{SmcMode::ExplicitPublication};
 
     std::vector<Mapping> mappings;
+    // Sorted by address, pointing back into the authoritative unordered ledger.
+    // No copied permissions or pointers; capacity is prepared before VM syscalls.
+    // A hint miss costs O(log mappings), even in long, fragmented sessions.
+    struct MappingIndexEntry {
+        std::uint64_t base;
+        std::size_t index;
+    };
+    std::vector<MappingIndexEntry> mapping_index;
     mutable std::array<std::size_t, 64> lookup_indices{};
     bool shared_backing_seen{};
     std::vector<Alias> aliases;

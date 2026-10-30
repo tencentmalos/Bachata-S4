@@ -48,6 +48,7 @@ public:
         other.status = nullptr;
     }
     ErrorDialogUi& operator=(ErrorDialogUi other) {
+        auto layer_lock = LockRegistry();
         using std::swap;
         swap(status, other.status);
         swap(err_message, other.err_message);
@@ -59,11 +60,11 @@ public:
     }
 
     void Finish() {
+        RemoveLayer(this);
         if (status) {
             *status = Status::FINISHED;
         }
         status = nullptr;
-        RemoveLayer(this);
     }
 
     void Draw() override {

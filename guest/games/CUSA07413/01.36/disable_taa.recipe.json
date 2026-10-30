@@ -1,0 +1,19 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "gow4_disable_taa_v1",
+  "title": "CUSA07413",
+  "module": "eboot.bin",
+  "module_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "executable_sha256": "19e9f05764de160ab8560b18dabc9a113e818f9e4aaaf687dd04265a62bf2c54",
+  "sources": ["disable_taa.c"],
+  "logs": [{"id": 1, "name": "camera_temporal_disabled"}],
+  "sites": [{
+    "name": "camera_temporal_enabled",
+    "offset": 3215798,
+    "expected": "c6839003000001",
+    "mode": "replace",
+    "handler": "gow4_disable_camera_temporal",
+    "evidence": "Exact SELF 19e9f057 / ELF 90880b52. Unique seven-byte MOV [RBX+0x390],1 at module RVA 0x3111b6 inside camera preparation 0x30ffa0 (six direct callers); no interior entry in the store. Earlier initialization writes zero; this main-view path enables the field, and 0x30f090 branches on it while constructing view/projection constants. The replacement only writes zero and leaves registers/flags intact. Disable restores the original store through the site trampoline. Discovery credited to TL431/illusion: https://github.com/illusionyy/PS-Game-Patch/blob/main/patches/xml/GodOfWar-Orbis.xml, blob 76db50465ba870f4c4aea642a1cb1839131bd683. Runtime captures must distinguish disabling this camera flag from eliminating the temporal resolve dispatch."
+  }]
+}

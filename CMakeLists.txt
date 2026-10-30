@@ -287,6 +287,7 @@ endif()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildSpeed.cmake")
 add_subdirectory(externals)
+add_subdirectory(cmake/pinyin)
 if(ENABLE_SPATIAL_FOUNDATION)
     include(cmake/SpatialFoundation.cmake)
     shadps4_add_foundation()
@@ -595,7 +596,9 @@ set(HLE_LIBC_INTERNAL_LIB src/core/libraries/libc_internal/libc_internal.cpp
                  src/core/libraries/libc_internal/printf.h
 )
 
-set(IME_LIB src/core/libraries/ime/error_dialog.cpp
+set(IME_LIB src/core/libraries/ime/pinyin_composer.cpp
+            src/core/libraries/ime/ime_pinyin_panel.cpp
+            src/core/libraries/ime/error_dialog.cpp
             src/core/libraries/ime/error_dialog.h
             src/core/libraries/ime/ime_common.h
             src/core/libraries/ime/ime_kb_layout.cpp
@@ -1583,6 +1586,7 @@ if(NOT BUILD_HOST_CORE)
 endif()
 
 target_sources(shadps4 PRIVATE src/frontend/window.cpp)
+target_link_libraries(shadps4 PRIVATE shad_pinyin_dictionary)
 create_target_directory_groups(shadps4)
 # Deferred so sources added further down are scanned too.
 cmake_language(DEFER CALL shadps4_enable_unity_build shadps4)
@@ -1995,6 +1999,18 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_nan_rules_probe PRIVATE shadps4_host)
         target_include_directories(android_nan_rules_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_nan_rules_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_cmask_probe tests/video_core/android_cmask_probe.cpp)
+        target_link_libraries(android_cmask_probe PRIVATE shadps4_host)
+        target_include_directories(android_cmask_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_cmask_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_large_upload_probe tests/video_core/android_large_upload_probe.cpp)
+        target_link_libraries(android_large_upload_probe PRIVATE shadps4_host)
+        target_include_directories(android_large_upload_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_large_upload_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_ordered_count_probe tests/video_core/android_ordered_count_probe.cpp)
+        target_link_libraries(android_ordered_count_probe PRIVATE shadps4_host)
+        target_include_directories(android_ordered_count_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_ordered_count_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(android_wave_reduction_probe tests/video_core/android_wave_reduction_probe.cpp)
         target_link_libraries(android_wave_reduction_probe PRIVATE shadps4_host)
         target_include_directories(android_wave_reduction_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

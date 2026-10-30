@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">shadPS4 FEX</string>
+    <string name="session_channel">Game session</string>
+    <string name="session_notification_title">shadPS4 game session</string>
+    <string name="session_notification_text">Your game stays paused in the background. Tap to return.</string>
+    <string name="session_notification_stop">Stop game</string>
 </resources>

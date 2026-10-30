@@ -12,6 +12,7 @@
 #include <thread>
 #include <vector>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "common/logging/log.h"
 #include "common/path_util.h"
 #include "common/profiler.h"
@@ -22,6 +23,7 @@
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/audio/audioout.h"
 #include "core/libraries/audio/audioout_error.h"
+#include "core/libraries/audio/audioout_transfer.h"
 namespace Core::HostRuntime {
 using namespace GuestCpu;
 using namespace Libraries::AudioOut;
@@ -174,6 +176,9 @@ struct GuestAudio::Impl {
         std::vector<std::vector<float>> prepared;
         bool callback{};
         u64 accepted{}, completed{};
+        u64 next_signal_block{};
+        bool signal_ready{};
+        AudioSignalSample input_signal, output_signal;
         size_t head{}, queued{};
         std::chrono::steady_clock::time_point next_due{}; // paced callback admission
         std::jthread worker;
@@ -288,7 +293,7 @@ struct GuestAudio::Impl {
                 for (auto& block : port.pending) block.clear();
             } else {
                 ++port.completed;
-                port.native.last_output_time = clock.ticks.GetTimeUS(clock.origin);
+                port.native.last_output_time = clock.GetProcessTimeUS();
             }
             changed.notify_all();
         }
@@ -420,7 +425,7 @@ struct GuestAudio::Impl {
         if (completed > port.completed) {
             port.completed = completed;
             // Compatibility timestamp: observed host consumption, not DAC time.
-            port.native.last_output_time = clock.ticks.GetTimeUS(clock.origin);
+            port.native.last_output_time = clock.GetProcessTimeUS();
         }
     }
     u64 Output(std::string_view nid, const std::array<u64, 6>& a, std::stop_token stop,
@@ -541,10 +546,40 @@ struct GuestAudio::Impl {
                 if (port.callback) {
                     auto& block = port.prepared[port.accepted % port.prepared.size()];
                     port.native.impl->Prepare(input, OutputVolume(port), block);
+                    // One short block per second, not continuous PCM recording. Device counters
+                    // alone cannot distinguish a live but silent guest mix from lost channels.
+                    if (port.accepted >= port.next_signal_block) {
+                        port.input_signal = SampleAudioSignal(port.native.format_info,
+                                                              port.native.buffer_frames, input);
+                        constexpr AudioFormatInfo stereo{true, 4, 2, {0, 1}, false};
+                        port.output_signal = SampleAudioSignal(stereo, port.native.buffer_frames,
+                                                               block.data());
+                        port.signal_ready = true;
+                        port.next_signal_block = port.accepted +
+                            std::max<u32>(1, port.native.sample_rate / port.native.buffer_frames);
+                    }
                 } else {
                     auto& block = port.pending[(port.head + port.queued) % Port::Capacity];
                     std::memcpy(block.data(), input, block.size());
                 }
+            }
+            // All input bytes have been copied/converted. Do not format logs while holding guest
+            // memory pins or the device's batch publication lock.
+            for (auto& pin : pins) pin.reset();
+            for (u32 i = 0; i < count; ++i) {
+                auto& port = *selected[i];
+                if (!port.signal_ready) continue;
+                port.signal_ready = false;
+                LOG_INFO(Lib_AudioOut,
+                    "PCM sample port={:#x} ch={} frames={} accepted={} completed={} gain=[{}] "
+                    "raw_peak=[{:.4f}] raw_rms=[{:.4f}] nonfinite=[{}] "
+                    "stereo_peak=[{:.4f}] stereo_rms=[{:.4f}]",
+                    port.handle, port.native.format_info.num_channels, port.native.buffer_frames,
+                    port.accepted, port.completed, fmt::join(OutputVolume(port), ","),
+                    fmt::join(port.input_signal.peak, ","), fmt::join(port.input_signal.rms, ","),
+                    fmt::join(port.input_signal.nonfinite, ","),
+                    fmt::join(std::span{port.output_signal.peak}.first(2), ","),
+                    fmt::join(std::span{port.output_signal.rms}.first(2), ","));
             }
             struct PublishBatch {
                 PortBackend* backend;

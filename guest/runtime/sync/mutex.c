@@ -49,12 +49,27 @@ static inline u64 Self(void) {
     __asm__ __volatile__("movq %%fs:0x10, %0" : "=r"(value));
     return value;
 }
+static int ExtendedObject(u64 address, int rwlock) {
+    const struct ShadSyncArenaDirectory* directory =
+        (const struct ShadSyncArenaDirectory*)shad_sync_window[ShadSyncWindowArenaDirectory];
+    if (!directory) return 0;
+    const u64* slot = rwlock ? &directory->rwlock_head : &directory->mutex_head;
+    u64 head = __atomic_load_n(slot, __ATOMIC_ACQUIRE);
+    while (head) {
+        const struct ShadSyncArenaRange* range = (const struct ShadSyncArenaRange*)head;
+        if (address - range->base < range->limit - range->base) return 1;
+        head = range->next;
+    }
+    return 0;
+}
 static inline struct Mutex* Object(u64 address) {
     /* Static initializers (0/1), destroyed (2) and anything outside the
      * host-published arena window take the checked HLE path, which also
      * performs lazy initialization. Two RIP-relative loads; no HLE crossing. */
+    if (address & 0xffu) return 0;
     const u64 base = shad_sync_window[ShadSyncWindowBase];
-    if (address - base >= shad_sync_window[ShadSyncWindowLimit] - base)
+    if (address - base >= shad_sync_window[ShadSyncWindowLimit] - base &&
+        !ExtendedObject(address, 0))
         return 0;
     return (struct Mutex*)address;
 }
@@ -72,6 +87,9 @@ static int LockCommon(u64* slot, int try_only) {
         m->count = 1;
         return 0;
     }
+    if (expected == SHAD_SYNC_STATE_DESTROYED)
+        return ((SlowFn)shad_sync_imports[try_only ? ShadSyncImportMutexTrylock
+                                                 : ShadSyncImportMutexLock])(slot);
     if (m->owner == self) {
         /* Same order as the host HLE: recursive depth, then try, then error. */
         const u32 type = m->flags & SHAD_SYNC_TYPE_MASK;
@@ -100,8 +118,14 @@ static int LockCommon(u64* slot, int try_only) {
             return 0;
         }
     }
-    while (__atomic_exchange_n(&m->state, SHAD_SYNC_STATE_CONTENDED, __ATOMIC_ACQUIRE) !=
-           SHAD_SYNC_STATE_FREE) {
+    for (;;) {
+        expected = __atomic_load_n(&m->state, __ATOMIC_RELAXED);
+        if (expected == SHAD_SYNC_STATE_DESTROYED)
+            return ((SlowFn)shad_sync_imports[ShadSyncImportMutexLock])(slot);
+        if (!__atomic_compare_exchange_n(&m->state, &expected, SHAD_SYNC_STATE_CONTENDED, 0,
+                                         __ATOMIC_ACQUIRE, __ATOMIC_RELAXED))
+            continue;
+        if (expected == SHAD_SYNC_STATE_FREE) break;
         const u64 r = ((WaitFn)shad_sync_imports[ShadSyncImportWait])(
             (u64)&m->state, SHAD_SYNC_STATE_CONTENDED, sizeof(u32));
         /* Cancellation or a refused address ends the wait without ownership;
@@ -117,6 +141,8 @@ static int LockCommon(u64* slot, int try_only) {
 static int UnlockCommon(u64* slot) {
     struct Mutex* m = Object(*slot);
     if (!m)
+        return ((SlowFn)shad_sync_imports[ShadSyncImportMutexUnlock])(slot);
+    if (__atomic_load_n(&m->state, __ATOMIC_RELAXED) == SHAD_SYNC_STATE_DESTROYED)
         return ((SlowFn)shad_sync_imports[ShadSyncImportMutexUnlock])(slot);
     if (m->owner != Self())
         return EPERM;
@@ -204,7 +230,17 @@ static inline u64 Rdtsc(void) {
     return ((u64)hi << 32) | lo;
 }
 EXPORT u64 shad_sceKernelGetProcessTimeCounter(void) {
-    return Rdtsc() - shad_sync_window[ShadSyncWindowClockOrigin];
+    const struct ShadProcessClock* clock =
+        (const struct ShadProcessClock*)shad_sync_window[ShadSyncWindowProcessClock];
+    if (!clock) return Rdtsc() - shad_sync_window[ShadSyncWindowClockOrigin];
+    for (;;) {
+        const u64 sequence = __atomic_load_n(&clock->sequence, __ATOMIC_SEQ_CST);
+        if (sequence & 1) continue;
+        const u64 origin = __atomic_load_n(&clock->origin, __ATOMIC_SEQ_CST);
+        const u64 frozen = __atomic_load_n(&clock->frozen, __ATOMIC_SEQ_CST);
+        const u64 now = frozen ? frozen : Rdtsc();
+        if (sequence == __atomic_load_n(&clock->sequence, __ATOMIC_SEQ_CST)) return now - origin;
+    }
 }
 EXPORT u64 shad_sceKernelReadTsc(void) {
     return Rdtsc();
@@ -248,8 +284,10 @@ _Static_assert(sizeof(struct RwHolds) == SHAD_SYNC_RW_HOLDS_SIZE, "rw holds");
 #define RW_WAKE_ALL (~(u64)0)
 
 static inline struct Rwlock* RwObject(u64 address) {
+    if (address & 0xffu) return 0;
     const u64 base = shad_sync_window[ShadSyncWindowRwlockBase];
-    if (address - base >= shad_sync_window[ShadSyncWindowRwlockLimit] - base)
+    if (address - base >= shad_sync_window[ShadSyncWindowRwlockLimit] - base &&
+        !ExtendedObject(address, 1))
         return 0;
     return (struct Rwlock*)address;
 }
