@@ -8,7 +8,7 @@
 
 | 路径 | 精确提交与来源 | 用途 |
 |---|---|---|
-| `mesa-turnip` | [68dafb89a26adefeaa12411f08e841aaf0b57384](https://github.com/tencentmalos/mesa-mirror/tree/68dafb89a26adefeaa12411f08e841aaf0b57384) | Android Turnip 驱动；2026-10-23 归档 `codex/a8xx-dde-merge`，含只读 BO 64 KiB VA 对齐规避、命令流审计及默认关闭的故障布局诊断。直接参与 Android host 构建；A8xx CP 零读机理仍待确认，见 [发布记录](../docs/validation/android-native-host/git-publish-20261023.md) |
+| `mesa-turnip` | [6fc75c0620bc4bf4d1a52f67535fbfb4276f74ff](https://github.com/tencentmalos/mesa-mirror/tree/6fc75c0620bc4bf4d1a52f67535fbfb4276f74ff) | Android Turnip 驱动；2026-10-30 归档 `codex/shadps4-kgsl-calibrated-timestamps`，在原68dafb89上修正 KGSL 校准时间戳扩展宣告，保留只读 BO 64 KiB VA 对齐规避、命令流审计及默认关闭的故障布局诊断。直接参与 Android host 构建；GPU timing detail 崩溃仍未解决，见 [发布记录](../docs/validation/android-native-host/git-publish-20261030.md) |
 | `Bachata-S4-android` | [67dbf4e5b54b0467bf8a93de3de0a557a71f9f43](https://github.com/zFitness/Bachata-S4/tree/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43) | 本次选定的 Android 前端、session、输入、打包与配套历史核心 |
 | `shadps4-arm64` | [be6bc2e9c60799e071dd2fafa6216e8d80ec619c](https://github.com/zenithblue-oss/shadps4-arm64/tree/be6bc2e9c60799e071dd2fafa6216e8d80ec619c) | ARM64/FEX guest/HLE/线程回调移植参考；没有 Android Gradle 工程 |
 | `FEX` | [3f1f30a060b633980ed8e7674eb8d8997457edad](https://github.com/tencentmalos/FEX/tree/3f1f30a060b633980ed8e7674eb8d8997457edad) | 当前 Android FEX 依赖，含已有 opt-in 调试/执行探针与 FXRSTOR TOP 修复；原始上游审计基线仍为 50e6eee95 |

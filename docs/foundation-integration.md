@@ -1,5 +1,12 @@
 # Spatial Foundation 接入记录与 V0 复用要求
 
+2026-10-30：主仓固定 [1f8699223f065c0a1aac6662598c8167dceae819](https://github.com/tencentmalos/foundation/tree/1f8699223f065c0a1aac6662598c8167dceae819)，
+已发布到 `codex/profiler-slow-frame-owner`。相对80d25c5f，增加慢帧捕获的顺序帧线程迁移处理、
+共用 `modules/pinyin`，并保留既有音频和采集集成。嵌套 `third_party/pinyinime` 固定
+[229ef17373d7d12cefc968b03419d2075dfb2f57](https://github.com/tencentmalos/PinyinIME/tree/229ef17373d7d12cefc968b03419d2075dfb2f57)，
+先行发布到 `codex/bounded-milestone-extension`；新检出需初始化该子模块，字典随构建嵌入，
+运行时不下载。见 [发布检查](validation/android-native-host/git-publish-20261030.md)。
+
 2026-09-30：XR/指标改动已保存到 owned `codex/shadps4-xr-foundation`，固定提交 [82b09a1302cc499f1fc8e085e3c500e550afb743](https://github.com/tencentmalos/foundation/tree/82b09a1302cc499f1fc8e085e3c500e550afb743)。包含共享 JniHelper/原生电池采样、FSR1/SGSR1/FDM、左右控制器状态和独立 XR ImGui 层；以下旧版本记录保留其历史语境。
 
 日期：2026-09-07。这是初始基线 `a7128893` 之后的依赖准备里程碑；不改写初始基线记录。
